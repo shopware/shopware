@@ -12,6 +12,7 @@ export default {
 
     emits: [
         'change-value',
+        'update:default-unit',
         'inheritance-restore',
         'inheritance-remove',
     ],

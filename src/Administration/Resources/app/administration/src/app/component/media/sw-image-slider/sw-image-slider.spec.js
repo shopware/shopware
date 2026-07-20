@@ -12,8 +12,8 @@ const images = [
     {
         src: 'https://via.placeholder.com/218x229?text=Placeholder2',
     },
-    '/administration/static/img/plugin-manager--login.png',
-    '/administration/static/img/sw-login-background.png',
+    '/administration/static/img/plugin-manager--login.webp',
+    '/administration/static/img/sw-login-background.webp',
 ];
 
 function getTranslateAmount(itemLength = 1, itemPerPage = 1, expectedIndex = 0) {
@@ -46,12 +46,6 @@ async function createWrapper(additionalProps = {}) {
 }
 
 describe('src/app/component/media/sw-image-slider', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should display every image, even in an object, independent if the link is external or not', async () => {
         const wrapper = await createWrapper();
         const containerScrollable = wrapper.find('.sw-image-slider__image-scrollable');

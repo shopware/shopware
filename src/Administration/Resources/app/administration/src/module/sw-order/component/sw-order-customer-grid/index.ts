@@ -20,6 +20,20 @@ interface GridColumn {
     primary?: boolean;
 }
 
+interface CustomerFilterRef {
+    term: string;
+}
+
+type ApiErrorResponse = {
+    response?: {
+        data?: {
+            errors?: Array<{
+                code?: string;
+            }>;
+        };
+    };
+};
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Component.wrapComponentConfig({
     template,
@@ -69,14 +83,12 @@ export default Component.wrapComponentConfig({
         },
 
         customerCriteria(): CriteriaType {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('salesChannel');
             criteria.addAssociation('boundSalesChannel');
             criteria.addSorting(Criteria.sort('createdAt', 'DESC'));
 
             if (this.term) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 criteria.setTerm(this.term);
             }
 
@@ -112,20 +124,20 @@ export default Component.wrapComponentConfig({
                 {
                     property: 'firstName',
                     dataIndex: 'lastName,firstName',
-                    label: this.$tc('sw-order.initialModal.customerGrid.columnCustomerName'),
+                    label: this.$t('sw-order.initialModal.customerGrid.columnCustomerName'),
                     primary: true,
                 },
                 {
                     property: 'customerNumber',
-                    label: this.$tc('sw-order.initialModal.customerGrid.columnCustomerNumber'),
+                    label: this.$t('sw-order.initialModal.customerGrid.columnCustomerNumber'),
                 },
                 {
                     property: 'salesChannel',
-                    label: this.$tc('sw-order.initialModal.customerGrid.columnSalesChannel'),
+                    label: this.$t('sw-order.initialModal.customerGrid.columnSalesChannel'),
                 },
                 {
                     property: 'email',
-                    label: this.$tc('sw-order.initialModal.customerGrid.columnEmailAddress'),
+                    label: this.$t('sw-order.initialModal.customerGrid.columnEmailAddress'),
                 },
             ];
         },
@@ -136,10 +148,9 @@ export default Component.wrapComponentConfig({
 
         emptyTitle(): string {
             if (!this.term) {
-                return this.$tc('sw-customer.list.messageEmpty');
+                return this.$t('sw-customer.list.messageEmpty');
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             return this.$t('sw-order.initialModal.customerGrid.textEmptySearch', { name: this.term }, 0);
         },
 
@@ -157,6 +168,7 @@ export default Component.wrapComponentConfig({
 
         salesChannelCriteria(): CriteriaType {
             const criteria = new Criteria();
+            criteria.addAssociation('languages');
             criteria.addFilter(Criteria.equals('active', true));
 
             if (this.customer?.boundSalesChannelId) {
@@ -187,9 +199,14 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
-            // @ts-expect-error
-            this.$refs.customerFilter.term = this.customerData?.customerNumber;
-            void this.onSearch(this.customerData?.customerNumber);
+            const customerNumber = this.customerData.customerNumber ?? '';
+
+            const customerFilter = this.$refs.customerFilter as CustomerFilterRef | undefined;
+            if (customerFilter) {
+                customerFilter.term = customerNumber;
+            }
+
+            void this.onSearch(customerNumber);
             void this.onCheckCustomer(this.customerData);
         },
 
@@ -223,18 +240,7 @@ export default Component.wrapComponentConfig({
 
             this.customer = await this.customerRepository.get(item.id, Context.api, this.customerCriterion);
 
-            const isExists = (this.customer?.salesChannel?.languages || []).some(
-                (language) => language.id === Context.api.systemLanguageId,
-            );
-
-            if (!isExists && this.customer?.salesChannel?.languageId) {
-                Store.get('context').api.languageId = this.customer.salesChannel.languageId;
-            }
-
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            if (isExists && !Store.get('context').isSystemDefaultLanguage) {
-                Store.get('context').resetLanguageToDefault();
-            }
+            this.checkContextLanguage();
 
             // If the customer belongs to a sales channel not in the allowed list and has no bound sales channel.
             if (!this.customer?.boundSalesChannelId) {
@@ -258,7 +264,6 @@ export default Component.wrapComponentConfig({
         },
 
         createCart(salesChannelId: string): Promise<void> {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return Store.get('swOrder').createCart({ salesChannelId });
         },
 
@@ -278,10 +283,21 @@ export default Component.wrapComponentConfig({
                 this.setCustomer(this.customer);
 
                 await this.updateCustomerContext();
-            } catch {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            } catch (error) {
+                let message = this.$t('sw-order.create.messageSwitchCustomerError');
+                const errorCode = (error as ApiErrorResponse).response?.data?.errors?.[0]?.code;
+
+                if (errorCode) {
+                    const messageKey = `global.error-codes.${errorCode}`;
+                    const translatedMessage = this.$t(messageKey);
+
+                    if (translatedMessage !== messageKey) {
+                        message = `${message}: ${translatedMessage}`;
+                    }
+                }
+
                 this.createNotificationError({
-                    message: this.$tc('sw-order.create.messageSwitchCustomerError'),
+                    message,
                 });
             } finally {
                 this.isSwitchingCustomer = false;
@@ -310,7 +326,6 @@ export default Component.wrapComponentConfig({
                 })
                 .then((response) => {
                     // Update cart after customer context is updated
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                     if (response.status === 200) {
                         void this.getCart();
                     }
@@ -332,12 +347,15 @@ export default Component.wrapComponentConfig({
             return ids;
         },
 
-        onSalesChannelChange(salesChannelId: string): void {
+        onSalesChannelChange(salesChannelId: string, salesChannel: Entity<'sales_channel'>): void {
             if (!this.customer) {
                 return;
             }
 
             this.customer.salesChannelId = salesChannelId;
+            this.customer.salesChannel = salesChannel;
+
+            this.checkContextLanguage();
         },
 
         onCloseSalesChannelSelectModal() {
@@ -379,6 +397,20 @@ export default Component.wrapComponentConfig({
             this.customer = this.customerDraft;
 
             this.showCustomerChangesModal = false;
+        },
+
+        checkContextLanguage() {
+            const exists = (this.customer?.salesChannel?.languages || []).some(
+                (language) => language.id === Context.api.systemLanguageId,
+            );
+
+            if (!exists && this.customer?.salesChannel?.languageId) {
+                Store.get('context').api.languageId = this.customer.salesChannel.languageId;
+            }
+
+            if (exists && !Store.get('context').isSystemDefaultLanguage) {
+                Store.get('context').resetLanguageToDefault();
+            }
         },
     },
 });

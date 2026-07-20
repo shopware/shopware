@@ -11,7 +11,9 @@ use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -20,7 +22,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('framework')]
 class DocumentController extends StorefrontController
 {
@@ -33,14 +35,27 @@ class DocumentController extends StorefrontController
     ) {
     }
 
-    #[Route(path: '/account/order/document/{documentId}/{deepLinkCode}', name: 'frontend.account.order.single.document', defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true], methods: ['GET'])]
-    #[Route(path: '/account/order/document/{documentId}/{deepLinkCode}/{fileType}', name: 'frontend.account.order.single.document.a11y', defaults: ['_noStore' => true], methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/account/order/document/{documentId}/{deepLinkCode}',
+        name: 'frontend.account.order.single.document',
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+        ],
+        methods: [Request::METHOD_GET]
+    )]
+    #[Route(
+        path: '/account/order/document/{documentId}/{deepLinkCode}/{fileType}',
+        name: 'frontend.account.order.single.document.a11y',
+        defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true],
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
+    )]
     public function downloadDocument(Request $request, SalesChannelContext $context, string $documentId): Response
     {
-        $fileType = $request->get('fileType', PdfRenderer::FILE_EXTENSION);
+        $fileType = $request->attributes->get('fileType') ?? $request->query->getString('fileType', PdfRenderer::FILE_EXTENSION);
 
         try {
-            return $this->documentRoute->download($documentId, $request, $context, $request->get('deepLinkCode'), $fileType);
+            return $this->documentRoute->download($documentId, $request, $context, $request->attributes->get('deepLinkCode'), $fileType);
         } catch (GuestNotAuthenticatedException|WrongGuestCredentialsException|CustomerAuthThrottledException $exception) {
             if ($context->getCustomer() !== null) {
                 $this->logoutRoute->logout($context, new RequestDataBag([]));
@@ -51,7 +66,7 @@ class DocumentController extends StorefrontController
                 [
                     'redirectTo' => 'frontend.account.order.single.document.a11y',
                     'redirectParameters' => [
-                        'deepLinkCode' => $request->get('deepLinkCode'),
+                        'deepLinkCode' => $request->attributes->get('deepLinkCode'),
                         'documentId' => $documentId,
                         'fileType' => $fileType,
                     ],

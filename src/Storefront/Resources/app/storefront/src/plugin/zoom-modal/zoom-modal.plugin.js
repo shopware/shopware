@@ -72,12 +72,12 @@ export default class ZoomModalPlugin extends Plugin {
     };
 
     init() {
-        this._triggers = this.el.querySelectorAll(this.options.triggerSelector);
-        this._triggersCanvas = this.el.querySelectorAll(this.options.triggerSelectorCanvas);
         this._clickInterrupted = false;
         this._pixelsMoved = 0;
         this._mouseDown = false;
+
         this._registerEvents();
+        this._registerViewportChangeEvent();
     }
 
     /**
@@ -85,34 +85,65 @@ export default class ZoomModalPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
+        this._triggers = this.el.querySelectorAll(this.options.triggerSelector);
+        this._triggersCanvas = this.el.querySelectorAll(
+            this.options.triggerSelectorCanvas,
+        );
+
         const eventType = (DeviceDetection.isTouchDevice()) ? 'touchend' : 'click';
+
+        if (!this._boundOnClick) {
+            this._boundOnClick = this._onClick.bind(this);
+        }
+
+        if (!this._boundOnKeyDown) {
+            this._boundOnKeyDown = this._onKeyDown.bind(this);
+        }
+
+        if (!this._boundOnMouseDown) {
+            this._boundOnMouseDown = this._onMouseDown.bind(this);
+        }
+
+        if (!this._boundOnMouseUp) {
+            this._boundOnMouseUp = this._onMouseUp.bind(this);
+        }
+
+        if (!this._boundOnPointerMove) {
+            this._boundOnPointerMove = this._onPointerMove.bind(this);
+        }
 
         // Events for normal elements (images)
         this._triggers.forEach(element => {
-            element.removeEventListener(eventType, this._onClick.bind(this));
-            element.addEventListener(eventType, this._onClick.bind(this));
+            element.removeEventListener('click', this._boundOnClick);
+            element.addEventListener('click', this._boundOnClick);
 
-            element.removeEventListener('keydown', this._onKeyDown.bind(this));
-            element.addEventListener('keydown', this._onKeyDown.bind(this));
-
-            element.removeEventListener('touchmove', this._onTouchMove.bind(this));
-            element.addEventListener('touchmove', this._onTouchMove.bind(this));
+            element.removeEventListener('keydown', this._boundOnKeyDown);
+            element.addEventListener('keydown', this._boundOnKeyDown);
         });
 
         // Events for canvas elements (product box)
         this._triggersCanvas.forEach(element => {
-            element.removeEventListener('mousedown', this._onMouseDown.bind(this));
-            element.addEventListener('mousedown', this._onMouseDown.bind(this));
+            element.removeEventListener('mousedown', this._boundOnMouseDown);
+            element.addEventListener('mousedown', this._boundOnMouseDown);
 
-            element.removeEventListener('mouseup', this._onMouseUp.bind(this));
-            element.addEventListener('mouseup', this._onMouseUp.bind(this));
+            element.removeEventListener('mouseup', this._boundOnMouseUp);
+            element.addEventListener('mouseup', this._boundOnMouseUp);
 
-            element.removeEventListener(eventType, this._onClick.bind(this));
-            element.addEventListener(eventType, this._onClick.bind(this));
+            element.removeEventListener(eventType, this._boundOnClick);
+            element.addEventListener(eventType, this._boundOnClick);
 
-            element.removeEventListener('pointermove', this._onPointerMove.bind(this));
-            element.addEventListener('pointermove', this._onPointerMove.bind(this));
+            element.removeEventListener('pointermove', this._boundOnPointerMove);
+            element.addEventListener('pointermove', this._boundOnPointerMove);
         });
+    }
+
+    _registerViewportChangeEvent() {
+        if (!this._boundOnViewportHasChanged) {
+            this._boundOnViewportHasChanged = this._registerEvents.bind(this);
+        }
+
+        document.removeEventListener('Viewport/hasChanged', this._boundOnViewportHasChanged);
+        document.addEventListener('Viewport/hasChanged', this._boundOnViewportHasChanged);
     }
 
     /**
@@ -149,13 +180,6 @@ export default class ZoomModalPlugin extends Plugin {
         this._openModal();
 
         this.$emitter.publish('onEnter');
-    }
-
-    /**
-     * @private
-     */
-    _onTouchMove() {
-        this._clickInterrupted = true;
     }
 
     /**
@@ -266,8 +290,6 @@ export default class ZoomModalPlugin extends Plugin {
         if (!this._showModalListener) {
             this._showModalListener = () => {
                 this._initSlider(modal);
-                this._registerImageZoom();
-
                 this.$emitter.publish('modalShow', { modal });
             };
         }
@@ -294,6 +316,8 @@ export default class ZoomModalPlugin extends Plugin {
         const slider = modal.querySelector(this.options.modalGallerySliderSelector);
 
         if (!slider) {
+            // No slider, but still need to register ImageZoom for single image
+            this._registerImageZoom();
             return;
         }
 
@@ -303,6 +327,9 @@ export default class ZoomModalPlugin extends Plugin {
         if (this.gallerySliderPlugin && this.gallerySliderPlugin._slider) {
             this.gallerySliderPlugin._slider.goTo(parentSliderIndex);
             window.focusHandler.setFocus(galleryImages.item(parentSliderIndex));
+
+            // Register ImageZoom if not already registered
+            this._registerImageZoom();
 
             return;
         }
@@ -333,6 +360,9 @@ export default class ZoomModalPlugin extends Plugin {
             this.gallerySliderPlugin._slider.goTo(parentSliderIndex);
             window.focusHandler.setFocus(galleryImages.item(parentSliderIndex));
 
+            // Register ImageZoom here after gallerySliderPlugin is ready
+            this._registerImageZoom();
+
             this.$emitter.publish('initSlider');
         });
     }
@@ -352,8 +382,13 @@ export default class ZoomModalPlugin extends Plugin {
 
             window.PluginManager.initializePlugin('ImageZoom', this.options.activeSlideSelector + ' ' + this.options.imageZoomInitSelector);
 
-            this.gallerySliderPlugin._slider.events.off('indexChanged', this._updateImageZoom.bind(this));
-            this.gallerySliderPlugin._slider.events.on('indexChanged',this._updateImageZoom.bind(this));
+            // Create bound function once and store it
+            if (!this._boundUpdateImageZoom) {
+                this._boundUpdateImageZoom = this._updateImageZoom.bind(this);
+            }
+
+            this.gallerySliderPlugin._slider.events.off('indexChanged', this._boundUpdateImageZoom);
+            this.gallerySliderPlugin._slider.events.on('indexChanged', this._boundUpdateImageZoom);
         } else {
             window.PluginManager.register('ImageZoom', ImageZoomPlugin, this.options.imageZoomInitSelector);
 

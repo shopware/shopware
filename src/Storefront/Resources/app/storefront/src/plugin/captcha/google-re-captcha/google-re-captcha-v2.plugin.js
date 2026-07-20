@@ -11,15 +11,29 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
     };
 
     init() {
-        super.init();
-
         this.grecaptchaContainer = this.el.querySelector(this.options.checkboxContainer);
         this.grecaptchaContainerIframe = null;
         this.grecaptchaWidgetId = null;
-
         this.currentToken = null;
 
-        this._renderV2Captcha();
+        super.init();
+    }
+
+    _executeGoogleReCaptchaInitialization() {
+        super._executeGoogleReCaptchaInitialization();
+
+        if (this.grecaptcha) {
+            this._renderV2Captcha();
+        } else {
+            console.error('GoogleReCaptchaV2Plugin: Cannot render V2 captcha.');
+        }
+    }
+
+    /**
+     * @private
+     */
+    _renderV2Captcha() {
+        this.grecaptcha.ready(this._onGreCaptchaReady.bind(this));
     }
 
     getGreCaptchaInfo() {
@@ -62,13 +76,6 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
                 this._submitInvisibleForm();
             }
         }
-    }
-
-    /**
-     * @private
-     */
-    _renderV2Captcha() {
-        this.grecaptcha.ready(this._onGreCaptchaReady.bind(this));
     }
 
     /**

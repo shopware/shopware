@@ -1,0 +1,283 @@
+{
+    "sw-users-permissions": {
+        "general": {
+            "label": "Users & permissions"
+        },
+        "permissions": {},
+        "sso": {
+            "inviteButtonLabel": "Invite user",
+            "invitationNotYetAccepted": "This user hasn't accepted your invitation yet. As soon as they do, any missing information will be filled in automatically.",
+            "error": {
+                "cannotInviteUser": "User could not be invited."
+            },
+            "user-listing": {
+                "status-label": {
+                    "invited": "invited",
+                    "active": "active",
+                    "inactive": "deactivated"
+                }
+            },
+            "user-detail": {
+                "cards-title": {
+                    "information": "Information",
+                    "userinterface": "User interface",
+                    "rolesAndPermission": "Roles & permissions"
+                }
+            },
+            "modal": {
+                "title": "Send an invitation to a user",
+                "labelEmail": "Email",
+                "placeholderEmail": "Enter email...",
+                "labelLanguage": "User interface language",
+                "placeholderLanguage": "Choose a language...",
+                "labelButtonInvite": "Invite user",
+                "accountPermissionHint": "Make sure that the user also belongs to your company in the Shopware Account so that they can use the Administration of this shop without restrictions."
+            }
+        },
+        "roles": {
+            "general": {
+                "labelCreateNewRole": "Create role",
+                "cardLabel": "Roles"
+            },
+            "role-grid": {
+                "labelName": "Name",
+                "labelDescription": "Description",
+                "messageEmptyTitle": "No roles yet",
+                "messageEmptySubline": "Create roles to start managing user rights.",
+                "titleModalDelete": "Delete role",
+                "textModalDelete": "Do you really want to delete the role \"{name}\"?",
+                "notification": {
+                    "deleteSuccess": {
+                        "message": "Role \"{name}\" deleted."
+                    },
+                    "deleteError": {
+                        "message": "The role \"{name}\" could not be deleted."
+                    }
+                }
+            },
+            "detail": {
+                "role": "Role",
+                "basicInformation": "Basic information",
+                "labelName": "Name",
+                "labelDescription": "Description",
+                "permissions": "Permissions"
+            },
+            "grid": {
+                "title": "Permissions",
+                "disabledCheckboxMessage": "To disable this option, you must first disable other active options.",
+                "tooltipParentRole": "All {role} rights for {parent}",
+                "tooltipParentAll": "All rights for {parent} ({roles})",
+                "tooltipEntityAll": "All rights for {entity} ({roles})"
+            },
+            "additional-permissions": {
+                "title": "Additional permissions"
+            },
+            "detailed-additional-permissions": {
+                "title": "Additional permissions"
+            },
+            "detailed-grid": {
+                "coveredByGeneralMessage": "Already granted via the General tab."
+            },
+            "view": {
+                "detailed": {
+                    "alertText": "Configure privileges in detail. All deactivated checkboxes are permissions that have already been assigned in the \"General\" tab and are not configurable. This configuration is only necessary if e.g. extensions are used that add new datasets but do not have privileges, these can be configured here."
+                }
+            },
+            "tabs": {
+                "general": "General",
+                "detailed": "Detailed privileges"
+            },
+            "mcpHint": {
+                "text": "This role is assigned to {count} MCP-enabled integration(s). ",
+                "linkText": "Show MCP tool requirements"
+            },
+            "mcpModal": {
+                "title": "MCP Tool Requirements",
+                "description": "The following tools are allowlisted on integrations that use this role.",
+                "legendLabel": "Legend:",
+                "legendGranted": "granted",
+                "legendGrantedHint": "This privilege is already granted on the role.",
+                "legendMissing": "missing",
+                "legendMissingHint": "This privilege is not yet granted on the role.",
+                "legendDynamic": "dynamic",
+                "legendDynamicHint": "This privilege depends on the entity parameter passed at runtime.",
+                "noToolsHeadline": "No tools found",
+                "noToolsDescription": "No tools are currently allowlisted on the integrations using this role.",
+                "dynamicPrivilegeHint": "This privilege depends on the entity parameter passed at runtime.",
+                "viewByPermission": "By Permission",
+                "viewByTool": "By Tool",
+                "grantAllMissing": "Grant all missing",
+                "grant": "Grant",
+                "saveReminder": "Permissions pre-selected. Click Save on the role to apply."
+            }
+        },
+        "users": {
+            "general": {
+                "mainMenuItemGeneral": "Users & permissions",
+                "placeholderSearchBar": "Find users...",
+                "labelUserList": "Users & permissions",
+                "labelCreateNewUser": "Create new user",
+                "cardLabel": "Users"
+            },
+            "user-grid": {
+                "labelUsername": "User name",
+                "labelFirstName": "First name",
+                "labelLastName": "Last name",
+                "labelRoles": "Roles",
+                "labelEmail": "Email address",
+                "status": "Status",
+                "titleModalDelete": "Delete user",
+                "textModalDelete": "Do you really want to delete the user \"{name}\"?",
+                "notification": {
+                    "deleteSuccess": {
+                        "message": "User \"{name}\" deleted."
+                    },
+                    "deleteError": {
+                        "message": "The user \"{name}\" could not be deleted."
+                    },
+                    "deleteUserLoggedInError": {
+                        "message": "Users cannot delete themselves."
+                    }
+                }
+            },
+            "user-detail": {
+                "labelCard": "Information",
+                "labelIntegrationsCard": "Integrations",
+                "labelRolesPermissionsCard": "Roles & permissions",
+                "labelFirstName": "First name",
+                "labelLastName": "Last name",
+                "labelEmail": "Email address",
+                "errorEmailUsed": "This email address is already in use.",
+                "errorUsernameUsed": "This username is already in use.",
+                "labelUsername": "User name",
+                "labelPassword": "Password",
+                "labelProfilePicture": "Profile picture",
+                "labelUserInterface": "User interface",
+                "labelLanguage": "User interface language",
+                "labelLanguagePlaceholder": "Choose language...",
+                "labelChangePassword": "Change password",
+                "labelActive": "Active",
+                "labelAdministrator": "Administrator",
+                "labelTimezone": "Timezone",
+                "labelJobTitle": "Job title",
+                "labelRoles": "Roles",
+                "labelNewPassword": "New password",
+                "labelNewUser": "New user",
+                "placeholderNewPassword": "Enter new password...",
+                "placeholderNewPasswordConfirm": "Confirm new password...",
+                "labelButtonChangePassword": "Change",
+                "writeAccess": "Write",
+                "readAccess": "Read",
+                "contextMenuEdit": "Edit integration",
+                "textChangePassword": "Pressing the \"change\" button will immediately save the new password!",
+                "addAccessKey": "Create access key",
+                "noAccessKeysTitle": "No access keys available",
+                "noAccessKeysSubline": "Create access keys here",
+                "labelAccessKey": "Access key",
+                "labelPermissions": "Permissions",
+                "disabledRoleSelectWarning": "Roles are only available for users that don't have administrator rights.",
+                "passwordConfirmation": {
+                    "titleConfirmPasswordModal": "Confirm password",
+                    "labelConfirmPassword": "Password",
+                    "placeholderConfirmPassword": "Enter your current password...",
+                    "notificationPasswordErrorMessage": "Please submit your current password correctly."
+                },
+                "modal": {
+                    "detailModalTitle": "Create integration",
+                    "confirmDelete": "Are you sure you want to delete this integration?",
+                    "buttonApply": "Save integration",
+                    "buttonApplyEdit": "Save changes",
+                    "buttonCreateNewApiKeys": "Create new API key",
+                    "hintCreateNewApiKeys": "For generating new API access keys, updating all associated scripts and applications is recommended.",
+                    "labelFieldLabel": "Name",
+                    "idFieldLabel": "Access key ID",
+                    "secretFieldLabel": "Secure access key",
+                    "secretHelpText": "Please copy your access key now. For safety reasons it will be no longer visible after saving.",
+                    "messageSaveSuccess": "Integration saved.",
+                    "messageSaveError": "Integration could not be saved.",
+                    "messageCreateNewError": "Integration could not be saved."
+                },
+                "mcpAllowlistTitle": "MCP tool allowlist",
+                "mcpAllowlistSaveError": "The MCP allowlist could not be saved.",
+                "notification": {
+                    "saveError": {
+                        "message": "The user \"{name}\" could not be saved."
+                    },
+                    "saveSuccess": {
+                        "message": "User \"{name}\" saved."
+                    },
+                    "invalidEmailErrorMessage": "Please enter a valid email address.",
+                    "duplicateEmailErrorMessage": "This email address has been registered already."
+                }
+            }
+        }
+    },
+    "sw-privileges": {
+        "roles": {
+            "all": "All",
+            "viewer": "View",
+            "editor": "Edit",
+            "creator": "Create",
+            "deleter": "Delete"
+        },
+        "permissionType": {
+            "read": "Read",
+            "update": "Update",
+            "create": "Create",
+            "delete": "Delete"
+        },
+        "permissions": {
+            "parents": {
+                "catalogues": "Catalogues",
+                "content": "Content",
+                "customers": "Customers",
+                "marketing": "Marketing",
+                "other": "Other",
+                "orders": "Orders",
+                "settings": "Settings"
+            },
+            "users_and_permissions": {
+                "label": "Users & permissions"
+            },
+            "routes": {
+                "label": "Routes"
+            }
+        },
+        "additional_permissions": {
+            "system": {
+                "label": "Settings"
+            },
+            "user": {
+                "label": "User"
+            },
+            "marketing": {
+                "label": "Marketing"
+            },
+            "orders": {
+                "label": "Orders"
+            },
+            "routes": {
+                "label": "Routes",
+                "api_action_access-key_integration": "Create API keys",
+                "api_acl_privileges_get": "Read all ACL privileges",
+                "api_acl_privileges_route_get": "Read ACL route privileges",
+                "api_action_cache_info": "Read cache info",
+                "api_action_cache_index": "Trigger indexer",
+                "api_action_cache_delete": "Delete cache",
+                "api_action_cache_cleanup": "Clean up cache",
+                "api_action_container-cache_delete": "Delete container cache",
+                "api_info_me": "Read own api user info",
+                "api_info_ping": "Refresh auth token",
+                "system:clear:cache": "Clear cache",
+                "api_proxy_switch-customer": "Act on behalf of a customer",
+                "api_proxy_imitate-customer": "Imitate a customer login",
+                "api_feature_flag_toggle": "Toggle feature flags"
+            },
+            "app": {
+                "label": "Apps",
+                "all": "All",
+                "disabledCheckboxMessage": "To deactivate this option, you must first deactivate the All option."
+            }
+        }
+    }
+}

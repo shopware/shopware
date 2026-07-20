@@ -53,18 +53,18 @@ class PromotionCalculatorTest extends TestCase
         $this->ids = new IdsCollection();
 
         $this->promotionCalculator = new PromotionCalculator(
-            $this->createMock(AmountCalculator::class),
-            $this->createMock(AbsolutePriceCalculator::class),
-            $this->createMock(LineItemGroupBuilder::class),
-            $this->createMock(DiscountCompositionBuilder::class),
-            $this->createMock(PackageFilter::class),
-            $this->createMock(AdvancedPackagePicker::class),
-            $this->createMock(SetGroupScopeFilter::class),
-            $this->createMock(LineItemQuantitySplitter::class),
-            $this->createMock(PercentagePriceCalculator::class),
-            $this->createMock(DiscountPackager::class),
-            $this->createMock(DiscountPackager::class),
-            $this->createMock(DiscountPackager::class)
+            static::createStub(AmountCalculator::class),
+            static::createStub(AbsolutePriceCalculator::class),
+            static::createStub(LineItemGroupBuilder::class),
+            static::createStub(DiscountCompositionBuilder::class),
+            static::createStub(PackageFilter::class),
+            static::createStub(AdvancedPackagePicker::class),
+            static::createStub(SetGroupScopeFilter::class),
+            static::createStub(LineItemQuantitySplitter::class),
+            static::createStub(PercentagePriceCalculator::class),
+            static::createStub(DiscountPackager::class),
+            static::createStub(DiscountPackager::class),
+            static::createStub(DiscountPackager::class)
         );
     }
 
@@ -89,7 +89,7 @@ class PromotionCalculatorTest extends TestCase
             new LineItemCollection([$discountItem]),
             $cart,
             $cart,
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             new CartBehavior()
         );
     }
@@ -118,7 +118,7 @@ class PromotionCalculatorTest extends TestCase
             new LineItemCollection([$secondDiscountItem, $firstDiscountItem]),
             $cart,
             $cart,
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             new CartBehavior()
         );
 
@@ -148,27 +148,27 @@ class PromotionCalculatorTest extends TestCase
             ->method('getMatchingItems')
             ->willReturn(new DiscountPackageCollection([$discountPackage]));
 
-        $lineItemQuantitySplitter = $this->createMock(LineItemQuantitySplitter::class);
+        $lineItemQuantitySplitter = static::createStub(LineItemQuantitySplitter::class);
         $lineItemQuantitySplitter
             ->method('split')
             ->willReturnCallback(static fn (LineItem $item) => $item);
 
-        $packageFilter = $this->createMock(PackageFilter::class);
+        $packageFilter = static::createStub(PackageFilter::class);
         $packageFilter
             ->method('filterPackages')
             ->willReturnCallback(static fn (DiscountLineItem $discount, DiscountPackageCollection $packages) => $packages);
 
-        $advancedPackagePicker = $this->createMock(AdvancedPackagePicker::class);
+        $advancedPackagePicker = static::createStub(AdvancedPackagePicker::class);
         $advancedPackagePicker
             ->method('pickItems')
             ->willReturnCallback(static fn (DiscountLineItem $discount, DiscountPackageCollection $packages) => $packages);
 
-        $setGroupScopeFilter = $this->createMock(SetGroupScopeFilter::class);
+        $setGroupScopeFilter = static::createStub(SetGroupScopeFilter::class);
         $setGroupScopeFilter
             ->method('filter')
             ->willReturnCallback(static fn (DiscountLineItem $discount, DiscountPackageCollection $packages, SalesChannelContext $context) => $packages);
 
-        $absolutePriceCalculator = $this->createMock(AbsolutePriceCalculator::class);
+        $absolutePriceCalculator = static::createStub(AbsolutePriceCalculator::class);
         $absolutePriceCalculator
             ->method('calculate')
             ->willReturnCallback(static function (float $price) {
@@ -176,21 +176,21 @@ class PromotionCalculatorTest extends TestCase
             });
 
         $calculator = new PromotionCalculator(
-            $this->createMock(AmountCalculator::class),
+            static::createStub(AmountCalculator::class),
             $absolutePriceCalculator,
-            $this->createMock(LineItemGroupBuilder::class),
-            $this->createMock(DiscountCompositionBuilder::class),
+            static::createStub(LineItemGroupBuilder::class),
+            static::createStub(DiscountCompositionBuilder::class),
             $packageFilter,
             $advancedPackagePicker,
             $setGroupScopeFilter,
             $lineItemQuantitySplitter,
-            $this->createMock(PercentagePriceCalculator::class),
+            static::createStub(PercentagePriceCalculator::class),
             $cartPackager,
-            $this->createMock(DiscountPackager::class),
-            $this->createMock(DiscountPackager::class)
+            static::createStub(DiscountPackager::class),
+            static::createStub(DiscountPackager::class)
         );
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $cart = new Cart('promotion-test');
         $cart->addLineItems(new LineItemCollection([$lineItem1, $lineItem2]));
         $cart->setPrice(new CartPrice(150, 150, 150, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS));
@@ -204,6 +204,86 @@ class PromotionCalculatorTest extends TestCase
         static::assertNotNull($cart->getLineItems()->get($discountItem->getId()));
         static::assertSame(-10.0, $discountItem->getPrice()?->getTotalPrice());
         static::assertTrue($discountItem->hasPayloadValue('composition'));
+    }
+
+    public function testEnrichPackagesDropsPackageWithMissingLineItemInSplitItems(): void
+    {
+        $presentId = $this->ids->get('present-product');
+        $missingId = $this->ids->get('stale-product');
+
+        $presentItem = new LineItem($presentId, LineItem::PRODUCT_LINE_ITEM_TYPE, $presentId);
+        $presentItem->setPriceDefinition(new AbsolutePriceDefinition(30.0));
+        $presentItem->setLabel('Present product');
+        $presentItem->setPrice(new CalculatedPrice(30.0, 30.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $packageWithStaleRef = new DiscountPackage(
+            new LineItemQuantityCollection([
+                new LineItemQuantity($presentId, 1),
+                new LineItemQuantity($missingId, 1),
+            ])
+        );
+
+        $cartPackager = static::createStub(DiscountPackager::class);
+        $cartPackager
+            ->method('getMatchingItems')
+            ->willReturn(new DiscountPackageCollection([$packageWithStaleRef]));
+
+        $lineItemQuantitySplitter = static::createStub(LineItemQuantitySplitter::class);
+        $lineItemQuantitySplitter
+            ->method('split')
+            ->willReturnCallback(static fn (LineItem $item) => $item);
+
+        $packageFilter = static::createStub(PackageFilter::class);
+        $packageFilter
+            ->method('filterPackages')
+            ->willReturnCallback(static fn (DiscountLineItem $d, DiscountPackageCollection $p) => $p);
+
+        $advancedPackagePicker = static::createStub(AdvancedPackagePicker::class);
+        $advancedPackagePicker
+            ->method('pickItems')
+            ->willReturnCallback(static fn (DiscountLineItem $d, DiscountPackageCollection $p) => $p);
+
+        $setGroupScopeFilter = static::createStub(SetGroupScopeFilter::class);
+        $setGroupScopeFilter
+            ->method('filter')
+            ->willReturnCallback(static fn (DiscountLineItem $d, DiscountPackageCollection $p) => $p);
+
+        $absolutePriceCalculator = static::createStub(AbsolutePriceCalculator::class);
+        $absolutePriceCalculator
+            ->method('calculate')
+            ->willReturnCallback(static fn (float $price) => new CalculatedPrice($price, $price, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $calculator = new PromotionCalculator(
+            static::createStub(AmountCalculator::class),
+            $absolutePriceCalculator,
+            static::createStub(LineItemGroupBuilder::class),
+            static::createStub(DiscountCompositionBuilder::class),
+            $packageFilter,
+            $advancedPackagePicker,
+            $setGroupScopeFilter,
+            $lineItemQuantitySplitter,
+            static::createStub(PercentagePriceCalculator::class),
+            $cartPackager,
+            static::createStub(DiscountPackager::class),
+            static::createStub(DiscountPackager::class)
+        );
+
+        $cart = new Cart('promotion-test');
+        $cart->addLineItems(new LineItemCollection([$presentItem]));
+        $cart->setPrice(new CartPrice(30, 30, 30, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS));
+
+        $discountItem = $this->getDiscountItem('promo-stale-ref')
+            ->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
+
+        $calculator->calculate(
+            new LineItemCollection([$discountItem]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class),
+            new CartBehavior()
+        );
+
+        static::assertNull($cart->getLineItems()->get($discountItem->getId()));
     }
 
     private function getDiscountItem(string $promotionId): LineItem

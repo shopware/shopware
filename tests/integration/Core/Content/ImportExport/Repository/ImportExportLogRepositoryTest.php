@@ -4,8 +4,12 @@ namespace Shopware\Tests\Integration\Core\Content\ImportExport\Repository;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogCollection;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
+use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
@@ -14,6 +18,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
@@ -25,12 +30,24 @@ class ImportExportLogRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<ImportExportLogCollection>
+     */
     private EntityRepository $logRepository;
 
+    /**
+     * @var EntityRepository<EntityCollection<ImportExportProfileEntity>>
+     */
     private EntityRepository $profileRepository;
 
+    /**
+     * @var EntityRepository<EntityCollection<ImportExportFileEntity>>
+     */
     private EntityRepository $fileRepository;
 
+    /**
+     * @var EntityRepository<UserCollection>
+     */
     private EntityRepository $userRepository;
 
     private Connection $connection;
@@ -157,7 +174,7 @@ class ImportExportLogRepositoryTest extends TestCase
                 }
             }
 
-            $missingPropertyPaths = array_map(fn ($property) => '/' . $property, $requiredProperties);
+            $missingPropertyPaths = array_map(static fn ($property) => '/' . $property, $requiredProperties);
 
             static::assertSame($missingPropertyPaths, $foundViolations);
         }
@@ -172,7 +189,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
         foreach ($data as $expect) {
             $id = $expect['id'];
-            $result = $this->logRepository->search(new Criteria([$id]), $this->context);
+            $result = $this->logRepository->search(new Criteria([$id]), $this->context)->getEntities();
             /** @var ImportExportLogEntity $ImportExportLog */
             $ImportExportLog = $result->get($id);
             static::assertCount(1, $result);
@@ -193,7 +210,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
         $this->logRepository->create(array_values($data), $this->context);
 
-        $result = $this->logRepository->search(new Criteria([Uuid::randomHex()]), $this->context);
+        $result = $this->logRepository->search(new Criteria([Uuid::randomHex()]), $this->context)->getEntities();
         static::assertCount(0, $result);
     }
 
@@ -263,13 +280,12 @@ class ImportExportLogRepositoryTest extends TestCase
 
             // Remove property before write
             $property = array_pop($properties);
-            if ($property === 'id') {
+            if ($property === 'id' || $property === null) {
                 continue;
             }
             unset($upsertData[$id][$property]);
         }
 
-        static::assertNotEmpty($upsertData);
         $this->logRepository->upsert(array_values($upsertData), $this->context);
 
         $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_log');
@@ -363,7 +379,7 @@ class ImportExportLogRepositoryTest extends TestCase
     /**
      * Prepare a defined number of test data.
      *
-     * @return array<string, array<string, mixed>>
+     * @return non-empty-array<string, array<string, mixed>>
      */
     protected function prepareImportExportLogTestData(int $num = 1, string $add = ''): array
     {
@@ -404,6 +420,7 @@ class ImportExportLogRepositoryTest extends TestCase
                 'config' => ['profile' => $profile],
             ];
         }
+        static::assertNotSame([], $data);
 
         return $data;
     }

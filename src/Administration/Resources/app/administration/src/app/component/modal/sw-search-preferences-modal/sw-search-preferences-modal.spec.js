@@ -53,10 +53,6 @@ describe('src/app/component/modal/sw-search-preferences-modal', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should get data source once component created', async () => {
         wrapper.vm.getDataSource = jest.fn(() => Promise.resolve());
 

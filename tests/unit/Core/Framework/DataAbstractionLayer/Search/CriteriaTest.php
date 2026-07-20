@@ -136,6 +136,7 @@ class CriteriaTest extends TestCase
         $criteria = new Criteria($ids);
         static::assertSame($ids, $criteria->getIds());
 
+        /** @var Criteria<string|array<string, string>> $criteria */
         $criteria = new Criteria();
         $criteria->setIds($ids);
         static::assertSame($ids, $criteria->getIds());

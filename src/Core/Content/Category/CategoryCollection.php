@@ -17,12 +17,12 @@ class CategoryCollection extends EntityCollection
      */
     public function getParentIds(): array
     {
-        return $this->fmap(fn (CategoryEntity $category) => $category->getParentId());
+        return $this->fmap(static fn (CategoryEntity $category) => $category->getParentId());
     }
 
     public function filterByParentId(string $id): self
     {
-        return $this->filter(fn (CategoryEntity $category) => $category->getParentId() === $id);
+        return $this->filter(static fn (CategoryEntity $category) => $category->getParentId() === $id);
     }
 
     /**
@@ -30,12 +30,12 @@ class CategoryCollection extends EntityCollection
      */
     public function getMediaIds(): array
     {
-        return $this->fmap(fn (CategoryEntity $category) => $category->getMediaId());
+        return $this->fmap(static fn (CategoryEntity $category) => $category->getMediaId());
     }
 
     public function filterByMediaId(string $id): self
     {
-        return $this->filter(fn (CategoryEntity $category) => $category->getMediaId() === $id);
+        return $this->filter(static fn (CategoryEntity $category) => $category->getMediaId() === $id);
     }
 
     public function sortByPosition(): self
@@ -47,7 +47,7 @@ class CategoryCollection extends EntityCollection
 
     public function sortByName(): self
     {
-        $this->sort(fn (CategoryEntity $a, CategoryEntity $b) => strnatcasecmp((string) $a->getTranslated()['name'], (string) $b->getTranslated()['name']));
+        $this->sort(static fn (CategoryEntity $a, CategoryEntity $b) => strnatcasecmp((string) $a->getTranslated()['name'], (string) $b->getTranslated()['name']));
 
         return $this;
     }

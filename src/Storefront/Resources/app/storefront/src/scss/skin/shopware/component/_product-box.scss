@@ -5,8 +5,8 @@ Styling for productbox component.
 */
 
 .product-box {
+    --#{$prefix}card-bg: var(--bs-body-bg);
     border-color: $border-color;
-    background-color: $white;
 
     .card-body {
         --#{$prefix}card-spacer-y: #{$spacer};

@@ -5,6 +5,7 @@ namespace Shopware\Elasticsearch;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Elasticsearch\Framework\Exception\EmptyQueryException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('framework')]
@@ -13,6 +14,7 @@ class ElasticsearchException extends HttpException
     public const DEFINITION_NOT_FOUND = 'ELASTICSEARCH__DEFINITION_NOT_FOUND';
     public const UNSUPPORTED_DEFINITION = 'ELASTICSEARCH__UNSUPPORTED_DEFINITION';
     public const INDEXING_ERROR = 'ELASTICSEARCH__INDEXING_ERROR';
+    public const INDEX_CREATION_ERROR = 'ELASTICSEARCH__INDEX_CREATION_ERROR';
     public const NESTED_AGGREGATION_MISSING = 'ELASTICSEARCH__NESTED_FILTER_AGGREGATION_MISSING';
     public const UNSUPPORTED_AGGREGATION = 'ELASTICSEARCH__UNSUPPORTED_AGGREGATION';
     public const UNSUPPORTED_FILTER = 'ELASTICSEARCH__UNSUPPORTED_FILTER';
@@ -23,8 +25,11 @@ class ElasticsearchException extends HttpException
     public const EMPTY_INDEXING_REQUEST = 'ELASTICSEARCH__EMPTY_INDEXING_REQUEST';
 
     public const AWS_CREDENTIALS_NOT_FOUND = 'ELASTICSEARCH__AWS_CREDENTIALS_NOT_FOUND';
+    public const INVALID_HOST_CONFIGURATION = 'ELASTICSEARCH__INVALID_HOST_CONFIGURATION';
 
     public const OPERATOR_NOT_ALLOWED = 'ELASTICSEARCH__OPERATOR_NOT_ALLOWED';
+
+    public const MISSING_PRIVILEGE = 'CONTENT__IMPORT_EXPORT__MISSING_PRIVILEGE';
 
     public static function definitionNotFound(string $definition): self
     {
@@ -127,11 +132,7 @@ class ElasticsearchException extends HttpException
 
     public static function emptyQuery(): self
     {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::EMPTY_QUERY,
-            'Empty query provided'
-        );
+        return new EmptyQueryException();
     }
 
     public static function awsCredentialsNotFound(): self
@@ -143,12 +144,35 @@ class ElasticsearchException extends HttpException
         );
     }
 
+    public static function invalidHostConfiguration(string $reason): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_HOST_CONFIGURATION,
+            'Invalid OpenSearch host configuration. Reason: {{ reason }}',
+            ['reason' => $reason]
+        );
+    }
+
     public static function emptyIndexingRequest(): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::EMPTY_INDEXING_REQUEST,
             'Empty indexing request provided'
+        );
+    }
+
+    /**
+     * @param array<mixed> $config
+     */
+    public static function indexCreationFailed(string $index, array $config, \Throwable $exception): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INDEX_CREATION_ERROR,
+            'Creating index {{ index }} failed with payload {{ payload }}. Reason: {{ reason }}',
+            ['index' => $index, 'reason' => $exception->getMessage(), 'payload' => json_encode($config, \JSON_THROW_ON_ERROR)]
         );
     }
 
@@ -166,6 +190,19 @@ class ElasticsearchException extends HttpException
             self::OPERATOR_NOT_ALLOWED,
             'Operator {{ operator }} not allowed',
             ['operator' => $operator]
+        );
+    }
+
+    /**
+     * @param array<string> $privilege
+     */
+    public static function missingPrivilege(array $privilege): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::MISSING_PRIVILEGE,
+            'Missing privilege: {{ missingPrivileges }}',
+            ['missingPrivileges' => \json_encode($privilege)],
         );
     }
 }

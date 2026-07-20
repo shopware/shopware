@@ -45,7 +45,6 @@ class OpenApiSchemaBuilder
         $openApi->merge($this->createServers($api));
         $openApi->info = $this->createInfo($api, $this->version);
 
-        /** @var array<mixed>|string $security */
         $security = $openApi->security;
         $openApi->security = [array_merge(\is_array($security) ? $security : [], $this->createSecurity($api))];
 
@@ -435,6 +434,7 @@ EOF,
             Response::HTTP_FORBIDDEN => $this->createErrorResponse(Response::HTTP_FORBIDDEN, 'Forbidden', 'This operation is restricted to logged in users.'),
             Response::HTTP_UNAUTHORIZED => $this->createErrorResponse(Response::HTTP_UNAUTHORIZED, 'Unauthorized', 'Authorization information is missing or invalid.'),
             Response::HTTP_BAD_REQUEST => $this->createErrorResponse(Response::HTTP_BAD_REQUEST, 'Bad Request', 'Bad parameters for this endpoint. See documentation for the correct ones.'),
+            Response::HTTP_TOO_MANY_REQUESTS => $this->createErrorResponse(Response::HTTP_TOO_MANY_REQUESTS, 'Too Many Requests', 'Rate limit exceeded. Please wait before retrying.'),
             Response::HTTP_NO_CONTENT => new OpenApiResponse(['description' => 'No Content', 'response' => Response::HTTP_NO_CONTENT]),
         ];
     }

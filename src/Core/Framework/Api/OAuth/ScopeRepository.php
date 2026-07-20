@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Api\OAuth\Scope\AdminScope;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Sso\ShopwareGrantType;
 
 #[Package('framework')]
 class ScopeRepository implements ScopeRepositoryInterface
@@ -97,7 +98,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             $scopes = $this->removeScope($scopes, WriteScope::class);
         }
 
-        if ($hasWrite) {
+        if ($hasWrite || $grantType === ShopwareGrantType::TYPE) {
             $scopes[] = new WriteScope();
         }
 

@@ -59,10 +59,13 @@ async function createWrapper(privileges = []) {
                     },
                     'sw-search-bar': true,
                     'sw-entity-listing': {
-                        props: ['items'],
+                        props: [
+                            'items',
+                            'dataSource',
+                        ],
                         template: `
 <div>
-    <template v-for="item in items">
+    <template v-for="item in (dataSource || items)">
         <slot name="actions" v-bind="{ item }"></slot>
     </template>
 </div>
@@ -77,13 +80,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to create a new currency', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

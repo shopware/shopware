@@ -5,7 +5,7 @@ namespace Shopware\Core\Service\Command;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Service\AllServiceInstaller;
+use Shopware\Core\Service\LifecycleManager;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -21,7 +21,7 @@ class Install extends Command
     /**
      * @internal
      */
-    public function __construct(private readonly AllServiceInstaller $serviceInstaller)
+    public function __construct(private readonly LifecycleManager $manager)
     {
         parent::__construct();
     }
@@ -32,9 +32,15 @@ class Install extends Command
 
         $io->title('Installing services...');
 
-        $installed = $this->serviceInstaller->install(Context::createCLIContext());
+        if (!$this->manager->enabled()) {
+            $io->error('Services are disabled. Please enable them to install services.');
 
-        if (empty($installed)) {
+            return Command::FAILURE;
+        }
+
+        $installed = $this->manager->reconcile(Context::createCLIContext());
+
+        if ($installed === []) {
             $io->info('No services were installed');
         } else {
             $io->success(\sprintf('Done. Installed %s', implode(', ', $installed)));

@@ -21,6 +21,31 @@ interface OrderDownloadDocument {
     value: any[];
 }
 
+interface OrderDeleteDocument {
+    isChanged: boolean;
+    value: Array<{
+        id: string;
+        name: string;
+        technicalName: string;
+        translated?: { name?: string; customFields?: unknown };
+        selected: boolean;
+    }>;
+}
+
+interface DocumentGenerationFailedItem {
+    orderId: string;
+    documentType: string;
+    errorCode?: string;
+    detail?: string;
+}
+
+interface DocumentGenerationResult {
+    requested: number;
+    failed: number;
+    skipped: number;
+    failedItems: DocumentGenerationFailedItem[];
+}
+
 interface SwBulkState {
     isFlowTriggered: boolean;
     orderDocuments: {
@@ -29,8 +54,10 @@ interface SwBulkState {
         delivery_note: OrderDocument;
         credit_note: OrderDocument;
         download: OrderDownloadDocument;
+        delete: OrderDeleteDocument;
     };
     selectedIds: string[];
+    documentGenerationResult: DocumentGenerationResult;
 }
 
 const swBulkStore = Shopware.Store.register('swBulkEdit', {
@@ -80,8 +107,18 @@ const swBulkStore = Shopware.Store.register('swBulkEdit', {
                     isChanged: false,
                     value: [],
                 },
+                delete: {
+                    isChanged: false,
+                    value: [],
+                },
             },
             selectedIds: [],
+            documentGenerationResult: {
+                requested: 0,
+                failed: 0,
+                skipped: 0,
+                failedItems: [],
+            },
         } as SwBulkState;
     },
 
@@ -97,11 +134,41 @@ const swBulkStore = Shopware.Store.register('swBulkEdit', {
             value,
         }:
             | {
-                  type: Exclude<keyof SwBulkState['orderDocuments'], 'download'>;
+                  type: Exclude<keyof SwBulkState['orderDocuments'], 'download' | 'delete'>;
                   value: OrderDocument['value'];
               }
-            | { type: 'download'; value: OrderDownloadDocument['value'] }) {
+            | { type: 'download'; value: OrderDownloadDocument['value'] }
+            | { type: 'delete'; value: OrderDeleteDocument['value'] }) {
             this.orderDocuments[type].value = value;
+        },
+        resetOrderDocumentsIsChanged() {
+            Object.keys(this.orderDocuments).forEach((type) => {
+                this.setOrderDocumentsIsChanged({
+                    type: type as keyof SwBulkState['orderDocuments'],
+                    isChanged: false,
+                });
+            });
+        },
+        setDocumentGenerationResult(
+            requested: number,
+            failed: number,
+            skipped = 0,
+            failedItems: DocumentGenerationFailedItem[] = [],
+        ) {
+            this.documentGenerationResult = {
+                requested,
+                failed,
+                skipped,
+                failedItems,
+            };
+        },
+        resetDocumentGenerationResult() {
+            this.documentGenerationResult = {
+                requested: 0,
+                failed: 0,
+                skipped: 0,
+                failedItems: [],
+            };
         },
     },
 
@@ -112,7 +179,7 @@ const swBulkStore = Shopware.Store.register('swBulkEdit', {
                     ([
                         key,
                         value,
-                    ]) => key !== 'download' && value.isChanged === true,
+                    ]) => key !== 'download' && key !== 'delete' && value.isChanged === true,
                 )
                 .map(
                     ([

@@ -17,19 +17,25 @@ use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntity;
@@ -153,10 +159,10 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity')
             ->search(new Criteria($ids->getList(['first-key'])), $context);
 
-        static::assertCount(1, $search);
-        static::assertTrue($search->has($ids->get('first-key')));
+        static::assertCount(1, $search->getEntities());
+        static::assertTrue($search->getEntities()->has($ids->get('first-key')));
 
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
 
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertSame($ids->get('first-key'), $record->id);
@@ -182,10 +188,10 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity')
             ->search(new Criteria($ids->getList(['first-key'])), $context);
 
-        static::assertCount(1, $search);
-        static::assertTrue($search->has($ids->get('first-key')));
+        static::assertCount(1, $search->getEntities());
+        static::assertTrue($search->getEntities()->has($ids->get('first-key')));
 
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
 
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertSame($ids->get('first-key'), $record->id);
@@ -205,7 +211,37 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity')
             ->search(new Criteria($ids->getList(['first-key'])), $context);
 
-        static::assertCount(0, $search);
+        static::assertCount(0, $search->getEntities());
+    }
+
+    public function testRequiredTranslatedFieldFailsIfNotProvided(): void
+    {
+        $ids = new IdsCollection();
+
+        $context = Context::createDefaultContext();
+
+        $wasThrown = false;
+        try {
+            $this->repository('attribute_entity')->create([
+                [
+                    'id' => $ids->create('first-key'),
+                    'string' => 'string',
+                    'emptyString' => '',
+                    'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
+                ],
+            ], $context);
+        } catch (WriteException $e) {
+            $wasThrown = true;
+
+            $innerExceptions = $e->getExceptions();
+            static::assertCount(1, $innerExceptions);
+
+            $innerException = $innerExceptions[0];
+            static::assertInstanceOf(WriteConstraintViolationException::class, $innerException);
+            static::assertSame('/0/translations/' . Defaults::LANGUAGE_SYSTEM, $innerException->getPath());
+        }
+
+        static::assertTrue($wasThrown);
     }
 
     public function testScalarValues(): void
@@ -233,6 +269,9 @@ class AttributeEntityIntegrationTest extends TestCase
             'price' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 1, 'net' => 1, 'linked' => true],
             ],
+            'email' => 'test@example.com',
+            'password' => 'shopware',
+            'tags' => ['foo', 'bar'],
             'differentName' => 'string',
             'transString' => 'string',
             'transText' => 'text',
@@ -255,10 +294,10 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity')
             ->search(new Criteria([$ids->get('first-key')]), Context::createDefaultContext());
 
-        static::assertCount(1, $search);
-        static::assertTrue($search->has($ids->get('first-key')));
+        static::assertCount(1, $search->getEntities());
+        static::assertTrue($search->getEntities()->has($ids->get('first-key')));
 
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
 
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertSame('string', $record->string);
@@ -281,6 +320,12 @@ class AttributeEntityIntegrationTest extends TestCase
             new PriceCollection([new Price(Defaults::CURRENCY, 1, 1, true)]),
             $record->price
         );
+
+        static::assertSame('test@example.com', $record->email);
+        static::assertNotNull($record->password);
+        static::assertNotSame('shopware', $record->password); // password should be hashed
+        static::assertTrue(password_verify('shopware', $record->password));
+        static::assertSame(['foo', 'bar'], $record->tags);
 
         static::assertSame('string', $record->transString);
         static::assertSame('text', $record->transText);
@@ -342,6 +387,10 @@ class AttributeEntityIntegrationTest extends TestCase
             'customFields' => null,
             'emptyString' => '',
             'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
+            'email' => 'test@example.com',
+            'longString' => null,
+            'password' => $record->password,
+            'tags' => ['foo', 'bar'],
             'ownMapping' => [],
         ], $json);
     }
@@ -388,7 +437,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity')
             ->search(new Criteria([$ids->get('first-key')]), Context::createDefaultContext());
 
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertNull($record->follow);
 
@@ -397,7 +446,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity')
             ->search($criteria, Context::createDefaultContext());
 
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertNotNull($record->follow);
         static::assertSame($ids->get('currency-1'), $record->follow->getId());
@@ -412,7 +461,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity')
             ->search($criteria, Context::createDefaultContext());
 
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertNull($record->follow);
         static::assertNull($record->followId);
@@ -446,7 +495,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity')
             ->search(new Criteria([$ids->get('first-key')]), Context::createDefaultContext());
 
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertNull($record->aggs);
 
@@ -455,7 +504,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity')
             ->search($criteria, Context::createDefaultContext());
 
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertNotNull($record->aggs);
         static::assertCount(2, $record->aggs);
@@ -471,7 +520,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity')
             ->search($criteria, Context::createDefaultContext());
 
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertNotNull($record->aggs);
         static::assertCount(1, $record->aggs);
@@ -510,7 +559,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity')
             ->search(new Criteria([$ids->get('first-key')]), Context::createDefaultContext());
 
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertNull($record->currency);
 
@@ -519,7 +568,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity')
             ->search($criteria, Context::createDefaultContext());
 
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertNotNull($record->currency);
         static::assertSame($ids->get('currency-1'), $record->currency->getId());
@@ -540,7 +589,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity')
             ->search($criteria, Context::createDefaultContext());
 
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertNull($record->currency);
 
@@ -560,7 +609,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity')
             ->search($criteria, Context::createDefaultContext());
 
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertNotNull($record->currency);
         static::assertSame($ids->get('currency-1'), $record->currency->getId());
@@ -602,7 +651,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity')
             ->search(new Criteria([$ids->get('first-key')]), Context::createDefaultContext());
 
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertNull($record->currencies);
 
@@ -611,7 +660,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity')
             ->search($criteria, Context::createDefaultContext());
 
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertNotNull($record->currencies);
         static::assertCount(2, $record->currencies);
@@ -627,7 +676,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity')
             ->search($criteria, Context::createDefaultContext());
 
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertNotNull($record->currencies);
         static::assertCount(1, $record->currencies);
@@ -656,7 +705,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity')
                        ->search(new Criteria([$ids->get('first-key')]), Context::createDefaultContext());
 
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertNull($record->state);
 
@@ -665,7 +714,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity')
                        ->search($criteria, Context::createDefaultContext());
 
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertNotNull($record->state);
         static::assertSame($stateId, $record->state->getId());
@@ -686,7 +735,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity')
                        ->search($criteria, Context::createDefaultContext());
 
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertNull($record->state);
 
@@ -706,7 +755,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity')
                        ->search($criteria, Context::createDefaultContext());
 
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertNotNull($record->state);
         static::assertSame($stateId, $record->state->getId());
@@ -736,7 +785,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity')
             ->search(new Criteria([$ids->get('first-key')]), $context);
 
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertSame('transString', $record->getTranslation('transString'));
         // translation association was not loaded in the criteria
@@ -753,7 +802,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity')
             ->search($criteria, $languageContext);
 
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertSame('transString-de', $record->getTranslation('transString'));
         $translations = $record->translations ?? [];
@@ -790,7 +839,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity')
             ->search(new Criteria([$ids->get('first-key')]), $context);
 
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertEmpty($record->getCustomFields());
 
@@ -807,7 +856,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity')
             ->search(new Criteria([$ids->get('first-key')]), $context);
 
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertEquals(['bar' => 'baz', 'foo' => 'bar'], $record->getCustomFields());
         static::assertSame('bar', $record->getCustomFieldsValue('foo'));
@@ -844,7 +893,7 @@ class AttributeEntityIntegrationTest extends TestCase
             ->search(new Criteria([$ids->get('first-key')]), Context::createDefaultContext());
 
         /** @var AttributeEntity $record */
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
         static::assertNull($record->orders);
 
         $criteria = new Criteria([$ids->get('first-key')]);
@@ -853,7 +902,7 @@ class AttributeEntityIntegrationTest extends TestCase
             ->search($criteria, Context::createDefaultContext());
 
         /** @var AttributeEntity $record */
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
         static::assertNotNull($record->orders);
         static::assertCount(2, $record->orders);
         static::assertArrayHasKey($ids->get('order-1'), $record->orders);
@@ -869,7 +918,7 @@ class AttributeEntityIntegrationTest extends TestCase
             ->search($criteria, Context::createDefaultContext());
 
         /** @var AttributeEntity $record */
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
         static::assertNotNull($record->orders);
         static::assertCount(1, $record->orders);
         static::assertArrayHasKey($ids->get('order-2'), $record->orders);
@@ -893,11 +942,113 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity_with_hydrator')
             ->search(new Criteria([$ids->get('first-key')]), Context::createDefaultContext());
 
-        $record = $search->get($ids->get('first-key'));
+        $record = $search->getEntities()->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntityWithHydrator::class, $record);
         static::assertSame('code-number', $record->number);
     }
 
+    public function testInheritedFlagAppliedToFields(): void
+    {
+        $definition = static::getContainer()->get('attribute_entity_inheritance.definition');
+
+        static::assertInstanceOf(AttributeEntityDefinition::class, $definition);
+
+        $inheritedStringField = $definition->getFields()->get('inheritedString');
+        static::assertNotNull($inheritedStringField, 'inheritedString field should exist');
+        static::assertTrue(
+            $inheritedStringField->is(Inherited::class),
+            'inheritedString field should have Inherited flag'
+        );
+
+        $currencyIdField = $definition->getFields()->get('currencyId');
+        static::assertNotNull($currencyIdField, 'currencyId field should exist');
+        static::assertTrue(
+            $currencyIdField->is(Inherited::class),
+            'currencyId field should have Inherited flag'
+        );
+
+        $currencyField = $definition->getFields()->get('currency');
+        static::assertNotNull($currencyField, 'currency field should exist');
+        static::assertTrue(
+            $currencyField->is(Inherited::class),
+            'currency association field should have Inherited flag'
+        );
+
+        $inheritedWithForeignKeyField = $definition->getFields()->get('inheritedWithForeignKey');
+        static::assertNotNull($inheritedWithForeignKeyField, 'inheritedWithForeignKey field should exist');
+        static::assertTrue(
+            $inheritedWithForeignKeyField->is(Inherited::class),
+            'inheritedWithForeignKey field should have Inherited flag'
+        );
+
+        $inheritedFlag = $inheritedWithForeignKeyField->getFlag(Inherited::class);
+        static::assertSame('custom_fk', $inheritedFlag->getForeignKey());
+
+        $productField = $definition->getFields()->get('product');
+        static::assertNotNull($productField, 'product field should exist');
+        static::assertTrue(
+            $productField->is(ReverseInherited::class),
+            'product association field should have ReverseInherited flag'
+        );
+    }
+
+    public function testSearchRankingFlagAppliedToFields(): void
+    {
+        $definition = static::getContainer()->get('attribute_entity_search_ranking.definition');
+
+        static::assertInstanceOf(AttributeEntityDefinition::class, $definition);
+
+        $currencyField = $definition->getFields()->get('currency');
+        static::assertNotNull($currencyField, 'currency field should exist');
+        static::assertTrue(
+            $currencyField->is(SearchRanking::class),
+            'currency association field should have SearchRanking flag'
+        );
+
+        $searchRankingFlag = $currencyField->getFlag(SearchRanking::class);
+        static::assertSame(SearchRanking::ASSOCIATION_SEARCH_RANKING, $searchRankingFlag->getRanking());
+        static::assertTrue($searchRankingFlag->tokenize());
+
+        $middleRankedField = $definition->getFields()->get('middleRankedString');
+
+        static::assertNotNull($middleRankedField, 'middle ranked field should exist');
+        static::assertTrue(
+            $middleRankedField->is(SearchRanking::class),
+            'middle ranked field should have SearchRanking flag'
+        );
+
+        $searchRankingFlag = $middleRankedField->getFlag(SearchRanking::class);
+        static::assertSame(SearchRanking::MIDDLE_SEARCH_RANKING, $searchRankingFlag->getRanking());
+        static::assertFalse($searchRankingFlag->tokenize());
+
+        $lowRankedField = $definition->getFields()->get('lowRankedString');
+
+        static::assertNotNull($lowRankedField, 'low ranked field should exist');
+        static::assertTrue(
+            $lowRankedField->is(SearchRanking::class),
+            'low ranked field should have SearchRanking flag'
+        );
+
+        $searchRankingFlag = $lowRankedField->getFlag(SearchRanking::class);
+        static::assertSame(SearchRanking::LOW_SEARCH_RANKING, $searchRankingFlag->getRanking());
+        static::assertTrue($searchRankingFlag->tokenize());
+
+        $highRankedField = $definition->getFields()->get('highRankedString');
+
+        static::assertNotNull($highRankedField, 'high ranked field should exist');
+        static::assertTrue(
+            $highRankedField->is(SearchRanking::class),
+            'middle ranked field should have SearchRanking flag'
+        );
+
+        $searchRankingFlag = $highRankedField->getFlag(SearchRanking::class);
+        static::assertSame(SearchRanking::HIGH_SEARCH_RANKING, $searchRankingFlag->getRanking());
+        static::assertFalse($searchRankingFlag->tokenize());
+    }
+
+    /**
+     * @return EntityRepository<EntityCollection<Entity>>
+     */
     private function repository(string $entity): EntityRepository
     {
         $repository = static::getContainer()->get($entity . '.repository');

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Demodata\Generator;
 
+use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -22,6 +24,8 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<MailTemplateTypeCollection> $mailTemplateTypeRepository
      */
     public function __construct(
         private readonly EntityWriterInterface $writer,
@@ -52,7 +56,7 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('mail_template_type.mailTemplates.id', null));
 
-        $mailTypeIds = $this->mailTemplateTypeRepository->search($criteria, $context->getContext())->getIds();
+        $mailTypeIds = $this->mailTemplateTypeRepository->search($criteria, $context->getContext())->getEntities()->getIds();
 
         $payload = [];
         foreach ($mailTypeIds as $mailTypeId) {
@@ -65,7 +69,7 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
             }
         }
 
-        if (!empty($payload)) {
+        if ($payload !== []) {
             $this->write($payload, $context);
         }
 
@@ -102,6 +106,7 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
             ),
             'contentPlain' => $faker->text(),
             'mailTemplateTypeId' => $mailTypeId,
+            'customFields' => [DemodataService::DEMODATA_CUSTOM_FIELDS_KEY => true],
         ];
     }
 

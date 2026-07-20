@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Media;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchStartEvent;
 use Shopware\Core\Defaults;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\IgnoreInUnusedMediaSearch;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
@@ -20,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -43,13 +46,14 @@ class UnusedMediaPurger
         private readonly EntityRepository $mediaRepo,
         private readonly Connection $connection,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ClockInterface $clock,
     ) {
     }
 
     /**
      * @internal This method is used only by the media:delete-unused command and is subject to change
      *
-     * @return \Generator<array<MediaEntity>>
+     * @return \Generator<list<MediaEntity>>
      */
     public function getNotUsedMedia(?int $limit = 50, ?int $offset = null, ?int $gracePeriodDays = null, ?string $folderEntity = null): \Generator
     {
@@ -66,10 +70,9 @@ class UnusedMediaPurger
         if ($offset !== null) {
             $criteria->setOffset($offset);
 
-            /** @var array<string> $ids */
             $ids = $this->mediaRepo->searchIds($criteria, $context)->getIds();
             $ids = $this->filterOutNewMedia($ids, $gracePeriodDays, $context);
-            $ids = $this->dispatchEvent($ids);
+            $ids = $this->dispatchEvent($ids, $context);
 
             return yield $this->searchMedia($ids, $context);
         }
@@ -79,9 +82,9 @@ class UnusedMediaPurger
         while (($ids = $iterator->fetchIds()) !== null) {
             /** @phpstan-ignore argument.type (we can't narrow down argument type to list<string> in while loop) */
             $ids = $this->filterOutNewMedia($ids, $gracePeriodDays, $context);
-            $unusedIds = $this->dispatchEvent($ids);
+            $unusedIds = $this->dispatchEvent($ids, $context);
 
-            if (empty($unusedIds)) {
+            if ($unusedIds === []) {
                 continue;
             }
 
@@ -105,30 +108,34 @@ class UnusedMediaPurger
 
         $this->eventDispatcher->dispatch(new UnusedMediaSearchStartEvent($totalMedia, $totalCandidates));
 
-        $idsToDelete = [];
+        $totalDeleted = 0;
         foreach ($this->getUnusedMediaIds($context, $limit, $offset, $folderEntity) as $idBatch) {
             $idBatch = $this->filterOutNewMedia($idBatch, $gracePeriodDays, $context);
 
-            $idsToDelete = [...$idsToDelete, ...$idBatch];
+            if ($idBatch !== []) {
+                $this->mediaRepo->delete(
+                    array_map(static fn ($id) => ['id' => $id], $idBatch),
+                    $context
+                );
+
+                $totalDeleted += \count($idBatch);
+            }
         }
 
-        if (!empty($idsToDelete)) {
-            $this->mediaRepo->delete(
-                array_map(static fn ($id) => ['id' => $id], $idsToDelete),
-                $context
-            );
-        }
-
-        return \count($idsToDelete);
+        return $totalDeleted;
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
-     * @return array<MediaEntity>
+     * @return list<MediaEntity>
      */
     public function searchMedia(array $ids, Context $context): array
     {
+        if ($ids === []) {
+            return [];
+        }
+
         $media = $this->mediaRepo->search(new Criteria($ids), $context)->getEntities()->getElements();
 
         return array_values($media);
@@ -143,66 +150,71 @@ class UnusedMediaPurger
     }
 
     /**
-     * @param array<string> $mediaIds
+     * @param list<string> $mediaIds
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function filterOutNewMedia(array $mediaIds, int $gracePeriodDays, Context $context): array
     {
-        if ($gracePeriodDays === 0) {
+        if ($gracePeriodDays === 0 || $mediaIds === []) {
             return $mediaIds;
         }
 
-        $threeDaysAgo = (new \DateTime())->sub(new \DateInterval(\sprintf('P%dD', $gracePeriodDays)));
-        $rangeFilter = new RangeFilter('uploadedAt', ['lt' => $threeDaysAgo->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $maxUploadedAt = $this->clock->now()->sub(new \DateInterval(\sprintf('P%dD', $gracePeriodDays)));
+        $rangeFilter = new RangeFilter('uploadedAt', ['lt' => $maxUploadedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         $criteria = new Criteria($mediaIds);
         $criteria->addFilter($rangeFilter);
 
-        /** @var array<string> $ids */
-        $ids = $this->mediaRepo->searchIds($criteria, $context)->getIds();
-
-        return $ids;
+        return $this->mediaRepo->searchIds($criteria, $context)->getIds();
     }
 
     /**
-     * @return \Generator<int, array<string>>
+     * @return \Generator<int, list<string>>
      */
     private function getUnusedMediaIds(Context $context, int $limit, ?int $offset = null, ?string $folderEntity = null): \Generator
     {
         $criteria = $this->createFilterForNotUsedMedia($folderEntity);
         $criteria->addSorting(new FieldSorting('id', FieldSorting::ASCENDING));
         $criteria->setLimit($limit);
-        $criteria->setOffset(0);
 
         // if we provided an offset, then just grab that batch based on the limit
         if ($offset !== null) {
             $criteria->setOffset($offset);
 
-            /** @var array<string> $ids */
             $ids = $this->mediaRepo->searchIds($criteria, $context)->getIds();
 
-            return yield $this->dispatchEvent($ids);
+            return yield $this->dispatchEvent($ids, $context);
         }
 
-        while (!empty($ids = $this->mediaRepo->searchIds($criteria, $context)->getIds())) {
-            /** @var array<string> $ids */
-            $unusedIds = $this->dispatchEvent($ids);
+        // Use last ID instead of offset for cursor-based pagination, which allows deletion of records between batches
+        $lastId = null;
+        while ($lastId !== false) {
+            $iterationCriteria = clone $criteria;
+            if ($lastId !== null) {
+                $iterationCriteria->addFilter(new RangeFilter('id', ['gt' => Uuid::fromHexToBytes($lastId)]));
+            }
+
+            $ids = $this->mediaRepo->searchIds($iterationCriteria, $context)->getIds();
+            if ($ids === []) {
+                break;
+            }
+
+            $lastId = end($ids);
+            $unusedIds = $this->dispatchEvent($ids, $context);
 
             yield $unusedIds;
-
-            $criteria->setOffset($criteria->getOffset() + $limit);
         }
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
-     * @return array<string>
+     * @return list<string>
      */
-    private function dispatchEvent(array $ids): array
+    private function dispatchEvent(array $ids, Context $context): array
     {
-        $event = new UnusedMediaSearchEvent(array_values($ids));
+        $event = new UnusedMediaSearchEvent(array_values($ids), $context);
         $this->eventDispatcher->dispatch($event);
 
         return $event->getUnusedIds();
@@ -236,6 +248,10 @@ class UnusedMediaPurger
             }
 
             if (!\in_array($field::class, self::VALID_ASSOCIATIONS, true)) {
+                continue;
+            }
+
+            if ($field->is(IgnoreInUnusedMediaSearch::class)) {
                 continue;
             }
 

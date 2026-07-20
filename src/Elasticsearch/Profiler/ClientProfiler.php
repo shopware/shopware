@@ -2,34 +2,36 @@
 
 namespace Shopware\Elasticsearch\Profiler;
 
+use GuzzleHttp\Psr7\Uri;
+use GuzzleHttp\Psr7\UriResolver;
 use OpenSearch\Client;
-use OpenSearch\Connections\ConnectionInterface;
-use OpenSearch\Namespaces\NamespaceBuilderInterface;
+use Psr\Http\Message\UriInterface;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @phpstan-type RequestInfo array{url: string, request: array<mixed>, response: array<mixed>, time: float, backtrace: string}
+ * @deprecated tag:v6.8.0 - reason:becomes-internal - will be considered internal from 6.8.0.0 onwards
+ *
+ * @phpstan-type RequestInfo array{url: string, request: array<string, mixed>, response: array<string, mixed>, time: float, backtrace: string, client?: string}
  */
 #[Package('framework')]
 class ClientProfiler extends Client
 {
     /**
-     * @var RequestInfo[]
+     * @var list<RequestInfo>
      */
     private array $requests = [];
 
-    public function __construct(Client $client)
-    {
-        /** @var array<NamespaceBuilderInterface> $namespaces */
-        $namespaces = $client->registeredNamespaces;
+    private UriInterface $baseUri;
 
-        parent::__construct($client->transport, $client->endpoints, $namespaces);
+    public function setBaseUri(UriInterface $baseUri): void
+    {
+        $this->baseUri = $baseUri;
     }
 
     /**
-     * @param array<mixed> $request
+     * @param array<string, mixed> $request
      *
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     public function search(array $request = [])
     {
@@ -39,7 +41,7 @@ class ClientProfiler extends Client
         $backtrace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 
         $this->requests[] = [
-            'url' => $this->assembleElasticsearchUrl($this->transport->getConnection(), $request),
+            'url' => $this->assembleUrl($request, '_search'),
             'request' => $request,
             'response' => $response,
             'time' => microtime(true) - $time,
@@ -50,9 +52,9 @@ class ClientProfiler extends Client
     }
 
     /**
-     * @param array<mixed> $params
+     * @param array<string, mixed> $params
      *
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     public function msearch(array $params = [])
     {
@@ -61,10 +63,8 @@ class ClientProfiler extends Client
 
         $backtrace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 
-        $connection = $this->transport->getConnection();
-
         $this->requests[] = [
-            'url' => \sprintf('%s://%s:%d/_msearch', $connection->getTransportSchema(), $connection->getHost(), $connection->getPort()),
+            'url' => $this->assembleUrl($params, '_msearch'),
             'request' => $params,
             'response' => $response,
             'time' => microtime(true) - $time,
@@ -80,7 +80,7 @@ class ClientProfiler extends Client
     }
 
     /**
-     * @return RequestInfo[]
+     * @return list<RequestInfo>
      */
     public function getCalledRequests(): array
     {
@@ -88,9 +88,9 @@ class ClientProfiler extends Client
     }
 
     /**
-     * @param array<mixed> $params
+     * @param array<string, mixed> $params
      *
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     public function bulk(array $params = [])
     {
@@ -99,11 +99,8 @@ class ClientProfiler extends Client
 
         $backtrace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 
-        $connection = $this->transport->getConnection();
-
         $this->requests[] = [
-            'url' => \sprintf('%s://%s:%d/_bulk', $connection->getTransportSchema(), $connection->getHost(), $connection->getPort()),
-            'client' => $this->transport->getConnection()->getHost(),
+            'url' => $this->assembleUrl($params, '_bulk'),
             'request' => $params,
             'response' => $response,
             'time' => microtime(true) - $time,
@@ -114,9 +111,9 @@ class ClientProfiler extends Client
     }
 
     /**
-     * @param array<mixed> $params
+     * @param array<string, mixed> $params
      *
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     public function putScript(array $params = [])
     {
@@ -125,11 +122,8 @@ class ClientProfiler extends Client
 
         $backtrace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 
-        $connection = $this->transport->getConnection();
-
         $this->requests[] = [
-            'url' => \sprintf('%s://%s:%d/_scripts/%s', $connection->getTransportSchema(), $connection->getHost(), $connection->getPort(), $params['id']),
-            'client' => $this->transport->getConnection()->getHost(),
+            'url' => $this->assembleScriptUrl($params),
             'request' => $params,
             'response' => $response,
             'time' => microtime(true) - $time,
@@ -140,25 +134,74 @@ class ClientProfiler extends Client
     }
 
     /**
-     * @param array{index?: string, body?: array<mixed>} $request
+     * @param array<string, mixed> $params
      */
-    private function assembleElasticsearchUrl(ConnectionInterface $connection, array $request): string
+    private function assembleUrl(array $params, string $endpoint): string
     {
-        $path = $connection->getPath();
+        $index = $params['index'] ?? null;
+        unset($params['index'], $params['body']);
 
-        if (isset($request['index'])) {
-            if (\is_array($request['index'])) {
-                $request['index'] = implode(',', array_map('trim', $request['index']));
+        $path = $this->buildPath($index, $endpoint);
+        $query = $this->buildQueryString($params);
+
+        return $this->resolveUrl($path, $query);
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     */
+    private function assembleScriptUrl(array $params): string
+    {
+        $id = isset($params['id']) ? (string) $params['id'] : '';
+        unset($params['id'], $params['body']);
+
+        return $this->resolveUrl('_scripts/' . rawurlencode($id), $this->buildQueryString($params));
+    }
+
+    /**
+     * @param string|array<int, string>|null $index
+     */
+    private function buildPath(string|array|null $index, string $endpoint): string
+    {
+        if ($index === null || $index === '') {
+            return $endpoint;
+        }
+
+        if (\is_array($index)) {
+            $index = implode(',', array_map('trim', $index));
+        }
+
+        return $index . '/' . $endpoint;
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     */
+    private function buildQueryString(array $params): string
+    {
+        if ($params === []) {
+            return '';
+        }
+
+        return http_build_query(array_map(static function (mixed $value): mixed {
+            if ($value === true) {
+                return 'true';
             }
 
-            $path .= $request['index'] . '/_search';
-            unset($request['index']);
-        }
+            if ($value === false) {
+                return 'false';
+            }
 
-        if (isset($request['body'])) {
-            unset($request['body']);
-        }
+            return $value;
+        }, $params));
+    }
 
-        return \sprintf('%s://%s:%d/%s?%s', $connection->getTransportSchema(), $connection->getHost(), $connection->getPort(), $path, http_build_query($request));
+    private function resolveUrl(string $path, string $query): string
+    {
+        $pathWithQuery = $query === '' ? $path : $path . '?' . $query;
+
+        $uri = UriResolver::resolve($this->baseUri, new Uri($pathWithQuery));
+
+        return (string) $uri;
     }
 }

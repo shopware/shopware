@@ -1,0 +1,14 @@
+.sw-manufacturer-list {
+    &__content {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+
+        &:has(.mt-empty-state) {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+    }
+}

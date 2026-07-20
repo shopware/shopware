@@ -32,8 +32,7 @@ class ImportExportServiceTest extends TestCase
     {
         $profileId = Uuid::randomHex();
 
-        $this->expectException(ImportExportException::class);
-        $this->expectExceptionMessage(\sprintf('The import/export profile with id %s can only be used for import', $profileId));
+        $this->expectExceptionObject(ImportExportException::profileWrongType($profileId, 'import'));
 
         $this->createImportExportService($profileId)->prepareExport(
             Context::createDefaultContext(),
@@ -54,7 +53,7 @@ class ImportExportServiceTest extends TestCase
         );
 
         static::assertSame($profileId, $log->getProfileId());
-        static::assertSame('Test Profile', $log->getProfileName());
+        static::assertSame('test_profile', $log->getProfileName());
     }
 
     private function createImportExportService(string $profileId): ImportExportService
@@ -63,7 +62,7 @@ class ImportExportServiceTest extends TestCase
         $profile->setId($profileId);
         $profile->setUniqueIdentifier($profileId);
         $profile->setType(ImportExportProfileEntity::TYPE_IMPORT);
-        $profile->setTranslated(['label' => 'Test Profile']);
+        $profile->setTechnicalName('test_profile');
         $profile->setConfig([]);
         $profile->setSourceEntity(ProductDefinition::ENTITY_NAME);
         $profile->setFileType('text/csv');
@@ -81,7 +80,7 @@ class ImportExportServiceTest extends TestCase
             $logRepo,
             $userRepo,
             $profileRepo,
-            $this->createMock(FileService::class),
+            static::createStub(FileService::class),
         );
     }
 }

@@ -1,0 +1,87 @@
+.sw-settings-services-index {
+    background: var(--color-elevation-surface-default);
+    color: var(--color-text-primary-default);
+
+    h3,
+    h4 {
+        color: var(--color-text-primary-default);
+    }
+
+    .sw-settings-services-index__content {
+        padding: var(--scale-size-40);
+    }
+
+    .sw-settings-services__listing-section {
+        container-type: inline-size;
+        max-width: 960px;
+        margin: 0 auto;
+    }
+
+    .sw-settings-services__listing-section h3 {
+        margin-block: var(--scale-size-24);
+    }
+
+    .sw-settings-services-index__services-deactivated-banner {
+        max-width: 960px;
+
+        p {
+            margin-bottom: var(--scale-size-8);
+        }
+    }
+
+    .sw-settings-services-index__installing-card {
+        display: flex;
+        padding: var(--scale-size-32);
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        align-self: stretch;
+        border: 1px solid var(--color-border-secondary-default);
+        border-radius: var(--border-radius-card);
+        background-color: var(--color-elevation-surface-sunken);
+        text-align: center;
+        font-size: var(--font-size-s);
+    }
+
+    .sw-settings-services-index__installing-card-title {
+        font-weight: var(--font-weight-bold);
+    }
+
+    .sw-settings-services-index__installing-card-loader {
+        position: relative;
+        height: var(--scale-size-32);
+    }
+
+    .sw-settings-services__available-services {
+        margin-bottom: var(--scale-size-48);
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--scale-size-16) var(--scale-size-24);
+        list-style-type: none;
+
+        @container (min-width: 960px) {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    .sw-settings-services__footer {
+        display: flex;
+        justify-content: center;
+        gap: var(--scale-size-24);
+        max-width: 960px;
+        padding-top: var(--scale-size-40);
+        margin: 0 auto;
+
+        a,
+        button {
+            color: var(--color-text-secondary-default);
+            font-size: var(--font-size-2xs);
+            text-decoration: none;
+
+            &:hover {
+                color: var(--color-text-primary-default);
+                text-decoration: underline;
+            }
+        }
+    }
+}

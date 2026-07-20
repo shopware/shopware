@@ -46,6 +46,10 @@ Shopware.Service('cmsService').registerCmsElement({
             source: 'static',
             value: '300px',
         },
+        speed: {
+            source: 'static',
+            value: 300,
+        },
     },
     collect: Shopware.Service('cmsService').getCollectFunction(),
 });

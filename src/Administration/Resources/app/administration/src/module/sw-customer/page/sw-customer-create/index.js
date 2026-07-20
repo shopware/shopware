@@ -1,5 +1,4 @@
 import template from './sw-customer-create.html.twig';
-import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
  * @sw-package checkout
@@ -9,6 +8,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+const { CUSTOMER } = Shopware.Constants;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -189,7 +189,7 @@ export default {
 
             if (hasError) {
                 this.createNotificationError({
-                    message: this.$tc('sw-customer.detail.messageSaveError'),
+                    message: this.$t('sw-customer.detail.messageSaveError'),
                 });
                 this.isLoading = false;
                 return false;
@@ -209,7 +209,7 @@ export default {
                     })
                     .catch((exception) => {
                         this.createNotificationError({
-                            message: this.$tc('sw-customer.detail.messageSaveError'),
+                            message: this.$t('sw-customer.detail.messageSaveError'),
                         });
                         this.isLoading = false;
                         throw exception;
@@ -235,7 +235,7 @@ export default {
             });
 
             this.createNotificationError({
-                message: this.$tc('sw-customer.error.COMPANY_IS_REQUIRED'),
+                message: this.$t('sw-customer.error.COMPANY_IS_REQUIRED'),
             });
         },
 

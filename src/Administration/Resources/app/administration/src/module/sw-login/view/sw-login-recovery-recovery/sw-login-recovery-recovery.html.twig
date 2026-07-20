@@ -9,10 +9,11 @@
             <mt-icon
                 class="sw-login__back-arrow"
                 name="regular-long-arrow-left"
-                size="16px"
+                size="14px"
             />
         </router-link>
-        {{ $tc('sw-login.recovery.recovery.headline') }}
+
+        <span>{{ $t('sw-login.recovery.recovery.headline') }}</span>
     </h2>
     {% endblock %}
     <template v-if="hashValid === true">
@@ -22,7 +23,7 @@
             <mt-password-field
                 ref="swLoginRecoveryRecoveryNewPasswordField"
                 v-model="newPassword"
-                :label="$tc('sw-login.recovery.recovery.newPasswordField.label')"
+                :label="$t('sw-login.recovery.recovery.newPasswordField.label')"
                 :error="userPasswordError"
             />
             {% endblock %}
@@ -30,7 +31,7 @@
             {% block sw_login_recovery_recovery_form_password_confirm_field %}
             <mt-password-field
                 v-model="newPasswordConfirm"
-                :label="$tc('sw-login.recovery.recovery.passwordConfirmField.label')"
+                :label="$t('sw-login.recovery.recovery.passwordConfirmField.label')"
             />
             {% endblock %}
 
@@ -39,8 +40,9 @@
                 <mt-button
                     variant="primary"
                     :disabled="!validatePasswords()"
+                    type="submit"
                 >
-                    {{ $tc('sw-login.recovery.recovery.submit.label') }}
+                    {{ $t('sw-login.recovery.recovery.submit.label') }}
                 </mt-button>
             </div>
             {% endblock %}
@@ -50,12 +52,12 @@
 
     <template v-else-if="hashValid === false">
         <mt-banner variant="critical">
-            {{ $tc('sw-login.recovery.recovery.errorMessage') }}
+            {{ $t('sw-login.recovery.recovery.errorMessage') }}
         </mt-banner>
     </template>
 
     <template v-else>
-        <sw-loader />
+        <mt-loader />
     </template>
 </div>
 {% endblock %}

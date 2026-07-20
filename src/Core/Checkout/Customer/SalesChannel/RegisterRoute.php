@@ -3,18 +3,17 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\CustomerException;
-use Shopware\Core\Checkout\Customer\Event\CustomerConfirmRegisterUrlEvent;
-use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
-use Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent;
 use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
+use Shopware\Core\Checkout\Customer\Service\DoubleOptInService;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
@@ -30,7 +29,7 @@ use Shopware\Core\Framework\Event\DataMappingEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Util\Hasher;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -53,19 +52,21 @@ use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Validator\Constraints\AtLeastOneOf;
 use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Constraints\IsNull;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
-use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
 class RegisterRoute extends AbstractRegisterRoute
 {
+    use CustomerAddressDataNormalizerTrait;
+
     /**
      * @internal
      *
@@ -87,6 +88,9 @@ class RegisterRoute extends AbstractRegisterRoute
         private readonly SalesChannelContextServiceInterface $contextService,
         private readonly StoreApiCustomFieldMapper $customFieldMapper,
         private readonly EntityRepository $salutationRepository,
+        private readonly DataValidationFactoryInterface $passwordValidationFactory,
+        private readonly DoubleOptInService $doubleOptInService,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -106,7 +110,7 @@ class RegisterRoute extends AbstractRegisterRoute
 
         $isGuest = $data->getBoolean('guest');
 
-        if ($data->has('accountType') && empty($data->get('accountType'))) {
+        if ($data->has('accountType') && $data->getString('accountType') === '') {
             $data->remove('accountType');
         }
 
@@ -172,7 +176,7 @@ class RegisterRoute extends AbstractRegisterRoute
             }
         }
 
-        $customer = $this->addDoubleOptInData($customer, $context);
+        $customer = $this->doubleOptInService->mapCustomerDoubleOptInData($customer, $context);
 
         $customer['boundSalesChannelId'] = $this->getBoundSalesChannelId($customer['email'], $context);
 
@@ -200,14 +204,12 @@ class RegisterRoute extends AbstractRegisterRoute
         \assert(assertion: $customerEntity !== null);
 
         if ($customerEntity->getDoubleOptInRegistration()) {
-            $this->eventDispatcher->dispatch(
-                $this->getDoubleOptInEvent(
-                    $customerEntity,
-                    $context,
-                    $data->get('storefrontUrl'),
-                    $data->get('redirectTo'),
-                    $data->get('redirectParameters')
-                )
+            $this->doubleOptInService->sendDoubleOptInMail(
+                $customerEntity,
+                $context,
+                (string) $data->get('storefrontUrl'),
+                $data->get('redirectTo'),
+                $data->get('redirectParameters')
             );
 
             // We don't want to leak the hash in store-api
@@ -263,54 +265,6 @@ class RegisterRoute extends AbstractRegisterRoute
         return $response;
     }
 
-    private function getDoubleOptInEvent(
-        CustomerEntity $customer,
-        SalesChannelContext $context,
-        string $url,
-        ?string $redirectTo,
-        ?string $redirectParameters
-    ): Event {
-        $url .= $this->getConfirmUrl($context, $customer);
-
-        if ($redirectTo) {
-            $params = \is_string($redirectParameters) ? (\json_decode($redirectParameters, true) ?? []) : [];
-            $url .= '&' . \http_build_query(array_merge(['redirectTo' => $redirectTo], $params));
-        }
-
-        if ($customer->getGuest()) {
-            $event = new DoubleOptInGuestOrderEvent($customer, $context, $url);
-        } else {
-            $event = new CustomerDoubleOptInRegistrationEvent($customer, $context, $url);
-        }
-
-        return $event;
-    }
-
-    /**
-     * @param array<string, mixed> $customer
-     *
-     * @return array<string, mixed>
-     */
-    private function addDoubleOptInData(array $customer, SalesChannelContext $context): array
-    {
-        $configKey = $customer['guest']
-            ? 'core.loginRegistration.doubleOptInGuestOrder'
-            : 'core.loginRegistration.doubleOptInRegistration';
-
-        $doubleOptInRequired = $this->systemConfigService
-            ->get($configKey, $context->getSalesChannelId());
-
-        if (!$doubleOptInRequired) {
-            return $customer;
-        }
-
-        $customer['doubleOptInRegistration'] = true;
-        $customer['doubleOptInEmailSentDate'] = new \DateTimeImmutable();
-        $customer['hash'] = Uuid::randomHex();
-
-        return $customer;
-    }
-
     private function validateRegistrationData(
         DataBag $data,
         bool $isGuest,
@@ -326,21 +280,40 @@ class RegisterRoute extends AbstractRegisterRoute
             $billingAddress->set('salutationId', $data->get('salutationId'));
         }
 
+        if (($shippingAddress instanceof DataBag) && !$shippingAddress->get('salutationId')) {
+            $shippingAddress->set('salutationId', $data->get('salutationId'));
+        }
+
         $definition = $this->getCustomerCreateValidationDefinition($isGuest, $data, $context);
 
         if ($additionalValidations) {
-            foreach ($additionalValidations->getProperties() as $key => $validation) {
-                $definition->add($key, ...$validation);
-            }
+            $definition->merge($additionalValidations);
         }
 
         if ($validateStorefrontUrl) {
             $definition
-                ->add('storefrontUrl', new NotBlank(), new Choice($this->getDomainUrls($context)));
+                ->add('storefrontUrl', new NotBlank(), new Choice(choices: $this->getDomainUrls($context)));
         }
 
         $accountType = $data->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
-        if ($billingAddress instanceof DataBag || !($shippingAddress instanceof DataBag)) {
+
+        // The billing address is mandatory.
+        // The shipping address is optional but if there is one, a non-array value results in an exception in the validation process.
+        $definition->add(
+            'billingAddress',
+            new Type('associative_array', message: 'VIOLATION::BILLING_ADDRESS_INVALID_TYPE_ERROR')
+        );
+        $definition->add(
+            'shippingAddress',
+            new AtLeastOneOf([
+                new Type('associative_array', message: 'VIOLATION::SHIPPING_ADDRESS_INVALID_TYPE_ERROR'),
+                new IsNull(),
+            ])
+        );
+
+        // The billing address validation must not be added if the data is neither a data bag nor valid because the validation building will fail.
+        // Using a null value must be possible to allow the event based modification (see BuildValidationEvent).
+        if ($billingAddress instanceof DataBag || (!$shippingAddress instanceof DataBag && $billingAddress === null)) {
             $definition->addSub('billingAddress', $this->getCreateAddressValidationDefinition($data, $accountType, $billingAddress ?? new RequestDataBag(), $context));
         }
 
@@ -355,9 +328,9 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
-            $countryId = $shippingAddress instanceof DataBag
-                ? $shippingAddress->get('countryId')
-                : ($billingAddress instanceof DataBag ? $billingAddress->get('countryId') : null);
+            $countryId = $billingAddress instanceof DataBag
+                ? $billingAddress->get('countryId')
+                : ($shippingAddress instanceof DataBag ? $shippingAddress->get('countryId') : null);
 
             if ($countryId) {
                 if ($this->requiredVatIdField($countryId, $context)) {
@@ -365,7 +338,7 @@ class RegisterRoute extends AbstractRegisterRoute
                 }
 
                 $definition->add('vatIds', new Type('array'), new CustomerVatIdentification(
-                    ['countryId' => $countryId]
+                    countryId: $countryId
                 ));
             }
         }
@@ -406,9 +379,9 @@ class RegisterRoute extends AbstractRegisterRoute
 
         return new \DateTime(\sprintf(
             '%d-%d-%d',
-            $birthdayYear,
-            $birthdayMonth,
-            $birthdayDay
+            (int) $birthdayYear,
+            (int) $birthdayMonth,
+            (int) $birthdayDay
         ));
     }
 
@@ -437,7 +410,7 @@ class RegisterRoute extends AbstractRegisterRoute
             'active' => true,
             'birthday' => $this->getBirthday($data),
             'guest' => $isGuest,
-            'firstLogin' => new \DateTimeImmutable(),
+            'firstLogin' => $this->clock->now(),
             'addresses' => [],
         ];
 
@@ -467,8 +440,8 @@ class RegisterRoute extends AbstractRegisterRoute
             $validation->add('company', new NotBlank());
         }
 
-        $validation->set('zipcode', new CustomerZipCode(['countryId' => $address->get('countryId')]));
-        $validation->add('zipcode', new Length(['max' => 50]));
+        $validation->set('zipcode', new CustomerZipCode(countryId: $address->get('countryId')));
+        $validation->add('zipcode', new Length(max: 50));
 
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
@@ -483,21 +456,17 @@ class RegisterRoute extends AbstractRegisterRoute
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('registrationSalesChannels.id', $context->getSalesChannelId()));
 
-        $validation->add('requestedGroupId', new EntityExists([
-            'entity' => 'customer_group',
-            'context' => $context->getContext(),
-            'criteria' => $criteria,
-        ]));
+        $validation->add('requestedGroupId', new EntityExists(
+            entity: 'customer_group',
+            context: $context->getContext(),
+            criteria: $criteria,
+        ));
 
         if (!$isGuest) {
-            $minLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannelId());
-            $validation->add(
-                'password',
-                new NotBlank(),
-                new Length(['min' => $minLength, 'max' => PasswordHasherInterface::MAX_PASSWORD_LENGTH, 'maxMessage' => 'VIOLATION::PASSWORD_IS_TOO_LONG'])
+            $validation->merge(
+                $this->passwordValidationFactory->create($context)
             );
-            $options = ['context' => $context->getContext(), 'salesChannelContext' => $context];
-            $validation->add('email', new CustomerEmailUnique($options));
+            $validation->add('email', new CustomerEmailUnique(salesChannelContext: $context));
         }
 
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());
@@ -531,6 +500,8 @@ class RegisterRoute extends AbstractRegisterRoute
         if (isset($mappedData['countryStateId']) && $mappedData['countryStateId'] === '') {
             $mappedData['countryStateId'] = null;
         }
+
+        $mappedData = $this->trimAddressFields($mappedData);
 
         if ($addressData->get('customFields') instanceof RequestDataBag) {
             $mappedData['customFields'] = $this->customFieldMapper->map(CustomerAddressDefinition::ENTITY_NAME, $addressData->get('customFields'));
@@ -581,7 +552,7 @@ class RegisterRoute extends AbstractRegisterRoute
     private function requiredVatIdField(string $countryId, SalesChannelContext $context): bool
     {
         if (!Feature::isActive('v6.8.0.0')) {
-            $country = $this->countryRepository->search(new Criteria([$countryId]), $context)->get($countryId);
+            $country = $this->countryRepository->search(new Criteria([$countryId]), $context)->getEntities()->get($countryId);
 
             if (!$country) {
                 throw CustomerException::countryNotFound($countryId);
@@ -599,28 +570,6 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         return $country->get('vatIdRequired');
-    }
-
-    private function getConfirmUrl(SalesChannelContext $context, CustomerEntity $customer): string
-    {
-        $urlTemplate = $this->systemConfigService->get(
-            'core.loginRegistration.confirmationUrl',
-            $context->getSalesChannelId()
-        );
-        if (!\is_string($urlTemplate)) {
-            $urlTemplate = '/registration/confirm?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%';
-        }
-
-        $emailHash = Hasher::hash($customer->getEmail(), 'sha1');
-
-        $urlEvent = new CustomerConfirmRegisterUrlEvent($context, $urlTemplate, $emailHash, $customer->getHash(), $customer);
-        $this->eventDispatcher->dispatch($urlEvent);
-
-        return str_replace(
-            ['%%HASHEDEMAIL%%', '%%SUBSCRIBEHASH%%'],
-            [$emailHash, (string) $customer->getHash()],
-            $urlEvent->getConfirmUrl()
-        );
     }
 
     private function getDefaultSalutationId(SalesChannelContext $context): ?string

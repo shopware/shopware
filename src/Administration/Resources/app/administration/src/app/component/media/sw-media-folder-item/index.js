@@ -87,6 +87,9 @@ export default {
             return Shopware.Filter.getByName('asset');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -163,15 +166,15 @@ export default {
 
         rejectRenaming(item, cause, endInlineEdit) {
             if (cause) {
-                let title = this.$tc('global.default.error');
-                let message = this.$tc('global.sw-media-folder-item.notification.renamingError.message');
+                let title = this.$t('global.default.error');
+                let message = this.$t('global.sw-media-folder-item.notification.renamingError.message');
 
                 if (cause === 'empty-name') {
-                    title = this.$tc('global.default.error');
-                    message = this.$tc('global.sw-media-folder-item.notification.errorBlankItemName.message');
+                    title = this.$t('global.default.error');
+                    message = this.$t('global.sw-media-folder-item.notification.errorBlankItemName.message');
                 } else if (cause === 'invalid-name') {
-                    title = this.$tc('global.default.error');
-                    message = this.$tc('global.sw-media-folder-item.notification.errorInvalidItemName.message');
+                    title = this.$t('global.default.error');
+                    message = this.$t('global.sw-media-folder-item.notification.errorInvalidItemName.message');
                 }
 
                 this.createNotificationError({

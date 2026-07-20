@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Service;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -22,7 +21,6 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[Package('fundamentals@after-sales')]
-#[CoversClass(ProductReviewCountService::class)]
 class ProductReviewCountServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -44,6 +42,7 @@ class ProductReviewCountServiceTest extends TestCase
         $this->createProduct('p2');
 
         $this->createCustomer('c1');
+        $createdReviews = [];
         $createdReviews[] = $this->createReview('c1', 'p1', true);
         $createdReviews[] = $this->createReview('c1', 'p2', false);
 

@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-cms-el-config-product-slider {
     .sw-cms-el-config-product-slider__tabs {
         .sw-cms-el-config-product-slider__tab-content {
@@ -19,6 +17,10 @@
         margin-bottom: 0;
     }
 
+    &__tab-settings-rotate-config {
+        margin-top: 16px;
+    }
+
     .sw-select-result .sw-select-result__result-item-text {
         display: block;
 
@@ -28,7 +30,7 @@
 
         .sw-cms-el-config-product-slider__select-product-number {
             display: inline;
-            color: $color-gray-400;
+            color: var(--color-text-secondary-default);
             margin-left: 10px;
         }
     }
@@ -44,12 +46,11 @@
     }
 
     .sw-cms-el-config-product-slider__product-stream-preview-link-container {
-        margin-top: -20px;
         text-align: right;
     }
 
     .sw-cms-el-config-product-slider__product-stream-preview-link {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         text-decoration: none;
 
         &.is--disabled {
@@ -63,6 +64,10 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 20px;
+    }
+
+    .sw-cms-el-config-product-slider__tab-settings-navigation {
+        margin-bottom: 16px;
     }
 }
 

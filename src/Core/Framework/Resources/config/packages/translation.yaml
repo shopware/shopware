@@ -2,6 +2,6 @@ framework:
     default_locale: '%locale%'
     translator:
         fallbacks:
-            - 'en_GB'
+            - 'en-GB'
             - 'en'
         default_path: "%kernel.shopware_core_dir%/Framework/Resources/snippet"

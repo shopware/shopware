@@ -2,25 +2,28 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
+use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
+use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Api\ApiException;
+use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Api\Route\RouteInfo;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
-use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
-use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Migration\MigrationInfo;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
@@ -29,40 +32,35 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
 class InfoController extends AbstractController
 {
-    private const API_SCOPE_ADMIN = 'api';
-
     /**
      * @internal
      */
     public function __construct(
         private readonly DefinitionService $definitionService,
         private readonly ParameterBagInterface $params,
-        private readonly Kernel $kernel,
         private readonly BusinessEventCollector $eventCollector,
         private readonly IncrementGatewayRegistry $incrementGatewayRegistry,
-        private readonly Connection $connection,
+        private readonly MigrationInfo $migrationInfo,
         private readonly AppUrlVerifier $appUrlVerifier,
-        private readonly RouterInterface $router,
         private readonly FlowActionCollector $flowActionCollector,
         private readonly SystemConfigService $systemConfigService,
         private readonly ApiRouteInfoResolver $apiRouteInfoResolver,
         private readonly InAppPurchase $inAppPurchase,
-        private readonly ?ViteFileAccessorDecorator $viteFileAccessorDecorator,
-        private readonly Filesystem $filesystem,
         private readonly ShopIdProvider $shopIdProvider,
         private readonly StatsService $messageStatsService,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ?PresignedMediaUploadService $presignedMediaUploadService,
+        private readonly MediaFileExtensionListProvider $mediaFileExtensionListProvider,
     ) {
     }
 
@@ -86,9 +84,16 @@ class InfoController extends AbstractController
         return new JsonResponse($data);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Route will be removed. Use /api/_info/message-stats.json instead.
+     */
     #[Route(path: '/api/_info/queue.json', name: 'api.info.queue', methods: ['GET'])]
     public function queue(): JsonResponse
     {
+        if (Feature::isActive('v6.8.0.0')) { // avoiding polluting logs, as our code still calling this endpoint
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', '\Shopware\Core\Framework\Api\Controller\InfoController::messageStats'));
+        }
+
         try {
             $gateway = $this->incrementGatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
         } catch (IncrementGatewayNotFoundException) {
@@ -101,14 +106,18 @@ class InfoController extends AbstractController
 
         return new JsonResponse(array_map(static fn (array $entry) => [
             'name' => $entry['key'],
-            'size' => (int) $entry['count'],
+            'size' => $entry['count'],
         ], array_values($entries)));
     }
 
     #[Route(path: '/api/_info/message-stats.json', name: 'api.info.message-stats', methods: ['GET'])]
     public function messageStats(): JsonResponse
     {
-        return new JsonResponse($this->messageStatsService->getStats());
+        $response = new JsonResponse();
+        $response->setEncodingOptions($response->getEncodingOptions() | \JSON_PRESERVE_ZERO_FRACTION);
+        $response->setData($this->messageStatsService->getStats());
+
+        return $response;
     }
 
     #[Route(
@@ -171,28 +180,43 @@ class InfoController extends AbstractController
     #[Route(path: '/api/_info/config', name: 'api.info.config', methods: ['GET'])]
     public function config(Context $context, Request $request): JsonResponse
     {
-        return new JsonResponse([
+        $adminWorker = [
+            'enableAdminWorker' => $this->params->get('shopware.admin_worker.enable_admin_worker'),
+            'enableNotificationWorker' => $this->params->get('shopware.admin_worker.enable_notification_worker'),
+            'transports' => $this->getAdminWorkerTransports(),
+        ];
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $adminWorker['enableQueueStatsWorker'] = $this->params->get('shopware.admin_worker.enable_queue_stats_worker');
+        }
+
+        $config = [
             'version' => $this->getShopwareVersion(),
             'shopId' => $this->getShopId(),
+            'appUrl' => (string) EnvironmentHelper::getVariable('APP_URL'),
             'versionRevision' => $this->params->get('kernel.shopware_version_revision'),
-            'adminWorker' => [
-                'enableAdminWorker' => $this->params->get('shopware.admin_worker.enable_admin_worker'),
-                'enableQueueStatsWorker' => $this->params->get('shopware.admin_worker.enable_queue_stats_worker'),
-                'enableNotificationWorker' => $this->params->get('shopware.admin_worker.enable_notification_worker'),
-                'transports' => $this->params->get('shopware.admin_worker.transports'),
-            ],
-            'bundles' => $this->getBundles(),
+            'adminWorker' => $adminWorker,
+            'bundles' => [],
             'settings' => [
                 'enableUrlFeature' => $this->params->get('shopware.media.enable_url_upload_feature'),
+                'presignedUploadSupported' => $this->presignedMediaUploadService !== null
+                    && $this->presignedMediaUploadService->isAvailable(),
                 'appUrlReachable' => $this->appUrlVerifier->isAppUrlReachable($request),
                 'appsRequireAppUrl' => $this->appUrlVerifier->hasAppsThatNeedAppUrl(),
-                'private_allowed_extensions' => $this->params->get('shopware.filesystem.private_allowed_extensions'),
+                'firstMigrationDate' => $this->migrationInfo->getFirstMigrationDate(),
+                'private_allowed_extensions' => $this->mediaFileExtensionListProvider->getAllowedExtensions(true, $context),
+                'private_allowed_mime_types_by_extension' => $this->mediaFileExtensionListProvider->getMimeTypesByExtension(true, $context),
                 'enableHtmlSanitizer' => $this->params->get('shopware.html_sanitizer.enabled'),
                 'enableStagingMode' => $this->params->get('shopware.staging.administration.show_banner') && $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG),
                 'disableExtensionManagement' => !$this->params->get('shopware.deployment.runtime_extension_management'),
+                'minSearchTermLength' => $this->systemConfigService->getInt('core.search.minSearchTermLength') ?: 2,
             ],
             'inAppPurchases' => $this->inAppPurchase->all(),
-        ]);
+        ];
+
+        $config = $this->eventDispatcher->dispatch(new AdminInfoConfigEvent($config))->getConfig();
+
+        return new JsonResponse($config);
     }
 
     #[Route(path: '/api/_info/version', name: 'api.info.shopware.version', methods: ['GET'])]
@@ -220,139 +244,30 @@ class InfoController extends AbstractController
     {
         $endpoints = array_map(
             static fn (RouteInfo $endpoint) => ['path' => $endpoint->path, 'methods' => $endpoint->methods],
-            $this->apiRouteInfoResolver->getApiRoutes(self::API_SCOPE_ADMIN)
+            $this->apiRouteInfoResolver->getApiRoutes(ApiRouteScope::ID)
         );
 
         return new JsonResponse(['endpoints' => $endpoints]);
     }
 
     /**
-     * @return array<string, array{
-     *     type: 'plugin',
-     *     css: list<string>,
-     *     js: list<string>,
-     *     baseUrl: ?string
-     * }|array{
-     *     type: 'app',
-     *     name: string,
-     *     active: bool,
-     *     integrationId: string,
-     *     baseUrl: string,
-     *     version: string,
-     *     permissions: array<string, list<string>>
-     * }>
+     * @return list<string>
      */
-    private function getBundles(): array
+    private function getAdminWorkerTransports(): array
     {
-        $assets = [];
-
-        foreach ($this->kernel->getBundles() as $bundle) {
-            if (!$bundle instanceof Bundle) {
-                continue;
-            }
-
-            if (!$this->viteFileAccessorDecorator) {
-                // Admin bundle is not there, admin assets are not available
-                continue;
-            }
-
-            $viteEntryPoints = $this->viteFileAccessorDecorator->getBundleData($bundle);
-
-            $technicalBundleName = $this->getTechnicalBundleName($bundle);
-            $styles = $viteEntryPoints['entryPoints'][$technicalBundleName]['css'] ?? [];
-            $scripts = $viteEntryPoints['entryPoints'][$technicalBundleName]['js'] ?? [];
-            $baseUrl = $this->getBaseUrl($bundle);
-
-            if (empty($styles) && empty($scripts) && $baseUrl === null) {
-                continue;
-            }
-
-            $assets[$bundle->getName()] = [
-                'css' => $styles,
-                'js' => $scripts,
-                'baseUrl' => $baseUrl,
-                'type' => 'plugin',
-            ];
+        $transports = $this->params->get('shopware.admin_worker.transports');
+        if (!\is_array($transports)) {
+            return [];
         }
 
-        foreach ($this->getActiveApps() as $app) {
-            $assets[$app['name']] = [
-                'active' => (bool) $app['active'],
-                'integrationId' => $app['integrationId'],
-                'type' => 'app',
-                'baseUrl' => $app['baseUrl'],
-                'permissions' => $app['privileges'],
-                'version' => $app['version'],
-                'name' => $app['name'],
-            ];
+        /** @var list<string> $transports */
+        $transports = array_values($transports);
+
+        if (Feature::isActive('WEBHOOKS_REWORK')) {
+            return $transports;
         }
 
-        return $assets;
-    }
-
-    private function getBaseUrl(Bundle $bundle): ?string
-    {
-        if (!$bundle instanceof Plugin) {
-            return null;
-        }
-
-        if ($bundle->getAdminBaseUrl()) {
-            return $bundle->getAdminBaseUrl();
-        }
-
-        if (!$this->filesystem->exists($bundle->getPath() . '/Resources/public/meteor-app/index.html')) {
-            return null;
-        }
-
-        // exception is possible as the administration is an optional dependency
-        try {
-            return $this->router->generate(
-                'administration.plugin.index',
-                [
-                    'pluginName' => \mb_strtolower($bundle->getName()),
-                ],
-                UrlGeneratorInterface::ABSOLUTE_URL
-            );
-        } catch (\Throwable) {
-            return null;
-        }
-    }
-
-    /**
-     * @return list<array{name: string, active: int, integrationId: string, baseUrl: string, version: string, privileges: array<string, list<string>>}>
-     */
-    private function getActiveApps(): array
-    {
-        /** @var list<array{name: string, active: int, integrationId: string, baseUrl: string, version: string, privileges: ?string}> $apps */
-        $apps = $this->connection->fetchAllAssociative('SELECT
-    app.name,
-    app.active,
-    LOWER(HEX(app.integration_id)) as integrationId,
-    app.base_app_url as baseUrl,
-    app.version,
-    ar.privileges as privileges
-FROM app
-LEFT JOIN acl_role ar on app.acl_role_id = ar.id
-WHERE app.active = 1 AND app.base_app_url is not null');
-
-        return array_map(static function (array $item) {
-            $privileges = $item['privileges'] ? json_decode((string) $item['privileges'], true, 512, \JSON_THROW_ON_ERROR) : [];
-
-            $item['privileges'] = [];
-
-            foreach ($privileges as $privilege) {
-                if (substr_count($privilege, ':') !== 1) {
-                    $item['privileges']['additional'][] = $privilege;
-
-                    continue;
-                }
-
-                [$entity, $key] = \explode(':', $privilege);
-                $item['privileges'][$key][] = $entity;
-            }
-
-            return $item;
-        }, $apps);
+        return array_values(array_filter($transports, static fn (string $transport): bool => $transport !== 'webhook'));
     }
 
     private function getShopwareVersion(): string
@@ -365,17 +280,12 @@ WHERE app.active = 1 AND app.base_app_url is not null');
         return $shopwareVersion;
     }
 
-    private function getTechnicalBundleName(Bundle $bundle): string
-    {
-        return str_replace('_', '-', $bundle->getContainerPrefix());
-    }
-
     private function getShopId(): string
     {
         try {
-            return $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException $e) {
-            return $e->getShopId();
+            return $this->shopIdProvider->getShopId()->id;
+        } catch (ShopIdChangeSuggestedException $e) {
+            return $e->shopId->id;
         }
     }
 }

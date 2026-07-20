@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Mail\Transport;
 
 use Doctrine\DBAL\Exception\DriverException;
 use League\Flysystem\FilesystemOperator;
+use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -24,6 +25,8 @@ class MailerTransportLoader
 
     /**
      * @internal
+     *
+     * @param EntityRepository<DocumentCollection> $documentRepository
      */
     public function __construct(
         private readonly Transport $envBasedTransport,

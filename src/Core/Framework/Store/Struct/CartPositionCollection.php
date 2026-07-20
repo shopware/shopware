@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @codeCoverageIgnore
- *
  * @extends Collection<CartPositionStruct>
  */
 #[Package('checkout')]
@@ -29,6 +27,9 @@ class CartPositionCollection extends Collection
         return CartPositionStruct::class;
     }
 
+    /**
+     * @param array<string, mixed> $element
+     */
     protected function getElementFromArray(array $element): CartPositionStruct
     {
         return CartPositionStruct::fromArray($element);

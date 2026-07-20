@@ -2,7 +2,7 @@
 <mt-card
     class="sw-category-detail-base__menu"
     position-identifier="sw-category-detail-menu"
-    :title="$tc('sw-category.base.menu.title')"
+    :title="$t('sw-category.base.menu.title')"
     :is-loading="isLoading"
 >
 
@@ -10,9 +10,9 @@
 
     <mt-switch
         v-model="reversedVisibility"
-        borderd
+        bordered
         :disabled="!acl.can('category.editor')"
-        :label="$tc('sw-category.base.menu.visible')"
+        :label="$t('sw-category.base.menu.visible')"
     />
     {% endblock %}
 
@@ -25,7 +25,7 @@
     />
     <sw-media-upload-v2
         :key="category.id + 'upload'"
-        :label="$tc('sw-category.base.menu.imageLabel')"
+        :label="$t('sw-category.base.menu.imageLabel')"
         variant="regular"
         :disabled="!acl.can('category.editor')"
         :source="mediaItem"
@@ -49,16 +49,29 @@
     {% endblock %}
 
     {% block sw_category_detail_menu_description %}
-    <mt-text-editor
+    <sw-text-editor
+        v-if="!feature.isActive('METEOR_TEXT_EDITOR')"
         :key="category.id + 'description'"
+        v-model:value="category.description"
+        class="sw-category-detail-base__description"
+        type="textarea"
+        :disabled="!acl.can('category.editor')"
+        sanitize-input
+        sanitize-field-name="category_translation.description"
+        :label="$t('sw-category.base.menu.descriptionLabel')"
+        :placeholder="$t('sw-category.base.menu.descriptionPlaceholder')"
+    />
+    <mt-text-editor
+        v-else
+        :key="category.id + 'description-meteor'"
         v-model="category.description"
         class="sw-category-detail-base__description"
         type="textarea"
         :disabled="!acl.can('category.editor')"
         sanitize-input
         sanitize-field-name="category_translation.description"
-        :label="$tc('sw-category.base.menu.descriptionLabel')"
-        :placeholder="$tc('sw-category.base.menu.descriptionPlaceholder')"
+        :label="$t('sw-category.base.menu.descriptionLabel')"
+        :placeholder="$t('sw-category.base.menu.descriptionPlaceholder')"
     />
     {% endblock %}
 </mt-card>

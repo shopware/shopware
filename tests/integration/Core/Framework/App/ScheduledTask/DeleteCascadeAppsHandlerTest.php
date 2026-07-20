@@ -6,14 +6,18 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\App\ScheduledTask\DeleteCascadeAppsHandler;
 use Shopware\Core\Framework\App\ScheduledTask\DeleteCascadeAppsTask;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Integration\IntegrationCollection;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -24,10 +28,19 @@ class DeleteCascadeAppsHandlerTest extends TestCase
 
     private Connection $connection;
 
+    /**
+     * @var EntityRepository<ScheduledTaskCollection>
+     */
     private EntityRepository $scheduledTaskRepo;
 
+    /**
+     * @var EntityRepository<AclRoleCollection>
+     */
     private EntityRepository $aclRoleRepo;
 
+    /**
+     * @var EntityRepository<IntegrationCollection>
+     */
     private EntityRepository $integrationRepo;
 
     protected function setUp(): void
@@ -96,7 +109,8 @@ class DeleteCascadeAppsHandlerTest extends TestCase
             $this->scheduledTaskRepo,
             $this->createMock(LoggerInterface::class),
             $this->aclRoleRepo,
-            $this->integrationRepo
+            $this->integrationRepo,
+            new NativeClock()
         );
 
         $handler($task);

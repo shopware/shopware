@@ -11,6 +11,7 @@ use PHPStan\Rules\RuleErrorBuilder;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\CoversNothing;
+use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -21,6 +22,17 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class CoversAttributeRule implements Rule
 {
+    /**
+     * @var list<string>
+     */
+    private array $allowedUnitTestClassNamespaces;
+
+    public function __construct(
+        Configuration $configuration,
+    ) {
+        $this->allowedUnitTestClassNamespaces = $configuration->getAllowedUnitTestClassNamespaces();
+    }
+
     public function getNodeType(): string
     {
         return InClassNode::class;
@@ -33,14 +45,26 @@ class CoversAttributeRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if ($this->hasCovers($node)) {
+        $classReflection = $node->getClassReflection();
+        $isUnitTest = TestRuleHelper::isUnitTestClass($classReflection, $this->allowedUnitTestClassNamespaces);
+        $hasCovers = $this->hasCovers($node);
+
+        if ($hasCovers && !$isUnitTest) {
+            return [
+                RuleErrorBuilder::message('Only Unit & Migration test classes can have CoversClass, CoversFunction or CoversNothing attribute')
+                    ->identifier('shopware.unexpectedTestCovers')
+                    ->build(),
+            ];
+        }
+
+        if ($classReflection->isAbstract()) {
             return [];
         }
 
-        if (TestRuleHelper::isUnitTestClass($node->getClassReflection())) {
+        if ($isUnitTest && !$hasCovers) {
             return [
-                RuleErrorBuilder::message('Unit test classes must have CoversClass, CoversFunction or CoversNothing attribute')
-                    ->identifier('shopware.testCovers')
+                RuleErrorBuilder::message('Unit & Migration test classes must have CoversClass, CoversFunction or CoversNothing attribute')
+                    ->identifier('shopware.expectedTestCovers')
                     ->build(),
             ];
         }

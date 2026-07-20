@@ -12,12 +12,54 @@ import { extractBlocks } from '../../scripts/generate-block-list/extract-blocks'
 
 // eslint-disable-next-line no-undef
 const allFiles = globSync(path.join(adminPath, 'src/**/*.*'));
-const testAbleFiles = allFiles.filter((file) => {
-    return file.match(/^.*(?<!\.spec|vue2)(?<!\/acl\/index)(?<!\.d)\.(js|ts)$/);
-});
+
+/**
+ * @return true for files that end with .js or .ts
+ * and don't end with (.spec|vue2|.d)(.js|ts) and are not in an acl folder with the name index
+ * and are not in a folder that ends with .spec
+ */
+const isTestAbleFile = (file) => {
+    const fileExtension = path.extname(file);
+    const filePathWithoutExtension = file.slice(0, -fileExtension.length);
+
+    if (
+        ![
+            '.js',
+            '.ts',
+        ].includes(fileExtension)
+    ) {
+        return false;
+    }
+
+    if (filePathWithoutExtension.includes('.spec/')) {
+        return false;
+    }
+
+    if (
+        [
+            '.spec',
+            'vue2',
+            '.d',
+            '/acl/index',
+        ].some((ending) => filePathWithoutExtension.endsWith(ending))
+    ) {
+        return false;
+    }
+
+    return true;
+};
+const testAbleFiles = allFiles.filter(isTestAbleFile);
 const templateFiles = allFiles.filter((file) => {
-    return file.match(/^.*\.html\.twig$/);
+    return file.endsWith('.html.twig');
 });
+
+// eslint-disable-next-line no-undef
+const testFiles = globSync(path.join(adminPath, 'src/**/*.spec.{js,ts}'), {
+    ignore: ['**/node_modules/**'],
+});
+const testDirectories = new Set(
+    testFiles.map((file) => path.dirname(file)).filter((directory) => directory.endsWith('.spec')),
+);
 
 describe('Administration meta tests', () => {
     describe('check for test files', () => {
@@ -56,6 +98,12 @@ describe('Administration meta tests', () => {
             const specTsFileWithFolderName = whole.replace(fileName, `${lastFolder}.spec.ts`);
             const specTsFileWithFolderNameExists = fs.existsSync(specTsFileWithFolderName);
 
+            const splitSpecDirectory = whole.replace(fileName, `${fileNameWithoutExtension}.spec`);
+            const splitSpecFileExists = testDirectories.has(splitSpecDirectory);
+
+            const splitSpecDirectoryWithFolderName = whole.replace(fileName, `${lastFolder}.spec`);
+            const splitSpecFileWithFolderNameExists = testDirectories.has(splitSpecDirectoryWithFolderName);
+
             let specFileAlternativeExtension = '';
             let specFileWithFolderNameAlternativeExtension = '';
             if (extension === 'js') {
@@ -76,6 +124,8 @@ describe('Administration meta tests', () => {
                 specTsFileExists ||
                 specFileWithFolderNameExists ||
                 specTsFileWithFolderNameExists ||
+                splitSpecFileExists ||
+                splitSpecFileWithFolderNameExists ||
                 specFileAlternativeExtensionExists ||
                 specFileWithFolderNameAlternativeExtensionExists;
 
@@ -84,6 +134,8 @@ describe('Administration meta tests', () => {
                 isInBaseLine &&
                     (specFileExists ||
                         specFileWithFolderNameExists ||
+                        splitSpecFileExists ||
+                        splitSpecFileWithFolderNameExists ||
                         specFileAlternativeExtensionExists ||
                         specFileWithFolderNameAlternativeExtensionExists),
             ).toBe(false);
@@ -101,7 +153,7 @@ describe('Administration meta tests', () => {
             expect(typeof packageJson).toBe('object');
             expect(packageJson.hasOwnProperty('engines')).toBe(true);
             expect(packageJson.engines.hasOwnProperty('node')).toBe(true);
-            expect(packageJson.engines.node).toBe('^20.0.0 || ^21.0.0 || ^22.0.0 || ^23.0.0 || ^24.0.0');
+            expect(packageJson.engines.node).toBe('^20.0.0 || ^21.0.0 || ^22.0.0 || ^23.0.0 || ^24.0.0 || ^25.0.0');
             expect(packageJson.engines.hasOwnProperty('npm')).toBe(true);
             expect(packageJson.engines.npm).toBe('>=10.0.0');
         });
@@ -190,8 +242,21 @@ describe('Administration meta tests', () => {
 
             expect(
                 newBlocks,
-                `New blocks have been added. Please run 'generate-block-list' script to add them to the blocks list: \n${newBlocks.join(', ')}`,
+                `New blocks have been added. Please run 'composer admin:generate-blocks-list' script to add them to the blocks list: \n${newBlocks.join(', ')}`,
             ).toHaveLength(0);
+        });
+    });
+
+    describe('forbidden Vue.js component smoke test', () => {
+        it.each(testFiles)('%s must not contain the generic Vue.js component smoke test', (file) => {
+            const content = fs.readFileSync(file, 'utf-8');
+
+            const forbiddenPattern = /(?:it|test)\(\s*['"`]should be a Vue\.js component['"`]\s*,/;
+
+            expect(forbiddenPattern.test(content)).toBe(
+                false,
+                `Found forbidden Vue.js smoke-test in ${path.relative(process.cwd(), file)}`,
+            );
         });
     });
 });

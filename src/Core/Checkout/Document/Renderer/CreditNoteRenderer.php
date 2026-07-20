@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Checkout\Document\Renderer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentException;
@@ -13,6 +15,7 @@ use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
@@ -21,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -44,6 +48,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         private readonly Connection $connection,
         private readonly DocumentFileRendererRegistry $fileRendererRegistry,
         private readonly ValidatorInterface $validator,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -56,11 +61,24 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
     {
         $result = new RendererResult();
 
+        if ($context->getVersionId() !== Defaults::LIVE_VERSION) {
+            foreach ($operations as $operation) {
+                $result->addError(
+                    $operation->getOrderId(),
+                    DocumentException::generationError(
+                        'Credit notes can only be generated from the LIVE order context.'
+                    )
+                );
+            }
+
+            return $result;
+        }
+
         $template = '@Framework/documents/credit_note.html.twig';
 
-        $ids = \array_map(fn (DocumentGenerateOperation $operation) => $operation->getOrderId(), $operations);
+        $ids = \array_map(static fn (DocumentGenerateOperation $operation) => $operation->getOrderId(), $operations);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return $result;
         }
 
@@ -73,20 +91,17 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                 $orderId = $operation->getOrderId();
                 $invoice = $this->referenceInvoiceLoader->load($orderId, $operation->getReferencedDocumentId(), $rendererConfig->deepLinkCode);
 
-                if (empty($invoice)) {
+                if ($invoice === []) {
                     throw DocumentException::generationError('Can not generate credit note document because no invoice document exists. OrderId: ' . $orderId);
                 }
 
                 $documentRefer = json_decode($invoice['config'], true, 512, \JSON_THROW_ON_ERROR);
                 $referenceInvoiceNumbers[$orderId] = $invoice['documentNumber'] ?? $documentRefer['documentNumber'];
 
-                $order = $this->getOrder($operation, $invoice['orderVersionId'], $context, $rendererConfig);
+                $order = $this->getOrder($operation, Defaults::LIVE_VERSION, $context, $rendererConfig);
 
                 $orders->add($order);
                 $operation->setReferencedDocumentId($invoice['id']);
-                if ($order->getVersionId()) {
-                    $operation->setOrderVersionId($order->getVersionId());
-                }
             } catch (\Throwable $exception) {
                 $result->addError($operation->getOrderId(), $exception);
             }
@@ -109,16 +124,27 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                     continue;
                 }
 
-                $lineItems = $order->getLineItems();
-                $creditItems = new OrderLineItemCollection();
+                $liveLineItems = $order->getLineItems() ?? new OrderLineItemCollection();
+                $liveCreditItems = $liveLineItems->filterByType(LineItem::CREDIT_LINE_ITEM_TYPE);
 
-                if ($lineItems) {
-                    $creditItems = $lineItems->filterByType(LineItem::CREDIT_LINE_ITEM_TYPE);
+                if ($liveCreditItems->count() === 0) {
+                    throw DocumentException::generationError(
+                        'Can not generate credit note document because no credit line items exists. OrderId: ' . $operation->getOrderId()
+                    );
                 }
+
+                $referencedInvoiceId = $operation->getReferencedDocumentId();
+                $invoiceCreditIds = $this->getCreditIdsOnInvoiceDocument($referencedInvoiceId);
+                $creditNoteItemIds = $this->getPreviouslyCreditedIdsForInvoice($referencedInvoiceId);
+
+                $creditItems = $liveCreditItems->filter(
+                    static fn (OrderLineItemEntity $item) => !\in_array($item->getId(), $invoiceCreditIds, true)
+                        && !\in_array($item->getId(), $creditNoteItemIds, true)
+                );
 
                 if ($creditItems->count() === 0) {
                     throw DocumentException::generationError(
-                        'Can not generate credit note document because no credit line items exists. OrderId: ' . $operation->getOrderId()
+                        'Can not generate credit note document because no unprocessed credit line items exists. OrderId: ' . $operation->getOrderId()
                     );
                 }
 
@@ -131,7 +157,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                 $referenceDocumentNumber = $referenceInvoiceNumbers[$operation->getOrderId()];
 
                 $config->merge([
-                    'documentDate' => $operation->getConfig()['documentDate'] ?? (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'documentDate' => $operation->getConfig()['documentDate'] ?? $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                     'documentNumber' => $number,
                     'custom' => [
                         'creditNoteNumber' => $number,
@@ -142,6 +168,9 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                         $order,
                     ) && $this->isValidVat($order, $this->validator),
                 ]);
+
+                // create version of order to ensure the document stays the same even if the order changes
+                $operation->setOrderVersionId($this->orderRepository->createVersion($order->getId(), $context, 'document'));
 
                 if ($operation->isStatic()) {
                     $doc = new RenderedDocument($number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
@@ -189,18 +218,25 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         throw new DecorationPatternException(self::class);
     }
 
-    private function getOrder(DocumentGenerateOperation $operation, string $versionId, Context $context, DocumentRendererConfig $rendererConfig): OrderEntity
-    {
-        ['language_id' => $languageId] = $this->getOrdersLanguageId([$operation->getOrderId()], $versionId, $this->connection)[0];
+    private function getOrder(
+        DocumentGenerateOperation $operation,
+        string $versionId,
+        Context $context,
+        DocumentRendererConfig $rendererConfig
+    ): OrderEntity {
+        $languageId = $this->getOrdersLanguageId(
+            [$operation->getOrderId()],
+            $versionId,
+            $this->connection
+        )[0]['language_id'];
+
         $languageIdChain = array_values(
             array_unique(
                 array_filter([$languageId, ...$context->getLanguageIdChain()])
             )
         );
 
-        // First try to load the order with the version from the reference invoice
-        $order = $this->loadOrder($operation, $versionId, $context, $languageIdChain, $rendererConfig)
-            ?? $this->loadOrder($operation, Defaults::LIVE_VERSION, $context, $languageIdChain, $rendererConfig);
+        $order = $this->loadOrder($operation, $versionId, $context, $languageIdChain, $rendererConfig);
 
         if ($order === null) {
             throw DocumentException::orderNotFound($operation->getOrderId());
@@ -290,5 +326,66 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         $order->setAmountNet($price->getNetPrice());
 
         return $price;
+    }
+
+    /**
+     * @return list<string> IDs of already invoiced credit items
+     */
+    private function getCreditIdsOnInvoiceDocument(?string $referencedInvoiceId): array
+    {
+        if ($referencedInvoiceId === null) {
+            return [];
+        }
+
+        $sql = '
+            SELECT
+                oli.id AS id
+            FROM
+                document AS d
+                INNER JOIN order_line_item AS oli ON oli.order_id = d.order_id AND oli.order_version_id = d.order_version_id
+            WHERE
+                d.id = :referencedInvoiceId
+                AND oli.type = :creditType;
+        ';
+
+        $binaryIds = $this->connection->fetchFirstColumn($sql, [
+            'referencedInvoiceId' => Uuid::fromHexToBytes($referencedInvoiceId),
+            'creditType' => LineItem::CREDIT_LINE_ITEM_TYPE,
+        ]);
+
+        return array_map(static fn ($id): string => Uuid::fromBytesToHex($id), $binaryIds);
+    }
+
+    /**
+     * @return list<string> IDs of already credited items on previous credit notes for the referenced invoice
+     */
+    private function getPreviouslyCreditedIdsForInvoice(?string $referencedInvoiceId): array
+    {
+        if ($referencedInvoiceId === null) {
+            return [];
+        }
+
+        $sql = '
+            SELECT
+                oli.id AS id
+            FROM
+                document AS d
+                INNER JOIN document_type AS dt ON dt.id = d.document_type_id
+                INNER JOIN order_line_item AS oli ON oli.order_id = d.order_id AND oli.order_version_id = d.order_version_id
+            WHERE
+                d.referenced_document_id = :referencedInvoiceId
+                AND dt.technical_name IN (:creditTechnicalName)
+                AND oli.type = :creditType;
+        ';
+
+        $binaryIds = $this->connection->fetchFirstColumn($sql, [
+            'referencedInvoiceId' => Uuid::fromHexToBytes($referencedInvoiceId),
+            'creditTechnicalName' => [self::TYPE, ZugferdCreditNoteRenderer::TYPE, ZugferdEmbeddedCreditNoteRenderer::TYPE],
+            'creditType' => LineItem::CREDIT_LINE_ITEM_TYPE,
+        ], [
+            'creditTechnicalName' => ArrayParameterType::STRING,
+        ]);
+
+        return array_map(static fn ($id): string => Uuid::fromBytesToHex($id), $binaryIds);
     }
 }

@@ -3,7 +3,7 @@
     :is-loading="isLoading"
     class="sw-property-option-list"
     position-identifier="sw-property-option-list"
-    :title="$tc('sw-property.detail.cardTitle')"
+    :title="$t('sw-property.detail.cardTitle')"
 >
 
     {% block sw_property_option_list_toolbar %}
@@ -27,7 +27,7 @@
             {% block sw_property_option_list_toolbar_delete %}
             <mt-button
                 v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     disabled: acl.can('property.editor'),
                     showOnDisabledElements: true
                 }"
@@ -49,7 +49,7 @@
             <sw-container v-tooltip="tooltipAdd">
                 <mt-button
                     v-tooltip="{
-                        message: $tc('sw-privileges.tooltip.warning'),
+                        message: $t('sw-privileges.tooltip.warning'),
                         disabled: acl.can('property.editor'),
                         showOnDisabledElements: true
                     }"
@@ -59,7 +59,7 @@
                     variant="secondary"
                     @click="onAddOption(propertyGroup)"
                 >
-                    {{ $tc('sw-property.detail.addOption') }}
+                    {{ $t('sw-property.detail.addOption') }}
                 </mt-button>
             </sw-container>
             {% endblock %}
@@ -74,19 +74,17 @@
             ref="grid"
             :is-loading="isLoading"
             :collection="propertyGroup.options"
-            :data-source="dataSource"
             :columns="getGroupColumns()"
             :full-page="false"
-            :local-mode="propertyGroup.isNew()"
+            :local-mode="false"
             :allow-inline-edit="allowInlineEdit"
             :sort-by="sortBy"
             :sort-direction="sortDirection"
+            @load-finish="checkEmptyState"
             @selection-change="onGridSelectionChanged"
         >
-
             <template #column-name="{ item, isInlineEdit }">
                 <template v-if="isInlineEdit">
-
                     <mt-text-field
                         v-model="item.name"
                         size="small"
@@ -113,7 +111,7 @@
                     :disabled="!acl.can('property.editor')"
                     @click="onOptionEdit(item)"
                 >
-                    {{ $tc('sw-property.list.contextMenuView') }}
+                    {{ $t('global.default.edit') }}
                 </sw-context-menu-item>
                 {% endblock %}
             </template>
@@ -126,13 +124,23 @@
                     :disabled="!acl.can('property.editor')"
                     @click="onSingleOptionDelete(item.id)"
                 >
-                    {{ $tc('sw-property.list.contextMenuDelete') }}
+                    {{ $t('global.default.delete') }}
                 </sw-context-menu-item>
             </template>
             {% endblock %}
         </sw-one-to-many-grid>
+
+        {% block sw_settings_country_state_list_empty %}
+        <mt-empty-state
+            v-if="showEmptyState"
+            :icon="$route.meta.$module.icon"
+            :headline="$t('sw-property.detail.messageOptionsEmpty')"
+            :description="$t('sw-property.detail.messageOptionsEmptySubline')"
+        />
         {% endblock %}
     </template>
+    {% endblock %}
+
     {% block sw_property_option_list_detail %}
     <sw-property-option-detail
         v-if="currentOption"

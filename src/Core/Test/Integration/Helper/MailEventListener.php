@@ -10,15 +10,25 @@ use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
  */
 class MailEventListener
 {
+    /**
+     * @var array<string, list<FlowSendMailActionEvent>>
+     */
     private array $events = [];
 
+    /**
+     * @param array<string, string> $mapping
+     */
     public function __construct(private readonly array $mapping)
     {
     }
 
     public function __invoke(FlowSendMailActionEvent $event): void
     {
-        $name = $this->mapping[$event->getMailTemplate()->getMailTemplateTypeId()];
+        $mailTemplateTypeId = $event->getMailTemplate()->getMailTemplateTypeId();
+        if ($mailTemplateTypeId === null) {
+            return;
+        }
+        $name = $this->mapping[$mailTemplateTypeId];
 
         $this->events[$name][] = $event;
     }
@@ -33,8 +43,11 @@ class MailEventListener
         return !empty($this->events[$type]);
     }
 
+    /**
+     * @return ($type is string ? list<FlowSendMailActionEvent> : array<string, list<FlowSendMailActionEvent>>)
+     */
     public function get(?string $type = null): array
     {
-        return $type ? $this->events[$type] : $this->events;
+        return $type !== null ? $this->events[$type] : $this->events;
     }
 }

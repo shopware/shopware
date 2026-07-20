@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package framework
  */
@@ -150,11 +152,6 @@ describe('components/data-grid/sw-data-grid', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be in compact mode by default', async () => {
@@ -914,10 +911,49 @@ describe('components/data-grid/sw-data-grid', () => {
 
         await wrapper.vm.$nextTick();
 
-        const newBulkActions = wrapper.find('.sw-data-grid__bulk');
-        const maximumHint = newBulkActions.find('.sw-data-grid__bulk-max-selection');
+        expect(wrapper.vm.reachMaximumSelectionExceed).toBe(true);
 
-        expect(maximumHint.exists()).toBe(true);
+        // The maximum-selection notice is exposed as a tooltip on the disabled select-all checkbox.
+        const selectAll = wrapper.find('.sw-data-grid__header .sw-data-grid__select-all');
+
+        expect(selectAll.attributes('data-tooltip-message')).toBeDefined();
+    });
+
+    it('should disable the select-all header checkbox and keep it unchecked when the maximum selection is reached', async () => {
+        const wrapper = await createWrapper({
+            maximumSelectItems: 1,
+            identifier: 'sw-customer-list',
+            preSelection: {
+                uuid1: { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
+            },
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.reachMaximumSelectionExceed).toBe(true);
+        expect(wrapper.vm.isSelectAllDisabled).toBe(true);
+        // A single visible selection must not make the header look like "all items selected".
+        expect(wrapper.vm.allSelectedChecked).toBe(false);
+
+        const selectAll = wrapper.find(
+            '.sw-data-grid__header .mt-field--checkbox__container.sw-data-grid__select-all input',
+        );
+
+        expect(selectAll.attributes().disabled).toBe('');
+        expect(selectAll.element.checked).toBe(false);
+    });
+
+    it('should not disable the select-all header checkbox when no maximum selection is set', async () => {
+        const wrapper = await createWrapper({
+            identifier: 'sw-customer-list',
+            preSelection: {
+                uuid1: { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
+            },
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.isSelectAllDisabled).toBe(false);
     });
 
     it('should disable checkboxes when maximum selection exceed', async () => {
@@ -942,6 +978,9 @@ describe('components/data-grid/sw-data-grid', () => {
         const uncheckedBox = rows.at(4).find('.mt-field--checkbox__container input');
 
         expect(uncheckedBox.attributes().disabled).toBe('');
+
+        // unselected rows blocked by the maximum expose the reason as a tooltip on hover
+        expect(rows.at(4).find('.sw-data-grid__cell--selection [data-tooltip-message]').exists()).toBe(true);
 
         // Change data source, select all checkbox and all items checkboxes will be disabled
         await wrapper.setProps({
@@ -985,7 +1024,9 @@ describe('components/data-grid/sw-data-grid', () => {
         });
         expect(wrapper.find('.sw-data-grid__cell--icon-label').exists()).toBe(true);
         expect(wrapper.find('.sw-data-grid__cell--icon-label .mt-icon').classes()).toContain('icon--regular-file-text');
-        expect(wrapper.find('.sw-data-grid__cell--icon-label .mt-icon').attributes()).not.toContain('data-tooltip-message');
+        expect(wrapper.find('.sw-data-grid__cell--icon-label .mt-icon').attributes()).not.toHaveProperty(
+            'data-tooltip-message',
+        );
     });
 
     it('should render icon column header with tooltip', async () => {
@@ -1026,5 +1067,224 @@ describe('components/data-grid/sw-data-grid', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.props().contextButtonMenuWidth).toBe(220);
+    });
+
+    describe('rows-clickable feature', () => {
+        it('should not have is--clickable class when rowsClickable is false', async () => {
+            const wrapper = await createWrapper({
+                rowsClickable: false,
+            });
+
+            const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+
+            rows.forEach((row) => {
+                expect(row.classes()).not.toContain('is--clickable');
+            });
+        });
+
+        it('should have is--clickable class when rowsClickable is true', async () => {
+            const wrapper = await createWrapper({
+                rowsClickable: true,
+            });
+
+            const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+
+            rows.forEach((row) => {
+                expect(row.classes()).toContain('is--clickable');
+            });
+        });
+
+        it('should emit row-click event when rowsClickable is true', async () => {
+            const wrapper = await createWrapper({
+                rowsClickable: true,
+            });
+
+            await wrapper.find('.sw-data-grid__body .sw-data-grid__row').trigger('click');
+
+            expect(wrapper.emitted('row-click')).toBeDefined();
+            expect(wrapper.emitted('row-click')).toHaveLength(1);
+            expect(wrapper.emitted('row-click')[0][0]).toEqual(defaultProps.dataSource[0]);
+        });
+
+        it('should select item when clicking row with rowsClickable and showSelection enabled', async () => {
+            const wrapper = await createWrapper({
+                rowsClickable: true,
+                showSelection: true,
+            });
+
+            expect(wrapper.vm.selection).toEqual({});
+
+            await wrapper.find('.sw-data-grid__body .sw-data-grid__row').trigger('click');
+
+            expect(wrapper.vm.selection).toHaveProperty('uuid1');
+            expect(wrapper.vm.selection.uuid1).toEqual(defaultProps.dataSource[0]);
+        });
+
+        it('should deselect item when clicking an already selected row', async () => {
+            const wrapper = await createWrapper({
+                rowsClickable: true,
+                showSelection: true,
+                preSelection: {
+                    uuid1: defaultProps.dataSource[0],
+                },
+            });
+
+            expect(wrapper.vm.selection).toHaveProperty('uuid1');
+
+            await wrapper.find('.sw-data-grid__body .sw-data-grid__row').trigger('click');
+
+            expect(wrapper.vm.selection).not.toHaveProperty('uuid1');
+            expect(wrapper.vm.selection).toEqual({});
+        });
+
+        it('should not select item when showSelection is false', async () => {
+            const wrapper = await createWrapper({
+                rowsClickable: true,
+                showSelection: false,
+            });
+
+            await wrapper.find('.sw-data-grid__body .sw-data-grid__row').trigger('click');
+
+            expect(wrapper.vm.selection).toEqual({});
+            expect(wrapper.emitted('row-click')).toBeDefined();
+        });
+
+        it('should not emit row-click event when rowsClickable is false', async () => {
+            const wrapper = await createWrapper({
+                rowsClickable: false,
+            });
+
+            await wrapper.find('.sw-data-grid__body .sw-data-grid__row').trigger('click');
+
+            expect(wrapper.emitted('row-click')).toBeUndefined();
+        });
+
+        it.each([
+            { name: 'selection checkbox', selector: '.sw-data-grid__cell--selection input', additionalProps: {} },
+            { name: 'actions cell', selector: '.sw-data-grid__cell--actions', additionalProps: { showActions: true } },
+            { name: 'context button', selector: '.sw-context-button', additionalProps: { showActions: true } },
+        ])('should not emit row-click event when clicking on $name', async ({ selector, additionalProps }) => {
+            const wrapper = await createWrapper({
+                rowsClickable: true,
+                ...additionalProps,
+            });
+
+            await wrapper.find(selector).trigger('click');
+
+            expect(wrapper.emitted('row-click')).toBeUndefined();
+        });
+
+        it.each([
+            { name: 'button', tagName: 'button' },
+            { name: 'link', tagName: 'a' },
+            { name: 'input', tagName: 'input' },
+        ])('should not emit row-click event when clicking on a $name element', async ({ tagName }) => {
+            const wrapper = await createWrapper({
+                rowsClickable: true,
+            });
+
+            const firstRow = wrapper.find('.sw-data-grid__body .sw-data-grid__row');
+
+            const element = document.createElement(tagName);
+            firstRow.element.appendChild(element);
+
+            await element.dispatchEvent(new Event('click', { bubbles: true }));
+            await flushPromises();
+
+            expect(wrapper.emitted('row-click')).toBeUndefined();
+        });
+
+        it.each([
+            { name: 'first', rowIndex: 0 },
+            { name: 'third', rowIndex: 2 },
+            { name: 'fifth', rowIndex: 4 },
+        ])('should emit row-click event with correct item when clicking $name row', async ({ rowIndex }) => {
+            const wrapper = await createWrapper({
+                rowsClickable: true,
+            });
+
+            const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+            await rows.at(rowIndex).trigger('click');
+
+            expect(wrapper.emitted('row-click')).toBeDefined();
+            expect(wrapper.emitted('row-click')[0][0]).toEqual(defaultProps.dataSource[rowIndex]);
+        });
+    });
+
+    describe('getColumnLabel', () => {
+        const messages = {
+            'en-GB': { 'sw-grid.column.name': 'Name (EN)' },
+            'de-DE': { 'sw-grid.column.name': 'Name (DE)' },
+        };
+
+        async function createWrapperWithI18n({ locale, $te, $t } = {}) {
+            Shopware.Context.app.fallbackLocale = 'en-GB';
+
+            return mount(await wrapTestComponent('sw-data-grid', { sync: true }), {
+                global: {
+                    mocks: {
+                        $te: $te ?? ((key, l) => Boolean(messages[l ?? locale]?.[key])),
+                        $t: $t ?? ((key, l) => messages[l ?? locale]?.[key] ?? key),
+                    },
+                    provide: {
+                        repositoryFactory: {
+                            create: () => ({
+                                search: () => Promise.resolve([defaultUserConfig]),
+                                save: () => Promise.resolve(),
+                                get: () => Promise.resolve({}),
+                            }),
+                        },
+                        acl: { can: () => true },
+                    },
+                },
+                props: defaultProps,
+            });
+        }
+
+        it('returns the translated label when the snippet exists in the current locale', async () => {
+            const wrapper = await createWrapperWithI18n({ locale: 'de-DE' });
+
+            const result = wrapper.vm.getColumnLabel({ label: 'sw-grid.column.name' });
+
+            expect(result).toBe('Name (DE)');
+        });
+
+        it('falls back to the fallback locale when the snippet is missing in the current locale', async () => {
+            const wrapper = await createWrapperWithI18n({ locale: 'fr-FR' });
+
+            const result = wrapper.vm.getColumnLabel({ label: 'sw-grid.column.name' });
+
+            expect(result).toBe('Name (EN)');
+        });
+
+        it('returns the raw label when neither current nor fallback locale has the snippet', async () => {
+            const wrapper = await createWrapperWithI18n({ locale: 'fr-FR' });
+
+            const result = wrapper.vm.getColumnLabel({ label: 'Plain Text Label' });
+
+            expect(result).toBe('Plain Text Label');
+        });
+
+        it('returns an empty string when the column has no label', async () => {
+            const wrapper = await createWrapperWithI18n({ locale: 'en-GB' });
+
+            expect(wrapper.vm.getColumnLabel({})).toBe('');
+            expect(wrapper.vm.getColumnLabel({ label: '' })).toBe('');
+        });
+
+        it('does not consult the fallback locale when no fallbackLocale is configured', async () => {
+            const $te = jest.fn(() => false);
+            const $t = jest.fn((key) => key);
+            const wrapper = await createWrapperWithI18n({ $te, $t });
+
+            Shopware.Context.app.fallbackLocale = '';
+            $te.mockClear();
+
+            const result = wrapper.vm.getColumnLabel({ label: 'sw-grid.column.name' });
+
+            expect(result).toBe('sw-grid.column.name');
+            expect($te).toHaveBeenCalledTimes(1);
+            expect($te).toHaveBeenCalledWith('sw-grid.column.name');
+        });
     });
 });

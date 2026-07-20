@@ -2,16 +2,13 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\CustomFieldRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Shopware\Core\Framework\Util\ArrayComparator;
-use Shopware\Core\Framework\Util\FloatComparator;
-use Symfony\Component\Validator\Constraint;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @final
@@ -45,7 +42,7 @@ class LineItemCustomFieldRule extends Rule
     public function match(RuleScope $scope): bool
     {
         if ($scope instanceof LineItemScope) {
-            return $this->isCustomFieldValid($scope->getLineItem());
+            return $this->isCustomFieldValid($scope->getLineItem(), $scope->getSalesChannelContext());
         }
 
         if (!$scope instanceof CartRuleScope) {
@@ -53,7 +50,7 @@ class LineItemCustomFieldRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
-            if ($this->isCustomFieldValid($lineItem)) {
+            if ($this->isCustomFieldValid($lineItem, $scope->getSalesChannelContext())) {
                 return true;
             }
         }
@@ -61,48 +58,24 @@ class LineItemCustomFieldRule extends Rule
         return false;
     }
 
-    /**
-     * @return array|Constraint[][]
-     */
     public function getConstraints(): array
     {
         return CustomFieldRule::getConstraints($this->renderedField);
     }
 
-    private function isCustomFieldValid(LineItem $lineItem): bool
+    private function isCustomFieldValid(LineItem $lineItem, SalesChannelContext $context): bool
     {
         $customFields = $lineItem->getPayloadValue('customFields');
         if ($customFields === null) {
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
-        $actual = CustomFieldRule::getValue($customFields, $this->renderedField);
-        $expected = CustomFieldRule::getExpectedValue($this->renderedFieldValue, $this->renderedField);
-
-        if ($actual === null) {
-            if ($this->operator === self::OPERATOR_NEQ) {
-                return $actual !== $expected;
-            }
-
-            return false;
-        }
-
-        if (CustomFieldRule::isFloat($this->renderedField)) {
-            return FloatComparator::compare((float) $actual, (float) $expected, $this->operator);
-        }
-
-        if (CustomFieldRule::isArray($this->renderedField)) {
-            return ArrayComparator::compare((array) $actual, (array) $expected, $this->operator);
-        }
-
-        return match ($this->operator) {
-            self::OPERATOR_NEQ => $actual !== $expected,
-            self::OPERATOR_GTE => $actual >= $expected,
-            self::OPERATOR_LTE => $actual <= $expected,
-            self::OPERATOR_EQ => $actual === $expected,
-            self::OPERATOR_GT => $actual > $expected,
-            self::OPERATOR_LT => $actual < $expected,
-            default => throw CartException::unsupportedOperator($this->operator, self::class),
-        };
+        return CustomFieldRule::match(
+            $this->renderedField,
+            $this->renderedFieldValue,
+            $this->operator,
+            $customFields,
+            $context,
+        );
     }
 }

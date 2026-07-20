@@ -3,17 +3,26 @@
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
+use Shopware\Core\Content\Category\Service\CategoryUrlGenerator;
 use Shopware\Core\Content\Category\Tree\Tree;
+use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\NavigationController;
+use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Navigation\NavigationPage;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoaderInterface;
 use Shopware\Storefront\Pagelet\Footer\FooterPagelet;
@@ -23,6 +32,7 @@ use Shopware\Storefront\Pagelet\Header\HeaderPagelet;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoadedHook;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoaderInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -31,24 +41,51 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(NavigationController::class)]
 class NavigationControllerTest extends TestCase
 {
-    private NavigationPageLoaderInterface&MockObject $pageLoader;
+    private NavigationPageLoaderInterface&Stub $pageLoader;
 
-    private MenuOffcanvasPageletLoaderInterface&MockObject $offCanvasLoader;
+    private MenuOffcanvasPageletLoaderInterface&Stub $offCanvasLoader;
 
     private NavigationControllerTestClass $controller;
 
-    private HeaderPageletLoaderInterface&MockObject $headerLoader;
+    private HeaderPageletLoaderInterface&Stub $headerLoader;
 
-    private FooterPageletLoaderInterface&MockObject $footerLoader;
+    private FooterPageletLoaderInterface&Stub $footerLoader;
+
+    private AbstractCategoryUrlGenerator $categoryUrlGenerator;
+
+    private SeoUrlPlaceholderHandlerInterface&Stub $seoUrlReplacer;
 
     protected function setUp(): void
     {
-        $this->pageLoader = $this->createMock(NavigationPageLoaderInterface::class);
-        $this->offCanvasLoader = $this->createMock(MenuOffcanvasPageletLoaderInterface::class);
-        $this->headerLoader = $this->createMock(HeaderPageletLoaderInterface::class);
-        $this->footerLoader = $this->createMock(FooterPageletLoaderInterface::class);
+        $this->pageLoader = static::createStub(NavigationPageLoaderInterface::class);
+        $this->offCanvasLoader = static::createStub(MenuOffcanvasPageletLoaderInterface::class);
+        $this->headerLoader = static::createStub(HeaderPageletLoaderInterface::class);
+        $this->footerLoader = static::createStub(FooterPageletLoaderInterface::class);
 
-        $this->controller = new NavigationControllerTestClass($this->pageLoader, $this->offCanvasLoader, $this->headerLoader, $this->footerLoader);
+        $this->seoUrlReplacer = static::createStub(SeoUrlPlaceholderHandlerInterface::class);
+        $this->seoUrlReplacer->method('replace')
+            ->willReturnCallback(static fn (string $url) => $url);
+
+        $entityRouteResolver = static::createStub(EntityRouteResolver::class);
+        $entityRouteResolver->method('generateSeoUrlPlaceholder')
+            ->willReturnCallback(static function (string $entityName, string $primaryKey) {
+                return match ($entityName) {
+                    'product' => '/product/' . $primaryKey,
+                    'category' => '/navigation/' . $primaryKey,
+                    'landing_page' => '/landingPage/' . $primaryKey,
+                    default => '/' . $entityName,
+                };
+            });
+        $this->categoryUrlGenerator = new CategoryUrlGenerator($entityRouteResolver);
+
+        $this->controller = new NavigationControllerTestClass(
+            $this->pageLoader,
+            $this->offCanvasLoader,
+            $this->headerLoader,
+            $this->footerLoader,
+            $this->categoryUrlGenerator,
+            $this->seoUrlReplacer,
+        );
     }
 
     public function testHomeRendersStorefront(): void
@@ -65,8 +102,14 @@ class NavigationControllerTest extends TestCase
 
     public function testIndexRendersStorefront(): void
     {
+        $category = new CategoryEntity();
+        $category->setType(CategoryDefinition::TYPE_PAGE);
+
+        $navigationPage = new NavigationPage();
+        $navigationPage->setCategory($category);
+
         $this->pageLoader->method('load')
-            ->willReturn(new NavigationPage());
+            ->willReturn($navigationPage);
 
         $request = new Request([
             'navigationId' => Uuid::randomHex(),
@@ -75,6 +118,110 @@ class NavigationControllerTest extends TestCase
 
         $this->controller->index($context, $request);
         static::assertSame('@Storefront/storefront/page/content/index.html.twig', $this->controller->renderStorefrontView);
+    }
+
+    public static function redirectOnLinkTypeDataProvider(): \Generator
+    {
+        $productId = Uuid::randomHex();
+        $categoryId = Uuid::randomHex();
+
+        yield 'product link type' => [
+            'data' => [
+                'linkType' => CategoryDefinition::LINK_TYPE_PRODUCT,
+                'internalLink' => $productId,
+                'externalLink' => 'This should not be used',
+            ],
+            'expectedUrl' => '/product/' . $productId,
+        ];
+
+        yield 'category link type' => [
+            'data' => [
+                'linkType' => CategoryDefinition::LINK_TYPE_CATEGORY,
+                'internalLink' => $categoryId,
+                'externalLink' => 'This should not be used',
+            ],
+            'expectedUrl' => '/navigation/' . $categoryId,
+        ];
+
+        yield 'external link type' => [
+            'data' => [
+                'linkType' => CategoryDefinition::LINK_TYPE_EXTERNAL,
+                'internalLink' => 'This should not be used',
+                'externalLink' => 'https://example.com',
+            ],
+            'expectedUrl' => 'https://example.com',
+        ];
+    }
+
+    /**
+     * @param array{linkType: string, internalLink: string, externalLink: string} $data
+     */
+    #[DataProvider('redirectOnLinkTypeDataProvider')]
+    public function testIndexRedirectsOnLinkType(array $data, string $expectedUrl): void
+    {
+        $category = new CategoryEntity();
+        $category->setId(Uuid::randomHex());
+        $category->setType(CategoryDefinition::TYPE_LINK);
+        $category->setLinkType($data['linkType']);
+        $category->setInternalLink($data['internalLink']);
+        $category->setExternalLink($data['externalLink']);
+
+        $category->setTranslated([
+            'linkType' => $data['linkType'],
+            'internalLink' => $data['internalLink'],
+            'externalLink' => $data['externalLink'],
+        ]);
+
+        $navigationPage = new NavigationPage();
+        $navigationPage->setCategory($category);
+
+        $this->pageLoader->method('load')
+            ->willReturn($navigationPage);
+
+        $request = new Request(
+            ['navigationId' => Uuid::randomHex()],
+            [],
+            [RequestTransformer::STOREFRONT_URL => 'https://example.com'],
+        );
+
+        $context = Generator::generateSalesChannelContext();
+
+        $response = $this->controller->index($context, $request);
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame($expectedUrl, $response->getTargetUrl());
+    }
+
+    public function testIndexDoesNotRedirectOnLinkTypeWithoutUrl(): void
+    {
+        $categoryId = Uuid::randomHex();
+        $category = new CategoryEntity();
+        $category->setId($categoryId);
+        $category->setType(CategoryDefinition::TYPE_LINK);
+        $category->setLinkType(CategoryDefinition::LINK_TYPE_PRODUCT);
+        $category->setInternalLink(null);
+
+        $category->setTranslated([
+            'linkType' => CategoryDefinition::LINK_TYPE_PRODUCT,
+            'internalLink' => null,
+        ]);
+
+        $navigationPage = new NavigationPage();
+        $navigationPage->setCategory($category);
+
+        $this->pageLoader->method('load')
+            ->willReturn($navigationPage);
+
+        $request = new Request(
+            ['navigationId' => Uuid::randomHex()],
+            [],
+            [RequestTransformer::STOREFRONT_URL => 'https://example.com'],
+        );
+
+        $context = Generator::generateSalesChannelContext();
+
+        $this->expectExceptionObject(new CategoryNotFoundException($categoryId));
+
+        $this->controller->index($context, $request);
     }
 
     public function testOffcanvasRendersStorefront(): void
@@ -93,8 +240,10 @@ class NavigationControllerTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $headerPagelet = new HeaderPagelet(new Tree(null, []), new LanguageCollection(), new CurrencyCollection());
 
-        $this->headerLoader->expects($this->once())->method('load')->with($request, $context)->willReturn($headerPagelet);
+        $headerLoader = $this->createMock(HeaderPageletLoaderInterface::class);
+        $headerLoader->expects($this->once())->method('load')->with($request, $context)->willReturn($headerPagelet);
 
+        $this->controller = $this->buildController(headerLoader: $headerLoader);
         $this->controller->header($request, $context);
         static::assertSame('@Storefront/storefront/layout/header.html.twig', $this->controller->renderStorefrontView);
         static::assertSame(['foo' => 'bar'], $this->controller->renderStorefrontParameters['headerParameters']);
@@ -109,14 +258,30 @@ class NavigationControllerTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $footerPagelet = new FooterPagelet(null, new CategoryCollection(), new PaymentMethodCollection(), new ShippingMethodCollection());
 
-        $this->footerLoader->expects($this->once())->method('load')->with($request, $context)->willReturn($footerPagelet);
+        $footerLoader = $this->createMock(FooterPageletLoaderInterface::class);
+        $footerLoader->expects($this->once())->method('load')->with($request, $context)->willReturn($footerPagelet);
 
+        $this->controller = $this->buildController(footerLoader: $footerLoader);
         $this->controller->footer($request, $context);
         static::assertSame('@Storefront/storefront/layout/footer.html.twig', $this->controller->renderStorefrontView);
         static::assertSame(['foo' => 'bar'], $this->controller->renderStorefrontParameters['footerParameters']);
 
         static::assertInstanceOf(FooterPageletLoadedHook::class, $this->controller->calledHook);
         static::assertSame($footerPagelet, $this->controller->calledHook->getPage());
+    }
+
+    private function buildController(
+        ?HeaderPageletLoaderInterface $headerLoader = null,
+        ?FooterPageletLoaderInterface $footerLoader = null,
+    ): NavigationControllerTestClass {
+        return new NavigationControllerTestClass(
+            $this->pageLoader,
+            $this->offCanvasLoader,
+            $headerLoader ?? $this->headerLoader,
+            $footerLoader ?? $this->footerLoader,
+            $this->categoryUrlGenerator,
+            $this->seoUrlReplacer,
+        );
     }
 }
 

@@ -55,12 +55,6 @@ async function createWrapper() {
 describe('src/module/sw-order/component/sw-order-state-history-card', () => {
     let wrapper;
 
-    it('should be a Vue.js component', async () => {
-        global.activeAclRoles = [];
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have an disabled payment state', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();

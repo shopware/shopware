@@ -16,8 +16,8 @@ async function createWrapper({ mediaRepositoryMock = undefined } = {}) {
                     template: '<div class="sw-media-upload-v2"></div>',
                     props: ['disabled'],
                 },
-                'mt-text-editor': {
-                    template: '<div class="mt-text-editor"></div>',
+                'sw-text-editor': {
+                    template: '<div class="sw-text-editor"></div>',
                     props: ['disabled'],
                 },
                 'sw-media-modal-v2': {
@@ -99,7 +99,7 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
 
         const { wrapper } = await createWrapper();
 
-        const textEditor = wrapper.getComponent('.mt-text-editor');
+        const textEditor = wrapper.getComponent('.sw-text-editor');
 
         expect(textEditor.props('disabled')).toBe(false);
     });
@@ -107,7 +107,7 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
     it('should disable the text editor for the description', async () => {
         const { wrapper } = await createWrapper();
 
-        const textEditor = wrapper.getComponent('.mt-text-editor');
+        const textEditor = wrapper.getComponent('.sw-text-editor');
 
         expect(textEditor.props('disabled')).toBe(true);
     });

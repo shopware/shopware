@@ -1,15 +1,24 @@
 {% block sw_flow_mail_send_modal %}
 <sw-modal
     class="sw-flow-mail-send-modal"
-    :title="$tc('sw-flow.modals.mail.titleSendMail')"
+    :title="$t('sw-flow.modals.mail.titleSendMail')"
     :closable="false"
     @modal-close="onClose"
 >
+    {% block sw_flow_mail_send_modal_document_warning %}
+    <mt-banner
+        class="sw-flow-mail-send-modal__document_warning"
+        variant="info"
+    >
+        {{ $t('sw-flow.modals.mail.documentDescription') }}
+    </mt-banner>
+    {% endblock %}
+
     <sw-single-select
         :value="replyToSelection"
         class="sw-flow-mail-send-modal__use-different-reply-to"
         :options="replyToOptions"
-        :label="$tc('sw-flow.modals.mail.useDifferentReplyToLabel')"
+        :label="$t('sw-flow.modals.mail.useDifferentReplyToLabel')"
         :help-text="buildReplyToTooltip('sw-flow.modals.mail.tooltipDifferentReplyTo')"
         @update:value="changeShowReplyToField"
     />
@@ -19,10 +28,11 @@
         v-model="replyTo"
         name="sw-field--replyTo"
         class="sw-flow-mail-send-modal__reply-to"
-        :label="$tc('sw-flow.modals.mail.labelReplyTo')"
-        :placeholder="$tc('sw-flow.modals.mail.placeholderReplyTo')"
+        :label="$t('sw-flow.modals.mail.labelReplyTo')"
+        :placeholder="$t('sw-flow.modals.mail.placeholderReplyTo')"
         :error="replyToError"
         required
+        @input="debouncedIsEmailValid(replyTo, 'replyTo')"
         @update:model-value="replyToError = null"
     />
 
@@ -32,11 +42,12 @@
         name="sw-field--mailRecipient"
         class="sw-flow-mail-send-modal__recipient"
         :options="recipientOptions"
-        :label="$tc('sw-flow.modals.mail.labelRecipient')"
-        :placeholder="$tc('sw-flow.modals.mail.placeholderRecipient')"
+        :label="$t('sw-flow.modals.mail.labelRecipient')"
+        :placeholder="$t('sw-flow.modals.mail.placeholderRecipient')"
         @update:value="onChangeRecipient"
     />
     {% endblock %}
+
     {% block sw_flow_mail_send_modal_recipient_emails_grid %}
     <sw-data-grid
         v-if="showRecipientEmails"
@@ -49,11 +60,10 @@
         :plain-appearance="true"
         @inline-edit-save="saveRecipient"
         @inline-edit-cancel="cancelSaveRecipient"
+        @vue:mounted="onRecipientsGridMounted"
     >
-
         {% block sw_event_action_detail_recipients_grid_column_email %}
         <template #column-email="{ item, column, isInlineEdit, compact }">
-
             <mt-text-field
                 v-if="isInlineEdit"
                 v-model="item.email"
@@ -61,8 +71,10 @@
                 class="sw-flow-mail-send-modal__recipient-email"
                 :size="compact ? 'small' : 'default'"
                 :error="item.errorMail"
-                :placeholder="$tc('sw-flow.modals.mail.placeholderRecipientEmailAddress')"
+                :placeholder="$t('sw-flow.modals.mail.placeholderRecipientEmailAddress')"
+                @input="debouncedIsEmailValid(item, 'grid')"
             />
+
             <template v-else>
                 {{ item.email }}
             </template>
@@ -71,7 +83,6 @@
 
         {% block sw_event_action_detail_recipients_grid_column_name %}
         <template #column-name="{ item, column, isInlineEdit, compact }">
-
             <mt-text-field
                 v-if="isInlineEdit"
                 v-model="item.name"
@@ -79,8 +90,9 @@
                 class="sw-flow-mail-send-modal__recipient-name"
                 :size="compact ? 'small' : 'default'"
                 :error="item.errorName"
-                :placeholder="$tc('sw-flow.modals.mail.placeholderRecipientName')"
+                :placeholder="$t('sw-flow.modals.mail.placeholderRecipientName')"
             />
+
             <template v-else>
                 {{ item.name }}
             </template>
@@ -93,7 +105,7 @@
                 class="sw-flow-mail-send-modal__grid-action-edit"
                 @click="onEditRecipient(item)"
             >
-                {{ $tc('global.default.edit') }}
+                {{ $t('global.default.edit') }}
             </sw-context-menu-item>
             {% endblock %}
 
@@ -104,7 +116,7 @@
                 :disabled="!allowDeleteRecipient(itemIndex)"
                 @click="onDeleteRecipient(itemIndex)"
             >
-                {{ $tc('global.default.delete') }}
+                {{ $t('global.default.delete') }}
             </sw-context-menu-item>
             {% endblock %}
         </template>
@@ -121,14 +133,12 @@
         value-property="title"
         label-property="description"
         :criteria="mailTemplateCriteria"
-        :label="$tc('sw-flow.modals.mail.labelEmailTemplate')"
-        :placeholder="$tc('sw-flow.modals.mail.placeholderEmailTemplate')"
+        :label="$t('sw-flow.modals.mail.labelEmailTemplate')"
+        :placeholder="$t('sw-flow.modals.mail.placeholderEmailTemplate')"
         :error="mailTemplateIdError"
         @update:value="(id, template) => onChangeMailTemplate(id, template)"
     >
-
         <template #before-item-list>
-
             {% block sw_flow_mail_send_modal_mail_template_select_before_list %}
             <ul class="sw-select-result__item-list">
                 <li
@@ -138,42 +148,46 @@
                     @click="onCreateMailTemplate"
                     @keydown.enter="onCreateMailTemplate"
                 >
-                    {{ $tc('sw-flow.modals.mail.titleNewEmailTemplate') }}
+                    {{ $t('sw-flow.modals.mail.titleNewEmailTemplate') }}
                 </li>
             </ul>
             {% endblock %}
         </template>
 
         <template #selection-label-property="{ item }">
-            <strong>{{ item.translated.description }}</strong>
-            <template v-if="item.translated.description">
-                -
-            </template>
-            {{ item.mailTemplateType.translated.name }}
+            <span>{{ item.translated.description }}</span>
+
+            <span v-if="item.translated.description">-</span>
+
+            <span class="sw-flow-mail-send-modal__mail-template-type-name">
+                {{ item.mailTemplateType.translated.name }}
+            </span>
         </template>
 
         <template #result-label-property="{ item, highlightSearchTerm, labelProperty, searchTerm }">
-            <strong>
-                <sw-highlight-text
-                    :text="item.translated.description"
-                    :search-term="searchTerm"
-                />
-            </strong>
-            {{ item.mailTemplateType.translated.name }}
+            <sw-highlight-text
+                :text="item.translated.description"
+                :search-term="searchTerm"
+            />
+
+            <span class="sw-flow-mail-send-modal__mail-template-type-name">
+                {{ item.mailTemplateType.translated.name }}
+            </span>
         </template>
     </sw-entity-single-select>
     {% endblock %}
 
     {% block sw_flow_mail_send_modal_mail_template_detail_link %}
     <div class="sw-flow-mail-send-modal__mail-template-detail">
-        <router-link
+        <mt-link
             v-if="mailTemplateId"
-            target="_blank"
-            rel="noopener"
+            class="sw-flow-mail-send-modal__mail-template-detail-link"
             :to="{ name: 'sw.mail.template.detail', params: { id: mailTemplateId } }"
+            variant="primary"
+            type="internal"
         >
-            {{ $tc('sw-flow.modals.mail.fieldMailTemplateDetailLink') }}
-        </router-link>
+            {{ $t('sw-flow.modals.mail.fieldMailTemplateDetailLink') }}
+        </mt-link>
     </div>
     {% endblock %}
 
@@ -183,8 +197,8 @@
         name="sw-field--documentTypeIds"
         :repository="documentTypeRepository"
         class="sw-flow-mail-send-modal__document-types"
-        :label="$tc('sw-flow.modals.mail.labelLatestDocuments')"
-        :placeholder="$tc('sw-flow.modals.mail.placeholderLatestDocuments')"
+        :label="$t('sw-flow.modals.mail.labelLatestDocuments')"
+        :placeholder="$t('sw-flow.modals.mail.placeholderLatestDocuments')"
     />
     {% endblock %}
 
@@ -195,15 +209,6 @@
         @process-finish="onCreateMailTemplateSuccess"
         @modal-close="onCloseCreateMailTemplateModal"
     />
-    {% endblock %}
-
-    {% block sw_flow_mail_send_modal_document_warning %}
-    <mt-banner
-        class="sw-flow-mail-send-modal__document_warning"
-        variant="info"
-    >
-        {{ $tc('sw-flow.modals.mail.documentDescription') }}
-    </mt-banner>
     {% endblock %}
 
     {% block sw_flow_mail_send_modal_custom %}
@@ -218,7 +223,7 @@
             variant="secondary"
             @click="onClose"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -229,7 +234,7 @@
             size="small"
             @click="onAddAction"
         >
-            {{ sequence.id ? $tc('sw-flow.modals.buttonSaveAction') : $tc('sw-flow.modals.buttonAddAction') }}
+            {{ sequence.id ? $t('sw-flow.modals.buttonSaveAction') : $t('sw-flow.modals.buttonAddAction') }}
         </mt-button>
         {% endblock %}
     </template>

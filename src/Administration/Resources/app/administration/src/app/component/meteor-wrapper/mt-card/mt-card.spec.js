@@ -5,20 +5,6 @@
 import { mount } from '@vue/test-utils';
 
 describe('src/app/component/meteor-wrapper/mt-card', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = mount(await wrapTestComponent('mt-card', { sync: true }), {
-            props: {
-                positionIdentifier: 'demo',
-            },
-            global: {
-                stubs: {
-                    'sw-extension-component-section': true,
-                },
-            },
-        });
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render the extension component sections by default when positionIdentifier is set', async () => {
         const wrapper = mount(await wrapTestComponent('mt-card', { sync: true }), {
             props: {

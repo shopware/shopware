@@ -33,7 +33,7 @@ class AppFlowActionLoadedSubscriberTest extends TestCase
         $iconPath = __DIR__ . '/../../Manifest/_fixtures/icon.png';
 
         $fileIcon = '';
-        if (file_exists($iconPath)) {
+        if (\is_file($iconPath)) {
             $fileIcon = \file_get_contents($iconPath);
         }
 

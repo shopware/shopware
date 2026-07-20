@@ -15,7 +15,7 @@ class CachedSnippetFinder implements SnippetFinderInterface
      */
     public function __construct(
         private readonly SnippetFinder $snippetFinder,
-        private readonly AdapterInterface $cache
+        private readonly AdapterInterface $cache,
     ) {
     }
 

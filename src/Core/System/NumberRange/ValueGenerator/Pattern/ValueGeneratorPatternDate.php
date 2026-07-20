@@ -15,12 +15,9 @@ class ValueGeneratorPatternDate extends AbstractValueGenerator
         return 'date';
     }
 
-    /**
-     * @param array<int, string>|null $args
-     */
     public function generate(array $config, ?array $args = null, ?bool $preview = false): string
     {
-        if ($args === null || \count($args) === 0) {
+        if ($args === null || $args === []) {
             $args[] = self::STANDARD_FORMAT;
         }
 

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Document;
 
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -48,9 +49,14 @@ class DocumentDefinition extends EntityDefinition
         return '6.0.0.0';
     }
 
+    protected function getParentDefinitionClass(): ?string
+    {
+        return OrderDefinition::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
-        $collection = new FieldCollection([
+        return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
 
             (new FkField('document_type_id', 'documentTypeId', DocumentTypeDefinition::class))->addFlags(new ApiAware(), new Required()),
@@ -65,7 +71,7 @@ class DocumentDefinition extends EntityDefinition
             (new BoolField('sent', 'sent'))->addFlags(new ApiAware()),
             (new BoolField('static', 'static'))->addFlags(new ApiAware()),
             (new StringField('deep_link_code', 'deepLinkCode'))->addFlags(new ApiAware(), new Required()),
-            (new NumberRangeField('document_number', 'documentNumber'))->addFlags(new ApiAware()),
+            (new NumberRangeField('document_number', 'documentNumber'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new CustomFields())->addFlags(new ApiAware()),
 
             (new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, 'id'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
@@ -74,8 +80,7 @@ class DocumentDefinition extends EntityDefinition
             (new OneToManyAssociationField('dependentDocuments', self::class, 'referenced_document_id'))->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('documentMediaFile', 'document_media_file_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('documentA11yMediaFile', 'document_a11y_media_file_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),
+            new OneToManyAssociationField('documentFiles', DocumentFileDefinition::class, 'document_id'),
         ]);
-
-        return $collection;
     }
 }

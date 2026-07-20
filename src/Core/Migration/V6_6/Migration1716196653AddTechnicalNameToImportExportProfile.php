@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\ImportExport\ImportExportProfileDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -27,7 +28,7 @@ class Migration1716196653AddTechnicalNameToImportExportProfile extends Migration
             type: 'VARCHAR(255)'
         );
 
-        if (!$this->indexExists($connection, ImportExportProfileDefinition::ENTITY_NAME, 'uniq.import_export_profile.technical_name')) {
+        if (!TableHelper::indexExists($connection, ImportExportProfileDefinition::ENTITY_NAME, 'uniq.import_export_profile.technical_name')) {
             $connection->executeStatement('ALTER TABLE `import_export_profile` ADD CONSTRAINT `uniq.import_export_profile.technical_name` UNIQUE (`technical_name`)');
         }
 

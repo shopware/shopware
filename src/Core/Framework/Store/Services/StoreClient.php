@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
+use Shopware\Core\Framework\Store\Event\ShopwareAccountLoginEvent;
+use Shopware\Core\Framework\Store\Event\ShopwareAccountLogoutEvent;
 use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
 use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
@@ -28,6 +30,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -41,7 +44,9 @@ class StoreClient
     private const PLUGIN_LICENSE_VIOLATION_EXTENSION_KEY = 'licenseViolation';
 
     public function __construct(
-        /** @var array<string, string> */
+        /**
+         * @var array<string, string>
+         */
         protected readonly array $endpoints,
         private readonly StoreService $storeService,
         private readonly SystemConfigService $configService,
@@ -51,6 +56,7 @@ class StoreClient
         private readonly InstanceService $instanceService,
         private readonly RequestStack $requestStack,
         private readonly CacheInterface $cache,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -89,7 +95,16 @@ class StoreClient
 
         $this->storeService->updateStoreToken($context, $accessTokenStruct);
 
-        $this->configService->set('core.store.shopSecret', $accessTokenStruct->getShopSecret());
+        $this->configService->set('core.store.shopSecret', $accessTokenStruct->getShopSecret(), null, false);
+
+        $this->eventDispatcher->dispatch(new ShopwareAccountLoginEvent($context));
+    }
+
+    public function logout(Context $context): void
+    {
+        $this->storeService->removeStoreToken($context);
+
+        $this->eventDispatcher->dispatch(new ShopwareAccountLogoutEvent($context));
     }
 
     /**
@@ -312,7 +327,7 @@ class StoreClient
     public function listMyExtensions(ExtensionCollection $extensions, Context $context): ExtensionCollection
     {
         try {
-            $payload = ['plugins' => array_map(fn (ExtensionStruct $e) => [
+            $payload = ['plugins' => array_map(static fn (ExtensionStruct $e) => [
                 'name' => $e->getName(),
                 'version' => $e->getVersion(),
             ], $extensions->getElements())];

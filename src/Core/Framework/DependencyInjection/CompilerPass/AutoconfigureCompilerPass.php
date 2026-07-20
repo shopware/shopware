@@ -23,6 +23,7 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Content\Sitemap\Provider\AbstractUrlProvider;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AdapterFactoryInterface;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\TemplateNamespaceHierarchyBuilderInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\BulkEntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -33,9 +34,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\Routing\AbstractRouteScope;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Telemetry\Metrics\Metric\PeriodicMetricCollectorInterface;
+use Shopware\Core\Framework\Webhook\Hookable\HookableEntityInterface;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\AbstractValueGenerator;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tax\TaxRuleType\TaxRuleTypeFilterInterface;
+use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -45,8 +49,17 @@ class AutoconfigureCompilerPass implements CompilerPassInterface
     public function process(ContainerBuilder $container): void
     {
         $container
+            ->registerAttributeForAutoconfiguration(Entity::class, static function (ChildDefinition $definition): void {
+                $definition->addTag('shopware.entity');
+            });
+
+        $container
             ->registerForAutoconfiguration(EntityDefinition::class)
             ->addTag('shopware.entity.definition');
+
+        $container
+            ->registerForAutoconfiguration(HookableEntityInterface::class)
+            ->addTag('shopware.entity.hookable');
 
         $container
             ->registerForAutoconfiguration(SalesChannelDefinition::class)
@@ -75,6 +88,10 @@ class AutoconfigureCompilerPass implements CompilerPassInterface
         $container
             ->registerForAutoconfiguration(ScheduledTask::class)
             ->addTag('shopware.scheduled.task');
+
+        $container
+            ->registerForAutoconfiguration(PeriodicMetricCollectorInterface::class)
+            ->addTag('shopware.telemetry.periodic_metric_collector');
 
         $container
             ->registerForAutoconfiguration(CartValidatorInterface::class)

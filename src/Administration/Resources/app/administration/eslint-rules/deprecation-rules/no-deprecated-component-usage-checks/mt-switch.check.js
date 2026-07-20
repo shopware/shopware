@@ -196,11 +196,11 @@ const handleMtSwitch = (context, node) => {
     if (valueAttribute) {
         context.report({
             node: valueAttribute,
-            message: `[${mtSwitchComponentName}] The "value" prop is removed. Use "modelValue" instead.`,
+            message: `[${mtSwitchComponentName}] The "value" prop is removed. Use "model-value" instead.`,
             *fix(fixer) {
                 if (context.options.includes('disableFix')) return;
 
-                yield fixer.replaceText(valueAttribute.key, 'modelValue');
+                yield fixer.replaceText(valueAttribute.key, 'model-value');
             }
         });
     }
@@ -224,11 +224,11 @@ const handleMtSwitch = (context, node) => {
     if (valueAttributeExpression) {
         context.report({
             node: valueAttributeExpression,
-            message: `[${mtSwitchComponentName}] The "value" prop is removed. Use "modelValue" instead.`,
+            message: `[${mtSwitchComponentName}] The "value" prop is removed. Use "model-value" instead.`,
             *fix(fixer) {
                 if (context.options.includes('disableFix')) return;
 
-                yield fixer.replaceText(valueAttributeExpression.key.argument, 'modelValue');
+                yield fixer.replaceText(valueAttributeExpression.key.argument, 'model-value');
             }
         });
     }
@@ -602,7 +602,7 @@ const mtSwitchInvalidChecks = [
         }],
     },
     {
-        name: '"mt-switch" wrong "value" prop usage. Should be replaced with "modelValue".',
+        name: '"mt-switch" wrong "value" prop usage. Should be replaced with "model-value".',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -610,14 +610,14 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch modelValue="true" />
+                <mt-switch model-value="true" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "value" prop is removed. Use "modelValue" instead.',
+            message: '[mt-switch] The "value" prop is removed. Use "model-value" instead.',
         }],
     },
     {
-        name: '"mt-switch" wrong "value" prop usage. Should be replaced with "modelValue". [disabledFix]',
+        name: '"mt-switch" wrong "value" prop usage. Should be replaced with "model-value". [disabledFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -625,11 +625,11 @@ const mtSwitchInvalidChecks = [
                 <mt-switch value="true" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "value" prop is removed. Use "modelValue" instead.',
+            message: '[mt-switch] The "value" prop is removed. Use "model-value" instead.',
         }],
     },
     {
-        name: '"mt-switch" wrong "value" prop usage. Should be replaced with "modelValue". [expression]',
+        name: '"mt-switch" wrong "value" prop usage. Should be replaced with "model-value". [expression]',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -637,14 +637,14 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch :modelValue="myValue" />
+                <mt-switch :model-value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "value" prop is removed. Use "modelValue" instead.',
+            message: '[mt-switch] The "value" prop is removed. Use "model-value" instead.',
         }],
     },
     {
-        name: '"mt-switch" wrong "value" prop usage. Should be replaced with "modelValue". [expression, disabledFix]',
+        name: '"mt-switch" wrong "value" prop usage. Should be replaced with "model-value". [expression, disabledFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -652,11 +652,11 @@ const mtSwitchInvalidChecks = [
                 <mt-switch :value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "value" prop is removed. Use "modelValue" instead.',
+            message: '[mt-switch] The "value" prop is removed. Use "model-value" instead.',
         }],
     },
     {
-        name: '"mt-switch" wrong "value" prop usage. Should be replaced with "modelValue". [withoutBinding]',
+        name: '"mt-switch" wrong "value" prop usage. Should be replaced with "model-value". [withoutBinding]',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -664,14 +664,14 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch modelValue />
+                <mt-switch model-value />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "value" prop is removed. Use "modelValue" instead.',
+            message: '[mt-switch] The "value" prop is removed. Use "model-value" instead.',
         }],
     },
     {
-        name: '"mt-switch" wrong "value" prop usage. Should be replaced with "modelValue". [withoutBinding, disabledFix]',
+        name: '"mt-switch" wrong "value" prop usage. Should be replaced with "model-value". [withoutBinding, disabledFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -679,7 +679,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch value />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "value" prop is removed. Use "modelValue" instead.',
+            message: '[mt-switch] The "value" prop is removed. Use "model-value" instead.',
         }],
     },
     {

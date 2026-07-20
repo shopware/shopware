@@ -1,9 +1,6 @@
 import template from './sw-condition-date-range.html.twig';
 import './sw-condition-date-range.scss';
 
-const { Component } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
-
 /**
  * @public
  * @sw-package fundamentals@after-sales
@@ -21,11 +18,11 @@ export default {
         selectValues() {
             return [
                 {
-                    label: this.$tc('global.sw-condition.condition.withTime'),
+                    label: this.$t('global.sw-condition.condition.withTime'),
                     value: true,
                 },
                 {
-                    label: this.$tc('global.sw-condition.condition.withoutTime'),
+                    label: this.$t('global.sw-condition.condition.withoutTime'),
                     value: false,
                 },
             ];
@@ -54,14 +51,14 @@ export default {
         fromDate: {
             get() {
                 this.ensureValueExist();
-                return this.condition.value.fromDate || null;
+                return this.condition.value.fromDate ? `${this.condition.value.fromDate}.000Z` : null;
             },
             set(fromDate) {
                 this.ensureValueExist();
 
                 this.condition.value = {
                     ...this.condition.value,
-                    fromDate: this.formatDate(fromDate, '00:00:00+00:00'),
+                    fromDate: this.formatDate(fromDate, '00:00:00'),
                 };
             },
         },
@@ -69,14 +66,29 @@ export default {
         toDate: {
             get() {
                 this.ensureValueExist();
-                return this.condition.value.toDate || null;
+                return this.condition.value.toDate ? `${this.condition.value.toDate}.000Z` : null;
             },
             set(toDate) {
                 this.ensureValueExist();
 
                 this.condition.value = {
                     ...this.condition.value,
-                    toDate: this.formatDate(toDate, '23:59:59+00:00'),
+                    toDate: this.formatDate(toDate, '23:59:59'),
+                };
+            },
+        },
+
+        timezone: {
+            get() {
+                this.ensureValueExist();
+                return this.condition.value.timezone || null;
+            },
+            set(timezone) {
+                this.ensureValueExist();
+
+                this.condition.value = {
+                    ...this.condition.value,
+                    timezone,
                 };
             },
         },
@@ -85,28 +97,22 @@ export default {
             return this.useTime ? 'datetime' : 'date';
         },
 
-        ...mapPropertyErrors('condition', [
-            'value.useTime',
-            'value.fromDate',
-            'value.toDate',
-        ]),
-
-        currentError() {
-            return this.conditionValueUseTimeError || this.conditionValueFromDateError || this.conditionValueToDateError;
+        timezoneOptions() {
+            return Shopware.Service('timezoneService').getTimezoneOptions();
         },
     },
 
     methods: {
-        formatDate(date, dateModifier) {
+        formatDate(date, timeModifier) {
             if (!date) {
                 return null;
             }
 
             if (this.isDateTime === 'datetime') {
-                return date.replace('.000Z', '+00:00');
+                return date.replace('.000Z', '');
             }
 
-            return date.split('T')[0].concat('T'.concat(dateModifier));
+            return `${date.split('T')[0]}T${timeModifier}`;
         },
     },
 };

@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Defaults;
@@ -53,6 +54,9 @@ class JsonApiEncoderTest extends TestCase
 
     private Connection $connection;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     protected function setUp(): void
@@ -101,18 +105,16 @@ class JsonApiEncoderTest extends TestCase
     }
 
     /**
-     * @return list<list<mixed>>
+     * @return iterable<string, list<mixed>>
      */
-    public static function emptyInputProvider(): array
+    public static function emptyInputProvider(): iterable
     {
-        return [
-            [null],
-            ['string'],
-            [1],
-            [false],
-            [new \DateTime()],
-            [1.1],
-        ];
+        yield 'empty input null' => [null];
+        yield 'empty input string' => ['string'];
+        yield 'empty input 1' => [1];
+        yield 'empty input false' => [false];
+        yield 'empty input date time' => [new \DateTime()];
+        yield 'empty input 1 point 1' => [1.1];
     }
 
     #[DataProvider('emptyInputProvider')]
@@ -125,19 +127,17 @@ class JsonApiEncoderTest extends TestCase
     }
 
     /**
-     * @return list<array{class-string<EntityDefinition>, SerializationFixture}>
+     * @return iterable<string, array{class-string<EntityDefinition>, SerializationFixture}>
      */
-    public static function complexStructsProvider(): array
+    public static function complexStructsProvider(): iterable
     {
-        return [
-            [MediaDefinition::class, new TestBasicStruct()],
-            [UserDefinition::class, new TestBasicWithToManyRelationships()],
-            [MediaDefinition::class, new TestBasicWithToOneRelationship()],
-            [MediaFolderDefinition::class, new TestCollectionWithSelfReference()],
-            [MediaDefinition::class, new TestCollectionWithToOneRelationship()],
-            [RuleDefinition::class, new TestInternalFieldsAreFiltered()],
-            [UserDefinition::class, new TestMainResourceShouldNotBeInIncluded()],
-        ];
+        yield 'media resource with basic struct is encoded' => [MediaDefinition::class, new TestBasicStruct()];
+        yield 'user resource with to many relationships is encoded' => [UserDefinition::class, new TestBasicWithToManyRelationships()];
+        yield 'media resource with to one relationship is encoded' => [MediaDefinition::class, new TestBasicWithToOneRelationship()];
+        yield 'media folder resource with self reference collection is encoded' => [MediaFolderDefinition::class, new TestCollectionWithSelfReference()];
+        yield 'media resource with collection to one relationship is encoded' => [MediaDefinition::class, new TestCollectionWithToOneRelationship()];
+        yield 'rule resource filters internal fields' => [RuleDefinition::class, new TestInternalFieldsAreFiltered()];
+        yield 'user resource keeps main resource out of included data' => [UserDefinition::class, new TestMainResourceShouldNotBeInIncluded()];
     }
 
     /**
@@ -236,7 +236,7 @@ class JsonApiEncoderTest extends TestCase
 
         $productDefinition = static::getContainer()->get(ProductDefinition::class);
 
-        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities()->get($productId);
         $encoder = static::getContainer()->get(JsonApiEncoder::class);
         $encodedResponse = $encoder->encode(new Criteria(), $productDefinition, $product, SerializationFixture::API_BASE_URL);
         $actual = json_decode((string) $encodedResponse, true, 512, \JSON_THROW_ON_ERROR);
@@ -284,7 +284,7 @@ class JsonApiEncoderTest extends TestCase
 
         $productDefinition = static::getContainer()->get(ProductDefinition::class);
 
-        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities()->get($productId);
         $encoder = static::getContainer()->get(JsonApiEncoder::class);
         $encodedResponse = $encoder->encode(new Criteria(), $productDefinition, $product, SerializationFixture::API_BASE_URL);
         $actual = json_decode((string) $encodedResponse, true, 512, \JSON_THROW_ON_ERROR);

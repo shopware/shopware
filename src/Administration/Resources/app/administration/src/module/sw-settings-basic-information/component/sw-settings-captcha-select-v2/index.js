@@ -99,7 +99,7 @@ export default {
 
         renderCaptchaOption(technicalName) {
             return {
-                label: this.$tc(`sw-settings-basic-information.captcha.label.${technicalName}`),
+                label: this.$t(`sw-settings-basic-information.captcha.label.${technicalName}`),
                 value: technicalName,
             };
         },

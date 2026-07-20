@@ -6,24 +6,29 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
+use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition;
+use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamWriteResultHelper;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException as DeprecatedUnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\Language\LanguageEntity;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 #[Package('framework')]
@@ -33,6 +38,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
      * @internal
      *
      * @param EntityRepository<ProductCollection> $repository
+     * @param EntityRepository<LanguageCollection> $languageRepository
      */
     public function __construct(
         private readonly Connection $connection,
@@ -40,6 +46,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         private readonly EntityRepository $repository,
         private readonly MessageBusInterface $messageBus,
         private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
+        private readonly EntityRepository $languageRepository,
         private readonly bool $indexingEnabled,
     ) {
     }
@@ -80,35 +87,34 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         $filter = json_decode((string) $filter, true, 512, \JSON_THROW_ON_ERROR);
 
         $criteria = $this->getCriteria($filter);
+        $criteria?->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+
         if ($criteria === null) {
             return;
         }
 
-        $considerInheritance = $message->getContext()->considerInheritance();
-        $message->getContext()->setConsiderInheritance(true);
-
         $binaryStreamId = Uuid::fromHexToBytes($streamId);
 
-        /** @var list<string> $ids */
-        $ids = $this->connection->fetchFirstColumn(
+        /** @var list<string> $oldMatches */
+        $oldMatches = $this->connection->fetchFirstColumn(
             'SELECT LOWER(HEX(product_id)) FROM product_stream_mapping WHERE product_stream_id = :id',
             ['id' => $binaryStreamId],
         );
 
-        RetryableTransaction::retryable($this->connection, function () use ($binaryStreamId): void {
-            $this->connection->executeStatement(
-                'DELETE FROM product_stream_mapping WHERE product_stream_id = :id',
-                ['id' => $binaryStreamId],
-            );
-        });
+        try {
+            $newMatches = $this->collectMatchingIdsInLanguageContexts($this->getLanguageContexts($message->getContext()), $criteria);
+        } catch (UnmappedFieldException|DeprecatedUnmappedFieldException) {
+            // @deprecated tag:v6.8.0 - drop DeprecatedUnmappedFieldException, unmappedField() only returns UnmappedFieldException then
+            // invalid filter, remove all mappings
+            $newMatches = [];
+        }
 
-        /** @var list<string> $matches */
-        $matches = $this->repository->searchIds($criteria, $message->getContext())->getIds();
+        $toBeAdded = array_values(array_diff($newMatches, $oldMatches));
+        $toBeDeleted = array_values(array_diff($oldMatches, $newMatches));
 
         $insert = new MultiInsertQueryQueue($this->connection, 250, false, false);
 
-        foreach ($matches as $id) {
-            $ids[] = $id;
+        foreach ($toBeAdded as $id) {
             $insert->addInsert('product_stream_mapping', [
                 'product_id' => Uuid::fromHexToBytes($id),
                 'product_version_id' => $version,
@@ -118,9 +124,20 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         $insert->execute();
 
-        $message->getContext()->setConsiderInheritance($considerInheritance);
+        if ($toBeDeleted !== []) {
+            RetryableTransaction::retryable($this->connection, function () use ($toBeDeleted, $binaryStreamId): void {
+                $this->connection->executeStatement(
+                    'DELETE FROM product_stream_mapping WHERE product_id IN (:ids) AND product_stream_id = :streamId',
+                    [
+                        'ids' => Uuid::fromHexToBytesList($toBeDeleted),
+                        'streamId' => $binaryStreamId,
+                    ],
+                    ['ids' => ArrayParameterType::BINARY],
+                );
+            });
+        }
 
-        $ids = array_unique($ids);
+        $ids = array_unique([...$toBeAdded, ...$toBeDeleted]);
 
         foreach (array_chunk($ids, 250) as $chunkedIds) {
             $this->manyToManyIdFieldUpdater->update(
@@ -138,9 +155,13 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             return null;
         }
 
-        $ids = $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME);
+        if ($event->getEventByEntityName(ProductStreamFilterDefinition::ENTITY_NAME) === null) {
+            return null;
+        }
 
-        if (empty($ids)) {
+        $ids = ProductStreamWriteResultHelper::getAffectedStreamIds($event);
+
+        if ($ids === []) {
             return null;
         }
 
@@ -168,11 +189,11 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         $version = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
-        $considerInheritance = $context->considerInheritance();
-        $context->setConsiderInheritance(true);
+        $languageContexts = $this->getLanguageContexts($context);
+
         foreach ($streams as $stream) {
             $filter = json_decode((string) $stream['api_filter'], true, 512, \JSON_THROW_ON_ERROR);
-            if (empty($filter)) {
+            if (!\is_array($filter) || $filter === []) {
                 continue;
             }
 
@@ -183,16 +204,14 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             }
 
             try {
-                $matches = $this->repository->searchIds($criteria, $context);
-            } catch (UnmappedFieldException) {
+                $matchedIds = $this->collectMatchingIdsInLanguageContexts($languageContexts, $criteria);
+            } catch (UnmappedFieldException|DeprecatedUnmappedFieldException) {
+                // @deprecated tag:v6.8.0 - drop DeprecatedUnmappedFieldException, unmappedField() only returns UnmappedFieldException then
                 // skip if filter field is not found
                 continue;
             }
 
-            foreach ($matches->getIds() as $id) {
-                if (!\is_string($id)) {
-                    continue;
-                }
+            foreach ($matchedIds as $id) {
                 $insert->addInsert('product_stream_mapping', [
                     'product_id' => Uuid::fromHexToBytes($id),
                     'product_version_id' => $version,
@@ -200,7 +219,6 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
                 ]);
             }
         }
-        $context->setConsiderInheritance($considerInheritance);
 
         RetryableTransaction::retryable($this->connection, function () use ($ids, $insert): void {
             $this->connection->executeStatement(
@@ -224,6 +242,53 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
     }
 
     /**
+     * @return list<Context>
+     */
+    private function getLanguageContexts(Context $context): array
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new NotEqualsFilter('salesChannels.id', null));
+        $languages = $this->languageRepository->search($criteria, Context::createDefaultContext())->getEntities();
+
+        return array_values($languages->map(
+            fn (LanguageEntity $language): Context => $this->createLanguageContext($context, $language)
+        ));
+    }
+
+    private function createLanguageContext(Context $context, LanguageEntity $language): Context
+    {
+        $languageContext = clone $context;
+        $languageContext->assign([
+            'languageIdChain' => array_values(array_unique(array_filter([$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM]))),
+        ]);
+
+        return $languageContext;
+    }
+
+    /**
+     * @param list<Context> $languageContexts
+     *
+     * @return list<string>
+     */
+    private function collectMatchingIdsInLanguageContexts(array $languageContexts, Criteria $criteria): array
+    {
+        /** @var array<string, true> $matches */
+        $matches = [];
+
+        foreach ($languageContexts as $languageContext) {
+            $languageMatches = $languageContext->enableInheritance(
+                fn (Context $context): array => $this->repository->searchIds($criteria, $context)->getIds()
+            );
+
+            foreach ($languageMatches as $id) {
+                $matches[$id] = true;
+            }
+        }
+
+        return array_keys($matches);
+    }
+
+    /**
      * @param array<int, array<string, mixed>> $filters
      * @param string[]|null $ids
      */
@@ -237,7 +302,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             $parsed[] = QueryStringParser::fromArray($this->productDefinition, $filter, $exception, '');
         }
 
-        if (empty($filters)) {
+        if ($filters === []) {
             return null;
         }
 

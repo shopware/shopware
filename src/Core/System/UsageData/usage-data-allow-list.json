@@ -474,6 +474,21 @@
     "createdAt",
     "updatedAt"
   ],
+  "sales_channel_tracking_customer": [
+    "id",
+    "customerId",
+    "salesChannelId",
+    "createdAt",
+    "updatedAt"
+  ],
+  "sales_channel_tracking_order": [
+    "id",
+    "orderId",
+    "orderVersionId",
+    "salesChannelId",
+    "createdAt",
+    "updatedAt"
+  ],
   "salutation": [
     "id",
     "salutationKey",
@@ -791,6 +806,7 @@
     "childCount",
     "customFieldSetSelectionActive",
     "sales",
+    "type",
     "states",
     "options",
     "properties",

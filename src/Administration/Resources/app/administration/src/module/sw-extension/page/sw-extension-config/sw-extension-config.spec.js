@@ -35,6 +35,7 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
                     'sw-form-field-renderer': true,
                     'sw-inherit-wrapper': true,
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                     'sw-ai-copilot-badge': true,
                 },
                 provide: {
@@ -126,7 +127,7 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
 
         const iconComponent = wrapper.get('.sw-extension-config__extension-icon img');
         expect(iconComponent.attributes().src).toBe(
-            'administration/administration/static/img/theme/default_theme_preview.jpg',
+            'administration/administration/static/img/theme/default_theme_preview.webp',
         );
         expect(iconComponent.attributes().alt).toBe('sw-extension-store.component.sw-extension-config.imageDescription');
 

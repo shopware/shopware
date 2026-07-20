@@ -22,7 +22,7 @@ class DeliveryTransformer
      * @param array<string, array<string, mixed>> $lineItems
      * @param array<int|string, array<string, string|array<mixed>>> $addresses
      *
-     * @return array<int, DeliveryArray>
+     * @return list<DeliveryArray>
      */
     public static function transformCollection(
         DeliveryCollection $deliveries,
@@ -87,7 +87,7 @@ class DeliveryTransformer
             $deliveryData['shippingOrderAddressVersionId'] = $originalAddressVersionId;
         }
 
-        $deliveryData = array_filter($deliveryData, fn ($item) => $item !== null);
+        $deliveryData = array_filter($deliveryData, static fn ($item) => $item !== null);
 
         foreach ($delivery->getPositions() as $position) {
             if (!isset($lineItems[$position->getIdentifier()])) {

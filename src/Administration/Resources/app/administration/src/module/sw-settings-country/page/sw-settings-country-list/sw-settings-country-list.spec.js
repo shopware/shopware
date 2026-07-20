@@ -66,7 +66,11 @@ async function createWrapper(privileges = []) {
                     feature: {
                         isActive: () => true,
                     },
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                 },
 
                 stubs: {
@@ -102,11 +106,12 @@ async function createWrapper(privileges = []) {
                     'sw-entity-listing': {
                         props: [
                             'items',
+                            'dataSource',
                             'detailPageLinkText',
                         ],
                         template: `
                     <div>
-                        <template v-for="item in items">
+                        <template v-for="item in (dataSource || items)">
                             <slot name="actions" v-bind="{ item }">
                                 <sw-context-menu-item
                                     class="sw-country-list__edit-action">
@@ -128,13 +133,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-country/page/sw-settings-country-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to view a country', async () => {
         const wrapper = await createWrapper([
             'country.viewer',

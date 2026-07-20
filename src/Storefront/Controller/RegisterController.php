@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\Exception\CustomerAlreadyConfirmedException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRegisterConfirmRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRegisterRoute;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -27,6 +28,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\AbstractCustomerGroupRegistrationPageLoader;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
@@ -46,7 +48,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('checkout')]
 class RegisterController extends StorefrontController
 {
@@ -71,7 +73,12 @@ class RegisterController extends StorefrontController
     ) {
     }
 
-    #[Route(path: '/account/register', name: 'frontend.account.register.page', defaults: ['_noStore' => true], methods: ['GET'])]
+    #[Route(
+        path: '/account/register',
+        name: 'frontend.account.register.page',
+        defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true],
+        methods: [Request::METHOD_GET]
+    )]
     public function accountRegisterPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         if ($context->getCustomer() && $context->getCustomer()->getGuest()) {
@@ -97,14 +104,19 @@ class RegisterController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/storefront/page/account/register/index.html.twig', [
             'redirectTo' => $redirect,
-            'redirectParameters' => $request->get('redirectParameters', json_encode([], \JSON_THROW_ON_ERROR)),
+            'redirectParameters' => $request->query->all()['redirectParameters'] ?? '[]',
             'errorRoute' => $errorRoute,
             'page' => $page,
             'data' => $data,
         ]);
     }
 
-    #[Route(path: '/customer-group-registration/{customerGroupId}', name: 'frontend.account.customer-group-registration.page', defaults: ['_noStore' => true], methods: ['GET'])]
+    #[Route(
+        path: '/customer-group-registration/{customerGroupId}',
+        name: 'frontend.account.customer-group-registration.page',
+        defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true],
+        methods: [Request::METHOD_GET]
+    )]
     public function customerGroupRegistration(string $customerGroupId, Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         if ($context->getCustomer() && $context->getCustomer()->getGuest()) {
@@ -133,7 +145,7 @@ class RegisterController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/storefront/page/account/customer-group-register/index.html.twig', [
             'redirectTo' => $redirect,
-            'redirectParameters' => $request->get('redirectParameters', json_encode([], \JSON_THROW_ON_ERROR)),
+            'redirectParameters' => $request->query->all()['redirectParameters'] ?? '[]',
             'errorRoute' => $request->attributes->get('_route'),
             'errorParameters' => json_encode(['customerGroupId' => $customerGroupId], \JSON_THROW_ON_ERROR),
             'page' => $page,
@@ -141,10 +153,16 @@ class RegisterController extends StorefrontController
         ]);
     }
 
-    #[Route(path: '/checkout/register', name: 'frontend.checkout.register.page', options: ['seo' => false], defaults: ['_noStore' => true], methods: ['GET'])]
+    #[Route(
+        path: '/checkout/register',
+        name: 'frontend.checkout.register.page',
+        options: ['seo' => false],
+        defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true],
+        methods: [Request::METHOD_GET]
+    )]
     public function checkoutRegisterPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
-        $redirect = $request->get('redirectTo', 'frontend.checkout.confirm.page');
+        $redirect = $request->query->get('redirectTo', 'frontend.checkout.confirm.page');
         \assert(\is_string($redirect));
         $errorRoute = $request->attributes->get('_route');
 
@@ -176,7 +194,12 @@ class RegisterController extends StorefrontController
         );
     }
 
-    #[Route(path: '/account/register', name: 'frontend.account.register.save', defaults: ['_captcha' => true], methods: ['POST'])]
+    #[Route(
+        path: '/account/register',
+        name: 'frontend.account.register.save',
+        defaults: [PlatformRequest::ATTRIBUTE_CAPTCHA => true],
+        methods: [Request::METHOD_POST]
+    )]
     public function register(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         if ($context->getCustomer()) {
@@ -203,14 +226,14 @@ class RegisterController extends StorefrontController
                 throw RoutingException::missingRequestParameter('errorRoute');
             }
 
-            if (empty($request->request->get('errorRoute'))) {
+            if ($request->request->getString('errorRoute') === '') {
                 $request->request->set('errorRoute', 'frontend.account.register.page');
             }
 
             $params = $this->decodeParam($request, 'errorParameters');
 
             // this is to show the correct form because we have different use-cases (account/register||checkout/register)
-            return $this->forwardToRoute($request->get('errorRoute'), ['formViolations' => $formViolations], $params);
+            return $this->forwardToRoute((string) RequestParamHelper::get($request, 'errorRoute'), ['formViolations' => $formViolations], $params);
         }
 
         if ($this->isDoubleOptIn($data, $context)) {
@@ -220,9 +243,17 @@ class RegisterController extends StorefrontController
         return $this->createActionResponse($request);
     }
 
-    #[Route(path: '/registration/confirm', name: 'frontend.account.register.mail', methods: ['GET'])]
+    #[Route(
+        path: '/registration/confirm',
+        name: 'frontend.account.register.mail',
+        methods: [Request::METHOD_GET]
+    )]
     public function confirmRegistration(SalesChannelContext $context, QueryDataBag $queryDataBag): Response
     {
+        if ($this->isHeadRequest()) {
+            return new Response(status: Response::HTTP_NO_CONTENT);
+        }
+
         try {
             $customerId = $this->registerConfirmRoute
                 ->confirm($queryDataBag->toRequestDataBag(), $context)
@@ -286,9 +317,7 @@ class RegisterController extends StorefrontController
         $definition = new DataValidationDefinition('storefront.confirmation');
 
         if ($this->systemConfigService->get('core.loginRegistration.requireEmailConfirmation', $context->getSalesChannelId())) {
-            $definition->add('emailConfirmation', new NotBlank(), new EqualTo([
-                'value' => $data->get('email'),
-            ]));
+            $definition->add('emailConfirmation', new NotBlank(), new EqualTo(value: $data->get('email')));
         }
 
         if ($data->getBoolean('guest')) {
@@ -296,9 +325,7 @@ class RegisterController extends StorefrontController
         }
 
         if ($this->systemConfigService->get('core.loginRegistration.requirePasswordConfirmation', $context->getSalesChannelId())) {
-            $definition->add('passwordConfirmation', new NotBlank(), new EqualTo([
-                'value' => $data->get('password'),
-            ]));
+            $definition->add('passwordConfirmation', new NotBlank(), new EqualTo(value: $data->get('password')));
         }
 
         return $definition;

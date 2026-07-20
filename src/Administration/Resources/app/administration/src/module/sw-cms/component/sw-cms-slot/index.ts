@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-slot.html.twig';
 import './sw-cms-slot.scss';
 import { type CmsElementConfig } from '../../service/cms.service';
@@ -39,6 +38,7 @@ export default Shopware.Component.wrapComponentConfig({
     data() {
         return {
             showElementSettings: false,
+            isElementSettingsInitialized: false,
             showElementSelection: false,
             elementNotFound: false,
         };
@@ -55,6 +55,14 @@ export default Shopware.Component.wrapComponentConfig({
 
         elementConfig() {
             return this.cmsServiceState.elementRegistry[this.element.type];
+        },
+
+        elementModalTitle() {
+            const title = this.$t('sw-cms.detail.title.elementSettingsModal');
+            if (this.elementConfig?.label !== undefined) {
+                return `${title} (${this.$t(this.elementConfig.label)})`;
+            }
+            return title;
         },
 
         cmsElements() {
@@ -120,13 +128,13 @@ export default Shopware.Component.wrapComponentConfig({
         tooltipDisabled() {
             if (this.elementConfig?.disabledConfigInfoTextKey) {
                 return {
-                    message: this.$tc(this.elementConfig.disabledConfigInfoTextKey),
+                    message: this.$t(this.elementConfig.disabledConfigInfoTextKey),
                     disabled: !!this.elementConfig.defaultConfig && !this.element.locked,
                 };
             }
 
             return {
-                message: this.$tc('sw-cms.elements.general.config.tab.settings'),
+                message: this.$t('sw-cms.elements.general.config.tab.settings'),
                 disabled: true,
             };
         },
@@ -154,18 +162,28 @@ export default Shopware.Component.wrapComponentConfig({
             if (!this.elementConfig?.defaultConfig || this.element?.locked) {
                 return;
             }
+
+            this.isElementSettingsInitialized = true;
             this.showElementSettings = true;
         },
 
-        onCloseSettingsModal() {
-            if (!this.showElementSettings) return;
+        async onCloseSettingsModal() {
+            if (!this.showElementSettings) {
+                return;
+            }
 
-            const childComponent = this.$refs.elementComponentRef as {
-                handleUpdateContent: () => void;
-            };
+            const childComponent = this.$refs.elementComponentRef as
+                | {
+                      handleUpdateContent?: () => boolean | void | Promise<boolean | void>;
+                  }
+                | undefined;
 
             if (childComponent?.handleUpdateContent) {
-                childComponent.handleUpdateContent();
+                const result = await childComponent.handleUpdateContent();
+
+                if (result === false) {
+                    return;
+                }
             }
 
             this.showElementSettings = false;
@@ -194,6 +212,17 @@ export default Shopware.Component.wrapComponentConfig({
 
         onToggleElementFavorite(elementName: string) {
             this.cmsElementFavorites.update(!this.cmsElementFavorites.isFavorite(elementName), elementName);
+        },
+
+        toggleHoverElement(element: CmsElementConfig, targetState: boolean) {
+            element.hover = targetState;
+        },
+
+        getFavoriteIconToggleState(element: CmsElementConfig): boolean {
+            return (
+                (this.cmsElementFavorites.isFavorite(element.name) && !element?.hover) ||
+                (!this.cmsElementFavorites.isFavorite(element.name) && !!element?.hover)
+            );
         },
 
         elementInElementGroup(element: CmsElementConfig, elementGroup: string) {

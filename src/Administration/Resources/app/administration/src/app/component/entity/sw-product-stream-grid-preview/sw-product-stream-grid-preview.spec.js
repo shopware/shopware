@@ -46,7 +46,6 @@ const createWrapper = async () => {
         {
             global: {
                 stubs: {
-                    'sw-empty-state': await wrapTestComponent('sw-empty-state'),
                     'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
                     'sw-field': true,
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
@@ -116,12 +115,8 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render empty state when no filter is set', async () => {
-        expect(wrapper.find('.sw-empty-state').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
     });
 
     it('should load products with correct criteria when filters are being set', async () => {
@@ -131,28 +126,42 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
             filters: mockFilter,
         });
 
-        const displayGroupFilter = {
-            operator: 'AND',
-            queries: [
-                {
-                    field: 'displayGroup',
-                    type: 'equals',
-                    value: null,
-                },
-            ],
-            type: 'not',
-        };
-
         await wrapper.vm.$nextTick();
 
         expect(spyPreviewProduct).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.systemCurrency).toStrictEqual(mockCurrency);
         expect(wrapper.vm.filters).toStrictEqual(mockFilter);
-        expect(wrapper.vm.criteria.filters).toEqual([
-            ...wrapper.vm.filters,
-            displayGroupFilter,
-        ]);
+        // grouping is no longer injected into the criteria body; it is driven by the displayAsGroup query param
+        expect(wrapper.vm.criteria.filters).toEqual(wrapper.vm.filters);
         expect(wrapper.vm.criteria.associations[0].association).toBe('manufacturer');
+
+        // displayAsGroup defaults to true and is forwarded to the preview service as the last argument
+        expect(spyPreviewProduct).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.anything(),
+            expect.anything(),
+            true,
+        );
+    });
+
+    it('should forward displayAsGroup=false to the preview service', async () => {
+        const spyPreviewProduct = jest.spyOn(wrapper.vm.productStreamPreviewService, 'preview');
+
+        await wrapper.setProps({
+            filters: mockFilter,
+            displayAsGroup: false,
+        });
+
+        await flushPromises();
+
+        expect(spyPreviewProduct).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.anything(),
+            expect.anything(),
+            false,
+        );
     });
 
     it('should render data grid when products were loaded', async () => {

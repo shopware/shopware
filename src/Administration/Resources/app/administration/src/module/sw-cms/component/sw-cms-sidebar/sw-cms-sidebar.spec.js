@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package discovery
  */
@@ -236,7 +238,7 @@ async function createWrapper(
                                                     },
                                                     data: {
                                                         media: {
-                                                            value: 'preview_mountain_large.jpg',
+                                                            value: 'preview_mountain_large.webp',
                                                             source: 'default',
                                                         },
                                                     },
@@ -276,12 +278,6 @@ async function createWrapper(
 describe('module/sw-cms/component/sw-cms-sidebar', () => {
     beforeEach(() => {
         global.activeAclRoles = [];
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     const showDefaultLayoutSelectionDataProvider = [
@@ -850,13 +846,13 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
                             value: 'standard',
                         },
                         media: {
-                            value: 'preview_mountain_large.jpg',
+                            value: 'preview_mountain_large.webp',
                             source: 'default',
                         },
                     },
                     data: {
                         media: {
-                            value: 'preview_mountain_large.jpg',
+                            value: 'preview_mountain_large.webp',
                             source: 'default',
                         },
                     },
@@ -890,5 +886,27 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         expect(wrapper.vm.$refs.itemConfigSidebar.isActive).toBeTruthy();
         expect(wrapper.vm.selectedSection.id).toBe('2222');
+    });
+
+    it('should emit page-save when aborting block drop', async () => {
+        const wrapper = await createWrapper();
+
+        // Prepare drag data: block being dragged from section index 0
+        const dragData = {
+            block: getBlockData(0, 'dropAbortBlock'),
+            sectionIndex: 0,
+        };
+
+        // Prepare drop data: abort drop into a different section index
+        const dropData = {
+            block: getBlockData(0, 'dropAbortBlock'),
+            sectionIndex: 1,
+            dropIndex: 0,
+            section: null,
+            sectionPosition: '',
+        };
+
+        wrapper.vm.onBlockDropAbort(dragData, dropData);
+        expect(wrapper.emitted('page-save')).toBeTruthy();
     });
 });

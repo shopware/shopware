@@ -9,16 +9,26 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskExecutor">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
+        </service>
+
         <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler">
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="parameter_bag"/>
+            <argument type="service" id="logger"/>
+            <argument>%shopware.messenger.scheduled_task.requeue_timeout%</argument>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry">
             <argument type="tagged_iterator" tag="shopware.scheduled.task" />
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="parameter_bag"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\SymfonyBridge\ScheduleProvider">
@@ -41,6 +51,7 @@
         <service id="Shopware\Core\Framework\MessageQueue\Subscriber\PluginLifecycleSubscriber">
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry"/>
             <argument type="service" id="cache.messenger.restart_workers_signal" />
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -48,6 +59,7 @@
         <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskRunner">
             <argument type="tagged_iterator" tag="messenger.message_handler"/>
             <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\MessageQueue\Command\RegisterScheduledTasksCommand">
@@ -59,6 +71,7 @@
         <service id="Shopware\Core\Framework\MessageQueue\Command\ScheduledTaskRunner">
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler"/>
             <argument type="service" id="cache.messenger.restart_workers_signal" />
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
 
             <tag name="console.command"/>
         </service>
@@ -71,6 +84,18 @@
 
         <service id="Shopware\Core\Framework\MessageQueue\Command\RunSingleScheduledTaskCommand">
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskRunner"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\MessageQueue\Command\DeactivateScheduledTaskCommand">
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\MessageQueue\Command\ScheduleScheduledTaskCommand">
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry"/>
 
             <tag name="console.command"/>
         </service>

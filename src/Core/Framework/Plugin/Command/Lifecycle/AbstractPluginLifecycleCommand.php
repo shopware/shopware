@@ -28,6 +28,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[Package('framework')]
 abstract class AbstractPluginLifecycleCommand extends Command
 {
+    /**
+     * @internal
+     *
+     * @param EntityRepository<PluginCollection> $pluginRepo
+     */
     public function __construct(
         protected PluginLifecycleService $pluginLifecycleService,
         private readonly EntityRepository $pluginRepo,
@@ -82,7 +87,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
             $context->addState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
         }
 
-        $plugins = $this->parsePluginArgument($input->getArgument('plugins'), $lifecycleMethod, $io, $context);
+        $plugins = $this->parsePluginArgument($input->getArgument('plugins'), $lifecycleMethod, $io, $input, $context);
 
         if ($plugins === null) {
             return null;
@@ -138,6 +143,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
         array $arguments,
         string $lifecycleMethod,
         SymfonyStyle $io,
+        InputInterface $input,
         Context $context
     ): ?PluginCollection {
         $plugins = array_unique($arguments);
@@ -148,7 +154,6 @@ abstract class AbstractPluginLifecycleCommand extends Command
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('name', $plugins[0]));
 
-            /** @var PluginCollection $matches */
             $matches = $this->pluginRepo->search($criteria, $context)->getEntities();
             if ($matches->count() === 1) {
                 return $matches;
@@ -163,10 +168,9 @@ abstract class AbstractPluginLifecycleCommand extends Command
         $criteria->addSorting(new FieldSorting('name'));
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, $filter));
 
-        /** @var PluginCollection $pluginCollection */
         $pluginCollection = $this->pluginRepo->search($criteria, $context)->getEntities();
 
-        if ($pluginCollection->count() <= 1) {
+        if ($pluginCollection->count() <= 1 || !$input->isInteractive()) {
             return $pluginCollection;
         }
 
@@ -200,7 +204,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
                         'Which plugin do you want to %s?',
                         $lifecycleMethod
                     ),
-                    $pluginCollection->map(fn (PluginEntity $plugin) => $plugin->getName())
+                    $pluginCollection->map(static fn (PluginEntity $plugin) => $plugin->getName())
                 )
             );
 

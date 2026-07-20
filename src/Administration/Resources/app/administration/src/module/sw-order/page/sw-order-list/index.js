@@ -5,7 +5,7 @@ import './sw-order-list.scss';
  * @sw-package checkout
  */
 
-const { Mixin } = Shopware;
+const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -93,37 +93,42 @@ export default {
                 criteria.addFilter(filter);
             });
 
-            criteria.addAssociation('addresses');
             criteria.addAssociation('billingAddress');
             criteria.addAssociation('salesChannel');
             criteria.addAssociation('orderCustomer');
             criteria.addAssociation('currency');
             criteria.addAssociation('documents');
-
             criteria.addAssociation('stateMachineState');
-
-            criteria
-                .getAssociation('transactions')
-                .addAssociation('stateMachineState')
-                .addSorting(Criteria.sort('createdAt'));
-
-            criteria
-                .addAssociation('primaryOrderTransaction')
-                .addAssociation('primaryOrderTransaction.paymentMethod')
-                .addAssociation('primaryOrderTransaction.stateMachineState')
-                .addAssociation('primaryOrderDelivery.shippingMethod')
-                .addAssociation('primaryOrderDelivery.stateMachineState')
-                .addAssociation('primaryOrderDelivery.shippingOrderAddress.country')
-                .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'));
+            criteria.addAssociation('primaryOrderTransaction.stateMachineState');
+            criteria.addAssociation('primaryOrderDelivery.stateMachineState');
+            criteria.addAssociation('primaryOrderDelivery.shippingOrderAddress');
 
             if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                criteria.addAssociation('addresses');
+
+                criteria
+                    .getAssociation('transactions')
+                    .addAssociation('stateMachineState')
+                    .addSorting(Criteria.sort('createdAt'));
+
+                criteria
+                    .addAssociation('primaryOrderTransaction.paymentMethod')
+                    .addAssociation('primaryOrderDelivery.shippingMethod')
+                    .addAssociation('primaryOrderDelivery.shippingOrderAddress.country');
+
                 criteria
                     .getAssociation('deliveries')
                     .addAssociation('stateMachineState')
                     .addAssociation('shippingOrderAddress')
-                    .addAssociation('shippingMethod')
-                    .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'));
+                    .addAssociation('shippingMethod');
             }
+
+            return criteria;
+        },
+
+        salesChannelCriteria() {
+            const criteria = new Criteria(1, 25);
+            criteria.addSorting(Criteria.sort('name'));
 
             return criteria;
         },
@@ -146,47 +151,48 @@ export default {
                 'order-number-filter': {
                     property: 'orderNumber',
                     type: 'string-filter',
-                    label: this.$tc('sw-order.filters.orderNumberFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.orderNumberFilter.placeholder'),
+                    label: this.$t('sw-order.filters.orderNumberFilter.label'),
+                    placeholder: this.$t('sw-order.filters.orderNumberFilter.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
                     criteriaFilterType: 'equalsAny',
                 },
                 'sales-channel-filter': {
                     property: 'salesChannel',
-                    label: this.$tc('sw-order.filters.salesChannelFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.salesChannelFilter.placeholder'),
+                    label: this.$t('sw-order.filters.salesChannelFilter.label'),
+                    placeholder: this.$t('sw-order.filters.salesChannelFilter.placeholder'),
+                    criteria: this.salesChannelCriteria,
                 },
                 'order-value-filter': {
                     property: 'amountTotal',
                     type: 'number-filter',
-                    label: this.$tc('sw-order.filters.orderValueFilter.label'),
+                    label: this.$t('sw-order.filters.orderValueFilter.label'),
                     fromFieldLabel: null,
                     toFieldLabel: null,
-                    fromPlaceholder: this.$tc('global.default.from'),
-                    toPlaceholder: this.$tc('global.default.to'),
+                    fromPlaceholder: this.$t('global.default.from'),
+                    toPlaceholder: this.$t('global.default.to'),
                 },
                 'payment-status-filter': {
                     property: 'primaryOrderTransaction.stateMachineState',
                     criteria: this.getStatusCriteria('order_transaction.state'),
-                    label: this.$tc('sw-order.filters.paymentStatusFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.paymentStatusFilter.placeholder'),
+                    label: this.$t('sw-order.filters.paymentStatusFilter.label'),
+                    placeholder: this.$t('sw-order.filters.paymentStatusFilter.placeholder'),
                 },
                 'delivery-status-filter': {
                     property: 'primaryOrderDelivery.stateMachineState',
                     criteria: this.getStatusCriteria('order_delivery.state'),
-                    label: this.$tc('sw-order.filters.deliveryStatusFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.deliveryStatusFilter.placeholder'),
+                    label: this.$t('sw-order.filters.deliveryStatusFilter.label'),
+                    placeholder: this.$t('sw-order.filters.deliveryStatusFilter.placeholder'),
                 },
                 'status-filter': {
                     property: 'stateMachineState',
                     criteria: this.getStatusCriteria('order.state'),
-                    label: this.$tc('sw-order.filters.statusFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.statusFilter.placeholder'),
+                    label: this.$t('sw-order.filters.statusFilter.label'),
+                    placeholder: this.$t('sw-order.filters.statusFilter.placeholder'),
                 },
                 'order-date-filter': {
                     property: 'orderDateTime',
-                    label: this.$tc('sw-order.filters.orderDateFilter.label'),
+                    label: this.$t('sw-order.filters.orderDateFilter.label'),
                     dateType: 'date',
                     fromFieldLabel: null,
                     toFieldLabel: null,
@@ -195,77 +201,77 @@ export default {
                 'customer-number-filter': {
                     property: 'orderCustomer.customer.customerNumber',
                     type: 'string-filter',
-                    label: this.$tc('sw-order.filters.customerNumberFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.customerNumberFilter.placeholder'),
+                    label: this.$t('sw-order.filters.customerNumberFilter.label'),
+                    placeholder: this.$t('sw-order.filters.customerNumberFilter.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
                     criteriaFilterType: 'equals',
                 },
                 'tag-filter': {
                     property: 'tags',
-                    label: this.$tc('sw-order.filters.tagFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.tagFilter.placeholder'),
+                    label: this.$t('sw-order.filters.tagFilter.label'),
+                    placeholder: this.$t('sw-order.filters.tagFilter.placeholder'),
                 },
                 'affiliate-code-filter': {
                     property: 'affiliateCode',
                     type: 'string-filter',
-                    label: this.$tc('sw-order.filters.affiliateCodeFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.affiliateCodeFilter.placeholder'),
+                    label: this.$t('sw-order.filters.affiliateCodeFilter.label'),
+                    placeholder: this.$t('sw-order.filters.affiliateCodeFilter.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
                 },
                 'campaign-code-filter': {
                     property: 'campaignCode',
                     type: 'string-filter',
-                    label: this.$tc('sw-order.filters.campaignCodeFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.campaignCodeFilter.placeholder'),
+                    label: this.$t('sw-order.filters.campaignCodeFilter.label'),
+                    placeholder: this.$t('sw-order.filters.campaignCodeFilter.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
                 },
                 'promotion-code-filter': {
                     property: 'lineItems.payload.code',
                     type: 'string-filter',
-                    label: this.$tc('sw-order.filters.promotionCodeFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.promotionCodeFilter.placeholder'),
+                    label: this.$t('sw-order.filters.promotionCodeFilter.label'),
+                    placeholder: this.$t('sw-order.filters.promotionCodeFilter.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
                 },
                 'document-filter': {
                     property: 'documents',
-                    label: this.$tc('sw-order.filters.documentFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.documentFilter.placeholder'),
-                    optionHasCriteria: this.$tc('sw-order.filters.documentFilter.textHasCriteria'),
-                    optionNoCriteria: this.$tc('sw-order.filters.documentFilter.textNoCriteria'),
+                    label: this.$t('sw-order.filters.documentFilter.label'),
+                    placeholder: this.$t('sw-order.filters.documentFilter.placeholder'),
+                    optionHasCriteria: this.$t('sw-order.filters.documentFilter.textHasCriteria'),
+                    optionNoCriteria: this.$t('sw-order.filters.documentFilter.textNoCriteria'),
                 },
                 'payment-method-filter': {
-                    property: 'transactions.paymentMethod',
-                    label: this.$tc('sw-order.filters.paymentMethodFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.paymentMethodFilter.placeholder'),
+                    property: 'primaryOrderTransaction.paymentMethod',
+                    label: this.$t('sw-order.filters.paymentMethodFilter.label'),
+                    placeholder: this.$t('sw-order.filters.paymentMethodFilter.placeholder'),
                 },
                 'shipping-method-filter': {
-                    property: 'deliveries.shippingMethod',
-                    label: this.$tc('sw-order.filters.shippingMethodFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.shippingMethodFilter.placeholder'),
+                    property: 'primaryOrderDelivery.shippingMethod',
+                    label: this.$t('sw-order.filters.shippingMethodFilter.label'),
+                    placeholder: this.$t('sw-order.filters.shippingMethodFilter.placeholder'),
                 },
                 'billing-country-filter': {
                     property: 'billingAddress.country',
-                    label: this.$tc('sw-order.filters.billingCountryFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.billingCountryFilter.placeholder'),
+                    label: this.$t('sw-order.filters.billingCountryFilter.label'),
+                    placeholder: this.$t('sw-order.filters.billingCountryFilter.placeholder'),
                 },
                 'shipping-country-filter': {
-                    property: 'deliveries.shippingOrderAddress.country',
-                    label: this.$tc('sw-order.filters.shippingCountryFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.shippingCountryFilter.placeholder'),
+                    property: 'primaryOrderDelivery.shippingOrderAddress.country',
+                    label: this.$t('sw-order.filters.shippingCountryFilter.label'),
+                    placeholder: this.$t('sw-order.filters.shippingCountryFilter.placeholder'),
                 },
                 'customer-group-filter': {
                     property: 'orderCustomer.customer.group',
-                    label: this.$tc('sw-order.filters.customerGroupFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.customerGroupFilter.placeholder'),
+                    label: this.$t('sw-order.filters.customerGroupFilter.label'),
+                    placeholder: this.$t('sw-order.filters.customerGroupFilter.placeholder'),
                 },
                 'line-item-filter': {
                     property: 'lineItems.product',
-                    label: this.$tc('sw-order.filters.productFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.productFilter.placeholder'),
+                    label: this.$t('sw-order.filters.productFilter.label'),
+                    placeholder: this.$t('sw-order.filters.productFilter.placeholder'),
                     criteria: this.productCriteria,
                     displayVariants: true,
                 },
@@ -287,6 +293,9 @@ export default {
             return Shopware.Filter.getByName('currency');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -294,14 +303,13 @@ export default {
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
-    },
 
-    watch: {
-        orderCriteria: {
-            handler() {
-                this.getList();
-            },
-            deep: true,
+        adminEsEnable() {
+            if (!Shopware.Feature.isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+                return false;
+            }
+
+            return Context.app.adminEsEnable ?? false;
         },
     },
 
@@ -312,6 +320,9 @@ export default {
     methods: {
         createdComponent() {},
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderDelivery instead
+         */
         deliveryTooltip(deliveries) {
             return deliveries
                 .map((delivery) => {
@@ -346,7 +357,11 @@ export default {
 
             let criteria = await Shopware.Service('filterService').mergeWithStoredFilters(this.storeKey, this.orderCriteria);
 
-            criteria = await this.addQueryScores(this.term, criteria);
+            if (this.adminEsEnable) {
+                criteria.setTerm(this.term);
+            } else {
+                criteria = await this.addQueryScores(this.term, criteria);
+            }
 
             this.activeFilterNumber = criteria.filters.length;
 
@@ -372,6 +387,9 @@ export default {
             }
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, use order.billingAddress instead
+         */
         getBillingAddress(order) {
             return order.addresses.find((address) => {
                 return address.id === order.billingAddressId;
@@ -409,7 +427,6 @@ export default {
                 },
                 {
                     property: 'orderCustomer.company',
-                    dataIndex: 'orderCustomer.company',
                     label: 'sw-order.list.columnCustomerCompany',
                     allowResize: true,
                     visible: false,
@@ -422,8 +439,7 @@ export default {
                     visible: false,
                 },
                 {
-                    property: 'deliveries.id',
-                    dataIndex: 'deliveries.shippingOrderAddress.street',
+                    property: 'primaryOrderDelivery.shippingOrderAddress.street',
                     label: 'sw-order.list.columnDeliveryAddress',
                     allowResize: true,
                 },
@@ -439,14 +455,12 @@ export default {
                     allowResize: true,
                 },
                 {
-                    property: 'transactions.last().stateMachineState.name',
-                    dataIndex: 'transactions.stateMachineState.name',
+                    property: 'primaryOrderTransaction.stateMachineState.name',
                     label: 'sw-order.list.columnTransactionState',
                     allowResize: true,
                 },
                 {
-                    property: 'deliveries[0].stateMachineState.name',
-                    dataIndex: 'deliveries.stateMachineState.name',
+                    property: 'primaryOrderDelivery.stateMachineState.name',
                     label: 'sw-order.list.columnDeliveryState',
                     allowResize: true,
                 },
@@ -479,37 +493,15 @@ export default {
         },
 
         getVariantFromPaymentState(order) {
-            let technicalName = order.primaryOrderTransaction?.stateMachineState.technicalName;
+            const technicalName = this.getTransactionState(order)?.technicalName;
 
-            if (!Shopware.Feature.isActive('v6.8.0.0')) {
-                technicalName = order.transactions.last().stateMachineState.technicalName;
-            }
-
-            // set the payment status to the first transaction that is not cancelled
-            for (let i = 0; i < order.transactions.length; i += 1) {
-                if (
-                    ![
-                        'cancelled',
-                        'failed',
-                    ].includes(order.transactions[i].stateMachineState.technicalName)
-                ) {
-                    technicalName = order.transactions[i].stateMachineState.technicalName;
-                    break;
-                }
-            }
-
-            const style = this.stateStyleDataProviderService.getStyle('order_transaction.state', technicalName);
-
-            return style.colorCode;
+            return this.stateStyleDataProviderService.getStyle('order_transaction.state', technicalName).colorCode;
         },
 
         getVariantFromDeliveryState(order) {
-            const style = this.stateStyleDataProviderService.getStyle(
-                'order_delivery.state',
-                this.getDelivery(order).stateMachineState.technicalName,
-            );
+            const technicalName = this.getDeliveryState(order)?.technicalName;
 
-            return style.colorCode;
+            return this.stateStyleDataProviderService.getStyle('order_delivery.state', technicalName).colorCode;
         },
 
         onDelete(id) {
@@ -529,10 +521,12 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Use listing mixin implementation directly
+         */
         updateCriteria(criteria) {
-            this.page = 1;
-
-            this.filterCriteria = criteria;
+            // Delegate to listing mixin implementation
+            return Mixin.getByName('listing').methods.updateCriteria.call(this, criteria);
         },
 
         getStatusCriteria(value) {
@@ -547,7 +541,10 @@ export default {
             await this.$nextTick();
 
             const ordersExcludeDelivery = Object.values(this.$refs.orderGrid.selection).filter((order) => {
-                return !this.getDelivery(order);
+                if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                    return !this.getDelivery(order);
+                }
+                return !order.primaryOrderDelivery;
             });
             const excludeDelivery = ordersExcludeDelivery.length > 0 ? '1' : '0';
 
@@ -559,31 +556,63 @@ export default {
             });
         },
 
-        transaction(item) {
-            for (let i = 0; i < item.transactions.length; i += 1) {
-                if (
-                    ![
-                        'cancelled',
-                        'failed',
-                    ].includes(item.transactions[i].stateMachineState.technicalName)
-                ) {
-                    return item.transactions[i];
-                }
-            }
-
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderTransaction instead
+         */
+        transaction(order) {
             if (!Shopware.Feature.isActive('v6.8.0.0')) {
-                return item.transactions.last();
+                if (order.primaryOrderTransaction) {
+                    return order.primaryOrderTransaction;
+                }
+
+                const transactions = order.transactions ?? [];
+                for (let i = 0; i < transactions.length; i += 1) {
+                    if (
+                        ![
+                            'cancelled',
+                            'failed',
+                        ].includes(transactions[i].stateMachineState?.technicalName)
+                    ) {
+                        return transactions[i];
+                    }
+                }
+
+                return transactions.last?.() ?? transactions[transactions.length - 1] ?? null;
             }
 
-            return item.primaryOrderTransaction;
+            return order.primaryOrderTransaction ?? null;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderDelivery instead
+         */
         getDelivery(order) {
             if (!Shopware.Feature.isActive('v6.8.0.0')) {
-                return order.deliveries[0];
+                return order.primaryOrderDelivery ?? order.deliveries?.[0] ?? null;
             }
 
-            return order.primaryOrderDelivery;
+            return order.primaryOrderDelivery ?? null;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderDelivery.shippingOrderAddress instead
+         */
+        getDeliveryAddress(order) {
+            return this.getDelivery(order)?.shippingOrderAddress ?? null;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderDelivery.stateMachineState instead
+         */
+        getDeliveryState(order) {
+            return this.getDelivery(order)?.stateMachineState ?? null;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderTransaction.stateMachineState instead
+         */
+        getTransactionState(order) {
+            return this.transaction(order)?.stateMachineState ?? null;
         },
     },
 };

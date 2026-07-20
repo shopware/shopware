@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import './sw-order-create-general-info.scss';
 import template from './sw-order-create-general-info.html.twig';
 import type { Cart, SalesChannelContext } from '../../order.types';

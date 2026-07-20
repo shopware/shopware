@@ -2,19 +2,20 @@
 
 {% import _self as helper %}
 
+{# @var collector \Shopware\Core\Profiling\Doctrine\ConnectionProfiler #}
 {% block toolbar %}
-    {% if collector.querycount > 0 or collector.invalidEntityCount > 0 %}
+    {% if collector.queryCount > 0 or collector.invalidEntityCount > 0 %}
 
         {% set icon %}
-            {% set status = collector.invalidEntityCount > 0 ? 'red' : collector.querycount > 50 ? 'yellow' %}
+            {% set status = collector.invalidEntityCount > 0 ? 'red' : collector.queryCount > 50 ? 'yellow' %}
 
                 {{ include('@Profiling/Collector/icon.svg') }}
 
-            {% if collector.querycount == 0 and collector.invalidEntityCount > 0 %}
+            {% if collector.queryCount == 0 and collector.invalidEntityCount > 0 %}
                 <span class="sf-toolbar-value">{{ collector.invalidEntityCount }}</span>
                 <span class="sf-toolbar-label">errors</span>
             {% else %}
-                <span class="sf-toolbar-value">{{ collector.querycount }}</span>
+                <span class="sf-toolbar-value">{{ collector.queryCount }}</span>
                 <span class="sf-toolbar-info-piece-additional-detail">
                     <span class="sf-toolbar-label">in</span>
                     <span class="sf-toolbar-value">{{ '%0.2f'|format(collector.time * 1000) }}</span>
@@ -26,7 +27,7 @@
         {% set text %}
             <div class="sf-toolbar-info-piece">
                 <b>Database Queries</b>
-                <span class="sf-toolbar-status {{ collector.querycount > 50 ? 'sf-toolbar-status-yellow' : '' }}">{{ collector.querycount }}</span>
+                <span class="sf-toolbar-status {{ collector.queryCount > 50 ? 'sf-toolbar-status-yellow' : '' }}">{{ collector.queryCount }}</span>
             </div>
             <div class="sf-toolbar-info-piece">
                 <b>Different statements</b>
@@ -63,7 +64,7 @@
 {% endblock %}
 
 {% block menu %}
-    <span class="label {{ collector.invalidEntityCount > 0 ? 'label-status-error' }} {{ collector.querycount == 0 ? 'disabled' }}">
+    <span class="label {{ collector.invalidEntityCount > 0 ? 'label-status-error' }} {{ collector.queryCount == 0 ? 'disabled' }}">
         <span class="icon">{{ include('@Profiling/Collector/icon.svg') }}</span>
         <strong>Doctrine</strong>
         {% if collector.invalidEntityCount %}
@@ -101,7 +102,7 @@
 
     <div class="metrics">
         <div class="metric">
-            <span class="value">{{ collector.querycount }}</span>
+            <span class="value">{{ collector.queryCount }}</span>
             <span class="label">Database Queries</span>
         </div>
 

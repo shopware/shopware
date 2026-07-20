@@ -8,12 +8,14 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -163,7 +165,11 @@ class ProductVisibilityTest extends TestCase
                 continue;
             }
 
-            static::assertInstanceOf(ProductNotFoundException::class, $e, 'case #' . $index);
+            if (!Feature::isActive('v6.8.0.0')) {
+                static::assertInstanceOf(ProductNotFoundException::class, $e, 'case #' . $index);
+            } else {
+                static::assertInstanceOf(ProductException::class, $e, 'case #' . $index);
+            }
         }
     }
 
@@ -293,17 +299,6 @@ class ProductVisibilityTest extends TestCase
 
     private function resetSearchKeywordUpdaterConfig(): void
     {
-        $class = new \ReflectionClass($this->searchKeywordUpdater);
-        $property = $class->getProperty('decorated');
-        $property->setAccessible(true);
-        $searchKeywordUpdaterInner = $property->getValue($this->searchKeywordUpdater);
-
-        $class = new \ReflectionClass($searchKeywordUpdaterInner);
-        $property = $class->getProperty('config');
-        $property->setAccessible(true);
-        $property->setValue(
-            $searchKeywordUpdaterInner,
-            []
-        );
+        $this->searchKeywordUpdater->reset();
     }
 }

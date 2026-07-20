@@ -8,6 +8,8 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailTemplateRenderContextEvent;
+use Shopware\Core\Content\MailTemplate\Service\MailTemplateContentBuilder;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
@@ -51,6 +53,7 @@ class MailService extends AbstractMailService
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly LoggerInterface $logger,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
+        private readonly MailTemplateContentBuilder $mailTemplateContentBuilder,
     ) {
     }
 
@@ -136,7 +139,7 @@ class MailService extends AbstractMailService
         $definition = new DataValidationDefinition('mail_service.send');
 
         $definition->add('recipients', new NotBlank(), new Type('array'));
-        $definition->add('salesChannelId', new EntityExists(['entity' => SalesChannelDefinition::ENTITY_NAME, 'context' => $context]));
+        $definition->add('salesChannelId', new EntityExists(entity: SalesChannelDefinition::ENTITY_NAME, context: $context));
         $definition->add('contentHtml', new NotBlank(), new Type('string'));
         $definition->add('contentPlain', new NotBlank(), new Type('string'));
         $definition->add('subject', new NotBlank(), new Type('string'));
@@ -150,12 +153,16 @@ class MailService extends AbstractMailService
      */
     private function createMail(array &$data, array $templateData, Context $context): ?Email
     {
-        $testMode = $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG) ?: !empty($data['testMode']);
+        $testMode = $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG) || !empty($data['testMode']);
 
         $salesChannel = $this->getSalesChannel($data, $templateData, $context);
 
         $templateData['salesChannel'] = $salesChannel;
         $templateData['salesChannelId'] = $salesChannel?->getId();
+
+        $renderContextEvent = new MailTemplateRenderContextEvent($templateData, $context, $salesChannel);
+        $this->eventDispatcher->dispatch($renderContextEvent);
+        $templateData = $renderContextEvent->getTemplateData();
 
         $senderEmail = $this->getSender($data, $salesChannel?->getId());
         if ($senderEmail === '') {
@@ -242,11 +249,15 @@ class MailService extends AbstractMailService
         );
 
         if ($testMode) {
-            $mail->getHeaders()
-                ->addTextHeader('X-Shopware-Event-Name', $templateData['eventName'] ?? '')
-                ->addTextHeader('X-Shopware-Sales-Channel-Id', (string) $salesChannel?->getId())
-                ->addTextHeader('X-Shopware-Language-Id', $context->getLanguageId())
-            ;
+            $headers = $mail->getHeaders();
+            $headers->addTextHeader('X-Shopware-Language-Id', $context->getLanguageId());
+
+            if (!empty($templateData['eventName'])) {
+                $headers->addTextHeader('X-Shopware-Event-Name', $templateData['eventName']);
+            }
+            if ($salesChannel instanceof SalesChannelEntity) {
+                $headers->addTextHeader('X-Shopware-Sales-Channel-Id', $salesChannel->getId());
+            }
         }
 
         return $mail;
@@ -305,26 +316,14 @@ class MailService extends AbstractMailService
      */
     private function buildContents(array $data, ?SalesChannelEntity $salesChannel): array
     {
-        $mailHeaderFooter = $salesChannel?->getMailHeaderFooter();
-        if ($mailHeaderFooter === null) {
-            return [
-                'text/plain' => $data['contentPlain'],
-                'text/html' => $data['contentHtml'],
-            ];
-        }
-
-        $headerPlain = $mailHeaderFooter->getTranslation('headerPlain') ?? '';
-        \assert(\is_string($headerPlain));
-        $footerPlain = $mailHeaderFooter->getTranslation('footerPlain') ?? '';
-        \assert(\is_string($footerPlain));
-        $headerHtml = $mailHeaderFooter->getTranslation('headerHtml') ?? '';
-        \assert(\is_string($headerHtml));
-        $footerHtml = $mailHeaderFooter->getTranslation('footerHtml') ?? '';
-        \assert(\is_string($footerHtml));
+        $content = $this->mailTemplateContentBuilder->build([
+            'contentPlain' => $data['contentPlain'],
+            'contentHtml' => $data['contentHtml'],
+        ], $salesChannel);
 
         return [
-            'text/plain' => \sprintf('%s%s%s', $headerPlain, $data['contentPlain'], $footerPlain),
-            'text/html' => \sprintf('%s%s%s', $headerHtml, $data['contentHtml'], $footerHtml),
+            'text/plain' => $content['contentPlain'],
+            'text/html' => $content['contentHtml'],
         ];
     }
 

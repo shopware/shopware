@@ -57,8 +57,8 @@ async function createWrapper(privileges = []) {
                     template: '<div><slot name="smart-bar-actions"></slot><slot name="content">CONTENT</slot></div>',
                 },
                 'sw-media-upload-v2': true,
-                'mt-text-editor': {
-                    template: '<div class="mt-text-editor"/>',
+                'sw-text-editor': {
+                    template: '<div class="sw-text-editor"/>',
                 },
                 'mt-card': {
                     template: '<div class="mt-card"><slot /></div>',
@@ -78,14 +78,16 @@ async function createWrapper(privileges = []) {
                 'sw-skeleton': true,
                 'sw-language-switch': true,
                 'sw-context-menu-item': true,
-                'sw-sidebar-media-item': true,
-                'sw-sidebar': true,
+                'sw-media-modal-v2': true,
             },
             provide: {
                 acl: {
                     can: (key) => (key ? privileges.includes(key) : true),
                 },
                 stateStyleDataProviderService: {},
+                mediaDefaultFolderService: {
+                    getDefaultFolderId: () => Promise.resolve('mediaDefaultFolderId'),
+                },
                 repositoryFactory: {
                     create: (repositoryName) => {
                         switch (repositoryName) {
@@ -114,12 +116,6 @@ async function createWrapper(privileges = []) {
 describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
     beforeEach(() => {
         global.activeAclRoles = [];
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to save edit', async () => {
@@ -154,7 +150,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
         expect(elements).toHaveLength(2);
         elements.forEach((el) => expect(el.attributes().disabled).toBeUndefined());
 
-        const textEditor = wrapper.find('.mt-text-editor');
+        const textEditor = wrapper.find('.sw-text-editor');
         expect(textEditor.exists()).toBeTruthy();
         expect(textEditor.attributes().disabled).toBeUndefined();
     });
@@ -171,7 +167,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
         expect(elements).toHaveLength(2);
         elements.forEach((el) => expect(el.props().disabled).toBe(true));
 
-        const textEditor = wrapper.find('.mt-text-editor');
+        const textEditor = wrapper.find('.sw-text-editor');
         expect(textEditor.exists()).toBeTruthy();
         expect(textEditor.attributes().disabled).toBeTruthy();
     });

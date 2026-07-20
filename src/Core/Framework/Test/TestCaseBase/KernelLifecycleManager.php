@@ -64,8 +64,8 @@ class KernelLifecycleManager
      */
     public static function createBrowser(KernelInterface $kernel, bool $enableReboot = false): TestBrowser
     {
-        /** @var TestBrowser $apiBrowser */
         $apiBrowser = $kernel->getContainer()->get('test.client');
+        \assert($apiBrowser instanceof TestBrowser);
 
         if ($enableReboot) {
             $apiBrowser->enableReboot();

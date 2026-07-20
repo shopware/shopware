@@ -31,7 +31,7 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
             ->willReturn(0);
 
         $service = new DeleteUnusedGuestCustomerService(
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             $configService
         );
 
@@ -71,7 +71,10 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
 
         $ids = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
         $deleteIds = \array_values(\array_map(static fn (string $id) => ['id' => $id], $ids));
-        $searchResultIds = \array_map(static fn (string $id) => ['primaryKey' => $id, 'data' => []], $ids);
+        $searchResultIds = [];
+        foreach ($ids as $id) {
+            $searchResultIds[$id] = ['primaryKey' => $id, 'data' => []];
+        }
 
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository

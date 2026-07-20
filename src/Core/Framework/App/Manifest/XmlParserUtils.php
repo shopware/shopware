@@ -49,7 +49,7 @@ class XmlParserUtils
     }
 
     /**
-     * @return array<int, string|null>
+     * @return list<string|null>
      */
     public static function parseChildrenAsList(\DOMElement $element, ?callable $transformer = null): array
     {

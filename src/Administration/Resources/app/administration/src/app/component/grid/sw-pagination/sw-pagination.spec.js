@@ -76,10 +76,6 @@ describe('src/component/grid/sw-pagination', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have two arrow icons', async () => {
         const [
             leftArrow,

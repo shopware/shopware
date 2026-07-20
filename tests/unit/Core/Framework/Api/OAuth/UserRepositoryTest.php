@@ -1,0 +1,172 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\Framework\Api\OAuth;
+
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Query\QueryBuilder;
+use League\OAuth2\Server\Entities\ClientEntityInterface;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\OAuth\UserRepository;
+use Shopware\Core\Framework\Sso\Config\LoginConfigService;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\User\UserEntity;
+use Symfony\Component\Routing\RouterInterface;
+
+/**
+ * @internal
+ */
+#[CoversClass(UserRepository::class)]
+class UserRepositoryTest extends TestCase
+{
+    public function testLoginWithDefaultLoginEnabledAndCorrectCredentials(): void
+    {
+        $username = 'my_username';
+        $password = 'secure-test';
+
+        $user = new UserEntity();
+        $user->setId(Uuid::randomBytes());
+        $user->setUsername($username);
+        $user->setPassword(password_hash($password, \PASSWORD_BCRYPT));
+        $user->setActive(true);
+
+        $userRepository = $this->createUserRepository($user);
+
+        $clientEntity = static::createStub(ClientEntityInterface::class);
+        $response = $userRepository->getUserEntityByUserCredentials(
+            $username,
+            $password,
+            'password',
+            $clientEntity
+        );
+
+        static::assertNotNull($response);
+    }
+
+    public function testLoginWithDefaultLoginEnabledAndWrongPassword(): void
+    {
+        $username = 'my_username';
+        $password = 'secure-test';
+
+        $user = new UserEntity();
+        $user->setId(Uuid::randomBytes());
+        $user->setUsername($username);
+        $user->setPassword(password_hash($password, \PASSWORD_BCRYPT));
+        $user->setActive(true);
+
+        $userRepository = $this->createUserRepository($user);
+
+        $clientEntity = static::createStub(ClientEntityInterface::class);
+        $response = $userRepository->getUserEntityByUserCredentials(
+            $username,
+            'secure-test-wrong',
+            'password',
+            $clientEntity
+        );
+
+        static::assertNull($response);
+    }
+
+    public function testLoginWithDefaultLoginEnabledAndNoUserFound(): void
+    {
+        $username = 'my_username';
+        $password = 'secure-test';
+
+        $userRepository = $this->createUserRepository(null);
+
+        $clientEntity = static::createStub(ClientEntityInterface::class);
+        $response = $userRepository->getUserEntityByUserCredentials(
+            $username,
+            $password,
+            'password',
+            $clientEntity
+        );
+
+        static::assertNull($response);
+    }
+
+    public function testLoginWithDefaultLoginDisabled(): void
+    {
+        $username = 'my_username';
+        $password = 'secure-test';
+
+        $user = new UserEntity();
+        $user->setId(Uuid::randomBytes());
+        $user->setUsername($username);
+        $user->setPassword(password_hash($password, \PASSWORD_BCRYPT));
+        $user->setActive(true);
+
+        $userRepository = $this->createUserRepository($user, false);
+
+        $clientEntity = static::createStub(ClientEntityInterface::class);
+        $response = $userRepository->getUserEntityByUserCredentials(
+            $username,
+            $password,
+            'password',
+            $clientEntity
+        );
+
+        static::assertNull($response);
+    }
+
+    public function testLoginWithDefaultLoginEnabledAndInactiveUser(): void
+    {
+        $username = 'my_username';
+        $password = 'secure-test';
+
+        $user = new UserEntity();
+        $user->setId(Uuid::randomBytes());
+        $user->setUsername($username);
+        $user->setPassword(password_hash($password, \PASSWORD_BCRYPT));
+        $user->setActive(false);
+
+        $userRepository = $this->createUserRepository($user);
+
+        $clientEntity = static::createStub(ClientEntityInterface::class);
+        $response = $userRepository->getUserEntityByUserCredentials(
+            $username,
+            $password,
+            'password',
+            $clientEntity
+        );
+
+        static::assertNull($response);
+    }
+
+    protected function createUserRepository(?UserEntity $user, bool $useDefault = true): UserRepository
+    {
+        $queryBuilder = static::createStub(QueryBuilder::class);
+        $queryBuilder->method('select')->willReturnSelf();
+        $queryBuilder->method('from')->willReturnSelf();
+        $queryBuilder->method('where')->willReturnSelf();
+        $queryBuilder->method('setParameter')->willReturnSelf();
+        $queryBuilder->method('fetchAssociative')->willReturnCallback(static function () use ($user) {
+            if ($user !== null) {
+                return $user->jsonSerialize();
+            }
+
+            return false;
+        });
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('createQueryBuilder')->willReturn($queryBuilder);
+
+        $loginConfigService = new LoginConfigService(
+            [
+                'use_default' => $useDefault,
+                'client_id' => 'client_id',
+                'client_secret' => 'client_secret',
+                'redirect_uri' => 'http://redirect.uri',
+                'base_url' => 'http://base.uri',
+                'authorize_path' => '/authorize',
+                'token_path' => '/token',
+                'jwks_path' => '/jwks.json',
+                'scope' => 'scope',
+                'register_url' => 'https://register.url',
+            ],
+            static::createStub(RouterInterface::class)
+        );
+
+        return new UserRepository($connection, $loginConfigService);
+    }
+}

@@ -30,7 +30,6 @@ export default {
         changeGlobalLanguage: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         abortChangeFunction: {
@@ -46,13 +45,11 @@ export default {
         savePermission: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         allowEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -71,6 +68,7 @@ export default {
             const criteria = new Criteria(1, 25);
 
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
+            criteria.addFilter(Criteria.equals('active', true));
 
             return criteria;
         },

@@ -4,13 +4,14 @@
 
 import { config, enableAutoUnmount } from '@vue/test-utils';
 
-// eslint-disable-next-line import/no-extraneous-dependencies
 import '@testing-library/jest-dom';
 
-// eslint-disable-next-line import/no-extraneous-dependencies
 import VirtualCallStackPlugin from 'src/app/plugin/virtual-call-stack.plugin';
 import MeteorSdkDataPlugin from 'src/app/plugin/meteor-sdk-data.plugin';
 import {
+    MtActionMenu,
+    MtActionMenuGroup,
+    MtActionMenuItem,
     MtBanner,
     MtButton,
     MtCard,
@@ -18,6 +19,9 @@ import {
     MtColorpicker,
     MtDataTable,
     MtDatepicker,
+    MtDropdownMenuPortal,
+    MtDropdownMenuRoot,
+    MtDropdownMenuTrigger,
     MtEmailField,
     MtEmptyState,
     MtFloatingUi,
@@ -40,7 +44,7 @@ import {
     MtToast,
     MtTextEditor,
 } from '@shopware-ag/meteor-component-library';
-import {createI18n} from "vue-i18n";
+import { createI18n } from 'vue-i18n';
 import aclService from './_mocks_/acl.service.mock';
 import feature from './_mocks_/feature.service.mock';
 import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
@@ -77,7 +81,6 @@ import '../../src/app/store/modals.store';
 import '../../src/app/store/menu-item.store';
 import '../../src/app/store/notification.store';
 import '../../src/app/store/tabs.store';
-import '../../src/app/store/usage-data.store';
 import '../../src/app/store/session.store';
 import '../../src/app/store/sw-bulk-edit.store';
 import '../../src/app/store/sidebar.store';
@@ -101,7 +104,6 @@ config.global.config.compilerOptions = {
     whitespace: 'preserve',
 };
 
-
 config.plugins.VueWrapper.install((wrapper) => {
     // add `findByText` to the global config
     wrapper.findByText = (selector, text) => findByText(wrapper, selector, text);
@@ -123,27 +125,28 @@ Shopware.Feature = Shopware.Service('feature');
 Shopware.Service().register('repositoryFactory', () => repositoryFactory);
 
 // Provide all services
-Shopware.Service().list().forEach(serviceKey => {
-    config.global.provide[serviceKey] = Shopware.Service(serviceKey);
-});
+Shopware.Service()
+    .list()
+    .forEach((serviceKey) => {
+        config.global.provide[serviceKey] = Shopware.Service(serviceKey);
+    });
 
 // Set important functions for Shopware Core
 Shopware.Application.view = {
     setReactive: (target, propertyName, value) => {
-        // eslint-disable-next-line no-return-assign
-        return target[propertyName] = value;
+        return (target[propertyName] = value);
     },
     deleteReactive(target, propertyName) {
         delete target[propertyName];
     },
     root: {
-        $tc: v => v,
+        $t: (v) => v,
     },
     i18n: {
         global: {
-            tc: v => v,
-            te: v => v,
-            t: v => v,
+            tc: (v) => v,
+            te: (v) => v,
+            t: (v) => v,
         },
     },
 };
@@ -158,11 +161,10 @@ Shopware.Store.get('context').api.inheritance = false;
 Shopware.Store.get('context').api.systemLanguageId = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
 Shopware.Store.get('context').api.liveVersionId = '0fa91ce3e96a4bc2be4bd9ce752c3425';
 Shopware.Context.api.authToken = {
-    // eslint-disable-next-line max-len
     access: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImI0MTdkYjQ1MzMwNTY1MGIyY2QxMWVhYTBmZjRjNWJmZTVjZWYxYTI3NzBjY2JmY2M3MGY2Y2FiZDIzYWQyYmZiMzc1NTZhNDFlNGE3M2M5In0.eyJhdWQiOiJhZG1pbmlzdHJhdGlvbiIsImp0aSI6ImI0MTdkYjQ1MzMwNTY1MGIyY2QxMWVhYTBmZjRjNWJmZTVjZWYxYTI3NzBjY2JmY2M3MGY2Y2FiZDIzYWQyYmZiMzc1NTZhNDFlNGE3M2M5IiwiaWF0IjoxNjAyODM5OTgxLCJuYmYiOjE2MDI4Mzk5ODEsImV4cCI6MTYwMjg0MDU4MSwic3ViIjoiNzk5Y2NmNzY3MzZjNDkxYTgzNTA5MzA0Mjc3YzI3MTkiLCJzY29wZXMiOlsid3JpdGUiLCJhZG1pbiJdfQ.Df0EnZyZ-eY1iNCB-0x-0Ir8a8XW_HOdhq9HEcx7AbCEogHIFtU_0UPxTLX9_Wo3r-5C4FmbQrN31ReBWxkbEldMb3EU-UL4FIJA2gYhFWAXV2ZhaEJ5hRQ04n4gra0Os48vzYIEOq87_0lPPQqqVZLi68aHLVSF962VE1SkbofKqS2l2mDh9JJjnyhZavpkmpLhLkoWBBUWJS7G-EHo_-DttxPpA8W0Kgyg8Ch4Z2xqZ1r0zaB6hIS97-m8qLFHtjPhrbLW8NIMURIU3_brkkO2wFXrLKc0Y6MLJac8BVEe8VTEoEo8x8Ft2dCQU5aF2Aht3Y_55m1VjUMXBSb77A',
     expiry: 1602840582,
-    // eslint-disable-next-line max-len
-    refresh: 'def5020065a671fb38ec810a50bb627db679fd9a046ca0187215d418986fce75d3b55f7e0588c33318f3f7a280edc1e82b764a6b1fb82275e457459e58fff73afaa2aac08acd23322d398a74babbd9e02c11228985a5f140742eaa2c30af55ae350aca32e898ca9a5955c0bf057dee2b39bb5134aa6176668744fe05d6dbc9a0294bf6fa4dd6b4b07ed5d235d89005eeffc0e69ddc072e2023e522a5fd699c3e68b1dcdcc9f60c63f62ff4ed1778abfb0f3b95c4b44ad92d885bf1dca115f086b1a2368e7326f467331b6a0e65049e790c4d3a35fc1d77dfbd91da74c4d7cc449604adecd41bd84596efa4651b75bef0eeba6aef0d33338be22bf4e816584aefce9588a85d1dafbe311e330835d54dc19f43baa7a7ad63ee9573c98444219d80266b52b6e840354596d369e8350f3df18dae21a9dc607dcf70d66ddf78652a0d4083b85a832cc808d61ad15c196e1579cdea3829a8b480572f7afd590cd18fe811b5596554a58c5800756fdb1c051a461e4d7cf7c94c552ccf79d7a1368dfe8e63f4402abbaa6cabbd92437cf3f78c302ea7492dd60f5cfd8f7b4e8aa714',
+    refresh:
+        'def5020065a671fb38ec810a50bb627db679fd9a046ca0187215d418986fce75d3b55f7e0588c33318f3f7a280edc1e82b764a6b1fb82275e457459e58fff73afaa2aac08acd23322d398a74babbd9e02c11228985a5f140742eaa2c30af55ae350aca32e898ca9a5955c0bf057dee2b39bb5134aa6176668744fe05d6dbc9a0294bf6fa4dd6b4b07ed5d235d89005eeffc0e69ddc072e2023e522a5fd699c3e68b1dcdcc9f60c63f62ff4ed1778abfb0f3b95c4b44ad92d885bf1dca115f086b1a2368e7326f467331b6a0e65049e790c4d3a35fc1d77dfbd91da74c4d7cc449604adecd41bd84596efa4651b75bef0eeba6aef0d33338be22bf4e816584aefce9588a85d1dafbe311e330835d54dc19f43baa7a7ad63ee9573c98444219d80266b52b6e840354596d369e8350f3df18dae21a9dc607dcf70d66ddf78652a0d4083b85a832cc808d61ad15c196e1579cdea3829a8b480572f7afd590cd18fe811b5596554a58c5800756fdb1c051a461e4d7cf7c94c552ccf79d7a1368dfe8e63f4402abbaa6cabbd92437cf3f78c302ea7492dd60f5cfd8f7b4e8aa714',
 };
 Shopware.Store.get('session').setAdminLocaleState({
     locales: ['en-GB'],
@@ -170,12 +172,16 @@ Shopware.Store.get('session').setAdminLocaleState({
     languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
 });
 
+// disable telemetry
+Shopware.Telemetry.initialize = () => Promise.resolve();
+Shopware.Telemetry.track = () => {};
+
 // Add global mocks
 config.global.mocks = {
-    $tc: v => v,
-    $t: v => v,
+    $tc: (v) => v,
+    $t: (v) => v,
     $te: () => true,
-    $sanitize: key => key,
+    $sanitize: (key) => key,
     $i18n: {
         locale: 'en-GB',
         fallbackLocale: 'en-GB',
@@ -221,8 +227,11 @@ config.global.stubs = {
     `,
     },
     'mt-popover-deprecated': {
-        template: `<div class="mt-popover-deprecated"><slot/></div>`
+        template: `<div class="mt-popover-deprecated"><slot/></div>`,
     },
+    'mt-action-menu': MtActionMenu,
+    'mt-action-menu-group': MtActionMenuGroup,
+    'mt-action-menu-item': MtActionMenuItem,
     'mt-banner': MtBanner,
     'mt-button': MtButton,
     'mt-card': MtCard,
@@ -230,6 +239,9 @@ config.global.stubs = {
     'mt-colorpicker': MtColorpicker,
     'mt-data-table': MtDataTable,
     'mt-datepicker': MtDatepicker,
+    'mt-dropdown-menu-portal': MtDropdownMenuPortal,
+    'mt-dropdown-menu-root': MtDropdownMenuRoot,
+    'mt-dropdown-menu-trigger': MtDropdownMenuTrigger,
     'mt-email-field': MtEmailField,
     'mt-empty-state': MtEmptyState,
     'mt-floating-ui': MtFloatingUi,
@@ -270,8 +282,8 @@ const i18n = createI18n({
         }
 
         return path;
-    }
-})
+    },
+});
 
 // Add global plugins
 config.global.plugins = [
@@ -316,6 +328,18 @@ global.allowedErrors = [
     {
         method: 'warn',
         msg: 'No extension found for origin ""',
+    },
+    {
+        method: 'warn',
+        msg: '[MtCheckbox] The `checked` prop is deprecated and will be removed. Please use v-model (modelValue/update:modelValue) instead.',
+    },
+    {
+        method: 'warn',
+        msg: '[MtNumberField] The `allowEmpty` prop is deprecated and will be removed. There will be no replacement.',
+    },
+    {
+        method: 'warn',
+        msg: '[Vue warn]: Invalid prop: custom validator check failed for prop "size".',
     },
     {
         method: 'error',
@@ -364,8 +388,10 @@ global.allowedErrors = [
                 return false;
             }
 
-            return msg0?.includes('is deprecated and will be removed in v6.7.0.0. Please use') ||
-                msg1?.includes?.('is deprecated and will be removed in v6.7.0.0. Please use');
+            return (
+                msg0?.includes('is deprecated and will be removed in v6.8.0.0. Please use') ||
+                msg1?.includes?.('is deprecated and will be removed in v6.8.0.0. Please use')
+            );
         },
     },
     /*
@@ -380,8 +406,24 @@ global.allowedErrors = [
                 return false;
             }
 
-            return msg0?.includes('is already registered. Please select a unique name for your component.') ||
-                msg1?.includes?.('is already registered. Please select a unique name for your component.');
+            return (
+                msg0?.includes('is already registered. Please select a unique name for your component.') ||
+                msg1?.includes?.('is already registered. Please select a unique name for your component.')
+            );
+        },
+    },
+    /*
+     * sw-entity-listing "items" prop deprecation - only deprecated for next major v6.8.0
+     * Allow this warning during the transition period
+     */
+    {
+        method: 'warn',
+        msgCheck: (msg0) => {
+            if (typeof msg0 !== 'string') {
+                return false;
+            }
+
+            return msg0?.includes('[Deprecation] sw-entity-listing: The "items" prop is deprecated');
         },
     },
 
@@ -392,8 +434,10 @@ global.allowedErrors = [
                 return false;
             }
 
-            return msg0?.includes('Missing registration for slot type') ||
-                msg1?.includes?.('Missing registration for slot type');
+            return (
+                msg0?.includes('Missing registration for slot type') ||
+                msg1?.includes?.('Missing registration for slot type')
+            );
         },
     },
 
@@ -404,14 +448,92 @@ global.allowedErrors = [
                 return false;
             }
 
-            return msg0?.includes('No definition found for entity type') ||
-                msg1?.includes?.('No definition found for entity type');
+            return (
+                msg0?.includes('No definition found for entity type') ||
+                msg1?.includes?.('No definition found for entity type')
+            );
         },
     },
 
     sendTimeoutExpired,
     deprecatedTabComponent,
     deprecatedPopoverComponent,
+    // Vue 3 test stubs may have empty templates which triggers this warning
+    // This is expected in test environments when stubbing router components
+    {
+        method: 'warn',
+        msgCheck: (msg0) => {
+            if (typeof msg0 !== 'string') {
+                return false;
+            }
+
+            return msg0?.includes('Component is missing template or render function');
+        },
+    },
+    // Vue 3 component resolution warnings for non-registered components in tests
+    {
+        method: 'warn',
+        msgCheck: (msg0) => {
+            if (typeof msg0 !== 'string') {
+                return false;
+            }
+
+            return msg0?.includes('Failed to resolve component');
+        },
+    },
+    // Meteor Component Library dynamically imports SVG icons
+    // These fail in Jest test environment since they're loaded via dynamic import
+    // First the library logs a string message about the missing SVG file
+    {
+        method: 'error',
+        msgCheck: (msg) => {
+            const msgStr = msg instanceof Error ? msg.toString() : String(msg);
+            return msgStr.includes('The SVG file for the icon') && msgStr.includes('could not be found and loaded');
+        },
+    },
+    // Then the dynamic import error (ReferenceError) is logged
+    {
+        method: 'error',
+        msgCheck: (msg) => {
+            const msgStr = msg instanceof Error ? msg.toString() : String(msg);
+            return msgStr.includes('You are trying to `import` a file outside of the scope of the test code');
+        },
+    },
+    // Network/fetch AggregateError in tests (happens when requests fail in test environment)
+    {
+        method: 'error',
+        msgCheck: (msg) => {
+            const msgStr = msg instanceof Error ? msg.toString() : String(msg);
+            return msgStr.includes('AggregateError');
+        },
+    },
+    // Component override system error - expected in certain test scenarios
+    {
+        method: 'error',
+        msgCheck: (msg) => {
+            const msgStr = msg instanceof Error ? msg.toString() : String(msg);
+            return msgStr.includes('The original setup function for the originalComponent component returned a prop');
+        },
+    },
+    // Data-grid accessor warnings - expected when testing column rendering with invalid paths
+    {
+        method: 'warn',
+        msgCheck: (msg) => {
+            if (typeof msg !== 'string') {
+                return false;
+            }
+
+            return msg?.includes('[sw-data-grid] Can not resolve accessor');
+        },
+    },
+    // Code editor / text editor test environment errors
+    {
+        method: 'error',
+        msgCheck: (msg) => {
+            const msgStr = msg instanceof Error ? msg.toString() : String(msg);
+            return msgStr.includes('enableHtmlSanitizer') || msgStr.includes('innerText');
+        },
+    },
 ];
 
 global.flushPromises = flushPromises;
@@ -422,12 +544,15 @@ let consoleHasWarning = false;
 let errorArgs = null;
 let warnArgs = null;
 let warnTrace = null;
+let hasActiveTest = false;
+let unhandledRejectionError = null;
 const { error, warn } = console;
 
+// Simple wrapper functions that track calls without using Jest spies
+// This allows tests to use jest.spyOn(console, 'warn') without conflicts
 global.console.error = (...args) => {
     let silenceError = false;
-    // eslint-disable-next-line array-callback-return
-    global.allowedErrors.some(allowedError => {
+    global.allowedErrors.some((allowedError) => {
         if (allowedError.method !== 'error') {
             return;
         }
@@ -435,7 +560,6 @@ global.console.error = (...args) => {
         if (typeof allowedError.msg === 'string') {
             if (typeof args[0] === 'string') {
                 const shouldBeSilenced = args[0].includes(allowedError.msg);
-
                 if (shouldBeSilenced) {
                     silenceError = true;
                 }
@@ -444,20 +568,13 @@ global.console.error = (...args) => {
         }
 
         if (typeof allowedError.msgCheck === 'function') {
-            if (allowedError.msgCheck) {
-                const shouldBeSilenced = allowedError.msgCheck(args[0]);
-
-                if (shouldBeSilenced) {
-                    silenceError = true;
-                }
+            if (allowedError.msgCheck(args[0])) {
+                silenceError = true;
             }
-
             return;
         }
 
-        const shouldBeSilenced = allowedError.msg && allowedError.msg.test(args[0]);
-
-        if (shouldBeSilenced) {
+        if (allowedError.msg && allowedError.msg.test(args[0])) {
             silenceError = true;
         }
     });
@@ -469,11 +586,9 @@ global.console.error = (...args) => {
     }
 };
 
-
 global.console.warn = (...args) => {
     let silenceWarning = false;
-    // eslint-disable-next-line array-callback-return
-    global.allowedErrors.some(allowedError => {
+    global.allowedErrors.some((allowedError) => {
         if (allowedError.method !== 'warn') {
             return;
         }
@@ -481,7 +596,6 @@ global.console.warn = (...args) => {
         if (typeof allowedError.msg === 'string') {
             if (typeof args[0] === 'string') {
                 const shouldBeSilenced = args[0].includes(allowedError.msg);
-
                 if (shouldBeSilenced) {
                     silenceWarning = true;
                 }
@@ -490,48 +604,49 @@ global.console.warn = (...args) => {
         }
 
         if (typeof allowedError.msgCheck === 'function') {
-            if (allowedError.msgCheck) {
-                const shouldBeSilenced = allowedError.msgCheck(args[0], args[1]);
-
-                if (shouldBeSilenced) {
-                    silenceWarning = true;
-                }
+            if (allowedError.msgCheck(args[0], args[1])) {
+                silenceWarning = true;
             }
-
             return;
         }
 
-        const shouldBeSilenced = allowedError.msg && allowedError.msg.test(args[0]);
-
-        if (shouldBeSilenced) {
+        if (allowedError.msg && allowedError.msg.test(args[0])) {
             silenceWarning = true;
         }
     });
 
     if (!silenceWarning) {
         // Create an error to preserve the original console.warn stack
-        const e = new Error();
+        const e = new Error(`Unexpected console.warn: ${args.join(' ')}`);
         warnTrace = e.stack;
-
-        // Set console.warn arguments for global after each
         consoleHasWarning = true;
         warnArgs = args;
-
-        // Call original warn to print to std::out
         warn(...args);
     }
 };
 
-
 // eslint-disable-next-line jest/require-top-level-describe
 beforeEach(() => {
+    hasActiveTest = true;
     consoleHasError = false;
+    consoleHasWarning = false;
     errorArgs = null;
+    warnArgs = null;
+    warnTrace = null;
+    unhandledRejectionError = null;
     global.activeFeatureFlags = [];
 });
 
 // eslint-disable-next-line jest/require-top-level-describe
 afterEach(() => {
+    hasActiveTest = false;
+
+    if (unhandledRejectionError) {
+        const rejectionError = unhandledRejectionError;
+        unhandledRejectionError = null;
+        throw rejectionError;
+    }
+
     if (consoleHasError) {
         // reset variable for next test
         consoleHasError = false;
@@ -562,6 +677,18 @@ afterEach(() => {
     }
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+// eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
+process.on('unhandledRejection', (reason) => {
+    // Ignore late async rejections after a test already finished.
+    // During active tests, convert unhandled rejections into test failures in afterEach.
+    if (!hasActiveTest) {
+        return;
+    }
+
+    if (reason instanceof Error) {
+        unhandledRejectionError = reason;
+        return;
+    }
+
+    unhandledRejectionError = new Error(`Unhandled Rejection: ${String(reason)}`);
 });

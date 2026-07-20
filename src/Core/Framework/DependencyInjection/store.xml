@@ -61,6 +61,7 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="cache.object"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient">
@@ -85,8 +86,6 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService" />
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService" />
             <argument type="service" id="user.repository" />
-            <argument>%kernel.plugin_dir%</argument>
-            <argument>%kernel.project_dir%</argument>
 
             <tag name="console.command"/>
         </service>
@@ -115,13 +114,14 @@
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\ExtensionLoader">
-            <argument type="service" id="theme.repository" on-invalid="null"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
             <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\Service\ConfigurationService"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Authentication\LocaleProvider"/>
             <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
             <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider" class="Shopware\Core\Framework\Store\Services\ExtensionDataProvider">
@@ -149,10 +149,9 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
-            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppStorage"/>
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="theme.repository" on-invalid="null"/>
-            <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
             <argument type="service" id="Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider"/>
         </service>
 
@@ -171,8 +170,6 @@
             <argument type="service" id="plugin.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService"/>
-            <argument>%kernel.plugin_dir%</argument>
-            <argument>%kernel.project_dir%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\ExtensionLifecycleService">
@@ -189,7 +186,6 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService"/>
             <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
             <argument>%shopware.deployment.runtime_extension_management%</argument>
-            <argument type="service" id="cache.object"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -215,7 +211,6 @@
         <service id="Shopware\Core\Framework\Store\Subscriber\LicenseHostChangedSubscriber">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseUpdater"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -234,6 +229,10 @@
             <tag name="shopware.store_client.middleware"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Store\Services\RetryFailedStoreRequestMiddleware" public="true">
+            <tag name="shopware.store_client.middleware"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Store\Services\TrackingEventClient">
             <argument type="service" id="shopware.store_client"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
@@ -248,6 +247,8 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\JWT\JWTDecoder"/>
             <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase\Services\KeyFetcher"/>
+            <argument type="service" id="logger" />
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\InAppPurchase\Api\InAppPurchasesController" public="true">
@@ -270,6 +271,7 @@
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseUpdater"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider"/>
 
             <tag name="messenger.message_handler"/>
         </service>
@@ -295,6 +297,18 @@
             <argument type="service" id="logger"/>
         </service>
 
+
+        <service id="Shopware\Core\Framework\Store\InAppPurchase\Subscriber\InAppPurchaseConfigSubscriber">
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseUpdater"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Framework\JWT\JWTDecoder"/>
+
+        <service id="Shopware\Core\Framework\Store\Subscriber\ExtensionChangedSubscriber">
+            <argument type="service" id="cache.object"/>
+        </service>
     </services>
 </container>

@@ -1,17 +1,10 @@
-import { defineComponent, type PropType } from 'vue';
+import { defineComponent } from 'vue';
 import { type RuntimeSlot } from '../service/cms.service';
-import '../../sw-category/page/sw-category-detail/store';
+import './sw-cms-state.mixin';
 
 const { Mixin } = Shopware;
 const { types } = Shopware.Utils;
-const { cloneDeep, merge } = Shopware.Utils.object;
-
-interface Translation {
-    languageId: string;
-}
-interface Entity {
-    translations: Translation[];
-}
+const { cloneDeep, merge, get, set, has } = Shopware.Utils.object;
 
 /**
  * @private
@@ -21,6 +14,10 @@ export default Mixin.register(
     'cms-element',
     defineComponent({
         inject: ['cmsService'],
+
+        mixins: [
+            Mixin.getByName('cms-state'),
+        ],
 
         props: {
             element: {
@@ -49,34 +46,61 @@ export default Mixin.register(
             cmsElements() {
                 return this.cmsService.getCmsElementRegistry();
             },
-
-            category(): EntitySchema.Entities['category'] {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                return Shopware.Store.get('swCategoryDetail')?.category as EntitySchema.Entities['category'];
-            },
         },
 
         methods: {
-            initElementConfig(elementName: string) {
-                let defaultConfig = this.defaultConfig;
-                if (!defaultConfig) {
-                    const elementConfig = this.cmsElements[elementName];
-                    defaultConfig = elementConfig?.defaultConfig || {};
+            initElementConfig() {
+                this.initBaseConfig();
+                this.applyContentOverride();
+            },
+
+            initBaseConfig() {
+                if (!this.element.type) {
+                    return;
                 }
 
-                let fallbackCategoryConfig = {};
-                if (this.category?.translations) {
-                    // @ts-expect-error
-                    // eslint-disable-next-line max-len
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-                    fallbackCategoryConfig = this.getDefaultTranslations(this.category)?.slotConfig?.[this.element.id];
+                const config = merge({}, this.cmsElements[this.element.type]?.defaultConfig, this.defaultConfig);
+
+                if (!this.element.config) {
+                    set(this.element, 'config', {});
                 }
 
-                this.element.config = merge(
-                    cloneDeep(defaultConfig),
-                    this.element?.translated?.config || {},
-                    fallbackCategoryConfig || {},
-                    this.element?.config || {},
+                Object.entries(config).forEach(
+                    ([
+                        key,
+                        value,
+                    ]) => {
+                        const path = `config.${key}`;
+
+                        if (has(this.element, path)) {
+                            return;
+                        }
+
+                        const newValue: unknown = get(this.element, `translated.${path}`, value);
+
+                        set(this.element, path, newValue);
+                    },
+                );
+            },
+
+            applyContentOverride() {
+                if (!this.contentEntity || !this.inheritedSlotConfig || !this.element.id) {
+                    return;
+                }
+
+                const overrideConfig = this.inheritedSlotConfig[this.element.id];
+
+                if (!overrideConfig) {
+                    return;
+                }
+
+                Object.entries(overrideConfig).forEach(
+                    ([
+                        key,
+                        value,
+                    ]) => {
+                        set(this.element, `config.${key}`, cloneDeep(value));
+                    },
                 );
             },
 
@@ -92,12 +116,6 @@ export default Mixin.register(
 
             getDemoValue(mappingPath: string) {
                 return this.cmsService.getPropertyByMappingPath(this.cmsPageState.currentDemoEntity, mappingPath);
-            },
-
-            getDefaultTranslations(entity: Entity) {
-                return entity.translations.find((translation) => {
-                    return translation.languageId === Shopware.Context.api.systemLanguageId;
-                });
             },
         },
     }),

@@ -1,6 +1,6 @@
 {% block sw_order_save_changes_beforehand_modal %}
 <sw-modal
-    :title="$tc('sw-order.saveChangesBeforehandModal.headline')"
+    :title="$t('global.default.warning')"
     variant="small"
     @modal-close="onCancel"
 >
@@ -16,9 +16,10 @@
         <mt-button
             size="small"
             variant="secondary"
+            data-analytics-id="sw-order-save-changes-beforehand-modal.cancel"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -26,9 +27,10 @@
         <mt-button
             variant="primary"
             size="small"
+            data-analytics-id="sw-order-save-changes-beforehand-modal.confirm"
             @click="onConfirm"
         >
-            {{ $tc('sw-order.saveChangesBeforehandModal.confirmButton') }}
+            {{ $t('sw-order.saveChangesBeforehandModal.confirmButton') }}
         </mt-button>
         {% endblock %}
         {% endblock %}

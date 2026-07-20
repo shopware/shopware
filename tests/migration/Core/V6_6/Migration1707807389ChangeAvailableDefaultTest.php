@@ -4,7 +4,9 @@ namespace Shopware\Tests\Migration\Core\V6_6;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1707807389ChangeAvailableDefault;
 
 /**
@@ -13,6 +15,11 @@ use Shopware\Core\Migration\V6_6\Migration1707807389ChangeAvailableDefault;
 #[CoversClass(Migration1707807389ChangeAvailableDefault::class)]
 class Migration1707807389ChangeAvailableDefaultTest extends TestCase
 {
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1707807389, (new Migration1707807389ChangeAvailableDefault())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $connection = KernelLifecycleManager::getConnection();
@@ -20,8 +27,8 @@ class Migration1707807389ChangeAvailableDefaultTest extends TestCase
         $migration = new Migration1707807389ChangeAvailableDefault();
         $migration->update($connection);
 
-        $available = $connection->fetchOne('SELECT COLUMN_DEFAULT FROM information_schema.COLUMNS WHERE TABLE_NAME = "product" AND COLUMN_NAME = "available"');
+        $column = TableHelper::getColumnOfTable($connection, ProductDefinition::ENTITY_NAME, 'available');
 
-        static::assertSame('0', $available);
+        static::assertSame('0', $column->defaultValue);
     }
 }

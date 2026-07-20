@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import { createPinia } from 'pinia';
@@ -191,10 +193,10 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         const falseAction = wrapper.find('.sw-flow-sequence-condition__false-action');
         expect(falseAction.exists()).toBeTruthy();
 
-        const falseArrowIcon = wrapper.find('.mt-icon.icon--regular-chevron-down-s');
+        const falseArrowIcon = wrapper.find('.mt-icon.icon--regular-chevron-down-xs');
         expect(falseArrowIcon.exists()).toBeFalsy();
 
-        const trueArrowIcon = wrapper.find('.mt-icon.icon--regular-chevron-right-s');
+        const trueArrowIcon = wrapper.find('.mt-icon.icon--regular-chevron-right-xs');
         expect(trueArrowIcon.exists()).toBeFalsy();
     });
 
@@ -227,10 +229,10 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         const falseAction = wrapper.find('.sw-flow-sequence-condition__false-action');
         expect(falseAction.exists()).toBeFalsy();
 
-        const falseArrowIcon = wrapper.find('.mt-icon.icon--regular-chevron-down-s');
+        const falseArrowIcon = wrapper.find('.mt-icon.icon--regular-chevron-down-xs');
         expect(falseArrowIcon.exists()).toBeTruthy();
 
-        const trueArrowIcon = wrapper.find('.mt-icon.icon--regular-chevron-right-s');
+        const trueArrowIcon = wrapper.find('.mt-icon.icon--regular-chevron-right-xs');
         expect(trueArrowIcon.exists()).toBeTruthy();
     });
 

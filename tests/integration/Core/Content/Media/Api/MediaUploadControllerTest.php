@@ -2,11 +2,10 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media\Api;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Api\MediaUploadController;
 use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
@@ -22,7 +21,6 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[CoversClass(MediaUploadController::class)]
 #[Group('needsWebserver')]
 class MediaUploadControllerTest extends TestCase
 {
@@ -30,7 +28,12 @@ class MediaUploadControllerTest extends TestCase
     use MediaFixtures;
 
     final public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
+    final public const SAFE_SVG = __DIR__ . '/fixtures/safe.svg';
+    final public const UNSAFE_SVG = __DIR__ . '/fixtures/unsafe.svg';
 
+    /**
+     * @var EntityRepository<MediaCollection>
+     */
     private EntityRepository $mediaRepository;
 
     private string $mediaId;
@@ -106,7 +109,7 @@ class MediaUploadControllerTest extends TestCase
     public function testUploadFromBinaryUsesFileName(): void
     {
         $dispatcher = static::getContainer()->get('event_dispatcher');
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, MediaUploadedEvent::class, $listener);
 
@@ -137,10 +140,72 @@ class MediaUploadControllerTest extends TestCase
         $this->assertMediaApiResponse();
     }
 
+    public function testUploadValidSvgFromBinary(): void
+    {
+        $url = \sprintf(
+            '/api/_action/media/%s/upload',
+            $this->mediaId
+        );
+
+        $this->getBrowser()->request(
+            'POST',
+            $url . '?extension=svg',
+            [],
+            [],
+            [
+                'HTTP_CONTENT-TYPE' => 'image/svg+xml',
+                'HTTP_CONTENT-LENGTH' => filesize(self::SAFE_SVG),
+            ],
+            (string) file_get_contents(self::SAFE_SVG)
+        );
+
+        $media = $this->getMediaEntity();
+
+        static::assertSame('svg', $media->getFileExtension());
+        static::assertTrue($this->getPublicFilesystem()->has($media->getPath()));
+        $this->assertMediaEventThrown();
+    }
+
+    public function testUploadInvalidSvgFromBinaryReturnsBadRequest(): void
+    {
+        $url = \sprintf(
+            '/api/_action/media/%s/upload',
+            $this->mediaId
+        );
+
+        $this->getBrowser()->request(
+            'POST',
+            $url . '?extension=svg',
+            [],
+            [],
+            [
+                'HTTP_CONTENT-TYPE' => 'image/svg+xml',
+                'HTTP_CONTENT-LENGTH' => filesize(self::UNSAFE_SVG),
+            ],
+            (string) file_get_contents(self::UNSAFE_SVG)
+        );
+
+        $response = $this->getBrowser()->getResponse();
+        $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->get($this->mediaId);
+
+        static::assertInstanceOf(MediaEntity::class, $media);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        static::assertSame('CONTENT__MEDIA_INVALID_FILE', $responseData['errors'][0]['code']);
+        static::assertSame(
+            'Provided file is invalid: SVG files with active content are not allowed.'
+            . \PHP_EOL . 'Event handler attributes not allowed: onload'
+            . \PHP_EOL . 'Attributes not allowed: onload.',
+            $responseData['errors'][0]['detail']
+        );
+        static::assertEmpty($media->getPath());
+        static::assertNull($this->thrownMediaEvent);
+    }
+
     public function testUploadFromURL(): void
     {
         $dispatcher = static::getContainer()->get('event_dispatcher');
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, MediaUploadedEvent::class, $listener);
 
@@ -151,15 +216,13 @@ class MediaUploadControllerTest extends TestCase
             $this->mediaId
         );
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             $url . '?extension=png',
-            [],
-            [],
+            ['url' => $baseUrl],
             [
                 'HTTP_CONTENT-TYPE' => 'application/json',
             ],
-            json_encode(['url' => $baseUrl], \JSON_THROW_ON_ERROR)
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -184,7 +247,7 @@ class MediaUploadControllerTest extends TestCase
     public function testRenameMediaFileThrowsExceptionIfFileNameIsNotPresent(): void
     {
         $dispatcher = static::getContainer()->get('event_dispatcher');
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->never())->method('__invoke');
         $this->addEventListener($dispatcher, MediaUploadedEvent::class, $listener);
 
@@ -197,15 +260,13 @@ class MediaUploadControllerTest extends TestCase
             $media->getId()
         );
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             $url,
-            [],
             [],
             [
                 'HTTP_CONTENT_TYPE' => 'application/json',
             ],
-            json_encode([], \JSON_THROW_ON_ERROR)
         );
 
         $response = $this->getBrowser()->getResponse();
@@ -242,15 +303,13 @@ class MediaUploadControllerTest extends TestCase
             $media->getId()
         );
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             $url,
-            [],
-            [],
+            ['fileName' => 'new_file_name'],
             [
                 'HTTP_CONTENT_TYPE' => 'application/json',
             ],
-            json_encode(['fileName' => 'new_file_name'], \JSON_THROW_ON_ERROR)
         );
 
         $response = $this->getBrowser()->getResponse();
@@ -271,12 +330,14 @@ class MediaUploadControllerTest extends TestCase
         $this->setFixtureContext($context);
         $media = $this->getPng();
 
+        $fileName = $media->getFileName();
+        static::assertIsString($fileName);
         $url = \sprintf(
             '/api/_action/media/provide-name?fileName=%s&extension=png',
-            $media->getFileName()
+            $fileName
         );
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'GET',
             $url
         );
@@ -285,7 +346,7 @@ class MediaUploadControllerTest extends TestCase
         static::assertSame(200, $response->getStatusCode());
 
         $result = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame($media->getFileName() . '_(1)', $result['fileName']);
+        static::assertSame($fileName . '_(1)', $result['fileName']);
     }
 
     public function testProvideNameProvidesOwnName(): void
@@ -294,13 +355,15 @@ class MediaUploadControllerTest extends TestCase
         $this->setFixtureContext($context);
         $media = $this->getPng();
 
+        $fileName = $media->getFileName();
+        static::assertIsString($fileName);
         $url = \sprintf(
             '/api/_action/media/provide-name?fileName=%s&extension=png&mediaId=%s',
-            $media->getFileName(),
+            $fileName,
             $media->getId()
         );
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'GET',
             $url
         );
@@ -309,7 +372,7 @@ class MediaUploadControllerTest extends TestCase
         static::assertSame(200, $response->getStatusCode());
 
         $result = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame($media->getFileName(), $result['fileName']);
+        static::assertSame($fileName, $result['fileName']);
     }
 
     private function getMediaEntity(): MediaEntity
@@ -331,7 +394,7 @@ class MediaUploadControllerTest extends TestCase
 
     private function assertMediaApiResponse(): void
     {
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'GET',
             '/api/media/' . $this->mediaId
         );

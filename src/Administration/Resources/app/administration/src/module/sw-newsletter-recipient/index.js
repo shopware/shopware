@@ -1,20 +1,19 @@
-import './acl';
-import defaultSearchConfiguration from './default-search-configuration';
-
 /**
  * @sw-package after-sales
  */
+import './acl';
+import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-newsletter-recipient-list', () => import('./page/sw-newsletter-recipient-list/index'));
 Shopware.Component.register('sw-newsletter-recipient-detail', () => import('./page/sw-newsletter-recipient-detail/index'));
 Shopware.Component.register(
     'sw-newsletter-recipient-filter-switch',
     () => import('./component/sw-newsletter-recipient-filter-switch'),
 );
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-newsletter-recipient', {
@@ -25,7 +24,7 @@ Module.register('sw-newsletter-recipient', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#FFD700',
-    icon: 'regular-megaphone',
+    icon: 'solid-megaphone',
     favicon: 'icon-module-marketing.png',
     entity: 'newsletter_recipient',
     entityDisplayProperty: 'email',

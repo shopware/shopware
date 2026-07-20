@@ -6,9 +6,34 @@ import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 
+const deviceMock = {
+    onResize: jest.fn(),
+    removeResizeListener: jest.fn(),
+};
+
+const mockNewsletterRecipient = [
+    {
+        email: 'test@example.com',
+        firstName: 'Max',
+        lastName: 'Mustermann',
+        status: 'direct',
+        createdAt: '2020-09-23T11:42:12.104+00:00',
+        id: '1',
+    },
+    {
+        email: 'second@recipient.com',
+        firstName: 'Second',
+        lastName: 'Recipient',
+        status: 'direct',
+        id: '2',
+        createdAt: '2020-09-23T11:00:12.104+00:00',
+    },
+];
+
 function mockApiCall(type) {
     switch (type) {
-        case 'language' || 'languageFilters':
+        case 'language':
+        case 'languageFilters':
             return [
                 {
                     localeId: '575d2f35a8144b79beefe70e158eb03e',
@@ -19,30 +44,24 @@ function mockApiCall(type) {
                     id: '25c6e7681c334d0caebae74c382c68e1',
                 },
             ];
-        case 'newsletter_recipient':
-            return [
-                {
-                    email: 'test@example.com',
-                    title: null,
-                    firstName: 'Max',
-                    lastName: 'Mustermann',
-                    zipCode: '48624',
-                    city: 'Schöppingen',
-                    street: null,
-                    status: 'direct',
-                    hash: 'c225f2cc023946679c4e0d9189375402',
-                    confirmedAt: null,
-                    salutationId: 'fd04f0ca555143ab9f28294699f7384b',
-                    languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
-                    salesChannelId: '7b872c384b254613b5a4bd5c8b965bab',
-                    createdAt: '2020-09-23T11:42:12.104+00:00',
-                    updatedAt: '2020-09-23T13:27:01.436+00:00',
-                    apiAlias: null,
-                    id: '92618290af63445b973cc1021d60e3f5',
-                    salesChannel: {},
+        case 'newsletter_recipient': {
+            const data = mockNewsletterRecipient;
+            data.total = data.length;
+            data.criteria = {
+                limit: 25,
+                page: 1,
+                sortings: [],
+                filters: [],
+                associations: [],
+                resetSorting() {
+                    this.sortings = [];
                 },
-            ];
-
+                addSorting(sorting) {
+                    this.sortings.push(sorting);
+                },
+            };
+            return data;
+        }
         case 'sales_channel':
             return [
                 {
@@ -63,6 +82,21 @@ function mockApiCall(type) {
                     id: '7b872c384b254613b5a4bd5c8b965bab',
                 },
             ];
+        case 'tag':
+            return [
+                {
+                    id: '019a7d9f8ea171aaab00637a71b07bb7',
+                    name: 'Tag 1',
+                },
+                {
+                    id: '019a7d9f8ea171aaab00637a71b07cc8',
+                    name: 'Tag 2',
+                },
+                {
+                    id: '019a7d9f8ea171aaab00637a71b07dd9',
+                    name: 'Tag 3',
+                },
+            ];
         default:
             throw new Error(`no data for ${type} available`);
     }
@@ -79,84 +113,56 @@ class MockRepositoryFactory {
         });
     }
 }
+const searchSpy = jest.fn(() => Promise.resolve(mockApiCall('newsletter_recipient')));
 
-async function createWrapper() {
+async function createWrapper(options = {}) {
+    const { useSearchSpy = false } = options;
+
+    const repositoryFactory = useSearchSpy
+        ? {
+              create: jest.fn(() => ({
+                  search: searchSpy,
+              })),
+          }
+        : {
+              create: (type) => new MockRepositoryFactory(type),
+          };
+
     return mount(await wrapTestComponent('sw-newsletter-recipient-list', { sync: true }), {
         global: {
             stubs: {
                 'sw-page': {
-                    template: '<div><slot name="content"><slot name="grid"></slot></slot></div>',
+                    template: '<div><slot name="content"><slot name="grid"></slot></slot><slot name="sidebar"></slot></div>',
                 },
-                'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                'sw-empty-state': {
-                    template: '<div class="sw-empty-state"></div>',
-                },
-                'sw-entity-listing': {
-                    props: [
-                        'items',
-                        'allowView',
-                        'allowEdit',
-                        'allowDelete',
-                        'allowInlineEdit',
-                    ],
-                    data() {
-                        return {
-                            isInlineEdit: false,
-                        };
-                    },
-                    template: `
-                    <div>
-                    <template v-for="item in items">
-
-                        <template slot="column-firstName" slot-scope="{ item, compact, isInlineEdit }">
-
-                            <template v-if="isInlineEdit">
-                                <sw-text-field class="sw-newsletter-recipient-list__inline-edit-first-name"
-                                               v-model="item.firstName"
-                                               :size="compact ? 'small' : 'default'">
-                                </sw-text-field>
-
-                                <sw-text-field class="sw-newsletter-recipient-list__inline-edit-last-name"
-                                               v-model="item.lastName"
-                                               :size="compact ? 'small' : 'default'">
-                                </sw-text-field>
-                            </template>
-
-                            <template v-else>
-                                {{ item.firstName }} {{ item.lastName }}
-                            </template>
-                        </template>
-                        <slot name="detail-action" v-bind="{ item }">
-                            <sw-context-menu-item class="sw-entity-listing__context-menu-edit-action"
-                                                  :disabled="!allowEdit && !allowView">
-                            </sw-context-menu-item>
-                        </slot>
-                        <slot name="delete-action" v-bind="{ item, allowDelete }">
-                            <sw-context-menu-item class="sw-entity-listing__context-menu-edit-delete"
-                                                  :disabled="!allowDelete"
-                            >
-                            </sw-context-menu-item>
-                        </slot>
-                    </template>
-                    </div>`,
-                },
+                'sw-entity-listing': await wrapTestComponent('sw-entity-listing', { sync: true }),
+                'sw-data-grid-settings': await wrapTestComponent('sw-data-grid-settings', { sync: true }),
+                'sw-provide': await wrapTestComponent('sw-provide', { sync: true }),
                 'sw-container': true,
                 'sw-loader': true,
                 'sw-search-bar': true,
                 'sw-text-field': true,
                 'sw-label': true,
                 'router-link': true,
-                'sw-sidebar-item': true,
-                'sw-newsletter-recipient-filter-switch': true,
+                'sw-sidebar': await wrapTestComponent('sw-sidebar', { sync: true }),
+                'sw-sidebar-item': await wrapTestComponent('sw-sidebar-item', { sync: true }),
+                'sw-sidebar-navigation-item': await wrapTestComponent('sw-sidebar-navigation-item', { sync: true }),
+                'mt-tooltip': true,
                 'sw-sidebar-collapse': true,
                 'sw-entity-multi-select': true,
-                'sw-sidebar': true,
+                'sw-time-ago': true,
+                'sw-pagination': true,
+                'sw-bulk-edit-modal': true,
+                'sw-context-button': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
+                'sw-button-group': true,
+                'sw-context-menu-divider': true,
+                'sw-data-grid-skeleton': true,
             },
             provide: {
-                repositoryFactory: {
-                    create: (type) => new MockRepositoryFactory(type),
-                },
+                repositoryFactory,
                 searchRankingService: {
                     getSearchFieldsByEntity: () => {
                         return Promise.resolve({
@@ -166,47 +172,80 @@ async function createWrapper() {
                     buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                         return criteria;
                     },
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
+                },
+                setSwPageSidebarOffset: () => {},
+                removeSwPageSidebarOffset: () => {},
+            },
+            mocks: {
+                $device: deviceMock,
+                $route: {
+                    meta: {
+                        $module: {
+                            icon: 'solid-content',
+                        },
+                    },
                 },
             },
         },
     });
 }
 
-describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
+describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list', () => {
     beforeEach(() => {
         global.activeAclRoles = [];
+    });
+
+    it('should register the open filters shortcut', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.$options.shortcuts.OF).toBe('openFilterSidebar');
+    });
+
+    it('should open the filter sidebar via the open-filters shortcut', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-sidebar').classes()).not.toContain('is--opened');
+
+        wrapper.vm.openFilterSidebar();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-sidebar').classes()).toContain('is--opened');
     });
 
     it('should have no rights', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.find('.sw-entity-listing__context-menu-edit-action').classes()).toContain('is--disabled');
-        expect(wrapper.find('.sw-entity-listing__context-menu-edit-delete').classes()).toContain('is--disabled');
+        const listing = wrapper.findComponent({ ref: 'swNewsletterRecipientGrid' });
+        expect(listing.props('allowEdit')).toBe(false);
+        expect(listing.props('allowView')).toBe(false);
+        expect(listing.props('allowDelete')).toBe(false);
     });
 
     it('should be able to edit', async () => {
-        global.activeAclRoles = [
-            'newsletter_recipient.editor',
-        ];
+        global.activeAclRoles = ['newsletter_recipient.editor'];
 
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.find('.sw-entity-listing__context-menu-edit-action').classes()).not.toContain('is--disabled');
-        expect(wrapper.find('.sw-entity-listing__context-menu-edit-delete').classes()).toContain('is--disabled');
+        const listing = wrapper.findComponent({ ref: 'swNewsletterRecipientGrid' });
+        expect(listing.props('allowEdit')).toBe(true);
+        expect(listing.props('allowDelete')).toBe(false);
     });
 
     it('should be able to delete', async () => {
-        global.activeAclRoles = [
-            'newsletter_recipient.deleter',
-        ];
+        global.activeAclRoles = ['newsletter_recipient.deleter'];
 
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.find('.sw-entity-listing__context-menu-edit-action').classes()).toContain('is--disabled');
-        expect(wrapper.find('.sw-entity-listing__context-menu-edit-delete').classes()).not.toContain('is--disabled');
+        const listing = wrapper.findComponent({ ref: 'swNewsletterRecipientGrid' });
+        expect(listing.props('allowEdit')).toBe(false);
+        expect(listing.props('allowDelete')).toBe(true);
     });
 
     it('should be to edit and delete', async () => {
@@ -218,8 +257,9 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.find('.sw-entity-listing__context-menu-edit-action').classes()).not.toContain('is--disabled');
-        expect(wrapper.find('.sw-entity-listing__context-menu-edit-delete').classes()).not.toContain('is--disabled');
+        const listing = wrapper.findComponent({ ref: 'swNewsletterRecipientGrid' });
+        expect(listing.props('allowEdit')).toBe(true);
+        expect(listing.props('allowDelete')).toBe(true);
     });
 
     it('should add query score to the criteria', async () => {
@@ -300,12 +340,9 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         });
         await wrapper.vm.getList();
 
-        const emptyState = wrapper.find('.sw-empty-state');
-
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
-        expect(emptyState.exists()).toBeTruthy();
-        expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
-        expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.vm.entitySearchable).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
@@ -314,6 +351,38 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     it('should return filters from filter registry', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        if (!Shopware.Feature.isActive('V6_8_0_0')) {
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        }
+    });
+
+    it('should sort by firstName when clicking the name column', async () => {
+        const wrapper = await createWrapper({ useSearchSpy: true });
+        await wrapper.setData({
+            disableRouteParams: true,
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--firstName div').text()).toBe(
+            `${mockNewsletterRecipient[0].firstName} ${mockNewsletterRecipient[0].lastName}`,
+        );
+
+        searchSpy.mockClear();
+        searchSpy.mockResolvedValueOnce([
+            mockNewsletterRecipient[1],
+            mockNewsletterRecipient[0],
+        ]);
+
+        await wrapper.find('.sw-data-grid__cell--1').trigger('click');
+        await wrapper.setData({
+            total: 2,
+        });
+        await flushPromises();
+
+        expect(searchSpy).toHaveBeenCalledTimes(1);
+        expect(wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--firstName div').text()).toBe(
+            `${mockNewsletterRecipient[1].firstName} ${mockNewsletterRecipient[1].lastName}`,
+        );
     });
 });

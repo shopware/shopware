@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Command\DeleteExpiredFilesCommand;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -25,6 +26,9 @@ class DeleteExpiredFilesCommandTest extends TestCase
     use IntegrationTestBehaviour;
     use QueueTestBehaviour;
 
+    /**
+     * @var EntityRepository<EntityCollection<ImportExportFileEntity>>
+     */
     private EntityRepository $fileRepository;
 
     private DeleteExpiredFilesCommand $deleteExpiredFilesCommand;
@@ -61,7 +65,7 @@ class DeleteExpiredFilesCommandTest extends TestCase
         $filePathes = [];
         foreach (array_keys($data) as $key) {
             $filePathes[] = $data[$key]['path'];
-            $data[$key]['expireDate'] = date('Y-m-d H:i:s', strtotime('-1 second'));
+            $data[$key]['expireDate'] = date('Y-m-d H:i:s', strtotime('-31 days'));
         }
 
         $this->fileRepository->create(array_values($data), $this->context);
@@ -96,7 +100,7 @@ class DeleteExpiredFilesCommandTest extends TestCase
             // set every second file expired.
             if ($count++ % 2 === 0) {
                 $filePathes['delete'][] = $data[$key]['path'];
-                $data[$key]['expireDate'] = date('Y-m-d H:i:s', strtotime('-1 second'));
+                $data[$key]['expireDate'] = date('Y-m-d H:i:s', strtotime('-31 days'));
                 $expiredIds[] = $data[$key]['id'];
             } else {
                 $filePathes['keep'][] = $data[$key]['path'];
@@ -145,7 +149,7 @@ class DeleteExpiredFilesCommandTest extends TestCase
         $num = 25;
         $data = $this->prepareImportExportFileTestData($num);
         foreach (array_keys($data) as $key) {
-            $data[$key]['expireDate'] = date('Y-m-d H:i:s', strtotime('-1 second'));
+            $data[$key]['expireDate'] = date('Y-m-d H:i:s', strtotime('-31 days'));
         }
 
         $this->fileRepository->create(array_values($data), $this->context);
@@ -171,7 +175,7 @@ class DeleteExpiredFilesCommandTest extends TestCase
      *
      * @return array<mixed>
      */
-    protected function prepareImportExportFileTestData(int $num = 1, string $add = 'x'): array
+    protected function prepareImportExportFileTestData(int $num = 1): array
     {
         $data = [];
         for ($i = 1; $i <= $num; ++$i) {

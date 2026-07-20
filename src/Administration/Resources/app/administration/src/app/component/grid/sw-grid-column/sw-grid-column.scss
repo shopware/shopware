@@ -1,15 +1,6 @@
-@import "~scss/variables";
-@import "~scss/mixins";
-
-$sw-grid-column-color-action: $color-shopware-brand-500;
-$sw-grid-column-color-border: $color-gray-300;
-$sw-grid-column-content-color-text: $color-darkgray-200;
-$sw-grid-column-color-link: $color-shopware-brand-500;
-
 .sw-grid-column {
     cursor: default;
     position: relative;
-    border-right: 1px solid $sw-grid-column-color-border;
 
     &:last-child {
         border-right: 0 none;
@@ -37,13 +28,13 @@ $sw-grid-column-color-link: $color-shopware-brand-500;
         }
 
         .sw-price-field__lock {
-            margin-top: 10px;
+            margin-top: var(--scale-size-10);
             align-self: center;
         }
     }
 
     .sw-context-button {
-        height: 24px;
+        height: var(--scale-size-24);
     }
 
     .sw-grid__cell-content {
@@ -51,24 +42,26 @@ $sw-grid-column-color-link: $color-shopware-brand-500;
         display: grid;
         grid-auto-flow: column;
         align-items: center;
-        min-height: 64px;
-        line-height: $line-height-md;
-        padding: 20px;
         text-align: left;
-        color: $sw-grid-column-content-color-text;
+        min-height: var(--scale-size-64);
+        padding: var(--scale-size-20);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        color: var(--color-icon-primary-default);
 
         &.is--truncate {
-            @include truncate;
-
             display: block;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
         }
 
         a {
-            color: $sw-grid-column-content-color-text;
+            color: var(--color-icon-primary-default);
             text-decoration: none;
 
             &:hover {
-                color: $sw-grid-column-color-link;
+                color: var(--color-interaction-primary-hover);
                 text-decoration: underline;
             }
         }
@@ -114,7 +107,7 @@ $sw-grid-column-color-link: $color-shopware-brand-500;
         cursor: pointer;
 
         &:hover {
-            color: $sw-grid-column-color-action;
+            color: var(--color-interaction-primary-hover);
         }
     }
 }

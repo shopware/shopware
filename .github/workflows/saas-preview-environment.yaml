@@ -1,0 +1,38 @@
+name: SaaS preview environment
+on:
+  pull_request:
+    types:
+      - synchronize
+      - labeled
+      - unlabeled
+      - opened
+      - closed
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  create_preview_environment:
+    name: Create or migrate preview environment
+    if: ${{ github.event.action != 'closed' && contains(github.event.pull_request.labels.*.name, 'preview-environment') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger preview environment
+        uses: shopware/github-actions/saas-preview-environment@main
+        with:
+          action: create
+
+  archive_preview_environment:
+    name: Archive preview environment
+    if: ${{ (github.event.action == 'closed' && contains(github.event.pull_request.labels.*.name, 'preview-environment')) || (github.event.action == 'unlabeled' && github.event.pull_request.label.name == 'preview-environment') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger preview environment
+        uses: shopware/github-actions/preview-environment@main
+        with:
+          action: archive

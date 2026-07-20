@@ -1,13 +1,24 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package framework
  */
 import 'src/app/mixin/listing.mixin';
 import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
+import Bottle from 'bottlejs';
+import ApplicationBootstrapper from 'src/core/application';
+import VueAdapter from 'src/app/adapter/view/vue.adapter';
 
 let getListMock = jest.fn(() => {});
 /* @type VueRouter */
 let router;
+
+function createApplication() {
+    Bottle.config = { strict: false };
+
+    return new ApplicationBootstrapper(new Bottle());
+}
 
 async function createWrapper({
     mocks = {},
@@ -81,7 +92,11 @@ async function createWrapper({
                     router,
                 ],
                 provide: {
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                 },
                 mocks: {
                     ...mocks,
@@ -93,6 +108,83 @@ async function createWrapper({
             attachTo: document.body,
         },
     );
+}
+
+async function createRouteWrapper() {
+    const vueAdapter = new VueAdapter(createApplication());
+    const componentName = `listing-route-component-${Shopware.Utils.createId()}`;
+
+    Shopware.Component.register(componentName, {
+        template: '<div class="listing-route-component"></div>',
+        name: componentName,
+        mixins: [
+            Shopware.Mixin.getByName('listing'),
+        ],
+        computed: {
+            filters() {
+                return [];
+            },
+        },
+        methods: {
+            getList() {
+                return getListMock();
+            },
+        },
+    });
+
+    router = createRouter({
+        routes: [
+            {
+                name: 'sw.product.index',
+                path: '/sw/product/index',
+                component: vueAdapter.getComponentForRoute(componentName),
+            },
+            {
+                name: 'sw.product.detail',
+                path: '/sw/product/detail',
+                component: {
+                    template: '<div class="detail-route-component"></div>',
+                },
+            },
+            {
+                name: 'sw.bulk.edit.product',
+                path: '/sw/bulk/edit/product',
+                component: {
+                    template: '<div class="bulk-edit-route-component"></div>',
+                },
+            },
+        ],
+        history: createWebHashHistory(),
+    });
+
+    await router.push({
+        name: 'sw.product.index',
+    });
+
+    const wrapper = mount(
+        {
+            template: '<router-view />',
+        },
+        {
+            global: {
+                plugins: [
+                    router,
+                ],
+                provide: {
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
+                },
+            },
+            attachTo: document.body,
+        },
+    );
+
+    await flushPromises();
+
+    return wrapper;
 }
 
 describe('src/app/mixin/listing.mixin.ts', () => {
@@ -119,10 +211,6 @@ describe('src/app/mixin/listing.mixin.ts', () => {
         }
 
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should call getList at created when route information are provided', async () => {
@@ -228,6 +316,81 @@ describe('src/app/mixin/listing.mixin.ts', () => {
         expect(getListMock).toHaveBeenCalledWith();
     });
 
+    it('should reload when stored filter query changes without local filter criteria', async () => {
+        await wrapper.unmount();
+
+        getListMock = jest.fn(() => {});
+        wrapper = await createWrapper({
+            defaultData: {
+                storeKey: 'grid.filter.product_review',
+            },
+            routeFirstPush: {
+                name: 'sw.product.index',
+                query: {
+                    page: '1',
+                    limit: '25',
+                },
+            },
+        });
+
+        await flushPromises();
+        getListMock.mockClear();
+
+        await router.push({
+            query: {
+                page: '1',
+                limit: '25',
+                'grid.filter.product_review': encodeURIComponent(JSON.stringify({})),
+            },
+        });
+
+        await flushPromises();
+
+        expect(getListMock).toHaveBeenCalledWith();
+    });
+
+    it('should clear app selections when leaving a route-loaded listing component', async () => {
+        await wrapper.unmount();
+        wrapper = undefined;
+
+        const routeWrapper = await createRouteWrapper();
+
+        Shopware.Store.get('shopwareApps').selectedIds = ['order-id'];
+        Shopware.Store.get('swBulkEdit').selectedIds = ['order-id'];
+
+        await router.push({
+            name: 'sw.product.detail',
+        });
+
+        await flushPromises();
+
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([]);
+        expect(Shopware.Store.get('swBulkEdit').selectedIds).toEqual([]);
+
+        await routeWrapper.unmount();
+    });
+
+    it('should keep app selections when navigating from a route-loaded listing component to bulk edit', async () => {
+        await wrapper.unmount();
+        wrapper = undefined;
+
+        const routeWrapper = await createRouteWrapper();
+
+        Shopware.Store.get('shopwareApps').selectedIds = ['product-id'];
+        Shopware.Store.get('swBulkEdit').selectedIds = ['product-id'];
+
+        await router.push({
+            name: 'sw.bulk.edit.product',
+        });
+
+        await flushPromises();
+
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual(['product-id']);
+        expect(Shopware.Store.get('swBulkEdit').selectedIds).toEqual(['product-id']);
+
+        await routeWrapper.unmount();
+    });
+
     it('should set freshSearchTerm to true when "term" changes', async () => {
         expect(wrapper.vm.freshSearchTerm).toBe(false);
 
@@ -236,6 +399,20 @@ describe('src/app/mixin/listing.mixin.ts', () => {
         });
 
         expect(wrapper.vm.freshSearchTerm).toBe(true);
+    });
+
+    it('should set freshSearchTerm to false when "term" is cleared', async () => {
+        await wrapper.setData({
+            term: 'test',
+        });
+
+        expect(wrapper.vm.freshSearchTerm).toBe(true);
+
+        await wrapper.setData({
+            term: '',
+        });
+
+        expect(wrapper.vm.freshSearchTerm).toBe(false);
     });
 
     it('should set freshSearchTerm to false when "sortBy" changes', async () => {
@@ -565,8 +742,9 @@ describe('src/app/mixin/listing.mixin.ts', () => {
         );
     });
 
-    it('should return true when isValidTerm is used with trimmed term over 1 length', async () => {
+    it('should return true when isValidTerm is used with trimmed term >= 1 length', async () => {
         expect(wrapper.vm.isValidTerm('test  ')).toBe(true);
+        expect(wrapper.vm.isValidTerm('9')).toBe(true);
     });
 
     it('should return false when isValidTerm is shorter than 1 length', async () => {
@@ -626,5 +804,54 @@ describe('src/app/mixin/listing.mixin.ts', () => {
         };
 
         expect(wrapper.vm.selectionCount).toBe(2);
+    });
+
+    describe('updateCriteria', () => {
+        it('should reset page to 1 when updateCriteria is called', async () => {
+            wrapper.vm.page = 5;
+
+            const newCriteria = [{ type: 'equals', field: 'active', value: true }];
+            wrapper.vm.updateCriteria(newCriteria);
+
+            expect(wrapper.vm.page).toBe(1);
+        });
+
+        it('should call updateRoute with page 1 when updateCriteria is called', async () => {
+            wrapper.vm.page = 5;
+            wrapper.vm.disableRouteParams = false;
+
+            wrapper.vm.updateRoute = jest.fn();
+
+            const newCriteria = [{ type: 'equals', field: 'active', value: true }];
+            wrapper.vm.updateCriteria(newCriteria);
+
+            expect(wrapper.vm.updateRoute).toHaveBeenCalledWith({ page: 1 });
+
+            wrapper.vm.updateRoute.mockRestore();
+        });
+
+        it('should call getList directly when updateCriteria is called and disableRouteParams is true', async () => {
+            wrapper.vm.page = 5;
+            wrapper.vm.disableRouteParams = true;
+
+            wrapper.vm.getList = jest.fn();
+            wrapper.vm.updateRoute = jest.fn();
+
+            const newCriteria = [{ type: 'equals', field: 'active', value: true }];
+            wrapper.vm.updateCriteria(newCriteria);
+
+            expect(wrapper.vm.getList).toHaveBeenCalled();
+            expect(wrapper.vm.updateRoute).not.toHaveBeenCalled();
+
+            wrapper.vm.getList.mockRestore();
+            wrapper.vm.updateRoute.mockRestore();
+        });
+
+        it('should set filterCriteria when updateCriteria is called', async () => {
+            const newCriteria = [{ type: 'equals', field: 'active', value: true }];
+            wrapper.vm.updateCriteria(newCriteria);
+
+            expect(wrapper.vm.filterCriteria).toStrictEqual(newCriteria);
+        });
     });
 });

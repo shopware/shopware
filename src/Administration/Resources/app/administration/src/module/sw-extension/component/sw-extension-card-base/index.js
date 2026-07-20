@@ -3,6 +3,14 @@ import './sw-extension-card-base.scss';
 
 const { Utils, Filter } = Shopware;
 
+const DATE_ONLY_FORMAT = {
+    month: '2-digit',
+    day: '2-digit',
+    year: 'numeric',
+    hour: undefined,
+    minute: undefined,
+};
+
 /**
  * @sw-package checkout
  * @private
@@ -31,6 +39,7 @@ export default {
 
     data() {
         return {
+            DATE_ONLY_FORMAT,
             isLoading: false,
             showUninstallModal: false,
             showRemovalModal: false,
@@ -45,12 +54,15 @@ export default {
     },
 
     computed: {
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
 
         defaultThemeAsset() {
-            return this.assetFilter('administration/administration/static/img/theme/default_theme_preview.jpg');
+            return this.assetFilter('administration/administration/static/img/theme/default_theme_preview.webp');
         },
 
         extensionCardClasses() {
@@ -152,6 +164,19 @@ export default {
             );
         },
 
+        configLink() {
+            if (!this.extension.configurable) {
+                return null;
+            }
+
+            return {
+                name: 'sw.extension.config',
+                params: {
+                    namespace: this.extension.name,
+                },
+            };
+        },
+
         link() {
             if (this.openLink) {
                 return this.openLink;
@@ -166,19 +191,19 @@ export default {
                 };
             }
 
-            return null;
+            return this.configLink;
         },
 
         consentAffirmationModalActionLabel() {
-            return this.$tc('sw-extension-store.component.sw-extension-permissions-modal.acceptAndUpdate');
+            return this.$t('sw-extension-store.component.sw-extension-permissions-modal.acceptAndUpdate');
         },
 
         consentAffirmationModalCloseLabel() {
-            return this.$tc('global.default.cancel');
+            return this.$t('global.default.cancel');
         },
 
         consentAffirmationModalTitle() {
-            return this.$tc(
+            return this.$t(
                 'sw-extension-store.component.sw-extension-permissions-modal.titleNewPermissions',
                 {
                     extensionLabel: this.extension.label,
@@ -188,7 +213,7 @@ export default {
         },
 
         consentAffirmationModalDescription() {
-            return this.$tc(
+            return this.$t(
                 'sw-extension-store.component.sw-extension-permissions-modal.descriptionNewPermissions',
                 {
                     extensionLabel: this.extension.label,
@@ -198,7 +223,7 @@ export default {
         },
 
         extensionManagementDisabled() {
-            return Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
+            return Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
         },
 
         showContextMenu() {
@@ -356,7 +381,7 @@ export default {
                 return;
             }
 
-            this.permissionModalActionLabel = this.$tc(
+            this.permissionModalActionLabel = this.$t(
                 'sw-extension-store.component.sw-extension-card-base.labelAcceptAndInstall',
             );
             this.showPermissionsModal = true;
@@ -419,9 +444,14 @@ export default {
             this.showPrivacyModal = false;
         },
 
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _reloadPage() {
+            window.location.reload();
+        },
+
         clearCacheAndReloadPage() {
             return this.cacheApiService.clear().then(() => {
-                window.location.reload();
+                this._reloadPage();
             });
         },
 

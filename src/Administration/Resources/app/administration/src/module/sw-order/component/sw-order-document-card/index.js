@@ -1,14 +1,28 @@
+/**
+ * @sw-package after-sales
+ */
 import { DocumentEvents } from 'src/core/service/api/document.api.service';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
+import fileReaderUtils from 'src/core/service/utils/file-reader.utils';
 import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
-
-/**
- * @sw-package checkout
- */
+import EntityCollection from '../../../../core/data/entity-collection.data';
+import { DOCUMENT_TYPES } from '../../order.types';
 
 const { Mixin, Store } = Shopware;
 const { Criteria } = Shopware.Data;
+
+/**
+ * @private
+ */
+export const ZUGFERD_COMPONENT_MAPPING = {
+    [DOCUMENT_TYPES.ZUGFERD_INVOICE]: DOCUMENT_TYPES.INVOICE,
+    [DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE]: DOCUMENT_TYPES.INVOICE,
+    [DOCUMENT_TYPES.ZUGFERD_CANCELLATION_INVOICE]: DOCUMENT_TYPES.CANCELLATION_INVOICE,
+    [DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CANCELLATION_INVOICE]: DOCUMENT_TYPES.CANCELLATION_INVOICE,
+    [DOCUMENT_TYPES.ZUGFERD_CREDIT_NOTE]: DOCUMENT_TYPES.CREDIT_NOTE,
+    [DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CREDIT_NOTE]: DOCUMENT_TYPES.CREDIT_NOTE,
+};
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -53,7 +67,7 @@ export default {
         return {
             documentsLoading: false,
             cardLoading: false,
-            documents: [],
+            documents: new EntityCollection(null, null, null, new Criteria(1, 25), [], 0),
             documentTypes: null,
             showModal: false,
             currentDocumentType: null,
@@ -101,6 +115,15 @@ export default {
 
             if (this.$.appContext.components[`sw-order-document-settings-${subComponentName}-modal`]) {
                 return `sw-order-document-settings-${subComponentName}-modal`;
+            }
+
+            const zugferdSubComponentName = ZUGFERD_COMPONENT_MAPPING[this.currentDocumentType.technicalName]?.replace(
+                /_/g,
+                '-',
+            );
+
+            if (this.$.appContext.components[`sw-order-document-settings-${zugferdSubComponentName}-modal`]) {
+                return `sw-order-document-settings-${zugferdSubComponentName}-modal`;
             }
 
             return 'sw-order-document-settings-modal';
@@ -174,6 +197,7 @@ export default {
                     dataIndex: 'fileTypes',
                     label: 'sw-order.documentCard.labelAvailableFormats',
                     allowResize: false,
+                    sortable: false,
                 });
             }
 
@@ -204,24 +228,35 @@ export default {
 
         emptyStateTitle() {
             return this.order?.documents?.length > 0
-                ? this.$tc('sw-order.documentCard.messageNoDocumentFound')
-                : this.$tc('sw-order.documentCard.messageEmptyTitle');
+                ? this.$t('sw-order.documentCard.messageNoDocumentFound')
+                : this.$t('sw-order.documentCard.messageEmptyTitle');
         },
 
         tooltipCreateDocumentButton() {
             if (!this.acl.can('document.viewer')) {
-                return this.$tc('sw-privileges.tooltip.warning');
+                return this.$t('sw-privileges.tooltip.warning');
             }
 
-            return this.$tc('sw-order.documentTab.tooltipSaveBeforeCreateDocument');
+            return this.$t('sw-order.documentTab.tooltipSaveBeforeCreateDocument');
         },
 
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
+        },
+
+        isXmlDocument() {
+            return [
+                DOCUMENT_TYPES.ZUGFERD_INVOICE,
+                DOCUMENT_TYPES.ZUGFERD_CANCELLATION_INVOICE,
+                DOCUMENT_TYPES.ZUGFERD_CREDIT_NOTE,
+            ].includes(this.currentDocumentType?.technicalName);
         },
     },
 
@@ -254,7 +289,7 @@ export default {
                 let errorMessage = payload.detail;
                 if (payload.code === 'DOCUMENT__NUMBER_ALREADY_EXISTS') {
                     const translationKey = 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS';
-                    errorMessage = this.$tc(translationKey, 1, payload.meta.parameters || {});
+                    errorMessage = this.$t(translationKey, 1, payload.meta.parameters || {});
                 }
 
                 this.createNotificationError({
@@ -281,18 +316,29 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         documentTypeAvailable(documentType) {
             return (
-                (documentType.technicalName !== 'storno' && documentType.technicalName !== 'credit_note') ||
-                ((documentType.technicalName === 'storno' ||
-                    (documentType.technicalName === 'credit_note' && this.creditItems.length !== 0)) &&
+                (documentType.technicalName !== DOCUMENT_TYPES.CANCELLATION_INVOICE &&
+                    documentType.technicalName !== DOCUMENT_TYPES.CREDIT_NOTE) ||
+                ((documentType.technicalName === DOCUMENT_TYPES.CANCELLATION_INVOICE ||
+                    (documentType.technicalName === DOCUMENT_TYPES.CREDIT_NOTE && this.creditItems.length !== 0)) &&
                     this.invoiceExists())
             );
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         invoiceExists() {
             return this.documents.some((document) => {
-                return document.documentType.technicalName === 'invoice';
+                return (
+                    document.documentType.technicalName === DOCUMENT_TYPES.INVOICE ||
+                    document.documentType.technicalName === DOCUMENT_TYPES.ZUGFERD_INVOICE ||
+                    document.documentType.technicalName === DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE
+                );
             });
         },
 
@@ -341,7 +387,7 @@ export default {
                 .getDocument(documentId, documentDeepLink, Shopware.Context.api, true, fileType)
                 .then((response) => {
                     if (response.data) {
-                        const filename = response.headers['content-disposition'].split('filename=')[1];
+                        const filename = fileReaderUtils.getFilenameFromResponse(response);
                         const link = document.createElement('a');
                         link.href = URL.createObjectURL(response.data);
                         link.download = filename;
@@ -400,7 +446,8 @@ export default {
                 }
 
                 if (additionalAction === 'download') {
-                    this.downloadDocument(documentId, documentDeepLink);
+                    const fileType = this.isXmlDocument ? 'xml' : 'pdf';
+                    this.downloadDocument(documentId, documentDeepLink, fileType);
                 } else if (additionalAction === 'send') {
                     const criteria = new Criteria(null, null);
                     criteria.addAssociation('documentType').addAssociation('documentA11yMediaFile');

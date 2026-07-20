@@ -2,9 +2,13 @@
 
 namespace Shopware\Core\Framework\Adapter\Filesystem\Plugin;
 
+use League\Flysystem\Visibility;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @final
+ */
 #[Package('framework')]
 class CopyBatchInput
 {
@@ -19,7 +23,8 @@ class CopyBatchInput
      */
     public function __construct(
         $sourceFile,
-        private readonly array $targetFiles
+        private readonly array $targetFiles,
+        public readonly string $visibility = Visibility::PUBLIC,
     ) {
         if (!\is_resource($sourceFile) && !\is_string($sourceFile)) {
             throw AdapterException::invalidArgument(\sprintf(

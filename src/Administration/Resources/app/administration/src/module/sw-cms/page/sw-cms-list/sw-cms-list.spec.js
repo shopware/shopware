@@ -1,10 +1,11 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
-import 'src/app/component/base/sw-empty-state';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 const defaultCategoryId = 'default-category-id';
@@ -72,7 +73,6 @@ async function createWrapper(
                     'sw-data-grid-skeleton': true,
                     'sw-loader': true,
                     'sw-skeleton': true,
-                    'sw-empty-state': true,
                     'sw-sorting-select': true,
                     'sw-modal': {
                         template: `
@@ -105,9 +105,16 @@ async function createWrapper(
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,
                     'sw-provide': true,
+                    'sw-time-ago': true,
                 },
                 mocks: {
-                    $route: { query: '' },
+                    $route: {
+                        meta: {
+                            $module: {
+                                icon: 'solid-content',
+                            },
+                        },
+                    },
                     ...mocks,
                 },
                 provide: {
@@ -135,6 +142,9 @@ async function createWrapper(
                         },
                         buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                             return criteria;
+                        },
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
                         },
                     },
                     systemConfigApiService: {
@@ -205,13 +215,6 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show the right list of pageTypes for the filters', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -246,6 +249,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -256,6 +260,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 2',
                     },
@@ -266,6 +271,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 2',
                     },
@@ -308,6 +314,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -318,6 +325,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 2',
                     },
@@ -328,6 +336,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 2',
                     },
@@ -375,6 +384,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -437,6 +447,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                         sections: [],
                         categories: [],
                         products: [],
+                        landingPages: [],
                         translated: {
                             name: 'CMS Page 1',
                         },
@@ -463,6 +474,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -493,6 +505,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -514,6 +527,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -545,6 +559,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -586,6 +601,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -626,6 +642,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -666,6 +683,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -703,6 +721,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -735,6 +754,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -767,6 +787,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -799,6 +820,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -825,6 +847,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                 sections: [],
                 categories: [],
                 products: [{ id: 'abc' }],
+                landingPages: [],
                 translated: {
                     name: 'CMS Page 1',
                 },
@@ -867,6 +890,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -928,11 +952,23 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             };
         });
 
+        const expectedLandingPages = [
+            'LandingPage 1',
+            'LandingPage 2',
+            'LandingPage 3',
+        ];
+        const landingPageObjects = expectedLandingPages.map((landingPage) => {
+            return {
+                name: landingPage,
+            };
+        });
+
         const mockPage = {
             id: '1',
             sections: [],
             categories: categoryObjects,
             products: [],
+            landingPages: [],
             translated: {
                 name: 'CMS Page 1',
             },
@@ -958,6 +994,20 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             message: 'Category 1, Category 3, Category 2, Product 1, Product 2, Product 3',
             disabled: false,
         });
+
+        mockPage.landingPages = landingPageObjects;
+
+        expect(wrapper.vm.getPages(mockPage)).toStrictEqual([
+            ...expectedCategories,
+            ...expectedProducts,
+            ...expectedLandingPages,
+        ]);
+        expect(wrapper.vm.getPagesTooltip(mockPage)).toStrictEqual({
+            width: 300,
+            message:
+                'Category 1, Category 3, Category 2, Product 1, Product 2, Product 3, LandingPage 1, LandingPage 2, LandingPage 3',
+            disabled: false,
+        });
     });
 
     it('should indicate layouts already assigned to pages', async () => {
@@ -971,6 +1021,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -980,6 +1031,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 2',
                     },
@@ -1099,11 +1151,9 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         });
         await wrapper.vm.getList();
 
-        const emptyState = wrapper.find('sw-empty-state-stub');
-
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
-        expect(emptyState.exists()).toBeTruthy();
-        expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.vm.entitySearchable).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
@@ -1125,6 +1175,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     name: 'CMS Page 1',
                     translated: {
                         name: 'CMS Page 1',
@@ -1151,5 +1202,61 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             },
         });
         expect(cloneMockLastCall[2]).toStrictEqual(Shopware.Context.api);
+    });
+
+    it('should wait for loadGridUserSettings before calling resetList', async () => {
+        const wrapper = await createWrapper();
+        const deferred = (() => {
+            let resolve;
+            const promise = new Promise((r) => {
+                resolve = r;
+            });
+            return { promise, resolve };
+        })();
+
+        const resetListSpy = jest.spyOn(wrapper.vm, 'resetList').mockImplementation(() => {});
+        jest.spyOn(wrapper.vm, 'loadGridUserSettings').mockReturnValue(deferred.promise);
+
+        wrapper.vm.createdComponent();
+
+        expect(resetListSpy).not.toHaveBeenCalled();
+
+        deferred.resolve();
+        await flushPromises();
+
+        expect(resetListSpy).toHaveBeenCalled();
+    });
+
+    it('should call resetList when loadGridUserSettings fails', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const resetListSpy = jest.spyOn(wrapper.vm, 'resetList').mockImplementation(() => {});
+        jest.spyOn(wrapper.vm, 'loadGridUserSettings').mockRejectedValue(new Error('Unable to load user settings'));
+
+        await wrapper.vm.createdComponent();
+
+        expect(resetListSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([
+        [
+            9,
+            'grid',
+        ],
+        [
+            10,
+            'list',
+        ],
+    ])('should set limit to %i when %s view is saved', async (limit, listMode) => {
+        const wrapper = await createWrapper();
+
+        jest.spyOn(wrapper.vm, 'getUserSettings').mockResolvedValue({
+            listMode,
+        });
+
+        await wrapper.vm.createdComponent();
+
+        expect(wrapper.vm.limit).toBe(limit);
     });
 });

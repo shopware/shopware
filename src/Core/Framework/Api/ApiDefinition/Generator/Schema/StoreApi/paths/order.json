@@ -12,14 +12,7 @@
                 "operationId": "cancelOrder",
                 "parameters": [
                     {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -35,7 +28,9 @@
                                     }
                                 },
                                 "type": "object",
-                                "required": ["orderId"]
+                                "required": [
+                                    "orderId"
+                                ]
                             }
                         }
                     }
@@ -67,18 +62,25 @@
                     "Endpoints supporting Criteria "
                 ],
                 "summary": "Fetch a list of orders",
-                "description": "List orders of a customer.",
+                "description": "List orders of a customer.\n\n**Available Associations:**\n- `stateMachineState` - Current order state (e.g., open, in_progress, completed, cancelled)\n- `primaryOrderDelivery` - Primary delivery information for the order\n- `primaryOrderTransaction` - Primary payment transaction for the order\n- `orderCustomer` - Customer information associated with the order\n- `currency` - Currency used for the order\n- `language` - Language used when placing the order\n- `addresses` - All addresses associated with the order (billing and shipping)\n- `billingAddress` - Billing address for the order\n- `deliveries` - Delivery information including shipping address and tracking\n- `lineItems` - Order line items (products, discounts, fees)\n- `transactions` - Payment transactions for the order\n- `documents` - Generated documents (invoices, delivery notes, credit notes)\n- `tags` - Tags assigned to the order for organization and filtering",
                 "operationId": "readOrder",
                 "parameters": [
                     {
-                        "name": "sw-language-id",
+                        "name": "sw-include-search-info",
                         "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
+                        "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
+                            "enum": [
+                                "0",
+                                "1"
+                            ],
+                            "default": "1"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -88,12 +90,58 @@
                             "schema": {
                                 "allOf": [
                                     {
-                                        "$ref": "#/components/schemas/Criteria"
+                                        "$ref": "#/components/schemas/NoneFieldsCriteria"
                                     },
                                     {
                                         "properties": {
                                             "checkPromotion": {
                                                 "description": "Check if the payment method of the order is still changeable.",
+                                                "type": "boolean"
+                                            },
+                                            "filter": {
+                                                "type": "array",
+                                                "description": "Pass the deepLinkCode criteria filter to allow for guest user authentification. Not required, if a user (guest or not) is already logged in.",
+                                                "items": {
+                                                    "allOf": [
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "type": {
+                                                                    "type": "string",
+                                                                    "enum": [
+                                                                        "equals"
+                                                                    ]
+                                                                },
+                                                                "field": {
+                                                                    "type": "string",
+                                                                    "enum": [
+                                                                        "deepLinkCode"
+                                                                    ]
+                                                                },
+                                                                "value": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "type",
+                                                                "field",
+                                                                "value"
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "email": {
+                                                "description": "The email address of the customer. Pass this value to allow for guest user authentification. Not required, if a user (guest or not) is already logged in.",
+                                                "type": "string",
+                                                "format": "email"
+                                            },
+                                            "zipcode": {
+                                                "description": "The zip/postal code of the billing address of the customer. Pass this value to allow for guest user authentification. Not required, if a user (guest or not) is already logged in.",
+                                                "type": "string"
+                                            },
+                                            "login": {
+                                                "description": "If set and when handling a guest order, a context token will be returned in the response header with a logged-in session.",
                                                 "type": "boolean"
                                             }
                                         },
@@ -107,6 +155,14 @@
                 "responses": {
                     "200": {
                         "description": "An array of orders and an indicator if the payment of the order can be changed.",
+                        "headers": {
+                            "sw-context-token": {
+                                "description": "Contains sw-context-token value, if login parameter is set to true and a guest order was found and the correct credentials were provided.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -134,14 +190,7 @@
                 "operationId": "orderSetPayment",
                 "parameters": [
                     {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -218,14 +267,7 @@
                         }
                     },
                     {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "responses": {

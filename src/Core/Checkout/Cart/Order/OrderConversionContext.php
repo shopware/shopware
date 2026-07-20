@@ -6,9 +6,6 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('checkout')]
 class OrderConversionContext extends Struct
 {
@@ -26,6 +23,8 @@ class OrderConversionContext extends Struct
     protected bool $includeOrderDate = true;
 
     protected bool $includePersistentData = true;
+
+    protected bool $includeOrderNumber = true;
 
     public function shouldIncludeCustomer(): bool
     {
@@ -113,6 +112,18 @@ class OrderConversionContext extends Struct
     {
         $this->includePersistentData = $includePersistentData;
         $this->includeOrderDate = $includePersistentData;
+
+        return $this;
+    }
+
+    public function shouldIncludeOrderNumber(): bool
+    {
+        return $this->includeOrderNumber;
+    }
+
+    public function setIncludeOrderNumber(bool $includeOrderNumber): OrderConversionContext
+    {
+        $this->includeOrderNumber = $includeOrderNumber;
 
         return $this;
     }

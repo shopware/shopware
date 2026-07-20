@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Admin;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
@@ -26,7 +27,7 @@ class AdminSearchControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->searcher = $this->getMockBuilder(AdminSearcher::class)->disableOriginalConstructor()->getMock();
+        $this->searcher = static::createStub(AdminSearcher::class);
 
         $promotion = new PromotionEntity();
         $promotion->setUniqueIdentifier(Uuid::randomHex());
@@ -43,17 +44,16 @@ class AdminSearchControllerTest extends TestCase
     public function testElasticSearchWithElasticSearchNotEnable(): void
     {
         $controller = new AdminSearchController(
-            $this->getMockBuilder(AdminSearcher::class)->disableOriginalConstructor()->getMock(),
-            $this->createMock(DefinitionInstanceRegistry::class),
-            $this->createMock(JsonEntityEncoder::class),
-            new AdminElasticsearchHelper(false, false, 'sw-admin')
+            static::createStub(AdminSearcher::class),
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(JsonEntityEncoder::class),
+            new AdminElasticsearchHelper(false, false, 'sw-admin', 'test', true, new NullLogger())
         );
 
         $request = new Request();
         $request->request->set('term', 'test');
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Admin elasticsearch is not enabled');
+        $this->expectExceptionObject(new \RuntimeException('Admin elasticsearch is not enabled'));
 
         $controller->elastic($request, Context::createDefaultContext());
     }
@@ -61,17 +61,16 @@ class AdminSearchControllerTest extends TestCase
     public function testElasticSearchWithEmptySearchTerm(): void
     {
         $controller = new AdminSearchController(
-            $this->getMockBuilder(AdminSearcher::class)->disableOriginalConstructor()->getMock(),
-            $this->createMock(DefinitionInstanceRegistry::class),
-            $this->createMock(JsonEntityEncoder::class),
-            new AdminElasticsearchHelper(true, false, 'sw-admin')
+            static::createStub(AdminSearcher::class),
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(JsonEntityEncoder::class),
+            new AdminElasticsearchHelper(true, false, 'sw-admin', 'test', true, new NullLogger())
         );
 
         $request = new Request();
         $request->request->set('term', '   ');
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Parameter "term" is missing.');
+        $this->expectExceptionObject(new \RuntimeException('Parameter "term" is missing.'));
 
         $controller->elastic($request, Context::createDefaultContext());
     }
@@ -80,9 +79,9 @@ class AdminSearchControllerTest extends TestCase
     {
         $controller = new AdminSearchController(
             $this->searcher,
-            $this->createMock(DefinitionInstanceRegistry::class),
-            $this->createMock(JsonEntityEncoder::class),
-            new AdminElasticsearchHelper(true, false, 'sw-admin')
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(JsonEntityEncoder::class),
+            new AdminElasticsearchHelper(true, false, 'sw-admin', 'test', true, new NullLogger())
         );
 
         $request = new Request();

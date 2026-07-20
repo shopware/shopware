@@ -5,6 +5,7 @@ namespace Shopware\Core\Migration\V6_5;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -30,7 +31,7 @@ class Migration1673420896RemoveUndefinedSalutation extends MigrationStep
         foreach (self::ASSOCIATION_TABLES as $table) {
             $fkName = 'fk.' . $table . '.salutation_id';
 
-            if (!$this->indexExists($connection, $table, $fkName)) {
+            if (!TableHelper::indexExists($connection, $table, $fkName)) {
                 continue;
             }
 

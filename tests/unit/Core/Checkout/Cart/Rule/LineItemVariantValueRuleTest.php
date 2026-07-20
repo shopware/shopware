@@ -65,7 +65,7 @@ class LineItemVariantValueRuleTest extends TestCase
         $cart = new Cart(Uuid::randomHex());
         $cart->setLineItems($lineItems);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $scope = new CartRuleScope($cart, $context);
 
         $this->rule->assign(['identifiers' => $identifiers, 'operator' => $operator]);
@@ -86,7 +86,7 @@ class LineItemVariantValueRuleTest extends TestCase
         $lineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, null, 1);
         $lineItem->setPayloadValue('optionIds', $itemOptionIds);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $scope = new LineItemScope($lineItem, $context);
 
         $this->rule->assign(['identifiers' => $identifiers, 'operator' => $operator]);
@@ -99,7 +99,7 @@ class LineItemVariantValueRuleTest extends TestCase
 
     public function testInvalidScopeIsFalse(): void
     {
-        $invalidScope = $this->createMock(RuleScope::class);
+        $invalidScope = static::createStub(RuleScope::class);
         $this->rule->assign(['identifiers' => [Uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
         static::assertFalse($this->rule->match($invalidScope));
     }
@@ -108,7 +108,7 @@ class LineItemVariantValueRuleTest extends TestCase
     {
         $lineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, null, 1);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $scope = new LineItemScope($lineItem, $context);
 
         $this->rule->assign(['identifiers' => [Uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
@@ -133,17 +133,15 @@ class LineItemVariantValueRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array{bool, list<string>, list<string>, string}>
+     * @return \Generator<string, array{bool, list<string>, list<string>, string}>
      */
-    public static function getMatchValues(): iterable
+    public static function getMatchValues(): \Generator
     {
         $id = Uuid::randomHex();
 
-        return [
-            yield 'should match when option id is included' => [true, [$id], [$id, Uuid::randomHex()], Rule::OPERATOR_EQ],
-            yield 'should not match when option id is not included' => [false, [$id], [Uuid::randomHex()], Rule::OPERATOR_EQ],
-            yield 'should match when option id is not included' => [true, [$id, Uuid::randomHex()], [Uuid::randomHex()], Rule::OPERATOR_NEQ],
-            yield 'should not match when option id is included' => [false, [$id, Uuid::randomHex()], [$id], Rule::OPERATOR_NEQ],
-        ];
+        yield 'should match when option id is included' => [true, [$id], [$id, Uuid::randomHex()], Rule::OPERATOR_EQ];
+        yield 'should not match when option id is not included' => [false, [$id], [Uuid::randomHex()], Rule::OPERATOR_EQ];
+        yield 'should match when option id is not included' => [true, [$id, Uuid::randomHex()], [Uuid::randomHex()], Rule::OPERATOR_NEQ];
+        yield 'should not match when option id is included' => [false, [$id, Uuid::randomHex()], [$id], Rule::OPERATOR_NEQ];
     }
 }

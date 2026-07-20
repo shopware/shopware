@@ -40,6 +40,12 @@ export default {
             default: '',
         },
 
+        textConfirm: {
+            type: String,
+            required: false,
+            default: '',
+        },
+
         variant: {
             type: String,
             required: false,
@@ -93,7 +99,7 @@ export default {
                 return this.title;
             }
 
-            return this.$tc('global.default.warning');
+            return this.$t('global.default.warning');
         },
 
         descriptionText() {
@@ -101,28 +107,32 @@ export default {
                 return this.text;
             }
 
-            return this.$tc('sw-confirm-modal.defaultText');
+            return this.$t('sw-confirm-modal.defaultText');
         },
 
         confirmText() {
+            if (this.textConfirm) {
+                return this.textConfirm;
+            }
+
             switch (this.type) {
                 case 'delete':
-                    return this.$tc('global.default.delete');
+                    return this.$t('global.default.delete');
                 case 'yesno':
-                    return this.$tc('global.default.yes');
+                    return this.$t('global.default.yes');
                 case 'discard':
-                    return this.$tc('global.default.discard');
+                    return this.$t('global.default.discard');
                 default:
-                    return this.$tc('global.default.confirm');
+                    return this.$t('global.default.confirm');
             }
         },
 
         cancelText() {
             if (this.type === 'yesno') {
-                return this.$tc('global.default.no');
+                return this.$t('global.default.no');
             }
 
-            return this.$tc('global.default.cancel');
+            return this.$t('global.default.cancel');
         },
 
         confirmButtonVariant() {

@@ -2,8 +2,8 @@
  * @sw-package discovery
  */
 
-import header from './header.csv.twig';
-import body from './body.csv.twig';
+import header from './header.csv.twig?raw';
+import body from './body.csv.twig?raw';
 
 Shopware.Service('exportTemplateService').registerProductExportTemplate({
     name: 'idealo',

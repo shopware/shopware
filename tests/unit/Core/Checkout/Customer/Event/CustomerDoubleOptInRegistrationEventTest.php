@@ -24,7 +24,7 @@ class CustomerDoubleOptInRegistrationEventTest extends TestCase
     {
         $event = new CustomerDoubleOptInRegistrationEvent(
             new CustomerEntity(),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             'my-confirm-url'
         );
 

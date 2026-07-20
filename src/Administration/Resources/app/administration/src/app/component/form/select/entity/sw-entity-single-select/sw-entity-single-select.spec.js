@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package framework
  */
@@ -138,11 +140,14 @@ async function createEntitySingleSelect(
 }
 
 describe('components/sw-entity-single-select', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createEntitySingleSelect();
+    it('should disable exact count mode per default', async () => {
+        const swEntitySingleSelect = await createEntitySingleSelect();
         await flushPromises();
 
-        expect(wrapper.vm).toBeTruthy();
+        const criteria = swEntitySingleSelect.vm.criteria;
+
+        expect(criteria).toBeInstanceOf(Object);
+        expect(criteria.totalCountMode).toBe(0);
     });
 
     it('should have no reset option when it is not defined', async () => {

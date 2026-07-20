@@ -11,8 +11,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1596441551CustomerGroupRegistration extends MigrationStep

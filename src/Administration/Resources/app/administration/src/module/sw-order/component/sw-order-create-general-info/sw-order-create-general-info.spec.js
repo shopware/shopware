@@ -59,10 +59,6 @@ describe('src/module/sw-order/component/sw-order-create-general-info', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show correct summary header', async () => {
         const customerInfo = wrapper.find('.sw-order-create-general-info__summary-main-header');
         expect(customerInfo.exists()).toBeTruthy();

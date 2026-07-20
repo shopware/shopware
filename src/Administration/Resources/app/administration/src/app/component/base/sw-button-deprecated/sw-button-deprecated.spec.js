@@ -6,18 +6,6 @@ import { mount, RouterLinkStub } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 
 describe('components/base/sw-button-deprecated', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = mount(await wrapTestComponent('sw-button-deprecated', { sync: true }), {
-            global: {
-                stubs: {
-                    'sw-loader': true,
-                    'router-link': true,
-                },
-            },
-        });
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render a plain button', async () => {
         const label = 'Button text';
         const wrapper = mount(await wrapTestComponent('sw-button-deprecated', { sync: true }), {

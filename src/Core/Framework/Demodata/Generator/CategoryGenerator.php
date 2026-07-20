@@ -4,7 +4,9 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Doctrine\DBAL\Connection;
 use Faker\Generator;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
@@ -13,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -31,6 +34,9 @@ class CategoryGenerator implements DemodataGeneratorInterface
 
     /**
      * @internal
+     *
+     * @param EntityRepository<CategoryCollection> $categoryRepository
+     * @param EntityRepository<CmsPageCollection> $cmsPageRepository
      */
     public function __construct(
         private readonly EntityRepository $categoryRepository,
@@ -95,6 +101,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
             'mediaId' => $context->getRandomId('media'),
             'description' => $context->getFaker()->text(),
             'tags' => $this->getTags($tags),
+            'customFields' => [DemodataService::DEMODATA_CUSTOM_FIELDS_KEY => true],
         ];
 
         if ($current >= $max) {
@@ -115,12 +122,12 @@ class CategoryGenerator implements DemodataGeneratorInterface
     {
         $tagAssignments = [];
 
-        if (!empty($tags)) {
+        if ($tags !== []) {
             $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit(), false);
 
-            if (!empty($chosenTags)) {
+            if ($chosenTags !== []) {
                 $tagAssignments = array_map(
-                    fn ($id) => ['id' => $id],
+                    static fn ($id) => ['id' => $id],
                     $chosenTags
                 );
             }
@@ -156,7 +163,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
                 $commaSeparatedCategories = implode(', ', \array_slice($categories, 0, -1));
                 $categories = [
                     $commaSeparatedCategories,
-                    end($categories),
+                    array_last($categories),
                 ];
             }
             ++$max;
@@ -190,10 +197,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
         $criteria->addFilter(new EqualsFilter('type', 'product_list'));
         $criteria->setLimit(500);
 
-        /** @var list<string> $ids */
-        $ids = $this->cmsPageRepository->searchIds($criteria, $getContext)->getIds();
-
-        return $ids;
+        return $this->cmsPageRepository->searchIds($criteria, $getContext)->getIds();
     }
 
     /**

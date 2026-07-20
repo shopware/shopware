@@ -31,6 +31,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\Service\AppConfigReader"/>
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\System\SystemConfig\Util\ConfigReader"/>
@@ -51,6 +52,8 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigLoader" />
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SymfonySystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <tag name="kernel.reset" method="reset"/>
         </service>
 

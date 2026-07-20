@@ -4,7 +4,6 @@ namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexAliasSwitchedEvent;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -82,7 +82,7 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
     private function handleQueue(): void
     {
         $indices = $this->connection->fetchAllAssociative('SELECT * FROM elasticsearch_index_task');
-        if (empty($indices)) {
+        if ($indices === []) {
             return;
         }
 

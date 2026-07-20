@@ -5,7 +5,7 @@
     <template #search-bar>
         <sw-search-bar
             initial-search-type="salutation"
-            :placeholder="$tc('sw-settings-salutation.general.placeholderSearchBar')"
+            :placeholder="$t('sw-settings-salutation.general.placeholderSearchBar')"
             :initial-search="term"
             @search="onSearch"
         />
@@ -17,12 +17,12 @@
         {% block sw_settings_salutation_list_smart_bar_header_title %}
         <h2>
             {% block sw_settings_salutation_list_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }}
+            {{ $t('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
             />
-            {{ $tc('sw-settings-salutation.general.mainMenuItemGeneral') }}
+            {{ $t('sw-settings-salutation.general.mainMenuItemGeneral') }}
             {% endblock %}
 
             {% block sw_settings_salutation_list_smart_bar_header_amount %}
@@ -55,7 +55,7 @@
             size="default"
             @click="$router.push({ name: 'sw.settings.salutation.create' })"
         >
-            {{ $tc('sw-settings-salutation.general.buttonCreate') }}
+            {{ $t('sw-settings-salutation.general.buttonCreate') }}
         </mt-button>
         {% endblock %}
     </template>
@@ -75,7 +75,7 @@
                         class="sw-settings-salutation-list-grid"
                         :repository="salutationRepository"
                         :is-loading="isLoading"
-                        :items="salutations"
+                        :data-source="salutations"
                         :columns="columns"
                         identifier="sw-settings-salutation-list"
                         :sort-by="sortBy"
@@ -90,7 +90,27 @@
                         :allow-delete="acl.can('salutation.deleter') || undefined"
                         @column-sort="onSortColumn"
                         @page-change="onPageChange"
-                    />
+                    >
+                        {% block sw_settings_salutation_list_grid_columns_position %}
+                        <template #column-position="{ item, isInlineEdit, compact }">
+                            {% block sw_settings_salutation_list_grid_columns_position_inline_edit %}
+                            <template v-if="isInlineEdit">
+                                <mt-number-field
+                                    v-model="item.position"
+                                    number-type="int"
+                                    :size="compact ? 'small' : 'default'"
+                                />
+                            </template>
+                            {% endblock %}
+
+                            {% block sw_settings_salutation_list_grid_columns_position_display %}
+                            <template v-else>
+                                {{ item.position }}
+                            </template>
+                            {% endblock %}
+                        </template>
+                        {% endblock %}
+                    </sw-entity-listing>
                 </template>
                 {% endblock %}
 

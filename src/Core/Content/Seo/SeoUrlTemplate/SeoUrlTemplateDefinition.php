@@ -45,14 +45,14 @@ class SeoUrlTemplateDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new ApiAware()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of Seo Url template.'),
+            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new ApiAware())->setDescription('Unique identity of sales channel.'),
 
-            (new StringField('entity_name', 'entityName', 64))->addFlags(new Required()),
-            (new StringField('route_name', 'routeName'))->addFlags(new Required()),
-            (new StringField('template', 'template', 750))->addFlags(new AllowEmptyString()),
-            (new BoolField('is_valid', 'isValid'))->addFlags(new ApiAware()),
-            (new CustomFields())->addFlags(new ApiAware()),
+            (new StringField('entity_name', 'entityName', 64))->addFlags(new Required())->setDescription('Name of the entity.'),
+            (new StringField('route_name', 'routeName'))->addFlags(new Required())->setDescription('Name of the route.'),
+            (new StringField('template', 'template', 750))->addFlags(new AllowEmptyString())->setDescription('Template to generate an URL.'),
+            (new BoolField('is_valid', 'isValid'))->addFlags(new ApiAware())->setDescription('Created SEO URL template can be made usable by setting `isValid` to true.'),
+            (new CustomFields())->addFlags(new ApiAware())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
         ]);
     }

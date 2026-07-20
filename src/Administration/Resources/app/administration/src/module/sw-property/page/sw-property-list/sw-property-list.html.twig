@@ -5,7 +5,7 @@
     <template #search-bar>
         <sw-search-bar
             initial-search-type="property"
-            :placeholder="$tc('sw-property.general.placeholderSearchBar')"
+            :placeholder="$t('sw-property.general.placeholderSearchBar')"
             @search="onSearch"
         />
     </template>
@@ -18,7 +18,7 @@
         <h2>
 
             {% block sw_property_list_smart_bar_header_title_text %}
-            {{ $tc('sw-property.list.textProperties') }}
+            {{ $t('sw-property.list.textProperties') }}
             {% endblock %}
 
             {% block sw_property_list_smart_bar_header_title_amount %}
@@ -42,7 +42,7 @@
         {% block sw_property_list_add_button %}
         <mt-button
             v-tooltip="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('property.creator'),
                 showOnDisabledElements: true
             }"
@@ -52,7 +52,7 @@
             size="default"
             @click="$router.push({ name: 'sw.property.create' })"
         >
-            {{ $tc('sw-property.list.buttonAddProperty') }}
+            {{ $t('sw-property.list.buttonAddProperty') }}
         </mt-button>
         {% endblock %}
 
@@ -70,12 +70,24 @@
         {% block sw_property_list_content %}
         <div class="sw-property-list__content">
 
+            {% block sw_property_list_empty_state %}
+            <mt-empty-state
+                v-if="!isLoading && !total"
+                :centered="true"
+                :icon="$route.meta.$module.icon"
+                :headline="isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-property.list.messageEmpty')"
+                :description="isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : $t($route.meta.$module.description)"
+                :link-text="isValidTerm(term) ? $t('sw-empty-state.messageNoResultLink') : ''"
+                :link-href="isValidTerm(term) ? $router.resolve({ name: 'sw.profile.index.searchPreferences' }).href : ''"
+            />
+            {% endblock %}
+
             {% block sw_property_list_grid %}
             <sw-entity-listing
-                v-if="entitySearchable"
+                v-else-if="entitySearchable"
                 ref="propertyList"
                 class="sw-property-list-grid"
-                :items="propertyGroup"
+                :data-source="propertyGroup"
                 :columns="getPropertyColumns()"
                 :repository="propertyRepository"
                 :show-selection="false"
@@ -148,7 +160,7 @@
                         :router-link="{ name: 'sw.property.detail', params: { id: item.id } }"
                         :disabled="!acl.can('property.editor')"
                     >
-                        {{ $tc('sw-property.list.contextMenuView') }}
+                        {{ $t('global.default.edit') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -159,7 +171,7 @@
                         :disabled=" !acl.can('property.deleter')"
                         @click="onDelete(item.id)"
                     >
-                        {{ $tc('sw-property.list.contextMenuDelete') }}
+                        {{ $t('global.default.delete') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </template>
@@ -172,11 +184,11 @@
                     <sw-modal
                         v-if="showDeleteModal === item.id"
                         variant="small"
-                        :title="$tc('global.default.warning')"
+                        :title="$t('global.default.warning')"
                         @modal-close="onCloseDeleteModal"
                     >
                         <p class="sw-property-list__confirm-delete-text">
-                            {{ $tc('sw-property.list.textDeleteConfirm', { name: item.translated.name }, 0) }}
+                            {{ $t('sw-property.list.textDeleteConfirm', { name: item.translated.name }, 0) }}
                         </p>
 
                         <template #modal-footer>
@@ -185,7 +197,7 @@
                                 variant="secondary"
                                 @click="onCloseDeleteModal"
                             >
-                                {{ $tc('global.default.cancel') }}
+                                {{ $t('global.default.cancel') }}
                             </mt-button>
 
                             <mt-button
@@ -193,7 +205,7 @@
                                 size="small"
                                 @click="onConfirmDelete(item.id)"
                             >
-                                {{ $tc('sw-property.list.buttonDelete') }}
+                                {{ $t('global.default.delete') }}
                             </mt-button>
                         </template>
                     </sw-modal>
@@ -201,31 +213,6 @@
                 {% endblock %}
 
             </sw-entity-listing>
-            {% endblock %}
-
-            {% block sw_property_list_empty_state %}
-            <template v-if="!isLoading && !total">
-                <sw-empty-state
-                    v-if="isValidTerm(term)"
-                    :title="$tc('sw-empty-state.messageNoResultTitle')"
-                >
-                    <template #default>
-                        {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
-                        <router-link
-                            class="sw-empty-state__description-link"
-                            :to="{ name: 'sw.profile.index.searchPreferences' }"
-                        >
-                            {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
-                        </router-link>
-                        {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
-                    </template>
-                </sw-empty-state>
-
-                <sw-empty-state
-                    v-else
-                    :title="$tc('sw-property.list.messageEmpty')"
-                />
-            </template>
             {% endblock %}
         </div>
         {% endblock %}
@@ -237,7 +224,7 @@
             {% block sw_property_list_sidebar_refresh_item %}
             <sw-sidebar-item
                 icon="regular-undo"
-                :title="$tc('sw-property.list.titleSidebarItemRefresh')"
+                :title="$t('sw-property.list.titleSidebarItemRefresh')"
                 @click="onRefresh"
             />
             {% endblock %}

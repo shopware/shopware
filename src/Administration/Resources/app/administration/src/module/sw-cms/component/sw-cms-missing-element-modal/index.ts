@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-missing-element-modal.html.twig';
 import './sw-cms-missing-element-modal.scss';
 
@@ -29,13 +28,13 @@ export default Shopware.Component.wrapComponentConfig({
         element() {
             return this.missingElements
                 .map((missingElement) => {
-                    return this.$tc(`sw-cms.elements.${missingElement}.label`);
+                    return this.$t(`sw-cms.elements.${missingElement}.label`);
                 })
                 .join(', ');
         },
 
         title() {
-            return this.$tc(
+            return this.$t(
                 'sw-cms.components.cmsMissingElementModal.title',
                 {
                     element: this.element,

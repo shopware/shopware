@@ -11,8 +11,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\CustomerGroupAdminSearchIndexer;
@@ -28,11 +32,35 @@ class CustomerGroupAdminSearchIndexerTest extends TestCase
     protected function setUp(): void
     {
         $this->searchIndexer = new CustomerGroupAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
             100
         );
+    }
+
+    public function testGetUpdatedIds(): void
+    {
+        $indexer = new CustomerGroupAdminSearchIndexer(
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            100
+        );
+
+        $cgId = Uuid::randomHex();
+
+        $event = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent('customer_group_translation', [
+                    new EntityWriteResult(['customerGroupId' => $cgId], ['name' => 'VIP'], 'customer_group', EntityWriteResult::OPERATION_UPDATE),
+                ], Context::createDefaultContext()),
+            ]),
+            []
+        );
+
+        static::assertSame([$cgId], $indexer->getUpdatedIds($event));
     }
 
     public function testGetEntity(): void
@@ -54,7 +82,7 @@ class CustomerGroupAdminSearchIndexerTest extends TestCase
     public function testGlobalData(): void
     {
         $context = Context::createDefaultContext();
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $customerGroup = new CustomerGroupEntity();
         $customerGroup->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
@@ -69,8 +97,8 @@ class CustomerGroupAdminSearchIndexerTest extends TestCase
         );
 
         $indexer = new CustomerGroupAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
             $repository,
             100
         );
@@ -93,8 +121,8 @@ class CustomerGroupAdminSearchIndexerTest extends TestCase
 
         $indexer = new CustomerGroupAdminSearchIndexer(
             $connection,
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
             100
         );
 
@@ -111,7 +139,7 @@ class CustomerGroupAdminSearchIndexerTest extends TestCase
 
     private function getConnection(): Connection
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $connection->method('fetchAllAssociative')->willReturn(
             [

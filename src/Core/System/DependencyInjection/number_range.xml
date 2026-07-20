@@ -38,6 +38,7 @@
 
         <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementSqlStorage">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
 
             <tag name="shopware.value_generator_connector" storage="mysql"/>
         </service>
@@ -56,7 +57,7 @@
         </service>
 
         <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageRegistry">
-            <argument type="tagged_iterator" tag="shopware.value_generator_connector" index-by="storage"/>
+            <argument type="tagged_locator" tag="shopware.value_generator_connector" index-by="storage"/>
             <argument>%shopware.number_range.increment_storage%</argument>
         </service>
 
@@ -73,6 +74,8 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
+        <service id="Shopware\Core\System\NumberRange\ValueGenerator\AbstractNumberRangeValueGenerator" alias="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface" public="true"/>
+
         <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry">
             <argument type="tagged_iterator" tag="shopware.value_generator_pattern"/>
         </service>
@@ -87,7 +90,7 @@
         </service>
 
         <service id="Shopware\Core\System\NumberRange\Api\NumberRangeController" public="true">
-            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface" />
+            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\AbstractNumberRangeValueGenerator" />
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

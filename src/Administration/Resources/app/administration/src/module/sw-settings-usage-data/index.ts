@@ -9,7 +9,23 @@ Shopware.Component.register('sw-settings-usage-data', () => import('./page/sw-se
  * @sw-package framework
  * @private
  */
-Shopware.Component.register('sw-settings-usage-data-general', () => import('./component/sw-settings-usage-data-general'));
+Shopware.Component.register('sw-settings-usage-data-general', () => import('./view/sw-settings-usage-data-general'));
+/**
+ * @sw-package framework
+ * @private
+ */
+Shopware.Component.register(
+    'sw-settings-usage-data-consent-modal-data-provider',
+    () => import('./component/sw-settings-usage-data-consent-modal-data-provider'),
+);
+
+/**
+ * @private
+ */
+Shopware.Component.register(
+    'sw-settings-usage-data-profile-consent',
+    () => import('./component/sw-settings-usage-data-profile-consent'),
+);
 
 /**
  * @sw-package framework
@@ -54,7 +70,7 @@ Module.register('sw-settings-usage-data', {
     settingsItem: {
         group: 'system',
         to: 'sw.settings.usage.data.index',
-        icon: 'regular-analytics',
+        icon: 'regular-shield',
         privilege: 'system.system_config',
     },
 });

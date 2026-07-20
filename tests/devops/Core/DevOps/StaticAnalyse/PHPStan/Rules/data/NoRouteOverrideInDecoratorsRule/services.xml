@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <!-- Mock controller that gets decorated -->
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\NoRouteOverrideInDecoratorsRule\DummyController"/>
+
+        <!-- Test case 1: Decorator of controller without overriding #Routes should not trigger error -->
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\NoRouteOverrideInDecoratorsRule\ControllerDecoratorWithoutRouteOverrides"
+                 decorates="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\NoRouteOverrideInDecoratorsRule\DummyController">
+            <tag name="container.decorator" id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\NoRouteOverrideInDecoratorsRule\DummyController" />
+        </service>
+
+        <!-- Test case 2: Decorator of controller with overriding #Routes should trigger error -->
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\NoRouteOverrideInDecoratorsRule\ControllerDecoratorWithRouteOverrides"
+                 decorates="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\NoRouteOverrideInDecoratorsRule\DummyController">
+            <tag name="container.decorator" id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\NoRouteOverrideInDecoratorsRule\DummyController" />
+        </service>
+    </services>
+</container>

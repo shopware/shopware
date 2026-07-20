@@ -19,13 +19,15 @@ use Symfony\Contracts\Service\ServiceSubscriberInterface;
 
 /**
  * @internal not intended for decoration or replacement
+ *
+ * @final
  */
 #[Package('after-sales')]
-class FlowDispatcher implements EventDispatcherInterface, ServiceSubscriberInterface
+readonly class FlowDispatcher implements EventDispatcherInterface, ServiceSubscriberInterface
 {
     public function __construct(
-        private readonly EventDispatcherInterface $dispatcher,
-        private readonly ContainerInterface $container,
+        private EventDispatcherInterface $dispatcher,
+        private ContainerInterface $container,
     ) {
     }
 
@@ -53,8 +55,9 @@ class FlowDispatcher implements EventDispatcherInterface, ServiceSubscriberInter
             return $event;
         }
 
-        if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS')) {
-            $this->container->get(BufferedFlowQueue::class)->queueFlow($event);
+        if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS') || Feature::isActive('v6.8.0.0')) {
+            $bufferedFlow = $this->container->get(FlowFactory::class)->createBuffered($event);
+            $this->container->get(BufferedFlowQueue::class)->queueFlow($bufferedFlow);
 
             return $event;
         }
@@ -125,7 +128,7 @@ class FlowDispatcher implements EventDispatcherInterface, ServiceSubscriberInter
     {
         $flows = $this->getFlows($event->getName());
 
-        if (empty($flows)) {
+        if ($flows === []) {
             return;
         }
 

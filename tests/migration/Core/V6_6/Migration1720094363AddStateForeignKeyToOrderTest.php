@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Migration\Core\V6_6;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderStates;
@@ -11,6 +10,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_6\Migration1720094363AddStateForeignKeyToOrder;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
@@ -34,15 +34,22 @@ class Migration1720094363AddStateForeignKeyToOrderTest extends TestCase
         $this->connection = static::getContainer()->get(Connection::class);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1720094363, (new Migration1720094363AddStateForeignKeyToOrder())->getCreationTimestamp());
+    }
+
     public function testMigrate(): void
     {
         try {
             $this->rollback();
 
             $initialState = static::getContainer()->get(InitialStateIdLoader::class)->get('order.state');
-            $otherState = static::getContainer()->get(StateMachineRegistry::class)->getStateMachine(OrderStates::STATE_MACHINE, Context::createDefaultContext())->getStates()?->filter(function (StateMachineStateEntity $state) use ($initialState) {
-                return $state->getId() !== $initialState;
-            })->first()?->getId() ?? Uuid::randomHex();
+            $otherState = static::getContainer()->get(StateMachineRegistry::class)
+                ->getStateMachine(OrderStates::STATE_MACHINE, Context::createDefaultContext())
+                ->getStates()?->filter(static function (StateMachineStateEntity $state) use ($initialState) {
+                    return $state->getId() !== $initialState;
+                })->first()?->getId() ?? Uuid::randomHex();
             $invalidState = Uuid::randomHex();
 
             $this->createOrder($initialState);
@@ -98,7 +105,7 @@ class Migration1720094363AddStateForeignKeyToOrderTest extends TestCase
                 shipping_costs = '{}',
                 created_at = NOW();
     SQL, [
-            'orderId' => $orderId = Uuid::randomBytes(),
+            'orderId' => Uuid::randomBytes(),
             'defaultVersion' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             'defaultCurrency' => Uuid::fromHexToBytes(Defaults::CURRENCY),
             'defaultLanguage' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
@@ -122,9 +129,10 @@ class Migration1720094363AddStateForeignKeyToOrderTest extends TestCase
 
     private function hasForeignKey(): bool
     {
-        $manager = $this->connection->createSchemaManager();
-        $columns = $manager->listTableForeignKeys('order');
+        $foreignKey = TableHelper::getForeignKeyOfTable($this->connection, 'order', 'fk.order.state_id');
 
-        return (bool) \array_filter($columns, static fn (ForeignKeyConstraint $column) => $column->getForeignTableName() === 'state_machine_state' && $column->getLocalColumns() === ['state_id'] && $column->getForeignColumns() === ['id']);
+        return $foreignKey->referencedTableName === 'state_machine_state'
+            && $foreignKey->referencingColumnNames[0] === 'state_id'
+            && $foreignKey->referencedColumnNames[0] === 'id';
     }
 }

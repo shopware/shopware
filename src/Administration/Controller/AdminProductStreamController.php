@@ -2,12 +2,15 @@
 
 namespace Shopware\Administration\Controller;
 
+use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
@@ -20,6 +23,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [AdministrationRouteScope::ID]])]
 #[Package('framework')]
 class AdminProductStreamController extends AbstractController
 {
@@ -36,7 +40,7 @@ class AdminProductStreamController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_admin/product-stream-preview/{salesChannelId}', name: 'api.admin.product-stream-preview', defaults: ['_routeScope' => ['administration']], methods: ['POST'])]
+    #[Route(path: '/api/_admin/product-stream-preview/{salesChannelId}', name: 'api.admin.product-stream-preview', methods: ['POST'])]
     public function productStreamPreview(string $salesChannelId, Request $request, Context $context): JsonResponse
     {
         $salesChannelContext = $this->salesChannelContextService->get(
@@ -48,7 +52,7 @@ class AdminProductStreamController extends AbstractController
             )
         );
 
-        if (empty($request->request->all('ids'))) {
+        if ($request->request->all('ids') === []) {
             $request->request->remove('ids');
         }
 
@@ -59,7 +63,7 @@ class AdminProductStreamController extends AbstractController
             $context
         );
 
-        $criteria->setTotalCountMode(1);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
         $criteria->addAssociation('manufacturer');
         $criteria->addAssociation('options.group');
 
@@ -69,6 +73,16 @@ class AdminProductStreamController extends AbstractController
         array_pop($queries);
         $availableFilter->assign(['queries' => $queries]);
         $criteria->addFilter($availableFilter);
+
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+
+        // Mirror the storefront listing's variant grouping so the preview reflects the product stream's
+        // "display as group" setting. It is read from the query string to keep the Criteria request body
+        // (and therefore its schema) untouched.
+        if ($request->query->getBoolean('displayAsGroup')) {
+            $criteria->addGroupField(new FieldGrouping('displayGroup'));
+            $criteria->addFilter(new NotEqualsFilter('displayGroup', null));
+        }
 
         $previewResult = $this->salesChannelProductRepository->search($criteria, $salesChannelContext);
 

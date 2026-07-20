@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
 use Shopware\Core\Framework\Log\Package;
@@ -21,7 +22,8 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
      */
     public function __construct(
         private readonly TokenizerInterface $tokenizer,
-        private readonly AbstractTokenFilter $tokenFilter
+        private readonly AbstractTokenFilter $tokenFilter,
+        private readonly SearchConfigLoader $configLoader,
     ) {
     }
 
@@ -32,7 +34,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
         foreach ($configFields as $configField) {
             $path = $configField['field'];
             $isTokenize = (bool) $configField['tokenize'];
-            $ranking = (int) $configField['ranking'];
+            $ranking = (float) $configField['ranking'];
 
             $values = array_filter($this->resolveEntityValue($product, $path));
             ksort($values);
@@ -44,7 +46,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
                     continue;
                 }
 
-                /** @var array<int, string> $onlyScalarValues */
+                /** @var array<int, non-falsy-string> $onlyScalarValues */
                 $onlyScalarValues = $values;
                 $values = $this->tokenize($onlyScalarValues, $context);
                 $values[] = implode(' ', $values);
@@ -73,8 +75,12 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
      */
     private function tokenize(array $values, Context $context): array
     {
+        $config = $this->configLoader->load($context);
+
+        /** @phpstan-ignore arguments.count (This ignore should be removed when the deprecated method signature is updated) */
         $values = $this->tokenizer->tokenize(
-            implode(' ', $values)
+            implode(' ', $values),
+            $config[0]['min_search_length'] ?? null
         );
 
         return $this->tokenFilter->filter($values, $context);
@@ -92,7 +98,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
         // E.g. `product.description` does not exist, but will be found if the first part is omitted.
         $smartDetect = true;
 
-        while (\count($parts) > 0) {
+        while ($parts !== []) {
             $part = array_shift($parts);
 
             if ($value === null) {
@@ -102,7 +108,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
             try {
                 if ($value instanceof EntityCollection) {
                     $values = [];
-                    if (!empty($parts)) {
+                    if ($parts !== []) {
                         $part .= \sprintf('.%s', implode('.', $parts));
                     }
                     foreach ($value as $item) {
@@ -120,7 +126,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
                     $value = $value[$part] ?? null;
                 }
 
-                if (\is_array($value) && !empty($parts)) {
+                if (\is_array($value) && $parts !== []) {
                     continue;
                 }
 

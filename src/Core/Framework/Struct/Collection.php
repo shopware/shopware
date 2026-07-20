@@ -7,14 +7,15 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @template TElement
+ * @template TKey of array-key = array-key
  *
- * @implements \IteratorAggregate<array-key, TElement>
+ * @implements \IteratorAggregate<TKey, TElement>
  */
 #[Package('framework')]
 abstract class Collection extends Struct implements \IteratorAggregate, \Countable
 {
     /**
-     * @var array<array-key, TElement>
+     * @var array<TKey, TElement>
      */
     protected array $elements = [];
 
@@ -39,7 +40,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @param array-key|null $key
+     * @param TKey|null $key
      * @param TElement $element
      */
     public function set($key, $element): void
@@ -54,7 +55,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @param array-key $key
+     * @param TKey $key
      *
      * @return TElement|null
      */
@@ -81,7 +82,15 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @return list<array-key>
+     * @phpstan-impure
+     */
+    public function isEmpty(): bool
+    {
+        return $this->elements === [];
+    }
+
+    /**
+     * @return list<TKey>
      */
     public function getKeys(): array
     {
@@ -89,7 +98,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @param array-key $key
+     * @param TKey $key
      */
     public function has($key): bool
     {
@@ -97,7 +106,11 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @return array<array-key, mixed>
+     * @template T
+     *
+     * @param \Closure(TElement): T $closure
+     *
+     * @return array<TKey, T>
      */
     public function map(\Closure $closure): array
     {
@@ -105,9 +118,12 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @param mixed|null $initial
+     * @template T
      *
-     * @return mixed|null
+     * @param \Closure(T, TElement): T $closure
+     * @param T $initial
+     *
+     * @return T
      */
     public function reduce(\Closure $closure, $initial = null)
     {
@@ -115,13 +131,32 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @return array<array-key, mixed>
+     * @template T
+     *
+     * @param \Closure(TElement): (T|false|null) $closure
+     *
+     * @return array<TKey, T>
      */
     public function fmap(\Closure $closure): array
     {
         return array_filter($this->map($closure));
     }
 
+    /**
+     * @template T
+     *
+     * @param \Closure(TElement): (T|iterable<*, T|null>|null) $closure
+     *
+     * @return array<TKey, T>
+     */
+    public function flatMap(\Closure $closure): array
+    {
+        return \array_merge(...$this->fmap(static fn ($value) => (array) $closure($value)));
+    }
+
+    /**
+     * @param \Closure(TElement, TElement): int $closure
+     */
     public function sort(\Closure $closure): void
     {
         uasort($this->elements, $closure);
@@ -137,6 +172,9 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
         });
     }
 
+    /**
+     * @param \Closure(TElement): bool $closure
+     */
     public function filter(\Closure $closure): static
     {
         return $this->createNew(array_filter($this->elements, $closure));
@@ -148,13 +186,16 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @return array<TElement>
+     * @return array<TKey, TElement>
      */
     public function getElements(): array
     {
         return $this->elements;
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public function jsonSerialize(): array
     {
         return array_values($this->elements);
@@ -165,10 +206,14 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
      */
     public function first()
     {
-        return $this->elements[array_key_first($this->elements)] ?? null;
+        return array_first($this->elements);
     }
 
     /**
+     * @template T of TElement
+     *
+     * @param \Closure(T): bool $closure
+     *
      * @return TElement|null
      */
     public function firstWhere(\Closure $closure)
@@ -195,11 +240,11 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
      */
     public function last()
     {
-        return $this->elements[array_key_last($this->elements)] ?? null;
+        return array_last($this->elements);
     }
 
     /**
-     * @param array-key $key
+     * @param TKey $key
      */
     public function remove($key): void
     {
@@ -212,6 +257,30 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     public function getIterator(): \Traversable
     {
         yield from $this->elements;
+    }
+
+    public function assignRecursive(array $options): static
+    {
+        $baseObject = null;
+        if ($expectedClass = $this->getExpectedClass()) {
+            $baseObject = (new \ReflectionClass($expectedClass))->newInstanceWithoutConstructor();
+        }
+
+        $hasNecessaryInterface = $baseObject instanceof AssignArrayInterface;
+
+        foreach ($options as $value) {
+            if ($hasNecessaryInterface && \is_array($value)) {
+                $value = (clone $baseObject)->assignRecursive($value);
+            }
+
+            try {
+                $this->add($value);
+            } catch (\Throwable) {
+                // Try to add, ignore if the type is not the expected one.
+            }
+        }
+
+        return $this;
     }
 
     /**

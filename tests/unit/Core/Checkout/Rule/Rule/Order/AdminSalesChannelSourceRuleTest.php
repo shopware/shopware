@@ -59,7 +59,7 @@ class AdminSalesChannelSourceRuleTest extends TestCase
 
         static::assertArrayHasKey('hasAdminSalesChannelSource', $constraints, 'Constraint hasAdminSalesChannelSource not found in Rule');
         static::assertEquals($constraints['hasAdminSalesChannelSource'], [
-            new Type(['type' => 'bool']),
+            new Type(type: 'bool'),
         ]);
     }
 

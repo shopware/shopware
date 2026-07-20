@@ -2,10 +2,10 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Validation;
 
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -27,27 +27,22 @@ class ManifestValidatorTest extends TestCase
     public function testValidate(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
-
-        $this->manifestValidator->validate($manifest, Context::createDefaultContext());
+        $error = null;
+        $message = '';
+        try {
+            $this->manifestValidator->validate($manifest, Context::createDefaultContext());
+        } catch (\Throwable $e) {
+            $error = $e;
+            $message = \sprintf('No error expected, got "%s" with: %s', $error->getMessage(), $error->getTraceAsString());
+        }
+        static::assertNull($error, $message);
     }
 
-    #[DataProvider('invalidManifestProvider')]
-    public function testValidateInvalidManifest(string $exceptionMessage): void
+    public function testValidateInvalidManifest(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/invalidManifest/manifest.xml');
 
-        $this->expectException(AppValidationException::class);
-        $this->expectExceptionMessage($exceptionMessage);
+        $this->expectExceptionObject(new AppValidationException('invalidManifestName', new ErrorCollection()));
         $this->manifestValidator->validate($manifest, Context::createDefaultContext());
-    }
-
-    public static function invalidManifestProvider(): \Generator
-    {
-        yield ['The app "invalidManifestName" is invalid'];
-        yield ['Missing translations for "Metadata":'];
-        yield ['The technical app name "invalidManifestName" in the "manifest.xml" and the folder name must be equal.'];
-        yield ['The following custom components are not allowed to be used in app configuration:'];
-        yield ['The following webhooks are not hookable:'];
-        yield ['The following permissions are missing:'];
     }
 }

@@ -59,6 +59,8 @@
         <service id="Shopware\Core\Framework\Api\Controller\HealthCheckController" public="true">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\SystemCheck\SystemChecker"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator"/>
+            <argument type="string">%shopware.api.static_token.health_check%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\IndexingController" public="true">
@@ -124,7 +126,9 @@
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder"/>
+        <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder">
+            <argument type="tagged_iterator" tag="shopware.api.enum_provider" />
+        </service>
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuilder"/>
 
@@ -162,20 +166,19 @@
         <service id="Shopware\Core\Framework\Api\Controller\InfoController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
             <argument type="service" id="parameter_bag"/>
-            <argument type="service" id="kernel" />
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector" />
             <argument type="service" id="shopware.increment.gateway.registry"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Migration\MigrationInfo"/>
             <argument type="service" id="Shopware\Core\Maintenance\System\Service\AppUrlVerifier"/>
-            <argument type="service" id="router"/>
             <argument type="service" id="Shopware\Core\Content\Flow\Api\FlowActionCollector"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver"/>
             <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase"/>
-            <argument type="service" id="Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator" on-invalid="null"/>
-            <argument type="service" id="filesystem"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\Stats\StatsService"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Upload\PresignedMediaUploadService" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -196,6 +199,8 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
+            <argument type="service" id="event_dispatcher"/>
+
             <tag name="container.service_subscriber" />
             <tag name="controller.service_arguments" />
             <call method="setContainer">
@@ -207,9 +212,11 @@
         <service id="Shopware\Core\Framework\Api\OAuth\AccessTokenRepository"/>
         <service id="Shopware\Core\Framework\Api\OAuth\ClientRepository">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
         <service id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\OAuth\ScopeRepository">
@@ -219,6 +226,7 @@
 
         <service id="Shopware\Core\Framework\Api\OAuth\UserRepository">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Sso\Config\LoginConfigService"/>
         </service>
 
         <!-- Scopes -->
@@ -285,6 +293,9 @@
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\UserRepository"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Sso\UserService\UserService"/>
+            <argument type="service" id="Shopware\Core\Framework\Sso\TokenService\ExternalTokenService"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <argument type="string">%shopware.api.access_token_ttl%</argument>
             <argument type="string">%shopware.api.refresh_token_ttl%</argument>
 
@@ -295,6 +306,7 @@
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\UserController" public="true">
@@ -303,6 +315,7 @@
             <argument type="service" id="acl_role.repository"/>
             <argument type="service" id="user_access_key.repository"/>
             <argument type="service" id="Shopware\Core\System\User\UserDefinition"/>
+            <argument type="service" id="Shopware\Core\Framework\Sso\SsoService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

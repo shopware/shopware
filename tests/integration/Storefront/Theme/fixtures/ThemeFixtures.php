@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Integration\Storefront\Theme\fixtures;
 
+use Shopware\Core\Framework\Feature;
+
 /**
  * @internal
  */
@@ -255,52 +257,52 @@ class ThemeFixtures
      */
     public static function getThemeStructuredFields(): array
     {
-        return [
+        return self::stripStructuredLabelsAndHelpTexts([
             'tabs' => [
                 'default' => [
                     'label' => '',
-                    'labelSnippetKey' => 'sw-theme.storefront.default.label',
+                    'labelSnippetKey' => 'default.label',
                     'blocks' => [
                         'themeColors' => [
                             'label' => 'themeColors',
-                            'labelSnippetKey' => 'sw-theme.storefront.default.themeColors.label',
+                            'labelSnippetKey' => 'default.themeColors.label',
                             'sections' => [
                                 'default' => [
                                     'label' => '',
-                                    'labelSnippetKey' => 'sw-theme.storefront.default.themeColors.default.label',
+                                    'labelSnippetKey' => 'default.themeColors.default.label',
                                     'fields' => [
                                         'sw-color-brand-primary' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.themeColors.default.sw-color-brand-primary.label',
+                                            'labelSnippetKey' => 'default.themeColors.default.sw-color-brand-primary.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.themeColors.default.sw-color-brand-primary.helpText',
+                                            'helpTextSnippetKey' => 'default.themeColors.default.sw-color-brand-primary.helpText',
                                             'type' => 'color',
                                             'custom' => null,
                                             'fullWidth' => null,
                                         ],
                                         'sw-color-brand-secondary' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.themeColors.default.sw-color-brand-secondary.label',
+                                            'labelSnippetKey' => 'default.themeColors.default.sw-color-brand-secondary.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.themeColors.default.sw-color-brand-secondary.helpText',
+                                            'helpTextSnippetKey' => 'default.themeColors.default.sw-color-brand-secondary.helpText',
                                             'type' => 'color',
                                             'custom' => null,
                                             'fullWidth' => null,
                                         ],
                                         'sw-border-color' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.themeColors.default.sw-border-color.label',
+                                            'labelSnippetKey' => 'default.themeColors.default.sw-border-color.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.themeColors.default.sw-border-color.helpText',
+                                            'helpTextSnippetKey' => 'default.themeColors.default.sw-border-color.helpText',
                                             'type' => 'color',
                                             'custom' => null,
                                             'fullWidth' => null,
                                         ],
                                         'sw-background-color' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.themeColors.default.sw-background-color.label',
+                                            'labelSnippetKey' => 'default.themeColors.default.sw-background-color.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.themeColors.default.sw-background-color.helpText',
+                                            'helpTextSnippetKey' => 'default.themeColors.default.sw-background-color.helpText',
                                             'type' => 'color',
                                             'custom' => null,
                                             'fullWidth' => null,
@@ -311,44 +313,44 @@ class ThemeFixtures
                         ],
                         'statusColors' => [
                             'label' => 'statusColors',
-                            'labelSnippetKey' => 'sw-theme.storefront.default.statusColors.label',
+                            'labelSnippetKey' => 'default.statusColors.label',
                             'sections' => [
                                 'default' => [
                                     'label' => '',
-                                    'labelSnippetKey' => 'sw-theme.storefront.default.statusColors.default.label',
+                                    'labelSnippetKey' => 'default.statusColors.default.label',
                                     'fields' => [
                                         'sw-color-success' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.statusColors.default.sw-color-success.label',
+                                            'labelSnippetKey' => 'default.statusColors.default.sw-color-success.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.statusColors.default.sw-color-success.helpText',
+                                            'helpTextSnippetKey' => 'default.statusColors.default.sw-color-success.helpText',
                                             'type' => 'color',
                                             'custom' => null,
                                             'fullWidth' => null,
                                         ],
                                         'sw-color-info' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.statusColors.default.sw-color-info.label',
+                                            'labelSnippetKey' => 'default.statusColors.default.sw-color-info.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.statusColors.default.sw-color-info.helpText',
+                                            'helpTextSnippetKey' => 'default.statusColors.default.sw-color-info.helpText',
                                             'type' => 'color',
                                             'custom' => null,
                                             'fullWidth' => null,
                                         ],
                                         'sw-color-warning' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.statusColors.default.sw-color-warning.label',
+                                            'labelSnippetKey' => 'default.statusColors.default.sw-color-warning.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.statusColors.default.sw-color-warning.helpText',
+                                            'helpTextSnippetKey' => 'default.statusColors.default.sw-color-warning.helpText',
                                             'type' => 'color',
                                             'custom' => null,
                                             'fullWidth' => null,
                                         ],
                                         'sw-color-danger' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.statusColors.default.sw-color-danger.label',
+                                            'labelSnippetKey' => 'default.statusColors.default.sw-color-danger.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.statusColors.default.sw-color-danger.helpText',
+                                            'helpTextSnippetKey' => 'default.statusColors.default.sw-color-danger.helpText',
                                             'type' => 'color',
                                             'custom' => null,
                                             'fullWidth' => null,
@@ -359,44 +361,44 @@ class ThemeFixtures
                         ],
                         'typography' => [
                             'label' => 'typography',
-                            'labelSnippetKey' => 'sw-theme.storefront.default.typography.label',
+                            'labelSnippetKey' => 'default.typography.label',
                             'sections' => [
                                 'default' => [
                                     'label' => '',
-                                    'labelSnippetKey' => 'sw-theme.storefront.default.typography.default.label',
+                                    'labelSnippetKey' => 'default.typography.default.label',
                                     'fields' => [
                                         'sw-font-family-base' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.typography.default.sw-font-family-base.label',
+                                            'labelSnippetKey' => 'default.typography.default.sw-font-family-base.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.typography.default.sw-font-family-base.helpText',
+                                            'helpTextSnippetKey' => 'default.typography.default.sw-font-family-base.helpText',
                                             'type' => 'fontFamily',
                                             'custom' => null,
                                             'fullWidth' => null,
                                         ],
                                         'sw-text-color' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.typography.default.sw-text-color.label',
+                                            'labelSnippetKey' => 'default.typography.default.sw-text-color.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.typography.default.sw-text-color.helpText',
+                                            'helpTextSnippetKey' => 'default.typography.default.sw-text-color.helpText',
                                             'type' => 'color',
                                             'custom' => null,
                                             'fullWidth' => null,
                                         ],
                                         'sw-font-family-headline' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.typography.default.sw-font-family-headline.label',
+                                            'labelSnippetKey' => 'default.typography.default.sw-font-family-headline.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.typography.default.sw-font-family-headline.helpText',
+                                            'helpTextSnippetKey' => 'default.typography.default.sw-font-family-headline.helpText',
                                             'type' => 'fontFamily',
                                             'custom' => null,
                                             'fullWidth' => null,
                                         ],
                                         'sw-headline-color' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.typography.default.sw-headline-color.label',
+                                            'labelSnippetKey' => 'default.typography.default.sw-headline-color.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.typography.default.sw-headline-color.helpText',
+                                            'helpTextSnippetKey' => 'default.typography.default.sw-headline-color.helpText',
                                             'type' => 'color',
                                             'custom' => null,
                                             'fullWidth' => null,
@@ -407,36 +409,90 @@ class ThemeFixtures
                         ],
                         'eCommerce' => [
                             'label' => 'eCommerce',
-                            'labelSnippetKey' => 'sw-theme.storefront.default.eCommerce.label',
+                            'labelSnippetKey' => 'default.eCommerce.label',
                             'sections' => [
                                 'default' => [
                                     'label' => '',
-                                    'labelSnippetKey' => 'sw-theme.storefront.default.eCommerce.default.label',
+                                    'labelSnippetKey' => 'default.eCommerce.default.label',
                                     'fields' => [
                                         'sw-color-price' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.eCommerce.default.sw-color-price.label',
+                                            'labelSnippetKey' => 'default.eCommerce.default.sw-color-price.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.eCommerce.default.sw-color-price.helpText',
+                                            'helpTextSnippetKey' => 'default.eCommerce.default.sw-color-price.helpText',
                                             'type' => 'color',
                                             'custom' => null,
                                             'fullWidth' => null,
                                         ],
                                         'sw-color-buy-button' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.eCommerce.default.sw-color-buy-button.label',
+                                            'labelSnippetKey' => 'default.eCommerce.default.sw-color-buy-button.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.eCommerce.default.sw-color-buy-button.helpText',
+                                            'helpTextSnippetKey' => 'default.eCommerce.default.sw-color-buy-button.helpText',
                                             'type' => 'color',
                                             'custom' => null,
                                             'fullWidth' => null,
                                         ],
                                         'sw-color-buy-button-text' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.eCommerce.default.sw-color-buy-button-text.label',
+                                            'labelSnippetKey' => 'default.eCommerce.default.sw-color-buy-button-text.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.eCommerce.default.sw-color-buy-button-text.helpText',
+                                            'helpTextSnippetKey' => 'default.eCommerce.default.sw-color-buy-button-text.helpText',
                                             'type' => 'color',
+                                            'custom' => null,
+                                            'fullWidth' => null,
+                                        ],
+                                        'sw-breakpoint-xs' => [
+                                            'label' => null,
+                                            'labelSnippetKey' => 'default.eCommerce.default.sw-breakpoint-xs.label',
+                                            'helpText' => null,
+                                            'helpTextSnippetKey' => 'default.eCommerce.default.sw-breakpoint-xs.helpText',
+                                            'type' => 'number',
+                                            'custom' => null,
+                                            'fullWidth' => null,
+                                        ],
+                                        'sw-breakpoint-sm' => [
+                                            'label' => null,
+                                            'labelSnippetKey' => 'default.eCommerce.default.sw-breakpoint-sm.label',
+                                            'helpText' => null,
+                                            'helpTextSnippetKey' => 'default.eCommerce.default.sw-breakpoint-sm.helpText',
+                                            'type' => 'number',
+                                            'custom' => null,
+                                            'fullWidth' => null,
+                                        ],
+                                        'sw-breakpoint-md' => [
+                                            'label' => null,
+                                            'labelSnippetKey' => 'default.eCommerce.default.sw-breakpoint-md.label',
+                                            'helpText' => null,
+                                            'helpTextSnippetKey' => 'default.eCommerce.default.sw-breakpoint-md.helpText',
+                                            'type' => 'number',
+                                            'custom' => null,
+                                            'fullWidth' => null,
+                                        ],
+                                        'sw-breakpoint-lg' => [
+                                            'label' => null,
+                                            'labelSnippetKey' => 'default.eCommerce.default.sw-breakpoint-lg.label',
+                                            'helpText' => null,
+                                            'helpTextSnippetKey' => 'default.eCommerce.default.sw-breakpoint-lg.helpText',
+                                            'type' => 'number',
+                                            'custom' => null,
+                                            'fullWidth' => null,
+                                        ],
+                                        'sw-breakpoint-xl' => [
+                                            'label' => null,
+                                            'labelSnippetKey' => 'default.eCommerce.default.sw-breakpoint-xl.label',
+                                            'helpText' => null,
+                                            'helpTextSnippetKey' => 'default.eCommerce.default.sw-breakpoint-xl.helpText',
+                                            'type' => 'number',
+                                            'custom' => null,
+                                            'fullWidth' => null,
+                                        ],
+                                        'sw-breakpoint-xxl' => [
+                                            'label' => null,
+                                            'labelSnippetKey' => 'default.eCommerce.default.sw-breakpoint-xxl.label',
+                                            'helpText' => null,
+                                            'helpTextSnippetKey' => 'default.eCommerce.default.sw-breakpoint-xxl.helpText',
+                                            'type' => 'number',
                                             'custom' => null,
                                             'fullWidth' => null,
                                         ],
@@ -446,53 +502,53 @@ class ThemeFixtures
                         ],
                         'media' => [
                             'label' => 'media',
-                            'labelSnippetKey' => 'sw-theme.storefront.default.media.label',
+                            'labelSnippetKey' => 'default.media.label',
                             'sections' => [
                                 'default' => [
                                     'label' => '',
-                                    'labelSnippetKey' => 'sw-theme.storefront.default.media.default.label',
+                                    'labelSnippetKey' => 'default.media.default.label',
                                     'fields' => [
                                         'sw-logo-desktop' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.media.default.sw-logo-desktop.label',
+                                            'labelSnippetKey' => 'default.media.default.sw-logo-desktop.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.media.default.sw-logo-desktop.helpText',
+                                            'helpTextSnippetKey' => 'default.media.default.sw-logo-desktop.helpText',
                                             'type' => 'media',
                                             'custom' => null,
                                             'fullWidth' => true,
                                         ],
                                         'sw-logo-tablet' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.media.default.sw-logo-tablet.label',
+                                            'labelSnippetKey' => 'default.media.default.sw-logo-tablet.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.media.default.sw-logo-tablet.helpText',
+                                            'helpTextSnippetKey' => 'default.media.default.sw-logo-tablet.helpText',
                                             'type' => 'media',
                                             'custom' => null,
                                             'fullWidth' => true,
                                         ],
                                         'sw-logo-mobile' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.media.default.sw-logo-mobile.label',
+                                            'labelSnippetKey' => 'default.media.default.sw-logo-mobile.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.media.default.sw-logo-mobile.helpText',
+                                            'helpTextSnippetKey' => 'default.media.default.sw-logo-mobile.helpText',
                                             'type' => 'media',
                                             'custom' => null,
                                             'fullWidth' => true,
                                         ],
                                         'sw-logo-share' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.media.default.sw-logo-share.label',
+                                            'labelSnippetKey' => 'default.media.default.sw-logo-share.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.media.default.sw-logo-share.helpText',
+                                            'helpTextSnippetKey' => 'default.media.default.sw-logo-share.helpText',
                                             'type' => 'media',
                                             'custom' => null,
                                             'fullWidth' => null,
                                         ],
                                         'sw-logo-favicon' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.media.default.sw-logo-favicon.label',
+                                            'labelSnippetKey' => 'default.media.default.sw-logo-favicon.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.media.default.sw-logo-favicon.helpText',
+                                            'helpTextSnippetKey' => 'default.media.default.sw-logo-favicon.helpText',
                                             'type' => 'media',
                                             'custom' => null,
                                             'fullWidth' => null,
@@ -504,7 +560,9 @@ class ThemeFixtures
                     ],
                 ],
             ],
-        ];
+            'themeTechnicalName' => 'Storefront',
+            'configInheritance' => [],
+        ]);
     }
 
     /**
@@ -512,7 +570,7 @@ class ThemeFixtures
      */
     public static function getThemeInheritedConfig(string $faviconId, string $demostoreLogoId): array
     {
-        $config = [
+        return self::stripLabelsAndHelpTexts([
             'fields' => [
                 'sw-color-brand-primary' => [
                     'name' => 'sw-color-brand-primary',
@@ -894,10 +952,121 @@ class ThemeFixtures
                     'scss' => null,
                     'fullWidth' => null,
                 ],
+                'sw-breakpoint-xs' => [
+                    'name' => 'sw-breakpoint-xs',
+                    'label' => null,
+                    'type' => 'number',
+                    'value' => 0,
+                    'editable' => false,
+                    'block' => 'eCommerce',
+                    'section' => null,
+                    'order' => 100,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-breakpoint-sm' => [
+                    'name' => 'sw-breakpoint-sm',
+                    'label' => null,
+                    'type' => 'number',
+                    'value' => 576,
+                    'editable' => false,
+                    'block' => 'eCommerce',
+                    'section' => null,
+                    'order' => 200,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-breakpoint-md' => [
+                    'name' => 'sw-breakpoint-md',
+                    'label' => null,
+                    'type' => 'number',
+                    'value' => 768,
+                    'editable' => false,
+                    'block' => 'eCommerce',
+                    'section' => null,
+                    'order' => 300,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-breakpoint-lg' => [
+                    'name' => 'sw-breakpoint-lg',
+                    'label' => null,
+                    'type' => 'number',
+                    'value' => 992,
+                    'editable' => false,
+                    'block' => 'eCommerce',
+                    'section' => null,
+                    'order' => 400,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-breakpoint-xl' => [
+                    'name' => 'sw-breakpoint-xl',
+                    'label' => null,
+                    'type' => 'number',
+                    'value' => 1200,
+                    'editable' => false,
+                    'block' => 'eCommerce',
+                    'section' => null,
+                    'order' => 500,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-breakpoint-xxl' => [
+                    'name' => 'sw-breakpoint-xxl',
+                    'label' => null,
+                    'type' => 'number',
+                    'value' => 1400,
+                    'editable' => false,
+                    'block' => 'eCommerce',
+                    'section' => null,
+                    'order' => 600,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
             ],
-        ];
-
-        $config += [
             'currentFields' => [
                 'sw-color-brand-primary' => [
                     'value' => '#ff00ff',
@@ -977,6 +1146,30 @@ class ThemeFixtures
                 ],
                 'sw-logo-favicon' => [
                     'value' => $faviconId,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-xs' => [
+                    'value' => 0,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-sm' => [
+                    'value' => 576,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-md' => [
+                    'value' => 768,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-lg' => [
+                    'value' => 992,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-xl' => [
+                    'value' => 1200,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-xxl' => [
+                    'value' => 1400,
                     'isInherited' => false,
                 ],
             ],
@@ -1061,10 +1254,33 @@ class ThemeFixtures
                     'value' => $faviconId,
                     'isInherited' => false,
                 ],
+                'sw-breakpoint-xs' => [
+                    'value' => 0,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-sm' => [
+                    'value' => 576,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-md' => [
+                    'value' => 768,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-lg' => [
+                    'value' => 992,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-xl' => [
+                    'value' => 1200,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-xxl' => [
+                    'value' => 1400,
+                    'isInherited' => false,
+                ],
             ],
-        ];
-
-        return $config;
+            'configInheritance' => self::getConfigInheritance(),
+        ]);
     }
 
     /**
@@ -1072,7 +1288,7 @@ class ThemeFixtures
      */
     public static function getThemeInheritedBlankConfig(string $faviconId, string $demostoreLogoId): array
     {
-        $config = [
+        return self::stripLabelsAndHelpTexts([
             'fields' => [
                 'sw-color-brand-primary' => [
                     'name' => 'sw-color-brand-primary',
@@ -1454,10 +1670,121 @@ class ThemeFixtures
                     'scss' => null,
                     'fullWidth' => null,
                 ],
+                'sw-breakpoint-xs' => [
+                    'name' => 'sw-breakpoint-xs',
+                    'label' => null,
+                    'type' => 'number',
+                    'value' => 0,
+                    'editable' => false,
+                    'block' => 'eCommerce',
+                    'section' => null,
+                    'order' => 100,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-breakpoint-sm' => [
+                    'name' => 'sw-breakpoint-sm',
+                    'label' => null,
+                    'type' => 'number',
+                    'value' => 576,
+                    'editable' => false,
+                    'block' => 'eCommerce',
+                    'section' => null,
+                    'order' => 200,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-breakpoint-md' => [
+                    'name' => 'sw-breakpoint-md',
+                    'label' => null,
+                    'type' => 'number',
+                    'value' => 768,
+                    'editable' => false,
+                    'block' => 'eCommerce',
+                    'section' => null,
+                    'order' => 300,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-breakpoint-lg' => [
+                    'name' => 'sw-breakpoint-lg',
+                    'label' => null,
+                    'type' => 'number',
+                    'value' => 992,
+                    'editable' => false,
+                    'block' => 'eCommerce',
+                    'section' => null,
+                    'order' => 400,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-breakpoint-xl' => [
+                    'name' => 'sw-breakpoint-xl',
+                    'label' => null,
+                    'type' => 'number',
+                    'value' => 1200,
+                    'editable' => false,
+                    'block' => 'eCommerce',
+                    'section' => null,
+                    'order' => 500,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-breakpoint-xxl' => [
+                    'name' => 'sw-breakpoint-xxl',
+                    'label' => null,
+                    'type' => 'number',
+                    'value' => 1400,
+                    'editable' => false,
+                    'block' => 'eCommerce',
+                    'section' => null,
+                    'order' => 600,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
             ],
-        ];
-
-        $config += [
             'currentFields' => [
                 'sw-color-brand-primary' => [
                     'value' => '#ff00ff',
@@ -1536,6 +1863,30 @@ class ThemeFixtures
                     'isInherited' => true,
                 ],
                 'sw-logo-favicon' => [
+                    'value' => null,
+                    'isInherited' => true,
+                ],
+                'sw-breakpoint-xs' => [
+                    'value' => null,
+                    'isInherited' => true,
+                ],
+                'sw-breakpoint-sm' => [
+                    'value' => null,
+                    'isInherited' => true,
+                ],
+                'sw-breakpoint-md' => [
+                    'value' => null,
+                    'isInherited' => true,
+                ],
+                'sw-breakpoint-lg' => [
+                    'value' => null,
+                    'isInherited' => true,
+                ],
+                'sw-breakpoint-xl' => [
+                    'value' => null,
+                    'isInherited' => true,
+                ],
+                'sw-breakpoint-xxl' => [
                     'value' => null,
                     'isInherited' => true,
                 ],
@@ -1621,10 +1972,33 @@ class ThemeFixtures
                     'value' => $faviconId,
                     'isInherited' => false,
                 ],
+                'sw-breakpoint-xs' => [
+                    'value' => 0,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-sm' => [
+                    'value' => 576,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-md' => [
+                    'value' => 768,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-lg' => [
+                    'value' => 992,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-xl' => [
+                    'value' => 1200,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-xxl' => [
+                    'value' => 1400,
+                    'isInherited' => false,
+                ],
             ],
-        ];
-
-        return $config;
+            'configInheritance' => self::getConfigInheritance(),
+        ]);
     }
 
     /**
@@ -1632,7 +2006,7 @@ class ThemeFixtures
      */
     public static function getThemeConfig(string $faviconId, string $demostoreLogoId): array
     {
-        return [
+        return self::stripLabelsAndHelpTexts([
             'fields' => [
                 'sw-color-brand-primary' => [
                     'name' => 'sw-color-brand-primary',
@@ -2014,6 +2388,120 @@ class ThemeFixtures
                     'scss' => null,
                     'fullWidth' => null,
                 ],
+                'sw-breakpoint-xs' => [
+                    'name' => 'sw-breakpoint-xs',
+                    'label' => null,
+                    'type' => 'number',
+                    'value' => 0,
+                    'editable' => false,
+                    'block' => 'eCommerce',
+                    'section' => null,
+                    'order' => 100,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-breakpoint-sm' => [
+                    'name' => 'sw-breakpoint-sm',
+                    'label' => null,
+                    'type' => 'number',
+                    'value' => 576,
+                    'editable' => false,
+                    'block' => 'eCommerce',
+                    'section' => null,
+                    'order' => 200,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-breakpoint-md' => [
+                    'name' => 'sw-breakpoint-md',
+                    'label' => null,
+                    'type' => 'number',
+                    'value' => 768,
+                    'editable' => false,
+                    'block' => 'eCommerce',
+                    'section' => null,
+                    'order' => 300,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-breakpoint-lg' => [
+                    'name' => 'sw-breakpoint-lg',
+                    'label' => null,
+                    'type' => 'number',
+                    'value' => 992,
+                    'editable' => false,
+                    'block' => 'eCommerce',
+                    'section' => null,
+                    'order' => 400,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-breakpoint-xl' => [
+                    'name' => 'sw-breakpoint-xl',
+                    'label' => null,
+                    'type' => 'number',
+                    'value' => 1200,
+                    'editable' => false,
+                    'block' => 'eCommerce',
+                    'section' => null,
+                    'order' => 500,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-breakpoint-xxl' => [
+                    'name' => 'sw-breakpoint-xxl',
+                    'label' => null,
+                    'type' => 'number',
+                    'value' => 1400,
+                    'editable' => false,
+                    'block' => 'eCommerce',
+                    'section' => null,
+                    'order' => 600,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
             ],
             'currentFields' => [
                 'sw-color-brand-primary' => [
@@ -2094,6 +2582,30 @@ class ThemeFixtures
                 ],
                 'sw-logo-favicon' => [
                     'value' => $faviconId,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-xs' => [
+                    'value' => 0,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-sm' => [
+                    'value' => 576,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-md' => [
+                    'value' => 768,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-lg' => [
+                    'value' => 992,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-xl' => [
+                    'value' => 1200,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-xxl' => [
+                    'value' => 1400,
                     'isInherited' => false,
                 ],
             ],
@@ -2178,7 +2690,97 @@ class ThemeFixtures
                     'value' => $faviconId,
                     'isInherited' => false,
                 ],
+                'sw-breakpoint-xs' => [
+                    'value' => 0,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-sm' => [
+                    'value' => 576,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-md' => [
+                    'value' => 768,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-lg' => [
+                    'value' => 992,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-xl' => [
+                    'value' => 1200,
+                    'isInherited' => false,
+                ],
+                'sw-breakpoint-xxl' => [
+                    'value' => 1400,
+                    'isInherited' => false,
+                ],
             ],
+            'configInheritance' => [],
+        ]);
+    }
+
+    /**
+     * With v6.8.0.0 the merged theme config no longer exposes field labels and help texts
+     * ({@see \Shopware\Storefront\Theme\ThemeMergedConfigBuilder}), only the snippet keys remain.
+     *
+     * @param array<string, mixed> $config
+     *
+     * @return array<string, mixed>
+     */
+    public static function stripLabelsAndHelpTexts(array $config): array
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return $config;
+        }
+
+        foreach (array_keys($config['fields'] ?? []) as $key) {
+            unset($config['fields'][$key]['label'], $config['fields'][$key]['helpText']);
+        }
+
+        foreach (array_keys($config['blocks'] ?? []) as $key) {
+            unset($config['blocks'][$key]['label']);
+        }
+
+        return $config;
+    }
+
+    /**
+     * @return array<int, mixed>
+     */
+    private static function getConfigInheritance(): array
+    {
+        return [
+            0 => '@Storefront',
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $structure
+     *
+     * @return array<string, mixed>
+     */
+    private static function stripStructuredLabelsAndHelpTexts(array $structure): array
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return $structure;
+        }
+
+        foreach ($structure['tabs'] ?? [] as $tabKey => $tab) {
+            unset($structure['tabs'][$tabKey]['label']);
+            foreach ($tab['blocks'] ?? [] as $blockKey => $block) {
+                unset($structure['tabs'][$tabKey]['blocks'][$blockKey]['label']);
+                foreach ($block['sections'] ?? [] as $sectionKey => $section) {
+                    unset($structure['tabs'][$tabKey]['blocks'][$blockKey]['sections'][$sectionKey]['label']);
+                    foreach (array_keys($section['fields'] ?? []) as $fieldKey) {
+                        unset(
+                            $structure['tabs'][$tabKey]['blocks'][$blockKey]['sections'][$sectionKey]['fields'][$fieldKey]['label'],
+                            $structure['tabs'][$tabKey]['blocks'][$blockKey]['sections'][$sectionKey]['fields'][$fieldKey]['helpText'],
+                        );
+                    }
+                }
+            }
+        }
+
+        return $structure;
     }
 }

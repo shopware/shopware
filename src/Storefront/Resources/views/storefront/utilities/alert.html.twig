@@ -83,12 +83,35 @@ To display a dismissible button set the value of "dismissible" to true.
         dismissible: true
     } %}
 
+*Trigger Screenreader on page load
+When the alert is rendered on initial page load this option can be used to make the alert message read by the screenreader.
+The role="alert" and aria-live attributes are then set by JavaScript to trigger the screenreader.
+
+    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+        type: "primary",
+        content: "An important message on initial page load",
+        announceOnLoad: true
+    } %}
+
 #}
 
+{% if ariaLive is not defined %}
+    {% set ariaLive = type in ['danger', 'warning'] ? 'assertive' : 'polite' %}
+{% endif %}
+
 {% block utilities_alert %}
-    <div role="alert"
-         aria-live="polite"
-         class="alert {% if type %}alert-{{ type }}{% endif %}{% if dismissible %} alert-dismissible fade show{% endif %}{% if icon != 'error' %} d-flex align-items-center{% endif %}">
+    {% set alertAriaJsOptions = {
+        ariaLive: ariaLive,
+    } %}
+    <div
+        {% if announceOnLoad %}
+            data-alert-aria="true"
+            data-alert-aria-options="{{ alertAriaJsOptions|json_encode }}"
+        {% endif %}
+        role="alert"
+        aria-live="{{ ariaLive }}"
+        class="alert {% if type %}alert-{{ type }}{% endif %}{% if dismissible %} alert-dismissible fade show{% endif %}{% if icon != 'error' %} d-flex align-items-center{% endif %}"
+    >
 
         {% block utilities_alert_icon %}
             {% if icon != 'false' %}
@@ -138,18 +161,18 @@ To display a dismissible button set the value of "dismissible" to true.
                         {{ content|sw_sanitize }}
                     {% endif %}
                 {% endblock %}
-
-                {% block utilities_alert_dismissible %}
-                    {% if dismissible %}
-                        <button type="button"
-                                class="btn-close"
-                                data-bs-dismiss="alert"
-                                aria-label="{{ 'global.default.close'|trans|striptags }}">
-                            <span aria-hidden="true"></span>
-                        </button>
-                    {% endif %}
-                {% endblock %}
             </div>
+
+            {% block utilities_alert_dismissible %}
+                {% if dismissible %}
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="{{ 'global.default.close'|trans|striptags }}">
+                        <span aria-hidden="true"></span>
+                    </button>
+                {% endif %}
+            {% endblock %}
         {% endblock %}
     </div>
 {% endblock %}

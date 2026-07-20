@@ -47,11 +47,11 @@ class ScriptDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new LongTextField('script', 'script'))->addFlags(new Required(), new AllowHtml(false)),
-            (new StringField('hook', 'hook'))->addFlags(new Required()),
-            (new StringField('name', 'name', 1024))->addFlags(new Required()),
-            (new BoolField('active', 'active'))->addFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of a script.'),
+            (new LongTextField('script', 'script'))->addFlags(new Required(), new AllowHtml(false))->setDescription('Internal field.'),
+            (new StringField('hook', 'hook'))->addFlags(new Required())->setDescription('Internal field.'),
+            (new StringField('name', 'name', 1024))->addFlags(new Required())->setDescription('Internal field.'),
+            (new BoolField('active', 'active'))->addFlags(new Required())->setDescription('Internal field.'),
             new FkField('app_id', 'appId', AppDefinition::class),
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),
         ]);

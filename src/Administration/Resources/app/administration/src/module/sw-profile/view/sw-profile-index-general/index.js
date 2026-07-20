@@ -9,7 +9,10 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: ['acl'],
+    inject: [
+        'acl',
+        'ssoSettingsService',
+    ],
 
     emits: [
         'new-password-change',
@@ -18,6 +21,18 @@ export default {
         'media-remove',
         'media-open',
     ],
+
+    created() {
+        this.ssoSettingsService.isSso().then((isSso) => {
+            this.showPasswordChangeCard = !isSso.isSso;
+        });
+    },
+
+    data() {
+        return {
+            showPasswordChangeCard: true,
+        };
+    },
 
     props: {
         user: {

@@ -95,10 +95,6 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
         await flushPromises();
     });
 
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render data correctly at Default Sales Channel card when there is no default sales channel data', async () => {
         const setVisibilityButton = wrapper.find(selectors.quickLink);
         const activeSwitch = wrapper.find(selectors.activeSwitch);

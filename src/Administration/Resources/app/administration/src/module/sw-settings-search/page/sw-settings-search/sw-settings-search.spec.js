@@ -56,7 +56,6 @@ async function createWrapper() {
                             },
                             save: (productSearchConfigs) => {
                                 if (!productSearchConfigs) {
-                                    // eslint-disable-next-line prefer-promise-reject-errors
                                     return Promise.reject({ error: 'Error' });
                                 }
                                 return Promise.resolve();
@@ -113,13 +112,6 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
     beforeEach(async () => {
         Shopware.Application.view.deleteReactive = () => {};
         global.activeAclRoles = [];
-    });
-
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not able to save product search config without editor privilege', async () => {

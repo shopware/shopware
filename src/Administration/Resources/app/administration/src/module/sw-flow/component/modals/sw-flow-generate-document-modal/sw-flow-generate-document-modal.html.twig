@@ -1,7 +1,7 @@
 {% block sw_flow_generate_document_modal %}
 <sw-modal
     class="sw-flow-generate-document-modal"
-    :title="$tc('sw-flow.modals.document.titleCreateDocument')"
+    :title="$t('sw-flow.modals.document.titleCreateDocument')"
     :closable="false"
     @modal-close="onClose"
 >
@@ -14,8 +14,8 @@
         label-property="translated.name"
         value-property="technicalName"
         :options="documentTypes"
-        :label="$tc('sw-flow.modals.document.labelDocumentType')"
-        :placeholder="$tc('sw-flow.modals.document.placeholderDocumentType')"
+        :label="$t('sw-flow.modals.document.labelDocumentType')"
+        :placeholder="$t('sw-flow.modals.document.placeholderDocumentType')"
         :error="fieldError"
     />
     {% endblock %}
@@ -29,7 +29,7 @@
             variant="secondary"
             @click="onClose"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -40,7 +40,7 @@
             size="small"
             @click="onAddAction"
         >
-            {{ sequence.id ? $tc('sw-flow.modals.buttonSaveAction') : $tc('sw-flow.modals.buttonAddAction') }}
+            {{ sequence.id ? $t('sw-flow.modals.buttonSaveAction') : $t('sw-flow.modals.buttonAddAction') }}
         </mt-button>
         {% endblock %}
     </template>

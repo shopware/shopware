@@ -1,8 +1,8 @@
-import CMS from '../../../constant/sw-cms.constant';
 import template from './sw-cms-el-image-gallery.html.twig';
 import './sw-cms-el-image-gallery.scss';
 
 const { Mixin, Filter } = Shopware;
+const { CMS } = Shopware.Constants;
 
 /**
  * @private
@@ -143,13 +143,13 @@ export default {
 
                 return [
                     {
-                        url: this.assetFilter(`administration/static/img/cms/${previewMountain}`),
+                        url: this.assetFilter(`administration/administration/static/img/cms/${previewMountain}`),
                     },
                     {
-                        url: this.assetFilter(`administration/static/img/cms/${previewGlasses}`),
+                        url: this.assetFilter(`administration/administration/static/img/cms/${previewGlasses}`),
                     },
                     {
-                        url: this.assetFilter(`administration/static/img/cms/${previewPlant}`),
+                        url: this.assetFilter(`administration/administration/static/img/cms/${previewPlant}`),
                     },
                 ];
             }
@@ -158,7 +158,7 @@ export default {
                 const fileName = media.fileName.slice(media.fileName.lastIndexOf('/') + 1);
 
                 return {
-                    url: this.assetFilter(`/administration/static/img/cms/${fileName}`),
+                    url: this.assetFilter(`/administration/administration/static/img/cms/${fileName}`),
                 };
             });
         },

@@ -37,7 +37,7 @@ class Migration1732608755MigrateNavigationSettingsForProductSlider extends Migra
 
     public function setDeactivatedNavigationArrows(Connection $connection): void
     {
-        $connection->executeQuery(
+        $connection->executeStatement(
             <<<'SQL'
                 UPDATE `cms_slot_translation`
                 LEFT JOIN `cms_slot` ON `cms_slot`.`id` = `cms_slot_translation`.`cms_slot_id`
@@ -57,7 +57,7 @@ class Migration1732608755MigrateNavigationSettingsForProductSlider extends Migra
 
     public function setActivatedNavigationArrows(Connection $connection): void
     {
-        $connection->executeQuery(
+        $connection->executeStatement(
             <<<'SQL'
                 UPDATE `cms_slot_translation`
                 LEFT JOIN `cms_slot` ON `cms_slot`.`id` = `cms_slot_translation`.`cms_slot_id`
@@ -75,7 +75,7 @@ class Migration1732608755MigrateNavigationSettingsForProductSlider extends Migra
 
     public function removeOldSliderConfig(Connection $connection): void
     {
-        $connection->executeQuery(
+        $connection->executeStatement(
             <<<'SQL'
                 UPDATE `cms_slot_translation`
                 LEFT JOIN `cms_slot` ON `cms_slot`.`id` = `cms_slot_translation`.`cms_slot_id`

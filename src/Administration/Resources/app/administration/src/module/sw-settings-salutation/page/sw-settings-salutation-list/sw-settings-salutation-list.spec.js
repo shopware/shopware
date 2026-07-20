@@ -45,7 +45,11 @@ async function createWrapper(privileges = []) {
                             return privileges.includes(identifier);
                         },
                     },
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                 },
 
                 stubs: {
@@ -81,19 +85,20 @@ async function createWrapper(privileges = []) {
                     'sw-entity-listing': {
                         props: [
                             'items',
+                            'dataSource',
                             'allowEdit',
                             'allowDelete',
                         ],
                         template: `
                     <div>
-                        <template v-for="item in items">
+                        <template v-for="item in (dataSource || items)">
                             <slot name="actions" v-bind="{item}">
                                 <slot name="detail-action" v-bind="{ item }" >
                                     <sw-context-menu-item
                                         class="sw-salutation-list__edit-action"
                                         :disabled="!allowEdit || undefined"
                                     >
-                                        {{ $tc('global.default.edit') }}
+                                        {{ $t('global.default.edit') }}
                                     </sw-context-menu-item>
                                 </slot>
                                 <slot name="delete-action" v-bind="{ item }" >
@@ -101,7 +106,7 @@ async function createWrapper(privileges = []) {
                                         class="sw-salutation-list__delete-action"
                                         :disabled="!allowDelete || undefined"
                                     >
-                                        {{ $tc('global.default.edit') }}
+                                        {{ $t('global.default.edit') }}
                                     </sw-context-menu-item>
                                 </slot>
                             </slot>
@@ -120,13 +125,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to create a new salutation if have a creator privilege', async () => {
         const wrapper = await createWrapper([
             'salutation.creator',

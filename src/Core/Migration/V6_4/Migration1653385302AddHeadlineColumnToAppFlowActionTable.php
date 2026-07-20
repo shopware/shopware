@@ -5,11 +5,10 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1653385302AddHeadlineColumnToAppFlowActionTable extends MigrationStep
@@ -21,7 +20,7 @@ class Migration1653385302AddHeadlineColumnToAppFlowActionTable extends Migration
 
     public function update(Connection $connection): void
     {
-        if (!$this->columnExists($connection, 'app_flow_action_translation', 'headline')) {
+        if (!TableHelper::columnExists($connection, 'app_flow_action_translation', 'headline')) {
             $connection->executeStatement('ALTER TABLE `app_flow_action_translation` ADD `headline` VARCHAR(255) NULL AFTER `description`;');
         }
 

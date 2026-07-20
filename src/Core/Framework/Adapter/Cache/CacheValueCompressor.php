@@ -28,7 +28,7 @@ class CacheValueCompressor
         if (self::$compressMethod === 'zstd') {
             $compressed = \zstd_compress(\serialize($content));
         } elseif (self::$compressMethod === 'gzip') {
-            $compressed = \gzcompress(\serialize($content), 9);
+            $compressed = \gzcompress(\serialize($content));
         } else {
             throw FrameworkException::invalidCompressionMethod(self::$compressMethod);
         }
@@ -52,6 +52,7 @@ class CacheValueCompressor
         }
 
         if (!self::$compress) {
+            /** @phpstan-ignore shopware.unserializeUsage */
             return \unserialize($value);
         }
 
@@ -67,6 +68,7 @@ class CacheValueCompressor
             throw AdapterException::cacheCompressionError('Could not uncompress value');
         }
 
-        return unserialize($uncompressed);
+        /** @phpstan-ignore shopware.unserializeUsage */
+        return \unserialize($uncompressed);
     }
 }

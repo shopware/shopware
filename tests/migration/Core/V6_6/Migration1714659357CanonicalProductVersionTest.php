@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1714659357CanonicalProductVersion;
 
 /**
@@ -22,11 +23,16 @@ class Migration1714659357CanonicalProductVersionTest extends TestCase
     {
         $this->connection = self::getContainer()->get(Connection::class);
 
-        $version = strtolower($this->connection->fetchOne('SELECT VERSION()'));
+        $version = strtolower($this->connection->getServerVersion());
 
         if (!str_contains($version, 'mariadb') && version_compare($version, '8.4.0', '>=')) {
             static::markTestSkipped('Test is only relevant for MariaDB or MySQL < 8.4.0');
         }
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1714659357, (new Migration1714659357CanonicalProductVersion())->getCreationTimestamp());
     }
 
     public function testMigration(): void
@@ -42,15 +48,11 @@ class Migration1714659357CanonicalProductVersionTest extends TestCase
 
         $m = new Migration1714659357CanonicalProductVersion();
         $m->update($this->connection);
+        $m->update($this->connection);
 
-        $columns = $this->connection->fetchAllAssociative('SHOW COLUMNS FROM `product`');
-        $columns = array_column($columns, 'Field');
+        static::assertTrue(TableHelper::columnExists($this->connection, 'product', 'canonical_product_version_id'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'product', 'canonical_product_id'));
 
-        static::assertContains('canonical_product_version_id', $columns);
-        static::assertContains('canonical_product_id', $columns);
-
-        $fk = $this->connection->fetchAllAssociative('SELECT * FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_NAME = \'product\' AND COLUMN_NAME = \'canonical_product_id\' AND CONSTRAINT_NAME LIKE \'fk.product.canonical_product_id\'');
-
-        static::assertNotEmpty($fk);
+        static::assertTrue(TableHelper::indexExists($this->connection, 'product', 'fk.product.canonical_product_id'));
     }
 }

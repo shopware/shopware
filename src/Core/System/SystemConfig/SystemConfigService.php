@@ -4,14 +4,15 @@ namespace Shopware\Core\System\SystemConfig;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
-use Shopware\Core\Framework\Util\XmlReader;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigChangedEvent;
@@ -21,9 +22,6 @@ use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigDomainLoadedEvent;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigMultipleChangedEvent;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
-use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
-use Shopware\Core\System\SystemConfig\Exception\InvalidKeyException;
-use Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\ResetInterface;
@@ -31,16 +29,6 @@ use Symfony\Contracts\Service\ResetInterface;
 #[Package('framework')]
 class SystemConfigService implements ResetInterface
 {
-    /**
-     * @var array<string, true>
-     */
-    private array $keys = ['all' => true];
-
-    /**
-     * @var array<string, array<string, true>>
-     */
-    private array $traces = [];
-
     /**
      * @var array<string, string>|null
      */
@@ -55,6 +43,8 @@ class SystemConfigService implements ResetInterface
         private readonly AbstractSystemConfigLoader $loader,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly SymfonySystemConfigService $symfonySystemConfigService,
+        private readonly CacheTagCollector $cacheTagCollector,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -68,7 +58,7 @@ class SystemConfigService implements ResetInterface
      */
     public function get(string $key, ?string $salesChannelId = null)
     {
-        $this->dispatcher->dispatch(new AddCacheTagEvent('system.config-' . $salesChannelId));
+        $this->cacheTagCollector->addTag('system.config-' . $salesChannelId);
 
         $config = $this->loader->load($salesChannelId);
 
@@ -100,7 +90,7 @@ class SystemConfigService implements ResetInterface
             return (string) $value;
         }
 
-        throw new InvalidSettingValueException($key, 'string', \gettype($value));
+        throw SystemConfigException::invalidSettingValueException($key, 'string', \gettype($value));
     }
 
     public function getInt(string $key, ?string $salesChannelId = null): int
@@ -110,7 +100,7 @@ class SystemConfigService implements ResetInterface
             return (int) $value;
         }
 
-        throw new InvalidSettingValueException($key, 'int', \gettype($value));
+        throw SystemConfigException::invalidSettingValueException($key, 'int', \gettype($value));
     }
 
     public function getFloat(string $key, ?string $salesChannelId = null): float
@@ -120,7 +110,7 @@ class SystemConfigService implements ResetInterface
             return (float) $value;
         }
 
-        throw new InvalidSettingValueException($key, 'float', \gettype($value));
+        throw SystemConfigException::invalidSettingValueException($key, 'float', \gettype($value));
     }
 
     public function getBool(string $key, ?string $salesChannelId = null): bool
@@ -143,7 +133,7 @@ class SystemConfigService implements ResetInterface
     /**
      * @internal should not be used in storefront or store api. The cache layer caches all accessed config keys and use them as cache tag.
      *
-     * @throws InvalidDomainException
+     * @throws SystemConfigException
      *
      * @return array<mixed>
      */
@@ -151,7 +141,7 @@ class SystemConfigService implements ResetInterface
     {
         $domain = trim($domain);
         if ($domain === '') {
-            throw new InvalidDomainException('Empty domain');
+            throw SystemConfigException::invalidDomain('Empty domain');
         }
 
         $queryBuilder = $this->connection->createQueryBuilder()
@@ -178,10 +168,6 @@ class SystemConfigService implements ResetInterface
 
         $configs = $queryBuilder->executeQuery()->fetchAllNumeric();
 
-        if ($configs === []) {
-            return [];
-        }
-
         $merged = [];
 
         foreach ($configs as [$key, $value]) {
@@ -206,6 +192,7 @@ class SystemConfigService implements ResetInterface
         }
 
         $merged = $this->symfonySystemConfigService->override($merged, $salesChannelId, $inherit, false);
+        $merged = array_filter($merged, static fn (string $key) => str_starts_with($key, $domain), \ARRAY_FILTER_USE_KEY);
 
         $event = new SystemConfigDomainLoadedEvent($domain, $merged, $inherit, $salesChannelId);
         $this->dispatcher->dispatch($event);
@@ -215,17 +202,35 @@ class SystemConfigService implements ResetInterface
 
     /**
      * @param array<mixed>|bool|float|int|string|null $value
+     *
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $silent will be added in v6.8.0, default will be true
      */
-    public function set(string $key, $value, ?string $salesChannelId = null): void
+    public function set(string $key, $value, ?string $salesChannelId = null /* , bool $silent = true */): void
     {
-        $this->setMultiple([$key => $value], $salesChannelId);
+        // @deprecated tag:v6.8.0 - remove whole if statement below
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+            $silent = \func_num_args() >= 4 ? (bool) func_get_arg(3) : true;
+        } else {
+            $silent = \func_num_args() >= 4 ? (bool) func_get_arg(3) : false;
+        }
+
+        $this->setMultiple([$key => $value], $salesChannelId, $silent);
     }
 
     /**
      * @param array<string, array<mixed>|bool|float|int|string|null> $values
+     *
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $silent will be added in v6.8.0, default will be true
      */
-    public function setMultiple(array $values, ?string $salesChannelId = null): void
+    public function setMultiple(array $values, ?string $salesChannelId = null /* , bool $silent = true */): void
     {
+        // @deprecated tag:v6.8.0 - remove whole if statement below
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+            $silent = \func_num_args() >= 3 ? (bool) func_get_arg(2) : true;
+        } else {
+            $silent = \func_num_args() >= 3 ? (bool) func_get_arg(2) : false;
+        }
+
         foreach ($values as $key => $value) {
             if ($this->symfonySystemConfigService->has($key)) {
                 /**
@@ -243,10 +248,10 @@ class SystemConfigService implements ResetInterface
             }
         }
 
-        $event = new BeforeSystemConfigMultipleChangedEvent($values, $salesChannelId);
-        $this->dispatcher->dispatch($event);
+        $beforeChangedEvent = new BeforeSystemConfigMultipleChangedEvent($values, $salesChannelId);
+        $this->dispatcher->dispatch($beforeChangedEvent);
 
-        $values = $event->getConfig();
+        $values = $beforeChangedEvent->getConfig();
 
         $where = $salesChannelId ? 'sales_channel_id = :salesChannelId' : 'sales_channel_id IS NULL';
 
@@ -290,7 +295,7 @@ class SystemConfigService implements ResetInterface
                     'system_config',
                     [
                         'configuration_value' => Json::encode(['_value' => $value]),
-                        'updated_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                        'updated_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                     ],
                     [
                         'id' => $existingIds[$key],
@@ -309,7 +314,7 @@ class SystemConfigService implements ResetInterface
                     'configuration_key' => $key,
                     'configuration_value' => Json::encode(['_value' => $value]),
                     'sales_channel_id' => $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null,
-                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ],
             );
 
@@ -317,7 +322,7 @@ class SystemConfigService implements ResetInterface
         }
 
         // Delete all null values
-        if (!empty($toBeDeleted)) {
+        if ($toBeDeleted !== []) {
             $qb = $this->connection
                 ->createQueryBuilder()
                 ->where('configuration_key IN (:keys)')
@@ -336,8 +341,8 @@ class SystemConfigService implements ResetInterface
 
         $insertQueue->execute();
 
-        // Dispatch the hook before the events to invalid the cache
-        $this->dispatcher->dispatch(new SystemConfigChangedHook($values, $this->getAppMapping(), $salesChannelId));
+        // Dispatch the hook before the events to invalidate the cache
+        $this->dispatcher->dispatch(new SystemConfigChangedHook($values, $this->getAppMapping(), $salesChannelId, $silent));
 
         // Dispatch events that the given values have been changed
         foreach ($events as $event) {
@@ -347,9 +352,19 @@ class SystemConfigService implements ResetInterface
         $this->dispatcher->dispatch(new SystemConfigMultipleChangedEvent($values, $salesChannelId));
     }
 
-    public function delete(string $key, ?string $salesChannel = null): void
+    /**
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $silent will be added in v6.8.0, default will be true
+     */
+    public function delete(string $key, ?string $salesChannel = null /* , bool $silent = true */): void
     {
-        $this->setMultiple([$key => null], $salesChannel);
+        // @deprecated tag:v6.8.0 - remove whole if statement below
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+            $silent = \func_num_args() >= 3 ? (bool) func_get_arg(2) : true;
+        } else {
+            $silent = \func_num_args() >= 3 ? (bool) func_get_arg(2) : false;
+        }
+
+        $this->setMultiple([$key => null], $salesChannel, $silent);
     }
 
     /**
@@ -382,9 +397,8 @@ class SystemConfigService implements ResetInterface
                     continue;
                 }
 
-                $value = XmlReader::phpize($element['defaultValue']);
                 if ($override || !isset($relevantSettings[$key])) {
-                    $this->set($key, $value);
+                    $this->set($key, $element['defaultValue'], null, false);
                 }
             }
         }
@@ -415,11 +429,26 @@ class SystemConfigService implements ResetInterface
             }
         }
 
-        if (empty($configKeys)) {
+        if ($configKeys === []) {
             return;
         }
 
-        $this->setMultiple(array_fill_keys($configKeys, null));
+        // Get all sales channels that have the config keys
+        $salesChannelIds = $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT sales_channel_id FROM system_config WHERE configuration_key IN (:keys) AND sales_channel_id IS NOT NULL',
+            ['keys' => $configKeys],
+            ['keys' => ArrayParameterType::STRING]
+        );
+
+        $keysForDelete = array_fill_keys($configKeys, null);
+
+        // Delete config keys for global scope
+        $this->setMultiple($keysForDelete, null, false);
+
+        // Delete overridden config keys for each sales channel
+        foreach ($salesChannelIds as $salesChannelId) {
+            $this->setMultiple($keysForDelete, Uuid::fromBytesToHex($salesChannelId), false);
+        }
     }
 
     /**
@@ -428,28 +457,34 @@ class SystemConfigService implements ResetInterface
      * @param \Closure(): TReturn $param
      *
      * @return TReturn All kind of data could be cached
+     *
+     * @deprecated tag:v6.8.0 - Cache tracing is not used anymore since v6.7.0.0
      */
     public function trace(string $key, \Closure $param)
     {
-        $this->traces[$key] = [];
-        $this->keys[$key] = true;
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
 
         $result = $param();
-
-        unset($this->keys[$key]);
 
         return $result;
     }
 
     /**
      * @return array<string>
+     *
+     * @deprecated tag:v6.8.0 - Cache tracing is not used anymore since v6.7.0.0
      */
     public function getTrace(string $key): array
     {
-        $trace = isset($this->traces[$key]) ? array_keys($this->traces[$key]) : [];
-        unset($this->traces[$key]);
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
 
-        return $trace;
+        return [];
     }
 
     public function reset(): void
@@ -458,17 +493,19 @@ class SystemConfigService implements ResetInterface
     }
 
     /**
-     * @throws InvalidKeyException
+     * @throws SystemConfigException
      * @throws InvalidUuidException
      */
     private function validate(string $key, ?string $salesChannelId): void
     {
         $key = trim($key);
         if ($key === '') {
-            throw new InvalidKeyException('key may not be empty');
+            throw SystemConfigException::invalidKey('key may not be empty');
         }
-        if ($salesChannelId && !Uuid::isValid($salesChannelId)) {
-            throw new InvalidUuidException($salesChannelId);
+
+        if ($salesChannelId) {
+            // will throw if ID is invalid UUID
+            Uuid::fromHexToBytes($salesChannelId);
         }
     }
 

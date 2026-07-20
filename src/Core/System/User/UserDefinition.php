@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -79,21 +80,25 @@ class UserDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new FkField('locale_id', 'localeId', LocaleDefinition::class))->addFlags(new Required()),
-            (new StringField('username', 'username'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of the user.'),
+            (new FkField('locale_id', 'localeId', LocaleDefinition::class))->addFlags(new Required())->setDescription('Unique identity of locale.'),
+            (new StringField('username', 'username'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING))->setDescription('Username of the user.'),
             (new PasswordField('password', 'password', \PASSWORD_DEFAULT, [], PasswordField::FOR_ADMIN))->removeFlag(ApiAware::class)->addFlags(new Required()),
-            (new StringField('first_name', 'firstName'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new StringField('last_name', 'lastName'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new StringField('title', 'title'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
-            (new EmailField('email', 'email'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            new BoolField('active', 'active'),
-            new BoolField('admin', 'admin'),
-            new DateTimeField('last_updated_password_at', 'lastUpdatedPasswordAt'),
-            (new TimeZoneField('time_zone', 'timeZone'))->addFlags(new Required()),
-            new CustomFields(),
+            (new StringField('first_name', 'firstName'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING))->setDescription('First name of the user.'),
+            (new StringField('last_name', 'lastName'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING))->setDescription('Last name of the user.'),
+            (new StringField('title', 'title'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING))->setDescription('Title of the user.'),
+            (new EmailField('email', 'email'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING))->setDescription('Email of the user.'),
+            (new BoolField('active', 'active'))->setDescription('When boolean value is `true`, the user is enabled.'),
+            (new BoolField('admin', 'admin'))->setDescription('Parameter that indicates if the user is an admin.'),
+            (new JsonField('mcp_allowlist', 'mcpAllowlist'))->setDescription(
+                'Optional per-type MCP allowlist for this user. Structured as {tools, resources, prompts} '
+                . 'where each key is null (unrestricted) or a list of allowed names/URIs.'
+            ),
+            (new DateTimeField('last_updated_password_at', 'lastUpdatedPasswordAt'))->setDescription('Parameter that indicates when the password was last updated by the user.'),
+            (new TimeZoneField('time_zone', 'timeZone'))->addFlags(new Required())->setDescription('Time configuration in the user\'s profile.'),
+            (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
             new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, 'id', false),
-            new FkField('avatar_id', 'avatarId', MediaDefinition::class),
+            (new FkField('avatar_id', 'avatarId', MediaDefinition::class))->setDescription('Unique identity of the avatar.'),
             new ManyToOneAssociationField('avatarMedia', 'avatar_id', MediaDefinition::class),
             (new OneToManyAssociationField('media', MediaDefinition::class, 'user_id'))->addFlags(new SetNullOnDelete()),
             (new OneToManyAssociationField('accessKeys', UserAccessKeyDefinition::class, 'user_id', 'id'))->addFlags(new CascadeDelete()),

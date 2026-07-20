@@ -7,7 +7,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelCreateCommand;
@@ -32,19 +31,19 @@ class SalesChannelCreateCommandTest extends TestCase
     {
         $accessKey = AccessKeyHelper::generateAccessKey('sales-channel');
 
-        $salesChannelCreatorMock = $this->createMock(SalesChannelCreator::class);
+        $salesChannelCreatorMock = static::createStub(SalesChannelCreator::class);
         $salesChannelCreatorMock->method('createSalesChannel')
             ->willReturn($accessKey);
 
         $salesChannelCreateCmd = new SalesChannelCreateCommand($salesChannelCreatorMock);
 
-        $refMethod = ReflectionHelper::getMethod(SalesChannelCreateCommand::class, 'execute');
+        $refMethod = new \ReflectionMethod(SalesChannelCreateCommand::class, 'execute');
 
-        $inputMock = $this->createMock(InputInterface::class);
+        $inputMock = static::createStub(InputInterface::class);
         $inputMock->method('getOption')
             ->willReturnOnConsecutiveCalls(...array_values($inputMockValues));
 
-        $outputMock = $this->createMock(OutputInterface::class);
+        $outputMock = static::createStub(OutputInterface::class);
 
         $result = $refMethod->invoke($salesChannelCreateCmd, $inputMock, $outputMock);
 
@@ -57,7 +56,7 @@ class SalesChannelCreateCommandTest extends TestCase
     #[DataProvider('dataProviderTestExecuteFailure')]
     public function testExecuteFailure(array $inputMockValues): void
     {
-        $constraintViolationMock = $this->createMock(ConstraintViolationInterface::class);
+        $constraintViolationMock = static::createStub(ConstraintViolationInterface::class);
         $constraintViolationMock->method('getPropertyPath')
             ->willReturn('Dummy');
 
@@ -66,27 +65,27 @@ class SalesChannelCreateCommandTest extends TestCase
 
         $constraintViolationListMock = new ConstraintViolationList([$constraintViolationMock]);
 
-        $writeConstraintViolationExceptionMock = $this->createMock(WriteConstraintViolationException::class);
+        $writeConstraintViolationExceptionMock = static::createStub(WriteConstraintViolationException::class);
         $writeConstraintViolationExceptionMock->method('getViolations')
             ->willReturn($constraintViolationListMock);
 
-        $writeExceptionMock = $this->createMock(WriteException::class);
+        $writeExceptionMock = static::createStub(WriteException::class);
         $writeExceptionMock->method('getExceptions')
             ->willReturn([$writeConstraintViolationExceptionMock]);
 
-        $salesChannelCreatorMock = $this->createMock(SalesChannelCreator::class);
+        $salesChannelCreatorMock = static::createStub(SalesChannelCreator::class);
         $salesChannelCreatorMock->method('createSalesChannel')
             ->willThrowException($writeExceptionMock);
 
         $salesChannelCreateCmd = new SalesChannelCreateCommand($salesChannelCreatorMock);
 
-        $refMethod = ReflectionHelper::getMethod(SalesChannelCreateCommand::class, 'execute');
+        $refMethod = new \ReflectionMethod(SalesChannelCreateCommand::class, 'execute');
 
-        $inputMock = $this->createMock(InputInterface::class);
+        $inputMock = static::createStub(InputInterface::class);
         $inputMock->method('getOption')
             ->willReturnOnConsecutiveCalls(...array_values($inputMockValues));
 
-        $outputMock = $this->createMock(OutputInterface::class);
+        $outputMock = static::createStub(OutputInterface::class);
 
         $result = $refMethod->invoke($salesChannelCreateCmd, $inputMock, $outputMock);
 

@@ -30,6 +30,22 @@ import { CreateLandingPage } from '@tasks/ShopAdmin/Category/CreateLandingPage';
  */
 import { CustomerGroupActivation } from '@tasks/ShopAdmin/Customers/CustomerGroupActivation';
 
+/**
+ * Orders
+ */
+import { AddCreditItem } from '@tasks/ShopAdmin/Orders/AddCreditItemViaAPI';
+import { CreateDocument } from '@tasks/ShopAdmin/Orders/CreateDocumentViaAPI';
+
+/**
+ * Rules
+ */
+import { CreateRuleBillingCountry } from '@tasks/ShopAdmin/RuleBuilder/CreateRuleBillingCountry';
+
+/**
+ * Flows
+ */
+import { CreateFlowForValidation } from '@tasks/ShopAdmin/FlowBuilder/CreateFlowForValidation';
+
 export const test = mergeTests(
     GenerateVariants,
     UploadImage,
@@ -37,4 +53,8 @@ export const test = mergeTests(
     CreateCustomField,
     CreateLandingPage,
     CustomerGroupActivation,
+    AddCreditItem,
+    CreateDocument,
+    CreateRuleBillingCountry,
+    CreateFlowForValidation,
 );

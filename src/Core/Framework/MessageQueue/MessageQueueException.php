@@ -2,8 +2,11 @@
 
 namespace Shopware\Core\Framework\MessageQueue;
 
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\ScheduledTaskExecutorCompilerPass;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskExecutor;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('framework')]
@@ -15,6 +18,10 @@ class MessageQueueException extends HttpException
     public const CANNOT_FIND_SCHEDULED_TASK = 'FRAMEWORK__CANNOT_FIND_SCHEDULED_TASK';
     public const QUEUE_MESSAGE_SIZE_EXCEEDS = 'FRAMEWORK__QUEUE_MESSAGE_SIZE_EXCEEDS';
     public const QUEUE_STATS_NOT_FOUND = 'FRAMEWORK__QUEUE_STATS_NOT_FOUND';
+    public const MISSING_EXTENDS_CODE = 'FRAMEWORK__SCHEDULED_TASK_MISSING_EXTENDS';
+    public const NOT_FOUND_CODE = 'FRAMEWORK__SCHEDULED_TASK_NOT_FOUND';
+    public const SCHEDULED_TASK_NOT_IMPLEMENTING_INTERFACE = 'FRAMEWORK__SCHEDULED_TASK_NOT_IMPLEMENTING_INTERFACE';
+    public const SCHEDULED_TASK_EXECUTOR_NOT_SET = 'FRAMEWORK__SCHEDULED_TASK_EXECUTOR_NOT_SET';
 
     public static function validReceiverNameNotProvided(): self
     {
@@ -55,8 +62,16 @@ class MessageQueueException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - not used anymore, use MessageQueueException::maxQueueMessageSizeExceeded() instead
+     */
     public static function queueMessageSizeExceeded(string $messageName, float $size): self
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', self::class . '::maxQueueMessageSizeExceeded'),
+        );
+
         $message = 'The message "{{ message }}" exceeds the 256 kB size limit with its size of {{ size }} kB.';
 
         return new self(
@@ -66,6 +81,66 @@ class MessageQueueException extends HttpException
             [
                 'message' => $messageName,
                 'size' => $size,
+            ]
+        );
+    }
+
+    public static function maxQueueMessageSizeExceeded(string $messageName, float $size, int $maxSize): self
+    {
+        $message = 'The message "{{ message }}" exceeds the {{ maxSize }} KiB size limit with its size of {{ size }} KiB.';
+
+        return new self(
+            Response::HTTP_REQUEST_ENTITY_TOO_LARGE,
+            self::QUEUE_MESSAGE_SIZE_EXCEEDS,
+            $message,
+            [
+                'message' => $messageName,
+                'maxSize' => $maxSize,
+                'size' => $size,
+            ]
+        );
+    }
+
+    public static function missingExtends(string $class): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MISSING_EXTENDS_CODE,
+            'Tried to register "{{ class }}" as scheduled task, but class does not extend ScheduledTask',
+            ['class' => $class]
+        );
+    }
+
+    public static function notFound(string $name): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::NOT_FOUND_CODE,
+            'Tried to fetch "{{ name }}" scheduled task, but scheduled task does not exist',
+            ['name' => $name]
+        );
+    }
+
+    public static function scheduledTaskDoesNotImplementInterface(string $class): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::SCHEDULED_TASK_NOT_IMPLEMENTING_INTERFACE,
+            'Tried to schedule "{{ class }}", but class does not extend ScheduledTask',
+            ['class' => $class]
+        );
+    }
+
+    public static function scheduledTaskExecutorNotSet(string $handler): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::SCHEDULED_TASK_EXECUTOR_NOT_SET,
+            'No "{{ executor }}" was set on the scheduled task handler "{{ handler }}". Register the handler as a "messenger.message_handler" service so the "{{ compilerPass }}" can inject the executor, or call "{{ handler }}::setScheduledTaskExecutor()" manually.',
+            [
+                'executor' => ScheduledTaskExecutor::class,
+                'handler' => $handler,
+                'compilerPass' => ScheduledTaskExecutorCompilerPass::class,
             ]
         );
     }

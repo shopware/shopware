@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -66,7 +67,7 @@ class PromotionGenerator implements DemodataGeneratorInterface
             }
         }
 
-        if (!empty($payload)) {
+        if ($payload !== []) {
             $this->write($payload, $context);
         }
 
@@ -101,6 +102,7 @@ class PromotionGenerator implements DemodataGeneratorInterface
             'code' => $this->faker->unique()->format('promotionCode'),
             'useCodes' => true,
             'discounts' => $this->createDiscounts(),
+            'customFields' => [DemodataService::DEMODATA_CUSTOM_FIELDS_KEY => true],
         ];
     }
 
@@ -138,6 +140,6 @@ class PromotionGenerator implements DemodataGeneratorInterface
     {
         $ids = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id FROM `sales_channel` LIMIT 100');
 
-        return array_map(fn ($id) => ['salesChannelId' => $id['id'], 'priority' => 1], $ids);
+        return array_map(static fn ($id) => ['salesChannelId' => $id['id'], 'priority' => 1], $ids);
     }
 }

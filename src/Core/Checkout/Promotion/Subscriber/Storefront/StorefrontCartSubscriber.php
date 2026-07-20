@@ -2,16 +2,17 @@
 
 namespace Shopware\Core\Checkout\Promotion\Subscriber\Storefront;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -29,7 +30,7 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
      * @internal
      */
     public function __construct(
-        private readonly CartService $cartService,
+        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly RequestStack $requestStack
     ) {
     }
@@ -51,11 +52,16 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if (!$mainRequest->hasSession()) {
+        if (!$mainRequest->hasSession(true)) {
             return;
         }
 
-        $mainRequest->getSession()->set(self::SESSION_KEY_PROMOTION_CODES, []);
+        $session = $mainRequest->getSession();
+        if (!$session->isStarted()) {
+            return;
+        }
+
+        $session->set(self::SESSION_KEY_PROMOTION_CODES, []);
     }
 
     /**
@@ -93,7 +99,7 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
 
         $code = $lineItem->getReferencedId();
 
-        if (!empty($code)) {
+        if ($code !== null && $code !== '') {
             // promotion with code
             $this->checkFixedDiscountItems($cart, $lineItem);
             // remove other discounts of the promotion that should be deleted
@@ -104,11 +110,14 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
         }
 
         // the user wants to remove an automatic added
-        // promotions, so lets do this
-        if ($lineItem->hasPayloadValue('promotionId')) {
-            $promotionId = (string) $lineItem->getPayloadValue('promotionId');
-            $this->blockPromotion($promotionId, $cart);
-        }
+        // promotions, so let's do this
+        Feature::callSilentIfInactive('PERMANENT_AUTOMATIC_PROMOTIONS', function () use ($lineItem, $cart): void {
+            if ($lineItem->hasPayloadValue('promotionId')) {
+                $promotionId = (string) $lineItem->getPayloadValue('promotionId');
+                $extension = $this->getExtension($cart);
+                $extension->blockPromotion($promotionId);
+            }
+        });
     }
 
     /**
@@ -118,10 +127,6 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
     {
         $lineItems = $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE);
         if ($lineItems->count() < 1) {
-            return;
-        }
-
-        if (!$lineItem->hasPayloadValue('discountType')) {
             return;
         }
 
@@ -135,34 +140,22 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
 
         $discountId = $lineItem->getPayloadValue('discountId');
 
-        $removeThisDiscounts = $lineItems->filter(static fn (LineItem $lineItem) => $lineItem->hasPayloadValue('discountId') && $lineItem->getPayloadValue('discountId') === $discountId);
+        $removeThisDiscounts = $lineItems->filter(static fn (LineItem $lineItem) => $lineItem->getPayloadValue('discountId') === $discountId);
 
         foreach ($removeThisDiscounts as $discountItem) {
             $cart->remove($discountItem->getId());
         }
     }
 
-    private function removeOtherDiscountsOfPromotion(Cart $cart, LineItem $lineItem, SalesChannelContext $context): void
+    private function removeOtherDiscountsOfPromotion(Cart $cart, LineItem $removedLineItem, SalesChannelContext $context): void
     {
-        // ge all promotions from cart
-        $lineItems = $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE);
-        if ($lineItems->count() < 1) {
-            return;
-        }
+        $lineItemsOfSamePromotion = $cart->getLineItems()
+            ->filter(static fn (LineItem $lineItem) => $lineItem->getType() === PromotionProcessor::LINE_ITEM_TYPE && $lineItem->getPayloadValue('promotionId') === $removedLineItem->getPayloadValue('promotionId'));
 
-        // filter them by the promotion which discounts should be deleted
-        $lineItems = $lineItems->filter(fn (LineItem $promotionLineItem) => $promotionLineItem->getPayloadValue('promotionId') === $lineItem->getPayloadValue('promotionId'));
+        foreach ($lineItemsOfSamePromotion as $lineItemOfSamePromotion) {
+            $cart->remove($lineItemOfSamePromotion->getId());
 
-        if ($lineItems->count() < 1) {
-            return;
-        }
-
-        $promotionLineItem = $lineItems->first();
-
-        if ($promotionLineItem instanceof LineItem) {
-            // this is recursive because we are listening on LineItemRemovedEvent, it will stop if there
-            // are no discounts in the cart, that belong to the promotion that should be deleted
-            $this->cartService->remove($cart, $promotionLineItem->getId(), $context);
+            $this->eventDispatcher->dispatch(new BeforeLineItemRemovedEvent($lineItemOfSamePromotion, $cart, $context));
         }
     }
 
@@ -170,34 +163,23 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
     {
         $extension = $this->getExtension($cart);
         $extension->addCode($code);
-
-        $cart->addExtension(CartExtension::KEY, $extension);
     }
 
     private function removeCode(string $code, Cart $cart): void
     {
         $extension = $this->getExtension($cart);
         $extension->removeCode($code);
-
-        $cart->addExtension(CartExtension::KEY, $extension);
-    }
-
-    private function blockPromotion(string $id, Cart $cart): void
-    {
-        $extension = $this->getExtension($cart);
-        $extension->blockPromotion($id);
-
-        $cart->addExtension(CartExtension::KEY, $extension);
     }
 
     private function getExtension(Cart $cart): CartExtension
     {
-        if (!$cart->hasExtension(CartExtension::KEY)) {
-            $cart->addExtension(CartExtension::KEY, new CartExtension());
+        $extension = $cart->getExtensionOfType(CartExtension::KEY, CartExtension::class);
+        if ($extension === null) {
+            // If the extension is not present, we create a new one
+            // to ensure that we can add codes and promotions to it.
+            $extension = new CartExtension();
+            $cart->addExtension(CartExtension::KEY, $extension);
         }
-
-        /** @var CartExtension $extension */
-        $extension = $cart->getExtension(CartExtension::KEY);
 
         return $extension;
     }

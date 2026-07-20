@@ -31,6 +31,9 @@ type CmsSlotData = {
 
 type RuntimeSlot = Entity<'cms_slot'> & {
     config: CmsSlotConfig;
+    translated?: {
+        config: CmsSlotConfig;
+    };
     data: {
         [key: string]: CmsSlotData;
     };
@@ -57,6 +60,7 @@ type CmsElementConfig = {
     appData?: {
         baseUrl: string;
     };
+    hover?: boolean;
 };
 
 type CmsBlockConfig = {
@@ -231,11 +235,22 @@ class CmsService {
 
         const customFields = await customFieldRepository.search(criteria, Shopware.Context.api);
         customFields.forEach((customField: Entity<'custom_field'>) => {
-            const propSchema: Property = {
-                type: customField.type,
-            };
+            const customFieldConfig = customField.config as { customFieldType?: string } | undefined;
 
-            this.handlePrimitivesMapping(propSchema, mappings, `${entityName}.customFields`, customField.name);
+            if (customFieldConfig?.customFieldType === 'media') {
+                this.addToMappingEntity(mappings, { entity: 'media' }, `${entityName}.customFields`, customField.name);
+
+                return;
+            }
+
+            this.handlePrimitivesMapping(
+                {
+                    type: customField.type,
+                },
+                mappings,
+                `${entityName}.customFields`,
+                customField.name,
+            );
         });
     }
 
@@ -246,7 +261,6 @@ class CmsService {
         let obj = entity as { [key: string]: unknown };
         let value: unknown = null;
 
-        // eslint-disable-next-line no-restricted-syntax
         for (const key of path) {
             if (obj === null || typeof obj !== 'object') {
                 value = null;
@@ -428,7 +442,9 @@ class CmsService {
                     entityIds.push(val.mediaId);
                 });
             } else {
-                entityIds.push(...configValue);
+                configValue.forEach((id) => {
+                    entityIds.push(id as string);
+                });
             }
 
             entityData.value = entityIds;
@@ -528,7 +544,7 @@ function CmsElementEnrich<EntityName extends keyof EntitySchema.Entities>(
     Object.keys(slot.config).forEach((configKey) => {
         const entity = slot.config[configKey].entity;
 
-        if (!entity) {
+        if (!entity || !slot.config[configKey].value) {
             return;
         }
 
@@ -562,4 +578,11 @@ Application.addServiceProvider('cmsService', () => new CmsService());
  * @private
  * @sw-package discovery
  */
-export { CmsService, type CmsElementConfig, type CmsBlockConfig, type CmsSlotConfig, type RuntimeSlot };
+export {
+    CmsService,
+    type CmsElementConfig,
+    type CmsBlockConfig,
+    type CmsSlotConfig,
+    type RuntimeSlot,
+    type EnrichedSlotData,
+};

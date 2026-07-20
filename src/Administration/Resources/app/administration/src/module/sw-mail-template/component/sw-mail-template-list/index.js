@@ -1,4 +1,5 @@
 import template from './sw-mail-template-list.html.twig';
+import './sw-mail-template-list.scss';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -21,6 +22,9 @@ export default {
     ],
 
     props: {
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed.
+         */
         searchTerm: {
             type: String,
             required: false,
@@ -55,6 +59,9 @@ export default {
     },
 
     watch: {
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed together with searchTerm prop.
+         */
         searchTerm() {
             this.getList();
         },
@@ -67,8 +74,9 @@ export default {
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('mailTemplateType').addSorting(Criteria.sort('mailTemplateType.name'));
 
-            if (this.searchTerm) {
-                criteria.setTerm(this.searchTerm);
+            const searchTerm = this.feature.isActive('V6_8_0_0') ? this.term : this.searchTerm;
+            if (searchTerm) {
+                criteria.setTerm(searchTerm);
             }
 
             this.mailTemplateRepository.search(criteria).then((items) => {

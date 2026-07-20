@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -24,7 +25,7 @@ class Migration1728040170AddPrimaryOrderTransaction extends MigrationStep
         // No foreign key set both from order -> (primary) order transaction on
         // purpose so the DAL can handle the circular reference. We have a similar situation with the order and order
         // address.
-        if (!$this->columnExists($connection, 'order', 'primary_order_transaction_id')) {
+        if (!TableHelper::columnExists($connection, 'order', 'primary_order_transaction_id')) {
             $connection->executeStatement(
                 'ALTER TABLE `order`
                 ADD COLUMN `primary_order_transaction_id` BINARY(16) NULL DEFAULT NULL,
@@ -37,12 +38,17 @@ class Migration1728040170AddPrimaryOrderTransaction extends MigrationStep
 
         do {
             $ids = $connection->fetchFirstColumn(
-                'SELECT `id` FROM `order` WHERE `primary_order_transaction_id` IS NULL LIMIT :limit',
+                'SELECT `id` FROM `order` WHERE `primary_order_transaction_id` IS NULL AND EXISTS (
+                 SELECT 1
+                 FROM `order_transaction`
+                 WHERE `order_transaction`.`order_id` = `order`.`id`
+                   AND `order_transaction`.`order_version_id` = `order`.`version_id`
+             ) LIMIT :limit',
                 ['limit' => $updateLimit],
                 ['limit' => ParameterType::INTEGER]
             );
 
-            if (empty($ids)) {
+            if ($ids === []) {
                 break;
             }
 

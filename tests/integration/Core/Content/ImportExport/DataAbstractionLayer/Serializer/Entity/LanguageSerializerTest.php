@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageDefinition;
 
 /**
@@ -22,6 +23,9 @@ class LanguageSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<LanguageCollection>
+     */
     private EntityRepository $languageRepository;
 
     private LanguageSerializer $serializer;
@@ -44,8 +48,9 @@ class LanguageSerializerTest extends TestCase
 
         $config = new Config([], [], []);
         $language = [
+            'active' => true,
             'locale' => [
-                'code' => 'xx-XX',
+                'code' => 'de-DE-1',
                 'id' => $localeId,
             ],
         ];
@@ -83,9 +88,10 @@ class LanguageSerializerTest extends TestCase
             [
                 'id' => $this->languageId,
                 'name' => 'test name',
+                'active' => true,
                 'locale' => [
                     'id' => $localeId,
-                    'code' => 'xx-XX',
+                    'code' => 'de-DE-1',
                     'name' => 'test name',
                     'territory' => 'test territory',
                 ],

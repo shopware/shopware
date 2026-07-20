@@ -45,7 +45,7 @@ class OrderSerializerTest extends TestCase
     protected function setUp(): void
     {
         $this->serializer = new OrderSerializer();
-        $this->serializer->setRegistry($this->createMock(SerializerRegistry::class));
+        $this->serializer->setRegistry(static::createStub(SerializerRegistry::class));
     }
 
     public function testSupports(): void
@@ -65,7 +65,7 @@ class OrderSerializerTest extends TestCase
         $logEntity->setId(Uuid::randomHex());
         $config = Config::fromLog($logEntity);
         $definition = new OrderDefinition();
-        $definition->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
 
         $result = iterator_to_array($this->serializer->serialize($config, $definition, $entity));
 
@@ -165,12 +165,7 @@ class OrderSerializerTest extends TestCase
                     'updatedAt' => null,
                     'shippingMethodId' => 'shipping-method-id',
                     'trackingCodes' => 'CODE-1|CODE-2',
-                    'shippingCosts' => new CalculatedPrice(
-                        1,
-                        1,
-                        new CalculatedTaxCollection(),
-                        new TaxRuleCollection(),
-                    ),
+                    'shippingCosts' => 1.0,
                     'shippingOrderAddress' => null,
                     'stateId' => '',
                     'stateMachineState' => null,
@@ -196,12 +191,7 @@ class OrderSerializerTest extends TestCase
                     'translated' => [],
                     'createdAt' => null,
                     'updatedAt' => null,
-                    'amount' => new CalculatedPrice(
-                        42,
-                        42,
-                        new CalculatedTaxCollection(),
-                        new TaxRuleCollection(),
-                    ),
+                    'amount' => 42.0,
                     'paymentMethod' => null,
                     'order' => null,
                     'stateMachineState' => [
@@ -249,12 +239,7 @@ class OrderSerializerTest extends TestCase
                     'updatedAt' => null,
                     'shippingMethodId' => 'shipping-method-id',
                     'trackingCodes' => 'CODE-1|CODE-2',
-                    'shippingCosts' => new CalculatedPrice(
-                        1,
-                        1,
-                        new CalculatedTaxCollection(),
-                        new TaxRuleCollection(),
-                    ),
+                    'shippingCosts' => 1.0,
                     'shippingOrderAddress' => null,
                     'stateId' => '',
                     'stateMachineState' => null,
@@ -285,12 +270,7 @@ class OrderSerializerTest extends TestCase
                     'updatedAt' => null,
                     'shippingMethodId' => 'shipping-method-id',
                     'trackingCodes' => 'CODE-1|CODE-2',
-                    'shippingCosts' => new CalculatedPrice(
-                        1,
-                        1,
-                        new CalculatedTaxCollection(),
-                        new TaxRuleCollection(),
-                    ),
+                    'shippingCosts' => 1.0,
                     'shippingOrderAddress' => null,
                     'stateId' => '',
                     'stateMachineState' => null,
@@ -308,12 +288,7 @@ class OrderSerializerTest extends TestCase
                     'translated' => [],
                     'createdAt' => null,
                     'updatedAt' => null,
-                    'amount' => new CalculatedPrice(
-                        42,
-                        42,
-                        new CalculatedTaxCollection(),
-                        new TaxRuleCollection(),
-                    ),
+                    'amount' => 42.0,
                     'paymentMethod' => null,
                     'order' => null,
                     'stateMachineState' => [
@@ -501,12 +476,7 @@ class OrderSerializerTest extends TestCase
                     new TaxRuleCollection(),
                     'gross',
                 ),
-                'shippingCosts' => new CalculatedPrice(
-                    0,
-                    0,
-                    new CalculatedTaxCollection(),
-                    new TaxRuleCollection(),
-                ),
+                'shippingCosts' => 0.0,
                 'currencyId' => '',
                 'currencyFactor' => 0.0,
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
@@ -532,6 +502,7 @@ class OrderSerializerTest extends TestCase
                 'transactions' => null,
                 'orderNumber' => '10000',
                 'ruleIds' => [],
+                'taxCalculationType' => null,
                 'addresses' => new OrderAddressCollection([
                     (new OrderAddressEntity())->assign([
                         'id' => 'order-address-id',

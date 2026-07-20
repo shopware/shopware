@@ -2,8 +2,12 @@
 
 namespace Shopware\Storefront\Framework\Twig\Extension;
 
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\UrlEncoder;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
@@ -23,49 +27,49 @@ class UrlEncodingTwigFilter extends AbstractExtension
 
     public function encodeUrl(?string $mediaUrl): ?string
     {
-        if ($mediaUrl === null) {
-            return null;
-        }
-
-        $urlInfo = parse_url($mediaUrl);
-        if (!\is_array($urlInfo)) {
-            return null;
-        }
-
-        $segments = explode('/', $urlInfo['path'] ?? '');
-
-        foreach ($segments as $index => $segment) {
-            $segments[$index] = rawurlencode($segment);
-        }
-
-        $path = implode('/', $segments);
-        if (isset($urlInfo['query'])) {
-            $path .= "?{$urlInfo['query']}";
-        }
-
-        $encodedPath = '';
-
-        if (isset($urlInfo['scheme'])) {
-            $encodedPath = "{$urlInfo['scheme']}://";
-        }
-
-        if (isset($urlInfo['host'])) {
-            $encodedPath .= "{$urlInfo['host']}";
-        }
-
-        if (isset($urlInfo['port'])) {
-            $encodedPath .= ":{$urlInfo['port']}";
-        }
-
-        return $encodedPath . $path;
+        return UrlEncoder::encodeUrl($mediaUrl);
     }
 
-    public function encodeMediaUrl(?MediaEntity $media): ?string
+    /**
+     * Accepts the base `Entity` so it also serves `PartialEntity` instances from partial listing
+     * loading, which are not `MediaEntity` but expose the same `url`/`path` fields via generic access.
+     * A runtime guard still ensures the entity actually is media before reading those fields.
+     */
+    public function encodeMediaUrl(?Entity $media): ?string
     {
-        if ($media === null || !$media->hasFile()) {
+        if ($media === null) {
             return null;
         }
 
-        return $this->encodeUrl($media->getUrl());
+        if (!$media instanceof MediaEntity && $media->getInternalEntityName() !== MediaDefinition::ENTITY_NAME) {
+            return null;
+        }
+
+        if (!$this->hasFile($media)) {
+            return null;
+        }
+
+        $url = $media->has('url') ? $media->get('url') : null;
+
+        if (!\is_string($url)) {
+            return null;
+        }
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            return $this->encodeUrl($url);
+        }
+
+        return $url;
+    }
+
+    private function hasFile(Entity $media): bool
+    {
+        if (($media->has('path') ? $media->get('path') : null) !== null) {
+            return true;
+        }
+
+        return ($media->has('mimeType') ? $media->get('mimeType') : null) !== null
+            && ($media->has('fileExtension') ? $media->get('fileExtension') : null) !== null
+            && ($media->has('fileName') ? $media->get('fileName') : null) !== null;
     }
 }

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal only for use by the app-system
  *
- * @phpstan-type ActionButtonArray array{app: string, id: string, label: array<string, string|null>, action: string, url: string, icon: string}
+ * @phpstan-type ActionButtonArray array{app: string, id: string, label: array<string, string|null>, action: string, url: string, icon: string|null}
  */
 #[Package('framework')]
 class ActionButtonLoader

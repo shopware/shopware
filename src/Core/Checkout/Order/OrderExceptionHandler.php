@@ -2,11 +2,14 @@
 
 namespace Shopware\Core\Checkout\Order;
 
-use Shopware\Core\Checkout\Order\Exception\LanguageOfOrderDeleteException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
+/**
+ * @deprecated tag:v6.8.0 - reason:remove-subscriber - Will be removed, as the exception handler is no longer needed, languages now also throw RestrictDeleteViolationException
+ * @see RestrictDeleteViolationException is now thrown instead
+ */
 class OrderExceptionHandler implements ExceptionHandlerInterface
 {
     public function getPriority(): int
@@ -16,10 +19,6 @@ class OrderExceptionHandler implements ExceptionHandlerInterface
 
     public function matchException(\Throwable $e): ?\Throwable
     {
-        if (preg_match('/SQLSTATE\[23000\]:.*1451.*a foreign key constraint.*order.*CONSTRAINT `fk.language_id`/', $e->getMessage())) {
-            return new LanguageOfOrderDeleteException($e);
-        }
-
         return null;
     }
 }

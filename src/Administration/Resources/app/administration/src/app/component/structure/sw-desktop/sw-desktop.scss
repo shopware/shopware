@@ -5,6 +5,7 @@
     height: 100%;
     width: 100%;
     overflow: hidden;
+    background: var(--color-elevation-surface-sunken);
 
     &.sw-desktop--no-nav {
         grid-template-columns: 1fr;

@@ -33,7 +33,7 @@ class AffiliateCodeOfOrderRuleTest extends TestCase
         static::assertArrayHasKey('affiliateCode', $constraints, 'Constraint affiliateCode not found in Rule');
         static::assertEquals($constraints['affiliateCode'], [
             new NotBlank(),
-            new Type(['type' => 'string']),
+            new Type(type: 'string'),
         ]);
     }
 
@@ -63,7 +63,7 @@ class AffiliateCodeOfOrderRuleTest extends TestCase
 
     public function testMatchWithWrongRuleScope(): void
     {
-        $scope = $this->createMock(TestRuleScope::class);
+        $scope = static::createStub(TestRuleScope::class);
 
         $match = (new AffiliateCodeOfOrderRule())->match($scope);
 
@@ -79,7 +79,7 @@ class AffiliateCodeOfOrderRuleTest extends TestCase
         $order->setAffiliateCode('TestAffiliateCode123');
         $cart = new Cart('ABC');
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         $scope = new FlowRuleScope($order, $cart, $salesChannelContext);
         $rule->match($scope);
@@ -94,7 +94,7 @@ class AffiliateCodeOfOrderRuleTest extends TestCase
         $order->setAffiliateCode($orderAffiliateCode);
         $cart = new Cart('ABC');
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         $scope = new FlowRuleScope($order, $cart, $salesChannelContext);
         $match = $rule->match($scope);

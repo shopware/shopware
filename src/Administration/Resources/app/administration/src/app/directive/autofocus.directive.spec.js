@@ -42,10 +42,6 @@ describe('src/app/directive/autofocus.directive.ts', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have registered the autofocus directive', () => {
         expect(Shopware.Directive.getByName('autofocus')).toBeDefined();
     });

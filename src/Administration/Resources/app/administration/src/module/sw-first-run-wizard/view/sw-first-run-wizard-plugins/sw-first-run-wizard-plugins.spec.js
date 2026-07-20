@@ -79,11 +79,6 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins', () =
         );
     }
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have the right amount of region labels', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

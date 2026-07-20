@@ -41,6 +41,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '1.bas' => [
                         'value' => '1_bas',
@@ -50,6 +51,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -63,6 +65,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '2.baz' => [
                         'value' => '2_baz',
@@ -72,6 +75,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -88,6 +92,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '2.bar' => [
                         'value' => '',
@@ -97,6 +102,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => 'firstSetId',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -110,6 +116,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '1.bar' => [
                         'value' => '',
@@ -119,12 +126,65 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => 'secondSetId',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
         ];
 
         $result = (new TermFilter())->filter($snippets, '_bar');
+
+        static::assertSame($expected, $result);
+    }
+
+    public function testFilterWithNonStringValueDoesNotThrow(): void
+    {
+        $snippets = [
+            'firstSetId' => [
+                'snippets' => [
+                    '1.bar' => [
+                        'value' => 42,
+                        'translationKey' => '1.bar',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
+                        'hasFileValue' => false,
+                    ],
+                    '1.bas' => [
+                        'value' => '1_bas',
+                        'translationKey' => '1.bas',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
+                        'hasFileValue' => false,
+                    ],
+                ],
+            ],
+        ];
+
+        $expected = [
+            'firstSetId' => [
+                'snippets' => [
+                    '1.bar' => [
+                        'value' => 42,
+                        'translationKey' => '1.bar',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
+                        'hasFileValue' => false,
+                    ],
+                ],
+            ],
+        ];
+
+        /** @phpstan-ignore argument.type (snippet value is intentionally a non-string here) */
+        $result = (new TermFilter())->filter($snippets, '42');
 
         static::assertSame($expected, $result);
     }
@@ -142,6 +202,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '1.bas' => [
                         'value' => '1_bas',
@@ -151,6 +212,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -164,6 +226,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '2.baz' => [
                         'value' => '2_baz',
@@ -173,6 +236,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -189,6 +253,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '2.bar' => [
                         'value' => '',
@@ -198,6 +263,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => 'firstSetId',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -211,6 +277,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '1.bar' => [
                         'value' => '',
@@ -220,6 +287,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => 'secondSetId',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -243,6 +311,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '1.baz' => [
                         'value' => '1_baz',
@@ -252,6 +321,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -265,6 +335,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '1.baz' => [
                         'value' => '2_baz',
@@ -274,6 +345,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -290,6 +362,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -303,6 +376,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -326,6 +400,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '1.bas' => [
                         'value' => '1_bas',
@@ -335,6 +410,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -348,6 +424,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '2.baz' => [
                         'value' => '2_baz',
@@ -357,6 +434,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -373,6 +451,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -386,6 +465,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => 'secondSetId',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -409,6 +489,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '1.bas' => [
                         'value' => '1_bas',
@@ -418,6 +499,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -431,6 +513,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '2.baz' => [
                         'value' => '2_baz',
@@ -440,6 +523,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -456,6 +540,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -469,6 +554,7 @@ class TermFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => 'secondSetId',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],

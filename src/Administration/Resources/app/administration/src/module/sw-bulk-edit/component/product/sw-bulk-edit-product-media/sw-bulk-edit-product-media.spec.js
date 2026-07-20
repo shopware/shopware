@@ -43,10 +43,6 @@ describe('sw-bulk-edit-product-media', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be disabled correctly', async () => {
         await wrapper.setProps({ disabled: true });
         expect(wrapper.find('sw-bulk-edit-product-media-form-stub').attributes().disabled).toBeTruthy();

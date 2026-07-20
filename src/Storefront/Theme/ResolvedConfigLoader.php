@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Theme\Exception\ThemeException;
 
 #[Package('framework')]
 class ResolvedConfigLoader extends AbstractResolvedConfigLoader
@@ -20,7 +21,7 @@ class ResolvedConfigLoader extends AbstractResolvedConfigLoader
      */
     public function __construct(
         private readonly EntityRepository $repository,
-        private readonly ThemeService $service
+        private readonly ThemeRuntimeConfigService $runtimeConfigService,
     ) {
     }
 
@@ -31,7 +32,11 @@ class ResolvedConfigLoader extends AbstractResolvedConfigLoader
 
     public function load(string $themeId, SalesChannelContext $context): array
     {
-        $config = $this->service->getThemeConfiguration($themeId, false, $context->getContext());
+        $runtimeConfig = $this->runtimeConfigService->getRuntimeConfig($themeId);
+        if ($runtimeConfig === null) {
+            throw ThemeException::errorLoadingRuntimeConfig($themeId);
+        }
+        $config = $runtimeConfig->resolvedConfig;
         $resolvedConfig = [];
         $mediaItems = [];
         if (!\array_key_exists('fields', $config)) {
@@ -47,9 +52,8 @@ class ResolvedConfigLoader extends AbstractResolvedConfigLoader
 
         $result = new MediaCollection();
 
-        /** @var array<string> $mediaIds */
         $mediaIds = array_keys($mediaItems);
-        if (!empty($mediaIds)) {
+        if ($mediaIds !== []) {
             $criteria = (new Criteria($mediaIds))
                 ->setTitle('theme-service::resolve-media');
 

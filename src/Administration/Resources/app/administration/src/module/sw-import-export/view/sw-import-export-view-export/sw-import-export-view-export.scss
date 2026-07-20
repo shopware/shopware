@@ -1,7 +1,8 @@
 .sw-import-export-view-export {
     &__activity {
-        .mt-card__content {
-            height: 600px;
+        .mt-empty-state {
+            width: 100%;
+            max-width: none;
         }
     }
 }

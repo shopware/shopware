@@ -17,4 +17,9 @@ class CleanupUnusedDownloadMediaTask extends ScheduledTask
     {
         return 2628000; // 1 month
     }
+
+    public static function shouldRescheduleOnFailure(): bool
+    {
+        return true;
+    }
 }

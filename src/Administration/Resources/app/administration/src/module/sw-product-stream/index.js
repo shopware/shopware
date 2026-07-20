@@ -1,13 +1,9 @@
-/*
- * @sw-package inventory
- */
-
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-product-stream-list', () => import('./page/sw-product-stream-list'));
 Shopware.Component.register('sw-product-stream-detail', () => import('./page/sw-product-stream-detail'));
 Shopware.Component.register('sw-product-stream-field-select', () => import('./component/sw-product-stream-field-select'));
@@ -18,9 +14,10 @@ Shopware.Component.extend(
     'sw-condition-base',
     () => import('./component/sw-product-stream-filter'),
 );
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 /**
+ * @sw-package inventory
  * @private
  */
 Module.register('sw-product-stream', {
@@ -31,7 +28,7 @@ Module.register('sw-product-stream', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#57D9A3',
-    icon: 'regular-products',
+    icon: 'solid-products',
     favicon: 'icon-module-products.png',
     entity: 'product_stream',
 
@@ -62,7 +59,7 @@ Module.register('sw-product-stream', {
             },
             props: {
                 default(route) {
-                    return { productStreamId: route.params.id };
+                    return { productStreamId: route.params.id.toLowerCase() };
                 },
             },
         },

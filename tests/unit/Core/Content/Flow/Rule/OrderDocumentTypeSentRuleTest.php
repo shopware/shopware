@@ -56,7 +56,7 @@ class OrderDocumentTypeSentRuleTest extends TestCase
         static::assertArrayHasKey('operator', $constraints, 'operator constraints not found');
 
         static::assertEquals([new NotBlank(), new ArrayOfUuid()], $constraints['documentIds']);
-        static::assertEquals([new NotBlank(), new Choice($operators)], $constraints['operator']);
+        static::assertEquals([new NotBlank(), new Choice(choices: $operators)], $constraints['operator']);
     }
 
     public function testConstraintsEmpty(): void
@@ -72,7 +72,7 @@ class OrderDocumentTypeSentRuleTest extends TestCase
 
         static::assertArrayNotHasKey('documentIds', $constraints, 'documentIds constraint found');
         static::assertArrayHasKey('operator', $constraints, 'operator constraints not found');
-        static::assertEquals([new NotBlank(), new Choice($operators)], $constraints['operator']);
+        static::assertEquals([new NotBlank(), new Choice(choices: $operators)], $constraints['operator']);
     }
 
     /**
@@ -106,7 +106,7 @@ class OrderDocumentTypeSentRuleTest extends TestCase
      */
     public function testInvalidScopeIsFalse(): void
     {
-        $invalidScope = $this->createMock(RuleScope::class);
+        $invalidScope = static::createStub(RuleScope::class);
         $this->rule->assign(['documentIds' => [Uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
         static::assertFalse($this->rule->match($invalidScope));
     }
@@ -133,7 +133,7 @@ class OrderDocumentTypeSentRuleTest extends TestCase
 
         static::assertSame([
             'operators' => $operators,
-            'isMatchAny' => true,
+            'isMatchAny' => false,
         ], $configData['operatorSet']);
     }
 

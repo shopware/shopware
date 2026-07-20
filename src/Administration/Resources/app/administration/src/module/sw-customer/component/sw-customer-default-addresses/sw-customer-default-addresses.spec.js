@@ -50,11 +50,6 @@ async function createWrapper(defaultShippingAddress = testAddress, defaultBillin
 describe('module/sw-customer-default-addresses', () => {
     let wrapper;
 
-    it('should be a Vue.JS component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render formatting address for billing address and shipping address', async () => {
         wrapper = await createWrapper();
 

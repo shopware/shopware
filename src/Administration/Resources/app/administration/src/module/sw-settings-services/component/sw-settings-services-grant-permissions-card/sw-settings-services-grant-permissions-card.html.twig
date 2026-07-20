@@ -1,0 +1,34 @@
+<mt-card class="sw-settings-services-grant-permission-card">
+    <div class="sw-settings-services-grant-permission-card__background">
+        <img
+            :src="grantPermissionsCardBackground"
+            alt=""
+        >
+    </div>
+
+    <h3 class="sw-settings-services-grant-permission-card__heading">
+        {{ $t("sw-settings-services.grant-permissions.title") }}
+    </h3>
+
+    <p>{{ $t("sw-settings-services.grant-permissions.description") }}</p>
+
+    <div class="sw-settings-services-grant-permission-card__actions">
+        <mt-button
+            variant="primary"
+            :is-loading="isLoading"
+            @click="grantPermissions"
+        >
+            {{  $t("sw-settings-services.grant-permissions.label-button-grant-permissions") }}
+        </mt-button>
+
+        <mt-link
+            variant="primary"
+            as="a"
+            type="external"
+            :href="docsLink"
+            target="_blank"
+        >
+            {{ $t("sw-settings-services.grant-permissions.label-link-more-information") }}
+        </mt-link>
+    </div>
+</mt-card>

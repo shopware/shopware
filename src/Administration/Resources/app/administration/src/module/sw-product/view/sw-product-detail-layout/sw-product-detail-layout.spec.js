@@ -26,6 +26,7 @@ async function createWrapper(privileges = []) {
                                                 slots: [
                                                     {
                                                         id: 'slot1',
+                                                        type: 'text',
                                                         config: {
                                                             content: {
                                                                 value: 'product.name',
@@ -53,6 +54,11 @@ async function createWrapper(privileges = []) {
 
                         return privileges.includes(identifier);
                     },
+                },
+            },
+            mock: {
+                $route: {
+                    name: 'sw.product.detail.layout',
                 },
             },
             stubs: {
@@ -196,36 +202,43 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
         expect(wrapper.vm.currentPage.id).toBe('cmsPageId');
     });
 
+    it('should reset translated slotConfig overrides when changing the layout', async () => {
+        const wrapper = await createWrapper();
+        Store.get('swProductDetail').product = {
+            id: '1',
+            slotConfig: {
+                currentSlotId: {
+                    content: {
+                        value: 'current override',
+                    },
+                },
+            },
+            translations: [
+                {
+                    languageId: 'de-DE',
+                    slotConfig: {
+                        staleSlotId: {
+                            content: {
+                                value: 'stale override',
+                            },
+                        },
+                    },
+                },
+            ],
+        };
+
+        wrapper.vm.onSelectLayout('cmsPageId');
+        await nextTick();
+
+        expect(wrapper.vm.product.slotConfig).toBeNull();
+        expect(wrapper.vm.product.translations[0].slotConfig).toBeNull();
+    });
+
     it('should be able to reset a product page layout', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.onResetLayout();
 
         expect(wrapper.vm.product.cmsPageId).toBeNull();
-    });
-
-    it('should be able to overwrite product config to selected layout config', async () => {
-        Shopware.Store.get('swProductDetail').product = {
-            id: '1',
-            cmsPageId: 'cmsPageId',
-            slotConfig: {
-                slot1: {
-                    content: {
-                        value: 'Hello World',
-                        source: 'static',
-                    },
-                },
-            },
-        };
-
-        const wrapper = await createWrapper();
-        await wrapper.vm.handleGetCmsPage();
-
-        expect(wrapper.vm.currentPage.sections[0].blocks[0].slots[0].config).toEqual({
-            content: {
-                value: 'Hello World',
-                source: 'static',
-            },
-        });
     });
 
     it('onOpenLayoutModal: should be able to open layout assignment', async () => {
@@ -252,6 +265,19 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
     });
 
     it('should be able to view layout config', async () => {
+        Shopware.Store.get('swProductDetail').product = {
+            id: '1',
+            cmsPageId: 'cmsPageId',
+            slotConfig: {
+                slot1: {
+                    content: {
+                        value: 'Hello World',
+                        source: 'static',
+                    },
+                },
+            },
+        };
+
         const wrapper = await createWrapper(['product.editor']);
         const cmsForm = wrapper.find('sw-cms-page-form-stub');
         const infoNoConfig = wrapper.find('.sw-product-detail-layout__no-config');

@@ -7,16 +7,18 @@ on:
 
 jobs:
   redis:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     name: Redis
     runs-on: ubuntu-24.04
-    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     strategy:
       fail-fast: false
       matrix:
         redis:
-          - redis:alpine
-          - eqalpha/keydb:latest
+          - redis:7.2-alpine
+          - redis:7-alpine
+          - redis:8.2-alpine
           - valkey/valkey:8.0
+          - valkey/valkey:9.0
     services:
       redis:
         image: ${{ matrix.redis }}
@@ -34,38 +36,54 @@ jobs:
           shopware-repository: ${{ github.repository }}
       - name: Run PHPUnit
         run: |
-          ./vendor/bin/phpunit --group=redis --testsuite migration,unit,integration,devops
+          ./vendor/bin/phpunit --testsuite redis
 
   admin:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/admin.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
   integration:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/integration.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     with:
-      nightly: true
+      profile: nightly
+  acceptance:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
+    uses: ./.github/workflows/acceptance.yml
+    secrets: inherit
+    with:
+      profile: nightly
+      # Major acceptance tests are run by the dedicated nightly-major workflow while the next
+      # major is prepared. Once they are green, drop this line to fold them back into nightly.
+      major: exclude
+  visual-tests:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
+    uses: ./.github/workflows/visual-tests.yml
+    secrets: inherit
+    with:
+      currents: ${{ github.event_name == 'schedule' }}
   php:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/php.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
   storefront:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/storefront.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
   downstream:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/downstream.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     with:
       nightly: true
   prepare-release: # This will only execute dry-runs and push current trunk to the many-repos
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/05-prepare-release.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
 
-  nightly-6-6-x:
+  # we need this for our LTS, because gh only runs scheduled for the default branch
+  nightly-other-branches:
     runs-on: ubuntu-24.04
     if: github.repository == 'shopware/shopware' && github.ref == 'refs/heads/trunk'
     permissions:
@@ -75,11 +93,11 @@ jobs:
       matrix:
         branch:
           - "6.6.x"
-          - "6.7.0.0"
+    name: Nightly ${{ matrix.branch }}
     steps:
       - name: Delay
         run: sleep 20m
-      - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
+      - uses: shopware/octo-sts-action@main
         id: sts
         with:
           scope: shopware

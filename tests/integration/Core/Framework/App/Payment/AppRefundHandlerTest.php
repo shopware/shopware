@@ -53,7 +53,7 @@ class AppRefundHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertArrayHasKey('source', $content);
         static::assertSame([
             'url' => $this->shopUrl,
-            'shopId' => $this->shopIdProvider->getShopId(),
+            'shopId' => $this->shopIdProvider->getShopId()->id,
             'appVersion' => '1.0.0',
             'inAppPurchases' => null,
         ], $content['source']);
@@ -170,8 +170,7 @@ FOO_BAR_ERROR_MESSAGE', $e->getMessage());
 
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        static::expectException(PaymentException::class);
-        static::expectExceptionMessage('The Refund process failed with following exception: Unknown refund handler for refund id ' . $refundId . '.');
+        $this->expectExceptionObject(PaymentException::unknownRefundHandler($refundId));
 
         $this->paymentRefundProcessor->processRefund($refundId, $salesChannelContext->getContext());
     }

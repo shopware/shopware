@@ -26,10 +26,19 @@ class KnownIpsCollectorTest extends TestCase
     {
         $suggestions = (new KnownIpsCollector())->collectIps(new Request(server: ['REMOTE_ADDR' => '2001:0db8:0123:4567:89ab:cdef:1234:5678']));
 
-        static::assertEqualsCanonicalizing([
+        static::assertEquals([
             '2001:0db8:0123:4567:89ab:cdef:1234:5678' => 'global.sw-multi-tag-ip-select.knownIps.you',
             '2001:db8:123:4567::/64' => 'global.sw-multi-tag-ip-select.knownIps.youIPv6Block64',
             '2001:db8:123:4500::/56' => 'global.sw-multi-tag-ip-select.knownIps.youIPv6Block56',
+        ], $suggestions);
+    }
+
+    public function testSuggestionsForIpv6WhenIpv6NotSupported(): void
+    {
+        $suggestions = (new KnownIpsCollector(static fn () => false))->collectIps(new Request(server: ['REMOTE_ADDR' => '2001:0db8:0123:4567:89ab:cdef:1234:5678']));
+
+        static::assertSame([
+            '2001:0db8:0123:4567:89ab:cdef:1234:5678' => 'global.sw-multi-tag-ip-select.knownIps.you',
         ], $suggestions);
     }
 

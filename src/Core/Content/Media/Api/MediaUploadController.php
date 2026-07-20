@@ -8,9 +8,12 @@ use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,7 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('discovery')]
 class MediaUploadController extends AbstractController
 {
@@ -44,11 +47,7 @@ class MediaUploadController extends AbstractController
         }
 
         $fileName = $request->query->getString('fileName', $mediaId);
-        $destination = preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $fileName);
-
-        if (!\is_string($destination)) {
-            throw MediaException::illegalFileName($fileName, 'Filename must be a string');
-        }
+        $destination = PathHelper::stripControlAndFormatChars($fileName);
 
         try {
             $uploadedFile = $this->mediaService->fetchFile($request, $tempFile);
@@ -71,14 +70,10 @@ class MediaUploadController extends AbstractController
     public function renameMediaFile(Request $request, string $mediaId, Context $context, ResponseFactoryInterface $responseFactory): Response
     {
         $fileName = $request->request->getString('fileName');
-        $destination = preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $fileName);
+        $destination = PathHelper::stripControlAndFormatChars($fileName);
 
         if ($destination === '') {
             throw MediaException::emptyMediaFilename();
-        }
-
-        if (!\is_string($destination)) {
-            throw MediaException::illegalFileName($fileName, 'Filename must be a string');
         }
 
         $this->fileSaver->renameMedia($mediaId, $destination, $context);
@@ -90,11 +85,7 @@ class MediaUploadController extends AbstractController
     public function provideName(Request $request, Context $context): JsonResponse
     {
         $fileName = $request->query->getString('fileName');
-        $preferredFileName = preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $fileName);
-
-        if (!\is_string($preferredFileName)) {
-            throw MediaException::illegalFileName($fileName, 'Filename must be a string');
-        }
+        $preferredFileName = PathHelper::stripControlAndFormatChars($fileName);
 
         $fileExtension = $request->query->getString('extension');
         $mediaId = $request->query->has('mediaId') ? $request->query->getString('mediaId') : null;

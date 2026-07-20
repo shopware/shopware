@@ -45,7 +45,10 @@
 
                 {% block sw_product_detail_reviews_data_created_at %}
                 <template #column-createdAt="{ item }">
-                    {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit', second: '2-digit' }) }}
+                    <sw-time-ago
+                        :date="item.createdAt"
+                        :date-time-format="{ month: '2-digit', day: '2-digit' }"
+                    />
                 </template>
                 {% endblock %}
 
@@ -57,7 +60,7 @@
                         :disabled="!acl.can('product.editor') || undefined"
                         :router-link="{ name: 'sw.review.detail', params: { id: item.id } }"
                     >
-                        {{ $tc('sw-product.reviewForm.contextMenuEdit') }}
+                        {{ $t('global.default.edit') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -68,7 +71,7 @@
                         :disabled="!acl.can('product.editor') || undefined"
                         @click="onStartReviewDelete(item)"
                     >
-                        {{ $tc('sw-product.reviewForm.contextMenuDelete') }}
+                        {{ $t('global.default.delete') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </template>
@@ -92,43 +95,35 @@
 
         {% block sw_product_detail_reviews_empty_state %}
 
-        <sw-empty-state
+        <mt-empty-state
             v-if="!total"
-            :title="$tc('sw-product.reviewForm.messageEmptyTitle')"
-            :subline="$tc('sw-product.reviewForm.messageEmptySubline')"
-            :absolute="false"
+            :icon="$route.meta.$module.icon"
+            :headline="$t('sw-product.reviewForm.messageEmptyTitle')"
+            :description="$t('sw-product.reviewForm.messageEmptySubline')"
             empty-module
         >
-            <template #icon>
-                <img
-                    :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                    :alt="$tc('sw-product.reviewForm.messageEmptyTitle')"
-                >
-            </template>
-
-            <template #actions>
+            <template #button>
                 {% block sw_product_detail_reviews_empty_state_button %}
                 <mt-button
-                    ghost
                     variant="secondary"
                     @click="$router.push({ name: 'sw.review.index' })"
                 >
-                    {{ $tc('sw-product.reviewForm.emptyStateButton') }}
+                    {{ $t('sw-product.reviewForm.emptyStateButton') }}
                 </mt-button>
                 {% endblock %}
             </template>
-        </sw-empty-state>
+        </mt-empty-state>
         {% endblock %}
 
         {% block sw_product_detail_reviews_modal_delete %}
         <sw-modal
             v-if="showReviewDeleteModal"
             variant="small"
-            :title="$tc('sw-product.reviewForm.modal.confirmTitle')"
+            :title="$t('sw-product.reviewForm.modal.confirmTitle')"
             @modal-close="onCancelReviewDelete"
         >
             {% block sw_product_detail_reviews_modal_delete_body %}
-            <p>{{ $tc('sw-product.reviewForm.modal.confirmText') }}</p>
+            <p>{{ $t('sw-product.reviewForm.modal.confirmText') }}</p>
             {% endblock %}
 
             {% block sw_product_detail_reviews_modal_delete_footer %}
@@ -139,7 +134,7 @@
                     variant="secondary"
                     @click="onCancelReviewDelete"
                 >
-                    {{ $tc('global.default.cancel') }}
+                    {{ $t('global.default.cancel') }}
                 </mt-button>
                 {% endblock %}
 
@@ -149,7 +144,7 @@
                     variant="critical"
                     @click="onConfirmReviewDelete"
                 >
-                    {{ $tc('sw-product.reviewForm.modal.buttonDelete') }}
+                    {{ $t('global.default.delete') }}
                 </mt-button>
                 {% endblock %}
             </template>

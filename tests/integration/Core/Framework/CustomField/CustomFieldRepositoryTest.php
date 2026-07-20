@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldCollection;
@@ -124,13 +125,53 @@ class CustomFieldRepositoryTest extends TestCase
 
         $update = [
             'id' => $descriptionId,
-            'name' => 'updated_name',
+            'config' => ['componentName' => 'sw-custom-field', 'customFieldType' => 'text'],
         ];
         $result = $this->repo->update([$update], Context::createDefaultContext());
 
         $event = $result->getEventByEntityName(CustomFieldDefinition::ENTITY_NAME);
         static::assertNotNull($event);
         static::assertCount(1, $event->getPayloads());
+    }
+
+    public function testNameIsImmutable(): void
+    {
+        $id = Uuid::randomHex();
+        $this->repo->create([
+            [
+                'id' => $id,
+                'name' => 'immutable_name',
+                'type' => 'int',
+            ],
+        ], Context::createDefaultContext());
+
+        $this->expectException(WriteException::class);
+        $this->repo->update([
+            [
+                'id' => $id,
+                'name' => 'renamed',
+            ],
+        ], Context::createDefaultContext());
+    }
+
+    public function testTypeIsImmutable(): void
+    {
+        $id = Uuid::randomHex();
+        $this->repo->create([
+            [
+                'id' => $id,
+                'name' => 'immutable_type',
+                'type' => 'int',
+            ],
+        ], Context::createDefaultContext());
+
+        $this->expectException(WriteException::class);
+        $this->repo->update([
+            [
+                'id' => $id,
+                'type' => 'text',
+            ],
+        ], Context::createDefaultContext());
     }
 
     public function testUpsert(): void
@@ -155,6 +196,11 @@ class CustomFieldRepositoryTest extends TestCase
         $event = $result->getEventByEntityName(CustomFieldDefinition::ENTITY_NAME);
         static::assertNotNull($event);
         static::assertCount(2, $event->getPayloads());
+
+        foreach ($attributes as &$attribute) {
+            unset($attribute['name']);
+            unset($attribute['type']);
+        }
 
         $result = $this->repo->upsert($attributes, Context::createDefaultContext());
         $event = $result->getEventByEntityName(CustomFieldDefinition::ENTITY_NAME);

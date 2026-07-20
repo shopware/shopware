@@ -14,15 +14,12 @@ describe('src/app/component/structure/sw-media-modal-renderer', () => {
             global: {
                 stubs: {
                     'sw-media-modal-v2': true,
+                    'sw-media-save-modal': true,
                 },
             },
         });
 
         store = Shopware.Store.get('mediaModal');
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should open the media modal', async () => {

@@ -9,21 +9,6 @@ https://getbootstrap.com/docs/5.2/content/typography
 */
 
 h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-.h1,
-.h2,
-.h3,
-.h4,
-.h5,
-.h6 {
-    margin-bottom: 1rem;
-}
-
-h1,
 .h1 {
     line-height: 2.5rem;
 }
@@ -57,4 +42,23 @@ ol,
 ul,
 dl {
     margin-bottom: $paragraph-margin-bottom;
+}
+
+blockquote {
+    font-size: $font-size-lg;
+    font-style: italic;
+    line-height: 24px;
+    margin-top: 16px;
+    margin-left: 20px;
+    position: relative;
+
+    &::before {
+        content: '"';
+        font-size: 40px;
+        line-height: 16px;
+        color: $cms-element-text-quotes-color;
+        position: absolute;
+        top: 10px;
+        left: -24px;
+    }
 }

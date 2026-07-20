@@ -86,7 +86,7 @@ describe('module/sw-cms/elements/product-box/component', () => {
                         ],
                         cover: {
                             media: {
-                                url: '/administration/administration/static/img/cms/preview_glasses_large.jpg',
+                                url: '/administration/administration/static/img/cms/preview_glasses_large.webp',
                                 alt: 'Lorem Ipsum dolor',
                             },
                         },

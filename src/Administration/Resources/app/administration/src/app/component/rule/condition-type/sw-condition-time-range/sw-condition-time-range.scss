@@ -1,9 +1,7 @@
-@import "~scss/variables";
-
 .sw-condition-time-range {
     display: grid;
-    gap: 4px;
-    grid-template-columns: 1fr 1fr;
+    gap: var(--scale-size-4);
+    grid-template-columns: 1fr 1fr 1fr;
 
     .wrapper {
         row-gap: 0;
@@ -20,6 +18,13 @@
     .sw-contextual-field {
         .sw-field__addition .mt-icon {
             line-height: 0;
+        }
+    }
+
+    .sw-single-select.sw-select {
+        .sw-single-select__selection-text,
+        .sw-single-select__selection-input {
+            min-height: 0;
         }
     }
 }

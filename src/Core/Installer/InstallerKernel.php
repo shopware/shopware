@@ -33,23 +33,15 @@ class InstallerKernel extends HttpKernel
     ) {
         parent::__construct($environment, $debug);
 
-        // @codeCoverageIgnoreStart - not testable, as static calls cannot be mocked
-        if (InstalledVersions::isInstalled('shopware/platform')) {
-            $version = InstalledVersions::getVersion('shopware/platform')
-                . '@' . InstalledVersions::getReference('shopware/platform');
-        } else {
-            $version = InstalledVersions::getVersion('shopware/core')
-                . '@' . InstalledVersions::getReference('shopware/core');
-        }
-        // @codeCoverageIgnoreEnd
-
-        $version = VersionParser::parseShopwareVersion($version);
+        $version = VersionParser::parseShopwareVersion($this->resolveComposerVersion());
         $this->shopwareVersion = $version['version'];
         $this->shopwareVersionRevision = $version['revision'];
     }
 
     /**
-     * {@inheritdoc}
+     * @codeCoverageIgnore
+     *
+     * @see \Shopware\Tests\DevOps\Core\Installer\InstallerKernelTest
      */
     public function boot(): void
     {
@@ -71,14 +63,13 @@ class InstallerKernel extends HttpKernel
     {
         $r = new \ReflectionObject($this);
 
-        /** @var string $dir */
-        $dir = $r->getFileName();
-        if (!file_exists($dir)) {
+        $file = $r->getFileName();
+        if (!$file || !\is_file($file)) {
             throw new \LogicException(\sprintf('Cannot auto-detect project dir for kernel of class "%s".', $r->name));
         }
 
-        $dir = $rootDir = \dirname($dir);
-        while (!file_exists($dir . '/vendor')) {
+        $dir = $rootDir = \dirname($file);
+        while (!\is_dir($dir . '/vendor')) {
             if ($dir === \dirname($dir)) {
                 return $rootDir;
             }
@@ -89,8 +80,6 @@ class InstallerKernel extends HttpKernel
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @return array<string, mixed>
      */
     protected function getKernelParameters(): array
@@ -116,6 +105,17 @@ class InstallerKernel extends HttpKernel
     protected function configureRoutes(RoutingConfigurator $routes): void
     {
         $routes->import(__DIR__ . '/Resources/config/routes.xml');
+    }
+
+    protected function resolveComposerVersion(): string
+    {
+        if (InstalledVersions::isInstalled('shopware/platform')) {
+            return InstalledVersions::getVersion('shopware/platform')
+                . '@' . InstalledVersions::getReference('shopware/platform');
+        }
+
+        return InstalledVersions::getVersion('shopware/core')
+            . '@' . InstalledVersions::getReference('shopware/core');
     }
 
     /**

@@ -5,16 +5,15 @@ declare(strict_types=1);
 namespace Shopware\Core\Content\Flow\Dispatching;
 
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal not intended for decoration or replacement
  *
+ * @final
+ *
  * @phpstan-import-type FlowHolder from AbstractFlowLoader
  * @phpstan-import-type EventGroupedFlowHolders from AbstractFlowLoader
- *
- * @experimental stableVersion:v6.8.0 feature:FLOW_EXECUTION_AFTER_BUSINESS_PROCESS
  */
 #[Package('after-sales')]
 class BufferedFlowExecutor
@@ -40,10 +39,10 @@ class BufferedFlowExecutor
             $eventGroupedFlowHolders = $this->flowLoader->load();
 
             foreach ($bufferedFlows as $bufferedFlow) {
-                $storableFlow = $this->flowFactory->create($bufferedFlow);
+                $storableFlow = $this->flowFactory->restoreBuffered($bufferedFlow);
                 $flowHolders = $this->getFlowHoldersForEvent($storableFlow->getName(), $eventGroupedFlowHolders);
 
-                if (empty($flowHolders)) {
+                if ($flowHolders === []) {
                     continue;
                 }
 
@@ -55,7 +54,7 @@ class BufferedFlowExecutor
 
         if ($flowExecutionDepth >= self::MAXIMUM_EXECUTION_DEPTH) {
             $eventNames = array_map(
-                static fn (FlowEventAware $event) => $event->getName(),
+                static fn (BufferedFlow $bufferedFlow) => $bufferedFlow->eventName,
                 $this->bufferedFlowQueue->dequeueFlows(),
             );
 

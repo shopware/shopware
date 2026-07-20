@@ -7,11 +7,13 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextSwitchRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\Router;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -24,7 +26,7 @@ use Symfony\Component\Routing\RouterInterface;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('framework')]
 class ContextController extends StorefrontController
 {
@@ -67,9 +69,13 @@ class ContextController extends StorefrontController
             throw RoutingException::languageNotFound($languageId);
         }
 
-        $params = $request->get('redirectParameters', '[]');
+        $params = $request->request->all()['redirectParameters'] ?? '[]';
         if (\is_string($params)) {
-            $params = json_decode($params, true);
+            try {
+                $params = json_decode($params, true, flags: \JSON_THROW_ON_ERROR);
+            } catch (\JsonException) {
+                $params = [];
+            }
         }
 
         $languageCode = $request->request->get('languageCode_' . $languageId);
@@ -78,7 +84,7 @@ class ContextController extends StorefrontController
         }
 
         $route = (string) $request->request->get('redirectTo', 'frontend.home.page');
-        if (empty($route) || $this->routeTargetExists($route, $params) === false) {
+        if ($route === '' || $this->routeTargetExists($route, $params) === false) {
             $route = 'frontend.home.page';
             $params = [];
         }
@@ -121,7 +127,7 @@ class ContextController extends StorefrontController
         $routerContext = $this->router->getContext();
         $routerContext->setHttpPort($parsedUrl['port'] ?? 80);
         $routerContext->setMethod('GET');
-        $routerContext->setHost($parsedUrl['host']);
+        $routerContext->setHost($parsedUrl['host'] ?? '');
         $routerContext->setBaseUrl(rtrim($parsedUrl['path'] ?? '', '/'));
 
         if ($this->requestStack->getMainRequest()) {

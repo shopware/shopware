@@ -42,11 +42,11 @@ const handleMtTextarea = (context, node) => {
     if (valueAttribute) {
         context.report({
             node: valueAttribute,
-            message: `[${mtComponentName}] The "value" prop is deprecated. Use "modelValue" instead.`,
+            message: `[${mtComponentName}] The "value" prop is deprecated. Use "model-value" instead.`,
             *fix(fixer)  {
                 if (context.options.includes('disableFix')) return;
 
-                yield fixer.replaceText(valueAttribute.key, 'modelValue');
+                yield fixer.replaceText(valueAttribute.key, 'model-value');
             }
         });
     }
@@ -54,11 +54,11 @@ const handleMtTextarea = (context, node) => {
     if (valueAttributeExpression) {
         context.report({
             node: valueAttributeExpression,
-            message: `[${mtComponentName}] The "value" prop is deprecated. Use "modelValue" instead.`,
+            message: `[${mtComponentName}] The "value" prop is deprecated. Use "model-value" instead.`,
             *fix(fixer)  {
                 if (context.options.includes('disableFix')) return;
 
-                yield fixer.replaceText(valueAttributeExpression.key.argument, 'modelValue');
+                yield fixer.replaceText(valueAttributeExpression.key.argument, 'model-value');
             }
         });
     }
@@ -78,11 +78,11 @@ const handleMtTextarea = (context, node) => {
     if (updateValueEvent) {
         context.report({
             node: updateValueEvent,
-            message: `[${mtComponentName}] The "update:value" event is deprecated. Use "update:modelValue" instead.`,
+            message: `[${mtComponentName}] The "update:value" event is deprecated. Use "update:mode-value" instead.`,
             *fix(fixer)  {
                 if (context.options.includes('disableFix')) return;
 
-                yield fixer.replaceText(updateValueEvent.key.argument, 'update:modelValue');
+                yield fixer.replaceText(updateValueEvent.key.argument, 'update:model-value');
             }
         });
     }
@@ -126,7 +126,7 @@ const mtTextareaValidTests = [
 
 const mtTextareaInvalidTests = [
     {
-        name: '"mt-textarea" wrong "value" prop usage should be replaced with "modelValue"',
+        name: '"mt-textarea" wrong "value" prop usage should be replaced with "model-value"',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -134,14 +134,14 @@ const mtTextareaInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-textarea modelValue="yes" />
+                <mt-textarea model-value="yes" />
             </template>`,
         errors: [{
-            message: '[mt-textarea] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-textarea] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
-        name: '"mt-textarea" wrong "value" prop usage should be replaced with "modelValue" [disableFix]',
+        name: '"mt-textarea" wrong "value" prop usage should be replaced with "model-value" [disableFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -149,11 +149,11 @@ const mtTextareaInvalidTests = [
                 <mt-textarea value="yes" />
             </template>`,
         errors: [{
-            message: '[mt-textarea] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-textarea] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
-        name: '"mt-textarea" wrong "value" prop usage should be replaced with "modelValue" [expression]',
+        name: '"mt-textarea" wrong "value" prop usage should be replaced with "model-value" [expression]',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -161,14 +161,14 @@ const mtTextareaInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-textarea :modelValue="myValue" />
+                <mt-textarea :model-value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-textarea] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-textarea] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
-        name: '"mt-textarea" wrong "value" prop usage should be replaced with "modelValue" [expression, disableFix]',
+        name: '"mt-textarea" wrong "value" prop usage should be replaced with "model-value" [expression, disableFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -176,7 +176,7 @@ const mtTextareaInvalidTests = [
                 <mt-textarea :value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-textarea] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-textarea] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -207,7 +207,7 @@ const mtTextareaInvalidTests = [
         }]
     },
     {
-        name: '"mt-textarea" wrong "update:value" event usage should be replaced with "update:modelValue"',
+        name: '"mt-textarea" wrong "update:value" event usage should be replaced with "update:mode-value"',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -215,14 +215,14 @@ const mtTextareaInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-textarea @update:modelValue="updateValue" />
+                <mt-textarea @update:model-value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-textarea] The "update:value" event is deprecated. Use "update:modelValue" instead.',
+            message: '[mt-textarea] The "update:value" event is deprecated. Use "update:mode-value" instead.',
         }],
     },
     {
-        name: '"mt-textarea" wrong "update:value" event usage should be replaced with "update:modelValue" [disableFix]',
+        name: '"mt-textarea" wrong "update:value" event usage should be replaced with "update:mode-value" [disableFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -230,7 +230,7 @@ const mtTextareaInvalidTests = [
                 <mt-textarea @update:value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-textarea] The "update:value" event is deprecated. Use "update:modelValue" instead.',
+            message: '[mt-textarea] The "update:value" event is deprecated. Use "update:mode-value" instead.',
         }],
     },
     {

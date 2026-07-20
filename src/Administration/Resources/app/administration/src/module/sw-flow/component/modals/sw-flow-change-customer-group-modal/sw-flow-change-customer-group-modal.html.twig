@@ -1,7 +1,7 @@
 {% block sw_flow_change_customer_group_modal %}
 <sw-modal
     class="sw-flow-change-customer-group-modal"
-    :title="$tc('sw-flow.modals.customerGroup.titleChangeCustomerGroup')"
+    :title="$t('sw-flow.modals.customerGroup.titleChangeCustomerGroup')"
     :closable="false"
     @modal-close="onClose"
 >
@@ -15,8 +15,8 @@
         label-property="translated.name"
         value-property="id"
         :criteria="customerGroupCriteria"
-        :label="$tc('sw-flow.modals.customerGroup.labelCustomerGroup')"
-        :placeholder="$tc('sw-flow.modals.customerGroup.placeholderCustomerGroup')"
+        :label="$t('sw-flow.modals.customerGroup.labelCustomerGroup')"
+        :placeholder="$t('sw-flow.modals.customerGroup.placeholderCustomerGroup')"
         :error="fieldError"
     />
     {% endblock %}
@@ -33,7 +33,7 @@
             variant="secondary"
             @click="onClose"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -44,7 +44,7 @@
             size="small"
             @click="onAddAction"
         >
-            {{ sequence.id ? $tc('sw-flow.modals.buttonSaveAction') : $tc('sw-flow.modals.buttonAddAction') }}
+            {{ sequence.id ? $t('sw-flow.modals.buttonSaveAction') : $t('sw-flow.modals.buttonAddAction') }}
         </mt-button>
         {% endblock %}
     </template>

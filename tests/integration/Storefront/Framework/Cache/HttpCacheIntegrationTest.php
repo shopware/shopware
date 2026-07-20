@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -86,7 +87,7 @@ class HttpCacheIntegrationTest extends TestCase
         $this->assertCacheHeader('GET /: fresh', $response);
     }
 
-    public function testCacheHitWithDifferentCacheKeys(): void
+    public function testCacheHashCookieChange(): void
     {
         $kernel = $this->getCacheKernel();
 
@@ -94,7 +95,6 @@ class HttpCacheIntegrationTest extends TestCase
         static::assertIsString($appUrl);
 
         $request = $this->createRequest($appUrl);
-        $request->cookies->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, 'a');
 
         $response = $kernel->handle($request);
         $this->assertCacheHeader('GET /: miss, store', $response);
@@ -104,8 +104,9 @@ class HttpCacheIntegrationTest extends TestCase
 
         $request->cookies->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, 'b');
 
+        // cache miss as request hash differs, no store as it also differs from hash calculated from context
         $response = $kernel->handle($request);
-        $this->assertCacheHeader('GET /: miss, store', $response);
+        $this->assertCacheHeader('GET /: miss', $response);
     }
 
     public function testCacheForAppScriptEndpointIsEnabledByDefault(): void
@@ -209,8 +210,16 @@ class HttpCacheIntegrationTest extends TestCase
         $route = '/storefront/script/custom-cache-config';
         $request = $this->createRequest(EnvironmentHelper::getVariable('APP_URL') . $route);
 
-        $this->addEventListener(static::getContainer()->get('event_dispatcher'), KernelEvents::RESPONSE, function (ResponseEvent $event) use ($route): void {
+        $this->addEventListener(static::getContainer()->get('event_dispatcher'), KernelEvents::RESPONSE, static function (ResponseEvent $event) use ($route): void {
             if ($event->getRequest()->getPathInfo() !== $route) {
+                return;
+            }
+            if (Feature::isActive('v6.8.0.0')) {
+                // with v6.8.0.0 cache policies drive the headers: the script's shared max age
+                // overrides the policy's s-maxage, invalidation states are removed
+                static::assertSame(5, $event->getResponse()->getMaxAge());
+                static::assertNull($event->getResponse()->headers->get(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
+
                 return;
             }
             static::assertSame(5, $event->getResponse()->getMaxAge());

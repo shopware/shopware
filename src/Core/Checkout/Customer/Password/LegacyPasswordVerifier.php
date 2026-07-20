@@ -19,7 +19,7 @@ class LegacyPasswordVerifier
     {
     }
 
-    public function verify(string $password, CustomerEntity $customer): bool
+    public function verify(#[\SensitiveParameter] string $password, CustomerEntity $customer): bool
     {
         if (!$customer->getLegacyEncoder() || !$customer->getLegacyPassword()) {
             throw CustomerException::badCredentials();

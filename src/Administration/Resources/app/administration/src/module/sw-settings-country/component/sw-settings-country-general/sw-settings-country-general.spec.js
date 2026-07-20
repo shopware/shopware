@@ -27,7 +27,7 @@ async function createWrapper(privileges = [], customPropsData = {}) {
 
             global: {
                 mocks: {
-                    $tc: (key) => key,
+                    $t: (key) => key,
                     $route: {
                         params: {
                             id: 'id',
@@ -88,13 +88,6 @@ async function createWrapper(privileges = [], customPropsData = {}) {
 describe('module/sw-settings-country/component/sw-settings-country-general', () => {
     beforeAll(() => {
         Shopware.Store.get('session').setCurrentUser({});
-    });
-
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to show the tax free from', async () => {

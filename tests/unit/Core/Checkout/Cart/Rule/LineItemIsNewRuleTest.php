@@ -48,7 +48,7 @@ class LineItemIsNewRuleTest extends TestCase
     {
         $ruleConstraints = $this->rule->getConstraints();
 
-        $boolType = new Type(['type' => 'bool']);
+        $boolType = new Type(type: 'bool');
 
         static::assertArrayHasKey('isNew', $ruleConstraints, 'Rule Constraint isNew is not defined');
         static::assertCount(1, $ruleConstraints['isNew']);
@@ -62,7 +62,7 @@ class LineItemIsNewRuleTest extends TestCase
 
         $match = $this->rule->match(new LineItemScope(
             $this->createLineItemWithIsNewMarker($isNew),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -95,7 +95,7 @@ class LineItemIsNewRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -115,7 +115,7 @@ class LineItemIsNewRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);

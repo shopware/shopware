@@ -28,7 +28,9 @@ class JsonEntityEncoder
     }
 
     /**
-     * @param EntityCollection<Entity>|Entity|null $data
+     * @template TEntityCollection of EntityCollection
+     *
+     * @param TEntityCollection|Entity|null $data
      *
      * @return ($data is Entity ? array<string, mixed> : list<array<string, mixed>>)
      */
@@ -46,7 +48,9 @@ class JsonEntityEncoder
     }
 
     /**
-     * @param EntityCollection<Entity> $collection
+     * @template TEntityCollection of EntityCollection
+     *
+     * @param TEntityCollection $collection
      *
      * @return list<array<string, mixed>>
      */
@@ -70,7 +74,8 @@ class JsonEntityEncoder
         \assert(\is_array($decoded));
 
         $includes = $criteria->getIncludes() ?? [];
-        $decoded = $this->filterIncludes($includes, $decoded, $entity);
+        $excludes = $criteria->getExcludes() ?? [];
+        $decoded = $this->filterDecodedFields($includes, $excludes, $decoded, $entity);
 
         if (isset($decoded['customFields']) && $decoded['customFields'] === []) {
             $decoded['customFields'] = new \stdClass();
@@ -80,21 +85,40 @@ class JsonEntityEncoder
             $decoded['translated']['customFields'] = new \stdClass();
         }
 
+        if (isset($decoded['extensions'])) {
+            unset($decoded['extensions']['foreignKeys']);
+
+            if ($decoded['extensions'] === []) {
+                unset($decoded['extensions']);
+            }
+        }
+
         return $this->removeNotAllowedFields($decoded, $definition, $baseUrl);
     }
 
     /**
-     * @param array<string, mixed> $includes
+     * @param array<string, list<string>> $includes
+     * @param array<string, list<string>> $excludes
      * @param array<string, mixed> $decoded
      *
      * @return array<string, mixed>
      */
-    private function filterIncludes(array $includes, array $decoded, Struct $struct): array
+    private function filterDecodedFields(array $includes, array $excludes, array $decoded, Struct $struct, bool $appendApiAlias = true): array
     {
         $alias = $struct->getApiAlias();
 
         foreach ($decoded as $property => $value) {
-            if (!$this->propertyAllowed($includes, $alias, $property)) {
+            if ($property === 'extensions' && \is_array($value)) {
+                $decoded[$property] = $this->filterDecodedExtensions($includes, $excludes, $value, $struct);
+
+                if ($decoded[$property] === [] && !$this->propertyAllowed($includes, $excludes, $alias, $property)) {
+                    unset($decoded[$property]);
+                }
+
+                continue;
+            }
+
+            if (!$this->propertyAllowed($includes, $excludes, $alias, $property)) {
                 unset($decoded[$property]);
 
                 continue;
@@ -110,32 +134,96 @@ class JsonEntityEncoder
                 $objects = array_values($object->getElements());
 
                 foreach ($value as $index => $loop) {
-                    $decoded[$property][$index] = $this->filterIncludes($includes, $loop, $objects[$index]);
+                    $decoded[$property][$index] = $this->filterDecodedFields($includes, $excludes, $loop, $objects[$index], $appendApiAlias);
                 }
 
                 continue;
             }
 
             if ($object instanceof Struct) {
-                $decoded[$property] = $this->filterIncludes($includes, $value, $object);
+                $decoded[$property] = $this->filterDecodedFields($includes, $excludes, $value, $object, $appendApiAlias);
             }
         }
 
-        $decoded['apiAlias'] = $alias;
+        if ($appendApiAlias) {
+            $decoded['apiAlias'] = $alias;
+        }
 
         return $decoded;
     }
 
     /**
-     * @param array<string, mixed> $includes
+     * @param array<string, list<string>> $includes
+     * @param array<string, list<string>> $excludes
+     * @param array<string, mixed> $decoded
+     *
+     * @return array<string, mixed>
      */
-    private function propertyAllowed(array $includes, string $alias, string $property): bool
+    private function filterDecodedExtensions(array $includes, array $excludes, array $decoded, Struct $struct): array
     {
-        if (!isset($includes[$alias])) {
-            return true;
+        $alias = $struct->getApiAlias();
+        $extensions = $struct->getExtensions();
+
+        foreach ($decoded as $property => $value) {
+            if (!$this->extensionAllowed($includes, $excludes, $alias, (string) $property)) {
+                unset($decoded[$property]);
+
+                continue;
+            }
+
+            if (\is_array($value) && isset($extensions[$property]) && $extensions[$property] instanceof Collection) {
+                $extension = $extensions[$property];
+                $objects = array_values($extension->getElements());
+
+                foreach ($value as $index => $loop) {
+                    if (\is_array($loop) && isset($objects[$index]) && $objects[$index] instanceof Struct) {
+                        $decoded[$property][$index] = $this->filterDecodedFields($includes, $excludes, $loop, $objects[$index], false);
+                    }
+                }
+
+                continue;
+            }
+
+            if (\is_array($value) && isset($extensions[$property])) {
+                $decoded[$property] = $this->filterDecodedFields($includes, $excludes, $value, $extensions[$property], false);
+            }
         }
 
-        return \in_array($property, $includes[$alias], true);
+        return $decoded;
+    }
+
+    /**
+     * @param array<string, list<string>> $includes
+     * @param array<string, list<string>> $excludes
+     */
+    private function propertyAllowed(array $includes, array $excludes, string $alias, string $property): bool
+    {
+        if (isset($excludes[$alias]) && \in_array($property, $excludes[$alias], true)) {
+            return false;
+        }
+
+        if (isset($includes[$alias])) {
+            return \in_array($property, $includes[$alias], true);
+        }
+
+        return true;
+    }
+
+    /**
+     * @param array<string, list<string>> $includes
+     * @param array<string, list<string>> $excludes
+     */
+    private function extensionAllowed(array $includes, array $excludes, string $alias, string $property): bool
+    {
+        if (isset($excludes[$alias]) && (\in_array('extensions', $excludes[$alias], true) || \in_array($property, $excludes[$alias], true))) {
+            return false;
+        }
+
+        if (isset($includes[$alias])) {
+            return \in_array('extensions', $includes[$alias], true) || \in_array($property, $includes[$alias], true);
+        }
+
+        return true;
     }
 
     /**

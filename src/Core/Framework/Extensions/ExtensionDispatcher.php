@@ -6,24 +6,41 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 #[Package('framework')]
-final class ExtensionDispatcher
+final readonly class ExtensionDispatcher
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly EventDispatcherInterface $dispatcher
+        private EventDispatcherInterface $dispatcher
     ) {
     }
 
+    /**
+     * Prefer `MyExtension::onPre()` on the concrete Extension subclass (it resolves name from `MyExtension::NAME`.
+     * Use this helper directly only when the publisher dispatches under a runtime-determined name.
+     */
     public static function pre(string $name): string
     {
         return $name . '.pre';
     }
 
+    /**
+     * Prefer `MyExtension::onPost()` on the concrete Extension subclass (it resolves name from `MyExtension::NAME`.
+     * Use this helper directly only when the publisher dispatches under a runtime-determined name.
+     */
     public static function post(string $name): string
     {
         return $name . '.post';
+    }
+
+    /**
+     * Prefer `MyExtension::onError()` on the concrete Extension subclass (it resolves name from `MyExtension::NAME`.
+     * Use this helper directly only when the publisher dispatches under a runtime-determined name.
+     */
+    public static function error(string $name): string
+    {
+        return $name . '.error';
     }
 
     /**
@@ -38,7 +55,20 @@ final class ExtensionDispatcher
         $this->dispatcher->dispatch($extension, self::pre($name));
 
         if (!$extension->isPropagationStopped()) {
-            $extension->result = $function(...$extension->getParams());
+            try {
+                $extension->result = $function(...$extension->getParams());
+            } catch (\Throwable $e) {
+                $extension->exception = $e;
+
+                $extension->resetPropagation();
+
+                $this->dispatcher->dispatch($extension, self::error($name));
+
+                // if the extensions want to gracefully handle the exception, they can put in a result, otherwise we rethrow the exception
+                if ($extension->result === null) {
+                    throw $e;
+                }
+            }
         }
 
         $extension->resetPropagation();

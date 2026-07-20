@@ -1,10 +1,14 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package discovery
  */
 import 'src/module/sw-cms/service/cms.service';
+import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import Entity from 'src/core/data/entity.data';
-import CMS from 'src/module/sw-cms/constant/sw-cms.constant';
+
+const { CMS } = Shopware.Constants;
 
 describe('module/sw-cms/service/cms.service.spec.js', () => {
     const cmsService = Shopware.Service('cmsService');
@@ -613,6 +617,14 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                         customFieldType: 'datetime',
                     },
                 },
+                {
+                    id: '16a2beeb80f041c29390efa3432760dd',
+                    name: 'custom_media_field',
+                    type: 'text',
+                    config: {
+                        customFieldType: 'media',
+                    },
+                },
             ];
 
             const mockResponses = global.repositoryFactoryMock.responses;
@@ -815,6 +827,9 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             await cmsService.addCustomFieldsToMappingTypes('product', mappings);
 
             expect(mappings).toEqual({
+                entity: {
+                    media: ['product.customFields.custom_media_field'],
+                },
                 string: [
                     'product.customFields.custom_text_field',
                     'product.customFields.custom_textarea_field',

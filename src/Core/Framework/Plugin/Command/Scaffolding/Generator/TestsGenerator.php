@@ -62,7 +62,7 @@ class TestsGenerator implements ScaffoldingGenerator
             'tests/TestBootstrap.php',
             self::STUB_DIRECTORY . '/test-bootstrap.stub',
             [
-                'namespace' => $configuration->namespace,
+                'namespace' => str_replace('\\', '\\\\', $configuration->namespace),
                 'className' => $configuration->name,
             ]
         );

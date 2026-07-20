@@ -8,10 +8,10 @@ use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\System\Integration\IntegrationCollection;
-use Shopware\Core\System\Integration\IntegrationEntity;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -38,7 +38,7 @@ class IntegrationControllerTest extends TestCase
             'secretAccessKey' => AccessKeyHelper::generateSecretAccessKey(),
         ];
 
-        $client->request('POST', '/api/integration', [], [], [], \json_encode($data, \JSON_THROW_ON_ERROR));
+        $client->jsonRequest('POST', '/api/integration', $data);
 
         $response = $client->getResponse();
 
@@ -56,7 +56,7 @@ class IntegrationControllerTest extends TestCase
             'admin' => true,
         ];
 
-        $client->request('POST', '/api/integration', [], [], [], \json_encode($data, \JSON_THROW_ON_ERROR));
+        $client->jsonRequest('POST', '/api/integration', $data);
 
         $response = $client->getResponse();
 
@@ -81,30 +81,24 @@ class IntegrationControllerTest extends TestCase
 
         $client = $this->getBrowser();
 
-        $json = \json_encode(['admin' => true], \JSON_THROW_ON_ERROR);
-        static::assertIsString($json);
-
-        $client->request(
+        $client->jsonRequest(
             'PATCH',
             '/api/integration/' . $ids->get('integration'),
-            [],
-            [],
-            [],
-            $json
+            ['admin' => true]
         );
 
         $response = $client->getResponse();
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
 
-        /** @var IntegrationCollection|IntegrationEntity[] $assigned */
+        /** @var EntitySearchResult<IntegrationCollection> $assigned */
         $assigned = static::getContainer()->get('integration.repository')
             ->search(new Criteria([$ids->get('integration')]), $context);
 
-        static::assertNotNull($assigned);
-        static::assertCount(1, $assigned);
-        static::assertNotNull($assigned->first());
-        static::assertTrue($assigned->first()->getAdmin());
+        static::assertCount(1, $assigned->getEntities());
+        $integration = $assigned->getEntities()->first();
+        static::assertNotNull($integration);
+        static::assertTrue($integration->getAdmin());
     }
 
     public function testPreventCreateIntegrationWithoutPermissions(): void
@@ -118,7 +112,7 @@ class IntegrationControllerTest extends TestCase
             'secretAccessKey' => AccessKeyHelper::generateSecretAccessKey(),
         ];
 
-        $client->request('POST', '/api/integration', [], [], [], \json_encode($data, \JSON_THROW_ON_ERROR));
+        $client->jsonRequest('POST', '/api/integration', $data);
 
         $response = $client->getResponse();
 
@@ -136,7 +130,7 @@ class IntegrationControllerTest extends TestCase
             'secretAccessKey' => AccessKeyHelper::generateSecretAccessKey(),
         ];
 
-        $client->request('POST', '/api/integration', [], [], [], \json_encode($data, \JSON_THROW_ON_ERROR));
+        $client->jsonRequest('POST', '/api/integration', $data);
 
         $response = $client->getResponse();
 
@@ -155,7 +149,7 @@ class IntegrationControllerTest extends TestCase
             'admin' => true,
         ];
 
-        $client->request('POST', '/api/integration', [], [], [], \json_encode($data, \JSON_THROW_ON_ERROR));
+        $client->jsonRequest('POST', '/api/integration', $data);
 
         $response = $client->getResponse();
 
@@ -181,24 +175,15 @@ class IntegrationControllerTest extends TestCase
         $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['integration:update']);
         $client = $this->getBrowser();
 
-        $json = \json_encode(
+        $client->jsonRequest(
+            'PATCH',
+            '/api/integration/' . $ids->get('integration'),
             [
                 'aclRoles' => [
                     ['id' => $ids->get('role-1'), 'name' => 'role-1'],
                     ['id' => $ids->get('role-2'), 'name' => 'role-2'],
                 ],
-            ],
-            \JSON_THROW_ON_ERROR
-        );
-        static::assertIsString($json);
-
-        $client->request(
-            'PATCH',
-            '/api/integration/' . $ids->get('integration'),
-            [],
-            [],
-            [],
-            $json
+            ]
         );
 
         $response = $client->getResponse();
@@ -208,14 +193,16 @@ class IntegrationControllerTest extends TestCase
         $criteria = new Criteria([$ids->get('integration')]);
         $criteria->addAssociation('aclRoles');
 
-        /** @var IntegrationCollection|IntegrationEntity[] $assigned */
+        /** @var EntitySearchResult<IntegrationCollection> $assigned */
         $assigned = static::getContainer()->get('integration.repository')
             ->search($criteria, $context);
 
-        static::assertNotNull($assigned->first());
-        static::assertNotNull($assigned->first()->getAclRoles());
+        $integration = $assigned->getEntities()->first();
+        static::assertNotNull($integration);
+        $aclRoles = $integration->getAclRoles();
+        static::assertNotNull($aclRoles);
 
-        $aclRoleIds = array_values($assigned->first()->getAclRoles()->getIds());
+        $aclRoleIds = array_values($aclRoles->getIds());
         $expectedIds = $ids->getList(['role-1', 'role-2']);
         sort($expectedIds);
 
@@ -241,28 +228,23 @@ class IntegrationControllerTest extends TestCase
         $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['integration:create']);
         $client = $this->getBrowser();
 
-        $json = \json_encode(['admin' => true], \JSON_THROW_ON_ERROR);
-        static::assertIsString($json);
-
-        $client->request(
+        $client->jsonRequest(
             'PATCH',
             '/api/integration/' . $ids->get('integration'),
-            [],
-            [],
-            [],
-            $json
+            ['admin' => true]
         );
 
         $response = $client->getResponse();
 
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
 
-        /** @var IntegrationCollection|IntegrationEntity[] $assigned */
+        /** @var EntitySearchResult<IntegrationCollection> $assigned */
         $assigned = static::getContainer()->get('integration.repository')
             ->search(new Criteria([$ids->get('integration')]), $context);
 
-        static::assertCount(1, $assigned);
-        static::assertNotNull($assigned->first());
-        static::assertFalse($assigned->first()->getAdmin());
+        static::assertCount(1, $assigned->getEntities());
+        $integration = $assigned->getEntities()->first();
+        static::assertNotNull($integration);
+        static::assertFalse($integration->getAdmin());
     }
 }

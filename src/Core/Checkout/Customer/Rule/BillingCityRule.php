@@ -37,7 +37,7 @@ class BillingCityRule extends Rule
             return false;
         }
 
-        if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
+        if (!$customer = $scope->getCustomer()) {
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
@@ -57,7 +57,7 @@ class BillingCityRule extends Rule
         $constraints = [
             'operator' => [
                 new NotBlank(),
-                new Choice([Rule::OPERATOR_EQ, Rule::OPERATOR_NEQ, Rule::OPERATOR_EMPTY]),
+                new Choice(choices: [Rule::OPERATOR_EQ, Rule::OPERATOR_NEQ, Rule::OPERATOR_EMPTY]),
             ],
         ];
 

@@ -44,17 +44,23 @@ async function createWrapper(mediaServiceFunctions = {}, props = {}) {
                 },
                 'sw-media-preview-v2': true,
                 'sw-text-field': true,
+                'mt-text-field': true,
                 'sw-context-menu-item': true,
                 'sw-media-modal-replace': true,
                 'sw-media-modal-delete': true,
                 'sw-media-modal-move': true,
+                'sw-media-modal-v2': true,
                 'sw-app-action-button': true,
+                'sw-extension-icon': true,
+                'mt-icon': true,
+                'sw-time-ago': true,
             },
         },
         props: {
             item: {
                 url: 'https://example.com/Test.png',
                 fileName: 'Test.png',
+                fileExtension: 'png',
                 fileSize: 12345,
                 mimeType: 'image/png',
                 id: 'media-id',
@@ -68,9 +74,34 @@ async function createWrapper(mediaServiceFunctions = {}, props = {}) {
 }
 
 describe('components/media/sw-media-media-item', () => {
-    it('should be a Vue.JS component', async () => {
+    beforeEach(() => {
+        Shopware.Store.get('actionButtons').buttons = [];
+    });
+
+    it('should update item with repository data after successful rename', async () => {
+        global.activeAclRoles = ['media.editor'];
+
+        const updatedItem = {
+            id: 'media-id',
+            fileName: 'new file name',
+            url: 'https://example.com/new-file-name.png',
+        };
+
+        const getMock = jest.fn().mockResolvedValue(updatedItem);
+        jest.spyOn(Shopware.Service('repositoryFactory'), 'create').mockReturnValue({ get: getMock });
+
         const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
+        wrapper.vm.createNotificationSuccess = jest.fn();
+
+        const item = { id: 'media-id', isLoading: false };
+        await wrapper.vm.onChangeName('new file name', item, () => {});
+
+        expect(getMock).toHaveBeenCalledWith('media-id');
+        expect(item.fileName).toBe('new file name');
+        expect(item.url).toBe('https://example.com/new-file-name.png');
+        expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalledWith({
+            message: 'global.sw-media-media-item.notification.renamingSuccess.message',
+        });
     });
 
     it('should throw error if new file name is too long', async () => {
@@ -87,7 +118,6 @@ describe('components/media/sw-media-media-item', () => {
 
         const wrapper = await createWrapper({
             renameMedia: () =>
-                // eslint-disable-next-line prefer-promise-reject-errors
                 Promise.reject({
                     response: {
                         data: {
@@ -124,7 +154,6 @@ describe('components/media/sw-media-media-item', () => {
 
         const wrapper = await createWrapper({
             renameMedia: () =>
-                // eslint-disable-next-line prefer-promise-reject-errors
                 Promise.reject({
                     response: {
                         data: {
@@ -208,6 +237,20 @@ describe('components/media/sw-media-media-item', () => {
         const wrapper = await createWrapper();
         const actionButton = wrapper.find('sw-app-action-button-stub');
         expect(actionButton.exists()).toBeTruthy();
+    });
+
+    it('should not show action button from apps if the file type is not supported', async () => {
+        Shopware.Store.get('actionButtons').add({
+            name: 'media-button',
+            entity: 'media',
+            view: 'item',
+            label: 'Navigate to app',
+            fileTypes: ['pdf'], // our test item has type .png
+        });
+
+        const wrapper = await createWrapper();
+        const actionButton = wrapper.find('sw-app-action-button-stub');
+        expect(actionButton.exists()).toBeFalsy();
     });
 
     it('should call the action button method', async () => {

@@ -3,8 +3,14 @@
 namespace Shopware\Elasticsearch\Migration\Traits;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Elasticsearch\Framework\SystemUpdateListener;
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed as it unused
+ *
+ * @phpstan-ignore trait.unused
+ */
 trait ElasticsearchTriggerTrait
 {
     /**
@@ -12,6 +18,11 @@ trait ElasticsearchTriggerTrait
      */
     public function triggerElasticsearchIndexing(Connection $connection): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0')
+        );
+
         $connection->executeStatement(
             '
             REPLACE INTO app_config (`key`, `value`) VALUES

@@ -66,13 +66,15 @@ class SalesChannelTypeValidatorTest extends TestCase
     public function testDeleteSalesChannel(): void
     {
         $id = $this->createSalesChannel()['id'];
+        $context = Context::createDefaultContext();
 
         $repo = static::getContainer()->get('sales_channel.repository');
         $repo->delete([
             [
                 'id' => $id,
             ],
-        ], Context::createDefaultContext());
+        ], $context);
+        static::assertNull($repo->searchIds(new Criteria([$id]), $context)->firstId());
     }
 
     /**

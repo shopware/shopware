@@ -6,7 +6,12 @@ import { mount } from '@vue/test-utils';
 const categoryId = 'some-category-id';
 const cmsPageId = 'some-cms-page-id';
 
-async function createWrapper() {
+async function createWrapper(
+    category = {
+        id: categoryId,
+        cmsPageId,
+    },
+) {
     return mount(await wrapTestComponent('sw-category-layout-card', { sync: true }), {
         global: {
             stubs: {
@@ -20,6 +25,14 @@ async function createWrapper() {
                     template: '<div class="mt-card"><slot></slot></div>',
                 },
                 'sw-cms-layout-modal': true,
+                'sw-context-button': {
+                    template: `
+                        <div class="sw-context-button">
+                            <slot></slot>
+                        </div>`,
+                },
+                'sw-context-menu-item': true,
+                'sw-cms-reset-inheritance': true,
             },
             mocks: {
                 $route: {
@@ -37,10 +50,7 @@ async function createWrapper() {
             },
         },
         props: {
-            category: {
-                id: categoryId,
-                cmsPageId,
-            },
+            category,
         },
     });
 }
@@ -93,7 +103,7 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
 
         const pageBuilderButton = wrapper.find('.sw-category-detail-layout__open-in-pagebuilder');
 
-        expect(pageBuilderButton.attributes('disabled')).toBeUndefined();
+        expect(pageBuilderButton.attributes('disabled')).toBe('false');
     });
 
     it('should have an disabled button for open the page builder', async () => {
@@ -118,7 +128,7 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
 
         const resetLayoutButton = wrapper.find('.sw-category-detail-layout__layout-reset');
 
-        expect(resetLayoutButton.attributes('disabled')).toBeUndefined();
+        expect(resetLayoutButton.attributes('disabled')).toBe('false');
     });
 
     it('should have an disabled button for resetting the layout', async () => {
@@ -140,7 +150,7 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
         global.activeAclRoles = ['category.editor'];
         const wrapper = await createWrapper();
 
-        await wrapper.find('button.sw-category-detail-layout__open-in-pagebuilder').trigger('click');
+        await wrapper.find('.sw-category-detail-layout__open-in-pagebuilder').trigger('click');
 
         const routerPush = wrapper.vm.$router.push;
 
@@ -165,7 +175,7 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
             },
         });
 
-        await wrapper.find('button.sw-category-detail-layout__open-in-pagebuilder').trigger('click');
+        await wrapper.find('.sw-category-detail-layout__open-in-pagebuilder').trigger('click');
 
         const routerPush = wrapper.vm.$router.push;
 
@@ -174,5 +184,41 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
             name: 'sw.cms.detail',
             params: { id: cmsPageId },
         });
+    });
+
+    it('should reset translated slotConfig overrides when changing the layout', async () => {
+        const translatedSlotConfig = {
+            staleSlotId: {
+                content: {
+                    value: 'stale override',
+                },
+            },
+        };
+
+        const category = {
+            id: categoryId,
+            cmsPageId,
+            slotConfig: {
+                currentSlotId: {
+                    content: {
+                        value: 'current override',
+                    },
+                },
+            },
+            translations: [
+                {
+                    languageId: 'some-other-language-id',
+                    slotConfig: translatedSlotConfig,
+                },
+            ],
+        };
+
+        const wrapper = await createWrapper(category);
+
+        wrapper.vm.onLayoutSelect('new-layout-id');
+
+        expect(category.cmsPageId).toBe('new-layout-id');
+        expect(category.slotConfig).toBeNull();
+        expect(category.translations[0].slotConfig).toBeNull();
     });
 });

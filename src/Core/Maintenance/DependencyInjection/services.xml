@@ -13,6 +13,9 @@
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter"/>
             <argument type="service" id="Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
+            <argument type="service" id="Shopware\Core\Installer\Finish\SystemLocker"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <tag name="console.command"/>
         </service>
 
@@ -54,6 +57,11 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelReplaceUrlCommand">
+            <argument type="service" id="sales_channel_domain.repository"/>
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Core\Maintenance\System\Command\SystemConfigureShopCommand">
             <argument type="service" id="Shopware\Core\Maintenance\System\Service\ShopConfigurator"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
@@ -73,6 +81,7 @@
         <service id="Shopware\Core\Maintenance\System\Service\ShopConfigurator">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Symfony\Component\EventDispatcher\EventDispatcherInterface"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelCreateCommand">
@@ -125,34 +134,55 @@
 
         <service id="Shopware\Core\Maintenance\User\Service\UserProvisioner" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter"/>
 
+        <service id="Shopware\Core\Installer\Finish\SystemLocker">
+            <argument>%kernel.project_dir%</argument>
+        </service>
+
         <service id="Shopware\Core\Maintenance\Staging\Command\SystemSetupStagingCommand">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument>%shopware.staging.mailing.disable_delivery%</argument>
+            <argument>%shopware.staging.sales_channel.domain_rewrite%</argument>
+            <argument>%shopware.staging.extensions.disable%</argument>
+            <argument>%shopware.staging.system_config%</argument>
 
             <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Maintenance\Staging\Handler\StagingAppHandler">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
 
             <tag name="kernel.event_listener"/>
         </service>
 
         <service id="Shopware\Core\Maintenance\Staging\Handler\StagingMailHandler">
-            <argument>%shopware.staging.mailing.disable_delivery%</argument>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 
             <tag name="kernel.event_listener"/>
         </service>
 
         <service id="Shopware\Core\Maintenance\Staging\Handler\StagingSalesChannelHandler">
-            <argument>%shopware.staging.sales_channel.domain_rewrite%</argument>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="kernel.event_listener"/>
+        </service>
+
+        <service id="Shopware\Core\Maintenance\Staging\Handler\StagingExtensionHandler">
+            <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionLifecycleService"/>
+
+            <tag name="kernel.event_listener"/>
+        </service>
+
+        <service id="Shopware\Core\Maintenance\Staging\Handler\StagingSystemConfigHandler">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 
             <tag name="kernel.event_listener"/>
         </service>

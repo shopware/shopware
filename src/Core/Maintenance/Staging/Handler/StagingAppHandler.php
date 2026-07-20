@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal
@@ -16,7 +15,7 @@ readonly class StagingAppHandler
 {
     public function __construct(
         private Connection $connection,
-        private SystemConfigService $systemConfigService
+        private ShopIdProvider $shopIdProvider
     ) {
     }
 
@@ -24,7 +23,7 @@ readonly class StagingAppHandler
     {
         $this->deleteAppsWithAppServer($event);
 
-        $this->systemConfigService->delete(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
+        $this->shopIdProvider->deleteShopId();
     }
 
     private function deleteAppsWithAppServer(SetupStagingEvent $event): void

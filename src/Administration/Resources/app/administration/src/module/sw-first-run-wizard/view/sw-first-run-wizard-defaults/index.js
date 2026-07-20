@@ -41,7 +41,7 @@ export default {
             const buttons = [
                 {
                     key: 'next',
-                    label: this.$tc('sw-first-run-wizard.general.buttonNext'),
+                    label: this.$t('sw-first-run-wizard.general.buttonNext'),
                     position: 'right',
                     variant: 'primary',
                     action: this.nextAction.bind(this),
@@ -49,10 +49,10 @@ export default {
                 },
             ];
 
-            if (!Shopware.Store.get('context').app.config.settings.disableExtensionManagement) {
+            if (!Shopware.Store.get('context').app.config.settings?.disableExtensionManagement) {
                 buttons.unshift({
                     key: 'back',
-                    label: this.$tc('sw-first-run-wizard.general.buttonBack'),
+                    label: this.$t('global.default.back'),
                     position: 'left',
                     variant: 'secondary',
                     action: 'sw.first.run.wizard.index.data-import',
@@ -84,7 +84,7 @@ export default {
         },
 
         setTitle() {
-            this.$emit('frw-set-title', this.$tc('sw-first-run-wizard.defaults.modalTitle'));
+            this.$emit('frw-set-title', this.$t('sw-first-run-wizard.defaults.modalTitle'));
         },
 
         async nextAction() {

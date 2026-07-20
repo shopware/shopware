@@ -1,12 +1,11 @@
 {% block sw_settings_list %}
 {% block sw_settings_language_index %}
 <sw-page class="sw-settings-language-list">
-
     {% block sw_settings_language_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
             initial-search-type="language"
-            :placeholder="$tc('sw-settings-language.general.placeholderSearchBar')"
+            :placeholder="$t('sw-settings-language.general.placeholderSearchBar')"
             :initial-search="term"
             @search="onSearch"
         />
@@ -15,40 +14,33 @@
 
     {% block sw_settings_language_list_smart_bar_header %}
     <template #smart-bar-header>
-
         {% block sw_settings_language_list_smart_bar_header_title %}
         <h2>
-
             {% block sw_settings_language_list_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }}
+            <span>{{ $t('sw-settings.index.title') }}</span>
+
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
-            /> {{ $tc('sw-settings-language.list.textHeadline') }}
+            />
+
+            <span>{{ $t('sw-settings-language.list.textHeadline') }}</span>
             {% endblock %}
 
+            {# @deprecated tag:v6.8.0 - Block will be removed. #}
             {% block sw_settings_language_list_smart_bar_header_amount %}
-            <span
-                v-if="!isLoading"
-                class="sw-page__smart-bar-amount"
-            >
-                ({{ total }})
-            </span>
             {% endblock %}
-
         </h2>
         {% endblock %}
-
     </template>
     {% endblock %}
 
     {% block sw_settings_language_list_smart_bar_actions %}
     <template #smart-bar-actions>
-
         {% block sw_settings_language_list_smart_bar_actions_add %}
         <mt-button
             v-tooltip.bottom="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: allowCreate,
                 showOnDisabledElements: true
             }"
@@ -58,7 +50,7 @@
             size="default"
             @click="$router.push({ name: 'sw.settings.language.create' })"
         >
-            {{ $tc('sw-settings-language.list.buttonAddLanguage') }}
+            {{ $t('sw-settings-language.list.buttonAddLanguage') }}
         </mt-button>
         {% endblock %}
 
@@ -67,115 +59,171 @@
 
     {% block sw_settings_language_list_content %}
     <template #content>
-        <sw-entity-listing
-            key="language-listing"
-            class="sw-settings-language-list-grid"
-            detail-route="sw.settings.language.detail"
-            :is-loading="isLoading"
-            :repository="languageRepository"
-            :columns="getColumns"
-            :items="languages"
-            :sort-by="sortBy"
-            :sort-direction="sortDirection"
-            :disable-data-fetching="true"
-            :allow-view="allowView || undefined"
-            :allow-edit="allowEdit || undefined"
-            :allow-inline-edit="allowInlineEdit || undefined"
-            :allow-delete="allowDelete || undefined"
-            @column-sort="onSortColumn"
-            @page-change="onPageChange"
-        >
 
-            {% block sw_settings_language_list_content_list_content %}
-            {% block sw_settings_language_list_content_list_columns %}
-            {% block sw_settings_language_list_content_list_column_name %}
-            <template #column-name="{ item, column, compact, isInlineEdit }">
-
-                <mt-text-field
-                    v-if="isInlineEdit"
-                    v-model="item.name"
-                    :size="compact ? 'small' : 'default'"
-                />
-                <router-link
-                    v-else
-                    :title="$tc('sw-settings-language.list.contextMenuEdit')"
-                    :to="{ name: 'sw.settings.language.detail', params: { id: item.id } }"
+        <sw-card-view>
+            <div class="sw-settings-language-list__snippet-link-wrapper">
+                <mt-link
+                    class="sw-settings-language-list__snippet-link"
+                    :to="{ name: 'sw.settings.snippet.index' }"
+                    type="internal"
                 >
-                    {{ item.name }}
-                </router-link>
-            </template>
-            {% endblock %}
+                    {{ $t('sw-settings-language.list.manageSnippets') }}
+                </mt-link>
+            </div>
 
-            {% block sw_settings_language_list_content_list_column_locale %}
-            <template #column-locale="{ item, column, compact, isInlineEdit }">
-                {{ item.locale.translated.name }}, {{ item.locale.translated.territory }}
-            </template>
-            {% endblock %}
+            <mt-card
+                class="sw-settings-language-list__card"
+                position-identifier="sw-settings-language-list"
+                :title="cardTitle"
+                :subtitle="$t('sw-settings-language.list.cardSubtitle')"
+            >
+                <template #grid>
+                    <sw-entity-listing
+                        key="language-listing"
+                        class="sw-settings-language-list-grid"
+                        detail-route="sw.settings.language.detail"
+                        :is-loading="isLoading"
+                        :repository="languageRepository"
+                        :columns="getColumns"
+                        :data-source="languages"
+                        :sort-by="sortBy"
+                        :sort-direction="sortDirection"
+                        :disable-data-fetching="true"
+                        :allow-view="allowView || undefined"
+                        :allow-edit="allowEdit || undefined"
+                        :allow-inline-edit="allowInlineEdit || undefined"
+                        :allow-delete="allowDelete || undefined"
+                        :full-page="false"
+                        @column-sort="onSortColumn"
+                        @page-change="onPageChange"
+                    >
+                        {% block sw_settings_language_list_content_list_content %}
+                        {% block sw_settings_language_list_content_list_columns %}
+                        {% block sw_settings_language_list_content_list_column_name %}
+                        <template #column-name="{ item, column, compact, isInlineEdit }">
+                            <mt-text-field
+                                v-if="isInlineEdit"
+                                v-model="item.name"
+                                :size="compact ? 'small' : 'default'"
+                            />
 
-            {% block sw_settings_language_list_content_list_column_id %}
-            <template #column-id="{ item, column, compact, isInlineEdit }">
-                <mt-icon
-                    v-if="isDefault(item.id)"
-                    name="regular-checkmark-xs"
-                    size="16px"
-                    class="is--default"
-                />
-                <div v-else></div>
-            </template>
-            {% endblock %}
+                            <mt-link
+                                v-else
+                                :to="{ name: 'sw.settings.language.detail', params: { id: item.id } }"
+                            >
+                                {{ item.name }}
+                            </mt-link>
 
-            {% block sw_settings_language_list_content_list_column_parent %}
-            <template #column-parent="{ item, column, compact, isInlineEdit }">
-                {{ getParentName(item) }}
-            </template>
-            {% endblock %}
-            {% endblock %}
+                            <mt-badge
+                                v-if="isDefault(item.id) && !isInlineEdit"
+                                variant="neutral"
+                                size="s"
+                                class="sw-settings-language-list__default-label"
+                            >
+                                {{ $t('sw-settings-language.list.defaultLabel') }}
+                            </mt-badge>
+                        </template>
+                        {% endblock %}
 
-            {% block sw_settings_language_list_content_list_delete %}
-            {% block sw_settings_language_list_content_list_delete_action %}
-            <template #delete-action="{ item, showDelete }">
-                <sw-context-menu-item
-                    v-tooltip.bottom="tooltipDelete(item.id)"
-                    class="sw-settings-language-list__delete-action"
-                    variant="danger"
-                    :disabled="isDefault(item.id) || !allowDelete || undefined"
-                    @click="showDelete(item.id)"
-                >
-                    {{ $tc('global.default.delete') }}
-                </sw-context-menu-item>
-            </template>
-            {% endblock %}
+                        <template #column-active="{ item, isInlineEdit }">
+                            <template v-if="isInlineEdit && !isDefault(item.id)">
+                                <mt-checkbox
+                                    v-model:checked="item.active"
+                                />
+                            </template>
 
-            {% block sw_settings_language_list_content_list_delete_confirm_action %}
-            <template #delete-confirm-text="{ item }">
-                {{ $tc('sw-settings-language.list.textDeleteConfirm', { name: item.name }, 1 ) }}
-            </template>
-            {% endblock %}
-            {% endblock %}
-            {% endblock %}
+                            <template v-else>
+                                <mt-icon
+                                    v-if="item.active"
+                                    name="regular-checkmark-xs"
+                                    size="12px"
+                                    class="is--active"
+                                />
 
-        </sw-entity-listing>
+                                <mt-icon
+                                    v-else
+                                    name="regular-times-s"
+                                    size="12px"
+                                    class="is--inactive"
+                                />
+                            </template>
+                        </template>
+
+                        {% block sw_settings_language_list_content_list_column_locale %}
+                        <template #column-locale="{ item, column, compact, isInlineEdit }">
+                            {{ item.locale.translated.name }}, {{ item.locale.translated.territory }}
+                        </template>
+                        {% endblock %}
+
+                        {# @deprecated tag:v6.8.0 - Block will be removed. #}
+                        {% block sw_settings_language_list_content_list_column_id %}
+                        <template #column-id="{ item, column, compact, isInlineEdit }">
+                            <mt-icon
+                                v-if="isDefault(item.id)"
+                                name="regular-checkmark-xs"
+                                size="16px"
+                                class="is--active"
+                            />
+                        </template>
+                        {% endblock %}
+
+                        {% block sw_settings_language_list_content_list_column_parent %}
+                        <template #column-parent="{ item, column, compact, isInlineEdit }">
+                            {{ getParentName(item) }}
+                        </template>
+                        {% endblock %}
+                        {% endblock %}
+
+                        {% block sw_settings_language_list_content_list_delete %}
+                        {% block sw_settings_language_list_content_list_delete_action %}
+                        <template #delete-action="{ item, showDelete }">
+                            <sw-context-menu-item
+                                v-tooltip.bottom="tooltipDelete(item.id)"
+                                class="sw-settings-language-list__delete-action"
+                                variant="danger"
+                                :disabled="isDefault(item.id) || !allowDelete || undefined"
+                                @click="showDelete(item.id)"
+                            >
+                                {{ $t('global.default.delete') }}
+                            </sw-context-menu-item>
+                        </template>
+                        {% endblock %}
+
+                        {% block sw_settings_language_list_content_list_delete_confirm_action %}
+                        <template #delete-confirm-text="{ item }">
+                            {{ $t('sw-settings-language.list.textDeleteConfirm', { name: item.name }, 1 ) }}
+                        </template>
+                        {% endblock %}
+                        {% endblock %}
+                        {% endblock %}
+
+                    </sw-entity-listing>
+                </template>
+            </mt-card>
+        </sw-card-view>
     </template>
+
     {% endblock %}
 
     {% block sw_settings_language_list_grid_sidebar %}
     <template #sidebar>
-        <sw-sidebar :propagate-width="true">
-
+        <sw-sidebar
+            :propagate-width="true"
+            @item-register="registerFilterSidebarItem"
+        >
             {% block sw_settings_language_list_grid_sidebar_filter %}
             <sw-sidebar-item
                 icon="regular-filter"
-                :title="$tc('sw-settings-language.list.titleSidebarFilter')"
+                :title="$t('sw-settings-language.list.titleSidebarFilter')"
+                :tooltip-shortcut="['O', 'F']"
             >
                 <sw-collapse expand-on-loading>
-
                     {% block sw_settings_language_list_grid_sidebar_filter_header %}
                     <template #header="{ expanded }">
                         <div class="sw-settings-language-list__collapse-header">
-
                             {% block sw_settings_language_list_grid_sidebar_filter_header_title %}
                             <h4 class="sw-settings-language-list__collapse-title">
-                                {{ $tc('sw-settings-language.list.titleSidebarQuickFilter') }}
+                                {{ $t('sw-settings-language.list.titleSidebarQuickFilter') }}
                             </h4>
                             {% endblock %}
 
@@ -184,8 +232,8 @@
                             <mt-icon
                                 v-if="expanded"
                                 class="sw-media-collapse__button"
-                                name="regular-chevron-down-xxs"
-                                size="12px"
+                                name="regular-chevron-down-xs"
+                                size="10px"
                             />
                             {% endblock %}
 
@@ -193,48 +241,40 @@
                             <mt-icon
                                 v-else
                                 class="sw-media-collapse__button"
-                                name="regular-chevron-right-xxs"
-                                size="12px"
+                                name="regular-chevron-right-xs"
+                                size="10px"
                             />
                             {% endblock %}
                             {% endblock %}
-
                         </div>
                     </template>
                     {% endblock %}
 
                     {% block sw_settings_language_list_grid_sidebar_filter_content %}
                     <template #content>
-
                         {% block sw_settings_language_list_grid_sidebar_filter_content_root_languages %}
-
                         <mt-switch
                             v-model="filterRootLanguages"
                             class="sw-settings-language-list__filterField"
-                            :label="$tc('sw-settings-language.list.textFilterRootLanguages')"
+                            :label="$t('sw-settings-language.list.textFilterRootLanguages')"
                         />
                         {% endblock %}
 
                         {% block sw_settings_language_list_grid_sidebar_filter_content_inherited_languages %}
-
                         <mt-switch
                             v-model="filterInheritedLanguages"
                             class="sw-settings-language-list__filterField"
-                            :label="$tc('sw-settings-language.list.textFilterInheritedLanguages')"
+                            :label="$t('sw-settings-language.list.textFilterInheritedLanguages')"
                         />
                         {% endblock %}
-
                     </template>
                     {% endblock %}
-
                 </sw-collapse>
             </sw-sidebar-item>
             {% endblock %}
-
         </sw-sidebar>
     </template>
     {% endblock %}
-
 </sw-page>
-    {% endblock %}
+{% endblock %}
 {% endblock %}

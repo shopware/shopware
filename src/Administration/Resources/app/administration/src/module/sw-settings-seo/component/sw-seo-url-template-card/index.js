@@ -170,7 +170,7 @@ export default {
                 },
             );
 
-            this.variableStores.id = storeOptions;
+            this.variableStores[id] = storeOptions;
         },
         getVariableOptions(id) {
             if (this.variableStores.hasOwnProperty(id)) {
@@ -180,8 +180,8 @@ export default {
         },
         getLabel(seoUrlTemplate) {
             const routeName = seoUrlTemplate.routeName.replace(/\./g, '-');
-            if (this.$tc(`sw-seo-url-template-card.routeNames.${routeName}`)) {
-                return this.$tc(`sw-seo-url-template-card.routeNames.${routeName}`);
+            if (this.$t(`sw-seo-url-template-card.routeNames.${routeName}`)) {
+                return this.$t(`sw-seo-url-template-card.routeNames.${routeName}`);
             }
 
             return seoUrlTemplate.routeName;
@@ -230,8 +230,8 @@ export default {
                 });
         },
         createSaveErrorNotification() {
-            const titleSaveSuccess = this.$tc('global.default.error');
-            const messageSaveSuccess = this.$tc('sw-seo-url-template-card.general.messageSaveError');
+            const titleSaveSuccess = this.$t('global.default.error');
+            const messageSaveSuccess = this.$t('sw-seo-url-template-card.general.messageSaveError');
 
             this.createNotificationError({
                 title: titleSaveSuccess,
@@ -239,8 +239,8 @@ export default {
             });
         },
         createSaveSuccessNotification() {
-            const titleSaveSuccess = this.$tc('global.default.success');
-            const messageSaveSuccess = this.$tc('sw-seo-url-template-card.general.messageSaveSuccess');
+            const titleSaveSuccess = this.$t('global.default.success');
+            const messageSaveSuccess = this.$t('sw-seo-url-template-card.general.messageSaveSuccess');
 
             this.createNotificationSuccess({
                 title: titleSaveSuccess,
@@ -275,7 +275,6 @@ export default {
             this.debouncedPreviews[entity.id]();
         },
         setErrorMessagesForEntity(entity, value = null) {
-            // eslint-disable-next-line no-lonely-if
             this.errorMessages[entity.id] = value;
         },
         fetchSeoUrlPreview(entity) {

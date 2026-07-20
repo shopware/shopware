@@ -27,7 +27,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 abstract class AbstractFieldSerializer implements FieldSerializerInterface
 {
     /**
-     * @var array<Constraint[]>
+     * @var array<string, list<Constraint>>
      */
     private array $cachedConstraints = [];
 
@@ -42,6 +42,9 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
         return $data;
     }
 
+    /**
+     * @param list<Constraint> $constraints
+     */
     protected function validate(
         array $constraints,
         KeyValuePair $data,
@@ -87,6 +90,9 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
         }
     }
 
+    /**
+     * @param mixed $value
+     */
     protected function requiresValidation(
         Field $field,
         EntityExistence $existence,
@@ -140,7 +146,7 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
     }
 
     /**
-     * @return Constraint[]
+     * @return list<Constraint>
      */
     protected function getConstraints(Field $field): array
     {
@@ -148,7 +154,7 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
     }
 
     /**
-     * @return Constraint[]
+     * @return list<Constraint>
      */
     protected function getCachedConstraints(Field $field): array
     {
@@ -171,9 +177,7 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
             return strip_tags((string) $data->getValue());
         }
 
-        $flag = $field->getFlag(AllowHtml::class);
-
-        if ($flag instanceof AllowHtml && $flag->isSanitized()) {
+        if ($field->getFlag(AllowHtml::class)->isSanitized()) {
             $fieldKey = \sprintf('%s.%s', (string) $existence->getEntityName(), $field->getPropertyName());
 
             return $sanitizer->sanitize((string) $data->getValue(), [], false, $fieldKey);

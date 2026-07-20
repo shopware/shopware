@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Field;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
@@ -40,8 +41,14 @@ class OneToOneAssociationFieldTest extends TestCase
 
     private Connection $connection;
 
+    /**
+     * @var EntityRepository<EntityCollection<Entity>>
+     */
     private EntityRepository $repository;
 
+    /**
+     * @var EntityRepository<EntityCollection<Entity>>
+     */
     private EntityRepository $subRepository;
 
     protected function setUp(): void
@@ -235,7 +242,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 
         $this->repository->create([$data], $context);
 
-        $entity = $this->repository->search(new Criteria([$id]), $context)->first();
+        $entity = $this->repository->search(new Criteria([$id]), $context)->getEntities()->first();
 
         static::assertInstanceOf(ArrayEntity::class, $entity);
         static::assertSame($id, $entity->getId());
@@ -249,7 +256,7 @@ SET FOREIGN_KEY_CHECKS = 1;
         $criteria->addAssociation('root');
         $criteria->addAssociation('manies');
 
-        $sub = $this->subRepository->search($criteria, $context)->first();
+        $sub = $this->subRepository->search($criteria, $context)->getEntities()->first();
         static::assertNotNull($sub);
         static::assertInstanceOf(ArrayEntity::class, $sub->get('root'));
 
@@ -293,8 +300,8 @@ SET FOREIGN_KEY_CHECKS = 1;
         $criteria->addFilter(new EqualsFilter('root.sub.name', 'sub 2'));
         $result = $this->repository->search($criteria, $context);
 
-        static::assertCount(1, $result);
-        static::assertTrue($result->has($id2));
+        static::assertCount(1, $result->getEntities());
+        static::assertTrue($result->getEntities()->has($id2));
     }
 
     public function testAggregate(): void
@@ -371,7 +378,7 @@ SET FOREIGN_KEY_CHECKS = 1;
             ],
         ], $versionContext);
 
-        $root = $this->repository->search(new Criteria([$id]), $context)->first();
+        $root = $this->repository->search(new Criteria([$id]), $context)->getEntities()->first();
         static::assertInstanceOf(ArrayEntity::class, $root);
         static::assertSame('root 1', $root->get('name'));
 
@@ -379,7 +386,7 @@ SET FOREIGN_KEY_CHECKS = 1;
         static::assertInstanceOf(ArrayEntity::class, $sub);
         static::assertSame('sub 1', $sub->get('name'));
 
-        $root = $this->repository->search(new Criteria([$id]), $versionContext)->first();
+        $root = $this->repository->search(new Criteria([$id]), $versionContext)->getEntities()->first();
         static::assertNotNull($root);
         static::assertSame('updated root', $root->get('name'));
 
@@ -389,7 +396,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 
         $this->repository->merge($versionId, $context);
 
-        $root = $this->repository->search(new Criteria([$id]), $context)->first();
+        $root = $this->repository->search(new Criteria([$id]), $context)->getEntities()->first();
         static::assertNotNull($root);
         static::assertSame('updated root', $root->get('name'));
 

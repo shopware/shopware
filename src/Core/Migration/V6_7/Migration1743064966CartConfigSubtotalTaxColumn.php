@@ -32,7 +32,7 @@ class Migration1743064966CartConfigSubtotalTaxColumn extends MigrationStep
             [$key]
         );
 
-        if (!empty($config)) {
+        if ($config !== []) {
             return;
         }
 

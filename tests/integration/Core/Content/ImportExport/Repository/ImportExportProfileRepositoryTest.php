@@ -7,9 +7,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Exception\DeleteDefaultProfileException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -23,6 +25,9 @@ class ImportExportProfileRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<EntityCollection<ImportExportProfileEntity>>
+     */
     private EntityRepository $repository;
 
     private Connection $connection;
@@ -52,17 +57,21 @@ class ImportExportProfileRepositoryTest extends TestCase
             ['id' => $id]
         );
 
-        $translationRecord = $this->connection->fetchAssociative(
-            'SELECT * FROM import_export_profile_translation WHERE import_export_profile_id = :id',
-            ['id' => $id]
-        );
-        static::assertIsArray($translationRecord);
-
         $expect = $data[$id];
         static::assertIsArray($record);
         static::assertSame($id, $record['id']);
         static::assertSame($expect['technicalName'], $record['technical_name']);
-        static::assertSame($expect['label'], $translationRecord['label']);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $translationRecord = $this->connection->fetchAssociative(
+                'SELECT * FROM import_export_profile_translation WHERE import_export_profile_id = :id',
+                ['id' => $id]
+            );
+
+            static::assertIsArray($translationRecord);
+            static::assertSame($expect['label'], $translationRecord['label']);
+        }
+
         static::assertSame($expect['systemDefault'], (bool) $record['system_default']);
         static::assertSame($expect['sourceEntity'], $record['source_entity']);
         static::assertSame($expect['fileType'], $record['file_type']);
@@ -101,14 +110,23 @@ class ImportExportProfileRepositoryTest extends TestCase
         $records = $this->connection->fetchAllAssociative(
             'SELECT * FROM import_export_profile'
         );
-        $translationRecords = $this->getTranslationRecords();
+
+        $translationRecords = [];
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $translationRecords = $this->getTranslationRecords();
+        }
 
         static::assertCount($num, $records);
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
+
+            if (!Feature::isActive('v6.8.0.0')) {
+                static::assertSame($expect['label'], $translationRecords[$record['id']]['label']);
+            }
+
             static::assertSame($expect['technicalName'], $record['technical_name']);
-            static::assertSame($expect['label'], $translationRecords[$record['id']]['label']);
             static::assertSame($expect['systemDefault'], (bool) $record['system_default']);
             static::assertSame($expect['sourceEntity'], $record['source_entity']);
             static::assertSame($expect['fileType'], $record['file_type']);
@@ -147,7 +165,7 @@ class ImportExportProfileRepositoryTest extends TestCase
                 }
             }
 
-            $missingPropertyPaths = array_map(fn ($property) => '/' . $property, $requiredProperties);
+            $missingPropertyPaths = array_map(static fn ($property) => '/' . $property, $requiredProperties);
 
             static::assertSame($missingPropertyPaths, $foundViolations);
         }
@@ -162,9 +180,14 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         foreach ($data as $expect) {
             $id = $expect['id'];
+
             /** @var ImportExportProfileEntity $importExportProfile */
-            $importExportProfile = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
-            static::assertSame($expect['label'], $importExportProfile->getLabel());
+            $importExportProfile = $this->repository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
+
+            if (!Feature::isActive('v6.8.0.0')) {
+                static::assertSame($expect['label'], $importExportProfile->getLabel());
+            }
+
             static::assertSame($expect['systemDefault'], $importExportProfile->getSystemDefault());
             static::assertSame($expect['sourceEntity'], $importExportProfile->getSourceEntity());
             static::assertSame($expect['fileType'], $importExportProfile->getFileType());
@@ -182,7 +205,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         $this->repository->create(array_values($data), $this->context);
 
-        $result = $this->repository->search(new Criteria([Uuid::randomHex()]), $this->context);
+        $result = $this->repository->search(new Criteria([Uuid::randomHex()]), $this->context)->getEntities();
         static::assertCount(0, $result);
     }
 
@@ -205,14 +228,23 @@ class ImportExportProfileRepositoryTest extends TestCase
         $records = $this->connection->fetchAllAssociative(
             'SELECT * FROM import_export_profile'
         );
-        $translationRecords = $this->getTranslationRecords();
+
+        $translationRecords = [];
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $translationRecords = $this->getTranslationRecords();
+        }
 
         static::assertCount($num, $records);
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
+
+            if (!Feature::isActive('v6.8.0.0')) {
+                static::assertSame($expect['label'], $translationRecords[$record['id']]['label']);
+            }
+
             static::assertSame($expect['technicalName'], $record['technical_name']);
-            static::assertSame($expect['label'], $translationRecords[$record['id']]['label']);
             static::assertSame($expect['systemDefault'], (bool) $record['system_default']);
             static::assertSame($expect['sourceEntity'], $record['source_entity']);
             static::assertSame($expect['fileType'], $record['file_type']);
@@ -245,7 +277,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
             // Remove property before write
             $property = array_pop($properties);
-            if ($property === 'id') {
+            if ($property === 'id' || $property === null) {
                 continue;
             }
             unset($upsertData[$id][$property]);
@@ -254,14 +286,23 @@ class ImportExportProfileRepositoryTest extends TestCase
         $this->repository->upsert(array_values($upsertData), $this->context);
 
         $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile');
-        $translationRecords = $this->getTranslationRecords();
+
+        $translationRecords = [];
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $translationRecords = $this->getTranslationRecords();
+        }
 
         static::assertCount($num, $records);
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
+
+            if (!Feature::isActive('v6.8.0.0')) {
+                static::assertSame($expect['label'], $translationRecords[$record['id']]['label']);
+            }
+
             static::assertSame($expect['technicalName'], $record['technical_name']);
-            static::assertSame($expect['label'], $translationRecords[$record['id']]['label']);
             static::assertSame($expect['systemDefault'], (bool) $record['system_default']);
             static::assertSame($expect['sourceEntity'], $record['source_entity']);
             static::assertSame($expect['fileType'], $record['file_type']);
@@ -333,10 +374,24 @@ class ImportExportProfileRepositoryTest extends TestCase
         static::assertCount($num, $records);
     }
 
+    public function testCanSearchByTechnicalName(): void
+    {
+        $data = $this->prepareImportExportProfileTestData();
+        $this->repository->create(array_values($data), $this->context);
+
+        $criteria = new Criteria();
+        $criteria->setTerm('technical');
+
+        $result = $this->repository->search($criteria, $this->context)->getEntities();
+
+        static::assertCount(1, $result);
+        static::assertInstanceOf(ImportExportProfileEntity::class, $result->first());
+    }
+
     /**
      * Prepare a defined number of test data.
      *
-     * @return array<string, array<string, mixed>>
+     * @return non-empty-array<string, array<string, mixed>>
      */
     protected function prepareImportExportProfileTestData(int $num = 1, string $add = ''): array
     {
@@ -344,10 +399,9 @@ class ImportExportProfileRepositoryTest extends TestCase
         for ($i = 1; $i <= $num; ++$i) {
             $uuid = Uuid::randomHex();
 
-            $data[Uuid::fromHexToBytes($uuid)] = [
+            $profile = [
                 'id' => $uuid,
                 'technicalName' => uniqid('technical_name_'),
-                'label' => \sprintf('Test label %d %s', $i, $add),
                 'systemDefault' => ($i % 2 === 0),
                 'sourceEntity' => \sprintf('Test entity %d %s', $i, $add),
                 'fileType' => \sprintf('Test file type %d %s', $i, $add),
@@ -355,7 +409,15 @@ class ImportExportProfileRepositoryTest extends TestCase
                 'enclosure' => \sprintf('Test enclosure %d %s', $i, $add),
                 'mapping' => ['Mapping ' . $i => 'Value ' . $i . $add],
             ];
+
+            if (!Feature::isActive('v6.8.0.0')) {
+                $profile['label'] = \sprintf('Test label %d %s', $i, $add);
+            }
+
+            $data[Uuid::fromHexToBytes($uuid)] = $profile;
         }
+
+        static::assertNotSame([], $data);
 
         return $data;
     }

@@ -1,6 +1,5 @@
 import template from './sw-order-new-customer-modal.html.twig';
 import './sw-order-new-customer-modal.scss';
-import CUSTOMER from '../../../sw-customer/constant/sw-customer.constant';
 
 /**
  * @sw-package checkout
@@ -9,6 +8,7 @@ import CUSTOMER from '../../../sw-customer/constant/sw-customer.constant';
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
+const { CUSTOMER } = Shopware.Constants;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -216,7 +216,7 @@ export default {
 
             if (hasError) {
                 this.createNotificationError({
-                    message: this.$tc('sw-customer.detail.messageSaveError'),
+                    message: this.$t('sw-customer.detail.messageSaveError'),
                 });
 
                 this.isLoading = false;
@@ -255,7 +255,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-customer.detail.messageSaveError'),
+                        message: this.$t('sw-customer.detail.messageSaveError'),
                     });
                     this.isLoading = false;
                 });

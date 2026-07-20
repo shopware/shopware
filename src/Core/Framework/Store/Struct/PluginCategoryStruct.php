@@ -5,22 +5,13 @@ namespace Shopware\Core\Framework\Store\Struct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('checkout')]
 class PluginCategoryStruct extends Struct
 {
-    protected string $name;
-
-    protected string $label;
-
     public function __construct(
-        string $name,
-        string $label
+        protected string $name,
+        protected string $label,
     ) {
-        $this->name = $name;
-        $this->label = $label;
     }
 
     public function getName(): string

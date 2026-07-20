@@ -2,17 +2,32 @@
 
 namespace Shopware\Core\Framework\Validation\Exception;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
+/**
+ * @phpstan-type ConstraintErrorData array{
+ *     code: string|null,
+ *     status: '400',
+ *     title: 'Constraint violation error',
+ *     detail: string|\Stringable,
+ *     meta: array{parameters: array<string, mixed>},
+ *     source: array{pointer: string},
+ *     trace?: array<int, mixed>
+ * }
+ */
 #[Package('framework')]
 class ConstraintViolationException extends ShopwareHttpException
 {
     private readonly ConstraintViolationList $violations;
 
+    /**
+     * @param array<array-key, mixed> $inputData
+     */
     public function __construct(
         ConstraintViolationList $violations,
         private readonly array $inputData
@@ -24,8 +39,16 @@ class ConstraintViolationException extends ShopwareHttpException
         parent::__construct('Caught {{ count }} violation errors.', ['count' => $violations->count()]);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement as it is unused
+     */
     public function getRootViolations(): ConstraintViolationList
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.8.0.0'),
+        );
+
         $violations = new ConstraintViolationList();
         foreach ($this->violations as $violation) {
             if ($violation->getPropertyPath() === '') {
@@ -52,6 +75,11 @@ class ConstraintViolationException extends ShopwareHttpException
         return $violations;
     }
 
+    /**
+     * Is used in Twig template files
+     *
+     * @return array<array-key, mixed>
+     */
     public function getInputData(): array
     {
         return $this->inputData;
@@ -62,9 +90,11 @@ class ConstraintViolationException extends ShopwareHttpException
         return 'FRAMEWORK__CONSTRAINT_VIOLATION';
     }
 
+    /**
+     * @return \Generator<ConstraintErrorData>
+     */
     public function getErrors(bool $withTrace = false): \Generator
     {
-        /** @var ConstraintViolation $violation */
         foreach ($this->violations as $violation) {
             $error = [
                 'code' => $violation->getCode(),
@@ -94,9 +124,14 @@ class ConstraintViolationException extends ShopwareHttpException
 
     private function mapErrorCodes(ConstraintViolationList $violations): void
     {
-        /** @var ConstraintViolation $violation */
         foreach ($violations as $key => $violation) {
             if ($constraint = $violation->getConstraint()) {
+                try {
+                    $errorCode = $constraint->getErrorName($violation->getCode() ?? '');
+                } catch (\InvalidArgumentException) {
+                    $errorCode = $violation->getCode();
+                }
+
                 $violations->remove($key);
                 $violations->add(new ConstraintViolation(
                     $violation->getMessage(),
@@ -106,7 +141,7 @@ class ConstraintViolationException extends ShopwareHttpException
                     $violation->getPropertyPath(),
                     $violation->getInvalidValue(),
                     $violation->getPlural(),
-                    'VIOLATION::' . $constraint->getErrorName($violation->getCode() ?? ''),
+                    'VIOLATION::' . $errorCode,
                     $constraint
                 ));
             }

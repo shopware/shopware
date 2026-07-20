@@ -9,12 +9,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
-use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\System\User\UserCollection;
@@ -23,7 +21,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -35,8 +32,6 @@ use Symfony\Component\Filesystem\Filesystem;
 #[Package('checkout')]
 class StoreDownloadCommand extends Command
 {
-    private readonly string $relativePluginDir;
-
     /**
      * @param EntityRepository<PluginCollection> $pluginRepo
      * @param EntityRepository<UserCollection> $userRepository
@@ -47,12 +42,8 @@ class StoreDownloadCommand extends Command
         private readonly PluginManagementService $pluginManagementService,
         private readonly PluginLifecycleService $pluginLifecycleService,
         private readonly EntityRepository $userRepository,
-        string $pluginDir,
-        string $projectDir,
     ) {
         parent::__construct();
-
-        $this->relativePluginDir = (new Filesystem())->makePathRelative($pluginDir, $projectDir);
     }
 
     protected function configure(): void
@@ -77,19 +68,20 @@ class StoreDownloadCommand extends Command
         try {
             $data = $this->storeClient->getDownloadDataForPlugin($pluginName, $context);
         } catch (ClientException $exception) {
-            throw new StoreApiException($exception);
+            throw StoreException::storeError($exception);
         }
 
         $this->pluginManagementService->downloadStorePlugin($data, $context);
 
-        try {
-            $plugin = $this->getPluginFromInput($pluginName, $context);
+        $plugin = $this->getPluginFromInput($pluginName, $context);
 
-            if ($plugin->getUpgradeVersion()) {
-                $this->pluginLifecycleService->updatePlugin($plugin, $context);
-            }
-        } catch (PluginNotFoundException) {
+        if ($plugin === null) {
             // don't update plugins that are not installed
+            return self::SUCCESS;
+        }
+
+        if ($plugin->getUpgradeVersion()) {
+            $this->pluginLifecycleService->updatePlugin($plugin, $context);
         }
 
         return self::SUCCESS;
@@ -114,28 +106,22 @@ class StoreDownloadCommand extends Command
 
     private function validatePluginIsNotManagedByComposer(string $pluginName, Context $context): void
     {
-        try {
-            $plugin = $this->getPluginFromInput($pluginName, $context);
-        } catch (PluginNotFoundException) {
-            // plugins no installed can still be downloaded
+        $plugin = $this->getPluginFromInput($pluginName, $context);
+
+        if ($plugin === null) {
             return;
         }
 
-        if ($plugin->getManagedByComposer() && !str_starts_with($plugin->getPath() ?? '', $this->relativePluginDir)) {
+        if ($plugin->getManagedByComposer() && !$plugin->isLocatedInCustomPluginDirectory()) {
             throw StoreException::cannotDeleteManaged($pluginName);
         }
     }
 
-    private function getPluginFromInput(string $pluginName, Context $context): PluginEntity
+    private function getPluginFromInput(string $pluginName, Context $context): ?PluginEntity
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('plugin.name', $pluginName));
 
-        $plugin = $this->pluginRepo->search($criteria, $context)->getEntities()->first();
-        if ($plugin === null) {
-            throw new PluginNotFoundException($pluginName);
-        }
-
-        return $plugin;
+        return $this->pluginRepo->search($criteria, $context)->getEntities()->first();
     }
 }

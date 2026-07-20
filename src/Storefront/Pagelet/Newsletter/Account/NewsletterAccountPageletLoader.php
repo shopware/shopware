@@ -7,8 +7,10 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractAccountNewsletterRecipi
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -70,7 +72,7 @@ class NewsletterAccountPageletLoader
         CustomerEntity $customer
     ): NewsletterAccountPagelet {
         $subscribeOptions = [NewsletterSubscribeRoute::OPTION_DIRECT, NewsletterSubscribeRoute::OPTION_SUBSCRIBE];
-        $doSubscribe = \in_array($request->get('option', false), $subscribeOptions, true);
+        $doSubscribe = \in_array(RequestParamHelper::get($request, 'option', false), $subscribeOptions, true);
 
         if (!$doSubscribe) {
             $dataBag->set('option', NewsletterSubscribeRoute::OPTION_UNSUBSCRIBE);
@@ -108,11 +110,19 @@ class NewsletterAccountPageletLoader
     protected function subscribe(RequestDataBag $dataBag, CustomerEntity $customer, SalesChannelContext $context, NewsletterAccountPagelet $newsletterAccountPagelet): NewsletterAccountPagelet
     {
         try {
-            $this->newsletterSubscribeRoute->subscribe(
-                $this->hydrateFromCustomer($dataBag, $customer),
-                $context,
-                false
-            );
+            if (Feature::isActive('v6.8.0.0')) {
+                $this->newsletterSubscribeRoute->subscribeWithResponse(
+                    $this->hydrateFromCustomer($dataBag, $customer),
+                    $context,
+                    false
+                );
+            } else {
+                $this->newsletterSubscribeRoute->subscribe(
+                    $this->hydrateFromCustomer($dataBag, $customer),
+                    $context,
+                    false
+                );
+            }
 
             $newsletterAccountPagelet->setSuccess(true);
             if ($newsletterAccountPagelet->isNewsletterDoi()) {
@@ -146,10 +156,17 @@ class NewsletterAccountPageletLoader
     protected function unsubscribe(RequestDataBag $dataBag, CustomerEntity $customer, SalesChannelContext $context, NewsletterAccountPagelet $newsletterAccountPagelet): NewsletterAccountPagelet
     {
         try {
-            $this->newsletterUnsubscribeRoute->unsubscribe(
-                $this->hydrateFromCustomer($dataBag, $customer),
-                $context
-            );
+            if (Feature::isActive('v6.8.0.0')) {
+                $this->newsletterUnsubscribeRoute->unsubscribeWithResponse(
+                    $this->hydrateFromCustomer($dataBag, $customer),
+                    $context
+                );
+            } else {
+                $this->newsletterUnsubscribeRoute->unsubscribe(
+                    $this->hydrateFromCustomer($dataBag, $customer),
+                    $context
+                );
+            }
 
             $newsletterAccountPagelet->setSuccess(true);
             $newsletterAccountPagelet->setMessages(
@@ -202,7 +219,7 @@ class NewsletterAccountPageletLoader
         $newsletterAccountPagelet = new NewsletterAccountPagelet();
         $newsletterAccountPagelet->setCustomer($customer);
         $newsletterAccountPagelet->setNewsletterDoi(
-            (bool) $this->systemConfigService->get('core.newsletter.doubleOptInRegistered', $salesChannelId)
+            $this->systemConfigService->getBool('core.newsletter.doubleOptInRegistered', $salesChannelId)
         );
 
         return $newsletterAccountPagelet;

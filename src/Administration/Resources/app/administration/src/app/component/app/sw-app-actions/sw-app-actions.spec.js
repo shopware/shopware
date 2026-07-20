@@ -21,7 +21,6 @@ describe('sw-app-actions', () => {
     let router = null;
     let stubs;
 
-    // eslint-disable-next-line no-shadow
     async function createWrapper(router, resultData = actionResultData) {
         // delete global $router and $routes mocks
         delete config.global.mocks.$router;
@@ -102,21 +101,6 @@ describe('sw-app-actions', () => {
         if (wrapper) {
             wrapper.unmount();
         }
-    });
-
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper(router);
-
-        router.push({ name: 'sw.product.detail' });
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-
-        expect(wrapper.classes()).toEqual(
-            expect.arrayContaining([
-                'sw-app-actions',
-            ]),
-        );
     });
 
     it('creates an sw-app-action-button per action', async () => {

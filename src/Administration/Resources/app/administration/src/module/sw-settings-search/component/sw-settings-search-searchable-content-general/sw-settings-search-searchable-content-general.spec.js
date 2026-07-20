@@ -23,6 +23,11 @@ async function createWrapper() {
                             page: 1,
                             limit: 25,
                         },
+                        meta: {
+                            $module: {
+                                icon: 'regular-icon',
+                            },
+                        },
                     },
                 },
 
@@ -34,7 +39,11 @@ async function createWrapper() {
                             },
                         }),
                     },
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                 },
 
                 stubs: {
@@ -72,13 +81,6 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
         global.activeAclRoles = [];
     });
 
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render empty state when isEmpty variable is true', async () => {
         global.activeAclRoles = ['product_search_config.viewer'];
 
@@ -88,7 +90,7 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
             isEmpty: true,
         });
 
-        expect(wrapper.find('sw-empty-state-stub').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(true);
     });
 
     it('should call to reset ranking function when click to reset ranking action', async () => {

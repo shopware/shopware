@@ -11,6 +11,8 @@ const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
  * @private
+ *
+ * @deprecated tag:v6.8.0 - will be removed, use `sw-entity-multi-select` instead
  */
 export default {
     template,
@@ -62,7 +64,6 @@ export default {
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         placeholder: {
@@ -206,7 +207,6 @@ export default {
 
             collection.forEach((item) => {
                 if (!this.entityCollection.has(item.id)) {
-                    // eslint-disable-next-line vue/no-mutating-props
                     this.entityCollection.push(item);
                 }
             });

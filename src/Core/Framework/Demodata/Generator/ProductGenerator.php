@@ -15,7 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Demodata\DemodataContext;
+use Shopware\Core\Framework\Demodata\DemodataException;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -40,7 +42,7 @@ class ProductGenerator implements DemodataGeneratorInterface
         private readonly Connection $connection,
         private readonly DefinitionInstanceRegistry $registry,
         private readonly InheritanceUpdater $updater,
-        private readonly StatesUpdater $statesUpdater
+        private readonly ?StatesUpdater $statesUpdater = null
     ) {
     }
 
@@ -67,7 +69,7 @@ class ProductGenerator implements DemodataGeneratorInterface
         $taxes = $this->getTaxes($context);
 
         if ($taxes->count() === 0) {
-            throw new \RuntimeException('This demo data command should be executed after the original demo data was executed at least one time');
+            throw DemodataException::wrongExecutionOrder();
         }
 
         $properties = $this->getProperties();
@@ -107,7 +109,7 @@ class ProductGenerator implements DemodataGeneratorInterface
             if ($mediaIds) {
                 $product['cover'] = ['mediaId' => Random::getRandomArrayElement($mediaIds)];
 
-                $product['media'] = array_map(fn (string $id): array => ['mediaId' => $id], $this->faker->randomElements($mediaIds, random_int(2, 5)));
+                $product['media'] = array_map(static fn (string $id): array => ['mediaId' => $id], $this->faker->randomElements($mediaIds, random_int(2, 5)));
             }
 
             $product['properties'] = $this->buildProperties($properties);
@@ -128,7 +130,7 @@ class ProductGenerator implements DemodataGeneratorInterface
             }
         }
 
-        if (!empty($payload)) {
+        if ($payload !== []) {
             $this->write($payload, $context);
         }
 
@@ -182,21 +184,19 @@ class ProductGenerator implements DemodataGeneratorInterface
         $variants = [];
         foreach ($combinations as $options) {
             $price = $this->faker->randomFloat(2, 1, 1000);
-            $tax = $taxes->get(array_rand($taxes->getIds()));
-            if (!$tax instanceof TaxEntity) {
-                continue;
-            }
+            $tax = $this->getRandomTax($taxes);
             $taxRate = 1 + ($tax->getTaxRate() / 100);
 
             $id = Uuid::randomHex();
             $variants[] = [
                 'id' => $id,
                 'productNumber' => 'SW_' . $id,
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price / $taxRate, 'linked' => true]],
                 'active' => true,
                 'stock' => $this->faker->numberBetween(1, 50),
                 'prices' => $this->faker->randomElement($prices),
-                'options' => array_map(fn ($id) => ['id' => $id], $options),
+                'options' => array_map(static fn ($id) => ['id' => $id], $options),
             ];
 
             $configurator = [...$configurator, ...array_values($options)];
@@ -204,7 +204,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
         return [
             'children' => $variants,
-            'configuratorSettings' => array_map(fn (string $id) => ['optionId' => $id], array_filter(array_unique($configurator))),
+            'configuratorSettings' => array_map(static fn (string $id) => ['optionId' => $id], array_filter(array_unique($configurator))),
         ];
     }
 
@@ -228,6 +228,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
         return [
             'downloads' => $downloads,
+            'type' => ProductDefinition::TYPE_DIGITAL,
             'maxPurchase' => 1,
             'deliveryTimeId' => $instantDeliveryId,
         ];
@@ -251,7 +252,7 @@ class ProductGenerator implements DemodataGeneratorInterface
         }
 
         $this->updater->update(ProductDefinition::ENTITY_NAME, $all, $context);
-        $this->statesUpdater->update($all, $context);
+        $this->statesUpdater?->update($all, $context);
 
         $context->removeState(EntityIndexerRegistry::DISABLE_INDEXING);
     }
@@ -279,12 +280,12 @@ class ProductGenerator implements DemodataGeneratorInterface
     ): array {
         $price = $this->faker->randomFloat(2, 1, 1000);
         $purchasePrice = $this->faker->randomFloat(2, 1, 1000);
-        $tax = $taxes->get(array_rand($taxes->getIds()));
-        \assert($tax instanceof TaxEntity);
+        $tax = $this->getRandomTax($taxes);
         $taxRate = 1 + ($tax->getTaxRate() / 100);
 
         return [
             'id' => Uuid::randomHex(),
+            'type' => ProductDefinition::TYPE_PHYSICAL,
             'productNumber' => 'SW_' . Uuid::randomHex(),
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price / $taxRate, 'linked' => true]],
             'purchasePrices' => [['currencyId' => Defaults::CURRENCY, 'gross' => $purchasePrice, 'net' => $purchasePrice / $taxRate, 'linked' => true]],
@@ -298,6 +299,7 @@ class ProductGenerator implements DemodataGeneratorInterface
             'categories' => $this->getCategoryIds(),
             'tags' => $this->getTags($tags),
             'stock' => $this->faker->numberBetween(1, 50),
+            'customFields' => [DemodataService::DEMODATA_CUSTOM_FIELDS_KEY => true],
         ];
     }
 
@@ -354,12 +356,12 @@ class ProductGenerator implements DemodataGeneratorInterface
     {
         $tagAssignments = [];
 
-        if (!empty($tags)) {
+        if ($tags !== []) {
             $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit(), false);
 
-            if (!empty($chosenTags)) {
+            if ($chosenTags !== []) {
                 $tagAssignments = array_map(
-                    fn ($id) => ['id' => $id],
+                    static fn ($id) => ['id' => $id],
                     $chosenTags
                 );
             }
@@ -390,11 +392,11 @@ class ProductGenerator implements DemodataGeneratorInterface
     {
         $ids = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id FROM sales_channel LIMIT 100');
 
-        return array_map(fn ($id) => ['salesChannelId' => $id['id'], 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL], $ids);
+        return array_map(static fn ($id) => ['salesChannelId' => $id['id'], 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL], $ids);
     }
 
     /**
-     * @return list<string>|list<array<string, string>>
+     * @return list<string>
      */
     private function getMediaIds(string $entity = 'product'): array
     {
@@ -448,7 +450,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
         $productProperties = \array_slice($productProperties, 0, random_int(4, 10));
 
-        return array_map(fn ($config) => ['id' => (string) $config], $productProperties);
+        return array_map(static fn ($config) => ['id' => (string) $config], $productProperties);
     }
 
     private function getInstantDeliveryId(): ?string
@@ -456,5 +458,20 @@ class ProductGenerator implements DemodataGeneratorInterface
         $id = $this->connection->fetchOne('SELECT LOWER(HEX(delivery_time_id)) FROM delivery_time_translation WHERE `name` = "Instant download" LIMIT 1');
 
         return \is_string($id) ? $id : null;
+    }
+
+    private function getRandomTax(TaxCollection $taxes): TaxEntity
+    {
+        $taxIds = $taxes->getIds();
+        if ($taxIds === []) {
+            throw DemodataException::wrongExecutionOrder();
+        }
+
+        $tax = $taxes->get((string) array_rand($taxIds));
+        if (!$tax instanceof TaxEntity) {
+            throw DemodataException::wrongExecutionOrder();
+        }
+
+        return $tax;
     }
 }

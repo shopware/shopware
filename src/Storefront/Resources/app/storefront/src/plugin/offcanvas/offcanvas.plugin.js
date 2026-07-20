@@ -113,13 +113,17 @@ class OffCanvasSingleton {
     /**
      * Opens the offcanvas and its backdrop
      *
-     * @param {HTMLElement} offCanvas
+     * @param {HTMLElement} _offCanvas
      * @param {function} callback
      *
      * @private
      */
-    _openOffcanvas(offCanvas, callback) {
+    _openOffcanvas(_offCanvas, callback) {
         window.focusHandler.saveFocusState('offcanvas');
+
+        // Keep the Bootstrap focus-trap working when the offcanvas is the last element before `</body>`.
+        // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
+        window.focusHandler._addFocusTrapGuard(_offCanvas);
 
         OffCanvasSingleton.bsOffcanvas.show();
         window.history.pushState('offcanvas-open', '');
@@ -145,6 +149,8 @@ class OffCanvasSingleton {
                 setTimeout(() => {
                     offCanvas.remove();
 
+                    // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
+                    window.focusHandler._removeFocusTrapGuard();
                     window.focusHandler.resumeFocusState('offcanvas');
 
                     this.$emitter.publish('onCloseOffcanvas', {
@@ -160,7 +166,9 @@ class OffCanvasSingleton {
 
         window.addEventListener('popstate', this.close.bind(this, delay), { once: true });
         const closeTriggers = document.querySelectorAll(`.${OFF_CANVAS_CLOSE_TRIGGER_CLASS}`);
-        closeTriggers.forEach(trigger => trigger.addEventListener(event, this.close.bind(this, delay)));
+        closeTriggers.forEach(trigger => {
+            trigger.addEventListener(event, this.close.bind(this, delay));
+        });
     }
 
     _setAriaAttrs() {
@@ -179,9 +187,21 @@ class OffCanvasSingleton {
      * @private
      */
     _removeExistingOffCanvas() {
-        OffCanvasSingleton.bsOffcanvas = null;
         const offCanvasElements = this.getOffCanvas();
-        return offCanvasElements.forEach(offCanvas => offCanvas.remove());
+        offCanvasElements.forEach(offCanvas => {
+            // Properly dispose of Bootstrap Offcanvas instance to clean up backdrop
+            const offCanvasInstance = bootstrap.Offcanvas.getInstance(offCanvas);
+            if (offCanvasInstance && typeof offCanvasInstance.dispose === 'function') {
+                offCanvasInstance.dispose();
+            }
+
+            offCanvas.remove();
+            // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
+            window.focusHandler._removeFocusTrapGuard();
+        });
+
+        // Clear the singleton reference after disposal
+        OffCanvasSingleton.bsOffcanvas = null;
     }
 
     /**

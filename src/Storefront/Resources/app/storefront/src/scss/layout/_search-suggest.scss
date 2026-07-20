@@ -72,6 +72,14 @@ Contains styles for the search suggest popover in the shop header.
     text-overflow: ellipsis;
 }
 
+.search-suggest-product-variation {
+    font-size: $font-size-sm;
+    color: $gray-600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .search-suggest-product-price {
     text-align: right;
     padding-right: 0.25rem;

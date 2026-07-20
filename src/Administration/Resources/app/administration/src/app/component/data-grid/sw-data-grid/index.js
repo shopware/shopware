@@ -2,6 +2,7 @@ import template from './sw-data-grid.html.twig';
 import './sw-data-grid.scss';
 
 const { Criteria } = Shopware.Data;
+const { Mixin } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -36,6 +37,10 @@ export default {
         'feature',
     ],
 
+    mixins: [
+        Mixin.getByName('translate-with-fallback'),
+    ],
+
     emits: [
         'selection-change',
         'select-all-items',
@@ -44,6 +49,7 @@ export default {
         'inline-edit-save',
         'inline-edit-cancel',
         'column-sort',
+        'row-click',
     ],
 
     props: {
@@ -65,21 +71,18 @@ export default {
 
         showSelection: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
 
         showActions: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
 
         showHeader: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
@@ -141,7 +144,6 @@ export default {
         compactMode: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -154,7 +156,6 @@ export default {
         showPreviews: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -175,6 +176,12 @@ export default {
                     Object.keys(this.selection).includes(item[this.itemIdentifierProperty])
                 );
             },
+        },
+
+        rowsClickable: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
 
         itemIdentifierProperty: {
@@ -229,9 +236,7 @@ export default {
             currentInlineEditId: '',
             hasPreviewSlots: false,
             hasResizeColumns: false,
-            // eslint-disable-next-line vue/no-reserved-keys
             _hasColumnsResize: false,
-            // eslint-disable-next-line vue/no-reserved-keys
             _isResizing: false,
         };
     },
@@ -263,25 +268,14 @@ export default {
                 return false;
             }
 
-            if (!this.records) {
-                return false;
-            }
-
-            const currentVisibleIds = this.records.map((record) => record.id);
-
-            return (
-                this.reachMaximumSelectionExceed &&
-                Object.keys(this.selection).every((id) => !currentVisibleIds.includes(id))
-            );
+            // When the selection maximum is reached, selecting every record is no longer possible,
+            // so the select-all header checkbox is disabled (a tooltip explains why on hover).
+            return this.reachMaximumSelectionExceed;
         },
 
         allSelectedChecked() {
             if (this.isSelectAllDisabled) {
                 return false;
-            }
-
-            if (this.reachMaximumSelectionExceed) {
-                return true;
             }
 
             if (!this.records || this.records.length === 0) {
@@ -573,12 +567,17 @@ export default {
             ];
         },
 
+        getColumnLabel(column) {
+            return this.tWithFallback(column.label);
+        },
+
         getRowClasses(item, itemIndex) {
             return [
                 {
                     'is--inline-edit': this.isInlineEdit(item),
                     'is--selected': this.isSelected(item.id),
                     'is--disabled': this.isRecordDisabled(item),
+                    'is--clickable': this.rowsClickable,
                 },
                 `sw-data-grid__row--${itemIndex}`,
             ];
@@ -689,8 +688,6 @@ export default {
         },
 
         selectAll(selected) {
-            this.selection = {};
-
             this.records.forEach((item) => {
                 if (this.isSelected(item[this.itemIdentifierProperty]) !== selected) {
                     this.selectItem(selected, item);
@@ -749,8 +746,15 @@ export default {
                 return;
             }
 
+            const recordId = record[this.itemIdentifierProperty];
+
+            // Keep the currently edited row stable until the user explicitly saves or cancels it.
+            if (this.isInlineEditActive && this.currentInlineEditId !== '' && this.currentInlineEditId !== recordId) {
+                return;
+            }
+
             this.enableInlineEdit();
-            this.currentInlineEditId = record[this.itemIdentifierProperty];
+            this.currentInlineEditId = recordId;
         },
 
         onClickHeaderCell(event, column) {
@@ -769,6 +773,36 @@ export default {
             this.setAllColumnElementWidths();
 
             this.sort(column);
+        },
+
+        onRowClick(event, item) {
+            if (!this.rowsClickable) {
+                return;
+            }
+
+            const target = event.target;
+
+            const blockedSelectors = [
+                '.sw-data-grid__cell--selection',
+                '.sw-data-grid__cell--actions',
+                '.sw-context-button',
+                'button',
+                'a',
+                'input',
+            ];
+
+            if (blockedSelectors.some((selector) => target.closest(selector))) {
+                return;
+            }
+
+            if (this.showSelection) {
+                const itemId = item[this.itemIdentifierProperty];
+                const isCurrentlySelected = this.isSelected(itemId);
+
+                this.selectItem(!isCurrentlySelected, item);
+            }
+
+            this.$emit('row-click', item);
         },
 
         onStartResize(event, column, columnIndex) {

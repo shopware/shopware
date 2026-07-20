@@ -46,12 +46,6 @@ describe('asyncComponents/form/sw-code-editor', () => {
         };
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be read only when enabled', async () => {
         const wrapper = await createWrapper();
 

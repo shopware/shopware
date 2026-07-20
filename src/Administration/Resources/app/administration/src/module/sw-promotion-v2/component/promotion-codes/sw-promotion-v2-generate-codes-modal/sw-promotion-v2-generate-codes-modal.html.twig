@@ -1,7 +1,7 @@
 {% block sw_promotion_v2_generate_codes_modal %}
 <sw-modal
     class="sw-promotion-v2-generate-codes-modal"
-    :title="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.title')"
+    :title="$t('sw-promotion-v2.detail.base.codes.individual.generateModal.title')"
     @modal-close="onClose"
 >
 
@@ -14,13 +14,13 @@
             class="sw-promotion-v2-generate-codes-modal__warning"
             variant="attention"
         >
-            {{ $tc('sw-promotion-v2.detail.base.codes.individual.generateModal.warning') }}
+            {{ $t('sw-promotion-v2.detail.base.codes.individual.generateModal.warning') }}
         </mt-banner>
         {% endblock %}
 
         {% block sw_promotion_v2_generate_codes_modal_description %}
         <p class="sw-promotion-v2-generate-codes-modal__description">
-            {{ $tc('sw-promotion-v2.detail.base.codes.individual.generateModal.description') }}
+            {{ $t('sw-promotion-v2.detail.base.codes.individual.generateModal.description') }}
         </p>
         {% endblock %}
 
@@ -38,8 +38,8 @@
             <mt-text-field
                 v-model="pattern.prefix"
                 class="sw-promotion-v2-generate-codes-modal__prefix"
-                :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelPrefix')"
-                :placeholder="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.placeholderPrefix')"
+                :label="$t('sw-promotion-v2.detail.base.codes.individual.generateModal.labelPrefix')"
+                :placeholder="$t('sw-promotion-v2.detail.base.codes.individual.generateModal.placeholderPrefix')"
             />
             {% endblock %}
 
@@ -47,7 +47,8 @@
             <mt-number-field
                 v-model="pattern.codeLength"
                 class="sw-promotion-v2-generate-codes-modal__replacement"
-                :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCodeLength')"
+                number-type="int"
+                :label="$t('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCodeLength')"
                 :min="1"
                 :max="20"
             />
@@ -58,8 +59,8 @@
             <mt-text-field
                 v-model="pattern.suffix"
                 class="sw-promotion-v2-generate-codes-modal__suffix"
-                :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelSuffix')"
-                :placeholder="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.placeholderSuffix')"
+                :label="$t('sw-promotion-v2.detail.base.codes.individual.generateModal.labelSuffix')"
+                :placeholder="$t('sw-promotion-v2.detail.base.codes.individual.generateModal.placeholderSuffix')"
             />
             {% endblock %}
 
@@ -72,9 +73,9 @@
             v-else
             v-model="promotion.individualCodePattern"
             class="sw-promotion-v2-generate-codes-modal__custom-pattern"
-            :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCustomPattern')"
-            :placeholder="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.placeholderCustomPattern')"
-            :help-text="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.helpTextCustomPattern')"
+            :label="$t('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCustomPattern')"
+            :placeholder="$t('sw-promotion-v2.detail.base.codes.individual.generateModal.placeholderCustomPattern')"
+            :help-text="$t('sw-promotion-v2.detail.base.codes.individual.generateModal.helpTextCustomPattern')"
         />
         {% endblock %}
         {% endblock %}
@@ -84,7 +85,7 @@
         <mt-switch
             v-model="customPatternMode"
             class="sw-promotion-v2-generate-codes-modal__custom-pattern"
-            :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelUseCustomPattern')"
+            :label="$t('sw-promotion-v2.detail.base.codes.individual.generateModal.labelUseCustomPattern')"
             bordered
         />
         {% endblock %}
@@ -101,7 +102,7 @@
             <mt-text-field
                 v-model="preview"
                 class="sw-promotion-v2-generate-codes-modal__preview"
-                :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelPreview')"
+                :label="$t('sw-promotion-v2.detail.base.codes.individual.generateModal.labelPreview')"
                 disabled
             />
             {% endblock %}
@@ -110,7 +111,8 @@
             <mt-number-field
                 v-model="codeAmount"
                 class="sw-promotion-v2-generate-codes-modal__code-amount"
-                :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCodeAmount')"
+                number-type="int"
+                :label="$t('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCodeAmount')"
                 :min="1"
             />
             {% endblock %}
@@ -131,7 +133,7 @@
             variant="secondary"
             @click="onClose"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -144,7 +146,7 @@
             :process-success="false"
             @click="onGenerate"
         >
-            {{ $tc('sw-promotion-v2.detail.base.codes.individual.generateModal.buttonGenerate') }}
+            {{ $t('sw-promotion-v2.detail.base.codes.individual.generateModal.buttonGenerate') }}
         </sw-button-process>
         {% endblock %}
 

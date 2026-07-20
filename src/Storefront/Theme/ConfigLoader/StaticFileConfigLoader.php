@@ -35,7 +35,6 @@ class StaticFileConfigLoader extends AbstractConfigLoader
         }
 
         $fileContent = $this->filesystem->read($path);
-        \assert(\is_string($fileContent));
         $fileObject = json_decode($fileContent, true, 512, \JSON_THROW_ON_ERROR);
 
         $fileObject = $this->prepareCollections($fileObject);
@@ -48,9 +47,9 @@ class StaticFileConfigLoader extends AbstractConfigLoader
 
     private function prepareCollections(array $fileObject): array
     {
-        $fileObject['styleFiles'] = array_map(fn (array $file) => (new File(''))->assign($file), $fileObject['styleFiles']);
+        $fileObject['styleFiles'] = array_map(static fn (array $file) => (new File(''))->assign($file), $fileObject['styleFiles']);
 
-        $fileObject['scriptFiles'] = array_map(fn (array $file) => (new File(''))->assign($file), $fileObject['scriptFiles']);
+        $fileObject['scriptFiles'] = array_map(static fn (array $file) => (new File(''))->assign($file), $fileObject['scriptFiles']);
 
         $fileObject['styleFiles'] = new FileCollection($fileObject['styleFiles']);
         $fileObject['scriptFiles'] = new FileCollection($fileObject['scriptFiles']);

@@ -52,7 +52,7 @@ class SortingListingProcessorTest extends TestCase
         $processor->prepare(
             new Request(['order' => $sorting, 'availableSortings' => $testWithAvailableSortings ? $this->buildAvailableSortings() : []]),
             $criteria = new Criteria(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertEquals($expected, $criteria->getSorting());
@@ -70,7 +70,7 @@ class SortingListingProcessorTest extends TestCase
             ],
         ]);
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn(
             new EntitySearchResult(
                 ProductSortingDefinition::ENTITY_NAME,
@@ -92,10 +92,56 @@ class SortingListingProcessorTest extends TestCase
         $processor->prepare(
             $requested,
             $criteria = new Criteria(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertEquals([
+            new FieldSorting('_score', FieldSorting::DESCENDING),
+            new FieldSorting('id', FieldSorting::ASCENDING),
+        ], $criteria->getSorting());
+    }
+
+    #[DataProvider('prepareDefaultSearchResultSortingProvider')]
+    public function testPrepareWithFallbackSorting(Request $requested): void
+    {
+        $productSorting = new ProductSortingEntity();
+        $productSorting->setId(Uuid::randomHex());
+        $productSorting->assign([
+            'key' => 'name-asc',
+            'fields' => [
+                ['field' => 'name', 'priority' => 1, 'order' => 'ASC'],
+            ],
+        ]);
+
+        $repository = static::createStub(EntityRepository::class);
+        $repository->method('search')->willReturn(
+            new EntitySearchResult(
+                ProductSortingDefinition::ENTITY_NAME,
+                1,
+                new ProductSortingCollection([$productSorting]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+
+        $processor = new SortingListingProcessor(
+            new StaticSystemConfigService([
+                'core.listing.defaultSearchResultSorting' => Uuid::randomHex(),
+            ]),
+            $repository
+        );
+
+        $criteria = new Criteria();
+        $criteria->setTerm('test');
+        $processor->prepare(
+            $requested,
+            $criteria,
+            static::createStub(SalesChannelContext::class)
+        );
+
+        static::assertEquals([
+            new FieldSorting('name', FieldSorting::ASCENDING),
             new FieldSorting('_score', FieldSorting::DESCENDING),
             new FieldSorting('id', FieldSorting::ASCENDING),
         ], $criteria->getSorting());
@@ -120,7 +166,7 @@ class SortingListingProcessorTest extends TestCase
         $processor->process(
             new Request(['order' => $requested]),
             $result,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertSame($expected, $result->getSorting());
@@ -144,7 +190,7 @@ class SortingListingProcessorTest extends TestCase
         $processor->prepare(
             new Request(['order' => $requested]),
             new Criteria(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
     }
 

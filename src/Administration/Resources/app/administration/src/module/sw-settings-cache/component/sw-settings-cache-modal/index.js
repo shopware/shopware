@@ -44,13 +44,23 @@ export default {
         this.createdComponent();
     },
 
+    beforeUnmount() {
+        this.beforeUnmountComponent();
+    },
+
     methods: {
         createdComponent() {
-            document.addEventListener('keydown', (event) => {
-                if (event.key === 'Alt' || (event.key === 'c' && event.altKey)) {
-                    event.preventDefault();
-                }
-            });
+            document.addEventListener('keydown', this.keydownEventListener);
+        },
+
+        beforeUnmountComponent() {
+            document.removeEventListener('keydown', this.keydownEventListener);
+        },
+
+        keydownEventListener(event) {
+            if (event.key === 'Alt' || (event.key === 'c' && event.altKey)) {
+                event.preventDefault();
+            }
         },
 
         openModal() {
@@ -67,19 +77,19 @@ export default {
 
         clearCache() {
             this.createNotificationInfo({
-                message: this.$tc('sw-settings-cache.notifications.clearCache.started'),
+                message: this.$t('sw-settings-cache.notifications.clearCache.started'),
             });
 
             this.cacheApiService
                 .clear()
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-cache.notifications.clearCache.success'),
+                        message: this.$t('sw-settings-cache.notifications.clearCache.success'),
                     });
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-cache.notifications.clearCache.error'),
+                        message: this.$t('sw-settings-cache.notifications.clearCache.error'),
                     });
                 });
 

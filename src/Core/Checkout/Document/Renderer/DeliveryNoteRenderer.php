@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\DeliveryNoteOrdersEvent;
 use Shopware\Core\Checkout\Document\Event\DocumentOrderCriteriaEvent;
@@ -37,6 +38,7 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
         private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         private readonly Connection $connection,
         private readonly DocumentFileRendererRegistry $fileRendererRegistry,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -51,9 +53,9 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
 
         $template = '@Framework/documents/delivery_note.html.twig';
 
-        $ids = \array_map(fn (DocumentGenerateOperation $operation) => $operation->getOrderId(), $operations);
+        $ids = \array_map(static fn (DocumentGenerateOperation $operation) => $operation->getOrderId(), $operations);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return $result;
         }
 
@@ -61,8 +63,8 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
 
         $chunk = $this->getOrdersLanguageId(array_values($ids), $context->getVersionId(), $this->connection);
 
-        foreach ($chunk as ['language_id' => $languageId, 'ids' => $ids]) {
-            $criteria = OrderDocumentCriteriaFactory::create(\explode(',', (string) $ids), $rendererConfig->deepLinkCode, self::TYPE);
+        foreach ($chunk as ['language_id' => $languageId, 'ids' => $chunkIds]) {
+            $criteria = OrderDocumentCriteriaFactory::create(\explode(',', (string) $chunkIds), $rendererConfig->deepLinkCode, self::TYPE);
             $context = $context->assign([
                 'languageIdChain' => \array_values(\array_unique(\array_filter([$languageId, ...$languageIdChain]))),
             ]);
@@ -101,7 +103,7 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
 
                     $number = $config->getDocumentNumber() ?: $this->getNumber($context, $order, $operation);
 
-                    $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+                    $now = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
                     $customConfig = $operation->getConfig()['custom'] ?? [];
 
                     $config->merge([
@@ -134,7 +136,7 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
 
                     $language = $order->getLanguage();
                     if ($language === null) {
-                        throw DocumentException::generationError('Can not generate credit note document because no language exists. OrderId: ' . $operation->getOrderId());
+                        throw DocumentException::generationError('Can not generate delivery note document because no language exists. OrderId: ' . $operation->getOrderId());
                     }
 
                     $doc = new RenderedDocument(

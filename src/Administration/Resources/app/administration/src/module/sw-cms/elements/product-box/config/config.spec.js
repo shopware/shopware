@@ -7,7 +7,9 @@ import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-cms-el-config-product-box', { sync: true }), {
         props: {
-            element: {},
+            element: {
+                type: 'product-box',
+            },
         },
         global: {
             provide: {
@@ -18,6 +20,15 @@ async function createWrapper() {
                 'sw-product-variant-info': true,
                 'sw-select-field': true,
                 'sw-select-result': true,
+                'sw-cms-inherit-wrapper': {
+                    template: '<div><slot :isInherited="false"></slot></div>',
+                    props: [
+                        'field',
+                        'element',
+                        'contentEntity',
+                        'label',
+                    ],
+                },
             },
         },
     });

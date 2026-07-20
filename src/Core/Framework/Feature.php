@@ -83,6 +83,37 @@ class Feature
     }
 
     /**
+     * Temporarily enables a single feature while preserving the rest of the environment.
+     * Prefer this over {@see fake} when a test wants to flip one flag without replicating
+     * the full production baseline.
+     *
+     * @template TReturn of mixed
+     *
+     * @param \Closure(): TReturn $closure
+     *
+     * @return TReturn
+     */
+    public static function withFeatureEnabled(string $feature, \Closure $closure)
+    {
+        return self::withFeatureValue($feature, true, $closure);
+    }
+
+    /**
+     * Mirror of {@see withFeatureEnabled} — disables a single feature while preserving
+     * the rest of the environment.
+     *
+     * @template TReturn of mixed
+     *
+     * @param \Closure(): TReturn $closure
+     *
+     * @return TReturn
+     */
+    public static function withFeatureDisabled(string $feature, \Closure $closure)
+    {
+        return self::withFeatureValue($feature, false, $closure);
+    }
+
+    /**
      * Determines weather a feature is active or not.
      *
      * A feature is either active by being in the environment (specified in the .env file for example)
@@ -210,7 +241,7 @@ class Feature
             return;
         }
 
-        $test->markTestSkipped('Skipping feature test for flag  "' . $flagName . '"');
+        $test->markTestSkipped('Skipping feature test due to inactive flag "' . $flagName . '"');
     }
 
     public static function skipTestIfActive(string $flagName, TestCase $test): void
@@ -219,7 +250,7 @@ class Feature
             return;
         }
 
-        $test->markTestSkipped('Skipping feature test for flag  "' . $flagName . '"');
+        $test->markTestSkipped('Skipping feature test due to active flag "' . $flagName . '"');
     }
 
     public static function throwException(string $flag, string $message, bool $state = true): void
@@ -233,7 +264,7 @@ class Feature
         }
     }
 
-    public static function triggerDeprecationOrThrow(string $majorFlag, string $message): void
+    public static function triggerDeprecationOrThrow(string $majorFlag, string $message, ?string $introducedIn = null): void
     {
         if (!self::$emitDeprecations || !empty(self::$silent[$majorFlag])) {
             return;
@@ -252,7 +283,13 @@ class Feature
             return;
         }
 
-        trigger_deprecation('shopware/core', '', $message);
+        if ($introducedIn === null) {
+            trigger_deprecation('', '', $message);
+
+            return;
+        }
+
+        trigger_deprecation('shopware/core', $introducedIn, $message);
     }
 
     public static function deprecatedMethodMessage(string $class, string $method, string $majorVersion, ?string $replacement = null): string
@@ -376,6 +413,26 @@ class Feature
     public static function getRegisteredFeatures(): array
     {
         return self::$registeredFeatures;
+    }
+
+    /**
+     * @template TReturn of mixed
+     *
+     * @param \Closure(): TReturn $closure
+     *
+     * @return TReturn
+     */
+    private static function withFeatureValue(string $feature, bool $enabled, \Closure $closure)
+    {
+        $serverVarsBackup = $_SERVER;
+
+        try {
+            $_SERVER[self::normalizeName($feature)] = $enabled;
+
+            return $closure();
+        } finally {
+            $_SERVER = $serverVarsBackup;
+        }
     }
 
     private static function isTrue(string $value): bool

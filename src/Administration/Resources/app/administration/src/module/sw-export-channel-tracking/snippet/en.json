@@ -1,0 +1,32 @@
+{
+  "sw-export-channel-tracking": {
+    "general": {
+      "mainMenuItemGeneral": "Export Channel Tracking",
+      "descriptionTextModule": "Adds export channel columns and filters to the order and customer lists."
+    },
+    "extension": {
+      "sw-order-list": {
+        "list": {
+          "columnExportFeed": "Export channel"
+        },
+        "filters": {
+          "exportFeedFilter": {
+            "label": "Export channel",
+            "placeholder": "Select export channels…"
+          }
+        }
+      },
+      "sw-customer-list": {
+        "list": {
+          "columnExportFeed": "Export channel"
+        },
+        "filters": {
+          "exportFeedFilter": {
+            "label": "Export channel",
+            "placeholder": "Select export channels…"
+          }
+        }
+      }
+    }
+  }
+}

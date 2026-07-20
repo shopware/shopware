@@ -94,7 +94,7 @@ class StructEncoder implements ResetInterface
                 $entities = [];
 
                 foreach (\array_values($data['elements']) as $index => $value) {
-                    $entity = $struct->getAt($index);
+                    $entity = $struct->getEntities()->getAt($index);
                     if (!$entity instanceof Struct) {
                         throw SalesChannelException::encodingInvalidStructException(\sprintf('Entity at index "%d" is not a valid struct', $index));
                     }
@@ -133,7 +133,7 @@ class StructEncoder implements ResetInterface
      */
     private function encodeStruct(Struct $struct, ResponseFields $fields, array $data, ?string $alias = null): array
     {
-        $alias = $alias ?? $struct->getApiAlias();
+        $alias ??= $struct->getApiAlias();
 
         foreach ($data as $property => $value) {
             if ($property === 'customFields' && $value === []) {
@@ -367,7 +367,7 @@ class StructEncoder implements ResetInterface
 
     private function fetchBlockedCustomFields(): void
     {
-        /** @var array<string, string>[] */
+        /** @var list<array<string, string>> */
         $blockedCustomFields = $this->connection->fetchAllAssociative(
             '# struct-encoder::fetch-blocked-custom-fields
             SELECT

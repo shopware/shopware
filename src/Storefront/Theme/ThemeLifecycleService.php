@@ -19,12 +19,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 
+/**
+ * @deprecated tag:v6.8.0 - reason:becomes-final
+ */
 #[Package('framework')]
 class ThemeLifecycleService
 {
@@ -50,7 +54,8 @@ class ThemeLifecycleService
         private readonly EntityRepository $languageRepository,
         private readonly EntityRepository $themeChildRepository,
         private readonly Connection $connection,
-        private readonly AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory
+        private readonly AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory,
+        private readonly ThemeRuntimeConfigService $runtimeConfigService,
     ) {
     }
 
@@ -58,17 +63,22 @@ class ThemeLifecycleService
         Context $context,
         ?StorefrontPluginConfigurationCollection $configurationCollection = null
     ): void {
+        $pluginConfigurationCollection = $this->pluginRegistry->getConfigurations();
+
         if ($configurationCollection === null) {
-            $configurationCollection = $this->pluginRegistry->getConfigurations()->getThemes();
+            $configurationCollection = $pluginConfigurationCollection->getThemes();
         }
 
         // iterate over all theme configs in the filesystem (plugins/bundles)
         foreach ($configurationCollection as $config) {
-            $this->refreshTheme($config, $context);
+            $this->refreshTheme($config, $context, $pluginConfigurationCollection);
         }
     }
 
-    public function refreshTheme(StorefrontPluginConfiguration $configuration, Context $context): void
+    /**
+     * @deprecated tag:v6.8.0 parameter $configurationCollection will be added - reason:new-optional-parameter
+     */
+    public function refreshTheme(StorefrontPluginConfiguration $configuration, Context $context/* , ?StorefrontPluginConfigurationCollection $configurationCollection = null */): void
     {
         $themeData = [];
         $themeData['name'] = $configuration->getName();
@@ -92,29 +102,40 @@ class ThemeLifecycleService
 
         $themeData = array_merge($themeData, $updatedData);
 
-        if (!empty($configuration->getConfigInheritance())) {
+        if ($configuration->getConfigInheritance() !== []) {
             $themeData = $this->addParentTheme($configuration, $themeData, $context);
         }
 
         $writtenEvent = $this->themeRepository->upsert([$themeData], $context);
 
-        if (empty($themeData['id'])) {
+        if (!isset($themeData['id'])) {
             $themeData['id'] = current($writtenEvent->getPrimaryKeys(ThemeDefinition::ENTITY_NAME));
         }
 
         $this->themeRepository->upsert([$themeData], $context);
 
-        if (!empty($themeData['toDeleteMedia'])) {
+        if (($themeData['toDeleteMedia'] ?? []) !== []) {
             $this->themeMediaRepository->delete($themeData['toDeleteMedia'], $context);
         }
 
         $parentThemes = $this->getParentThemes($configuration, $themeData['id']);
+        /** @var Criteria<array<string, string>> $parentCriteria */
         $parentCriteria = new Criteria();
         $parentCriteria->addFilter(new EqualsFilter('childId', $themeData['id']));
-        /** @var list<array<string, string>> $toDeleteIds */
         $toDeleteIds = $this->themeChildRepository->searchIds($parentCriteria, $context)->getIds();
         $this->themeChildRepository->delete($toDeleteIds, $context);
         $this->themeChildRepository->upsert($parentThemes, $context);
+
+        /** @deprecated tag:v6.8.0 - Remove whole next line as $configurationCollection will become a part of method signature */
+        $configurationCollection = \func_num_args() === 3 ? \func_get_arg(2) : null;
+
+        // we don't resolve files as theme can be refreshed before it's built
+        $filesRequired = false;
+        if ($configurationCollection === null) {
+            $configurationCollection = $this->pluginRegistry->getConfigurations();
+        }
+        $this->runtimeConfigService->refreshRuntimeConfig($themeData['id'], $configuration, $context, $filesRequired, $configurationCollection);
+        $this->runtimeConfigService->resetCaches();
     }
 
     public function removeTheme(string $technicalName, Context $context): void
@@ -132,7 +153,8 @@ class ThemeLifecycleService
         $ids = [...array_values($dependentThemes->getIds()), ...[$theme->getId()]];
 
         $this->removeOldMedia($technicalName, $context);
-        $this->themeRepository->delete(array_map(fn (string $id) => ['id' => $id], $ids), $context);
+        $this->runtimeConfigService->deleteByTechnicalName($technicalName);
+        $this->themeRepository->delete(array_map(static fn (string $id) => ['id' => $id], $ids), $context);
     }
 
     private function getThemeByTechnicalName(string $technicalName, Context $context): ?ThemeEntity
@@ -165,7 +187,8 @@ class ThemeLifecycleService
                 $path,
                 (string) MimeType::fromFilename($pathinfo['basename']),
                 $pathinfo['extension'] ?? '',
-                (int) filesize($path)
+                (int) filesize($path),
+                Hasher::hashFile($path, 'md5'),
             ),
         ];
     }
@@ -176,10 +199,7 @@ class ThemeLifecycleService
         $criteria->addFilter(new EqualsFilter('media_folder.defaultFolder.entity', 'theme'));
         $criteria->setLimit(1);
 
-        /** @var array<string> $defaultFolderIds */
-        $defaultFolderIds = $this->mediaFolderRepository->searchIds($criteria, $context)->getIds();
-
-        return \count($defaultFolderIds) === 1 ? $defaultFolderIds[0] : null;
+        return $this->mediaFolderRepository->searchIds($criteria, $context)->firstId();
     }
 
     /**
@@ -315,7 +335,7 @@ class ThemeLifecycleService
             $themeMediaData[] = ['themeId' => $theme->getId(), 'mediaId' => $id];
         }
 
-        if (empty($themeMediaData)) {
+        if ($themeMediaData === []) {
             return;
         }
 
@@ -381,8 +401,8 @@ class ThemeLifecycleService
         $installedBaseConfig = $installedConfiguration?->getThemeConfig() ?? [];
 
         $currentThemeMedia = null;
-        $currentMediaIds = null;
-        $toDeleteIds = null;
+        $currentMediaIds = [];
+        $toDeleteIds = [];
         // get existing MediaFiles
         if ($theme !== null && \array_key_exists('fields', $theme->getBaseConfig() ?? [])) {
             foreach ($theme->getBaseConfig()['fields'] as $key => $field) {
@@ -392,7 +412,7 @@ class ThemeLifecycleService
                 $currentMediaIds[$key] = $field['value'];
             }
 
-            if (!empty($currentMediaIds)) {
+            if ($currentMediaIds !== []) {
                 $currentThemeMedia = $this->mediaRepository->search(new Criteria($currentMediaIds), $context)->getEntities();
             }
         }
@@ -415,9 +435,8 @@ class ThemeLifecycleService
                 $path = $field['value'];
 
                 if (!\array_key_exists($path, $media)) {
-                    if (
-                        $currentThemeMedia
-                        && !empty($currentMediaIds)
+                    if ($currentThemeMedia !== null
+                        && $currentMediaIds !== []
                         && isset($currentMediaIds[$key])
                         && $currentThemeMedia->get($currentMediaIds[$key])?->getFileNameIncludingExtension() === basename($path)) {
                         continue;
@@ -452,7 +471,7 @@ class ThemeLifecycleService
 
         $mediaIds = [];
 
-        if (!empty($media)) {
+        if ($media !== []) {
             $mediaIds = array_column($media, 'media');
 
             $this->mediaRepository->create($mediaIds, $context);
@@ -482,7 +501,7 @@ class ThemeLifecycleService
 
         $themeData['media'] = $mediaIds;
 
-        if ($theme && \is_array($toDeleteIds)) {
+        if ($theme !== null) {
             $toDeleteIds = array_unique($toDeleteIds);
             foreach ($toDeleteIds as $id) {
                 if (Uuid::isValid($id)) {
@@ -527,7 +546,7 @@ class ThemeLifecycleService
             $result[$locale] = [$property => $translation];
         }
 
-        if (!$containsSystemLanguage && \count($translations) > 0) {
+        if (!$containsSystemLanguage && $translations !== []) {
             $translation = array_shift($translations);
             if (\array_key_exists('en-GB', $translations)) {
                 $translation = $translations['en-GB'];
@@ -553,8 +572,7 @@ class ThemeLifecycleService
             ) {
                 continue;
             }
-            /** @var string $lastNotSameTheme */
-            $lastNotSameTheme = str_replace('@', '', (string) $themeName);
+            $lastNotSameTheme = str_replace('@', '', $themeName);
         }
 
         if ($lastNotSameTheme !== null) {
@@ -585,12 +603,12 @@ class ThemeLifecycleService
         );
 
         $technicalNames = $parentThemeConfigs->map(
-            fn (StorefrontPluginConfiguration $theme) => $theme->getTechnicalName()
+            static fn (StorefrontPluginConfiguration $theme) => $theme->getTechnicalName()
         );
 
         $parentThemes = array_filter(
             $allThemes,
-            fn (array $theme) => \in_array($theme['technicalName'], $technicalNames, true)
+            static fn (array $theme) => \in_array($theme['technicalName'], $technicalNames, true)
         );
 
         $updateParents = [];

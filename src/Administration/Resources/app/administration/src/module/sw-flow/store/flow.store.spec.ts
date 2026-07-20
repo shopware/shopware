@@ -1,3 +1,5 @@
+import EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
+
 describe('module/sw-flow/store/flow.store', () => {
     const store = Shopware.Store.get('swFlow');
 
@@ -55,15 +57,21 @@ describe('module/sw-flow/store/flow.store', () => {
     });
 
     it('should set origin flow correctly', () => {
+        const sequences = new EntityCollection('/flow_sequence', 'flow_sequence', Shopware.Context.api, null, [
+            { actionName: 'testAction', ruleId: 'testRule', config: {} },
+        ] as Entity<'flow_sequence'>[]);
+
         const flow = {
             eventName: 'testEvent',
-            sequences: [{ actionName: 'testAction', ruleId: 'testRule', config: {} }],
+            sequences,
         } as Entity<'flow'>;
 
         store.setOriginFlow(flow);
 
         expect(store.originFlow.eventName).toBe('testEvent');
-        expect(store.originFlow.sequences).toEqual(flow.sequences);
+        expect(store.originFlow.sequences).toBeInstanceOf(EntityCollection);
+        expect(store.originFlow.sequences?.length).toBe(1);
+        expect(store.originFlow.sequences?.first()).toEqual(sequences.first());
     });
 
     it('should add sequence correctly', () => {

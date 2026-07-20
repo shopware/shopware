@@ -18,7 +18,7 @@ class StopFlowAction extends FlowAction implements DelayableAction
     }
 
     /**
-     * @return array<int, string|null>
+     * @return list<string|null>
      */
     public function requirements(): array
     {

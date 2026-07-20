@@ -6,10 +6,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -65,9 +67,11 @@ class EntityLoadedEventFactoryTest extends TestCase
             (new LanguageEntity())->assign(['id' => $this->ids->create('l1'), '_entityName' => 'language']),
         ]));
 
-        $events = $this->entityLoadedEventFactory->create([$product], Context::createDefaultContext());
-        static::assertNotNull($events->getEvents());
-        $createdEvents = $events->getEvents()->map(fn (EntityLoadedEvent $event): string => $event->getName());
+        $events = $this->entityLoadedEventFactory->create([$product], Context::createDefaultContext())->getEvents();
+        static::assertNotNull($events);
+        static::assertContainsOnlyInstancesOf(EntityLoadedEvent::class, $events);
+        /** @var NestedEventCollection<EntityLoadedEvent<Entity>> $events */
+        $createdEvents = $events->map(static fn (EntityLoadedEvent $event): string => $event->getName());
         sort($createdEvents);
 
         static::assertSame([
@@ -83,9 +87,11 @@ class EntityLoadedEventFactoryTest extends TestCase
     {
         $tax = (new TaxEntity())->assign(['_entityName' => 'tax']);
 
-        $events = $this->entityLoadedEventFactory->create([new ProductCollection(), $tax], Context::createDefaultContext());
-        static::assertNotNull($events->getEvents());
-        $createdEvents = $events->getEvents()->map(fn (EntityLoadedEvent $event): string => $event->getName());
+        $events = $this->entityLoadedEventFactory->create([new ProductCollection(), $tax], Context::createDefaultContext())->getEvents();
+        static::assertNotNull($events);
+        static::assertContainsOnlyInstancesOf(EntityLoadedEvent::class, $events);
+        /** @var NestedEventCollection<EntityLoadedEvent<Entity>> $events */
+        $createdEvents = $events->map(static fn (EntityLoadedEvent $event): string => $event->getName());
         sort($createdEvents);
 
         static::assertSame([

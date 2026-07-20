@@ -5,7 +5,9 @@ namespace Shopware\Core\Maintenance\System\Command;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Tools\DsnParser;
+use Pdo\Mysql;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Maintenance\MaintenanceException;
@@ -63,10 +65,13 @@ class SystemSetupCommand extends Command
             ->addOption('admin-es-enabled', null, InputOption::VALUE_OPTIONAL, 'Admin Elasticsearch Enabled', $this->getDefault('SHOPWARE_ADMIN_ES_ENABLED', '0'))
             ->addOption('admin-es-refresh-indices', null, InputOption::VALUE_OPTIONAL, 'Admin Elasticsearch Refresh Indices', $this->getDefault('SHOPWARE_ADMIN_ES_REFRESH_INDICES', '0'))
             ->addOption('http-cache-enabled', null, InputOption::VALUE_OPTIONAL, 'Http-Cache enabled', $this->getDefault('SHOPWARE_HTTP_CACHE_ENABLED', '1'))
-            ->addOption('http-cache-ttl', null, InputOption::VALUE_OPTIONAL, 'Http-Cache TTL', $this->getDefault('SHOPWARE_HTTP_DEFAULT_TTL', '7200'))
             ->addOption('cdn-strategy', null, InputOption::VALUE_OPTIONAL, 'CDN Strategy', $this->getDefault('SHOPWARE_CDN_STRATEGY_DEFAULT', 'id'))
             ->addOption('mailer-url', null, InputOption::VALUE_OPTIONAL, 'Mailer URL', $this->getDefault('MAILER_DSN', 'native://default'))
             ->addOption('dump-env', null, InputOption::VALUE_NONE, 'Dump the generated .env file in a optimized .env.local.php file, to skip parsing of the .env file on each request');
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->addOption('http-cache-ttl', null, InputOption::VALUE_OPTIONAL, 'Http-Cache TTL. Deprecated, will be removed in v6.8.0.0, Use cache policies instead (see UPGRADE-6.8.md).', $this->getDefault('SHOPWARE_HTTP_DEFAULT_TTL', '7200'));
+        }
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -84,12 +89,15 @@ class SystemSetupCommand extends Command
             'SHOPWARE_ADMIN_ES_ENABLED' => $input->getOption('admin-es-enabled'),
             'SHOPWARE_ADMIN_ES_REFRESH_INDICES' => $input->getOption('admin-es-refresh-indices'),
             'SHOPWARE_HTTP_CACHE_ENABLED' => $input->getOption('http-cache-enabled'),
-            'SHOPWARE_HTTP_DEFAULT_TTL' => $input->getOption('http-cache-ttl'),
             'SHOPWARE_CDN_STRATEGY_DEFAULT' => $input->getOption('cdn-strategy'),
             'BLUE_GREEN_DEPLOYMENT' => $input->getOption('blue-green'),
             'MAILER_DSN' => $input->getOption('mailer-url'),
             'COMPOSER_HOME' => $input->getOption('composer-home'),
         ];
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $env['SHOPWARE_HTTP_DEFAULT_TTL'] = $input->getOption('http-cache-ttl');
+        }
 
         if ($ca = $input->getOption('database-ssl-ca')) {
             $env['DATABASE_SSL_CA'] = $ca;
@@ -113,14 +121,14 @@ class SystemSetupCommand extends Command
 
         $io = new SymfonyStyle($input, $output);
 
-        if (file_exists($this->projectDir . '/symfony.lock')) {
+        if (\is_file($this->projectDir . '/symfony.lock')) {
             $io->warning('It looks like you have installed Shopware with Symfony Flex. You should use a .env.local file instead of creating a complete new one');
         }
 
         $io->title('Shopware setup process');
         $io->text('This tool will setup your instance.');
 
-        if (!$input->getOption('force') && file_exists($this->projectDir . '/.env')) {
+        if (!$input->getOption('force') && \is_file($this->projectDir . '/.env')) {
             $io->comment('Instance has already been set-up. To start over, please delete your .env file.');
 
             return Command::SUCCESS;
@@ -137,7 +145,7 @@ class SystemSetupCommand extends Command
         $env['APP_ENV'] = $io->choice('Application environment', ['prod', 'dev'], $input->getOption('app-env'));
 
         // TODO: optionally check http connection (create test file in public and request)
-        $validator = Validation::createCallable(new NotBlank(), new Url());
+        $validator = Validation::createCallable(new NotBlank(), new Url(requireTld: false));
         $env['APP_URL'] = $io->ask('URL to your /public folder', $input->getOption('app-url'), $validator);
 
         $io->section('Application information');
@@ -204,22 +212,22 @@ class SystemSetupCommand extends Command
         ], $params); // adding parameters that are not in the DSN
 
         if ($dbSslCa) {
-            $params['driverOptions'][\PDO::MYSQL_ATTR_SSL_CA] = $dbSslCa;
+            $params['driverOptions'][Mysql::ATTR_SSL_CA] = $dbSslCa;
             $env['DATABASE_SSL_CA'] = $dbSslCa;
         }
 
         if ($dbSslCert) {
-            $params['driverOptions'][\PDO::MYSQL_ATTR_SSL_CERT] = $dbSslCert;
+            $params['driverOptions'][Mysql::ATTR_SSL_CERT] = $dbSslCert;
             $env['DATABASE_SSL_CERT'] = $dbSslCert;
         }
 
         if ($dbSslKey) {
-            $params['driverOptions'][\PDO::MYSQL_ATTR_SSL_KEY] = $dbSslKey;
+            $params['driverOptions'][Mysql::ATTR_SSL_KEY] = $dbSslKey;
             $env['DATABASE_SSL_KEY'] = $dbSslKey;
         }
 
-        if ($dbSslDontVerify) {
-            $params['driverOptions'][\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+        if ($dbSslDontVerify && \defined('\Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT')) {
+            $params['driverOptions'][Mysql::ATTR_SSL_VERIFY_SERVER_CERT] = false;
             $env['DATABASE_SSL_DONT_VERIFY_SERVER_CERT'] = '1';
         }
 

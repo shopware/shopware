@@ -4,7 +4,20 @@
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-integration/page/sw-integration-list';
 
-async function createWrapper(privileges = []) {
+const appIntegration = {
+    id: 'app-integration-id',
+    label: 'MyApp',
+    app: { id: 'app-id', active: true },
+    aclRoles: [],
+    mcpAllowlist: null,
+};
+
+async function createWrapper(privileges = [], integrations = null, options = {}) {
+    const defaultIntegrations = integrations ?? [{ id: '44de136acf314e7184401d36406c1e90' }];
+    const saveMock = options.saveMock ?? jest.fn().mockResolvedValue();
+    const searchMock = options.searchMock ?? jest.fn().mockResolvedValue(defaultIntegrations);
+    const updateAdminMock = options.updateAdminMock ?? jest.fn().mockResolvedValue();
+
     const wrapper = mount(await wrapTestComponent('sw-integration-list', { sync: true }), {
         global: {
             provide: {
@@ -16,17 +29,9 @@ async function createWrapper(privileges = []) {
                             });
                         },
 
-                        search: () => {
-                            return Promise.resolve([
-                                {
-                                    id: '44de136acf314e7184401d36406c1e90',
-                                },
-                            ]);
-                        },
+                        search: searchMock,
 
-                        save: () => {
-                            return Promise.resolve();
-                        },
+                        save: saveMock,
 
                         delete: () => {
                             return Promise.resolve();
@@ -41,6 +46,10 @@ async function createWrapper(privileges = []) {
                             secretAccessKey: 'YzFnaFprUjdaZUI4WkJsSmVOcHNOTnI5bUNqc2o4YUx0WmFIb3Y',
                         });
                     },
+                    saveMcpAllowlist: () => {
+                        return Promise.resolve();
+                    },
+                    updateAdmin: updateAdminMock,
                 },
 
                 acl: {
@@ -51,6 +60,10 @@ async function createWrapper(privileges = []) {
 
                         return privileges.includes(identifier);
                     },
+                },
+
+                feature: {
+                    isActive: (flag) => flag === 'MCP_SERVER',
                 },
             },
 
@@ -100,17 +113,15 @@ async function createWrapper(privileges = []) {
                 'sw-field-copyable': true,
 
                 'sw-entity-multi-select': true,
-                'sw-empty-state': {
-                    template: '<div class="sw-empty-state"></div>',
-                },
                 'sw-entity-listing': {
                     props: [
                         'items',
+                        'dataSource',
                         'detailRoute',
                     ],
                     template: `
                         <div>
-                            <template v-for="item in items" :key="item.id">
+                            <template v-for="item in (dataSource || items)" :key="item.id">
                                 <slot name="actions" v-bind="{ item }">
                                 </slot>
                                 <slot name="action-modals" v-bind="{ item }">
@@ -128,6 +139,15 @@ async function createWrapper(privileges = []) {
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
             },
+            mocks: {
+                $route: {
+                    meta: {
+                        $module: {
+                            icon: 'solid-content',
+                        },
+                    },
+                },
+            },
         },
     });
 
@@ -136,11 +156,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-integration/page/sw-integration-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to create / edit without permissions', async () => {
         const wrapper = await createWrapper();
 
@@ -217,6 +232,70 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         expect(modalAfterSave.exists()).toBeFalsy();
     });
 
+    it('should update the admin flag through the integration service', async () => {
+        const integration = {
+            id: '44de136acf314e7184401d36406c1e90',
+            label: 'Test integration',
+            admin: true,
+            aclRoles: [],
+            getOrigin: () => {
+                return { admin: false };
+            },
+        };
+        const saveMock = jest.fn().mockResolvedValue();
+        const updateAdminMock = jest.fn().mockResolvedValue();
+        const searchMock = jest.fn().mockResolvedValue([integration]);
+
+        const wrapper = await createWrapper(
+            [
+                'admin',
+                'integration.editor',
+            ],
+            [integration],
+            {
+                saveMock,
+                searchMock,
+                updateAdminMock,
+            },
+        );
+
+        await wrapper.vm.updateIntegration(integration);
+        await flushPromises();
+
+        expect(saveMock).toHaveBeenCalledWith(integration);
+        expect(updateAdminMock).toHaveBeenCalledWith(integration.id, true);
+        expect(searchMock).toHaveBeenCalledTimes(2);
+    });
+
+    it('should not update the admin flag when it was not changed', async () => {
+        const integration = {
+            id: '44de136acf314e7184401d36406c1e90',
+            label: 'Test integration',
+            admin: false,
+            aclRoles: [],
+            getOrigin: () => {
+                return { admin: false };
+            },
+        };
+        const updateAdminMock = jest.fn().mockResolvedValue();
+
+        const wrapper = await createWrapper(
+            [
+                'admin',
+                'integration.editor',
+            ],
+            [integration],
+            {
+                updateAdminMock,
+            },
+        );
+
+        await wrapper.vm.updateIntegration(integration);
+        await flushPromises();
+
+        expect(updateAdminMock).not.toHaveBeenCalled();
+    });
+
     it('should be able to delete a integration', async () => {
         const wrapper = await createWrapper([
             'integration.deleter',
@@ -229,8 +308,10 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         const deleteModal = wrapper.find('.sw-modal');
         expect(deleteModal.exists()).toBeTruthy();
 
-        const deleteButton = wrapper.findByText('button', 'sw-integration.detail.buttonDelete');
-        expect(deleteButton.text()).toBe('sw-integration.detail.buttonDelete');
+        const deleteButton = deleteModal
+            .findAll('button')
+            .find((button) => button.text().trim() === 'global.default.delete');
+        expect(deleteButton.text()).toBe('global.default.delete');
         await deleteButton.trigger('click');
         await flushPromises();
 
@@ -253,6 +334,71 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         expect(adminRoleSwitch.props().disabled).toBe(true);
     });
 
+    it('should disable edit and delete for app integrations', async () => {
+        const wrapper = await createWrapper(
+            [
+                'integration.editor',
+                'integration.deleter',
+            ],
+            [appIntegration],
+        );
+
+        const editMenuItem = wrapper.find('.sw_integration_list__edit-action');
+        expect(editMenuItem.classes()).toContain('is--disabled');
+
+        const deleteMenuItem = wrapper.find('.sw_integration_list__delete-action');
+        expect(deleteMenuItem.classes()).toContain('is--disabled');
+    });
+
+    it('should allow editing MCP tools for app integrations', async () => {
+        const wrapper = await createWrapper(['integration_mcp.editor'], [appIntegration]);
+
+        const mcpMenuItem = wrapper.find('.sw_integration_list__edit-mcp-action');
+        expect(mcpMenuItem.classes()).not.toContain('is--disabled');
+    });
+
+    it('should not disable edit and delete for manual integrations', async () => {
+        const wrapper = await createWrapper([
+            'integration.editor',
+            'integration.deleter',
+        ]);
+
+        const editMenuItem = wrapper.find('.sw_integration_list__edit-action');
+        expect(editMenuItem.classes()).not.toContain('is--disabled');
+
+        const deleteMenuItem = wrapper.find('.sw_integration_list__delete-action');
+        expect(deleteMenuItem.classes()).not.toContain('is--disabled');
+    });
+
+    it('should call integrationService.saveMcpAllowlist on save', async () => {
+        const integration = { ...appIntegration, app: { id: 'app-id', active: true } };
+        const saveMock = jest.fn().mockResolvedValue();
+        const wrapper = await createWrapper(['integration_mcp.editor'], [integration]);
+        wrapper.vm.$.appContext.provides.integrationService.saveMcpAllowlist = saveMock;
+
+        wrapper.vm.mcpIntegration = integration;
+        wrapper.vm.pendingMcpAllowlist = ['shopware-entity-read'];
+
+        await wrapper.vm.onSaveMcpAllowlist();
+        await flushPromises();
+
+        expect(saveMock).toHaveBeenCalledWith(integration.id, ['shopware-entity-read']);
+    });
+
+    it('should gate Edit MCP Tools on integration_mcp.editor not integration.editor', async () => {
+        const wrapper = await createWrapper(['integration.editor'], [appIntegration]);
+
+        const mcpMenuItem = wrapper.find('.sw_integration_list__edit-mcp-action');
+        expect(mcpMenuItem.classes()).toContain('is--disabled');
+    });
+
+    it('should enable Edit MCP Tools with integration_mcp.editor', async () => {
+        const wrapper = await createWrapper(['integration_mcp.editor'], [appIntegration]);
+
+        const mcpMenuItem = wrapper.find('.sw_integration_list__edit-mcp-action');
+        expect(mcpMenuItem.classes()).not.toContain('is--disabled');
+    });
+
     it('should have integration criteria with filters', async () => {
         const wrapper = await createWrapper();
         const criteria = wrapper.vm.integrationCriteria;
@@ -265,9 +411,12 @@ describe('module/sw-integration/page/sw-integration-list', () => {
                     value: null,
                 }),
                 expect.objectContaining({
-                    field: 'app.id',
-                    type: 'equals',
-                    value: null,
+                    type: 'multi',
+                    operator: 'OR',
+                    queries: expect.arrayContaining([
+                        expect.objectContaining({ field: 'app.id', type: 'equals', value: null }),
+                        expect.objectContaining({ field: 'app.active', type: 'equals', value: true }),
+                    ]),
                 }),
             ]),
         );

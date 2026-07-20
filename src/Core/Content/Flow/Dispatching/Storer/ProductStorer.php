@@ -4,13 +4,14 @@ namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\ProductProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\ProductAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -19,10 +20,13 @@ class ProductStorer extends FlowStorer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ProductCollection> $productRepository
      */
     public function __construct(
         private readonly EntityRepository $productRepository,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly ProductProvider $productProvider,
     ) {
     }
 
@@ -56,26 +60,26 @@ class ProductStorer extends FlowStorer
             return null;
         }
 
-        $criteria = new Criteria([$id]);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $criteria = $this->productProvider->getCriteria($id, $storableFlow->getContext());
 
-        return $this->loadProduct($criteria, $storableFlow->getContext(), $id);
-    }
+            $event = new BeforeLoadStorableFlowDataEvent(
+                ProductDefinition::ENTITY_NAME,
+                $criteria,
+                $storableFlow->getContext(),
+            );
 
-    private function loadProduct(Criteria $criteria, Context $context, string $id): ?ProductEntity
-    {
-        $context->setConsiderInheritance(true);
+            $this->dispatcher->dispatch($event, $event->getName());
 
-        $event = new BeforeLoadStorableFlowDataEvent(
-            ProductDefinition::ENTITY_NAME,
-            $criteria,
-            $context,
-        );
+            $product = $this->productRepository->search($criteria, $storableFlow->getContext())->getEntities()->get($id);
 
-        $this->dispatcher->dispatch($event, $event->getName());
+            if ($product) {
+                return $product;
+            }
 
-        /** @var ProductEntity|null $product */
-        $product = $this->productRepository->search($criteria, $context)->get($id);
+            return null;
+        }
 
-        return $product;
+        return $this->productProvider->getData($id, $storableFlow->getContext());
     }
 }

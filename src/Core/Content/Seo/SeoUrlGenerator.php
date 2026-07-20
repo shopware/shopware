@@ -3,9 +3,6 @@
 namespace Shopware\Core\Content\Seo;
 
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\LandingPage\LandingPageCollection;
-use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
@@ -16,7 +13,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -53,7 +53,7 @@ class SeoUrlGenerator
     }
 
     /**
-     * @param array<string|array<string, string>> $ids
+     * @param list<string|array<string, string>> $ids
      *
      * @return iterable<SeoUrlEntity>
      */
@@ -72,7 +72,7 @@ class SeoUrlGenerator
 
             $criteria->setLimit(50);
 
-            /** @var RepositoryIterator<LandingPageCollection|CategoryCollection|ProductCollection> $iterator */
+            /** @var RepositoryIterator<EntityCollection<covariant Entity>> $iterator */
             $iterator = $context->enableInheritance(static fn (Context $context): RepositoryIterator => new RepositoryIterator($repository, $context, $criteria));
 
             while ($searchResult = $iterator->fetch()) {
@@ -82,7 +82,7 @@ class SeoUrlGenerator
     }
 
     /**
-     * @param EntitySearchResult<LandingPageCollection|CategoryCollection|ProductCollection> $searchResult
+     * @param EntitySearchResult<EntityCollection<covariant Entity>> $searchResult
      *
      * @return iterable<SeoUrlEntity>
      */
@@ -91,13 +91,15 @@ class SeoUrlGenerator
         SeoUrlRouteConfig $config,
         SalesChannelEntity $salesChannel,
         EntitySearchResult $searchResult,
-        string $templateName
+        string $templateName,
     ): iterable {
         $request = $this->requestStack->getMainRequest();
 
         $basePath = $request ? $request->getBasePath() : '';
 
-        foreach ($searchResult->getEntities() as $entity) {
+        $entities = $searchResult->getEntities();
+
+        foreach ($entities as $entity) {
             $seoUrl = new SeoUrlEntity();
             $seoUrl->setForeignKey($entity->getUniqueIdentifier());
 
@@ -105,16 +107,14 @@ class SeoUrlGenerator
             $seoUrl->setIsModified(false);
             $seoUrl->setIsDeleted(false);
 
-            $copy = clone $seoUrl;
-
             $mapping = $seoUrlRoute->getMapping($entity, $salesChannel);
 
-            $copy->setError($mapping->getError());
+            $seoUrl->setError($mapping->getError());
 
             $pathInfo = $this->router->generate($config->getRouteName(), $mapping->getInfoPathContext());
             $pathInfo = $this->removePrefix($pathInfo, $basePath);
 
-            $copy->setPathInfo($pathInfo);
+            $seoUrl->setPathInfo($pathInfo);
 
             $seoPathInfo = $this->getSeoPathInfo($mapping, $config, $templateName);
 
@@ -122,10 +122,10 @@ class SeoUrlGenerator
                 continue;
             }
 
-            $copy->setSeoPathInfo($seoPathInfo);
-            $copy->setSalesChannelId($salesChannel->getId());
+            $seoUrl->setSeoPathInfo($seoPathInfo);
+            $seoUrl->setSalesChannelId($salesChannel->getId());
 
-            yield $copy;
+            yield $seoUrl;
         }
     }
 
@@ -136,7 +136,7 @@ class SeoUrlGenerator
         } catch (Error $error) {
             $this->logger->warning('Error received on rendering SEO URL template', [
                 'exception' => $error,
-                'mapping_entity_type' => \get_class($mapping->getEntity()),
+                'mapping_entity_type' => $mapping->getEntity()::class,
                 'mapping_error' => $mapping->getError(),
                 'mapping_info_path' => $mapping->getInfoPathContext(),
                 'mapping' => $mapping,
@@ -160,7 +160,7 @@ class SeoUrlGenerator
         ]));
 
         try {
-            $this->twig->loadTemplate($this->twig->getTemplateClass($templateName), $templateName);
+            $this->twig->load($templateName);
         } catch (SyntaxError $syntaxError) {
             $this->logger->warning('Error initializing SEO URL template', [
                 'exception' => $syntaxError,
@@ -207,11 +207,11 @@ class SeoUrlGenerator
         foreach ($variables as $variable) {
             $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $variable, true);
 
-            $lastField = end($fields);
+            $lastField = array_last($fields);
 
             $runtime = new Runtime();
 
-            if ($lastField && $lastField->getFlag(Runtime::class)) {
+            if ($lastField instanceof Field && $lastField->getFlag(Runtime::class)) {
                 $associations = array_merge($associations, $runtime->getDepends());
             }
 

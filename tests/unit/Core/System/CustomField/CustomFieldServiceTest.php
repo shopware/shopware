@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\CustomField;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\Context;
@@ -45,7 +45,7 @@ class CustomFieldServiceTest extends TestCase
 
     private const INVALID_NAME = 'invalid-name';
 
-    private MockObject&Connection $connection;
+    private Connection&Stub $connection;
 
     private CustomFieldService $customFieldService;
 
@@ -53,7 +53,7 @@ class CustomFieldServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
         $this->customFieldService = new CustomFieldService($this->connection);
         $this->writeContext = WriteContext::createFromContext(
             Context::createDefaultContext()
@@ -61,10 +61,10 @@ class CustomFieldServiceTest extends TestCase
     }
 
     /**
-     * @param class-string<object>|null $expected
+     * @param class-string<object> $expected
      */
     #[DataProvider('getCustomFieldValues')]
-    public function testGetCustomField(?string $type, ?string $expected): void
+    public function testGetCustomField(?string $type, string $expected): void
     {
         $attributeName = 'test';
         $this->connection->method('fetchAllKeyValue')->willReturn([
@@ -72,12 +72,6 @@ class CustomFieldServiceTest extends TestCase
         ]);
 
         $result = $this->customFieldService->getCustomField($attributeName);
-
-        if (!$expected) {
-            static::assertNull($result);
-
-            return;
-        }
 
         static::assertInstanceOf($expected, $result);
         static::assertInstanceOf(ApiAware::class, $result->getFlags()[0]);
@@ -88,7 +82,6 @@ class CustomFieldServiceTest extends TestCase
      */
     public static function getCustomFieldValues(): iterable
     {
-        yield 'null' => ['type' => null, 'expected' => null];
         yield 'int' => ['type' => CustomFieldTypes::INT, 'expected' => IntField::class];
         yield 'float' => ['type' => CustomFieldTypes::FLOAT, 'expected' => FloatField::class];
         yield 'bool' => ['type' => CustomFieldTypes::BOOL, 'expected' => BoolField::class];
@@ -136,48 +129,54 @@ class CustomFieldServiceTest extends TestCase
         yield 'invalid: contains new line' => ['name' => 'invalid\nName', 'error' => true];
     }
 
-    public function testGetCustomFieldNameNotExisting(): void
+    public function testGetCustomFieldNameNotExistingWillFallbackToJson(): void
     {
         $this->connection->method('fetchAllKeyValue')->willReturn([]);
 
         $result = $this->customFieldService->getCustomField('test');
-        static::assertNull($result);
+        static::assertInstanceOf(JsonField::class, $result);
     }
 
     public function testGetCustomFieldShouldNotRefetch(): void
     {
-        $this->connection->expects($this->once())
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
             ->method('fetchAllKeyValue')
             ->willReturn([
                 ['test' => CustomFieldTypes::TEXT],
             ]);
 
-        $this->customFieldService->getCustomField('test');
-        $this->customFieldService->getCustomField('test');
+        $customFieldService = new CustomFieldService($connection);
+        $customFieldService->getCustomField('test');
+        $customFieldService->getCustomField('test');
     }
 
     public function testGetCustomFieldShouldNotRefetchWithoutFields(): void
     {
-        $this->connection->expects($this->once())
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
             ->method('fetchAllKeyValue')
             ->willReturn([]);
 
-        $this->customFieldService->getCustomField('test');
-        $this->customFieldService->getCustomField('test');
+        $customFieldService = new CustomFieldService($connection);
+        $customFieldService->getCustomField('test');
+        $customFieldService->getCustomField('test');
     }
 
     public function testReset(): void
     {
-        $this->connection->expects($this->exactly(2))
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->exactly(2))
             ->method('fetchAllKeyValue')
             ->willReturnOnConsecutiveCalls(
                 [],
                 ['test' => CustomFieldTypes::TEXT],
             );
 
-        static::assertNull($this->customFieldService->getCustomField('test'));
-        $this->customFieldService->reset();
-        static::assertNotNull($this->customFieldService->getCustomField('test'));
+        $customFieldService = new CustomFieldService($connection);
+        static::assertInstanceOf(JsonField::class, $customFieldService->getCustomField('test'));
+        $customFieldService->reset();
+        static::assertInstanceOf(LongTextField::class, $customFieldService->getCustomField('test'));
     }
 
     public function testSubscribedEvents(): void
@@ -262,8 +261,8 @@ class CustomFieldServiceTest extends TestCase
     ): InsertCommand {
         $registry = new StaticDefinitionInstanceRegistry(
             $registryDefinitions,
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class),
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class),
         );
 
         $payload = $name ? ['name' => $name] : [];

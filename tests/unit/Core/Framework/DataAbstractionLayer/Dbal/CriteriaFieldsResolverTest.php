@@ -35,13 +35,13 @@ class CriteriaFieldsResolverTest extends TestCase
                 TestDefinition::class,
                 RelatedTestDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 
     /**
-     * @param array<int, mixed> $expected
+     * @param array<string, array{}|array<string, array{}>> $expected
      */
     #[DataProvider('resolveFieldsProvider')]
     public function testResolveFields(Criteria $criteria, array $expected): void

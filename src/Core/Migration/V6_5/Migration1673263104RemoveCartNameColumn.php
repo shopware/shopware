@@ -5,6 +5,7 @@ namespace Shopware\Core\Migration\V6_5;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -19,15 +20,13 @@ class Migration1673263104RemoveCartNameColumn extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $isCartNameNullable = <<<'SQL'
-            SELECT is_nullable
-            FROM information_schema.columns
-            WHERE table_schema = ?
-            AND table_name = 'cart'
-            AND column_name = 'name';
-        SQL;
+        if (!TableHelper::columnExists($connection, 'cart', 'name')) {
+            return;
+        }
 
-        if ($connection->fetchOne($isCartNameNullable, [$connection->getDatabase()]) === 'NO') {
+        $column = TableHelper::getColumnOfTable($connection, 'cart', 'name');
+
+        if ($column->isNotNull) {
             $connection->executeStatement(
                 'ALTER TABLE `cart` CHANGE `name` `name` VARCHAR(500) COLLATE utf8mb4_unicode_ci'
             );

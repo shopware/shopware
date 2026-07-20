@@ -26,24 +26,16 @@ describe('AccountGuestAbortButtonPlugin tests', () => {
     });
 
     test('AccountGuestAbortButtonPlugin should emitter guest-logout event when clicked', () => {
-        accountGuestAbortButton._onButtonClicked = jest.fn();
+        const assignSpy = jest.spyOn(AccountGuestAbortButtonPlugin.prototype, '_assignLocation').mockImplementation(() => {});
 
         let logoutEventPublished = false;
         accountGuestAbortButton.$emitter.subscribe('guest-logout', () => {
             logoutEventPublished = true;
         });
 
-        // Mock window.location
-        const originalLocation = window.location;
-        delete window.location;
-        window.location = { assign: jest.fn() };
-
         accountGuestAbortButton.el.click();
 
         expect(logoutEventPublished).toEqual(true);
-        expect(window.location.assign).toBeCalledWith(accountGuestAbortButton.el.getAttribute('href'));
-
-        // Restore original window.location
-        window.location = originalLocation;
+        expect(assignSpy).toHaveBeenCalledWith(accountGuestAbortButton.el.getAttribute('href'));
     });
 });

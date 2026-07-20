@@ -7,6 +7,29 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
     let wrapper;
 
     beforeEach(async () => {
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
+        }
+
+        Shopware.Store.register({
+            id: 'context',
+            state: () => ({
+                app: {
+                    config: {
+                        settings: {
+                            enableUrlFeature: false,
+                        },
+                    },
+                },
+                api: {
+                    assetPath: 'http://localhost:8000/bundles/administration/',
+                    authToken: {
+                        token: 'testToken',
+                    },
+                },
+            }),
+        });
+
         wrapper = mount(
             await wrapTestComponent('sw-media-compact-upload-v2', {
                 sync: true,
@@ -27,13 +50,12 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
                         'sw-media-modal-v2': true,
                     },
                     provide: {
-                        repositoryFactory: {},
-                        configService: {
-                            getConfig: () =>
-                                Promise.resolve({
-                                    settings: { enableUrlFeature: false },
-                                }),
+                        mediaPresignedUploadService: {
+                            prepareUpload: jest.fn(),
+                            uploadToPresignedUrl: jest.fn(),
+                            finalizeUpload: jest.fn(),
                         },
+                        repositoryFactory: {},
                         mediaService: {
                             addListener: () => {},
                             removeByTag: () => {},
@@ -47,10 +69,6 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
                 },
             },
         );
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain the default accept value', async () => {
@@ -202,7 +220,7 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
         });
 
         const removeButton = wrapper.find('.sw-media-upload-v2__delete-item-button');
-        expect(removeButton.text()).toBe('global.sw-product-image.context.buttonRemove');
+        expect(removeButton.text()).toBe('global.default.remove');
 
         await wrapper.setProps({
             removeButtonLabel: 'test',

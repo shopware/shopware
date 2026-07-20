@@ -2,20 +2,18 @@
 <div class="sw-import-export-view-profiles">
     {% block sw_import_export_view_profile_profiles %}
     <mt-card
-        :title="$tc('sw-import-export.page.profileTab')"
+        :title="$t('sw-import-export.page.profileTab')"
         class="sw-import-export-view-profiles__grid-card"
         position-identifier="sw-import-export-view-profiles"
     >
-
         {% block sw_import_export_view_profile_profiles_toolbar %}
         <div class="sw-import-export-view-profiles__toolbar">
             {% block sw_import_export_view_profile_profiles_toolbar_search_field %}
-            <sw-simple-search-field
-                v-model:value="searchTerm"
+            <mt-search
+                v-model="searchTerm"
                 class="sw-import-export-view-profiles__search"
                 size="small"
-                variant="form"
-                @search-term-change="onSearch"
+                @change="onSearch"
             />
             {% endblock %}
 
@@ -23,13 +21,12 @@
             <mt-button
                 v-tooltip="createTooltip"
                 class="sw-import-export-view-profiles__create-action"
-                ghost
                 :disabled="isLoading || isNotSystemLanguage"
                 size="small"
                 variant="secondary"
                 @click="onAddNewProfile"
             >
-                {{ $tc('sw-import-export.profile.addNewProfileLabel') }}
+                {{ $t('sw-import-export.profile.addNewProfileLabel') }}
             </mt-button>
             {% endblock %}
         </div>
@@ -40,7 +37,7 @@
             ref="listing"
             class="sw-import-export-view-profiles__listing"
             :repository="profileRepository"
-            :items="profiles"
+            :data-source="profiles"
             :is-loading="isLoading"
             :columns="profilesColumns"
             :sort-by="sortBy"
@@ -51,62 +48,64 @@
             :full-page="false"
             :plain-appearance="true"
         >
+            {# @deprecated tag:v6.8.0 - Block will be removed. #}
+            {% block sw_import_export_view_profile_profiles_listing_column_label %}
+            {% endblock %}
 
-                {% block sw_import_export_view_profile_profiles_listing_column_label %}
-            <template #column-label="{ item }">
-                <a
-                    href="#"
-                    @click.prevent="onEditProfile(item.id)"
+            <template #column-technicalName="{ item }">
+                <mt-link
+                    as="a"
+                    variant="primary"
+                    @click="onEditProfile(item.id)"
                 >
-                    {{ item.translated.label || item.label }}
-                </a>
+                    {{ item.technicalName }}
+                </mt-link>
             </template>
-                {% endblock %}
 
-                {% block sw_import_export_view_profile_profiles_listing_column_system_default %}
+            {% block sw_import_export_view_profile_profiles_listing_column_system_default %}
             <template #column-systemDefault="{ item }">
                 {{ getTypeLabel(item.systemDefault) }}
             </template>
-                {% endblock %}
+            {% endblock %}
 
             <template #actions="{ item }">
-                    {% block sw_import_export_view_profile_profiles_listing_edit %}
+                {% block sw_import_export_view_profile_profiles_listing_edit %}
                 <sw-context-menu-item
                     class="sw-import-export-view-profiles__listing-open-action"
                     @click="onEditProfile(item.id)"
                 >
-                    {{ $tc('sw-import-export.profile.openLabel') }}
+                    {{ $t('global.default.edit') }}
                 </sw-context-menu-item>
-                    {% endblock %}
+                {% endblock %}
 
-                    {% block sw_import_export_view_profile_profiles_listing_duplicate %}
+                {% block sw_import_export_view_profile_profiles_listing_duplicate %}
                 <sw-context-menu-item
                     class="sw-import-export-view-profiles__listing-duplicate-action"
                     @click="onDuplicateProfile(item)"
                 >
-                    {{ $tc('sw-import-export.profile.duplicateLabel') }}
+                    {{ $t('global.default.duplicate') }}
                 </sw-context-menu-item>
-                    {% endblock %}
+                {% endblock %}
 
-                    {% block sw_import_export_view_profile_profiles_listing_download_template %}
+                {% block sw_import_export_view_profile_profiles_listing_download_template %}
                 <sw-context-menu-item
                     class="sw-import-export-view-profiles__listing-download-template-action"
                     @click="onDownloadTemplate(item)"
                 >
-                    {{ $tc('sw-import-export.profile.downloadTemplateLabel') }}
+                    {{ $t('sw-import-export.profile.downloadTemplateLabel') }}
                 </sw-context-menu-item>
-                    {% endblock %}
+                {% endblock %}
 
-                    {% block sw_import_export_view_profile_profiles_listing_delete %}
+                {% block sw_import_export_view_profile_profiles_listing_delete %}
                 <sw-context-menu-item
                     class="sw-import-export-view-profiles__listing-delete-action"
                     variant="danger"
                     :disabled="item.systemDefault"
                     @click="onDeleteProfile(item.id)"
                 >
-                    {{ $tc('sw-import-export.profile.deleteLabel') }}
+                    {{ $t('sw-import-export.profile.deleteLabel') }}
                 </sw-context-menu-item>
-                    {% endblock %}
+                {% endblock %}
             </template>
         </sw-entity-listing>
         {% endblock %}

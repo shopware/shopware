@@ -3,13 +3,17 @@
 namespace Shopware\Storefront\Theme\Command;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Storefront\Theme\Exception\ThemeException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 #[AsCommand(
@@ -22,8 +26,10 @@ class ThemeCreateCommand extends Command
     /**
      * @internal
      */
-    public function __construct(private readonly string $projectDir)
-    {
+    public function __construct(
+        private readonly string $projectDir,
+        private readonly Filesystem $filesystem = new Filesystem(),
+    ) {
         parent::__construct();
     }
 
@@ -42,7 +48,9 @@ class ThemeCreateCommand extends Command
 
         if (!$themeName) {
             $question = new Question('Please enter a theme name: ');
-            $themeName = $this->getHelper('question')->ask($input, $output, $question);
+            $questionHelper = $this->getHelper('question');
+            \assert($questionHelper instanceof QuestionHelper);
+            $themeName = $questionHelper->ask($input, $output, $question);
         }
 
         if (!ctype_upper((string) $themeName[0])) {
@@ -64,7 +72,7 @@ class ThemeCreateCommand extends Command
 
         $directory = \sprintf('%s/custom/%splugins/%s', $this->projectDir, $staticPrefix, $pluginName);
 
-        if (file_exists($directory)) {
+        if (\is_dir($directory)) {
             $io->error(\sprintf('Plugin directory %s already exists', $directory));
 
             return self::FAILURE;
@@ -82,7 +90,7 @@ class ThemeCreateCommand extends Command
             $this->createDirectory($directory . '/src/Resources/app/storefront/dist/storefront');
             $this->createDirectory($directory . '/src/Resources/app/storefront/dist/storefront/js');
             $this->createDirectory($directory . '/src/Resources/app/storefront/dist/storefront/js/' . $snakeCaseName);
-        } catch (\RuntimeException $e) {
+        } catch (ThemeException $e) {
             $io->error($e->getMessage());
 
             return self::FAILURE;
@@ -111,26 +119,25 @@ class ThemeCreateCommand extends Command
             $this->getThemeConfigTemplate()
         );
 
-        file_put_contents($composerFile, $composer);
-        file_put_contents($bootstrapFile, $bootstrap);
-        file_put_contents($themeConfigFile, $themeConfig);
-        file_put_contents($variableOverridesFile, $this->getVariableOverridesTemplate());
+        $this->filesystem->dumpFile($composerFile, $composer);
+        $this->filesystem->dumpFile($bootstrapFile, $bootstrap);
+        $this->filesystem->dumpFile($themeConfigFile, $themeConfig);
+        $this->filesystem->dumpFile($variableOverridesFile, $this->getVariableOverridesTemplate());
 
-        touch($directory . '/src/Resources/app/storefront/src/assets/.gitkeep');
-        touch($directory . '/src/Resources/app/storefront/src/scss/base.scss');
-        touch($directory . '/src/Resources/app/storefront/src/main.js');
-        touch($directory . '/src/Resources/app/storefront/dist/storefront/js/' . $snakeCaseName . '/' . $snakeCaseName . '.js');
+        $this->filesystem->touch($directory . '/src/Resources/app/storefront/src/assets/.gitkeep');
+        $this->filesystem->touch($directory . '/src/Resources/app/storefront/src/scss/base.scss');
+        $this->filesystem->touch($directory . '/src/Resources/app/storefront/src/main.js');
+        $this->filesystem->touch($directory . '/src/Resources/app/storefront/dist/storefront/js/' . $snakeCaseName . '/' . $snakeCaseName . '.js');
 
         return self::SUCCESS;
     }
 
-    /**
-     * @throws \RuntimeException
-     */
     private function createDirectory(string $pathName): void
     {
-        if (!mkdir($pathName, 0755, true) && !is_dir($pathName)) {
-            throw new \RuntimeException(\sprintf('Unable to create directory "%s". Please check permissions', $pathName));
+        try {
+            $this->filesystem->mkdir($pathName, 0755);
+        } catch (IOException $e) {
+            throw ThemeException::themeCreationFailure(\sprintf('Unable to create directory "%s". Please check permissions', $pathName));
         }
     }
 

@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('checkout')]
 #[CoversClass(ContextGatewayController::class)]
 class ContextGatewayControllerTest extends TestCase
 {
@@ -146,16 +146,17 @@ class ContextGatewayControllerTest extends TestCase
 
     private function createStubContainerWithFlashBag(): ContainerInterface
     {
-        $session = new Session(new TestSessionStorage());
+        $storage = new TestSessionStorage();
+        $storage->clear(); // ensure a clean state since storage is a stub shared between tests
+
         $request = new Request();
-        $request->setSession($session);
+        $request->setSession(new Session($storage));
 
         $requestStack = new RequestStack([$request]);
 
-        $container = $this->createMock(ContainerInterface::class);
+        $container = static::createStub(ContainerInterface::class);
         $container
             ->method('get')
-            ->with('request_stack')
             ->willReturn($requestStack);
 
         return $container;

@@ -32,6 +32,7 @@ describe('BaseSliderPlugin tests', () => {
                 };
             },
             initializePlugins: undefined,
+            initializePluginsInParentElement: jest.fn(),
         };
 
         document.$emitter = new NativeEventEmitter();
@@ -83,6 +84,30 @@ describe('BaseSliderPlugin tests', () => {
         expect(sliderInstance._sliderSettings.autoplay).toBe(true);
         expect(sliderInstance._sliderSettings.speed).toBe(300);
         expect(sliderInstance._sliderSettings.autoplayTimeout).toBe(5000);
+    });
+
+    test('rebuild should re-initialise on the currently displayed slide', () => {
+        const element = document.querySelector('.base-slider');
+        const sliderInstance = new BaseSliderPlugin(element);
+
+        let startIndexAtReInit;
+        jest.spyOn(sliderInstance, '_initSlider').mockImplementation(() => {
+            startIndexAtReInit = sliderInstance._sliderSettings.startIndex;
+        });
+
+        sliderInstance._slider = {
+            getInfo: () => {
+                return {
+                    index: 4,
+                    displayIndex: 1,
+                    slideCount: 4,
+                };
+            },
+        };
+
+        sliderInstance.rebuild('xl');
+
+        expect(startIndexAtReInit).toBe(0);
     });
 
     test('should apply accessibility tweaks', () => {
@@ -151,9 +176,9 @@ describe('BaseSliderPlugin tests', () => {
         focusEvent.key = 'Tab';
         focusElement.dispatchEvent(focusEvent);
 
-        expect(spyGetInfo).toBeCalled();
-        expect(spyPause).toBeCalled();
-        expect(spyGoTo).toBeCalled();
+        expect(spyGetInfo).toHaveBeenCalled();
+        expect(spyPause).toHaveBeenCalled();
+        expect(spyGoTo).toHaveBeenCalled();
 
         const scrollEvent = new Event('scroll');
         const scrollEventSpy = jest.spyOn(scrollEvent, 'preventDefault');
@@ -161,6 +186,6 @@ describe('BaseSliderPlugin tests', () => {
         sliderElement.dispatchEvent(scrollEvent);
 
         expect(sliderElement.scrollLeft).toBe(0);
-        expect(scrollEventSpy).toBeCalled();
+        expect(scrollEventSpy).toHaveBeenCalled();
     });
 });

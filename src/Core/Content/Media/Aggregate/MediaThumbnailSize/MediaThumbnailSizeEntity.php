@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize;
 
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -25,6 +26,8 @@ class MediaThumbnailSizeEntity extends Entity
     protected int $height;
 
     protected ?MediaFolderConfigurationCollection $mediaFolderConfigurations = null;
+
+    protected ?MediaThumbnailCollection $mediaThumbnails = null;
 
     /**
      * @return int<1, max>
@@ -66,5 +69,15 @@ class MediaThumbnailSizeEntity extends Entity
     public function setMediaFolderConfigurations(MediaFolderConfigurationCollection $mediaFolderConfigurations): void
     {
         $this->mediaFolderConfigurations = $mediaFolderConfigurations;
+    }
+
+    public function getMediaThumbnails(): ?MediaThumbnailCollection
+    {
+        return $this->mediaThumbnails;
+    }
+
+    public function setMediaThumbnails(MediaThumbnailCollection $mediaThumbnails): void
+    {
+        $this->mediaThumbnails = $mediaThumbnails;
     }
 }

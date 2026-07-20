@@ -4,20 +4,23 @@ namespace Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal in v6.8.0
+ */
 #[Package('framework')]
 class NamespaceHierarchyBuilder
 {
     /**
      * @internal
      *
-     * @param TemplateNamespaceHierarchyBuilderInterface[] $namespaceHierarchyBuilders
+     * @param iterable<TemplateNamespaceHierarchyBuilderInterface> $namespaceHierarchyBuilders
      */
     public function __construct(private readonly iterable $namespaceHierarchyBuilders)
     {
     }
 
     /**
-     * @return array<string>
+     * @return array<string, int>
      */
     public function buildHierarchy(): array
     {

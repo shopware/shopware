@@ -1,5 +1,7 @@
+import { isPlayableMediaFormat, shouldShowUnsupportedFormatWarning } from 'src/app/service/media-format.service';
 import template from './sw-media-quickinfo.html.twig';
 import './sw-media-quickinfo.scss';
+import 'src/module/sw-media/mixin/video-cover.mixin';
 
 const { Mixin, Context, Utils } = Shopware;
 const { dom, format } = Utils;
@@ -28,6 +30,7 @@ export default {
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('media-sidebar-modal-mixin'),
+        Mixin.getByName('video-cover'),
         Mixin.getByName('placeholder'),
     ],
 
@@ -56,6 +59,11 @@ export default {
             fileNameError: null,
             arReady: false,
             defaultArReady: false,
+            arPlacement: 'horizontal',
+            defaultArPlacement: 'horizontal',
+            arPlacementOptions: [],
+            showCoverSelectionModal: false,
+            showModelEditorModal: false,
         };
     },
 
@@ -90,6 +98,58 @@ export default {
             // we need to check the media url since media.fileExtension is set directly after upload
             return this.item?.fileExtension === 'glb' || !!this.item?.url?.endsWith('.glb');
         },
+
+        extensionSdkButtons() {
+            return Shopware.Store.get('actionButtons').buttons.filter((button) => {
+                if (button.entity !== 'media' || button.view !== 'item') {
+                    return false;
+                }
+
+                return (
+                    !button.fileTypes?.length ||
+                    button.fileTypes.some((type) => {
+                        return type.toLowerCase() === this.item.fileExtension.toLowerCase();
+                    })
+                );
+            });
+        },
+
+        isPlayable() {
+            return isPlayableMediaFormat(this.item.mimeType);
+        },
+
+        showUnsupportedFormatWarning() {
+            return shouldShowUnsupportedFormatWarning(this.item.mimeType);
+        },
+
+        canManageVideoCover() {
+            return this.isVideoMedia && this.isPlayable;
+        },
+
+        editorTooltip() {
+            const isDisabled = !this.acl.can('media.editor');
+            return {
+                message: this.$t('sw-privileges.tooltip.warning'),
+                disabled: this.acl.can('media.editor'),
+                showOnDisabledElements: isDisabled,
+            };
+        },
+
+        deleterTooltip() {
+            return {
+                message: this.$t('sw-privileges.tooltip.warning'),
+                disabled: this.acl.can('media.deleter'),
+                showOnDisabledElements: true,
+            };
+        },
+
+        fileName() {
+            if (this.item.fileExtension) {
+                return `${this.item.fileName}.${this.item.fileExtension}`;
+            }
+
+            return this.item.fileName;
+        },
     },
 
     watch: {
@@ -117,10 +177,27 @@ export default {
         fetchSpatialItemConfig() {
             this.systemConfigApiService.getValues('core.media').then((values) => {
                 this.defaultArReady = values['core.media.defaultEnableAugmentedReality'];
+                this.defaultArPlacement = values['core.media.defaultARPlacement'];
+            });
+
+            this.systemConfigApiService.getConfig('core.media').then((config) => {
+                config
+                    .flat()[0]
+                    .elements.filter((element) => element.name === 'core.media.defaultARPlacement')
+                    .forEach((element) => {
+                        this.arPlacementOptions = element.config.options.map((option) => {
+                            return {
+                                id: option.id,
+                                value: option.id,
+                                label: this.$t(`sw-media.sidebar.actions.${option.id}`),
+                            };
+                        });
+                    });
             });
 
             this.mediaRepository.get(this.item.id, Shopware.Context.api).then((entity) => {
                 this.arReady = entity?.config?.spatial?.arReady;
+                this.arPlacement = entity?.config?.spatial?.arPlacement;
             });
         },
 
@@ -135,7 +212,7 @@ export default {
                 settingsLink: routeData.href,
             };
 
-            return this.$tc(snippet, 0, data);
+            return this.$t(snippet, data);
         },
 
         loadCustomFieldSets() {
@@ -144,6 +221,26 @@ export default {
             });
         },
 
+        async onSave() {
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
+
+            try {
+                await this.mediaRepository.save(this.item, Context.api);
+                this.isSaveSuccessful = true;
+            } catch (error) {
+                this.createNotificationError({
+                    message: error.message,
+                });
+            } finally {
+                this.isLoading = false;
+                Shopware.Utils.EventBus.emit('sw-media-library-item-updated', this.item.id);
+            }
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Use `onSave` instead
+         */
         async onSaveCustomFields(item) {
             this.isSaveSuccessful = false;
             this.isLoading = true;
@@ -163,35 +260,26 @@ export default {
                 try {
                     await dom.copyStringToClipboard(this.item.url);
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-media.general.notification.urlCopied.message'),
+                        message: this.$t('sw-media.general.notification.urlCopied.message'),
                     });
-                } catch (err) {
+                } catch (_err) {
                     this.createNotificationError({
-                        title: this.$tc('global.default.error'),
-                        message: this.$tc('global.sw-field.notification.notificationCopyFailureMessage'),
+                        message: this.$t('global.sw-field.notification.notificationCopyFailureMessage'),
                     });
                 }
             }
         },
 
-        async onSubmitTitle(value) {
+        onSubmitTitle(value) {
             this.item.title = value;
 
-            try {
-                await this.mediaRepository.save(this.item, Context.api);
-            } catch {
-                this.$refs.inlineEditFieldTitle.cancelSubmit();
-            }
+            return this.onSave();
         },
 
-        async onSubmitAltText(value) {
+        onSubmitAltText(value) {
             this.item.alt = value;
 
-            try {
-                await this.mediaRepository.save(this.item, Context.api);
-            } catch {
-                this.$refs.inlineEditFieldAlt.cancelSubmit();
-            }
+            return this.onSave();
         },
 
         async onChangeFileName(value) {
@@ -219,7 +307,7 @@ export default {
                 item.fileName = value;
 
                 this.createNotificationSuccess({
-                    message: this.$tc('global.sw-media-media-item.notification.renamingSuccess.message'),
+                    message: this.$t('global.sw-media-media-item.notification.renamingSuccess.message'),
                 });
                 this.$emit('media-item-rename-success', item);
             } catch (exception) {
@@ -237,18 +325,14 @@ export default {
             switch (error.code) {
                 case 'CONTENT__MEDIA_FILE_NAME_IS_TOO_LONG':
                     this.createNotificationError({
-                        message: this.$tc(
-                            'global.sw-media-media-item.notification.fileNameTooLong.message',
-                            {
-                                length: error.meta.parameters.maxLength,
-                            },
-                            0,
-                        ),
+                        message: this.$t('global.sw-media-media-item.notification.fileNameTooLong.message', {
+                            length: error.meta.parameters.maxLength,
+                        }),
                     });
                     break;
                 default:
                     this.createNotificationError({
-                        message: this.$tc('global.sw-media-media-item.notification.renamingError.message'),
+                        message: this.$t('global.sw-media-media-item.notification.renamingError.message'),
                     });
             }
         },
@@ -293,6 +377,7 @@ export default {
             const newSpatialConfig = {
                 spatial: {
                     arReady: newValue,
+                    arPlacement: this.arPlacement,
                     updatedAt: Date.now(),
                 },
             };
@@ -304,6 +389,89 @@ export default {
             };
 
             this.$emit('update:item', { ...this.item, ...newItemConfig });
+        },
+
+        /**
+         * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
+         */
+        changeARPlacement(newPlacement) {
+            const newSpatialConfig = {
+                spatial: {
+                    arReady: this.arReady,
+                    arPlacement: newPlacement,
+                    updatedAt: Date.now(),
+                },
+            };
+            const newItemConfig = {
+                config: {
+                    ...this.item.config,
+                    ...newSpatialConfig,
+                },
+            };
+
+            this.$emit('update:item', { ...this.item, ...newItemConfig });
+        },
+
+        runAppAction(action) {
+            if (typeof action.callback !== 'function') {
+                return;
+            }
+
+            const { fileName, mimeType, fileSize, url, id } = this.item;
+
+            action.callback({
+                id,
+                url,
+                fileName,
+                mimeType,
+                fileSize,
+            });
+        },
+
+        openModelEditorModal() {
+            this.showModelEditorModal = true;
+        },
+
+        closeModelEditorModal() {
+            this.showModelEditorModal = false;
+        },
+
+        downloadMedia() {
+            this.mediaService
+                .prepareDownloadMedia(this.item.id)
+                .then((download) => {
+                    if (download.type === 'external') {
+                        this.triggerDownload(download.url);
+
+                        return;
+                    }
+
+                    return this.mediaService.downloadMedia(this.item.id).then((data) => {
+                        const url = window.URL.createObjectURL(data);
+                        this.triggerDownload(url, this.fileName);
+                        URL.revokeObjectURL(url);
+                    });
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$t('global.sw-media-media-item.notification.downloadError.message'),
+                    });
+                });
+        },
+
+        triggerDownload(url, fileName = null) {
+            const link = document.createElement('a');
+            link.href = url;
+
+            if (fileName) {
+                link.download = fileName;
+            } else {
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+            }
+
+            link.dispatchEvent(new MouseEvent('click'));
+            link.remove();
         },
     },
 };

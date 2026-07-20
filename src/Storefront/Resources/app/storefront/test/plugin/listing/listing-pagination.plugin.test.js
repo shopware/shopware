@@ -68,6 +68,7 @@ describe('listing-pagination.plugin', () => {
 
         global.fetch = jest.fn(() =>
             Promise.resolve({
+                ok: true,
                 text: () => Promise.resolve(`
                 <div class="cms-element-product-listing-wrapper" data-listing="true">
                     <div class="cms-element-product-listing">
@@ -102,7 +103,7 @@ describe('listing-pagination.plugin', () => {
         await new Promise(process.nextTick);
 
         // Ensure correct page is communicated to listing plugin
-        expect(listingPaginationPlugin.getValues).toReturnWith({ 'p': '3' });
+        expect(listingPaginationPlugin.getValues).toHaveReturnedWith({ 'p': '3' });
         expect(getValuesSpy).toHaveBeenCalledTimes(1);
         expect(changeListingSpy).toHaveBeenCalledTimes(1);
 

@@ -30,15 +30,19 @@ class ProductSortingEntity extends Entity
     protected bool $locked;
 
     /**
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $fallbackSorting will be added
+     *
      * @return array<FieldSorting>
      */
-    public function createDalSorting(): array
+    public function createDalSorting(/* ?FieldSorting $fallbackSorting = null */): array
     {
+        $fallbackSorting = \func_num_args() === 1 ? func_get_arg(0) : null;
+
         $sorting = [];
 
         $fields = $this->fields;
 
-        usort($fields, fn ($a, $b) => $b['priority'] <=> $a['priority']);
+        usort($fields, static fn ($a, $b) => $b['priority'] <=> $a['priority']);
 
         foreach ($fields as $field) {
             $direction = mb_strtoupper((string) $field['order']) === FieldSorting::ASCENDING
@@ -53,6 +57,10 @@ class ProductSortingEntity extends Entity
         }
 
         $flat = array_column($fields, 'field');
+
+        if ($fallbackSorting instanceof FieldSorting && !\in_array($fallbackSorting->getField(), $flat, true)) {
+            $sorting[] = $fallbackSorting;
+        }
 
         if (\in_array('id', $flat, true)) {
             return $sorting;

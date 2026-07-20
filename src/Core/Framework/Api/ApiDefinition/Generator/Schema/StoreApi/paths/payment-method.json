@@ -12,14 +12,21 @@
                 "operationId": "readPaymentMethod",
                 "parameters": [
                     {
-                        "name": "sw-language-id",
+                        "name": "sw-include-search-info",
                         "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
+                        "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
+                            "enum": [
+                                "0",
+                                "1"
+                            ],
+                            "default": "1"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -30,6 +37,15 @@
                                 "allOf": [
                                     {
                                         "$ref": "#/components/schemas/Criteria"
+                                    },
+                                    {
+                                        "properties": {
+                                            "onlyAvailable": {
+                                                "description": "List only available",
+                                                "type": "boolean"
+                                            }
+                                        },
+                                        "type": "object"
                                     }
                                 ]
                             }
@@ -38,30 +54,30 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "total": {
-                                            "description": "Total amount",
-                                            "type": "integer"
-                                        },
-                                        "aggregations": {
-                                            "description": "aggregation result",
-                                            "type": "object"
-                                        },
-                                        "elements": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/PaymentMethod"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
+                        "$ref": "#/components/responses/PaymentMethodListResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            },
+            "get": {
+                "tags": [
+                    "Payment Method",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Loads all available payment methods",
+                "operationId": "readPaymentMethodGet",
+                "parameters": [
+                    {
+                        "x-parameter-group": "criteria"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/PaymentMethodListResponse"
                     }
                 },
                 "security": [

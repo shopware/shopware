@@ -13,6 +13,7 @@ export interface Property {
     type?: string;
     relation?: 'one_to_one' | 'one_to_many' | 'many_to_one' | 'many_to_many';
     entity?: string;
+    description?: string;
 }
 
 interface Properties {
@@ -51,9 +52,25 @@ export default class EntityDefinition<EntityName extends keyof EntitySchema.Enti
 
     readonly properties: Properties;
 
-    constructor({ entity, properties }: { entity: Entity<EntityName>; properties: Properties }) {
+    readonly readProtected: boolean;
+
+    readonly writeProtected: boolean;
+
+    constructor({
+        entity,
+        properties,
+        'read-protected': readProtected,
+        'write-protected': writeProtected,
+    }: {
+        entity: Entity<EntityName>;
+        properties: Properties;
+        'read-protected': boolean;
+        'write-protected': boolean;
+    }) {
         this.entity = entity;
         this.properties = properties;
+        this.readProtected = readProtected;
+        this.writeProtected = writeProtected;
     }
 
     getEntity() {

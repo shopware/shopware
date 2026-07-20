@@ -4,6 +4,8 @@ import './sw-cms-el-config-product-listing.scss';
 const { Mixin } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
+const { has, set, unset } = Shopware.Utils.object;
+
 /**
  * @private
  * @sw-package discovery
@@ -22,7 +24,7 @@ export default {
 
     data() {
         return {
-            productSortings: [], // only for presentational usage
+            productSortings: new EntityCollection('/product-sorting', 'product_sorting', Shopware.Context.api),
             defaultSorting: {},
             filters: [],
             filterPropertiesTerm: '',
@@ -183,17 +185,17 @@ export default {
                 {
                     id: 1,
                     value: 'standard',
-                    label: this.$tc('sw-cms.elements.productBox.config.label.layoutTypeStandard'),
+                    label: this.$t('sw-cms.elements.productBox.config.label.layoutTypeStandard'),
                 },
                 {
                     id: 2,
                     value: 'image',
-                    label: this.$tc('sw-cms.elements.productBox.config.label.layoutTypeImage'),
+                    label: this.$t('sw-cms.elements.productBox.config.label.layoutTypeImage'),
                 },
                 {
                     id: 3,
                     value: 'minimal',
-                    label: this.$tc('sw-cms.elements.productBox.config.label.layoutTypeMinimal'),
+                    label: this.$t('sw-cms.elements.productBox.config.label.layoutTypeMinimal'),
                 },
             ];
         },
@@ -203,32 +205,32 @@ export default {
                 {
                     id: 1,
                     value: null,
-                    label: this.$tc('sw-cms.elements.productBox.config.label.headlineLevelEmptyOption'),
+                    label: this.$t('sw-cms.elements.productBox.config.label.headlineLevelEmptyOption'),
                 },
                 {
                     id: 2,
                     value: 2,
-                    label: this.$tc('sw-cms.elements.productBox.config.label.headlineLevelDefaultOption'),
+                    label: this.$t('sw-cms.elements.productBox.config.label.headlineLevelDefaultOption'),
                 },
                 {
                     id: 3,
                     value: 3,
-                    label: this.$tc('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 3 }),
+                    label: this.$t('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 3 }),
                 },
                 {
                     id: 4,
                     value: 4,
-                    label: this.$tc('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 4 }),
+                    label: this.$t('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 4 }),
                 },
                 {
                     id: 5,
                     value: 5,
-                    label: this.$tc('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 5 }),
+                    label: this.$t('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 5 }),
                 },
                 {
                     id: 6,
                     value: 6,
-                    label: this.$tc('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 6 }),
+                    label: this.$t('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 6 }),
                 },
             ];
         },
@@ -236,12 +238,11 @@ export default {
 
     watch: {
         productSortings: {
-            handler() {
-                this.element.config.availableSortings.value = this.transformProductSortings();
-            },
             deep: true,
+            handler() {
+                this.onUpdateProductSortings();
+            },
         },
-
         defaultSorting() {
             if (Object.keys(this.defaultSorting).length === 0) {
                 this.element.config.defaultSorting.value = '';
@@ -259,22 +260,40 @@ export default {
         createdComponent() {
             this.initElementConfig('product-listing');
 
-            if (Object.keys(this.productSortingsConfigValue).length === 0) {
-                this.productSortings = new EntityCollection(
-                    this.productSortingRepository.route,
-                    this.productSortingRepository.schema.entity,
-                    Shopware.Context.api,
-                    this.productSortingsCriteria,
-                );
-            } else {
-                this.fetchProductSortings().then((productSortings) => {
-                    this.productSortings = productSortings;
-                });
-            }
-
+            this.initProductSorting();
             this.initDefaultSorting();
             this.unpackFilters();
             this.loadFilterableProperties();
+        },
+
+        onUpdateProductSortings() {
+            const path = 'config.availableSortings.value';
+
+            this.productSortings.forEach((item) => {
+                if (has(this.element, `${path}.${item.id}`)) {
+                    return;
+                }
+
+                set(this.element, `${path}.${item.id}`, item.priority);
+            });
+
+            Object.keys(this.element.config.availableSortings.value).forEach((id) => {
+                const exists = this.productSortings.find((sorting) => sorting.id === id);
+
+                if (exists) {
+                    return;
+                }
+
+                unset(this.element, `${path}.${id}`);
+            });
+        },
+
+        async initProductSorting() {
+            if (Object.keys(this.productSortingsConfigValue).length === 0) {
+                return;
+            }
+
+            this.productSortings = await this.fetchProductSortings();
         },
 
         fetchProductSortings() {

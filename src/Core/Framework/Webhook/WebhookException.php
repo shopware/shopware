@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Webhook;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,8 +11,10 @@ class WebhookException extends HttpException
 {
     public const WEBHOOK_FAILED = 'FRAMEWORK__WEBHOOK_FAILED';
     public const APP_WEBHOOK_FAILED = 'FRAMEWORK__APP_WEBHOOK_FAILED';
+    public const UNSUPPORTED_MESSAGE = 'FRAMEWORK__WEBHOOK_UNSUPPORTED_MESSAGE';
     public const INVALID_DATA_MAPPING = 'FRAMEWORK__WEBHOOK_INVALID_DATA_MAPPING';
     public const UNKNOWN_DATA_TYPE = 'FRAMEWORK__WEBHOOK_UNKNOWN_DATA_TYPE';
+    public const DUPLICATE_DESCRIBED_EVENT = 'FRAMEWORK__WEBHOOK_DUPLICATE_DESCRIBED_EVENT';
 
     public static function webhookFailedException(string $webhookId, \Throwable $e): self
     {
@@ -23,6 +24,16 @@ class WebhookException extends HttpException
             'Webhook "{{ webhookId }}" failed with error: {{ error }}.',
             ['webhookId' => $webhookId, 'error' => $e->getMessage()],
             $e
+        );
+    }
+
+    public static function unsupportedMessage(string $actualClass): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::UNSUPPORTED_MESSAGE,
+            'The webhook transport only supports WebhookEventMessage, got "{{ class }}".',
+            ['class' => $actualClass]
         );
     }
 
@@ -42,16 +53,6 @@ class WebhookException extends HttpException
      */
     public static function invalidDataMapping(string $propertyName, string $className): self|\RuntimeException
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new \RuntimeException(
-                \sprintf(
-                    'Invalid available DataMapping, could not get property "%s" on instance of %s',
-                    $propertyName,
-                    $className
-                )
-            );
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INVALID_DATA_MAPPING,
@@ -65,15 +66,24 @@ class WebhookException extends HttpException
      */
     public static function unknownEventDataType(string $type): self|\RuntimeException
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new \RuntimeException('Unknown EventDataType: ' . $type);
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::UNKNOWN_DATA_TYPE,
             'Unknown EventDataType: {{ type }}',
             ['type' => $type]
+        );
+    }
+
+    public static function duplicateDescribedEvent(string $eventName, string $describer): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DUPLICATE_DESCRIBED_EVENT,
+            'Duplicate hookable event "{{ eventName }}" described by "{{ describer }}".',
+            [
+                'eventName' => $eventName,
+                'describer' => $describer,
+            ]
         );
     }
 }

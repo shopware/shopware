@@ -5,9 +5,20 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\Util;
 
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @phpstan-type SetsArray array<string, array{
+ *     name?: string,
+ *     tags?: list<string>,
+ *     attributes?: list<string>,
+ *     options?: array<string, array{value?: mixed, values?: list<mixed>}>,
+ *     custom_attributes?: list<array{tags: list<string>, attributes: list<string>}>,
+ *     custom_tags?: list<array{tag: string, type: string, contents: string, attr_collections: list<string>, attributes: list<string>}>
+ * }>
+ */
 #[Package('framework')]
-class HtmlSanitizer
+class HtmlSanitizer implements ResetInterface
 {
     /**
      * @var \HTMLPurifier[]
@@ -16,25 +27,24 @@ class HtmlSanitizer
 
     private readonly string $cacheDir;
 
-    /**
-     * @var array<string, string>
-     */
-    private array $cache = [];
+    private readonly HtmlPurifierConfigProvider $configProvider;
 
     /**
      * @internal
      *
-     * @param array<string, array{name?: string, tags?: list<string>, attributes?: list<string>, options?: array<string, mixed>, custom_attributes?: array<string, array<string, list<string>>>}> $sets
+     * @param SetsArray $sets
      * @param array<string, array{sets?: list<string>|null}> $fieldSets
      */
     public function __construct(
         ?string $cacheDir = null,
         private readonly bool $cacheEnabled = true,
-        private array $sets = [],
+        private readonly array $sets = [],
         private readonly array $fieldSets = [],
-        private readonly bool $enabled = true
+        private readonly bool $enabled = true,
+        ?HtmlPurifierConfigProvider $configProvider = null,
     ) {
         $this->cacheDir = (string) $cacheDir;
+        $this->configProvider = $configProvider ?? new HtmlPurifierConfigProvider();
     }
 
     /**
@@ -45,6 +55,11 @@ class HtmlSanitizer
         if (!$this->enabled) {
             return $text;
         }
+
+        /** Fix double encoding
+         * @see \Shopware\Tests\Unit\Core\Framework\Util\HtmlSanitizerTest::testSanitizeHtmlEntities()
+         */
+        $text = htmlspecialchars_decode($text, \ENT_QUOTES | \ENT_HTML5);
 
         $options ??= [];
 
@@ -57,24 +72,22 @@ class HtmlSanitizer
             $hash .= '-override';
         }
 
-        $textKey = $hash . Hasher::hash($text);
-        if (isset($this->cache[$textKey])) {
-            return $this->cache[$textKey];
-        }
-
         if (!isset($this->purifiers[$hash])) {
             $config = $this->getConfig($options, $override, $field);
             $this->purifiers[$hash] = new \HTMLPurifier($config);
         }
 
-        $this->cache[$textKey] = $this->purifiers[$hash]->purify($text);
+        return $this->purifiers[$hash]->purify($text);
+    }
 
-        return $this->cache[$textKey];
+    public function reset(): void
+    {
+        $this->purifiers = [];
     }
 
     private function getBaseConfig(): \HTMLPurifier_Config
     {
-        $config = \HTMLPurifier_Config::createDefault();
+        $config = $this->configProvider->getConfig();
 
         if ($this->cacheDir !== '') {
             $config->set('Cache.SerializerPath', $this->cacheDir);
@@ -99,6 +112,7 @@ class HtmlSanitizer
         $allowedElements = [];
         $allowedAttributes = [];
         $customAttributes = [];
+        $customTags = [];
 
         foreach ($options as $element => $attributes) {
             if ($element !== '*') {
@@ -106,16 +120,26 @@ class HtmlSanitizer
             }
 
             foreach ($attributes as $attr) {
-                $allowedAttributes[] = $element === '*' ? $attr : "{$element}.{$attr}";
+                $allowedAttributes[] = $element === '*' ? $attr : \sprintf('%s.%s', $element, $attr);
             }
         }
 
         if (!$override) {
-            $sets = $this->fieldSets[$field]['sets'] ?? ['basic'];
+            $sets = $this->fieldSets[(string) $field]['sets'] ?? ['basic'];
 
             foreach ($sets as $set) {
                 if (isset($this->sets[$set]['tags'])) {
                     $allowedElements = array_merge($allowedElements, $this->sets[$set]['tags']);
+                }
+                if (isset($this->sets[$set]['custom_tags'])) {
+                    $allowedTags = array_map(static fn ($customElement) => $customElement['tag'], $this->sets[$set]['custom_tags']);
+                    $allowedElements = array_merge($allowedElements, $allowedTags);
+                    foreach ($this->sets[$set]['custom_tags'] as $customTag) {
+                        $allowedAttributes = array_merge($allowedAttributes, $customTag['attributes']);
+
+                        $customAttributes[$customTag['tag']] = array_values($customTag['attributes']);
+                    }
+                    $customTags = array_merge($customTags, $this->sets[$set]['custom_tags']);
                 }
                 if (isset($this->sets[$set]['attributes'])) {
                     $allowedAttributes = array_merge($allowedAttributes, $this->sets[$set]['attributes']);
@@ -144,11 +168,28 @@ class HtmlSanitizer
 
         $definition = $config->getHTMLDefinition(true);
 
-        if ($definition === null) {
+        if (!$definition instanceof \HTMLPurifier_HTMLDefinition) {
             return $config;
         }
 
         $this->addHTML5Tags($definition);
+
+        $manager = $definition->manager;
+        if (!$manager instanceof \HTMLPurifier_HTMLModuleManager) {
+            return $config;
+        }
+
+        foreach ($customTags as $customTag) {
+            if ($manager->getElement($customTag['tag']) === false) {
+                $definition->addElement(
+                    $customTag['tag'],
+                    $customTag['type'],
+                    $customTag['contents'],
+                    $customTag['attr_collections'],
+                    $customTag['attributes'],
+                );
+            }
+        }
 
         foreach ($customAttributes as $tag => $attributes) {
             foreach ($attributes as $attribute) {
@@ -159,7 +200,7 @@ class HtmlSanitizer
         return $config;
     }
 
-    private function addHTML5Tags(\HTMLPurifier_HTMLDefinition $definition): \HTMLPurifier_HTMLDefinition
+    private function addHTML5Tags(\HTMLPurifier_HTMLDefinition $definition): void
     {
         $definition->addElement('section', 'Block', 'Flow', 'Common');
         $definition->addElement('nav', 'Block', 'Flow', 'Common');
@@ -305,7 +346,5 @@ class HtmlSanitizer
                 'width' => 'Length',
             ]
         );
-
-        return $definition;
     }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Core\Migration\V6_6;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -35,7 +36,7 @@ class Migration1738661307AddMediaIndices extends MigrationStep
             SQL
         );
 
-        if (!$this->columnExists($connection, 'media', 'file_hash')) {
+        if (!TableHelper::columnExists($connection, 'media', 'file_hash')) {
             $connection->executeStatement(
                 <<<'SQL'
                 ALTER TABLE `media` ADD COLUMN `file_hash` VARCHAR(32)

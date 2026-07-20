@@ -1,9 +1,12 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package after-sales
  */
 
 import FlowBuilderService from 'src/module/sw-flow/service/flow-builder.service';
-import { ACTION } from 'src/module/sw-flow/constant/flow.constant';
+
+const { ACTION } = Shopware.Constants.FLOW;
 
 describe('module/sw-flow/service/flow-builder.service.js', () => {
     const service = new FlowBuilderService();
@@ -124,7 +127,7 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
     };
 
     const translator = {
-        $tc: (snippet) => {
+        $t: (snippet) => {
             return snippet;
         },
         getInlineSnippet: (snippet) => {

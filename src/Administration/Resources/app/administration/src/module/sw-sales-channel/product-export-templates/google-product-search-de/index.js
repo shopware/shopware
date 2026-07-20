@@ -2,9 +2,9 @@
  * @sw-package discovery
  */
 
-import header from './header.xml.twig';
-import body from './body.xml.twig';
-import footer from './footer.xml.twig';
+import header from './header.xml.twig?raw';
+import body from './body.xml.twig?raw';
+import footer from './footer.xml.twig?raw';
 
 Shopware.Service('exportTemplateService').registerProductExportTemplate({
     name: 'google-product-search-de',

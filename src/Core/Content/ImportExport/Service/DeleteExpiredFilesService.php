@@ -2,7 +2,10 @@
 
 namespace Shopware\Core\Content\ImportExport\Service;
 
+use Psr\Clock\ClockInterface;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
@@ -14,17 +17,21 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('fundamentals@after-sales')]
 class DeleteExpiredFilesService
 {
-    public function __construct(private readonly EntityRepository $fileRepository)
-    {
+    /**
+     * @param EntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository
+     */
+    public function __construct(
+        private readonly EntityRepository $fileRepository,
+        private readonly ClockInterface $clock
+    ) {
     }
 
     public function countFiles(Context $context): int
     {
         $criteria = $this->buildCriteria();
-        $criteria->setLimit(1);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
-        return $this->fileRepository->search($criteria, $context)->getTotal();
+        return $this->fileRepository->searchIds($criteria, $context)->getTotal();
     }
 
     public function deleteFiles(Context $context): void
@@ -32,7 +39,7 @@ class DeleteExpiredFilesService
         $criteria = $this->buildCriteria();
 
         $ids = $this->fileRepository->searchIds($criteria, $context)->getIds();
-        $ids = array_map(fn ($id) => ['id' => $id], $ids);
+        $ids = array_map(static fn ($id) => ['id' => $id], $ids);
         $this->fileRepository->delete($ids, $context);
     }
 
@@ -42,7 +49,7 @@ class DeleteExpiredFilesService
         $criteria->addFilter(new RangeFilter(
             'expireDate',
             [
-                RangeFilter::LT => date(\DATE_ATOM),
+                RangeFilter::LT => $this->clock->now()->modify('-30 days')->format(\DATE_ATOM),
             ]
         ));
 

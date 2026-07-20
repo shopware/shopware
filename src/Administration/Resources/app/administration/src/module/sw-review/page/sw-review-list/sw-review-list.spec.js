@@ -1,7 +1,13 @@
 /**
- * @sw-package inventory
+ * @sw-package after-sales
  */
 import { mount } from '@vue/test-utils';
+
+Shopware.Service().register('filterService', () => {
+    return {
+        mergeWithStoredFilters: (storeKey, criteria) => criteria,
+    };
+});
 
 async function createWrapper() {
     return mount(await await wrapTestComponent('sw-review-list', { sync: true }), {
@@ -29,20 +35,20 @@ async function createWrapper() {
                             ]);
                         },
                         search: () => {
-                            return Promise.resolve([
-                                {
-                                    id: '1a2b3c',
-                                    entity: 'review',
-                                    customerId: 'd4c3b2a1',
-                                    productId: 'd4c3b2a1',
-                                    salesChannelId: 'd4c3b2a1',
-                                    sourceEntitiy: 'product-review',
-                                },
-                            ]);
+                            return Promise.resolve({
+                                total: 1,
+                            });
                         },
                     }),
                 },
-                searchRankingService: {},
+                filterFactory: {
+                    create: () => [],
+                },
+                searchRankingService: {
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
+                },
             },
             stubs: {
                 'sw-page': {
@@ -63,52 +69,72 @@ async function createWrapper() {
                 'sw-rating-stars': true,
                 'sw-sidebar-item': true,
                 'sw-sidebar': true,
+                'sw-sidebar-filter-panel': true,
+                'sw-time-ago': true,
             },
         },
     });
 }
 
 describe('module/sw-review/page/sw-review-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to delete', async () => {
         const wrapper = await createWrapper();
+        await wrapper.setData({ total: 2 });
         await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('sw-entity-listing-stub');
-        expect(deleteMenuItem.attributes()['allow-delete']).toBeFalsy();
+        expect(deleteMenuItem.attributes()['allow-delete']).toBe('false');
     });
 
     it('should be able to delete', async () => {
         global.activeAclRoles = ['review.deleter'];
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await wrapper.setData({ total: 2 });
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('sw-entity-listing-stub');
-        expect(deleteMenuItem.attributes()['allow-delete']).toBeTruthy();
+        expect(deleteMenuItem.attributes()['allow-delete']).toBe('true');
     });
 
     it('should not be able to edit', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await wrapper.setData({ total: 2 });
+        await flushPromises();
 
         const editMenuItem = wrapper.find('sw-entity-listing-stub');
-        expect(editMenuItem.attributes()['allow-edit']).toBeFalsy();
+        expect(editMenuItem.attributes()['allow-edit']).toBe('false');
     });
 
     it('should be able to edit', async () => {
         global.activeAclRoles = ['review.editor'];
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await wrapper.setData({ total: 2 });
+        await flushPromises();
 
         const editMenuItem = wrapper.find('sw-entity-listing-stub');
-        expect(editMenuItem.attributes()['allow-edit']).toBeTruthy();
+        expect(editMenuItem.attributes()['allow-edit']).toBe('true');
+    });
+
+    it('should have default filters configured', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const defaultFilters = wrapper.vm.defaultFilters;
+        expect(defaultFilters).toEqual([
+            'sales-channel-filter',
+            'status-filter',
+            'language-filter',
+            'customer-filter',
+            'product-filter',
+            'points-filter',
+        ]);
+
+        // Verify that all default filters are present in listFilterOptions
+        defaultFilters.forEach((filterKey) => {
+            expect(wrapper.vm.listFilterOptions).toHaveProperty(filterKey);
+        });
     });
 });

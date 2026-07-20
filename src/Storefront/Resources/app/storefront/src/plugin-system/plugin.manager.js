@@ -73,7 +73,8 @@ class PluginManagerSingleton {
      */
     register(pluginName, pluginClass, selector = document, options = {}) {
         if (this._registry.has(pluginName, selector)) {
-            throw new Error(`Plugin "${pluginName}" is already registered.`);
+            console.warn(`Plugin "${pluginName}" is already registered.`);
+            return;
         }
 
         // If we cannot find the prototype of the class, we assume it will be loaded async
@@ -94,7 +95,13 @@ class PluginManagerSingleton {
      */
     deregister(pluginName, selector = document) {
         if (!this._registry.has(pluginName, selector)) {
-            throw new Error(`The plugin "${pluginName}" is not registered.`);
+
+            if (!this._registry.has(pluginName)) {
+                console.warn(`The plugin "${pluginName}" is not registered.`);
+                return false;
+            }
+
+            return this._registry.delete(pluginName);
         }
 
         return this._registry.delete(pluginName, selector);
@@ -113,6 +120,11 @@ class PluginManagerSingleton {
      * @returns {boolean}
      */
     extend(fromName, newName, pluginClass, selector = document, options = {}) {
+        if (!this._registry.has(fromName, selector)) {
+            console.warn(`Trying to extend non-registered plugin "${fromName}". The plugin will not be extended.`);
+            return;
+        }
+
         // Register the plugin under a new name
         // If the name is the same, replace it
         if (fromName === newName) {
@@ -142,12 +154,14 @@ class PluginManagerSingleton {
      */
     getPlugin(pluginName, strict = true) {
         if (!pluginName) {
-            throw new Error('A plugin name must be passed!');
+            console.warn('No plugin name was provided while trying to call getPlugin().');
+            return null;
         }
 
         if (!this._registry.has(pluginName)) {
             if (strict) {
-                throw new Error(`The plugin "${pluginName}" is not registered. You might need to register it first.`);
+                console.warn(`The plugin "${pluginName}" is not registered. You might need to register it first.`);
+                return null;
             } else {
                 this._registry.set(pluginName);
             }
@@ -166,6 +180,21 @@ class PluginManagerSingleton {
         const plugin = this.getPlugin(pluginName);
 
         return plugin.get('instances');
+    }
+
+    /**
+     * Calls a method on all plugin instances.
+     *
+     * @param {string} pluginName
+     * @param {*} methodName
+     * @param  {...any} args
+     */
+    callPluginMethod(pluginName, methodName, ...args) {
+        const instances = this.getPluginInstances(pluginName);
+
+        instances.forEach(instance => {
+            instance[methodName](...args);
+        });
     }
 
     /**
@@ -191,7 +220,8 @@ class PluginManagerSingleton {
      */
     static getPluginInstancesFromElement(el) {
         if (!(el instanceof Node)) {
-            throw new Error('Passed element is not an Html element!');
+            console.warn('Passed element in getPluginInstancesFromElement() is not an Html element!');
+            return null;
         }
 
         el.__plugins = el.__plugins || new Map();
@@ -211,16 +241,52 @@ class PluginManagerSingleton {
 
         for (const [pluginName] of Object.entries(this.getPluginList())) {
             if (pluginName) {
-                if (!this._registry.has(pluginName)) {
-                    throw new Error(`The plugin "${pluginName}" is not registered.`);
-                }
-
                 const plugin = this._registry.get(pluginName);
+                if (this._isUnresolvedAsyncPlugin(plugin)) {
+                    continue;
+                }
 
                 if (plugin.has('registrations')) {
                     for (const [, entry] of plugin.get('registrations')) {
                         try {
                             this._initializePlugin(plugin.get('class'), entry.selector, entry.options, plugin.get('name'));
+                        } catch (failure) {
+                            initializationFailures.push(failure);
+                        }
+                    }
+                }
+            }
+        }
+
+        initializationFailures.forEach((failure) => {
+            console.error(failure);
+        });
+
+        return Promise.resolve();
+    }
+
+    /**
+     * Initializes all registered plugins, but only for elements within the parent element.
+     *
+     * @param {HTMLElement} parentElement
+     * @returns {Promise<void>}
+     */
+    async initializePluginsInParentElement(parentElement) {
+        const initializationFailures = [];
+
+        await this._fetchAsyncPlugins();
+
+        for (const [pluginName] of Object.entries(this.getPluginList())) {
+            if (pluginName) {
+                const plugin = this._registry.get(pluginName);
+                if (this._isUnresolvedAsyncPlugin(plugin)) {
+                    continue;
+                }
+
+                if (plugin.has('registrations')) {
+                    for (const [, entry] of plugin.get('registrations')) {
+                        try {
+                            this._initializePlugin(plugin.get('class'), entry.selector, entry.options, plugin.get('name'), parentElement);
                         } catch (failure) {
                             initializationFailures.push(failure);
                         }
@@ -263,7 +329,8 @@ class PluginManagerSingleton {
             }
 
             if (!this._registry.has(pluginName)) {
-                throw new Error(`The plugin "${pluginName}" is not registered.`);
+                console.warn(`The plugin "${pluginName}" is not registered.`);
+                continue;
             }
 
             const plugin = this._registry.get(pluginName);
@@ -298,23 +365,22 @@ class PluginManagerSingleton {
             return;
         }
 
-        // Fetch all needed plugins
-        try {
-            fetchedPluginClasses = await Promise.all(queue.map((queueItem) => {
-                return queueItem.pluginClassPromise();
-            }));
-        } catch (error) {
-            console.error('An error occurred while fetching async JS-plugins', error);
-        }
+        // Fetch all needed plugins while keeping a single failing plugin from stopping the others.
+        fetchedPluginClasses = await Promise.all(queue.map((queueItem) => {
+            return this._loadAsyncPluginClass(queueItem.pluginName, queueItem.pluginClassPromise);
+        }));
 
         // Set the fetched plugin classes to the registry, so they can be initialized later.
         queue.forEach((plugin, index) => {
-            const pluginClass = fetchedPluginClasses[index].default;
+            const pluginClass = fetchedPluginClasses[index];
+            if (!pluginClass) {
+                return;
+            }
+
             const pluginName = plugin.pluginName;
             const pluginFromRegistry = this._registry.get(pluginName);
 
-            pluginFromRegistry.set('async', false);
-            pluginFromRegistry.set('class', pluginClass);
+            this._setResolvedPluginClass(pluginFromRegistry, pluginClass);
         });
     }
 
@@ -328,6 +394,8 @@ class PluginManagerSingleton {
         if (!pluginFromRegistry.get('async')) {
             return;
         }
+
+        const pluginName = pluginFromRegistry.get('name');
 
         let needsFetch = false;
         if (selector instanceof Node) {
@@ -343,12 +411,53 @@ class PluginManagerSingleton {
             return;
         }
 
-        const pluginClassPromise = pluginFromRegistry.get('class')();
-        const fetchedPlugin = await pluginClassPromise;
-        const pluginClass = fetchedPlugin.default;
+        const pluginClass = await this._loadAsyncPluginClass(pluginName, pluginFromRegistry.get('class'));
+        if (!pluginClass) {
+            return;
+        }
 
+        this._setResolvedPluginClass(pluginFromRegistry, pluginClass);
+    }
+
+    /**
+     * @param {string} pluginName
+     * @param {Function} importFn - lazy import registered via PluginManager.register()
+     * @returns {Promise<typeof Plugin|null>}
+     * @private
+     */
+    async _loadAsyncPluginClass(pluginName, importFn) {
+        try {
+            const module = await importFn();
+
+            if (!module?.default) {
+                console.warn(`The async plugin "${pluginName}" could not be loaded and will be skipped.`);
+                return null;
+            }
+
+            return module.default;
+        } catch (error) {
+            console.warn(`The async plugin "${pluginName}" could not be loaded and will be skipped.`, error);
+            return null;
+        }
+    }
+
+    /**
+     * @param {Object} pluginFromRegistry
+     * @param {typeof Plugin} pluginClass
+     * @private
+     */
+    _setResolvedPluginClass(pluginFromRegistry, pluginClass) {
         pluginFromRegistry.set('async', false);
         pluginFromRegistry.set('class', pluginClass);
+    }
+
+    /**
+     * @param {Object} plugin
+     * @returns {boolean}
+     * @private
+     */
+    _isUnresolvedAsyncPlugin(plugin) {
+        return plugin.get('async');
     }
 
     /**
@@ -366,12 +475,22 @@ class PluginManagerSingleton {
         if (this._registry.has(pluginName, selector)) {
             plugin = this._registry.get(pluginName, selector);
             await this._fetchAsyncPlugin(plugin, selector);
+
+            if (this._isUnresolvedAsyncPlugin(plugin)) {
+                return Promise.resolve();
+            }
+
             const registrationOptions = plugin.get('registrations').get(selector);
             pluginClass = plugin.get('class');
             mergedOptions = deepmerge(pluginClass.options || {}, deepmerge(registrationOptions.options || {}, options || {}));
         } else {
             plugin = this._registry.get(pluginName);
             await this._fetchAsyncPlugin(plugin, selector);
+
+            if (this._isUnresolvedAsyncPlugin(plugin)) {
+                return Promise.resolve();
+            }
+
             pluginClass = plugin.get('class');
             mergedOptions = deepmerge(pluginClass.options || {}, options || {});
         }
@@ -392,17 +511,24 @@ class PluginManagerSingleton {
      * @param {String|NodeList|HTMLElement} selector
      * @param {Object} options
      * @param {string} pluginName
+     * @param {HTMLElement} context - Optional parent element to scope the selector query to.
      */
-    _initializePlugin(pluginClass, selector, options, pluginName = false) {
+    _initializePlugin(pluginClass, selector, options, pluginName = false, context = null) {
         if (selector instanceof Node) {
+            if (context && !context.contains(selector)) {
+                return;
+            }
             return PluginManagerSingleton._initializePluginOnElement(selector, pluginClass, options, pluginName);
         }
 
         if (typeof selector === 'string') {
-            selector = PluginManagerSingleton._queryElements(selector);
+            selector = PluginManagerSingleton._queryElements(selector, context);
         }
 
         return Array.from(selector).forEach(el => {
+            if (context && !context.contains(el)) {
+                return;
+            }
             PluginManagerSingleton._initializePluginOnElement(el, pluginClass, options, pluginName);
         });
     }
@@ -428,10 +554,15 @@ class PluginManagerSingleton {
      * instead of the entire compatible characters
      *
      * @param {string} selector
+     * @param {HTMLElement} context - Optional parent element to scope the query to.
      *
      * @return {NodeList|HTMLCollection|Array}
      */
-    static _queryElements(selector) {
+    static _queryElements(selector, context = null) {
+        if (context) {
+            return context.querySelectorAll(selector);
+        }
+
         if (selector.startsWith('.')) {
             const regexEl = /^\.([\w-]+)$/.exec(selector);
             if (regexEl) {
@@ -462,7 +593,8 @@ class PluginManagerSingleton {
      */
     static _initializePluginOnElement(el, pluginClass, options, pluginName) {
         if (typeof pluginClass !== 'function') {
-            throw new Error('The passed plugin is not a function or a class.');
+            console.warn('The passed plugin is not a function or a class.');
+            return null;
         }
 
         const instance = PluginManager.getPluginInstanceFromElement(el, pluginName);
@@ -487,7 +619,8 @@ class PluginManagerSingleton {
      */
     _extendPlugin(fromName, newName, pluginClass, selector, options = {}) {
         if (!this._registry.has(fromName, selector)) {
-            throw new Error(`The plugin "${fromName}" is not registered.`);
+            console.warn(`Trying to extend non-registered plugin "${fromName}". The plugin will not be extended.`);
+            return;
         }
 
         // get current plugin
@@ -628,6 +761,16 @@ export default class PluginManager {
     }
 
     /**
+     * Initializes all registered plugins, but only for elements within the parent element.
+     *
+     * @param {HTMLElement} parentElement
+     * @return {Promise<void>}
+     */
+    static initializePluginsInParentElement(parentElement) {
+        return PluginManagerInstance.initializePluginsInParentElement(parentElement);
+    }
+
+    /**
      * Initializes a single plugin.
      *
      * @param {string} pluginName
@@ -637,6 +780,18 @@ export default class PluginManager {
      */
     static initializePlugin(pluginName, selector, options) {
         return PluginManagerInstance.initializePlugin(pluginName, selector, options);
+    }
+
+    /**
+     * Calls a method on all plugin instances.
+     *
+     * @param {string} pluginName
+     * @param {string} methodName
+     * @param  {...any} args
+     * @returns
+     */
+    static callPluginMethod(pluginName, methodName, ...args) {
+        return PluginManagerInstance.callPluginMethod(pluginName, methodName, ...args);
     }
 }
 

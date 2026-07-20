@@ -3,14 +3,12 @@
 namespace Shopware\Tests\Integration\Core\Content\Newsletter\SalesChannel;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterSubscribeUrlEvent;
-use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -22,12 +20,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
 #[Package('after-sales')]
-#[CoversClass(NewsletterSubscribeRoute::class)]
 #[Group('store-api')]
 class NewsletterSubscribeRouteTest extends TestCase
 {
@@ -72,6 +70,8 @@ class NewsletterSubscribeRouteTest extends TestCase
                 ]
             );
 
+        $this->assertNewsletterResponse($this->browser->getResponse(), 'direct');
+
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel-2'),
             'domains' => [
@@ -97,6 +97,8 @@ class NewsletterSubscribeRouteTest extends TestCase
                 ],
             );
 
+        $this->assertNewsletterResponse($this->browser->getResponse(), 'direct');
+
         $count = (int) static::getContainer()->get(Connection::class)->fetchOne(
             'SELECT COUNT(*) FROM newsletter_recipient WHERE email = \'test@example.com\' AND status = \'direct\''
         );
@@ -113,12 +115,15 @@ class NewsletterSubscribeRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = $this->browser->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
 
-        static::assertArrayHasKey('errors', $response);
-        static::assertCount(3, $response['errors']);
+        $responseBody = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        $errors = array_column(array_column($response['errors'], 'source'), 'pointer');
+        static::assertArrayHasKey('errors', $responseBody);
+        static::assertCount(3, $responseBody['errors']);
+
+        $errors = array_column(array_column($responseBody['errors'], 'source'), 'pointer');
 
         static::assertContains('/email', $errors);
         static::assertContains('/option', $errors);
@@ -138,12 +143,15 @@ class NewsletterSubscribeRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = $this->browser->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
 
-        static::assertArrayHasKey('errors', $response);
-        static::assertCount(1, $response['errors']);
+        $responseBody = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        $errors = array_column(array_column($response['errors'], 'source'), 'pointer');
+        static::assertArrayHasKey('errors', $responseBody);
+        static::assertCount(1, $responseBody['errors']);
+
+        $errors = array_column(array_column($responseBody['errors'], 'source'), 'pointer');
         static::assertContains('/storefrontUrl', $errors);
     }
 
@@ -181,7 +189,8 @@ class NewsletterSubscribeRouteTest extends TestCase
                 ]
             );
 
-        static::assertTrue($this->browser->getResponse()->isSuccessful());
+        $this->assertNewsletterResponse($this->browser->getResponse());
+
         $row = $connection->fetchAssociative('SELECT * FROM newsletter_recipient WHERE email = \'test@example.com\'');
         static::assertIsArray($row);
         static::assertSame('optOut', $row['status']);
@@ -199,7 +208,8 @@ class NewsletterSubscribeRouteTest extends TestCase
                 ]
             );
 
-        static::assertTrue($this->browser->getResponse()->isSuccessful());
+        $this->assertNewsletterResponse($this->browser->getResponse(), 'notSet');
+
         $row = $connection->fetchAssociative('SELECT * FROM newsletter_recipient WHERE email = \'test@example.com\'');
         static::assertIsArray($row);
         static::assertSame('notSet', $row['status']);
@@ -216,7 +226,8 @@ class NewsletterSubscribeRouteTest extends TestCase
                 ]
             );
 
-        static::assertTrue($this->browser->getResponse()->isSuccessful());
+        $this->assertNewsletterResponse($this->browser->getResponse());
+
         $row = $connection->fetchAssociative('SELECT * FROM newsletter_recipient WHERE email = \'test@example.com\'');
         static::assertNotEmpty($row);
         static::assertSame('optIn', $row['status']);
@@ -227,7 +238,7 @@ class NewsletterSubscribeRouteTest extends TestCase
 
     public function testSubscribeIfAlreadyRegistered(): void
     {
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->never())->method('__invoke');
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
@@ -261,6 +272,8 @@ class NewsletterSubscribeRouteTest extends TestCase
                     'storefrontUrl' => 'http://localhost',
                 ]
             );
+
+        $this->assertNewsletterResponse($this->browser->getResponse(), 'optIn');
     }
 
     public function testSubscribeIfAlreadyRegisteredWithCustomFields(): void
@@ -298,6 +311,8 @@ class NewsletterSubscribeRouteTest extends TestCase
                     ],
                 ]
             );
+
+        $this->assertNewsletterResponse($this->browser->getResponse(), 'direct');
 
         $recipient = $newsletterRecipientRepository->search(new Criteria([$data['id']]), $context)->getEntities()->first();
         static::assertInstanceOf(NewsletterRecipientEntity::class, $recipient);
@@ -343,6 +358,8 @@ class NewsletterSubscribeRouteTest extends TestCase
                     ]
                 );
 
+            $this->assertNewsletterResponse($this->browser->getResponse(), 'notSet');
+
             static::assertInstanceOf(NewsletterRegisterEvent::class, $caughtEvent);
             static::assertStringStartsWith('http://localhost/custom-newsletter/confirm/', $caughtEvent->getUrl());
             static::assertStringEndsWith('?specialParam=false', $caughtEvent->getUrl());
@@ -379,6 +396,8 @@ class NewsletterSubscribeRouteTest extends TestCase
                     ]
                 );
 
+            $this->assertNewsletterResponse($this->browser->getResponse(), 'notSet');
+
             static::assertInstanceOf(NewsletterRegisterEvent::class, $caughtEvent);
             static::assertStringStartsWith('http://test.test/newsletter-subscribe?em=', $caughtEvent->getUrl());
         } finally {
@@ -414,6 +433,8 @@ class NewsletterSubscribeRouteTest extends TestCase
             ]
         );
 
+        $this->assertNewsletterResponse($browser->getResponse(), 'direct');
+
         $count = (int) static::getContainer()->get(Connection::class)->fetchOne(
             'SELECT COUNT(*) FROM newsletter_recipient WHERE email = \'test@example.com\' AND status = \'direct\''
         );
@@ -436,6 +457,8 @@ class NewsletterSubscribeRouteTest extends TestCase
                 ]
             );
 
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
+
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $expectClosure($response);
@@ -456,8 +479,35 @@ class NewsletterSubscribeRouteTest extends TestCase
                 ]
             );
 
+        $this->assertNewsletterResponse($this->browser->getResponse(), 'direct');
+
         $count = (int) static::getContainer()->get(Connection::class)->fetchOne(
             'SELECT COUNT(*) FROM newsletter_recipient WHERE email = \'test@xn--exmple-cua.com\' AND status = \'direct\''
+        );
+        static::assertSame(1, $count);
+    }
+
+    public function testSubscribeReturnsNotSetStatusWithDoubleOptIn(): void
+    {
+        $this->systemConfig->set('core.newsletter.doubleOptIn', true);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/newsletter/subscribe',
+                [
+                    'email' => 'doi-test@example.com',
+                    'option' => 'subscribe',
+                    'storefrontUrl' => 'http://localhost',
+                    'firstName' => 'John',
+                    'lastName' => 'Doe',
+                ]
+            );
+
+        $this->assertNewsletterResponse($this->browser->getResponse(), 'notSet');
+
+        $count = (int) static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT COUNT(*) FROM newsletter_recipient WHERE email = \'doi-test@example.com\' AND status = \'notSet\''
         );
         static::assertSame(1, $count);
     }
@@ -467,7 +517,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         yield 'invalid with first name' => [
             'Y http:/shopware.test',
             'Tran',
-            function (array $response): void {
+            static function (array $response): void {
                 static::assertArrayHasKey('errors', $response);
                 static::assertCount(1, $response['errors']);
 
@@ -480,7 +530,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         yield 'invalid with last name' => [
             'Y',
             'Tran https:/shopware.test',
-            function (array $response): void {
+            static function (array $response): void {
                 static::assertArrayHasKey('errors', $response);
                 static::assertCount(1, $response['errors']);
 
@@ -493,7 +543,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         yield 'invalid with domain name *://' => [
             'Y http://shopware.test',
             'Tran https://shopware.test',
-            function (array $response): void {
+            static function (array $response): void {
                 static::assertArrayHasKey('errors', $response);
                 static::assertCount(2, $response['errors']);
 
@@ -507,7 +557,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         yield 'invalid with domain name *:/' => [
             'Y http:/shopware.test',
             'Tran https:/shopware.test',
-            function (array $response): void {
+            static function (array $response): void {
                 static::assertArrayHasKey('errors', $response);
                 static::assertCount(2, $response['errors']);
 
@@ -526,5 +576,19 @@ class NewsletterSubscribeRouteTest extends TestCase
         yield 'test with leading slash' => [['domain' => 'http://my-evil-page/', 'expectDomain' => 'http://my-evil-page']];
 
         yield 'test with double leading slash' => [['domain' => 'http://my-evil-page//', 'expectDomain' => 'http://my-evil-page']];
+    }
+
+    private function assertNewsletterResponse(Response $response, ?string $expectedStatus = null): void
+    {
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        if ($expectedStatus !== null) {
+            $responseBody = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+            static::assertArrayHasKey('status', $responseBody);
+            static::assertSame($expectedStatus, $responseBody['status']);
+            static::assertArrayHasKey('success', $responseBody);
+            static::assertTrue($responseBody['success']);
+        }
     }
 }

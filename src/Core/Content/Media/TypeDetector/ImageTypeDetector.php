@@ -80,7 +80,7 @@ class ImageTypeDetector implements TypeDetectorInterface
             if ($chunk === false) {
                 throw MediaException::cannotOpenSourceStreamToRead($filename);
             }
-            $count += preg_match_all('#\x00\x21\xF9\x04.{4}\x00(\x2C|\x21)#s', $chunk, $matches);
+            $count += (int) preg_match_all('#\x00\x21\xF9\x04.{4}\x00(\x2C|\x21)#s', $chunk, $matches);
         }
 
         fclose($fh);

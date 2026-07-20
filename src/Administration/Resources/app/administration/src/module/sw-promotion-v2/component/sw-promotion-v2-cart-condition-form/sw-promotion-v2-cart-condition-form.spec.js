@@ -30,11 +30,8 @@ async function createWrapper() {
                     'mt-card': {
                         template: '<div class="mt-card"><slot></slot></div>',
                     },
-                    'sw-promotion-rule-select': {
-                        template: '<div class="sw-promotion-rule-select"></div>',
-                    },
-                    'sw-promotion-v2-rule-select': {
-                        template: '<div class="sw-promotion-v2-rule-select"></div>',
+                    'sw-select-rule-create': {
+                        template: '<div class="sw-select-rule-create"></div>',
                         props: ['disabled'],
                     },
                     'sw-context-menu-item': true,

@@ -98,8 +98,22 @@ class AddColumnRule implements Rule
             return [];
         }
 
-        $pattern = '/ALTER TABLE .* ADD CONSTRAINT.*/m';
-        if (preg_match($pattern, $arg->value)) {
+        // ADD CONSTRAINT checks need special handling
+        // Use /s modifier to match across newlines in multi-line SQL statements
+        $hasAddConstraint = preg_match('/ALTER TABLE .* ADD CONSTRAINT.*/s', $arg->value);
+        if ($hasAddConstraint === 1) {
+            $hasAddColumnWithConstraint = preg_match('/ALTER TABLE .* ADD COLUMN.*ADD CONSTRAINT/s', $arg->value);
+
+            // ADD COLUMN + ADD CONSTRAINT combined forces ALGORITHM=COPY (full table rebuild)
+            if ($hasAddColumnWithConstraint === 1) {
+                return [
+                    RuleErrorBuilder::message('Combining ADD COLUMN with ADD CONSTRAINT CHECK in the same ALTER TABLE statement requires ALGORITHM=COPY and causes a full table rebuild. Split into separate statements: use MigrationStep::addColumn() for the column, then ADD CONSTRAINT separately.')
+                        ->identifier('shopware.tableCopyOperation')
+                        ->build(),
+                ];
+            }
+
+            // ADD CONSTRAINT alone - skip (doesn't require COPY algorithm)
             return [];
         }
 
@@ -120,7 +134,7 @@ class AddColumnRule implements Rule
         $pattern = '/ALTER TABLE .* ADD .*/m';
         if (preg_match($pattern, $arg->value)) {
             return [
-                RuleErrorBuilder::message('Do not use `ALTER TABLE ... ADD COLUMN` in migration. Use MigrationStep::addColumn instead')
+                RuleErrorBuilder::message('Do not use `ALTER TABLE ... ADD COLUMN` in migration. Use MigrationStep::addColumn() instead, which uses ALGORITHM=INSTANT to prevent slow table copies.')
                     ->identifier('shopware.addColumn')
                     ->build(),
             ];

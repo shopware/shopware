@@ -20,6 +20,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -39,7 +40,7 @@ class SalesChannelContextPersisterTest extends TestCase
     {
         $this->connection = static::getContainer()->get(Connection::class);
         $eventDispatcher = new EventDispatcher();
-        $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher, static::getContainer()->get(CartPersister::class));
+        $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher, static::getContainer()->get(CartPersister::class), new NativeClock());
     }
 
     public function testLoad(): void
@@ -83,6 +84,43 @@ class SalesChannelContextPersisterTest extends TestCase
         $token = Random::getAlphanumericString(32);
 
         static::assertSame([], $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL, $customerId));
+    }
+
+    public function testLoadKeepsPayloadWhenTokenExpiresAndCustomerIdIsProvided(): void
+    {
+        $token = Random::getAlphanumericString(32);
+        $expected = $payload = [
+            'key' => 'value',
+            'anotherKey' => 'anotherValue',
+            'expired' => false,
+            'token' => $token,
+        ];
+
+        $this->contextPersister->save($token, $payload, TestDefaults::SALES_CHANNEL);
+
+        $this->makeTokenAge($token, 2);
+
+        // Load with customerId should keep the payload and just mark it as expired
+        $expected['expired'] = true;
+        static::assertSame($expected, $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL, Uuid::randomHex()));
+    }
+
+    public function testLoadWithdrawPayloadWhenTokenExpiresAndCustomerIdIsNotProvided(): void
+    {
+        $token = Random::getAlphanumericString(32);
+        $payload = [
+            'key' => 'value',
+            'anotherKey' => 'anotherValue',
+            'expired' => false,
+            'token' => $token,
+        ];
+
+        $this->contextPersister->save($token, $payload, TestDefaults::SALES_CHANNEL);
+
+        $this->makeTokenAge($token, 2);
+
+        // Everything except 'expired' and 'token' should be removed when loading without customerId
+        static::assertSame(['expired' => true, 'token' => $token], $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL));
     }
 
     public function testSaveWithoutExistingContext(): void
@@ -317,26 +355,19 @@ class SalesChannelContextPersisterTest extends TestCase
     #[DataProvider('tokenExpiringDataProvider')]
     public function testTokenExpiring(int $tokenAgeInDays, string $lifeTimeInterval, bool $expectedExpired): void
     {
-        $connection = static::getContainer()->get(Connection::class);
         $persister = new SalesChannelContextPersister(
-            $connection,
+            $this->connection,
             $this->createMock(EventDispatcher::class),
             static::getContainer()->get(CartPersister::class),
-            $lifeTimeInterval
+            new NativeClock(),
+            $lifeTimeInterval,
         );
         $token = Uuid::randomHex();
 
         $customerId = $this->createCustomer();
         $persister->save($token, [], TestDefaults::SALES_CHANNEL, $customerId);
 
-        if ($tokenAgeInDays !== 0) {
-            // change age
-            $connection->executeStatement(
-                'UPDATE sales_channel_api_context
-                SET updated_at = DATE_ADD(updated_at, INTERVAL :intervalInDays DAY)',
-                ['intervalInDays' => -$tokenAgeInDays]
-            );
-        }
+        $this->makeTokenAge($token, $tokenAgeInDays);
 
         $result = $persister->load($token, TestDefaults::SALES_CHANNEL, $customerId);
 
@@ -344,7 +375,7 @@ class SalesChannelContextPersisterTest extends TestCase
         static::assertArrayNotHasKey(SalesChannelContextService::CUSTOMER_ID, $result);
     }
 
-    #[DataProvider('testRevokeTokensDataProvider')]
+    #[DataProvider('revokeTokensTestDataProvider')]
     public function testRevokeTokens(string $token, ?string $preserveToken): void
     {
         $customerId = $this->createCustomer();
@@ -367,7 +398,7 @@ class SalesChannelContextPersisterTest extends TestCase
         }
     }
 
-    public static function testRevokeTokensDataProvider(): \Generator
+    public static function revokeTokensTestDataProvider(): \Generator
     {
         yield [Uuid::randomHex(), ''];
         yield [$token = Uuid::randomHex(), $token];
@@ -395,5 +426,20 @@ class SalesChannelContextPersisterTest extends TestCase
         )->fetchOne();
 
         return $result > 0;
+    }
+
+    /**
+     * Changes the age of a token by updating the updated_at field in the database.
+     */
+    private function makeTokenAge(string $token, int $tokenAgeInDays): void
+    {
+        if ($tokenAgeInDays !== 0) {
+            $this->connection->executeStatement(
+                'UPDATE sales_channel_api_context
+                SET updated_at = DATE_ADD(updated_at, INTERVAL :intervalInDays DAY)
+                WHERE token = :token',
+                ['intervalInDays' => -$tokenAgeInDays, 'token' => $token]
+            );
+        }
     }
 }

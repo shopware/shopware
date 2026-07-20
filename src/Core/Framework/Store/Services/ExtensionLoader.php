@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -9,14 +10,11 @@ use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Privileges\Utils;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
+use Shopware\Core\Framework\Store\Event\ExtensionLoadedEvent;
 use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\Store\Struct\BinaryCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
@@ -29,9 +27,9 @@ use Shopware\Core\Framework\Store\Struct\StoreCollection;
 use Shopware\Core\Framework\Store\Struct\VariantCollection;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
-use Shopware\Storefront\Framework\ThemeInterface;
 use Symfony\Component\Intl\Languages;
 use Symfony\Component\Intl\Locales;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -41,19 +39,15 @@ class ExtensionLoader
 {
     private const DEFAULT_LOCALE = 'en_GB';
 
-    /**
-     * @var array<string>|null
-     */
-    private ?array $installedThemeNames = null;
-
     public function __construct(
-        private readonly ?EntityRepository $themeRepository,
         private readonly AppLoader $appLoader,
         private readonly SourceResolver $sourceResolver,
         private readonly ConfigurationService $configurationService,
         private readonly LocaleProvider $localeProvider,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
-        private readonly InAppPurchase $inAppPurchase
+        private readonly InAppPurchase $inAppPurchase,
+        private readonly LoggerInterface $logger,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -98,6 +92,13 @@ class ExtensionLoader
 
         $registeredApps = $this->loadFromListingArray($context, $data);
 
+        foreach ($collection as $app) {
+            $extension = $registeredApps->get($app->getName());
+            if ($extension !== null) {
+                $this->eventDispatcher->dispatch(new ExtensionLoadedEvent($app, $extension, $context));
+            }
+        }
+
         // Enrich apps from filesystem
         $localApps = $this->loadLocalAppsCollection($context);
 
@@ -126,9 +127,16 @@ class ExtensionLoader
     {
         $extensions = new ExtensionCollection();
 
-        foreach ($collection as $app) {
-            $plugin = $this->loadFromPlugin($context, $app);
-            $extensions->set($plugin->getName(), $plugin);
+        foreach ($collection as $plugin) {
+            try {
+                $extension = $this->loadFromPlugin($context, $plugin);
+                $extensions->set($extension->getName(), $extension);
+            } catch (\Throwable $e) {
+                $this->logger->error('Failed to load plugin extension data', [
+                    'plugin' => $plugin->getName(),
+                    'exception' => $e->getMessage(),
+                ]);
+            }
         }
 
         return $extensions;
@@ -142,7 +150,7 @@ class ExtensionLoader
 
         $id = $this->getLocalesCodesFromLanguageIds([$languageId]);
 
-        if (empty($id)) {
+        if ($id === []) {
             return null;
         }
 
@@ -164,16 +172,6 @@ class ExtensionLoader
 
     private function loadFromPlugin(Context $context, PluginEntity $plugin): ExtensionStruct
     {
-        $isTheme = false;
-
-        if (interface_exists(ThemeInterface::class) && class_exists($plugin->getBaseClass())) {
-            $implementedInterfaces = class_implements($plugin->getBaseClass());
-
-            if (\is_array($implementedInterfaces)) {
-                $isTheme = \array_key_exists(ThemeInterface::class, $implementedInterfaces);
-            }
-        }
-
         $data = [
             'localId' => $plugin->getId(),
             'description' => $plugin->getTranslation('description'),
@@ -187,35 +185,20 @@ class ExtensionLoader
             'installedAt' => $plugin->getInstalledAt(),
             'active' => $plugin->getActive(),
             'type' => ExtensionStruct::EXTENSION_TYPE_PLUGIN,
-            'isTheme' => $isTheme,
+            'isTheme' => false,
             'configurable' => $this->configurationService->checkConfiguration(\sprintf('%s.config', $plugin->getName()), $context),
             'updatedAt' => $plugin->getUpgradedAt(),
             'allowDisable' => true,
-            'allowUpdate' => !$plugin->getManagedByComposer() || $plugin->isLocatedInCustomDirectory(),
+            'allowUpdate' => !$plugin->getManagedByComposer() || $plugin->isLocatedInCustomPluginDirectory(),
             'managedByComposer' => $plugin->getManagedByComposer(),
             'inAppPurchases' => $this->inAppPurchase->getByExtension($plugin->getName()),
         ];
 
-        return ExtensionStruct::fromArray($this->replaceCollections($data));
-    }
+        $extension = ExtensionStruct::fromArray($this->replaceCollections($data));
 
-    /**
-     * @return array<string>
-     */
-    private function getInstalledThemeNames(Context $context): array
-    {
-        if ($this->installedThemeNames === null && $this->themeRepository instanceof EntityRepository) {
-            $themeNameAggregationName = 'theme_names';
-            $criteria = new Criteria();
-            $criteria->addAggregation(new TermsAggregation($themeNameAggregationName, 'technicalName'));
+        $this->eventDispatcher->dispatch(new ExtensionLoadedEvent($plugin, $extension, $context));
 
-            /** @var TermsResult $themeNameAggregation */
-            $themeNameAggregation = $this->themeRepository->aggregate($criteria, $context)->get($themeNameAggregationName);
-
-            return $this->installedThemeNames = $themeNameAggregation->getKeys();
-        }
-
-        return $this->installedThemeNames ?? [];
+        return $extension;
     }
 
     private function loadLocalAppsCollection(Context $context): ExtensionCollection
@@ -253,6 +236,8 @@ class ExtensionLoader
                 'privacyPolicyExtension' => isset($appArray['privacyPolicyExtensions']) ? $this->getTranslationFromArray($appArray['privacyPolicyExtensions'], $language, 'en-GB') : '',
                 'privacyPolicyLink' => $app->getMetadata()->getPrivacy(),
                 'inAppPurchases' => $this->inAppPurchase->getByExtension($app->getMetadata()->getName()),
+                'permissions' => Utils::makePermissions($app->getPermissions()?->asParsedPrivileges() ?? []),
+                'requestedPermissions' => [],
             ];
 
             $collection->set($name, $this->loadFromArray($context, $row, $language));
@@ -276,8 +261,6 @@ class ExtensionLoader
      */
     private function prepareAppData(Context $context, AppEntity $app): array
     {
-        $installedThemeNames = $this->getInstalledThemeNames($context);
-
         $data = [
             'localId' => $app->getId(),
             'description' => $app->getTranslation('description'),
@@ -290,10 +273,11 @@ class ExtensionLoader
             'iconRaw' => $app->getIcon(),
             'installedAt' => $app->getCreatedAt(),
             'permissions' => $app->getAclRole() !== null ? Utils::makePermissions($app->getAclRole()->getPrivileges()) : [],
+            'requestedPermissions' => Utils::makePermissions($app->getRequestedPrivileges()),
             'active' => $app->isActive(),
             'languages' => [],
             'type' => ExtensionStruct::EXTENSION_TYPE_APP,
-            'isTheme' => \in_array($app->getName(), $installedThemeNames, true),
+            'isTheme' => false,
             'configurable' => $app->isConfigurable(),
             'privacyPolicyExtension' => $app->getPrivacyPolicyExtensions(),
             'updatedAt' => $app->getUpdatedAt(),
@@ -324,6 +308,7 @@ class ExtensionLoader
             'images' => ImageCollection::class,
             'categories' => StoreCategoryCollection::class,
             'permissions' => PermissionCollection::class,
+            'requestedPermissions' => PermissionCollection::class,
         ];
 
         foreach ($replacements as $key => $collectionClass) {

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Controller\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Controller\Api\CaptchaController;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 
@@ -11,6 +12,7 @@ use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
  * @internal
  */
 #[CoversClass(CaptchaController::class)]
+#[Package('checkout')]
 class CaptchaControllerTest extends TestCase
 {
     private const CAPTCHA_NAME = 'lorem-ipsum';
@@ -19,7 +21,7 @@ class CaptchaControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $captchaMock = static::getMockBuilder(AbstractCaptcha::class)->getMock();
+        $captchaMock = static::createStub(AbstractCaptcha::class);
         $captchaMock->method('getName')->willReturn(self::CAPTCHA_NAME);
 
         $this->captchaController = new CaptchaController([$captchaMock]);

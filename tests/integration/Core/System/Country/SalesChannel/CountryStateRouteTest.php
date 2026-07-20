@@ -109,6 +109,6 @@ class CountryStateRouteTest extends TestCase
 
         static::assertSame([
             'Baden-Württemberg', 'Bavaria',
-        ], array_map(fn (array $state) => $state['name'], $response['elements']));
+        ], array_map(static fn (array $state) => $state['name'], $response['elements']));
     }
 }

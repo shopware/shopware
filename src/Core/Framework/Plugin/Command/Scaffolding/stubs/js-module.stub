@@ -1,6 +1,4 @@
 // <plugin root>/src/Resources/app/administration/src/module/swag-example/index.js
-import deDE from './snippet/de-DE';
-import enGB from './snippet/en-GB';
 
 Shopware.Module.register('swag-example', {
     type: 'plugin',
@@ -9,11 +7,6 @@ Shopware.Module.register('swag-example', {
     description: 'sw-property.general.descriptionTextModule',
     color: '#ff3d58',
     icon: 'default-shopping-paper-bag-product',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         list: {

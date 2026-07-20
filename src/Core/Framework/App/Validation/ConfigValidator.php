@@ -45,7 +45,7 @@ class ConfigValidator extends AbstractManifestValidator
             }
         }
 
-        if (!empty($invalids)) {
+        if ($invalids !== []) {
             $errors->add(new ConfigurationError($invalids));
         }
 
@@ -59,7 +59,7 @@ class ConfigValidator extends AbstractManifestValidator
     {
         $configPath = \sprintf('%s/Resources/config/config.xml', $appFolder);
 
-        if (!file_exists($configPath)) {
+        if (!\is_file($configPath)) {
             return [];
         }
 

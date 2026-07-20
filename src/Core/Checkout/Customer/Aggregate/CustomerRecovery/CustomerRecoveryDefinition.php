@@ -46,9 +46,9 @@ class CustomerRecoveryDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new StringField('hash', 'hash'))->addFlags(new Required()),
-            (new FkField('customer_id', 'customerId', CustomerDefinition::class))->addFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of the customer recovery account.'),
+            (new StringField('hash', 'hash'))->addFlags(new Required())->setDescription('Password hash for customer\'s account recovery.'),
+            (new FkField('customer_id', 'customerId', CustomerDefinition::class))->addFlags(new Required())->setDescription('Unique identity of the customer.'),
             new OneToOneAssociationField('customer', 'customer_id', 'id', CustomerDefinition::class, false),
         ]);
     }

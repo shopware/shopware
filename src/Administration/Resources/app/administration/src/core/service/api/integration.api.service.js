@@ -1,4 +1,4 @@
-const ApiService = Shopware.Classes.ApiService;
+import ApiService from '../api.service';
 
 /**
  * Gateway for the API end point "integration"
@@ -19,6 +19,24 @@ class IntegrationApiService extends ApiService {
      * @param {Object} [additionalHeaders = {}]
      * @returns {Promise<T>}
      */
+    saveMcpAllowlist(integrationId, allowlist, additionalHeaders = {}) {
+        const headers = this.getBasicHeaders(additionalHeaders);
+
+        return this.httpClient
+            .post(`/_action/integration/${integrationId}/mcp-allowlist`, { allowlist }, { headers })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    updateAdmin(integrationId, admin, additionalHeaders = {}) {
+        const headers = this.getBasicHeaders(additionalHeaders);
+
+        return this.httpClient.patch(this.getApiBasePath(integrationId), { admin }, { headers }).then((response) => {
+            return ApiService.handleResponse(response);
+        });
+    }
+
     generateKey(additionalParams = {}, additionalHeaders = {}, user = false) {
         const params = additionalParams;
         const headers = this.getBasicHeaders(additionalHeaders);

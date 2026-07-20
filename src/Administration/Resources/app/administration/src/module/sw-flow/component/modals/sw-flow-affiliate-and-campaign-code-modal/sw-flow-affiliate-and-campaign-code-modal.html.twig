@@ -1,7 +1,7 @@
 {% block sw_flow_affiliate_and_campaign_code_modal %}
 <sw-modal
     class="sw-flow-affiliate-and-campaign-code-modal"
-    :title="$tc('sw-flow.modals.affiliateAndCampaignCode.title')"
+    :title="$t('sw-flow.modals.affiliateAndCampaignCode.title')"
     :closable="false"
     @modal-close="onClose"
 >
@@ -14,8 +14,8 @@
             class="sw-flow-affiliate-and-campaign-code-modal__entity"
             required
             show-clearable-button
-            :label="$tc('sw-flow.modals.affiliateAndCampaignCode.labelEntity')"
-            :placeholder="$tc('sw-flow.modals.affiliateAndCampaignCode.placeholderEntity')"
+            :label="$t('sw-flow.modals.affiliateAndCampaignCode.labelEntity')"
+            :placeholder="$t('sw-flow.modals.affiliateAndCampaignCode.placeholderEntity')"
             :error="entityError"
             :options="entityOptions"
         />
@@ -26,23 +26,22 @@
             gap="16px"
         >
             {% block sw_flow_affiliate_and_campaign_code_modal_affiliate_code %}
-
             <mt-text-field
                 v-model="affiliateCode.value"
                 name="sw-field--affiliateCode-value"
                 class="sw-flow-affiliate-and-campaign-code-modal__affiliate-code"
-                :label="$tc('sw-flow.modals.affiliateAndCampaignCode.labelAffiliateCode')"
-                :placeholder="$tc('sw-flow.modals.affiliateAndCampaignCode.placeholderAffiliateCode')"
+                :label="$t('sw-flow.modals.affiliateAndCampaignCode.labelAffiliateCode')"
+                :placeholder="$t('sw-flow.modals.affiliateAndCampaignCode.placeholderAffiliateCode')"
             />
             {% endblock %}
 
             {% block sw_flow_affiliate_and_campaign_code_modal_affiliate_code_overwrite %}
-
             <mt-switch
                 v-model="affiliateCode.upsert"
                 name="sw-field--affiliateCode-upsert"
                 class="sw-flow-affiliate-and-campaign-code-modal__affiliate-code-overwrite"
-                :label="$tc('sw-flow.modals.affiliateAndCampaignCode.overwrite')"
+                :label="$t('sw-flow.modals.affiliateAndCampaignCode.overwrite')"
+                bordered
             />
             {% endblock %}
         </sw-container>
@@ -52,23 +51,22 @@
             gap="16px"
         >
             {% block sw_flow_affiliate_and_campaign_code_modal_campaign_code %}
-
             <mt-text-field
                 v-model="campaignCode.value"
                 name="sw-field--campaignCode-value"
                 class="sw-flow-affiliate-and-campaign-code-modal__campaign-code"
-                :label="$tc('sw-flow.modals.affiliateAndCampaignCode.labelCampaignCode')"
-                :placeholder="$tc('sw-flow.modals.affiliateAndCampaignCode.placeholderCampaignCode')"
+                :label="$t('sw-flow.modals.affiliateAndCampaignCode.labelCampaignCode')"
+                :placeholder="$t('sw-flow.modals.affiliateAndCampaignCode.placeholderCampaignCode')"
             />
             {% endblock %}
 
             {% block sw_flow_affiliate_and_campaign_code_modal_campaign_code_overwrite %}
-
             <mt-switch
                 v-model="campaignCode.upsert"
                 name="sw-field--campaignCode-upsert"
                 class="sw-flow-affiliate-and-campaign-code-modal__campaign-code-overwrite"
-                :label="$tc('sw-flow.modals.affiliateAndCampaignCode.overwrite')"
+                :label="$t('sw-flow.modals.affiliateAndCampaignCode.overwrite')"
+                bordered
             />
             {% endblock %}
         </sw-container>
@@ -83,7 +81,7 @@
             variant="secondary"
             @click="onClose"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -94,7 +92,7 @@
             size="small"
             @click="onSave"
         >
-            {{ sequence.id ? $tc('sw-flow.modals.buttonSaveAction') : $tc('sw-flow.modals.buttonAddAction') }}
+            {{ sequence.id ? $t('sw-flow.modals.buttonSaveAction') : $t('sw-flow.modals.buttonAddAction') }}
         </mt-button>
         {% endblock %}
     </template>

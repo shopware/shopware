@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart\LineItemFactoryHandler;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
@@ -50,15 +51,15 @@ class ProductLineItemFactory implements LineItemFactoryInterface
             $lineItem->setReferencedId($data['referencedId']);
         }
 
-        if (isset($data['payload'])) {
-            $lineItem->setPayload($data['payload'] ?? []);
+        if (isset($data['payload']) && \is_array($data['payload'])) {
+            $lineItem->setPayload(array_merge($lineItem->getPayload(), $data['payload']));
         }
 
         if (isset($data['quantity'])) {
             $lineItem->setQuantity((int) $data['quantity']);
         }
 
-        if (isset($data['priceDefinition']) && !$context->hasPermission(ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES)) {
+        if (isset($data['priceDefinition']) && !$context->hasPermission(CheckoutPermissions::ALLOW_PRODUCT_PRICE_OVERWRITES)) {
             throw CartException::insufficientPermission();
         }
 

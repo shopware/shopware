@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Checkout\Promotion\Gateway\Template;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\Clock;
 
 /**
  * @final
@@ -19,10 +21,9 @@ class ActiveDateRange extends MultiFilter
      * This means either no date ranges set at all, either no starting
      * or ending date, or a valid and active date range.
      */
-    public function __construct()
+    public function __construct(?ClockInterface $clock = null)
     {
-        $today = new \DateTime();
-        $today = $today->setTimezone(new \DateTimeZone('UTC'));
+        $today = ($clock ?? Clock::get())->now()->setTimezone(new \DateTimeZone('UTC'));
 
         $todayStart = $today->format('Y-m-d H:i:s');
         $todayEnd = $today->format('Y-m-d H:i:s');

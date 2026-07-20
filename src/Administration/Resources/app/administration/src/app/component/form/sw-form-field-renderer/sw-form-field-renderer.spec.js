@@ -21,7 +21,7 @@ async function createWrapper(additionalOptions = {}) {
             },
             global: {
                 stubs: {
-                    'sw-text-field-deprecated': {
+                    'mt-text-field': {
                         template: '<div class="sw-text-field"><slot name="label"></slot><slot></slot></div>',
                     },
                     'sw-contextual-field': true,
@@ -50,11 +50,6 @@ async function createWrapper(additionalOptions = {}) {
 describe('components/form/sw-form-field-renderer', () => {
     beforeAll(() => {
         global.repositoryFactoryMock.showError = false;
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show the value from the label slot', async () => {
@@ -117,5 +112,19 @@ describe('components/form/sw-form-field-renderer', () => {
         );
 
         expect(wrapper.emitted('update:value')).toBeUndefined();
+    });
+
+    it('should enable multi selection for meteor multi-select fields', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                type: 'multi-select',
+                config: {
+                    options: [],
+                },
+                value: [],
+            },
+        });
+
+        expect(wrapper.vm.bind.enableMultiSelection).toBe(true);
     });
 });

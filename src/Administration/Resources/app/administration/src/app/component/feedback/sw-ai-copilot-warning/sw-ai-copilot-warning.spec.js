@@ -18,11 +18,6 @@ describe('src/app/asyncComponent/feedback/sw-ai-copilot-warning/index.ts', () =>
         await flushPromises();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.find('.sw-ai-copilot-warning')).toBeDefined();
-        expect(wrapper.find('.mt-icon.icon--solid-exclamation-triangle')).toBeDefined();
-    });
-
     it('should be able to override the default text with custom text', async () => {
         await wrapper.setProps({
             text: 'Custom text',

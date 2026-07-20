@@ -12,8 +12,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1599822061MigrateOrderMails extends MigrationStep

@@ -5,6 +5,7 @@ namespace Shopware\Core\Migration\V6_5;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -19,15 +20,7 @@ class Migration1673426317ImproveStateMachineHistoryQueryPerformance extends Migr
 
     public function update(Connection $connection): void
     {
-        $columns = $connection->executeQuery('
-            SELECT COLUMN_NAME,DATA_TYPE FROM information_schema.columns
-                WHERE table_schema = :database
-                  AND table_name = \'state_machine_history\'
-                  AND (COLUMN_NAME = \'referenced_id\'
-                    OR COLUMN_NAME = \'referenced_version_id\');
-        ', ['database' => $connection->getDatabase()])->fetchAllAssociativeIndexed();
-
-        if (!\array_key_exists('referenced_id', $columns)) {
+        if (!TableHelper::columnExists($connection, 'state_machine_history', 'referenced_id')) {
             $connection->executeStatement('
                 ALTER TABLE `state_machine_history`
                 ADD COLUMN `referenced_id` BINARY(16)
@@ -37,7 +30,7 @@ class Migration1673426317ImproveStateMachineHistoryQueryPerformance extends Migr
             ');
         }
 
-        if (!\array_key_exists('referenced_version_id', $columns)) {
+        if (!TableHelper::columnExists($connection, 'state_machine_history', 'referenced_version_id')) {
             $connection->executeStatement('
                 ALTER TABLE `state_machine_history`
                 ADD COLUMN `referenced_version_id` BINARY(16)

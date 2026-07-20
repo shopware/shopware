@@ -19,12 +19,6 @@ describe('src/app/component/utils/sw-status', () => {
     /** @type Wrapper */
     let wrapper;
 
-    it('should be a Vue.JS component', async () => {
-        wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render the color green', async () => {
         wrapper = await createWrapper({
             props: { color: 'green' },

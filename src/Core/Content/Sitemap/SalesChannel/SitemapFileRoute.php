@@ -3,9 +3,13 @@
 namespace Shopware\Core\Content\Sitemap\SalesChannel;
 
 use League\Flysystem\FilesystemOperator;
+use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
+use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Content\Sitemap\Extension\SitemapFileExtension;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,7 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('discovery')]
 class SitemapFileRoute
 {
@@ -52,19 +56,24 @@ class SitemapFileRoute
         }
 
         $fileName = basename($filePath);
+        try {
+            $filenameFallback = PathHelper::stripNonAsciiAndControlChars($fileName);
+        } catch (IllegalFileNameException) {
+            $filenameFallback = '';
+        }
 
         $headers = [
             'Content-Disposition' => HeaderUtils::makeDisposition(
                 HeaderUtils::DISPOSITION_ATTACHMENT,
                 $fileName,
                 // only printable ascii
-                preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $fileName) ?: ''
+                $filenameFallback
             ),
             'Content-Length' => $this->fileSystem->fileSize($filePath),
             'Content-Type' => 'application/octet-stream',
         ];
 
-        return new StreamedResponse(function () use ($file): void {
+        return new StreamedResponse(static function () use ($file): void {
             fpassthru($file);
         }, Response::HTTP_OK, $headers);
     }

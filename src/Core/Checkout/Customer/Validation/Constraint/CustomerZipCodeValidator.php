@@ -34,11 +34,11 @@ class CustomerZipCodeValidator extends ConstraintValidator
             throw CustomerException::unexpectedType($constraint, CustomerZipCodeValidator::class);
         }
 
-        if ($constraint->countryId === null) {
+        if ($constraint->getCountryId() === null) {
             return;
         }
 
-        $country = $this->getCountry($constraint->countryId);
+        $country = $this->getCountry($constraint->getCountryId());
 
         if ($country->getPostalCodeRequired()) {
             if ($value === null || $value === '') {
@@ -64,7 +64,7 @@ class CustomerZipCodeValidator extends ConstraintValidator
             return;
         }
 
-        $caseSensitive = $constraint->caseSensitiveCheck ? '' : 'i';
+        $caseSensitive = $constraint->isCaseSensitiveCheck() ? '' : 'i';
 
         if (preg_match("/^{$pattern}$/" . $caseSensitive, (string) $value, $matches) === 1) {
             return;

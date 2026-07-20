@@ -4,8 +4,19 @@
 
 import getErrorCode from 'src/core/data/error-codes/login.error-codes';
 import template from './sw-login-login.html.twig';
+import type { LoginConfig } from '../../../../core/service/login.service';
 
 const { Component, Mixin } = Shopware;
+
+interface LoginData {
+    username: string;
+    password: string;
+    rememberMe: boolean;
+    loginAlertMessage: string;
+    loginConfig: null | LoginConfig;
+    loginConfigLoaded: boolean;
+    ssoLoading: boolean;
+}
 
 /**
  * @private
@@ -30,28 +41,65 @@ export default Component.wrapComponentConfig({
         Mixin.getByName('notification'),
     ],
 
-    data() {
+    data(): LoginData {
         return {
             username: '',
             password: '',
             rememberMe: false,
             loginAlertMessage: '',
+            loginConfig: null,
+            loginConfigLoaded: false,
+            ssoLoading: false,
         };
     },
 
     computed: {
         showLoginAlert() {
-            return typeof this.loginAlertMessage === 'string' && this.loginAlertMessage.length >= 1;
+            return this.loginAlertMessage?.length >= 1;
         },
     },
 
-    created() {
-        if (!localStorage.getItem('sw-admin-locale')) {
-            void Shopware.Store.get('session').setAdminLocale(navigator.language);
-        }
+    created(): void {
+        void this.createdComponent();
     },
 
     methods: {
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _reloadPage() {
+            window.location.reload();
+        },
+
+        _navigateTo(url: string) {
+            window.location.href = url;
+        },
+
+        async createdComponent() {
+            if (!localStorage.getItem('sw-admin-locale')) {
+                const localeFactory = Shopware.Application.getContainer('factory').locale;
+
+                await Shopware.Store.get('session').setAdminLocale(localeFactory.getLastKnownLocale());
+            }
+
+            this.loginConfig = await this.loginService.getLoginTemplateConfig();
+
+            if (!this.loginConfig.useDefault && this.loginConfig.url) {
+                this.doSsoForwarding();
+            }
+
+            this.loginConfigLoaded = true;
+        },
+
+        doSsoForwarding() {
+            if (!this.loginConfig) {
+                return;
+            }
+
+            this.ssoLoading = true;
+            window.sessionStorage.setItem('redirectFromLogin', 'true');
+            window.sessionStorage.setItem('sw-sso-session', 'true');
+            this._navigateTo(this.loginConfig.url);
+        },
+
         loginUserWithPassword() {
             this.$emit('is-loading');
 
@@ -85,23 +133,22 @@ export default Component.wrapComponentConfig({
                 this.licenseViolationService.removeTimeFromLocalStorage(this.licenseViolationService.key.showViolationsKey);
             }
 
-            return animationPromise.then(() => {
+            return animationPromise.then(async () => {
                 // @ts-expect-error
                 this.$parent.isLoginSuccess = false;
-                this.forwardLogin();
+                await this.forwardLogin();
 
                 const shouldReload = sessionStorage.getItem('sw-login-should-reload');
 
                 if (shouldReload) {
                     sessionStorage.removeItem('sw-login-should-reload');
                     // reload page to rebuild the administration with all dependencies
-                    // @ts-expect-error - force reload
-                    window.location.reload(true);
+                    this._reloadPage();
                 }
             });
         },
 
-        forwardLogin() {
+        async forwardLogin() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const previousRoute = JSON.parse(sessionStorage.getItem('sw-admin-previous-route') as string);
             sessionStorage.removeItem('sw-admin-previous-route');
@@ -115,18 +162,18 @@ export default Component.wrapComponentConfig({
                 !this.$router?.currentRoute?.value?.name?.startsWith('sw.first.run.wizard') &&
                 this.$router.hasRoute('sw.first.run.wizard.index')
             ) {
-                void this.$router.push({ name: 'sw.first.run.wizard.index' });
+                void (await this.$router.push({ name: 'sw.first.run.wizard.index' }));
                 return;
             }
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (previousRoute?.fullPath) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-                void this.$router.push(previousRoute.fullPath);
+                void (await this.$router.push(previousRoute.fullPath));
                 return;
             }
 
-            void this.$router.push({ name: 'core' });
+            void (await this.$router.push({ name: 'core' }));
         },
 
         handleLoginError(response: unknown) {
@@ -144,7 +191,7 @@ export default Component.wrapComponentConfig({
             // @ts-expect-error
             if (!response.response) {
                 this.createNotificationError({
-                    message: this.$tc('sw-login.index.messageGeneralRequestError'),
+                    message: this.$t('sw-login.index.messageGeneralRequestError'),
                 });
                 return;
             }
@@ -159,7 +206,7 @@ export default Component.wrapComponentConfig({
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             if (parseInt(error.status, 10) === 429) {
                 const seconds = error?.meta?.parameters?.seconds;
-                this.loginAlertMessage = this.$tc('sw-login.index.messageAuthThrottled', { seconds }, 0);
+                this.loginAlertMessage = this.$t('sw-login.index.messageAuthThrottled', { seconds }, 0);
 
                 setTimeout(() => {
                     this.loginAlertMessage = '';
@@ -168,16 +215,15 @@ export default Component.wrapComponentConfig({
             }
 
             if (error.code?.length) {
-                // eslint-disable-next-line max-len
                 const { message, title } = getErrorCode(parseInt(error.code as string, 10)) as {
                     message: string;
                     title: string;
                 };
 
                 this.createNotificationError({
-                    title: this.$tc(title),
+                    title: this.$t(title),
                     // @ts-expect-error
-                    message: this.$tc(message, 0, { url }),
+                    message: this.$t(message, 0, { url }),
                 });
             }
             /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */

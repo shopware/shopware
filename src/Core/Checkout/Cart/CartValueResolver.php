@@ -20,6 +20,9 @@ class CartValueResolver implements ValueResolverInterface
     {
     }
 
+    /**
+     * @return \Generator<Cart>
+     */
     public function resolve(Request $request, ArgumentMetadata $argument): \Generator
     {
         if ($argument->getType() !== Cart::class) {

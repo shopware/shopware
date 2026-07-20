@@ -10,6 +10,13 @@ const mediaModalConfig = {
     callback: () => {},
 } as const;
 
+const saveMediaModalConfig = {
+    initialFolderId: 'folderId',
+    initialFileName: 'Media name',
+    fileType: 'png',
+    callback: () => {},
+} as const;
+
 describe('media-modal.store', () => {
     let store = Shopware.Store.get('mediaModal');
 
@@ -30,5 +37,27 @@ describe('media-modal.store', () => {
         store.openModal(mediaModalConfig);
 
         expect(store.mediaModal).toStrictEqual(mediaModalConfig);
+    });
+
+    it('open save media modal', () => {
+        store.openSaveModal(saveMediaModalConfig);
+
+        expect(store.saveMediaModal).toStrictEqual(saveMediaModalConfig);
+    });
+
+    it('closes media modal', () => {
+        store.openModal(mediaModalConfig);
+        expect(store.mediaModal).toStrictEqual(mediaModalConfig);
+
+        store.closeModal();
+        expect(store.mediaModal).toBeNull();
+    });
+
+    it('closes save media modal', () => {
+        store.openSaveModal(saveMediaModalConfig);
+        expect(store.saveMediaModal).toStrictEqual(saveMediaModalConfig);
+
+        store.closeSaveModal();
+        expect(store.saveMediaModal).toBeNull();
     });
 });

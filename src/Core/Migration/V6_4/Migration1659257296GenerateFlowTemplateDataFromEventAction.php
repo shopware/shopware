@@ -13,8 +13,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 class Migration1659257296GenerateFlowTemplateDataFromEventAction extends MigrationStep
@@ -319,11 +317,11 @@ class Migration1659257296GenerateFlowTemplateDataFromEventAction extends Migrati
     }
 
     /**
-     * @return string[]
+     * @return array<int, non-falsy-string>
      */
     private function getExistingFlowTemplates(Connection $connection): array
     {
-        /** @var string[] $flowTemplates */
+        /** @var list<string> $flowTemplates */
         $flowTemplates = $connection->fetchFirstColumn('SELECT DISTINCT name FROM flow_template');
 
         return array_unique(array_filter($flowTemplates));

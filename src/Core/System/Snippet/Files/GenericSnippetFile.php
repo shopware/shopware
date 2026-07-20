@@ -13,7 +13,7 @@ class GenericSnippetFile extends AbstractSnippetFile
         private readonly string $iso,
         private readonly string $author,
         private readonly bool $isBase,
-        private string $technicalName
+        private string $technicalName,
     ) {
     }
 

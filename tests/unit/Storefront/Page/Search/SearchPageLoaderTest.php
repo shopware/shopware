@@ -29,7 +29,7 @@ class SearchPageLoaderTest extends TestCase
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher->expects($this->once())
             ->method('dispatch')
-            ->willReturnCallback(function ($event) use ($salesChannelContext, $request) {
+            ->willReturnCallback(static function ($event) use ($salesChannelContext, $request) {
                 static::assertInstanceOf(SearchPageLoadedEvent::class, $event);
                 static::assertSame($salesChannelContext, $event->getSalesChannelContext());
                 static::assertSame($request, $event->getRequest());
@@ -38,10 +38,10 @@ class SearchPageLoaderTest extends TestCase
             });
 
         $searchPageLoader = new SearchPageLoader(
-            $this->createMock(GenericPageLoader::class),
-            $this->createMock(AbstractProductSearchRoute::class),
+            static::createStub(GenericPageLoader::class),
+            static::createStub(AbstractProductSearchRoute::class),
             $eventDispatcher,
-            $this->createMock(AbstractTranslator::class),
+            static::createStub(AbstractTranslator::class),
         );
 
         $page = $searchPageLoader->load($request, $salesChannelContext);
@@ -57,7 +57,7 @@ class SearchPageLoaderTest extends TestCase
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher->expects($this->once())
             ->method('dispatch')
-            ->willReturnCallback(function ($event) use ($salesChannelContext, $request) {
+            ->willReturnCallback(static function ($event) use ($salesChannelContext, $request) {
                 static::assertInstanceOf(SearchPageLoadedEvent::class, $event);
                 static::assertSame($salesChannelContext, $event->getSalesChannelContext());
                 static::assertSame($request, $event->getRequest());
@@ -66,10 +66,10 @@ class SearchPageLoaderTest extends TestCase
             });
 
         $searchPageLoader = new SearchPageLoader(
-            $this->createMock(GenericPageLoader::class),
-            $this->createMock(AbstractProductSearchRoute::class),
+            static::createStub(GenericPageLoader::class),
+            static::createStub(AbstractProductSearchRoute::class),
             $eventDispatcher,
-            $this->createMock(AbstractTranslator::class),
+            static::createStub(AbstractTranslator::class),
         );
 
         $page = $searchPageLoader->load($request, $salesChannelContext);

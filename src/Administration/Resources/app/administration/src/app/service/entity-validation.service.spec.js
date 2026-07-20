@@ -7,7 +7,6 @@ import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import ErrorResolver from 'src/core/data/error-resolver.data';
 import EntityDefinition from 'src/core/data/entity-definition.data';
 import EntityDefinitionFactory from 'src/core/factory/entity-definition.factory';
-// eslint-disable-next-line import/no-unresolved
 import entitySchemaMock from 'src/../test/_mocks_/entity-schema.json';
 
 function createService() {
@@ -177,5 +176,29 @@ describe('src/app/service/entity-validation.service.js', () => {
         expect(customValidator.mock.calls[0][1]).toBe(testEntity); // entity
         expect(customValidator.mock.calls[0][2]).toBe(Shopware.EntityDefinition.get(testEntity.getEntityName())); // entity definition
         expect(customValidator.mock.results[0].value).toEqual(expectedErrors); // should return the errors
+    });
+
+    it('should validate a complete product with ignore fields and report no errors', () => {
+        const service = createService();
+        service.errorResolver.handleWriteErrors = jest.fn(() => undefined);
+        const testEntity = entityFactory.create('product');
+        testEntity.name = null;
+        testEntity.stock = 5;
+        testEntity.productNumber = 'MyProductNumber';
+        testEntity.taxId = 'some-tax-uuid';
+        testEntity.price = [
+            {
+                gross: 10,
+                net: 10,
+            },
+        ];
+
+        const ignoreFields = ['name'];
+
+        const isValid = service.validate(testEntity, undefined, ignoreFields);
+        expect(isValid).toBe(true);
+
+        expect(service.errorResolver.handleWriteErrors.mock.calls).toHaveLength(1);
+        expect(service.errorResolver.handleWriteErrors.mock.calls[0][1].errors).toEqual([]);
     });
 });

@@ -1,33 +1,45 @@
-@import "~scss/variables";
-
 .sw-first-run-wizard-plugins {
     height: 100%;
     position: relative;
 
     .recommended-plugins__headline {
-        font-size: $font-size-m;
-        font-weight: $font-weight-semi-bold;
-        line-height: 25px;
-        margin-top: 20px;
+        font-size: var(--font-size-s);
+        font-weight: var(--font-weight-medium);
+        line-height: var(--font-line-height-s);
+        color: var(--color-text-primary-default);
+        margin-top: var(--scale-size-20);
+        margin-bottom: var(--scale-size-8);
+    }
+
+    .recommended-plugins__headline-main {
+        margin-top: 0;
     }
 
     .recommended-plugins__description {
-        margin-bottom: 25px;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        font-weight: var(--font-weight-regular);
+        color: var(--color-text-primary-default);
+        margin-bottom: var(--scale-size-24);
     }
 
     .select-region,
     .select-category {
         p {
-            line-height: 22px;
-            margin: 10px 0;
+            font-size: var(--font-size-xs);
+            line-height: var(--font-line-height-xs);
+            color: var(--color-text-primary-default);
+            margin: var(--scale-size-10) 0;
         }
     }
 
     .sw-label-region,
     .sw-label-category {
         &.sw-label {
+            background: var(--color-background-secondary-default);
+            font-size: var(--font-size-2xs);
+            font-weight: var(--font-weight-medium);
             text-align: center;
-            font-weight: $font-weight-semi-bold;
 
             &:hover {
                 cursor: pointer;
@@ -35,32 +47,33 @@
         }
 
         &.sw-label--neutral {
-            color: $color-gray-500;
-            border-color: $color-gray-500;
+            color: var(--color-text-primary-default);
+            border: 1px solid var(--color-border-primary-default);
         }
 
         &.sw-label--info {
-            border-color: $color-shopware-brand-500;
+            border: 1px solid var(--color-border-brand-default);
+            color: var(--color-text-brand-default);
         }
     }
 
     .spacer {
         border: none;
         height: 1px;
-        background-color: $color-gray-300;
-        margin: 20px 0;
+        background-color: var(--color-border-secondary-default);
+        margin: var(--scale-size-20) 0;
     }
 
     .plugins-category-lead {
         .sw-plugin-card {
-            margin-bottom: 24px;
+            margin-bottom: var(--scale-size-24);
         }
     }
 
     .plugins-not-category-lead {
         .sw-plugin-card__icon {
-            width: 96px;
-            height: 96px;
+            width: var(--scale-size-96);
+            height: var(--scale-size-96);
         }
 
         .bottom {
@@ -72,6 +85,6 @@
 
     .plugins-category-lead,
     .plugins-not-category-lead {
-        margin: 20px 0;
+        margin: var(--scale-size-20) 0;
     }
 }

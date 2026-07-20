@@ -44,7 +44,6 @@ export default {
         showTooltip: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -90,7 +89,9 @@ export default {
         },
 
         getFirstSlot() {
-            return this.$slots?.default?.()?.[0]?.children || '';
+            const label = this.$slots?.default?.()?.[0]?.children;
+
+            return typeof label === 'string' ? label : label?.default?.()?.[0]?.children || '';
         },
 
         setHelpText() {

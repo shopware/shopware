@@ -105,6 +105,31 @@ describe('Form Preserver tests', () => {
         expect(selectedOptions.sort()).toEqual(['audi','volvo']);
     });
 
+    test('ignored element names are neither restored nor persisted', () => {
+        jest.useFakeTimers();
+
+        document.body.innerHTML = template;
+        Storage.setItem('test.texttest', 'persisted value');
+
+        const form = document.querySelector('#test');
+        formPreserverPlugin = new FormPreserverPlugin(form, {
+            ignoredElementNames: ['texttest'],
+        });
+
+        const element = document.querySelector('[name=texttest]');
+
+        expect(element.value).toBe('');
+
+        element.value = 'updated value';
+        element.dispatchEvent(new Event('input'));
+
+        jest.runOnlyPendingTimers();
+
+        expect(Storage.getItem('test.texttest')).toBe('persisted value');
+
+        jest.useRealTimers();
+    });
+
     test('set values to storage from normal elements', () => {
         jest.useFakeTimers();
 

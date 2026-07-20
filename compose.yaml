@@ -1,14 +1,17 @@
 services:
     web:
-        image: ghcr.io/shopwarelabs/devcontainer/base-slim:8.3
+        image: ghcr.io/shopware/docker-dev:php8.4-node24-caddy
         ports:
             - 8000:8000
             - 5173:5173
+            - 5175:5175
             - 9998:9998
             - 9999:9999
         environment:
             COMPOSER_ROOT_VERSION: 6.7.9999999-dev
             HOST: '0.0.0.0'
+            STOREFRONT_VITE_HOST: '0.0.0.0'
+            STOREFRONT_VITE_ORIGIN: http://localhost:5175
             APP_URL: http://localhost:8000
             DATABASE_URL: mysql://root:root@database/shopware
             MAILER_DSN: smtp://mailer:1025
@@ -22,6 +25,8 @@ services:
 
     database:
         image: mariadb:latest
+        ports:
+            - 3306:3306
         environment:
             MARIADB_ROOT_PASSWORD: root
             MARIADB_DATABASE: shopware
@@ -43,6 +48,7 @@ services:
         healthcheck:
             test: [ "CMD", "mariadb-admin" ,"ping", "-h", "localhost", "-proot" ]
             start_interval: 3s
+            start_period: 10s
             interval: 5s
             timeout: 1s
             retries: 10
@@ -66,7 +72,7 @@ services:
             - '8025:8025'
 
     opensearch:
-        image: opensearchproject/opensearch:latest
+        image: opensearchproject/opensearch:2
         environment:
             OPENSEARCH_INITIAL_ADMIN_PASSWORD: 'c3o_ZPHo!'
             discovery.type: single-node

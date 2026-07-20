@@ -12,8 +12,6 @@ use Shopware\Core\Migration\Traits\Translations;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1609140710AddCmsPdpLayout extends MigrationStep

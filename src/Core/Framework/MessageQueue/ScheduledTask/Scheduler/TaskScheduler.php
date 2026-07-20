@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler;
 
+use Psr\Clock\ClockInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -9,12 +11,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MinAg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\MinResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -24,15 +31,20 @@ use Symfony\Component\Messenger\MessageBusInterface;
  * @final
  */
 #[Package('framework')]
-class TaskScheduler
+readonly class TaskScheduler
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ScheduledTaskCollection> $scheduledTaskRepository
      */
     public function __construct(
-        private readonly EntityRepository $scheduledTaskRepository,
-        private readonly MessageBusInterface $bus,
-        private readonly ParameterBagInterface $parameterBag
+        private EntityRepository $scheduledTaskRepository,
+        private MessageBusInterface $bus,
+        private ParameterBagInterface $parameterBag,
+        private LoggerInterface $logger,
+        private int $requeueTimeout,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -46,17 +58,21 @@ class TaskScheduler
             return;
         }
 
-        // Tasks **must not** be queued before their state in the database has been updated. Otherwise,
-        // a worker could have already fetched the task and set its state to running before it gets set to
-        // queued, thus breaking the task.
-        /** @var ScheduledTaskEntity $task */
         foreach ($tasks as $task) {
             $this->queueTask($task, $context);
         }
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed as it is not used anywhere
+     */
     public function getNextExecutionTime(): ?\DateTimeInterface
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         $criteria = $this->buildCriteriaForNextScheduledTask();
         /** @var AggregationResult $aggregation */
         $aggregation = $this->scheduledTaskRepository
@@ -96,16 +112,43 @@ class TaskScheduler
     {
         $criteria = new Criteria();
         $criteria->addFilter(
-            new RangeFilter(
-                'nextExecutionTime',
+            new OrFilter(
                 [
-                    RangeFilter::LT => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    // all regular tasks that have reached their next execution time
+                    new AndFilter(
+                        [
+                            new RangeFilter(
+                                'nextExecutionTime',
+                                [
+                                    RangeFilter::LT => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                                ]
+                            ),
+                            new EqualsAnyFilter('status', [
+                                ScheduledTaskDefinition::STATUS_SCHEDULED,
+                                ScheduledTaskDefinition::STATUS_SKIPPED,
+                            ]),
+                        ]
+                    ),
+                    // requeue tasks that are stuck in "running" or "queued" state for more than 12 hours
+                    // we assume that either the message was lost or the worker crashed
+                    new AndFilter(
+                        [
+                            new RangeFilter(
+                                'updatedAt',
+                                [
+                                    RangeFilter::LT => $this->clock->now()
+                                        ->modify(\sprintf('-%d hours', $this->requeueTimeout))
+                                        ->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                                ]
+                            ),
+                            new EqualsAnyFilter('status', [
+                                ScheduledTaskDefinition::STATUS_QUEUED,
+                                ScheduledTaskDefinition::STATUS_RUNNING,
+                            ]),
+                        ]
+                    ),
                 ]
-            ),
-            new EqualsAnyFilter('status', [
-                ScheduledTaskDefinition::STATUS_SCHEDULED,
-                ScheduledTaskDefinition::STATUS_SKIPPED,
-            ])
+            )
         );
 
         return $criteria;
@@ -115,11 +158,17 @@ class TaskScheduler
     {
         $taskClass = $taskEntity->getScheduledTaskClass();
 
-        if (!\is_a($taskClass, ScheduledTask::class, true)) {
-            throw new \RuntimeException(\sprintf(
-                'Tried to schedule "%s", but class does not extend ScheduledTask',
+        if (!class_exists($taskClass)) {
+            $this->logger->warning(\sprintf(
+                'Scheduled task class "%s" does not exist, this might be due to version mismatch during deployments when a new scheduled task is already registered, but the worker still running on an older version where that task does not exist yet.',
                 $taskClass
             ));
+
+            return;
+        }
+
+        if (!\is_a($taskClass, ScheduledTask::class, true)) {
+            throw MessageQueueException::scheduledTaskDoesNotImplementInterface($taskClass);
         }
 
         if (!$taskClass::shouldRun($this->parameterBag)) {
@@ -134,6 +183,9 @@ class TaskScheduler
             return;
         }
 
+        // Tasks **must not** be queued before their state in the database has been updated. Otherwise,
+        // a worker could have already fetched the task and set its state to running before it gets set to
+        // queued, thus breaking the task.
         $this->scheduledTaskRepository->update([
             [
                 'id' => $taskEntity->getId(),
@@ -177,7 +229,7 @@ class TaskScheduler
 
     private function calculateNextExecutionTime(ScheduledTaskEntity $taskEntity): \DateTimeImmutable
     {
-        $now = new \DateTimeImmutable();
+        $now = $this->clock->now();
 
         $nextExecutionTimeString = $taskEntity->getNextExecutionTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $nextExecutionTime = new \DateTimeImmutable($nextExecutionTimeString);

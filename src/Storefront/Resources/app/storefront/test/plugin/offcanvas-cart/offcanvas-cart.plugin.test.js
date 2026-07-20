@@ -1,3 +1,4 @@
+import DeviceDetection from 'src/helper/device-detection.helper';
 import OffCanvasCartPlugin from 'src/plugin/offcanvas-cart/offcanvas-cart.plugin';
 
 /**
@@ -34,6 +35,7 @@ describe('OffCanvasCartPlugin tests', () => {
     let plugin;
 
     beforeEach(() => {
+        jest.spyOn(DeviceDetection, 'isTouchDevice').mockReturnValue(false);
 
         global.fetch = jest.fn((url, init) => {
             // Of we see a request body, we have a POST request.
@@ -54,12 +56,15 @@ describe('OffCanvasCartPlugin tests', () => {
         window.focusHandler = {
             saveFocusState: jest.fn(),
             resumeFocusState: jest.fn(),
+            // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
+            _addFocusTrapGuard: jest.fn(),
+            _removeFocusTrapGuard: jest.fn(),
         };
 
         document.body.innerHTML = '<div class="header-cart"><a class="header-cart-btn">€ 0,00</a></div>';
 
         window.PluginManager = {
-            initializePlugins: jest.fn(),
+            initializePluginsInParentElement: jest.fn(),
 
             getPluginInstancesFromElement: () => {
                 return new Map();
@@ -83,7 +88,7 @@ describe('OffCanvasCartPlugin tests', () => {
         plugin = new OffCanvasCartPlugin(el);
         plugin.$emitter.publish = jest.fn();
 
-        jest.useFakeTimers({ legacyFakeTimers: true });
+        jest.useFakeTimers({ doNotFake: ['nextTick'] });
     });
 
     afterEach(() => {
@@ -102,7 +107,7 @@ describe('OffCanvasCartPlugin tests', () => {
         el.dispatchEvent(new Event('click', { bubbles: true }));
         await new Promise(process.nextTick);
 
-        expect(plugin.$emitter.publish).toBeCalledWith('offCanvasOpened', { response: expect.any(String) });
+        expect(plugin.$emitter.publish).toHaveBeenCalledWith('offCanvasOpened', { response: expect.any(String) });
         expect(document.querySelector('.offcanvas.cart-offcanvas')).toBeTruthy();
         expect(document.querySelector('.cart-item-product')).toBeTruthy();
     });
@@ -120,7 +125,7 @@ describe('OffCanvasCartPlugin tests', () => {
         quantitySelect.dispatchEvent(new Event('change', { bubbles: true }));
         await new Promise(process.nextTick);
 
-        expect(plugin.$emitter.publish).toBeCalledWith('beforeFireRequest');
+        expect(plugin.$emitter.publish).toHaveBeenCalledWith('beforeFireRequest');
         expect(fireRequestSpy).toHaveBeenCalledTimes(1);
 
         // Verify updated content after quantity change
@@ -146,7 +151,7 @@ describe('OffCanvasCartPlugin tests', () => {
         await jest.advanceTimersByTime(800);
         await new Promise(process.nextTick);
 
-        expect(plugin.$emitter.publish).toBeCalledWith('beforeFireRequest');
+        expect(plugin.$emitter.publish).toHaveBeenCalledWith('beforeFireRequest');
         expect(fireRequestSpy).toHaveBeenCalledTimes(1);
 
         // Verify updated content after quantity change
@@ -181,7 +186,7 @@ describe('OffCanvasCartPlugin tests', () => {
         jest.advanceTimersByTime(800);
         await new Promise(process.nextTick);
 
-        expect(plugin.$emitter.publish).toBeCalledWith('beforeFireRequest');
+        expect(plugin.$emitter.publish).toHaveBeenCalledWith('beforeFireRequest');
 
         // Only 2 requests should be fired because the throttling should prevent the first spam inputs
         expect(fireRequestSpy).toHaveBeenCalledTimes(2);

@@ -8,10 +8,11 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
-use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -35,7 +36,6 @@ class CheckoutConfirmPageLoader
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly StorefrontCartFacade $cartService,
-        private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute,
         private readonly GenericPageLoaderInterface $genericPageLoader,
         private readonly DataValidationFactoryInterface $addressValidationFactory,
         private readonly DataValidator $validator,
@@ -53,9 +53,9 @@ class CheckoutConfirmPageLoader
         $page = CheckoutConfirmPage::createFrom($page);
         $this->setMetaInformation($page);
 
-        $cart = $this->cartService->get($context->getToken(), $context, false, true);
-
-        $response = $this->checkoutGatewayRoute->load($request, $cart, $context);
+        $cartGatewayResult = $this->cartService->getWithCheckoutGateway($request, $context->getToken(), $context, false, true);
+        $cart = $cartGatewayResult->cart;
+        $response = $cartGatewayResult->gatewayResponse;
 
         $page->setPaymentMethods($response->getPaymentMethods());
         $page->setShippingMethods($response->getShippingMethods());
@@ -63,8 +63,18 @@ class CheckoutConfirmPageLoader
         $this->validateCustomerAddresses($cart, $context);
         $page->setCart($cart);
 
-        $page->setShowRevocation($cart->getLineItems()->hasLineItemWithState(State::IS_DOWNLOAD));
-        $page->setHideShippingAddress(!$cart->getLineItems()->hasLineItemWithState(State::IS_PHYSICAL));
+        $isDownloadLineItem = $cart->getLineItems()->hasLineItemWithProductType(ProductDefinition::TYPE_DIGITAL);
+        $isPhysicalLineItem = $cart->getLineItems()->hasLineItemWithProductType(ProductDefinition::TYPE_PHYSICAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            Feature::callSilentIfInactive('v6.8.0.0', static function () use ($cart, &$isDownloadLineItem, &$isPhysicalLineItem): void {
+                $isDownloadLineItem = $isDownloadLineItem || $cart->getLineItems()->hasLineItemWithState(State::IS_DOWNLOAD);
+                $isPhysicalLineItem = $isPhysicalLineItem || $cart->getLineItems()->hasLineItemWithState(State::IS_PHYSICAL);
+            });
+        }
+
+        $page->setShowRevocation($isDownloadLineItem);
+        $page->setHideShippingAddress(!$isPhysicalLineItem);
 
         $this->eventDispatcher->dispatch(
             new CheckoutConfirmPageLoadedEvent($page, $context, $request)
@@ -105,7 +115,7 @@ class CheckoutConfirmPageLoader
     ): void {
         $validation = $this->addressValidationFactory->create($context);
         if ($billingAddress) {
-            $validation->set('zipcode', new CustomerZipCode(['countryId' => $billingAddress->getCountryId()]));
+            $validation->set('zipcode', new CustomerZipCode(countryId: $billingAddress->getCountryId()));
         }
 
         $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
@@ -118,7 +128,7 @@ class CheckoutConfirmPageLoader
         $violations = $this->validator->getViolations($billingAddress->jsonSerialize(), $validation);
 
         if ($violations->count() > 0) {
-            $cart->getErrors()->add(new AddressValidationError(true, $violations));
+            $cart->getErrors()->add(new AddressValidationError(true, $violations, $billingAddress->getId()));
         }
     }
 
@@ -130,7 +140,7 @@ class CheckoutConfirmPageLoader
     ): void {
         $validation = $this->addressValidationFactory->create($context);
         if ($shippingAddress) {
-            $validation->set('zipcode', new CustomerZipCode(['countryId' => $shippingAddress->getCountryId()]));
+            $validation->set('zipcode', new CustomerZipCode(countryId: $shippingAddress->getCountryId()));
         }
 
         $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
@@ -146,7 +156,7 @@ class CheckoutConfirmPageLoader
 
         $violations = $this->validator->getViolations($shippingAddress->jsonSerialize(), $validation);
         if ($violations->count() > 0) {
-            $cart->getErrors()->add(new AddressValidationError(false, $violations));
+            $cart->getErrors()->add(new AddressValidationError(false, $violations, $shippingAddress->getId()));
         }
     }
 }

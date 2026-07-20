@@ -2,17 +2,14 @@
 
 namespace Shopware\Tests\Integration\Elasticsearch\Product;
 
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\AfterClass;
 use PHPUnit\Framework\Attributes\BeforeClass;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
-use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -25,13 +22,12 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Elasticsearch\Event\ElasticsearchCustomFieldsMappingEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
-use Shopware\Elasticsearch\Product\ProductSearchQueryBuilder;
+use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -39,7 +35,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(ProductSearchQueryBuilder::class)]
 class ProductSearchQueryBuilderTest extends TestCase
 {
     use CacheTestBehaviour;
@@ -59,11 +54,22 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     private CustomFieldService $customFieldService;
 
+    /**
+     * Built once for the whole class by the first run of setUp(). The first-test-indexes pattern was
+     * replaced by guarded setUp because a data-provided test (testSearch) can no longer also receive
+     * the ids via #[Depends] - see NoDependsWithDataProviderRule.
+     */
+    private static IdsCollection $indexedIds;
+
     protected function setUp(): void
     {
         $this->productRepository = static::getContainer()->get('product.repository');
         $this->connection = static::getContainer()->get(Connection::class);
         $this->customFieldService = static::getContainer()->get(CustomFieldService::class);
+
+        if (!isset(self::$indexedIds)) {
+            self::$indexedIds = $this->buildIndex();
+        }
     }
 
     protected function tearDown(): void
@@ -91,25 +97,10 @@ class ProductSearchQueryBuilderTest extends TestCase
         $connection->rollBack();
     }
 
-    public function testIndexing(): IdsCollection
+    public function testAndSearch(): void
     {
-        $this->connection->executeStatement('DELETE FROM product');
+        $ids = self::$indexedIds;
 
-        $this->clearElasticsearch();
-        $this->registerCustomFieldsMapping();
-        $this->indexElasticSearch();
-
-        $ids = new IdsCollection();
-        $this->createData($ids);
-
-        $this->refreshIndex();
-
-        return $ids;
-    }
-
-    #[Depends('testIndexing')]
-    public function testAndSearch(IdsCollection $ids): void
-    {
         $this->setSearchConfiguration(true, ['name']);
         $this->setSearchScores([]);
 
@@ -119,8 +110,6 @@ class ProductSearchQueryBuilderTest extends TestCase
         $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
 
         $result = $this->productRepository->searchIds($criteria, Context::createDefaultContext());
-
-        /** @var string[] $resultIds */
         $resultIds = $result->getIds();
 
         static::assertCount(3, $resultIds, 'But got ' . $ids->getKeys($resultIds));
@@ -135,9 +124,10 @@ class ProductSearchQueryBuilderTest extends TestCase
         );
     }
 
-    #[Depends('testIndexing')]
-    public function testOrSearch(IdsCollection $ids): void
+    public function testOrSearch(): void
     {
+        $ids = self::$indexedIds;
+
         $this->setSearchConfiguration(false, ['name']);
         $this->setSearchScores([]);
 
@@ -148,7 +138,6 @@ class ProductSearchQueryBuilderTest extends TestCase
 
         $result = $this->productRepository->searchIds($criteria, Context::createDefaultContext());
 
-        /** @var string[] $resultIds */
         $resultIds = $result->getIds();
 
         static::assertCount(4, $resultIds, 'But got ' . $ids->getKeys($resultIds));
@@ -165,13 +154,14 @@ class ProductSearchQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param array<string> $config
-     * @param array<string> $expectedProducts
+     * @param list<string> $config
+     * @param list<string> $expectedProducts
      */
-    #[Depends('testIndexing')]
     #[DataProvider('providerSearchCases')]
-    public function testSearch(array $config, string $term, array $expectedProducts, IdsCollection $ids): void
+    public function testSearch(array $config, string $term, array $expectedProducts): void
     {
+        $ids = self::$indexedIds;
+
         $this->registerCustomFieldsMapping();
         $this->setSearchConfiguration(false, $config);
         $this->setSearchScores([]);
@@ -184,7 +174,6 @@ class ProductSearchQueryBuilderTest extends TestCase
 
         $result = $this->productRepository->searchIds($criteria, Context::createDefaultContext());
 
-        /** @var array<string> $resultIds */
         $resultIds = $result->getIds();
 
         static::assertCount(\count($expectedProducts), $resultIds, \sprintf('Product count mismatch, Got "%s"', $ids->getKeys($resultIds)));
@@ -193,14 +182,15 @@ class ProductSearchQueryBuilderTest extends TestCase
             static::assertSame(
                 $ids->get($expectedProduct),
                 $resultIds[$key],
-                \sprintf('Expected product %s at position %d to be there, but got %s', $expectedProduct, $key, $ids->getKey($resultIds[$key]))
+                \sprintf('Expected product %s at position %d to be there, but got "%s"', $expectedProduct, $key, (string) $ids->getKey($resultIds[$key]))
             );
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testSearchWithStopWord(IdsCollection $ids): void
+    public function testSearchWithStopWord(): void
     {
+        $ids = self::$indexedIds;
+
         $this->setSearchConfiguration(false, ['name', 'description']);
         $this->setSearchScores([]);
 
@@ -211,15 +201,15 @@ class ProductSearchQueryBuilderTest extends TestCase
 
         $result = $this->productRepository->searchIds($criteria, Context::createDefaultContext());
 
-        /** @var array<string> $resultIds */
         $resultIds = $result->getIds();
 
         static::assertCount(0, $resultIds, 'Product count mismatch, Got ' . $ids->getKeys($resultIds));
     }
 
-    #[Depends('testIndexing')]
-    public function testScoring(IdsCollection $ids): void
+    public function testScoring(): void
     {
+        $ids = self::$indexedIds;
+
         $this->setSearchConfiguration(false, ['name', 'description', 'customSearchKeywords']);
         $this->setSearchScores(['name' => 0, 'description' => 0, 'customSearchKeywords' => 50]);
 
@@ -242,9 +232,9 @@ class ProductSearchQueryBuilderTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{array<string>, string, array<string>}>
+     * @return \Generator<string, array{list<string>, string, list<string>}>
      */
-    public static function providerSearchCases(): iterable
+    public static function providerSearchCases(): \Generator
     {
         yield 'search inside description' => [
             ['name', 'description'],
@@ -290,8 +280,26 @@ class ProductSearchQueryBuilderTest extends TestCase
 
         yield 'search for productNumber' => [
             ['name', 'description', 'customSearchKeywords', 'productNumber'],
-            'SW568',
+            'SW5686779889',
             ['SW5686779889'],
+        ];
+
+        yield 'search joined technical terms in name' => [
+            ['name'],
+            'Channel Line',
+            ['product-13'],
+        ];
+
+        yield 'search technical terms in customSearchKeywords' => [
+            ['customSearchKeywords'],
+            'Channel Line',
+            ['product-14'],
+        ];
+
+        yield 'search productNumber without punctuation' => [
+            ['productNumber'],
+            'Gr49',
+            ['product-12'],
         ];
 
         yield 'search for custom field json' => [
@@ -312,68 +320,20 @@ class ProductSearchQueryBuilderTest extends TestCase
         return static::getContainer();
     }
 
-    /**
-     * @param array<string> $enabledFields
-     */
-    private function setSearchConfiguration(bool $andLogic = true, array $enabledFields = ['name']): void
+    private function buildIndex(): IdsCollection
     {
-        $con = $this->connection;
+        $this->connection->executeStatement('DELETE FROM product');
 
-        // Toggle and logic
-        $con->executeStatement('UPDATE product_search_config SET and_logic = ? WHERE language_id = ?', [(int) $andLogic, Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]);
+        static::getContainer()->get(AbstractKeyValueStorage::class)->set(ElasticsearchOptimizeSwitch::FLAG, true);
 
-        $configId = $con->fetchOne('SELECT id FROM product_search_config WHERE language_id = ?', [Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]);
+        $this->clearElasticsearch();
+        $this->registerCustomFieldsMapping();
+        $this->indexElasticSearch();
 
-        $con->executeStatement('DELETE FROM product_search_config_field WHERE product_search_config_id = ? AND field LIKE "customFields%"', [$configId]);
+        $ids = new IdsCollection();
+        $this->createData($ids);
 
-        $con->executeStatement('UPDATE product_search_config_field SET searchable = 0 WHERE product_search_config_id = ?', [$configId]);
-
-        $con->executeStatement(
-            'UPDATE product_search_config_field SET searchable = 1 WHERE product_search_config_id = :configId and field in (:fields)',
-            [
-                'configId' => $configId,
-                'fields' => $enabledFields,
-            ],
-            [
-                'fields' => ArrayParameterType::STRING,
-            ]
-        );
-
-        foreach ($enabledFields as $enabledField) {
-            if (str_contains($enabledField, 'customFields')) {
-                $con->insert(
-                    'product_search_config_field',
-                    [
-                        'id' => Uuid::randomBytes(),
-                        'product_search_config_id' => $configId,
-                        'field' => $enabledField,
-                        'searchable' => 1,
-                        'tokenize' => 0,
-                        'ranking' => 0,
-                        'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                    ]
-                );
-            }
-        }
-    }
-
-    /**
-     * @param array<string, int> $fields
-     */
-    private function setSearchScores(array $fields): void
-    {
-        // Reset all scores
-        $this->connection->executeStatement(
-            'UPDATE product_search_config_field SET ranking = 0 WHERE product_search_config_id = (SELECT id FROM product_search_config WHERE language_id = ?)',
-            [Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
-        );
-
-        foreach ($fields as $field => $value) {
-            $this->connection->executeStatement(
-                'UPDATE product_search_config_field SET ranking = ? WHERE product_search_config_id = (SELECT id FROM product_search_config WHERE language_id = ?) and field = ?',
-                [$value, Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM), $field]
-            );
-        }
+        return $ids;
     }
 
     private function createData(IdsCollection $ids): void
@@ -384,26 +344,31 @@ class ProductSearchQueryBuilderTest extends TestCase
                 ->tax('t1')
                 ->price(50, 50)
                 ->category('Shoes')
+                ->visibility()
                 ->build(),
             (new ProductBuilder($ids, 'product-2'))
                 ->name('Aerodynamic Leather Portaline')
                 ->price(50, 50)
+                ->visibility()
                 ->build(),
             (new ProductBuilder($ids, 'product-3'))
                 ->name('Aerodynamic Leather Wordlobster')
                 ->price(50, 50)
                 ->add('customSearchKeywords', ['Activity'])
+                ->visibility()
                 ->build(),
             (new ProductBuilder($ids, 'product-4'))
                 ->name('Leather Red')
                 ->add('description', 'Aerodynamic Fooo')
                 ->manufacturer('Shopware')
                 ->price(50, 50)
+                ->visibility()
                 ->build(),
             (new ProductBuilder($ids, 'product-5'))
                 ->name('Cycle Suave')
                 ->price(50, 50)
                 ->tag('Smarthome')
+                ->visibility()
                 ->build(),
             (new ProductBuilder($ids, 'product-6'))
                 ->name('T-Shirt')
@@ -413,36 +378,60 @@ class ProductSearchQueryBuilderTest extends TestCase
                         ->option('green', 'color')
                         ->build()
                 )
+                ->visibility()
                 ->build(),
             (new ProductBuilder($ids, 'product-7'))
                 ->name('Keyboard')
                 ->price(50, 50)
                 ->property('Wireless', 'Connectivity')
+                ->visibility()
                 ->build(),
             (new ProductBuilder($ids, 'SW5686779889'))
                 ->name('SW Product')
                 ->price(50, 50)
+                ->visibility()
                 ->build(),
             (new ProductBuilder($ids, 'product-8'))
                 ->name('Super cool Pikachu Pokemon')
                 ->add('description', 'A cool pokemon is traveling around the world')
                 ->price(50, 50)
+                ->visibility()
                 ->build(),
             (new ProductBuilder($ids, 'product-9'))
                 ->name('Super Pokemon')
                 ->add('description', 'A cool raichu is traveling around the world')
                 ->add('customSearchKeywords', ['Raichu'])
                 ->price(50, 50)
+                ->visibility()
+                ->build(),
+            (new ProductBuilder($ids, 'product-12'))
+                ->name('Technical product')
+                ->number('Gr.49')
+                ->price(50, 50)
+                ->visibility()
+                ->build(),
+            (new ProductBuilder($ids, 'product-13'))
+                ->name('ChannelLine Connector')
+                ->price(50, 50)
+                ->visibility()
+                ->build(),
+            (new ProductBuilder($ids, 'product-14'))
+                ->name('Technical keyword accessory')
+                ->add('customSearchKeywords', ['ChannelLine'])
+                ->price(50, 50)
+                ->visibility()
                 ->build(),
             (new ProductBuilder($ids, 'product-10'))
                 ->name('Eevee')
                 ->customField('evolvesTo', ['Vaporeon', 'Jolteon', 'Flareon'])
                 ->price(50, 50)
+                ->visibility()
                 ->build(),
             (new ProductBuilder($ids, 'product-11'))
                 ->name('EeveeCfText')
                 ->customField('evolvesText', 'Jolteon')
                 ->price(50, 50)
+                ->visibility()
                 ->build(),
         ];
 
@@ -453,21 +442,18 @@ class ProductSearchQueryBuilderTest extends TestCase
     {
         $eventDispatcher = static::getContainer()->get('event_dispatcher');
 
-        $this->addEventListener($eventDispatcher, ElasticsearchCustomFieldsMappingEvent::class, function (ElasticsearchCustomFieldsMappingEvent $event): void {
+        $this->addEventListener($eventDispatcher, ElasticsearchCustomFieldsMappingEvent::class, static function (ElasticsearchCustomFieldsMappingEvent $event): void {
             $event->setMapping('evolvesTo', CustomFieldTypes::SELECT);
             $event->setMapping('evolvesText', CustomFieldTypes::TEXT);
         });
 
         $definition = static::getContainer()->get(ElasticsearchIndexingUtils::class);
+
         $class = new \ReflectionClass($definition);
-        $reflectionProperty = $class->getProperty('customFieldsTypes');
-        $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($definition, []);
+        $class->getProperty('customFieldsTypes')->setValue($definition, []);
 
         $service = new \ReflectionClass($this->customFieldService);
-        $reflectionProperty = $service->getProperty('customFields');
-        $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($this->customFieldService, [
+        $service->getProperty('customFields')->setValue($this->customFieldService, [
             'evolvesTo' => CustomFieldTypes::SELECT,
             'evolvesText' => CustomFieldTypes::TEXT,
         ]);

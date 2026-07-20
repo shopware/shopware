@@ -21,6 +21,7 @@ async function createWrapper() {
                     'sw-extension-permissions-modal': true,
                     'sw-extension-privacy-policy-extensions-modal': true,
                     'sw-tabs': true,
+                    'sw-time-ago': true,
                 },
                 provide: {
                     repositoryFactory: {

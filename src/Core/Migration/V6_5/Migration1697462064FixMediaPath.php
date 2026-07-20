@@ -19,8 +19,8 @@ class Migration1697462064FixMediaPath extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('UPDATE media SET path = NULL WHERE file_name IS NULL OR file_name = \'\'');
-        $connection->executeQuery('UPDATE media_thumbnail, media SET media_thumbnail.path = NULL WHERE (media.file_name IS NULL OR file_name = \'\') AND media.id = media_thumbnail.media_id');
+        $connection->executeStatement('UPDATE media SET path = NULL WHERE file_name IS NULL OR file_name = \'\'');
+        $connection->executeStatement('UPDATE media_thumbnail, media SET media_thumbnail.path = NULL WHERE (media.file_name IS NULL OR file_name = \'\') AND media.id = media_thumbnail.media_id');
 
         $this->registerIndexer($connection, 'media.path.post_update');
     }

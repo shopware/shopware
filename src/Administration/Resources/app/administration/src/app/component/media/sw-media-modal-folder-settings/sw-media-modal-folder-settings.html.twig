@@ -23,7 +23,7 @@
                 :has-error="!!mediaFolderNameError"
                 :native="true"
             >
-                {{ $tc('global.sw-media-modal-folder-settings.labelSettings') }}
+                {{ $t('global.sw-media-modal-folder-settings.labelSettings') }}
             </sw-tabs-item>
             {% endblock %}
 
@@ -34,7 +34,7 @@
                 :active-tab="active"
                 :native="true"
             >
-                {{ $tc('global.sw-media-modal-folder-settings.labelThumbnails') }}
+                {{ $t('global.sw-media-modal-folder-settings.labelThumbnails') }}
             </sw-tabs-item>
             {% endblock %}
         </template>
@@ -54,7 +54,7 @@
                     v-model="mediaFolder.name"
                     :disabled="disabled"
                     :error="mediaFolderNameError"
-                    :label="$tc('global.sw-media-modal-folder-settings.labelFolderName')"
+                    :label="$t('global.sw-media-modal-folder-settings.labelFolderName')"
                 />
                 {% endblock %}
 
@@ -63,9 +63,9 @@
                     id="defaultFolder"
                     :disabled="disabled"
                     entity="media_default_folder"
-                    :placeholder="$tc('global.sw-media-modal-folder-settings.placeholderDefaultFolder')"
+                    :placeholder="$t('global.sw-media-modal-folder-settings.placeholderDefaultFolder')"
                     :value="mediaFolder.defaultFolderId ? mediaFolder.defaultFolderId : ''"
-                    :label="$tc('global.sw-media-modal-folder-settings.labelDefaultFolder')"
+                    :label="$t('global.sw-media-modal-folder-settings.labelDefaultFolder')"
                     show-clearable-button
                     @update:value="onInputDefaultFolder"
                 >
@@ -108,7 +108,7 @@
                     {% block sw_media_modal_folder_settings_inherit_settings_field %}
                     <mt-switch
                         v-model="mediaFolder.useParentConfiguration"
-                        :label="$tc('global.sw-media-modal-folder-settings.labelInheritSettings')"
+                        :label="$t('global.sw-media-modal-folder-settings.labelInheritSettings')"
                         :disabled="mediaFolder.parentId === null"
                         @update:model-value="onChangeInheritance"
                     />
@@ -117,7 +117,7 @@
                     {% block sw_media_modal_folder_settings_generate_thumbnails_field %}
                     <mt-switch
                         v-model="configuration.createThumbnails"
-                        :label="$tc('global.sw-media-modal-folder-settings.labelGenerateThumbnails')"
+                        :label="$t('global.sw-media-modal-folder-settings.labelGenerateThumbnails')"
                         :disabled="mediaFolder.useParentConfiguration || disabled"
                     />
                     {% endblock %}
@@ -126,7 +126,7 @@
 
                     <mt-switch
                         v-model="configuration.keepAspectRatio"
-                        :label="$tc('global.sw-media-modal-folder-settings.labelKeepProportions')"
+                        :label="$t('global.sw-media-modal-folder-settings.labelKeepProportions')"
                         :disabled="notEditable"
                     />
                     {% endblock %}
@@ -135,7 +135,7 @@
                     <mt-number-field
                         v-model="configuration.thumbnailQuality"
                         number-type="int"
-                        :label="$tc('global.sw-media-modal-folder-settings.labelThumbnailQuality')"
+                        :label="$t('global.sw-media-modal-folder-settings.labelThumbnailQuality')"
                         :min="0"
                         :max="100"
                         :step="1"
@@ -151,7 +151,7 @@
                     {% block sw_media_modal_folder_settings_thumbnail_list_caption %}
                     <div class="sw-media-modal-folder-settings__thumbnails-list-caption">
                         <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
-                        <label>{{ $tc('global.sw-media-modal-folder-settings.labelThumbnailSize') }}</label>
+                        <label>{{ $t('global.sw-media-modal-folder-settings.labelThumbnailSize') }}</label>
                     </div>
                     {% endblock %}
 
@@ -189,13 +189,13 @@
                                 {% block sw_media_modal_folder_settings_thumbnail_size_delete_button %}
                                 <button
                                     v-tooltip="{
-                                        message: $tc('global.sw-media-modal-folder-settings.tooltipCanNotDeleteThumbnailSize'),
+                                        message: $t('global.sw-media-modal-folder-settings.tooltipCanNotDeleteThumbnailSize'),
                                         disabled: size.deletable,
                                         showOnDisabledElements: true
                                     }"
                                     class="sw-media-modal-folder-settings__delete-thumbnail"
-                                    :title="$tc('global.default.delete')"
-                                    :aria-label="$tc('global.default.delete')"
+                                    :title="$t('global.default.delete')"
+                                    :aria-label="$t('global.default.delete')"
                                     :disabled="!size.deletable"
                                     @click="deleteThumbnail(size)"
                                 >
@@ -228,14 +228,14 @@
             variant="secondary"
             @click="onClickCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
         {% block sw_media_modal_folder_settings_confirm_button %}
         <mt-button
             v-tooltip="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: !disabled,
                 showOnDisabledElements: true
             }"
@@ -245,7 +245,7 @@
             variant="primary"
             @click="onClickSave"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </mt-button>
         {% endblock %}
 

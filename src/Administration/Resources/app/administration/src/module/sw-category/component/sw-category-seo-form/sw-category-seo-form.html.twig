@@ -6,9 +6,9 @@
         v-model="category.metaTitle"
         maxlength="255"
         :disabled="!acl.can('category.editor')"
-        :label="$tc('sw-category.base.seo.labelMetaTitle')"
-        :help-text="$tc('sw-landing-page.base.seo.helpTextMetaTitle')"
-        :placeholder="$tc('sw-category.base.seo.placeholderMetaTitle')"
+        :label="$t('sw-category.base.seo.labelMetaTitle')"
+        :help-text="$t('sw-landing-page.base.seo.helpTextMetaTitle')"
+        :placeholder="$t('sw-category.base.seo.placeholderMetaTitle')"
     />
     {% endblock %}
 
@@ -17,9 +17,9 @@
         v-model="category.metaDescription"
         maxlength="255"
         :disabled="!acl.can('category.editor')"
-        :label="$tc('sw-category.base.seo.labelMetaDescription')"
-        :help-text="$tc('sw-landing-page.base.seo.helpTextMetaDescription')"
-        :placeholder="$tc('sw-category.base.seo.placeholderMetaDescription')"
+        :label="$t('sw-category.base.seo.labelMetaDescription')"
+        :help-text="$t('sw-landing-page.base.seo.helpTextMetaDescription')"
+        :placeholder="$t('sw-category.base.seo.placeholderMetaDescription')"
     />
     {% endblock %}
 
@@ -28,8 +28,8 @@
     <mt-text-field
         v-model="category.keywords"
         :disabled="!acl.can('category.editor')"
-        :label="$tc('sw-category.base.seo.labelKeywords')"
-        :placeholder="$tc('sw-category.base.seo.placeholderKeywords')"
+        :label="$t('sw-category.base.seo.labelKeywords')"
+        :placeholder="$t('sw-category.base.seo.placeholderKeywords')"
     />
     {% endblock %}
 </div>

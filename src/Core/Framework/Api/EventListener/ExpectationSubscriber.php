@@ -65,7 +65,7 @@ class ExpectationSubscriber implements EventSubscriberInterface
 
         $expectations = $this->checkPackages($request);
 
-        if (\count($expectations)) {
+        if ($expectations !== []) {
             throw ApiException::expectationFailed($expectations);
         }
     }

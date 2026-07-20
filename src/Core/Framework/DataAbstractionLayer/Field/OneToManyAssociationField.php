@@ -9,16 +9,13 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class OneToManyAssociationField extends AssociationField
 {
-    protected string $localField;
-
     public function __construct(
         string $propertyName,
         string $referenceClass,
         string $referenceField,
-        string $localField = 'id'
+        protected string $localField = 'id',
     ) {
         parent::__construct($propertyName);
-        $this->localField = $localField;
         $this->referenceField = $referenceField;
         $this->referenceClass = $referenceClass;
     }

@@ -52,7 +52,7 @@ export default {
             const key = `${type}FieldLabel`;
 
             if (!this.filter.hasOwnProperty(key)) {
-                return this.$tc(`global.default.${type}`);
+                return this.$t(`global.default.${type}`);
             }
 
             const label = this.filter[key];
@@ -65,7 +65,7 @@ export default {
         },
 
         updateFilter(params) {
-            if (!this.numberValue.from && !this.numberValue.to) {
+            if (this.numberValue.from == null && this.numberValue.to == null) {
                 this.$emit('filter-reset', this.filter.name);
                 return;
             }

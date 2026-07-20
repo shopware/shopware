@@ -5,9 +5,19 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\Parser;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
+use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -23,6 +33,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Shopware\Core\System\Tag\TagDefinition;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -59,7 +74,7 @@ class QueryStringParserTest extends TestCase
     public function testParser(array $payload, Filter $expected): void
     {
         $result = QueryStringParser::fromArray(
-            new ProductDefinition(),
+            $this->getDefinition(),
             $payload,
             new SearchRequestException()
         );
@@ -93,6 +108,36 @@ class QueryStringParserTest extends TestCase
             ['type' => 'nand', 'queries' => [['type' => 'equals', 'field' => 'name', 'value' => 'foo']]],
             new NandFilter([new EqualsFilter('product.name', 'foo')]),
         ];
+
+        yield 'Test filter on association id field' => [
+            ['type' => 'and', 'queries' => [['type' => 'equals', 'field' => 'manufacturer.id', 'value' => 'foo']]],
+            new AndFilter([new EqualsFilter('product.manufacturerId', 'foo')]),
+        ];
+
+        yield 'Test filter on association non-id field' => [
+            ['type' => 'and', 'queries' => [['type' => 'equals', 'field' => 'manufacturer.name', 'value' => 'foo']]],
+            new AndFilter([new EqualsFilter('product.manufacturer.name', 'foo')]),
+        ];
+
+        yield 'Test filter on nested id field' => [
+            ['type' => 'and', 'queries' => [['type' => 'equals', 'field' => 'visibilities.salesChannel.id', 'value' => 'foo']]],
+            new AndFilter([new EqualsFilter('product.visibilities.salesChannelId', 'foo')]),
+        ];
+
+        yield 'Test filter on nested non-id field' => [
+            ['type' => 'and', 'queries' => [['type' => 'equals', 'field' => 'visibilities.salesChannel.name', 'value' => 'foo']]],
+            new AndFilter([new EqualsFilter('product.visibilities.salesChannel.name', 'foo')]),
+        ];
+
+        yield 'Test filter on invalid nested field' => [
+            ['type' => 'and', 'queries' => [['type' => 'equals', 'field' => 'visibilities.foo.id', 'value' => 'foo']]],
+            new AndFilter([new EqualsFilter('product.visibilities.foo.id', 'foo')]),
+        ];
+
+        yield 'Test filter on nested field with root' => [
+            ['type' => 'and', 'queries' => [['type' => 'equals', 'field' => 'product.visibilities.salesChannel.id', 'value' => 'foo']]],
+            new AndFilter([new EqualsFilter('product.visibilities.salesChannelId', 'foo')]),
+        ];
     }
 
     /**
@@ -120,7 +165,9 @@ class QueryStringParserTest extends TestCase
         yield [['type' => 'equals', 'field' => 'foo', 'value' => 'bar'], false];
         yield [['type' => 'equals', 'field' => 'foo', 'value' => ''], false];
         yield [['type' => 'equals', 'field' => '', 'value' => 'bar'], true];
+        /** @phpstan-ignore argument.type (Intentional missing "value") */
         yield [['type' => 'equals', 'field' => 'foo'], true];
+        /** @phpstan-ignore argument.type (Intentional missing "field") */
         yield [['type' => 'equals', 'value' => 'bar'], true];
         yield [['type' => 'equals', 'field' => 'foo', 'value' => true], false];
         yield [['type' => 'equals', 'field' => 'foo', 'value' => false], false];
@@ -157,7 +204,9 @@ class QueryStringParserTest extends TestCase
         yield [['type' => 'contains', 'field' => 'foo', 'value' => 'bar'], false];
         yield [['type' => 'contains', 'field' => 'foo', 'value' => ''], true];
         yield [['type' => 'contains', 'field' => '', 'value' => 'bar'], true];
+        /** @phpstan-ignore argument.type (Intentional missing "value") */
         yield [['type' => 'contains', 'field' => 'foo'], true];
+        /** @phpstan-ignore argument.type (Intentional missing "field") */
         yield [['type' => 'contains', 'value' => 'bar'], true];
         yield [['type' => 'contains', 'field' => 'foo', 'value' => true], false];
         yield [['type' => 'contains', 'field' => 'foo', 'value' => false], false];
@@ -190,7 +239,9 @@ class QueryStringParserTest extends TestCase
         yield [['type' => 'prefix', 'field' => 'foo', 'value' => 'bar'], false];
         yield [['type' => 'prefix', 'field' => 'foo', 'value' => ''], true];
         yield [['type' => 'prefix', 'field' => '', 'value' => 'bar'], true];
+        /** @phpstan-ignore argument.type (Intentional missing "value") */
         yield [['type' => 'prefix', 'field' => 'foo'], true];
+        /** @phpstan-ignore argument.type (Intentional missing "field") */
         yield [['type' => 'prefix', 'value' => 'bar'], true];
         yield [['type' => 'prefix', 'field' => 'foo', 'value' => true], false];
         yield [['type' => 'prefix', 'field' => 'foo', 'value' => false], false];
@@ -223,7 +274,9 @@ class QueryStringParserTest extends TestCase
         yield [['type' => 'suffix', 'field' => 'foo', 'value' => 'bar'], false];
         yield [['type' => 'suffix', 'field' => 'foo', 'value' => ''], true];
         yield [['type' => 'suffix', 'field' => '', 'value' => 'bar'], true];
+        /** @phpstan-ignore argument.type (Intentional missing "value") */
         yield [['type' => 'suffix', 'field' => 'foo'], true];
+        /** @phpstan-ignore argument.type (Intentional missing "field") */
         yield [['type' => 'suffix', 'value' => 'bar'], true];
         yield [['type' => 'suffix', 'field' => 'foo', 'value' => true], false];
         yield [['type' => 'suffix', 'field' => 'foo', 'value' => false], false];
@@ -268,7 +321,9 @@ class QueryStringParserTest extends TestCase
         yield [['type' => 'equalsAny', 'field' => '', 'value' => 'bar'], true];
         yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => 'abc|def|ghi'], false];
         yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => 'false|true|0'], false];
+        /** @phpstan-ignore argument.type (Intentional missing "value") */
         yield [['type' => 'equalsAny', 'field' => 'foo'], true];
+        /** @phpstan-ignore argument.type (Intentional missing "field") */
         yield [['type' => 'equalsAny', 'value' => 'foo'], true];
         yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => '||||'], true];
         yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => true], false];
@@ -278,7 +333,7 @@ class QueryStringParserTest extends TestCase
     }
 
     /**
-     * @param EqualsAnyFilterType $filter
+     * @param array{type: 'equalsAll', field?: string, value?: mixed} $filter
      */
     #[DataProvider('equalsAllFilterDataProvider')]
     public function testEqualsAllFilter(array $filter, ?Filter $expectedFilter, bool $expectException): void
@@ -292,6 +347,9 @@ class QueryStringParserTest extends TestCase
         static::assertEquals($expectedFilter, $result);
     }
 
+    /**
+     * @return \Generator<string, array{array{type: 'equalsAll', field?: string, value?: mixed}, Filter|null, bool}>
+     */
     public static function equalsAllFilterDataProvider(): \Generator
     {
         yield 'With empty value' => [['type' => 'equalsAll', 'field' => 'foo', 'value' => ''], null, true];
@@ -443,6 +501,7 @@ class QueryStringParserTest extends TestCase
         // test exceptions being thrown
         yield 'missing field exception' => [['type' => 'until', 'field' => '', 'value' => 'P5D', 'parameters' => ['operator' => 'gt']], true];
         yield 'missing value exception' => [['type' => 'until', 'field' => 'foo', 'value' => '', 'parameters' => ['operator' => 'gt']], true];
+        /** @phpstan-ignore argument.type (Intentional missing "parameters" offset) */
         yield 'missing parameters exception' => [['type' => 'until', 'field' => 'foo', 'value' => 'P5D'], true];
         // test days until
         yield 'time until gt' => [['type' => 'until', 'field' => 'foo', 'value' => 'P5D', 'parameters' => ['operator' => 'gt']], false, 'gt'];
@@ -469,5 +528,33 @@ class QueryStringParserTest extends TestCase
             RangeFilter::GTE => RangeFilter::LTE,
             default => $operator,
         };
+    }
+
+    private function getDefinition(): EntityDefinition
+    {
+        $instanceRegistry = $this->getRegistry();
+
+        return $instanceRegistry->getByEntityName(ProductDefinition::ENTITY_NAME);
+    }
+
+    private function getRegistry(): DefinitionInstanceRegistry
+    {
+        return new StaticDefinitionInstanceRegistry(
+            [
+                ProductDefinition::class,
+                ProductTagDefinition::class,
+                TagDefinition::class,
+                ProductTranslationDefinition::class,
+                ProductManufacturerDefinition::class,
+                ProductManufacturerTranslationDefinition::class,
+                ProductVisibilityDefinition::class,
+                SalesChannelDefinition::class,
+                ProductCategoryDefinition::class,
+                CategoryDefinition::class,
+                CategoryTranslationDefinition::class,
+            ],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
     }
 }

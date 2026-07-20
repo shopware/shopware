@@ -27,7 +27,18 @@
 
 .account-aside-btn {
     line-height: normal;
+    width: 100%;
+    text-align: left;
     padding: 3px 0;
+
+    .icon {
+        vertical-align: middle;
+        margin-right: $spacer-xs;
+
+        svg {
+            top: 0;
+        }
+    }
 }
 
 .account-guest-abort {

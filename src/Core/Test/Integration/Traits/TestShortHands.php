@@ -75,7 +75,7 @@ trait TestShortHands
         ]));
 
         $exists = static::getContainer()->get('order_line_item.repository')
-            ->search($criteria, Context::createDefaultContext());
+            ->search($criteria, Context::createDefaultContext())->getEntities();
 
         static::assertCount(1, $exists);
 
@@ -142,10 +142,7 @@ trait TestShortHands
         static::assertTrue($listener->sent($type), \sprintf('Mail with type %s was not sent', $type));
     }
 
-    /**
-     * @return mixed
-     */
-    protected function mailListener(\Closure $closure)
+    protected function mailListener(\Closure $closure): mixed
     {
         $mapping = static::getContainer()->get(Connection::class)
             ->fetchAllKeyValue('SELECT LOWER(HEX(id)), technical_name FROM mail_template_type');
@@ -165,7 +162,7 @@ trait TestShortHands
 
     private function assertStock(string $productId, int $stock, int $available): void
     {
-        /** @var array{stock: int, available_stock:int} $stocks */
+        /** @var array{stock: string, available_stock: string} $stocks */
         $stocks = static::getContainer()->get(Connection::class)->fetchAssociative(
             'SELECT stock, available_stock FROM product WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($productId)]

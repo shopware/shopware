@@ -10,7 +10,28 @@
             <label>Enable AR by default</label>
             <label lang="de-DE">AR standardmäßig aktivieren</label>
             <helpText>3D files will automatically have AR enabled when presented in the storefront.</helpText>
-            <helpText lang="de-DE">3D Dateien wird AR automatisch aktiviert, wenn sie in der Storefront angezeigt werden.</helpText>
+            <helpText lang="de-DE">Für 3D Dateien wird AR automatisch aktiviert, wenn sie in der Storefront angezeigt werden.</helpText>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>defaultARPlacement</name>
+            <options>
+                <option>
+                    <id>horizontal</id>
+                    <name>Horizontal</name>
+                    <name lang="de-DE">Horizontal</name>
+                </option>
+                <option>
+                    <id>vertical</id>
+                    <name>Vertical</name>
+                    <name lang="de-DE">Vertikal</name>
+                </option>
+            </options>
+            <defaultValue>horizontal</defaultValue>
+            <label>Default AR placement</label>
+            <label lang="de-DE">Standard AR Platzierung</label>
+            <helpText>Select whether the object is placed on a horizontal surface, like the floor, or on a vertical surface, like a wall.</helpText>
+            <helpText lang="de-DE">Wählen Sie aus, ob das Objekt auf einer horizontalen Fläche, wie dem Boden, oder auf einer vertikalen Fläche, wie einer Wand, platziert ist.</helpText>
         </input-field>
     </card>
 </config>

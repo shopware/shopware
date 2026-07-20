@@ -15,8 +15,8 @@ use Shopware\Core\Framework\Log\Package;
 class ProductAvailableFilter extends MultiFilter
 {
     public function __construct(
-        string $salesChannelId,
-        int $visibility = ProductVisibilityDefinition::VISIBILITY_ALL
+        private readonly string $salesChannelId,
+        private readonly int $visibility = ProductVisibilityDefinition::VISIBILITY_ALL
     ) {
         parent::__construct(
             self::CONNECTION_AND,
@@ -26,5 +26,15 @@ class ProductAvailableFilter extends MultiFilter
                 new EqualsFilter('product.active', true),
             ]
         );
+    }
+
+    public function getSalesChannelId(): string
+    {
+        return $this->salesChannelId;
+    }
+
+    public function getVisibility(): int
+    {
+        return $this->visibility;
     }
 }

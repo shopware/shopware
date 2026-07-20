@@ -209,12 +209,7 @@ class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
     private function getReferenceColumn(AssociationField $field, Context $context): string
     {
         if ($field->is(ReverseInherited::class) && $context->considerInheritance()) {
-            $flag = $field->getFlag(ReverseInherited::class);
-            if ($flag === null) {
-                return EntityDefinitionQueryHelper::escape($field->getReferenceField());
-            }
-
-            return EntityDefinitionQueryHelper::escape($flag->getReversedPropertyName());
+            return EntityDefinitionQueryHelper::escape($field->getFlag(ReverseInherited::class)->getReversedPropertyName());
         }
 
         return EntityDefinitionQueryHelper::escape($field->getReferenceField());

@@ -2,7 +2,9 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
+use Composer\Factory;
 use Composer\IO\NullIO;
+use Composer\Semver\Constraint\Constraint;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -18,16 +20,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
+use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerRequireException;
 use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
-use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
-use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
+use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
+use Shopware\Core\Framework\Plugin\Requirement\Exception\VersionMismatchException;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
@@ -41,11 +44,14 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
+use Shopware\Core\System\CustomField\CustomFieldSetPersister;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use SwagTestPlugin\Migration\Migration1536761533TestMigration;
 use SwagTestPlugin\SwagTestPlugin;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -63,6 +69,9 @@ class PluginLifecycleServiceTest extends TestCase
 
     private ContainerInterface $container;
 
+    /**
+     * @var EntityRepository<PluginCollection>
+     */
     private EntityRepository $pluginRepo;
 
     private PluginService $pluginService;
@@ -81,6 +90,11 @@ class PluginLifecycleServiceTest extends TestCase
 
     private string $fixturePath;
 
+    /**
+     * @var array<array{string, callable}>
+     */
+    private array $registeredListeners = [];
+
     protected function setUp(): void
     {
         // force kernel boot
@@ -90,7 +104,7 @@ class PluginLifecycleServiceTest extends TestCase
             ->get(Connection::class)
             ->beginTransaction();
 
-        $this->fixturePath = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/';
+        $this->fixturePath = __DIR__ . '/../../../../../tests/integration/Core/Framework/Plugin/_fixtures/';
         $this->container = static::getContainer();
         $this->pluginRepo = $this->container->get('plugin.repository');
         $this->pluginService = $this->createPluginService(
@@ -132,6 +146,14 @@ class PluginLifecycleServiceTest extends TestCase
         if (isset($_SERVER['TEST_KEEP_MIGRATIONS'])) {
             unset($_SERVER['TEST_KEEP_MIGRATIONS']);
         }
+
+        $dispatcher = $this->container->get('event_dispatcher');
+
+        foreach ($this->registeredListeners as [$eventName, $listener]) {
+            $dispatcher->removeListener($eventName, $listener);
+        }
+
+        $this->registeredListeners = [];
     }
 
     public function testInstallPlugin(): void
@@ -284,7 +306,7 @@ class PluginLifecycleServiceTest extends TestCase
         $assetService = $this->createMock(AssetService::class);
         $assetService
             ->expects($this->once())
-            ->method('copyAssetsFromBundle');
+            ->method('copyAssets');
 
         $service = new PluginLifecycleService(
             $this->pluginRepo,
@@ -303,6 +325,9 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(PluginService::class),
             $this->container->get(VersionSanitizer::class),
             $this->container->get(DefinitionInstanceRegistry::class),
+            new RequestStack(),
+            $this->container->get(CustomFieldSetPersister::class),
+            new NativeClock()
         );
 
         $context = Context::createDefaultContext();
@@ -329,8 +354,7 @@ class PluginLifecycleServiceTest extends TestCase
         $plugin = $this->getPlugin($context);
         $context->addExtension(SwagTestPlugin::THROW_ERROR_ON_UPDATE, new ArrayStruct());
 
-        $this->expectException(\BadMethodCallException::class);
-        $this->expectExceptionMessage('Update throws an error');
+        $this->expectExceptionObject(new \BadMethodCallException('Update throws an error'));
         $this->pluginLifecycleService->updatePlugin($plugin, $context);
     }
 
@@ -387,7 +411,9 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginLifecycleService->installPlugin($dependentPlugin, $this->context);
         $this->pluginLifecycleService->activatePlugin($dependentPlugin, $this->context);
 
-        $this->expectException(PluginHasActiveDependantsException::class);
+        $expectedDependant = new PluginEntity();
+        $expectedDependant->setName(self::DEPENDENT_PLUGIN_NAME);
+        $this->expectExceptionObject(PluginException::hasActiveDependants(self::PLUGIN_NAME, [$expectedDependant]));
 
         try {
             $this->pluginLifecycleService->deactivatePlugin($basePlugin, $this->context);
@@ -426,9 +452,15 @@ class PluginLifecycleServiceTest extends TestCase
 
         $pluginEntity = $this->installNotSupportedPlugin(self::NOT_SUPPORTED_VERSION_PLUGIN_NAME);
 
-        $this->expectException(
-            RequirementStackException::class
-        );
+        $projectDir = static::getContainer()->getParameter('kernel.project_dir');
+        \assert(\is_string($projectDir));
+        $rootComposer = Factory::create(new NullIO(), $projectDir . '/composer.json');
+        $installedVersionString = (new Constraint('==', $rootComposer->getPackage()->getVersion()))->getPrettyString();
+
+        $this->expectExceptionObject(new RequirementStackException(
+            'activate',
+            new VersionMismatchException('shopware/core', '<6.0', $installedVersionString)
+        ));
         $this->pluginLifecycleService->activatePlugin($pluginEntity, $this->context);
     }
 
@@ -453,14 +485,14 @@ class PluginLifecycleServiceTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', 'SwagTestTheme'));
 
-        static::assertCount(1, $themeRepo->search($criteria, $this->context)->getElements());
+        static::assertCount(1, $themeRepo->search($criteria, $this->context)->getEntities()->getElements());
 
         $this->pluginLifecycleService->uninstallPlugin($pluginInstalled, $this->context, $keepUserData);
 
         $pluginUninstalled = $this->getTestPlugin($this->context);
         static::assertNull($pluginUninstalled->getInstalledAt());
         static::assertFalse($pluginUninstalled->getActive());
-        static::assertCount($keepUserData ? 1 : 0, $themeRepo->search($criteria, $this->context)->getElements());
+        static::assertCount($keepUserData ? 1 : 0, $themeRepo->search($criteria, $this->context)->getEntities()->getElements());
     }
 
     /**
@@ -506,6 +538,26 @@ class PluginLifecycleServiceTest extends TestCase
         }
 
         \ComposerAutoloaderInitPluginTestShipsVendorDirectory::getLoader()->unregister();
+    }
+
+    public function testPluginInstallFailureTriggersUninstall(): void
+    {
+        $plugin = $this->getPlugin($this->context);
+        $expectedException = new \RuntimeException('Fail from post-install event');
+
+        $listener = static function () use ($expectedException): void {
+            throw $expectedException;
+        };
+
+        $this->addTestListener(PluginPostInstallEvent::class, $listener);
+
+        try {
+            $this->pluginLifecycleService->installPlugin($plugin, $this->context);
+            static::fail('Expected exception was not thrown.');
+        } catch (\Throwable $actualException) {
+            static::assertSame($expectedException, $actualException);
+            static::assertNull($plugin->getInstalledAt());
+        }
     }
 
     private function installNotSupportedPlugin(string $name): PluginEntity
@@ -630,8 +682,7 @@ class PluginLifecycleServiceTest extends TestCase
     {
         $plugin = $this->getPlugin($context);
 
-        $this->expectException(PluginNotInstalledException::class);
-        $this->expectExceptionMessage(\sprintf('Plugin "%s" is not installed.', self::PLUGIN_NAME));
+        $this->expectExceptionObject(PluginException::notInstalled(self::PLUGIN_NAME));
         $this->pluginLifecycleService->uninstallPlugin($plugin, $context);
     }
 
@@ -667,8 +718,7 @@ class PluginLifecycleServiceTest extends TestCase
 
         $plugin = $this->getPlugin($context);
 
-        $this->expectException(PluginNotInstalledException::class);
-        $this->expectExceptionMessage(\sprintf('Plugin "%s" is not installed.', self::PLUGIN_NAME));
+        $this->expectExceptionObject(PluginException::notInstalled(self::PLUGIN_NAME));
         $this->pluginLifecycleService->updatePlugin($plugin, $context);
     }
 
@@ -684,8 +734,7 @@ class PluginLifecycleServiceTest extends TestCase
     {
         $plugin = $this->getPlugin($context);
 
-        $this->expectException(PluginNotInstalledException::class);
-        $this->expectExceptionMessage(\sprintf('Plugin "%s" is not installed.', self::PLUGIN_NAME));
+        $this->expectExceptionObject(PluginException::notInstalled(self::PLUGIN_NAME));
         $this->pluginLifecycleService->activatePlugin($plugin, $context);
     }
 
@@ -707,8 +756,7 @@ class PluginLifecycleServiceTest extends TestCase
     {
         $plugin = $this->getPlugin($context);
 
-        $this->expectException(PluginNotInstalledException::class);
-        $this->expectExceptionMessage(\sprintf('Plugin "%s" is not installed.', self::PLUGIN_NAME));
+        $this->expectExceptionObject(PluginException::notInstalled(self::PLUGIN_NAME));
         $this->pluginLifecycleService->deactivatePlugin($plugin, $context);
     }
 
@@ -718,8 +766,7 @@ class PluginLifecycleServiceTest extends TestCase
 
         static::assertNotNull($pluginInstalled->getInstalledAt());
 
-        $this->expectException(PluginNotActivatedException::class);
-        $this->expectExceptionMessage(\sprintf('Plugin "%s" is not activated.', self::PLUGIN_NAME));
+        $this->expectExceptionObject(PluginException::notActivated(self::PLUGIN_NAME));
         $this->pluginLifecycleService->deactivatePlugin($pluginInstalled, $context);
     }
 
@@ -760,6 +807,7 @@ class PluginLifecycleServiceTest extends TestCase
                     'id' => $id,
                     'name' => $iso,
                     'localeId' => $localeId,
+                    'active' => true,
                     'translationCode' => [
                         'id' => $localeId,
                         'code' => $iso,
@@ -818,6 +866,9 @@ class PluginLifecycleServiceTest extends TestCase
             $pluginService,
             $this->container->get(VersionSanitizer::class),
             $this->container->get(DefinitionInstanceRegistry::class),
+            new RequestStack(),
+            $this->container->get(CustomFieldSetPersister::class),
+            new NativeClock()
         );
     }
 
@@ -862,5 +913,14 @@ class PluginLifecycleServiceTest extends TestCase
     private function getTestPlugin(Context $context): PluginEntity
     {
         return $this->pluginService->getPluginByName(self::PLUGIN_NAME, $context);
+    }
+
+    private function addTestListener(string $eventName, callable $listener): void
+    {
+        $dispatcher = $this->container->get('event_dispatcher');
+
+        $dispatcher->addListener($eventName, $listener);
+
+        $this->registeredListeners[] = [$eventName, $listener];
     }
 }

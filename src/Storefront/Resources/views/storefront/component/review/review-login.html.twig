@@ -19,7 +19,7 @@
 {% block component_account_login_form_redirect %}
     <input type="hidden"
            name="redirectTo"
-           value="{{ activeRoute }}">
+           value="{{ redirectTo }}">
 
     <input type="hidden"
            name="redirectParameters"
@@ -38,7 +38,7 @@
                data-bs-target=".multi-collapse"
                aria-expanded="false"
                aria-controls="review-form review-list">
-                {{ 'detail.reviewLoginCancelButton'|trans|sw_sanitize }}
+                {{ 'global.default.cancel'|trans|sw_sanitize }}
             </a>
         {% endblock %}
     </div>

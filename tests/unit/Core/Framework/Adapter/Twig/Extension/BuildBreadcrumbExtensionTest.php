@@ -9,21 +9,28 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Framework\Adapter\Twig\Extension\BuildBreadcrumbExtension;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.8.0 - Will be removed
  */
 #[CoversClass(BuildBreadcrumbExtension::class)]
 class BuildBreadcrumbExtensionTest extends TestCase
 {
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetFunctions(): void
     {
         $functions = $this->getBuildBreadcrumbExtension()->getFunctions();
@@ -32,16 +39,18 @@ class BuildBreadcrumbExtensionTest extends TestCase
         static::assertSame('sw_breadcrumb_full_by_id', $functions[1]->getName());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetFullBreadcrumbNoSeoBreadCrumb(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $breadCrumb = $this->getBuildBreadcrumbExtension()
-            ->getFullBreadcrumb(['context' => $salesChannelContext], new CategoryEntity(), $salesChannelContext->getContext());
+            ->getFullBreadcrumb([], new CategoryEntity(), $salesChannelContext);
 
         static::assertSame([], $breadCrumb);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetFullBreadcrumbWithEmptySeoBreadCrumb(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -50,11 +59,12 @@ class BuildBreadcrumbExtensionTest extends TestCase
         $categoryBreadcrumbBuilder->method('build')->willReturn([]);
 
         $breadCrumb = $this->getBuildBreadcrumbExtension($categoryBreadcrumbBuilder)
-            ->getFullBreadcrumb(['context' => $salesChannelContext], new CategoryEntity(), $salesChannelContext->getContext());
+            ->getFullBreadcrumb([], new CategoryEntity(), $salesChannelContext);
 
         static::assertSame([], $breadCrumb);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetFullBreadcrumbWithSeoBreadCrumb(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -65,23 +75,47 @@ class BuildBreadcrumbExtensionTest extends TestCase
         $categoryBreadcrumbBuilder->method('build')->willReturn([$categoryId => 'Home', $notConsideredCategoryId => 'Not considered']);
 
         $breadCrumb = $this->getBuildBreadcrumbExtension($categoryBreadcrumbBuilder, $categoryId)
-            ->getFullBreadcrumb(['context' => $salesChannelContext], new CategoryEntity(), $salesChannelContext->getContext());
+            ->getFullBreadcrumb([], new CategoryEntity(), $salesChannelContext);
 
         static::assertArrayHasKey($categoryId, $breadCrumb);
-        static::assertInstanceOf(CategoryEntity::class, $breadCrumb[$categoryId]);
+        static::assertInstanceOf(SalesChannelCategoryEntity::class, $breadCrumb[$categoryId]);
         static::assertArrayNotHasKey($notConsideredCategoryId, $breadCrumb);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testGetFullBreadcrumbUsesSalesChannelContextFallback(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $category = new CategoryEntity();
+
+        $categoryBreadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $categoryBreadcrumbBuilder
+            ->expects($this->once())
+            ->method('build')
+            ->with($category, $salesChannelContext->getSalesChannel())
+            ->willReturn([]);
+
+        $breadCrumb = $this->getBuildBreadcrumbExtension($categoryBreadcrumbBuilder)
+            ->getFullBreadcrumb([
+                'context' => Context::createDefaultContext(),
+                'salesChannelContext' => $salesChannelContext,
+            ], $category, Context::createDefaultContext());
+
+        static::assertSame([], $breadCrumb);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetFullBreadcrumbByIdWithNonExistingCategoryId(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $breadCrumb = $this->getBuildBreadcrumbExtension()
-            ->getFullBreadcrumbById(['context' => $salesChannelContext], Uuid::randomHex(), $salesChannelContext->getContext());
+            ->getFullBreadcrumbById([], Uuid::randomHex(), $salesChannelContext);
 
         static::assertSame([], $breadCrumb);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetFullBreadcrumbById(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -92,20 +126,20 @@ class BuildBreadcrumbExtensionTest extends TestCase
         $categoryBreadcrumbBuilder->method('build')->willReturn([$categoryId => 'Home', $notConsideredCategoryId => 'Not considered']);
 
         $breadCrumb = $this->getBuildBreadcrumbExtension($categoryBreadcrumbBuilder, $categoryId)
-            ->getFullBreadcrumbById(['context' => $salesChannelContext], $categoryId, $salesChannelContext->getContext());
+            ->getFullBreadcrumbById([], $categoryId, $salesChannelContext);
 
         static::assertArrayHasKey($categoryId, $breadCrumb);
-        static::assertInstanceOf(CategoryEntity::class, $breadCrumb[$categoryId]);
+        static::assertInstanceOf(SalesChannelCategoryEntity::class, $breadCrumb[$categoryId]);
         static::assertArrayNotHasKey($notConsideredCategoryId, $breadCrumb);
     }
 
     private function getBuildBreadcrumbExtension(?CategoryBreadcrumbBuilder $categoryBreadcrumbBuilder = null, ?string $categoryId = null): BuildBreadcrumbExtension
     {
-        $categoryBreadcrumbBuilder ??= $this->createMock(CategoryBreadcrumbBuilder::class);
+        $categoryBreadcrumbBuilder ??= static::createStub(CategoryBreadcrumbBuilder::class);
 
         $categories = new CategoryCollection();
         if ($categoryId !== null) {
-            $category = new CategoryEntity();
+            $category = new SalesChannelCategoryEntity();
             $category->setUniqueIdentifier($categoryId);
             $categories->add($category);
         }
@@ -119,11 +153,14 @@ class BuildBreadcrumbExtensionTest extends TestCase
             Context::createDefaultContext(),
         );
 
-        /** @var StaticEntityRepository<CategoryCollection> $categoryRepository */
-        $categoryRepository = new StaticEntityRepository([
+        /** @var StaticSalesChannelRepository<EntityCollection<SalesChannelCategoryEntity>> $salesChannelCategoryRepository */
+        $salesChannelCategoryRepository = new StaticSalesChannelRepository([
             $entitySearchResult, clone $entitySearchResult,
         ]);
 
-        return new BuildBreadcrumbExtension($categoryBreadcrumbBuilder, $categoryRepository);
+        /** @var StaticEntityRepository<CategoryCollection> $categoryRepository */
+        $categoryRepository = new StaticEntityRepository([]);
+
+        return new BuildBreadcrumbExtension($categoryBreadcrumbBuilder, $salesChannelCategoryRepository, $categoryRepository);
     }
 }

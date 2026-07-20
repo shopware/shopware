@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 
-/* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
 import 'src/app/component/structure/sw-search-bar-item';
 import 'src/app/component/base/sw-highlight-text';
@@ -89,22 +88,6 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
         Shopware.Store.get('session').setCurrentUser({
             id: 'userId',
         });
-    });
-
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper({
-            entityIconName: 'regular-shopping-basket',
-            entityIconColor: 'blue',
-            column: 1,
-            index: 1,
-            type: 'product',
-            item: {
-                id: 'productId',
-                name: 'Awesome Product',
-            },
-        });
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should add clicked search result into recently search stack', async () => {

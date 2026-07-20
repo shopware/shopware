@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuild
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -42,9 +41,12 @@ class IconCacheTwigFilterTest extends TestCase
 {
     public function testStorefrontRenderIconCacheEnabled(): void
     {
+        $storefrontBundleFileName = (new \ReflectionClass(Storefront::class))->getFileName();
+        static::assertNotFalse($storefrontBundleFileName);
+
         $twig = $this->createFinder([
             new BundleFixture('StorefrontTest', __DIR__ . '/fixtures/Storefront/'),
-            new BundleFixture('Storefront', \dirname((string) ReflectionHelper::getFileName(Storefront::class))),
+            new BundleFixture('Storefront', \dirname($storefrontBundleFileName)),
         ]);
 
         $container = $this->buildContainer();
@@ -55,9 +57,14 @@ class IconCacheTwigFilterTest extends TestCase
         $controller->setTemplateFinder($twig->getExtension(NodeExtension::class)->getFinder());
 
         $controller->systemConfigService = self::createMock(SystemConfigService::class);
-        $controller->systemConfigService->method('get')->willReturn(true);
+        $controller->systemConfigService
+            ->expects($this->once())
+            ->method('get')
+            ->with('core.storefrontSettings.iconCache', 'sales-channel-id')
+            ->willReturn(true);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannelId')->willReturn('sales-channel-id');
 
         $rendered = $controller->testRenderStorefront('@StorefrontTest/test/base.html.twig', $salesChannelContext);
         static::assertSame(str_replace(' ', '', '<span class="icon icon-minus-large icon-xs icon-filter-panel-item-toggle" aria-hidden="true">
@@ -88,12 +95,12 @@ class IconCacheTwigFilterTest extends TestCase
         $container->set('request_stack', new RequestStack());
         $container->set('event_dispatcher', new EventDispatcher());
 
-        $placeholder = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
+        $placeholder = static::createStub(SeoUrlPlaceholderHandlerInterface::class);
         $placeholder->method('replace')->willReturnArgument(0);
 
         $container->set(SeoUrlPlaceholderHandlerInterface::class, $placeholder);
 
-        $mediaUrlHandler = $this->createMock(MediaUrlPlaceholderHandlerInterface::class);
+        $mediaUrlHandler = static::createStub(MediaUrlPlaceholderHandlerInterface::class);
         $mediaUrlHandler->method('replace')->willReturnArgument(0);
 
         $container->set(MediaUrlPlaceholderHandlerInterface::class, $mediaUrlHandler);
@@ -113,26 +120,24 @@ class IconCacheTwigFilterTest extends TestCase
             $directory = $bundle->getPath() . '/Resources/views';
             $loader->addPath($directory);
             $loader->addPath($directory, $bundle->getName());
-            if (file_exists($directory . '/../app/storefront/dist')) {
+            if (\is_dir($directory . '/../app/storefront/dist')) {
                 $loader->addPath($directory . '/../app/storefront/dist', $bundle->getName());
             }
         }
 
         $twig = new Environment($loader, ['cache' => false]);
 
-        $kernel = $this->createMock(Kernel::class);
-        $kernel->expects($this->any())
-            ->method('getBundles')
+        $kernel = static::createStub(Kernel::class);
+        $kernel->method('getBundles')
             ->willReturn($bundles);
 
-        $builder = $this->createMock(BundleHierarchyBuilder::class);
+        $builder = static::createStub(BundleHierarchyBuilder::class);
         $builder
             ->method('buildNamespaceHierarchy')
             ->willReturn(['Storefront' => 0]);
 
-        $scopeDetector = $this->createMock(TemplateScopeDetector::class);
-        $scopeDetector->expects($this->any())
-            ->method('getScopes')
+        $scopeDetector = static::createStub(TemplateScopeDetector::class);
+        $scopeDetector->method('getScopes')
             ->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 
         $templateFinder = new TemplateFinder(

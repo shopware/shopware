@@ -13,12 +13,12 @@
     &__container {
         display: flex;
         flex-direction: column;
-        width: 480px;
+        width: 30rem;
         max-width: 100%;
         height: 100%;
         margin-left: auto;
-        background: $color-white;
-        border-left: 1px solid $color-gray-300;
+        background: var(--color-elevation-surface-raised);
+        border-left: 1px solid var(--color-border-secondary-default);
 
         &:focus {
             outline: none;
@@ -29,37 +29,51 @@
         @include flex-centering-vertical;
 
         justify-content: space-between;
-        height: 81px;
-        padding: 0 24px;
-        border-bottom: 1px solid $color-gray-300;
+        height: var(--scale-size-80);
+        padding: 0 var(--scale-size-24);
+        border-bottom: 1px solid var(--color-border-secondary-default);
     }
 
     &__body {
-        padding: 24px;
+        padding: var(--scale-size-24);
     }
 
     &__footer {
         @include flex-centering-vertical;
 
-        height: 64px;
+        height: var(--scale-size-64);
         margin-top: auto;
-        padding: 0 24px;
-        background: $color-gray-100;
+        padding: 0 var(--scale-size-24);
+        border-top: 1px solid var(--color-border-secondary-default);
     }
 
     &__headline {
         margin: 0;
-        color: $color-darkgray-200;
-        font-size: $font-size-m;
-        font-weight: $font-weight-semi-bold;
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-m);
+        line-height: var(--font-line-height-m);
+        font-weight: var(--font-weight-semibold);
     }
 
     &__button-close {
-        @include reset-button;
+        border-radius: var(--border-radius-button);
+        height: var(--scale-size-32);
+        width: var(--scale-size-32);
+        display: grid;
+        place-items: center;
+
+        &:hover {
+            background: var(--color-interaction-secondary-hover);
+        }
+
+        &:focus-visible {
+            outline: var(--scale-size-2) solid var(--color-border-brand-default);
+            outline-offset: var(--scale-size-2);
+        }
     }
 
     &__navigation .sw-card {
-        margin-bottom: 30px;
+        margin-bottom: var(--scale-size-30);
         border-radius: 0;
         box-shadow: none;
     }
@@ -69,10 +83,10 @@
     }
 
     &__support-title {
-        margin: 0 0 10px;
-        color: $color-darkgray-700;
-        font-size: $font-size-s;
-        font-weight: $font-weight-bold;
+        margin: 0 0 var(--scale-size-10);
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-s);
+        font-weight: var(--font-size-semibold);
     }
 
     &__support-content {
@@ -81,18 +95,16 @@
 
     &__support-item {
         @include flex-centering-vertical;
-        @include transition;
+
+        --_sw-help-sidebar__padding: var(--scale-size-10);
 
         flex-wrap: wrap;
-        padding: 10px;
-        border-radius: $border-radius-default;
+        padding: var(--_sw-help-sidebar__padding);
+        border-radius: var(--border-radius-xs);
+        margin-inline-start: calc(var(--_sw-help-sidebar__padding) * -1);
 
         &:hover {
-            background: $color-gray-100;
-        }
-
-        .mt-icon {
-            color: $color-darkgray-200;
+            background: var(--color-interaction-secondary-hover);
         }
     }
 
@@ -100,46 +112,15 @@
         display: grid;
         grid-auto-flow: column;
         align-items: center;
-        grid-gap: 0 8px;
-        color: $color-darkgray-700;
-        font-size: $font-size-xs;
-        font-weight: $font-weight-medium;
+        grid-gap: 0 var(--scale-size-8);
+        color: var(--color-icon-primary-default);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-medium);
         text-decoration: none;
 
         .sw-external-link__icon {
-            margin-left: -4px;
+            margin-left: calc(var(--scale-size-4) * -1);
         }
-    }
-
-    &__support-item-button.mt-button {
-        @include reset-button;
-
-        color: $color-darkgray-700;
-        font-size: $font-size-xs;
-        font-weight: $font-weight-medium;
-        text-decoration: none;
-    }
-
-    &__shortcut {
-        @include transition;
-
-        width: 100%;
-        padding: 10px;
-        border-radius: $border-radius-default;
-
-        &:hover {
-            background: $color-gray-200;
-        }
-
-        .mt-icon {
-            color: $color-darkgray-200;
-        }
-    }
-
-    &__shortcut-button {
-        @include reset-button;
-
-        color: $color-darkgray-700;
     }
 
     /**
@@ -147,7 +128,7 @@
     * @see https://vuejs.org/guide/built-ins/transition.html#Transition-Classes
     */
     &__fade-enter-active {
-        @include transition(all, 0.3s, ease-out);
+        @include transition(all, 0.3s, cubic-bezier(0.165, 0.84, 0.44, 1));
     }
 
     &__fade-leave-active {
@@ -158,5 +139,40 @@
     &__fade-leave-to {
         transform: translateX(20px);
         opacity: 0;
+    }
+
+    &__tooltip-title {
+        font-weight: var(--font-weight-regular);
+    }
+
+    &__tooltip-shortcut-key {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        min-width: var(--scale-size-16);
+        height: var(--scale-size-16);
+        padding: 0 var(--scale-size-4);
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-2xs);
+        font-weight: var(--font-weight-medium);
+        line-height: var(--font-line-height-2xs);
+        white-space: nowrap;
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: var(--border-radius-2xs);
+        background-color: var(--color-background-primary-default);
+        box-shadow: inset 0 -1px 0 var(--color-border-primary-default);
+
+        + .sw-help-sidebar__tooltip-shortcut-key {
+            margin-left: var(--scale-size-2);
+        }
+    }
+
+    &__tooltip-title + &__tooltip-shortcut-key {
+        margin-left: var(--scale-size-8);
+    }
+
+    &__shortcut > &__shortcut-tooltip {
+        z-index: $z-index-help-sidebar + 1;
     }
 }

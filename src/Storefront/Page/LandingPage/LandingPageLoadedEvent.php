@@ -10,14 +10,11 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('discovery')]
 class LandingPageLoadedEvent extends PageLoadedEvent
 {
-    protected LandingPage $page;
-
     public function __construct(
-        LandingPage $page,
+        protected LandingPage $page,
         SalesChannelContext $salesChannelContext,
-        Request $request
+        Request $request,
     ) {
-        $this->page = $page;
         parent::__construct($salesChannelContext, $request);
     }
 

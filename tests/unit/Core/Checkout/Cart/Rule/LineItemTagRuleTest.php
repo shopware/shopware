@@ -30,7 +30,7 @@ class LineItemTagRuleTest extends TestCase
     public function testLineItemNoMatchWithoutTags(): void
     {
         $match = $this->createLineItemTagRule([Uuid::randomHex()])->match(
-            new LineItemScope(self::createLineItem(), $this->createMock(SalesChannelContext::class))
+            new LineItemScope(self::createLineItem(), static::createStub(SalesChannelContext::class))
         );
 
         static::assertFalse($match);
@@ -39,7 +39,7 @@ class LineItemTagRuleTest extends TestCase
     public function testLineItemMatchUnequalsTags(): void
     {
         $match = $this->createLineItemTagRule([Uuid::randomHex()], Rule::OPERATOR_NEQ)->match(
-            new LineItemScope(self::createLineItem(), $this->createMock(SalesChannelContext::class))
+            new LineItemScope(self::createLineItem(), static::createStub(SalesChannelContext::class))
         );
 
         static::assertTrue($match);
@@ -51,7 +51,7 @@ class LineItemTagRuleTest extends TestCase
         $lineItem = self::createLineItem()->replacePayload(['tagIds' => $tagIds]);
 
         $match = $this->createLineItemTagRule($tagIds)->match(
-            new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class))
+            new LineItemScope($lineItem, static::createStub(SalesChannelContext::class))
         );
 
         static::assertTrue($match);
@@ -63,7 +63,7 @@ class LineItemTagRuleTest extends TestCase
         $lineItem = self::createLineItem()->replacePayload(['tagIds' => [$tagIds[0]]]);
 
         $match = $this->createLineItemTagRule($tagIds)->match(
-            new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class))
+            new LineItemScope($lineItem, static::createStub(SalesChannelContext::class))
         );
 
         static::assertTrue($match);
@@ -75,7 +75,7 @@ class LineItemTagRuleTest extends TestCase
         $lineItem = self::createLineItem()->replacePayload(['tagIds' => [$tagIds[0]]]);
 
         $match = $this->createLineItemTagRule($tagIds, Rule::OPERATOR_NEQ)->match(
-            new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class))
+            new LineItemScope($lineItem, static::createStub(SalesChannelContext::class))
         );
 
         static::assertFalse($match);
@@ -90,7 +90,7 @@ class LineItemTagRuleTest extends TestCase
         $cart = self::createCart($lineItemCollection);
 
         $match = $this->createLineItemTagRule([Uuid::randomHex()])->match(
-            new CartRuleScope($cart, $this->createMock(SalesChannelContext::class))
+            new CartRuleScope($cart, static::createStub(SalesChannelContext::class))
         );
 
         static::assertFalse($match);
@@ -107,7 +107,7 @@ class LineItemTagRuleTest extends TestCase
         $cart = self::createCart($lineItemCollection);
 
         $match = $this->createLineItemTagRule([$tagIds[0]], Rule::OPERATOR_NEQ)->match(
-            new CartRuleScope($cart, $this->createMock(SalesChannelContext::class))
+            new CartRuleScope($cart, static::createStub(SalesChannelContext::class))
         );
 
         static::assertTrue($match);
@@ -124,7 +124,7 @@ class LineItemTagRuleTest extends TestCase
         $cart = self::createCart($lineItemCollection);
 
         $match = $this->createLineItemTagRule($tagIds)->match(
-            new CartRuleScope($cart, $this->createMock(SalesChannelContext::class))
+            new CartRuleScope($cart, static::createStub(SalesChannelContext::class))
         );
 
         static::assertTrue($match);
@@ -142,7 +142,7 @@ class LineItemTagRuleTest extends TestCase
         $cart = self::createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->createLineItemTagRule($tagIds)->match(
-            new CartRuleScope($cart, $this->createMock(SalesChannelContext::class))
+            new CartRuleScope($cart, static::createStub(SalesChannelContext::class))
         );
 
         static::assertTrue($match);
@@ -159,7 +159,7 @@ class LineItemTagRuleTest extends TestCase
         $cart = self::createCart($lineItemCollection);
 
         $match = $this->createLineItemTagRule($tagIds)->match(
-            new CartRuleScope($cart, $this->createMock(SalesChannelContext::class))
+            new CartRuleScope($cart, static::createStub(SalesChannelContext::class))
         );
 
         static::assertTrue($match);
@@ -175,7 +175,7 @@ class LineItemTagRuleTest extends TestCase
         $cart = self::createCart($lineItemCollection);
 
         $match = $this->createLineItemTagRule($tagIds, Rule::OPERATOR_NEQ)->match(
-            new CartRuleScope($cart, $this->createMock(SalesChannelContext::class))
+            new CartRuleScope($cart, static::createStub(SalesChannelContext::class))
         );
 
         static::assertFalse($match);
@@ -184,7 +184,7 @@ class LineItemTagRuleTest extends TestCase
         $cart = self::createCart($lineItemCollection);
 
         $match = $this->createLineItemTagRule($tagIds, Rule::OPERATOR_NEQ)->match(
-            new CartRuleScope($cart, $this->createMock(SalesChannelContext::class))
+            new CartRuleScope($cart, static::createStub(SalesChannelContext::class))
         );
 
         static::assertTrue($match);
@@ -203,7 +203,7 @@ class LineItemTagRuleTest extends TestCase
         static::assertArrayHasKey('operator', $ruleConstraints, 'Constraint operator not found in Rule');
         $operators = $ruleConstraints['operator'];
         static::assertEquals(new NotBlank(), $operators[0]);
-        static::assertEquals(new Choice($expectedOperators), $operators[1]);
+        static::assertEquals(new Choice(choices: $expectedOperators), $operators[1]);
 
         static::assertArrayHasKey('identifiers', $ruleConstraints, 'Constraint identifiers not found in Rule');
         $identifiers = $ruleConstraints['identifiers'];
@@ -232,7 +232,7 @@ class LineItemTagRuleTest extends TestCase
         $lineItemCollection = new LineItemCollection($lineItems);
         $cart = self::createCart($lineItemCollection);
 
-        $scope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
+        $scope = new CartRuleScope($cart, static::createStub(SalesChannelContext::class));
         $rule = (new LineItemTagRule())->assign(['identifiers' => $identifiers, 'operator' => $operator]);
 
         $match = $rule->match($scope);

@@ -21,13 +21,13 @@ class MessageHandlerCompilerPass implements CompilerPassInterface
 
             $class = $definition->getClass() ?? $id;
 
-            if (empty($class) || !class_exists($class)) {
+            if ($class === '' || !class_exists($class)) {
                 continue;
             }
 
             $attributes = (new \ReflectionClass($class))->getAttributes(AsMessageHandler::class);
 
-            if (empty($attributes)) {
+            if ($attributes === []) {
                 continue;
             }
 

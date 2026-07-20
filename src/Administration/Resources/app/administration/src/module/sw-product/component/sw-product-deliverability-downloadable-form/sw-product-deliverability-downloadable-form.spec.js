@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
 
@@ -40,7 +39,12 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
                 },
             },
         };
-        store.creationStates = 'is-physical';
+
+        if (!Shopware.Feature.isActive('v6.8.0.0')) {
+            store.creationStates = 'is-physical';
+        }
+
+        store.creationType = 'physical';
 
         return mount(await wrapTestComponent('sw-product-deliverability-downloadable-form', { sync: true }), {
             global: {

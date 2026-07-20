@@ -15,11 +15,11 @@
 // review item
 .product-detail-review-item {
     border-bottom: 1px solid $border-color;
-    margin-bottom: 10px;
+    margin-bottom: 2rem;
 }
 
-.product-detail-review-item-date {
-    color: $gray-600;
+.product-detail-review-item-date p {
+    margin-bottom: 1rem;
 }
 
 .product-detail-review-item-verify {

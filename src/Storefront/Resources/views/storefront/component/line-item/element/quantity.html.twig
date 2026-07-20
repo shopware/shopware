@@ -19,8 +19,15 @@
         {% set maxQuantity = config('core.cart.maxQuantity') %}
     {% endif %}
 
-    {% set DOWNLOAD_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_DOWNLOAD') %}
-    {% set isDigital = lineItem.states is defined and DOWNLOAD_STATE in lineItem.states and (DOWNLOAD_STATE not in lineItem.states or quantityInformation.maxPurchase === 1) %}
+    {% set DIGITAL_CONST = constant('Shopware\\Core\\Content\\Product\\ProductDefinition::TYPE_DIGITAL') %}
+    {% set isDigital = lineItem.payload.productType is defined and lineItem.payload.productType == DIGITAL_CONST %}
+
+    {% if feature('v6.8.0.0') %}
+        {% set isDigital = isDigital or quantityInformation.maxPurchase === 1 %}
+    {% else %}
+        {% set DOWNLOAD_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_DOWNLOAD') %}
+        {% set isDigital = isDigital or (lineItem.states is defined and DOWNLOAD_STATE in lineItem.states) or quantityInformation.maxPurchase === 1 %}
+    {% endif %}
 
     {% block component_line_item_quantity_inner %}
         <div class="row line-item-quantity-row">
@@ -43,6 +50,7 @@
                                   class="line-item-quantity-container {% if isDigital %}disabled{% endif %}"
                                   method="post"
                                   {% if displayMode == 'default' %}
+                                  autocomplete="off"
                                   data-form-auto-submit="true"
                                   data-form-auto-submit-options="{{ autoSubmitOptions|json_encode }}"
                                   {% endif %}

@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemProductStatesRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Content\Product\State;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
@@ -31,6 +32,7 @@ class LineItemProductStatesRuleTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
         $this->rule = new LineItemProductStatesRule();
     }
 
@@ -82,7 +84,7 @@ class LineItemProductStatesRuleTest extends TestCase
 
         $match = $this->rule->match(new LineItemScope(
             $this->createLineItemWithStates($states),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -112,7 +114,7 @@ class LineItemProductStatesRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -125,22 +127,20 @@ class LineItemProductStatesRuleTest extends TestCase
             'productState' => State::IS_DOWNLOAD,
         ]);
 
-        $match = $this->rule->match(new CheckoutRuleScope($this->createMock(SalesChannelContext::class)));
+        $match = $this->rule->match(new CheckoutRuleScope(static::createStub(SalesChannelContext::class)));
 
         static::assertFalse($match);
     }
 
     /**
-     * @return array<string, array<int, array<int, string>|bool|string>>
+     * @return iterable<string, array<int, array<int, string>|bool|string>>
      */
-    public static function caseDataProvider(): array
+    public static function caseDataProvider(): iterable
     {
-        return [
-            'equal / match' => [[State::IS_PHYSICAL, State::IS_DOWNLOAD], Rule::OPERATOR_EQ, State::IS_DOWNLOAD, true],
-            'equal / no match' => [[State::IS_PHYSICAL], Rule::OPERATOR_EQ, State::IS_DOWNLOAD, false],
-            'not equal / match' => [[State::IS_PHYSICAL], Rule::OPERATOR_NEQ, State::IS_DOWNLOAD, true],
-            'not equal / no match' => [[State::IS_PHYSICAL, State::IS_DOWNLOAD], Rule::OPERATOR_NEQ, State::IS_DOWNLOAD, false],
-        ];
+        yield 'equal / match' => [[State::IS_PHYSICAL, State::IS_DOWNLOAD], Rule::OPERATOR_EQ, State::IS_DOWNLOAD, true];
+        yield 'equal / no match' => [[State::IS_PHYSICAL], Rule::OPERATOR_EQ, State::IS_DOWNLOAD, false];
+        yield 'not equal / match' => [[State::IS_PHYSICAL], Rule::OPERATOR_NEQ, State::IS_DOWNLOAD, true];
+        yield 'not equal / no match' => [[State::IS_PHYSICAL, State::IS_DOWNLOAD], Rule::OPERATOR_NEQ, State::IS_DOWNLOAD, false];
     }
 
     /**

@@ -47,7 +47,7 @@ class TaxProviderExceptions extends ShopwareHttpException
 
     public function hasExceptions(): bool
     {
-        return !empty($this->exceptions);
+        return $this->exceptions !== [];
     }
 
     public function getErrorCode(): string

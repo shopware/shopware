@@ -35,6 +35,7 @@ async function createWrapper() {
                     'sw-skeleton': true,
                     'sw-error-summary': true,
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                     'sw-help-center-v2': true,
                     'router-link': true,
                     'sw-sales-channel-switch': true,
@@ -70,10 +71,6 @@ describe('src/module/sw-settings-seo/page/sw-settings-seo', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain the settings card', async () => {

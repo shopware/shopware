@@ -4,42 +4,78 @@ namespace Shopware\Core\System\Snippet;
 
 use Shopware\Administration\Administration;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand;
 use Shopware\Storefront\Storefront;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @phpstan-import-type Snippets from ValidateSnippetsCommand
+ */
 #[Package('discovery')]
 class SnippetFileHandler
 {
+    /**
+     * @internal
+     */
+    public function __construct(private readonly Filesystem $filesystem)
+    {
+    }
+
+    /**
+     * @return Snippets
+     */
     public function openJsonFile(string $path): array
     {
-        $json = json_decode(file_get_contents($path), true);
+        try {
+            $fileContents = $this->filesystem->readFile($path);
+        } catch (\Throwable) {
+            throw SnippetException::jsonNotFound();
+        }
 
-        $jsonError = json_last_error();
-        if ($jsonError !== 0) {
-            throw new \RuntimeException(\sprintf('Invalid JSON in snippet file at path \'%s\' with code \'%d\'', $path, $jsonError));
+        try {
+            $json = json_decode($fileContents, true, 512, \JSON_THROW_ON_ERROR);
+        } catch (\Throwable $e) {
+            throw SnippetException::invalidSnippetFile($path, $e);
         }
 
         return $json;
     }
 
+    /**
+     * @param Snippets $content
+     */
     public function writeJsonFile(string $path, array $content): void
     {
-        $json = json_encode($content, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
+        try {
+            $json = \json_encode($content, \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT | \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
+        } catch (\Throwable $e) {
+            throw SnippetException::invalidSnippetFile($path, $e);
+        }
 
-        file_put_contents($path, $json);
+        $json = str_replace('    ', '  ', $json); // Workaround because of wrong indentation
+        $this->filesystem->dumpFile($path, $json);
     }
 
+    /**
+     * @return list<string>
+     */
     public function findAdministrationSnippetFiles(): array
     {
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (only class constant is used) */
         if (!($bundleDir = $this->getBundleDir(Administration::class))) {
             return [];
         }
 
-        return $this->findSnippetFilesByPath($bundleDir . '/Resources/app/*/src/');
+        return $this->findSnippetFilesByPath($bundleDir . '/Resources/app/*/src/', SnippetPatterns::ADMIN_SNIPPET_FILE_PATTERN);
     }
 
+    /**
+     * @return list<string>
+     */
     public function findStorefrontSnippetFiles(): array
     {
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (only class constant is used) */
         if (!($bundleDir = $this->getBundleDir(Storefront::class))) {
             return [];
         }
@@ -56,14 +92,16 @@ class SnippetFileHandler
         return \dirname((string) (new \ReflectionClass($bundleClass))->getFileName());
     }
 
-    private function findSnippetFilesByPath(string $path): array
+    /**
+     * @return list<string>
+     */
+    private function findSnippetFilesByPath(string $path, string $pattern = SnippetPatterns::CORE_SNIPPET_FILE_PATTERN): array
     {
         $finder = (new Finder())
             ->files()
             ->in($path)
-            ->ignoreUnreadableDirs();
-
-        $finder->name('/[a-z]{2}-[A-Z]{2}(?:\.base)?\.json$/');
+            ->ignoreUnreadableDirs()
+            ->name($pattern);
 
         $iterator = $finder->getIterator();
         $files = [];

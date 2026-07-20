@@ -119,7 +119,7 @@ export default {
         },
 
         extensionManagementDisabled() {
-            return Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
+            return Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
         },
     },
 

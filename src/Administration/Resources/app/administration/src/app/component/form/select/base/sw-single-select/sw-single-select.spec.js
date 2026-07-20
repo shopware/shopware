@@ -55,12 +55,6 @@ async function createSingleSelect(customOptions) {
 }
 
 describe('components/sw-single-select', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createSingleSelect();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should open the result list on click on .sw-select__selection', async () => {
         const wrapper = await createSingleSelect();
         await flushPromises();
@@ -216,9 +210,9 @@ describe('components/sw-single-select', () => {
         await clearableIcon.trigger('click');
         await flushPromises();
 
-        // expect emitting resetting value
+        // expect emitting a real null, not undefined, so it survives JSON.stringify
         const emittedChangeValue = wrapper.emitted('update:value')[0];
-        expect(emittedChangeValue).toEqual([undefined]);
+        expect(emittedChangeValue).toEqual([null]);
 
         // emulate v-model change
         await wrapper.setProps({
@@ -229,5 +223,62 @@ describe('components/sw-single-select', () => {
         // expect empty selection
         selectionText = wrapper.find('.sw-single-select__selection-text');
         expect(selectionText.text()).toBe('');
+    });
+
+    it('should close first dropdown when clicking to open second dropdown', async () => {
+        const container = document.createElement('div');
+        document.body.appendChild(container);
+
+        // Create first dropdown (Payment Status)
+        const firstDropdown = await createSingleSelect({
+            props: {
+                value: 'paid',
+                options: [
+                    { label: 'Paid', value: 'paid' },
+                    { label: 'Open', value: 'open' },
+                    { label: 'Cancelled', value: 'cancelled' },
+                ],
+            },
+            attachTo: container,
+        });
+
+        // Create second dropdown (Delivery Status)
+        const secondDropdown = await createSingleSelect({
+            props: {
+                value: 'shipped',
+                options: [
+                    { label: 'Shipped', value: 'shipped' },
+                    { label: 'Pending', value: 'pending' },
+                    { label: 'Delivered', value: 'delivered' },
+                ],
+            },
+            attachTo: container,
+        });
+
+        await flushPromises();
+
+        // User clicks the first dropdown to open it
+        const firstSelectionElement = firstDropdown.find('.sw-select__selection').element;
+        firstSelectionElement.click();
+        await flushPromises();
+
+        // First dropdown should be open
+        expect(firstDropdown.find('.sw-select-result-list__content').isVisible()).toBe(true);
+
+        // User clicks the second dropdown
+        const secondSelectionElement = secondDropdown.find('.sw-select__selection').element;
+        secondSelectionElement.click();
+        await flushPromises();
+
+        // First dropdown should now be closed
+        expect(firstDropdown.find('.sw-select-result-list__content').exists()).toBe(false);
+
+        // Second dropdown should be open
+        expect(secondDropdown.find('.sw-select-result-list__content').isVisible()).toBe(true);
+
+        // Cleanup
+        firstDropdown.unmount();
+        secondDropdown.unmount();
+        document.body.removeChild(container);
     });
 });

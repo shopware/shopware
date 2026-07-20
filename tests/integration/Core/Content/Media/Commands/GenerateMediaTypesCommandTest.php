@@ -35,7 +35,7 @@ class GenerateMediaTypesCommandTest extends TestCase
     private Context $context;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $initialMediaIds;
 
@@ -47,7 +47,6 @@ class GenerateMediaTypesCommandTest extends TestCase
 
         $this->context = Context::createDefaultContext();
 
-        /** @var array<string> $ids */
         $ids = $this->mediaRepository->searchIds(new Criteria(), $this->context)->getIds();
         $this->initialMediaIds = $ids;
     }
@@ -98,8 +97,7 @@ class GenerateMediaTypesCommandTest extends TestCase
 
     public function testExecuteThrowsExceptionOnInvalidBatchSize(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Provided batch size is invalid.');
+        $this->expectExceptionObject(MediaException::invalidBatchSize());
 
         $this->createValidMediaFiles();
 

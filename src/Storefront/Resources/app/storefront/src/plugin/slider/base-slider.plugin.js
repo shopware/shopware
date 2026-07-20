@@ -59,8 +59,7 @@ export default class BaseSliderPlugin extends Plugin {
         // get the current index and use it as the start index
         try {
             if (this._slider && !resetIndex) {
-                const currentIndex = this._getCurrentIndex();
-                this._sliderSettings.startIndex = currentIndex;
+                this._sliderSettings.startIndex = this.getCurrentSliderIndex();
             }
 
             this.destroy();
@@ -115,7 +114,7 @@ export default class BaseSliderPlugin extends Plugin {
     getActiveSlideElement() {
         const info = this._slider.getInfo();
 
-        return info.slideItems[info.index];
+        return info.slideItems[info.displayIndex];
     }
 
     /**
@@ -212,18 +211,5 @@ export default class BaseSliderPlugin extends Plugin {
                 });
             }
         }
-    }
-
-    /**
-     * @return {number}
-     * @private
-     */
-    _getCurrentIndex() {
-        const sliderInfo = this._slider.getInfo();
-
-        let currentIndex = sliderInfo.index % sliderInfo.slideCount;
-        currentIndex = (currentIndex === 0) ? sliderInfo.slideCount : currentIndex;
-
-        return currentIndex - 1;
     }
 }

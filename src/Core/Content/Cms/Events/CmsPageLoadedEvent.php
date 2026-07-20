@@ -14,23 +14,20 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('discovery')]
 class CmsPageLoadedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    protected Request $request;
-
     protected CmsPageCollection $result;
 
-    protected SalesChannelContext $salesChannelContext;
-
     /**
+     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $result type will be changed from `EntityCollection` to `CmsPageCollection`
+     *
      * @param CmsPageCollection $result
      */
     public function __construct(
-        Request $request,
+        protected Request $request,
+        /* protected CmsPageCollection $result, */
         EntityCollection $result,
-        SalesChannelContext $salesChannelContext
+        protected SalesChannelContext $salesChannelContext,
     ) {
-        $this->request = $request;
         $this->result = $result;
-        $this->salesChannelContext = $salesChannelContext;
     }
 
     public function getRequest(): Request
@@ -39,9 +36,11 @@ class CmsPageLoadedEvent extends NestedEvent implements ShopwareSalesChannelEven
     }
 
     /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be changed from `EntityCollection` to `CmsPageCollection`
+     *
      * @return CmsPageCollection
      */
-    public function getResult(): EntityCollection
+    public function getResult(): EntityCollection /* CmsPageCollection */
     {
         return $this->result;
     }

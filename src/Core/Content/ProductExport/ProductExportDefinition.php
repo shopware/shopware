@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\DoNotUseContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -54,25 +55,28 @@ class ProductExportDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class))->addFlags(new Required()),
-            (new FkField('storefront_sales_channel_id', 'storefrontSalesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
-            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
-            (new FkField('sales_channel_domain_id', 'salesChannelDomainId', SalesChannelDomainDefinition::class))->addFlags(new Required()),
-            (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->addFlags(new Required()),
-            (new StringField('file_name', 'fileName'))->addFlags(new Required()),
-            (new StringField('access_key', 'accessKey'))->addFlags(new Required()),
-            (new StringField('encoding', 'encoding'))->addFlags(new Required()),
-            (new StringField('file_format', 'fileFormat'))->addFlags(new Required()),
-            new BoolField('include_variants', 'includeVariants'),
-            (new BoolField('generate_by_cronjob', 'generateByCronjob'))->addFlags(new Required()),
-            new DateTimeField('generated_at', 'generatedAt'),
-            (new IntField('interval', 'interval'))->addFlags(new Required()),
-            (new LongTextField('header_template', 'headerTemplate'))->addFlags(new AllowHtml(false)),
-            (new LongTextField('body_template', 'bodyTemplate'))->addFlags(new AllowHtml(false)),
-            (new LongTextField('footer_template', 'footerTemplate'))->addFlags(new AllowHtml(false)),
-            new BoolField('paused_schedule', 'pausedSchedule'),
-            new BoolField('is_running', 'isRunning'),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of Exported Product.'),
+            (new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class))->addFlags(new Required())->setDescription('Unique identity of product stream .'),
+            (new FkField('storefront_sales_channel_id', 'storefrontSalesChannelId', SalesChannelDefinition::class))->addFlags(new Required(), new DoNotUseContext())->setDescription('Unique identity of storefront\'s Sales Channel.'),
+            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required())->setDescription('Unique identity of salesChannel.'),
+            (new FkField('sales_channel_domain_id', 'salesChannelDomainId', SalesChannelDomainDefinition::class))->addFlags(new Required())->setDescription('Unique identity of sales Channel Domain.'),
+            (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->addFlags(new Required())->setDescription('Unique identity of currency.'),
+            (new StringField('file_name', 'fileName'))->addFlags(new Required())->setDescription('Name of the file.'),
+            (new StringField('access_key', 'accessKey'))->addFlags(new Required())->setDescription('Access key to admin api.'),
+            (new StringField('encoding', 'encoding'))->addFlags(new Required())->setDescription('Type of encoding like UTF-8 or ASCII.'),
+            (new StringField('file_format', 'fileFormat'))->addFlags(new Required())->setDescription('Type of file formats or extensions like CSV or JSON.'),
+            /** @experimental stableVersion:v6.8.0 feature:AGENTIC_AI_SALES_CHANNEL */
+            (new StringField('provider', 'provider'))->setDescription('Selected export provider identifier, for example open-ai or google.'),
+            (new StringField('feed_label', 'feedLabel', 20))->setDescription('Optional feed label for grouping products within the same data source in Google Merchant Center. Uppercase letters (A-Z), numbers (0-9), hyphens (-), and underscores (_) are allowed, with a maximum length of 20 characters.'),
+            (new BoolField('include_variants', 'includeVariants'))->setDescription('Toggling the product export settings to determine whether or not to include the variants.'),
+            (new BoolField('generate_by_cronjob', 'generateByCronjob'))->addFlags(new Required())->setDescription('To determine whether the product exports are generated by cron jobs or live.'),
+            (new DateTimeField('generated_at', 'generatedAt'))->setDescription('Date and time when the product exports was last generated.'),
+            (new IntField('interval', 'interval'))->addFlags(new Required())->setDescription('The frequency interval when the product exports are generated like every 5 min, 1 hour, etc.'),
+            (new LongTextField('header_template', 'headerTemplate'))->addFlags(new AllowHtml(false))->setDescription('Property to specify the custom content displayed for the header section.'),
+            (new LongTextField('body_template', 'bodyTemplate'))->addFlags(new AllowHtml(false))->setDescription('Property to specify the custom content displayed for the body section.'),
+            (new LongTextField('footer_template', 'footerTemplate'))->addFlags(new AllowHtml(false))->setDescription('Property to specify the custom content displayed for the footer section.'),
+            (new BoolField('paused_schedule', 'pausedSchedule'))->setDescription('ProductExport generation is paused.'),
+            (new BoolField('is_running', 'isRunning'))->setDescription('ProductExport is right now generating or not.'),
             new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, 'id', false),
             new ManyToOneAssociationField('storefrontSalesChannel', 'storefront_sales_channel_id', SalesChannelDefinition::class, 'id', false),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),

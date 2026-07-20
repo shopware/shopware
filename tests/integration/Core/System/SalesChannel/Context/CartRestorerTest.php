@@ -14,19 +14,22 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestoredEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\Builder\Promotion\PromotionFixtureBuilder;
+use Shopware\Core\Test\Integration\Traits\Promotion\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -38,6 +41,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 class CartRestorerTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use PromotionIntegrationTestBehaviour;
 
     private Connection $connection;
 
@@ -102,10 +106,10 @@ class CartRestorerTest extends TestCase
     public function testRestoreByToken(): void
     {
         $currentContextToken = Uuid::randomHex();
-        $currentContext = $this->createSalesChannelContext($currentContextToken, $this->customerId);
+        $currentContext = $this->createSalesChannelContext($currentContextToken);
 
         $guestToken = Uuid::randomHex();
-        $guestContext = $this->createSalesChannelContext($guestToken, $this->customerId);
+        $guestContext = $this->createSalesChannelContext($guestToken);
 
         $this->contextPersister->save($currentContextToken, [], $currentContext->getSalesChannelId());
         $this->contextPersister->save($guestToken, [], $guestContext->getSalesChannelId());
@@ -115,7 +119,7 @@ class CartRestorerTest extends TestCase
         $productLineItem1 = $this->createLineItem($currentContext, 2);
         $productLineItem2 = $this->createLineItem($currentContext, 3);
 
-        $cart = $this->createAndSaveUnmodifiedCart($currentContext, $productLineItem1, $productLineItem2);
+        $this->createAndSaveUnmodifiedCart($currentContext, $productLineItem1, $productLineItem2);
 
         $restoredContext = $this->cartRestorer->restoreByToken($currentContextToken, $this->customerId, $guestContext);
 
@@ -196,8 +200,8 @@ class CartRestorerTest extends TestCase
 
     public function testRestoreByTokenWithNotExistingToken(): void
     {
-        $formerContext = $this->createSalesChannelContext('formerToken', $this->customerId);
-        $currentContext = $this->createSalesChannelContext('currentToken', $this->customerId);
+        $formerContext = $this->createSalesChannelContext('formerToken');
+        $currentContext = $this->createSalesChannelContext('currentToken');
 
         $this->eventDispatcher->addListener(SalesChannelContextRestoredEvent::class, $this->callbackFn);
 
@@ -217,7 +221,7 @@ class CartRestorerTest extends TestCase
         static::assertInstanceOf(LineItem::class, $guestProductLineItem1);
         static::assertInstanceOf(LineItem::class, $guestProductLineItem2);
 
-        $currentContext = $this->createSalesChannelContext('currentToken', $this->customerId);
+        $currentContext = $this->createSalesChannelContext('currentToken');
 
         $restoredContext = $this->cartRestorer->restoreByToken(
             $currentContext->getToken(),
@@ -312,7 +316,7 @@ class CartRestorerTest extends TestCase
         $expectedToken = Uuid::randomHex();
         $expectedContext = $this->createSalesChannelContext($expectedToken);
 
-        $currentContext = $this->createSalesChannelContext('currentToken', $this->customerId);
+        $currentContext = $this->createSalesChannelContext('currentToken');
 
         $this->contextPersister->save($expectedContext->getToken(), [], $currentContext->getSalesChannelId(), $this->customerId);
 
@@ -327,6 +331,35 @@ class CartRestorerTest extends TestCase
         static::assertInstanceOf(SalesChannelContextRestoredEvent::class, $salesChannelRestoredEvent);
     }
 
+    public function testRestoreWithRevokedTokensCreatesContextWithCustomer(): void
+    {
+        $customerGroupId = Uuid::randomHex();
+        static::getContainer()->get('customer_group.repository')->create([
+            ['id' => $customerGroupId, 'name' => 'special group'],
+        ], Context::createDefaultContext());
+        static::getContainer()->get('customer.repository')->update([
+            ['id' => $this->customerId, 'groupId' => $customerGroupId],
+        ], Context::createDefaultContext());
+
+        // The customer was logged in before, so a customer bound context exists
+        $customerToken = Uuid::randomHex();
+        $customerContext = $this->createSalesChannelContext($customerToken);
+        $this->contextPersister->save($customerToken, [], $customerContext->getSalesChannelId(), $this->customerId);
+
+        // All customer tokens get revoked, e.g. by a password change through the administration
+        $this->contextPersister->revokeAllCustomerTokens($this->customerId);
+
+        // The storefront session still uses the revoked token, which is anonymous now
+        $currentContext = $this->createSalesChannelContext($customerToken);
+
+        $restoredContext = $this->cartRestorer->restore($this->customerId, $currentContext);
+
+        $customer = $restoredContext->getCustomer();
+        static::assertNotNull($customer);
+        static::assertSame($this->customerId, $customer->getId());
+        static::assertSame($customerGroupId, $restoredContext->getCustomerGroupId());
+    }
+
     public function testGuestContextAndCartAreDeleted(): void
     {
         $currentContextToken = Uuid::randomHex();
@@ -335,7 +368,7 @@ class CartRestorerTest extends TestCase
 
         $this->contextPersister->save($currentContextToken, [], $currentContext->getSalesChannelId(), $this->customerId);
 
-        $cart = $this->createAndSaveUnmodifiedCart(
+        $this->createAndSaveUnmodifiedCart(
             $currentContext,
             $this->createLineItem($currentContext)->setType(LineItem::CUSTOM_LINE_ITEM_TYPE)
         );
@@ -389,7 +422,7 @@ class CartRestorerTest extends TestCase
         $productLineItem2 = $this->createLineItem($currentContext, $guestProductQuantity);
 
         // Create Guest cart
-        $guestCart = $this->createAndSaveUnmodifiedCart(
+        $this->createAndSaveUnmodifiedCart(
             $currentContext,
             $productLineItem1,
             $productLineItem2
@@ -408,7 +441,7 @@ class CartRestorerTest extends TestCase
 
         $productLineItem3 = $this->createLineItem($customerContext, 3);
 
-        $customerCart = $this->createAndSaveUnmodifiedCart(
+        $this->createAndSaveUnmodifiedCart(
             $customerContext,
             $savedLineItem,
             $productLineItem3
@@ -454,7 +487,7 @@ class CartRestorerTest extends TestCase
         $guestProductQuantity = 5;
         $productLineItem1 = $this->createLineItem($currentContext, 1);
         $productLineItem2 = $this->createLineItem($currentContext, $guestProductQuantity);
-        $guestCart = $this->createAndSaveUnmodifiedCart(
+        $this->createAndSaveUnmodifiedCart(
             $currentContext,
             $productLineItem1,
             $productLineItem2
@@ -517,6 +550,57 @@ class CartRestorerTest extends TestCase
         static::assertSame([], $restoreContext->getPermissions());
     }
 
+    public function testMergeCartsWithSetGroupPromotionDoesNotCrash(): void
+    {
+        $baseContext = Context::createDefaultContext();
+        $productId1 = $this->createProduct($baseContext);
+        $productId2 = $this->createProduct($baseContext);
+
+        $code = 'SET' . Random::getAlphanumericString(5);
+
+        $container = static::getContainer();
+        (new PromotionFixtureBuilder(
+            Uuid::randomHex(),
+            $container->get(SalesChannelContextFactory::class),
+            $container->get('promotion.repository'),
+            $container->get('promotion_setgroup.repository'),
+            $container->get('promotion_discount.repository')
+        ))
+            ->addSetGroup('COUNT', 2, 'PRICE_ASC')
+            ->setCode($code)
+            ->addDiscount(PromotionDiscountEntity::SCOPE_SET, PromotionDiscountEntity::TYPE_PERCENTAGE, 10.0, false, null)
+            ->buildPromotion();
+
+        $guestToken = Uuid::randomHex();
+        $guestContext = $this->createSalesChannelContext($guestToken);
+        $this->contextPersister->save($guestToken, [], $guestContext->getSalesChannelId());
+
+        $customerToken = Uuid::randomHex();
+        $customerContext = $this->createSalesChannelContext($customerToken);
+        $this->contextPersister->save($customerToken, [], $customerContext->getSalesChannelId(), $this->customerId);
+
+        $guestCart = $this->cartService->getCart($guestToken, $guestContext);
+        $guestCart = $this->addProduct($productId1, 1, $guestCart, $this->cartService, $guestContext);
+        $guestCart = $this->addProduct($productId2, 1, $guestCart, $this->cartService, $guestContext);
+        $guestCart = $this->addPromotionCode($code, $guestCart, $this->cartService, $guestContext);
+
+        static::assertGreaterThan(0, $guestCart->getLineItems()->count());
+
+        $customerCart = $this->cartService->getCart($customerToken, $customerContext);
+        $customerCart = $this->addProduct($productId1, 1, $customerCart, $this->cartService, $customerContext);
+        $customerCart = $this->addProduct($productId2, 1, $customerCart, $this->cartService, $customerContext);
+        $customerCart = $this->addPromotionCode($code, $customerCart, $this->cartService, $customerContext);
+
+        static::assertGreaterThan(0, $customerCart->getLineItems()->count());
+
+        $restoredContext = $this->cartRestorer->restore($this->customerId, $guestContext);
+
+        $restoredCart = $this->cartService->getCart($restoredContext->getToken(), $restoredContext);
+
+        static::assertFalse($restoredCart->isModified());
+        static::assertGreaterThan(0, $restoredCart->getLineItems()->count());
+    }
+
     private function createProduct(Context $context): string
     {
         $productId = Uuid::randomHex();
@@ -540,13 +624,8 @@ class CartRestorerTest extends TestCase
         return $productId;
     }
 
-    private function createSalesChannelContext(string $contextToken, ?string $customerId = null): SalesChannelContext
+    private function createSalesChannelContext(string $contextToken): SalesChannelContext
     {
-        $salesChannelData = [];
-        if ($customerId) {
-            $salesChannelData[SalesChannelContextService::CUSTOMER_ID] = $customerId;
-        }
-
         return static::getContainer()->get(SalesChannelContextFactory::class)->create(
             $contextToken,
             TestDefaults::SALES_CHANNEL
@@ -660,7 +739,7 @@ class CartRestorerTest extends TestCase
     ): array {
         $contextToken = Uuid::randomHex();
         $contextCustomerId = $withCustomerId ? $this->customerId : null;
-        $context = $this->createSalesChannelContext($contextToken, $contextCustomerId);
+        $context = $this->createSalesChannelContext($contextToken);
         $this->contextPersister->save(
             $contextToken,
             [],

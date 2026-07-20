@@ -6,6 +6,7 @@ use Composer\InstalledVersions;
 use Composer\IO\NullIO;
 use Composer\Semver\Comparator;
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
@@ -47,9 +48,13 @@ use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
+use Shopware\Core\System\CustomField\CustomFieldSetPersister;
+use Shopware\Core\System\CustomField\CustomFieldXmlLoader;
+use Shopware\Core\System\CustomField\Xml\CustomFields;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
@@ -60,6 +65,7 @@ use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 class PluginLifecycleService
 {
     final public const STATE_SKIP_ASSET_BUILDING = 'skip-asset-building';
+    final public const PLUGIN_LIFECYCLE_METHOD_ACTIVATE = 'activate';
 
     /**
      * @var array{plugin: PluginEntity, context: Context}|null
@@ -67,6 +73,13 @@ class PluginLifecycleService
     private static ?array $pluginToBeDeleted = null;
 
     private static bool $registeredListener = false;
+
+    /**
+     * For `executeComposerRemoveCommand`, we need to keep the original event dispatcher, because during plugin
+     * deactivation, the kernel is rebooted and the dispatcher replaced with the new one,
+     * but the KernelEvents are triggered on the original event dispatcher.
+     */
+    private EventDispatcherInterface $originalEventDispatcher;
 
     /**
      * @param EntityRepository<PluginCollection> $pluginRepo
@@ -88,7 +101,11 @@ class PluginLifecycleService
         private readonly PluginService $pluginService,
         private readonly VersionSanitizer $versionSanitizer,
         private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly RequestStack $requestStack,
+        private readonly CustomFieldSetPersister $customFieldSetPersister,
+        private readonly ClockInterface $clock,
     ) {
+        $this->originalEventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -130,7 +147,7 @@ class PluginLifecycleService
                 $plugin->setVersion($updateVersion);
                 $pluginData['upgradeVersion'] = null;
                 $plugin->setUpgradeVersion(null);
-                $upgradeDate = new \DateTime();
+                $upgradeDate = $this->clock->now();
                 $pluginData['upgradedAt'] = $upgradeDate->format(Defaults::STORAGE_DATE_TIME_FORMAT);
                 $plugin->setUpgradedAt($upgradeDate);
             }
@@ -143,7 +160,9 @@ class PluginLifecycleService
 
             $this->runMigrations($installContext);
 
-            $installDate = new \DateTime();
+            $this->syncPluginCustomFields($pluginBaseClass, $shopwareContext, false);
+
+            $installDate = $this->clock->now();
             $pluginData['installedAt'] = $installDate->format(Defaults::STORAGE_DATE_TIME_FORMAT);
             $plugin->setInstalledAt($installDate);
 
@@ -153,8 +172,14 @@ class PluginLifecycleService
 
             $this->eventDispatcher->dispatch(new PluginPostInstallEvent($plugin, $installContext));
         } catch (\Throwable $e) {
-            if ($didRunComposerRequire && $plugin->getComposerName() && !$this->container->getParameter('shopware.deployment.cluster_setup')) {
-                $this->executor->remove($plugin->getComposerName(), $plugin->getName());
+            try {
+                if ($didRunComposerRequire && $plugin->getComposerName() && !$this->container->getParameter('shopware.deployment.cluster_setup')) {
+                    $this->executor->remove($plugin->getComposerName(), $plugin->getName());
+                }
+            } finally {
+                if ($plugin->getInstalledAt()) {
+                    $this->uninstallPlugin($plugin, $shopwareContext, true);
+                }
             }
 
             throw $e;
@@ -224,6 +249,7 @@ class PluginLifecycleService
 
         if (!$uninstallContext->keepUserData()) {
             $this->removeCustomEntities($plugin->getId());
+            $this->removePluginCustomFields($pluginBaseClass, $shopwareContext);
         }
 
         if ($pluginBaseClass->executeComposerCommands()) {
@@ -291,13 +317,15 @@ class PluginLifecycleService
         }
 
         if ($plugin->getActive() && !$shopwareContext->hasState(self::STATE_SKIP_ASSET_BUILDING)) {
-            $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString);
+            $this->assetInstaller->copyAssets($pluginBaseClass);
         }
 
         $this->runMigrations($updateContext);
 
+        $this->syncPluginCustomFields($pluginBaseClass, $shopwareContext, true);
+
         $updateVersion = $updateContext->getUpdatePluginVersion();
-        $updateDate = new \DateTime();
+        $updateDate = $this->clock->now();
         $this->updatePluginData(
             [
                 'id' => $plugin->getId(),
@@ -321,7 +349,7 @@ class PluginLifecycleService
     /**
      * @throws PluginNotInstalledException
      */
-    public function activatePlugin(PluginEntity $plugin, Context $shopwareContext, bool $reactivate = false): ActivateContext
+    public function activatePlugin(PluginEntity $plugin, Context $shopwareContext, bool $reactivate = false, bool $validateRequirements = true): ActivateContext
     {
         if ($plugin->getInstalledAt() === null) {
             throw PluginException::notInstalled($plugin->getName());
@@ -342,7 +370,9 @@ class PluginLifecycleService
             return $activateContext;
         }
 
-        $this->requirementValidator->validateRequirements($plugin, $shopwareContext, 'activate');
+        if ($validateRequirements === true) {
+            $this->requirementValidator->validateRequirements($plugin, $shopwareContext, self::PLUGIN_LIFECYCLE_METHOD_ACTIVATE);
+        }
 
         $this->eventDispatcher->dispatch(new PluginPreActivateEvent($plugin, $activateContext));
 
@@ -368,7 +398,7 @@ class PluginLifecycleService
         $this->runMigrations($activateContext);
 
         if (!$shopwareContext->hasState(self::STATE_SKIP_ASSET_BUILDING)) {
-            $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString);
+            $this->assetInstaller->copyAssets($pluginBaseClass);
         }
 
         $this->updatePluginData(
@@ -381,7 +411,21 @@ class PluginLifecycleService
 
         $this->signalWorkerStopInOldCacheDir();
 
-        $this->eventDispatcher->dispatch(new PluginPostActivateEvent($plugin, $activateContext));
+        try {
+            $this->eventDispatcher->dispatch(new PluginPostActivateEvent($plugin, $activateContext));
+        } catch (\Throwable $exception) {
+            $plugin->setActive(false);
+
+            $this->updatePluginData(
+                [
+                    'id' => $plugin->getId(),
+                    'active' => false,
+                ],
+                $shopwareContext
+            );
+
+            throw $exception;
+        }
 
         return $activateContext;
     }
@@ -408,7 +452,7 @@ class PluginLifecycleService
             $dependantPlugins
         );
 
-        if (\count($dependants) > 0) {
+        if ($dependants !== []) {
             throw PluginException::hasActiveDependants($plugin->getName(), $dependants);
         }
 
@@ -494,6 +538,14 @@ class PluginLifecycleService
         $this->removePluginComposerDependency($plugin, $context);
     }
 
+    /**
+     * @internal only exists for overriding in tests
+     */
+    protected function isCLI(): bool
+    {
+        return \PHP_SAPI === 'cli';
+    }
+
     private function removePluginComposerDependency(PluginEntity $plugin, Context $context): void
     {
         if ($this->container->getParameter('shopware.deployment.cluster_setup')) {
@@ -512,6 +564,28 @@ class PluginLifecycleService
 
         // running composer require may have consequences for other plugins, when they are required by the plugin being uninstalled
         $this->pluginService->refreshPlugins($context, new NullIO());
+    }
+
+    private function syncPluginCustomFields(Plugin $pluginBaseClass, Context $context, bool $deleteMissingXml): void
+    {
+        $xmlFile = $pluginBaseClass->getPath() . '/Resources/config/custom-fields.xml';
+
+        if (!is_file($xmlFile)) {
+            if ($deleteMissingXml) {
+                $this->customFieldSetPersister->sync(CustomFields::fromArray([]), null, $pluginBaseClass->getName(), $context);
+            }
+
+            return;
+        }
+
+        $customFields = CustomFieldXmlLoader::load($xmlFile);
+
+        $this->customFieldSetPersister->sync($customFields, null, $pluginBaseClass->getName(), $context);
+    }
+
+    private function removePluginCustomFields(Plugin $pluginBaseClass, Context $context): void
+    {
+        $this->customFieldSetPersister->sync(CustomFields::fromArray([]), null, $pluginBaseClass->getName(), $context);
     }
 
     private function removeCustomEntities(string $pluginId): void
@@ -586,6 +660,12 @@ class PluginLifecycleService
 
     private function rebuildContainerWithNewPluginState(PluginEntity $plugin, string $pluginNamespace): void
     {
+        // Release session lock before container rebuild (to avoid holding file based session lock during long operation)
+        $request = $this->requestStack->getCurrentRequest();
+        if ($request && $request->hasSession(true) && $request->getSession()->isStarted()) {
+            $request->getSession()->save(); // Releases flock() on session file
+        }
+
         $kernel = $this->container->get('kernel');
 
         $pluginDir = $kernel->getContainer()->getParameter('kernel.plugin_dir');
@@ -596,11 +676,12 @@ class PluginLifecycleService
         $pluginLoader = $this->container->get(KernelPluginLoader::class);
 
         $plugins = $pluginLoader->getPluginInfos();
-        foreach ($plugins as $i => $pluginData) {
+        foreach ($plugins as &$pluginData) {
             if ($pluginData['baseClass'] === $plugin->getBaseClass()) {
-                $plugins[$i]['active'] = $plugin->getActive();
+                $pluginData['active'] = $plugin->getActive();
             }
         }
+        unset($pluginData);
 
         if (!$plugin->getActive()) {
             $this->clearEntityExtensions($pluginNamespace);
@@ -654,7 +735,7 @@ class PluginLifecycleService
     private function signalWorkerStopInOldCacheDir(): void
     {
         $cacheItem = $this->restartSignalCachePool->getItem(StopWorkerOnRestartSignalListener::RESTART_REQUESTED_TIMESTAMP_KEY);
-        $cacheItem->set(microtime(true));
+        $cacheItem->set((float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT));
         $this->restartSignalCachePool->save($cacheItem);
     }
 
@@ -715,11 +796,10 @@ class PluginLifecycleService
 
     private function executeComposerRemoveCommand(PluginEntity $plugin, Context $shopwareContext): void
     {
-        if (\PHP_SAPI === 'cli') {
+        if ($this->isCLI()) {
             // only remove the plugin composer dependency directly when running in CLI
             // otherwise do it async in kernel.response
             $this->removePluginComposerDependency($plugin, $shopwareContext);
-        /* @codeCoverageIgnoreStart -> code path can not be executed in unit tests as SAPI will always be CLI */
         } else {
             self::$pluginToBeDeleted = [
                 'plugin' => $plugin,
@@ -727,10 +807,9 @@ class PluginLifecycleService
             ];
 
             if (!self::$registeredListener) {
-                $this->eventDispatcher->addListener(KernelEvents::RESPONSE, $this->onResponse(...), \PHP_INT_MAX);
+                $this->originalEventDispatcher->addListener(KernelEvents::RESPONSE, $this->onResponse(...), \PHP_INT_MAX);
                 self::$registeredListener = true;
             }
         }
-        /* @codeCoverageIgnoreEnd */
     }
 }

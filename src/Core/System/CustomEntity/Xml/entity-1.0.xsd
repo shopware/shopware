@@ -122,6 +122,7 @@
         <xs:attribute type="xs:string" name="reference" use="required" />
         <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
         <xs:attribute type="xs:boolean" name="inherited" />
+        <xs:attribute type="xs:boolean" name="ignore-missing-reference" default="false" />
     </xs:complexType>
 
     <xs:complexType name="field-many-to-one-type">
@@ -131,6 +132,7 @@
         <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
         <xs:attribute type="xs:boolean" name="inherited" />
         <xs:attribute type="on-delete" name="on-delete" use="required" />
+        <xs:attribute type="xs:boolean" name="ignore-missing-reference" default="false" />
     </xs:complexType>
 
     <xs:complexType name="field-one-to-many-type">
@@ -140,6 +142,7 @@
         <xs:attribute type="xs:boolean" name="inherited" />
         <xs:attribute type="xs:boolean" name="reverse-required" default="false" />
         <xs:attribute type="on-delete" name="on-delete" use="required" />
+        <xs:attribute type="xs:boolean" name="ignore-missing-reference" default="false" />
     </xs:complexType>
 
     <xs:complexType name="field-one-to-one-type">
@@ -149,5 +152,6 @@
         <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
         <xs:attribute type="xs:boolean" name="inherited" />
         <xs:attribute type="on-delete" name="on-delete" use="required" />
+        <xs:attribute type="xs:boolean" name="ignore-missing-reference" default="false" />
     </xs:complexType>
 </xs:schema>

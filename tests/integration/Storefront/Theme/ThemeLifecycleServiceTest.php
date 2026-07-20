@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\File\FileNameProvider;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
@@ -26,12 +28,14 @@ use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationCollection;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationEntity;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeFilesystemResolver;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\ThemeWithFileAssociations\ThemeWithFileAssociations;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\ThemeWithLabels\ThemeWithLabels;
 
@@ -65,15 +69,17 @@ class ThemeLifecycleServiceTest extends TestCase
 
     private ThemeFilesystemResolver $themeFilesystemResolver;
 
+    private ThemeRuntimeConfigService&MockObject $themeRuntimeConfigService;
+
     protected function setUp(): void
     {
         $kernel = $this->createMock(Kernel::class);
-        $kernel->expects($this->any())->method('getBundles')->willReturn([
+        $kernel->method('getBundles')->willReturn([
             'ThemeWithFileAssociations' => new ThemeWithFileAssociations(),
             'ThemeWithLabels' => new ThemeWithLabels(),
         ]);
 
-        $kernel->expects($this->any())->method('getBundle')->willReturnMap([
+        $kernel->method('getBundle')->willReturnMap([
             ['ThemeWithFileAssociations', new ThemeWithFileAssociations()],
             ['ThemeWithLabels', new ThemeWithLabels()],
         ]);
@@ -86,6 +92,9 @@ class ThemeLifecycleServiceTest extends TestCase
         $this->mediaRepository = static::getContainer()->get('media.repository');
         $this->mediaFolderRepository = static::getContainer()->get('media_folder.repository');
         $this->connection = static::getContainer()->get(Connection::class);
+
+        $this->themeRuntimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+
         $this->themeLifecycleService = new ThemeLifecycleService(
             static::getContainer()->get(StorefrontPluginRegistry::class),
             $this->themeRepository,
@@ -98,10 +107,27 @@ class ThemeLifecycleServiceTest extends TestCase
             static::getContainer()->get('language.repository'),
             static::getContainer()->get('theme_child.repository'),
             $this->connection,
-            static::getContainer()->get(StorefrontPluginConfigurationFactory::class)
+            static::getContainer()->get(StorefrontPluginConfigurationFactory::class),
+            $this->themeRuntimeConfigService,
         );
 
         $this->context = Context::createDefaultContext();
+    }
+
+    public function testRefreshThemesCorrectConfigurationCollection(): void
+    {
+        $pluginRegistry = static::getContainer()->get(StorefrontPluginRegistry::class);
+        $pluginConfigurationCollection = $pluginRegistry->getConfigurations();
+        $bundle = $this->getThemeConfig();
+        $themeConfigurations = new StorefrontPluginConfigurationCollection([$bundle]);
+
+        foreach ($themeConfigurations as $themeConfiguration) {
+            $this->themeRuntimeConfigService->expects($this->once())
+                ->method('refreshRuntimeConfig')
+                ->with(static::anything(), $themeConfiguration, $this->context, false, $pluginConfigurationCollection);
+        }
+
+        $this->themeLifecycleService->refreshThemes($this->context, $themeConfigurations);
     }
 
     public function testItRegistersANewThemeCorrectly(): void
@@ -311,14 +337,14 @@ class ThemeLifecycleServiceTest extends TestCase
         $firstTranslation = $theme->getTranslations()->first();
         static::assertNotNull($firstTranslation);
         static::assertSame('en-GB', $firstTranslation->getLanguage()?->getLocale()?->getCode());
-        static::assertSame(['fields.sw-image' => 'test label'], $firstTranslation->getLabels());
-        static::assertSame(['fields.sw-image' => 'test help'], $firstTranslation->getHelpTexts());
+        static::assertSame(['fields.sw-image' => 'test label'], Feature::silent('v6.8.0.0', fn () => $firstTranslation->getLabels()));
+        static::assertSame(['fields.sw-image' => 'test help'], Feature::silent('v6.8.0.0', fn () => $firstTranslation->getHelpTexts()));
     }
 
     public function testItUsesEnglishTranslationsAsFallbackIfDefaultLanguageIsNotProvided(): void
     {
         $bundle = $this->getThemeConfigWithLabels();
-        $this->changeDefaultLanguageLocale('xx-XX');
+        $this->changeDefaultLanguageLocale('de-DE-1');
 
         $this->themeLifecycleService->refreshTheme($bundle, $this->context);
 
@@ -326,21 +352,21 @@ class ThemeLifecycleServiceTest extends TestCase
 
         static::assertInstanceOf(ThemeTranslationCollection::class, $theme->getTranslations());
         static::assertCount(2, $theme->getTranslations());
-        $translation = $this->getTranslationByLocale('xx-XX', $theme->getTranslations());
+        $translation = $this->getTranslationByLocale('de-DE-1', $theme->getTranslations());
         static::assertSame([
             'fields.sw-image' => 'test label',
-        ], $translation->getLabels());
+        ], Feature::silent('v6.8.0.0', fn () => $translation->getLabels()));
         static::assertSame([
             'fields.sw-image' => 'test help',
-        ], $translation->getHelpTexts());
+        ], Feature::silent('v6.8.0.0', fn () => $translation->getHelpTexts()));
 
         $germanTranslation = $this->getTranslationByLocale('de-DE', $theme->getTranslations());
         static::assertSame([
             'fields.sw-image' => 'Test label',
-        ], $germanTranslation->getLabels());
+        ], Feature::silent('v6.8.0.0', fn () => $germanTranslation->getLabels()));
         static::assertSame([
             'fields.sw-image' => 'Test Hilfe',
-        ], $germanTranslation->getHelpTexts());
+        ], Feature::silent('v6.8.0.0', fn () => $germanTranslation->getHelpTexts()));
     }
 
     public function testItRemovesAThemeCorrectly(): void
@@ -361,6 +387,10 @@ class ThemeLifecycleServiceTest extends TestCase
         foreach ($themeMedia as $media) {
             static::assertSame($themeDefaultFolderId, $media->getMediaFolderId());
         }
+
+        $this->themeRuntimeConfigService->expects($this->once())
+            ->method('deleteByTechnicalName')
+            ->with($bundle->getTechnicalName());
 
         $this->themeLifecycleService->removeTheme($bundle->getTechnicalName(), $this->context);
 
@@ -405,6 +435,10 @@ class ThemeLifecycleServiceTest extends TestCase
         foreach ($themeMedia as $media) {
             static::assertSame($themeDefaultFolderId, $media->getMediaFolderId());
         }
+
+        $this->themeRuntimeConfigService->expects($this->once())
+            ->method('deleteByTechnicalName')
+            ->with($bundle->getTechnicalName());
 
         $this->themeLifecycleService->removeTheme($bundle->getTechnicalName(), $this->context);
 

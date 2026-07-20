@@ -6,12 +6,15 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use OpenSearchDSL\BuilderInterface;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SqlHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageLoaderInterface;
 use Shopware\Core\System\Language\SalesChannelLanguageLoader;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
@@ -33,9 +36,10 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         private readonly AbstractProductSearchQueryBuilder $searchQueryBuilder,
         private readonly ElasticsearchFieldBuilder $fieldBuilder,
         private readonly ElasticsearchFieldMapper $fieldMapper,
-        private readonly SalesChannelLanguageLoader $languageLoader,
+        private readonly SalesChannelLanguageLoader $salesChannelLanguageLoader,
         private readonly bool $excludeSource,
-        private readonly string $environment
+        private readonly string $environment,
+        private readonly LanguageLoaderInterface $languageLoader
     ) {
     }
 
@@ -49,21 +53,39 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
      */
     public function getMapping(Context $context): array
     {
-        $languageFields = $this->fieldBuilder->translated(self::getTextFieldConfig());
+        $languageFields = $this->fieldBuilder->translated(self::buildTextFieldConfig());
+        $languageFieldsWithLengthNorm = $this->fieldBuilder->translated(self::buildTextFieldConfig(lengthNorm: true));
+        $technicalLanguageFieldsWithExact = $this->fieldBuilder->translated(self::buildTextFieldConfig(withExact: true, technicalTerms: true));
+        $salesChannelByLanguage = $this->salesChannelLanguageLoader->loadLanguages();
+        $allSalesChannels = array_values(array_unique(array_merge(...array_values($salesChannelByLanguage))));
 
-        $debug = $this->environment !== 'prod';
+        $visibilities = [];
+
+        foreach ($allSalesChannels as $salesChannelId) {
+            $visibilities['visibility_' . $salesChannelId] = [
+                'type' => 'integer',
+            ];
+        }
+
+        $debug = $this->environment === 'dev' || $this->environment === 'test';
 
         $properties = [
             'id' => self::KEYWORD_FIELD,
-            'name' => $languageFields,
-            'description' => $languageFields,
+            'name' => $technicalLanguageFieldsWithExact,
+            'parent' => ElasticsearchFieldBuilder::nested([
+                'name' => $technicalLanguageFieldsWithExact,
+            ]),
+            'description' => $languageFieldsWithLengthNorm,
             'metaTitle' => $languageFields,
-            'metaDescription' => $languageFields,
-            'customSearchKeywords' => $languageFields,
+            'metaDescription' => $languageFieldsWithLengthNorm,
+            'customSearchKeywords' => $this->fieldBuilder->translated(self::buildTextFieldConfig(withExact: true, technicalTerms: true, lengthNorm: true)),
             'categories' => ElasticsearchFieldBuilder::nested([
                 'name' => $languageFields,
             ]),
             'manufacturer' => ElasticsearchFieldBuilder::nested([
+                'name' => $languageFields,
+            ]),
+            'deliveryTime' => ElasticsearchFieldBuilder::nested([
                 'name' => $languageFields,
             ]),
             'options' => ElasticsearchFieldBuilder::nested([
@@ -86,15 +108,17 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             'propertyIds' => self::KEYWORD_FIELD,
             'optionIds' => self::KEYWORD_FIELD,
             'tagIds' => self::KEYWORD_FIELD,
+            'streamIds' => self::KEYWORD_FIELD,
             'autoIncrement' => self::INT_FIELD,
             'manufacturerId' => self::KEYWORD_FIELD,
-            'manufacturerNumber' => self::getTextFieldConfig(),
+            'manufacturerNumber' => self::buildTextFieldConfig(withExact: true, technicalTerms: true),
+            'deliveryTimeId' => self::KEYWORD_FIELD,
             'displayGroup' => self::KEYWORD_FIELD,
-            'ean' => self::getTextFieldConfig(),
+            'ean' => self::buildTextFieldConfig(withExact: true, technicalTerms: true),
             'height' => self::FLOAT_FIELD,
             'length' => self::FLOAT_FIELD,
             'markAsTopseller' => self::BOOLEAN_FIELD,
-            'productNumber' => self::getTextFieldConfig(),
+            'productNumber' => self::buildTextFieldConfig(withExact: true, technicalTerms: true),
             'ratingAverage' => self::FLOAT_FIELD,
             'releaseDate' => ElasticsearchFieldBuilder::datetime(),
             'createdAt' => ElasticsearchFieldBuilder::datetime(),
@@ -103,7 +127,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             'availableStock' => self::INT_FIELD,
             'shippingFree' => self::BOOLEAN_FIELD,
             'taxId' => self::KEYWORD_FIELD,
-            'tags' => ElasticsearchFieldBuilder::nested(['name' => self::getTextFieldConfig()]),
+            'tags' => ElasticsearchFieldBuilder::nested(['name' => self::buildTextFieldConfig()]),
             'visibilities' => ElasticsearchFieldBuilder::nested([
                 'id' => null,
                 'salesChannelId' => self::KEYWORD_FIELD,
@@ -112,9 +136,17 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             'coverId' => self::KEYWORD_FIELD,
             'weight' => self::FLOAT_FIELD,
             'width' => self::FLOAT_FIELD,
+            'type' => self::KEYWORD_FIELD,
             'states' => self::KEYWORD_FIELD,
             'customFields' => $this->fieldBuilder->customFields($this->getEntityDefinition()->getEntityName(), $context),
+            ...$visibilities,
         ];
+
+        if (Feature::isActive('v6.8.0.0')) {
+            unset($properties['categoriesRo']);
+            unset($properties['visibilities']);
+            unset($properties['states']);
+        }
 
         $mapping = [
             'dynamic_templates' => [
@@ -164,7 +196,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     {
         $data = $this->fetchProducts($ids, $context);
 
-        if (empty($data)) {
+        if ($data === []) {
             return [];
         }
 
@@ -184,13 +216,45 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
         $groups = $this->fetchProperties(\array_keys($groupIds));
 
-        /** @var array<string, string> $item */
+        $languageMapping = $this->getLanguageMapping();
+
         foreach ($data as $id => $item) {
-            /** @var array<int|string, array<string, string|null>> $translation */
+            /** @var list<array<string, string|null>> $translation */
             $translation = $item['translation'] ?? [];
-            /** @var array<int, array{id: string, languageId?: string}> $categories */
+            /** @var list<array<string, string|null>> $categories */
             $categories = $item['categories'] ?? [];
 
+            $names = ElasticsearchFieldMapper::translated(field: 'name', items: $translation);
+            $names = $this->fillFallbackTranslation($languageMapping, $names);
+            $parentNames = ElasticsearchFieldMapper::translated(field: 'parentName', items: $translation);
+            $parentNames = $this->fillFallbackTranslation($languageMapping, $parentNames);
+
+            $customFields = $this->mapCustomFields(
+                variantCustomFields: ElasticsearchFieldMapper::translated(field: 'customFields', items: $translation, stripText: false),
+                parentCustomFields: ElasticsearchFieldMapper::translated(field: 'parentCustomFields', items: $translation, stripText: false),
+                context: $context
+            );
+
+            /** @var array<string, string> $item */
+            $visibilities = ElasticsearchIndexingUtils::parseJson($item, 'visibilities');
+
+            $visibilitiesFlatten = [];
+
+            foreach ($visibilities as $key => $visibility) {
+                if (!isset($visibility['salesChannelId'])) {
+                    unset($visibilities[$key]);
+                    continue;
+                }
+
+                $visibilitiesFlatten['visibility_' . $visibility['salesChannelId']] = $visibility['visibility'] ?? 0;
+            }
+
+            // no visibilities found, skip this product
+            if ($visibilitiesFlatten === []) {
+                continue;
+            }
+
+            /** @var array<string, string> $item */
             $documents[$id] = [
                 'id' => $id,
                 'autoIncrement' => (float) $item['autoIncrement'],
@@ -200,13 +264,13 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'isCloseout' => (bool) $item['isCloseout'],
                 'shippingFree' => (bool) $item['shippingFree'],
                 'markAsTopseller' => (bool) $item['markAsTopseller'],
-                'visibilities' => array_map(function (array $visibility) {
+                'visibilities' => array_map(static function (array $visibility) {
                     return array_merge([
                         '_count' => 1,
                     ], $visibility);
-                }, ElasticsearchIndexingUtils::parseJson($item, 'visibilities')),
+                }, $visibilities),
                 'availableStock' => (int) $item['availableStock'],
-                'productNumber' => $item['productNumber'],
+                'productNumber' => array_filter([$item['productNumber'], $item['parentProductNumber'] ?? null]),
                 'ean' => $item['ean'],
                 'displayGroup' => $item['displayGroup'],
                 'sales' => (int) $item['sales'],
@@ -215,15 +279,17 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'width' => (float) $item['width'],
                 'length' => (float) $item['length'],
                 'height' => (float) $item['height'],
+                'type' => $item['type'],
                 'manufacturerId' => $item['productManufacturerId'],
                 'manufacturerNumber' => $item['manufacturerNumber'],
+                'deliveryTimeId' => $item['deliveryTimeId'],
                 'releaseDate' => isset($item['releaseDate']) ? (new \DateTime($item['releaseDate']))->format('c') : null,
                 'createdAt' => isset($item['createdAt']) ? (new \DateTime($item['createdAt']))->format('c') : null,
                 'categoryTree' => ElasticsearchIndexingUtils::parseJson($item, 'categoryTree'),
-                'categoriesRo' => array_values(array_map(fn (string $categoryId) => ['id' => $categoryId, '_count' => 1], ElasticsearchIndexingUtils::parseJson($item, 'categoryTree'))),
+                'categoriesRo' => array_values(array_map(static fn (string $categoryId) => ['id' => $categoryId, '_count' => 1], ElasticsearchIndexingUtils::parseJson($item, 'categoryTree'))),
                 'taxId' => $item['taxId'],
-                'tags' => array_filter(array_map(function (array $tag) {
-                    return empty($tag['id']) ? null : [
+                'tags' => array_filter(array_map(static function (array $tag) {
+                    return ($tag['id'] ?? '') === '' ? null : [
                         'id' => $tag['id'],
                         'name' => ElasticsearchIndexingUtils::stripText($tag['name'] ?? ''),
                         '_count' => 1,
@@ -232,19 +298,24 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'parentId' => $item['parentId'],
                 'coverId' => $item['coverId'],
                 'childCount' => (int) $item['childCount'],
-                'categories' => ElasticsearchFieldMapper::toManyAssociations(items: $categories ?? [], translatedFields: ['name']),
+                'categories' => ElasticsearchFieldMapper::toManyAssociations(items: $categories, translatedFields: ['name']),
                 'manufacturer' => [
                     'id' => $item['productManufacturerId'],
                     'name' => ElasticsearchFieldMapper::translated(field: 'manufacturerName', items: $translation),
                     '_count' => 1,
                 ],
-                'properties' => array_values(array_map(function (string $propertyId) use ($groups) {
+                'deliveryTime' => [
+                    'id' => $item['deliveryTimeId'],
+                    'name' => ElasticsearchFieldMapper::translated(field: 'deliveryTimeName', items: $translation),
+                    '_count' => 1,
+                ],
+                'properties' => array_values(array_map(static function (string $propertyId) use ($groups) {
                     return array_merge([
                         'id' => $propertyId,
                         '_count' => 1,
                     ], $groups[$propertyId] ?? []);
                 }, ElasticsearchIndexingUtils::parseJson($item, 'propertyIds'))),
-                'options' => array_values(array_map(function (string $optionId) use ($groups) {
+                'options' => array_values(array_map(static function (string $optionId) use ($groups) {
                     return array_merge([
                         'id' => $optionId,
                         '_count' => 1,
@@ -254,19 +325,28 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'optionIds' => ElasticsearchIndexingUtils::parseJson($item, 'optionIds'),
                 'propertyIds' => ElasticsearchIndexingUtils::parseJson($item, 'propertyIds'),
                 'tagIds' => ElasticsearchIndexingUtils::parseJson($item, 'tagIds'),
+                'streamIds' => ElasticsearchIndexingUtils::parseJson($item, 'streamIds'),
                 'states' => ElasticsearchIndexingUtils::parseJson($item, 'states'),
-                'customFields' => $this->mapCustomFields(
-                    variantCustomFields: ElasticsearchFieldMapper::translated(field: 'customFields', items: $translation, stripText: false),
-                    parentCustomFields: ElasticsearchFieldMapper::translated(field: 'parentCustomFields', items: $translation, stripText: false),
-                    context: $context
-                ),
-                'name' => ElasticsearchFieldMapper::translated(field: 'name', items: $translation),
+                'customFields' => $customFields,
+                'name' => $names,
+                'parent' => $item['parentId'] !== null ? [
+                    'id' => $item['parentId'],
+                    '_count' => 1,
+                    'name' => $parentNames,
+                ] : null,
                 'description' => ElasticsearchFieldMapper::translated(field: 'description', items: $translation),
                 'metaTitle' => ElasticsearchFieldMapper::translated(field: 'metaTitle', items: $translation),
                 'metaDescription' => ElasticsearchFieldMapper::translated(field: 'metaDescription', items: $translation),
                 'customSearchKeywords' => ElasticsearchFieldMapper::translated(field: 'customSearchKeywords', items: $translation),
                 ...$this->mapCheapestPrice(ElasticsearchIndexingUtils::parseJson($item, 'cheapest_price_accessor')),
+                ...$visibilitiesFlatten,
             ];
+
+            if (Feature::isActive('v6.8.0.0')) {
+                unset($documents[$id]['categoriesRo']);
+                unset($documents[$id]['visibilities']);
+                unset($documents[$id]['states']);
+            }
         }
 
         return $documents;
@@ -275,11 +355,16 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     /**
      * @param array<string> $ids
      *
-     * @return array<string, array<string, array<mixed>|string>>
+     * @return array<string, array<string, string|array<int, array<string, string|null>>|null>>
      */
     private function fetchProducts(array $ids, Context $context): array
     {
-        $languages = \array_keys($this->languageLoader->loadLanguages());
+        $languages = \array_keys($this->salesChannelLanguageLoader->loadLanguages());
+
+        // always add the system language to have a fallback
+        if (!\in_array(Defaults::LANGUAGE_SYSTEM, $languages, true)) {
+            $languages[] = Defaults::LANGUAGE_SYSTEM;
+        }
 
         $baseSql = <<<'SQL'
 SELECT
@@ -292,8 +377,10 @@ SELECT
     IFNULL(p.available_stock, pp.available_stock) AS availableStock,
     IFNULL(p.rating_average, pp.rating_average) AS ratingAverage,
     p.product_number as productNumber,
+    pp.product_number as parentProductNumber,
     p.sales,
     LOWER(HEX(p.manufacturer)) AS productManufacturerId,
+    LOWER(HEX(p.delivery_time_id)) as deliveryTimeId,
     IFNULL(p.shipping_free, pp.shipping_free) AS shippingFree,
     IFNULL(p.is_closeout, pp.is_closeout) AS isCloseout,
     LOWER(HEX(IFNULL(p.product_media_id, pp.product_media_id))) AS coverId,
@@ -308,6 +395,7 @@ SELECT
     IFNULL(p.option_ids, pp.option_ids) AS optionIds,
     IFNULL(p.property_ids, pp.property_ids) AS propertyIds,
     IFNULL(p.tag_ids, pp.tag_ids) AS tagIds,
+    IFNULL(p.stream_ids, pp.stream_ids) AS streamIds,
     LOWER(HEX(IFNULL(p.tax_id, pp.tax_id))) AS taxId,
     IFNULL(p.stock, pp.stock) AS stock,
     IFNULL(p.ean, pp.ean) AS ean,
@@ -317,7 +405,7 @@ SELECT
     IFNULL(p.cheapest_price_accessor, pp.cheapest_price_accessor) as cheapest_price_accessor,
     LOWER(HEX(p.parent_id)) as parentId,
     p.child_count as childCount,
-    p.states
+    p.type
 
 FROM product p
     LEFT JOIN product pp ON(p.parent_id = pp.id AND pp.version_id = :liveVersionId)
@@ -330,6 +418,61 @@ WHERE p.id IN (:ids) AND p.version_id = :liveVersionId AND (p.child_count = 0 OR
 GROUP BY p.id
 SQL;
 
+        if (!Feature::isActive('v6.8.0.0')) {
+            $baseSql = <<<'SQL'
+SELECT
+    LOWER(HEX(p.id)) AS id,
+    IFNULL(p.active, pp.active) AS active,
+    p.available AS available,
+    #tags#,
+    #visibilities#,
+    IFNULL(p.manufacturer_number, pp.manufacturer_number) AS manufacturerNumber,
+    IFNULL(p.available_stock, pp.available_stock) AS availableStock,
+    IFNULL(p.rating_average, pp.rating_average) AS ratingAverage,
+    p.product_number as productNumber,
+    pp.product_number as parentProductNumber,
+    p.sales,
+    LOWER(HEX(p.manufacturer)) AS productManufacturerId,
+    LOWER(HEX(p.delivery_time_id)) as deliveryTimeId,
+    IFNULL(p.shipping_free, pp.shipping_free) AS shippingFree,
+    IFNULL(p.is_closeout, pp.is_closeout) AS isCloseout,
+    LOWER(HEX(IFNULL(p.product_media_id, pp.product_media_id))) AS coverId,
+    IFNULL(p.weight, pp.weight) AS weight,
+    IFNULL(p.length, pp.length) AS length,
+    IFNULL(p.height, pp.height) AS height,
+    IFNULL(p.width, pp.width) AS width,
+    IFNULL(p.release_date, pp.release_date) AS releaseDate,
+    IFNULL(p.created_at, pp.created_at) AS createdAt,
+    IFNULL(p.category_tree, pp.category_tree) AS categoryTree,
+    IFNULL(p.category_ids, pp.category_ids) AS categoryIds,
+    IFNULL(p.option_ids, pp.option_ids) AS optionIds,
+    IFNULL(p.property_ids, pp.property_ids) AS propertyIds,
+    IFNULL(p.tag_ids, pp.tag_ids) AS tagIds,
+    IFNULL(p.stream_ids, pp.stream_ids) AS streamIds,
+    LOWER(HEX(IFNULL(p.tax_id, pp.tax_id))) AS taxId,
+    IFNULL(p.stock, pp.stock) AS stock,
+    IFNULL(p.ean, pp.ean) AS ean,
+    IFNULL(p.mark_as_topseller, pp.mark_as_topseller) AS markAsTopseller,
+    p.auto_increment as autoIncrement,
+    p.display_group as displayGroup,
+    IFNULL(p.cheapest_price_accessor, pp.cheapest_price_accessor) as cheapest_price_accessor,
+    LOWER(HEX(p.parent_id)) as parentId,
+    p.child_count as childCount,
+    p.type,
+    p.states
+
+FROM product p
+    LEFT JOIN product pp ON(p.parent_id = pp.id AND pp.version_id = :liveVersionId)
+    LEFT JOIN product_visibility ON(product_visibility.product_id = p.visibilities AND product_visibility.product_version_id = p.version_id)
+    LEFT JOIN product_tag ON (product_tag.product_id = p.tags AND product_tag.product_version_id = p.version_id)
+    LEFT JOIN tag ON tag.id = product_tag.tag_id
+
+WHERE p.id IN (:ids) AND p.version_id = :liveVersionId AND (p.child_count = 0 OR p.parent_id IS NOT NULL OR JSON_EXTRACT(`p`.`variant_listing_config`, "$.displayParent") = 1)
+
+GROUP BY p.id
+SQL;
+        }
+
         $baseMapping = [
             '#tags#' => SqlHelper::objectArray([
                 'name' => 'tag.name',
@@ -341,7 +484,7 @@ SQL;
             ], 'visibilities'),
         ];
 
-        /** @var array<string, array<string, string>> $base */
+        /** @var array<string, array<string, string|null>> $base */
         $base = $this->connection->fetchAllAssociativeIndexed(
             str_replace(array_keys($baseMapping), array_values($baseMapping), $baseSql),
             [
@@ -359,6 +502,7 @@ SQL;
 SELECT
     LOWER(HEX(p.id)) AS id,
     IFNULL(product_main.name, product_parent.name) AS name,
+    product_parent.name AS parentName,
     IFNULL(product_main.description, product_parent.description) AS description,
     IFNULL(product_main.meta_title, product_parent.meta_title) AS metaTitle,
     IFNULL(product_main.meta_description, product_parent.meta_description) AS metaDescription,
@@ -366,6 +510,7 @@ SELECT
     product_parent.custom_fields AS parentCustomFields,
     IFNULL(product_main.custom_search_keywords, product_parent.custom_search_keywords) AS customSearchKeywords,
     manufacturer.name AS manufacturerName,
+    delivery_time_translation.name as deliveryTimeName,
     #categories#
 FROM product p
     LEFT JOIN product_translation product_main ON product_main.product_id = p.id AND product_main.product_version_id = p.version_id AND product_main.language_id = :languageId
@@ -373,6 +518,7 @@ FROM product p
     LEFT JOIN product_manufacturer_translation manufacturer ON manufacturer.product_manufacturer_id = p.manufacturer AND manufacturer.language_id = :languageId AND manufacturer.product_manufacturer_version_id = p.version_id AND manufacturer.name IS NOT NULL
     LEFT JOIN product_category ON (product_category.product_id = p.categories AND product_category.product_version_id = p.version_id)
     LEFT JOIN category_translation category ON category.category_id = product_category.category_id AND category.category_version_id = product_category.category_version_id AND category.name IS NOT NULL AND category.language_id = :languageId
+    LEFT JOIN delivery_time_translation ON delivery_time_translation.delivery_time_id = p.delivery_time_id AND delivery_time_translation.language_id = :languageId
 
 WHERE p.id IN (:ids) AND p.version_id = :liveVersionId
 
@@ -387,11 +533,10 @@ SQL;
             ], 'categories'),
         ];
 
-        /** @var string $translationSql */
         $translationSql = str_replace(array_keys($translationMapping), array_values($translationMapping), $translationSql);
 
         foreach ($languages as $languageId) {
-            /** @var array<string, array<string, string>> $translations */
+            /** @var array<string, array<string, string|null>> $translations */
             $translations = $this->connection->fetchAllAssociativeIndexed(
                 $translationSql,
                 [
@@ -406,11 +551,12 @@ SQL;
 
             foreach ($translations as $id => $translation) {
                 $translation['languageId'] = $languageId;
-                /** @var array<mixed> $categories */
+                /** @var list<array<string, string|null>> $categories */
                 $categories = $base[$id]['categories'] ?? [];
                 $translatedCategories = ElasticsearchIndexingUtils::parseJson($translation, 'categories');
 
-                if (!empty($translation['customSearchKeywords'])) {
+                $customSearchKeywords = $translation['customSearchKeywords'] ?? null;
+                if ($customSearchKeywords !== null && $customSearchKeywords !== '') {
                     $translation['customSearchKeywords'] = ElasticsearchIndexingUtils::parseJson($translation, 'customSearchKeywords');
                 }
 
@@ -431,7 +577,7 @@ SQL;
      */
     private function fetchProperties(array $propertyIds): array
     {
-        if (empty($propertyIds)) {
+        if ($propertyIds === []) {
             return [];
         }
 
@@ -497,7 +643,7 @@ SQL;
                 $key = 'cheapest_price_' . $rule . '_' . $currency . '_net';
                 $mapped[$key] = $taxes['net'];
 
-                if (empty($taxes['percentage'])) {
+                if (($taxes['percentage'] ?? []) === []) {
                     continue;
                 }
 
@@ -558,5 +704,53 @@ SQL;
         }
 
         return $this->fieldMapper->customFields(ProductDefinition::ENTITY_NAME, $customFields, $context);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getLanguageMapping(): array
+    {
+        $languages = $this->languageLoader->loadLanguages();
+        $salesChannelLanguages = $this->salesChannelLanguageLoader->loadLanguages();
+
+        $mapping = [];
+
+        foreach ($languages as $languageId => $language) {
+            if (!isset($salesChannelLanguages[$languageId])) {
+                continue;
+            }
+            // If the language has parent language, we add the parent language into the mapping
+            if (isset($language['parentId'])) {
+                $mapping[$language['parentId']] = Defaults::LANGUAGE_SYSTEM;
+            }
+
+            $mapping[$languageId] = $language['parentId'] ?? Defaults::LANGUAGE_SYSTEM;
+        }
+
+        return $mapping;
+    }
+
+    /**
+     * @param array<string, string> $languageMapping
+     * @param array<string, mixed> $value
+     *
+     * @return array<string, mixed>
+     */
+    private function fillFallbackTranslation(array $languageMapping, array $value): array
+    {
+        foreach ($languageMapping as $languageId => $fallback) {
+            if ($languageId === Defaults::LANGUAGE_SYSTEM) {
+                continue;
+            }
+
+            if (isset($value[$languageId])) {
+                continue;
+            }
+
+            $value[$languageId] = $value[$fallback] ?? $value[Defaults::LANGUAGE_SYSTEM];
+        }
+
+        return $value;
     }
 }

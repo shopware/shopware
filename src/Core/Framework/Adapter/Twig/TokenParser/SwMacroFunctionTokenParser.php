@@ -23,7 +23,9 @@ use Twig\TokenParser\MacroTokenParser;
  * @see MacroTokenParser -> basically copied, we use our own Macro node,
  * that returns the actual instance of returned value instead of the markup
  *
- * @codeCoverageIgnore - Covered by @see \Shopware\Tests\Integration\Core\Framework\Adapter\Twig\ReturnNodeTest
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\Adapter\Twig\ReturnNodeTest
  */
 #[Package('framework')]
 class SwMacroFunctionTokenParser extends AbstractTokenParser
@@ -37,7 +39,7 @@ class SwMacroFunctionTokenParser extends AbstractTokenParser
 
         $stream->expect(Token::BLOCK_END_TYPE);
         $this->parser->pushLocalScope();
-        $body = $this->parser->subparse([$this, 'decideBlockEnd'], true);
+        $body = $this->parser->subparse($this->decideBlockEnd(...), true);
         if ($token = $stream->nextIf(Token::NAME_TYPE)) {
             $value = $token->getValue();
 
@@ -67,7 +69,7 @@ class SwMacroFunctionTokenParser extends AbstractTokenParser
     {
         $arguments = new ArrayExpression([], $this->parser->getCurrentToken()->getLine());
         $stream = $this->parser->getStream();
-        $stream->expect(Token::PUNCTUATION_TYPE, '(', 'A list of arguments must begin with an opening parenthesis');
+        $stream->expect(Token::OPERATOR_TYPE, '(', 'A list of arguments must begin with an opening parenthesis');
         while (!$stream->test(Token::PUNCTUATION_TYPE, ')')) {
             if (\count($arguments)) {
                 $stream->expect(Token::PUNCTUATION_TYPE, ',', 'Arguments must be separated by a comma');
@@ -81,7 +83,7 @@ class SwMacroFunctionTokenParser extends AbstractTokenParser
             $token = $stream->expect(Token::NAME_TYPE, null, 'An argument must be a name');
             $name = new LocalVariable($token->getValue(), $this->parser->getCurrentToken()->getLine());
             if ($token = $stream->nextIf(Token::OPERATOR_TYPE, '=')) {
-                $default = $this->parser->getExpressionParser()->parseExpression();
+                $default = $this->parser->parseExpression();
             } else {
                 $default = new ConstantExpression(null, $this->parser->getCurrentToken()->getLine());
                 $default->setAttribute('is_implicit', true);

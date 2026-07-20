@@ -116,7 +116,7 @@ class WebhookManagerSubscriberTest extends TestCase
                 $this->ids->get('wh-2'),
                 $this->ids->get('wh-4'),
             ],
-            array_map(fn (Webhook $w) => Uuid::fromBytesToHex($w->id), $event->webhooks)
+            array_map(static fn (Webhook $w) => Uuid::fromBytesToHex($w->id), $event->webhooks)
         );
     }
 }

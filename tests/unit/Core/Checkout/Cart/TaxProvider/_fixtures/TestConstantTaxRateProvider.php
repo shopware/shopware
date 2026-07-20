@@ -56,7 +56,6 @@ class TestConstantTaxRateProvider extends AbstractTaxProvider
                 continue;
             }
 
-            /** @var string $positionId */
             $positionId = $position->getIdentifier();
 
             $deliveries[$positionId] = new CalculatedTaxCollection([

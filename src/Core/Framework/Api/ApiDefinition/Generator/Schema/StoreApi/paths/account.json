@@ -43,12 +43,33 @@
                         "ApiKey": [],
                         "ContextToken": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "name": "sw-include-search-info",
+                        "in": "header",
+                        "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "0",
+                                "1"
+                            ],
+                            "default": "1"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/change-profile": {
             "post": {
-                "tags": ["Profile"],
+                "tags": [
+                    "Profile"
+                ],
                 "summary": "Change the customer's information",
                 "description": "Make changes to a customer's account, like changing their name, salutation or title.",
                 "operationId": "changeProfile",
@@ -58,7 +79,10 @@
                         "application/json": {
                             "schema": {
                                 "type": "object",
-                                "required": ["firstName", "lastName"],
+                                "required": [
+                                    "firstName",
+                                    "lastName"
+                                ],
                                 "properties": {
                                     "salutationId": {
                                         "description": "Id of the salutation for the customer account. Fetch options using `salutation` endpoint.",
@@ -95,7 +119,9 @@
                                             "accountType": {
                                                 "description": "Type of the customer account. Default value is 'private'.",
                                                 "type": "string",
-                                                "enum": ["private"],
+                                                "enum": [
+                                                    "private"
+                                                ],
                                                 "default": "private"
                                             },
                                             "company": {
@@ -116,7 +142,9 @@
                                             "accountType": {
                                                 "description": "Type of the customer account. Can be `private` or `business`.",
                                                 "type": "string",
-                                                "enum": ["business"]
+                                                "enum": [
+                                                    "business"
+                                                ]
                                             },
                                             "company": {
                                                 "description": "Company of the customer. Only required when `accountType` is `business`.",
@@ -154,12 +182,19 @@
                         "ApiKey": [],
                         "ContextToken": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/change-email": {
             "post": {
-                "tags": ["Profile"],
+                "tags": [
+                    "Profile"
+                ],
                 "summary": "Change the customer's email address",
                 "description": "Changes a customer's email address to a new email address, using their current password as a validation.",
                 "operationId": "changeEmail",
@@ -209,12 +244,19 @@
                         "ApiKey": [],
                         "ContextToken": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/change-language": {
             "post": {
-                "tags": ["Profile"],
+                "tags": [
+                    "Profile"
+                ],
                 "summary": "Change the customer's language.",
                 "description": "Changes the language of the logged in customer",
                 "operationId": "changeLanguage",
@@ -223,7 +265,9 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": ["languageId"],
+                                "required": [
+                                    "languageId"
+                                ],
                                 "properties": {
                                     "language": {
                                         "description": "New languageId",
@@ -252,12 +296,19 @@
                         "ApiKey": [],
                         "ContextToken": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/change-password": {
             "post": {
-                "tags": ["Profile"],
+                "tags": [
+                    "Profile"
+                ],
                 "summary": "Change the customer's password",
                 "description": "Changes a customer's password using their current password as a validation.",
                 "operationId": "changePassword",
@@ -307,12 +358,81 @@
                         "ApiKey": [],
                         "ContextToken": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ]
+            }
+        },
+        "/account/convert-guest": {
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Convert a guest customer to a registered customer",
+                "description": "Takes a password to convert a guest customer to a registered customer. The customer can then log in with the provided password in the future.",
+                "operationId": "convertGuest",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "password"
+                                ],
+                                "properties": {
+                                    "password": {
+                                        "description": "New Password for the customer",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Returns a success response indicating a successful update.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The customer is not a guest customer.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/failure"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": [],
+                        "ContextToken": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/customer-recovery-is-expired": {
             "post": {
-                "tags": ["Profile"],
+                "tags": [
+                    "Profile"
+                ],
                 "summary": "Checks if the customer recovery entry for a given hash is expired.",
                 "description": "This can be used to validate a provided hash has a valid and not expired customer recovery hash.",
                 "operationId": "getCustomerRecoveryIsExpired",
@@ -321,7 +441,9 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": ["hash"],
+                                "required": [
+                                    "hash"
+                                ],
                                 "properties": {
                                     "hash": {
                                         "description": "Parameter from the link in the confirmation mail sent in Step 1",
@@ -350,11 +472,15 @@
                                                         "type": "boolean"
                                                     }
                                                 },
-                                                "required": ["isExpired"]
+                                                "required": [
+                                                    "isExpired"
+                                                ]
                                             }
                                         },
                                         "apiAlias": {
-                                            "enum": ["array_struct"],
+                                            "enum": [
+                                                "array_struct"
+                                            ],
                                             "type": "string"
                                         }
                                     }
@@ -367,14 +493,22 @@
                     {
                         "ApiKey": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/customer": {
             "post": {
-                "tags": ["Profile", "Endpoints supporting Criteria "],
+                "tags": [
+                    "Profile",
+                    "Endpoints supporting Criteria "
+                ],
                 "summary": "Get information about current customer",
-                "description": "Returns information about the current customer.",
+                "description": "Returns information about the current customer.\n\n**Available Associations:**\n- `group` - Customer group determining pricing and permissions\n- `language` - Preferred language for customer communication\n- `lastPaymentMethod` - Last used payment method by the customer\n- `defaultBillingAddress` - Default billing address for the customer\n- `activeBillingAddress` - Currently active billing address in the session\n- `defaultShippingAddress` - Default shipping address for the customer\n- `activeShippingAddress` - Currently active shipping address in the session\n- `salutation` - Customer salutation (e.g., Mr., Mrs., Ms.)\n- `addresses` - All addresses saved for the customer\n- `tags` - Tags assigned to the customer for organization and segmentation",
                 "operationId": "readCustomer",
                 "requestBody": {
                     "required": false,
@@ -383,7 +517,7 @@
                             "schema": {
                                 "allOf": [
                                     {
-                                        "$ref": "#/components/schemas/Criteria"
+                                        "$ref": "#/components/schemas/NoneFieldsCriteria"
                                     }
                                 ]
                             }
@@ -407,10 +541,31 @@
                         "ApiKey": [],
                         "ContextToken": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "name": "sw-include-search-info",
+                        "in": "header",
+                        "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "0",
+                                "1"
+                            ],
+                            "default": "1"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             },
             "delete": {
-                "tags": ["Profile"],
+                "tags": [
+                    "Profile"
+                ],
                 "summary": "Delete the customer's profile",
                 "description": "Deletes a customer profile along with their addresses, wishlists and associated data. Created orders and their payment/shipping information (addresses) and reviews are not deleted.",
                 "operationId": "deleteCustomer",
@@ -429,7 +584,9 @@
         },
         "/account/address/{addressId}": {
             "delete": {
-                "tags": ["Address"],
+                "tags": [
+                    "Address"
+                ],
                 "summary": "Delete an address of a customer",
                 "description": "Delete an address of customer.\n\n    Only addresses which are not set as default addresses for shipping or billing can be deleted. You can check the current default addresses of your customer using the profile information endpoint and change them using the default address endpoint.\n\n    **A customer must have at least one address (which can be used for shipping and billing).**\n\n    An automatic fallback is not applied.",
                 "operationId": "deleteCustomerAddress",
@@ -460,7 +617,9 @@
                 ]
             },
             "patch": {
-                "tags": ["Address"],
+                "tags": [
+                    "Address"
+                ],
                 "summary": "Modify an address of a customer",
                 "description": "Modifies an existing address of a customer.",
                 "operationId": "updateCustomerAddress",
@@ -473,6 +632,9 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -513,7 +675,10 @@
         },
         "/account/list-address": {
             "post": {
-                "tags": ["Address", "Endpoints supporting Criteria "],
+                "tags": [
+                    "Address",
+                    "Endpoints supporting Criteria "
+                ],
                 "summary": "Fetch addresses of a customer",
                 "description": "Lists all addresses of the current customer and allows filtering them based on a criteria.",
                 "operationId": "listAddress",
@@ -540,7 +705,9 @@
                                     "allOf": [
                                         {
                                             "type": "object",
-                                            "required": ["elements"],
+                                            "required": [
+                                                "elements"
+                                            ],
                                             "properties": {
                                                 "elements": {
                                                     "type": "array",
@@ -564,12 +731,33 @@
                         "ApiKey": [],
                         "ContextToken": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "name": "sw-include-search-info",
+                        "in": "header",
+                        "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "0",
+                                "1"
+                            ],
+                            "default": "1"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/login": {
             "post": {
-                "tags": ["Login & Registration"],
+                "tags": [
+                    "Login & Registration"
+                ],
                 "summary": "Log in a customer",
                 "description": "Logs in customers given their credentials.",
                 "operationId": "loginCustomer",
@@ -578,7 +766,10 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": ["username", "password"],
+                                "required": [
+                                    "username",
+                                    "password"
+                                ],
                                 "properties": {
                                     "username": {
                                         "description": "Email",
@@ -613,12 +804,19 @@
                     {
                         "ApiKey": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/login/imitate-customer": {
             "post": {
-                "tags": ["Login & Registration"],
+                "tags": [
+                    "Login & Registration"
+                ],
                 "summary": "Imitate the log in as a customer",
                 "description": "Imitate the log in as a customer given a generated token.",
                 "operationId": "imitateCustomerLogin",
@@ -627,7 +825,11 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": ["token", "customerId", "userId"],
+                                "required": [
+                                    "token",
+                                    "customerId",
+                                    "userId"
+                                ],
                                 "properties": {
                                     "token": {
                                         "description": "Generated customer impersonation token",
@@ -666,12 +868,19 @@
                     {
                         "ApiKey": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/logout": {
             "post": {
-                "tags": ["Login & Registration"],
+                "tags": [
+                    "Login & Registration"
+                ],
                 "summary": "Log out a customer",
                 "description": "Logs out a customer.",
                 "operationId": "logoutCustomer",
@@ -688,12 +897,19 @@
                         "ApiKey": [],
                         "ContextToken": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/register-confirm": {
             "post": {
-                "tags": ["Login & Registration"],
+                "tags": [
+                    "Login & Registration"
+                ],
                 "summary": "Confirm a customer registration",
                 "description": "Confirms a customer registration when double opt-in is activated.\n\nLearn more about double opt-in registration in our guide \"Register a customer\".",
                 "operationId": "registerConfirm",
@@ -702,7 +918,10 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": ["hash", "em"],
+                                "required": [
+                                    "hash",
+                                    "em"
+                                ],
                                 "properties": {
                                     "hash": {
                                         "description": "Hash from the email received",
@@ -733,12 +952,19 @@
                     {
                         "ApiKey": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/register": {
             "post": {
-                "tags": ["Login & Registration"],
+                "tags": [
+                    "Login & Registration"
+                ],
                 "summary": "Register a customer",
                 "description": "Registers a customer. Used both for normal customers and guest customers.See the Guide \"Register a customer\" for more information on customer registration.",
                 "operationId": "register",
@@ -774,6 +1000,10 @@
                                     },
                                     "storefrontUrl": {
                                         "description": "URL of the storefront for that registration. Used in confirmation emails. Has to be one of the configured domains of the sales channel.",
+                                        "type": "string"
+                                    },
+                                    "requestedGroupId": {
+                                        "description": "Optional customer group registration request. The customer is created in the current sales channel group and this field stores the requested target group. The group must be available for registration in the current sales channel.",
                                         "type": "string"
                                     },
                                     "billingAddress": {
@@ -827,7 +1057,9 @@
                                             "accountType": {
                                                 "description": "Type of the customer account. Default value is 'private'.",
                                                 "type": "string",
-                                                "enum": ["private"],
+                                                "enum": [
+                                                    "private"
+                                                ],
                                                 "default": "private"
                                             },
                                             "company": {
@@ -848,7 +1080,9 @@
                                             "accountType": {
                                                 "description": "Type of the customer account. Can be `private` or `business`.",
                                                 "type": "string",
-                                                "enum": ["business"]
+                                                "enum": [
+                                                    "business"
+                                                ]
                                             },
                                             "company": {
                                                 "description": "Company of the customer. Only required when `accountType` is `business`.",
@@ -886,12 +1120,19 @@
                     {
                         "ApiKey": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/recovery-password-confirm": {
             "post": {
-                "tags": ["Profile"],
+                "tags": [
+                    "Profile"
+                ],
                 "summary": "Reset a password with recovery credentials",
                 "description": "This operation is Step 2 of the password reset flow. It is required to conduct Step 1 \"Send a password recovery mail\" in order to obtain the required credentials for this step.Resets a customer's password using credentials from a password recovery mail as a validation.",
                 "operationId": "recoveryPassword",
@@ -940,12 +1181,19 @@
                     {
                         "ApiKey": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/recovery-password": {
             "post": {
-                "tags": ["Profile"],
+                "tags": [
+                    "Profile"
+                ],
                 "summary": "Send a password recovery mail",
                 "description": "This operation is Step 1 of the password reset flow. Make sure to implement Step 2 \"Reset password with recovery credentials\" in order to allow for the complete flow in your application. Sends a recovery mail containing a link with credentials that allows a customer to reset their password.",
                 "operationId": "sendRecoveryMail",
@@ -954,7 +1202,10 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": ["email", "storefrontUrl"],
+                                "required": [
+                                    "email",
+                                    "storefrontUrl"
+                                ],
                                 "properties": {
                                     "email": {
                                         "description": "E-Mail address to identify the customer",
@@ -986,12 +1237,19 @@
                     {
                         "ApiKey": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/address/default-shipping/{addressId}": {
             "patch": {
-                "tags": ["Address"],
+                "tags": [
+                    "Address"
+                ],
                 "summary": "Change a customer's default shipping address",
                 "description": "Updates the default (preselected) shipping addresses of a customer.",
                 "operationId": "defaultShippingAddress",
@@ -1004,6 +1262,9 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "responses": {
@@ -1021,7 +1282,9 @@
         },
         "/account/address/default-billing/{addressId}": {
             "patch": {
-                "tags": ["Address"],
+                "tags": [
+                    "Address"
+                ],
                 "summary": "Change a customer's default billing address",
                 "description": "Updates the default (preselected) billing addresses of a customer.",
                 "operationId": "defaultBillingAddress",
@@ -1034,6 +1297,9 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "responses": {
@@ -1051,7 +1317,9 @@
         },
         "/account/address": {
             "post": {
-                "tags": ["Address"],
+                "tags": [
+                    "Address"
+                ],
                 "summary": "Create a new address for a customer",
                 "description": "Creates a new address for a customer.",
                 "operationId": "createCustomerAddress",
@@ -1087,6 +1355,11 @@
                     {
                         "ApiKey": [],
                         "ContextToken": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }

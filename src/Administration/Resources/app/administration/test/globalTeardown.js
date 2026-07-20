@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 
-/* eslint-disable */
 import fs from 'fs';
 import path from 'path';
 import xml2js from 'xml2js';
@@ -35,14 +34,17 @@ module.exports = async function testTeardown(globalConfig) {
     // add sourcePath to filename for each class
     packages.forEach((packagesEntry) => {
         // run through all sub packages
-        (packagesEntry?.package ?? []).forEach(packageEntry => {
+        (packagesEntry?.package ?? []).forEach((packageEntry) => {
             // run through all classes
             (packageEntry?.classes ?? []).forEach((classesEntry) => {
                 // run through all sub classes
-                (classesEntry?.class ?? []).forEach(classEntry => {
+                (classesEntry?.class ?? []).forEach((classEntry) => {
                     // add full relative path from platform before filename
-                    classEntry.$.filename = path.join('src/Administration/Resources/app/administration', classEntry.$.filename);
-                })
+                    classEntry.$.filename = path.join(
+                        'src/Administration/Resources/app/administration',
+                        classEntry.$.filename,
+                    );
+                });
             });
         });
     });
@@ -52,7 +54,6 @@ module.exports = async function testTeardown(globalConfig) {
 
     writeObjectAsXml(coberture, cobertureFilePath);
 };
-
 
 async function readXmlAsObject(filePath) {
     const parser = new xml2js.Parser();

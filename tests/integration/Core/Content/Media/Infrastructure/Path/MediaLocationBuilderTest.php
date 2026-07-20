@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Media\Infrastructure\Path;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Event\MediaLocationEvent;
@@ -22,10 +21,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[CoversClass(SqlMediaLocationBuilder::class)]
-#[CoversClass(MediaLocationEvent::class)]
-#[CoversClass(MediaLocationStruct::class)]
-#[CoversClass(ThumbnailLocationStruct::class)]
 class MediaLocationBuilderTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -63,18 +58,22 @@ class MediaLocationBuilderTest extends TestCase
     /**
      * @param array<string, mixed> $media
      * @param array<string, mixed> $thumbnail
+     * @param array<string, mixed> $mediaThumbnailSize
      */
     #[DataProvider('buildThumbnailProvider')]
-    public function testBuildThumbnails(array $media, array $thumbnail, ThumbnailLocationStruct $expected): void
+    public function testBuildThumbnails(array $media, array $thumbnail, array $mediaThumbnailSize, ThumbnailLocationStruct $expected): void
     {
         $ids = new IdsCollection();
 
         $media['id'] = $ids->getBytes('media');
+        $mediaThumbnailSize['id'] = $ids->getBytes('thumbnail_size');
         $thumbnail['id'] = $ids->getBytes('thumbnail');
         $thumbnail['media_id'] = $ids->getBytes('media');
+        $thumbnail['media_thumbnail_size_id'] = $ids->getBytes('thumbnail_size');
 
         $queue = new MultiInsertQueryQueue(static::getContainer()->get(Connection::class));
         $queue->addInsert('media', $media);
+        $queue->addInsert('media_thumbnail_size', $mediaThumbnailSize);
         $queue->addInsert('media_thumbnail', $thumbnail);
         $queue->execute();
 
@@ -106,9 +105,17 @@ class MediaLocationBuilderTest extends TestCase
             'created_at' => '2022-01-01',
         ]);
 
+        $queue->addInsert('media_thumbnail_size', [
+            'id' => $ids->getBytes('thumbnail_size'),
+            'width' => 100,
+            'height' => 100,
+            'created_at' => '2022-01-01',
+        ]);
+
         $queue->addInsert('media_thumbnail', [
             'id' => $ids->getBytes('thumbnail'),
             'media_id' => $ids->getBytes('media'),
+            'media_thumbnail_size_id' => $ids->getBytes('thumbnail_size'),
             'width' => 100,
             'height' => 100,
             'created_at' => '2022-01-01',
@@ -118,7 +125,7 @@ class MediaLocationBuilderTest extends TestCase
 
         $dispatcher = new EventDispatcher();
 
-        $dispatcher->addListener(ThumbnailLocationEvent::class, function (ThumbnailLocationEvent $event) use ($ids): void {
+        $dispatcher->addListener(ThumbnailLocationEvent::class, static function (ThumbnailLocationEvent $event) use ($ids): void {
             static::assertArrayHasKey($ids->get('thumbnail'), $event->locations);
 
             foreach ($event as &$location) {
@@ -165,7 +172,7 @@ class MediaLocationBuilderTest extends TestCase
         $queue->execute();
 
         $dispatcher = new EventDispatcher();
-        $dispatcher->addListener(MediaLocationEvent::class, function (MediaLocationEvent $event) use ($ids): void {
+        $dispatcher->addListener(MediaLocationEvent::class, static function (MediaLocationEvent $event) use ($ids): void {
             static::assertArrayHasKey($ids->get('media'), $event->locations);
 
             foreach ($event as &$location) {
@@ -209,11 +216,13 @@ class MediaLocationBuilderTest extends TestCase
         yield 'Build location with 0 values' => [
             ['created_at' => '2022-01-01'],
             ['width' => 0, 'height' => 0, 'created_at' => '2022-01-01'],
+            ['width' => 0, 'height' => 0, 'created_at' => '2022-01-01'],
             new ThumbnailLocationStruct('', 0, 0, new MediaLocationStruct('', '', '', null)),
         ];
 
         yield 'Build location and media location' => [
             ['file_name' => 'foo', 'file_extension' => 'jpg', 'uploaded_at' => '2022-01-01', 'created_at' => '2022-01-01'],
+            ['width' => 100, 'height' => 100, 'created_at' => '2022-01-01'],
             ['width' => 100, 'height' => 100, 'created_at' => '2022-01-01'],
             new ThumbnailLocationStruct('', 100, 100, new MediaLocationStruct('', 'jpg', 'foo', new \DateTimeImmutable('2022-01-01'))),
         ];

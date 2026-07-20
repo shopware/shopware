@@ -14,7 +14,7 @@ abstract class AbstractContextGatewayCommand
      */
     public static function createFromPayload(array $payload = []): static
     {
-        /** @phpstan-ignore new.static (the usage of "new static" is explicitly wanted and safe here) */
+        /** @phpstan-ignore new.static, new.staticInAbstractClassStaticMethod (the usage of "new static" is explicitly wanted) */
         return new static(...$payload);
     }
 }

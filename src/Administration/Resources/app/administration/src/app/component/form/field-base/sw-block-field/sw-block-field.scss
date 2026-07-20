@@ -1,11 +1,8 @@
-@import "~scss/variables";
-
-$sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
-
 .sw-block-field {
     .sw-block-field__block {
-        border: 1px solid $color-gray-300;
-        border-radius: $border-radius-default;
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: var(--border-radius-xs);
+        background: var(--color-background-primary-default);
         overflow: hidden;
         height: 48px;
     }
@@ -22,11 +19,11 @@ $sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
         min-width: 0;
         padding: 12px 16px;
         border: none;
-        background: $color-white;
-        font-size: $font-size-xs;
-        line-height: 22px;
-        transition: $sw-field-transition;
-        color: $color-darkgray-200;
+        background: var(--color-background-primary-default);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        transition: border-color 0.3s ease-out, background 0.3s ease;
+        color: var(--color-text-primary-default);
         outline: none;
         -webkit-appearance: none;
         -moz-appearance: none;
@@ -38,8 +35,8 @@ $sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
         }
 
         &:disabled {
-            background: $color-gray-100;
-            border-color: $color-gray-300;
+            background: var(--color-background-tertiary-default);
+            border-color: var(--color-border-primary-default);
             cursor: default !important;
         }
 
@@ -50,36 +47,36 @@ $sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
 
     &.has--focus {
         .sw-block-field__block {
-            border-color: $color-shopware-brand-500;
-            box-shadow: 0 0 4px lighten($color-shopware-brand-500, 30%);
+            outline-offset: var(--scale-size-2);
+            outline: var(--scale-size-2) solid var(--color-border-brand-default);
         }
     }
 
     &.has--error {
         .sw-block-field__block {
-            background: $color-crimson-50;
-            border-color: $color-crimson-500;
+            background: var(--color-background-critical-default);
+            border-color: var(--color-border-critical-default);
 
             input,
             textarea,
             select {
-                background: $color-crimson-50;
+                background: var(--color-background-critical-default);
             }
         }
 
         .sw-field__addition {
-            border-left: 1px solid $color-crimson-500;
+            border-left: 1px solid var(--color-border-critical-default);
 
             &.is--prefix {
                 border-left: unset;
-                border-right: 1px solid $color-crimson-500;
+                border-right: 1px solid var(--color-border-critical-default);
             }
         }
     }
 
     &.has--error.has--focus {
         .sw-block-field__block {
-            box-shadow: 0 0 4px lighten($color-crimson-500, 30%);
+            box-shadow: 0 0 4px var(--color-border-critical-default);
         }
     }
 

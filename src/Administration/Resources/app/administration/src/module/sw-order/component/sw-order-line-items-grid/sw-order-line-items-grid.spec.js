@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 import { mount } from '@vue/test-utils';
 
 /**
@@ -7,6 +9,7 @@ const mockItems = [
     {
         id: '1',
         type: 'product',
+        productId: 'product-id',
         label: 'Product item',
         quantity: 1,
         payload: {
@@ -286,7 +289,7 @@ async function createWrapper() {
                 'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
             mocks: {
-                $tc: (t, value) => {
+                $t: (t, value) => {
                     if (t === 'sw-order.detailBase.taxDetail') {
                         return `${value.taxRate}%: ${value.tax}`;
                     }
@@ -347,11 +350,21 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     it('only product item should have redirect link', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();
+        const deletedProductItem = {
+            ...mockItems[0],
+            id: '5',
+            type: 'custom',
+            productId: null,
+            referencedId: null,
+        };
 
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
-                lineItems: [...mockItems],
+                lineItems: [
+                    ...mockItems,
+                    deletedProductItem,
+                ],
             },
         });
 
@@ -375,6 +388,22 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
 
         expect(creditLabel.find('.router-link').exists()).toBeFalsy();
         expect(showProductButton3.attributes().disabled).toBeTruthy();
+
+        const deletedProduct = wrapper.find('.sw-data-grid__row--4');
+        const deletedProductLabel = deletedProduct.find('.sw-data-grid__cell--label');
+        const showProductButton4 = deletedProduct.find('.sw-context-menu-item');
+
+        expect(deletedProductLabel.find('.router-link').exists()).toBeFalsy();
+        expect(showProductButton4.attributes().disabled).toBeTruthy();
+
+        expect(wrapper.vm.getProductRoute(mockItems[0])).toEqual({
+            name: 'sw.product.detail',
+            params: {
+                id: 'product-id',
+            },
+        });
+        expect(wrapper.vm.getProductRoute(deletedProductItem)).toBeNull();
+        expect(wrapper.vm.getProductRoute(mockItems[1])).toBeNull();
     });
 
     it('should not show tooltip if only items which have single tax', async () => {
@@ -481,10 +510,10 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         const header = wrapper.find('.sw-data-grid__header');
-        const columnVat = header.find('.sw-data-grid__cell--4');
-        const columnPrice = header.find('.sw-data-grid__cell--1');
+        const firstRow = wrapper.find('.sw-data-grid__row--0');
+        const columnVat = firstRow.find('.sw-data-grid__cell--price-taxRules\\[0\\]');
         expect(columnVat.exists()).toBe(true);
-        expect(columnPrice.text()).not.toBe('sw-order.createBase.columnPriceTaxFree');
+        expect(header.text()).not.toContain('sw-order.createBase.columnPriceTaxFree');
     });
 
     it('should not have vat column and price label is tax free when tax status is tax free', async () => {
@@ -499,13 +528,12 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         const header = wrapper.find('.sw-data-grid__header');
-        const columnVat = header.find('.sw-data-grid__cell--5');
-        const columnPrice = header.find('.sw-data-grid__cell--3');
+        const firstRow = wrapper.find('.sw-data-grid__row--0');
+        const columnVat = firstRow.find('.sw-data-grid__cell--price-taxRules\\[0\\]');
         expect(columnVat.exists()).toBe(false);
-        expect(columnPrice.text()).toBe('sw-order.detailBase.columnPriceTaxFree');
+        expect(header.text()).toContain('sw-order.detailBase.columnPriceTaxFree');
     });
 
-    // eslint-disable-next-line max-len
     it('should automatically set price definition quantity value of custom item when the user enters a change quantity value', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();
@@ -534,7 +562,6 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         const wrapper = await createWrapper();
 
         let header;
-        let columnTotal;
 
         await wrapper.setProps({
             order: {
@@ -545,8 +572,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         header = wrapper.find('.sw-data-grid__header');
-        columnTotal = header.find('.sw-data-grid__cell--4');
-        expect(columnTotal.text()).toBe('sw-order.detailBase.columnTotalPriceNet');
+        expect(header.text()).toContain('sw-order.detailBase.columnTotalPriceNet');
 
         await wrapper.setProps({
             order: {
@@ -557,8 +583,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         header = wrapper.find('.sw-data-grid__header');
-        columnTotal = header.find('.sw-data-grid__cell--5');
-        expect(columnTotal.text()).toBe('sw-order.detailBase.columnTotalPriceGross');
+        expect(header.text()).toContain('sw-order.detailBase.columnTotalPriceGross');
 
         await wrapper.setProps({
             order: {
@@ -569,8 +594,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         header = wrapper.find('.sw-data-grid__header');
-        columnTotal = header.find('.sw-data-grid__cell--5');
-        expect(columnTotal.text()).toBe('sw-order.detailBase.columnTotalPriceNet');
+        expect(header.text()).toContain('sw-order.detailBase.columnTotalPriceNet');
     });
 
     it('should able to create new empty line item', async () => {
@@ -875,9 +899,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         const header = wrapper.find('.sw-data-grid__header');
-        const columnProductNumber = header.find('.sw-data-grid__cell--2');
-
-        expect(columnProductNumber.text()).toBe('sw-order.detailBase.columnProductNumber');
+        expect(header.text()).toContain('sw-order.detailBase.columnProductNumber');
     });
 
     it('should show items correctly when search by product number', async () => {

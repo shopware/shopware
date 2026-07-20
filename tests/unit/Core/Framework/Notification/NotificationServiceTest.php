@@ -25,7 +25,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(NotificationService::class)]
 class NotificationServiceTest extends TestCase
 {
-    /** @var MockObject&EntityRepository<NotificationCollection> */
+    /**
+     * @var MockObject&EntityRepository<NotificationCollection>
+     */
     private MockObject&EntityRepository $entityRepository;
 
     private NotificationService $notificationService;
@@ -41,6 +43,8 @@ class NotificationServiceTest extends TestCase
         $context = Context::createDefaultContext(new ShopApiSource('salesChannelId'));
 
         $this->expectExceptionObject(new InvalidContextSourceException(AdminApiSource::class, $context->getSource()::class));
+
+        $this->entityRepository->expects($this->never())->method('search');
 
         $this->notificationService->getNotifications($context, 0, '');
     }
@@ -72,6 +76,17 @@ class NotificationServiceTest extends TestCase
         $source = new AdminApiSource('user1234');
         $source->setIsAdmin(false);
         $context = Context::createDefaultContext($source);
+
+        $this->entityRepository->expects($this->once())
+            ->method('search')
+            ->willReturn(new EntitySearchResult(
+                'notification',
+                0,
+                new NotificationCollection(),
+                null,
+                new Criteria(),
+                $context
+            ));
 
         $notifications = $this->notificationService->getNotifications($context, 0, '1718179529');
 

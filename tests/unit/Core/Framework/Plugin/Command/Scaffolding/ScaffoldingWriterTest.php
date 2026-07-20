@@ -22,7 +22,7 @@ class ScaffoldingWriterTest extends TestCase
 
         $scaffoldingWriter = new ScaffoldingWriter($filesystem);
 
-        $stubWithEmptyContent = $this->createMock(Stub::class);
+        $stubWithEmptyContent = static::createStub(Stub::class);
         $stubWithEmptyContent->method('getPath')->willReturn('src/Empty.php');
         $stubWithEmptyContent->method('getContent')->willReturn(null);
 
@@ -40,7 +40,7 @@ class ScaffoldingWriterTest extends TestCase
 
         $filesystem->expects($this->exactly(2))
             ->method('dumpFile')
-            ->willReturnCallback(function (string $filename, string $content): void {
+            ->willReturnCallback(static function (string $filename, string $content): void {
                 static::assertContains($filename, ['custom/plugins/TestPlugin/composer.json', 'custom/plugins/TestPlugin/phpunit.xml']);
                 static::assertContains($content, ['Composer content', 'Phpunit content']);
             });

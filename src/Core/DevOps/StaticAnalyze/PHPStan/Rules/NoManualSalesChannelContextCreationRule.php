@@ -39,7 +39,7 @@ class NoManualSalesChannelContextCreationRule implements Rule
     ];
 
     public function __construct(
-        private ReflectionProvider $reflectionProvider,
+        private readonly ReflectionProvider $reflectionProvider,
     ) {
     }
 

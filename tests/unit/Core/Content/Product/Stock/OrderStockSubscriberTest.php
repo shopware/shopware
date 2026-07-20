@@ -5,6 +5,9 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Stock;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -19,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
@@ -36,25 +40,28 @@ class OrderStockSubscriberTest extends TestCase
 {
     private IdsCollection $ids;
 
+    private EntityDefinition $definition;
+
+    private Connection&Stub $connection;
+
+    private StockStorage&MockObject $stockStorage;
+
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
-    }
+        $this->connection = static::createStub(Connection::class);
+        $this->stockStorage = static::createMock(StockStorage::class);
 
-    /**
-     * @param class-string<EntityDefinition> $class
-     */
-    public function getDefinition(string $class = OrderLineItemDefinition::class): EntityDefinition
-    {
+        // Compiles the definition: WriteCommand constructors need getPrimaryKeys()
+        // which only works after registration in a DefinitionInstanceRegistry.
         new StaticDefinitionInstanceRegistry(
-            [$definition = new $class()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            [$this->definition = new OrderLineItemDefinition()],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class),
         );
-
-        return $definition;
     }
 
+    #[TestDox('subscribes to state machine transitions and entity write events')]
     public function testGetSubscribedEvents(): void
     {
         $events = OrderStockSubscriber::getSubscribedEvents();
@@ -63,448 +70,225 @@ class OrderStockSubscriberTest extends TestCase
         static::assertArrayHasKey(EntityWriteEvent::class, $events);
     }
 
+    #[TestDox('does not alter stock when stock management is disabled')]
     public function testBeforeWriteCanBeDisabled(): void
     {
         $context = Context::createDefaultContext()->createWithVersionId($this->ids->create('version'));
 
-        $stockStorage = $this->createMock(StockStorage::class);
-        $stockStorage->expects($this->never())->method('alter');
+        $this->stockStorage->expects($this->never())->method('alter');
 
-        $stockSubscriber = new OrderStockSubscriber(
-            $this->createMock(Connection::class),
-            $stockStorage,
-            false
-        );
+        $stockSubscriber = new OrderStockSubscriber($this->connection, $this->stockStorage, false);
 
-        $event = EntityWriteEvent::create(
-            WriteContext::createFromContext($context),
-            [],
-        );
-
+        $event = EntityWriteEvent::create(WriteContext::createFromContext($context), []);
         $stockSubscriber->beforeWriteOrderItems($event);
         $event->success();
     }
 
+    #[TestDox('ignores order line item writes on non-live versions')]
     public function testBeforeWriteOnlyReactsToLiveVersions(): void
     {
         $context = Context::createDefaultContext()->createWithVersionId($this->ids->create('version'));
 
-        $stockStorage = $this->createMock(StockStorage::class);
-        $stockStorage->expects($this->never())->method('alter');
+        $this->stockStorage->expects($this->never())->method('alter');
 
-        $stockSubscriber = new OrderStockSubscriber(
-            $this->createMock(Connection::class),
-            $stockStorage,
-            true
-        );
+        $stockSubscriber = new OrderStockSubscriber($this->connection, $this->stockStorage, true);
 
-        $event = EntityWriteEvent::create(
-            WriteContext::createFromContext($context),
-            [],
-        );
-
+        $event = EntityWriteEvent::create(WriteContext::createFromContext($context), []);
         $stockSubscriber->beforeWriteOrderItems($event);
         $event->success();
     }
 
+    #[TestDox('ignores writes to entities other than order line items')]
     public function testBeforeWriteOnlyReactsToOrderLineItems(): void
     {
         $context = Context::createDefaultContext();
 
-        $stockStorage = $this->createMock(StockStorage::class);
-        $stockStorage->expects($this->never())->method('alter');
+        $this->stockStorage->expects($this->never())->method('alter');
 
-        $stockSubscriber = new OrderStockSubscriber(
-            $this->createMock(Connection::class),
-            $stockStorage,
-            true
+        $stockSubscriber = new OrderStockSubscriber($this->connection, $this->stockStorage, true);
+
+        new StaticDefinitionInstanceRegistry(
+            [$productDefinition = new ProductDefinition()],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class),
         );
 
-        $definition = $this->getDefinition(ProductDefinition::class);
-
-        $event = EntityWriteEvent::create(
-            WriteContext::createFromContext($context),
-            [
-                new DeleteCommand(
-                    $definition,
-                    ['id' => $this->ids->getBytes('item-1')],
-                    new EntityExistence(
-                        OrderLineItemDefinition::ENTITY_NAME,
-                        ['id' => $this->ids->get('item-1')],
-                        true,
-                        false,
-                        false,
-                        []
-                    ),
-                ),
-            ],
-        );
-
+        $event = EntityWriteEvent::create(WriteContext::createFromContext($context), [
+            new DeleteCommand($productDefinition, ['id' => $this->ids->getBytes('item-1')], $this->buildExistence($this->ids->get('item-1'), true)),
+        ]);
         $stockSubscriber->beforeWriteOrderItems($event);
         $event->success();
     }
 
+    #[TestDox('ignores updates that do not change product or quantity')]
     public function testBeforeWriteOnlyReactsToProductAndQuantityChanges(): void
     {
         $context = Context::createDefaultContext();
 
-        $stockStorage = $this->createMock(StockStorage::class);
-        $stockStorage->expects($this->never())->method('alter');
+        $this->stockStorage->expects($this->never())->method('alter');
 
-        $stockSubscriber = new OrderStockSubscriber(
-            $this->createMock(Connection::class),
-            $stockStorage,
-            true
-        );
+        $stockSubscriber = new OrderStockSubscriber($this->connection, $this->stockStorage, true);
 
-        $definition = $this->getDefinition();
-
-        $event = EntityWriteEvent::create(
-            WriteContext::createFromContext($context),
-            [
-                new UpdateCommand(
-                    $definition,
-                    ['some-field' => 'some-value'],
-                    ['id' => $this->ids->getBytes('item-1')],
-                    new EntityExistence(
-                        OrderLineItemDefinition::ENTITY_NAME,
-                        ['id' => $this->ids->get('item-1')],
-                        true,
-                        false,
-                        false,
-                        []
-                    ),
-                    '/0'
-                ),
-            ],
-        );
-
+        $event = EntityWriteEvent::create(WriteContext::createFromContext($context), [
+            new UpdateCommand($this->definition, ['some-field' => 'some-value'], ['id' => $this->ids->getBytes('item-1')], $this->buildExistence($this->ids->get('item-1'), true), '/0'),
+        ]);
         $stockSubscriber->beforeWriteOrderItems($event);
         $event->success();
     }
 
-    /**
-     * @param list<array{id: string, quantity: string, referenced_id: string}> $beforeState
-     * @param list<array{id: string, quantity: string, referenced_id: string}> $afterState
-     * @param list<array{lineItemId: string, productId: string, quantityBefore: int, newQuantity: int}> $expectedUpdates
-     * @param list<array{type: 'insert'|'delete'|'update', id: string, state: array<string, mixed>}> $commands
-     */
-    #[DataProvider('orderItemWriteProvider')]
-    public function testOrderItemWrites(array $beforeState, array $afterState, array $expectedUpdates, array $commands): void
+    #[TestDox('increases stock when new order line items are inserted')]
+    public function testInsertedOrderItemsUpdateStock(): void
     {
-        $idMapper = function (array $fields): callable {
-            return function (array $lineItem) use ($fields): array {
-                foreach ($fields as $field) {
-                    if (isset($lineItem[$field])) {
-                        $lineItem[$field] = $this->ids->get($lineItem[$field]);
-                    }
-                }
+        $item1 = $this->ids->get('item-1');
+        $item2 = $this->ids->get('item-2');
+        $product1 = $this->ids->get('product-1');
+        $product2 = $this->ids->get('product-2');
 
-                return $lineItem;
-            };
-        };
-
-        $beforeState = array_map($idMapper(['id', 'referenced_id']), $beforeState);
-        $afterState = array_map($idMapper(['id', 'referenced_id']), $afterState);
-
-        $beforeState = array_combine(
-            array_map(fn (array $lineItem) => $lineItem['id'], $beforeState),
-            $beforeState
+        $this->assertOrderItemStockChanges(
+            beforeState: [],
+            afterState: [
+                $item1 => ['id' => $item1, 'quantity' => '10', 'referenced_id' => $product1],
+                $item2 => ['id' => $item2, 'quantity' => '10', 'referenced_id' => $product2],
+            ],
+            expectedUpdates: [
+                ['lineItemId' => $item1, 'productId' => $product1, 'quantityBefore' => 0, 'newQuantity' => 10],
+                ['lineItemId' => $item2, 'productId' => $product2, 'quantityBefore' => 0, 'newQuantity' => 10],
+            ],
+            commands: [
+                new InsertCommand($this->definition, [], ['id' => $this->ids->getBytes('item-1')], $this->buildExistence($item1, false), '/0'),
+                new InsertCommand($this->definition, [], ['id' => $this->ids->getBytes('item-2')], $this->buildExistence($item2, false), '/0'),
+            ],
         );
-
-        $afterState = array_combine(
-            array_map(fn (array $lineItem) => $lineItem['id'], $afterState),
-            $afterState
-        );
-
-        $connection = $this->createMock(Connection::class);
-        $connection->method('fetchAllAssociativeIndexed')->willReturnOnConsecutiveCalls(
-            $beforeState,
-            $afterState,
-        );
-
-        $stockStorage = $this->createMock(StockStorage::class);
-        $stockSubscriber = new OrderStockSubscriber(
-            $connection,
-            $stockStorage,
-            true
-        );
-
-        $expectedUpdates = array_map($idMapper(['lineItemId', 'productId']), $expectedUpdates);
-
-        $context = Context::createDefaultContext();
-        $stockStorage->expects($this->once())
-            ->method('alter')
-            ->with(static::callback(function (array $changes) use ($expectedUpdates): bool {
-                static::assertSameSize($expectedUpdates, $changes);
-
-                foreach ($expectedUpdates as $i => $expectedUpdate) {
-                    static::assertInstanceOf(StockAlteration::class, $changes[$i]);
-                    static::assertSame($expectedUpdate['lineItemId'], $changes[$i]->lineItemId);
-                    static::assertSame($expectedUpdate['productId'], $changes[$i]->productId);
-
-                    static::assertSame($expectedUpdate['quantityBefore'], $changes[$i]->quantityBefore);
-                    static::assertSame($expectedUpdate['newQuantity'], $changes[$i]->newQuantity);
-                }
-
-                return true;
-            }));
-
-        $orderItemDefinition = $this->getDefinition();
-
-        $commands = array_map(
-            function (array $command) use ($orderItemDefinition, $idMapper) {
-                return match ($command['type']) {
-                    'insert' => new InsertCommand(
-                        $orderItemDefinition,
-                        [],
-                        ['id' => $this->ids->getBytes($command['id'])],
-                        new EntityExistence(
-                            OrderLineItemDefinition::ENTITY_NAME,
-                            ['id' => $this->ids->get($command['id'])],
-                            false,
-                            false,
-                            false,
-                            []
-                        ),
-                        '/0'
-                    ),
-                    'delete' => new DeleteCommand(
-                        $orderItemDefinition,
-                        ['id' => $this->ids->getBytes($command['id'])],
-                        new EntityExistence(
-                            OrderLineItemDefinition::ENTITY_NAME,
-                            ['id' => $this->ids->get($command['id'])],
-                            true,
-                            false,
-                            false,
-                            []
-                        ),
-                    ),
-                    'update' => new UpdateCommand(
-                        $orderItemDefinition,
-                        $idMapper(['referenced_id'])($command['state']),
-                        ['id' => $this->ids->getBytes($command['id'])],
-                        new EntityExistence(
-                            OrderLineItemDefinition::ENTITY_NAME,
-                            ['id' => $this->ids->get($command['id'])],
-                            true,
-                            false,
-                            false,
-                            []
-                        ),
-                        '/0'
-                    ),
-                };
-            },
-            $commands
-        );
-
-        $event = EntityWriteEvent::create(
-            WriteContext::createFromContext($context),
-            $commands,
-        );
-        $stockSubscriber->beforeWriteOrderItems($event);
-        $event->success();
     }
 
-    public static function orderItemWriteProvider(): \Generator
+    #[TestDox('decreases stock when order line items are deleted')]
+    public function testDeletedOrderItemsUpdateStock(): void
     {
-        yield 'new-orders' => [
-            'beforeState' => [],
-            'afterState' => [
-                ['id' => 'item-1', 'quantity' => '10', 'referenced_id' => 'product-1'],
-                ['id' => 'item-2', 'quantity' => '10', 'referenced_id' => 'product-2'],
-            ],
-            'expectedUpdates' => [
-                [
-                    'lineItemId' => 'item-1',
-                    'productId' => 'product-1',
-                    'quantityBefore' => 0,
-                    'newQuantity' => 10,
-                ],
-                [
-                    'lineItemId' => 'item-2',
-                    'productId' => 'product-2',
-                    'quantityBefore' => 0,
-                    'newQuantity' => 10,
-                ],
-            ],
-            'commands' => [
-                [
-                    'type' => 'insert',
-                    'id' => 'item-1',
-                ],
-                [
-                    'type' => 'insert',
-                    'id' => 'item-2',
-                ],
-            ],
-        ];
+        $item1 = $this->ids->get('item-1');
+        $item2 = $this->ids->get('item-2');
+        $product1 = $this->ids->get('product-1');
+        $product2 = $this->ids->get('product-2');
 
-        yield 'new-item-and-deleted-item' => [
-            'beforeState' => [
-                ['id' => 'item-1', 'quantity' => '10', 'referenced_id' => 'product-1'],
+        $this->assertOrderItemStockChanges(
+            beforeState: [
+                $item1 => ['id' => $item1, 'quantity' => '10', 'referenced_id' => $product1],
+                $item2 => ['id' => $item2, 'quantity' => '10', 'referenced_id' => $product2],
             ],
-            'afterState' => [
-                ['id' => 'item-2', 'quantity' => '10', 'referenced_id' => 'product-2'],
+            afterState: [],
+            expectedUpdates: [
+                ['lineItemId' => $item1, 'productId' => $product1, 'quantityBefore' => 10, 'newQuantity' => 0],
+                ['lineItemId' => $item2, 'productId' => $product2, 'quantityBefore' => 10, 'newQuantity' => 0],
             ],
-            'expectedUpdates' => [
-                [
-                    'lineItemId' => 'item-1',
-                    'productId' => 'product-1',
-                    'quantityBefore' => 10,
-                    'newQuantity' => 0,
-                ],
-                [
-                    'lineItemId' => 'item-2',
-                    'productId' => 'product-2',
-                    'quantityBefore' => 0,
-                    'newQuantity' => 10,
-                ],
+            commands: [
+                new DeleteCommand($this->definition, ['id' => $this->ids->getBytes('item-1')], $this->buildExistence($item1, true)),
+                new DeleteCommand($this->definition, ['id' => $this->ids->getBytes('item-2')], $this->buildExistence($item2, true)),
             ],
-            'commands' => [
-                [
-                    'type' => 'delete',
-                    'id' => 'item-1',
-                ],
-                [
-                    'type' => 'insert',
-                    'id' => 'item-2',
-                ],
-            ],
-        ];
-
-        yield 'items-deleted' => [
-            'beforeState' => [
-                ['id' => 'item-1', 'quantity' => '10', 'referenced_id' => 'product-1'],
-                ['id' => 'item-2', 'quantity' => '10', 'referenced_id' => 'product-2'],
-            ],
-            'afterState' => [],
-            'expectedUpdates' => [
-                [
-                    'lineItemId' => 'item-1',
-                    'productId' => 'product-1',
-                    'quantityBefore' => 10,
-                    'newQuantity' => 0,
-                ],
-                [
-                    'lineItemId' => 'item-2',
-                    'productId' => 'product-2',
-                    'quantityBefore' => 10,
-                    'newQuantity' => 0,
-                ],
-            ],
-            'commands' => [
-                [
-                    'type' => 'delete',
-                    'id' => 'item-1',
-                ],
-                [
-                    'type' => 'delete',
-                    'id' => 'item-2',
-                ],
-            ],
-        ];
-
-        yield 'items-qty-changed' => [
-            'beforeState' => [
-                ['id' => 'item-1', 'quantity' => '10', 'referenced_id' => 'product-1'],
-                ['id' => 'item-2', 'quantity' => '5', 'referenced_id' => 'product-2'],
-            ],
-            'afterState' => [
-                ['id' => 'item-1', 'quantity' => '20', 'referenced_id' => 'product-1'],
-                ['id' => 'item-2', 'quantity' => '3', 'referenced_id' => 'product-2'],
-            ],
-            'expectedUpdates' => [
-                [
-                    'lineItemId' => 'item-1',
-                    'productId' => 'product-1',
-                    'quantityBefore' => 10,
-                    'newQuantity' => 20,
-                ],
-                [
-                    'lineItemId' => 'item-2',
-                    'productId' => 'product-2',
-                    'quantityBefore' => 5,
-                    'newQuantity' => 3,
-                ],
-            ],
-            'commands' => [
-                [
-                    'type' => 'update',
-                    'id' => 'item-1',
-                    'state' => ['quantity' => 20],
-                ],
-                [
-                    'type' => 'update',
-                    'id' => 'item-2',
-                    'state' => ['quantity' => 3],
-                ],
-            ],
-        ];
-
-        yield 'items-product-changed' => [
-            'beforeState' => [
-                ['id' => 'item-1', 'quantity' => '10', 'referenced_id' => 'product-1'],
-            ],
-            'afterState' => [
-                ['id' => 'item-1', 'quantity' => '10', 'referenced_id' => 'product-2'],
-            ],
-            'expectedUpdates' => [
-                [
-                    'lineItemId' => 'item-1',
-                    'productId' => 'product-1',
-                    'quantityBefore' => 10,
-                    'newQuantity' => 0,
-                ],
-                [
-                    'lineItemId' => 'item-1',
-                    'productId' => 'product-2',
-                    'quantityBefore' => 0,
-                    'newQuantity' => 10,
-                ],
-            ],
-            'commands' => [
-                [
-                    'type' => 'update',
-                    'id' => 'item-1',
-                    'state' => ['referenced_id' => 'product-2'],
-                ],
-            ],
-        ];
-
-        yield 'items-product-and-qty-changed' => [
-            'beforeState' => [
-                ['id' => 'item-1', 'quantity' => '10', 'referenced_id' => 'product-1'],
-            ],
-            'afterState' => [
-                ['id' => 'item-1', 'quantity' => '15', 'referenced_id' => 'product-2'],
-            ],
-            'expectedUpdates' => [
-                [
-                    'lineItemId' => 'item-1',
-                    'productId' => 'product-1',
-                    'quantityBefore' => 10,
-                    'newQuantity' => 0,
-                ],
-                [
-                    'lineItemId' => 'item-1',
-                    'productId' => 'product-2',
-                    'quantityBefore' => 0,
-                    'newQuantity' => 15,
-                ],
-            ],
-            'commands' => [
-                [
-                    'type' => 'update',
-                    'id' => 'item-1',
-                    'state' => ['quantity' => 15, 'referenced_id' => 'product-2'],
-                ],
-            ],
-        ];
+        );
     }
 
+    #[TestDox('handles mixed insert and delete of order line items in a single write')]
+    public function testInsertAndDeleteOrderItemsUpdateStock(): void
+    {
+        $item1 = $this->ids->get('item-1');
+        $item2 = $this->ids->get('item-2');
+        $product1 = $this->ids->get('product-1');
+        $product2 = $this->ids->get('product-2');
+
+        $this->assertOrderItemStockChanges(
+            beforeState: [
+                $item1 => ['id' => $item1, 'quantity' => '10', 'referenced_id' => $product1],
+            ],
+            afterState: [
+                $item2 => ['id' => $item2, 'quantity' => '10', 'referenced_id' => $product2],
+            ],
+            expectedUpdates: [
+                ['lineItemId' => $item1, 'productId' => $product1, 'quantityBefore' => 10, 'newQuantity' => 0],
+                ['lineItemId' => $item2, 'productId' => $product2, 'quantityBefore' => 0, 'newQuantity' => 10],
+            ],
+            commands: [
+                new DeleteCommand($this->definition, ['id' => $this->ids->getBytes('item-1')], $this->buildExistence($item1, true)),
+                new InsertCommand($this->definition, [], ['id' => $this->ids->getBytes('item-2')], $this->buildExistence($item2, false), '/0'),
+            ],
+        );
+    }
+
+    #[TestDox('adjusts stock when order line item quantity is updated')]
+    public function testUpdatedQuantityUpdatesStock(): void
+    {
+        $item1 = $this->ids->get('item-1');
+        $item2 = $this->ids->get('item-2');
+        $product1 = $this->ids->get('product-1');
+        $product2 = $this->ids->get('product-2');
+
+        $this->assertOrderItemStockChanges(
+            beforeState: [
+                $item1 => ['id' => $item1, 'quantity' => '10', 'referenced_id' => $product1],
+                $item2 => ['id' => $item2, 'quantity' => '5', 'referenced_id' => $product2],
+            ],
+            afterState: [
+                $item1 => ['id' => $item1, 'quantity' => '20', 'referenced_id' => $product1],
+                $item2 => ['id' => $item2, 'quantity' => '3', 'referenced_id' => $product2],
+            ],
+            expectedUpdates: [
+                ['lineItemId' => $item1, 'productId' => $product1, 'quantityBefore' => 10, 'newQuantity' => 20],
+                ['lineItemId' => $item2, 'productId' => $product2, 'quantityBefore' => 5, 'newQuantity' => 3],
+            ],
+            commands: [
+                new UpdateCommand($this->definition, ['quantity' => 20], ['id' => $this->ids->getBytes('item-1')], $this->buildExistence($item1, true), '/0'),
+                new UpdateCommand($this->definition, ['quantity' => 3], ['id' => $this->ids->getBytes('item-2')], $this->buildExistence($item2, true), '/0'),
+            ],
+        );
+    }
+
+    #[TestDox('adjusts stock when order line item product is changed')]
+    public function testUpdatedProductUpdatesStock(): void
+    {
+        $item1 = $this->ids->get('item-1');
+        $product1 = $this->ids->get('product-1');
+        $product2 = $this->ids->get('product-2');
+
+        $this->assertOrderItemStockChanges(
+            beforeState: [
+                $item1 => ['id' => $item1, 'quantity' => '10', 'referenced_id' => $product1],
+            ],
+            afterState: [
+                $item1 => ['id' => $item1, 'quantity' => '10', 'referenced_id' => $product2],
+            ],
+            expectedUpdates: [
+                ['lineItemId' => $item1, 'productId' => $product1, 'quantityBefore' => 10, 'newQuantity' => 0],
+                ['lineItemId' => $item1, 'productId' => $product2, 'quantityBefore' => 0, 'newQuantity' => 10],
+            ],
+            commands: [
+                new UpdateCommand($this->definition, ['referenced_id' => $product2], ['id' => $this->ids->getBytes('item-1')], $this->buildExistence($item1, true), '/0'),
+            ],
+        );
+    }
+
+    #[TestDox('adjusts stock when both product and quantity are changed')]
+    public function testUpdatedProductAndQuantityUpdatesStock(): void
+    {
+        $item1 = $this->ids->get('item-1');
+        $product1 = $this->ids->get('product-1');
+        $product2 = $this->ids->get('product-2');
+
+        $this->assertOrderItemStockChanges(
+            beforeState: [
+                $item1 => ['id' => $item1, 'quantity' => '10', 'referenced_id' => $product1],
+            ],
+            afterState: [
+                $item1 => ['id' => $item1, 'quantity' => '15', 'referenced_id' => $product2],
+            ],
+            expectedUpdates: [
+                ['lineItemId' => $item1, 'productId' => $product1, 'quantityBefore' => 10, 'newQuantity' => 0],
+                ['lineItemId' => $item1, 'productId' => $product2, 'quantityBefore' => 0, 'newQuantity' => 15],
+            ],
+            commands: [
+                new UpdateCommand($this->definition, ['quantity' => 15, 'referenced_id' => $product2], ['id' => $this->ids->getBytes('item-1')], $this->buildExistence($item1, true), '/0'),
+            ],
+        );
+    }
+
+    #[TestDox('does not alter stock on state change when stock management is disabled')]
     public function testStateChangeCanBeDisabled(): void
     {
         $context = Context::createDefaultContext()->createWithVersionId($this->ids->create('version'));
@@ -515,26 +299,16 @@ class OrderStockSubscriberTest extends TestCase
         $toState = new StateMachineStateEntity();
         $toState->setTechnicalName(OrderStates::STATE_CANCELLED);
 
-        $event = new StateMachineTransitionEvent(
-            OrderDefinition::ENTITY_NAME,
-            $this->ids->get('order-1'),
-            $fromState,
-            $toState,
-            $context
-        );
+        $event = new StateMachineTransitionEvent(OrderDefinition::ENTITY_NAME, $this->ids->get('order-1'), $fromState, $toState, $context);
 
-        $stockStorage = $this->createMock(StockStorage::class);
-        $stockStorage->expects($this->never())->method('alter');
+        $this->stockStorage->expects($this->never())->method('alter');
 
-        $stockSubscriber = new OrderStockSubscriber(
-            $this->createMock(Connection::class),
-            $stockStorage,
-            false
-        );
+        $stockSubscriber = new OrderStockSubscriber($this->connection, $this->stockStorage, false);
 
         $stockSubscriber->stateChanged($event);
     }
 
+    #[TestDox('ignores state changes on non-live versions')]
     public function testStateChangeOnlyReactsToLiveVersions(): void
     {
         $context = Context::createDefaultContext()->createWithVersionId($this->ids->create('version'));
@@ -545,26 +319,16 @@ class OrderStockSubscriberTest extends TestCase
         $toState = new StateMachineStateEntity();
         $toState->setTechnicalName(OrderStates::STATE_CANCELLED);
 
-        $event = new StateMachineTransitionEvent(
-            OrderDefinition::ENTITY_NAME,
-            $this->ids->get('order-1'),
-            $fromState,
-            $toState,
-            $context
-        );
+        $event = new StateMachineTransitionEvent(OrderDefinition::ENTITY_NAME, $this->ids->get('order-1'), $fromState, $toState, $context);
 
-        $stockStorage = $this->createMock(StockStorage::class);
-        $stockStorage->expects($this->never())->method('alter');
+        $this->stockStorage->expects($this->never())->method('alter');
 
-        $stockSubscriber = new OrderStockSubscriber(
-            $this->createMock(Connection::class),
-            $stockStorage,
-            true
-        );
+        $stockSubscriber = new OrderStockSubscriber($this->connection, $this->stockStorage, true);
 
         $stockSubscriber->stateChanged($event);
     }
 
+    #[TestDox('ignores state changes on entities other than orders')]
     public function testStateChangeOnlyReactsToOrderEntities(): void
     {
         $context = Context::createDefaultContext();
@@ -575,27 +339,16 @@ class OrderStockSubscriberTest extends TestCase
         $toState = new StateMachineStateEntity();
         $toState->setTechnicalName(OrderStates::STATE_CANCELLED);
 
-        $event = new StateMachineTransitionEvent(
-            'wrong-entity',
-            $this->ids->get('order-1'),
-            $fromState,
-            $toState,
-            $context
-        );
+        $event = new StateMachineTransitionEvent('wrong-entity', $this->ids->get('order-1'), $fromState, $toState, $context);
 
-        $stockStorage = $this->createMock(StockStorage::class);
-        $stockStorage->expects($this->never())->method('alter');
+        $this->stockStorage->expects($this->never())->method('alter');
 
-        $stockSubscriber = new OrderStockSubscriber(
-            $this->createMock(Connection::class),
-            $stockStorage,
-            true
-        );
-
+        $stockSubscriber = new OrderStockSubscriber($this->connection, $this->stockStorage, true);
         $stockSubscriber->stateChanged($event);
     }
 
     #[DataProvider('orderStateTransitionProvider')]
+    #[TestDox('adjusts stock when order transitions between open and cancelled states')]
     public function testStocksAreUpdatedWhenOrdersTransitionThroughStates(
         string $fromStateName,
         string $toStateName,
@@ -610,68 +363,97 @@ class OrderStockSubscriberTest extends TestCase
         $toState = new StateMachineStateEntity();
         $toState->setTechnicalName($toStateName);
 
-        $event = new StateMachineTransitionEvent(
-            OrderDefinition::ENTITY_NAME,
-            $this->ids->get('order-1'),
-            $fromState,
-            $toState,
-            $context
-        );
+        $item1 = $this->ids->get('item-1');
+        $item2 = $this->ids->get('item-2');
+        $product1 = $this->ids->get('product-1');
+        $product2 = $this->ids->get('product-2');
 
-        $connection = $this->createMock(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
-            ['id' => $this->ids->get('item-1'), 'quantity' => '10', 'product_id' => $this->ids->get('product-1')],
-            ['id' => $this->ids->get('item-2'), 'quantity' => '10', 'product_id' => $this->ids->get('product-2')],
+        $event = new StateMachineTransitionEvent(OrderDefinition::ENTITY_NAME, $this->ids->get('order-1'), $fromState, $toState, $context);
+
+        $this->connection->method('fetchAllAssociative')->willReturn([
+            ['id' => $item1, 'quantity' => '10', 'product_id' => $product1],
+            ['id' => $item2, 'quantity' => '10', 'product_id' => $product2],
         ]);
 
-        $stockStorage = $this->createMock(StockStorage::class);
-        $stockStorage->expects($this->once())
+        $this->stockStorage->expects($this->once())
             ->method('alter')
-            ->with(static::callback(function (array $changes) use ($quantityBefore, $quantityAfter) {
+            ->with(static::callback(static function (array $changes) use ($item1, $item2, $product1, $product2, $quantityBefore, $quantityAfter) {
                 static::assertCount(2, $changes);
                 static::assertInstanceOf(StockAlteration::class, $changes[0]);
                 static::assertInstanceOf(StockAlteration::class, $changes[1]);
 
-                static::assertSame($this->ids->get('item-1'), $changes[0]->lineItemId);
-                static::assertSame($this->ids->get('product-1'), $changes[0]->productId);
+                static::assertSame($item1, $changes[0]->lineItemId);
+                static::assertSame($product1, $changes[0]->productId);
                 static::assertSame($quantityBefore, $changes[0]->quantityBefore);
                 static::assertSame($quantityAfter, $changes[0]->newQuantity);
 
-                static::assertSame($this->ids->get('item-2'), $changes[1]->lineItemId);
-                static::assertSame($this->ids->get('product-2'), $changes[1]->productId);
+                static::assertSame($item2, $changes[1]->lineItemId);
+                static::assertSame($product2, $changes[1]->productId);
                 static::assertSame($quantityBefore, $changes[1]->quantityBefore);
                 static::assertSame($quantityAfter, $changes[1]->newQuantity);
 
                 return true;
             }));
 
-        $stockSubscriber = new OrderStockSubscriber(
-            $connection,
-            $stockStorage,
-            true
-        );
+        $stockSubscriber = new OrderStockSubscriber($this->connection, $this->stockStorage, true);
 
         $stockSubscriber->stateChanged($event);
     }
 
     /**
-     * @return array<string, array{fromStateName: string, toStateName: string, quantityBefore: int, quantityAfter: int}>
+     * @return iterable<string, array{fromStateName: string, toStateName: string, quantityBefore: int, quantityAfter: int}>
      */
-    public static function orderStateTransitionProvider(): array
+    public static function orderStateTransitionProvider(): iterable
     {
-        return [
-            'order-cancelled' => [
-                'fromStateName' => OrderStates::STATE_OPEN,
-                'toStateName' => OrderStates::STATE_CANCELLED,
-                'quantityBefore' => 10,
-                'quantityAfter' => 0,
-            ],
-            'order-reopened' => [
-                'fromStateName' => OrderStates::STATE_CANCELLED,
-                'toStateName' => OrderStates::STATE_OPEN,
-                'quantityBefore' => 0,
-                'quantityAfter' => 10,
-            ],
+        yield 'order-cancelled' => [
+            'fromStateName' => OrderStates::STATE_OPEN,
+            'toStateName' => OrderStates::STATE_CANCELLED,
+            'quantityBefore' => 10,
+            'quantityAfter' => 0,
         ];
+        yield 'order-reopened' => [
+            'fromStateName' => OrderStates::STATE_CANCELLED,
+            'toStateName' => OrderStates::STATE_OPEN,
+            'quantityBefore' => 0,
+            'quantityAfter' => 10,
+        ];
+    }
+
+    /**
+     * @param array<string, array{id: string, quantity: string, referenced_id: string}> $beforeState
+     * @param array<string, array{id: string, quantity: string, referenced_id: string}> $afterState
+     * @param list<array{lineItemId: string, productId: string, quantityBefore: int, newQuantity: int}> $expectedUpdates
+     * @param list<WriteCommand> $commands
+     */
+    private function assertOrderItemStockChanges(array $beforeState, array $afterState, array $expectedUpdates, array $commands): void
+    {
+        $this->connection->method('fetchAllAssociativeIndexed')->willReturnOnConsecutiveCalls($beforeState, $afterState);
+
+        $this->stockStorage->expects($this->once())
+            ->method('alter')
+            ->with(static::callback(static function (array $changes) use ($expectedUpdates): bool {
+                static::assertSameSize($expectedUpdates, $changes);
+
+                foreach ($expectedUpdates as $i => $expectedUpdate) {
+                    static::assertInstanceOf(StockAlteration::class, $changes[$i]);
+                    static::assertSame($expectedUpdate['lineItemId'], $changes[$i]->lineItemId);
+                    static::assertSame($expectedUpdate['productId'], $changes[$i]->productId);
+                    static::assertSame($expectedUpdate['quantityBefore'], $changes[$i]->quantityBefore);
+                    static::assertSame($expectedUpdate['newQuantity'], $changes[$i]->newQuantity);
+                }
+
+                return true;
+            }));
+
+        $stockSubscriber = new OrderStockSubscriber($this->connection, $this->stockStorage, true);
+
+        $event = EntityWriteEvent::create(WriteContext::createFromContext(Context::createDefaultContext()), $commands);
+        $stockSubscriber->beforeWriteOrderItems($event);
+        $event->success();
+    }
+
+    private function buildExistence(string $id, bool $exists): EntityExistence
+    {
+        return new EntityExistence(OrderLineItemDefinition::ENTITY_NAME, ['id' => $id], $exists, false, false, []);
     }
 }

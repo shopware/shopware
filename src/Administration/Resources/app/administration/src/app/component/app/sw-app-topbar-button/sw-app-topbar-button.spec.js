@@ -23,11 +23,6 @@ const topbarButton = {
 describe('sw-app-topbar-button', () => {
     let wrapper = null;
 
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render button correctly', async () => {
         const store = Shopware.Store.get('topBarButton');
         store.buttons.push(topbarButton);

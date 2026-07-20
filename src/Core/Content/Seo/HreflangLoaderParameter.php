@@ -8,26 +8,15 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('inventory')]
 class HreflangLoaderParameter
 {
-    protected string $route;
-
-    /**
-     * @var array<string, mixed>
-     */
-    protected array $routeParameters;
-
-    protected SalesChannelContext $salesChannelContext;
-
     /**
      * @param array<string, mixed> $routeParameters
      */
     public function __construct(
-        string $route,
-        array $routeParameters,
-        SalesChannelContext $salesChannelContext
+        protected string $route,
+        protected array $routeParameters,
+        protected SalesChannelContext $salesChannelContext,
+        private readonly bool $homepage = false,
     ) {
-        $this->route = $route;
-        $this->routeParameters = $routeParameters;
-        $this->salesChannelContext = $salesChannelContext;
     }
 
     public function getRoute(): string
@@ -46,5 +35,10 @@ class HreflangLoaderParameter
     public function getSalesChannelContext(): SalesChannelContext
     {
         return $this->salesChannelContext;
+    }
+
+    public function isHomepage(): bool
+    {
+        return $this->homepage;
     }
 }

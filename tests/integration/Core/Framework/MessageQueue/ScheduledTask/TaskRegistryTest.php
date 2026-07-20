@@ -8,11 +8,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\FooMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Tests\Integration\Core\Framework\MessageQueue\fixtures\TestTask;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
 /**
@@ -22,6 +24,9 @@ class TaskRegistryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<ScheduledTaskCollection>
+     */
     private EntityRepository $scheduledTaskRepo;
 
     private TaskRegistry $registry;
@@ -35,7 +40,8 @@ class TaskRegistryTest extends TestCase
                 new TestTask(),
             ],
             $this->scheduledTaskRepo,
-            new ParameterBag()
+            new ParameterBag(),
+            new NativeClock()
         );
     }
 
@@ -120,18 +126,18 @@ class TaskRegistryTest extends TestCase
 
     public function testWithWrongClass(): void
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage(\sprintf(
+        $this->expectExceptionObject(new \RuntimeException(\sprintf(
             'Tried to register "%s" as scheduled task, but class does not extend ScheduledTask',
             FooMessage::class
-        ));
+        )));
         $registry = new TaskRegistry(
             /** @phpstan-ignore argument.type (for test purpose) */
             [
                 new FooMessage(),
             ],
             $this->scheduledTaskRepo,
-            new ParameterBag()
+            new ParameterBag(),
+            new NativeClock()
         );
 
         $registry->registerTasks();
@@ -152,7 +158,7 @@ class TaskRegistryTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $registry = new TaskRegistry([], $this->scheduledTaskRepo, new ParameterBag());
+        $registry = new TaskRegistry([], $this->scheduledTaskRepo, new ParameterBag(), new NativeClock());
         $registry->registerTasks();
 
         $tasks = $this->scheduledTaskRepo->search(new Criteria(), Context::createDefaultContext())->getEntities();

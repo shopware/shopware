@@ -17,6 +17,7 @@ use Shopware\Storefront\Theme\Message\CompileThemeHandler;
 use Shopware\Storefront\Theme\Message\CompileThemeMessage;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCompiler;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 
 /**
  * @internal
@@ -27,7 +28,7 @@ class CompileThemeHandlerTest extends TestCase
     public function testHandleMessageCompile(): void
     {
         $themeCompilerMock = $this->createMock(ThemeCompiler::class);
-        $notificationServiceMock = $this->createMock(NotificationService::class);
+        $notificationServiceMock = static::createStub(NotificationService::class);
         $themeId = Uuid::randomHex();
         $context = Context::createDefaultContext();
         $message = new CompileThemeMessage(TestDefaults::SALES_CHANNEL, $themeId, true, $context);
@@ -43,10 +44,11 @@ class CompileThemeHandlerTest extends TestCase
 
         $handler = new CompileThemeHandler(
             $themeCompilerMock,
-            $this->createMock(AbstractConfigLoader::class),
-            $this->createMock(StorefrontPluginRegistry::class),
+            static::createStub(AbstractConfigLoader::class),
+            static::createStub(StorefrontPluginRegistry::class),
             $notificationServiceMock,
-            $salesChannelRep
+            $salesChannelRep,
+            static::createStub(ThemeRuntimeConfigService::class),
         );
 
         $handler($message);

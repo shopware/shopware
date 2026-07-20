@@ -6,6 +6,7 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTypeTranslation\Mai
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('after-sales')]
@@ -51,16 +53,25 @@ class MailTemplateTypeDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+        $fields = new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of mail template type.'),
 
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
-            (new StringField('technical_name', 'technicalName'))->addFlags(new ApiAware(), new Required()),
-            new JsonField('available_entities', 'availableEntities'),
+            (new StringField('technical_name', 'technicalName'))->addFlags(new ApiAware(), new Required())->setDescription('Technical name of mail template.'),
+            (new JsonField('available_entities', 'availableEntities'))->setDescription('Defines  which entities are compatible with a given mail template type, ensuring that the right templates can be used for the appropriate purposes within the system'),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             (new TranslationsAssociationField(MailTemplateTypeTranslationDefinition::class, 'mail_template_type_id'))->addFlags(new ApiAware(), new Required()),
             (new OneToManyAssociationField('mailTemplates', MailTemplateDefinition::class, 'mail_template_type_id'))->addFlags(new SetNullOnDelete()),
-            new JsonField('template_data', 'templateData'),
         ]);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $fields->add(
+                (new JsonField('template_data', 'templateData'))
+                    ->addFlags(new Deprecated('v6.7.12.0', 'v6.8.0.0'))
+                    ->setDescription('Template data used to generate emails associated with that template type.'),
+            );
+        }
+
+        return $fields;
     }
 }

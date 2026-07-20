@@ -7,30 +7,38 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
+use Shopware\Core\Checkout\Cart\Order\RecalculationService;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentException;
+use Shopware\Core\Checkout\Document\DocumentGenerationResult;
+use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Event\CreditNoteOrdersEvent;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Checkout\Document\Renderer\RendererResult;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
@@ -38,6 +46,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
+use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\Rule\TrueRule;
 use Shopware\Core\Test\TestDefaults;
@@ -50,6 +59,7 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 class CreditNoteRendererTest extends TestCase
 {
     use DocumentTrait;
+    use SnapshotTesting;
 
     private SalesChannelContext $salesChannelContext;
 
@@ -65,6 +75,11 @@ class CreditNoteRendererTest extends TestCase
     private CartService $cartService;
 
     private DocumentGenerator $documentGenerator;
+
+    /**
+     * @var EntityRepository<OrderCollection>
+     */
+    private EntityRepository $orderRepository;
 
     protected function setUp(): void
     {
@@ -91,12 +106,91 @@ class CreditNoteRendererTest extends TestCase
         $this->creditNoteRenderer = static::getContainer()->get(CreditNoteRenderer::class);
         $this->cartService = static::getContainer()->get(CartService::class);
         $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
+        $this->orderRepository = static::getContainer()->get('order.repository');
+    }
+
+    protected function tearDown(): void
+    {
+        static::getContainer()->get(Translator::class)->reset();
+        parent::tearDown();
+    }
+
+    public function testDocumentSnapshot(): void
+    {
+        $translator = static::getContainer()->get(Translator::class);
+        $translator->injectSettings(
+            $this->salesChannelContext->getSalesChannelId(),
+            $this->salesChannelContext->getLanguageId(),
+            'en-GB',
+            $this->salesChannelContext->getContext()
+        );
+
+        $cart = $this->generateDemoCart([7]);
+
+        $orderId = $this->cartService->order($cart, $this->salesChannelContext, new RequestDataBag());
+
+        $this->orderRepository->update([
+            [
+                'id' => $orderId,
+                'orderDateTime' => '2023-11-24T12:00:00+00:00',
+            ],
+        ], $this->context);
+
+        $invoiceConfig = new DocumentConfiguration();
+        $invoiceConfig->setDocumentNumber('1001');
+
+        $operationInvoice = new DocumentGenerateOperation($orderId, FileTypes::PDF, $invoiceConfig->jsonSerialize());
+        $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operationInvoice], $this->context)->getSuccess()->first();
+        static::assertNotNull($result);
+        $invoiceId = $result->getId();
+
+        $this->addCreditItemsToOrderAfterInvoice($orderId, [-100]);
+
+        $config = [
+            'documentComment' => '<script></script>This is a credit note.',
+            'itemsPerPage' => 10,
+            'displayHeader' => true,
+            'displayFooter' => true,
+            'displayPrices' => true,
+            'displayPageCount' => true,
+            'displayLineItems' => true,
+            'displayCompanyAddress' => true,
+            'displayReturnAddress' => true,
+            'companyName' => 'Example Company',
+            'documentDate' => '2023-11-24T12:00:00+00:00',
+        ];
+
+        $operationHtml = new DocumentGenerateOperation(
+            $orderId,
+            HtmlRenderer::FILE_EXTENSION,
+            $config,
+            $invoiceId
+        );
+
+        $processedHtmlTemplate = $this->creditNoteRenderer->render(
+            [$orderId => $operationHtml],
+            $this->context,
+            new DocumentRendererConfig()
+        );
+
+        $renderedHtml = $processedHtmlTemplate->getSuccess()[$orderId];
+        static::assertInstanceOf(RenderedDocument::class, $renderedHtml);
+
+        $contentHtml = $renderedHtml->getContent();
+        static::assertIsString($contentHtml);
+
+        $this->assertSnapshot('credit_note_renderer_default', [
+            [
+                'type' => self::TYPE_HTML,
+                'actual' => $contentHtml,
+            ],
+        ]);
     }
 
     /**
      * @param array<int, int> $possibleTaxes
      * @param array<int, int> $creditPrices
-     * @param array<string, int> $additionalConfig
+     * @param array<string, int|string|array<string, string>> $additionalConfig
      */
     #[DataProvider('creditNoteRendererDataProvider')]
     public function testRender(
@@ -107,17 +201,28 @@ class CreditNoteRendererTest extends TestCase
         array $additionalConfig = []
     ): void {
         $cart = $this->generateDemoCart($possibleTaxes);
-        $cart = $this->generateCreditItems($cart, $creditPrices);
 
         $orderId = $this->cartService->order($cart, $this->salesChannelContext, new RequestDataBag());
 
         $invoiceConfig = new DocumentConfiguration();
         $invoiceConfig->setDocumentNumber('1001');
 
-        $operationInvoice = new DocumentGenerateOperation($orderId, FileTypes::PDF, $invoiceConfig->jsonSerialize());
-        $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operationInvoice], $this->context)->getSuccess()->first();
+        $operationInvoice = new DocumentGenerateOperation(
+            $orderId,
+            FileTypes::PDF,
+            $invoiceConfig->jsonSerialize()
+        );
+
+        $result = $this->documentGenerator->generate(
+            InvoiceRenderer::TYPE,
+            [$orderId => $operationInvoice],
+            $this->context
+        )->getSuccess()->first();
+
         static::assertNotNull($result);
         $invoiceId = $result->getId();
+
+        $this->addCreditItemsToOrderAfterInvoice($orderId, $creditPrices);
 
         $config = [
             'displayLineItems' => true,
@@ -127,7 +232,7 @@ class CreditNoteRendererTest extends TestCase
             'fileTypes' => [HtmlRenderer::FILE_EXTENSION, PdfRenderer::FILE_EXTENSION],
         ];
 
-        if (!empty($additionalConfig)) {
+        if ($additionalConfig !== []) {
             $config = array_merge($config, $additionalConfig);
         }
 
@@ -141,7 +246,7 @@ class CreditNoteRendererTest extends TestCase
         $caughtEvent = null;
 
         static::getContainer()->get('event_dispatcher')
-            ->addListener(CreditNoteOrdersEvent::class, function (CreditNoteOrdersEvent $event) use (&$caughtEvent): void {
+            ->addListener(CreditNoteOrdersEvent::class, static function (CreditNoteOrdersEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             });
 
@@ -204,7 +309,7 @@ class CreditNoteRendererTest extends TestCase
         yield 'render credit_note successfully' => [
             [7, 19, 22],
             [-100, -200, -300],
-            function (RenderedDocument $rendered): void {
+            static function (RenderedDocument $rendered): void {
                 foreach ([-100, -200, -300] as $price) {
                     static::assertStringContainsString('credit' . $price, $rendered->getContent());
                 }
@@ -221,14 +326,13 @@ class CreditNoteRendererTest extends TestCase
                     $rendered->getContent()
                 );
             },
-            null,
         ];
 
         yield 'render credit_note without credit items' => [
             [7, 19, 22],
             [],
             null,
-            function (string $orderId, array $errors): void {
+            static function (string $orderId, array $errors): void {
                 static::assertNotEmpty($errors);
                 static::assertArrayHasKey($orderId, $errors);
                 static::assertInstanceOf(\Throwable::class, $errors[$orderId]);
@@ -242,7 +346,7 @@ class CreditNoteRendererTest extends TestCase
         yield 'render credit_note with document number' => [
             [7, 19, 22],
             [-100, -200, -300],
-            function (RenderedDocument $rendered): void {
+            static function (RenderedDocument $rendered): void {
                 static::assertSame('CREDIT_NOTE_9999', $rendered->getNumber());
                 static::assertSame('credit_note_CREDIT_NOTE_9999', $rendered->getName());
             },
@@ -255,7 +359,7 @@ class CreditNoteRendererTest extends TestCase
         yield 'render credit_note with invoice number' => [
             [7, 19, 22],
             [-100, -200, -300],
-            function (RenderedDocument $rendered): void {
+            static function (RenderedDocument $rendered): void {
                 static::assertSame('1000', $rendered->getNumber());
                 static::assertSame('credit_note_1000', $rendered->getName());
                 $config = $rendered->getConfig();
@@ -273,7 +377,7 @@ class CreditNoteRendererTest extends TestCase
         yield 'render credit_note without invoice number' => [
             [7, 19, 22],
             [-100, -200, -300],
-            function (RenderedDocument $rendered): void {
+            static function (RenderedDocument $rendered): void {
                 static::assertSame('1000', $rendered->getNumber());
                 static::assertSame('credit_note_1000', $rendered->getName());
                 $config = $rendered->getConfig();
@@ -285,7 +389,7 @@ class CreditNoteRendererTest extends TestCase
         yield 'render with single page' => [
             [7, 19],
             [-100, -200],
-            function (RenderedDocument $rendered): void {
+            static function (RenderedDocument $rendered): void {
                 $rendered = $rendered->getContent();
 
                 static::assertStringContainsString('Credit note 1000 for Invoice no. 1001', $rendered);
@@ -315,13 +419,75 @@ class CreditNoteRendererTest extends TestCase
         static::assertSame($operationCreditNote->getOrderVersionId(), Defaults::LIVE_VERSION);
         static::assertTrue($this->orderVersionExists($orderId, $operationCreditNote->getOrderVersionId()));
 
-        $this->creditNoteRenderer->render(
+        $result = $this->creditNoteRenderer->render(
             [$orderId => $operationCreditNote],
             $this->context,
             new DocumentRendererConfig()
         );
 
         static::assertTrue($this->orderVersionExists($orderId, $operationCreditNote->getOrderVersionId()));
+    }
+
+    public function testRenderFailsWithDraftVersionContext(): void
+    {
+        $cart = $this->generateDemoCart([7]);
+        $orderId = $this->persistCart($cart);
+
+        $invoiceConfig = new DocumentConfiguration();
+        $invoiceConfig->setDocumentNumber('1001');
+
+        $operationInvoice = new DocumentGenerateOperation(
+            $orderId,
+            FileTypes::PDF,
+            $invoiceConfig->jsonSerialize()
+        );
+
+        $result = $this->documentGenerator->generate(
+            InvoiceRenderer::TYPE,
+            [$orderId => $operationInvoice],
+            $this->context
+        )->getSuccess()->first();
+
+        static::assertNotNull($result);
+
+        // create a new version for the order
+        $versionContext = $this->context->createWithVersionId(
+            $this->orderRepository->createVersion($orderId, $this->context, 'DRAFT')
+        );
+
+        // add credit line item to order
+        $creditLineItem = new LineItem(
+            Uuid::randomHex(),
+            LineItem::CREDIT_LINE_ITEM_TYPE,
+            null,
+            1
+        );
+        $creditLineItem->setLabel('credit item');
+        $creditLineItem->setPriceDefinition(new AbsolutePriceDefinition(-10.0));
+        $this->getContainer()->get(RecalculationService::class)->addCustomLineItem(
+            $orderId,
+            $creditLineItem,
+            $versionContext,
+        );
+
+        $operationCreditNote = new DocumentGenerateOperation($orderId);
+
+        // pass the new version context to the renderer
+        $processedTemplate = $this->creditNoteRenderer->render(
+            [$orderId => $operationCreditNote],
+            $versionContext,
+            new DocumentRendererConfig()
+        );
+
+        static::assertCount(0, $processedTemplate->getSuccess());
+
+        $errors = $processedTemplate->getErrors();
+        static::assertArrayHasKey($orderId, $errors);
+
+        static::assertSame(
+            $errors[$orderId]->getMessage(),
+            'Unable to generate document. Credit notes can only be generated from the LIVE order context.'
+        );
     }
 
     /**
@@ -346,7 +512,6 @@ class CreditNoteRendererTest extends TestCase
         ], $this->salesChannelContext->getContext());
 
         $cart = $this->generateDemoCart($possibleTaxes);
-        $cart = $this->generateCreditItems($cart, $creditPrices);
 
         $orderId = $this->cartService->order($cart, $this->salesChannelContext, new RequestDataBag());
 
@@ -358,6 +523,8 @@ class CreditNoteRendererTest extends TestCase
         $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operationInvoice], $this->context)->getSuccess()->first();
         static::assertNotNull($result);
         $invoiceId = $result->getId();
+
+        $this->addCreditItemsToOrderAfterInvoice($orderId, $creditPrices);
 
         $config = [
             'displayLineItems' => true,
@@ -376,7 +543,7 @@ class CreditNoteRendererTest extends TestCase
         $caughtEvent = null;
 
         static::getContainer()->get('event_dispatcher')
-            ->addListener(CreditNoteOrdersEvent::class, function (CreditNoteOrdersEvent $event) use (&$caughtEvent): void {
+            ->addListener(CreditNoteOrdersEvent::class, static function (CreditNoteOrdersEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             });
 
@@ -400,7 +567,7 @@ class CreditNoteRendererTest extends TestCase
             false,
             [7],
             [-100],
-            function (OrderEntity $order): void {
+            static function (OrderEntity $order): void {
                 static::assertNotNull($lineItems = $order->getLineItems());
                 $taxAmount = $lineItems->getPrices()->sum()->getCalculatedTaxes()->getAmount();
 
@@ -413,11 +580,101 @@ class CreditNoteRendererTest extends TestCase
             true,
             [7],
             [-100],
-            function (OrderEntity $order): void {
+            static function (OrderEntity $order): void {
                 static::assertSame($order->getPrice()->getTotalPrice(), \abs(7.0) + \abs(-100.0));
                 static::assertSame($order->getAmountNet(), \abs(-100.0));
             },
         ];
+    }
+
+    /**
+     * Verifies that credit notes only include credit items that were added after
+     * the referenced invoice was created, excluding items that were part of the original invoice.
+     */
+    public function testRenderOnlyIncludeUnprocessedCreditItems(): void
+    {
+        $cart = $this->generateDemoCart([7]);
+        $cart = $this->generateCreditItems($cart, [-1]);
+
+        $orderId = $this->cartService->order($cart, $this->salesChannelContext, new RequestDataBag());
+
+        $invoiceA = $this->generateInvoice($orderId);
+
+        $invoiceAId = $invoiceA->getId();
+
+        $this->addCreditItemsToOrderAfterInvoice($orderId, [-2, -3]);
+        $expectedCreditItemLabels = ['credit-2', 'credit-3'];
+
+        $result = $this->renderCreditNote($orderId, $invoiceAId);
+        $result = $result->getSuccess()[$orderId] ?? null;
+        static::assertNotNull($result);
+
+        $creditItems = $result->getParameters()['creditItems'];
+        static::assertInstanceOf(OrderLineItemCollection::class, $creditItems);
+        static::assertCount(2, $creditItems);
+
+        foreach ($creditItems as $item) {
+            static::assertContains($item->getLabel(), $expectedCreditItemLabels);
+        }
+    }
+
+    /**
+     * Verifies credit note generation fails when all available credit items have already been processed
+     * in previous credit notes or in the invoice which is referenced.
+     */
+    public function testRenderFailsWhenAllCreditItemsAlreadyProcessed(): void
+    {
+        $cart = $this->generateDemoCart([7]);
+        $cart = $this->generateCreditItems($cart, [-1]);
+
+        $orderId = $this->cartService->order($cart, $this->salesChannelContext, new RequestDataBag());
+
+        $invoiceA = $this->generateInvoice($orderId);
+
+        $invoiceAId = $invoiceA->getId();
+
+        $this->addCreditItemsToOrderAfterInvoice($orderId, [-2, -3]);
+
+        $this->generateCreditNote($orderId, $invoiceAId);
+
+        $creditNote2 = $this->renderCreditNote($orderId, $invoiceAId);
+        $errors = $creditNote2->getErrors();
+
+        static::assertArrayHasKey($orderId, $errors);
+        static::assertSame(
+            $errors[$orderId]->getMessage(),
+            'Unable to generate document. Can not generate credit note document because no unprocessed credit line items exists. OrderId: ' . $orderId
+        );
+    }
+
+    /**
+     * Verifies that referencing a newer invoice which includes all credit items
+     * prevents duplicate credit note generation since all credit items have already been processed.
+     */
+    public function testRenderFailsWhenNewInvoiceIsReferenced(): void
+    {
+        $cart = $this->generateDemoCart([7]);
+        $cart = $this->generateCreditItems($cart, [-1]);
+
+        $orderId = $this->cartService->order($cart, $this->salesChannelContext, new RequestDataBag());
+
+        $invoiceA = $this->generateInvoice($orderId);
+        $invoiceAId = $invoiceA->getId();
+
+        $this->addCreditItemsToOrderAfterInvoice($orderId, [-2, -3]);
+
+        $this->generateCreditNote($orderId, $invoiceAId);
+
+        $invoiceB = $this->generateInvoice($orderId, 'INVOICE-B');
+
+        $creditNote2 = $this->generateCreditNote($orderId, $invoiceB->getId());
+        $errors = $creditNote2->getErrors();
+
+        static::assertArrayHasKey($orderId, $errors);
+        static::assertSame(
+            $errors[$orderId]->getMessage(),
+            'Unable to generate document. Can not generate credit note document because no unprocessed credit line items exists. OrderId: ' . $orderId
+        );
     }
 
     /**
@@ -493,7 +750,7 @@ class CreditNoteRendererTest extends TestCase
         $repository = static::getContainer()->get('shipping_method.repository');
 
         $ruleRegistry = static::getContainer()->get(RuleConditionRegistry::class);
-        $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
+        $prop = new \ReflectionProperty(RuleConditionRegistry::class, 'rules');
         $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
 
         $data = [
@@ -563,7 +820,7 @@ class CreditNoteRendererTest extends TestCase
         $repository = static::getContainer()->get('payment_method.repository');
 
         $ruleRegistry = static::getContainer()->get(RuleConditionRegistry::class);
-        $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
+        $prop = new \ReflectionProperty(RuleConditionRegistry::class, 'rules');
         $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
 
         $data = [
@@ -664,5 +921,105 @@ class CreditNoteRendererTest extends TestCase
         static::getContainer()->get('customer_group.repository')->create([$data], Context::createDefaultContext());
 
         return $id;
+    }
+
+    private function generateInvoice(string $orderId, string $documentNumber = 'INVOICE-A'): DocumentIdStruct
+    {
+        $invoiceConfig = new DocumentConfiguration();
+        $invoiceConfig->setDocumentNumber($documentNumber);
+
+        $operationInvoiceA = new DocumentGenerateOperation(
+            $orderId,
+            FileTypes::PDF,
+            $invoiceConfig->jsonSerialize()
+        );
+
+        $invoice = $this->documentGenerator->generate(
+            InvoiceRenderer::TYPE,
+            [$orderId => $operationInvoiceA],
+            $this->context
+        )->getSuccess()->first();
+
+        static::assertNotNull($invoice);
+
+        return $invoice;
+    }
+
+    /**
+     * @param array<int, int> $creditPrices
+     */
+    private function addCreditItemsToOrderAfterInvoice(string $orderId, array $creditPrices): void
+    {
+        // create a new version for the order
+        $versionId = $this->orderRepository->createVersion($orderId, $this->context, 'DRAFT');
+        $versionContext = $this->context->createWithVersionId($versionId);
+
+        // add credit line items to order
+        for ($i = 0, $iMax = \count($creditPrices); $i < $iMax; ++$i) {
+            $creditLineItemId = Uuid::randomHex();
+
+            $creditLineItem = new LineItem(
+                $creditLineItemId,
+                LineItem::CREDIT_LINE_ITEM_TYPE,
+                null,
+                1
+            );
+
+            $creditLineItem->setLabel('credit' . $creditPrices[$i]);
+            $creditLineItem->setPriceDefinition(new AbsolutePriceDefinition($creditPrices[$i]));
+
+            $this->getContainer()->get(RecalculationService::class)->addCustomLineItem(
+                $orderId,
+                $creditLineItem,
+                $versionContext,
+            );
+        }
+
+        // merge the version changes back into LIVE-ORDER-VERSION
+        static::getContainer()
+            ->get(VersionManager::class)
+            ->merge($versionId, WriteContext::createFromContext($this->context));
+    }
+
+    private function generateCreditNote(string $orderId, string $invoiceId): DocumentGenerationResult
+    {
+        $operationCreditNote1 = new DocumentGenerateOperation(
+            $orderId,
+            HtmlRenderer::FILE_EXTENSION,
+            [
+                'displayLineItems' => true,
+                'itemsPerPage' => 10,
+                'fileTypes' => [],
+            ],
+            $invoiceId
+        );
+
+        return $this->documentGenerator->generate(
+            CreditNoteRenderer::TYPE,
+            [$orderId => $operationCreditNote1],
+            $this->context
+        );
+    }
+
+    private function renderCreditNote(string $orderId, string $invoiceId): RendererResult
+    {
+        $operationCreditNote2 = new DocumentGenerateOperation(
+            $orderId,
+            HtmlRenderer::FILE_EXTENSION,
+            [
+                'displayLineItems' => true,
+                'itemsPerPage' => 10,
+                'fileTypes' => [],
+            ],
+            $invoiceId
+        );
+
+        $result = $this->creditNoteRenderer->render(
+            [$orderId => $operationCreditNote2],
+            $this->context,
+            new DocumentRendererConfig()
+        );
+
+        return $result;
     }
 }

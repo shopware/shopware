@@ -45,7 +45,7 @@ class ImportExportExceptionExportRecordEvent extends Event
 
     public function hasExceptions(): bool
     {
-        return \count($this->exceptions) > 0;
+        return $this->exceptions !== [];
     }
 
     /**

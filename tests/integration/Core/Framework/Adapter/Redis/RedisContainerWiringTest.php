@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider;
 use Shopware\Core\Framework\Increment\RedisIncrementer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestKernel;
+use Shopware\Tests\Integration\Core\Framework\Trait\CustomKernelTestBehavior;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -36,6 +37,11 @@ class RedisContainerWiringTest extends TestCase
 
     public static function tearDownAfterClass(): void
     {
+        $redisUrl = (string) EnvironmentHelper::getVariable('REDIS_URL');
+        if ($redisUrl === '') {
+            return;
+        }
+
         self::unloadKernel();
     }
 

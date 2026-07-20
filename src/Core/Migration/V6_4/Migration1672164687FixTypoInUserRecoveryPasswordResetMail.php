@@ -11,8 +11,6 @@ use Shopware\Core\Migration\Traits\UpdateMailTrait;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('fundamentals@framework')]
 class Migration1672164687FixTypoInUserRecoveryPasswordResetMail extends MigrationStep

@@ -19,11 +19,6 @@ describe('src/app/component/meteor-wrapper/mt-tabs', () => {
         Shopware.Store.get('tabs').tabItems = {};
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should pass the items from the props to the final component', async () => {
         const wrapper = await createWrapper();
 

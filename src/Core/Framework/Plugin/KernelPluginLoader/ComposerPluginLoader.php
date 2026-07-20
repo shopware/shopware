@@ -3,9 +3,10 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Plugin\KernelPluginLoader;
 
-use Composer\InstalledVersions;
+use Shopware\Core\Framework\Adapter\Composer\ComposerInfoProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
+use Shopware\Core\Framework\Util\IOStreamHelper;
 
 /**
  * @phpstan-import-type PluginInfo from KernelPluginLoader
@@ -14,7 +15,7 @@ use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 class ComposerPluginLoader extends KernelPluginLoader
 {
     /**
-     * @return array<PluginInfo>
+     * @return list<PluginInfo>
      */
     public function fetchPluginInfos(): array
     {
@@ -25,13 +26,10 @@ class ComposerPluginLoader extends KernelPluginLoader
 
     protected function loadPluginInfos(): void
     {
-        $composerPlugins = InstalledVersions::getInstalledPackagesByType(PluginFinder::COMPOSER_TYPE);
-
         $this->pluginInfos = [];
 
-        foreach ($composerPlugins as $composerName) {
-            $path = InstalledVersions::getInstallPath($composerName);
-            $composerJsonPath = $path . '/composer.json';
+        foreach (ComposerInfoProvider::getComposerPackages(PluginFinder::COMPOSER_TYPE) as $composerPackage) {
+            $composerJsonPath = $composerPackage->path . '/composer.json';
 
             if (!\is_file($composerJsonPath)) {
                 continue;
@@ -44,23 +42,23 @@ class ComposerPluginLoader extends KernelPluginLoader
             \assert(\is_array($composerJson));
             $pluginClass = $composerJson['extra']['shopware-plugin-class'] ?? '';
 
-            if (\defined('\STDERR') && ($pluginClass === '' || !\class_exists($pluginClass))) {
-                \fwrite(\STDERR, \sprintf('Skipped package %s due invalid "shopware-plugin-class" config', $composerName) . \PHP_EOL);
+            if ($pluginClass === '' || !\class_exists($pluginClass)) {
+                IOStreamHelper::writeError(\sprintf('Skipped package %s due invalid "shopware-plugin-class" config', $composerPackage->name));
 
                 continue;
             }
 
-            $nameParts = \explode('\\', (string) $pluginClass);
+            $nameParts = \explode('\\', $pluginClass);
 
             $this->pluginInfos[] = [
-                'name' => \end($nameParts),
+                'name' => array_last($nameParts),
                 'baseClass' => $pluginClass,
                 'active' => true,
-                'path' => $path ?? '',
-                'version' => InstalledVersions::getPrettyVersion($composerName),
+                'path' => $composerPackage->path,
+                'version' => $composerPackage->prettyVersion,
                 'autoload' => $composerJson['autoload'] ?? [],
                 'managedByComposer' => true,
-                'composerName' => $composerName,
+                'composerName' => $composerPackage->name,
             ];
         }
     }

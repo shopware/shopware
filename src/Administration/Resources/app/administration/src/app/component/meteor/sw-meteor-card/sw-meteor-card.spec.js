@@ -27,12 +27,6 @@ async function createWrapper(customConfig = {}) {
 }
 
 describe('src/app/component/meteor/sw-meteor-card', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render the content of the default slot', async () => {
         const wrapper = await createWrapper({
             slots: {

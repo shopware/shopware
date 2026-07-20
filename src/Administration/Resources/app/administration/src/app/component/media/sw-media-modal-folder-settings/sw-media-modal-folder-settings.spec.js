@@ -48,9 +48,9 @@ async function createWrapper() {
                     repositoryFactory: {
                         create: (entity) => {
                             return {
-                                create: repositoryFactoryCreateMock,
-                                search: repositoryFactorySearchMock,
-                                searchIds: repositoryFactorySearchIdsMock,
+                                create: (...args) => repositoryFactoryCreateMock(...args),
+                                search: (...args) => repositoryFactorySearchMock(...args),
+                                searchIds: (...args) => repositoryFactorySearchIdsMock(...args),
                                 save: repositoryFactorySaveMock,
                                 get: () => {
                                     switch (entity) {
@@ -88,10 +88,6 @@ describe('src/app/asyncComponent/media/sw-media-modal-folder-settings', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should get thumbnail sizes and unused thumbnail sizes with the correct criteria', async () => {

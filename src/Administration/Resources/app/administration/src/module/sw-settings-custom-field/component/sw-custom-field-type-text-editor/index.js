@@ -6,8 +6,8 @@ export default {
     data() {
         return {
             propertyNames: {
-                label: this.$tc('sw-settings-custom-field.customField.detail.labelLabel'),
-                placeholder: this.$tc('sw-settings-custom-field.customField.detail.labelPlaceholder'),
+                label: this.$t('sw-settings-custom-field.customField.detail.labelLabel'),
+                placeholder: this.$t('sw-settings-custom-field.customField.detail.labelPlaceholder'),
             },
         };
     },

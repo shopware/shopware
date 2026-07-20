@@ -43,7 +43,8 @@
                 xs: (theme_config('breakpoint.sm') - 1) ~'px',
                 sm: (theme_config('breakpoint.md') - 1) ~'px',
                 md: ((theme_config('breakpoint.lg') - 1) / columns)|round(0, 'ceil') ~'px',
-                lg: ((theme_config('breakpoint.xl') - 1) / columns)|round(0, 'ceil') ~'px'
+                lg: ((theme_config('breakpoint.xl') - 1) / columns)|round(0, 'ceil') ~'px',
+                xl: ((theme_config('breakpoint.xxl') - 1) / columns)|round(0, 'ceil') ~'px'
             } %}
 
             {% if sizes is not defined or sizes == null %}
@@ -53,10 +54,10 @@
             {# set image size for largest viewport depending on the cms block sizing mode (boxed or full-width) #}
             {% if layout == 'full-width' %}
                 {% set container = 100 %}
-                {% set sizes = sizes|merge({ xl: (container / columns)|round(0, 'ceil') ~'vw'}) %}
+                {% set sizes = sizes|merge({ xxl: (container / columns)|round(0, 'ceil') ~'vw'}) %}
             {% else %}
                 {% set container = 1360 %}
-                {% set sizes = sizes|merge({ xl: (container / columns)|round(0, 'ceil') ~'px'}) %}
+                {% set sizes = sizes|merge({ xxl: (container / columns)|round(0, 'ceil') ~'px'}) %}
             {% endif %}
         {% endif %}
 
@@ -70,7 +71,12 @@
         {% endif %}
 
         {% for thumbnail in thumbnails %}
-            {% set srcsetValues = srcsetValues|merge([thumbnail.url|sw_encode_url ~ ' ' ~ thumbnail.width ~ 'w']) %}
+            {% set thumbnailUrl = thumbnail.url|sw_encode_url %}
+            {% if feature('v6.8.0.0') %}
+                {% set thumbnailUrl = thumbnail.url %}
+            {% endif %}
+
+            {% set srcsetValues = srcsetValues|merge([thumbnailUrl ~ ' ' ~ thumbnail.width ~ 'w']) %}
         {% endfor %}
 
         {# generate sizes #}
@@ -86,7 +92,8 @@
             sm: theme_config('breakpoint.sm'),
             md: theme_config('breakpoint.md'),
             lg: theme_config('breakpoint.lg'),
-            xl: theme_config('breakpoint.xl')
+            xl: theme_config('breakpoint.xl'),
+            xxl: theme_config('breakpoint.xxl')
         } %}
 
         {% set sizesValues = [] %}
@@ -108,7 +115,7 @@
                 sizes="{{ sizesValues|join(', ') }}"
                 {% endif %}
             {% endif %}
-            {% for key, value in attributes %}{% if value != '' %} {{ key }}="{{ value }}"{% endif %}{% endfor %}
+            {% for key, value in attributes %}{% if value != '' %} {{ key }}="{{ value|striptags|trim }}"{% elseif key == 'alt' and value is not same as(false) %} {{ key }}="{{ value|striptags|trim }}"{% endif %}{% endfor %}
         />
     {% endblock %}
 {% endblock %}

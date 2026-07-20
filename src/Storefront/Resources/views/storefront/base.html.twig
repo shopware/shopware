@@ -2,20 +2,36 @@
 {% block base_doctype %}<!DOCTYPE html>{% endblock %}
 
 {% block base_html %}
+{# @deprecated tag:v6.8.0 - WebPage microdata on <html> replaced by JSON-LD. Will be removed. #}
 <html lang="{{ context.languageInfo.localeCode }}"
+      {% if not feature('JSON_LD_DATA') %}
       itemscope="itemscope"
-      itemtype="https://schema.org/WebPage">
+      itemtype="https://schema.org/WebPage"
+      {% endif %}>
 {% endblock %}
 
-{# Set variable to "true" to enable HMR (hot page reloading) mode #}
-{% set isHMRMode = app.request.headers.get('hot-reload-mode') and app.environment == 'dev' %}
+{# @deprecated tag:v6.8.0 - Will be removed. Use the Vite dev server instead. #}
+{% if not feature('v6.8.0.0') %}
+    {# Set variable to "true" to enable HMR (hot page reloading) mode #}
+    {% set isHMRMode = app.request.headers.get('hot-reload-mode') and app.environment == 'dev' %}
+{% endif %}
 
 {% block base_head %}
     {% sw_include '@Storefront/storefront/layout/meta.html.twig' %}
 {% endblock %}
 
 {% block base_body %}
-    <body class="{% block base_body_classes %}is-ctl-{% if controllerName is not empty %}{{ controllerName|lower }}{% endif %} is-act-{% if controllerAction is not empty %}{{ controllerAction|lower }}{% endif %}{% endblock %}">
+    {# @deprecated tag:v6.8.0 - CSS classes `is-ctl-*` and `is-act-*` will be removed, use `is-active-route-*` instead. #}
+    <body class="{% block base_body_classes %}
+        {%- if controllerName is not empty -%}is-ctl-{{ controllerName|lower }} {% endif -%}
+        {%- if controllerAction is not empty -%}is-act-{{ controllerAction|lower }} {% endif -%}
+        {%- if activeRoute is not empty -%}is-active-route-{{ activeRoute|replace({'.': '-'}) }}{%- endif -%}
+    {%- endblock %}">
+
+    {# @deprecated tag:v6.8.0 - Cookie permission bar "base_cookie_permission" will be moved to this position. #}
+    {% if feature('v6.8.0.0') %}
+        {{ sw_block('base_cookie_permission') }}
+    {% endif %}
 
     {% block base_body_skip_to_content %}
         {% sw_include '@Storefront/storefront/component/skip-to-content.html.twig' with {
@@ -36,7 +52,7 @@
         {% endblock %}
 
         {% block base_esi_header %}
-            {{ render_esi(url('frontend.header', { headerParameters: headerParameters })) }}
+            {{ render_esi(path('frontend.header', { headerParameters: headerParameters }), { ignore_errors: false } ) }}
         {% endblock %}
 
         {# @deprecated tag:v6.8.0 - Block will be removed. The active styling class `.active` is set by navbar.plugin.js. #}
@@ -50,9 +66,20 @@
                 {% block base_flashbags %}
                     <div class="flashbags container">
                         {% for type, messages in app.flashes %}
-                            {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with { type: type, list: messages } %}
+                            {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                                type: type,
+                                list: messages,
+                                announceOnLoad: true,
+                                ariaLive: (type == 'danger' ? 'assertive' : 'polite')
+                            } %}
                         {% endfor %}
                     </div>
+                {% endblock %}
+
+                {% block base_add_to_cart_alert_template %}
+                    {% if not config('core.cart.openOffcanvasAfterAddToCart') %}
+                        {% sw_include '@Storefront/storefront/component/checkout/add-to-cart-alert-template.html.twig' %}
+                    {% endif %}
                 {% endblock %}
 
                 {% block base_main_inner %}
@@ -60,11 +87,19 @@
                         {% block base_main_container %}
                             <div class="container-main">
                                 {% block base_breadcrumb %}
-                                    {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
-                                        context: context,
-                                        themeIconConfig: themeIconConfig,
-                                        categoryId: shopware.navigation.id,
-                                    } only %}
+                                    {% if feature('v6.8.0.0') or feature('BREADCRUMB_REWORK') %}
+                                        {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
+                                            context: context,
+                                            themeIconConfig: themeIconConfig,
+                                            breadcrumb: page.breadcrumb
+                                        } only %}
+                                    {% else %}
+                                        {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
+                                            context: context,
+                                            themeIconConfig: themeIconConfig,
+                                            categoryId: shopware.navigation.id,
+                                        } only %}
+                                    {% endif %}
                                 {% endblock %}
 
                                 {% block base_content %}{% endblock %}
@@ -76,7 +111,7 @@
         {% endblock %}
 
         {% block base_esi_footer %}
-            {{ render_esi(url('frontend.footer', { footerParameters: footerParameters })) }}
+            {{ render_esi(path('frontend.footer', { footerParameters: footerParameters }), { ignore_errors: false } ) }}
         {% endblock %}
 
     {% endblock %}
@@ -85,9 +120,12 @@
         {% sw_include '@Storefront/storefront/layout/scroll-up.html.twig' %}
     {% endblock %}
 
-    {% block base_cookie_permission %}
-        {% sw_include '@Storefront/storefront/layout/cookie/cookie-permission.html.twig' %}
-    {% endblock %}
+    {# @deprecated tag:v6.8.0 - Cookie permission bar "base_cookie_permission" will be moved to top of the body element. #}
+    {% if not feature('v6.8.0.0') %}
+        {% block base_cookie_permission %}
+            {% sw_include '@Storefront/storefront/layout/cookie/cookie-permission.html.twig' %}
+        {% endblock %}
+    {% endif %}
 
     {% block base_pseudo_modal %}
         {% sw_include '@Storefront/storefront/component/pseudo-modal.html.twig' %}

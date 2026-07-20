@@ -4,12 +4,13 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -34,18 +35,20 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\Test\Stub\Doctrine\TestExceptionFactory;
+use Shopware\Core\Test\Stub\Doctrine\FailingDeleteConnection;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
  */
-#[CoversClass(EntityWriteGateway::class)]
 class EntityWriteGatewayTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     private IdsCollection $ids;
@@ -65,7 +68,7 @@ class EntityWriteGatewayTest extends TestCase
         $update = ['id' => $this->ids->get('product'), 'stock' => 100];
 
         static::getContainer()->get('event_dispatcher')
-            ->addListener(PreWriteValidationEvent::class, function (PreWriteValidationEvent $event): void {
+            ->addListener(PreWriteValidationEvent::class, static function (PreWriteValidationEvent $event): void {
                 foreach ($event->getCommands() as $command) {
                     if (!$command instanceof ChangeSetAware) {
                         continue;
@@ -90,7 +93,7 @@ class EntityWriteGatewayTest extends TestCase
         $update = ['id' => $id, 'stock' => 1];
 
         static::getContainer()->get('event_dispatcher')
-            ->addListener(PreWriteValidationEvent::class, function (PreWriteValidationEvent $event): void {
+            ->addListener(PreWriteValidationEvent::class, static function (PreWriteValidationEvent $event): void {
                 foreach ($event->getCommands() as $command) {
                     if (!$command instanceof ChangeSetAware) {
                         continue;
@@ -113,7 +116,7 @@ class EntityWriteGatewayTest extends TestCase
         $id = $this->ids->get('product');
 
         static::getContainer()->get('event_dispatcher')
-            ->addListener(PreWriteValidationEvent::class, function (PreWriteValidationEvent $event): void {
+            ->addListener(PreWriteValidationEvent::class, static function (PreWriteValidationEvent $event): void {
                 foreach ($event->getCommands() as $command) {
                     if (!$command instanceof ChangeSetAware) {
                         continue;
@@ -147,7 +150,7 @@ class EntityWriteGatewayTest extends TestCase
         $update = ['id' => $id, 'name' => 'updated'];
 
         static::getContainer()->get('event_dispatcher')
-            ->addListener(PreWriteValidationEvent::class, function (PreWriteValidationEvent $event): void {
+            ->addListener(PreWriteValidationEvent::class, static function (PreWriteValidationEvent $event): void {
                 foreach ($event->getCommands() as $command) {
                     if (!$command instanceof ChangeSetAware) {
                         continue;
@@ -177,7 +180,7 @@ class EntityWriteGatewayTest extends TestCase
         ];
 
         static::getContainer()->get('event_dispatcher')
-            ->addListener(PreWriteValidationEvent::class, function (PreWriteValidationEvent $event): void {
+            ->addListener(PreWriteValidationEvent::class, static function (PreWriteValidationEvent $event): void {
                 foreach ($event->getCommands() as $command) {
                     if (!$command instanceof ChangeSetAware) {
                         continue;
@@ -209,7 +212,7 @@ class EntityWriteGatewayTest extends TestCase
         ];
 
         static::getContainer()->get('event_dispatcher')
-            ->addListener(PreWriteValidationEvent::class, function (PreWriteValidationEvent $event): void {
+            ->addListener(PreWriteValidationEvent::class, static function (PreWriteValidationEvent $event): void {
                 foreach ($event->getCommands() as $command) {
                     if (!$command instanceof ChangeSetAware) {
                         continue;
@@ -238,7 +241,7 @@ class EntityWriteGatewayTest extends TestCase
         ];
 
         static::getContainer()->get('event_dispatcher')
-            ->addListener(PreWriteValidationEvent::class, function (PreWriteValidationEvent $event): void {
+            ->addListener(PreWriteValidationEvent::class, static function (PreWriteValidationEvent $event): void {
                 foreach ($event->getCommands() as $command) {
                     if (!$command instanceof ChangeSetAware) {
                         continue;
@@ -250,10 +253,10 @@ class EntityWriteGatewayTest extends TestCase
         $result = $this->productRepository->update($updates, Context::createDefaultContext());
 
         $changeSets = $this->getChangeSets(ProductDefinition::ENTITY_NAME, $result, 2);
-        $changeSetForProduct1 = array_values(array_filter($changeSets, function (ChangeSet $changeSet) use (&$productId1) {
+        $changeSetForProduct1 = array_values(array_filter($changeSets, static function (ChangeSet $changeSet) use (&$productId1) {
             return $changeSet->getBefore('id') === hex2bin($productId1);
         }))[0];
-        $changeSetForProduct2 = array_values(array_filter($changeSets, function (ChangeSet $changeSet) use (&$productId2) {
+        $changeSetForProduct2 = array_values(array_filter($changeSets, static function (ChangeSet $changeSet) use (&$productId2) {
             return $changeSet->getBefore('id') === hex2bin($productId2);
         }))[0];
 
@@ -365,7 +368,7 @@ class EntityWriteGatewayTest extends TestCase
         $successSpy = $this->callbackSpy();
         $errorSpy = $this->callbackSpy();
 
-        $spy = $this->eventListenerCalledSpy(function (EntityDeleteEvent $event) use ($successSpy, $errorSpy): void {
+        $spy = $this->eventListenerCalledSpy(static function (EntityDeleteEvent $event) use ($successSpy, $errorSpy): void {
             $event->addSuccess($successSpy(...));
             $event->addError($errorSpy(...));
         });
@@ -389,8 +392,8 @@ class EntityWriteGatewayTest extends TestCase
         $successSpy1 = $this->callbackSpy();
         $successSpy2 = $this->callbackSpy();
 
-        $eventSpy1 = $this->eventListenerCalledSpy(fn (EntityDeleteEvent $event) => $event->addSuccess($successSpy1(...)));
-        $eventSpy2 = $this->eventListenerCalledSpy(fn (EntityDeleteEvent $event) => $event->addSuccess($successSpy2(...)));
+        $eventSpy1 = $this->eventListenerCalledSpy(static fn (EntityDeleteEvent $event) => $event->addSuccess($successSpy1(...)));
+        $eventSpy2 = $this->eventListenerCalledSpy(static fn (EntityDeleteEvent $event) => $event->addSuccess($successSpy2(...)));
 
         static::getContainer()->get('event_dispatcher')->addListener(EntityDeleteEvent::class, $eventSpy1);
         static::getContainer()->get('event_dispatcher')->addListener(EntityDeleteEvent::class, $eventSpy2);
@@ -404,38 +407,40 @@ class EntityWriteGatewayTest extends TestCase
         static::getContainer()->get('event_dispatcher')->removeListener(EntityDeleteEvent::class, $eventSpy2);
     }
 
-    public function testEntityDeleteEventErrorCallbacksCalled(): void
+    /**
+     * A failing delete fires both the general EntityWriteEvent and the specific EntityDeleteEvent;
+     * assert each one's error callbacks are invoked (and success callbacks are not).
+     */
+    #[DataProvider('errorCallbackEventProvider')]
+    #[TestDox('error callbacks are invoked when a gateway operation fails')]
+    public function testErrorCallbacksAreInvokedOnEvent(string $eventClass): void
     {
         $delete = [['id' => Uuid::randomBytes(), 'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)]];
 
-        $connection = static::getContainer()->get(Connection::class);
+        $realConnection = static::getContainer()->get(Connection::class);
 
-        $connection = $this->getMockBuilder(Connection::class)
-            ->setConstructorArgs([
-                array_merge(
-                    $connection->getParams(),
-                    [
-                        'url' => $_SERVER['DATABASE_URL'],
-                        'dbname' => $connection->getDatabase(),
-                    ]
-                ),
-                $connection->getDriver(),
-                $connection->getConfiguration(),
-            ])
-            ->onlyMethods(['delete'])
-            ->getMock();
-
-        $connection->method('delete')->willThrowException(TestExceptionFactory::createException('test'));
+        $connection = new FailingDeleteConnection(
+            array_merge(
+                $realConnection->getParams(),
+                [
+                    'url' => $_SERVER['DATABASE_URL'],
+                    'dbname' => $realConnection->getDatabase() ?? '',
+                ]
+            ),
+            $realConnection->getDriver(),
+            $realConnection->getConfiguration(),
+        );
 
         $successSpy = $this->callbackSpy();
         $errorSpy = $this->callbackSpy();
 
-        $spy = $this->eventListenerCalledSpy(function (EntityDeleteEvent $event) use ($successSpy, $errorSpy): void {
+        // a Closure satisfies both EntityDeleteEvent::addSuccess(\Closure) and EntityWriteEvent::addSuccess(callable)
+        $spy = $this->eventListenerCalledSpy(static function (EntityDeleteEvent|EntityWriteEvent $event) use ($successSpy, $errorSpy): void {
             $event->addSuccess($successSpy(...));
             $event->addError($errorSpy(...));
         });
 
-        static::getContainer()->get('event_dispatcher')->addListener(EntityDeleteEvent::class, $spy);
+        static::getContainer()->get('event_dispatcher')->addListener($eventClass, $spy);
 
         $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
@@ -469,7 +474,17 @@ class EntityWriteGatewayTest extends TestCase
         static::assertTrue($errorSpy->called);
         static::assertFalse($successSpy->called);
 
-        static::getContainer()->get('event_dispatcher')->removeListener(EntityDeleteEvent::class, $spy);
+        static::getContainer()->get('event_dispatcher')->removeListener($eventClass, $spy);
+    }
+
+    /**
+     * @return \Generator<string, array{class-string}>
+     */
+    public static function errorCallbackEventProvider(): \Generator
+    {
+        yield 'delete event' => [EntityDeleteEvent::class];
+
+        yield 'write event' => [EntityWriteEvent::class];
     }
 
     /**
@@ -506,16 +521,14 @@ class EntityWriteGatewayTest extends TestCase
     }
 
     /**
-     * @return array<array<string>>
+     * @return iterable<array<string>>
      */
-    public static function methodProvider(): array
+    public static function methodProvider(): iterable
     {
-        return [
-            ['create'],
-            ['upsert'],
-            ['update'],
-            ['delete'],
-        ];
+        yield 'method create' => ['create'];
+        yield 'method upsert' => ['upsert'];
+        yield 'method update' => ['update'];
+        yield 'method delete' => ['delete'];
     }
 
     public function testEntityWriteEventSuccessCallbacksCalled(): void
@@ -527,7 +540,7 @@ class EntityWriteGatewayTest extends TestCase
         $successSpy = $this->callbackSpy();
         $errorSpy = $this->callbackSpy();
 
-        $spy = $this->eventListenerCalledSpy(function (EntityWriteEvent $event) use ($successSpy, $errorSpy): void {
+        $spy = $this->eventListenerCalledSpy(static function (EntityWriteEvent $event) use ($successSpy, $errorSpy): void {
             $event->addSuccess($successSpy);
             $event->addError($errorSpy);
         });
@@ -551,8 +564,8 @@ class EntityWriteGatewayTest extends TestCase
         $successSpy1 = $this->callbackSpy();
         $successSpy2 = $this->callbackSpy();
 
-        $eventSpy1 = $this->eventListenerCalledSpy(fn (EntityWriteEvent $event) => $event->addSuccess($successSpy1));
-        $eventSpy2 = $this->eventListenerCalledSpy(fn (EntityWriteEvent $event) => $event->addSuccess($successSpy2));
+        $eventSpy1 = $this->eventListenerCalledSpy(static fn (EntityWriteEvent $event) => $event->addSuccess($successSpy1));
+        $eventSpy2 = $this->eventListenerCalledSpy(static fn (EntityWriteEvent $event) => $event->addSuccess($successSpy2));
 
         static::getContainer()->get('event_dispatcher')->addListener(EntityWriteEvent::class, $eventSpy1);
         static::getContainer()->get('event_dispatcher')->addListener(EntityWriteEvent::class, $eventSpy2);
@@ -564,74 +577,6 @@ class EntityWriteGatewayTest extends TestCase
 
         static::getContainer()->get('event_dispatcher')->removeListener(EntityWriteEvent::class, $eventSpy1);
         static::getContainer()->get('event_dispatcher')->removeListener(EntityWriteEvent::class, $eventSpy2);
-    }
-
-    public function testEntityWriteEventErrorCallbacksCalled(): void
-    {
-        $delete = [['id' => Uuid::randomBytes(), 'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)]];
-
-        $connection = static::getContainer()->get(Connection::class);
-
-        $connection = $this->getMockBuilder(Connection::class)
-            ->setConstructorArgs([
-                array_merge(
-                    $connection->getParams(),
-                    [
-                        'url' => $_SERVER['DATABASE_URL'],
-                        'dbname' => $connection->getDatabase(),
-                    ]
-                ),
-                $connection->getDriver(),
-                $connection->getConfiguration(),
-            ])
-            ->onlyMethods(['delete'])
-            ->getMock();
-
-        $connection->method('delete')->willThrowException(TestExceptionFactory::createException('test'));
-
-        $successSpy = $this->callbackSpy();
-        $errorSpy = $this->callbackSpy();
-
-        $spy = $this->eventListenerCalledSpy(function (EntityWriteEvent $event) use ($successSpy, $errorSpy): void {
-            $event->addSuccess($successSpy);
-            $event->addError($errorSpy);
-        });
-
-        static::getContainer()->get('event_dispatcher')->addListener(EntityWriteEvent::class, $spy);
-
-        $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
-
-        $gateway = new EntityWriteGateway(
-            1,
-            $connection,
-            static::getContainer()->get('event_dispatcher'),
-            static::getContainer()->get(ExceptionHandlerRegistry::class),
-            $definitionRegistry
-        );
-
-        $writeContext = WriteContext::createFromContext(Context::createDefaultContext());
-
-        $command = new DeleteCommand(
-            $definitionRegistry->getByEntityName('product'),
-            $delete[0],
-            new EntityExistence('product', $delete[0], true, true, true, [])
-        );
-
-        $exceptionThrown = null;
-
-        try {
-            $gateway->execute([$command], $writeContext);
-        } catch (Exception $exception) {
-            $exceptionThrown = $exception;
-        }
-
-        static::assertInstanceOf(Exception::class, $exceptionThrown);
-        static::assertSame('test', $exceptionThrown->getMessage());
-
-        static::assertTrue($errorSpy->called);
-        static::assertFalse($successSpy->called);
-
-        static::getContainer()->get('event_dispatcher')->removeListener(EntityWriteEvent::class, $spy);
     }
 
     /**
@@ -724,7 +669,7 @@ class EntityWriteGatewayTest extends TestCase
         static::assertInstanceOf(EntityWrittenEvent::class, $event);
         static::assertCount($expectedSize, $event->getWriteResults());
 
-        return array_map(function (EntityWriteResult $writeResult) {
+        return array_map(static function (EntityWriteResult $writeResult) {
             $changeSet = $writeResult->getChangeSet();
             static::assertInstanceOf(ChangeSet::class, $changeSet);
 

@@ -64,8 +64,6 @@ export default {
         },
 
         getSlots() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-
             return this.$slots;
         },
     },
@@ -97,6 +95,7 @@ export default {
 
             if (this.itemCount > 0) {
                 Shopware.Store.get('shopwareApps').selectedIds = Object.keys(this.bulkEditSelection);
+                Shopware.Store.get('swBulkEdit').selectedIds = Object.keys(this.bulkEditSelection);
                 this.$emit('edit-items');
             }
         },

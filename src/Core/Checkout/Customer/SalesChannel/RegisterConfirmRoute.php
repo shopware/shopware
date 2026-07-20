@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -26,7 +28,7 @@ use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
 class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
 {
@@ -40,7 +42,8 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly DataValidator $validator,
         private readonly SalesChannelContextPersister $contextPersister,
-        private readonly SalesChannelContextServiceInterface $contextService
+        private readonly SalesChannelContextServiceInterface $contextService,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -80,7 +83,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
 
         $customerUpdate = [
             'id' => $customer->getId(),
-            'doubleOptInConfirmDate' => new \DateTimeImmutable(),
+            'doubleOptInConfirmDate' => $this->clock->now(),
         ];
         $this->customerRepository->update([$customerUpdate], $context->getContext());
 
@@ -137,7 +140,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
     private function getBeforeConfirmValidation(string $emHash): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('registration.opt_in_before');
-        $definition->add('em', new EqualTo(['value' => $emHash]));
+        $definition->add('em', new EqualTo(value: $emHash));
         $definition->add('doubleOptInRegistration', new IsTrue());
 
         return $definition;

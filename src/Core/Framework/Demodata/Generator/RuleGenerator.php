@@ -3,9 +3,13 @@
 namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Faker\Generator;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
 use Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule;
 use Shopware\Core\Checkout\Customer\Rule\DaysSinceFirstLoginRule;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -16,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\Container;
@@ -37,13 +42,18 @@ class RuleGenerator implements DemodataGeneratorInterface
 
     /**
      * @internal
+     *
+     * @param EntityRepository<RuleCollection> $ruleRepository
+     * @param EntityRepository<PaymentMethodCollection> $paymentMethodRepository
+     * @param EntityRepository<ShippingMethodCollection> $shippingMethodRepository
      */
     public function __construct(
         private readonly EntityRepository $ruleRepository,
         private readonly EntityWriterInterface $writer,
         private readonly EntityRepository $paymentMethodRepository,
         private readonly EntityRepository $shippingMethodRepository,
-        private readonly RuleDefinition $ruleDefinition
+        private readonly RuleDefinition $ruleDefinition,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -56,9 +66,7 @@ class RuleGenerator implements DemodataGeneratorInterface
     {
         $this->faker = $context->getFaker();
 
-        /** @var list<string> $paymentMethodIds */
         $paymentMethodIds = $this->paymentMethodRepository->searchIds(new Criteria(), $context->getContext())->getIds();
-        /** @var list<string> $shippingMethodIds */
         $shippingMethodIds = $this->shippingMethodRepository->searchIds(new Criteria(), $context->getContext())->getIds();
 
         $criteria = (new Criteria())->addFilter(
@@ -73,7 +81,7 @@ class RuleGenerator implements DemodataGeneratorInterface
 
         $ids = $this->ruleRepository->searchIds($criteria, $context->getContext());
 
-        if (!empty($ids->getIds())) {
+        if ($ids->getIds() !== []) {
             return;
         }
 
@@ -83,7 +91,7 @@ class RuleGenerator implements DemodataGeneratorInterface
                 'name' => 'New customer',
             ],
             [
-                'rule' => (new DateRangeRule())->assign(['fromDate' => new \DateTime(), 'toDate' => (new \DateTime())->modify('+2 day')]),
+                'rule' => (new DateRangeRule())->assign(['fromDate' => $this->clock->now(), 'toDate' => $this->clock->now()->modify('+2 day')]),
                 'name' => 'Next two days',
             ],
             [
@@ -112,6 +120,7 @@ class RuleGenerator implements DemodataGeneratorInterface
                 'priority' => $i,
                 'name' => implode(' + ', $names),
                 'description' => $context->getFaker()->text(),
+                'customFields' => [DemodataService::DEMODATA_CUSTOM_FIELDS_KEY => true],
             ];
 
             $ruleData['conditions'][] = $this->buildChildRule(null, (new OrRule())->assign(['rules' => $classes]));

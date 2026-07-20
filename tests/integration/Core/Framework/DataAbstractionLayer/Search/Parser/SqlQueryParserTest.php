@@ -2,9 +2,10 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search\Parser;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
@@ -26,13 +28,18 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[CoversClass(SqlQueryParser::class)]
 class SqlQueryParserTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $repository;
 
+    /**
+     * @var EntityRepository<ProductManufacturerCollection>
+     */
     private EntityRepository $manufacturerRepository;
 
     private Context $context;
@@ -225,35 +232,66 @@ class SqlQueryParserTest extends TestCase
 
         // empty array
         $criteria = (new Criteria())->addFilter(new EqualsAnyFilter('link', []));
-        /** @var list<string> $foundIds */
         $foundIds = $this->manufacturerRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
         static::assertCount(0, array_intersect($foundIds, $testIds));
 
         // string scenario
         $criteria = (new Criteria())->addFilter(new EqualsAnyFilter('link', ['specialLink2']));
-        /** @var list<string> $foundIds */
         $foundIds = $this->manufacturerRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
         static::assertCount(1, array_intersect($foundIds, $testIds));
         static::assertContains($testIds['specialLink2'], $foundIds);
 
         // null scenario
         $criteria = (new Criteria())->addFilter(new EqualsAnyFilter('link', [null]));
-        /** @var list<string> $foundIds */
         $foundIds = $this->manufacturerRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
         static::assertCount(1, array_intersect($foundIds, $testIds));
         static::assertContains($testIds['nullLink'], $foundIds);
 
         // combined scenario
         $criteria = (new Criteria())->addFilter(new EqualsAnyFilter('link', [null, 'specialLink1']));
-        /** @var list<string> $foundIds */
         $foundIds = $this->manufacturerRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
         static::assertCount(2, array_intersect($foundIds, $testIds));
         static::assertContains($testIds['nullLink'], $foundIds);
         static::assertContains($testIds['specialLink1'], $foundIds);
     }
 
+    public function testNegatedEqualsAnyFilterKeepsProductsWithNullManufacturer(): void
+    {
+        $ids = new IdsCollection();
+
+        $this->repository->create([
+            (new ProductBuilder($ids, 'product-with-blocked-manufacturer'))
+                ->manufacturer('blocked-manufacturer')
+                ->price(10)
+                ->build(),
+            (new ProductBuilder($ids, 'product-with-other-manufacturer'))
+                ->manufacturer('other-manufacturer')
+                ->price(10)
+                ->build(),
+            (new ProductBuilder($ids, 'product-without-manufacturer'))
+                ->price(10)
+                ->build(),
+        ], $this->context);
+
+        $criteria = new Criteria($ids->getList([
+            'product-with-blocked-manufacturer',
+            'product-with-other-manufacturer',
+            'product-without-manufacturer',
+        ]));
+        $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [
+            new EqualsAnyFilter('manufacturerId', [$ids->get('blocked-manufacturer')]),
+        ]));
+
+        $foundIds = $this->repository->searchIds($criteria, $this->context)->getIds();
+
+        static::assertEqualsCanonicalizing([
+            $ids->get('product-with-other-manufacturer'),
+            $ids->get('product-without-manufacturer'),
+        ], array_values($foundIds));
+    }
+
     /**
-     * @param array<mixed> $parameters
+     * @param array<string, mixed> $parameters
      */
     private function createManufacturer(array $parameters = []): string
     {

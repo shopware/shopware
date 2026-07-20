@@ -27,6 +27,7 @@
                 }"
                 selected=""
                 class="sw-category-tree-field__selected-label"
+                :dismissable="!disabled"
                 @dismiss="removeItem(selectedCategory)"
             >
 
@@ -40,7 +41,10 @@
 
                 {% block sw_category_tree_field_input_labels_dismiss_icon %}
                 <template #dismiss-icon>
-                    <mt-icon name="regular-times-s" />
+                    <mt-icon
+                        name="regular-times-s"
+                        size="8"
+                    />
                 </template>
                 {% endblock %}
 
@@ -77,7 +81,7 @@
 
             {% block sw_category_tree_field_input_transition %}
             {% block sw_category_tree_field_input_results %}
-            <sw-popover
+            <sw-popover-deprecated
                 v-if="isExpanded"
                 class="sw-category-tree-field__results_base"
                 popover-class="sw-category-tree-field__results_popover"
@@ -215,11 +219,11 @@
                     v-else
                     class="sw-category-tree-field__empty-state"
                 >
-                    {{ $tc('sw-category-tree-field.emptySearchResults') }}
+                    {{ $t('sw-category-tree-field.emptySearchResults') }}
                 </p>
                 {% endblock %}
 
-            </sw-popover>
+            </sw-popover-deprecated>
             {% endblock %}
             {% endblock %}
         </template>

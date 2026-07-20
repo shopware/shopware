@@ -1,31 +1,10 @@
-@import "~scss/variables";
-
-$sw-grid-item-color-border: $color-gray-300;
-$sw-grid-item-color-background: $color-gray-100;
-$sw-grid-item-even-color-background: $color-white;
-$sw-grid-item-color-background-deleted: $color-crimson-500;
-$sw-grid-item-color-background-new: $color-emerald-500;
-$sw-grid-item-active-color-border: $color-shopware-brand-500;
-$sw-grid-item-active-color-background: $color-shopware-brand-50;
-$sw-grid-item-active-color-text: $color-black;
-$sw-grid-header-color-background: $color-white;
-$sw-grid-header-color-border: $color-gray-300;
-$sw-grid-header-color-text: $color-darkgray-200;
-$sw-grid-actions-icon-color: $color-darkgray-200;
-$sw-grid-actions-icon-hover-color: $color-shopware-brand-500;
-$sw-grid-table-row-color-background: $color-white;
-
 .sw-grid {
     display: grid;
     overflow: hidden;
     position: relative;
     grid-template-rows: auto;
-    border: 1px solid $sw-grid-item-color-border;
-
-    .mt-card & {
-        border: none;
-        border-top: 1px solid $sw-grid-item-color-border;
-    }
+    border: 1px solid var(--color-border-secondary-default);
+    border-radius: var(--border-radius-card);
 
     &.sw-grid--sidebar {
         grid-template-columns: 1fr auto;
@@ -46,18 +25,16 @@ $sw-grid-table-row-color-background: $color-white;
         }
 
         .sw-grid-row {
-            background-color: $sw-grid-table-row-color-background;
-
             &.is--selected {
-                background-color: $sw-grid-item-active-color-background;
+                background-color: var(--color-background-brand-default);
             }
 
             &.is--deleted {
-                background-color: lighten($sw-grid-item-color-background-deleted, 45%);
+                background-color: var(--color-background-critical-default);
             }
 
             &.is--new {
-                background-color: lighten($sw-grid-item-color-background-new, 45%);
+                background-color: var(--color-background-positive-default);
             }
         }
 
@@ -75,30 +52,30 @@ $sw-grid-table-row-color-background: $color-white;
         grid-template-rows: auto;
 
         &.sw-grid__content--header {
-            grid-template-rows: 64px 1fr;
+            grid-template-rows: var(--scale-size-64) 1fr;
         }
 
         &.sw-grid__content--pagination {
-            grid-template-rows: 1fr 64px;
+            grid-template-rows: 1fr var(--scale-size-64);
         }
 
         &.sw-grid__content--header.sw-grid__content--pagination {
-            grid-template-rows: 64px 1fr auto;
+            grid-template-rows: var(--scale-size-64) 1fr auto;
         }
     }
 
     .sw-grid__header {
         display: grid;
         grid-auto-flow: column;
-        background-color: $sw-grid-header-color-background;
-        border-bottom: 1px solid $sw-grid-header-color-border;
+        background: var(--color-elevation-surface-raised);
+        border-bottom: 1px solid var(--color-border-secondary-default);
 
         .sw-grid-column {
-            font-size: $font-size-s;
-            font-weight: bold;
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-semibold);
 
             .sw-grid__cell-content {
-                color: $sw-grid-header-color-text;
+                color: var(--color-text-primary-default);
             }
 
             &.is--sortable {
@@ -106,10 +83,10 @@ $sw-grid-table-row-color-background: $color-white;
             }
 
             &.is--sorted .sw-grid__cell-content {
-                color: darken($sw-grid-header-color-text, 10%);
+                color: var(--color-text-secondary-default);
                 display: grid;
-                grid-template-columns: 1fr 10px;
-                grid-gap: 5px;
+                grid-template-columns: 1fr var(--scale-size-10);
+                grid-gap: var(--scale-size-4);
             }
         }
 
@@ -122,7 +99,7 @@ $sw-grid-table-row-color-background: $color-white;
 
         .sw-grid_cell-sortable {
             .icon--regular-chevron-down-xxs {
-                padding: 4px;
+                padding: var(--scale-size-4);
             }
         }
     }
@@ -139,25 +116,27 @@ $sw-grid-table-row-color-background: $color-white;
         border: none;
         cursor: pointer;
         outline: none;
-        font-size: $font-size-l;
-        color: $sw-grid-actions-icon-color;
+        font-size: var(--font-size-l);
+        color: var(--color-icon-primary-default);
 
         &:hover {
-            color: $sw-grid-actions-icon-hover-color;
+            color: var(--color-interaction-primary-hover);
         }
     }
 
     .sw-grid__pagination {
-        background: $sw-grid-item-color-background;
+        background: var(--color-background-secondary-default);
     }
 
     .sw-grid__cell-content {
+        color: var(--color-text-primary-default);
+
         .sw-media-field {
             margin-bottom: 0;
         }
 
         .sw-media-field-picker .sw-simple-search-field {
-            margin-bottom: 15px;
+            margin-bottom: var(--scale-size-14);
         }
     }
 

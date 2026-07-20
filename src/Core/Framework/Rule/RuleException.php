@@ -14,9 +14,11 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('fundamentals@after-sales')]
 class RuleException extends HttpException
 {
-    public const RULE_OPERATOR_NOT_SUPPORTED = 'FRAMEWORK__RULE_OPERATOR_NOT_SUPPORTED';
+    final public const RULE_OPERATOR_NOT_SUPPORTED = 'FRAMEWORK__RULE_OPERATOR_NOT_SUPPORTED';
     public const VALUE_NOT_SUPPORTED = 'CONTENT__RULE_VALUE_NOT_SUPPORTED';
     public const MULTIPLE_NOT_RULES = 'CONTENT__TOO_MANY_NOT_RULES';
+    public const INVALID_DATE_RANGE_USAGE = 'FRAMEWORK__INVALID_DATE_RANGE_USAGE';
+    public const RULE_NAME_NOT_IMPLEMENTED = 'FRAMEWORK__RULE_NAME_NOT_IMPLEMENTED';
 
     public static function scriptExecutionFailed(string $hook, string $scriptName, \Throwable $previous): ScriptException
     {
@@ -64,6 +66,32 @@ class RuleException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::MULTIPLE_NOT_RULES,
             'NOT rule can only hold one rule'
+        );
+    }
+
+    public static function invalidDateRangeUsage(string $reason): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_DATE_RANGE_USAGE,
+            'Invalid date range usage: {{ reason }}',
+            ['reason' => $reason]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function ruleNameNotImplemented(): \Error|self
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new \Error('Implement own getName or add RULE_NAME constant');
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::RULE_NAME_NOT_IMPLEMENTED,
+            'Implement own getName or add RULE_NAME constant',
         );
     }
 }

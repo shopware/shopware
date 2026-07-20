@@ -49,7 +49,7 @@ class OrderTagRuleTest extends TestCase
                     Rule::OPERATOR_NEQ,
                     Rule::OPERATOR_EMPTY,
                 ],
-                'isMatchAny' => 1,
+                'isMatchAny' => 0,
             ],
             'fields' => [
                 'identifiers' => [
@@ -80,7 +80,7 @@ class OrderTagRuleTest extends TestCase
         static::assertArrayHasKey('operator', $constraints, 'operator constraints not found');
 
         static::assertEquals([new NotBlank(), new ArrayOfUuid()], $constraints['identifiers']);
-        static::assertEquals([new NotBlank(), new Choice($operators)], $constraints['operator']);
+        static::assertEquals([new NotBlank(), new Choice(choices: $operators)], $constraints['operator']);
     }
 
     /**
@@ -103,7 +103,7 @@ class OrderTagRuleTest extends TestCase
         $scope = new FlowRuleScope(
             $order,
             new Cart('test'),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $this->rule->assign(['identifiers' => $ruleIdentifiers, 'operator' => $operator]);
@@ -129,7 +129,7 @@ class OrderTagRuleTest extends TestCase
 
     public function testNotMatchingWithUnsupportedScope(): void
     {
-        $scope = $this->createMock(CartRuleScope::class);
+        $scope = static::createStub(CartRuleScope::class);
 
         static::assertFalse($this->rule->match($scope));
     }

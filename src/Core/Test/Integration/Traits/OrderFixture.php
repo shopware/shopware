@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\TestDefaults;
@@ -36,24 +37,24 @@ trait OrderFixture
      *
      * @return list<array<string, mixed>>
      */
-    private function getOrderData(string $orderId, Context $context): array
+    private function getOrderData(string $orderId, Context $context, ?string $customerId = null): array
     {
         $orderCustomerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
         $orderLineItemId = Uuid::randomHex();
         $countryStateId = Uuid::randomHex();
-        $customerId = Uuid::randomHex();
+        $customerId = $customerId ?? Uuid::randomHex();
         $orderNumber = Uuid::randomHex();
         $deliveryId = Uuid::randomHex();
 
-        /** @var EntityRepository $salesChannelRepository */
+        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
 
-        /** @var SalesChannelEntity $salesChannel */
         $salesChannel = $salesChannelRepository->search(
             (new Criteria())->addFilter(new EqualsFilter('id', TestDefaults::SALES_CHANNEL)),
             $context
-        )->first();
+        )->getEntities()->first();
+        static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
 
         $paymentMethodId = $salesChannel->getPaymentMethodId();
         $shippingMethodId = $salesChannel->getShippingMethodId();

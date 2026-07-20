@@ -78,10 +78,6 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
         };
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be correct to show media in used information when user select a media', async () => {
         register('sw-product', moduleMock);
         const productMediaMock = {
@@ -219,5 +215,50 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
         expect(usages.some((usage) => usage.name === 'Category Media Test')).toBeTruthy();
         expect(usages.some((usage) => usage.name === 'Landing Page Media Test')).toBeTruthy();
         expect(usages.some((usage) => usage.name === 'CMS Page Media Test')).toBeTruthy();
+    });
+
+    it('must not mutate the media entity productMedia / categories collections when loading slot-config usages', async () => {
+        await wrapper.unmount();
+
+        wrapper = await createWrapper({
+            create: (entityName) => {
+                return {
+                    search: () => {
+                        if (entityName === 'product') {
+                            return Promise.resolve([
+                                { id: 'slot-product-id', translated: { name: 'Slot Product' } },
+                            ]);
+                        }
+
+                        if (entityName === 'category') {
+                            return Promise.resolve([
+                                { id: 'slot-category-id', translated: { name: 'Slot Category' } },
+                            ]);
+                        }
+
+                        return Promise.resolve([]);
+                    },
+                };
+            },
+        });
+
+        register('sw-product', moduleMock);
+        register('sw-category', moduleMock);
+
+        const item = itemDeleteMock();
+        const originalProductMedia = item.productMedia;
+        const originalCategories = item.categories;
+
+        await wrapper.setProps({ item });
+        await wrapper.vm.loadSlotConfigAssociations();
+
+        expect(item.productMedia).toBe(originalProductMedia);
+        expect(item.productMedia).toHaveLength(0);
+        expect(item.categories).toBe(originalCategories);
+        expect(item.categories).toHaveLength(0);
+
+        const usages = wrapper.vm.getUsages;
+        expect(usages.some((usage) => usage.name === 'Slot Product')).toBeTruthy();
+        expect(usages.some((usage) => usage.name === 'Slot Category')).toBeTruthy();
     });
 });

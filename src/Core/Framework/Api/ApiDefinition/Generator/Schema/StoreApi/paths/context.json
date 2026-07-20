@@ -26,6 +26,11 @@
                     {
                         "ApiKey": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             },
             "patch": {
@@ -96,6 +101,11 @@
                     {
                         "ApiKey": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
@@ -106,7 +116,9 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": ["appName"],
+                                "required": [
+                                    "appName"
+                                ],
                                 "properties": {
                                     "appName": {
                                         "type": "string"
@@ -126,6 +138,56 @@
                 "summary": "Call the context gateway",
                 "description": "Call the context gateway, which is used to manipulate certain aspects of context (e.g. selected payment methods, register customer, etc.).",
                 "operationId": "contextGateway",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ContextTokenResponse"
+                    },
+                    "400": {
+                        "description": "App server communication error"
+                    },
+                    "422": {
+                        "description": "Error provided by App Server with message to show customer"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ]
+            },
+            "get": {
+                "tags": [
+                    "Gateway"
+                ],
+                "summary": "Call the context gateway",
+                "description": "Call the context gateway, which is used to manipulate certain aspects of context (e.g. selected payment methods, register customer, etc.). Please prefer using the POST version of this endpoint.",
+                "operationId": "contextGatewayGet",
+                "parameters": [
+                    {
+                        "name": "appName",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "data",
+                        "in": "query",
+                        "schema": {
+                            "type": "object"
+                        },
+                        "style": "deepObject"
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "$ref": "#/components/responses/ContextTokenResponse"

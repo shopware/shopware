@@ -3,18 +3,19 @@
 namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Predis\ClientInterface;
+use Relay\Cluster;
 use Relay\Relay;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
 
 /**
- * Used to create new Redis connection based on a connection dsn.
+ * Used to create a new Redis connection based on a connection DSN.
  * Existing connections are reused if there are any.
  *
  * @final
  *
- * @phpstan-type RedisTypeHint \Redis|\RedisArray|\RedisCluster|ClientInterface|Relay
+ * @phpstan-type RedisTypeHint \Redis|\RedisArray|\RedisCluster|ClientInterface|Relay|Cluster
  */
 #[Package('framework')]
 class RedisConnectionFactory
@@ -48,7 +49,6 @@ class RedisConnectionFactory
         if (!isset(self::$connections[$key]) || (
             \method_exists(self::$connections[$key], 'isConnected') && self::$connections[$key]->isConnected() === false
         )) {
-            /** @var RedisTypeHint $redis */
             $redis = RedisAdapter::createConnection($dsn, $options);
 
             if ($this->prefix && \method_exists($redis, 'setOption')) {

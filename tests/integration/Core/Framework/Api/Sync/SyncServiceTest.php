@@ -113,6 +113,12 @@ class SyncServiceTest extends TestCase
         ];
 
         $this->service->sync($operations, Context::createDefaultContext(), new SyncBehavior());
+        $exists = $this->connection->fetchAllAssociative(
+            'SELECT id FROM product_media WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($ids->getList(['media-2']))],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+        static::assertEmpty($exists);
     }
 
     public function testSingleOperationWithDeletesAndWrites(): void
@@ -169,16 +175,12 @@ class SyncServiceTest extends TestCase
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $createListener = $this
-            ->getMockBuilder(CallableClass::class)
-            ->getMock();
+        $createListener = $this->createMock(CallableClass::class);
 
         $createListener->expects($this->once())
             ->method('__invoke');
 
-        $deleteListener = $this
-            ->getMockBuilder(CallableClass::class)
-            ->getMock();
+        $deleteListener = $this->createMock(CallableClass::class);
 
         $deleteListener->expects($this->exactly(3))
             ->method('__invoke');
@@ -233,9 +235,7 @@ class SyncServiceTest extends TestCase
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $listener = $this
-            ->getMockBuilder(CallableClass::class)
-            ->getMock();
+        $listener = $this->createMock(CallableClass::class);
 
         $listener->expects($this->once())
             ->method('__invoke');

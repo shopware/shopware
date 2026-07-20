@@ -4,7 +4,10 @@ namespace Shopware\Core\Content\Sitemap\Provider;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
+use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
+use Shopware\Core\Content\Sitemap\Event\SitemapQueryEvent;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
@@ -14,12 +17,14 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 #[Package('discovery')]
 class LandingPageUrlProvider extends AbstractUrlProvider
 {
     final public const CHANGE_FREQ = 'daily';
+
+    final public const QUERY_EVENT_NAME = 'sitemap.query.landing_page';
 
     /**
      * @internal
@@ -27,7 +32,8 @@ class LandingPageUrlProvider extends AbstractUrlProvider
     public function __construct(
         private readonly ConfigHandler $configHandler,
         private readonly Connection $connection,
-        private readonly RouterInterface $router
+        private readonly EntityRouteResolver $entityRouteResolver,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -50,13 +56,14 @@ class LandingPageUrlProvider extends AbstractUrlProvider
     {
         $landingPages = $this->getLandingPages($context, $limit, $offset);
 
-        if (empty($landingPages)) {
+        if ($landingPages === []) {
             return new UrlResult([], null);
         }
 
         $ids = array_column($landingPages, 'id');
 
-        $seoUrls = $this->getSeoUrls($ids, 'frontend.landing.page', $context, $this->connection);
+        $routeName = $this->entityRouteResolver->getRouteNameForEntityName(LandingPageDefinition::ENTITY_NAME);
+        $seoUrls = $this->getSeoUrls($ids, $routeName, $context, $this->connection);
 
         /** @var array<string, array{seo_path_info: string}> $seoUrls */
         $seoUrls = FetchModeHelper::groupUnique($seoUrls);
@@ -68,7 +75,7 @@ class LandingPageUrlProvider extends AbstractUrlProvider
             if (isset($seoUrls[$landingPage['id']])) {
                 $url->setLoc($seoUrls[$landingPage['id']]['seo_path_info']);
             } else {
-                $url->setLoc($this->router->generate('frontend.landing.page', ['landingPageId' => $landingPage['id']]));
+                $url->setLoc($this->entityRouteResolver->generateUrl(LandingPageDefinition::ENTITY_NAME, $landingPage['id']));
             }
 
             $lastMod = $landingPage['updated_at'] ?: $landingPage['created_at'];
@@ -83,7 +90,7 @@ class LandingPageUrlProvider extends AbstractUrlProvider
 
         $nextOffset = null;
         if (\count($landingPages) === $limit) {
-            $nextOffset = $offset + $limit;
+            $nextOffset = (int) $offset + $limit;
         }
 
         return new UrlResult($urls, $nextOffset);
@@ -111,13 +118,17 @@ class LandingPageUrlProvider extends AbstractUrlProvider
         }
 
         $excludedLandingPageIds = $this->getExcludedLandingPageIds($context);
-        if (!empty($excludedLandingPageIds)) {
+        if ($excludedLandingPageIds !== []) {
             $query->andWhere('lp.id NOT IN (:landingPageIds)');
             $query->setParameter('landingPageIds', Uuid::fromHexToBytesList($excludedLandingPageIds), ArrayParameterType::BINARY);
         }
 
         $query->setParameter('versionId', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
         $query->setParameter('salesChannelId', Uuid::fromHexToBytes($context->getSalesChannelId()));
+
+        $this->eventDispatcher->dispatch(
+            new SitemapQueryEvent($query, $limit, $offset, $context, self::QUERY_EVENT_NAME)
+        );
 
         /** @var list<array{id: string, created_at: string, updated_at: string}> $result */
         $result = $query->executeQuery()->fetchAllAssociative();
@@ -137,7 +148,7 @@ class LandingPageUrlProvider extends AbstractUrlProvider
         $salesChannelId = $salesChannelContext->getSalesChannelId();
 
         $excludedUrls = $this->configHandler->get(ConfigHandler::EXCLUDED_URLS_KEY);
-        if (empty($excludedUrls)) {
+        if ($excludedUrls === []) {
             return [];
         }
 

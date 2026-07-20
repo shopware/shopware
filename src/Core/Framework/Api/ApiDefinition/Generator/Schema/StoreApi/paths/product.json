@@ -21,13 +21,51 @@
                         }
                     },
                     {
-                        "name": "sw-language-id",
+                        "name": "sw-include-seo-urls",
                         "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
+                        "description": "Instructs Shopware to try and resolve SEO URLs for the given navigation item",
                         "required": false,
                         "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Found cross sellings",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CrossSellingElementCollection"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            },
+            "get": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Fetch cross-selling groups of a product",
+                "description": "This route is used to load the cross sellings for a product. A product has several cross selling definitions in which several products are linked. The route returns the cross sellings together with the linked products",
+                "operationId": "readProductCrossSellingsGet",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "description": "Product ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     {
@@ -35,7 +73,12 @@
                         "in": "header",
                         "description": "Instructs Shopware to try and resolve SEO URLs for the given navigation item",
                         "required": false,
-                        "schema": { "type": "boolean" }
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "responses": {
@@ -63,7 +106,7 @@
                     "Product"
                 ],
                 "summary": "Fetch a single product",
-                "description": "This route is used to load a single product with the corresponding details. In addition to loading the data, the best variant of the product is determined when a parent id is passed.",
+                "description": "This route is used to load a single product with the corresponding details. In addition to loading the data, the best variant of the product is determined when a parent id is passed.\n\n**Available Associations:**\n- `downloads` - Downloadable files associated with the product (e.g., manuals, digital content)\n- `children` - Product variants that inherit from this parent product\n- `deliveryTime` - Estimated delivery time for the product\n- `tax` - Tax configuration (rate and calculation rules)\n- `manufacturer` - Product manufacturer or brand information\n- `unit` - Product unit of measure (e.g., piece, liter, kg)\n- `cover` - Main product image displayed in listings and detail pages\n- `openGraphMedia` - Open Graph image for social media sharing\n- `cmsPage` - Custom CMS page layout for the product detail page\n- `canonicalProduct` - Canonical product reference for variant consolidation and SEO purposes\n- `media` - Product images and media gallery\n- `crossSellings` - Cross-selling configurations (related products, accessories, similar items)\n- `configuratorSettings` - Variant configurator settings defining available options for product variants\n- `productReviews` - Customer reviews and ratings for the product\n- `mainCategories` - Primary category assignments per sales channel for SEO and navigation\n- `seoUrls` - SEO-friendly URLs for the product across different sales channels\n- `options` - Product variant options (e.g., size, color) that define different variants\n- `properties` - Product properties and characteristics for filtering\n- `categories` - Categories this product is assigned to\n- `streams` - Dynamic product streams this product belongs to based on defined filters\n- `categoriesRo` - Read-only category tree including all parent categories for optimized queries\n- `tags` - Tags for organizing and filtering products\n- `seoCategory` - Main category used for SEO URL generation in the current sales channel",
                 "operationId": "readProductDetail",
                 "parameters": [
                     {
@@ -77,13 +120,98 @@
                         }
                     },
                     {
-                        "name": "sw-language-id",
+                        "description": "Instructs Shopware to try and resolve SEO URLs for the given navigation item",
                         "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
+                        "name": "sw-include-seo-urls",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "sw-include-search-info",
+                        "in": "header",
+                        "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
+                            "enum": [
+                                "0",
+                                "1"
+                            ],
+                            "default": "1"
+                        }
+                    },
+                    {
+                        "description": "Instructs Shopware to skip loading the configurator data",
+                        "in": "query",
+                        "name": "skipConfigurator",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "description": "Instructs Shopware to skip loading the CMS page data",
+                        "in": "query",
+                        "name": "skipCmsPage",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/NoneFieldsCriteria"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Product information along with variant groups and options",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductDetailResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            },
+            "get": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Fetch a single product",
+                "description": "This route is used to load a single product with the corresponding details. In addition to loading the data, the best variant of the product is determined when a parent id is passed.\n\n**Available Associations:**\n- `downloads` - Downloadable files associated with the product (e.g., manuals, digital content)\n- `children` - Product variants that inherit from this parent product\n- `deliveryTime` - Estimated delivery time for the product\n- `tax` - Tax configuration (rate and calculation rules)\n- `manufacturer` - Product manufacturer or brand information\n- `unit` - Product unit of measure (e.g., piece, liter, kg)\n- `cover` - Main product image displayed in listings and detail pages\n- `openGraphMedia` - Open Graph image for social media sharing\n- `cmsPage` - Custom CMS page layout for the product detail page\n- `canonicalProduct` - Canonical product reference for variant consolidation and SEO purposes\n- `media` - Product images and media gallery\n- `crossSellings` - Cross-selling configurations (related products, accessories, similar items)\n- `configuratorSettings` - Variant configurator settings defining available options for product variants\n- `productReviews` - Customer reviews and ratings for the product\n- `mainCategories` - Primary category assignments per sales channel for SEO and navigation\n- `seoUrls` - SEO-friendly URLs for the product across different sales channels\n- `options` - Product variant options (e.g., size, color) that define different variants\n- `properties` - Product properties and characteristics for filtering\n- `categories` - Categories this product is assigned to\n- `streams` - Dynamic product streams this product belongs to based on defined filters\n- `categoriesRo` - Read-only category tree including all parent categories for optimized queries\n- `tags` - Tags for organizing and filtering products\n- `seoCategory` - Main category used for SEO URL generation in the current sales channel",
+                "operationId": "readProductDetailGet",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "description": "Product ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$'"
                         }
                     },
                     {
@@ -94,22 +222,29 @@
                         "schema": {
                             "type": "boolean"
                         }
+                    },
+                    {
+                        "description": "Instructs Shopware to skip loading the configurator data",
+                        "in": "query",
+                        "name": "skipConfigurator",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "description": "Instructs Shopware to skip loading the CMS page data",
+                        "in": "query",
+                        "name": "skipCmsPage",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "x-parameter-group": "noneFieldsCriteria"
                     }
                 ],
-                "requestBody": {
-                    "required": false,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/Criteria"
-                                    }
-                                ]
-                            }
-                        }
-                    }
-                },
                 "responses": {
                     "200": {
                         "description": "Product information along with variant groups and options",
@@ -136,18 +271,25 @@
                     "Endpoints supporting Criteria "
                 ],
                 "summary": "Fetch a list of products",
-                "description": "List products that match the given criteria. For performance reasons a limit should always be set.",
+                "description": "List products that match the given criteria. For performance reasons a limit should always be set.\n\n**Available Associations:**\n- `downloads` - Downloadable files associated with the product (e.g., manuals, digital content)\n- `children` - Product variants that inherit from this parent product\n- `deliveryTime` - Estimated delivery time for the product\n- `tax` - Tax configuration (rate and calculation rules)\n- `manufacturer` - Product manufacturer or brand information\n- `unit` - Product unit of measure (e.g., piece, liter, kg)\n- `cover` - Main product image displayed in listings and detail pages\n- `openGraphMedia` - Open Graph image for social media sharing\n- `cmsPage` - Custom CMS page layout for the product detail page\n- `canonicalProduct` - Canonical product reference for variant consolidation and SEO purposes\n- `media` - Product images and media gallery\n- `crossSellings` - Cross-selling configurations (related products, accessories, similar items)\n- `configuratorSettings` - Variant configurator settings defining available options for product variants\n- `productReviews` - Customer reviews and ratings for the product\n- `mainCategories` - Primary category assignments per sales channel for SEO and navigation\n- `seoUrls` - SEO-friendly URLs for the product across different sales channels\n- `options` - Product variant options (e.g., size, color) that define different variants\n- `properties` - Product properties and characteristics for filtering\n- `categories` - Categories this product is assigned to\n- `streams` - Dynamic product streams this product belongs to based on defined filters\n- `categoriesRo` - Read-only category tree including all parent categories for optimized queries\n- `tags` - Tags for organizing and filtering products\n- `seoCategory` - Main category used for SEO URL generation in the current sales channel",
                 "operationId": "readProduct",
                 "parameters": [
                     {
-                        "name": "sw-language-id",
+                        "name": "sw-include-search-info",
                         "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
+                        "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
+                            "enum": [
+                                "0",
+                                "1"
+                            ],
+                            "default": "1"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -166,32 +308,31 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Entity search result containing products",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "allOf": [
-                                        {
-                                            "required": [
-                                                "elements"
-                                            ],
-                                            "properties": {
-                                                "elements": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/Product"
-                                                    }
-                                                }
-                                            },
-                                            "type": "object"
-                                        },
-                                        {
-                                            "$ref": "#/components/schemas/EntitySearchResult"
-                                        }
-                                    ]
-                                }
-                            }
-                        }
+                        "$ref": "#/components/responses/ProductListResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            },
+            "get": {
+                "tags": [
+                    "Product",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Fetch a list of products",
+                "description": "List products that match the given criteria. For performance reasons a limit should always be set.\n\n**Available Associations:**\n- `downloads` - Downloadable files associated with the product (e.g., manuals, digital content)\n- `children` - Product variants that inherit from this parent product\n- `deliveryTime` - Estimated delivery time for the product\n- `tax` - Tax configuration (rate and calculation rules)\n- `manufacturer` - Product manufacturer or brand information\n- `unit` - Product unit of measure (e.g., piece, liter, kg)\n- `cover` - Main product image displayed in listings and detail pages\n- `openGraphMedia` - Open Graph image for social media sharing\n- `cmsPage` - Custom CMS page layout for the product detail page\n- `canonicalProduct` - Canonical product reference for variant consolidation and SEO purposes\n- `media` - Product images and media gallery\n- `crossSellings` - Cross-selling configurations (related products, accessories, similar items)\n- `configuratorSettings` - Variant configurator settings defining available options for product variants\n- `productReviews` - Customer reviews and ratings for the product\n- `mainCategories` - Primary category assignments per sales channel for SEO and navigation\n- `seoUrls` - SEO-friendly URLs for the product across different sales channels\n- `options` - Product variant options (e.g., size, color) that define different variants\n- `properties` - Product properties and characteristics for filtering\n- `categories` - Categories this product is assigned to\n- `streams` - Dynamic product streams this product belongs to based on defined filters\n- `categoriesRo` - Read-only category tree including all parent categories for optimized queries\n- `tags` - Tags for organizing and filtering products\n- `seoCategory` - Main category used for SEO URL generation in the current sales channel",
+                "operationId": "readProductGet",
+                "parameters": [
+                    {
+                        "x-parameter-group": "criteria"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ProductListResponse"
                     }
                 },
                 "security": [
@@ -221,14 +362,21 @@
                         }
                     },
                     {
-                        "name": "sw-language-id",
+                        "name": "sw-include-search-info",
                         "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
+                        "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
+                            "enum": [
+                                "0",
+                                "1"
+                            ],
+                            "default": "1"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -245,6 +393,61 @@
                         }
                     }
                 },
+                "responses": {
+                    "200": {
+                        "description": "Entity search result containing product reviews",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "elements": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/ProductReview"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/EntitySearchResult"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            },
+            "get": {
+                "tags": [
+                    "Product",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Fetch product reviews",
+                "description": "Perform a filtered search for product reviews.",
+                "operationId": "readProductReviewsGet",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "description": "Identifier of the product.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "x-parameter-group": "criteria"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Entity search result containing product reviews",
@@ -299,14 +502,7 @@
                         }
                     },
                     {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -359,6 +555,57 @@
                 ]
             }
         },
+        "/product/purchase-limit": {
+            "get": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Fetch current purchase quantity limits for products",
+                "description": "Returns the current min/max/step purchase constraints for the given products, reflecting live stock or configured limitations. Intended for use on PDP to show actual values on product pages.",
+                "operationId": "readProductsPurchaseLimit",
+                "parameters": [
+                    {
+                        "name": "ids[]",
+                        "in": "query",
+                        "description": "List of product IDs to fetch quantity limits for.",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$"
+                            }
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Current quantity limits for the requested products",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ProductPurchaseLimit"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
         "/product/{productId}/find-variant": {
             "post": {
                 "tags": [
@@ -378,14 +625,7 @@
                         }
                     },
                     {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -424,6 +664,66 @@
                         }
                     }
                 },
+                "responses": {
+                    "200": {
+                        "description": "Returns an FoundCombination struct containing the ids matching the search.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FindProductVariantRouteResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            },
+            "get": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Search for a matching variant by product options.",
+                "description": "Performs a search for product variants and returns the best matching variant.",
+                "operationId": "searchProductVariantIdsGet",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "description": "Product ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "options[]",
+                        "in": "query",
+                        "description": "The options parameter for the variant to find. Array of option IDs.",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "name": "switchedGroup",
+                        "in": "query",
+                        "description": "The id of the option group that has been switched.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Returns an FoundCombination struct containing the ids matching the search.",

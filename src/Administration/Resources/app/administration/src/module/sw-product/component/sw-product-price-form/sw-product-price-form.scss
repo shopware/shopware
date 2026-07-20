@@ -1,14 +1,16 @@
 @import "~scss/variables";
 
-$sw-product-price-suffix-font-size: 20px;
-
 .sw-product-price-form {
-    .sw-product-price-form__currency {
-        font-weight: $font-weight-regular;
-        font-size: $sw-product-price-suffix-font-size;
+    &__tax-rate.sw-inherit-wrapper {
+        justify-content: flex-start;
     }
 
-    .sw-product-price-form__links {
+    &__currency {
+        font-weight: var(--font-weight-regular);
+        font-size: var(--font-size-l);
+    }
+
+    &__links {
         a:first-child {
             margin-top: 0;
         }
@@ -16,11 +18,11 @@ $sw-product-price-suffix-font-size: 20px;
         a {
             transition: color 0.3s ease;
             cursor: pointer;
-            margin-top: 16px;
+            margin-top: var(--scale-size-16);
         }
     }
 
-    .sw-product-price-form__price-list:not(.has--parent) {
+    &__price-list:not(.has--parent) {
         .sw-inherit-wrapper__toggle-wrapper {
             margin: 0;
         }

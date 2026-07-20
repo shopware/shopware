@@ -7,7 +7,6 @@ use OpenSearch\Client;
 use PHPUnit\Framework\Attributes\AfterClass;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -17,6 +16,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -59,6 +59,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ProductExtension;
@@ -70,7 +71,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -85,6 +85,7 @@ use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAgg
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
+use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Shopware\Tests\Integration\Elasticsearch\Product\Fixture\ProductsFixture;
@@ -118,6 +119,14 @@ class ElasticsearchProductTest extends TestCase
 
     private IdsCollection $ids;
 
+    /**
+     * Built once for the whole class by the first run of setUp(). The first-test-indexes pattern was
+     * replaced by guarded setUp because data-provided tests (testMultiFilterWithOneToManyRelation,
+     * testDateHistogram) can no longer also receive the ids via #[Depends] - see
+     * NoDependsWithDataProviderRule.
+     */
+    private static IdsCollection $indexedIds;
+
     private Connection $connection;
 
     /**
@@ -147,6 +156,8 @@ class ElasticsearchProductTest extends TestCase
         $this->productDefinition = static::getContainer()->get(ProductDefinition::class);
         $this->languageRepository = static::getContainer()->get('language.repository');
 
+        static::getContainer()->get(AbstractKeyValueStorage::class)->set(ElasticsearchOptimizeSwitch::FLAG, true);
+
         static::getContainer()->get(SalesChannelLanguageLoader::class)->reset();
         $this->connection = static::getContainer()->get(Connection::class);
 
@@ -166,6 +177,10 @@ class ElasticsearchProductTest extends TestCase
         $this->context = Context::createDefaultContext();
 
         parent::setUp();
+
+        if (!isset(self::$indexedIds)) {
+            self::$indexedIds = $this->buildIndex();
+        }
     }
 
     #[BeforeClass]
@@ -205,71 +220,10 @@ class ElasticsearchProductTest extends TestCase
         $connection->executeStatement('DROP TABLE `extended_product`');
     }
 
-    public function testIndexing(): IdsCollection
+    public function testUpdate(): void
     {
-        try {
-            $this->connection->executeStatement('DELETE FROM product');
+        $ids = self::$indexedIds;
 
-            $this->clearElasticsearch();
-
-            $this->resetStopWords();
-
-            $this->ids->set('currency', $this->currencyId);
-            $this->ids->set('anotherCurrency', $this->anotherCurrencyId);
-            $currencies = [
-                [
-                    'id' => $this->currencyId,
-                    'name' => 'test',
-                    'factor' => 1,
-                    'symbol' => 'A',
-                    'decimalPrecision' => 2,
-                    'shortName' => 'A',
-                    'isoCode' => 'A',
-                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-                ],
-                [
-                    'id' => $this->anotherCurrencyId,
-                    'name' => 'test',
-                    'factor' => 0.001,
-                    'symbol' => 'B',
-                    'decimalPrecision' => 2,
-                    'shortName' => 'B',
-                    'isoCode' => 'B',
-                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-                ],
-            ];
-
-            static::getContainer()
-                ->get('currency.repository')
-                ->upsert($currencies, $this->context);
-
-            $this->createData();
-
-            $this->indexElasticSearch();
-
-            $criteria = new Criteria();
-            $criteria->addFilter(
-                new NandFilter([new EqualsFilter('salesChannelDomains.id', null)])
-            );
-
-            $index = $this->helper->getIndexName($this->productDefinition);
-
-            $exists = $this->client->indices()->exists(['index' => $index]);
-            static::assertTrue($exists, 'Expected elasticsearch indices present');
-
-            return $this->ids;
-        } catch (\Exception $e) {
-            $this->tearDown();
-
-            throw $e;
-        }
-    }
-
-    #[Depends('testIndexing')]
-    public function testUpdate(IdsCollection $ids): void
-    {
         try {
             $this->ids = $ids;
             $context = $this->context;
@@ -277,10 +231,9 @@ class ElasticsearchProductTest extends TestCase
             $this->productRepository->upsert([
                 (new ProductBuilder($this->ids, 'u7', 300))
                     ->price(100)
+                    ->visibility()
                     ->build(),
             ], $context);
-
-            $this->refreshIndex();
 
             $criteria = new Criteria();
             $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
@@ -293,7 +246,6 @@ class ElasticsearchProductTest extends TestCase
 
             $this->productRepository->delete([['id' => $ids->get('u7')]], $context);
 
-            $this->refreshIndex();
             $result = $searcher->search($this->productDefinition, $criteria, $context);
             static::assertCount(0, $result->getIds());
         } catch (\Exception $e) {
@@ -303,9 +255,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testEmptySearch(IdsCollection $data): void
+    public function testEmptySearch(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
 
@@ -321,9 +274,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testPagination(IdsCollection $data): void
+    public function testPagination(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
 
@@ -343,9 +297,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testEqualsFilter(IdsCollection $data): void
+    public function testEqualsFilter(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
             // check simple equals filter
@@ -363,9 +318,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testEqualsFilterWithNumericEncodedBoolFields(IdsCollection $data): void
+    public function testEqualsFilterWithNumericEncodedBoolFields(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
             // check simple equals filter
@@ -383,9 +339,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testRangeFilter(IdsCollection $data): void
+    public function testRangeFilter(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
             // check simple range filter
@@ -403,9 +360,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testEqualsAnyFilter(IdsCollection $data): void
+    public function testEqualsAnyFilter(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
             // check filter for categories
@@ -424,9 +382,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testMultiNotFilterFilter(IdsCollection $data): void
+    public function testMultiNotFilterFilter(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
             // check filter for categories
@@ -462,10 +421,11 @@ class ElasticsearchProductTest extends TestCase
      * @param array<string> $expectedProducts
      * @param Filter $filter
      */
-    #[Depends('testIndexing')]
     #[DataProvider('multiFilterWithOneToManyRelationProvider')]
-    public function testMultiFilterWithOneToManyRelation($filter, $expectedProducts, IdsCollection $data): void
+    public function testMultiFilterWithOneToManyRelation($filter, $expectedProducts): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
 
@@ -475,7 +435,7 @@ class ElasticsearchProductTest extends TestCase
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
 
             static::assertCount(\count($expectedProducts), $products->getIds());
-            static::assertSame(\array_map(fn ($item) => $data->get($item), $expectedProducts), $products->getIds());
+            static::assertSame(\array_map(static fn ($item) => $data->get($item), $expectedProducts), $products->getIds());
         } catch (\Exception $e) {
             $this->tearDown();
 
@@ -484,16 +444,19 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return array<int, array<MultiFilter|string[]>>
+     * @return iterable<string, array<MultiFilter|string[]>>
      */
-    public static function multiFilterWithOneToManyRelationProvider(): array
+    public static function multiFilterWithOneToManyRelationProvider(): iterable
     {
-        return require __DIR__ . '/Fixture/MultiFilterWithOneToManyRelation.php';
+        foreach (require __DIR__ . '/Fixture/MultiFilterWithOneToManyRelation.php' as $name => $data) {
+            yield $name => $data;
+        }
     }
 
-    #[Depends('testIndexing')]
-    public function testContainsFilter(IdsCollection $data): void
+    public function testContainsFilter(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
             $criteria = new Criteria();
@@ -537,9 +500,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testPrefixFilter(IdsCollection $data): void
+    public function testPrefixFilter(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
             $criteria = new Criteria();
@@ -584,9 +548,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testSuffixFilter(IdsCollection $data): void
+    public function testSuffixFilter(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
             $criteria = new Criteria();
@@ -630,9 +595,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testSingleGroupBy(IdsCollection $data): void
+    public function testSingleGroupBy(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
             // check simple equals filter
@@ -658,9 +624,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testMultiGroupBy(IdsCollection $data): void
+    public function testMultiGroupBy(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
             // check simple equals filter
@@ -682,9 +649,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testAvgAggregation(IdsCollection $data): void
+    public function testAvgAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -710,9 +678,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testTermsAggregation(IdsCollection $data): void
+    public function testTermsAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -754,9 +723,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testTermsAggregationWithAvg(IdsCollection $data): void
+    public function testTermsAggregationWithAvg(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -811,9 +781,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testTermsAggregationWithAssociation(IdsCollection $data): void
+    public function testTermsAggregationWithAssociation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -855,9 +826,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testSumAggregation(IdsCollection $data): void
+    public function testSumAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -883,9 +855,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testSumAggregationWithTermsAggregation(IdsCollection $data): void
+    public function testSumAggregationWithTermsAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -938,9 +911,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testMaxAggregation(IdsCollection $data): void
+    public function testMaxAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -966,9 +940,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testMaxAggregationWithTermsAggregation(IdsCollection $data): void
+    public function testMaxAggregationWithTermsAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1021,9 +996,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testMinAggregation(IdsCollection $data): void
+    public function testMinAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1049,9 +1025,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testMinAggregationWithTermsAggregation(IdsCollection $data): void
+    public function testMinAggregationWithTermsAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1104,9 +1081,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testCountAggregation(IdsCollection $data): void
+    public function testCountAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1132,9 +1110,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testCountAggregationWithTermsAggregation(IdsCollection $data): void
+    public function testCountAggregationWithTermsAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1187,9 +1166,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testStatsAggregation(IdsCollection $data): void
+    public function testStatsAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1219,9 +1199,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testStatsAggregationWithTermsAggregation(IdsCollection $data): void
+    public function testStatsAggregationWithTermsAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1283,9 +1264,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testEntityAggregation(IdsCollection $data): void
+    public function testEntityAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1315,9 +1297,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testEntityAggregationWithTermQuery(IdsCollection $data): void
+    public function testEntityAggregationWithTermQuery(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1346,15 +1329,17 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testTermAlgorithm(IdsCollection $data): void
+    public function testTermAlgorithm(): void
     {
+        $data = self::$indexedIds;
+
         try {
-            $terms = ['Spachtelmasse', 'Spachtel', 'Masse', 'Achtel', 'Some', 'some spachtel', 'Some Achtel', 'Sachtel'];
+            $terms = ['Spachtelmasse', 'Spachtel', 'Masse', 'Some', 'some spachtel', 'Some Achtel', 'Sachtelmasse'];
 
             $searcher = $this->createEntitySearcher();
 
             foreach ($terms as $term) {
+                $term = strtolower($term);
                 $criteria = new Criteria();
                 $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
                 $criteria->setTerm($term);
@@ -1381,9 +1366,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testFilterAggregation(IdsCollection $data): void
+    public function testFilterAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1415,9 +1401,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testFilterAggregationWithNestedFilterAndAggregation(IdsCollection $data): void
+    public function testFilterAggregationWithNestedFilterAndAggregation(): void
     {
+        $data = self::$indexedIds;
+
         $aggregator = $this->createEntityAggregator();
 
         try {
@@ -1486,9 +1473,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testFilterForProperties(IdsCollection $data): void
+    public function testFilterForProperties(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
             // check filter for categories
@@ -1508,9 +1496,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testNestedFilterAggregationWithRootQuery(IdsCollection $data): void
+    public function testNestedFilterAggregationWithRootQuery(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1548,9 +1537,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testFilterAggregationWithRootFilter(IdsCollection $data): void
+    public function testFilterAggregationWithRootFilter(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1586,10 +1576,11 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
     #[DataProvider('dateHistogramProvider')]
-    public function testDateHistogram(DateHistogramCase $case, IdsCollection $data): void
+    public function testDateHistogram(DateHistogramCase $case): void
     {
+        $data = self::$indexedIds;
+
         try {
             $context = $this->context;
 
@@ -1634,16 +1625,19 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return array<int, array<int, DateHistogramCase>>
+     * @return iterable<string, array<int, DateHistogramCase>>
      */
-    public static function dateHistogramProvider(): array
+    public static function dateHistogramProvider(): iterable
     {
-        return require __DIR__ . '/Fixture/DateHistogram.php';
+        foreach (require __DIR__ . '/Fixture/DateHistogram.php' as $name => $data) {
+            yield $name => $data;
+        }
     }
 
-    #[Depends('testIndexing')]
-    public function testDateHistogramWithNestedAvg(IdsCollection $data): void
+    public function testDateHistogramWithNestedAvg(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1700,9 +1694,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testFilterCustomTextField(IdsCollection $data): void
+    public function testFilterCustomTextField(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $criteria = new Criteria($data->prefixed('product-'));
             $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
@@ -1719,9 +1714,30 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testXorQuery(IdsCollection $data): void
+    public function testFilterCustomTextFieldEqualNull(): void
     {
+        $data = self::$indexedIds;
+
+        try {
+            $criteria = new Criteria($data->prefixed('product-'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+            $criteria->addFilter(new EqualsFilter('customFields.testField', null));
+
+            $result = $this->createEntitySearcher()->search($this->productDefinition, $criteria, Context::createDefaultContext());
+
+            static::assertSame(1, $result->getTotal());
+            static::assertTrue($result->has($data->get('product-7')));
+        } catch (\Exception $e) {
+            $this->tearDown();
+
+            throw $e;
+        }
+    }
+
+    public function testXorQuery(): void
+    {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
 
@@ -1746,9 +1762,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testNegativXorQuery(IdsCollection $data): void
+    public function testNegativXorQuery(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
 
@@ -1773,9 +1790,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testTotalWithGroupFieldAndPostFilter(IdsCollection $data): void
+    public function testTotalWithGroupFieldAndPostFilter(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
             // check simple equals filter
@@ -1798,9 +1816,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testIdsSorting(IdsCollection $data): void
+    public function testIdsSorting(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
 
@@ -1830,9 +1849,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testSorting(IdsCollection $data): void
+    public function testSorting(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
 
@@ -1861,9 +1881,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testMaxLimit(IdsCollection $data): void
+    public function testMaxLimit(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
 
@@ -1881,7 +1902,6 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
     public function testStorefrontListing(): void
     {
         try {
@@ -1923,9 +1943,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testSortingIsCaseInsensitive(IdsCollection $data): void
+    public function testSortingIsCaseInsensitive(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $criteria = new Criteria();
             $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
@@ -1955,9 +1976,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testCheapestPriceFilter(IdsCollection $ids): void
+    public function testCheapestPriceFilter(): void
     {
+        $ids = self::$indexedIds;
+
         try {
             $cases = $this->providerCheapestPriceFilter();
 
@@ -2005,7 +2027,7 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return array<string, array{from: int, to: int, expected: string[], rules?: string[]}>
+     * @return iterable<string, array{from: int, to: int, expected: list<string>, rules?: list<string>}>
      */
     public function providerCheapestPriceFilter(): iterable
     {
@@ -2047,9 +2069,10 @@ class ElasticsearchProductTest extends TestCase
         yield 'Test 190€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 190, 'to' => 191, 'expected' => ['v.11.1', 'v.11.2', 'v.12.2']];
     }
 
-    #[Depends('testIndexing')]
-    public function testCheapestPriceSorting(IdsCollection $ids): void
+    public function testCheapestPriceSorting(): void
     {
+        $ids = self::$indexedIds;
+
         try {
             $context = static::getContainer()->get(SalesChannelContextFactory::class)
                 ->create(
@@ -2075,16 +2098,19 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{ids: string[], rules: string[]}>
+     * @return iterable<string, array{ids: list<string>, rules: list<string>}>
      */
     public function cheapestPriceSortingProvider(): iterable
     {
-        yield from require __DIR__ . '/Fixture/CheapestPriceSorting.php';
+        foreach (require __DIR__ . '/Fixture/CheapestPriceSorting.php' as $name => $data) {
+            yield $name => $data;
+        }
     }
 
-    #[Depends('testIndexing')]
-    public function testCheapestPriceAggregation(IdsCollection $ids): void
+    public function testCheapestPriceAggregation(): void
     {
+        $ids = self::$indexedIds;
+
         $context = $this->context;
 
         try {
@@ -2120,9 +2146,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testCheapestPricePercentageFilterAndSorting(IdsCollection $ids): void
+    public function testCheapestPricePercentageFilterAndSorting(): void
     {
+        $ids = self::$indexedIds;
+
         try {
             $context = static::getContainer()->get(SalesChannelContextFactory::class)
                 ->create(
@@ -2146,7 +2173,7 @@ class ElasticsearchProductTest extends TestCase
 
                 if ($case['operator']) {
                     $operator = (string) $case['operator'];
-                    $percentage = (int) $case['percentage'];
+                    $percentage = (float) $case['percentage'];
 
                     $criteria->addFilter(
                         new RangeFilter('product.cheapestPrice.percentage', [
@@ -2161,7 +2188,7 @@ class ElasticsearchProductTest extends TestCase
                 $result = $searcher->search($this->productDefinition, $criteria, $context->getContext());
 
                 static::assertCount(is_countable($case['ids']) ? \count($case['ids']) : 0, $result->getIds(), \sprintf('Case `%s` failed', $message));
-                static::assertSame(array_map(fn (string $id) => $ids->get($id), $case['ids']), $result->getIds(), \sprintf('Case `%s` failed', $message));
+                static::assertSame(array_map(static fn (string $id) => $ids->get($id), $case['ids']), $result->getIds(), \sprintf('Case `%s` failed', $message));
             }
         } catch (\Exception $e) {
             $this->tearDown();
@@ -2171,56 +2198,57 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return \Generator<array{ids: array<string>, operator: RangeFilter::*|null, percentage: int|null, direction: FieldSorting::*}>
+     * @return \Generator<array{ids: array<string>, operator: RangeFilter::*|null, percentage: float|null, direction: FieldSorting::*}>
      */
     public function providerCheapestPricePercentageFilterAndSorting(): \Generator
     {
-        yield 'Test filter with greater than 50 percent price to list ratio sorted descending' => [
-            'ids' => ['product-1', 'product-4'],
-            'operator' => RangeFilter::GT,
-            'percentage' => 50,
-            'direction' => FieldSorting::DESCENDING,
-        ];
-
-        yield 'Test filter with greater than 50 percent price to list ratio sorted ascending' => [
-            'ids' => ['product-4', 'product-1'],
-            'operator' => RangeFilter::GT,
-            'percentage' => 50,
-            'direction' => FieldSorting::ASCENDING,
-        ];
-
-        yield 'Test filter with less than 50 percent price to list ratio sorted descending' => [
-            'ids' => ['product-2', 'product-5', 'product-3'],
-            'operator' => RangeFilter::LT,
-            'percentage' => 50,
-            'direction' => FieldSorting::DESCENDING,
-        ];
-
-        yield 'Test filter with less than 50 percent price to list ratio sorted ascending' => [
+        yield 'Test filter with greater than 50 percent ratio sorted descending' => [
             'ids' => ['product-3', 'product-5', 'product-2'],
+            'operator' => RangeFilter::GT,
+            'percentage' => 50,
+            'direction' => FieldSorting::DESCENDING,
+        ];
+
+        yield 'Test filter with greater than 50 percent ratio sorted ascending' => [
+            'ids' => ['product-2', 'product-5', 'product-3'],
+            'operator' => RangeFilter::GT,
+            'percentage' => 50,
+            'direction' => FieldSorting::ASCENDING,
+        ];
+
+        yield 'Test filter with less than 50 percent ratio sorted descending' => [
+            'ids' => ['product-4', 'product-1'],
+            'operator' => RangeFilter::LT,
+            'percentage' => 50,
+            'direction' => FieldSorting::DESCENDING,
+        ];
+
+        yield 'Test filter with less than 50 percent ratio sorted ascending' => [
+            'ids' => ['product-1', 'product-4'],
             'operator' => RangeFilter::LT,
             'percentage' => 50,
             'direction' => FieldSorting::ASCENDING,
         ];
 
-        yield 'Test percent price to list ratio sorted descending' => [
-            'ids' => ['product-1', 'product-4', 'product-2', 'product-5', 'product-7', 'product-6', 'product-3'],
+        yield 'Test percent ratio sorted descending' => [
+            'ids' => ['product-3', 'product-5', 'product-2', 'product-4', 'product-1', 'product-7', 'product-6'],
             'operator' => null,
             'percentage' => null,
             'direction' => FieldSorting::DESCENDING,
         ];
 
-        yield 'Test percent price to list ratio sorted ascending' => [
-            'ids' => ['product-3', 'product-6', 'product-7', 'product-5', 'product-2', 'product-4', 'product-1'],
+        yield 'Test percent ratio sorted ascending' => [
+            'ids' => ['product-6', 'product-7', 'product-1', 'product-4', 'product-2', 'product-5', 'product-3'],
             'operator' => null,
             'percentage' => null,
             'direction' => FieldSorting::ASCENDING,
         ];
     }
 
-    #[Depends('testIndexing')]
-    public function testNestedSorting(IdsCollection $ids): void
+    public function testNestedSorting(): void
     {
+        $ids = self::$indexedIds;
+
         $criteria = new Criteria($ids->prefixed('sort.'));
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
         $criteria->addSorting(new FieldSorting('tags.name'));
@@ -2242,9 +2270,10 @@ class ElasticsearchProductTest extends TestCase
         static::assertSame($ids->get('sort.bisasam'), $result->getIds()[2]);
     }
 
-    #[Depends('testIndexing')]
-    public function testCheapestPricePercentageAggregation(IdsCollection $ids): void
+    public function testCheapestPricePercentageAggregation(): void
     {
+        $ids = self::$indexedIds;
+
         $context = $this->context;
 
         try {
@@ -2261,7 +2290,7 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertInstanceOf(StatsResult::class, $aggregation);
             static::assertSame(0.0, $aggregation->getMin());
-            static::assertSame(66.67, $aggregation->getMax());
+            static::assertSame(100.0, $aggregation->getMax());
         } catch (\Exception $e) {
             $this->tearDown();
 
@@ -2269,9 +2298,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testLanguageFieldsWorkSimilarToDAL(IdsCollection $ids): void
+    public function testLanguageFieldsWorkSimilarToDAL(): void
     {
+        $ids = self::$indexedIds;
+
         $context = $this->createIndexingContext();
 
         $dal1 = $ids->getBytes('dal-1');
@@ -2378,9 +2408,10 @@ class ElasticsearchProductTest extends TestCase
         static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
     }
 
-    #[Depends('testIndexing')]
-    public function testReleaseDate(IdsCollection $ids): void
+    public function testReleaseDate(): void
     {
+        $ids = self::$indexedIds;
+
         $dal1 = $ids->getBytes('dal-1');
 
         $products = $this->definition->fetch([$dal1], $this->createIndexingContext());
@@ -2390,9 +2421,10 @@ class ElasticsearchProductTest extends TestCase
         static::assertSame('2019-01-01T10:11:00+00:00', $product['releaseDate']);
     }
 
-    #[Depends('testIndexing')]
-    public function testProductSizeWidthHeightStockSales(IdsCollection $ids): void
+    public function testProductSizeWidthHeightStockSales(): void
     {
+        $ids = self::$indexedIds;
+
         $dal1 = $ids->getBytes('dal-1');
 
         $products = $this->definition->fetch([$dal1], $this->createIndexingContext());
@@ -2406,15 +2438,21 @@ class ElasticsearchProductTest extends TestCase
         static::assertSame(0, $product['sales']);
     }
 
-    #[Depends('testIndexing')]
-    public function testCategoriesProperties(IdsCollection $ids): void
+    public function testCategoriesProperties(): void
     {
+        $ids = self::$indexedIds;
+
         $dal1 = $ids->getBytes('dal-1');
 
         $products = $this->definition->fetch([$dal1], $this->createIndexingContext());
 
         $product = $products[$ids->get('dal-1')];
-        $categoryIds = \array_column($product['categoriesRo'], 'id');
+        if (Feature::isActive('v6.8.0.0')) {
+            // categoriesRo is removed from the documents with v6.8.0.0, categoryTree holds the ids
+            $categoryIds = $product['categoryTree'];
+        } else {
+            $categoryIds = \array_column($product['categoriesRo'], 'id');
+        }
 
         static::assertContains($ids->get('c1'), $categoryIds);
         static::assertContains($ids->get('c2'), $categoryIds);
@@ -2423,9 +2461,10 @@ class ElasticsearchProductTest extends TestCase
         static::assertContains($ids->get('xl'), $product['propertyIds']);
     }
 
-    #[Depends('testIndexing')]
-    public function testCustomFieldsGetMapped(IdsCollection $ids): void
+    public function testCustomFieldsGetMapped(): void
     {
+        $ids = self::$indexedIds;
+
         $mapping = $this->definition->getMapping($this->context);
 
         $languages = $this->languageRepository->searchIds(new Criteria(), $this->context)->getIds();
@@ -2445,7 +2484,7 @@ class ElasticsearchProductTest extends TestCase
                     ],
                     'test_date' => [
                         'type' => 'date',
-                        'format' => 'yyyy-MM-dd HH:mm:ss.000||strict_date_optional_time||epoch_millis',
+                        'format' => 'yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time||epoch_millis',
                         'ignore_malformed' => true,
                     ],
                     'test_float' => [
@@ -2476,9 +2515,10 @@ class ElasticsearchProductTest extends TestCase
         static::assertEquals($expected, $mapping['properties']['customFields']);
     }
 
-    #[Depends('testIndexing')]
-    public function testSortByCustomFieldIntAsc(IdsCollection $ids): void
+    public function testSortByCustomFieldIntAsc(): void
     {
+        $ids = self::$indexedIds;
+
         $context = $this->context;
 
         try {
@@ -2501,9 +2541,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testSortByCustomFieldIntDesc(IdsCollection $ids): void
+    public function testSortByCustomFieldIntDesc(): void
     {
+        $ids = self::$indexedIds;
+
         $context = $this->context;
 
         try {
@@ -2530,9 +2571,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testCustomFieldsAreMerged(IdsCollection $ids): void
+    public function testCustomFieldsAreMerged(): void
     {
+        $ids = self::$indexedIds;
+
         $context = $this->context;
 
         try {
@@ -2555,9 +2597,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testCustomFieldDateType(IdsCollection $ids): void
+    public function testCustomFieldDateType(): void
     {
+        $ids = self::$indexedIds;
+
         $context = $this->context;
 
         $searcher = $this->createEntitySearcher();
@@ -2596,9 +2639,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testSortByPropertiesCount(IdsCollection $ids): void
+    public function testSortByPropertiesCount(): void
     {
+        $ids = self::$indexedIds;
+
         $context = $this->context;
 
         try {
@@ -2644,9 +2688,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testFetchFloatedCustomFieldIds(IdsCollection $ids): void
+    public function testFetchFloatedCustomFieldIds(): void
     {
+        $ids = self::$indexedIds;
+
         $context = $this->context;
 
         try {
@@ -2668,9 +2713,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testFilterByCustomFieldDate(IdsCollection $ids): void
+    public function testFilterByCustomFieldDate(): void
     {
+        $ids = self::$indexedIds;
+
         $context = $this->context;
 
         try {
@@ -2690,9 +2736,12 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testFilterByStates(IdsCollection $ids): void
+    public function testFilterByStates(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
+        $ids = self::$indexedIds;
+
         $context = $this->context;
 
         try {
@@ -2713,9 +2762,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testEmptyEntityAggregation(IdsCollection $ids): void
+    public function testEmptyEntityAggregation(): void
     {
+        $ids = self::$indexedIds;
+
         $criteria = new Criteria();
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
         $criteria->addAggregation(new EntityAggregation('manufacturer', 'manufacturerId', 'product_manufacturer'));
@@ -2740,9 +2790,10 @@ class ElasticsearchProductTest extends TestCase
         static::assertEmpty($agg->getEntities());
     }
 
-    #[Depends('testIndexing')]
-    public function testVariantListingConfigShouldIndexMainProductWhenDisplayParentIsTrue(IdsCollection $ids): void
+    public function testVariantListingConfigShouldIndexMainProductWhenDisplayParentIsTrue(): void
     {
+        $ids = self::$indexedIds;
+
         $criteria = new Criteria($ids->prefixed('variant-1'));
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
@@ -2752,9 +2803,10 @@ class ElasticsearchProductTest extends TestCase
         static::assertCount(3, $result);
     }
 
-    #[Depends('testIndexing')]
-    public function testVariantListingConfigShouldNotIndexMainProductWhenDisplayParentIsFalse(IdsCollection $ids): void
+    public function testVariantListingConfigShouldNotIndexMainProductWhenDisplayParentIsFalse(): void
     {
+        $ids = self::$indexedIds;
+
         $criteria = new Criteria($ids->prefixed('variant-2'));
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
@@ -2764,9 +2816,10 @@ class ElasticsearchProductTest extends TestCase
         static::assertCount(2, $result);
     }
 
-    #[Depends('testIndexing')]
-    public function testRangeAggregation(IdsCollection $data): void
+    public function testRangeAggregation(): void
     {
+        $data = self::$indexedIds;
+
         $rangesDefinition = [
             [],
             ['key' => 'all'],
@@ -2806,7 +2859,6 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
     public function testFilterCoreDateFields(): void
     {
         $criteria = new EsAwareCriteria();
@@ -2856,6 +2908,68 @@ class ElasticsearchProductTest extends TestCase
         return static::getContainer();
     }
 
+    private function buildIndex(): IdsCollection
+    {
+        try {
+            $this->connection->executeStatement('DELETE FROM product');
+
+            $this->clearElasticsearch();
+
+            $this->resetStopWords();
+
+            $this->ids->set('currency', $this->currencyId);
+            $this->ids->set('anotherCurrency', $this->anotherCurrencyId);
+            $currencies = [
+                [
+                    'id' => $this->currencyId,
+                    'name' => 'test',
+                    'factor' => 1,
+                    'symbol' => 'A',
+                    'decimalPrecision' => 2,
+                    'shortName' => 'A',
+                    'isoCode' => 'A',
+                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                ],
+                [
+                    'id' => $this->anotherCurrencyId,
+                    'name' => 'test',
+                    'factor' => 0.001,
+                    'symbol' => 'B',
+                    'decimalPrecision' => 2,
+                    'shortName' => 'B',
+                    'isoCode' => 'B',
+                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                ],
+            ];
+
+            static::getContainer()
+                ->get('currency.repository')
+                ->upsert($currencies, $this->context);
+
+            $this->createData();
+
+            $this->indexElasticSearch();
+
+            $criteria = new Criteria();
+            $criteria->addFilter(
+                new NandFilter([new EqualsFilter('salesChannelDomains.id', null)])
+            );
+
+            $index = $this->helper->getIndexName($this->productDefinition);
+
+            $exists = $this->client->indices()->exists(['index' => $index]);
+            static::assertTrue($exists, 'Expected elasticsearch indices present');
+
+            return $this->ids;
+        } catch (\Exception $e) {
+            $this->tearDown();
+
+            throw $e;
+        }
+    }
+
     /**
      * @param array{ids: string[]} $case
      */
@@ -2867,7 +2981,10 @@ class ElasticsearchProductTest extends TestCase
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         $criteria->addSorting(new FieldSorting('product.cheapestPrice', $direction));
-        $criteria->addSorting(new FieldSorting('product.productNumber', $direction));
+        // autoIncrement is the tie-breaker for equal prices: productNumber cannot break ties between
+        // sibling variants, as it is indexed multi-valued ([own, parent]) and an ascending sort uses
+        // the minimum, which is the shared parent product number
+        $criteria->addSorting(new FieldSorting('product.autoIncrement', $direction));
 
         $criteria->addFilter(
             new OrFilter([
@@ -2893,7 +3010,7 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return array<string, array{min: float, max: float, rules: string[]}>
+     * @return iterable<string, array{min: float, max: float, rules: list<string>}>
      */
     private function providerCheapestPriceAggregation(): iterable
     {
@@ -2940,7 +3057,7 @@ class ElasticsearchProductTest extends TestCase
 
         $customMapping = \array_combine(\array_column($customFields, 'name'), \array_column($customFields, 'type'));
 
-        ReflectionHelper::getProperty(ElasticsearchIndexingUtils::class, 'customFieldsTypes')->setValue(
+        (new \ReflectionProperty(ElasticsearchIndexingUtils::class, 'customFieldsTypes'))->setValue(
             $this->utils,
             ['product' => $customMapping],
         );
@@ -2982,8 +3099,9 @@ class ElasticsearchProductTest extends TestCase
                     'name' => \sprintf('name-%s', $id),
                     'localeId' => $this->getLocaleIdOfSystemLanguage(),
                     'parentId' => $parentId,
+                    'active' => true,
                     'translationCode' => [
-                        'code' => Uuid::randomHex(),
+                        'code' => 'de-DE-' . Uuid::randomHex(),
                         'name' => 'Test locale',
                         'territory' => 'test',
                     ],

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Mail\Transport;
 
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToRetrieveMetadata;
+use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Content\Mail\Service\Mail;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
@@ -19,8 +20,11 @@ use Symfony\Component\Mime\RawMessage;
  * @internal
  */
 #[Package('after-sales')]
-class MailerTransportDecorator implements TransportInterface
+class MailerTransportDecorator implements \Stringable, TransportInterface
 {
+    /**
+     * @param EntityRepository<DocumentCollection> $documentRepository
+     */
     public function __construct(
         private readonly TransportInterface $decorated,
         private readonly MailAttachmentsBuilder $attachmentsBuilder,
@@ -84,11 +88,11 @@ class MailerTransportDecorator implements TransportInterface
      */
     private function setDocumentsSent(array $attachments, MailSendSubscriberConfig $extension, Context $context): void
     {
-        $documentAttachments = array_filter($attachments, fn (array $attachment) => \in_array($attachment['id'] ?? null, $extension->getDocumentIds(), true));
+        $documentAttachments = array_filter($attachments, static fn (array $attachment) => \in_array($attachment['id'] ?? null, $extension->getDocumentIds(), true));
 
         $documentAttachments = array_column($documentAttachments, 'id');
 
-        if (empty($documentAttachments)) {
+        if ($documentAttachments === []) {
             return;
         }
 

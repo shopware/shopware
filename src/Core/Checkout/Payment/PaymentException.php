@@ -7,6 +7,9 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerType;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
+use Symfony\Component\Validator\Exception\ValidatorException;
 
 #[Package('checkout')]
 class PaymentException extends HttpException
@@ -315,5 +318,10 @@ class PaymentException extends HttpException
             'Parameter "{{ parameterName }}" is missing.',
             ['parameterName' => $name]
         );
+    }
+
+    public static function unexpectedConstraintType(Constraint $constraint, string $expectedType): ValidatorException
+    {
+        return new UnexpectedTypeException($constraint, $expectedType);
     }
 }

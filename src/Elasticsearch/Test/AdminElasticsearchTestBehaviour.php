@@ -68,7 +68,7 @@ trait AdminElasticsearchTestBehaviour
     {
         $this->getDiContainer()->get(Client::class)
             ->indices()
-            ->refresh(['index' => '_all']);
+            ->refresh(['index' => '*']);
     }
 
     abstract protected function getDiContainer(): ContainerInterface;

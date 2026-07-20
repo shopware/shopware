@@ -35,7 +35,7 @@ class AddPaymentMethodExtensionsCommandHandler extends AbstractCheckoutGatewayCo
      */
     public function handle(AbstractCheckoutGatewayCommand $command, CheckoutGatewayResponse $response, SalesChannelContext $context): void
     {
-        $method = $response->getAvailablePaymentMethods()->filter(function (PaymentMethodEntity $method) use ($command) {
+        $method = $response->getAvailablePaymentMethods()->filter(static function (PaymentMethodEntity $method) use ($command) {
             return $method->getTechnicalName() === $command->paymentMethodTechnicalName;
         })->first();
 

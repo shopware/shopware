@@ -5,11 +5,10 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1648031636AddPositionFieldToShippingMethod extends MigrationStep
@@ -21,16 +20,8 @@ class Migration1648031636AddPositionFieldToShippingMethod extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $columns = array_column($connection->fetchAllAssociative('SHOW COLUMNS FROM `shipping_method`'), 'Field');
-
-        // only execute when the column does not exist
-        if (!\in_array('position', $columns, true)) {
+        if (!TableHelper::columnExists($connection, 'shipping_method', 'position')) {
             $connection->executeStatement('ALTER TABLE `shipping_method` ADD `position` INT(11) NOT NULL DEFAULT 1 AFTER `active`;');
         }
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
     }
 }

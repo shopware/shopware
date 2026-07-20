@@ -3,9 +3,9 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\SearchKeyword;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigCollection;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreterInterface;
 use Shopware\Core\Defaults;
@@ -22,7 +22,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[CoversClass(ProductSearchTermInterpreter::class)]
 class ProductSearchTermInterpreterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -31,6 +30,9 @@ class ProductSearchTermInterpreterTest extends TestCase
 
     private ProductSearchTermInterpreterInterface $interpreter;
 
+    /**
+     * @var EntityRepository<ProductSearchConfigCollection>
+     */
     private EntityRepository $productSearchConfigRepository;
 
     private string $productSearchConfigId;
@@ -56,9 +58,9 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         $matches = $this->interpreter->interpret($term, $context);
 
-        $keywords = array_map(fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
+        $keywords = array_map(static fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
 
-        static::assertEqualsCanonicalizing($expected, $keywords);
+        static::assertEqualsCanonicalizing(array_values($expected), array_values($keywords));
     }
 
     public function testNumericInputIsNotMatchingWithInfixPlaceholders(): void
@@ -67,7 +69,7 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         $matches = $this->interpreter->interpret('1000', $context);
 
-        $keywords = array_map(fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
+        $keywords = array_map(static fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
 
         static::assertNotContains('10100', $keywords);
     }
@@ -82,9 +84,9 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         $matches = $this->interpreter->interpret($term, $context);
 
-        $keywords = array_map(fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
+        $keywords = array_map(static fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
 
-        static::assertEqualsCanonicalizing($expected, $keywords);
+        static::assertEqualsCanonicalizing(array_values($expected), array_values($keywords));
     }
 
     /**
@@ -99,7 +101,7 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         static::assertCount(\count($expected), $tokenTerms);
         foreach ($tokenTerms as $index => $tokenTerm) {
-            static::assertEqualsCanonicalizing($expected[$index], $tokenTerm);
+            static::assertEqualsCanonicalizing(array_values($expected[$index]), array_values($tokenTerm));
         }
     }
 
@@ -129,7 +131,7 @@ class ProductSearchTermInterpreterTest extends TestCase
         ], $context);
 
         $matches = $this->interpreter->interpret($words, $context);
-        $terms = array_map(fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
+        $terms = array_map(static fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
 
         if (!$andLogic) {
             $flatterTerms = ArrayNormalizer::flatten($matches->getTokenTerms());
@@ -152,7 +154,7 @@ class ProductSearchTermInterpreterTest extends TestCase
         $context = Context::createDefaultContext();
 
         $matches = $this->interpreter->interpret($term, $context);
-        $terms = array_map(fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
+        $terms = array_map(static fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
 
         static::assertSame($expected, \array_slice($terms, 0, \count($expected)));
     }
@@ -503,6 +505,9 @@ class ProductSearchTermInterpreterTest extends TestCase
             new EqualsFilter('languageId', Defaults::LANGUAGE_SYSTEM)
         );
 
-        return (string) $this->productSearchConfigRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        $id = $this->productSearchConfigRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        static::assertNotNull($id);
+
+        return $id;
     }
 }

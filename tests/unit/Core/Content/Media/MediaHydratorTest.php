@@ -41,8 +41,8 @@ class MediaHydratorTest extends TestCase
                 MediaFolderDefinition::class,
                 MediaTranslationDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $container->set(MediaHydrator::class, $this->hydrator);
@@ -72,13 +72,13 @@ class MediaHydratorTest extends TestCase
                 'test.path' => 'media/foo.jpg',
                 'test.private' => false,
                 'test.metaDataRaw' => json_encode(['foo' => 'bar']),
+                'test.fileHash' => 'hash',
             ],
         ];
 
         $structs = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', Context::createDefaultContext());
         static::assertCount(1, $structs);
 
-        /** @var MediaEntity|null $first */
         $first = $structs->first();
 
         static::assertInstanceOf(MediaEntity::class, $first);
@@ -98,6 +98,7 @@ class MediaHydratorTest extends TestCase
         static::assertSame($date->format(Defaults::STORAGE_DATE_TIME_FORMAT), $first->getUpdatedAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT));
         static::assertSame('media/foo.jpg', $first->getPath());
         static::assertFalse($first->isPrivate());
+        static::assertSame('hash', $first->getFileHash());
     }
 
     public function testHydrationForTranslation(): void
@@ -119,7 +120,6 @@ class MediaHydratorTest extends TestCase
         $structs = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', Context::createDefaultContext());
         static::assertCount(1, $structs);
 
-        /** @var MediaEntity|null $first */
         $first = $structs->first();
 
         static::assertInstanceOf(MediaEntity::class, $first);

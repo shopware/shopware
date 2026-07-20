@@ -37,6 +37,6 @@ class PathStrategyFactoryTest extends TestCase
 
         static::expectException(MediaException::class);
 
-        $factory = $registry->factory('invalid');
+        $registry->factory('invalid');
     }
 }

@@ -41,18 +41,19 @@ export default {
         },
 
         setTitle() {
-            this.$emit('frw-set-title', this.$tc('sw-first-run-wizard.shopwareAccount.modalTitle'));
+            this.$emit('frw-set-title', this.$t('sw-first-run-wizard.shopwareAccount.modalTitle'));
         },
 
         updateButtons() {
-            const disabledExtensionManagement = Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
+            const disabledExtensionManagement =
+                Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
             const prevRoute = disabledExtensionManagement ? 'mailer.selection' : 'plugins';
             const skipRoute = disabledExtensionManagement ? 'finish' : 'store';
 
             const buttonConfig = [
                 {
                     key: 'back',
-                    label: this.$tc('sw-first-run-wizard.general.buttonBack'),
+                    label: this.$t('global.default.back'),
                     position: 'left',
                     variant: 'secondary',
                     action: `sw.first.run.wizard.index.${prevRoute}`,
@@ -60,7 +61,7 @@ export default {
                 },
                 {
                     key: 'skip',
-                    label: this.$tc('sw-first-run-wizard.general.buttonSkip'),
+                    label: this.$t('sw-first-run-wizard.general.buttonSkip'),
                     position: 'right',
                     variant: 'secondary',
                     action: `sw.first.run.wizard.index.${skipRoute}`,
@@ -68,7 +69,7 @@ export default {
                 },
                 {
                     key: 'next',
-                    label: this.$tc('sw-first-run-wizard.general.buttonNext'),
+                    label: this.$t('sw-first-run-wizard.general.buttonNext'),
                     position: 'right',
                     variant: 'primary',
                     action: this.testCredentials.bind(this),

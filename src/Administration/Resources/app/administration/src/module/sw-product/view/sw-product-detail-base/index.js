@@ -62,8 +62,19 @@ export default {
             return Shopware.Store.get('swProductDetail').showModeSetting;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use `productType` instead.
+         */
         productStates() {
             return Shopware.Store.get('swProductDetail').productStates;
+        },
+
+        productType() {
+            return Shopware.Store.get('swProductDetail').productType;
+        },
+
+        isDownloadCardVisible() {
+            return this.productType === 'digital' || this.productStates.includes('is-download');
         },
 
         mediaFormVisible() {
@@ -178,7 +189,7 @@ export default {
             media.forEach((item) => {
                 this.addMedia(item).catch(({ fileName }) => {
                     this.createNotificationError({
-                        message: this.$tc('sw-product.mediaForm.errorMediaItemDuplicated', { fileName }, 0),
+                        message: this.$t('sw-product.mediaForm.errorMediaItemDuplicated', { fileName }, 0),
                     });
                 });
             });

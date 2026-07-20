@@ -12,19 +12,19 @@ const utils = Shopware.Utils;
  */
 
 function isIllegalFileNameException(error) {
-    return error.response.data.errors.some((err) => {
+    return error.response?.data?.errors?.some((err) => {
         return err.code === 'CONTENT__MEDIA_ILLEGAL_FILE_NAME';
     });
 }
 
 function isDuplicationException(error) {
-    return error.response.data.errors.some((err) => {
+    return error.response?.data?.errors?.some((err) => {
         return err.code === 'CONTENT__MEDIA_DUPLICATED_FILE_NAME';
     });
 }
 
 function isIllegalUrlException(error) {
-    return error.response.data.errors.some((err) => {
+    return error.response?.data?.errors?.some((err) => {
         return err.code === 'CONTENT__MEDIA_ILLEGAL_URL';
     });
 }
@@ -121,19 +121,12 @@ export default {
             }
 
             if (action === UploadEvents.UPLOAD_FINISHED) {
-                this.updateSuccessNotification(uploadTag, payload);
                 this.$emit(UploadEvents.UPLOAD_FINISHED, payload);
                 return;
             }
 
             if (action === UploadEvents.UPLOAD_FAILED) {
-                if (
-                    payload.successAmount + payload.failureAmount === payload.totalAmount &&
-                    payload.totalAmount !== payload.failureAmount
-                ) {
-                    this.updateSuccessNotification(uploadTag, payload);
-                }
-                if (isDuplicationException(payload.error)) {
+                if (isDuplicationException(payload?.error)) {
                     this.$emit(UploadEvents.UPLOAD_FAILED, payload);
                     return;
                 }
@@ -149,7 +142,6 @@ export default {
         },
 
         async handleError(payload) {
-            this.showErrorNotification(payload);
             const updatedMedia = await this.mediaRepository.get(payload.targetId, Context.api);
 
             if (!updatedMedia.hasFile) {
@@ -157,10 +149,13 @@ export default {
             }
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be replaced by the centralized upload state in `sw-upload-status`
+         */
         updateSuccessNotification(uploadTag, payload) {
             const notification = {
-                title: this.$root.$tc('global.default.success'),
-                message: this.$root.$tc(
+                title: this.$root.$t('global.default.success'),
+                message: this.$root.$t(
                     payload.customMessage ?? 'global.sw-media-upload.notification.success.message',
                     payload.successAmount,
                     {
@@ -172,7 +167,7 @@ export default {
             };
 
             if (payload.successAmount + payload.failureAmount === payload.totalAmount) {
-                notification.title = this.$root.$tc('global.default.success');
+                notification.title = this.$root.$t('global.default.success');
             }
 
             if (this.notificationId !== null) {
@@ -195,11 +190,14 @@ export default {
             }
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be replaced by the centralized upload state in `sw-upload-status`
+         */
         showErrorNotification(payload) {
             if (isIllegalFileNameException(payload.error)) {
                 this.createNotificationError({
-                    title: this.$root.$tc('global.default.error'),
-                    message: this.$root.$tc(
+                    title: this.$root.$t('global.default.error'),
+                    message: this.$root.$t(
                         'global.sw-media-upload.notification.illegalFilename.message',
                         {
                             fileName: payload.fileName,
@@ -209,13 +207,13 @@ export default {
                 });
             } else if (isIllegalUrlException(payload.error)) {
                 this.createNotificationError({
-                    title: this.$root.$tc('global.sw-media-upload.notification.illegalFileUrl.title'),
-                    message: this.$root.$tc('global.sw-media-upload.notification.illegalFileUrl.message', 0),
+                    title: this.$root.$t('global.sw-media-upload.notification.illegalFileUrl.title'),
+                    message: this.$root.$t('global.sw-media-upload.notification.illegalFileUrl.message', 0),
                 });
             } else {
                 this.createNotificationError({
-                    title: this.$root.$tc('global.default.error'),
-                    message: this.$root.$tc('global.sw-media-upload.notification.failure.message'),
+                    title: this.$root.$t('global.default.error'),
+                    message: this.$root.$t('global.sw-media-upload.notification.failure.message'),
                 });
             }
         },

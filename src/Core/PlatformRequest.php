@@ -22,17 +22,47 @@ final class PlatformRequest
     public const HEADER_INHERITANCE = 'sw-inheritance';
     public const HEADER_VERSION_ID = 'sw-version-id';
     public const HEADER_INCLUDE_SEO_URLS = 'sw-include-seo-urls';
+    public const HEADER_INCLUDE_SEARCH_INFO = 'sw-include-search-info';
     public const HEADER_SKIP_TRIGGER_FLOW = 'sw-skip-trigger-flow';
     public const HEADER_APP_INTEGRATION_ID = 'sw-app-integration-id';
-
+    public const HEADER_APP_USER_ID = 'sw-app-user-id';
     public const HEADER_INDEXING_BEHAVIOR = 'indexing-behavior';
     public const HEADER_INDEXING_SKIP = 'indexing-skip';
+    public const HEADER_INDEXING_ONLY = 'indexing-only';
     public const HEADER_FORCE_CACHE_INVALIDATE = 'sw-force-cache-invalidate';
+
+    public const HEADER_MEASUREMENT_WEIGHT_UNIT = 'sw-measurement-weight-unit';
+
+    public const HEADER_MEASUREMENT_LENGTH_UNIT = 'sw-measurement-length-unit';
+
+    /**
+     * MCP Streamable HTTP transport headers (Model Context Protocol)
+     */
+    public const HEADER_MCP_SESSION_ID = 'mcp-session-id';
+    public const HEADER_MCP_PROTOCOL_VERSION = 'mcp-protocol-version';
 
     /**
      * API Expectation headers to check requirements are fulfilled
      */
     public const HEADER_EXPECT_PACKAGES = 'sw-expect-packages';
+
+    /**
+     * Context hash header used for cache differentiation on user-independent routes
+     *
+     * The hash is used to differentiate cache entries for the same route when the context
+     * changes (e.g., different language, currency, or rules). This ensures that
+     * user-independent routes like product listings, category pages, and search results
+     * are properly cached per context variation while maintaining cache efficiency.
+     *
+     * The header is automatically added to Store API responses and included in the Vary
+     * header together with HEADER_LANGUAGE_ID and HEADER_CURRENCY_ID to ensure proper
+     * cache separation by reverse proxies and CDNs.
+     *
+     * Header has to be included in every request to ensure cache hits.
+     *
+     * @deprecated tag:v6.8.0 - Will be removed, use HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE instead
+     */
+    public const HEADER_CONTEXT_HASH = 'sw-context-hash';
 
     /**
      * Context attributes
@@ -53,6 +83,18 @@ final class PlatformRequest
     public const ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST = '_loginRequiredAllowGuest';
     public const ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE = 'allow_maintenance';
 
+    public const ATTRIBUTE_INTERNAL_ROUTE_PARAMS = [
+        self::ATTRIBUTE_CAPTCHA,
+        self::ATTRIBUTE_ROUTE_SCOPE,
+        self::ATTRIBUTE_ENTITY,
+        self::ATTRIBUTE_NO_STORE,
+        self::ATTRIBUTE_HTTP_CACHE,
+        self::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED,
+        self::ATTRIBUTE_LOGIN_REQUIRED,
+        self::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST,
+        self::ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE,
+    ];
+
     /**
      * CSP
      */
@@ -65,6 +107,9 @@ final class PlatformRequest
     public const ATTRIBUTE_OAUTH_CLIENT_ID = 'oauth_client_id';
     public const ATTRIBUTE_OAUTH_USER_ID = 'oauth_user_id';
     public const ATTRIBUTE_OAUTH_SCOPES = 'oauth_scopes';
+    public const ATTRIBUTE_OAUTH_PRE_AUTHENTICATED = 'oauth_pre_authenticated';
+
+    public const FALLBACK_SESSION_NAME = 'session-';
 
     private function __construct()
     {

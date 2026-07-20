@@ -19,11 +19,11 @@
 
     .mt-card {
         &__toolbar {
-            padding-bottom: 20px;
+            padding-bottom: var(--scale-size-20);
         }
 
         &__content {
-            border: 1px solid var(--color-border-primary-default);
+            border: 1px solid var(--color-border-secondary-default);
             padding: 0;
         }
     }

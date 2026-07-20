@@ -44,7 +44,7 @@ class MemorySizeCalculator
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
         $bytes = max($bytes, 0);
-        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = (int) floor(($bytes ? log($bytes) : 0) / log(1024));
         $pow = min($pow, \count($units) - 1);
 
         $bytes /= (1 << (10 * $pow));
@@ -63,7 +63,7 @@ class MemorySizeCalculator
             $values[] = $maxSize;
         }
 
-        /** @var non-empty-array<int> $limits */
+        /** @var non-empty-array{0?: int<1, max>, 1?: int<1, max>, 2?: int<1, max>} $limits */
         $limits = array_filter($values, static fn (int $value) => $value > 0);
 
         return min($limits);

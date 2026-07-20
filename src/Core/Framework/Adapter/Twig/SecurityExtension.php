@@ -45,6 +45,11 @@ class SecurityExtension extends AbstractExtension
             return null;
         }
 
+        if (\is_array($function)) {
+            $function = implode('::', $function);
+            \assert(\is_callable($function));
+        }
+
         if (\is_string($function) && !\in_array($function, $this->allowedPHPFunctions, true)) {
             throw AdapterException::securityFunctionNotAllowed($function);
         }

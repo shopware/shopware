@@ -3,10 +3,13 @@
 namespace Shopware\Core\Content\Test\Product;
 
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Cms\LayoutBuilder;
 use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -49,10 +52,12 @@ class ProductBuilder
 
     protected ?string $name;
 
+    protected ?string $description = null;
+
     /**
      * @var Manufacturer
      */
-    protected ?array $manufacturer;
+    protected ?array $manufacturer = null;
 
     /**
      * @var Tax
@@ -96,7 +101,7 @@ class ProductBuilder
     /**
      * @var array<CurrencyPrice>|null
      */
-    protected ?array $purchasePrices;
+    protected ?array $purchasePrices = null;
 
     protected ?float $purchasePrice = null;
 
@@ -151,7 +156,7 @@ class ProductBuilder
      */
     protected array $tags = [];
 
-    protected ?string $createdAt;
+    protected ?string $createdAt = null;
 
     /**
      * @var array<array{salesChannelId: string, languageId: string, routeName: TestProductSeoUrlRoute::ROUTE_NAME, pathInfo: string, seoPathInfo: string}>
@@ -168,6 +173,14 @@ class ProductBuilder
      */
     protected array $variantListingConfig = [];
 
+    protected ?float $width = null;
+
+    protected ?float $height = null;
+
+    protected ?float $length = null;
+
+    protected ?float $weight = null;
+
     /**
      * @var array<string, array<array<mixed>>>
      */
@@ -177,7 +190,8 @@ class ProductBuilder
         IdsCollection $ids,
         protected string $productNumber,
         protected int $stock = 1,
-        string $taxKey = 't1'
+        string $taxKey = 't1',
+        protected string $type = ProductDefinition::TYPE_PHYSICAL,
     ) {
         $this->ids = $ids;
         $this->id = $this->ids->create($productNumber);
@@ -216,6 +230,13 @@ class ProductBuilder
         return $this;
     }
 
+    public function description(?string $description): self
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
     public function tax(?string $key, int $rate = 15): self
     {
         if ($key === null) {
@@ -249,6 +270,13 @@ class ProductBuilder
     public function variantListingConfig(array $data): self
     {
         $this->variantListingConfig = $data;
+
+        return $this;
+    }
+
+    public function type(string $productType): self
+    {
+        $this->type = $productType;
 
         return $this;
     }
@@ -428,6 +456,34 @@ class ProductBuilder
     public function stock(int $stock): self
     {
         $this->stock = $stock;
+
+        return $this;
+    }
+
+    public function width(?float $width): self
+    {
+        $this->width = $width;
+
+        return $this;
+    }
+
+    public function height(?float $height): self
+    {
+        $this->height = $height;
+
+        return $this;
+    }
+
+    public function length(?float $length): self
+    {
+        $this->length = $length;
+
+        return $this;
+    }
+
+    public function weight(?float $weight): self
+    {
+        $this->weight = $weight;
 
         return $this;
     }
@@ -645,7 +701,7 @@ class ProductBuilder
     public function writeDependencies(ContainerInterface $container): void
     {
         foreach ($this->dependencies as $entity => $records) {
-            /** @var EntityRepository $repository */
+            /** @var EntityRepository<EntityCollection<Entity>> $repository */
             $repository = $container->get($entity . '.repository');
 
             $repository->create($records, Context::createDefaultContext());
@@ -721,11 +777,12 @@ class ProductBuilder
         }
 
         foreach ($grouped as &$group) {
-            usort($group, fn (array $a, array $b) => $a['quantityStart'] <=> $b['quantityStart']);
+            usort($group, static fn (array $a, array $b) => $a['quantityStart'] <=> $b['quantityStart']);
         }
+        unset($group);
 
         $mapped = [];
-        foreach ($grouped as &$group) {
+        foreach ($grouped as $group) {
             $group = array_reverse($group);
 
             $end = null;

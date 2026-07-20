@@ -8,7 +8,11 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppDownloadException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
+use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\Validation\Error\AppNameError;
+use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
@@ -113,6 +117,17 @@ class AppExceptionTest extends TestCase
         static::assertSame('App is not supported by any source.', $e->getMessage());
     }
 
+    public function testPaymentGatewayRequestFailed(): void
+    {
+        $previous = new \RuntimeException('Request failed');
+        $e = AppException::paymentGatewayRequestFailed('PaymentApp', $previous);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(AppException::APP_PAYMENT_GATEWAY_REQUEST_FAILED, $e->getErrorCode());
+        static::assertSame('Request from app "PaymentApp" to payment gateway failed.', $e->getMessage());
+        static::assertSame($previous, $e->getPrevious());
+    }
+
     public function testCannotMountAppFilesystem(): void
     {
         $previous = AppDownloadException::transportError('some/url');
@@ -157,5 +172,85 @@ class AppExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         static::assertSame('FRAMEWORK__APP_DIRECTORY_CREATION_FAILED', $e->getErrorCode());
         static::assertSame('Unable to create directory "path/to/app". Please check permissions', $e->getMessage());
+    }
+
+    public function testInvalidPrivileges(): void
+    {
+        $e = AppException::invalidPrivileges();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_INVALID_PERMISSIONS', $e->getErrorCode());
+        static::assertSame('For each accept, or revoke, expected a list of privileges in the format "category:read"', $e->getMessage());
+    }
+
+    public function testMissingIntegration(): void
+    {
+        $e = AppException::missingIntegration();
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_MISSING_INTEGRATION', $e->getErrorCode());
+        static::assertSame('Forbidden. Not a valid integration source.', $e->getMessage());
+    }
+
+    public function testShopIdChangeSuggested(): void
+    {
+        $e = AppException::shopIdChangeSuggested(ShopId::v2('123456789'), $comparisonResult = new FingerprintComparisonResult([], [], 75));
+
+        static::assertInstanceOf(ShopIdChangeSuggestedException::class, $e);
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_SHOP_ID_CHANGE_SUGGESTED', $e->getErrorCode());
+        static::assertSame('Changes in your system were detected that suggest a change of the shop ID.', $e->getMessage());
+        static::assertSame($comparisonResult, $e->comparisonResult);
+    }
+
+    public function testAppUrlNotConfigured(): void
+    {
+        $e = AppException::appUrlNotConfigured();
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_URL_NOT_CONFIGURED', $e->getErrorCode());
+        static::assertSame('The environment variable "APP_URL" is not set. Please set it to the URL to your Admin API.', $e->getMessage());
+    }
+
+    public function testInvalidShopIdConfiguration(): void
+    {
+        $e = AppException::invalidShopIdConfiguration();
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_INVALID_SHOP_ID_CONFIGURATION', $e->getErrorCode());
+        static::assertSame('The configuration values for "core.app.shopIdV2" and "core.app.shopId" in the system config are invalid.', $e->getMessage());
+    }
+
+    public function testInvalidAppUrl(): void
+    {
+        $e = AppException::invalidAppUrl('invalid-url');
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_URL_INVALID', $e->getErrorCode());
+        static::assertSame('APP_URL is invalid: invalid-url', $e->getMessage());
+    }
+
+    public function testRequirementsNotMet(): void
+    {
+        $violation1 = new UnmetRequirement(
+            appName: 'TestApp1',
+            requirementName: 'PHP Version',
+            actionableResolution: 'Upgrade to PHP 8.2 or higher'
+        );
+
+        $violation2 = new UnmetRequirement(
+            appName: 'TestApp2',
+            requirementName: 'MySQL Version',
+            actionableResolution: 'Upgrade to MySQL 8.0 or higher'
+        );
+
+        $e = AppException::requirementsNotMet($violation1, $violation2);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_REQUIREMENTS_NOT_MET', $e->getErrorCode());
+        static::assertSame('The app requirements are not met: App "TestApp1" - Requirement "PHP Version": Upgrade to PHP 8.2 or higher; App "TestApp2" - Requirement "MySQL Version": Upgrade to MySQL 8.0 or higher', $e->getMessage());
+
+        $expectedViolations = 'App "TestApp1" - Requirement "PHP Version": Upgrade to PHP 8.2 or higher; App "TestApp2" - Requirement "MySQL Version": Upgrade to MySQL 8.0 or higher';
+        static::assertSame(['violations' => $expectedViolations], $e->getParameters());
     }
 }

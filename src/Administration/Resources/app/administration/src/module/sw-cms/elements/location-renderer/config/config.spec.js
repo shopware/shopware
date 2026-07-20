@@ -46,12 +46,6 @@ describe('module/sw-cms/elements/location-renderer/config', () => {
         jest.clearAllMocks();
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should add the elementId to iFrame url', async () => {
         const wrapper = await createWrapper();
 

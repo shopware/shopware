@@ -128,13 +128,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-salutation/page/sw-settings-salutation-detail', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to save a salutation if have a editor privilege', async () => {
         const wrapper = await createWrapper([
             'salutation.editor',
@@ -144,10 +137,12 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-detail', () 
         const saveButton = wrapper.find('.sw-settings-salutation-detail__save');
 
         const labelPath = 'sw-settings-salutation.detail';
+        const fieldPositionLabel = wrapper.find('.sw-settings-salutation-detail__position input');
         const fieldSalutationKeyLabel = wrapper.find(`input[aria-label="${labelPath}.fieldSalutationKeyLabel"]`);
         const fieldDisplayNameLabel = wrapper.find(`input[aria-label="${labelPath}.fieldDisplayNameLabel"]`);
         const fieldLetterNameLabel = wrapper.find(`input[aria-label="${labelPath}.fieldLetterNameLabel"]`);
 
+        expect(fieldPositionLabel.attributes().disabled).toBeFalsy();
         expect(fieldSalutationKeyLabel.attributes().disabled).toBeFalsy();
         expect(fieldDisplayNameLabel.attributes().disabled).toBeFalsy();
         expect(fieldLetterNameLabel.attributes().disabled).toBeFalsy();
@@ -166,10 +161,12 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-detail', () 
         const saveButton = wrapper.find('.sw-settings-salutation-detail__save');
 
         const labelPath = 'sw-settings-salutation.detail';
+        const fieldPositionLabel = wrapper.find('.sw-settings-salutation-detail__position input');
         const fieldSalutationKeyLabel = wrapper.find(`input[aria-label="${labelPath}.fieldSalutationKeyLabel"]`);
         const fieldDisplayNameLabel = wrapper.find(`input[aria-label="${labelPath}.fieldDisplayNameLabel"]`);
         const fieldLetterNameLabel = wrapper.find(`input[aria-label="${labelPath}.fieldLetterNameLabel"]`);
 
+        expect(fieldPositionLabel.attributes().disabled).toBeDefined();
         expect(fieldSalutationKeyLabel.attributes().disabled).toBeDefined();
         expect(fieldDisplayNameLabel.attributes().disabled).toBeDefined();
         expect(fieldLetterNameLabel.attributes().disabled).toBeDefined();
@@ -192,10 +189,12 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-detail', () 
         const saveButton = wrapper.find('.sw-settings-salutation-detail__save');
 
         const labelPath = 'sw-settings-salutation.detail';
+        const fieldPositionLabel = wrapper.find('.sw-settings-salutation-detail__position input');
         const fieldSalutationKeyLabel = wrapper.find(`input[aria-label="${labelPath}.fieldSalutationKeyLabel"]`);
         const fieldDisplayNameLabel = wrapper.find(`input[aria-label="${labelPath}.fieldDisplayNameLabel"]`);
         const fieldLetterNameLabel = wrapper.find(`input[aria-label="${labelPath}.fieldLetterNameLabel"]`);
 
+        expect(fieldPositionLabel.attributes().disabled).toBeDefined();
         expect(fieldSalutationKeyLabel.attributes().disabled).toBeDefined();
         expect(fieldDisplayNameLabel.attributes().disabled).toBeDefined();
         expect(fieldLetterNameLabel.attributes().disabled).toBeDefined();

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Administration\Snippet;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\SnippetException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -13,6 +14,20 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(SnippetException::class)]
 class SnippetExceptionTest extends TestCase
 {
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     * */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testDuplicatedFirstLevelKey(): void
+    {
+        $exception = SnippetException::duplicatedFirstLevelKey(['id1', 'id2', 'id3']);
+
+        static::assertSame(Response::HTTP_CONFLICT, $exception->getStatusCode());
+        static::assertSame(SnippetException::SNIPPET_DUPLICATED_FIRST_LEVEL_KEY_EXCEPTION, $exception->getErrorCode());
+        static::assertSame('The following keys on the first level are duplicated and can not be overwritten: id1, id2, id3', $exception->getMessage());
+        static::assertSame(['duplicatedKeys' => 'id1, id2, id3'], $exception->getParameters());
+    }
+
     public function testDefaultLanguageNotGiven(): void
     {
         $exception = SnippetException::defaultLanguageNotGiven('languageId');
@@ -21,6 +36,18 @@ class SnippetExceptionTest extends TestCase
         static::assertSame(SnippetException::SNIPPET_DEFAULT_LANGUAGE_NOT_GIVEN_EXCEPTION, $exception->getErrorCode());
         static::assertSame('The following snippet file must always be provided when providing snippets: languageId', $exception->getMessage());
         static::assertSame(['defaultLanguage' => 'languageId'], $exception->getParameters());
+    }
+
+    public function testInvalidSnippetFile(): void
+    {
+        $previous = new \JsonException('Syntax error');
+        $exception = SnippetException::invalidSnippetFile('/some/path/administration.json', $previous);
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(SnippetException::SNIPPET_INVALID_FILE_EXCEPTION, $exception->getErrorCode());
+        static::assertSame('The administration snippet file "/some/path/administration.json" is invalid: Syntax error', $exception->getMessage());
+        static::assertSame(['filePath' => '/some/path/administration.json', 'message' => 'Syntax error'], $exception->getParameters());
+        static::assertSame($previous, $exception->getPrevious());
     }
 
     public function testExtendOrOverwriteCore(): void

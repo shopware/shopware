@@ -3,8 +3,8 @@
     {% block sw_settings_snippet_set_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
-            :initial-search-type="$tc('sw-settings-snippet.general.searchBarTitleSets')"
-            :placeholder="$tc('sw-settings-snippet.general.placeholderSearchBarSets')"
+            :initial-search-type="$t('sw-settings-snippet.general.searchBarTitleSets')"
+            :placeholder="$t('sw-settings-snippet.general.placeholderSearchBarSets')"
             :initial-search="term"
             @search="onSearch"
         />
@@ -103,7 +103,7 @@
                             ref="snippetSetList"
                             class="sw-snippet-set-list__list"
                             identifier="sw-snippet-set-list"
-                            :items="snippetSets"
+                            :data-source="snippetSets"
                             :columns="snippetSetColumns"
                             :repository="snippetSetRepository"
                             large
@@ -139,10 +139,10 @@
 
                             <template #column-updatedAt="{ item }">
                                 <template v-if="item.updatedAt">
-                                    {{ dateFilter(item.updatedAt) }}
+                                    <sw-time-ago :date="item.updatedAt" />
                                 </template>
                                 <template v-else>
-                                    {{ dateFilter(item.createdAt) }}
+                                    <sw-time-ago :date="item.createdAt" />
                                 </template>
                             </template>
 

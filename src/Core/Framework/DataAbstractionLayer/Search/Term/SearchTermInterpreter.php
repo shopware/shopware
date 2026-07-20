@@ -10,13 +10,16 @@ class SearchTermInterpreter
     /**
      * @internal
      */
-    public function __construct(private readonly TokenizerInterface $tokenizer)
-    {
+    public function __construct(
+        private readonly TokenizerInterface $tokenizer,
+        private readonly int $tokenMinimumLength
+    ) {
     }
 
     public function interpret(string $term): SearchPattern
     {
-        $terms = $this->tokenizer->tokenize($term);
+        /** @phpstan-ignore arguments.count (This ignore should be removed when the deprecated method signature is updated) */
+        $terms = $this->tokenizer->tokenize($term, $this->tokenMinimumLength);
 
         $pattern = new SearchPattern(new SearchTerm($term));
 

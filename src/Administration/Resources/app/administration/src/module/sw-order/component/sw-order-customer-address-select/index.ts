@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import template from './sw-order-customer-address-select.html.twig';
 import './sw-order-customer-address-select.scss';
 import type CriteriaType from '../../../../core/data/criteria.data';
@@ -49,7 +48,7 @@ export default Component.wrapComponentConfig({
     },
 
     data(): {
-        customerAddresses: EntityCollection<'customer_address'> | [];
+        customerAddresses: Entity<'customer_address'>[];
         isLoading: boolean;
         addressSearchTerm: string;
     } {
@@ -89,7 +88,7 @@ export default Component.wrapComponentConfig({
         },
 
         addressCriteria(): CriteriaType {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, null);
             criteria.addAssociation('salutation');
             criteria.addAssociation('country');
             criteria.addAssociation('countryState');
@@ -170,7 +169,7 @@ export default Component.wrapComponentConfig({
             return this.addressRepository
                 .search(this.addressCriteria)
                 .then((addresses: EntityCollection<'customer_address'>): void => {
-                    this.customerAddresses = addresses;
+                    this.customerAddresses = this.getDisplayedCustomerAddresses(addresses);
                 })
                 .finally(() => {
                     this.isLoading = false;
@@ -184,11 +183,8 @@ export default Component.wrapComponentConfig({
 
             return this.addressRepository
                 .search(this.addressCriteria)
-                .then((addresses) => {
-                    this.customerAddresses.forEach((address) => {
-                        // @ts-expect-error - hidden does not exist on address entity
-                        address.hidden = !addresses.has(address.id);
-                    });
+                .then((addresses: EntityCollection<'customer_address'>) => {
+                    this.customerAddresses = this.getDisplayedCustomerAddresses(addresses);
                 })
                 .finally(() => {
                     this.isLoading = false;
@@ -197,6 +193,22 @@ export default Component.wrapComponentConfig({
 
         searchAddressResults() {
             return this.customerAddresses;
+        },
+
+        getDisplayedCustomerAddresses(addresses: EntityCollection<'customer_address'>): Entity<'customer_address'>[] {
+            const customerAddresses = [...addresses];
+
+            if (!this.addressId || customerAddresses.some((address) => address.id === this.addressId)) {
+                return customerAddresses;
+            }
+
+            const selectedAddress = this.customerAddresses.find((address) => address.id === this.addressId);
+
+            if (selectedAddress) {
+                customerAddresses.unshift(selectedAddress);
+            }
+
+            return customerAddresses;
         },
     },
 });

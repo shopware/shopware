@@ -7,6 +7,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('after-sales')]
@@ -19,12 +20,20 @@ class MailTemplateTypeEntity extends Entity
 
     protected string $technicalName;
 
+    /**
+     * @var array<string, mixed>|null
+     */
     protected ?array $availableEntities = null;
 
     protected ?MailTemplateTypeTranslationCollection $translations = null;
 
     protected ?MailTemplateCollection $mailTemplates = null;
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement.
+     *
+     * @var array<string, mixed>|null
+     */
     protected ?array $templateData = null;
 
     public function getName(): string
@@ -52,11 +61,17 @@ class MailTemplateTypeEntity extends Entity
         return $this->translations;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getAvailableEntities(): ?array
     {
         return $this->availableEntities;
     }
 
+    /**
+     * @param array<string, mixed>|null $availableEntities
+     */
     public function setAvailableEntities(?array $availableEntities): void
     {
         $this->availableEntities = $availableEntities;
@@ -77,13 +92,33 @@ class MailTemplateTypeEntity extends Entity
         $this->mailTemplates = $mailTemplates;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     *
+     * @deprecated tag:v6.8.0 - Will be removed without replacement.
+     */
     public function getTemplateData(): ?array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         return $this->templateData;
     }
 
+    /**
+     * @param array<string, mixed>|null $templateData
+     *
+     * @deprecated tag:v6.8.0 - Will be removed without replacement.
+     */
     public function setTemplateData(?array $templateData): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         $this->templateData = $templateData;
     }
 }

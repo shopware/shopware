@@ -503,25 +503,21 @@ class PromotionEntity extends Entity
                 // add the rule to our main rule
                 $requirements->addRule($personaCustomerOR);
             }
-        } else {
+        } elseif ($this->getPersonaRules() !== null && $this->getPersonaRules()->getElements() !== []) {
             // we use persona rules.
             // check if we have persona rules and add them
             // to our persona OR as a separate OR rule with all configured rules
-            if ($this->getPersonaRules() !== null && \count($this->getPersonaRules()->getElements()) > 0) {
-                $personaRuleOR = new OrRule();
-
-                foreach ($this->getPersonaRules()->getElements() as $ruleEntity) {
-                    $payload = $ruleEntity->getPayload();
-                    if ($payload instanceof Rule) {
-                        $personaRuleOR->addRule($payload);
-                    }
+            $personaRuleOR = new OrRule();
+            foreach ($this->getPersonaRules()->getElements() as $ruleEntity) {
+                $payload = $ruleEntity->getPayload();
+                if ($payload instanceof Rule) {
+                    $personaRuleOR->addRule($payload);
                 }
-
-                $requirements->addRule($personaRuleOR);
             }
+            $requirements->addRule($personaRuleOR);
         }
 
-        if ($this->getCartRules() !== null && \count($this->getCartRules()->getElements()) > 0) {
+        if ($this->getCartRules() !== null && $this->getCartRules()->getElements() !== []) {
             $cartOR = new OrRule([]);
 
             foreach ($this->getCartRules()->getElements() as $ruleEntity) {
@@ -559,7 +555,7 @@ class PromotionEntity extends Entity
             $requirements->addRule($groupsRootRule);
         }
 
-        if ($this->getOrderRules() !== null && \count($this->getOrderRules()->getElements()) > 0) {
+        if ($this->getOrderRules() !== null && $this->getOrderRules()->getElements() !== []) {
             $orderOR = new OrRule([]);
 
             foreach ($this->getOrderRules()->getElements() as $ruleEntity) {

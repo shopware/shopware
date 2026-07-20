@@ -39,7 +39,7 @@ async function createWrapper(privileges = []) {
                             limit: 25,
                         },
                     },
-                    $tc() {
+                    $t() {
                         return 'trans';
                     },
                 },
@@ -104,13 +104,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-units/page/sw-settings-units-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should push to new route on unit creation', async () => {
         const wrapper = await createWrapper();
         wrapper.vm.$router.push = jest.fn();

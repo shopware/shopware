@@ -14,7 +14,8 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
             global: {
                 renderStubDefaultSlot: true,
                 stubs: {
-                    'sw-modal': true,
+                    'mt-modal': true,
+                    'mt-modal-root': true,
                     'sw-tabs': {
                         template: '<div><slot name="content" active="upload"></slot></div>',
                     },
@@ -34,10 +35,6 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
                 },
             },
         });
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain the default accept value', async () => {

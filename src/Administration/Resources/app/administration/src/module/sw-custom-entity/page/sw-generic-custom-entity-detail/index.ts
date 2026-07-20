@@ -46,8 +46,8 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        customEntityDataId(): string | string[] {
-            return this.$route.params?.id;
+        customEntityDataId(): string | null {
+            return (this.$route.params?.id as null | string)?.toLowerCase() ?? null;
         },
 
         customEntityName(): string | string[] {
@@ -107,8 +107,6 @@ export default Shopware.Component.wrapComponentConfig({
         initializeCustomEntity(): void {
             if (this.adminConfig !== null) {
                 // @ts-expect-error
-                // eslint-disable-next-line max-len
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-non-null-assertion
                 this.$route.meta.$module.icon = this.adminConfig?.icon;
             }
 
@@ -132,14 +130,13 @@ export default Shopware.Component.wrapComponentConfig({
                     return;
                 }
 
-                this.customEntityData = await this.customEntityDataRepository.get(this.customEntityDataId as string);
+                this.customEntityData = await this.customEntityDataRepository.get(this.customEntityDataId);
             } catch (e) {
                 console.error(e);
 
                 // Methods from mixins are not recognized
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.createNotificationError({
-                    message: this.$tc('global.notification.notificationLoadingDataErrorMessage'),
+                    message: this.$t('global.notification.notificationLoadingDataErrorMessage'),
                 });
             } finally {
                 this.isLoading = false;
@@ -196,7 +193,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return '';
             }
 
-            return this.$tc(snippetKey);
+            return this.$t(snippetKey);
         },
 
         getLabel(namespace: string, name: string): string {

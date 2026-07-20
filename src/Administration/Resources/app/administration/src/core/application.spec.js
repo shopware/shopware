@@ -154,4 +154,45 @@ describe('core/application.js', () => {
             iframeSrc: 'http://localhost:8000/bundles/testplugin/administration/',
         });
     });
+
+    it('should load plugins correctly in watch with all permissions', async () => {
+        process.env.NODE_ENV = 'development';
+
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                json: () => ({
+                    'test-plugin': {
+                        html: 'http://localhost:8000/bundles/testplugin/administration/',
+                    },
+                }),
+            }),
+        );
+
+        // Mock plugins
+        Shopware.Context.app.config.bundles = {
+            'test-plugin': {
+                baseUrl: 'http://localhost:8000/bundles/testplugin/administration/',
+            },
+        };
+
+        // Load plugins
+        await Shopware.Application.loadPlugins();
+
+        // Check if new plugin added the correct extension to the store
+        expect(Shopware.Store.get('extensions').extensionsState['test-plugin']).toEqual({
+            name: 'test-plugin',
+            baseUrl: 'http://localhost:8000/bundles/testplugin/administration/',
+            permissions: {
+                additional: ['*'],
+                create: ['*'],
+                read: ['*'],
+                update: ['*'],
+                delete: ['*'],
+            },
+            version: undefined,
+            type: 'plugin',
+            integrationId: undefined,
+            active: undefined,
+        });
+    });
 });

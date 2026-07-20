@@ -40,7 +40,7 @@ export default {
 
     computed: {
         modalTitle() {
-            return this.$tc('sw-order.assignMailTemplateCard.cardTitle');
+            return this.$t('sw-order.stateCard.cartTitleChangeState');
         },
     },
 
@@ -49,8 +49,8 @@ export default {
             this.$emit('page-leave');
         },
 
-        onDocsConfirm(docIds, sendMail = true) {
-            this.$emit('page-leave-confirm', docIds, sendMail);
+        onDocsConfirm(docIds, sendMail = true, internalComment = null) {
+            this.$emit('page-leave-confirm', docIds, sendMail, internalComment);
         },
     },
 };

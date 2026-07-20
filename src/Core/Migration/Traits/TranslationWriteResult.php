@@ -35,11 +35,11 @@ class TranslationWriteResult
 
     public function hasWrittenEnglishTranslations(): bool
     {
-        return \count($this->englishLanguages) > 0;
+        return $this->englishLanguages !== [];
     }
 
     public function hasWrittenGermanTranslations(): bool
     {
-        return \count($this->getGermanLanguages()) > 0;
+        return $this->getGermanLanguages() !== [];
     }
 }

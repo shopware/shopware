@@ -55,14 +55,14 @@ class AppCmsBlockDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new StringField('name', 'name'))->addFlags(new Required()),
-            (new JsonField('block', 'block'))->addFlags(new Required()),
-            (new LongTextField('template', 'template'))->addFlags(new Required(), new AllowHtml()),
-            (new LongTextField('styles', 'styles'))->addFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of app\'s CMS block.'),
+            (new StringField('name', 'name'))->addFlags(new Required())->setDescription('Name of app\'s CMS block.'),
+            (new JsonField('block', 'block'))->addFlags(new Required())->setDescription('CMS block.'),
+            (new LongTextField('template', 'template'))->addFlags(new Required(), new AllowHtml())->setDescription('Template that defines app CMS block.'),
+            (new LongTextField('styles', 'styles'))->addFlags(new Required())->setDescription('Parameter that relates to the styles or formatting within CMS block.'),
             new TranslatedField('label'),
             (new TranslationsAssociationField(AppCmsBlockTranslationDefinition::class, 'app_cms_block_id'))->addFlags(new Required()),
-            (new FkField('app_id', 'appId', AppDefinition::class))->addFlags(new Required()),
+            (new FkField('app_id', 'appId', AppDefinition::class))->addFlags(new Required())->setDescription('Unique identity of app.'),
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),
         ]);
     }

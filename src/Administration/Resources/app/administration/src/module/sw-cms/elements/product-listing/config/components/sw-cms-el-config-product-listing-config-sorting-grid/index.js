@@ -12,6 +12,8 @@ export default {
 
     inject: ['repositoryFactory'],
 
+    emits: ['sorting-delete'],
+
     mixins: [
         'sw-inline-snippet',
     ],
@@ -24,6 +26,11 @@ export default {
         defaultSorting: {
             type: Object,
             required: true,
+        },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 
@@ -101,9 +108,7 @@ export default {
                     return this.getCustomFieldLabelByCriteriaName(currentField.field);
                 }
 
-                return this.$tc(
-                    `sw-settings-listing.general.productSortingCriteriaGrid.options.label.${currentField.field}`,
-                );
+                return this.$t(`sw-settings-listing.general.productSortingCriteriaGrid.options.label.${currentField.field}`);
             });
 
             return labels.join(', ');
@@ -142,6 +147,8 @@ export default {
 
         onDelete(productSorting) {
             this.productSortings.remove(productSorting.id);
+
+            this.$emit('sorting-delete', productSorting.id);
         },
 
         isDefaultSorting(productSorting) {

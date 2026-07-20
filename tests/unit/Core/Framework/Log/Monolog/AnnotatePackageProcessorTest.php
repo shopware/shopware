@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Monolog\AnnotatePackageProcessor;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Log\PackageService;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -29,8 +30,9 @@ class AnnotatePackageProcessorTest extends TestCase
     public function testOnlyController(): void
     {
         $requestStack = new RequestStack();
-        $container = $this->createMock(ContainerInterface::class);
-        $handler = new AnnotatePackageProcessor($requestStack, $container);
+        $container = static::createStub(ContainerInterface::class);
+        $packageService = new PackageService($requestStack, $container);
+        $handler = new AnnotatePackageProcessor($packageService);
 
         $request = new Request();
         $request->attributes->set('_controller', TestController::class . '::load');
@@ -61,7 +63,8 @@ class AnnotatePackageProcessorTest extends TestCase
     {
         $requestStack = new RequestStack();
         $container = $this->createMock(ContainerInterface::class);
-        $handler = new AnnotatePackageProcessor($requestStack, $container);
+        $packageService = new PackageService($requestStack, $container);
+        $handler = new AnnotatePackageProcessor($packageService);
 
         $request = new Request();
         $request->attributes->set('_controller', 'test.controller::load');
@@ -96,7 +99,8 @@ class AnnotatePackageProcessorTest extends TestCase
     {
         $requestStack = new RequestStack();
         $container = $this->createMock(ContainerInterface::class);
-        $handler = new AnnotatePackageProcessor($requestStack, $container);
+        $packageService = new PackageService($requestStack, $container);
+        $handler = new AnnotatePackageProcessor($packageService);
 
         $request = new Request();
         $request->attributes->set('_controller', 'test.controller::load');
@@ -119,8 +123,9 @@ class AnnotatePackageProcessorTest extends TestCase
     public function testExceptionInController(): void
     {
         $requestStack = new RequestStack();
-        $container = $this->createMock(ContainerInterface::class);
-        $handler = new AnnotatePackageProcessor($requestStack, $container);
+        $container = static::createStub(ContainerInterface::class);
+        $packageService = new PackageService($requestStack, $container);
+        $handler = new AnnotatePackageProcessor($packageService);
 
         $request = new Request();
         $request->attributes->set('_controller', TestController::class . '::load');
@@ -157,8 +162,9 @@ class AnnotatePackageProcessorTest extends TestCase
     public function testNoPackageAttributes(): void
     {
         $requestStack = new RequestStack();
-        $container = $this->createMock(ContainerInterface::class);
-        $handler = new AnnotatePackageProcessor($requestStack, $container);
+        $container = static::createStub(ContainerInterface::class);
+        $packageService = new PackageService($requestStack, $container);
+        $handler = new AnnotatePackageProcessor($packageService);
 
         $request = new Request();
         $request->attributes->set('_controller', TestControllerNoPackage::class . '::load');
@@ -196,13 +202,15 @@ class AnnotatePackageProcessorTest extends TestCase
 
         try {
             $command = new TestCommand();
-            $command->run($this->createMock(InputInterface::class), $this->createMock(OutputInterface::class));
+            $command->run(static::createStub(InputInterface::class), static::createStub(OutputInterface::class));
         } catch (\Throwable $e) {
             $exception = $e;
         }
 
-        $container = $this->createMock(ContainerInterface::class);
-        $handler = new AnnotatePackageProcessor($this->createMock(RequestStack::class), $container);
+        $container = static::createStub(ContainerInterface::class);
+        $requestStack = static::createStub(RequestStack::class);
+        $packageService = new PackageService($requestStack, $container);
+        $handler = new AnnotatePackageProcessor($packageService);
 
         $context = [
             'exception' => $exception,
@@ -238,13 +246,15 @@ class AnnotatePackageProcessorTest extends TestCase
 
         try {
             $command = new TestNestedCommand();
-            $command->run($this->createMock(InputInterface::class), $this->createMock(OutputInterface::class));
+            $command->run(static::createStub(InputInterface::class), static::createStub(OutputInterface::class));
         } catch (\Throwable $e) {
             $exception = $e;
         }
 
-        $container = $this->createMock(ContainerInterface::class);
-        $handler = new AnnotatePackageProcessor($this->createMock(RequestStack::class), $container);
+        $container = static::createStub(ContainerInterface::class);
+        $requestStack = static::createStub(RequestStack::class);
+        $packageService = new PackageService($requestStack, $container);
+        $handler = new AnnotatePackageProcessor($packageService);
 
         $context = [
             'exception' => $exception,
@@ -270,6 +280,36 @@ class AnnotatePackageProcessorTest extends TestCase
             'exception' => 'exception',
             'causingClass' => 'command',
         ];
+
+        static::assertEquals($expected, $handler($record));
+    }
+
+    public function testAnnotateCommandWithBogusLogData(): void
+    {
+        $container = static::createStub(ContainerInterface::class);
+        $requestStack = static::createStub(RequestStack::class);
+        $packageService = new PackageService($requestStack, $container);
+        $handler = new AnnotatePackageProcessor($packageService);
+
+        $context = [
+            // In the case, someone reassigned $exception = $exception->getMessage() or similar before passing it into context
+            'exception' => 'This is not an exception',
+        ];
+        $record = new LogRecord(
+            new \DateTimeImmutable(),
+            'business events',
+            Level::Error,
+            'Some message',
+            $context
+        );
+
+        $expected = new LogRecord(
+            $record->datetime,
+            $record->channel,
+            $record->level,
+            $record->message,
+            $context
+        );
 
         static::assertEquals($expected, $handler($record));
     }

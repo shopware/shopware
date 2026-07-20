@@ -26,14 +26,22 @@ export default {
         isAssociation: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         showInheritanceSwitcher: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
+        },
+        emptyStateTitle: {
+            type: String,
+            required: false,
+            default: null,
+        },
+        emptyStateDescription: {
+            type: String,
+            required: false,
+            default: null,
         },
     },
 
@@ -76,6 +84,13 @@ export default {
             return criteria;
         },
 
+        propertyExistsCriteria() {
+            const criteria = new Criteria(1, 1);
+            criteria.setTotalCountMode(0);
+
+            return criteria;
+        },
+
         propertyColumns() {
             return [
                 {
@@ -88,6 +103,7 @@ export default {
                     property: 'values',
                     label: 'sw-product.properties.columnValue',
                     sortable: false,
+                    multiLine: true,
                 },
             ];
         },
@@ -182,10 +198,13 @@ export default {
 
         onDeletePropertyValue(propertyValue) {
             this.productProperties.remove(propertyValue.id);
+            this.getProperties();
         },
 
         onDeleteProperty(property) {
-            this.$refs.entityListing.deleteId = null;
+            if (this.$refs.entityListing) {
+                this.$refs.entityListing.deleteId = null;
+            }
 
             this.$nextTick(() => {
                 this.productProperties
@@ -197,11 +216,14 @@ export default {
                     });
 
                 this.$refs.entityListing.resetSelection();
+                this.getProperties();
             });
         },
 
         onDeleteProperties() {
-            this.$refs.entityListing.showBulkDeleteModal = false;
+            if (this.$refs.entityListing) {
+                this.$refs.entityListing.showBulkDeleteModal = false;
+            }
 
             this.$nextTick(() => {
                 const properties = { ...this.$refs.entityListing.selection };
@@ -212,6 +234,7 @@ export default {
                     });
                 });
                 this.$refs.entityListing.resetSelection();
+                this.getProperties();
             });
         },
 
@@ -263,7 +286,7 @@ export default {
         },
 
         checkIfPropertiesExists() {
-            this.propertyOptionRepository.search(new Criteria(1, 1)).then((res) => {
+            this.propertyOptionRepository.searchIds(this.propertyExistsCriteria).then((res) => {
                 this.propertiesAvailable = res.total > 0;
             });
         },

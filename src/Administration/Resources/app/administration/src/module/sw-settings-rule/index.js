@@ -2,7 +2,7 @@ import './acl';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register(
     'sw-settings-rule-add-assignment-modal',
     () => import('./component/sw-settings-rule-add-assignment-modal'),
@@ -30,7 +30,7 @@ Shopware.Component.register(
     'sw-settings-rule-detail-assignments',
     () => import('./view/sw-settings-rule-detail-assignments'),
 );
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 /**
  * @private
@@ -42,7 +42,7 @@ Module.register('sw-settings-rule', {
     title: 'sw-settings-rule.general.mainMenuItemGeneral',
     description: 'sw-settings-rule.general.descriptionTextModule',
     color: '#9AA8B5',
-    icon: 'regular-cog',
+    icon: 'solid-cog',
     favicon: 'icon-module-settings.png',
     entity: 'rule',
 
@@ -65,7 +65,7 @@ Module.register('sw-settings-rule', {
             props: {
                 default(route) {
                     return {
-                        ruleId: route.params.id,
+                        ruleId: route.params.id.toLowerCase(),
                     };
                 },
             },

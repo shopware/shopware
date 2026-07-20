@@ -38,6 +38,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
 
 #[AsCommand(
     name: 'dal:create:hydrators',
@@ -53,6 +55,7 @@ class CreateHydratorCommand extends Command
      */
     public function __construct(
         private readonly DefinitionInstanceRegistry $registry,
+        private readonly Filesystem $filesystem,
         string $rootDir
     ) {
         parent::__construct();
@@ -67,23 +70,22 @@ class CreateHydratorCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if ($this->hasInactiveFeatureFlag()) {
-            throw new \RuntimeException('You have to enable all feature flags when running this command. Simply add FEATURE_ALL=major to your .env file');
-        }
-
         $io = new ShopwareStyle($input, $output);
         $io->title('DAL generate hydrators');
 
-        if (!file_exists($this->dir)) {
-            mkdir($this->dir);
+        if ($this->hasInactiveFeatureFlag()) {
+            $io->info('Note that if definitions are dependent on feature flags, make sure to activate these feature flags, in order to consider them in the hydrators');
         }
+
+        $this->filesystem->mkdir($this->dir);
 
         $entities = $this->registry->getDefinitions();
         $classes = [];
         $services = [];
+        $uses = [];
 
         $whitelist = $input->getArgument('whitelist');
-        if (empty($whitelist)) {
+        if ($whitelist === []) {
             $whitelist = [];
 
             $startsWith = ['product', 'category', 'property'];
@@ -116,7 +118,11 @@ class CreateHydratorCommand extends Command
                 $classes[$this->getDefinitionFile($entity)] = $content;
             }
 
-            $services[] = $this->generateService($entity);
+            // key by hydrator class: the registry can yield the same definition twice,
+            // and a duplicated use statement would be a PHP fatal error
+            $hydratorClass = $this->getNamespace($entity) . '\\' . $this->getClass($entity);
+            $services[$hydratorClass] = $this->generateService($entity);
+            $uses[$hydratorClass] = $hydratorClass;
         }
 
         $io->success('Created schema in ' . $this->dir);
@@ -124,33 +130,44 @@ class CreateHydratorCommand extends Command
             $file = rtrim($this->dir, '/') . '/' . $file;
 
             try {
-                file_put_contents($file, $content);
-            } catch (\Throwable $e) {
+                $this->filesystem->dumpFile($file, $content);
+            } catch (IOException $e) {
                 $output->writeln($e->getMessage());
             }
         }
 
-        $file = $this->dir . '/Core/Framework/DependencyInjection/hydrator.xml';
+        $file = $this->dir . '/Core/Framework/DependencyInjection/hydrator.php';
 
         try {
-            $content = <<<EOF
-<?xml version="1.0" ?>
+            $content = <<<'EOF'
+<?php declare(strict_types=1);
 
-<container xmlns="http://symfony.com/schema/dic/services"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+namespace Shopware\Core\Framework\DependencyInjection;
 
-    <services>
+#uses#
+use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
+
+return static function (ContainerConfigurator $containerConfigurator): void {
+    $services = $containerConfigurator->services();
+
 #services#
-    </services>
-</container>
+};
 
 EOF;
 
-            $content = str_replace('#services#', implode("\n\n", $services), $content);
+            uksort($uses, 'strcasecmp');
+            $useStatements = array_map(static fn (string $class): string => 'use ' . $class . ';', $uses);
 
-            file_put_contents($file, $content);
-        } catch (\Throwable $e) {
+            $content = str_replace(
+                ['#uses#', '#services#'],
+                [implode("\n", $useStatements), implode("\n\n", $services)],
+                $content
+            );
+
+            $this->filesystem->dumpFile($file, $content);
+        } catch (IOException $e) {
             $output->writeln($e->getMessage());
         }
 
@@ -176,7 +193,7 @@ EOF;
 
         $file = rtrim($this->dir, '/') . '/' . $file;
 
-        $content = (string) file_get_contents($file);
+        $content = $this->filesystem->readFile($file);
 
         if (str_contains($content, 'getHydratorClass')) {
             return null;
@@ -204,18 +221,15 @@ EOF;
 
     private function generateService(EntityDefinition $definition): string
     {
-        $template = <<<EOF
-        <service id="#namespace#\#class#" public="true">
-            <argument type="service" id="service_container"/>
-        </service>
+        $template = <<<'EOF'
+    $services->set(#class#::class)
+        ->public()
+        ->args([
+            service('service_container'),
+        ]);
 EOF;
 
-        $vars = [
-            '#namespace#' => $this->getNamespace($definition),
-            '#class#' => $this->getClass($definition),
-        ];
-
-        return str_replace(array_keys($vars), array_values($vars), $template);
+        return str_replace('#class#', $this->getClass($definition), $template);
     }
 
     private function generate(EntityDefinition $definition): string
@@ -300,13 +314,17 @@ EOF;
 
     private function getClass(EntityDefinition $definition): string
     {
-        $parts = explode('_', (string) $definition->getEntityName());
+        $parts = explode('_', $definition->getEntityName());
 
         $parts = array_map('ucfirst', $parts);
 
         return implode('', $parts) . 'Hydrator';
     }
 
+    /**
+     * @param list<string> $fields
+     * @param list<string> $calls
+     */
     private function renderClass(EntityDefinition $definition, string $namespace, string $class, array $fields, array $calls): string
     {
         $template = <<<EOF
@@ -324,7 +342,6 @@ class #class# extends EntityHydrator
 {
     protected function assign(EntityDefinition \$definition, Entity \$entity, string \$root, array \$row, Context \$context): Entity
     {
-
         #fields#
 
         \$this->translate(\$definition, \$entity, \$row, \$root, \$context, \$definition->getTranslatedFields());
@@ -336,11 +353,11 @@ class #class# extends EntityHydrator
 
 EOF;
 
-        $entity = explode('\\', (string) $definition->getEntityClass());
+        $entity = explode('\\', $definition->getEntityClass());
         $entity = array_pop($entity);
 
         $callTemplate = '';
-        if (!empty($calls)) {
+        if ($calls !== []) {
             $callTemplate = "\n        " . implode("\n        ", $calls);
         }
 
@@ -453,12 +470,6 @@ EOF;
 
     private function hasInactiveFeatureFlag(): bool
     {
-        foreach (Feature::getAll() as $enabled) {
-            if ($enabled === false) {
-                return true;
-            }
-        }
-
-        return false;
+        return \in_array(false, Feature::getAll(), true);
     }
 }

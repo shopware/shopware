@@ -3,13 +3,13 @@
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
@@ -29,7 +29,6 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[CoversClass(EntityForeignKeyResolver::class)]
 class EntityForeignKeyResolverTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour;
@@ -45,7 +44,7 @@ class EntityForeignKeyResolverTest extends TestCase
 
         $productId = Uuid::randomHex();
 
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepository<ProductCollection> $productRepository */
         $productRepository = static::getContainer()->get('product.repository');
         $context = Context::createDefaultContext();
 
@@ -90,6 +89,7 @@ class EntityForeignKeyResolverTest extends TestCase
         $deletedProduct = $deletedEvent->getPrimaryKeys('product');
         $deletedCategories = $deletedEvent->getDeletedPrimaryKeys('category');
         $deletedCategoriesRo = $deletedEvent->getPrimaryKeys('product_category_tree');
+        static::assertContainsOnlyArray($deletedCategoriesRo);
 
         static::assertSame($productId, $deletedProduct[0]);
         static::assertEmpty($deletedCategories, print_r($deletedCategories, true));
@@ -179,7 +179,7 @@ class EntityForeignKeyResolverTest extends TestCase
 
         static::assertCount(1, $affected);
         static::assertArrayHasKey('shipping_method', $affected);
-        static::assertContains($ids->get('shipping-method'), $affected['shipping_method']);
+        static::assertSame($ids->get('shipping-method'), $affected['shipping_method'][0]['id']);
         static::assertArrayNotHasKey('sales_channel', $affected);
     }
 
@@ -191,7 +191,7 @@ class EntityForeignKeyResolverTest extends TestCase
         $builder = new ProductBuilder($ids, 'product');
         $builder->price(100);
 
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepository<ProductCollection> $productRepository */
         $productRepository = static::getContainer()->get('product.repository');
 
         $productRepository->create([$builder->build()], $context);

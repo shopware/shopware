@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\ConvertGuestRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ImitateCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute;
@@ -26,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Log\Monolog\DoctrineSQLHandler;
 use Shopware\Core\Framework\Log\Monolog\ExcludeFlowEventHandler;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -39,7 +41,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Stub\Storefront\AuthTestSubscriber;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Controller\AuthController;
@@ -50,18 +51,20 @@ use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPage;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader;
+use Shopware\Storefront\Test\Controller\AuthTestSubscriber;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class AuthControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -106,47 +109,57 @@ class AuthControllerTest extends TestCase
         static::assertFalse($oldContextExists);
     }
 
-    public function testLogoutWhenSalesChannelIdChangedIfCustomerScopeIsOn(): void
+    public function testPerChannelTokensWhenCustomerBindingEnabled(): void
     {
         $systemConfig = static::getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', true);
 
+        // Login on the default sales channel
         $browser = $this->login();
-
         $session = $this->getSession();
-        $contextToken = $session->get('sw-context-token');
 
-        $browser->getResponse();
+        // Get the sales channel ID that was used for login
+        $loginSalesChannelId = $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
 
-        $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
+        // Get the token for the login channel - should be stored in channel-specific key
+        $loginChannelTokenKey = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $loginSalesChannelId;
+        $loginChannelToken = $session->get($loginChannelTokenKey);
 
-        $browser->request('GET', '/account');
+        static::assertNotNull($loginChannelToken, 'Login channel should have a channel-specific token');
 
-        $redirectResponse = $browser->getResponse();
+        // Verify the default token key is synced with the login channel
+        static::assertSame($loginChannelToken, $session->get('sw-context-token'), 'Default token should be synced with channel token');
 
-        static::assertInstanceOf(RedirectResponse::class, $redirectResponse);
-        static::assertStringStartsWith('/account/login', $redirectResponse->getTargetUrl());
-        static::assertNotSame($contextToken, $this->getSession()->get('sw-context-token'));
+        // Make another request on the same channel
+        $browser->request('GET', '/');
+
+        // Verify the channel-specific token is still preserved
+        static::assertSame($loginChannelToken, $session->get($loginChannelTokenKey), 'Channel token should be preserved across requests');
+
+        // Verify default token is still synced
+        static::assertSame($loginChannelToken, $session->get('sw-context-token'), 'Default token should remain synced');
     }
 
-    public function testDoNotLogoutWhenSalesChannelIdChangedIfCustomerScopeIsOff(): void
+    public function testGlobalTokenWhenCustomerBindingDisabled(): void
     {
         $systemConfig = static::getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', false);
 
         $browser = $this->login();
-
         $session = $this->getSession();
 
         $contextToken = $session->get('sw-context-token');
+        $salesChannelId = $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
 
-        $browser->getResponse();
+        // Make another request on the same channel
+        $browser->request('GET', '/');
 
-        $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
+        // Token should remain the same (global token, not per-channel)
+        static::assertSame($contextToken, $session->get('sw-context-token'), 'Global token should be preserved');
 
-        $browser->request('GET', '/account');
-
-        static::assertSame($contextToken, $this->getSession()->get('sw-context-token'));
+        // No channel-specific tokens should exist when binding is disabled
+        $channelSpecificKey = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId;
+        static::assertFalse($session->has($channelSpecificKey), 'Channel-specific tokens should not exist when binding is disabled');
     }
 
     public function testSessionIsInvalidatedOnLogoutAndInvalidateSettingFalse(): void
@@ -156,7 +169,7 @@ class AuthControllerTest extends TestCase
 
         $browser = $this->login();
 
-        $sessionCookie = $browser->getCookieJar()->get('session-');
+        $sessionCookie = $browser->getCookieJar()->get(PlatformRequest::FALLBACK_SESSION_NAME);
         static::assertNotNull($sessionCookie);
 
         $browser->request('GET', '/account/logout', []);
@@ -424,7 +437,7 @@ class AuthControllerTest extends TestCase
         static::getContainer()->get('event_dispatcher')->removeSubscriber($testSubscriber);
 
         $flashBag = $this->getSession()->getBag('flashes');
-        static::assertInstanceOf(FlashBag::class, $flashBag);
+        static::assertInstanceOf(FlashBagInterface::class, $flashBag);
 
         static::assertSame(302, $response->getStatusCode());
         static::assertCount(1, $flashBag->get(StorefrontController::SUCCESS));
@@ -518,7 +531,7 @@ class AuthControllerTest extends TestCase
         $response = $controller->resetPasswordForm($request, $this->salesChannelContext);
 
         $flashBag = $this->getSession()->getBag('flashes');
-        static::assertInstanceOf(FlashBag::class, $flashBag);
+        static::assertInstanceOf(FlashBagInterface::class, $flashBag);
 
         static::assertSame(302, $response->getStatusCode());
         static::assertCount(1, $flashBag->get('danger'));
@@ -541,7 +554,7 @@ class AuthControllerTest extends TestCase
         $response = $controller->resetPasswordForm($request, $this->salesChannelContext);
 
         $flashBag = $this->getSession()->getBag('flashes');
-        static::assertInstanceOf(FlashBag::class, $flashBag);
+        static::assertInstanceOf(FlashBagInterface::class, $flashBag);
 
         static::assertSame(302, $response->getStatusCode());
         static::assertCount(1, $flashBag->get('danger'));
@@ -559,7 +572,7 @@ class AuthControllerTest extends TestCase
         $response = $controller->resetPasswordForm($request, $this->salesChannelContext);
 
         $flashBag = $this->getSession()->getBag('flashes');
-        static::assertInstanceOf(FlashBag::class, $flashBag);
+        static::assertInstanceOf(FlashBagInterface::class, $flashBag);
 
         static::assertSame(302, $response->getStatusCode());
         static::assertCount(1, $flashBag->get('danger'));
@@ -576,7 +589,7 @@ class AuthControllerTest extends TestCase
         ]);
 
         $flashBag = $this->getSession()->getBag('flashes');
-        static::assertInstanceOf(FlashBag::class, $flashBag);
+        static::assertInstanceOf(FlashBagInterface::class, $flashBag);
 
         static::assertContains(
             'The passwords you have entered do not match.',
@@ -586,7 +599,10 @@ class AuthControllerTest extends TestCase
 
     public function testAccountGuestLoginPageLoadedHookScriptsAreExecuted(): void
     {
-        $this->request('GET', '/account/guest/login', ['redirectTo' => 'foo']);
+        $this->request('GET', '/account/guest/login', [
+            'redirectTo' => 'frontend.account.order.single.page',
+            'redirectParameters' => ['deepLinkCode' => 'foo'],
+        ]);
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
@@ -599,6 +615,114 @@ class AuthControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
         static::assertSame('/account/login', $response->headers->get('location'));
+    }
+
+    public function testAccountGuestLoginPageWithMissingRedirectParametersRedirects(): void
+    {
+        // `redirectTo` points to a route that requires parameters (`/account/order/{deepLinkCode}`),
+        // but `redirectParameters` is missing (e.g. the page was called directly). The form action URL
+        // cannot be generated, so the user should be redirected to the login page instead of getting a 500.
+        $response = $this->request('GET', '/account/guest/login', ['redirectTo' => 'frontend.account.order.single.page']);
+
+        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+        static::assertSame('/account/login', $response->headers->get('location'));
+    }
+
+    public function testLoginWithUnwantedQueryParameter(): void
+    {
+        $responseContent = $this->request(
+            'GET',
+            '/account/login?loginError=1&waitTime=<a%20href%3D"https%3A%2F%2Fde.wikipedia.org%2Fwiki%2FPhishing">Here<%2Fa>',
+            []
+        )->getContent();
+        static::assertIsString($responseContent);
+        static::assertStringNotContainsString('https://de.wikipedia.org/wiki/Phishing', $responseContent);
+    }
+
+    public function testConvert(): void
+    {
+        $browser = $this->register();
+        $response = $browser->getResponse();
+
+        static::assertNotFalse($response->getContent());
+        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+
+        $browser->request('POST', '/account/convert', ['password' => 'password']);
+        $response = $browser->getResponse();
+
+        static::assertSame(302, $response->getStatusCode());
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('/account', $response->getTargetUrl());
+    }
+
+    public function testRegisteredUserCanNotCovert(): void
+    {
+        $browser = $this->login();
+
+        $browser->request('GET', '/account/convert');
+        $response = $browser->getResponse();
+
+        static::assertSame(302, $response->getStatusCode(), (string) $response->getContent());
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('/account', $response->getTargetUrl());
+    }
+
+    public function testCanNotConvertWithoutPassword(): void
+    {
+        $browser = $this->register();
+        $response = $browser->getResponse();
+
+        static::assertNotFalse($response->getContent());
+        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+
+        $browser->request('POST', '/account/convert');
+        $response = $browser->getResponse();
+
+        static::assertSame(200, $response->getStatusCode());
+        static::assertIsString($response->getContent());
+        static::assertStringContainsString('Passwords must have a minimum length of 8 characters.', $response->getContent());
+    }
+
+    public function testConvertHandelPasswordConfirm(): void
+    {
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
+        $systemConfig->set('core.loginRegistration.requirePasswordConfirmation', true);
+
+        $browser = $this->register();
+        $response = $browser->getResponse();
+
+        static::assertNotFalse($response->getContent());
+        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+
+        $browser->request('POST', '/account/convert', [
+            'password' => 'password',
+            'passwordConfirmation' => 'pwd',
+        ]);
+        $response = $browser->getResponse();
+
+        static::assertSame(200, $response->getStatusCode());
+        static::assertIsString($response->getContent());
+        static::assertStringContainsString('Confirmation field does not match.', $response->getContent());
+    }
+
+    public function testConvertWithAlreadyUsedEmailAddsErrorMessage(): void
+    {
+        $this->createCustomer();
+        $browser = $this->register();
+        $response = $browser->getResponse();
+
+        static::assertNotFalse($response->getContent());
+        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+
+        $browser->request('POST', '/account/convert', [
+            'password' => 'password',
+            'passwordConfirmation' => 'pwd',
+        ]);
+        $response = $browser->getResponse();
+
+        static::assertSame(200, $response->getStatusCode());
+        static::assertIsString($response->getContent());
+        static::assertStringContainsString('This email address has already been registered.', $response->getContent());
     }
 
     private function createProductOnDatabase(string $productId, string $productNumber, Context $context): void
@@ -648,7 +772,34 @@ class AuthControllerTest extends TestCase
         return $browser;
     }
 
-    private function createCustomer(bool $active = true, bool $doubleOptInReg = false): ?CustomerEntity
+    private function register(): KernelBrowser
+    {
+        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
+        $browser->request(
+            'POST',
+            EnvironmentHelper::getVariable('APP_URL') . '/account/register',
+            $this->tokenize('frontend.account.register.save', [
+                'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,
+                'email' => 'test@example.com',
+                'emailConfirmation' => 'test@example.com',
+                'salutationId' => $this->getValidSalutationId(),
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'storefrontUrl' => 'http://localhost',
+
+                'billingAddress' => [
+                    'countryId' => $this->getValidCountryId(),
+                    'street' => 'Musterstrasse 13',
+                    'zipcode' => '48599',
+                    'city' => 'Epe',
+                ],
+            ])
+        );
+
+        return $browser;
+    }
+
+    private function createCustomer(bool $active = true, bool $doubleOptInReg = false, bool $guest = false): ?CustomerEntity
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -676,6 +827,7 @@ class AuthControllerTest extends TestCase
             'lastName' => 'Mustermann',
             'salutationId' => $this->getValidSalutationId(),
             'customerNumber' => '12345',
+            'guest' => $guest,
         ];
 
         /** @var EntityRepository<CustomerCollection> $repo */
@@ -698,7 +850,9 @@ class AuthControllerTest extends TestCase
             $this->createMock(AbstractLogoutRoute::class),
             static::getContainer()->get(ImitateCustomerRoute::class),
             static::getContainer()->get(StorefrontCartFacade::class),
-            static::getContainer()->get(AccountRecoverPasswordPageLoader::class)
+            static::getContainer()->get(AccountRecoverPasswordPageLoader::class),
+            static::getContainer()->get(ConvertGuestRoute::class),
+            static::getContainer()->get(SystemConfigService::class),
         );
         $controller->setContainer(static::getContainer());
 

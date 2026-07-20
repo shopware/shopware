@@ -3,17 +3,24 @@
 namespace Shopware\Tests\Unit\Core\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\AllServiceInstaller;
+use Shopware\Core\Service\Message\InstallServicesMessage;
+use Shopware\Core\Service\Message\UpdateServiceMessage;
 use Shopware\Core\Service\ServiceLifecycle;
-use Shopware\Core\Service\ServiceRegistryClient;
-use Shopware\Core\Service\ServiceRegistryEntry;
+use Shopware\Core\Service\ServiceRegistry\Client as ServiceRegistryClient;
+use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
+use Shopware\Core\Service\ServiceStorage;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
@@ -21,166 +28,159 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 #[CoversClass(AllServiceInstaller::class)]
 class AllServiceInstallerTest extends TestCase
 {
-    public function testAllServicesAreInstalledIfNoneExist(): void
-    {
-        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
-        $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
+    private ServiceRegistryClient&MockObject $registryClient;
 
-        $serviceInstaller = new AllServiceInstaller(
-            '1',
-            'prod',
-            $serviceRegistryClient,
-            $serviceLifeCycle,
-            $this->buildAppRepository(),
+    private ServiceLifecycle&MockObject $serviceLifecycle;
+
+    private MessageBusInterface&MockObject $messageBus;
+
+    private EventDispatcherInterface&MockObject $eventDispatcher;
+
+    protected function setUp(): void
+    {
+        $this->registryClient = $this->createMock(ServiceRegistryClient::class);
+        $this->serviceLifecycle = $this->createMock(ServiceLifecycle::class);
+        $this->messageBus = $this->createMock(MessageBusInterface::class);
+        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+    }
+
+    public function testDiscoveredServicesAreHandedToServiceLifecycle(): void
+    {
+        $installer = $this->installer($this->buildAppRepository());
+
+        $this->registryClient->method('getAll')->willReturn([$this->entry('Service1'), $this->entry('Service2')]);
+
+        $this->serviceLifecycle->expects($this->exactly(2))->method('install')->willReturn(true);
+        $this->eventDispatcher->expects($this->once())->method('dispatch');
+
+        // A fresh shop only installs; reconcile must not enqueue update messages when nothing is installed yet.
+        $this->messageBus->expects($this->never())->method('dispatch');
+
+        static::assertSame(['Service1', 'Service2'], $installer->reconcile(Context::createDefaultContext()));
+    }
+
+    public function testOnlyUpdatesAreScheduledWhenAllServicesAreInstalled(): void
+    {
+        $installer = $this->installer($this->buildAppRepository([
+            AppFixture::createAppEntity(name: 'Service1'),
+            AppFixture::createAppEntity(name: 'Service2'),
+        ]));
+
+        $this->registryClient->method('getAll')->willReturn([$this->entry('Service1'), $this->entry('Service2')]);
+
+        $this->serviceLifecycle->expects($this->never())->method('install');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+
+        $this->messageBus->expects($this->exactly(2))
+            ->method('dispatch')
+            ->with(static::isInstanceOf(UpdateServiceMessage::class))
+            ->willReturn(new Envelope(new \stdClass()));
+
+        static::assertSame([], $installer->reconcile(Context::createDefaultContext()));
+    }
+
+    public function testReturnsOnlyTheServicesThatWereInstalled(): void
+    {
+        $installer = $this->installer($this->buildAppRepository());
+
+        $this->registryClient->method('getAll')->willReturn([
+            $this->entry('Service1'),
+            $this->entry('Service2'),
+            $this->entry('Service3'),
+        ]);
+
+        $this->serviceLifecycle->method('install')->willReturnCallback(
+            static fn (ServiceEntry $entry): bool => $entry->name !== 'Service2'
         );
 
-        $serviceRegistryClient->expects($this->once())
-            ->method('getAll')
-            ->willReturn([
-                new ServiceRegistryEntry('Service1', 'https://service-1.com', 'Service 1', ''),
-                new ServiceRegistryEntry('Service2', 'https://service-2.com', 'Service 2', ''),
-            ]);
+        static::assertSame(['Service1', 'Service3'], $installer->reconcile(Context::createDefaultContext()));
+    }
 
-        $matcher = $this->exactly(2);
-        $serviceLifeCycle->expects($matcher)
+    public function testReconcileReturnsEmptyArrayWhenRegistryHasNoServices(): void
+    {
+        $installer = $this->installer($this->buildAppRepository());
+
+        $this->registryClient->method('getAll')->willReturn([]);
+
+        $this->serviceLifecycle->expects($this->never())->method('install');
+        $this->messageBus->expects($this->never())->method('dispatch');
+
+        static::assertSame([], $installer->reconcile(Context::createDefaultContext()));
+    }
+
+    public function testReconcileDoesNotDispatchUpdateMessageForOrphanedService(): void
+    {
+        $installer = $this->installer($this->buildAppRepository([
+            AppFixture::createAppEntity(name: 'Service1'),
+            AppFixture::createAppEntity(name: 'OrphanedService'),
+        ]));
+
+        $this->registryClient->method('getAll')->willReturn([$this->entry('Service1')]);
+
+        $this->serviceLifecycle->expects($this->never())->method('install');
+
+        $this->messageBus->expects($this->once())
+            ->method('dispatch')
+            ->with(static::callback(static fn ($message): bool => $message instanceof UpdateServiceMessage && $message->name === 'Service1'))
+            ->willReturn(new Envelope(new \stdClass()));
+
+        $installer->reconcile(Context::createDefaultContext());
+    }
+
+    public function testReconcileInstallsNewServicesWithoutEnqueuingUpdateForThem(): void
+    {
+        $installer = $this->installer($this->buildAppRepository([AppFixture::createAppEntity(name: 'Service1')]));
+
+        $this->registryClient->method('getAll')->willReturn([$this->entry('Service1'), $this->entry('Service2')]);
+
+        $this->serviceLifecycle->expects($this->once())
             ->method('install')
-            ->willReturnCallback(function (ServiceRegistryEntry $serviceRegistryEntry) use ($matcher): bool {
-                match ($matcher->numberOfInvocations()) {
-                    1 => $this->assertSame('Service1', $serviceRegistryEntry->name),
-                    2 => $this->assertSame('Service2', $serviceRegistryEntry->name),
-                    default => throw new \UnhandledMatchError(),
-                };
+            ->willReturnCallback(function (ServiceEntry $entry): bool {
+                static::assertSame('Service2', $entry->name);
 
                 return true;
             });
 
-        $serviceInstaller->install(Context::createDefaultContext());
+        $this->eventDispatcher->expects($this->once())->method('dispatch');
+
+        $this->messageBus->expects($this->once())
+            ->method('dispatch')
+            ->with(static::callback(static fn ($message): bool => $message instanceof UpdateServiceMessage && $message->name === 'Service1'))
+            ->willReturn(new Envelope(new \stdClass()));
+
+        static::assertSame(['Service2'], $installer->reconcile(Context::createDefaultContext()));
     }
 
-    #[DataProvider('serviceTogglesProvider')]
-    public function testServicesCanBeEnabledOrDisabled(string $enabled, string $appEnv, bool $shouldBeActive): void
+    public function testScheduleInstallDispatchesMessage(): void
     {
-        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
-        $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
+        $installer = $this->installer($this->buildAppRepository());
 
-        $serviceInstaller = new AllServiceInstaller(
-            $enabled,
-            $appEnv,
-            $serviceRegistryClient,
-            $serviceLifeCycle,
-            $this->buildAppRepository(),
+        $this->messageBus->expects($this->once())
+            ->method('dispatch')
+            ->with(static::callback(static fn ($message): bool => $message instanceof InstallServicesMessage))
+            ->willReturn(new Envelope(new \stdClass()));
+
+        $installer->scheduleInstall();
+    }
+
+    /**
+     * @param StaticEntityRepository<AppCollection> $appRepository
+     */
+    private function installer(StaticEntityRepository $appRepository): AllServiceInstaller
+    {
+        return new AllServiceInstaller(
+            $this->registryClient,
+            new ServiceStorage($appRepository),
+            $this->serviceLifecycle,
+            $this->messageBus,
+            $this->eventDispatcher,
+            static::createStub(LoggerInterface::class),
         );
-
-        if ($shouldBeActive) {
-            $serviceRegistryClient->expects($this->once())
-            ->method('getAll')
-            ->willReturn([
-                new ServiceRegistryEntry('Service1', 'https://service-1.com', 'Service 1', ''),
-            ]);
-
-            $serviceLifeCycle->expects($this->once())
-                ->method('install')
-                ->willReturnCallback(function (ServiceRegistryEntry $serviceRegistryEntry): bool {
-                    $this->assertSame('Service1', $serviceRegistryEntry->name);
-
-                    return true;
-                });
-        } else {
-            $serviceRegistryClient->expects($this->never())
-                ->method('getAll');
-
-            $serviceLifeCycle->expects($this->never())
-                ->method('install');
-        }
-
-        $serviceInstaller->install(Context::createDefaultContext());
     }
 
-    public static function serviceTogglesProvider(): \Generator
+    private function entry(string $name): ServiceEntry
     {
-        yield 'not explicitly configured on prod should default to enabled' => ['auto', 'prod', true];
-
-        yield 'not explicitly configured on non-prod should default to disabled' => ['auto', 'dev', false];
-
-        yield 'explicitly enabled on dev should override default and be enabled' => ['1', 'dev', true];
-
-        yield '"true" is treated as truthy' => ['true', 'dev', true];
-
-        yield '"on" is treated as truthy' => ['on', 'dev', true];
-
-        yield 'explicitly disabled on prod should override default and be disabled' => ['0', 'prod', false];
-
-        yield '"false" is treated as falsy' => ['false', 'prod', false];
-
-        yield '"off" is treated as falsy' => ['off', 'prod', false];
-    }
-
-    public function testOnlyNewServicesAreInstalled(): void
-    {
-        $app1 = new AppEntity();
-        $app1->setUniqueIdentifier(Uuid::randomHex());
-        $app1->setName('Service1');
-
-        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
-        $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
-
-        $serviceInstaller = new AllServiceInstaller(
-            '1',
-            'prod',
-            $serviceRegistryClient,
-            $serviceLifeCycle,
-            $this->buildAppRepository([$app1]),
-        );
-
-        $serviceRegistryClient->expects($this->once())
-            ->method('getAll')
-            ->willReturn([
-                new ServiceRegistryEntry('Service1', 'Service 1', 'https://service-1.com', '/app-endpoint'),
-                new ServiceRegistryEntry('Service2', 'Service 2', 'https://service-2.com', '/app-endpoint'),
-            ]);
-
-        $serviceLifeCycle->expects($this->exactly(1))
-            ->method('install')
-            ->willReturnCallback(function (ServiceRegistryEntry $serviceRegistryEntry): bool {
-                $this->assertSame('Service2', $serviceRegistryEntry->name);
-
-                return true;
-            });
-
-        $serviceInstaller->install(Context::createDefaultContext());
-    }
-
-    public function testNoServicesAreInstalledIfAllExist(): void
-    {
-        $app1 = new AppEntity();
-        $app1->setUniqueIdentifier(Uuid::randomHex());
-        $app1->setName('Service1');
-        $app2 = new AppEntity();
-        $app2->setUniqueIdentifier(Uuid::randomHex());
-        $app2->setName('Service2');
-
-        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
-        $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
-
-        $serviceInstaller = new AllServiceInstaller(
-            '1',
-            'prod',
-            $serviceRegistryClient,
-            $serviceLifeCycle,
-            $this->buildAppRepository([$app1, $app2]),
-        );
-
-        $serviceRegistryClient->expects($this->once())
-            ->method('getAll')
-            ->willReturn([
-                new ServiceRegistryEntry('Service1', 'Service 1', 'https://service-1.com', '/app-endpoint'),
-                new ServiceRegistryEntry('Service2', 'Service 2', 'https://service-2.com', '/app-endpoint'),
-            ]);
-
-        $serviceLifeCycle->expects($this->never())
-            ->method('install');
-
-        $serviceInstaller->install(Context::createDefaultContext());
+        return new ServiceEntry($name, $name, 'https://' . $name . '.example.com', '/app-endpoint');
     }
 
     /**
@@ -191,9 +191,7 @@ class AllServiceInstallerTest extends TestCase
     private function buildAppRepository(array $apps = []): StaticEntityRepository
     {
         /** @var StaticEntityRepository<AppCollection> $appRepository */
-        $appRepository = new StaticEntityRepository([
-            new AppCollection($apps),
-        ]);
+        $appRepository = new StaticEntityRepository([new AppCollection($apps)]);
 
         return $appRepository;
     }

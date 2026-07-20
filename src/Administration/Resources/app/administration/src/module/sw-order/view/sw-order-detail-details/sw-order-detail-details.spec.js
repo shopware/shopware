@@ -132,12 +132,6 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         Shopware.Store.get('swOrderDetail').order = orderMock;
     });
 
-    it('should be a Vue.js component', async () => {
-        global.activeAclRoles = [];
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have a disabled on transaction card', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();

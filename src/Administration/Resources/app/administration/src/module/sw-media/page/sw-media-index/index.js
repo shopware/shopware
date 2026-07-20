@@ -35,6 +35,7 @@ export default {
             isLoading: false,
             selectedItems: [],
             uploads: [],
+            pendingUploadsCount: 0,
             term: this.$route.query?.term ?? '',
             uploadTag: 'upload-tag-sw-media-index',
             parentFolder: null,
@@ -57,7 +58,7 @@ export default {
         },
         rootFolder() {
             const root = this.mediaFolderRepository.create(Context.api);
-            root.name = this.$tc('sw-media.index.rootFolderName');
+            root.name = this.$t('sw-media.index.rootFolderName');
             root.id = null;
             return root;
         },
@@ -69,8 +70,26 @@ export default {
 
     watch: {
         routeFolderId() {
-            this.term = '';
+            // Adopt the term from the new route query (e.g. when the user clicks a
+            // global search-bar suggestion that points at a different folder) instead
+            // of unconditionally clearing it.
+            this.term = this.$route.query?.term ?? '';
+            this.clearSelection();
             this.updateFolder();
+        },
+
+        '$route.query.term'(value) {
+            // When the route changes only in its `term` query (same folder, e.g. the
+            // user clicks a media search suggestion while already on `sw.media.index`),
+            // the `routeFolderId` watcher does not fire — sync the term explicitly so
+            // the media library reloads with the new search.
+            const next = value ?? '';
+            if (this.term === next) {
+                return;
+            }
+
+            this.term = next;
+            this.clearSelection();
         },
     },
 
@@ -104,21 +123,42 @@ export default {
 
         destroyedComponent() {},
 
-        async onUploadsAdded() {
+        async onUploadsAdded({ data } = {}) {
+            if (Array.isArray(data) && data.length > 0) {
+                this.pendingUploadsCount += data.length;
+            }
+
             await this.mediaService.runUploads(this.uploadTag);
-            this.reloadList();
         },
 
-        onUploadFinished({ targetId }) {
-            this.uploads = this.uploads.filter((upload) => {
-                return upload.id !== targetId;
-            });
+        onUploadFinished({ targetId, originalTargetId } = {}) {
+            if (targetId || originalTargetId) {
+                this.uploads = this.uploads.filter((upload) => {
+                    return upload.id !== targetId && upload.id !== originalTargetId;
+                });
+            }
+
+            this.decrementPendingUploads();
         },
 
-        onUploadFailed({ targetId }) {
-            this.uploads = this.uploads.filter((upload) => {
-                return targetId !== upload.id;
-            });
+        onUploadFailed({ targetId } = {}) {
+            if (targetId) {
+                this.uploads = this.uploads.filter((upload) => {
+                    return targetId !== upload.id;
+                });
+            }
+
+            this.decrementPendingUploads();
+        },
+
+        onUploadCanceled({ data } = {}) {
+            if (Array.isArray(data) && data.length > 0) {
+                this.pendingUploadsCount = Math.max(0, this.pendingUploadsCount - data.length);
+            }
+
+            if (this.pendingUploadsCount === 0) {
+                this.reloadList();
+            }
         },
 
         onChangeLanguage() {
@@ -158,6 +198,16 @@ export default {
             this.$refs.mediaLibrary.refreshList();
         },
 
+        decrementPendingUploads() {
+            if (this.pendingUploadsCount > 0) {
+                this.pendingUploadsCount -= 1;
+            }
+
+            if (this.pendingUploadsCount === 0) {
+                this.reloadList();
+            }
+        },
+
         clearSelection() {
             this.selectedItems.splice(0, this.selectedItems.length);
         },
@@ -173,7 +223,7 @@ export default {
         },
 
         updateRoute(newFolderId) {
-            this.term = this.$route.query?.term ?? '';
+            this.term = this.$route.query?.term ?? this.term ?? '';
             this.$router.push({
                 name: 'sw.media.index',
                 params: {

@@ -82,11 +82,11 @@ class PromotionDiscountEntity extends Entity
 
     protected ?PromotionDiscountPriceCollection $promotionDiscountPrices = null;
 
-    protected string $sorterKey;
+    protected ?string $sorterKey = null;
 
-    protected string $applierKey;
+    protected ?string $applierKey = null;
 
-    protected string $usageKey;
+    protected ?string $usageKey = null;
 
     protected ?string $pickerKey = null;
 
@@ -228,32 +228,47 @@ class PromotionDiscountEntity extends Entity
         return str_replace($prefix, '', $this->scope);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return `?string` in the future
+     * @deprecated tag:v6.8.0 - reason:behavior-change - The fallback to empty string will be removed
+     */
     public function getSorterKey(): string
     {
-        return $this->sorterKey;
+        // @deprecated tag:v6.8.0 - The fallback to empty string will be removed
+        return $this->sorterKey ?? '';
     }
 
-    public function setSorterKey(string $sorterKey): void
+    public function setSorterKey(?string $sorterKey): void
     {
         $this->sorterKey = $sorterKey;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return `?string` in the future
+     * @deprecated tag:v6.8.0 - reason:behavior-change - The fallback to empty string will be removed
+     */
     public function getApplierKey(): string
     {
-        return $this->applierKey;
+        // @deprecated tag:v6.8.0 - The fallback to empty string will be removed
+        return $this->applierKey ?? '';
     }
 
-    public function setApplierKey(string $applierKey): void
+    public function setApplierKey(?string $applierKey): void
     {
         $this->applierKey = $applierKey;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return `?string` in the future
+     * @deprecated tag:v6.8.0 - reason:behavior-change - The fallback to empty string will be removed
+     */
     public function getUsageKey(): string
     {
-        return $this->usageKey;
+        // @deprecated tag:v6.8.0 - The fallback to empty string will be removed
+        return $this->usageKey ?? '';
     }
 
-    public function setUsageKey(string $usageKey): void
+    public function setUsageKey(?string $usageKey): void
     {
         $this->usageKey = $usageKey;
     }

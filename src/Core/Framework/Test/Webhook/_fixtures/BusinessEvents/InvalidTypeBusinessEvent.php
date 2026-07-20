@@ -26,9 +26,4 @@ class InvalidTypeBusinessEvent implements FlowEventAware
     {
         return Context::createDefaultContext();
     }
-
-    public function getInvalid(): string
-    {
-        return 'invalid';
-    }
 }

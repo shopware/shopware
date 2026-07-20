@@ -27,7 +27,7 @@
 
         <service id="Shopware\Core\Content\Flow\Dispatching\BufferedFlowQueue" />
 
-        <service id="Shopware\Core\Content\Flow\Dispatching\BufferedFlowExecutor">
+        <service id="Shopware\Core\Content\Flow\Dispatching\BufferedFlowExecutor" public="true">
             <argument type="service" id="Shopware\Core\Content\Flow\Dispatching\BufferedFlowQueue"/>
             <argument type="service" id="Shopware\Core\Content\Flow\Dispatching\FlowLoader"/>
             <argument type="service" id="Shopware\Core\Content\Flow\Dispatching\FlowFactory"/>
@@ -105,6 +105,8 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument>%shopware.mail.update_mail_variables_on_send%</argument>
             <tag name="flow.action" priority="500" key="action.mail.send"/>
         </service>
@@ -177,7 +179,7 @@
 
         <service id="Shopware\Core\Content\Flow\Indexing\FlowPayloadUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Content\Flow\Dispatching\FlowBuilder"/>
+            <argument type="service" id="Shopware\Core\Content\Flow\Indexing\FlowBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
         </service>
 
@@ -195,11 +197,18 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Content\Flow\Dispatching\FlowBuilder"/>
+        <service id="Shopware\Core\Content\Flow\Indexing\FlowBuilder"/>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\SalesChannelContextStorer">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+
+            <tag name="flow.storer"/>
+        </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\OrderStorer">
             <argument type="service" id="order.repository"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderProvider"/>
 
             <tag name="flow.storer"/>
         </service>
@@ -207,6 +216,7 @@
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ProductStorer">
             <argument type="service" id="product.repository"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Shared\MailFlow\DataProvider\ProductProvider"/>
 
             <tag name="flow.storer"/>
         </service>
@@ -214,6 +224,7 @@
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\A11yRenderedDocumentStorer">
             <argument type="service" id="document.repository"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder"/>
 
             <tag name="flow.storer"/>
         </service>
@@ -221,6 +232,7 @@
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\CustomerStorer">
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerProvider"/>
 
             <tag name="flow.storer"/>
         </service>
@@ -234,6 +246,7 @@
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\UserStorer">
             <argument type="service" id="user_recovery.repository"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Shared\MailFlow\DataProvider\UserRecoveryProvider"/>
 
             <tag name="flow.storer"/>
         </service>
@@ -241,6 +254,7 @@
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\CustomerGroupStorer">
             <argument type="service" id="customer_group.repository"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerGroupProvider"/>
 
             <tag name="flow.storer"/>
         </service>
@@ -248,6 +262,7 @@
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\CustomerRecoveryStorer">
             <argument type="service" id="customer_recovery.repository"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerRecoveryProvider"/>
 
             <tag name="flow.storer"/>
         </service>
@@ -255,6 +270,7 @@
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\OrderTransactionStorer">
             <argument type="service" id="order_transaction.repository"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderTransactionProvider"/>
 
             <tag name="flow.storer"/>
         </service>
@@ -262,6 +278,7 @@
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\NewsletterRecipientStorer">
             <argument type="service" id="newsletter_recipient.repository"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Shared\MailFlow\DataProvider\NewsletterRecipientProvider"/>
 
             <tag name="flow.storer"/>
         </service>
@@ -279,6 +296,12 @@
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\LanguageStorer">
+            <tag name="flow.storer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\TimezoneStorer">
+            <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
+
             <tag name="flow.storer"/>
         </service>
 

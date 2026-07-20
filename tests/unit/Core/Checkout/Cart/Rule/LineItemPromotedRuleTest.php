@@ -51,7 +51,7 @@ class LineItemPromotedRuleTest extends TestCase
      */
     public function testConstraints(): void
     {
-        $expectedType = new Type(['type' => 'bool']);
+        $expectedType = new Type(type: 'bool');
 
         $ruleConstraints = $this->rule->getConstraints();
 
@@ -84,7 +84,7 @@ class LineItemPromotedRuleTest extends TestCase
 
         $scope = new LineItemScope(
             $this->createLineItemWithTopsellerMarker($itemValue),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertSame($expected, $this->rule->match($scope));
@@ -107,7 +107,7 @@ class LineItemPromotedRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -125,7 +125,7 @@ class LineItemPromotedRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertTrue($match);
@@ -149,7 +149,7 @@ class LineItemPromotedRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertTrue($match);
@@ -166,7 +166,7 @@ class LineItemPromotedRuleTest extends TestCase
 
         $scope = new LineItemScope(
             $this->createLineItem(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertFalse($this->rule->match($scope));

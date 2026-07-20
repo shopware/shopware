@@ -12,24 +12,24 @@
         {% block sw_custom_field_detail_modal_type %}
         <mt-select
             v-model="currentCustomField.config.customFieldType"
-            :label="$tc('sw-settings-custom-field.customField.detail.labelCustomFieldType')"
-            :placeholder="$tc('sw-settings-custom-field.customField.detail.placeholderCustomFieldType')"
+            :label="$t('sw-settings-custom-field.customField.detail.labelCustomFieldType')"
+            :placeholder="$t('sw-settings-custom-field.customField.detail.placeholderCustomFieldType')"
             class="sw-custom-field-detail__modal-type"
             type="select"
-            :help-text="$tc('sw-settings-custom-field.general.tooltipType')"
+            :help-text="$t('sw-settings-custom-field.general.tooltipType')"
             :disabled="!currentCustomField._isNew || !acl.can('custom_field.editor') || undefined"
             :options="customFieldTypeOptions"
         />
         {% endblock %}
 
         {% block sw_custom_field_detail_modal_technical_name %}
-
         <mt-text-field
             v-model="currentCustomField.name"
             class="sw-custom-field-detail__technical-name"
-            :label="$tc('sw-settings-custom-field.customField.detail.labelTechnicalName')"
-            :help-text="$tc('sw-settings-custom-field.general.tooltipTechnicalName')"
+            :label="$t('sw-settings-custom-field.customField.detail.labelTechnicalName')"
+            :help-text="$t('sw-settings-custom-field.general.tooltipTechnicalName')"
             :disabled="!currentCustomField._isNew || !acl.can('custom_field.editor') || undefined"
+            :error="currentCustomFieldNameError?.error"
         />
         {% endblock %}
 
@@ -37,55 +37,73 @@
         <mt-number-field
             v-model="currentCustomField.config.customFieldPosition"
             class="sw-custom-field-detail__modal-position"
-            :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipCustomFieldPosition')"
+            :help-text="$t('sw-settings-custom-field.customField.detail.tooltipCustomFieldPosition')"
             number-type="int"
-            :label="$tc('sw-settings-custom-field.customField.detail.labelCustomFieldPosition')"
+            :label="$t('sw-settings-custom-field.customField.detail.labelCustomFieldPosition')"
             :disabled="!acl.can('custom_field.editor') || undefined"
         />
         {% endblock %}
 
         {% block sw_custom_field_detail_modal_allow_cart_expose %}
-
         <mt-switch
             v-if="isProductCustomField"
             v-model="currentCustomField.allowCartExpose"
             v-tooltip="getCartExposeTooltipConfig()"
             bordered
-            :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipAllowCartExpose')"
+            :help-text="$t('sw-settings-custom-field.customField.detail.tooltipAllowCartExpose')"
             class="sw-custom-field-detail__allow-cart-expose"
-            :label="$tc('sw-settings-custom-field.customField.detail.labelAllowCartExpose')"
+            :label="$t('sw-settings-custom-field.customField.detail.labelAllowCartExpose')"
             :disabled="!acl.can('custom_field.editor') || disableCartExpose || undefined"
         />
         <div v-else></div>
         {% endblock %}
 
         {% block sw_custom_field_detail_modal_allow_customer_write %}
-
         <mt-switch
             v-model="currentCustomField.allowCustomerWrite"
             bordered
-            :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipAllowCustomerWrite')"
+            :help-text="$t('sw-settings-custom-field.customField.detail.tooltipAllowCustomerWrite')"
             class="sw-custom-field-detail__allow-customer-write"
-            :label="$tc('sw-settings-custom-field.customField.detail.labelAllowCustomerWrite')"
+            :label="$t('sw-settings-custom-field.customField.detail.labelAllowCustomerWrite')"
             :disabled="!acl.can('custom_field.editor') || undefined"
         />
         {% endblock %}
 
         {% block sw_custom_field_detail_modal_store_api_aware %}
-
         <mt-switch
             v-model="currentCustomField.storeApiAware"
             bordered
-            :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipStoreApiAware')"
+            :help-text="$t('sw-settings-custom-field.customField.detail.tooltipStoreApiAware')"
             class="sw-custom-field-detail__store-api-aware"
-            :label="$tc('sw-settings-custom-field.customField.detail.labelStoreApiAware')"
+            :label="$t('sw-settings-custom-field.customField.detail.labelStoreApiAware')"
             :disabled="!acl.can('custom_field.editor') || undefined"
         />
         {% endblock %}
 
+        {% block sw_custom_field_detail_modal_allow_searchable %}
+        <mt-switch
+            v-if="isProductCustomField"
+            v-model="currentCustomField.includeInSearch"
+            bordered
+            :help-text="$t('sw-settings-custom-field.customField.detail.tooltipAllowSearchable')"
+            class="sw-custom-field-detail__allow-searchable"
+            :label="$t('sw-settings-custom-field.customField.detail.labelAllowSearchable')"
+            :disabled="!acl.can('custom_field.editor') || undefined"
+        />
+        {% endblock %}
+
+        {% block sw_custom_field_detail_modal_searchable_banner %}
+        <mt-banner
+            v-if="!currentCustomField._isNew && isProductCustomField"
+            class="sw-custom-field-detail__searchable-banner"
+        >
+            {{ $t('sw-settings-custom-field.customField.detail.bannerSearchableEnabled', 0) }}
+        </mt-banner>
+        {% endblock %}
+
         {% block sw_custom_field_detail_modal_snippet_info  %}
         <mt-banner class="sw-custom-field-detail__info">
-            {{ $tc('sw-settings-custom-field.customField.detail.infoText', { name: currentCustomField.name }, 0) }}
+            {{ $t('sw-settings-custom-field.customField.detail.infoText', { name: currentCustomField.name }, 0) }}
         </mt-banner>
         {% endblock %}
     </sw-container>
@@ -108,7 +126,7 @@
             variant="secondary"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 

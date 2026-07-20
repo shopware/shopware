@@ -25,13 +25,17 @@
     <button
         v-if="showDismissable"
         class="sw-label__dismiss"
-        :title="$tc('global.default.remove')"
+        :title="$t('global.default.remove')"
+        @mousedown.prevent
         @click.prevent.stop="$emit('dismiss')"
     >
 
         {% block sw_select_selection_dismiss_icon %}
         <slot name="dismiss-icon">
-            <mt-icon name="regular-times-s" />
+            <mt-icon
+                name="regular-times-s"
+                size="8"
+            />
         </slot>
         {% endblock %}
     </button>

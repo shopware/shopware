@@ -66,6 +66,9 @@ export default {
             return 'sw-settings-logging-entry-info';
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -113,7 +116,7 @@ export default {
                 })
             ];
 
-            return this.$tc(`sw-settings-logging.list.level${stringLevel}`);
+            return this.$t(`sw-settings-logging.list.level${stringLevel}`);
         },
 
         getLogColumns() {

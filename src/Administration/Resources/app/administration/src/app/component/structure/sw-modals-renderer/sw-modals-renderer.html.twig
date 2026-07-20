@@ -8,15 +8,18 @@
         :key="modal.locationId"
     >
         <sw-modal
-            :title="$tc(modal.title ?? '')"
+            :title="$t(modal.title ?? '')"
             :closable="modal.closable"
             :show-header="modal.showHeader"
             :show-footer="modal.showFooter"
             :variant="modal.variant"
+            class="sw-modals-renderer__modal"
+            :class="{ 'has-iframe': Boolean(modal.locationId) }"
             @modal-close="closeModal(modal.locationId)"
         >
             <sw-iframe-renderer
                 v-if="modal.locationId"
+                :key="modal.locationId"
                 :src="modal.baseUrl"
                 :location-id="modal.locationId"
             />
@@ -34,7 +37,7 @@
                     :square="buttonProps(button).square"
                     @click="() => buttonProps(button).method()"
                 >
-                    {{ $tc(button.label ?? '') }}
+                    {{ $t(button.label ?? '') }}
                 </mt-button>
             </template>
         </sw-modal>

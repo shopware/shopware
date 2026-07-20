@@ -9,17 +9,28 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConversionContext;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -53,6 +64,53 @@ class OrderConverterTest extends TestCase
 
         static::assertSame($convertedOrder['deliveries'][0]['id'], $cartToken);
         static::assertNotNull($convertedOrder['transactions'][0]['id']);
+    }
+
+    public function testThatPrimaryDeliveryIsPositionedFirst(): void
+    {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
+        $firstDeliveryId = Uuid::randomHex();
+        $primaryOrderDeliveryId = Uuid::randomHex();
+        $thirdDeliveryId = Uuid::randomHex();
+        $fourthDeliveryId = Uuid::randomHex();
+
+        $orderLineItem = new OrderLineItemEntity();
+        $orderLineItem->setIdentifier('order-line-item-identifier');
+        $orderLineItem->setId('order-line-item-id');
+        $orderLineItem->setQuantity(1);
+        $orderLineItem->setType(LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $orderLineItem->setLabel('order-line-item-label');
+        $orderLineItem->setGood(true);
+        $orderLineItem->setRemovable(false);
+        $orderLineItem->setStackable(true);
+
+        $deliveryCollection = new OrderDeliveryCollection();
+        $deliveryCollection->add($this->getOrderDelivery($firstDeliveryId, $orderLineItem));
+        $deliveryCollection->add($this->getOrderDelivery($primaryOrderDeliveryId, $orderLineItem));
+        $deliveryCollection->add($this->getOrderDelivery($thirdDeliveryId, $orderLineItem));
+        $deliveryCollection->add($this->getOrderDelivery($fourthDeliveryId, $orderLineItem));
+
+        $order = new OrderEntity();
+        $order->setPrimaryOrderDeliveryId($primaryOrderDeliveryId);
+        $order->setId(Uuid::randomHex());
+        $order->setOrderNumber('10034');
+        $order->setLineItems(new OrderLineItemCollection([$orderLineItem]));
+        $order->setPrice(new CartPrice(19.5, 19.5, 19.5, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE));
+        $order->setDeliveries($deliveryCollection);
+
+        $context = Generator::generateSalesChannelContext(customer: $this->getCustomer());
+
+        $convertedCart = $this->orderConverter->convertToCart($order, $context->getContext());
+
+        static::assertNotNull($convertedCart->getDeliveries()->first());
+        static::assertSame($primaryOrderDeliveryId, $convertedCart->getDeliveries()->first()->getExtensionOfType(OrderConverter::ORIGINAL_ID, IdStruct::class)?->getId());
+        static::assertNotNull($convertedCart->getDeliveries()->getAt(1));
+        static::assertSame($firstDeliveryId, $convertedCart->getDeliveries()->getAt(1)->getExtensionOfType(OrderConverter::ORIGINAL_ID, IdStruct::class)?->getId());
+        static::assertNotNull($convertedCart->getDeliveries()->getAt(2));
+        static::assertSame($thirdDeliveryId, $convertedCart->getDeliveries()->getAt(2)->getExtensionOfType(OrderConverter::ORIGINAL_ID, IdStruct::class)?->getId());
+        static::assertNotNull($convertedCart->getDeliveries()->getAt(3));
+        static::assertSame($fourthDeliveryId, $convertedCart->getDeliveries()->getAt(3)->getExtensionOfType(OrderConverter::ORIGINAL_ID, IdStruct::class)?->getId());
     }
 
     private function getCustomer(): CustomerEntity
@@ -129,5 +187,35 @@ class OrderConverterTest extends TestCase
         $delivery->addExtension(OrderConverter::ORIGINAL_ID, new IdStruct($id));
 
         return $delivery;
+    }
+
+    private function getOrderDelivery(string $id, OrderLineItemEntity $orderLineItem): OrderDeliveryEntity
+    {
+        $shippingAddress = new OrderAddressEntity();
+        $shippingAddress->setId(Uuid::randomHex());
+        $shippingAddress->setCountry(new CountryEntity());
+
+        $orderDeliveryPosition = new OrderDeliveryPositionEntity();
+        $orderDeliveryPosition->setId('order-delivery-position-id-1');
+        $orderDeliveryPosition->setOrderLineItem($orderLineItem);
+        $orderDeliveryPosition->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $orderDelivery = new OrderDeliveryEntity();
+        $orderDelivery->setId($id);
+        $orderDelivery->setOrderId('order-id');
+        $orderDelivery->setOrderVersionId('order-version-id');
+        $orderDelivery->setShippingMethodId('shipping-method-id');
+        $orderDelivery->setShippingMethod(new ShippingMethodEntity());
+        $orderDelivery->setShippingOrderAddressId('shipping-order-address-id');
+        $orderDelivery->setShippingOrderAddress($shippingAddress);
+        $orderDelivery->setShippingOrderAddressVersionId('shipping-order-address-version-id');
+        $orderDelivery->setShippingDateEarliest(new \DateTimeImmutable('now'));
+        $orderDelivery->setShippingDateLatest(new \DateTimeImmutable('now'));
+        $orderDelivery->setShippingCosts(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()));
+        $orderDelivery->setTrackingCodes([]);
+        $orderDelivery->setPositions(new OrderDeliveryPositionCollection([$orderDeliveryPosition]));
+        $orderDelivery->setStateId('state-id');
+
+        return $orderDelivery;
     }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Validator\Attribute\HasNamedArguments;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -18,44 +19,72 @@ class CustomerZipCode extends Constraint
         self::ZIP_CODE_INVALID => 'ZIP_CODE_INVALID',
     ];
 
-    public ?string $countryId = null;
-
+    /**
+     * @deprecated tag:v6.8.0 - $caseSensitiveCheck property access modifier will be changed to protected and is injectable via constructor
+     */
     public bool $caseSensitiveCheck = true;
 
+    /**
+     * @deprecated tag:v6.8.0 - $countryId property access modifier will be changed to protected and is injectable via constructor
+     */
+    public ?string $countryId;
+
+    /**
+     * @deprecated tag:v6.8.0 - $message property access modifier will be changed to protected and is injectable via constructor
+     */
     private string $message = 'This value is not a valid ZIP code for country {{ iso }}';
 
+    /**
+     * @deprecated tag:v6.8.0 - $messageRequired property access modifier will be changed to protected and is injectable via constructor
+     */
     private string $messageRequired = 'Postal code is required for that country';
 
     /**
      * @param ?array{countryId?: ?string, caseSensitiveCheck?: bool} $options
      *
-     * @deprecated tag:v6.8.0 - Parameter $options will be required and natively typed as array
+     * @deprecated tag:v6.8.0 - Parameter $options will be removed
+     * @deprecated tag:v6.8.0 - Parameter $caseSensitiveCheck and $countryId access modifier will be changed to protected, please use getters instead
+     * @deprecated tag:v6.8.0 - Parameter $caseSensitiveCheck, $countryId, $message and $messageRequired properties will be natively typed as constructor property promotion
      */
-    public function __construct($options = null)
-    {
-        if (Feature::isActive('v6.8.0.0')) {
-            if ($options === null) {
-                Feature::triggerDeprecationOrThrow('v6.8.0.0', 'The parameter $options will be required and natively typed as array');
-            }
+    #[HasNamedArguments]
+    public function __construct(
+        $options = null,
+        bool $caseSensitiveCheck = true,
+        ?string $countryId = null,
+        string $message = 'This value is not a valid ZIP code for country {{ iso }}',
+        string $messageRequired = 'Postal code is required for that country'
+    ) {
+        if ($options !== null) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', '$options argument is deprecated and will be removed')
+            );
+        }
+
+        if ($options === null || Feature::isActive('v6.8.0.0')) {
+            parent::__construct();
+
+            $this->caseSensitiveCheck = $caseSensitiveCheck;
+            $this->countryId = $countryId;
+            $this->message = $message;
+            $this->messageRequired = $messageRequired;
         } else {
-            if ($options !== null && !\is_array($options)) {
+            if (!\is_array($options)) {
                 $options = [
                     'countryId' => $options,
                 ];
             }
+
+            if (\array_key_exists('countryId', $options) && ($options['countryId'] !== null && !\is_string($options['countryId']))) {
+                throw CustomerException::missingOption('countryId', self::class);
+            }
+
+            if (isset($options['caseSensitiveCheck']) && !\is_bool($options['caseSensitiveCheck'])) {
+                throw CustomerException::invalidOption('caseSensitiveCheck', 'bool', self::class);
+            }
+
+            parent::__construct($options);
         }
-
-        $options ??= [];
-
-        if (\array_key_exists('countryId', $options) && ($options['countryId'] !== null && !\is_string($options['countryId']))) {
-            throw CustomerException::missingOption('countryId', self::class);
-        }
-
-        if (isset($options['caseSensitiveCheck']) && !\is_bool($options['caseSensitiveCheck'])) {
-            throw CustomerException::invalidOption('caseSensitiveCheck', 'bool', self::class);
-        }
-
-        parent::__construct($options);
     }
 
     public function getMessage(): string

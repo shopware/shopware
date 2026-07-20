@@ -8,8 +8,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Migration\AddColumnTrait;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1728040170AddPrimaryOrderTransaction;
 use Shopware\Core\Test\TestDefaults;
@@ -21,7 +21,6 @@ use Shopware\Core\Test\TestDefaults;
 #[CoversClass(Migration1728040170AddPrimaryOrderTransaction::class)]
 class Migration1728040170AddPrimaryOrderTransactionTest extends TestCase
 {
-    use AddColumnTrait;
     use KernelTestBehaviour;
 
     private Connection $connection;
@@ -49,24 +48,39 @@ class Migration1728040170AddPrimaryOrderTransactionTest extends TestCase
         $this->migrate();
         $this->migrate();
 
-        $manager = $this->connection->createSchemaManager();
-        $columns = $manager->listTableColumns(OrderDefinition::ENTITY_NAME);
-
-        static::assertArrayHasKey('primary_order_transaction_id', $columns);
-        static::assertArrayHasKey('primary_order_transaction_version_id', $columns);
+        static::assertTrue(TableHelper::columnExists($this->connection, OrderDefinition::ENTITY_NAME, 'primary_order_transaction_id'));
+        static::assertTrue(TableHelper::columnExists($this->connection, OrderDefinition::ENTITY_NAME, 'primary_order_transaction_version_id'));
 
         $query = $this->connection->createQueryBuilder();
         $query->select('*');
         $query->from('`order`');
-        $result = $query->executeQuery()->fetchAllAssociative();
-
-        foreach ($result as $row) {
+        foreach ($query->executeQuery()->fetchAllAssociative() as $row) {
             static::assertNotNull($row['primary_order_transaction_id']);
             static::assertNotNull($row['primary_order_transaction_version_id']);
         }
     }
 
-    private function prepareOldDatabaseEntry(): void
+    public function testMigrationWithoutTransaction(): void
+    {
+        $this->rollback();
+        $this->prepareOldDatabaseEntry(false);
+
+        $this->migrate();
+        $this->migrate();
+
+        static::assertTrue(TableHelper::columnExists($this->connection, OrderDefinition::ENTITY_NAME, 'primary_order_transaction_id'));
+        static::assertTrue(TableHelper::columnExists($this->connection, OrderDefinition::ENTITY_NAME, 'primary_order_transaction_version_id'));
+
+        $query = $this->connection->createQueryBuilder();
+        $query->select('*');
+        $query->from('`order`');
+        foreach ($query->executeQuery()->fetchAllAssociative() as $row) {
+            static::assertNull($row['primary_order_transaction_id']);
+            static::assertNull($row['primary_order_transaction_version_id']);
+        }
+    }
+
+    private function prepareOldDatabaseEntry(bool $withOrderTransaction = true): void
     {
         $orderId = Uuid::fromHexToBytes(Uuid::randomHex());
         $defaultPaymentMethodId = $this->connection->executeQuery('SELECT id FROM payment_method WHERE active = 1 ORDER BY `position`')->fetchOne();
@@ -89,7 +103,7 @@ class Migration1728040170AddPrimaryOrderTransactionTest extends TestCase
                     'taxStatus' => 'gross',
                     'totalPrice' => 100,
                     'positionPrice' => 1,
-                ]),
+                ], \JSON_THROW_ON_ERROR),
                 'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
                 'state_id' => $stateId,
                 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
@@ -101,19 +115,21 @@ class Migration1728040170AddPrimaryOrderTransactionTest extends TestCase
             ]
         );
 
-        $this->connection->insert(
-            '`order_transaction`',
-            [
-                'id' => Uuid::fromHexToBytes(Uuid::randomHex()),
-                'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-                'order_id' => $orderId,
-                'order_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-                'state_id' => $stateId,
-                'payment_method_id' => $defaultPaymentMethodId,
-                'amount' => 100,
-                'created_at' => '2020-01-01',
-            ]
-        );
+        if ($withOrderTransaction) {
+            $this->connection->insert(
+                '`order_transaction`',
+                [
+                    'id' => Uuid::fromHexToBytes(Uuid::randomHex()),
+                    'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                    'order_id' => $orderId,
+                    'order_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                    'state_id' => $stateId,
+                    'payment_method_id' => $defaultPaymentMethodId,
+                    'amount' => 100,
+                    'created_at' => '2020-01-01',
+                ]
+            );
+        }
     }
 
     private function migrate(): void
@@ -125,11 +141,11 @@ class Migration1728040170AddPrimaryOrderTransactionTest extends TestCase
     {
         $this->dropIndexIfExists($this->connection, 'order', 'uidx.order.primary_order_transaction');
 
-        if ($this->columnExists($this->connection, 'order', 'primary_order_transaction_id')) {
+        if (TableHelper::columnExists($this->connection, 'order', 'primary_order_transaction_id')) {
             $this->connection->executeStatement('ALTER TABLE `order` DROP COLUMN `primary_order_transaction_id`');
         }
 
-        if ($this->columnExists($this->connection, 'order', 'primary_order_transaction_version_id')) {
+        if (TableHelper::columnExists($this->connection, 'order', 'primary_order_transaction_version_id')) {
             $this->connection->executeStatement('ALTER TABLE `order` DROP COLUMN `primary_order_transaction_version_id`');
         }
     }

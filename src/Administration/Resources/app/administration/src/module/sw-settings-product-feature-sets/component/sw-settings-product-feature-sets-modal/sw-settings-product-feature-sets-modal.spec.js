@@ -48,7 +48,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         };
     }
 
-    async function createWrapper(additionalOptions = {}) {
+    async function createWrapper(additionalOptions = {}, productFeatureSet = {}) {
         return mount(
             await wrapTestComponent('sw-settings-product-feature-sets-modal', {
                 sync: true,
@@ -92,24 +92,35 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                         'sw-contextual-field': true,
                         'sw-provide': true,
                     },
-                    data() {
-                        return {
-                            showPageOne: true,
-                            showCustomField: false,
-                            showPropertyGroups: false,
-                            showProductInfo: false,
-                        };
-                    },
                     provide: {
                         shortcutService: {
                             startEventListener: () => {},
                             stopEventListener: () => {},
                         },
                         repositoryFactory: {
-                            create: () => ({
-                                search: () => Promise.reject(),
+                            create: (entity) => ({
+                                search: () => {
+                                    if (entity === 'custom_field') {
+                                        return Promise.resolve(
+                                            new Array(10).fill(null).map((_, i) => ({
+                                                id: `cf-id-${i}`,
+                                                name: `cf-${i}`,
+                                                config: { label: `cf-label-${i}` },
+                                            })),
+                                        );
+                                    }
+
+                                    if (entity === 'property_group') {
+                                        return Promise.resolve(
+                                            new Array(10)
+                                                .fill(null)
+                                                .map((_, i) => ({ id: `prop-id-${i}`, name: `prop-${i}` })),
+                                        );
+                                    }
+
+                                    return Promise.resolve([]);
+                                },
                             }),
-                            search: () => {},
                         },
                     },
                     ...additionalOptions,
@@ -122,6 +133,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                         features: [
                             {},
                         ],
+                        ...productFeatureSet,
                     },
                 },
             },
@@ -224,5 +236,66 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         const propertyListHeaderContent = propertyListHeader.findAll(`.${classes.propertyListCellContent}`);
 
         expect(propertyListHeaderContent.at(1).text()).toEqual(text.productInformationListNameHeader);
+    });
+
+    it('should select items on the current custom field grid', async () => {
+        const wrapper = await createWrapper();
+        const selectItemMock = jest.fn();
+
+        await wrapper.setData({
+            ...returnPageConfigDataObject({ showCustomField: true }),
+            customFields: [
+                { id: 'cf-id-1', name: 'cf-1', config: { label: 'cf-label-1' } },
+                { id: 'cf-id-2', name: 'cf-2', config: { label: 'cf-label-2' } },
+                { id: 'cf-id-3', name: 'cf-3', config: { label: 'cf-label-3' } },
+            ],
+        });
+
+        await flushPromises();
+
+        wrapper.vm.selectedFeatures = new Map([
+            [
+                1,
+                { 'cf-id-1': { id: 'cf-id-1' }, 'cf-id-3': { id: 'cf-id-3' } },
+            ],
+        ]);
+
+        wrapper.vm.$refs.customFieldGrid.selectItem = selectItemMock;
+
+        await wrapper.vm.applySelectionsToActiveGrid();
+
+        expect(selectItemMock).toHaveBeenCalledTimes(2);
+        expect(selectItemMock).toHaveBeenCalledWith(true, { id: 'cf-id-1', name: 'cf-1', config: { label: 'cf-label-1' } });
+        expect(selectItemMock).toHaveBeenCalledWith(true, { id: 'cf-id-3', name: 'cf-3', config: { label: 'cf-label-3' } });
+    });
+
+    it('should select items on the current property group grid', async () => {
+        const wrapper = await createWrapper();
+        const selectItemMock = jest.fn();
+
+        await wrapper.setData({
+            ...returnPageConfigDataObject({ showPropertyGroups: true }),
+            propertyGroups: [
+                { id: 'prop-id-1', name: 'prop-1' },
+                { id: 'prop-id-2', name: 'prop-2' },
+                { id: 'prop-id-3', name: 'prop-3' },
+            ],
+        });
+
+        await flushPromises();
+
+        wrapper.vm.selectedFeatures = new Map([
+            [
+                1,
+                { 'prop-id-2': { id: 'prop-id-2' } },
+            ],
+        ]);
+
+        wrapper.vm.$refs.propertyGroupGrid.selectItem = selectItemMock;
+
+        await wrapper.vm.applySelectionsToActiveGrid();
+
+        expect(selectItemMock).toHaveBeenCalledTimes(1);
+        expect(selectItemMock).toHaveBeenCalledWith(true, { id: 'prop-id-2', name: 'prop-2' });
     });
 });

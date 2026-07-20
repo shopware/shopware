@@ -11,8 +11,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1570622696CustomerPasswordRecovery extends MigrationStep

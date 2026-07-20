@@ -67,6 +67,7 @@ class ProductProxy implements \ArrayAccess
             'calculatedCheapestPrice' => $this->calculatedCheapestPrice(),
             'calculatedPrice' => $this->calculatedPrice(),
             'calculatedPrices' => $this->calculatedPrices(),
+            // @phpstan-ignore property.dynamicName (Allow the dynamic access for sales channel product fields)
             default => $this->product->$property,
         };
     }

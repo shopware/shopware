@@ -34,6 +34,8 @@ class Cart extends Struct
 
     protected bool $modified = false;
 
+    protected bool $persisted = false;
+
     protected ?string $customerComment = null;
 
     protected ?string $affiliateCode = null;
@@ -232,6 +234,16 @@ class Cart extends Struct
     public function markUnmodified(): void
     {
         $this->modified = false;
+    }
+
+    public function isPersisted(): bool
+    {
+        return $this->persisted;
+    }
+
+    public function setPersisted(bool $persisted): void
+    {
+        $this->persisted = $persisted;
     }
 
     public function getCustomerComment(): ?string

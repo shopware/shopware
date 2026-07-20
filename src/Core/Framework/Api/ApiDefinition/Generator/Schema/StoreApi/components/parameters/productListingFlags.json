@@ -1,0 +1,48 @@
+{
+    "components": {
+        "parameters": {
+            "noAggregations": {
+                "name": "no-aggregations",
+                "in": "query",
+                "description": "Resets all aggregations in the criteria. This parameter is a flag, the value has no effect.",
+                "required": false,
+                "schema": {
+                    "oneOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                }
+            },
+            "onlyAggregations": {
+                "name": "only-aggregations",
+                "in": "query",
+                "description": "If this flag is set, no products are fetched. Sorting and associations are also ignored. This parameter is a flag, the value has no effect.",
+                "required": false,
+                "schema": {
+                    "oneOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                }
+            }
+        },
+        "x-parameter-groups": {
+            "productListingFlags": [
+                {
+                    "$ref": "#/components/parameters/noAggregations"
+                },
+                {
+                    "$ref": "#/components/parameters/onlyAggregations"
+                }
+            ]
+        }
+    }
+}

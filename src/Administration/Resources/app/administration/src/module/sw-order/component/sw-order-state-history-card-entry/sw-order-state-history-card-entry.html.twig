@@ -40,7 +40,10 @@
             }"
             class="sw-order-state-card__date"
         >
-            {{ dateFilter(entry.createdAt, { hour: '2-digit', minute: '2-digit' }) }}
+            <sw-time-ago
+                :date="entry.createdAt"
+                :date-time-format="{ month: '2-digit', day: '2-digit' }"
+            />
         </span>
         {% endblock %}
 

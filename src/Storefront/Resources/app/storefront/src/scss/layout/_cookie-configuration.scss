@@ -38,6 +38,19 @@ Offcanvas containing a list of cookies which need to be manually selected by the
     }
 }
 
+@include media-breakpoint-down(sm) {
+    .offcanvas-cookie-group {
+        .form-check {
+            padding-right: 2rem;
+        }
+
+        input ~ label {
+            display: block;
+            overflow-wrap: anywhere;
+        }
+    }
+}
+
 .offcanvas-cookie-entries-toggle {
     position: absolute;
     top: -4px;
@@ -56,19 +69,19 @@ Offcanvas containing a list of cookies which need to be manually selected by the
 }
 
 .offcanvas-cookie-entries {
-    > p,
+    > p {
+        padding: 8px 8px 0;
+        margin: 0;
+    }
+
     .offcanvas-cookie-entry {
         padding: 8px 8px 0 24px;
-        margin: 0;
+        margin: 0 0 0 24px;
+        overflow: visible;
 
         > p {
             margin: 8px 0;
         }
-    }
-
-    .offcanvas-cookie-entry {
-        margin-left: 24px;
-        overflow: visible;
 
         &.custom-control,
         &.form-check {

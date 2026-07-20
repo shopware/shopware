@@ -64,6 +64,11 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionRedemptionLocker">
+            <argument type="service" id="lock.factory"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <!-- CART CALCULATORS -->
         <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder"/>
 
@@ -113,7 +118,7 @@
 
         <!-- SUBSCRIBERS -->
         <service id="Shopware\Core\Checkout\Promotion\Subscriber\Storefront\StorefrontCartSubscriber">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+            <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="request_stack"/>
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -202,12 +207,17 @@
 
         <service id="Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionRedemptionUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="order.repository"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionExclusionUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionValidator">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\CartScopeDiscountPackager"/>
@@ -218,6 +228,10 @@
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetScopeDiscountPackager">
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Promotion\Cart\CartPromotionsSubscriber">
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

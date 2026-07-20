@@ -2,10 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Api;
 
-use Doctrine\DBAL\Exception;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
@@ -14,6 +13,9 @@ use Shopware\Core\Checkout\Customer\Api\CustomerGroupRegistrationActionControlle
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -34,46 +36,55 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
 {
     private CustomerGroupRegistrationActionController $controllerMock;
 
-    private MockObject&EntityRepository $customerRepositoryMock;
+    /**
+     * @var Stub&EntityRepository<CustomerCollection>
+     */
+    private Stub&EntityRepository $customerRepositoryMock;
 
-    private MockObject&EntityRepository $customerGroupRepositoryMock;
+    /**
+     * @var Stub&EntityRepository<CustomerGroupCollection>
+     */
+    private Stub&EntityRepository $customerGroupRepositoryMock;
 
-    private MockObject&SalesChannelContextRestorer $contextRestorerMock;
+    private Stub&EventDispatcher $eventDispatcherMock;
+
+    private Stub&SalesChannelContextRestorer $restorerMock;
 
     protected function setUp(): void
     {
-        $this->customerRepositoryMock = $this->createMock(EntityRepository::class);
-        $this->customerGroupRepositoryMock = $this->createMock(EntityRepository::class);
-        $eventDispatcherMock = $this->createMock(EventDispatcher::class);
-        $this->contextRestorerMock = $this->createMock(SalesChannelContextRestorer::class);
+        $this->customerRepositoryMock = static::createStub(EntityRepository::class);
+        $this->customerGroupRepositoryMock = static::createStub(EntityRepository::class);
+        $this->eventDispatcherMock = static::createStub(EventDispatcher::class);
+        $this->restorerMock = static::createStub(SalesChannelContextRestorer::class);
+
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
+        $this->restorerMock->method('restoreByCustomer')->willReturn($salesChannelContext);
 
         $this->controllerMock = new CustomerGroupRegistrationActionController(
             $this->customerRepositoryMock,
             $this->customerGroupRepositoryMock,
-            $eventDispatcherMock,
-            $this->contextRestorerMock,
+            $this->eventDispatcherMock,
+            $this->restorerMock,
         );
     }
 
     /**
      * @param CustomerEntity[] $customers
-     *
-     * @throws Exception
      */
-    #[DataProvider('getRegistrationValues')]
-    public function testGroupRegistrationAcceptMatches(?int $expectedResCode, ?array $customers, Request $request, ?string $errorMessage): void
+    #[DataProvider('groupRegistrationActionDataProvider')]
+    public function testGroupRegistrationAcceptMatches(?int $expectedResCode, ?array $customers, Request $request, ?\Exception $expectedException): void
     {
         $context = Context::createDefaultContext();
 
         if ($customers !== null) {
             $customerCollection = new CustomerCollection($customers);
-            $this->setRestorerReturn();
             $this->setSearchReturn($context, $customerCollection);
-            $this->setCustomerGroupSearchReturn($context);
+            $this->setCustomerGroupSearchReturn($context, $customerCollection);
         }
 
-        if ($errorMessage !== null && $expectedResCode === null) {
-            static::expectExceptionMessage($errorMessage);
+        if ($expectedException !== null && $expectedResCode === null) {
+            $this->expectExceptionObject($expectedException);
         }
 
         $res = $this->controllerMock->accept($request, $context);
@@ -82,23 +93,20 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
 
     /**
      * @param CustomerEntity[] $customers
-     *
-     * @throws Exception
      */
-    #[DataProvider('getRegistrationValues')]
-    public function testGroupRegistrationDeclineMatches(?int $expectedResCode, ?array $customers, Request $request, ?string $errorMessage): void
+    #[DataProvider('groupRegistrationActionDataProvider')]
+    public function testGroupRegistrationDeclineMatches(?int $expectedResCode, ?array $customers, Request $request, ?\Exception $expectedException): void
     {
         $context = Context::createDefaultContext();
 
         if ($customers !== null) {
             $customerCollection = new CustomerCollection($customers);
-            $this->setRestorerReturn();
             $this->setSearchReturn($context, $customerCollection);
-            $this->setCustomerGroupSearchReturn($context);
+            $this->setCustomerGroupSearchReturn($context, $customerCollection);
         }
 
-        if ($errorMessage !== null && $expectedResCode === null) {
-            static::expectExceptionMessage($errorMessage);
+        if ($expectedException !== null && $expectedResCode === null) {
+            $this->expectExceptionObject($expectedException);
         }
 
         $res = $this->controllerMock->decline($request, $context);
@@ -106,30 +114,87 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{int|null, array<CustomerEntity>|null, Request, string|null}>
+     * @return iterable<string, array{int|null, array<CustomerEntity>|null, Request, \Exception|null}>
      */
-    public static function getRegistrationValues(): array
+    public static function groupRegistrationActionDataProvider(): iterable
     {
-        $customer = self::createCustomer();
-        $customerB = self::createCustomer();
         $invalidCustomer = Uuid::randomHex();
-        $customerWithoutRequest = self::createCustomer(false);
+        yield 'without user' => [null, null, self::createRequest([$invalidCustomer]), CustomerException::customersNotFound([$invalidCustomer])];
 
-        return [
-            'without user' => [null, null, self::createRequest([$invalidCustomer]), \sprintf('These customers "%s" are not found', $invalidCustomer)],
-            'without customer' => [null, null, self::createRequest([$customer->getId()]),  \sprintf('These customers "%s" are not found', $customer->getId())],
-            'without customerId' => [null, null, self::createRequest([]), 'Parameter "customerIds" is missing.'],
-            'without request group' => [null,  [$customerWithoutRequest], self::createRequest([$customerWithoutRequest->getId()]), \sprintf('Group request for customer "%s" is not found', $customerWithoutRequest->getId())],
-            'accept/decline' => [204, [$customer], self::createRequest([$customer->getId()]),  null],
-            'accept/decline silent' => [204,  [$customerWithoutRequest], self::createRequest([$customerWithoutRequest->getId()], true), null],
-            'in batch' => [204, [$customer, $customerB], self::createRequest([$customer->getId(), $customerB->getId()]), null],
-        ];
+        $missingCustomer = self::createCustomer();
+        $missingCustomerId = $missingCustomer->getId();
+        yield 'without customer' => [null, null, self::createRequest([$missingCustomerId]), CustomerException::customersNotFound([$missingCustomerId])];
+
+        yield 'without customerId' => [null, null, self::createRequest([]), CustomerException::customerIdsParameterIsMissing()];
+
+        $customerWithoutRequest = self::createCustomer(false);
+        $customerWithoutRequestId = $customerWithoutRequest->getId();
+        yield 'without request group' => [null, [$customerWithoutRequest], self::createRequest([$customerWithoutRequestId]), CustomerException::groupRequestNotFound($customerWithoutRequestId)];
+
+        $acceptCustomer = self::createCustomer();
+        $acceptCustomerId = $acceptCustomer->getId();
+        yield 'accept/decline' => [204, [$acceptCustomer], self::createRequest([$acceptCustomerId]), null];
+
+        $silentCustomer = self::createCustomer(false);
+        $silentCustomerId = $silentCustomer->getId();
+        yield 'accept/decline silent' => [204, [$silentCustomer], self::createRequest([$silentCustomerId], true), null];
+
+        $batchCustomerA = self::createCustomer();
+        $batchCustomerAId = $batchCustomerA->getId();
+        $batchCustomerB = self::createCustomer();
+        $batchCustomerBId = $batchCustomerB->getId();
+        yield 'in batch' => [204, [$batchCustomerA, $batchCustomerB], self::createRequest([$batchCustomerAId, $batchCustomerBId]), null];
+    }
+
+    public function testDeclineCustomerRequestedGroupIsSetCorrectly(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $assignedCustomerGroup = new CustomerGroupEntity();
+        $assignedCustomerGroup->setId(Uuid::randomHex());
+
+        $requestedCustomerGroup = new CustomerGroupEntity();
+        $requestedCustomerGroup->setId(Uuid::randomHex());
+
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+        $customer->setLanguageId(Defaults::LANGUAGE_SYSTEM);
+        $customer->setRequestedGroupId($requestedCustomerGroup->getId());
+        $customer->setRequestedGroup($requestedCustomerGroup);
+        $customer->setGroupId($assignedCustomerGroup->getId());
+
+        $request = self::createRequest([$customer->getId()]);
+
+        $this->setSearchReturn($context, new CustomerCollection([$customer]));
+
+        $this->customerGroupRepositoryMock->method('search')->willReturn(
+            new EntitySearchResult(
+                CustomerGroupDefinition::ENTITY_NAME,
+                1,
+                new CustomerGroupCollection([$requestedCustomerGroup]),
+                null,
+                new Criteria(),
+                $context,
+            )
+        );
+
+        // test case to ensure the event contains the declined requested customer group
+        $this->eventDispatcherMock->method('dispatch')->willReturnCallback(static function (CustomerGroupRegistrationDeclined $customerGroupRegistrationDeclined) use ($customer, $requestedCustomerGroup) {
+            static::assertSame($customer, $customerGroupRegistrationDeclined->getCustomer());
+            static::assertSame($requestedCustomerGroup, $customerGroupRegistrationDeclined->getCustomerGroup());
+
+            return $customerGroupRegistrationDeclined;
+        });
+
+        $this->controllerMock->decline($request, $context);
     }
 
     private static function createCustomer(bool $requestedGroup = true): CustomerEntity
     {
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
+        $customer->setActive(true);
+        $customer->setLanguageId(Defaults::LANGUAGE_SYSTEM);
 
         if ($requestedGroup) {
             $customerGroup = new CustomerGroupEntity();
@@ -159,10 +224,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         }
         $criteria = new Criteria(array_values($collection->getIds()));
 
-        $this->customerRepositoryMock->method('search')->with(
-            $criteria,
-            $context,
-        )
+        $this->customerRepositoryMock->method('search')
             ->willReturnOnConsecutiveCalls(
                 new EntitySearchResult(
                     CustomerDefinition::ENTITY_NAME,
@@ -175,11 +237,21 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
             );
     }
 
-    private function setCustomerGroupSearchReturn(Context $context): void
+    private function setCustomerGroupSearchReturn(Context $context, CustomerCollection $customers): void
     {
-        $customerGroup = new CustomerGroupEntity();
-        $customerGroup->setId(Uuid::class);
-        $collection = new CustomerGroupCollection([$customerGroup]);
+        $customerGroups = [];
+        foreach ($customers as $customer) {
+            $requestedGroupId = $customer->getRequestedGroupId();
+            if ($requestedGroupId === null || isset($customerGroups[$requestedGroupId])) {
+                continue;
+            }
+
+            $customerGroup = new CustomerGroupEntity();
+            $customerGroup->setId($requestedGroupId);
+            $customerGroups[$requestedGroupId] = $customerGroup;
+        }
+
+        $collection = new CustomerGroupCollection(\array_values($customerGroups));
 
         $this->customerGroupRepositoryMock->method('search')->willReturn(
             new EntitySearchResult(
@@ -191,22 +263,5 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
                 $context,
             )
         );
-    }
-
-    private function setRestorerReturn(): void
-    {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $this->contextRestorerMock->method('restoreByCustomer')->willReturnCallback(function (string $customerId, Context $context) use ($salesChannelContext) {
-            $customer = new CustomerEntity();
-            $customer->setGroupId(Uuid::randomHex());
-
-            $customer->setRequestedGroup(new CustomerGroupEntity());
-            $customer->setId($customerId);
-
-            $salesChannelContext->method('getCustomer')->willReturn($customer);
-            $salesChannelContext->method('getContext')->willReturn($context);
-
-            return $salesChannelContext;
-        });
     }
 }

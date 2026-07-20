@@ -81,7 +81,7 @@ class UtilsTest extends TestCase
         static::assertInstanceOf(PermissionCollection::class, $result['settings']);
         static::assertInstanceOf(PermissionCollection::class, $result['additional_privileges']);
 
-        $mapper = fn (PermissionStruct $p) => ['entity' => $p->getEntity(), 'op' => $p->getOperation()];
+        $mapper = static fn (PermissionStruct $p) => ['entity' => $p->getEntity(), 'op' => $p->getOperation()];
 
         static::assertCount(1, $result['category']->getElements());
         static::assertSame(

@@ -139,10 +139,14 @@ class UserConfigControllerTest extends TestCase
             ]], Context::createDefaultContext());
 
         $newValue = 'another-content';
-        $this->getBrowser()->request('POST', '/api/_info/config-me', [], [], [], json_encode([
-            $configKey => [$newValue],
-            $anotherConfigKey => [$anotherValue],
-        ], \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest(
+            'POST',
+            '/api/_info/config-me',
+            [
+                $configKey => [$newValue],
+                $anotherConfigKey => [$anotherValue],
+            ],
+        );
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
@@ -163,9 +167,13 @@ class UserConfigControllerTest extends TestCase
     {
         $configKey = 'me.config';
         $newValue = 'another-content';
-        $this->getBrowser()->request('POST', '/api/_info/config-me', [], [], [], json_encode([
-            $configKey => [$newValue],
-        ], \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest(
+            'POST',
+            '/api/_info/config-me',
+            [
+                $configKey => [$newValue],
+            ]
+        );
 
         $response = $this->getBrowser()->getResponse();
 
@@ -187,7 +195,7 @@ class UserConfigControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
 
-        $this->getBrowser()->request('POST', '/api/_info/config-me', [], [], [], json_encode([], \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/_info/config-me');
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());

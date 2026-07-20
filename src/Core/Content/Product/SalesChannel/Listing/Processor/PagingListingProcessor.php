@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Listing\Processor;
 
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -13,11 +15,16 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('inventory')]
 class PagingListingProcessor extends AbstractListingProcessor
 {
+    public const DEFAULT_LIMIT = 24;
+    public const DEFAULT_MAX_LIMIT = 100;
+
     /**
      * @internal
      */
-    public function __construct(private readonly SystemConfigService $config)
-    {
+    public function __construct(
+        private readonly SystemConfigService $config,
+        private readonly int $maxLimit = self::DEFAULT_MAX_LIMIT
+    ) {
     }
 
     public function getDecorated(): AbstractListingProcessor
@@ -27,7 +34,7 @@ class PagingListingProcessor extends AbstractListingProcessor
 
     public function prepare(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
-        $limit = $this->getLimit($criteria, $context);
+        $limit = $this->getLimit($criteria, $context, $request);
 
         $page = $this->getPage($request);
         if ($page !== null) {
@@ -44,23 +51,53 @@ class PagingListingProcessor extends AbstractListingProcessor
     public function process(Request $request, ProductListingResult $result, SalesChannelContext $context): void
     {
         $page = $this->getPage($request);
+        $limit = $result->getCriteria()->getLimit() ?? $this->getLimit($result->getCriteria(), $context, $request);
+
         if ($page !== null) {
             $result->setPage($page);
         }
-
-        $limit = $result->getCriteria()->getLimit() ?? $this->getLimit($result->getCriteria(), $context);
         $result->setLimit($limit);
-    }
 
-    private function getLimit(Criteria $criteria, SalesChannelContext $context): int
-    {
-        if ($criteria->getLimit() !== null && $criteria->getLimit() > 0) {
-            return $criteria->getLimit();
+        if ($page === null || $page <= 1 || $limit <= 0) {
+            return;
         }
 
-        $limit = $this->config->getInt('core.listing.productsPerPage', $context->getSalesChannelId());
+        $total = $result->getTotal();
+        $lastPage = $total > 0 ? (int) ceil($total / $limit) : 1;
 
-        return $limit <= 0 ? 24 : $limit;
+        if ($page > $lastPage) {
+            throw ProductException::pageOutOfRange($page, $lastPage);
+        }
+    }
+
+    private function getLimit(Criteria $criteria, SalesChannelContext $context, Request $request): int
+    {
+        $limit = $request->query->has('limit') ? $request->query->getInt('limit') : null;
+        $limit = $request->request->has('limit') ? $request->request->getInt('limit') : $limit;
+
+        // Priority 1: Request parameter (body > query)
+        if ($limit > 0) {
+            return min($limit, $this->maxLimit);
+        }
+
+        // Priority 2: Criteria limit (unless it came from static config fallback)
+        // When no explicit limit was provided in the request, prefer dynamic system config
+        $limit = null;
+        if (!$criteria->hasState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST)) {
+            $limit = $criteria->getLimit();
+        }
+
+        // Priority 3: System config
+        if ($limit === null || $limit <= 0) {
+            $limit = $this->config->getInt('core.listing.productsPerPage', $context->getSalesChannelId());
+        }
+
+        // Priority 4: Default fallback
+        if ($limit <= 0) {
+            $limit = self::DEFAULT_LIMIT;
+        }
+
+        return min($limit, $this->maxLimit);
     }
 
     private function getPage(Request $request): ?int
@@ -68,6 +105,6 @@ class PagingListingProcessor extends AbstractListingProcessor
         $page = $request->query->has('p') ? $request->query->getInt('p') : null;
         $page = $request->request->has('p') ? $request->request->getInt('p') : $page;
 
-        return $page;
+        return $page > 0 ? $page : null;
     }
 }

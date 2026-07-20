@@ -33,7 +33,6 @@ async function createWrapper() {
                 mediaService: {},
             },
             stubs: {
-                'sw-upload-listener': true,
                 'sw-media-upload-v2': true,
                 'sw-media-list-selection-item-v2': await wrapTestComponent('sw-media-list-selection-item-v2'),
                 'sw-media-preview-v2': {
@@ -49,13 +48,6 @@ async function createWrapper() {
 }
 
 describe('components/media/sw-media-list-selection-v2', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should set the position property for each item by index in computed', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

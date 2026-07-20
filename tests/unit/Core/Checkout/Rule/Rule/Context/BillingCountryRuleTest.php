@@ -33,7 +33,7 @@ class BillingCountryRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $country = new CountryEntity();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
@@ -59,7 +59,7 @@ class BillingCountryRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $country = new CountryEntity();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
@@ -85,7 +85,7 @@ class BillingCountryRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $country = new CountryEntity();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
@@ -111,7 +111,7 @@ class BillingCountryRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $context
             ->method('getCustomer')
@@ -135,7 +135,7 @@ class BillingCountryRuleTest extends TestCase
         static::assertArrayHasKey('operator', $ruleConstraints, 'Constraint operator not found in Rule');
         $operators = $ruleConstraints['operator'];
         static::assertEquals(new NotBlank(), $operators[0]);
-        static::assertEquals(new Choice($expectedOperators), $operators[1]);
+        static::assertEquals(new Choice(choices: $expectedOperators), $operators[1]);
 
         static::assertArrayHasKey('countryIds', $ruleConstraints, 'Constraint countryIds not found in Rule');
         $countryIds = $ruleConstraints['countryIds'];
@@ -146,7 +146,7 @@ class BillingCountryRuleTest extends TestCase
     public function testRuleNotMatchingWithoutCountry(): void
     {
         $rule = (new BillingCountryRule())->assign(['countryIds' => ['foo'], 'operator' => Rule::OPERATOR_EQ]);
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         static::assertFalse($rule->match(new CheckoutRuleScope($salesChannelContext)));
 
@@ -166,7 +166,7 @@ class BillingCountryRuleTest extends TestCase
     public function testRuleMatching(string $operator, bool $isMatching, string $countryId, bool $noCustomer = false, bool $noCountry = false, bool $noAddress = false): void
     {
         $countryIds = ['kyln123', 'kyln456'];
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $customerAddress = new CustomerAddressEntity();
 
         $country = new CountryEntity();

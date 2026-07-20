@@ -61,12 +61,6 @@ async function createWrapper() {
 }
 
 describe('app/component/entity/sw-one-to-many-grid', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should enable the context menu delete item', async () => {
         const wrapper = await createWrapper();
 

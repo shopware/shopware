@@ -11,8 +11,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\PaymentMethodAdminSearchIndexer;
@@ -28,11 +32,35 @@ class PaymentMethodAdminSearchIndexerTest extends TestCase
     protected function setUp(): void
     {
         $this->searchIndexer = new PaymentMethodAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
             100
         );
+    }
+
+    public function testGetUpdatedIds(): void
+    {
+        $indexer = new PaymentMethodAdminSearchIndexer(
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            100
+        );
+
+        $id = Uuid::randomHex();
+
+        $event = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent('payment_method_translation', [
+                    new EntityWriteResult(['paymentMethodId' => $id], ['name' => 'PM'], 'payment_method_translation', EntityWriteResult::OPERATION_UPDATE),
+                ], Context::createDefaultContext()),
+            ]),
+            []
+        );
+
+        static::assertSame([$id], $indexer->getUpdatedIds($event));
     }
 
     public function testGetEntity(): void
@@ -54,7 +82,7 @@ class PaymentMethodAdminSearchIndexerTest extends TestCase
     public function testGlobalData(): void
     {
         $context = Context::createDefaultContext();
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
@@ -69,8 +97,8 @@ class PaymentMethodAdminSearchIndexerTest extends TestCase
         );
 
         $indexer = new PaymentMethodAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
             $repository,
             100
         );
@@ -93,8 +121,8 @@ class PaymentMethodAdminSearchIndexerTest extends TestCase
 
         $indexer = new PaymentMethodAdminSearchIndexer(
             $connection,
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
             100
         );
 
@@ -111,7 +139,7 @@ class PaymentMethodAdminSearchIndexerTest extends TestCase
 
     private function getConnection(): Connection
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $connection->method('fetchAllAssociative')->willReturn(
             [

@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 
-/* eslint-disable @typescript-eslint/only-throw-error */
 import type { AxiosInstance, AxiosResponse } from 'axios';
 import Criteria from './criteria.data';
 import type EntityHydrator from './entity-hydrator.data';
@@ -695,6 +694,20 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
         if (appId) {
             headers = {
                 'sw-app-integration-id': appId,
+                ...headers,
+            };
+        }
+
+        if (context.measurementLengthUnit) {
+            headers = {
+                'sw-measurement-length-unit': context.measurementLengthUnit,
+                ...headers,
+            };
+        }
+
+        if (context.measurementWeightUnit) {
+            headers = {
+                'sw-measurement-weight-unit': context.measurementWeightUnit,
                 ...headers,
             };
         }

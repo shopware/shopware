@@ -11,8 +11,13 @@
     cursor: pointer;
 }
 
-.is-ctl-checkout,
-.is-act-checkoutregisterpage {
+.is-ctl-checkout, // @deprecated tag:v6.8.0 - Body class `is-ctl-checkout` will be removed, use active route classes starting with `is-active-route-frontend-checkout-*` instead.
+.is-act-checkoutregisterpage, // @deprecated tag:v6.8.0 - Body class `is-act-checkoutregisterpage` will be removed, use active route class `is-active-route-frontend-checkout-register-page` instead.
+.is-active-route-frontend-checkout-cart-page,
+.is-active-route-frontend-checkout-confirm-page,
+.is-active-route-frontend-checkout-finish-page,
+.is-active-route-frontend-checkout-info,
+.is-active-route-frontend-cart-offcanvas {
     .footer-minimal {
         .footer-service-menu-list {
             display: block;

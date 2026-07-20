@@ -115,10 +115,6 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
         await flushPromises();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should display all keys from the category additional_permissions', async () => {
         const systemPermissions = wrapper.find('.sw-users-permissions-additional-permissions_system');
         const ordersPermissions = wrapper.find('.sw-users-permissions-additional-permissions_orders');

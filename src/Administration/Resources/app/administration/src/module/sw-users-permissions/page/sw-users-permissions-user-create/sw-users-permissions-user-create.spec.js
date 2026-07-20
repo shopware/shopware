@@ -76,6 +76,11 @@ async function createWrapper(privileges = []) {
                         params: {
                             id: '1a2b3c4d',
                         },
+                        meta: {
+                            $module: {
+                                icon: 'solid-content',
+                            },
+                        },
                     },
                 },
                 stubs: {
@@ -91,7 +96,6 @@ async function createWrapper(privileges = []) {
                     'sw-entity-multi-select': true,
                     'sw-single-select': true,
                     'sw-skeleton': true,
-                    'sw-empty-state': true,
                     'sw-data-grid': true,
                     'sw-context-menu-item': true,
                     'sw-button-process': true,
@@ -121,12 +125,9 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
         Shopware.Store.get('session').languageId = '';
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should create a new user', async () => {
         expect(wrapper.vm.user).toStrictEqual({
+            active: true,
             admin: false,
             localeId: '',
             username: '',
@@ -152,5 +153,11 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
         await wrapper.setData({ isLoading: false });
 
         expect(wrapper.vm.user.admin).toBe(false);
+    });
+
+    it('should be active by default', async () => {
+        await wrapper.setData({ isLoading: false });
+
+        expect(wrapper.vm.user.active).toBe(true);
     });
 });

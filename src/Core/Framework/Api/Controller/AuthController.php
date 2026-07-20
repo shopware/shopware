@@ -3,10 +3,12 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use League\OAuth2\Server\AuthorizationServer;
-use Shopware\Core\Framework\Api\Controller\Exception\AuthThrottledException;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -14,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('fundamentals@framework')]
 class AuthController extends AbstractController
 {
@@ -24,7 +26,7 @@ class AuthController extends AbstractController
     public function __construct(
         private readonly AuthorizationServer $authorizationServer,
         private readonly PsrHttpFactory $psrHttpFactory,
-        private readonly RateLimiter $rateLimiter
+        private readonly RateLimiter $rateLimiter,
     ) {
     }
 
@@ -33,12 +35,16 @@ class AuthController extends AbstractController
     {
         $response = new Response();
 
-        try {
-            $cacheKey = $request->get('username') . '-' . $request->getClientIp();
+        $usernameKey = strtolower($request->request->getString('username'));
+        $clientIpKey = (string) $request->getClientIp();
+        $combinedKey = $usernameKey . '-' . $clientIpKey;
 
-            $this->rateLimiter->ensureAccepted(RateLimiter::OAUTH, $cacheKey);
+        try {
+            $this->rateLimiter->ensureAccepted(RateLimiter::OAUTH, $combinedKey);
+            $this->rateLimiter->ensureAcceptedIfConfigured(RateLimiter::OAUTH_USER, $usernameKey);
+            $this->rateLimiter->ensureAcceptedIfConfigured(RateLimiter::OAUTH_CLIENT, $clientIpKey);
         } catch (RateLimitExceededException $exception) {
-            throw new AuthThrottledException($exception->getWaitTime(), $exception);
+            throw ApiException::notificationThrottled($exception->getWaitTime(), $exception);
         }
 
         $psr7Request = $this->psrHttpFactory->createRequest($request);
@@ -46,7 +52,9 @@ class AuthController extends AbstractController
 
         $response = $this->authorizationServer->respondToAccessTokenRequest($psr7Request, $psr7Response);
 
-        $this->rateLimiter->reset(RateLimiter::OAUTH, $cacheKey);
+        $this->rateLimiter->reset(RateLimiter::OAUTH, $combinedKey);
+        $this->rateLimiter->resetIfConfigured(RateLimiter::OAUTH_USER, $usernameKey);
+        $this->rateLimiter->resetIfConfigured(RateLimiter::OAUTH_CLIENT, $clientIpKey);
 
         return (new HttpFoundationFactory())->createResponse($response);
     }

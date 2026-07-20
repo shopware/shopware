@@ -68,17 +68,17 @@ class ProductListingFilterOutOfStockTest extends TestCase
             ->getResult();
 
         static::assertSame(5, $listing->getTotal());
-        static::assertFalse($listing->has($this->testData->getId('product1')));
-        static::assertFalse($listing->has($this->testData->getId('product2')));
+        static::assertFalse($listing->getEntities()->has($this->testData->getId('product1')));
+        static::assertFalse($listing->getEntities()->has($this->testData->getId('product2')));
 
         // product 1 has all available variants
-        static::assertTrue($listing->has($this->testData->getId('product1-red')));
-        static::assertTrue($listing->has($this->testData->getId('product1-green')));
-        static::assertTrue($listing->has($this->testData->getId('product1-blue')));
+        static::assertTrue($listing->getEntities()->has($this->testData->getId('product1-red')));
+        static::assertTrue($listing->getEntities()->has($this->testData->getId('product1-green')));
+        static::assertTrue($listing->getEntities()->has($this->testData->getId('product1-blue')));
 
         // product 2 has all available variants
-        static::assertTrue($listing->has($this->testData->getId('product2-green')));
-        static::assertTrue($listing->has($this->testData->getId('product2-red')));
+        static::assertTrue($listing->getEntities()->has($this->testData->getId('product2-green')));
+        static::assertTrue($listing->getEntities()->has($this->testData->getId('product2-red')));
 
         /** @var EntityResult<PropertyGroupCollection> $result */
         $result = $listing->getAggregations()->get('properties');
@@ -108,17 +108,17 @@ class ProductListingFilterOutOfStockTest extends TestCase
             ->getResult();
 
         static::assertSame(2, $listing->getTotal());
-        static::assertFalse($listing->has($this->testData->getId('product1')));
-        static::assertFalse($listing->has($this->testData->getId('product2')));
+        static::assertFalse($listing->getEntities()->has($this->testData->getId('product1')));
+        static::assertFalse($listing->getEntities()->has($this->testData->getId('product2')));
 
         // product 1 has only 2 available variants
-        static::assertTrue($listing->has($this->testData->getId('product1-red')));
-        static::assertTrue($listing->has($this->testData->getId('product1-green')));
-        static::assertFalse($listing->has($this->testData->getId('product1-blue')));
+        static::assertTrue($listing->getEntities()->has($this->testData->getId('product1-red')));
+        static::assertTrue($listing->getEntities()->has($this->testData->getId('product1-green')));
+        static::assertFalse($listing->getEntities()->has($this->testData->getId('product1-blue')));
 
         // product 2 has no available variants
-        static::assertFalse($listing->has($this->testData->getId('product2-green')));
-        static::assertFalse($listing->has($this->testData->getId('product2-red')));
+        static::assertFalse($listing->getEntities()->has($this->testData->getId('product2-green')));
+        static::assertFalse($listing->getEntities()->has($this->testData->getId('product2-red')));
 
         /** @var EntityResult<PropertyGroupCollection> $result */
         $result = $listing->getAggregations()->get('properties');
@@ -220,7 +220,7 @@ class ProductListingFilterOutOfStockTest extends TestCase
             ],
         ];
 
-        if (!empty($options)) {
+        if ($options !== []) {
             foreach ($options as $index => $option) {
                 $combination = $option['combination'];
 

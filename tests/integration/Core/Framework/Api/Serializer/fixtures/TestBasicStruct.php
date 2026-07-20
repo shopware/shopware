@@ -234,7 +234,6 @@ class TestBasicStruct extends SerializationFixture
             'documents' => null,
             '_uniqueIdentifier' => '1d23c1b015bf43fb97e89008cf42d6fe',
             'versionId' => null,
-            'extensions' => [],
             'apiAlias' => 'media',
         ];
     }

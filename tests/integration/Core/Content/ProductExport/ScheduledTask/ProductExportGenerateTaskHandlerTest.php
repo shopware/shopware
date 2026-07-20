@@ -22,10 +22,10 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -84,6 +84,43 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         static::assertSame($previousGeneratedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT), $newExport->getGeneratedAt()?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
     }
 
+    public function testStaleRunningExportIsUnlockedAndGenerated(): void
+    {
+        $this->createProductStream();
+
+        $exportId = $this->createTestEntity(null, 10, 'StaleTestexport.csv', true);
+
+        // Simulate a stuck run: set is_running=1 and updated_at in the past
+        /** @var Connection $connection */
+        $connection = static::getContainer()->get(Connection::class);
+        $connection->executeStatement(
+            'UPDATE `product_export` SET `is_running` = 1, `updated_at` = :updatedAt WHERE `id` = :id',
+            [
+                'updatedAt' => (new \DateTimeImmutable('-1 hour'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'id' => Uuid::fromHexToBytes($exportId),
+            ]
+        );
+
+        $this->clearQueue();
+        $this->getTaskHandler()->run();
+
+        // Consume all queued messages
+        $client = $this->getBrowser();
+        $client->request('POST', '/api/_action/message-queue/consume', ['receiver' => 'async']);
+
+        static::assertSame(200, $client->getResponse()->getStatusCode());
+
+        // File should be generated
+        $filePath = \sprintf('%s/%s', static::getContainer()->getParameter('product_export.directory'), 'StaleTestexport.csv');
+        static::assertTrue($this->fileSystem->fileExists($filePath));
+
+        // And the export entity should be unlocked and have a generatedAt timestamp
+        $newExport = $this->productExportRepository->search(new Criteria([$exportId]), $this->context)->getEntities()->first();
+        static::assertNotNull($newExport);
+        static::assertFalse($newExport->getIsRunning());
+        static::assertInstanceOf(\DateTimeInterface::class, $newExport->getGeneratedAt());
+    }
+
     protected function createSecondStorefrontSalesChannel(): void
     {
         /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
@@ -123,10 +160,9 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         return new ProductExportGenerateTaskHandler(
             static::getContainer()->get('scheduled_task.repository'),
             $this->createMock(LoggerInterface::class),
-            static::getContainer()->get(SalesChannelContextFactory::class),
-            static::getContainer()->get('sales_channel.repository'),
-            static::getContainer()->get('product_export.repository'),
-            static::getContainer()->get('messenger.default_bus')
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get('messenger.default_bus'),
+            new NativeClock(),
         );
     }
 

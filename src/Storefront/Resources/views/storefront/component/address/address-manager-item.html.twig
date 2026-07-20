@@ -10,6 +10,7 @@
                         id="{{ type }}-{{ address.id }}"
                         data-address-type="{{ type }}"
                         {% if address.id == activeAddressId %}checked{% endif %}
+                        {% if type === 'shipping' and not address.country.shippingAvailable %}disabled{% endif %}
                         class="form-check-input col-auto"
                     />
 
@@ -47,7 +48,7 @@
                                         {{ 'global.default.edit'|trans|sw_sanitize }}
                                     </a>
                                 </li>
-                                {% if defaultAddressId !== address.id %}
+                                {% if defaultAddressId !== address.id and not (type === 'shipping' and not address.country.shippingAvailable) %}
                                     <li>
                                         <a
                                             class="dropdown-item address-manager-modal-set-default-address"

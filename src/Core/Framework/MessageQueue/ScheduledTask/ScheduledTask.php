@@ -7,7 +7,7 @@ use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 #[Package('framework')]
-abstract class ScheduledTask implements AsyncMessageInterface
+abstract class ScheduledTask implements ScheduledTaskMessageInterface, AsyncMessageInterface
 {
     protected const MINUTELY = 60;
     protected const HOURLY = 3600;

@@ -2,10 +2,7 @@
 
 namespace Shopware\Core\Content\Seo\SalesChannel;
 
-use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
-use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface as SeoUrlRouteConfigRoute;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -20,6 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -35,6 +33,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class StoreApiSeoResolver implements EventSubscriberInterface
 {
     /**
+     * @param SalesChannelRepository<SeoUrlCollection> $salesChannelRepository
+     *
      * @internal
      */
     public function __construct(
@@ -46,7 +46,7 @@ class StoreApiSeoResolver implements EventSubscriberInterface
     }
 
     /**
-     * This subscriber has to trigger before the {@see \Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener},
+     * This subscriber has to trigger before the {@see StoreApiResponseListener},
      * because it requires access to the `StoreApiResponse`'s struct object, which is not available after encoding it.
      */
     public static function getSubscribedEvents(): array
@@ -102,7 +102,8 @@ class StoreApiSeoResolver implements EventSubscriberInterface
             }
         }
 
-        if ($struct instanceof Collection) {
+        /** @deprecated tag:v6.8.0 - Remove the EntitySearchResult exclusion once it no longer extends Collection. */
+        if ($struct instanceof Collection && !$struct instanceof EntitySearchResult) {
             foreach ($struct as $item) {
                 $this->findStruct($data, $item);
             }
@@ -115,6 +116,7 @@ class StoreApiSeoResolver implements EventSubscriberInterface
     {
         if ($struct instanceof Entity) {
             $definition = $this->definitionInstanceRegistry->getByEntityClass($struct) ?? $this->salesChannelDefinitionInstanceRegistry->getByEntityClass($struct);
+
             if ($definition && $definition->isSeoAware()) {
                 $data->add($definition->getEntityName(), $struct);
             }
@@ -140,7 +142,7 @@ class StoreApiSeoResolver implements EventSubscriberInterface
 
             $ids = $data->getIds($definition);
             $routes = $this->seoUrlRouteRegistry->findByDefinition($definition);
-            if (\count($routes) === 0) {
+            if ($routes === []) {
                 continue;
             }
 
@@ -153,18 +155,25 @@ class StoreApiSeoResolver implements EventSubscriberInterface
             $criteria->addFilter(new EqualsFilter('languageId', $context->getLanguageId()));
             $criteria->addSorting(new FieldSorting('salesChannelId'));
 
-            /** @var SeoUrlEntity $url */
-            foreach ($this->salesChannelRepository->search($criteria, $context) as $url) {
-                /** @var SalesChannelProductEntity|CategoryEntity $entity */
-                $entity = $data->get($definition, $url->getForeignKey());
+            foreach ($this->salesChannelRepository->search($criteria, $context)->getEntities() as $url) {
+                $entities = $data->getAll($definition, $url->getForeignKey());
 
-                if ($entity->getSeoUrls() === null) {
-                    $entity->setSeoUrls(new SeoUrlCollection());
+                foreach ($entities as $entity) {
+                    if (!\method_exists($entity, 'getSeoUrls') || !\method_exists($entity, 'setSeoUrls')) {
+                        break;
+                    }
+
+                    if ($entity->getSeoUrls() === null) {
+                        $entity->setSeoUrls(new SeoUrlCollection());
+                    }
+
+                    if (!$entity->getSeoUrls() instanceof SeoUrlCollection) {
+                        break;
+                    }
+
+                    $seoUrlCollection = $entity->getSeoUrls();
+                    $seoUrlCollection->add($url);
                 }
-
-                /** @var SeoUrlCollection $seoUrlCollection */
-                $seoUrlCollection = $entity->getSeoUrls();
-                $seoUrlCollection->add($url);
             }
         }
     }

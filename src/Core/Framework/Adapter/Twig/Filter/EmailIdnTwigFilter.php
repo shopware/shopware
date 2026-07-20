@@ -16,8 +16,8 @@ class EmailIdnTwigFilter extends AbstractExtension
     public function getFilters(): array
     {
         return [
-            new TwigFilter('decodeIdnEmail', [EmailIdnConverter::class, 'decode']),
-            new TwigFilter('encodeIdnEmail', [EmailIdnConverter::class, 'encode']),
+            new TwigFilter('decodeIdnEmail', EmailIdnConverter::decode(...)),
+            new TwigFilter('encodeIdnEmail', EmailIdnConverter::encode(...)),
         ];
     }
 }

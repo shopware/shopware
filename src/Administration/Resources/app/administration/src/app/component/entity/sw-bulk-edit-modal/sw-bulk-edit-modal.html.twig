@@ -1,7 +1,7 @@
 {% block sw_bulk_edit_modal %}
 <sw-modal
     class="sw-bulk-edit-modal"
-    :title="$tc('global.sw-bulk-edit-modal.bulkEditModalTitle', { count: itemCount }, itemCount)"
+    :title="$t('global.sw-bulk-edit-modal.bulkEditModalTitle', { count: itemCount }, itemCount)"
     variant="full"
     @modal-close="$emit('modal-close')"
     @edit-items="$emit('edit-items')"
@@ -54,7 +54,7 @@
                 variant="secondary"
                 @click="$emit('modal-close')"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
         </slot>
 
@@ -64,7 +64,7 @@
                 size="small"
                 @click="editItems"
             >
-                {{ $tc('global.sw-bulk-edit-modal.startBulkEdit') }}
+                {{ $t('global.sw-bulk-edit-modal.startBulkEdit') }}
             </mt-button>
         </slot>
     </template>

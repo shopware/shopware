@@ -26,12 +26,6 @@ export default {
             required: true,
         },
 
-        hasError: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-
         disabled: {
             type: Boolean,
             required: false,
@@ -78,33 +72,6 @@ export default {
                 return ucType.includes(this.ucTerm) || ucLabel.includes(this.ucTerm);
             });
         },
-
-        typeSelectClasses() {
-            return {
-                'has--error': this.hasError,
-            };
-        },
-
-        arrowColor() {
-            if (this.disabled) {
-                return {
-                    primary: '#d1d9e0',
-                    secondary: '#d1d9e0',
-                };
-            }
-
-            if (this.hasError) {
-                return {
-                    primary: '#DE294C',
-                    secondary: '#ffffff',
-                };
-            }
-
-            return {
-                primary: '#758CA3',
-                secondary: '#ffffff',
-            };
-        },
     },
 
     created() {
@@ -114,23 +81,18 @@ export default {
     methods: {
         createdComponent() {
             if (this.condition.type === 'scriptRule' && !this.condition.scriptId) {
-                // eslint-disable-next-line vue/no-mutating-props
                 this.condition.type = null;
             }
         },
 
         changeItem(item) {
             const { type, scriptId, appScriptCondition } = item ?? {};
-            // eslint-disable-next-line vue/no-mutating-props
             this.condition.type = type;
-            // eslint-disable-next-line vue/no-mutating-props
             this.condition.scriptId = scriptId;
-            // eslint-disable-next-line vue/no-mutating-props
             this.condition.appScriptCondition = appScriptCondition;
         },
 
         changeType(type) {
-            // eslint-disable-next-line vue/no-mutating-props
             this.condition.value = null;
 
             if (this.condition[this.childAssociationField] && this.condition[this.childAssociationField].length > 0) {
@@ -139,7 +101,6 @@ export default {
                 });
             }
 
-            // eslint-disable-next-line vue/no-mutating-props
             this.condition.type = type;
         },
 
@@ -199,7 +160,7 @@ export default {
                         }
 
                         snippet += this.$t(`sw-restricted-rules.restrictedConditions.relation.${key}`, {
-                            assignments: `"${this.$tc(currentValue.snippet, 1)}"`,
+                            assignments: `"${this.$t(currentValue.snippet, 1)}"`,
                         });
                     });
 

@@ -9,8 +9,6 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1608624028RemoveDefaultSalesChannelAssignmentForCustomerRecoveryEvent extends MigrationStep
@@ -29,11 +27,11 @@ class Migration1608624028RemoveDefaultSalesChannelAssignmentForCustomerRecoveryE
             AND updated_at IS NULL;
         ');
 
-        if (empty($customerRecoveryEvents)) {
+        if ($customerRecoveryEvents === []) {
             return;
         }
 
-        $customerRecoveryEvents = array_map(fn ($event) => $event['id'], $customerRecoveryEvents);
+        $customerRecoveryEvents = array_map(static fn ($event) => $event['id'], $customerRecoveryEvents);
 
         try {
             $connection->executeStatement(

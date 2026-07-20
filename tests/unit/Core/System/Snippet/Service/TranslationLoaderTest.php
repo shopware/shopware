@@ -1,0 +1,470 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\System\Snippet\Service;
+
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\Uri;
+use League\Flysystem\Filesystem as FlySystem;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\Locale\LocaleCollection;
+use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
+use Shopware\Core\System\Snippet\DataTransfer\Language\Language;
+use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection as LanguageDtoCollection;
+use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMapping;
+use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
+use Shopware\Core\System\Snippet\Event\TranslationLoadedEvent;
+use Shopware\Core\System\Snippet\Service\TranslationLoader;
+use Shopware\Core\System\Snippet\SnippetException;
+use Shopware\Core\System\Snippet\Struct\TranslationConfig;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Tests\Unit\Core\System\Snippet\Mock\TestPlugin;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Filesystem\Path;
+
+/**
+ * @internal
+ */
+#[Package('discovery')]
+#[CoversClass(TranslationLoader::class)]
+class TranslationLoaderTest extends TestCase
+{
+    private ClientInterface&MockObject $client;
+
+    private FlySystem $flysystem;
+
+    /**
+     * @var StaticEntityRepository<LanguageCollection>
+     */
+    private StaticEntityRepository $languageRepository;
+
+    /**
+     * @var StaticEntityRepository<LocaleCollection>
+     */
+    private StaticEntityRepository $localeRepository;
+
+    /**
+     * @var StaticEntityRepository<SnippetSetCollection>
+     */
+    private StaticEntityRepository $snippetSetRepository;
+
+    private IdsCollection $ids;
+
+    private Context $context;
+
+    private TranslationConfig $config;
+
+    private EventDispatcher $eventDispatcher;
+
+    protected function setUp(): void
+    {
+        $this->client = $this->createMock(ClientInterface::class);
+        $this->flysystem = new FlySystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
+        $this->context = Context::createDefaultContext();
+        $this->eventDispatcher = new EventDispatcher();
+        $this->ids = new IdsCollection();
+        $this->languageRepository = new StaticEntityRepository([$this->getSearchResult('language')]);
+        $this->localeRepository = new StaticEntityRepository([$this->getSearchResult('locale')]);
+        $this->snippetSetRepository = new StaticEntityRepository([$this->getSearchResult('snippet-set')]);
+        $this->config = new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            ['es-ES'],
+            ['SwagPublisher'],
+            new LanguageDtoCollection([new Language('es-ES', 'Español')]),
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            ['it-IT'],
+        );
+        $this->initClient();
+    }
+
+    public function testLoadThrowsExceptionIfLanguageDoesNotExist(): void
+    {
+        $loader = $this->getTranslationLoader();
+
+        static::expectException(SnippetException::class);
+        $loader->load('non-existent-language', $this->context);
+    }
+
+    public function testLoadThrowsExceptionIfProvidedLocaleDoesNotExist(): void
+    {
+        $this->localeRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+
+        $loader = $this->getTranslationLoader();
+
+        $this->expectExceptionObject(SnippetException::localeDoesNotExist('es-ES'));
+        $loader->load('es-ES', $this->context);
+    }
+
+    public function testLoadThrowsExceptionIfRemoteServerReturnsNon404(): void
+    {
+        $response500 = new Response(500);
+        $request = new Request('GET', 'http://localhost:8000');
+        $requestException = new RequestException('Server Error', $request, $response500);
+
+        $this->client = $this->createMock(ClientInterface::class);
+        $this->client->method('request')->willThrowException($requestException);
+
+        $loader = $this->getTranslationLoader();
+
+        static::expectException(GuzzleException::class);
+        static::expectExceptionCode(500);
+        $loader->load('es-ES', $this->context);
+    }
+
+    public function testLoadSkips404RemoteFiles(): void
+    {
+        $response404 = new Response(404);
+        $request = new Request('GET', 'http://localhost:8000');
+        $requestException = new RequestException('Not Found', $request, $response404);
+
+        $this->client = $this->createMock(ClientInterface::class);
+        $this->client->method('request')->willReturnCallback(static function ($method, $url) use ($requestException) {
+            if (str_contains($url, 'administration.json')) {
+                throw $requestException;
+            }
+            $jsonResponse = json_encode(['es-ES']);
+            static::assertIsString($jsonResponse);
+
+            return new Response(200, [], $jsonResponse);
+        });
+
+        $loader = $this->getTranslationLoader();
+        $loader->load('es-ES', $this->context);
+
+        $writtenFiles = $this->flysystem->listContents(TranslationLoader::TRANSLATION_DIR, true)
+            ->filter(static fn ($item) => $item->isFile())
+            ->map(static fn ($item) => $item->path())
+            ->toArray();
+
+        static::assertCount(3, $writtenFiles);
+        foreach ($writtenFiles as $file) {
+            static::assertStringNotContainsString('administration.json', $file);
+        }
+    }
+
+    public function testLoadFetchesCoreAndPluginSnippets(): void
+    {
+        $loader = $this->getTranslationLoader();
+        $loader->load('es-ES', $this->context);
+
+        $writtenFiles = $this->flysystem->listContents(TranslationLoader::TRANSLATION_DIR, true)
+            ->filter(static fn ($item) => $item->isFile())
+            ->map(static fn ($item) => $item->path())
+            ->toArray();
+
+        static::assertCount(5, $writtenFiles);
+
+        $shopwarePath = Path::join(TranslationLoader::TRANSLATION_DIR, TranslationLoader::TRANSLATION_LOCALE_SUB_DIR, 'es-ES', 'Platform');
+        $shopwarePath = mb_ltrim($shopwarePath, '/\\');
+        $pluginPath = Path::join(TranslationLoader::TRANSLATION_DIR, TranslationLoader::TRANSLATION_LOCALE_SUB_DIR, 'es-ES', 'Plugins', 'SwagPublisher');
+        $pluginPath = mb_ltrim($pluginPath, '/\\');
+
+        $expectedFiles = [
+            $shopwarePath . '/administration.json',
+            $shopwarePath . '/messages.es-ES.base.json',
+            $shopwarePath . '/storefront.json',
+            $pluginPath . '/storefront.json',
+            $pluginPath . '/administration.json',
+        ];
+        sort($writtenFiles);
+        sort($expectedFiles);
+
+        static::assertSame($expectedFiles, $writtenFiles);
+    }
+
+    public function testLoadCreatesLanguageAndSnippetSet(): void
+    {
+        $this->languageRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+        $this->snippetSetRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+
+        $loader = $this->getTranslationLoader();
+        $loader->load('es-ES', $this->context);
+
+        $createdLanguages = array_shift($this->languageRepository->creates);
+        static::assertIsArray($createdLanguages);
+        static::assertCount(1, $createdLanguages);
+
+        $language = array_shift($createdLanguages);
+        static::assertIsArray($language);
+        static::assertSame('Español', $language['name']);
+        static::assertSame($this->ids->get('locale'), $language['localeId']);
+        static::assertTrue($language['active']);
+
+        $createdSnippetSets = array_shift($this->snippetSetRepository->creates);
+        static::assertIsArray($createdSnippetSets);
+        static::assertCount(1, $createdSnippetSets);
+
+        $snippetSet = array_shift($createdSnippetSets);
+        static::assertIsArray($snippetSet);
+        static::assertSame('BASE es-ES', $snippetSet['name']);
+        static::assertSame('es-ES', $snippetSet['iso']);
+        static::assertSame('messages.es-ES', $snippetSet['baseFile']);
+    }
+
+    public function testTranslationDirectoryIsCreatedIfNotExists(): void
+    {
+        $loader = $this->getTranslationLoader();
+
+        static::assertFalse($this->flysystem->directoryExists(TranslationLoader::TRANSLATION_DIR));
+        $loader->load('es-ES', $this->context);
+
+        $expectedDirectories = [
+            'translation/locale/es-ES/Platform',
+            'translation/locale/es-ES/Plugins/SwagPublisher',
+        ];
+
+        foreach ($expectedDirectories as $directory) {
+            static::assertTrue($this->flysystem->directoryExists($directory));
+        }
+    }
+
+    public function testGetLocalePath(): void
+    {
+        $loader = $this->getTranslationLoader();
+        static::assertSame('', $loader->getLocalePath('_not-a-locale_'));
+        static::assertSame('/translation/locale/de-DE', $loader->getLocalePath('de-DE'));
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed with tested method
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testPluginTranslationExists(): void
+    {
+        $loader = $this->getTranslationLoader();
+
+        $noLocaleBasePathPlugin = new TestPlugin(true, '');
+        $noLocaleBasePathPlugin->setName('NoLocaleBasePathExists');
+        static::assertFalse($loader->pluginTranslationExists($noLocaleBasePathPlugin));
+
+        $existingPlugin = new TestPlugin(true, '');
+        $existingPlugin->setName('SwagPublisher');
+        $this->flysystem->createDirectory($loader->getLocalePath('de-DE') . '/Plugins/SwagPublisher');
+
+        static::assertTrue($loader->pluginTranslationExists($existingPlugin));
+        static::assertFalse($loader->pluginTranslationExists($noLocaleBasePathPlugin));
+    }
+
+    public function testPluginTranslationExistsForLocale(): void
+    {
+        $loader = $this->getTranslationLoader();
+
+        $existingPlugin = new TestPlugin(true, '');
+        $existingPlugin->setName('SwagPublisher');
+        $this->flysystem->createDirectory($loader->getLocalePath('de-DE') . '/Plugins/SwagPublisher');
+
+        static::assertTrue($loader->pluginTranslationExistsForLocale($existingPlugin, 'de-DE'));
+        static::assertFalse($loader->pluginTranslationExistsForLocale($existingPlugin, 'en-GB'));
+    }
+
+    public function testGetLocalePathBypassesValidatorForAllowedPseudoLocale(): void
+    {
+        $loader = $this->getTranslationLoader();
+        static::assertSame('/translation/locale/ach-UG', $loader->getLocalePath('ach-UG'));
+    }
+
+    public function testLoadCreatesPseudoLocaleEntryWhenMissing(): void
+    {
+        $this->config = new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            ['ach-UG'],
+            [],
+            new LanguageDtoCollection([new Language('ach-UG', 'Acholi (Pseudo Language)')]),
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            [],
+        );
+        $this->localeRepository = new StaticEntityRepository([
+            $this->getEmptySearchResult(),
+            $this->getSearchResult('locale'),
+        ]);
+        $this->languageRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+        $this->snippetSetRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+
+        $loader = $this->getTranslationLoader();
+        $loader->load('ach-UG', $this->context);
+
+        static::assertCount(1, $this->localeRepository->creates);
+        $createdLocales = $this->localeRepository->creates[0];
+        static::assertIsArray($createdLocales);
+        static::assertCount(1, $createdLocales);
+
+        $locale = $createdLocales[0];
+        static::assertIsArray($locale);
+        static::assertSame('ach-UG', $locale['code']);
+        static::assertArrayHasKey('translations', $locale);
+        $translation = $locale['translations'][Defaults::LANGUAGE_SYSTEM];
+        static::assertSame('Acholi', $translation['name']);
+        static::assertSame('Pseudo Language', $translation['territory']);
+    }
+
+    public function testLoadStillThrowsForUnknownNonPseudoLocale(): void
+    {
+        $this->localeRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+
+        $loader = $this->getTranslationLoader();
+
+        $this->expectExceptionObject(SnippetException::localeDoesNotExist('es-ES'));
+        $loader->load('es-ES', $this->context);
+    }
+
+    public function testPluginTranslationExistsWorksWithMappedPlugin(): void
+    {
+        $pluginMapping = new PluginMappingCollection();
+        $pluginMapping->add(new PluginMapping('SwagPaypal', 'MappedName'));
+        $this->config = new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            ['es-ES'],
+            ['SwagPaypal'],
+            new LanguageDtoCollection([new Language('es-ES', 'Español')]),
+            $pluginMapping,
+            new Uri('http://localhost:8000/metadata.json'),
+            ['it-IT'],
+        );
+        $loader = $this->getTranslationLoader();
+
+        $mappedNamePlugin = new TestPlugin(true, '');
+        $mappedNamePlugin->setName('SwagPaypal');
+
+        $this->flysystem->createDirectory($loader->getLocalePath('de-DE') . '/Plugins/SwagPaypal');
+        static::assertFalse($loader->pluginTranslationExistsForLocale($mappedNamePlugin, 'de-DE'));
+
+        $this->flysystem->createDirectory($loader->getLocalePath('de-DE') . '/Plugins/MappedName');
+        static::assertTrue($loader->pluginTranslationExistsForLocale($mappedNamePlugin, 'de-DE'));
+    }
+
+    public function testLoadCreatesLanguageWithActiveFalseWhenSkipped(): void
+    {
+        $this->languageRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+        $this->snippetSetRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+
+        $loader = $this->getTranslationLoader();
+        $loader->load('es-ES', $this->context, false); // activate = false
+
+        $createdLanguages = array_shift($this->languageRepository->creates);
+        static::assertIsArray($createdLanguages);
+        static::assertCount(1, $createdLanguages);
+
+        $language = array_shift($createdLanguages);
+        static::assertIsArray($language);
+        static::assertSame('Español', $language['name']);
+        static::assertSame($this->ids->get('locale'), $language['localeId']);
+        static::assertFalse($language['active']);
+    }
+
+    public function testSnippetSetOnlyCreatedOnce(): void
+    {
+        $this->localeRepository = new StaticEntityRepository([
+            $this->getSearchResult('locale'),
+            $this->getSearchResult('locale'),
+        ]);
+
+        $this->languageRepository = new StaticEntityRepository([
+            $this->getSearchResult('language'),
+            $this->getSearchResult('language'),
+        ]);
+
+        $this->snippetSetRepository = new StaticEntityRepository([
+            $this->getEmptySearchResult(),
+            $this->getSearchResult('snippet-set'),
+        ]);
+
+        $loader = $this->getTranslationLoader();
+
+        $loader->load('es-ES', $this->context);
+
+        static::assertCount(1, $this->snippetSetRepository->creates);
+        $createdSnippetSets = $this->snippetSetRepository->creates[0];
+        static::assertIsArray($createdSnippetSets);
+        static::assertCount(1, $createdSnippetSets);
+
+        $loader->load('es-ES', $this->context);
+        static::assertCount(1, $this->snippetSetRepository->creates);
+    }
+
+    public function testGetDecoratedThrowsException(): void
+    {
+        static::expectException(DecorationPatternException::class);
+        $this->getTranslationLoader()->getDecorated();
+    }
+
+    public function testLoadDispatchesEvent(): void
+    {
+        $dispatched = null;
+        $this->eventDispatcher->addListener(
+            TranslationLoadedEvent::class,
+            static function (TranslationLoadedEvent $event) use (&$dispatched): void {
+                $dispatched = $event;
+            }
+        );
+
+        $this->getTranslationLoader()->load('es-ES', $this->context);
+
+        static::assertInstanceOf(TranslationLoadedEvent::class, $dispatched);
+        static::assertSame('es-ES', $dispatched->getLocale());
+        static::assertSame($this->context, $dispatched->getContext());
+    }
+
+    private function getTranslationLoader(): TranslationLoader
+    {
+        return new TranslationLoader(
+            translationWriter: $this->flysystem,
+            languageRepository: $this->languageRepository,
+            localeRepository: $this->localeRepository,
+            snippetSetRepository: $this->snippetSetRepository,
+            client: $this->client,
+            config: $this->config,
+            eventDispatcher: $this->eventDispatcher,
+        );
+    }
+
+    private function getSearchResult(string $entity): IdSearchResult
+    {
+        $id = $this->ids->get($entity);
+
+        return new IdSearchResult(
+            1,
+            [$id => [
+                'data' => [],
+                'primaryKey' => $id,
+            ]],
+            new Criteria(),
+            $this->context
+        );
+    }
+
+    private function getEmptySearchResult(): IdSearchResult
+    {
+        return new IdSearchResult(
+            0,
+            [],
+            new Criteria(),
+            $this->context
+        );
+    }
+
+    private function initClient(): void
+    {
+        $body = json_encode(['es-ES']);
+        static::assertIsString($body);
+
+        $response = new Response(200, [], $body);
+        $this->client->method('request')->willReturn($response);
+    }
+}

@@ -12,17 +12,15 @@ class CartPromotionsDataDefinition extends Struct
     /**
      * @var array<string, array<PromotionEntity>>
      */
-    private array $codePromotions;
+    private array $codePromotions = [];
 
     /**
      * @var array<PromotionEntity>
      */
-    private array $automaticPromotions;
+    private array $automaticPromotions = [];
 
     public function __construct()
     {
-        $this->codePromotions = [];
-        $this->automaticPromotions = [];
     }
 
     /**
@@ -102,7 +100,7 @@ class CartPromotionsDataDefinition extends Struct
      */
     public function getAllCodes(): array
     {
-        return array_keys($this->codePromotions);
+        return array_map(\strval(...), array_keys($this->codePromotions));
     }
 
     public function getApiAlias(): string

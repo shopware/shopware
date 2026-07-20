@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class StatesFacade
 {
-    public function __construct(private Cart $cart)
+    public function __construct(private readonly Cart $cart)
     {
     }
 

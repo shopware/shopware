@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\DevOps\Docs\Script;
 
-use League\ConstructFinder\ConstructFinder;
+use Composer\ClassMapGenerator\ClassMapGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
@@ -19,9 +19,16 @@ class ScriptReferenceDataCollector
     private static array $classes = [];
 
     /**
-     * @var array<string, SplFileInfo>
+     * @var array<string, SplFileInfo>|null
      */
-    private static array $files = [];
+    private static ?array $files = null;
+
+    private static ?string $scanPath = null;
+
+    /**
+     * @var list<string>|null
+     */
+    private static ?array $finderPaths = null;
 
     /**
      * @return array<class-string>
@@ -29,12 +36,33 @@ class ScriptReferenceDataCollector
     public static function getShopwareClasses(): array
     {
         if (self::$classes === []) {
-            self::$classes = ConstructFinder::locatedIn(__DIR__ . '/../../../..')
-                ->exclude('*/Test/*', '*/vendor/*', '*/DevOps/StaticAnalyze*', 'node_modules')
-                ->findClassNames();
+            $generator = new ClassMapGenerator();
+            $generator->scanPaths(
+                path: self::$scanPath ?? __DIR__ . '/../../../..',
+                excluded: '/\/vendor\/|\/node_modules\/|\/DevOps\/StaticAnalyze\/|\/Test\/|Interface.php|Trait.php/'
+            );
+            self::$classes = array_keys($generator->getClassMap()->getMap());
         }
 
         return self::$classes;
+    }
+
+    /**
+     * @internal only for testing
+     *
+     * @param array<class-string> $classes
+     */
+    public static function setShopwareClasses(array $classes): void
+    {
+        self::$classes = $classes;
+    }
+
+    /**
+     * @internal only for testing
+     */
+    public static function setScanPath(string $path): void
+    {
+        self::$scanPath = $path;
     }
 
     /**
@@ -42,13 +70,11 @@ class ScriptReferenceDataCollector
      */
     public static function getFiles(): array
     {
-        if (self::$files === []) {
+        if (self::$files === null) {
             $finder = new Finder();
             $finder
                 ->files()
-                ->in([__DIR__ . '/../../../../', __DIR__ . '/../../../../../tests'])
-                // exclude js files including node_modules for performance reasons, filtering with `notPath`, etc. has no performance impact
-                // note that excluded paths need to be relative to platform/src and that no wildcards are supported
+                ->in(self::$finderPaths ?? [__DIR__ . '/../../../../', __DIR__ . '/../../../../../tests'])
                 ->exclude([
                     'Administration/Resources',
                     'Storefront/Resources',
@@ -62,9 +88,27 @@ class ScriptReferenceDataCollector
         return self::$files;
     }
 
+    /**
+     * @param array<string, SplFileInfo> $files
+     */
+    public static function setFiles(array $files): void
+    {
+        self::$files = $files;
+    }
+
+    /**
+     * @param list<string> $paths
+     */
+    public static function setFinderPaths(array $paths): void
+    {
+        self::$finderPaths = $paths;
+    }
+
     public static function reset(): void
     {
-        self::$files = [];
+        self::$files = null;
         self::$classes = [];
+        self::$scanPath = null;
+        self::$finderPaths = null;
     }
 }

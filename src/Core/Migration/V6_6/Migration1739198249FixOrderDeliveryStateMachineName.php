@@ -37,11 +37,11 @@ class Migration1739198249FixOrderDeliveryStateMachineName extends MigrationStep
         ));
 
         $stateMachineId = $connection->fetchOne('SELECT id FROM state_machine WHERE technical_name = :technicalName', ['technicalName' => OrderDeliveryStates::STATE_MACHINE]);
-        if (!\is_string($stateMachineId) || empty($stateMachineId)) {
+        if (!\is_string($stateMachineId) || $stateMachineId === '') {
             return;
         }
 
-        if (!empty($germanIds)) {
+        if ($germanIds !== []) {
             $connection->executeStatement('UPDATE state_machine_translation SET name = :name WHERE state_machine_id = :stateMachineId AND language_id IN (:languageIds) AND updated_at IS NULL', [
                 'name' => 'Versandstatus',
                 'stateMachineId' => $stateMachineId,
@@ -53,7 +53,7 @@ class Migration1739198249FixOrderDeliveryStateMachineName extends MigrationStep
             ]);
         }
 
-        if (!empty($englishIds)) {
+        if ($englishIds !== []) {
             $connection->executeStatement('UPDATE state_machine_translation SET name = :name WHERE state_machine_id = :stateMachineId AND language_id IN (:languageIds) AND updated_at IS NULL', [
                 'name' => 'Delivery state',
                 'stateMachineId' => $stateMachineId,

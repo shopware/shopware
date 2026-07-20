@@ -11,9 +11,6 @@ async function createWrapper(privileges = [], fieldType = null, conditionType = 
         },
         'sw-single-select': true,
         'sw-text-field': true,
-        'sw-arrow-field': {
-            template: '<div class="sw-arrow-field"><slot></slot></div>',
-        },
         'sw-entity-single-select': true,
         'sw-entity-multi-id-select': true,
         'sw-product-variant-info': true,
@@ -100,6 +97,11 @@ async function createWrapper(privileges = [], fieldType = null, conditionType = 
                         },
                     },
                 },
+
+                productTypes: [
+                    'physical',
+                    'digital',
+                ],
             },
             stubs,
         },

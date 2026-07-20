@@ -14,7 +14,7 @@
                 {% set categoryId = item.category.id %}
                 {% set categoryName = item.category.translated.name %}
                 {% set categoryType = item.category.type %}
-                {% set categoryUrl = item.category.seoLink %}
+                {% set categoryUrl = item.category.seoUrl %}
                 {% set categoryLinkNewTab = item.category.shouldOpenInNewTab %}
 
                 {% block layout_navigation_categories_list_entry %}
@@ -28,6 +28,7 @@
                                 {% block layout_navigation_categories_link_children %}
                                     <a class="category-navigation-link{% if categoryId is same as(activeId) %} is-active{% endif %}{% if categoryId in activePath %} in-path{% endif %}"
                                         href="{{ categoryUrl }}"
+                                        {% if categoryId is same as(activeId) %}aria-current="page"{% endif %}
                                         {% if categoryLinkNewTab %}target="_blank"{% endif %}>
                                         {% block layout_navigation_categories_link_children_name %}
                                             {{ categoryName }}
@@ -37,7 +38,7 @@
                             {% endif %}
 
                             {% block layout_navigation_categories_recoursion %}
-                                {% if level < navigationMaxDepth and item.children %}
+                                {% if item.children %}
                                     {% sw_include '@Storefront/storefront/layout/sidebar/category-navigation.html.twig' with {
                                         navigationTree: item.children,
                                         level: level + 1
@@ -53,6 +54,7 @@
                                 {% block layout_navigation_categories_link %}
                                     <a class="category-navigation-link{% if categoryId is same as(activeId) %} is-active{% endif %}"
                                         href="{{ categoryUrl }}"
+                                        {% if categoryId is same as(activeId) %}aria-current="page"{% endif %}
                                         {% if categoryLinkNewTab %}target="_blank"{% endif %}>
                                         {% block layout_navigation_categories_link_name %}
                                             {{ categoryName }}

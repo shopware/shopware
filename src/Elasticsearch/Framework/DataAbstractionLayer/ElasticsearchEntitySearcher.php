@@ -6,7 +6,9 @@ use OpenSearch\Client;
 use OpenSearchDSL\Aggregation\AbstractAggregation;
 use OpenSearchDSL\Aggregation\Bucketing\FilterAggregation;
 use OpenSearchDSL\Aggregation\Metric\CardinalityAggregation;
+use OpenSearchDSL\Collapse\Collapse;
 use OpenSearchDSL\Search;
+use OpenSearchDSL\SearchEndpoint\CollapseEndpoint;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -15,16 +17,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntitySearcherSearchedEvent;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntitySearcherSearchEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
+use Shopware\Elasticsearch\Framework\Exception\EmptyQueryException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('framework')]
 class ElasticsearchEntitySearcher implements EntitySearcherInterface
 {
-    final public const EXPLAIN_MODE = 'explain-mode';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use \Shopware\Core\Framework\Context::ELASTICSEARCH_EXPLAIN_MODE instead.
+     */
+    final public const EXPLAIN_MODE = Context::ELASTICSEARCH_EXPLAIN_MODE;
     final public const MAX_LIMIT = 10000;
     final public const RESULT_STATE = 'loaded-by-elastic';
 
@@ -39,7 +44,8 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         private readonly AbstractElasticsearchSearchHydrator $hydrator,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly string $timeout,
-        private readonly string $searchType
+        private readonly string $searchType,
+        private readonly ?int $precisionThreshold = null
     ) {
     }
 
@@ -68,32 +74,32 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
             $params = [
                 'index' => $this->helper->getIndexName($definition),
                 'search_type' => $this->searchType,
-                'track_total_hits' => $criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_EXACT,
                 'body' => $this->convertSearch($criteria, $definition, $context, $search),
             ];
 
-            if ($context->hasState(self::EXPLAIN_MODE)) {
+            if ($context->hasState(Context::ELASTICSEARCH_EXPLAIN_MODE)) {
                 $params['include_named_queries_score'] = true;
                 $params['track_scores'] = true;
             }
 
-            $result = $this->client->search($params);
+            $response = $this->client->search($params);
 
-            $result = $this->hydrator->hydrate($definition, $criteria, $context, $result);
+            $result = $this->hydrator->hydrate($definition, $criteria, $context, $response);
 
             $this->eventDispatcher->dispatch(new ElasticsearchEntitySearcherSearchedEvent(
                 $result,
                 $search,
                 $definition,
                 $criteria,
-                $context
+                $context,
+                $response,
             ));
 
             $result->addState(self::RESULT_STATE);
 
             return $result;
         } catch (\Throwable $e) {
-            if ($e instanceof ElasticsearchException && $e->getErrorCode() === ElasticsearchException::EMPTY_QUERY) {
+            if ($e instanceof EmptyQueryException) {
                 return new IdSearchResult(0, [], $criteria, $context);
             }
 
@@ -120,6 +126,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
             $search->setSize($limit);
         }
         $search->setFrom((int) $criteria->getOffset());
+        $search->setTrackTotalHits($criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_EXACT);
 
         return $search;
     }
@@ -129,7 +136,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
      */
     private function convertSearch(Criteria $criteria, EntityDefinition $definition, Context $context, Search $search): array
     {
-        if ($context->hasState(self::EXPLAIN_MODE)) {
+        if ($context->hasState(Context::ELASTICSEARCH_EXPLAIN_MODE)) {
             $search->setExplain(true);
         }
 
@@ -146,8 +153,11 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
             $search->addAggregation($aggregation);
         }
 
+        $search->getEndpoint(CollapseEndpoint::NAME)->add(
+            $this->parseGrouping($criteria->getGroupFields(), $definition, $context)
+        );
+
         $array = $search->toArray();
-        $array['collapse'] = $this->parseGrouping($criteria->getGroupFields(), $definition, $context);
         $array['timeout'] = $this->timeout;
 
         return $array;
@@ -155,26 +165,27 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
     /**
      * @param FieldGrouping[] $groupings
-     *
-     * @return array{field: string, inner_hits?: array{name: string}}
      */
-    private function parseGrouping(array $groupings, EntityDefinition $definition, Context $context): array
+    private function parseGrouping(array $groupings, EntityDefinition $definition, Context $context): Collapse
     {
         /** @var FieldGrouping $grouping */
         $grouping = array_shift($groupings);
 
         $accessor = $this->criteriaParser->buildAccessor($definition, $grouping->getField(), $context);
-        if (empty($groupings)) {
-            return ['field' => $accessor];
+        $collapse = new Collapse($accessor);
+
+        if ($groupings === []) {
+            return $collapse;
         }
 
-        return [
-            'field' => $accessor,
-            'inner_hits' => [
+        $collapse->addParameter('inner_hits', [
+            [
                 'name' => 'inner',
-                'collapse' => $this->parseGrouping($groupings, $definition, $context),
+                'collapse' => $this->parseGrouping($groupings, $definition, $context)->toArray(),
             ],
-        ];
+        ]);
+
+        return $collapse;
     }
 
     private function buildTotalCountAggregation(Criteria $criteria, EntityDefinition $definition, Context $context): AbstractAggregation
@@ -188,6 +199,9 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
             $aggregation = new CardinalityAggregation('total-count');
             $aggregation->setField($accessor);
+            if ($this->precisionThreshold !== null) {
+                $aggregation->addParameter('precision_threshold', $this->precisionThreshold);
+            }
 
             return $this->addPostFilterAggregation($criteria, $definition, $context, $aggregation);
         }
@@ -218,6 +232,9 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
         $aggregation = new CardinalityAggregation('total-count');
         $aggregation->setScript($script);
+        if ($this->precisionThreshold !== null) {
+            $aggregation->addParameter('precision_threshold', $this->precisionThreshold);
+        }
 
         return $this->addPostFilterAggregation($criteria, $definition, $context, $aggregation);
     }

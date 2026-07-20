@@ -1,9 +1,7 @@
-@import "~scss/variables";
-
 .sw-bulk-edit-change-field-renderer {
     &__change-field > span {
-        color: $color-darkgray-200;
-        font-size: $font-size-xxs;
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-2xs);
     }
 
     &__inheritance-group-field {
@@ -12,26 +10,26 @@
 
     &__inheritance-group-field .sw-inheritance-switch {
         position: absolute;
-        top: 15px;
-        left: -30px;
+        top: var(--scale-size-16);
+        left: calc(var(--scale-size-30) * -1);
         margin-top: 0;
         line-height: 0;
     }
 
     &__inheritance-group-field.is--select-box-type .sw-inheritance-switch {
-        top: -40px;
+        top: calc(var(--scale-size-40) * -1);
     }
 }
 
 .sw-bulk-edit-change-field__container {
-    padding: 24px 32px;
+    padding: var(--scale-size-24) var(--scale-size-32);
 
     &:nth-child(even) {
         .sw-field--switch__content {
-            background-color: $color-gray-100;
+            background-color: var(--color-background-secondary-default);
         }
 
-        background-color: $color-gray-100;
+        background-color: var(--color-background-secondary-default);
     }
 
     .sw-field,
@@ -42,7 +40,7 @@
     }
 
     .mt-field--checkbox__content {
-        padding: 15px 0;
+        padding: var(--scale-size-16) 0;
     }
 
     .sw-data-grid__table {

@@ -74,7 +74,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
             $config[$name] = $clone;
         }
 
-        return json_decode((string) json_encode($config, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+        return json_decode(json_encode($config, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -123,9 +123,9 @@ class DatabaseConfigLoader extends AbstractConfigLoader
     {
         // add configured parent themes
         foreach ($this->getConfigInheritance($mainTheme) as $parentThemeName) {
-            $parentTheme = $themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getTechnicalName() === str_replace('@', '', $parentThemeName))->first();
+            $parentTheme = $themes->filter(static fn (ThemeEntity $themeEntry) => $themeEntry->getTechnicalName() === str_replace('@', '', $parentThemeName))->first();
 
-            if (!($parentTheme instanceof ThemeEntity)) {
+            if (!$parentTheme instanceof ThemeEntity) {
                 continue;
             }
 
@@ -144,9 +144,9 @@ class DatabaseConfigLoader extends AbstractConfigLoader
         }
 
         // add database defined parent theme
-        $parentTheme = $themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getId() === $mainTheme->getParentThemeId())->first();
+        $parentTheme = $themes->filter(static fn (ThemeEntity $themeEntry) => $themeEntry->getId() === $mainTheme->getParentThemeId())->first();
 
-        if (!($parentTheme instanceof ThemeEntity)) {
+        if (!$parentTheme instanceof ThemeEntity) {
             return $parentThemes;
         }
 
@@ -189,6 +189,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
             /** @var ThemeEntity $parentTheme */
             $parentTheme = $this->themeRepository
                 ->search($criteria, $context)
+                ->getEntities()
                 ->first();
 
             if (!\is_string($parentTheme->getTechnicalName())) {
@@ -232,7 +233,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
         }
 
         foreach ($theme->getConfigValues() as $fieldName => $configValue) {
-            if (isset($configValue['value'])) {
+            if (\array_key_exists('value', $configValue)) {
                 $configuredTheme['fields'][$fieldName]['value'] = $configValue['value'];
             }
         }
@@ -251,7 +252,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
         $ids = [];
 
         // Collect all ids
-        foreach ($config['fields'] as $_ => $data) {
+        foreach ($config['fields'] as $data) {
             if (!isset($data['value'])
                 || $data['value'] === ''
                 || !\is_string($data['value'])
@@ -265,7 +266,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
             $ids[] = $data['value'];
         }
 
-        if (\count($ids) === 0) {
+        if ($ids === []) {
             return;
         }
 
@@ -300,22 +301,38 @@ class DatabaseConfigLoader extends AbstractConfigLoader
      */
     private function getConfigInheritance(ThemeEntity $mainTheme): array
     {
-        if (!\is_array($mainTheme->getBaseConfig())) {
-            return [];
+        $baseConfig = $mainTheme->getBaseConfig();
+
+        $inheritanceConfig = $baseConfig['configInheritance'] ?? [];
+        if ($inheritanceConfig !== []) {
+            return $inheritanceConfig;
         }
 
-        if (!\array_key_exists('configInheritance', $mainTheme->getBaseConfig())) {
-            return [];
+        // For database copies (child themes), inherit config from parent theme.
+        if ($baseConfig === null
+            && $mainTheme->getTechnicalName() === null
+            && $mainTheme->getParentThemeId() !== null
+        ) {
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('id', $mainTheme->getParentThemeId()));
+
+            $parentTheme = $this->themeRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+
+            if ($parentTheme instanceof ThemeEntity) {
+                $parentConfigInheritance = $this->getConfigInheritance($parentTheme);
+                if ($parentConfigInheritance !== []) {
+                    return $parentConfigInheritance;
+                }
+            }
         }
 
-        if (!\is_array($mainTheme->getBaseConfig()['configInheritance'])) {
-            return [];
+        // Fallback: ensure every theme (except base theme) inherits from Storefront by default
+        if ($mainTheme->getTechnicalName() !== StorefrontPluginRegistry::BASE_THEME_NAME) {
+            return [
+                '@' . StorefrontPluginRegistry::BASE_THEME_NAME,
+            ];
         }
 
-        if (empty($mainTheme->getBaseConfig()['configInheritance'])) {
-            return [];
-        }
-
-        return $mainTheme->getBaseConfig()['configInheritance'];
+        return [];
     }
 }

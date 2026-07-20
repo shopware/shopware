@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Script\Execution\ScriptAppInformation;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Test\Script\Execution\TestHook;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -66,7 +67,7 @@ class RepositoryWriterFacadeTest extends TestCase
         ];
 
         $facade->upsert('product', $payload);
-        $createdProduct = $this->productRepository->search(new Criteria([$this->ids->get('p4')]), $this->context)->first();
+        $createdProduct = $this->productRepository->search(new Criteria([$this->ids->get('p4')]), $this->context)->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $createdProduct);
     }
@@ -89,7 +90,7 @@ class RepositoryWriterFacadeTest extends TestCase
         ];
 
         $facade->upsert('product', $payload);
-        $updated = $this->productRepository->search(new Criteria([$this->ids->get('p2')]), $this->context)->first();
+        $updated = $this->productRepository->search(new Criteria([$this->ids->get('p2')]), $this->context)->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $updated);
         static::assertTrue($updated->getActive());
@@ -106,7 +107,7 @@ class RepositoryWriterFacadeTest extends TestCase
         );
 
         $facade->delete('product', [['id' => $this->ids->get('p2')]]);
-        $deleted = $this->productRepository->search(new Criteria([$this->ids->get('p2')]), $this->context)->first();
+        $deleted = $this->productRepository->search(new Criteria([$this->ids->get('p2')]), $this->context)->getEntities()->first();
 
         static::assertNull($deleted);
     }
@@ -147,14 +148,14 @@ class RepositoryWriterFacadeTest extends TestCase
 
         $this->productRepository = static::getContainer()->get('product.repository');
 
-        $createdProduct = $this->productRepository->search(new Criteria([$this->ids->get('p4')]), $this->context)->first();
+        $createdProduct = $this->productRepository->search(new Criteria([$this->ids->get('p4')]), $this->context)->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $createdProduct);
 
-        $updated = $this->productRepository->search(new Criteria([$this->ids->get('p2')]), $this->context)->first();
+        $updated = $this->productRepository->search(new Criteria([$this->ids->get('p2')]), $this->context)->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $updated);
         static::assertTrue($updated->getActive());
 
-        $deleted = $this->productRepository->search(new Criteria([$this->ids->get('p3')]), $this->context)->first();
+        $deleted = $this->productRepository->search(new Criteria([$this->ids->get('p3')]), $this->context)->getEntities()->first();
         static::assertNull($deleted);
     }
 
@@ -236,7 +237,7 @@ class RepositoryWriterFacadeTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'new tax'));
 
-        $createdTax = $taxRepository->search($criteria, $this->context)->first();
+        $createdTax = $taxRepository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(TaxEntity::class, $createdTax);
     }
 
@@ -260,7 +261,7 @@ class RepositoryWriterFacadeTest extends TestCase
 
         static::getContainer()->get(ScriptExecutor::class)->execute($hook);
 
-        $updated = $this->productRepository->search(new Criteria([$this->ids->get('p2')]), $this->context)->first();
+        $updated = $this->productRepository->search(new Criteria([$this->ids->get('p2')]), $this->context)->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $updated);
         static::assertTrue($updated->getActive());
     }
@@ -285,7 +286,7 @@ class RepositoryWriterFacadeTest extends TestCase
 
         static::getContainer()->get(ScriptExecutor::class)->execute($hook);
 
-        $deleted = $this->productRepository->search(new Criteria([$this->ids->get('p3')]), $this->context)->first();
+        $deleted = $this->productRepository->search(new Criteria([$this->ids->get('p3')]), $this->context)->getEntities()->first();
         static::assertNull($deleted);
     }
 
@@ -310,11 +311,11 @@ class RepositoryWriterFacadeTest extends TestCase
 
         static::getContainer()->get(ScriptExecutor::class)->execute($hook);
 
-        $updated = $this->productRepository->search(new Criteria([$this->ids->get('p2')]), $this->context)->first();
+        $updated = $this->productRepository->search(new Criteria([$this->ids->get('p2')]), $this->context)->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $updated);
         static::assertTrue($updated->getActive());
 
-        $deleted = $this->productRepository->search(new Criteria([$this->ids->get('p3')]), $this->context)->first();
+        $deleted = $this->productRepository->search(new Criteria([$this->ids->get('p3')]), $this->context)->getEntities()->first();
         static::assertNull($deleted);
     }
 
@@ -364,13 +365,14 @@ class RepositoryWriterFacadeTest extends TestCase
         return new ScriptAppInformation(
             $app->getId(),
             $app->getName(),
+            $app->getVersion(),
             $app->getIntegrationId()
         );
     }
 
     private function getExistingTaxId(): string
     {
-        /** @var EntityRepository $taxRepository */
+        /** @var EntityRepository<TaxCollection> $taxRepository */
         $taxRepository = static::getContainer()->get('tax.repository');
 
         $criteria = new Criteria();

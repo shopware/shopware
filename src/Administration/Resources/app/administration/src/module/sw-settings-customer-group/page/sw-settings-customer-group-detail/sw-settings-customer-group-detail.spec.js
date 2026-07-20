@@ -7,6 +7,62 @@ import { mount } from '@vue/test-utils';
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
+const customerGroupRepository = {
+    create: () => {
+        return {
+            id: '',
+            name: '',
+            displayGross: false,
+            isNew: () => true,
+        };
+    },
+
+    get: () => {
+        return Promise.resolve({
+            id: '1',
+            name: 'Net price customer group',
+            displayGross: false,
+            registrationActive: true,
+            registrationTitle: 'Foobar',
+            registrationSalesChannels: new EntityCollection(
+                '/customer-group/1/registration-sales-channels',
+                'sales_channel',
+                Context.api,
+                null,
+                [
+                    {
+                        id: '123',
+                    },
+                ],
+            ),
+            isNew: () => false,
+        });
+    },
+
+    search: () => {
+        return Promise.resolve([
+            {
+                id: '123',
+                seoPathInfo: 'Hello-world',
+                salesChannel: {
+                    translated: {
+                        name: 'Storefront',
+                    },
+                    domains: [
+                        {
+                            languageId: '1234',
+                            url: 'http://shopware.test',
+                        },
+                    ],
+                },
+                languageId: '1234',
+            },
+        ]);
+    },
+
+    save: jest.fn(() => Promise.resolve({})),
+};
+
 async function createWrapper(privileges = []) {
     return mount(
         await wrapTestComponent('sw-settings-customer-group-detail', {
@@ -58,7 +114,7 @@ async function createWrapper(privileges = []) {
                         </div>`,
                     },
                     'mt-textarea': true,
-                    'mt-text-editor': true,
+                    'sw-text-editor': true,
                     'sw-language-info': true,
                     'sw-button-process': true,
 
@@ -91,58 +147,14 @@ async function createWrapper(privileges = []) {
 
                 provide: {
                     repositoryFactory: {
-                        create: () => ({
-                            create: () => {
-                                return {
-                                    id: '',
-                                    name: '',
-                                    displayGross: false,
-                                    isNew: () => true,
-                                };
-                            },
-
-                            get: () => {
-                                return Promise.resolve({
-                                    id: '1',
-                                    name: 'Net price customer group',
-                                    displayGross: false,
-                                    registrationActive: true,
-                                    registrationSalesChannels: new EntityCollection(
-                                        '/customer-group/1/registration-sales-channels',
-                                        'sales_channel',
-                                        Context.api,
-                                        null,
-                                        [
-                                            {
-                                                id: '123',
-                                            },
-                                        ],
-                                    ),
-                                    isNew: () => false,
-                                });
-                            },
-
-                            search: () => {
-                                return Promise.resolve([
-                                    {
-                                        id: '123',
-                                        seoPathInfo: 'Hello-world',
-                                        salesChannel: {
-                                            translated: {
-                                                name: 'Storefront',
-                                            },
-                                            domains: [
-                                                {
-                                                    languageId: '1234',
-                                                    url: 'http://shopware.test',
-                                                },
-                                            ],
-                                        },
-                                        languageId: '1234',
-                                    },
-                                ]);
-                            },
-                        }),
+                        create: (name) => {
+                            switch (name) {
+                                case 'customer_group':
+                                    return customerGroupRepository;
+                                default:
+                                    throw new Error(`No repository for ${name} configured`);
+                            }
+                        },
                     },
                     acl: {
                         can: (identifier) => {
@@ -192,7 +204,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
                 name: 'form title field',
                 selector: '.mt-text-field',
             },
-            { name: 'form editor', selector: 'mt-text-editor-stub' },
+            { name: 'form editor', selector: 'sw-text-editor-stub' },
             {
                 name: 'only company switch',
                 selector: '.sw-settings-customer-group-detail__registration-only-companies-can-register',
@@ -259,7 +271,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
                 name: 'form title field',
                 selector: '.mt-text-field',
             },
-            { name: 'form editor', selector: 'mt-text-editor-stub' },
+            { name: 'form editor', selector: 'sw-text-editor-stub' },
             {
                 name: 'only company switch',
                 selector: '.sw-settings-customer-group-detail__registration-only-companies-can-register',
@@ -275,7 +287,9 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         ].forEach(({ name, selector }) => {
             it(`${name} should be enabled`, async () => {
                 const element = wrapper.find(selector);
-                expect(element.attributes().disabled).toBeFalsy();
+                // disabled attribute can be undefined, false, or the string "false"
+                const disabled = element.attributes().disabled;
+                expect(disabled === undefined || disabled === false || disabled === 'false').toBe(true);
             });
         });
 
@@ -284,6 +298,24 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
                 message: 'CTRL + S',
                 appearance: 'light',
             });
+        });
+    });
+
+    describe('should persist customer group', () => {
+        let wrapper;
+
+        beforeEach(async () => {
+            wrapper = await createWrapper();
+            await wrapper.vm.$nextTick();
+        });
+
+        it('should reload customer group on saved changes', async () => {
+            const onLoadCustomerGroupSpy = jest.spyOn(wrapper.vm, 'loadCustomerGroup');
+            const element = wrapper.find('.sw-settings-customer-group-detail__save');
+            await element.trigger('click');
+
+            expect(wrapper.vm.customerGroupRepository.save).toHaveBeenCalledTimes(1);
+            expect(onLoadCustomerGroupSpy).toHaveBeenCalled();
         });
     });
 });

@@ -22,6 +22,8 @@ class ImportExportException extends HttpException
     final public const CONTENT_IMPORT_EXPORT_COULD_NOT_COPY_FILE = 'CONTENT__IMPORT_EXPORT__COULD_NOT_COPY_FILE';
     final public const CONTENT_IMPORT_EXPORT_COULD_NOT_WRITE_TO_BUFFER = 'CONTENT__IMPORT_EXPORT__COULD_NOT_WRITE_TO_BUFFER';
     public const FIELD_CANNOT_BE_EXPORTED = 'IMPORT_EXPORT__FIELD_CANNOT_BE_EXPORTED';
+    final public const FAILED_MEDIA_URL_PARSE = 'IMPORT_EXPORT__FAILED_MEDIA_URL_PARSE';
+    final public const MEDIA_FOLDER_NOT_FOUND = 'IMPORT_EXPORT__MEDIA_FOLDER_NOT_FOUND';
     public const FILE_EMPTY = 'CONTENT__IMPORT_EXPORT_FILE_EMPTY';
     public const FILE_NOT_READABLE = 'CONTENT__IMPORT_FILE_IS_NOT_READABLE';
     public const INVALID_FILE_CONTENT = 'CONTENT__IMPORT_EXPORT_INVALID_FILE_CONTENT';
@@ -40,6 +42,23 @@ class ImportExportException extends HttpException
 
     final public const INVALID_INSTANCE_TYPE = 'CONTENT__IMPORT_EXPORT__INVALID_INSTANCE_TYPE';
     final public const SERIALIZER_NOT_FOUND = 'CONTENT__IMPORT_EXPORT__SERIALIZER_NOT_FOUND';
+    final public const UPDATE_ENTITY_NOT_FOUND = 'CONTENT__IMPORT_EXPORT__UPDATE_ENTITY_NOT_FOUND';
+    /**
+     * @internal tag:v6.8.0 - Will be removed once $context is required in event constructors
+     */
+    final public const INVALID_EVENT_DATA = 'CONTENT__IMPORT_EXPORT__INVALID_EVENT_DATA';
+
+    /**
+     * @internal tag:v6.8.0 - Will be removed once $context is required in event constructors
+     */
+    public static function invalidEventData(string $message): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_EVENT_DATA,
+            $message
+        );
+    }
 
     public static function invalidFileAccessToken(): ShopwareHttpException
     {
@@ -292,6 +311,35 @@ class ImportExportException extends HttpException
             self::SERIALIZER_NOT_FOUND,
             'Serializer for "{{ entityOrField }}" not found.',
             ['entityOrField' => $entityOrField],
+        );
+    }
+
+    public static function failedParsingMediaUrl(string $url): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::FAILED_MEDIA_URL_PARSE,
+            'Error parsing media URL: {{ url }}',
+            ['url' => $url]
+        );
+    }
+
+    public static function mediaFolderNotFoundForImportExportProfile(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_FOLDER_NOT_FOUND,
+            'Failed to find default media folder for import_export_profile'
+        );
+    }
+
+    public static function updateEntityNotFound(string $entityName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::UPDATE_ENTITY_NOT_FOUND,
+            'The {{ entity }} record was not found. This import profile only allows updates to existing records.',
+            ['entity' => $entityName]
         );
     }
 }

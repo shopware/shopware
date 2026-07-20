@@ -50,7 +50,7 @@ class PromotionIndexer extends EntityIndexer
 
         $ids = $iterator->fetch();
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return null;
         }
 
@@ -61,7 +61,7 @@ class PromotionIndexer extends EntityIndexer
     {
         $updates = $event->getPrimaryKeys(PromotionDefinition::ENTITY_NAME);
 
-        if (empty($updates)) {
+        if ($updates === []) {
             return null;
         }
 
@@ -80,7 +80,7 @@ class PromotionIndexer extends EntityIndexer
         }
 
         $ids = array_unique(array_filter($ids));
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -129,7 +129,7 @@ class PromotionIndexer extends EntityIndexer
 
         $promotionWrittenEvent = $event->getEventByEntityName(PromotionDefinition::ENTITY_NAME);
 
-        if ($promotionWrittenEvent === null || $promotionWrittenEvent->getName() !== 'promotion.written' || !empty($promotionWrittenEvent->getPayloads()[0])) {
+        if ($promotionWrittenEvent === null || $promotionWrittenEvent->getName() !== 'promotion.written' || $promotionWrittenEvent->getPayloads()[0] !== []) {
             return false;
         }
 

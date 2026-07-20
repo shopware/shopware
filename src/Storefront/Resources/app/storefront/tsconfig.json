@@ -2,16 +2,32 @@
   "compilerOptions": {
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noUncheckedIndexedAccess": true,
     "baseUrl": "./",
+    "paths": {
+      "shopware": ["./src/shopware.ts"],
+      "vitest": ["./node_modules/vitest/dist/index.d.ts"],
+      "vitest/*": ["./node_modules/vitest/dist/*"]
+    }
   },
   "exclude": [
     "node_modules"
   ],
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "scripts/**/*",
+    ".storybook/**/*",
+    "build/*.ts",
+    "build/vite/**/*.ts",
+    "vite.components.config.mts",
+    "vitest.config.mts",
+    "__mocks__/*.ts",
+    "../../views/components/**/*"
   ]
 }

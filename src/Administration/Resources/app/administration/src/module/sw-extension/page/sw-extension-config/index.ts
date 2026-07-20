@@ -59,7 +59,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         defaultThemeAsset(): string {
             return Shopware.Filter.getByName('asset')(
-                'administration/administration/static/img/theme/default_theme_preview.jpg',
+                'administration/administration/static/img/theme/default_theme_preview.webp',
             );
         },
 
@@ -107,7 +107,7 @@ export default Shopware.Component.wrapComponentConfig({
                 await this.$refs.systemConfig.saveAll();
 
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-extension-store.component.sw-extension-config.messageSaveSuccess'),
+                    message: this.$t('sw-extension-store.component.sw-extension-config.messageSaveSuccess'),
                 });
             } catch (err) {
                 this.createNotificationError({

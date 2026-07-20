@@ -4,7 +4,9 @@
     "paths": {
         "/handle-payment": {
             "post": {
-                "tags": ["Payment & Shipping"],
+                "tags": [
+                    "Payment & Shipping"
+                ],
                 "summary": "Initiate a payment for an order",
                 "description": "This generic endpoint is should be called to initiate a payment flow after an order has been created. The details of the payment flow can differ depending on the payment integration and might require calling additional operations or the setup of webhooks.\n\nThe endpoint internally calls the payment handler of the payment method currently set for the order.",
                 "operationId": "handlePaymentMethod",
@@ -13,7 +15,9 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": ["orderId"],
+                                "required": [
+                                    "orderId"
+                                ],
                                 "properties": {
                                     "orderId": {
                                         "description": "Identifier of an order",
@@ -46,7 +50,78 @@
                                             "type": "string"
                                         }
                                     },
-                                    "required": ["redirectUrl"]
+                                    "required": [
+                                        "redirectUrl"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ]
+            },
+            "get": {
+                "tags": [
+                    "Payment & Shipping"
+                ],
+                "summary": "Initiate a payment for an order",
+                "description": "This generic endpoint is should be called to initiate a payment flow after an order has been created. The details of the payment flow can differ depending on the payment integration and might require calling additional operations or the setup of webhooks.\n\nThe endpoint internally calls the payment handler of the payment method currently set for the order. Please prefer the POST version of this endpoint.",
+                "operationId": "handlePaymentMethodGet",
+                "parameters": [
+                    {
+                        "name": "orderId",
+                        "in": "query",
+                        "required": true,
+                        "description": "Identifier of an order",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "finishUrl",
+                        "in": "query",
+                        "description": "URL to which the client should be redirected after successful payment",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "errorUrl",
+                        "in": "query",
+                        "description": "URL to which the client should be redirected after erroneous payment",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Redirect to external payment provider",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "redirectUrl": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "redirectUrl"
+                                    ]
                                 }
                             }
                         }

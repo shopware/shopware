@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Content\Mail\Message\SendMailMessage;
 use Shopware\Core\Content\Mail\Service\MailSender;
 use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\Envelope;
@@ -25,11 +27,21 @@ class MailSenderTest extends TestCase
     public function testSendMail(): void
     {
         $mailer = $this->createMock(MailerInterface::class);
-        $messageBus = $this->createMock(MessageBusInterface::class);
-        $fileSystem = $this->createMock(FilesystemOperator::class);
+        $messageBus = static::createStub(MessageBusInterface::class);
+        $fileSystem = static::createStub(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
+        $configService->expects($this->once())->method('getBool')->with(SetupStagingEvent::CONFIG_FLAG)->willReturn(false);
         $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
-        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, $messageBus);
+        $mailSender = new MailSender(
+            $mailer,
+            $fileSystem,
+            $configService,
+            0,
+            static::createStub(LoggerInterface::class),
+            0,
+            $messageBus,
+            false,
+        );
         $mail = new Email();
 
         $mailer
@@ -43,10 +55,20 @@ class MailSenderTest extends TestCase
     public function testSendMailWithoutMessageBus(): void
     {
         $mailer = $this->createMock(MailerInterface::class);
-        $fileSystem = $this->createMock(FilesystemOperator::class);
+        $fileSystem = static::createStub(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
+        $configService->expects($this->once())->method('getBool')->with(SetupStagingEvent::CONFIG_FLAG)->willReturn(false);
         $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
-        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, null);
+        $mailSender = new MailSender(
+            $mailer,
+            $fileSystem,
+            $configService,
+            0,
+            static::createStub(LoggerInterface::class),
+            0,
+            null,
+            false,
+        );
         $mail = new Email();
 
         $mailer
@@ -59,13 +81,25 @@ class MailSenderTest extends TestCase
 
     public function testSendLargeMail(): void
     {
-        $mailer = $this->createMock(MailerInterface::class);
+        $mailer = static::createStub(MailerInterface::class);
         $messageBus = $this->createMock(MessageBusInterface::class);
         $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
+        $configService->expects($this->once())->method('getBool')->with(SetupStagingEvent::CONFIG_FLAG)->willReturn(false);
         $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
-        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, $messageBus);
-        $text = str_repeat('a', MailSender::MAIL_MESSAGE_SIZE_LIMIT);
+        $maxMessageSizeKiB = 1024;
+        $mailSender = new MailSender(
+            $mailer,
+            $fileSystem,
+            $configService,
+            0,
+            static::createStub(LoggerInterface::class),
+            $maxMessageSizeKiB,
+            $messageBus,
+            false,
+        );
+        static::assertIsInt($maxMessageSizeKiB);
+        $text = str_repeat('a', $maxMessageSizeKiB * 1024);
         $mail = new Email(null, new TextPart($text));
 
         $testStruct = new ArrayStruct();
@@ -73,7 +107,7 @@ class MailSenderTest extends TestCase
         $fileSystem
             ->expects($this->once())
             ->method('write')
-            ->willReturnCallback(function ($path, $content) use ($mail, $testStruct): void {
+            ->willReturnCallback(static function ($path, $content) use ($mail, $testStruct): void {
                 static::assertStringStartsWith('mail-data/', $path);
                 static::assertSame(serialize($mail), $content);
                 $testStruct->set('mailDataPath', $path);
@@ -82,7 +116,7 @@ class MailSenderTest extends TestCase
         $messageBus
             ->expects($this->once())
             ->method('dispatch')
-            ->willReturnCallback(function ($message) use ($testStruct): Envelope {
+            ->willReturnCallback(static function ($message) use ($testStruct): Envelope {
                 static::assertInstanceOf(SendMailMessage::class, $message);
                 static::assertSame($testStruct->get('mailDataPath'), $message->mailDataPath);
 
@@ -94,13 +128,18 @@ class MailSenderTest extends TestCase
 
     public function testSendMailWithDisabledDelivery(): void
     {
-        $mailer = $this->createMock(MailerInterface::class);
+        $mailer = static::createStub(MailerInterface::class);
         $messageBus = $this->createMock(MessageBusInterface::class);
         $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
+        $configService->expects($this->once())->method('getBool')->with(SetupStagingEvent::CONFIG_FLAG)->willReturn(false);
         $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(true);
-        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, $messageBus);
+        $logger = $this->createMock(LoggerInterface::class);
+        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, $logger, 0, $messageBus, false);
         $mail = new Email();
+
+        $logger->expects($this->once())
+            ->method('info');
 
         $fileSystem
             ->expects($this->never())
@@ -113,20 +152,82 @@ class MailSenderTest extends TestCase
         $mailSender->send($mail);
     }
 
-    public function testSendMailWithToMuchContent(): void
+    public function testSendMailWithDisabledDeliveryInStagingMode(): void
     {
-        $mailer = $this->createMock(MailerInterface::class);
+        $mailer = static::createStub(MailerInterface::class);
         $messageBus = $this->createMock(MessageBusInterface::class);
         $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
+        $configService->expects($this->once())->method('getBool')->with(SetupStagingEvent::CONFIG_FLAG)->willReturn(true);
+        $logger = $this->createMock(LoggerInterface::class);
+        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, $logger, 0, $messageBus, true);
+        $mail = new Email();
+
+        $logger->expects($this->once())
+            ->method('info');
+
+        $fileSystem
+            ->expects($this->never())
+            ->method('write');
+
+        $messageBus
+            ->expects($this->never())
+            ->method('dispatch');
+
+        $mailSender->send($mail);
+    }
+
+    public function testSendMailWithEnabledDeliveryInStagingMode(): void
+    {
+        $mailer = $this->createMock(MailerInterface::class);
+        $messageBus = static::createStub(MessageBusInterface::class);
+        $fileSystem = static::createStub(FilesystemOperator::class);
+        $configService = $this->createMock(SystemConfigService::class);
+        $configService->expects($this->once())->method('getBool')->with(SetupStagingEvent::CONFIG_FLAG)->willReturn(false);
         $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
-        $mailSender = new MailSender($mailer, $fileSystem, $configService, 5, $messageBus);
+        $mailSender = new MailSender(
+            $mailer,
+            $fileSystem,
+            $configService,
+            0,
+            static::createStub(LoggerInterface::class),
+            0,
+            $messageBus,
+            false,
+        );
+        $mail = new Email();
+
+        $mailer
+            ->expects($this->once())
+            ->method('send')
+            ->with($mail);
+
+        $mailSender->send($mail);
+    }
+
+    public function testSendMailWithToMuchContent(): void
+    {
+        $mailer = static::createStub(MailerInterface::class);
+        $messageBus = static::createStub(MessageBusInterface::class);
+        $fileSystem = static::createStub(FilesystemOperator::class);
+        $configService = $this->createMock(SystemConfigService::class);
+        $configService->expects($this->once())->method('getBool')->with(SetupStagingEvent::CONFIG_FLAG)->willReturn(false);
+        $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
+        $mailSender = new MailSender(
+            $mailer,
+            $fileSystem,
+            $configService,
+            5,
+            static::createStub(LoggerInterface::class),
+            0,
+            $messageBus,
+            false,
+        );
 
         $mail = new Email();
         $mail->text('foobar');
 
-        static::expectException(MailException::class);
-        static::expectExceptionMessage('Mail body is too long. Maximum allowed length is 5');
+        $this->expectExceptionObject(MailException::mailBodyTooLong(5));
 
         $mailSender->send($mail);
     }

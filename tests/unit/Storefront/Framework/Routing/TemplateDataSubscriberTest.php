@@ -3,20 +3,22 @@
 namespace Shopware\Tests\Unit\Storefront\Framework\Routing;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\Hreflang\HreflangCollection;
 use Shopware\Core\Content\Seo\HreflangLoaderInterface;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
+use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\TemplateDataSubscriber;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
-use Shopware\Storefront\Theme\StorefrontPluginRegistry;
+use Shopware\Storefront\Theme\ThemeRuntimeConfig;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -25,29 +27,24 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(TemplateDataSubscriber::class)]
 class TemplateDataSubscriberTest extends TestCase
 {
-    private HreflangLoaderInterface&MockObject $hreflangLoader;
+    private HreflangLoaderInterface&Stub $hreflangLoader;
 
-    private ShopIdProvider&MockObject $shopIdProvider;
+    private ShopIdProvider&Stub $shopIdProvider;
 
-    private StorefrontPluginRegistry&MockObject $themeRegistry;
-
-    private ActiveAppsLoader&MockObject $activeAppsLoader;
+    private ActiveAppsLoader&Stub $activeAppsLoader;
 
     private TemplateDataSubscriber $subscriber;
 
+    private ThemeRuntimeConfigService&Stub $themeRuntimeConfigService;
+
     protected function setUp(): void
     {
-        $this->hreflangLoader = $this->createMock(HreflangLoaderInterface::class);
-        $this->shopIdProvider = $this->createMock(ShopIdProvider::class);
-        $this->themeRegistry = $this->createMock(StorefrontPluginRegistry::class);
-        $this->activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
+        $this->hreflangLoader = static::createStub(HreflangLoaderInterface::class);
+        $this->shopIdProvider = static::createStub(ShopIdProvider::class);
+        $this->activeAppsLoader = static::createStub(ActiveAppsLoader::class);
+        $this->themeRuntimeConfigService = static::createStub(ThemeRuntimeConfigService::class);
 
-        $this->subscriber = new TemplateDataSubscriber(
-            $this->hreflangLoader,
-            $this->shopIdProvider,
-            $this->themeRegistry,
-            $this->activeAppsLoader
-        );
+        $this->subscriber = $this->buildSubscriber();
     }
 
     public function testGetSubscribedEvents(): void
@@ -83,9 +80,33 @@ class TemplateDataSubscriberTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $this->hreflangLoader->expects($this->never())->method('load');
+        $hreflangLoader = $this->createMock(HreflangLoaderInterface::class);
+        $hreflangLoader->expects($this->never())->method('load');
 
-        $this->subscriber->addHreflang($event);
+        $subscriber = $this->buildSubscriber(hreflangLoader: $hreflangLoader);
+
+        $subscriber->addHreflang($event);
+    }
+
+    public function testAddHreflangSkippedForEsiRequest(): void
+    {
+        $request = new Request();
+        $request->attributes->set('_route', 'frontend.header');
+        $request->attributes->set('_esi', true);
+
+        $event = new StorefrontRenderEvent(
+            'test',
+            [],
+            $request,
+            Generator::generateSalesChannelContext()
+        );
+
+        $hreflangLoader = $this->createMock(HreflangLoaderInterface::class);
+        $hreflangLoader->expects($this->never())->method('load');
+
+        $subscriber = $this->buildSubscriber(hreflangLoader: $hreflangLoader);
+
+        $subscriber->addHreflang($event);
     }
 
     public function testAddHreflangWithValidRoute(): void
@@ -102,12 +123,15 @@ class TemplateDataSubscriberTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $this->hreflangLoader
+        $hreflangLoader = $this->createMock(HreflangLoaderInterface::class);
+        $hreflangLoader
             ->expects($this->once())
             ->method('load')
             ->willReturn(new HreflangCollection());
 
-        $this->subscriber->addHreflang($event);
+        $subscriber = $this->buildSubscriber(hreflangLoader: $hreflangLoader);
+
+        $subscriber->addHreflang($event);
 
         static::assertInstanceOf(HreflangCollection::class, $event->getParameters()['hrefLang']);
     }
@@ -125,11 +149,14 @@ class TemplateDataSubscriberTest extends TestCase
             ->method('getActiveApps')
             ->willReturn([]);
 
-        $this->shopIdProvider
+        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider
             ->expects($this->never())
             ->method('getShopId');
 
-        $this->subscriber->addShopIdParameter($event);
+        $subscriber = $this->buildSubscriber(shopIdProvider: $shopIdProvider);
+
+        $subscriber->addShopIdParameter($event);
     }
 
     public function testAddShopIdParameterWithUrlChangeException(): void
@@ -145,12 +172,15 @@ class TemplateDataSubscriberTest extends TestCase
             ->method('getActiveApps')
             ->willReturn(['someApp']);
 
-        $this->shopIdProvider
+        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider
             ->expects($this->once())
             ->method('getShopId')
-            ->willThrowException(new AppUrlChangeDetectedException('before', 'new', '123'));
+            ->willThrowException(new ShopIdChangeSuggestedException(ShopId::v2('123'), new FingerprintComparisonResult([], [], 75)));
 
-        $this->subscriber->addShopIdParameter($event);
+        $subscriber = $this->buildSubscriber(shopIdProvider: $shopIdProvider);
+
+        $subscriber->addShopIdParameter($event);
     }
 
     public function testShopIdAdded(): void
@@ -166,12 +196,16 @@ class TemplateDataSubscriberTest extends TestCase
             ->method('getActiveApps')
             ->willReturn(['someApp']);
 
-        $this->shopIdProvider
+        $shopId = ShopId::v2('123');
+        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider
             ->expects($this->once())
             ->method('getShopId')
-            ->willReturn('123');
+            ->willReturn($shopId);
 
-        $this->subscriber->addShopIdParameter($event);
+        $subscriber = $this->buildSubscriber(shopIdProvider: $shopIdProvider);
+
+        $subscriber->addShopIdParameter($event);
 
         static::assertSame('123', $event->getParameters()['appShopId']);
     }
@@ -185,11 +219,14 @@ class TemplateDataSubscriberTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $this->themeRegistry
+        $themeRuntimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $themeRuntimeConfigService
             ->expects($this->never())
-            ->method('getByTechnicalName');
+            ->method('getRuntimeConfigByName');
 
-        $this->subscriber->addIconSetConfig($event);
+        $subscriber = $this->buildSubscriber(themeRuntimeConfigService: $themeRuntimeConfigService);
+
+        $subscriber->addIconSetConfig($event);
     }
 
     public function testAddIconSetConfigWithNoThemeButThemeName(): void
@@ -204,11 +241,14 @@ class TemplateDataSubscriberTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $this->themeRegistry
+        $themeRuntimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $themeRuntimeConfigService
             ->expects($this->once())
-            ->method('getByTechnicalName');
+            ->method('getRuntimeConfigByName');
 
-        $this->subscriber->addIconSetConfig($event);
+        $subscriber = $this->buildSubscriber(themeRuntimeConfigService: $themeRuntimeConfigService);
+
+        $subscriber->addIconSetConfig($event);
         static::assertArrayNotHasKey('themeIconConfig', $event->getParameters());
     }
 
@@ -224,49 +264,35 @@ class TemplateDataSubscriberTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $themeConfig = new StorefrontPluginConfiguration('Storefront');
-        $themeConfig->setIconSets(['default' => '@Storefront/icons/default']);
+        $themeConfig = ThemeRuntimeConfig::fromArray([
+            'themeId' => '123',
+            'technicalName' => 'Storefront',
+            'resolvedConfig' => [],
+            'iconSets' => ['default' => ['path' => '@Storefront/icons/default', 'namespace' => '']],
+            'updatedAt' => new \DateTime(),
+        ]);
 
-        $this->themeRegistry
-            ->method('getByTechnicalName')
+        $this->themeRuntimeConfigService
+            ->method('getRuntimeConfigByName')
             ->willReturn($themeConfig);
 
         $this->subscriber->addIconSetConfig($event);
 
         static::assertArrayHasKey('themeIconConfig', $event->getParameters());
+        static::assertSame($themeConfig->iconSets, $event->getParameters()['themeIconConfig']);
     }
 
-    public function testAddIconSetConfigWithRegistryWithGetByTechnicalName(): void
-    {
-        $request = new Request();
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, 'Storefront');
-
-        $event = new StorefrontRenderEvent(
-            'test',
-            [],
-            $request,
-            Generator::generateSalesChannelContext()
+    private function buildSubscriber(
+        ?HreflangLoaderInterface $hreflangLoader = null,
+        ?ShopIdProvider $shopIdProvider = null,
+        ?ActiveAppsLoader $activeAppsLoader = null,
+        ?ThemeRuntimeConfigService $themeRuntimeConfigService = null,
+    ): TemplateDataSubscriber {
+        return new TemplateDataSubscriber(
+            $hreflangLoader ?? $this->hreflangLoader,
+            $shopIdProvider ?? $this->shopIdProvider,
+            $activeAppsLoader ?? $this->activeAppsLoader,
+            $themeRuntimeConfigService ?? $this->themeRuntimeConfigService,
         );
-
-        $themeConfig = new StorefrontPluginConfiguration('Storefront');
-        $themeConfig->setIconSets(['default' => '@Storefront/icons/default']);
-
-        $themeRegistry = $this->createMock(StorefrontPluginRegistry::class);
-
-        $themeRegistry
-            ->expects($this->once())
-            ->method('getByTechnicalName')
-            ->willReturn($themeConfig);
-
-        $subscriber = new TemplateDataSubscriber(
-            $this->hreflangLoader,
-            $this->shopIdProvider,
-            $themeRegistry,
-            $this->activeAppsLoader
-        );
-
-        $subscriber->addIconSetConfig($event);
-
-        static::assertArrayHasKey('themeIconConfig', $event->getParameters());
     }
 }

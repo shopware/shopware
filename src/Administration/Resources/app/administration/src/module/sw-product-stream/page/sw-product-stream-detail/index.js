@@ -1,7 +1,3 @@
-/*
- * @sw-package inventory
- */
-
 import { computed } from 'vue';
 
 import template from './sw-product-stream-detail.html.twig';
@@ -12,6 +8,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 
 /**
+ * @sw-package inventory
  * @private
  */
 export default {
@@ -22,11 +19,13 @@ export default {
         'productStreamConditionService',
         'acl',
         'customFieldDataProviderService',
+        'productTypeService',
     ],
 
     provide() {
         return {
             productCustomFields: computed(() => this.productCustomFields),
+            productTypes: computed(() => this.productTypes),
         };
     },
 
@@ -63,9 +62,13 @@ export default {
     data() {
         return {
             isLoading: false,
+            isSaving: false,
             customFieldsLoading: false,
             isSaveSuccessful: false,
-            productStream: null,
+            productStream: {
+                name: null,
+                description: null,
+            },
             productStreamFilters: null,
             productStreamFiltersTree: null,
             deletedProductStreamFilters: [],
@@ -73,6 +76,10 @@ export default {
             showModalPreview: false,
             languageId: null,
             customFieldSets: null,
+            productTypes: [
+                'physical',
+                'digital',
+            ],
         };
     },
 
@@ -92,7 +99,7 @@ export default {
         },
 
         productStreamFiltersRepository() {
-            if (!this.productStream) {
+            if (!this.productStream?.filters?.entity || !this.productStream?.filters?.source) {
                 return null;
             }
 
@@ -106,7 +113,7 @@ export default {
         tooltipSave() {
             if (!this.acl.can('product_stream.editor')) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     appearance: 'dark',
                     showOnDisabledElements: true,
                 };
@@ -138,7 +145,19 @@ export default {
         ...mapPropertyErrors('productStream', ['name']),
 
         showCustomFields() {
-            return this.productStream && this.customFieldSets && this.customFieldSets.length > 0;
+            return !!this.productStream?.id && this.customFieldSets && this.customFieldSets.length > 0;
+        },
+
+        productStreamIndexingEnabled() {
+            return Context.app.productStreamIndexingEnabled ?? true;
+        },
+
+        deprecatedFiltersInUse() {
+            if (!this.productStreamFiltersTree) {
+                return [];
+            }
+
+            return this.productStreamConditionService.getDeprecationsInTree(this.productStreamFiltersTree);
         },
     },
 
@@ -171,15 +190,30 @@ export default {
                 scope: this,
             });
             this.languageId = Context.api.languageId;
+
+            const promises = [
+                this.loadCustomFieldSets(),
+                this.loadProductTypes(),
+            ];
+
             if (this.productStreamId) {
-                this.getProductCustomFields();
+                promises.push(this.getProductCustomFields());
             }
-            this.loadCustomFieldSets();
+
+            Promise.all(promises).then(() => {
+                Promise.resolve();
+            });
         },
 
         loadCustomFieldSets() {
             this.customFieldDataProviderService.getCustomFieldSets('product_stream').then((sets) => {
                 this.customFieldSets = sets;
+            });
+        },
+
+        loadProductTypes() {
+            this.productTypeService.fetchProductTypes().then((types) => {
+                this.productTypes = types;
             });
         },
 
@@ -247,8 +281,7 @@ export default {
                 const behavior = {
                     cloneChildren: true,
                     overwrites: {
-                        // eslint-disable-next-line max-len
-                        name: `${this.productStream.name || this.productStream.translated.name} ${this.$tc('global.default.copy')}`,
+                        name: `${this.productStream.name || this.productStream.translated.name} ${this.$t('global.default.copy')}`,
                     },
                 };
 
@@ -268,7 +301,7 @@ export default {
                         this.isLoading = false;
 
                         this.createNotificationError({
-                            message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                            message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
                         });
                     });
             });
@@ -276,7 +309,7 @@ export default {
 
         onSave() {
             this.isSaveSuccessful = false;
-            this.isLoading = true;
+            this.isSaving = true;
 
             if (this.productStream.isNew()) {
                 this.productStream.filters = this.productStreamFiltersTree;
@@ -290,7 +323,7 @@ export default {
                     })
                     .catch(() => {
                         this.showErrorNotification();
-                        this.isLoading = false;
+                        this.isSaving = false;
                     });
             }
 
@@ -302,17 +335,17 @@ export default {
                 })
                 .then(() => {
                     this.isSaveSuccessful = true;
-                    this.isLoading = false;
+                    this.isSaving = false;
                 })
                 .catch(() => {
-                    this.isLoading = false;
+                    this.isSaving = false;
                     this.showErrorNotification();
                 });
         },
 
         showErrorNotification() {
             this.createNotificationError({
-                message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
+                message: this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
             });
         },
 
@@ -412,7 +445,7 @@ export default {
         getNoPermissionsTooltip(role, showOnDisabledElements = true) {
             return {
                 showDelay: 300,
-                message: this.$tc('sw-privileges.tooltip.warning'),
+                message: this.$t('sw-privileges.tooltip.warning'),
                 appearance: 'dark',
                 showOnDisabledElements,
                 disabled: this.acl.can(role),

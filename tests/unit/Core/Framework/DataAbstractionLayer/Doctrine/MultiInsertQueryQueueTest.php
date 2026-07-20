@@ -10,7 +10,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 
 /**
  * @internal
@@ -37,12 +36,12 @@ class MultiInsertQueryQueueTest extends TestCase
     #[DataProvider('preparedQueriesDataProvider')]
     public function testPrepareQueries(array $inserts, array $queries, int $batchSize = 5, bool $ignoreErrors = false, bool $useReplace = false): void
     {
-        $queue = new MultiInsertQueryQueue($this->createMock(Connection::class), $batchSize, $ignoreErrors, $useReplace);
+        $queue = new MultiInsertQueryQueue(static::createStub(Connection::class), $batchSize, $ignoreErrors, $useReplace);
         foreach ($inserts as $insert) {
             $queue->addInsert($insert['table'], $insert['data'], $insert['types'] ?? null);
         }
 
-        $prepareQueries = ReflectionHelper::getMethod(MultiInsertQueryQueue::class, 'prepareQueries');
+        $prepareQueries = new \ReflectionMethod(MultiInsertQueryQueue::class, 'prepareQueries');
         $generatedQueries = $prepareQueries->invoke($queue);
 
         static::assertIsArray($generatedQueries);
@@ -215,13 +214,13 @@ class MultiInsertQueryQueueTest extends TestCase
 
     public function testAddInserts(): void
     {
-        $queue = new MultiInsertQueryQueue($this->createMock(Connection::class));
+        $queue = new MultiInsertQueryQueue(static::createStub(Connection::class));
         $queue->addInserts('table1', [
             ['id' => 1, 'name' => 'test1', 'description' => 'test1'],
             ['id' => 2, 'name' => 'test2', 'description' => 'test2'],
         ]);
 
-        $prepareQueries = ReflectionHelper::getMethod(MultiInsertQueryQueue::class, 'prepareQueries');
+        $prepareQueries = new \ReflectionMethod(MultiInsertQueryQueue::class, 'prepareQueries');
         $generatedQueries = $prepareQueries->invoke($queue);
 
         static::assertIsArray($generatedQueries);
@@ -241,14 +240,14 @@ class MultiInsertQueryQueueTest extends TestCase
 
     public function testUpdateOnDuplicateKeys(): void
     {
-        $queue = new MultiInsertQueryQueue($this->createMock(Connection::class));
+        $queue = new MultiInsertQueryQueue(static::createStub(Connection::class));
         $queue->addInsert('table1', ['id' => 1, 'name' => 'test1', 'description' => 'test1']);
         $queue->addInsert('table1', ['id' => 2, 'name' => 'test2', 'description' => 'test2']);
         $queue->addUpdateFieldOnDuplicateKey('table1', 'name');
         $queue->addUpdateFieldOnDuplicateKey('table1', 'non_existing_field');
         $queue->addUpdateFieldOnDuplicateKey('table1', 'description');
 
-        $prepareQueries = ReflectionHelper::getMethod(MultiInsertQueryQueue::class, 'prepareQueries');
+        $prepareQueries = new \ReflectionMethod(MultiInsertQueryQueue::class, 'prepareQueries');
         $generatedQueries = $prepareQueries->invoke($queue);
         static::assertIsArray($generatedQueries);
         static::assertCount(1, $generatedQueries);
@@ -267,7 +266,7 @@ class MultiInsertQueryQueueTest extends TestCase
 
     public function testConstructorThrowsOnWrongBatchSize(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         self::expectExceptionObject(DataAbstractionLayerException::invalidChunkSize(0));
         new MultiInsertQueryQueue($connection, 0);
     }

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -24,7 +25,7 @@ class PHPUnserializeFieldSerializer extends AbstractFieldSerializer
 
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator
     {
-        throw new \RuntimeException('Serialized fields can only be written by an indexer');
+        throw DataAbstractionLayerException::serializedFieldRequiresIndexer();
     }
 
     public function decode(Field $field, mixed $value): mixed
@@ -33,6 +34,7 @@ class PHPUnserializeFieldSerializer extends AbstractFieldSerializer
             return null;
         }
 
-        return unserialize($value);
+        /** @phpstan-ignore shopware.unserializeUsage */
+        return \unserialize($value);
     }
 }

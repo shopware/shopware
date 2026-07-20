@@ -15,7 +15,7 @@ use Twig\Loader\LoaderInterface;
 class TemplateFinder implements TemplateFinderInterface, ResetInterface
 {
     /**
-     * @var ?string[]
+     * @var list<string>|null
      */
     private ?array $namespaceHierarchy = null;
 
@@ -126,7 +126,12 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
     }
 
     /**
-     * @return string[]
+     * Gets the final namespace hierarchy for template resolution
+     *
+     * Transforms priority-based ordering to a list of namespace names.
+     * Priority values are discarded after serving their sorting purpose.
+     *
+     * @return list<string> Ordered namespace names (last element = highest priority)
      */
     private function getNamespaceHierarchy(): array
     {
@@ -134,15 +139,19 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
             return $this->namespaceHierarchy;
         }
 
+        // Build hierarchy: returns ['Storefront' => -2, 'PayPal' => 0, 'MyTheme' => 1]
         $namespaceHierarchy = $this->namespaceHierarchyBuilder->buildHierarchy();
 
+        // Different hierarchies get different cache directories
         $this->defineCache($namespaceHierarchy);
 
+        // Final step: Extract keys only, discarding priority values
+        // Transforms: ['Storefront' => -2, 'PayPal' => 0] → ['Storefront', 'PayPal']
         return $this->namespaceHierarchy = array_keys($namespaceHierarchy);
     }
 
     /**
-     * @param string[] $queue
+     * @param array<string, int> $queue
      */
     private function defineCache(array $queue): void
     {

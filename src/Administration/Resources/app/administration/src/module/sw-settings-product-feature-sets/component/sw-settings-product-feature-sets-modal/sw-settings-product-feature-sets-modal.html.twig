@@ -1,6 +1,6 @@
 {% block sw_settings_product_feature_sets_modal %}
 <sw-modal
-    :title="$tc('sw-settings-product-feature-sets.modal.labelTitleModal')"
+    :title="$t('sw-settings-product-feature-sets.modal.labelTitleModal')"
     class="sw-settings-product-feature-sets__modal"
     @modal-close="$emit('modal-close')"
 >
@@ -9,7 +9,7 @@
     <template v-if="showPageOne">
         <sw-radio-field
             v-model:value="selectedFeatureType"
-            :label="$tc('sw-settings-product-feature-sets.modal.labelTitlePageOne')"
+            :label="$t('sw-settings-product-feature-sets.modal.labelTitlePageOne')"
             block
             class="sw-settings-product-feature-sets-modal__options"
             identification="fieldType"
@@ -166,7 +166,7 @@
             variant="secondary"
             @click="$emit('modal-close')"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -178,7 +178,7 @@
             :disabled="addButtonDisabled"
             @click="onConfirm"
         >
-            {{ $tc('global.default.add') }}
+            {{ $t('global.default.add') }}
         </mt-button>
         {% endblock %}
 
@@ -190,7 +190,7 @@
             :disabled="nextButtonDisabled"
             @click="onClickNext"
         >
-            {{ $tc('sw-settings-product-feature-sets.modal.buttonNext') }}
+            {{ $t('sw-settings-product-feature-sets.modal.buttonNext') }}
         </mt-button>
         {% endblock %}
 

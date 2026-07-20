@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Message;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -15,15 +16,18 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  */
 #[AsMessageHandler]
 #[Package('discovery')]
-final class GenerateThumbnailsHandler
+final readonly class GenerateThumbnailsHandler
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaCollection> $mediaRepository
      */
     public function __construct(
-        private readonly ThumbnailService $thumbnailService,
-        private readonly EntityRepository $mediaRepository,
-        private readonly bool $remoteThumbnailsEnable = false
+        private ThumbnailService $thumbnailService,
+        private EntityRepository $mediaRepository,
+        private LoggerInterface $logger,
+        private bool $remoteThumbnailsEnable = false
     ) {
     }
 
@@ -39,12 +43,18 @@ final class GenerateThumbnailsHandler
         $criteria->addAssociation('mediaFolder.configuration.mediaThumbnailSizes');
         $criteria->addFilter(new EqualsAnyFilter('media.id', $msg->getMediaIds()));
 
-        /** @var MediaCollection $entities */
         $entities = $this->mediaRepository->search($criteria, $context)->getEntities();
 
         if ($msg instanceof UpdateThumbnailsMessage) {
             foreach ($entities as $media) {
-                $this->thumbnailService->updateThumbnails($media, $context, $msg->isStrict());
+                try {
+                    $this->thumbnailService->updateThumbnails($media, $context, $msg->isStrict());
+                } catch (\Throwable $e) {
+                    $this->logger->error('Thumbnail generation failed for media {mediaId}', [
+                        'mediaId' => $media->getId(),
+                        'exception' => $e,
+                    ]);
+                }
             }
         } else {
             $this->thumbnailService->generate($entities, $context);

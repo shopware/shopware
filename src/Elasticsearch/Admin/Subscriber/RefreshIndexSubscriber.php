@@ -12,9 +12,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * @internal
  */
 #[Package('inventory')]
-final class RefreshIndexSubscriber implements EventSubscriberInterface
+final readonly class RefreshIndexSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private readonly AdminSearchRegistry $registry)
+    public function __construct(private AdminSearchRegistry $registry)
     {
     }
 

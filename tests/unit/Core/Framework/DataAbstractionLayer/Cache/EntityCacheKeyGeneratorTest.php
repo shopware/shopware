@@ -23,10 +23,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
-use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -62,33 +62,33 @@ class EntityCacheKeyGeneratorTest extends TestCase
     {
         yield 'empty' => [
             new Criteria(),
-            '6f1868158423d60724dd3071c2d6f525',
+            '49df289864c88521854da972597eff49',
         ];
 
         yield 'prefix-filter' => [
             (new Criteria())->addFilter(new PrefixFilter('foo', 'bar')),
-            '6da5430a8e30985dcf70e1cce8059641',
+            'c92cf15754e96eb739e2d8e21925702b',
         ];
 
         // this has a different hash because of a different filter type used
         yield 'suffix-filter' => [
             (new Criteria())->addFilter(new SuffixFilter('foo', 'bar')),
-            'bc3f8967e44fa629e6a24e76b9060085',
+            'cb65ddf8710573000d93528724ae175d',
         ];
 
         yield 'filter+sort' => [
             (new Criteria())->addFilter(new PrefixFilter('foo', 'bar'))->addSorting(new FieldSorting('foo')),
-            'd877f8f5b53b110aafb704ac12a5e579',
+            'db15d2a554df1f67ea076b62e7f95717',
         ];
 
         yield 'filter+sort+sort-desc' => [
             (new Criteria())->addFilter(new PrefixFilter('foo', 'bar'))->addSorting(new FieldSorting('foo', FieldSorting::DESCENDING)),
-            '937c265ec89cb32660de09457f16c5fd',
+            'a5e5fa202a90ddb4c187028e20e421eb',
         ];
 
         yield 'filter+agg' => [
             (new Criteria())->addFilter(new PrefixFilter('foo', 'bar'))->addAggregation(new TermsAggregation('foo', 'foo')),
-            'c29788d8da490513f252b92f49a91773',
+            '11bbaf1e7a219491e111f26ce1b5b2c9',
         ];
     }
 
@@ -158,7 +158,7 @@ class DummyContext extends SalesChannelContext
             new CustomerEntity(),
             new CashRoundingConfig(2, 0.01, true),
             new CashRoundingConfig(2, 0.01, true),
-            new LanguageInfo('English', 'en-GB'),
+            Generator::createLanguageInfo(),
         );
     }
 
@@ -177,7 +177,7 @@ class DummyContext extends SalesChannelContext
     }
 
     /**
-     * @param list<string> $chain
+     * @param non-empty-list<string> $chain
      */
     public function setLanguageChain(array $chain): self
     {

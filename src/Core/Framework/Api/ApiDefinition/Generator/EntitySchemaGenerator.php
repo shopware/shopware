@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\ReadProtection;
@@ -64,7 +65,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
 
     public function generate(array $definitions, string $api, string $apiType = 'jsonapi', ?string $bundleName = null): never
     {
-        throw new \RuntimeException();
+        throw ApiException::unsupportedOperation('generate');
     }
 
     /**
@@ -72,7 +73,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
      *     string,
      *     array{
      *          entity: string,
-     *          properties: array<string, array{type: string, flags: array<string, mixed>}>,
+     *          properties: array<string, array{type: string, flags: array<string, mixed>, description?: string}>,
      *          write-protected: bool,
      *          read-protected: bool,
      *          flags?: list<Flag>
@@ -103,7 +104,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
     /**
      * @return array{
      *     entity: string,
-     *     properties: array<string, array{type: string, flags: array<string, mixed>}>,
+     *     properties: array<string, array{type: string, flags: array<string, mixed>, description?: string}>,
      *     write-protected: bool,
      *     read-protected: bool,
      *     flags?: list<Flag>
@@ -133,7 +134,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @return array{type: string, flags: array<string, mixed>}
+     * @return array{type: string, flags: array<string, mixed>, description?: string}
      */
     private function parseField(EntityDefinition $definition, Field $field): array
     {
@@ -142,6 +143,26 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
             $flags = array_replace_recursive($flags, iterator_to_array($flag->parse()));
         }
 
+        $property = $this->mapFieldType(
+            $definition,
+            $field,
+            $flags
+        );
+
+        if ($field->getDescription() !== '') {
+            $property['description'] = $field->getDescription();
+        }
+
+        return $property;
+    }
+
+    /**
+     * @param array<string, mixed> $flags
+     *
+     * @return array{type: string, flags: array<string, mixed>, description?: string}
+     */
+    private function mapFieldType(EntityDefinition $definition, Field $field, array $flags): array
+    {
         switch (true) {
             case $field instanceof TranslatedField:
                 $property = $this->parseField(
@@ -187,8 +208,9 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                 $referenceField = $reference->getFields()->getByStorageName($field->getReferenceField());
 
                 $primary = $reference->getPrimaryKeys()->first();
+
                 if (!$primary) {
-                    throw new \RuntimeException(\sprintf('No primary key defined for %s', $reference->getEntityName()));
+                    throw ApiException::noPrimaryKeyDefined($reference->getEntityName());
                 }
 
                 return [
@@ -229,10 +251,11 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                 );
 
                 if (!$mappingReference) {
-                    throw new \RuntimeException(\sprintf('Can not find mapping entity field for storage field %s', $field->getMappingReferenceColumn()));
+                    throw ApiException::mappingFieldNotFound($field->getMappingReferenceColumn());
                 }
+
                 if (!$mappingLocal) {
-                    throw new \RuntimeException(\sprintf('Can not find mapping entity field for storage field %s', $field->getMappingLocalColumn()));
+                    throw ApiException::mappingFieldNotFound($field->getMappingLocalColumn());
                 }
 
                 return [

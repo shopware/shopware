@@ -1,59 +1,56 @@
-@import "~scss/variables";
-
 .sw-import-export-activity-result-modal {
-    .sw-import-export-activity-result-modal &__color-badge {
-        margin: 0 5px 0 0;
+    &__color-badge {
+        margin-right: var(--scale-size-4);
     }
 
-    &__acitvity-headline {
-        font-size: $font-size-s;
-        font-weight: $font-weight-semi-bold;
+    &__activity-headline {
+        font-size: var(--font-size-m);
+        line-height: var(--font-line-height-m);
+        font-weight: var(--font-weight-semibold);
+        margin: 0;
     }
 
-    &__acitvity-description {
-        font-size: $font-size-xs;
-        margin-bottom: 12px;
+    &__activity-description {
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        font-weight: var(--font-weight-regular);
+        color: var(--color-text-secondary-default);
+    }
+
+    &__activity-header {
+        display: flex;
+        flex-direction: column;
+        padding: var(--scale-size-24);
+        border-bottom: 1px solid var(--color-border-secondary-default);
+    }
+
+    &__activity {
+        border: 1px solid var(--color-border-secondary-default);
+        border-radius: var(--border-radius-card);
     }
 
     &__info {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        gap: 28px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        align-items: stretch;
+        gap: var(--scale-size-24);
+        margin-bottom: var(--scale-size-24);
     }
 
-    &__info > * {
-        flex: 1 1 300px;
+    &__main-activity.mt-card,
+    &__log-info.mt-card {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 0;
+
+        .mt-card__content {
+            flex: 1;
+        }
     }
 
     &__info div:empty {
         display: none;
-    }
-
-    .sw-card {
-        width: 100%;
-    }
-
-    .sw-card .sw-card__title {
-        display: block;
-        position: static;
-        width: 100%;
-        text-align: left;
-        background-color: $color-gray-100;
-        color: $color-darkgray-200;
-        font-size: $font-size-s;
-        font-weight: $font-weight-semi-bold;
-        margin: 0;
-        padding: 24px;
-        border: 1px solid $color-gray-300;
-        border-bottom: none;
-        border-top-left-radius: $border-radius-default;
-        border-top-right-radius: $border-radius-default;
-    }
-
-    .sw-card .sw-card__content {
-        border-top-left-radius: 0;
-        border-top-right-radius: 0;
     }
 
     &__main-activity-content,
@@ -61,24 +58,20 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
         grid-template-rows: auto auto auto auto;
-        grid-gap: 16px;
-    }
-
-    &__main-activity,
-    &__log-info {
-        display: grid;
-        grid-template-rows: min-content 1fr;
+        grid-gap: var(--scale-size-16);
     }
 
     &__list-item {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        color: var(--color-text-primary-default);
     }
 
     &__list-item dt {
-        font-weight: $font-weight-semi-bold;
+        font-weight: var(--font-weight-semibold);
     }
 
     &__download-section {
-        margin-bottom: 32px;
+        margin-top: var(--scale-size-24);
     }
 }

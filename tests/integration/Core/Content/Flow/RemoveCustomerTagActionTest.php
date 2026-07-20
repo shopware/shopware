@@ -5,9 +5,11 @@ namespace Shopware\Tests\Integration\Core\Content\Flow;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction;
 use Shopware\Core\Content\Flow\Dispatching\Action\RemoveCustomerTagAction;
+use Shopware\Core\Content\Flow\FlowCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -30,6 +32,9 @@ class RemoveCustomerTagActionTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
+    /**
+     * @var EntityRepository<FlowCollection>
+     */
     private EntityRepository $flowRepository;
 
     private Connection $connection;
@@ -38,6 +43,9 @@ class RemoveCustomerTagActionTest extends TestCase
 
     private IdsCollection $ids;
 
+    /**
+     * @var EntityRepository<CustomerCollection>
+     */
     private EntityRepository $customerRepository;
 
     protected function setUp(): void

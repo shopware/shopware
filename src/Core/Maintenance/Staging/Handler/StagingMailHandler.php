@@ -14,18 +14,17 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 readonly class StagingMailHandler
 {
     public function __construct(
-        private bool $disableMailDelivery,
         private SystemConfigService $systemConfigService
     ) {
     }
 
     public function __invoke(SetupStagingEvent $event): void
     {
-        if (!$this->disableMailDelivery) {
+        if (!$event->disableMailDelivery) {
             return;
         }
 
-        $this->systemConfigService->set(MailSender::DISABLE_MAIL_DELIVERY, true);
+        $this->systemConfigService->set(MailSender::DISABLE_MAIL_DELIVERY, true, null, true);
 
         $event->io->info('Disabled mail delivery.');
     }

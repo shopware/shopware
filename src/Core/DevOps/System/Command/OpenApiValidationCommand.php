@@ -25,8 +25,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 class OpenApiValidationCommand extends Command
 {
     public function __construct(
-        private HttpClientInterface $client,
-        private DefinitionService $definitionService
+        private readonly HttpClientInterface $client,
+        private readonly DefinitionService $definitionService,
     ) {
         parent::__construct();
     }
@@ -66,7 +66,7 @@ class OpenApiValidationCommand extends Command
             $content['schemaValidationMessages'] ?? []
         );
 
-        if (\count($messages) === 0) {
+        if ($messages === []) {
             return Command::SUCCESS;
         }
 

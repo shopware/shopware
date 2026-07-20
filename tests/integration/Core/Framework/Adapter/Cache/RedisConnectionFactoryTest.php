@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Cache;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
@@ -11,17 +10,15 @@ use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 /**
  * @internal
  */
-#[Group('redis')]
 class RedisConnectionFactoryTest extends TestCase
 {
     #[DataProvider('prefixProvider')]
     public function testPrefix(?string $aPrefix, ?string $bPrefix, bool $equals): void
     {
-        /** @var string $url */
-        $url = EnvironmentHelper::getVariable('REDIS_URL');
+        $url = (string) EnvironmentHelper::getVariable('REDIS_URL');
 
-        if (!$url) {
-            static::markTestSkipped('No redis server configured');
+        if ($url === '') {
+            static::markTestSkipped('Redis is not available');
         }
 
         $a = (new RedisConnectionFactory($aPrefix))->create($url);

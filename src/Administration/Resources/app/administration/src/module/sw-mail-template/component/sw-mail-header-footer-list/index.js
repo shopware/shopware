@@ -21,6 +21,9 @@ export default {
     ],
 
     props: {
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed.
+         */
         searchTerm: {
             type: String,
             required: false,
@@ -55,6 +58,9 @@ export default {
     },
 
     watch: {
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed together with searchTerm prop.
+         */
         searchTerm() {
             this.getList();
         },
@@ -78,8 +84,9 @@ export default {
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('salesChannels').addSorting(Criteria.sort('name'));
 
-            if (this.searchTerm) {
-                criteria.setTerm(this.searchTerm);
+            const searchTerm = this.feature.isActive('V6_8_0_0') ? this.term : this.searchTerm;
+            if (searchTerm) {
+                criteria.setTerm(searchTerm);
             }
 
             this.mailHeaderFooterRepository.search(criteria).then((items) => {
@@ -193,7 +200,7 @@ export default {
 
         showDeleteErrorNotification(item) {
             return this.createNotificationError({
-                message: this.$tc('sw-mail-header-footer.list.messageDeleteError', { name: item.name }, 0),
+                message: this.$t('sw-mail-header-footer.list.messageDeleteError', { name: item.name }, 0),
             });
         },
 

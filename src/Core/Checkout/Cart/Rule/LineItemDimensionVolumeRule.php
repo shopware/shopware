@@ -60,7 +60,7 @@ class LineItemDimensionVolumeRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER)
+            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, false, true)
             ->numberField('amount', ['unit' => RuleConfig::UNIT_VOLUME]);
     }
 
@@ -75,6 +75,6 @@ class LineItemDimensionVolumeRule extends Rule
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
-        return RuleComparison::numeric($deliveryInformation->getVolume(), $this->amount * self::VOLUME_FACTOR, $this->operator);
+        return RuleComparison::numeric($deliveryInformation->getVolume(), (float) $this->amount * self::VOLUME_FACTOR, $this->operator);
     }
 }

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Address\Error\AddressValidationError;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\GenericCartError;
@@ -33,9 +34,11 @@ use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
 use Symfony\Component\HttpKernel\HttpKernel;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 use Twig\Error\SyntaxError;
@@ -56,7 +59,7 @@ class StorefrontControllerTest extends TestCase
 
     public function testRenderStorefront(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $request = new Request(
             attributes: [
@@ -84,7 +87,7 @@ class StorefrontControllerTest extends TestCase
             ->with('<html lang="en">test</html>', 'foo', $context)
             ->willReturn('<html lang="en">test</html>');
 
-        $mediaUrlHandler = $this->createMock(MediaUrlPlaceholderHandlerInterface::class);
+        $mediaUrlHandler = static::createStub(MediaUrlPlaceholderHandlerInterface::class);
         $mediaUrlHandler->method('replace')->willReturnArgument(0);
 
         $templateFinder = $this->createMock(TemplateFinder::class);
@@ -96,12 +99,12 @@ class StorefrontControllerTest extends TestCase
 
         $container = new ContainerBuilder();
         $container->set('request_stack', $requestStack);
-        $container->set('event_dispatcher', $this->createMock(EventDispatcherInterface::class));
+        $container->set('event_dispatcher', static::createStub(EventDispatcherInterface::class));
         $container->set('twig', $twig);
         $container->set(TemplateFinder::class, $templateFinder);
         $container->set(SeoUrlPlaceholderHandlerInterface::class, $seoUrlReplacer);
         $container->set(MediaUrlPlaceholderHandlerInterface::class, $mediaUrlHandler);
-        $container->set(SystemConfigService::class, $this->createMock(SystemConfigService::class));
+        $container->set(SystemConfigService::class, static::createStub(SystemConfigService::class));
         $container->set('twig', $twig);
 
         $this->controller->setContainer($container);
@@ -114,7 +117,7 @@ class StorefrontControllerTest extends TestCase
 
     public function testRenderStorefrontWithException(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $request = new Request(
             attributes: [
@@ -136,7 +139,7 @@ class StorefrontControllerTest extends TestCase
             ->method('render')
             ->willThrowException($exception);
 
-        $seoUrlReplacer = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
+        $seoUrlReplacer = static::createStub(SeoUrlPlaceholderHandlerInterface::class);
 
         $templateFinder = $this->createMock(TemplateFinder::class);
         $templateFinder
@@ -147,11 +150,11 @@ class StorefrontControllerTest extends TestCase
 
         $container = new ContainerBuilder();
         $container->set('request_stack', $requestStack);
-        $container->set('event_dispatcher', $this->createMock(EventDispatcherInterface::class));
+        $container->set('event_dispatcher', static::createStub(EventDispatcherInterface::class));
         $container->set('twig', $twig);
         $container->set(TemplateFinder::class, $templateFinder);
         $container->set(SeoUrlPlaceholderHandlerInterface::class, $seoUrlReplacer);
-        $container->set(SystemConfigService::class, $this->createMock(SystemConfigService::class));
+        $container->set(SystemConfigService::class, static::createStub(SystemConfigService::class));
         $container->set('twig', $twig);
 
         $this->controller->setContainer($container);
@@ -194,7 +197,7 @@ class StorefrontControllerTest extends TestCase
 
         $container = new ContainerBuilder();
         $container->set('router', $router);
-        $container->set('event_dispatcher', $this->createMock(EventDispatcherInterface::class));
+        $container->set('event_dispatcher', static::createStub(EventDispatcherInterface::class));
 
         $this->controller->setContainer($container);
 
@@ -202,6 +205,31 @@ class StorefrontControllerTest extends TestCase
 
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('/foo/generated', $response->getTargetUrl());
+    }
+
+    public function testCreateActionResponseWithRedirectToRouteNotFoundException(): void
+    {
+        $router = $this->createMock(RouterInterface::class);
+        $router
+            ->expects($this->once())
+            ->method('generate')
+            ->with('foo', ['foo' => 'bar'], UrlGeneratorInterface::ABSOLUTE_PATH)
+            ->willThrowException(new RouteNotFoundException());
+
+        $request = new Request(
+            [
+                'redirectTo' => 'foo',
+                'redirectParameters' => ['foo' => 'bar'],
+            ]
+        );
+
+        $container = new ContainerBuilder();
+        $container->set('router', $router);
+        $container->set('event_dispatcher', static::createStub(EventDispatcherInterface::class));
+
+        $this->controller->setContainer($container);
+        $this->expectExceptionObject(StorefrontException::routeNotFound('foo'));
+        $this->controller->testCreateActionResponse($request);
     }
 
     public function testCreateActionResponseWithEmptyRedirectToWillRedirectToHomePage(): void
@@ -222,7 +250,7 @@ class StorefrontControllerTest extends TestCase
 
         $container = new ContainerBuilder();
         $container->set('router', $router);
-        $container->set('event_dispatcher', $this->createMock(EventDispatcherInterface::class));
+        $container->set('event_dispatcher', static::createStub(EventDispatcherInterface::class));
 
         $this->controller->setContainer($container);
 
@@ -250,7 +278,7 @@ class StorefrontControllerTest extends TestCase
 
         $container = new ContainerBuilder();
         $container->set('router', $router);
-        $container->set('event_dispatcher', $this->createMock(EventDispatcherInterface::class));
+        $container->set('event_dispatcher', static::createStub(EventDispatcherInterface::class));
 
         $this->controller->setContainer($container);
 
@@ -269,7 +297,7 @@ class StorefrontControllerTest extends TestCase
             ->with('foo', ['foo' => 'bar'], Router::PATH_INFO)
             ->willReturn('/foo/generated');
 
-        $requestContext = $this->createMock(RequestContext::class);
+        $requestContext = static::createStub(RequestContext::class);
         $requestContext
             ->method('getMethod')
             ->willReturn('POST');
@@ -280,7 +308,6 @@ class StorefrontControllerTest extends TestCase
 
         $router
             ->method('match')
-            ->with('/foo/generated')
             ->willReturn(['_controller' => 'test_controller']);
 
         $request = new Request(
@@ -293,22 +320,22 @@ class StorefrontControllerTest extends TestCase
         $requestStack = new RequestStack();
         $requestStack->push($request);
 
-        $controllerResolver = $this->createMock(ControllerResolverInterface::class);
+        $controllerResolver = static::createStub(ControllerResolverInterface::class);
         $controllerResolver
             ->method('getController')
-            ->willReturn(fn () => new Response('<html lang="en">test</html>', Response::HTTP_PERMANENTLY_REDIRECT, ['Content-Type' => 'text/html']));
+            ->willReturn(static fn () => new Response('<html lang="en">test</html>', Response::HTTP_PERMANENTLY_REDIRECT, ['Content-Type' => 'text/html']));
 
         $kernel = new HttpKernel(
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             $controllerResolver,
             $requestStack,
         );
 
         $container = new ContainerBuilder();
         $container->set('router', $router);
-        $container->set('event_dispatcher', $this->createMock(EventDispatcherInterface::class));
+        $container->set('event_dispatcher', static::createStub(EventDispatcherInterface::class));
         $container->set('request_stack', $requestStack);
-        $container->set(RequestTransformerInterface::class, $this->createMock(RequestTransformerInterface::class));
+        $container->set(RequestTransformerInterface::class, static::createStub(RequestTransformerInterface::class));
         $container->set('http_kernel', $kernel);
 
         $this->controller->setContainer($container);
@@ -318,6 +345,48 @@ class StorefrontControllerTest extends TestCase
         static::assertNotInstanceOf(RedirectResponse::class, $response);
         static::assertSame('<html lang="en">test</html>', $response->getContent());
         static::assertSame('text/html', $response->headers->get('Content-Type'));
+    }
+
+    public function testCreateActionResponseWithForwardToRouteNotFoundException(): void
+    {
+        $router = $this->createMock(RouterInterface::class);
+        $router
+            ->expects($this->once())
+            ->method('generate')
+            ->with('foo', ['foo' => 'bar'], Router::PATH_INFO)
+            ->willThrowException(new RouteNotFoundException());
+
+        $request = new Request(
+            [
+                'forwardTo' => 'foo',
+                'forwardParameters' => ['foo' => 'bar'],
+            ]
+        );
+
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
+
+        $controllerResolver = static::createStub(ControllerResolverInterface::class);
+        $controllerResolver
+            ->method('getController')
+            ->willReturn(static fn () => new Response('<html lang="en">test</html>', Response::HTTP_PERMANENTLY_REDIRECT, ['Content-Type' => 'text/html']));
+
+        $kernel = new HttpKernel(
+            static::createStub(EventDispatcherInterface::class),
+            $controllerResolver,
+            $requestStack,
+        );
+
+        $container = new ContainerBuilder();
+        $container->set('router', $router);
+        $container->set('event_dispatcher', static::createStub(EventDispatcherInterface::class));
+        $container->set('request_stack', $requestStack);
+        $container->set(RequestTransformerInterface::class, static::createStub(RequestTransformerInterface::class));
+        $container->set('http_kernel', $kernel);
+
+        $this->controller->setContainer($container);
+        $this->expectExceptionObject(StorefrontException::routeNotFound('foo'));
+        $this->controller->testCreateActionResponse($request);
     }
 
     public function testCreateActionResponseWithNeitherRedirectNorForwardTo(): void
@@ -337,7 +406,7 @@ class StorefrontControllerTest extends TestCase
             ->with('foo', ['foo' => 'bar'], Router::PATH_INFO)
             ->willReturn('/foo/generated');
 
-        $requestContext = $this->createMock(RequestContext::class);
+        $requestContext = static::createStub(RequestContext::class);
         $requestContext
             ->method('getMethod')
             ->willReturn('POST');
@@ -487,6 +556,49 @@ class StorefrontControllerTest extends TestCase
         static::assertCount(1, $flashes['danger']);
 
         static::assertSame('A very nasty error', $flashes['danger'][0]);
+    }
+
+    public function testAddressError(): void
+    {
+        $error = new AddressValidationError(
+            true,
+            new ConstraintViolationList(),
+            'address-id-123',
+        );
+
+        $cart = new Cart('foo');
+        $cart->addErrors($error);
+
+        $request = new Request();
+        $session = new Session(new TestSessionStorage());
+
+        $request->setSession($session);
+        $request->attributes->set('_route', 'some.route');
+
+        $stack = new RequestStack();
+        $stack->push($request);
+
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator
+            ->expects($this->once())
+            ->method('trans')
+            ->with('checkout.billing-address-invalid', ['%url%' => 'errorUrl', '%isBillingAddress%' => true, '%violations%' => $error->getViolations()])
+            ->willReturn('A very nasty error');
+
+        $router = $this->createMock(RouterInterface::class);
+        $router
+            ->expects($this->once())
+            ->method('generate')
+            ->with('frontend.account.address.edit.page', ['addressId' => 'address-id-123', 'redirectTo' => 'some.route'])
+            ->willReturn('errorUrl');
+
+        $container = new ContainerBuilder();
+        $container->set('request_stack', $stack);
+        $container->set('translator', $translator);
+        $container->set('router', $router);
+
+        $this->controller->setContainer($container);
+        $this->controller->testAddCartErrors($cart);
     }
 
     public function testRenderView(): void

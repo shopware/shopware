@@ -6,7 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -47,7 +46,7 @@ class CustomFieldsSerializer extends JsonFieldSerializer
             return;
         }
 
-        if (empty($attributes)) {
+        if ($attributes === []) {
             yield $field->getStorageName() => '{}';
 
             return;
@@ -57,7 +56,7 @@ class CustomFieldsSerializer extends JsonFieldSerializer
         $field->setPropertyMapping($this->getFields(array_keys($attributes)));
         $encoded = $this->validateMapping($field, $attributes, $parameters);
 
-        if (empty($encoded)) {
+        if ($encoded === []) {
             return;
         }
 
@@ -99,8 +98,7 @@ class CustomFieldsSerializer extends JsonFieldSerializer
     {
         $fields = [];
         foreach ($attributeNames as $attributeName) {
-            $fields[] = $this->attributeService->getCustomField($attributeName)
-                ?? new JsonField($attributeName, $attributeName);
+            $fields[] = $this->attributeService->getCustomField($attributeName);
         }
 
         return $fields;
@@ -122,7 +120,7 @@ class CustomFieldsSerializer extends JsonFieldSerializer
             $pks = array_combine(
                 array_keys($existence->getPrimaryKey()),
                 array_map(
-                    function (string $pkFieldStorageName) use ($definition, $existence, $parameters): mixed {
+                    static function (string $pkFieldStorageName) use ($definition, $existence, $parameters): mixed {
                         $pkFieldValue = $existence->getPrimaryKey()[$pkFieldStorageName];
                         /** @var Field|null $field */
                         $field = $definition->getFields()->getByStorageName($pkFieldStorageName);

@@ -7,6 +7,7 @@
             :presentation="presentation"
             :sorting="sorting"
             :hide-presentation="compact"
+            :disabled="disabled"
             @media-presentation-change="presentation = $event"
             @media-sorting-change="sorting = $event"
         />
@@ -17,20 +18,19 @@
 
         {% block sw_media_index_create_folder %}
         <mt-button
-            v-if="editable"
+            v-if="editable || allowCreateFolder"
             v-tooltip="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('media.creator'),
                 showOnDisabledElements: true
             }"
-            :disabled="!acl.can('media.creator')"
+            :disabled="!acl.can('media.creator') || disabled"
             class="sw-media-index__create-folder-action"
-            ghost
             size="small"
             variant="secondary"
             @click="createFolder"
         >
-            {{ $tc('sw-media.index.buttonCreateFolder') }}
+            {{ $t('sw-media.index.buttonCreateFolder') }}
         </mt-button>
         {% endblock %}
     </div>
@@ -56,6 +56,7 @@
                     v-if="parentFolder && (!isLoading || selectableItems.length > 0)"
                     :allow-edit="acl.can('media.editor')"
                     :allow-delete="acl.can('media.deleter')"
+                    :disabled="disabled"
                     class="sw-media-library__parent-folder"
                     :item="parentFolder"
                     :show-selection-indicator="false"
@@ -73,6 +74,7 @@
                     :key="gridItem.getEntityName() + '_' + gridItem.id"
                     :class="`sw-media-grid-item__item--${index}`"
                     :item="gridItem"
+                    :disabled="disabled"
                     :allow-edit="acl.can('media.editor')"
                     :allow-delete="acl.can('media.deleter')"
                     :selected="showItemSelected(gridItem)"
@@ -103,15 +105,33 @@
                     <sw-skeleton variant="media" />
                 </template>
 
-                {% block sw_media_library_load_more_button %}
-                <mt-button
-                    v-if="showLoadMoreButton"
-                    class="sw-media-library__load-more-button"
-                    variant="secondary"
-                    @click="loadNextItems"
+                {% block sw_media_library_load_buttons %}
+                <div
+                    v-if="showLoadMoreButton || showLoadAllButton"
+                    class="sw-media-library__load-buttons"
                 >
-                    {{ $tc('sw-media.mediaLibrary.labelButtonLoadMore') }}
-                </mt-button>
+                    {% block sw_media_library_load_more_button %}
+                    <mt-button
+                        v-if="showLoadMoreButton"
+                        class="sw-media-library__load-more-button"
+                        variant="secondary"
+                        @click="loadNextItems"
+                    >
+                        {{ $t('sw-media.mediaLibrary.labelButtonLoadMore') }}
+                    </mt-button>
+                    {% endblock %}
+
+                    {% block sw_media_library_load_all_button %}
+                    <mt-button
+                        v-if="showLoadAllButton"
+                        class="sw-media-library__load-all-button"
+                        variant="secondary"
+                        @click="loadAll"
+                    >
+                        {{ $t('sw-media.mediaLibrary.labelButtonLoadAll') }}
+                    </mt-button>
+                    {% endblock %}
+                </div>
                 {% endblock %}
             </sw-media-grid>
             {% endblock %}
@@ -120,28 +140,15 @@
     {% endblock %}
 
     {% block sw_media_library_empty_state %}
-    <sw-empty-state
+    <mt-empty-state
         v-if="shouldDisplayEmptyState"
-        :title="$tc('sw-empty-state.messageNoResultTitle')"
-    >
-        <template #icon>
-            <img
-                :src="assetFilter('/administration/administration/static/img/empty-states/media-empty-state.svg')"
-                :alt="$tc('sw-empty-state.messageNoResultSubline')"
-            >
-        </template>
-
-        <template #default>
-            {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
-            <router-link
-                class="sw-empty-state__description-link"
-                :to="{ name: 'sw.profile.index.searchPreferences' }"
-            >
-                {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
-            </router-link>
-            {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
-        </template>
-    </sw-empty-state>
+        class="sw-media-library__empty-state"
+        :centered="true"
+        :icon="$route.meta.$module.icon"
+        :headline="$t('sw-empty-state.messageNoResultTitle')"
+        :link-text="$t('sw-empty-state.messageNoResultLink')"
+        :link-href="$router.resolve({ name: 'sw.profile.index.searchPreferences' }).href"
+    />
     {% endblock %}
 </div>
 {% endblock %}

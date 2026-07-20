@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Cms\Subscriber;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsException;
+use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
-use Shopware\Core\Content\Cms\Subscriber\CmsPageDefaultChangeSubscriber;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -22,11 +22,13 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(CmsPageDefaultChangeSubscriber::class)]
 class CmsPageBeforeDefaultChangeSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<CmsPageCollection>
+     */
     private EntityRepository $cmsPageRepository;
 
     private SystemConfigService $systemConfigService;
@@ -43,8 +45,16 @@ class CmsPageBeforeDefaultChangeSubscriberTest extends TestCase
     public function testSetDefaultDoesNotThrow(string $validCmsPageId, ?string $salesChannelId): void
     {
         $this->createCmsPage($validCmsPageId);
+        $error = null;
+        $message = '';
 
-        $this->systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, $validCmsPageId, $salesChannelId);
+        try {
+            $this->systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, $validCmsPageId, $salesChannelId);
+        } catch (\Throwable $e) {
+            $error = $e;
+            $message = \sprintf('No error expected, got "%s" with: %s', $error->getMessage(), $error->getTraceAsString());
+        }
+        static::assertNull($error, $message);
     }
 
     public static function validDefaultCmsPageDataProvider(): \Generator
@@ -65,7 +75,11 @@ class CmsPageBeforeDefaultChangeSubscriberTest extends TestCase
     #[DataProvider('invalidDefaultCmsPageDataProvider')]
     public function testSetInvalidDefaultThrow(string $invalidCmsPageId, ?string $salesChannelId): void
     {
-        $this->expectException(PageNotFoundException::class);
+        if (Feature::isActive('v6.8.0.0')) {
+            $this->expectExceptionObject(CmsException::pageNotFound($invalidCmsPageId));
+        } else {
+            $this->expectExceptionObject(new PageNotFoundException($invalidCmsPageId));
+        }
         $this->systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, $invalidCmsPageId, $salesChannelId);
     }
 
@@ -88,33 +102,32 @@ class CmsPageBeforeDefaultChangeSubscriberTest extends TestCase
     {
         $cmsPage = Uuid::randomHex();
         $this->createCmsPage($cmsPage);
+        $error = null;
+        $message = '';
 
-        // set sales channel specific default
-        $this->systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, $cmsPage, TestDefaults::SALES_CHANNEL);
+        try {
+            // set sales channel specific default
+            $this->systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, $cmsPage, TestDefaults::SALES_CHANNEL);
 
-        // expect to be able to delete the default
-        $this->systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, null, TestDefaults::SALES_CHANNEL);
+            // expect to be able to delete the default
+            $this->systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, null, TestDefaults::SALES_CHANNEL);
+        } catch (\Throwable $e) {
+            $error = $e;
+            $message = \sprintf('No error expected, got "%s" with: %s', $error->getMessage(), $error->getTraceAsString());
+        }
+        static::assertNull($error, $message);
     }
 
     public function testDeleteOverallDefaultThrow(): void
     {
         $cmsPage = Uuid::randomHex();
-        $exceptionWasThrown = false;
         $this->createCmsPage($cmsPage);
 
         // set overall default
         $this->systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, $cmsPage);
 
-        try {
-            $this->systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, null);
-        } catch (CmsException $exception) {
-            static::assertSame(CmsException::OVERALL_DEFAULT_SYSTEM_CONFIG_DELETION_CODE, $exception->getErrorCode());
-            $exceptionWasThrown = true;
-        } finally {
-            if (!$exceptionWasThrown) {
-                static::fail('Expected exception with error code ' . CmsException::OVERALL_DEFAULT_SYSTEM_CONFIG_DELETION_CODE . ' to be thrown.');
-            }
-        }
+        $this->expectExceptionObject(CmsException::overallDefaultSystemConfigDeletion($cmsPage));
+        $this->systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, null);
     }
 
     private function createCmsPage(string $cmsPageId): void

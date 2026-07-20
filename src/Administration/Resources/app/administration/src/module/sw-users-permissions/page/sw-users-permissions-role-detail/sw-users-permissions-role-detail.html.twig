@@ -1,17 +1,18 @@
 {% block sw_users_permissions_role_detail %}
 <sw-page class="sw-users-permissions-role-detail">
-
     {% block sw_users_permissions_role_detail_smart_bar_header %}
     <template #smart-bar-header>
         {% block sw_users_permissions_role_detail_smart_bar_header_title %}
         <h2 v-if="role && role.isNew() && role.name.length <= 0">
-            {{ $tc('sw-users-permissions.roles.general.labelCreateNewRole') }}
+            {{ $t('sw-users-permissions.roles.general.labelCreateNewRole') }}
         </h2>
+
         <h2 v-else-if="role">
             {{ role.name }}
         </h2>
+
         <h2 v-else>
-            {{ $tc('sw-users-permissions.roles.detail.role') }}
+            {{ $t('sw-users-permissions.roles.detail.role') }}
         </h2>
         {% endblock %}
     </template>
@@ -26,7 +27,7 @@
             size="default"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -36,12 +37,12 @@
             class="sw-users-permissions-role-detail__button-save"
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
-            :disabled="isLoading || !acl.can('users_and_permissions.editor') || undefined"
+            :disabled="isLoading || !acl.can('users_and_permissions.editor')"
             variant="primary"
             @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -59,37 +60,31 @@
                 <template #default="{ active }">
                     <sw-tabs-item
                         :route="{ name: 'sw.users.permissions.role.detail.general', params: { id: $route.params.id } }"
-                        :title="$tc('sw-users-permissions.roles.tabs.general')"
+                        :title="$t('sw-users-permissions.roles.tabs.general')"
                     >
-                        {{ $tc('sw-users-permissions.roles.tabs.general') }}
+                        {{ $t('sw-users-permissions.roles.tabs.general') }}
                     </sw-tabs-item>
 
                     <sw-tabs-item
                         :route="{ name: 'sw.users.permissions.role.detail.detailed-privileges', params: { id: $route.params.id } }"
-                        :title="$tc('sw-users-permissions.roles.tabs.detailed')"
+                        :title="$t('sw-users-permissions.roles.tabs.detailed')"
                     >
-                        {{ $tc('sw-users-permissions.roles.tabs.detailed') }}
+                        {{ $t('sw-users-permissions.roles.tabs.detailed') }}
                     </sw-tabs-item>
                 </template>
             </sw-tabs>
             {% endblock %}
 
-            <template v-if="isLoading">
-                <sw-skeleton variant="detail-bold" />
-                <sw-skeleton />
-            </template>
-
-            <template v-else>
-                <router-view
-                    v-slot="{ Component }"
-                >
-                    <component
-                        :is="Component"
-                        :role="role"
-                        :detailed-privileges="detailedPrivileges"
-                    />
-                </router-view>
-            </template>
+            <router-view
+                v-slot="{ Component }"
+            >
+                <component
+                    :is="Component"
+                    :role="role"
+                    :is-loading="isLoading"
+                    :detailed-privileges="detailedPrivileges"
+                />
+            </router-view>
         </sw-card-view>
         {% endblock %}
 

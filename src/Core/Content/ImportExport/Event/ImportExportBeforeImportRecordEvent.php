@@ -10,24 +10,37 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('fundamentals@after-sales')]
 class ImportExportBeforeImportRecordEvent extends Event
 {
+    /**
+     * @param array<array-key, mixed> $record
+     * @param array<string, mixed> $row
+     */
     public function __construct(
         private array $record,
         private readonly array $row,
         private readonly Config $config,
-        private readonly Context $context
+        private readonly Context $context,
     ) {
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getRecord(): array
     {
         return $this->record;
     }
 
+    /**
+     * @param array<string, mixed> $record
+     */
     public function setRecord(array $record): void
     {
         $this->record = $record;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getRow(): array
     {
         return $this->row;

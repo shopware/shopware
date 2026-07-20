@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1673964565MigrateToReferencedColumns;
 
 /**
@@ -31,7 +32,7 @@ class Migration1673964565MigrateToReferencedColumnsTest extends TestCase
 
     public function testUpdate(): void
     {
-        $entityIdColumnExists = $this->entityIdColumnExists();
+        $entityIdColumnExists = TableHelper::columnExists($this->connection, 'state_machine_history', 'entity_id');
         if (!$entityIdColumnExists) {
             $this->addEntityIdColumn();
         }
@@ -47,7 +48,7 @@ class Migration1673964565MigrateToReferencedColumnsTest extends TestCase
         $this->migration->update($this->connection);
         $this->migration->update($this->connection);
 
-        static::assertFalse($this->entityIdColumnExists());
+        static::assertFalse(TableHelper::columnExists($this->connection, 'state_machine_history', 'entity_id'));
         static::assertFalse($this->referenceColumnHasGeneratedValue('referenced_id'));
         static::assertFalse($this->referenceColumnHasGeneratedValue('referenced_version_id'));
 
@@ -60,15 +61,6 @@ class Migration1673964565MigrateToReferencedColumnsTest extends TestCase
         if ($referencedVersionIdColumnHasGeneratedValue) {
             $this->addGeneratedValueForReferencedVersionId();
         }
-    }
-
-    private function entityIdColumnExists(): bool
-    {
-        return (bool) $this->connection->fetchOne(
-            'SHOW COLUMNS
-             FROM `state_machine_history`
-             WHERE `Field` LIKE "entity_id"'
-        );
     }
 
     private function addEntityIdColumn(): void

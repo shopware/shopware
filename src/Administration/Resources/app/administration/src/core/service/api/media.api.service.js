@@ -7,12 +7,11 @@ import ApiService from '../api.service';
 
 const UploadEvents = {
     UPLOAD_ADDED: 'media-upload-add',
+    UPLOAD_PROGRESS: 'media-upload-progress',
     UPLOAD_FINISHED: 'media-upload-finish',
     UPLOAD_FAILED: 'media-upload-fail',
     UPLOAD_CANCELED: 'media-upload-cancel',
 };
-
-const { Criteria } = Shopware.Data;
 
 /**
  * Gateway for the API end point "media"
@@ -26,6 +25,7 @@ class MediaApiService extends ApiService {
         this.uploads = [];
         this.$listeners = {};
         this.cacheDefaultFolder = {};
+        this.maxConcurrentUploads = 5;
     }
 
     hasListeners(uploadTag) {
@@ -67,6 +67,8 @@ class MediaApiService extends ApiService {
     }
 
     addDefaultListener(callback) {
+        // Remove listener is inside "removeDefaultListener" method
+        // eslint-disable-next-line listeners/no-missing-remove-event-listener
         this.addListener('default', callback);
     }
 
@@ -106,10 +108,12 @@ class MediaApiService extends ApiService {
 
     keepFile(uploadTag, uploadData) {
         const task = new UploadTask({ uploadTag, ...uploadData });
+        const originalTargetId = uploadData?.originalTargetId ?? null;
         this.getListenerForTag(uploadTag).forEach((listener) => {
             listener(
                 this._createUploadEvent(UploadEvents.UPLOAD_FINISHED, uploadTag, {
                     targetId: task.targetId,
+                    originalTargetId,
                     successAmount: 0,
                     failureAmount: 0,
                     totalAmount: 0,
@@ -145,47 +149,61 @@ class MediaApiService extends ApiService {
         const totalUploads = affectedUploads.length;
         let successUploads = 0;
         let failureUploads = 0;
-        return Promise.all(
-            affectedUploads.map((task) => {
-                if (task.running) {
-                    return Promise.resolve();
-                }
 
-                task.running = true;
-                return this._startUpload(task)
-                    .then(() => {
-                        task.running = false;
-                        successUploads += 1;
-                        affectedListeners.forEach((listener) => {
-                            listener(
-                                this._createUploadEvent(UploadEvents.UPLOAD_FINISHED, tag, {
-                                    targetId: task.targetId,
-                                    successAmount: successUploads,
-                                    failureAmount: failureUploads,
-                                    totalAmount: totalUploads,
-                                }),
-                            );
-                        });
-                    })
-                    .catch((cause) => {
-                        task.error = cause;
-                        task.running = false;
-                        failureUploads += 1;
-                        task.successAmount = successUploads;
-                        task.failureAmount = failureUploads;
-                        task.totalAmount = totalUploads;
-                        affectedListeners.forEach((listener) => {
-                            listener(this._createUploadEvent(UploadEvents.UPLOAD_FAILED, tag, task));
-                        });
+        const iterator = affectedUploads[Symbol.iterator]();
+
+        const runWorker = () => {
+            const { value: task, done } = iterator.next();
+
+            if (done) {
+                return Promise.resolve();
+            }
+
+            if (task.running) {
+                return runWorker();
+            }
+
+            task.running = true;
+
+            return this._startUpload(task, tag)
+                .then(() => {
+                    task.running = false;
+                    successUploads += 1;
+                    affectedListeners.forEach((listener) => {
+                        listener(
+                            this._createUploadEvent(UploadEvents.UPLOAD_FINISHED, tag, {
+                                targetId: task.targetId,
+                                successAmount: successUploads,
+                                failureAmount: failureUploads,
+                                totalAmount: totalUploads,
+                            }),
+                        );
                     });
-            }),
-        );
+                })
+                .catch((cause) => {
+                    task.error = cause;
+                    task.running = false;
+                    failureUploads += 1;
+                    task.successAmount = successUploads;
+                    task.failureAmount = failureUploads;
+                    task.totalAmount = totalUploads;
+                    affectedListeners.forEach((listener) => {
+                        listener(this._createUploadEvent(UploadEvents.UPLOAD_FAILED, tag, task));
+                    });
+                })
+                .then(() => runWorker());
+        };
+
+        const workerCount = Math.min(this.maxConcurrentUploads, affectedUploads.length);
+        const workers = Array.from({ length: workerCount }, () => runWorker());
+
+        return Promise.all(workers);
     }
 
-    _startUpload(task) {
+    _startUpload(task, uploadTag = null) {
         if (task.src instanceof File) {
             return fileReader.readAsArrayBuffer(task.src).then((buffer) => {
-                return this.uploadMediaById(task.targetId, task.src.type, buffer, task.extension, task.fileName);
+                return this.uploadMediaById(task.targetId, task.src.type, buffer, task.extension, task.fileName, uploadTag);
             });
         }
 
@@ -196,7 +214,7 @@ class MediaApiService extends ApiService {
         return Promise.reject(new Error('src of upload must either be an instance of File or URL'));
     }
 
-    uploadMediaById(id, mimeType, data, extension, fileName = id) {
+    uploadMediaById(id, mimeType, data, extension, fileName = id, uploadTag = null) {
         if (extension === 'glb' && mimeType === '') {
             mimeType = 'model/gltf-binary';
         }
@@ -214,9 +232,31 @@ class MediaApiService extends ApiService {
             fileName,
         };
 
-        return this.httpClient.post(apiRoute, data, { params, headers }).then((response) => {
-            return ApiService.handleResponse(response);
-        });
+        return this.httpClient
+            .post(apiRoute, data, {
+                params,
+                headers,
+                onUploadProgress: (progressEvent) => {
+                    if (!uploadTag) {
+                        return;
+                    }
+
+                    const total = progressEvent.total ?? data.byteLength ?? 0;
+                    this.getListenerForTag(uploadTag).forEach((listener) => {
+                        listener(
+                            this._createUploadEvent(UploadEvents.UPLOAD_PROGRESS, uploadTag, {
+                                targetId: id,
+                                loaded: progressEvent.loaded,
+                                total,
+                            }),
+                        );
+                    });
+                },
+                timeout: 0,
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 
     uploadMediaFromUrl(id, url, extension, fileName = id) {
@@ -231,9 +271,15 @@ class MediaApiService extends ApiService {
 
         const body = JSON.stringify({ url });
 
-        return this.httpClient.post(apiRoute, body, { params, headers }).then((response) => {
-            return ApiService.handleResponse(response);
-        });
+        return this.httpClient
+            .post(apiRoute, body, {
+                params,
+                headers,
+                timeout: 0,
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 
     renameMedia(id, fileName) {
@@ -266,7 +312,27 @@ class MediaApiService extends ApiService {
             });
     }
 
+    assignVideoCover(videoId, coverMediaId) {
+        const apiRoute = `/_action/${this.getApiBasePath(videoId)}/video-cover`;
+
+        return this.httpClient
+            .post(
+                apiRoute,
+                JSON.stringify({
+                    coverMediaId,
+                }),
+                {
+                    headers: this.getBasicHeaders(),
+                },
+            )
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
     async getDefaultFolderId(entity) {
+        const { Criteria } = Shopware.Data;
+
         if (this.cacheDefaultFolder[entity]) {
             return this.cacheDefaultFolder[entity];
         }
@@ -287,6 +353,31 @@ class MediaApiService extends ApiService {
         }
 
         return null;
+    }
+
+    downloadMedia(mediaId) {
+        const apiRoute = `/_action/${this.getApiBasePath(mediaId)}/download`;
+
+        return this.httpClient
+            .get(apiRoute, {
+                responseType: 'blob',
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    prepareDownloadMedia(mediaId) {
+        const apiRoute = `/_action/${this.getApiBasePath(mediaId)}/download/prepare`;
+
+        return this.httpClient
+            .get(apiRoute, {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 }
 

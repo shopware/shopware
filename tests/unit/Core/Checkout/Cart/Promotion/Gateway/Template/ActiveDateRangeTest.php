@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -25,19 +26,18 @@ class ActiveDateRangeTest extends TestCase
     #[Group('promotions')]
     public function testCriteria(): void
     {
-        $template = new ActiveDateRange();
+        $clock = new MockClock(new \DateTimeImmutable());
 
-        static::assertEquals($this->getExpectedDateRangeFilter()->getQueries(), $template->getQueries());
+        $template = new ActiveDateRange(clock: $clock);
+
+        static::assertEquals($this->getExpectedDateRangeFilter($clock->now())->getQueries(), $template->getQueries());
     }
 
     /**
      * @throws \Exception
      */
-    private function getExpectedDateRangeFilter(): MultiFilter
+    private function getExpectedDateRangeFilter(\DateTimeImmutable $today): MultiFilter
     {
-        $today = new \DateTime();
-        $today = $today->setTimezone(new \DateTimeZone('UTC'));
-
         $todayStart = $today->format('Y-m-d H:i:s');
         $todayEnd = $today->format('Y-m-d H:i:s');
 

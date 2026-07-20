@@ -7,11 +7,6 @@ import { mount } from '@vue/test-utils';
 describe('components/base/sw-alert-deprecated', () => {
     let wrapper;
 
-    it('should be a Vue.js component', async () => {
-        wrapper = mount(await wrapTestComponent('sw-alert-deprecated', { sync: true }));
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render correctly', async () => {
         const title = 'Alert title';
         const message = '<p>Alert message</p>';

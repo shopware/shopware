@@ -12,7 +12,7 @@ use Shopware\Core\System\Language\SalesChannelLanguageLoader;
 class StaticSalesChannelLanguageLoader extends SalesChannelLanguageLoader
 {
     /**
-     * @param array<string, array<string>> $languages
+     * @param array<string, list<string>> $languages
      */
     public function __construct(private readonly array $languages = [])
     {

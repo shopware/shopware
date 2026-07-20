@@ -25,12 +25,6 @@ describe('app/plugins/devtool-helper.plugin', () => {
         window._sw_extension_component_collection = undefined;
     });
 
-    it('should be a Vue.js component', async () => {
-        const component = createComponent();
-
-        expect(component.vm).toBeTruthy();
-    });
-
     it('should not add the component to the collection when no extensionApiDevtoolInformation exists', async () => {
         createComponent();
 

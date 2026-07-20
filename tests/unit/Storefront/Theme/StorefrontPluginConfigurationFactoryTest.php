@@ -11,6 +11,7 @@ use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\PluginWithAdditionalBundles\PluginWithAdditionalBundles;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeAndPlugin\TestTheme\TestTheme;
+use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 
 /**
  * @internal
@@ -21,19 +22,21 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
     public function testGetDecoratedThrows(): void
     {
         $configurationFactory = new StorefrontPluginConfigurationFactory(
-            $this->createMock(KernelPluginLoader::class),
-            new StaticSourceResolver([])
+            static::createStub(KernelPluginLoader::class),
+            new StaticSourceResolver([]),
+            new SymfonyFilesystem(),
         );
 
-        static::expectException(DecorationPatternException::class);
+        $this->expectException(DecorationPatternException::class);
         $configurationFactory->getDecorated();
     }
 
     public function testFactorySetsConfiguration(): void
     {
         $configurationFactory = new StorefrontPluginConfigurationFactory(
-            $this->createMock(KernelPluginLoader::class),
-            new StaticSourceResolver([])
+            static::createStub(KernelPluginLoader::class),
+            new StaticSourceResolver([]),
+            new SymfonyFilesystem(),
         );
 
         $themePluginBundle = new TestTheme();
@@ -73,8 +76,9 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
     public function testFactorySetsConfigurationWithAdditionalBundles(): void
     {
         $configurationFactory = new StorefrontPluginConfigurationFactory(
-            $this->createMock(KernelPluginLoader::class),
-            new StaticSourceResolver([])
+            static::createStub(KernelPluginLoader::class),
+            new StaticSourceResolver([]),
+            new SymfonyFilesystem(),
         );
 
         $PluginSubBundle = new PluginWithAdditionalBundles(true, '');
@@ -87,8 +91,9 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
     public function testFactorySetsConfigurationWithAppSource(): void
     {
         $configurationFactory = new StorefrontPluginConfigurationFactory(
-            $this->createMock(KernelPluginLoader::class),
-            new StaticSourceResolver(['test' => new Filesystem(__DIR__ . '/fixtures/Apps/test')])
+            static::createStub(KernelPluginLoader::class),
+            new StaticSourceResolver(['test' => new Filesystem(__DIR__ . '/fixtures/Apps/test')]),
+            new SymfonyFilesystem(),
         );
 
         $config = $configurationFactory->createFromApp('test', __DIR__ . '/fixtures/Apps/test');
@@ -99,8 +104,9 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
     public function testFactorySetsConfigurationWithAppSourceAsTheme(): void
     {
         $configurationFactory = new StorefrontPluginConfigurationFactory(
-            $this->createMock(KernelPluginLoader::class),
-            new StaticSourceResolver(['SwagTheme' => new Filesystem(__DIR__ . '/fixtures/Apps/theme')])
+            static::createStub(KernelPluginLoader::class),
+            new StaticSourceResolver(['SwagTheme' => new Filesystem(__DIR__ . '/fixtures/Apps/theme')]),
+            new SymfonyFilesystem(),
         );
 
         $config = $configurationFactory->createFromApp('SwagTheme', __DIR__ . '/fixtures/Apps/theme');

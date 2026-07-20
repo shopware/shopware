@@ -21,16 +21,20 @@ test('Install a new Shopware instance.', { tag: '@Install' }, async ({ InstallPa
 
     test.slow();
 
-    await expect(page.locator('#import-finished:visible div').first())
-        .toHaveText('Shopware 6 has been installed!', { timeout: 120000 });
+    await expect(page.locator('#import-finished:visible div').first()).toHaveText('Shopware 6 has been installed!', {
+        timeout: 120000,
+    });
     await page.getByRole('link', { name: 'Next' }).click();
 
     await page.getByLabel('Shop name').fill('Basic install test');
 
-    await page.locator('#shop-configuration div').filter({ hasText: 'Almost done. You just need to make some few basic settings in your shop, Shopwar' }).click();
+    await page
+        .locator('#shop-configuration div')
+        .filter({ hasText: 'Almost done. You just need to make some few basic settings in your shop, Shopwar' })
+        .click();
 
     await page.getByLabel('Shop email address:').fill('mustermann@example.com');
-    await page.locator('label').filter({ hasText: 'Pound sterling (UK)' }).click();
+    await page.locator('#config_shop_currency').selectOption('GBP');
 
     await page.getByLabel('Admin email:').fill('admin@example.com');
 
@@ -40,6 +44,13 @@ test('Install a new Shopware instance.', { tag: '@Install' }, async ({ InstallPa
     await page.getByLabel('Admin password:').fill('shopware');
 
     await page.getByRole('button', { name: 'Next' }).click();
+
+    await expect(page.getByText('Installation completed')).toBeVisible({
+        timeout: 30000,
+    });
+
+    // Click "Continue to shop" button
+    await page.getByRole('link', { name: 'Continue to shop' }).click();
 
     // test admin login
 

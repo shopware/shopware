@@ -1,5 +1,4 @@
 import type { NotificationVariant } from 'src/app/store/notification.store';
-import type { PropType } from 'vue';
 import template from './sw-alert-deprecated.html.twig';
 import './sw-alert-deprecated.scss';
 
@@ -73,7 +72,6 @@ export default Shopware.Component.wrapComponentConfig({
         showIcon: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         closable: {

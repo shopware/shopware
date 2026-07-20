@@ -87,7 +87,7 @@ class SetScopeDiscountPackager extends DiscountPackager
     }
 
     /**
-     * Gets a list of in-memory grupo definitions
+     * Gets a list of in-memory group definitions
      * from the list of group settings from the payload
      *
      * @param array<string, mixed> $groups

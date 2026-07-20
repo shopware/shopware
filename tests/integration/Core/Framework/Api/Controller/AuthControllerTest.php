@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
@@ -325,7 +326,7 @@ class AuthControllerTest extends TestCase
         static::assertInstanceOf(UnencryptedToken::class, $parsedAccessToken);
         $accessTokenScopes = $parsedAccessToken->claims()->get('scopes');
 
-        static::assertEqualsCanonicalizing(['admin', 'write'], $accessTokenScopes);
+        static::assertEqualsCanonicalizing(['admin', 'write'], array_values($accessTokenScopes));
     }
 
     public function testUniqueAccessTokenScopes(): void
@@ -350,7 +351,7 @@ class AuthControllerTest extends TestCase
         static::assertInstanceOf(UnencryptedToken::class, $parsedAccessToken);
         $accessTokenScopes = $parsedAccessToken->claims()->get('scopes');
 
-        static::assertEqualsCanonicalizing(['admin', 'write'], $accessTokenScopes);
+        static::assertEqualsCanonicalizing(['admin', 'write'], array_values($accessTokenScopes));
     }
 
     public function testAccessTokenScopesChangedAfterRefreshGrant(): void
@@ -467,7 +468,7 @@ class AuthControllerTest extends TestCase
         static::assertInstanceOf(UnencryptedToken::class, $parsedNewAccessToken);
         $newAccessTokenScopes = $parsedNewAccessToken->claims()->get('scopes');
 
-        static::assertEqualsCanonicalizing($oldAccessTokenScopes, $newAccessTokenScopes);
+        static::assertEqualsCanonicalizing(array_values($oldAccessTokenScopes), array_values($newAccessTokenScopes));
     }
 
     public function testIntegrationAuth(): void
@@ -712,7 +713,7 @@ class AuthControllerTest extends TestCase
 
     private function setAccessTokenForIntegration(string $integrationId, string $accessKey, string $secret): void
     {
-        /** @var EntityRepository $integrationRepository */
+        /** @var EntityRepository<IntegrationCollection> $integrationRepository */
         $integrationRepository = static::getContainer()->get('integration.repository');
 
         $integrationRepository->update([

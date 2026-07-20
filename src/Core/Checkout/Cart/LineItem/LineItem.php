@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
@@ -25,8 +26,11 @@ class LineItem extends Struct
     final public const PROMOTION_LINE_ITEM_TYPE = 'promotion';
     final public const DISCOUNT_LINE_ITEM = 'discount';
     final public const CONTAINER_LINE_ITEM = 'container';
+    final public const QUANTITY_LINE_ITEM = 'quantity';
 
     final public const IDENTIFIER_MAX_LENGTH = 100;
+
+    final public const PAYLOAD_PRODUCT_TYPE = 'productType';
 
     /**
      * @var array<mixed>
@@ -81,6 +85,8 @@ class LineItem extends Struct
     protected string $uniqueIdentifier;
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed, use payload.productType() instead
+     *
      * @var array<int, string>
      */
     protected array $states = [];
@@ -120,6 +126,7 @@ class LineItem extends Struct
         $self = new self($lineItem->id, $lineItem->type, $lineItem->getReferencedId(), $lineItem->quantity);
 
         foreach (get_object_vars($lineItem) as $property => $value) {
+            // @phpstan-ignore property.dynamicName (We have to use dynamic properties here to copy over all properties)
             $self->$property = $value;
         }
 
@@ -215,6 +222,8 @@ class LineItem extends Struct
 
     /**
      * @return mixed|null
+     *
+     * @deprecated tag:v6.8.0 - reason:return-type-change - will use "strong" return type `mixed`
      */
     public function getPayloadValue(string $key)
     {
@@ -249,11 +258,6 @@ class LineItem extends Struct
      */
     public function setPayloadValue(string $key, $value, ?bool $protected = null): self
     {
-        $protected = false;
-        if (\func_num_args() === 3) {
-            $protected = func_get_arg(2);
-        }
-
         if ($value !== null && !\is_scalar($value) && !\is_array($value)) {
             throw CartException::invalidPayload($key, $this->getId());
         }
@@ -518,26 +522,63 @@ class LineItem extends Struct
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed, use getProductType() instead
+     *
+     * @codeCoverageIgnore
+     *
      * @return array<int, string>
      */
     public function getStates(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, 'getStates', 'v6.8.0.0', 'getPayloadValue(\'productType\')')
+        );
+
         return $this->states;
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed, use setPayloadValue('productType', $type) instead
+     *
+     * @codeCoverageIgnore
+     *
      * @param array<int, string> $states
      */
     public function setStates(array $states): LineItem
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, 'setStates', 'v6.8.0.0', 'setPayloadValue(\'productType\', $type)')
+        );
+
         $this->states = $states;
 
         return $this;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use isProductType() instead
+     *
+     * @codeCoverageIgnore
+     */
     public function hasState(string $state): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, 'hasState', 'v6.8.0.0', 'isProductType')
+        );
+
         return \in_array($state, $this->states, true);
+    }
+
+    public function isProductType(string $type): bool
+    {
+        if (!$this->hasPayloadValue(self::PAYLOAD_PRODUCT_TYPE)) {
+            return false;
+        }
+
+        return $this->getPayloadValue(self::PAYLOAD_PRODUCT_TYPE) === $type;
     }
 
     public function markUnModifiedByApp(): void
@@ -590,17 +631,27 @@ class LineItem extends Struct
     {
         $data = parent::jsonSerialize();
 
+        $data['payload'] = $this->getUnprotectedPayload();
+
+        return $data;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getUnprotectedPayload(): array
+    {
         $payload = [];
 
-        foreach ($data['payload'] as $key => $value) {
+        foreach ($this->payload as $key => $value) {
             if (isset($this->payloadProtection[$key]) && $this->payloadProtection[$key] === true) {
                 continue;
             }
+
             $payload[$key] = $value;
         }
-        $data['payload'] = $payload;
 
-        return $data;
+        return $payload;
     }
 
     /**

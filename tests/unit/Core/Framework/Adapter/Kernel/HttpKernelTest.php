@@ -3,12 +3,12 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Kernel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Kernel\HttpKernel;
 use Shopware\Core\Framework\Routing\CanonicalRedirectService;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
-use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
+use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,11 +24,11 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 #[CoversClass(HttpKernel::class)]
 class HttpKernelTest extends TestCase
 {
-    private ControllerResolverInterface&MockObject $controllerResolver;
+    private ControllerResolverInterface&Stub $controllerResolver;
 
     protected function setUp(): void
     {
-        $this->controllerResolver = $this->createMock(ControllerResolverInterface::class);
+        $this->controllerResolver = static::createStub(ControllerResolverInterface::class);
         $this->controllerResolver
             ->method('getController')
             ->willReturn(static function (): Response {
@@ -46,10 +46,10 @@ class HttpKernelTest extends TestCase
         $kernel = new HttpKernel(
             new EventDispatcher(),
             $this->controllerResolver,
-            $this->createMock(RequestStack::class),
-            $this->createMock(ArgumentResolverInterface::class),
+            static::createStub(RequestStack::class),
+            static::createStub(ArgumentResolverInterface::class),
             $requestTransformer,
-            $this->createMock(CanonicalRedirectService::class)
+            static::createStub(CanonicalRedirectService::class)
         );
 
         $request = new Request();
@@ -69,10 +69,10 @@ class HttpKernelTest extends TestCase
         $kernel = new HttpKernel(
             new EventDispatcher(),
             $this->controllerResolver,
-            $this->createMock(RequestStack::class),
-            $this->createMock(ArgumentResolverInterface::class),
+            static::createStub(RequestStack::class),
+            static::createStub(ArgumentResolverInterface::class),
             $requestTransformer,
-            $this->createMock(CanonicalRedirectService::class)
+            static::createStub(CanonicalRedirectService::class)
         );
 
         $request = new Request();
@@ -88,7 +88,7 @@ class HttpKernelTest extends TestCase
         $requestTransformer
             ->expects($this->once())
             ->method('transform')
-            ->willThrowException(new SalesChannelMappingException('test'));
+            ->willThrowException(StorefrontFrameworkException::salesChannelMappingException('test'));
 
         $dispatcher = new EventDispatcher();
 
@@ -99,10 +99,10 @@ class HttpKernelTest extends TestCase
         $kernel = new HttpKernel(
             $dispatcher,
             $this->controllerResolver,
-            $this->createMock(RequestStack::class),
-            $this->createMock(ArgumentResolverInterface::class),
+            static::createStub(RequestStack::class),
+            static::createStub(ArgumentResolverInterface::class),
             $requestTransformer,
-            $this->createMock(CanonicalRedirectService::class)
+            static::createStub(CanonicalRedirectService::class)
         );
 
         $request = new Request();
@@ -123,10 +123,10 @@ class HttpKernelTest extends TestCase
         $kernel = new HttpKernel(
             new EventDispatcher(),
             $this->controllerResolver,
-            $this->createMock(RequestStack::class),
-            $this->createMock(ArgumentResolverInterface::class),
+            static::createStub(RequestStack::class),
+            static::createStub(ArgumentResolverInterface::class),
             $requestTransformer,
-            $this->createMock(CanonicalRedirectService::class)
+            static::createStub(CanonicalRedirectService::class)
         );
 
         $request = new Request();
@@ -142,7 +142,7 @@ class HttpKernelTest extends TestCase
             ->method('transform')
             ->willReturnArgument(0);
 
-        $canonicalRedirectService = $this->createMock(CanonicalRedirectService::class);
+        $canonicalRedirectService = static::createStub(CanonicalRedirectService::class);
         $canonicalRedirectService
             ->method('getRedirect')
             ->willReturn(new RedirectResponse('/foo'));
@@ -150,8 +150,8 @@ class HttpKernelTest extends TestCase
         $kernel = new HttpKernel(
             new EventDispatcher(),
             $this->controllerResolver,
-            $this->createMock(RequestStack::class),
-            $this->createMock(ArgumentResolverInterface::class),
+            static::createStub(RequestStack::class),
+            static::createStub(ArgumentResolverInterface::class),
             $requestTransformer,
             $canonicalRedirectService
         );

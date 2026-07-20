@@ -28,16 +28,13 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
 {
-    private readonly ?\Closure $closure;
-
     /**
      * @param array<string|int, mixed> $items
      */
     public function __construct(
         private array $items,
-        ?\Closure $closure = null
+        private readonly ?\Closure $closure = null,
     ) {
-        $this->closure = $closure;
     }
 
     /**
@@ -87,7 +84,6 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
 
         if ($index !== false) {
             $this->removeBy($index);
-            $this->update();
         }
     }
 
@@ -96,9 +92,7 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
      */
     public function reset(): void
     {
-        foreach (\array_keys($this->items) as $key) {
-            unset($this->items[$key]);
-        }
+        $this->items = [];
         $this->update();
     }
 
@@ -189,6 +183,8 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
 
     /**
      * @internal should not be used directly, loop over an array facade directly inside twig instead
+     *
+     * @return \Generator<array<string|int, mixed>>
      */
     public function getIterator(): \Generator
     {

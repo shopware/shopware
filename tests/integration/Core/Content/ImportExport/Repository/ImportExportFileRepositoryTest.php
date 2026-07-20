@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
@@ -24,6 +25,9 @@ class ImportExportFileRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<EntityCollection<ImportExportFileEntity>>
+     */
     private EntityRepository $repository;
 
     private Connection $connection;
@@ -125,7 +129,7 @@ class ImportExportFileRepositoryTest extends TestCase
                 }
             }
 
-            $missingPropertyPaths = array_map(fn ($property) => '/' . $property, $requiredProperties);
+            $missingPropertyPaths = array_map(static fn ($property) => '/' . $property, $requiredProperties);
 
             static::assertSame($missingPropertyPaths, $foundViolations);
         }
@@ -276,7 +280,7 @@ class ImportExportFileRepositoryTest extends TestCase
     /**
      * Prepare a defined number of test data.
      *
-     * @return array<string, mixed>
+     * @return non-empty-array<string, mixed>
      */
     protected function prepareImportExportFileTestData(int $num = 1, string $add = ''): array
     {
@@ -293,6 +297,7 @@ class ImportExportFileRepositoryTest extends TestCase
                 'accessToken' => Random::getBase64UrlString(32),
             ];
         }
+        static::assertNotSame([], $data);
 
         return $data;
     }

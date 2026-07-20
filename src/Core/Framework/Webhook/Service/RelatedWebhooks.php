@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Webhook\Service;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -11,7 +10,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  *
- * @codeCoverageIgnore @see \Shopware\Tests\Integration\Core\Framework\Webhook\Service\RelatedWebhooksTest
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\Webhook\Service\RelatedWebhooksTest
  */
 #[Package('framework')]
 class RelatedWebhooks
@@ -36,7 +37,7 @@ class RelatedWebhooks
     /**
      * Fetch the id's of all similar webhooks (same event, url, live config)
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function fetchIds(string $webhookId): array
     {
@@ -50,7 +51,7 @@ class RelatedWebhooks
             ['id' => Uuid::fromHexToBytes($webhookId)],
         );
 
-        /** @var array<string> $result */
+        /** @var list<string> $result */
         return $result;
     }
 }

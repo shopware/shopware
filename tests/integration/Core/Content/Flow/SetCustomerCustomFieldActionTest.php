@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetCustomerCustomFieldAction;
+use Shopware\Core\Content\Flow\FlowCollection;
 use Shopware\Core\Content\Test\Flow\OrderActionTrait;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -25,6 +26,9 @@ class SetCustomerCustomFieldActionTest extends TestCase
     use CacheTestBehaviour;
     use OrderActionTrait;
 
+    /**
+     * @var EntityRepository<FlowCollection>
+     */
     private EntityRepository $flowRepository;
 
     protected function setUp(): void
@@ -94,16 +98,14 @@ class SetCustomerCustomFieldActionTest extends TestCase
     }
 
     /**
-     * @return array<string, mixed>
+     * @return iterable<string, mixed>
      */
-    public static function createDataProvider(): array
+    public static function createDataProvider(): iterable
     {
-        return [
-            'upsert / existed data / update data / expect data' => ['upsert', ['red', 'green'], ['blue', 'gray'], ['blue', 'gray']],
-            'create / existed data / update data / expect data' => ['create', ['red', 'green'], ['blue', 'gray'], ['red', 'green']],
-            'clear / existed data / update data / expect data' => ['clear', ['red', 'green', 'blue'], null, null],
-            'add / existed data / update data / expect data' => ['add', ['red', 'green'], ['blue', 'gray'], ['red', 'green', 'blue', 'gray']],
-            'remove / existed data / update data / expect data' => ['remove', ['red', 'green', 'blue'], ['green', 'blue'], ['red']],
-        ];
+        yield 'upsert replaces existing custom field values' => ['upsert', ['red', 'green'], ['blue', 'gray'], ['blue', 'gray']];
+        yield 'create leaves existing custom field values unchanged' => ['create', ['red', 'green'], ['blue', 'gray'], ['red', 'green']];
+        yield 'clear removes existing custom field values' => ['clear', ['red', 'green', 'blue'], null, null];
+        yield 'add appends custom field values' => ['add', ['red', 'green'], ['blue', 'gray'], ['red', 'green', 'blue', 'gray']];
+        yield 'remove deletes matching custom field values' => ['remove', ['red', 'green', 'blue'], ['green', 'blue'], ['red']];
     }
 }

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Event;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -34,7 +35,7 @@ class EntityWrittenEventSerializationTest extends TestCase
 
     private function writeTestProduct(): EntityWrittenContainerEvent
     {
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepository<ProductCollection> $productRepository */
         $productRepository = static::getContainer()->get('product.repository');
 
         return $productRepository->create(

@@ -1,20 +1,45 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('Customer is able to search products in shop', { tag: '@Search' }, async ({
-    ShopCustomer,
-    TestDataService,
-    StorefrontHome,
-    StorefrontSearchSuggest,
-    SearchForTerm,
-    IdProvider,
-    InstanceMeta,
-}) => {
+test(
+    'Customer is able to search products in shop',
+    {
+        tag: [
+            '@Search',
+            '@Storefront',
+        ],
+    },
+    async ({
+        ShopCustomer,
+        TestDataService,
+        StorefrontHome,
+        StorefrontSearchSuggest,
+        SearchForTerm,
+        IdProvider,
+        InstanceMeta,
+    }) => {
         const productNameSuffix1 = IdProvider.getIdPair().uuid;
         await TestDataService.createBasicProduct({
             name: `Bottle${productNameSuffix1}`,
         });
         await TestDataService.createBasicProduct({
             name: `Bowl${productNameSuffix1}`,
+        });
+
+        await TestDataService.clearCaches();
+
+        await ShopCustomer.expects(async () => {
+            await test.step('Wait for products to be visible.', async () => {
+                await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
+                const productLocator1 = await StorefrontHome.getListingItemByProductName(`Bottle${productNameSuffix1}`);
+                await ShopCustomer.expects(productLocator1.productName).toBeVisible();
+                const productLocator2 = await StorefrontHome.getListingItemByProductName(`Bowl${productNameSuffix1}`);
+                await ShopCustomer.expects(productLocator2.productName).toBeVisible();
+            });
+        }).toPass({
+            intervals: [
+                1_000,
+                2_500,
+            ], // retry after 1 seconds, then every 2.5 seconds
         });
 
         await test.step('Customer searches with an invalid input and sees no results', async () => {
@@ -50,10 +75,10 @@ test('Customer is able to search products in shop', { tag: '@Search' }, async ({
         });
 
         await test.step('Customer navigates to the results page to view all matching products', async () => {
-            await StorefrontSearchSuggest.searchSuggestTotalLink.click();
+            await ShopCustomer.presses(StorefrontSearchSuggest.searchSuggestTotalLink);
             await ShopCustomer.expects(StorefrontSearchSuggest.searchHeadline).toContainText(productNameSuffix1);
             const listedItemsCount = await StorefrontSearchSuggest.productListItems.count();
             await ShopCustomer.expects(listedItemsCount).toBe(2);
         });
-    }
+    },
 );

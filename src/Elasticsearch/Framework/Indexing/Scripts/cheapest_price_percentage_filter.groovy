@@ -21,23 +21,23 @@ if (percentageKey == '') {
     return false;
 }
 
-def percentage = (double) doc[percentageKey].value;
+def ratio = 100 - (double) doc[percentageKey].value;
 
 def match = true;
 if (params.containsKey('eq')) {
-    match = match && percentage == params['eq'];
+    match = match && ratio == params['eq'];
 }
 if (params.containsKey('gte')) {
-    match = match && percentage >= params['gte'];
+    match = match && ratio >= params['gte'];
 }
 if (params.containsKey('gt')) {
-    match = match && percentage > params['gt'];
+    match = match && ratio > params['gt'];
 }
 if (params.containsKey('lte')) {
-    match = match && percentage <= params['lte'];
+    match = match && ratio <= params['lte'];
 }
 if (params.containsKey('lt')) {
-    match = match && percentage < params['lt'];
+    match = match && ratio < params['lt'];
 }
 
 return match;

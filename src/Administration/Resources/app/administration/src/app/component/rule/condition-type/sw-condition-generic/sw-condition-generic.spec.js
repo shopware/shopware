@@ -46,10 +46,17 @@ responses.addResponse({
 async function createWrapper(condition = {}) {
     condition.getEntityName = () => 'rule_condition';
 
+    const conditionDataProviderService = new ConditionDataProviderService();
+    conditionDataProviderService.addCondition(condition.type, {
+        ...condition,
+        component: 'sw-condition-generic',
+    });
+
     return mount(await wrapTestComponent('sw-condition-generic', { sync: true }), {
         attachTo: document.body,
         props: {
             condition,
+            isDisabled: false,
         },
         global: {
             renderStubDefaultSlot: true,
@@ -71,6 +78,7 @@ async function createWrapper(condition = {}) {
                 'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
                 'sw-condition-unit-menu': await wrapTestComponent('sw-condition-unit-menu', { sync: true }),
                 'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
+                'sw-condition-value-between-date': true,
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
                 'sw-field-error': true,
@@ -92,7 +100,7 @@ async function createWrapper(condition = {}) {
                 'sw-field-copyable': true,
             },
             provide: {
-                conditionDataProviderService: new ConditionDataProviderService(),
+                conditionDataProviderService,
                 ruleConditionsConfigApiService: {
                     load: () => Promise.resolve(),
                 },
@@ -178,16 +186,16 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
 
         expect(wrapper.vm.condition.value.isDifferent).toBeUndefined();
 
-        await wrapper.get('.sw-single-select .sw-select__selection').trigger('click');
+        await wrapper.get('.mt-select .mt-select__selection').trigger('click');
         await flushPromises();
 
-        await wrapper.get('.sw-select-option--0').trigger('click');
+        await wrapper.get('.mt-select-option--0').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.condition.value.isDifferent).toBeTruthy();
 
-        await wrapper.get('.sw-single-select .sw-select__selection').trigger('click');
-        await wrapper.get('.sw-select-option--1').trigger('click');
+        await wrapper.get('.mt-select .mt-select__selection').trigger('click');
+        await wrapper.get('.mt-select-option--1').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.condition.value.isDifferent).toBeFalsy();
@@ -201,19 +209,63 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
 
         expect(wrapper.vm.condition.value.taxDisplay).toBeUndefined();
 
-        await wrapper.get('.sw-single-select .sw-select__selection').trigger('click');
+        await wrapper.get('.mt-select .mt-select__selection').trigger('click');
         await flushPromises();
 
-        await wrapper.get('.sw-select-option--0').trigger('click');
+        await wrapper.get('.mt-select-option--0').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.condition.value.taxDisplay).toBe('gross');
 
-        await wrapper.get('.sw-single-select .sw-select__selection').trigger('click');
-        await wrapper.get('.sw-select-option--1').trigger('click');
+        await wrapper.get('.mt-select .mt-select__selection').trigger('click');
+        await wrapper.get('.mt-select-option--1').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.condition.value.taxDisplay).toBe('net');
+    });
+
+    it('should render a multi select field and keep multiple selected values', async () => {
+        Shopware.Store.get('ruleConditionsConfig').config = {
+            ...ruleConditionsConfig,
+            manualMultiSelect: {
+                operatorSet: null,
+                fields: [
+                    {
+                        name: 'testValues',
+                        type: 'multi-select',
+                        config: {
+                            options: [
+                                'some_value',
+                                'some_other_value',
+                            ],
+                        },
+                    },
+                ],
+            },
+        };
+
+        const wrapper = await createWrapper({
+            type: 'manualMultiSelect',
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.mt-select').exists()).toBe(true);
+
+        await wrapper.get('.mt-select .mt-select__selection').trigger('click');
+        await flushPromises();
+
+        await wrapper.get('.mt-select-option--some_value').trigger('click');
+        await wrapper.get('.mt-select .mt-select__selection').trigger('click');
+        await flushPromises();
+        await wrapper.get('.mt-select-option--some_other_value').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.condition.value.testValues).toEqual(
+            expect.arrayContaining([
+                'some_value',
+                'some_other_value',
+            ]),
+        );
     });
 
     it('should render condition with tagged field', async () => {
@@ -257,6 +309,59 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
 
         expect(menu.exists()).toBeTruthy();
         expect(menu.props('type')).toBe('weight');
+    });
+
+    it.each([
+        { type: 'date' },
+        { type: 'datetime' },
+    ])('should render between-date for $type field when operator is between', async ({ type }) => {
+        Shopware.Store.get('ruleConditionsConfig').config = {
+            ...ruleConditionsConfig,
+            orderCreatedDate: {
+                operatorSet: {
+                    operators: [
+                        '=',
+                        'between',
+                    ],
+                    isMatchAny: false,
+                },
+                fields: [{ name: 'createdAt', type, config: {} }],
+            },
+        };
+
+        const wrapper = await createWrapper({
+            type: 'orderCreatedDate',
+            value: { operator: 'between' },
+        });
+        await flushPromises();
+
+        expect(wrapper.find('sw-condition-value-between-date-stub').exists()).toBe(true);
+        expect(wrapper.find('.sw-form-field-renderer').exists()).toBe(false);
+    });
+
+    it('should render form-field-renderer for date field when operator is not between', async () => {
+        Shopware.Store.get('ruleConditionsConfig').config = {
+            ...ruleConditionsConfig,
+            orderCreatedDate: {
+                operatorSet: {
+                    operators: [
+                        '=',
+                        'between',
+                    ],
+                    isMatchAny: false,
+                },
+                fields: [{ name: 'createdAt', type: 'date', config: {} }],
+            },
+        };
+
+        const wrapper = await createWrapper({
+            type: 'orderCreatedDate',
+            value: { operator: '=' },
+        });
+        await flushPromises();
+
+        expect(wrapper.find('sw-condition-value-between-date-stub').exists()).toBe(false);
+        expect(wrapper.find('.sw-form-field-renderer').exists()).toBe(true);
     });
 
     it('should be possible to enter a new value into the input when the base value is not selected', async () => {

@@ -1,4 +1,3 @@
-// eslint-disable-next-line max-len
 import SwTextEditorToolbarButtonCmsDataMappingButton from 'src/app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-cms-data-mapping';
 import template from './sw-cms-el-config-text.html.twig';
 
@@ -12,6 +11,8 @@ export default {
     template,
 
     emits: ['element-update'],
+
+    inject: ['feature'],
 
     mixins: [
         Mixin.getByName('cms-element'),
@@ -49,17 +50,17 @@ export default {
                 {
                     id: 1,
                     value: 'flex-start',
-                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignTop'),
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignTop'),
                 },
                 {
                     id: 2,
                     value: 'center',
-                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignCenter'),
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignCenter'),
                 },
                 {
                     id: 3,
                     value: 'flex-end',
-                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignBottom'),
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignBottom'),
                 },
             ];
         },
@@ -72,6 +73,16 @@ export default {
     methods: {
         createdComponent() {
             this.initElementConfig('text');
+        },
+
+        async handleUpdateContent() {
+            const editor = this.$refs.swCmsTextEditor;
+
+            if (!editor?.validate) {
+                return true;
+            }
+
+            return editor.validate();
         },
 
         onBlur(content) {

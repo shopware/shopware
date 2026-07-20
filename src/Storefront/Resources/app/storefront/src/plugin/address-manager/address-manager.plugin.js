@@ -42,8 +42,12 @@ export default class AddressManagerPlugin extends Plugin {
             this.options.initialTab = SHIPPING;
         }
 
-        this.el.removeEventListener('click', this._getModal.bind(this));
-        this.el.addEventListener('click', this._getModal.bind(this));
+        if (!this._boundOnClickGetModal) {
+            this._boundOnClickGetModal = this._getModal.bind(this);
+        }
+
+        this.el.removeEventListener('click', this._boundOnClickGetModal);
+        this.el.addEventListener('click', this._boundOnClickGetModal);
 
         /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._client = new HttpClient();
@@ -95,7 +99,7 @@ export default class AddressManagerPlugin extends Plugin {
     _getModal(event) {
         event.preventDefault();
 
-        this._btnLoader = new ButtonLoadingIndicatorUtil(event.currentTarget);
+        this._btnLoader = new ButtonLoadingIndicatorUtil(event.currentTarget, 'inner');
         this._btnLoader.create();
 
         fetch(this.options.addressManagerUrl, {
@@ -121,7 +125,7 @@ export default class AddressManagerPlugin extends Plugin {
         const modal = pseudoModal.getModal();
         modal.children[0].classList.add(
             this.options.addressModalDialogScrollableClass,
-            this.options.addressModalDialogSelectorClass
+            this.options.addressModalDialogSelectorClass,
         );
 
         if (this.options.initialTab === BILLING) {
@@ -190,11 +194,16 @@ export default class AddressManagerPlugin extends Plugin {
             return;
         }
 
+        const radio = element.querySelector('input[type="radio"]');
+        if (radio?.disabled) {
+            return;
+        }
+
         type === SHIPPING
             ? document.querySelector(this.options.currentShippingIdSelector).value = id
             : document.querySelector(this.options.currentBillingIdSelector).value = id;
 
-        element.querySelector('input[type="radio"]').checked = true;
+        radio.checked = true;
     }
 
     /**
@@ -235,7 +244,10 @@ export default class AddressManagerPlugin extends Plugin {
 
         fetch(`${this.options.addressManagerUrl}${id ? `/${id}` : ''}?type=${type}`, {
             method: 'POST',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
         })
             .then(response => response.text())
             .then(data => this._replaceModalContent(data));

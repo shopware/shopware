@@ -60,7 +60,7 @@ class Migration1711418838ReplaceSortingOptionKeysWithSortingOptionIdsInCmsSlots 
                 }
             }
 
-            if (!empty($availableSortingIds)) {
+            if ($availableSortingIds !== []) {
                 $updatedConfig['availableSortings']['value'] = $availableSortingIds;
             }
 

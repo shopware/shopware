@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\Connection;
+use horstoeko\zugferd\codelists\ZugferdInvoiceType;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
@@ -11,6 +13,7 @@ use Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdInvoiceOrdersEvent;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -22,6 +25,10 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class ZugferdRenderer extends AbstractDocumentRenderer
 {
     public const TYPE = 'zugferd_invoice';
+
+    public const FILE_EXTENSION = FileTypes::XML;
+
+    public const FILE_CONTENT_TYPE = FileTypes::XML_CONTENT_TYPE;
 
     /**
      * @internal
@@ -35,6 +42,7 @@ class ZugferdRenderer extends AbstractDocumentRenderer
         protected EventDispatcherInterface $eventDispatcher,
         protected DocumentConfigLoader $documentConfigLoader,
         protected NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -53,15 +61,15 @@ class ZugferdRenderer extends AbstractDocumentRenderer
         $result = new RendererResult();
 
         $ids = \array_map(static fn (DocumentGenerateOperation $operation) => $operation->getOrderId(), $operations);
-        if (empty($ids)) {
+        if ($ids === []) {
             return $result;
         }
 
         $languageIdChain = $context->getLanguageIdChain();
 
         $chunk = $this->getOrdersLanguageId(array_values($ids), $context->getVersionId(), $this->connection);
-        foreach ($chunk as ['language_id' => $languageId, 'ids' => $ids]) {
-            $criteria = OrderDocumentCriteriaFactory::create(\explode(',', (string) $ids), $rendererConfig->deepLinkCode);
+        foreach ($chunk as ['language_id' => $languageId, 'ids' => $chunkIds]) {
+            $criteria = OrderDocumentCriteriaFactory::create(\explode(',', (string) $chunkIds), $rendererConfig->deepLinkCode);
             $criteria->addAssociation('lineItems.product.manufacturer');
 
             $context->assign([
@@ -92,26 +100,39 @@ class ZugferdRenderer extends AbstractDocumentRenderer
         $config = clone $this->documentConfigLoader->load(InvoiceRenderer::TYPE, $order->getSalesChannelId(), $context);
         $config->merge($operation->getConfig());
         // So no A11y will be generated
-        $config->merge(['fileTypes' => ['xml']]);
+        $config->merge(['fileTypes' => [self::FILE_EXTENSION]]);
+
+        $number = $config->getDocumentNumber() ?: $this->getNumber($context, $order, $operation);
+
+        $now = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+        $config->merge([
+            'documentDate' => $operation->getConfig()['documentDate'] ?? $now,
+            'documentNumber' => $number,
+            'custom' => [
+                'invoiceNumber' => $number,
+            ],
+        ]);
 
         // create version of order to ensure the document stays the same even if the order changes
         $operation->setOrderVersionId($this->orderRepository->createVersion($order->getId(), $context, 'document'));
 
-        $documentNumber = $config->getDocumentNumber();
-        if ($documentNumber === null) {
-            $config->setDocumentNumber($documentNumber = $this->getNumber($context, $order, $operation));
-        }
-
         try {
-            $content = $this->documentBuilder->buildDocument($order, $config, $context);
+            $content = $this->documentBuilder->buildDocumentWithType(
+                $order,
+                $config,
+                $context,
+                ZugferdInvoiceType::INVOICE,
+            );
+
             $renderResult->addSuccess(
                 $order->getId(),
                 new RenderedDocument(
-                    $documentNumber,
+                    $number,
                     $config->buildName(),
-                    FileTypes::XML,
+                    self::FILE_EXTENSION,
                     $config->jsonSerialize(),
-                    'application/xml',
+                    self::FILE_CONTENT_TYPE,
                     $content
                 )
             );

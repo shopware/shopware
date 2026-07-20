@@ -36,6 +36,7 @@ export default {
             isDefaultSalesChannelLoading: false,
             customFields: [],
             hasDefaultSortingError: false,
+            hasDefaultSearchResultSortingError: false,
         };
     },
 
@@ -99,17 +100,17 @@ export default {
                 {
                     property: 'label',
                     routerLink: 'sw.settings.listing.edit',
-                    label: this.$tc('sw-settings-listing.index.productSorting.grid.header.name'),
+                    label: this.$t('sw-settings-listing.index.productSorting.grid.header.name'),
                 },
                 {
                     property: 'criteria',
-                    label: this.$tc('sw-settings-listing.index.productSorting.grid.header.criteria'),
+                    label: this.$t('sw-settings-listing.index.productSorting.grid.header.criteria'),
                     multiLine: true,
                 },
                 {
                     property: 'priority',
                     inlineEdit: 'number',
-                    label: this.$tc('sw-settings-listing.index.productSorting.grid.header.priority'),
+                    label: this.$t('sw-settings-listing.index.productSorting.grid.header.priority'),
                 },
             ];
         },
@@ -174,16 +175,29 @@ export default {
             this.isSaveSuccessful = false;
             this.isLoading = true;
             this.hasDefaultSortingError = false;
+            this.hasDefaultSearchResultSortingError = false;
 
-            const validateSalesChannelDefaultSortingOption = new Promise((resolve, reject) => {
+            const validateDefaultSortingConfigs = new Promise((resolve, reject) => {
                 if (!this.$refs.systemConfig.actualConfigData.null['core.listing.defaultSorting']) {
                     this.hasDefaultSortingError = true;
-                    reject();
                 }
+
+                if (!this.$refs.systemConfig.actualConfigData.null['core.listing.defaultSearchResultSorting']) {
+                    this.hasDefaultSearchResultSortingError = true;
+                }
+
+                if (this.hasDefaultSortingError || this.hasDefaultSearchResultSortingError) {
+                    /**
+                     * display both errors in the UI
+                     * instead of just one using reject() right after the first error
+                     */
+                    reject(new Error(this.$t('sw-settings-listing.general.messageSaveDefaultValuesEmpty')));
+                }
+
                 resolve();
             });
 
-            return validateSalesChannelDefaultSortingOption
+            return validateDefaultSortingConfigs
                 .then(async () => {
                     const saveSalesChannelConfig = this.$refs.systemConfig.saveAll();
 
@@ -207,15 +221,15 @@ export default {
                     this.isSaveSuccessful = true;
 
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-listing.general.messageSaveSuccess'),
+                        message: this.$t('sw-settings-listing.general.messageSaveSuccess'),
                     });
                 })
                 .catch((e) => {
                     const options = {
-                        message: e?.response.data?.errors[0]?.detail || 'Unknown error',
+                        message: e?.response?.data?.errors[0]?.detail || e?.message || 'Unknown error',
                     };
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-listing.general.messageSaveError', options),
+                        message: this.$t('sw-settings-listing.general.messageSaveError', options),
                     });
                 })
                 .finally(() => {
@@ -261,7 +275,7 @@ export default {
                 .delete(item.id)
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-listing.index.productSorting.messageDeleteError'),
+                        message: this.$t('sw-settings-listing.index.productSorting.messageDeleteError'),
                     });
                 })
                 .finally(() => {
@@ -310,9 +324,7 @@ export default {
                     return this.getCustomFieldLabelByCriteriaName(currentField.field);
                 }
 
-                return this.$tc(
-                    `sw-settings-listing.general.productSortingCriteriaGrid.options.label.${currentField.field}`,
-                );
+                return this.$t(`sw-settings-listing.general.productSortingCriteriaGrid.options.label.${currentField.field}`);
             });
 
             return labels.join(', ');

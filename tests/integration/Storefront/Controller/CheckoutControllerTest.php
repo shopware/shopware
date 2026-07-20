@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -21,7 +22,11 @@ use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotFoundError;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductOutOfStockError;
 use Shopware\Core\Defaults;
@@ -32,6 +37,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -64,6 +70,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 /**
  * @internal
  */
+#[Package('checkout')]
 class CheckoutControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -76,7 +83,7 @@ class CheckoutControllerTest extends TestCase
     private const TEST_CAMPAIGN_CODE = 'testCampaignCode';
     private const SHIPPING_METHOD_BLOCKED_ERROR_CONTENT = 'The shipping method "%s" is blocked for your current shopping cart.';
     private const SHIPPING_METHOD_CHANGED_ERROR_CONTENT = '"%s" shipping is not available for your current cart, the shipping was changed to "%s".';
-    private const PAYMENT_METHOD_BLOCKED_ERROR_CONTENT = 'The payment method "Cash on delivery" is blocked for your current shopping cart.';
+    private const PAYMENT_METHOD_BLOCKED_ERROR_CONTENT = 'The payment method "%s" is blocked for your current shopping cart.';
     private const PAYMENT_METHOD_CHANGED_ERROR_CONTENT = '"%s" payment is not available for your current cart, the payment was changed to "%s".';
     private const PROMOTION_NOT_FOUND_ERROR_CONTENT = 'Promo code "tn-08" could not be found.';
     private const PRODUCT_STOCK_REACHED_ERROR_CONTENT = 'The product "Test product" is not available any more';
@@ -206,7 +213,7 @@ class CheckoutControllerTest extends TestCase
      * @param array<string> $errorKeys
      */
     #[DataProvider('errorDataProvider')]
-    public function testOffCanvasWithErrorsFlash(ErrorCollection $errors, array $errorKeys, bool $testSwitchToDefault = false): void
+    public function testOffCanvasWithErrorsFlash(ErrorCollection $errors, array $errorKeys, bool $testSwitchToDefault = false, bool $orderShouldBeBlocked = false): void
     {
         $browser = $this->getBrowserWithLoggedInCustomer();
         $browser->followRedirects(true);
@@ -330,110 +337,184 @@ class CheckoutControllerTest extends TestCase
     }
 
     /**
-     * @return array<array<mixed>>
+     * @return iterable<array<mixed>>
      */
-    public static function errorDataProvider(): array
+    public static function errorDataProvider(): iterable
     {
-        return [
-            // One shipping method blocked is expected to be switched
-            [
-                new ErrorCollection(
-                    [
-                        new ShippingMethodChangedError('Standard', 'Express'),
-                    ]
-                ),
+        /** @var EntityRepository<ShippingMethodCollection> */
+        $shippingMethodRepository = static::getContainer()->get('shipping_method.repository');
+        $shippingMethods = $shippingMethodRepository->search(new Criteria(), Context::createDefaultContext());
+        $standardShippingMethodId = $shippingMethods->filter(static fn (ShippingMethodEntity $sm) => $sm->getTechnicalName() === 'shipping_standard')->first()?->getId();
+        $expressShippingMethodId = $shippingMethods->filter(static fn (ShippingMethodEntity $sm) => $sm->getTechnicalName() === 'shipping_express')->first()?->getId();
+        static::assertNotNull($standardShippingMethodId, 'Standard shipping method not found');
+        static::assertNotNull($expressShippingMethodId, 'Express shipping method not found');
+
+        /** @var EntityRepository<PaymentMethodCollection> */
+        $paymentMethodRepository = static::getContainer()->get('payment_method.repository');
+        $paymentMethods = $paymentMethodRepository->search(new Criteria(), Context::createDefaultContext());
+        $cashOnDeliveryPaymentMethodId = $paymentMethods->filter(static fn (PaymentMethodEntity $pm) => $pm->getTechnicalName() === 'payment_cashpayment')->first()?->getId();
+        $paidInAdvancePaymentMethodId = $paymentMethods->filter(static fn (PaymentMethodEntity $pm) => $pm->getTechnicalName() === 'payment_prepayment')->first()?->getId();
+        $invoicePaymentMethodId = $paymentMethods->filter(static fn (PaymentMethodEntity $pm) => $pm->getTechnicalName() === 'payment_invoicepayment')->first()?->getId();
+        static::assertNotNull($cashOnDeliveryPaymentMethodId, 'Cash on delivery payment method not found');
+        static::assertNotNull($paidInAdvancePaymentMethodId, 'Paid in advance payment method not found');
+        static::assertNotNull($invoicePaymentMethodId, 'Invoice payment method not found');
+
+        yield 'single blocked shipping method is switched to the fallback method' => [
+            new ErrorCollection(
                 [
-                    \sprintf(self::SHIPPING_METHOD_CHANGED_ERROR_CONTENT, 'Standard', 'Express'),
-                ],
+                    new ShippingMethodChangedError(
+                        oldShippingMethodId: $standardShippingMethodId,
+                        oldShippingMethodName: 'Standard',
+                        newShippingMethodId: $expressShippingMethodId,
+                        newShippingMethodName: 'Express',
+                        reason: 'foo',
+                    ),
+                ]
+            ),
+            [
+                \sprintf(self::SHIPPING_METHOD_CHANGED_ERROR_CONTENT, 'Standard', 'Express'),
             ],
-            // All shipping methods blocked expected to stay blocked
-            [
-                new ErrorCollection(
-                    [
-                        new ShippingMethodChangedError('Standard', 'Express'),
-                        new ShippingMethodChangedError('Express', 'Standard'),
-                    ]
-                ),
+        ];
+        yield 'blocked shipping method remains blocked when every shipping method is blocked' => [
+            new ErrorCollection(
                 [
-                    \sprintf(self::SHIPPING_METHOD_BLOCKED_ERROR_CONTENT, 'Express'),
-                ],
-                false,
-                true,
+                    new ShippingMethodChangedError(
+                        oldShippingMethodId: $standardShippingMethodId,
+                        oldShippingMethodName: 'Standard',
+                        newShippingMethodId: $expressShippingMethodId,
+                        newShippingMethodName: 'Express',
+                        reason: 'foo',
+                    ),
+                    new ShippingMethodChangedError(
+                        oldShippingMethodId: $expressShippingMethodId,
+                        oldShippingMethodName: 'Express',
+                        newShippingMethodId: $standardShippingMethodId,
+                        newShippingMethodName: 'Standard',
+                        reason: 'foo',
+                    ),
+                ]
+            ),
+            [
+                \sprintf(self::SHIPPING_METHOD_BLOCKED_ERROR_CONTENT, 'Express'),
             ],
-            // One payment method blocked is expected to be switched
-            [
-                new ErrorCollection(
-                    [
-                        new PaymentMethodChangedError('Cash On Delivery', 'Paid in advance'),
-                    ]
-                ),
+            false,
+            true,
+        ];
+        yield 'single blocked payment method is switched to the fallback method' => [
+            new ErrorCollection(
                 [
-                    \sprintf(self::PAYMENT_METHOD_CHANGED_ERROR_CONTENT, 'Cash on delivery', 'Paid in advance'),
-                ],
+                    new PaymentMethodChangedError(
+                        oldPaymentMethodId: $cashOnDeliveryPaymentMethodId,
+                        oldPaymentMethodName: 'Cash On Delivery',
+                        newPaymentMethodId: $paidInAdvancePaymentMethodId,
+                        newPaymentMethodName: 'Paid in advance',
+                        reason: 'bar',
+                    ),
+                ]
+            ),
+            [
+                \sprintf(self::PAYMENT_METHOD_CHANGED_ERROR_CONTENT, 'Cash on delivery', 'Paid in advance'),
             ],
-            // All payment methods blocked expected to stay blocked
-            [
-                new ErrorCollection(
-                    [
-                        new PaymentMethodChangedError('Paid in advance', 'Invoice'),
-                        new PaymentMethodChangedError('Invoice', 'Cash On Delivery'),
-                        new PaymentMethodChangedError('Cash On Delivery', 'Paid in advance'),
-                    ]
-                ),
+        ];
+        yield 'blocked payment method remains blocked when every payment method is blocked' => [
+            new ErrorCollection(
                 [
-                    self::PAYMENT_METHOD_BLOCKED_ERROR_CONTENT,
-                ],
-                false,
-                true,
+                    new PaymentMethodChangedError(
+                        oldPaymentMethodId: $paidInAdvancePaymentMethodId,
+                        oldPaymentMethodName: 'Paid in advance',
+                        newPaymentMethodId: $invoicePaymentMethodId,
+                        newPaymentMethodName: 'Invoice',
+                        reason: 'bar',
+                    ),
+                    new PaymentMethodChangedError(
+                        oldPaymentMethodId: $invoicePaymentMethodId,
+                        oldPaymentMethodName: 'Invoice',
+                        newPaymentMethodId: $cashOnDeliveryPaymentMethodId,
+                        newPaymentMethodName: 'Cash On Delivery',
+                        reason: 'bar',
+                    ),
+                    new PaymentMethodChangedError(
+                        oldPaymentMethodId: $cashOnDeliveryPaymentMethodId,
+                        oldPaymentMethodName: 'Cash On Delivery',
+                        newPaymentMethodId: $paidInAdvancePaymentMethodId,
+                        newPaymentMethodName: 'Paid in advance',
+                        reason: 'bar',
+                    ),
+                ]
+            ),
+            [
+                \sprintf(self::PAYMENT_METHOD_BLOCKED_ERROR_CONTENT, 'Cash on delivery'),
             ],
-            // Standard shipping and payment method blocked expected to switch both
-            [
-                new ErrorCollection(
-                    [
-                        new ShippingMethodChangedError('Standard', 'Express'),
-                        new PaymentMethodChangedError('Cash On Delivery', 'Paid in advance'),
-                    ]
-                ),
+            false,
+            true,
+        ];
+        yield 'blocked shipping and payment methods are both switched to fallbacks' => [
+            new ErrorCollection(
                 [
-                    \sprintf(self::SHIPPING_METHOD_CHANGED_ERROR_CONTENT, 'Standard', 'Express'),
-                    \sprintf(self::PAYMENT_METHOD_CHANGED_ERROR_CONTENT, 'Cash on delivery', 'Paid in advance'),
-                ],
+                    new ShippingMethodChangedError(
+                        oldShippingMethodId: $standardShippingMethodId,
+                        oldShippingMethodName: 'Standard',
+                        newShippingMethodId: $expressShippingMethodId,
+                        newShippingMethodName: 'Express',
+                        reason: 'foo',
+                    ),
+                    new PaymentMethodChangedError(
+                        oldPaymentMethodId: $cashOnDeliveryPaymentMethodId,
+                        oldPaymentMethodName: 'Cash On Delivery',
+                        newPaymentMethodId: $paidInAdvancePaymentMethodId,
+                        newPaymentMethodName: 'Paid in advance',
+                        reason: 'bar',
+                    ),
+                ]
+            ),
+            [
+                \sprintf(self::SHIPPING_METHOD_CHANGED_ERROR_CONTENT, 'Standard', 'Express'),
+                \sprintf(self::PAYMENT_METHOD_CHANGED_ERROR_CONTENT, 'Cash on delivery', 'Paid in advance'),
             ],
-            // None defaults blocked, should switch to defaults
-            [
-                new ErrorCollection(
-                    [
-                        new ShippingMethodChangedError('Express', 'Standard'),
-                        new PaymentMethodChangedError('Invoice', 'Paid in advance'),
-                    ]
-                ),
+        ];
+        yield 'non default shipping and payment methods are switched back to defaults' => [
+            new ErrorCollection(
                 [
-                    \sprintf(self::SHIPPING_METHOD_CHANGED_ERROR_CONTENT, 'Express', 'Standard'),
-                    \sprintf(self::PAYMENT_METHOD_CHANGED_ERROR_CONTENT, 'Invoice', 'Paid in advance'),
-                ],
-                true,
+                    new ShippingMethodChangedError(
+                        oldShippingMethodId: $expressShippingMethodId,
+                        oldShippingMethodName: 'Express',
+                        newShippingMethodId: $standardShippingMethodId,
+                        newShippingMethodName: 'Standard',
+                        reason: 'foo',
+                    ),
+                    new PaymentMethodChangedError(
+                        oldPaymentMethodId: $invoicePaymentMethodId,
+                        oldPaymentMethodName: 'Invoice',
+                        newPaymentMethodId: $paidInAdvancePaymentMethodId,
+                        newPaymentMethodName: 'Paid in advance',
+                        reason: 'bar',
+                    ),
+                ]
+            ),
+            [
+                \sprintf(self::SHIPPING_METHOD_CHANGED_ERROR_CONTENT, 'Express', 'Standard'),
+                \sprintf(self::PAYMENT_METHOD_CHANGED_ERROR_CONTENT, 'Invoice', 'Paid in advance'),
             ],
-            // Promotion not found
-            [
-                new ErrorCollection(
-                    [
-                        new PromotionNotFoundError('tn-08'),
-                    ]
-                ),
+            true,
+        ];
+        yield 'error promotion not found' => [
+            new ErrorCollection(
                 [
-                    self::PROMOTION_NOT_FOUND_ERROR_CONTENT,
-                ],
+                    new PromotionNotFoundError('tn-08'),
+                ]
+            ),
+            [
+                self::PROMOTION_NOT_FOUND_ERROR_CONTENT,
             ],
-            // Product out of stock
-            [
-                new ErrorCollection(
-                    [
-                        new ProductOutOfStockError('product id', 'Car'),
-                    ]
-                ),
+        ];
+        yield 'error product out of stock' => [
+            new ErrorCollection(
                 [
-                    self::PRODUCT_STOCK_REACHED_ERROR_CONTENT,
-                ],
+                    new ProductOutOfStockError('product id', 'Car'),
+                ]
+            ),
+            [
+                self::PRODUCT_STOCK_REACHED_ERROR_CONTENT,
             ],
         ];
     }
@@ -452,6 +533,30 @@ class CheckoutControllerTest extends TestCase
         static::assertArrayHasKey(CheckoutCartPageLoadedHook::HOOK_NAME, $traces);
     }
 
+    public function testCheckoutCartPageRendersOptionalCheckoutAssistForms(): void
+    {
+        $browser = $this->getBrowserWithLoggedInCustomer();
+        $browserSalesChannelId = $browser->getServerParameter('test-sales-channel-id');
+
+        $productId = Uuid::randomHex();
+        $this->createProductOnDatabase($productId, 'test.123', $browserSalesChannelId);
+
+        $browser->request('POST', '/checkout/product/add-by-number', ['number' => 'test.123']);
+        $browser->request('GET', '/checkout/cart');
+
+        $content = $browser->getResponse()->getContent();
+        static::assertNotFalse($content);
+
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($content);
+
+        static::assertCount(1, $crawler->filterXPath('//label[@for="addProductInput" and contains(concat(" ", normalize-space(@class), " "), " mb-1 ")]'));
+        static::assertCount(1, $crawler->filterXPath('//input[@id="addProductInput" and not(@required)]'));
+        static::assertCount(1, $crawler->filterXPath('//button[@id="addProductButton"]'));
+        static::assertCount(1, $crawler->filterXPath('//input[@id="addPromotionInput" and not(@required)]'));
+        static::assertCount(1, $crawler->filterXPath('//button[@id="addPromotion"]'));
+    }
+
     public function testCheckoutConfirmPageLoadedHookScriptsAreExecuted(): void
     {
         $contextToken = Uuid::randomHex();
@@ -466,6 +571,35 @@ class CheckoutControllerTest extends TestCase
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(CheckoutConfirmPageLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testCheckoutConfirmPageConstraintViolationErrorWithInvalidAddress(): void
+    {
+        $contextToken = Uuid::randomHex();
+
+        $cart = $this->fillCart($contextToken);
+        $customerId = $this->createCustomer();
+
+        static::getContainer()->get(Connection::class)->executeStatement(
+            'UPDATE `customer_address` SET `city` = " " WHERE `customer_id` = :customerId',
+            ['customerId' => Uuid::fromHexToBytes($customerId)]
+        );
+
+        $salesChannelContext = $this->createSalesChannelContext($contextToken, null, $customerId);
+        static::getContainer()->get(CartPersister::class)->save($cart, $salesChannelContext);
+
+        $request = $this->createRequest($salesChannelContext);
+
+        $response = static::getContainer()->get(CheckoutController::class)->confirmPage($request, $salesChannelContext);
+        $crawler = new Crawler();
+        $crawler->addHtmlContent((string) $response->getContent());
+
+        $translatedMessage = static::getContainer()->get('translator')->trans('checkout.billing-address-invalid', [
+            '%url%' => static::getContainer()->get('router')->generate('frontend.account.address.edit.page', ['addressId' => $customerId]),
+        ]);
+        $errorContent = $crawler->filterXPath('//div[@class="flashbags"]//div[@class="alert-content-container"]')->html();
+
+        static::assertStringContainsString($translatedMessage, $errorContent);
     }
 
     public function testJsonCart(): void
@@ -514,7 +648,7 @@ class CheckoutControllerTest extends TestCase
 
         $salesChannelContext = $this->createSalesChannelContext($contextToken);
         $request = $this->createRequest($salesChannelContext);
-        $request->request->set('orderId', $order->getId());
+        $request->query->set('orderId', $order->getId());
         $requestDataBag = $this->createRequestDataBag('');
 
         static::getContainer()->get(CheckoutController::class)->finishPage($request, $salesChannelContext, $requestDataBag);
@@ -562,6 +696,27 @@ class CheckoutControllerTest extends TestCase
         $response = static::getContainer()->get(CheckoutController::class)->info($request, $salesChannelContext);
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         static::assertEmpty($response->getContent());
+    }
+
+    public function testCheckoutOffcanvasRendersOptionalPromotionField(): void
+    {
+        $browser = $this->getBrowserWithLoggedInCustomer();
+        $browserSalesChannelId = $browser->getServerParameter('test-sales-channel-id');
+
+        $productId = Uuid::randomHex();
+        $this->createProductOnDatabase($productId, 'test.123', $browserSalesChannelId);
+
+        $browser->request('POST', '/checkout/product/add-by-number', ['number' => 'test.123']);
+        $browser->request('GET', '/checkout/offcanvas');
+
+        $content = $browser->getResponse()->getContent();
+        static::assertNotFalse($content);
+
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($content);
+
+        static::assertCount(1, $crawler->filterXPath('//input[@id="addPromotionOffcanvasCartInput" and not(@required)]'));
+        static::assertCount(1, $crawler->filterXPath('//button[@id="addPromotionOffcanvasCart"]'));
     }
 
     public function testCheckoutOffcanvasWidgetLoadedHookScriptsAreExecuted(): void
@@ -803,11 +958,11 @@ class CheckoutControllerTest extends TestCase
         return new RequestDataBag(['tos' => true, OrderService::CUSTOMER_COMMENT_KEY => $customerComment]);
     }
 
-    private function createSalesChannelContext(string $contextToken, ?string $paymentMethodId = null): SalesChannelContext
+    private function createSalesChannelContext(string $contextToken, ?string $paymentMethodId = null, ?string $customerId = null): SalesChannelContext
     {
         $this->updateSalesChannel(TestDefaults::SALES_CHANNEL);
         $salesChannelData = [
-            SalesChannelContextService::CUSTOMER_ID => $this->createCustomer(),
+            SalesChannelContextService::CUSTOMER_ID => $customerId ?? $this->createCustomer(),
         ];
         if ($paymentMethodId !== null) {
             $salesChannelData[SalesChannelContextService::PAYMENT_METHOD_ID] = $paymentMethodId;
@@ -859,8 +1014,8 @@ class CheckoutControllerTest extends TestCase
 
         if ($error instanceof ShippingMethodChangedError) {
             $shippingMethodRepository = static::getContainer()->get('shipping_method.repository');
-            $blockedId = $this->getShippingMethodIdByName($error->getOldShippingMethodName());
-            $newId = $this->getShippingMethodIdByName($error->getNewShippingMethodName());
+            $blockedId = $error->getOldShippingMethodId();
+            $newId = $error->getNewShippingMethodId();
 
             $shippingMethodRepository->update([
                 [
@@ -891,8 +1046,8 @@ class CheckoutControllerTest extends TestCase
 
         if ($error instanceof PaymentMethodChangedError) {
             $paymentMethodRepository = static::getContainer()->get('payment_method.repository');
-            $blockedId = $this->getPaymentMethodIdByName($error->getOldPaymentMethodName());
-            $newId = $this->getPaymentMethodIdByName($error->getNewPaymentMethodName());
+            $blockedId = $error->getOldPaymentMethodId();
+            $newId = $error->getNewPaymentMethodId();
 
             $paymentMethodRepository->update([
                 [
@@ -994,33 +1149,5 @@ class CheckoutControllerTest extends TestCase
         ], Context::createDefaultContext());
 
         return $ruleId;
-    }
-
-    private function getShippingMethodIdByName(string $name): string
-    {
-        $shippingMethodRepository = static::getContainer()->get('shipping_method.repository');
-        $c = new Criteria();
-        $c->addFilter(
-            new EqualsFilter('name', $name)
-        );
-
-        $shippingMethodId = $shippingMethodRepository->searchIds($c, Context::createDefaultContext())->firstId();
-        static::assertNotNull($shippingMethodId);
-
-        return $shippingMethodId;
-    }
-
-    private function getPaymentMethodIdByName(string $name): string
-    {
-        $paymentMethodRepository = static::getContainer()->get('payment_method.repository');
-        $c = new Criteria();
-        $c->addFilter(
-            new EqualsFilter('name', $name)
-        );
-
-        $paymentMethodId = $paymentMethodRepository->searchIds($c, Context::createDefaultContext())->firstId();
-        static::assertNotNull($paymentMethodId);
-
-        return $paymentMethodId;
     }
 }

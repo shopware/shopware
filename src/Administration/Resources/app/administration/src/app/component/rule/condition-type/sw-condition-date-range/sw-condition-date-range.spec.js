@@ -55,17 +55,35 @@ async function createWrapper(useTime) {
     });
 }
 
+Shopware.Service().register('timezoneService', () => {
+    return {
+        getTimezoneOptions() {
+            return [
+                {
+                    label: 'UTC',
+                    value: 'UTC',
+                },
+                {
+                    label: 'Europe/Berlin',
+                    value: 'Europe/Berlin',
+                },
+            ];
+        },
+    };
+});
+
 describe('component/rule/sw-condition-date-range', () => {
     it('should toggle selection without and with time', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const datepickerCollection = wrapper.findAll('.wrapper .dp__main');
+        const getDatepickers = () => wrapper.findAllComponents({ name: 'mt-datepicker' });
+        const datepickerCollection = getDatepickers();
 
         expect(datepickerCollection).toHaveLength(2);
 
         datepickerCollection.forEach((datepicker) => {
-            expect(datepicker.attributes('type')).toBe('date');
+            expect(datepicker.props('dateType')).toBe('date');
         });
 
         await wrapper.find('.sw-single-select input').trigger('click');
@@ -74,8 +92,8 @@ describe('component/rule/sw-condition-date-range', () => {
         await wrapper.find('.sw-select-option--true').trigger('click');
         await flushPromises();
 
-        datepickerCollection.forEach((datepicker) => {
-            expect(datepicker.attributes('type')).toBe('datetime');
+        getDatepickers().forEach((datepicker) => {
+            expect(datepicker.props('dateType')).toBe('datetime');
         });
     });
 
@@ -101,11 +119,11 @@ describe('component/rule/sw-condition-date-range', () => {
         document.querySelector('[data-test-id="Jan"]').dispatchEvent(new Event('click'));
         await flushPromises();
 
-        document.querySelector('[id="1900-01-01"]').dispatchEvent(new Event('click'));
+        document.querySelector('[data-test-id="dp-1900-01-01"]').dispatchEvent(new Event('click'));
         await flushPromises();
 
         expect(fromDateInput.attributes('value')).toBe('1900/01/01');
-        expect(wrapper.vm.fromDate).toBe('1900-01-01T00:00:00+00:00');
+        expect(wrapper.vm.fromDate).toBe('1900-01-01T00:00:00.000Z');
     });
 
     it('should select a fromDate with time', async () => {
@@ -142,11 +160,11 @@ describe('component/rule/sw-condition-date-range', () => {
         document.querySelector('[data-test-id="30"]').dispatchEvent(new Event('click'));
         await flushPromises();
 
-        document.querySelector('[id="1900-01-01"]').dispatchEvent(new Event('click'));
+        document.querySelector('[data-test-id="dp-1900-01-01"]').dispatchEvent(new Event('click'));
         await flushPromises();
 
         expect(fromDateInput.attributes('value')).toBe('1900/01/01, 12:30');
-        expect(wrapper.vm.fromDate).toBe('1900-01-01T12:30:00+00:00');
+        expect(wrapper.vm.fromDate).toBe('1900-01-01T12:30:00.000Z');
     });
 
     it('should select a toDate without time', async () => {
@@ -171,11 +189,11 @@ describe('component/rule/sw-condition-date-range', () => {
         document.querySelector('[data-test-id="Jan"]').dispatchEvent(new Event('click'));
         await flushPromises();
 
-        document.querySelector('[id="1900-01-01"]').dispatchEvent(new Event('click'));
+        document.querySelector('[data-test-id="dp-1900-01-01"]').dispatchEvent(new Event('click'));
         await flushPromises();
 
         expect(fromDateInput.attributes('value')).toBe('1900/01/01');
-        expect(wrapper.vm.toDate).toBe('1900-01-01T23:59:59+00:00');
+        expect(wrapper.vm.toDate).toBe('1900-01-01T23:59:59.000Z');
     });
 
     it('should select a toDate with time', async () => {
@@ -212,10 +230,10 @@ describe('component/rule/sw-condition-date-range', () => {
         document.querySelector('[data-test-id="30"]').dispatchEvent(new Event('click'));
         await flushPromises();
 
-        document.querySelector('[id="1900-01-01"]').dispatchEvent(new Event('click'));
+        document.querySelector('[data-test-id="dp-1900-01-01"]').dispatchEvent(new Event('click'));
         await flushPromises();
 
         expect(fromDateInput.attributes('value')).toBe('1900/01/01, 12:30');
-        expect(wrapper.vm.toDate).toBe('1900-01-01T12:30:00+00:00');
+        expect(wrapper.vm.toDate).toBe('1900-01-01T12:30:00.000Z');
     });
 });

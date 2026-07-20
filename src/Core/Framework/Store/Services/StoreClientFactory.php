@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Store\Services;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -30,7 +29,7 @@ class StoreClientFactory
         $stack = HandlerStack::create();
 
         foreach ($middlewares as $middleware) {
-            $stack->push(Middleware::mapResponse($middleware));
+            $stack->push($middleware);
         }
 
         $config = $this->getClientBaseConfig();

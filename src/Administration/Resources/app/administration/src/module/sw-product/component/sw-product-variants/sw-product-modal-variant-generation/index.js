@@ -26,6 +26,7 @@ export default {
 
     mixins: [
         Mixin.getByName('listing'),
+        Mixin.getByName('notification'),
     ],
 
     props: {
@@ -91,19 +92,20 @@ export default {
             return this.repositoryFactory.create('media');
         },
 
+        // @deprecated tag:v6.8.0 - Will be removed, no longer needed
         progressInPercentage() {
             return this.actualProgress / (this.maxProgress * 100);
         },
 
         progressMessage() {
             if (this.progressType === 'delete') {
-                return this.$tc('sw-product.variations.progressTypeDeleted');
+                return this.$t('sw-product.variations.progressTypeDeleted');
             }
             if (this.progressType === 'upsert') {
-                return this.$tc('sw-product.variations.progressTypeGenerated');
+                return this.$t('sw-product.variations.progressTypeGenerated');
             }
             if (this.progressType === 'calc') {
-                return this.$tc('sw-product.variations.progressTypeCalculated');
+                return this.$t('sw-product.variations.progressTypeCalculated');
             }
             return '';
         },
@@ -117,15 +119,15 @@ export default {
 
         buttonLabel() {
             if (this.variantsNumber <= 0) {
-                return this.$tc('sw-product.variations.deleteVariationsButton');
+                return this.$t('sw-product.variations.deleteVariationsButton');
             }
 
-            return this.$tc('sw-product.variations.generateVariationsButton');
+            return this.$t('sw-product.variations.generateVariationsButton');
         },
 
         isGenerateButtonDisabled() {
             return this.variantGenerationQueue.createQueue.some((item) => {
-                return item.downloads.length === 0 && item.productStates?.includes('is-download');
+                return item.downloads.length === 0 && item.type === 'digital';
             });
         },
     },
@@ -150,6 +152,10 @@ export default {
         this.createdComponent();
     },
 
+    beforeUnmount() {
+        this.beforeUnmountComponent();
+    },
+
     methods: {
         createdComponent() {
             this.mediaService.getDefaultFolderId('product_download').then((folderId) => {
@@ -159,58 +165,75 @@ export default {
             this.variantsGenerator = new VariantsGenerator();
             this.term = '';
 
-            this.variantsGenerator.on('queues', (queues) => {
-                const optionIdsToSearch = this.product.configuratorSettings.reduce((result, element) => {
-                    if (result.indexOf(element.option.id) < 0) {
-                        result.push(element.option.id);
-                    }
+            this.variantsGenerator.on('queues', this.onQueuesHandler);
 
-                    return result;
-                }, []);
+            this.variantsGenerator.on('progress-max', this.onProgressMaxHandler);
 
-                if (optionIdsToSearch.length > 0) {
-                    const criteria = new Criteria(1, 500);
-                    criteria.addFilter(Criteria.equalsAny('id', optionIdsToSearch));
-                    criteria.addAssociation('group');
+            this.variantsGenerator.on('progress-actual', this.onProgressActualHandler);
+        },
 
-                    this.optionRepository.search(criteria).then((options) => {
-                        queues.createQueue.forEach((item, index) => {
-                            item.options.forEach((option) => {
-                                option.entity = options.get(option.id);
-                            });
+        beforeUnmountComponent() {
+            if (this.variantsGenerator.off) {
+                this.variantsGenerator.off('queues', this.onQueuesHandler);
+                this.variantsGenerator.off('progress-max', this.onProgressMaxHandler);
+                this.variantsGenerator.off('progress-actual', this.onProgressActualHandler);
+            }
+        },
 
-                            item.options.sort((firstOption, secondOption) => {
-                                const firstGroupName = firstOption.entity.group.name;
-                                const secondGroupName = secondOption.entity.group.name;
+        onQueuesHandler(queues) {
+            const optionIdsToSearch = this.product.configuratorSettings.reduce((result, element) => {
+                if (result.indexOf(element.option.id) < 0) {
+                    result.push(element.option.id);
+                }
 
-                                return firstGroupName.localeCompare(secondGroupName);
-                            });
+                return result;
+            }, []);
 
-                            item.downloads = [];
-                            item.productStates = [];
-                            item.id = item.productNumber;
-                            this.idToIndex[item.id] = index;
+            if (optionIdsToSearch.length > 0) {
+                const criteria = new Criteria(1, 500);
+                criteria.addFilter(Criteria.equalsAny('id', optionIdsToSearch));
+                criteria.addAssociation('group');
+
+                this.optionRepository.search(criteria).then((options) => {
+                    queues.createQueue.forEach((item, index) => {
+                        item.options.forEach((option) => {
+                            option.entity = options.get(option.id);
                         });
 
-                        this.variantGenerationQueue = queues;
-                        this.total = queues.createQueue.length;
+                        item.options.sort((firstOption, secondOption) => {
+                            const firstGroupName = firstOption.entity.group.name;
+                            const secondGroupName = secondOption.entity.group.name;
+
+                            return firstGroupName.localeCompare(secondGroupName);
+                        });
+
+                        item.downloads = [];
+                        if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                            item.productStates = [];
+                        }
+                        item.type = 'physical';
+                        item.id = item.productNumber;
+                        this.idToIndex[item.id] = index;
                     });
-                } else {
+
                     this.variantGenerationQueue = queues;
                     this.total = queues.createQueue.length;
-                }
-                this.isLoading = false;
-            });
+                });
+            } else {
+                this.variantGenerationQueue = queues;
+                this.total = queues.createQueue.length;
+            }
+            this.isLoading = false;
+        },
 
-            this.variantsGenerator.on('progress-max', (maxProgress) => {
-                this.maxProgress = maxProgress.progress;
-                this.progressType = maxProgress.type;
-            });
+        onProgressMaxHandler(maxProgress) {
+            this.maxProgress = maxProgress.progress;
+            this.progressType = maxProgress.type;
+        },
 
-            this.variantsGenerator.on('progress-actual', (actualProgress) => {
-                this.actualProgress = actualProgress.progress;
-                this.progressType = actualProgress.type;
-            });
+        onProgressActualHandler(actualProgress) {
+            this.actualProgress = actualProgress.progress;
+            this.progressType = actualProgress.type;
         },
 
         /**
@@ -296,7 +319,7 @@ export default {
             this.variantGenerationQueue.createQueue.forEach((item) => {
                 delete item.id;
 
-                if (item.productStates.includes('is-download')) {
+                if (item.type === 'digital') {
                     item.maxPurchase = 1;
                     item.minPurchase = 1;
                     item.isCloseout = false;
@@ -314,8 +337,14 @@ export default {
             this.variantsGenerator
                 .saveVariants(this.variantGenerationQueue)
                 .then(() => {
+                    return this.variantsGenerator.saveVariantRestrictions();
+                })
+                .then(() => {
                     this.addOriginalConfiguratorSettings();
-                    return this.productRepository.save(this.product);
+                    return this.variantsGenerator.saveConfiguratorSettings(
+                        this.product.configuratorSettings,
+                        this.variantGenerationQueue.createQueue,
+                    );
                 })
                 .then(() => {
                     this.$emit('variations-finish-generate');
@@ -325,6 +354,15 @@ export default {
                     this.maxProgress = 0;
 
                     this.swProductDetailLoadAll();
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                    this.actualProgress = 0;
+                    this.maxProgress = 0;
+
+                    this.createNotificationError({
+                        message: this.$t('sw-product.variations.generatedListMessageGenerateError'),
+                    });
                 });
         },
 
@@ -369,9 +407,13 @@ export default {
                 this.usageOfFiles = {};
                 variants.forEach((item) => {
                     item.downloads = [];
-                    item.productStates = [];
+                    if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                        item.productStates = [];
+                    }
+                    item.type = 'physical';
                 });
                 this.getList();
+
                 return;
             }
 
@@ -379,7 +421,10 @@ export default {
                 item.downloads = [...this.downloadFilesForAllVariants];
                 this.updateUsageForAllVariantFiles(item.id);
 
-                item.productStates = ['is-download'];
+                if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                    item.productStates = ['is-download'];
+                }
+                item.type = 'digital';
             });
 
             this.getList();
@@ -398,14 +443,21 @@ export default {
                 });
 
                 item.downloads = [];
-                item.productStates = [];
+                if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                    item.productStates = [];
+                }
+                item.type = 'physical';
+
                 return;
             }
 
             item.downloads = [...this.downloadFilesForAllVariants];
             this.updateUsageForAllVariantFiles(item.id);
 
-            item.productStates = ['is-download'];
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                item.productStates = ['is-download'];
+            }
+            item.type = 'digital';
         },
 
         isUploadDisabled(item) {
@@ -440,7 +492,7 @@ export default {
                 }
 
                 variants.forEach((currentItem) => {
-                    if (currentItem.productStates.includes('is-download')) {
+                    if (currentItem.type === 'digital') {
                         if (this.isExistingMedia(currentItem.downloads, event.targetId)) {
                             return;
                         }
@@ -476,7 +528,6 @@ export default {
             this.originalConfiguratorSettings.forEach((configSetting) => {
                 this.product.configuratorSettings.add(configSetting);
             });
-
             this.calcVariantsNumber();
         },
 

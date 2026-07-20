@@ -30,6 +30,14 @@ use Symfony\Component\Validator\Validation;
  */
 class StaticEntityRepository extends EntityRepository
 {
+    public const CREATE = 'create';
+
+    public const UPDATE = 'update';
+
+    public const UPSERT = 'upsert';
+
+    public const DELETE = 'delete';
+
     /**
      * @var array<array<mixed>>
      */
@@ -54,7 +62,7 @@ class StaticEntityRepository extends EntityRepository
      * @param array<callable(Criteria, Context): (ResultTypes)|ResultTypes> $searches
      */
     public function __construct(
-        private array $searches,
+        public array $searches,
         private readonly ?EntityDefinition $definition = null
     ) {
         if (!$definition) {
@@ -63,7 +71,7 @@ class StaticEntityRepository extends EntityRepository
 
         try {
             $definition->getFields();
-        } catch (\Throwable $exception) {
+        } catch (\Throwable) {
             $registry = new StaticDefinitionInstanceRegistry(
                 [$definition],
                 Validation::createValidator(),
@@ -129,9 +137,14 @@ class StaticEntityRepository extends EntityRepository
 
         // flat array of ids
         if (\array_key_exists(0, $result) && \is_string($result[0])) {
-            $result = \array_map(fn (string $id) => ['primaryKey' => $id, 'data' => []], $result);
+            $tmpResult = [];
+            foreach ($result as $id) {
+                $tmpResult[$id] = ['primaryKey' => $id, 'data' => []];
+            }
+            $result = $tmpResult;
         }
 
+        /** @phpstan-ignore return.type (Somehow does not get the generic type correct) */
         return new IdSearchResult(\count($result), $result, $criteria, $context);
     }
 
@@ -197,7 +210,21 @@ class StaticEntityRepository extends EntityRepository
     }
 
     /**
-     * @param mixed[][] $data
+     * @return list<array<string, mixed>>
+     */
+    public function getPayloads(string $operation): array
+    {
+        return match ($operation) {
+            self::CREATE => $this->flattenPayloads($this->creates),
+            self::UPDATE => $this->flattenPayloads($this->updates),
+            self::UPSERT => $this->flattenPayloads($this->upserts),
+            self::DELETE => $this->flattenPayloads($this->deletes),
+            default => throw new \InvalidArgumentException(\sprintf('Unknown write operation "%s"', $operation)),
+        };
+    }
+
+    /**
+     * @param array<array<string, mixed|null>> $data
      */
     private function getDummyWriteResults(array $data, string $operation, Context $context): NestedEventCollection
     {
@@ -209,7 +236,7 @@ class StaticEntityRepository extends EntityRepository
             $primaryKey = \count($primaryKeys) === 1 ? current($primaryKeys) : $primaryKeys;
 
             $writeResults[] = new EntityWriteResult(
-                empty($primaryKey) ? Uuid::randomHex() : $primaryKey,
+                ($primaryKey === '' || $primaryKey === []) ? Uuid::randomHex() : $primaryKey,
                 $payload,
                 $this->getDummyEntityName(),
                 $operation
@@ -223,6 +250,24 @@ class StaticEntityRepository extends EntityRepository
         }
 
         return new NestedEventCollection([$event]);
+    }
+
+    /**
+     * @param array<array<mixed>> $writePayloads
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function flattenPayloads(array $writePayloads): array
+    {
+        $payloads = [];
+        foreach ($writePayloads as $writePayload) {
+            foreach ($writePayload as $payload) {
+                $payloads[] = $payload;
+            }
+        }
+
+        /** @var list<array<string, mixed>> $payloads */
+        return $payloads;
     }
 
     /**

@@ -2,35 +2,73 @@
 
 namespace Shopware\Core\System\Snippet;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
+use Shopware\Core\System\Snippet\Struct\InvalidPluralizationCollection;
+use Shopware\Core\System\Snippet\Struct\InvalidPluralizationStruct;
+use Shopware\Core\System\Snippet\Struct\MissingSnippetCollection;
+use Shopware\Core\System\Snippet\Struct\MissingSnippetStruct;
+use Shopware\Core\System\Snippet\Struct\SnippetValidationStruct;
 
+/**
+ * @deprecated tag:v6.8.0 - class will be marked internal - reason:becomes-internal
+ *
+ * @phpstan-type MissingSnippetsArray array<string, array<string, array{
+ *      path: string,
+ *      availableISO: string,
+ *      availableValue: string,
+ *      keyPath: string
+ * }>>
+ */
 #[Package('discovery')]
-class SnippetValidator implements SnippetValidatorInterface
+readonly class SnippetValidator implements SnippetValidatorInterface
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly SnippetFileCollection $deprecatedSnippetFiles,
-        private readonly SnippetFileHandler $snippetFileHandler,
-        private readonly string $projectDir
+        private SnippetFileCollection $loadedSnippetFiles,
+        private SnippetFileHandler $snippetFileHandler,
+        private string $projectDir
     ) {
     }
 
     /**
-     * @return array<string, mixed>
+     * @deprecated tag:v6.8.0 - Will be removed, use `getValidation()` instead
+     *
+     * @return MissingSnippetsArray
      */
     public function validate(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'The method  Will be removed, use `getValidation()` instead.'
+        );
+
+        $missingSnippetsArray = [];
+        foreach ($this->getValidation()->missingSnippets as $entry) {
+            $key = $entry->getKeyPath();
+            $missingSnippetsArray[$entry->getMissingForISO()][$key] = [
+                'path' => $entry->getFilePath(),
+                'availableISO' => $entry->getAvailableISO(),
+                'availableValue' => $entry->getAvailableTranslation(),
+                'keyPath' => $key,
+            ];
+        }
+
+        return $missingSnippetsArray;
+    }
+
+    public function getValidation(): SnippetValidationStruct
+    {
         $files = $this->getAllFiles();
 
+        $invalidPluralization = new InvalidPluralizationCollection();
         $snippetFileMappings = [];
-        $availableISOs = [];
         foreach ($files as $snippetFile) {
-            $availableISOs[] = $snippetFile->getIso();
-
             if (!\array_key_exists($snippetFile->getIso(), $snippetFileMappings)) {
                 $snippetFileMappings[$snippetFile->getIso()] = [];
             }
@@ -38,63 +76,110 @@ class SnippetValidator implements SnippetValidatorInterface
             $json = $this->snippetFileHandler->openJsonFile($snippetFile->getPath());
 
             foreach ($this->getRecursiveArrayKeys($json) as $keyValue) {
-                $snippetFileMappings[$snippetFile->getIso()][key($keyValue)] = [
-                    'path' => str_ireplace($this->projectDir, '', $snippetFile->getPath()),
-                    'availableValue' => array_shift($keyValue),
+                $key = key($keyValue);
+                \assert(\is_string($key));
+
+                $value = array_shift($keyValue);
+                \assert(\is_string($value));
+
+                $path = str_ireplace($this->projectDir, '', $snippetFile->getPath());
+
+                $snippetFileMappings[$snippetFile->getIso()][$key] = [
+                    'path' => $path,
+                    'availableValue' => $value,
                 ];
+
+                $validationData = $this->hasInvalidPluralization($value, $path);
+
+                if ($validationData['isInvalid']) {
+                    $invalidPluralization->set($key, new InvalidPluralizationStruct(
+                        $key,
+                        $value,
+                        $validationData['isFixable'],
+                        $path,
+                    ));
+                }
             }
         }
 
-        return $this->findMissingSnippets($snippetFileMappings, $availableISOs);
+        /**
+         * @deprecated tag:v6.8.0 - Validation of legacy snippet locales will be removed
+         */
+        $legacyMissingSnippets = $this->findMissingSnippets($snippetFileMappings, ['en-GB', 'de-DE']);
+
+        $missingSnippets = $this->findMissingSnippets($snippetFileMappings, ['en', 'de']);
+
+        return new SnippetValidationStruct(
+            new MissingSnippetCollection(array_merge($missingSnippets->getElements(), $legacyMissingSnippets->getElements())),
+            $invalidPluralization,
+        );
     }
 
     protected function getAllFiles(): SnippetFileCollection
     {
-        $deprecatedFiles = $this->findDeprecatedSnippetFiles();
-        $administrationFiles = $this->snippetFileHandler->findAdministrationSnippetFiles();
-        $storefrontSnippetFiles = $this->snippetFileHandler->findStorefrontSnippetFiles();
+        $snippetFiles = $this->loadedSnippetFiles->filter(static function (AbstractSnippetFile $snippetFile) {
+            return $snippetFile instanceof GenericSnippetFile;
+        });
 
-        return $this->hydrateFiles(array_merge($deprecatedFiles, $administrationFiles, $storefrontSnippetFiles));
+        $this->hydrateFiles($this->snippetFileHandler->findAdministrationSnippetFiles(), $snippetFiles);
+        $this->hydrateFiles($this->snippetFileHandler->findStorefrontSnippetFiles(), $snippetFiles);
+
+        return $snippetFiles;
+    }
+
+    /**
+     * @param MissingSnippetsArray $missingSnippetsArray
+     */
+    private function hydrateMissingSnippets(array $missingSnippetsArray): MissingSnippetCollection
+    {
+        $missingSnippetsCollection = new MissingSnippetCollection();
+        foreach ($missingSnippetsArray as $locale => $missingSnippets) {
+            foreach ($missingSnippets as $key => $missingSnippet) {
+                $missingSnippetsCollection->add(new MissingSnippetStruct($key, $missingSnippet['path'], $missingSnippet['availableISO'], $missingSnippet['availableValue'], $locale));
+            }
+        }
+
+        return $missingSnippetsCollection;
     }
 
     /**
      * @param array<string> $files
      */
-    private function hydrateFiles(array $files): SnippetFileCollection
+    private function hydrateFiles(array $files, SnippetFileCollection $collection): SnippetFileCollection
     {
-        $snippetFileCollection = new SnippetFileCollection();
         foreach ($files as $filePath) {
             $fileName = basename($filePath);
 
-            $snippetFileCollection->add(new GenericSnippetFile(
+            $collection->add(new GenericSnippetFile(
                 $fileName,
                 $filePath,
                 $this->getLocaleFromFileName($fileName),
                 'Shopware',
                 false,
-                ''
+                '',
             ));
         }
 
-        return $snippetFileCollection;
+        return $collection;
     }
 
     private function getLocaleFromFileName(string $fileName): string
     {
-        $return = preg_match('/([a-z]{2}-[A-Z]{2})(?:\.base)?\.json$/', $fileName, $matches);
-
-        // Snippet file name not known, return 'en-GB' per default
-        if (!$return) {
-            return 'en-GB';
+        if (preg_match(SnippetPatterns::CORE_SNIPPET_FILE_PATTERN, $fileName, $matches)) {
+            return $matches['locale'];
         }
 
-        return $matches[1];
+        if (preg_match(SnippetPatterns::ADMIN_SNIPPET_FILE_PATTERN, $fileName, $matches)) {
+            return $matches['locale'];
+        }
+
+        return 'en';
     }
 
     /**
-     * @param array<mixed> $dataSet
+     * @param array<string, mixed> $dataSet
      *
-     * @return array<int, array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     private function getRecursiveArrayKeys(array $dataSet, string $keyString = ''): array
     {
@@ -119,42 +204,62 @@ class SnippetValidator implements SnippetValidatorInterface
 
     /**
      * @param array<string, array<string, array<string, mixed>>> $snippetFileMappings
-     * @param array<int, string> $availableISOs
-     *
-     * @return array<string, mixed>
+     * @param list<string> $availableISOs
      */
-    private function findMissingSnippets(array $snippetFileMappings, array $availableISOs): array
+    private function findMissingSnippets(array $snippetFileMappings, array $availableISOs): MissingSnippetCollection
     {
-        $availableISOs = array_keys(array_flip($availableISOs));
-
         $missingSnippetsArray = [];
         foreach ($availableISOs as $isoKey => $availableISO) {
             $tempISOs = $availableISOs;
+
+            if (!isset($snippetFileMappings[$availableISO])) {
+                continue;
+            }
 
             foreach ($snippetFileMappings[$availableISO] as $snippetKeyPath => $snippetFileMeta) {
                 unset($tempISOs[$isoKey]);
 
                 foreach ($tempISOs as $tempISO) {
-                    if (!\array_key_exists($snippetKeyPath, $snippetFileMappings[$tempISO])) {
-                        $missingSnippetsArray[$tempISO][$snippetKeyPath] = [
-                            'path' => $snippetFileMeta['path'],
-                            'availableISO' => $availableISO,
-                            'availableValue' => $snippetFileMeta['availableValue'],
-                            'keyPath' => $snippetKeyPath,
-                        ];
+                    if (!isset($snippetFileMappings[$tempISO]) || \array_key_exists($snippetKeyPath, $snippetFileMappings[$tempISO])) {
+                        continue;
                     }
+
+                    $missingSnippetsArray[$tempISO][$snippetKeyPath] = [
+                        'path' => $snippetFileMeta['path'],
+                        'availableISO' => $availableISO,
+                        'availableValue' => $snippetFileMeta['availableValue'],
+                        'keyPath' => $snippetKeyPath,
+                    ];
                 }
             }
         }
 
-        return $missingSnippetsArray;
+        return $this->hydrateMissingSnippets($missingSnippetsArray);
     }
 
     /**
-     * @return array<string>
+     * @return array{isInvalid: bool, isFixable: bool}
      */
-    private function findDeprecatedSnippetFiles(): array
+    private function hasInvalidPluralization(string $snippetContent, string $filePath): array
     {
-        return array_column($this->deprecatedSnippetFiles->toArray(), 'path');
+        $unformattedSnippet = strtolower(preg_replace('/\s+/', '', $snippetContent) ?: '');
+
+        $isSymfonyTranslationFile = preg_match('/storefront|messages/i', $filePath);
+        $hasPluralization = str_contains($snippetContent, '|');
+
+        if (!$isSymfonyTranslationFile || !$hasPluralization) {
+            return [
+                'isInvalid' => false,
+                'isFixable' => false,
+            ];
+        }
+
+        $hasInvalidPluralization = !preg_match('/^(\{0\}.+\|)?(\{1\}.+\|)(\[0,inf\[.+)/i', $unformattedSnippet);
+        $hasInvalidPluralizationRange = str_contains($unformattedSnippet, ']1,inf[');
+
+        return [
+            'isInvalid' => $hasInvalidPluralization || $hasInvalidPluralizationRange,
+            'isFixable' => $hasInvalidPluralizationRange,
+        ];
     }
 }

@@ -5,7 +5,9 @@ namespace Shopware\Core\Framework\Update\Services;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @codeCoverageIgnore
+ * @codeCoverageIgnore can not be unit tested by design; covered by integration test
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\Update\Services\FilesystemTest
  */
 #[Package('framework')]
 class Filesystem
@@ -39,7 +41,7 @@ class Filesystem
     {
         try {
             $permission = mb_substr(\sprintf('%o', $fileInfo->getPerms()), -4);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             // cannot get permissions...
             return;
         }

@@ -7,14 +7,16 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('fundamentals@framework')]
 class AclController extends AbstractController
 {
@@ -28,7 +30,16 @@ class AclController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/acl/privileges', name: 'api.acl.privileges.get', methods: ['GET'], defaults: ['auth_required' => true, '_acl' => ['api_acl_privileges_get'], '_httpCache' => true])]
+    #[Route(
+        path: '/api/_action/acl/privileges',
+        name: 'api.acl.privileges.get',
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['api_acl_privileges_get'],
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+        ],
+        methods: [Request::METHOD_GET]
+    )]
     public function getPrivileges(): JsonResponse
     {
         $privileges = $this->getFromRoutes();
@@ -38,7 +49,15 @@ class AclController extends AbstractController
         return new JsonResponse($privileges);
     }
 
-    #[Route(path: '/api/_action/acl/additional_privileges', name: 'api.acl.privileges.additional.get', methods: ['GET'], defaults: ['auth_required' => true, '_acl' => ['api_acl_privileges_additional_get']])]
+    #[Route(
+        path: '/api/_action/acl/additional_privileges',
+        name: 'api.acl.privileges.additional.get',
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['api_acl_privileges_additional_get'],
+        ],
+        methods: [Request::METHOD_GET]
+    )]
     public function getAdditionalPrivileges(Context $context): JsonResponse
     {
         $privileges = $this->getFromRoutes();

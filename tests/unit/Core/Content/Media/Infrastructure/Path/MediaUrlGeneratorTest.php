@@ -12,6 +12,7 @@ use Shopware\Core\Content\Media\Core\Params\UrlParams;
 use Shopware\Core\Content\Media\Core\Params\UrlParamsSource;
 use Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator;
 use Shopware\Core\Content\Media\MediaException;
+use Shopware\Core\Framework\Feature;
 
 /**
  * @internal
@@ -62,5 +63,33 @@ class MediaUrlGeneratorTest extends TestCase
             new UrlParams('id', UrlParamsSource::MEDIA, 'https://test.com/photo/flower.jpg', null),
             'https://test.com/photo/flower.jpg',
         ];
+    }
+
+    public function testWithActive68Major(): void
+    {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
+        $params = new UrlParams('id', UrlParamsSource::MEDIA, 'media/foo/3a/test file.jpg', null);
+        $generator = new MediaUrlGenerator(
+            new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']),
+        );
+
+        $url = $generator->generate([$params]);
+
+        static::assertSame(['http://localhost:8000/media/foo/3a/test%20file.jpg'], $url);
+    }
+
+    public function testWithInactive68Major(): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
+        $params = new UrlParams('id', UrlParamsSource::MEDIA, 'media/foo/3a/test file.jpg', null);
+        $generator = new MediaUrlGenerator(
+            new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']),
+        );
+
+        $url = $generator->generate([$params]);
+
+        static::assertSame(['http://localhost:8000/media/foo/3a/test file.jpg'], $url);
     }
 }

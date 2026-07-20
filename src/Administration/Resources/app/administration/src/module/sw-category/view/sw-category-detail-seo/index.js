@@ -1,5 +1,4 @@
 import template from './sw-category-detail-seo.html.twig';
-import './sw-category-detail-seo.scss';
 
 /**
  * @sw-package discovery

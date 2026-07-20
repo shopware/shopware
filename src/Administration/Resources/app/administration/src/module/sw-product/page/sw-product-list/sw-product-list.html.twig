@@ -16,7 +16,7 @@
         {% block sw_product_list_smart_bar_header_title %}
         <h2>
             {% block sw_product_list_smart_bar_header_title_text %}
-            {{ $tc('sw-product.list.textProductOverview') }}
+            {{ $t('sw-product.list.textProductOverview') }}
             {% endblock %}
 
             {% block sw_product_list_smart_bar_header_amount %}
@@ -36,7 +36,7 @@
     <template #smart-bar-actions>
         <sw-button-group
             v-tooltip.bottom="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('product.creator'),
                 showOnDisabledElements: true
             }"
@@ -46,7 +46,7 @@
             {% block sw_product_list_smart_bar_actions_add %}
             <mt-button
                 v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     disabled: acl.can('product.creator'),
                     showOnDisabledElements: true
                 }"
@@ -54,9 +54,9 @@
                 variant="primary"
                 :disabled="!acl.can('product.creator')"
                 size="default"
-                @click="$router.push({ name: 'sw.product.create', query: { creationStates: ['is-physical'] } })"
+                @click="$router.push({ name: 'sw.product.create', query: { creationType: 'physical' } })"
             >
-                {{ $tc('sw-product.list.buttonAddProduct') }}
+                {{ $t('sw-product.list.buttonAddProduct') }}
             </mt-button>
             {% endblock %}
             {% block sw_product_list_smart_bar_actions_add_download %}
@@ -81,14 +81,14 @@
                 {% block sw_product_list_smart_bar_actions_add_download_context_menu_item_downloadable_product %}
                 <sw-context-menu-item
                     v-tooltip="{
-                        message: $tc('sw-privileges.tooltip.warning'),
+                        message: $t('sw-privileges.tooltip.warning'),
                         disabled: acl.can('product.creator'),
                         showOnDisabledElements: true
                     }"
-                    :router-link="{ name: 'sw.product.create', query: { creationStates: ['is-download'] } }"
+                    :router-link="{ name: 'sw.product.create', query: { creationType: 'digital' } }"
                     :disabled="!acl.can('product.creator')"
                 >
-                    {{ $tc('sw-product.list.buttonAddDownloadableProduct') }}
+                    {{ $t('sw-product.list.buttonAddDownloadableProduct') }}
                 </sw-context-menu-item>
                 {% endblock %}
             </sw-context-button>
@@ -107,12 +107,24 @@
         {% block sw_product_list_content %}
         <div class="sw-product-list__content">
 
+            {% block sw_product_list_empty_state %}
+            <mt-empty-state
+                v-if="!isLoading && !total"
+                :centered="true"
+                :icon="$route.meta.$module.icon"
+                :headline="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-product.list.messageEmpty')"
+                :description="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : $t($route.meta.$module.description)"
+                :link-text="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultLink') : ''"
+                :link-href="filterCriteria.length || isValidTerm(term) ? 'sw.profile.index.searchPreferences' : ''"
+            />
+            {% endblock %}
+
             {% block sw_product_list_grid %}
             <sw-entity-listing
-                v-if="entitySearchable"
+                v-else-if="entitySearchable"
                 ref="swProductGrid"
                 class="sw-product-list-grid"
-                :items="products"
+                :data-source="products"
                 :columns="productColumns"
                 :repository="productRepository"
                 detail-route="sw.product.detail"
@@ -158,7 +170,7 @@
                         {% block sw_product_list_grid_columns_name_content_variant_button %}
                         <mt-button
                             v-if="productHasVariants(item)"
-                            v-tooltip="{ message: $tc('sw-product.list.variantIndicatorTooltip') }"
+                            v-tooltip="{ message: $t('sw-product.list.variantIndicatorTooltip') }"
                             class="sw-product-list__variant-indicator"
                             size="x-small"
                             variant="secondary"
@@ -166,7 +178,7 @@
                         >
                             <mt-icon
                                 name="regular-variants"
-                                size="14px"
+                                size="var(--scale-size-14)"
                             />
                         </mt-button>
                         {% endblock %}
@@ -181,7 +193,7 @@
                             v-if="productIsDigital(item)"
                             class="sw-product-list__digital-indicator"
                         >
-                            {{ $tc('sw-product.variations.generatedListColumnContentProductState.is-download') }}
+                            {{ $t('sw-product.variations.generatedListColumnContentProductState.is-download') }}
                         </sw-label>
                     </div>
                     {% endblock %}
@@ -201,16 +213,9 @@
                     {% block sw_product_list_grid_columns_active_content %}
                     <template v-else>
                         <mt-icon
-                            v-if="item.active"
-                            name="regular-checkmark-xs"
-                            size="16px"
-                            class="is--active"
-                        />
-                        <mt-icon
-                            v-else
-                            name="regular-times-s"
-                            size="16px"
-                            class="is--inactive"
+                            :name="item.active ? 'regular-checkmark-xs' : 'regular-times-s'"
+                            :color="item.active ? 'var(--color-emerald-500)' : 'var(--color-crimson-500)'"
+                            size="var(--scale-size-16)"
                         />
                     </template>
                     {% endblock %}
@@ -245,6 +250,7 @@
                     <template v-if="isInlineEdit">
                         <mt-number-field
                             v-model="item.stock"
+                            number-type="int"
                             :size="compact ? 'small' : 'default'"
                         />
                     </template>
@@ -260,11 +266,14 @@
                 {% endblock %}
 
                 <template #column-createdAt="{ item }">
-                    {{ dateFilter(item.createdAt) }}
+                    <sw-time-ago :date="item.createdAt" />
                 </template>
 
                 <template #column-updatedAt="{ item }">
-                    {{ dateFilter(item.updatedAt) }}
+                    <sw-time-ago
+                        v-if="item.updatedAt"
+                        :date="item.updatedAt"
+                    />
                 </template>
 
                 {% block sw_product_list_grid_columns_actions %}
@@ -275,7 +284,7 @@
                         :disabled="item.parentId != null || !acl.can('product.creator')"
                         @click="onDuplicate(item)"
                     >
-                        {{ $tc('sw-product.list.buttonDuplicate') }}
+                        {{ $t('global.default.duplicate') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -284,7 +293,7 @@
                         v-if="productHasVariants(item)"
                         @click="openVariantModal(item)"
                     >
-                        {{ $tc('sw-product.list.contextMenuShowVariants') }}
+                        {{ $t('sw-product.list.contextMenuShowVariants') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </template>
@@ -316,9 +325,9 @@
                         {% block sw_product_list_bulk_edit_grid_columns_active %}
                         <template #column-active="{ item }">
                             <mt-icon
-                                size="16px"
+                                size="var(--scale-size-16)"
                                 :name="item.active ? 'regular-checkmark-xs' : 'regular-times-s'"
-                                :color="item.active ? '#37d046' : '#de294c'"
+                                :color="item.active ? 'var(--color-emerald-500)' : 'var(--color-crimson-500)'"
                             />
                         </template>
                         {% endblock %}
@@ -344,45 +353,6 @@
             </sw-entity-listing>
 
             {% endblock %}
-
-            {% block sw_product_list_empty_state %}
-            <template v-if="!isLoading && !total">
-                <sw-empty-state
-                    v-if="filterCriteria.length || isValidTerm(term)"
-                    :title="$tc('sw-empty-state.messageNoResultTitle')"
-                >
-                    <template #icon>
-                        <img
-                            :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                            :alt="$tc('sw-empty-state.messageNoResultTitle')"
-                        >
-                    </template>
-
-                    <template #default>
-                        {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
-                        <router-link
-                            class="sw-empty-state__description-link"
-                            :to="{ name: 'sw.profile.index.searchPreferences' }"
-                        >
-                            {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
-                        </router-link>
-                        {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
-                    </template>
-                </sw-empty-state>
-                <sw-empty-state
-                    v-else
-                    :title="$tc('sw-product.list.messageEmpty')"
-                >
-                    <template #icon>
-                        <img
-                            :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                            :alt="$tc('sw-product.list.messageEmpty')"
-                        >
-                    </template>
-                </sw-empty-state>
-            </template>
-            {% endblock %}
-
         </div>
         {% endblock %}
 
@@ -409,7 +379,7 @@
             {% block sw_product_list_sidebar_refresh %}
             <sw-sidebar-item
                 icon="regular-undo"
-                :title="$tc('sw-product.list.titleSidebarItemRefresh')"
+                :title="$t('sw-product.list.titleSidebarItemRefresh')"
                 @click="onRefresh"
             />
             {% endblock %}

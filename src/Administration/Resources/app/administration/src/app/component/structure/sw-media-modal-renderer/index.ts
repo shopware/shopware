@@ -1,4 +1,4 @@
-import type { MediaModalConfig } from 'src/app/store/media-modal.store';
+import type { MediaModalConfig, SaveMediaModalConfig } from 'src/app/store/media-modal.store';
 import template from './sw-media-modal-renderer.html.twig';
 
 /**
@@ -14,11 +14,19 @@ export default Shopware.Component.wrapComponentConfig({
         mediaModal(): MediaModalConfig | null {
             return Shopware.Store.get('mediaModal').mediaModal;
         },
+
+        saveMediaModal(): SaveMediaModalConfig | null {
+            return Shopware.Store.get('mediaModal').saveMediaModal;
+        },
     },
 
     methods: {
         closeModal(): void {
             Shopware.Store.get('mediaModal').closeModal();
+        },
+
+        closeSaveModal(): void {
+            Shopware.Store.get('mediaModal').closeSaveModal();
         },
 
         onSelectionChange(selection: EntityCollection<'media'>): void {
@@ -93,6 +101,17 @@ export default Shopware.Component.wrapComponentConfig({
 
             const finalSegment = parts[parts.length - 1];
             currentContext[finalSegment] = value;
+        },
+
+        onSaveMedia(params: { fileName: string; folderId: string; mediaId?: string }): void {
+            if (this.saveMediaModal && typeof this.saveMediaModal.callback === 'function') {
+                const callbackFn = this.saveMediaModal.callback as (params: {
+                    fileName: string;
+                    folderId: string;
+                    mediaId?: string;
+                }) => void;
+                callbackFn(params);
+            }
         },
     },
 });

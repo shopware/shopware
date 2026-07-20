@@ -4,7 +4,6 @@
 <div
     class="sw-sidebar-collapse__header"
 >
-
     {% block sw_sidebar_collapse_title %}
     <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
     <h4
@@ -16,9 +15,7 @@
             name="header"
             :expanded="expanded"
         >
-
             {% block sw_sidebar_collapse_panel_header_slot %}{% endblock %}
-
         </slot>
     </h4>
     {% endblock %}
@@ -27,27 +24,28 @@
     <div class="sw-sidebar-collapse__actions">
         <slot name="actions"></slot>
     </div>
-    <div
+
+    <button
         class="sw-sidebar-collapse__indicator"
-        role="button"
         tabindex="0"
         :aria-label="$t('sw-sidebar-collapse.collapseIndicator')"
         @click="collapseItem"
         @keydown.enter="collapseItem"
     >
         <mt-icon
-            size="24px"
-            :name="`regular-chevron-${expandChevronDirection}-xxs`"
+            size="22px"
+            :name="`regular-chevron-${expandChevronDirection}-xs`"
             class="sw-sidebar-collapse__expand-button"
             :class="expandButtonClass"
         />
+
         <mt-icon
-            size="16px"
-            name="regular-chevron-down-xxs"
+            size="14px"
+            name="regular-chevron-down-xs"
             class="sw-sidebar-collapse__collapse-button"
             :class="collapseButtonClass"
         />
-    </div>
+    </button>
     {% endblock %}
 
 </div>
@@ -56,7 +54,6 @@
 {% endblock %}
 
 {% block sw_sidebar_collapse_panel_content_template %}
-<!-- eslint-disable-next-line vue/valid-v-slot -->
 <template #content>
     <slot name="content">
 

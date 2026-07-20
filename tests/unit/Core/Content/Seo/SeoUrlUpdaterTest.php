@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Seo\SeoException;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
@@ -77,8 +78,7 @@ class SeoUrlUpdaterTest extends TestCase
 
         $this->seoUrlPersister->expects($this->never())->method('updateSeoUrls');
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Default templates not configured');
+        $this->expectExceptionObject(new \RuntimeException('Default templates not configured'));
         $seoUrlUpdater->update('test', []);
     }
 
@@ -100,8 +100,7 @@ class SeoUrlUpdaterTest extends TestCase
         );
 
         $this->seoUrlPersister->expects($this->never())->method('updateSeoUrls');
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Route by name test not found');
+        $this->expectExceptionObject(SeoException::seoUrlRouteNotFound('test'));
 
         $seoUrlUpdater->update('test', []);
     }

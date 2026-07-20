@@ -2,11 +2,12 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Webhook\Hookable;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
+use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -17,13 +18,14 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Hookable\HookableBusinessEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
  */
-#[CoversClass(HookableEventFactory::class)]
 class HookableEventFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -62,7 +64,7 @@ class HookableEventFactoryTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepository<ProductCollection> */
         $productRepository = static::getContainer()->get('product.repository');
         $writtenEvent = $this->insertProduct($id, $productRepository);
 
@@ -113,7 +115,7 @@ class HookableEventFactoryTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepository<ProductCollection> */
         $productRepository = static::getContainer()->get('product.repository');
         $this->insertProduct($id, $productRepository);
 
@@ -166,7 +168,7 @@ class HookableEventFactoryTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepository<ProductCollection> */
         $productRepository = static::getContainer()->get('product.repository');
         $this->insertProduct($id, $productRepository);
 
@@ -188,7 +190,7 @@ class HookableEventFactoryTest extends TestCase
     public function testDoesNotCreateHookableNotHookableEntity(): void
     {
         $id = Uuid::randomHex();
-        /** @var EntityRepository $taxRepository */
+        /** @var EntityRepository<TaxCollection> */
         $taxRepository = static::getContainer()->get('tax.repository');
 
         $createdEvent = $taxRepository->upsert([
@@ -225,7 +227,7 @@ class HookableEventFactoryTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepository<ProductCollection> */
         $productRepository = static::getContainer()->get('product.repository');
         $this->insertProduct($id, $productRepository);
 
@@ -258,6 +260,7 @@ class HookableEventFactoryTest extends TestCase
                 'id',
                 'name',
                 'description',
+                'descriptionTeaser',
             ],
             'versionId' => Defaults::LIVE_VERSION,
         ]], $event->getWebhookPayload());
@@ -268,7 +271,7 @@ class HookableEventFactoryTest extends TestCase
         $id = Uuid::randomHex();
         $productPriceId = Uuid::randomHex();
 
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepository<ProductCollection> */
         $productRepository = static::getContainer()->get('product.repository');
         $this->insertProduct($id, $productRepository);
 
@@ -319,6 +322,7 @@ class HookableEventFactoryTest extends TestCase
                 'id',
                 'name',
                 'description',
+                'descriptionTeaser',
             ],
             'versionId' => Defaults::LIVE_VERSION,
         ]], $event->getWebhookPayload());
@@ -347,14 +351,14 @@ class HookableEventFactoryTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepository<ProductCollection> */
         $productRepository = static::getContainer()->get('product.repository');
         $this->insertProduct($id, $productRepository);
 
         $ruleRepository = static::getContainer()->get('rule.repository');
         $ruleId = $ruleRepository->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
 
-        /** @var EntityRepository $productPriceRepository */
+        /** @var EntityRepository<ProductPriceCollection> */
         $productPriceRepository = static::getContainer()->get('product_price.repository');
         $writtenEvent = $productPriceRepository->upsert([
             [
@@ -401,7 +405,7 @@ class HookableEventFactoryTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        /** @var EntityRepository $salesChannelDomainRepository */
+        /** @var EntityRepository<SalesChannelDomainCollection> */
         $salesChannelDomainRepository = static::getContainer()->get('sales_channel_domain.repository');
         $writtenEvent = $this->insertSalesChannelDomain($id, $salesChannelDomainRepository);
 
@@ -436,6 +440,9 @@ class HookableEventFactoryTest extends TestCase
         }
     }
 
+    /**
+     * @param EntityRepository<ProductCollection> $productRepository
+     */
     private function insertProduct(string $id, EntityRepository $productRepository): EntityWrittenContainerEvent
     {
         return $productRepository->upsert([
@@ -463,6 +470,9 @@ class HookableEventFactoryTest extends TestCase
         ], Context::createDefaultContext());
     }
 
+    /**
+     * @param EntityRepository<SalesChannelDomainCollection> $salesChannelDomainRepository
+     */
     private function insertSalesChannelDomain(
         string $id,
         EntityRepository $salesChannelDomainRepository

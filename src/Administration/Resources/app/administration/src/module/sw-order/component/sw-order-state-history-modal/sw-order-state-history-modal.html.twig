@@ -1,6 +1,6 @@
 {% block sw_order_state_history_modal %}
 <sw-modal
-    :title="$tc('sw-order.stateHistoryModal.modalTitle')"
+    :title="$t('sw-order.stateHistoryModal.modalTitle')"
     :is-loading="isLoading"
     variant="large"
     @modal-close="onClose"
@@ -17,13 +17,16 @@
 
         {% block sw_order_state_history_modal_content_columns_created_at %}
         <template #column-createdAt="{ item }">
-            <sw-time-ago :date="item.createdAt" />
+            <sw-time-ago
+                :date="item.createdAt"
+                :date-time-format="{ month: '2-digit', day: '2-digit' }"
+            />
         </template>
         {% endblock %}
 
         {% block sw_order_state_history_modal_content_columns_entity %}
         <template #column-entity="{ item }">
-            {{ $tc('global.entities.' + item.entity) }} {{ enumerateTransaction(item) }}
+            {{ $t('global.entities.' + item.entity) }} {{ enumerateTransaction(item) }}
         </template>
         {% endblock %}
 
@@ -68,6 +71,17 @@
         </template>
         {% endblock %}
 
+        {% block sw_order_state_history_modal_content_columns_internal_comment %}
+        <template #column-internalComment="{ item }">
+            <mt-icon
+                v-if="item.internalComment"
+                v-tooltip="item.internalComment"
+                name="regular-comment"
+                size="14"
+            />
+        </template>
+        {% endblock %}
+
         <template #pagination>
             <sw-pagination
                 :page="page"
@@ -86,9 +100,10 @@
         <mt-button
             size="small"
             variant="secondary"
+            data-analytics-id="sw-order-state-history-modal.close"
             @click="onClose"
         >
-            {{ $tc('global.default.close') }}
+            {{ $t('global.default.close') }}
         </mt-button>
         {% endblock %}
     </template>

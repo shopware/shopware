@@ -125,7 +125,16 @@ export default function SearchPreferencesService({ userConfigRepository: _userCo
                 searchPreferences.push({ entityName, _searchable, fields });
             },
         );
-        searchPreferences.sort((a, b) => b.fields.length - a.fields.length);
+
+        searchPreferences.sort((a, b) => {
+            const lengthDiff = b.fields.length - a.fields.length;
+
+            if (lengthDiff !== 0) {
+                return lengthDiff;
+            }
+
+            return a.entityName.localeCompare(b.entityName);
+        });
 
         return searchPreferences;
     }

@@ -39,10 +39,6 @@ describe('sw-bulk-edit-order-documents', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should search for document types when component created', async () => {
         wrapper.vm.documentTypeRepository.search = jest.fn().mockReturnValue(Promise.resolve([]));
 

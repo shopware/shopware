@@ -10,6 +10,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
+use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -21,6 +23,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
+use Shopware\Core\System\StateMachine\StateMachineCollection;
 use Shopware\Core\System\StateMachine\StateMachineException;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
@@ -50,6 +53,9 @@ class StateMachineRegistryTest extends TestCase
 
     private StateMachineRegistry $stateMachineRegistry;
 
+    /**
+     * @var EntityRepository<StateMachineCollection>
+     */
     private EntityRepository $stateMachineRepository;
 
     protected function setUp(): void
@@ -162,7 +168,46 @@ EOF;
         static::assertSame(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $toPlace->getTechnicalName());
     }
 
-    public function testStateMachineTransitionStoresUserAndIntegrationId(): void
+    public function testStateMachineTransitionUpdatesEntityUpdatedAt(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+
+        $orderBuilder = new OrderBuilder($ids, 'o-1');
+
+        /** @var EntityRepository<OrderCollection> $orderRepo */
+        $orderRepo = self::getContainer()->get('order.repository');
+        static::assertInstanceOf(EntityRepository::class, $orderRepo);
+        $orderRepo->create([$orderBuilder->build()], Context::createCLIContext());
+
+        $this->connection->executeStatement(
+            'UPDATE `order` SET `updated_at` = NULL WHERE `id` = :id AND `version_id` = :version',
+            [
+                'id' => Uuid::fromHexToBytes($ids->get('o-1')),
+                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            ]
+        );
+
+        $orderBefore = $orderRepo->search(new Criteria([$ids->get('o-1')]), $context)->first();
+        static::assertInstanceOf(OrderEntity::class, $orderBefore);
+        static::assertNull($orderBefore->getUpdatedAt());
+
+        $stateCollection = $this->stateMachineRegistry->transition(
+            new Transition('order', $ids->get('o-1'), 'process', 'stateId'),
+            $context
+        );
+
+        $toPlace = $stateCollection->get('toPlace');
+        static::assertNotNull($toPlace);
+
+        $orderAfter = $orderRepo->search(new Criteria([$ids->get('o-1')]), $context)->first();
+        static::assertInstanceOf(OrderEntity::class, $orderAfter);
+
+        static::assertSame($toPlace->getId(), $orderAfter->getStateId());
+        static::assertNotNull($orderAfter->getUpdatedAt());
+    }
+
+    public function testStateMachineTransitionStoresUserAndIntegrationIdAndInternalComment(): void
     {
         $ids = new IdsCollection();
 
@@ -197,14 +242,14 @@ EOF;
         $stateMachineRegistry = self::getContainer()->get(StateMachineRegistry::class);
         static::assertInstanceOf(StateMachineRegistry::class, $stateMachineRegistry);
         $stateMachineRegistry->transition(
-            new Transition('order', $ids->get('o-1'), 'process', 'stateId'),
+            new Transition('order', $ids->get('o-1'), 'process', 'stateId', 'internal comment'),
             $context
         );
 
         $connection = self::getContainer()->get(Connection::class);
         static::assertInstanceOf(Connection::class, $connection);
 
-        $historyData = $connection->fetchAssociative('SELECT LOWER(HEX(integration_id)) as integration_id, LOWER(HEX(user_id)) as user_id FROM `state_machine_history` WHERE referenced_id = :id AND referenced_version_id = :version ORDER BY created_at DESC LIMIT 1', [
+        $historyData = $connection->fetchAssociative('SELECT LOWER(HEX(integration_id)) as integration_id, LOWER(HEX(user_id)) as user_id, internal_comment FROM `state_machine_history` WHERE referenced_id = :id AND referenced_version_id = :version ORDER BY created_at DESC LIMIT 1', [
             'id' => Uuid::fromHexToBytes($ids->get('o-1')),
             'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
         ]);
@@ -213,6 +258,7 @@ EOF;
         static::assertSame([
             'integration_id' => $ids->get('integration-1'),
             'user_id' => $userId,
+            'internal_comment' => 'internal comment',
         ], $historyData);
     }
 

@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
@@ -56,10 +55,10 @@ class ProductManufacturerDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of the Product Manufacturer.'),
             (new VersionField())->addFlags(new ApiAware()),
-            (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware()),
-            (new StringField('link', 'link'))->addFlags(new ApiAware()),
+            (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware())->setDescription('Unique identity of the media.'),
+            (new TranslatedField('link'))->addFlags(new ApiAware())->setDescription('URL of the manufacturer\'s portal.'),
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new TranslatedField('description'))->addFlags(new ApiAware()),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),

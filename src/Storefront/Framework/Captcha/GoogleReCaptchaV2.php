@@ -21,20 +21,14 @@ class GoogleReCaptchaV2 extends AbstractCaptcha
     {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function isValid(Request $request, array $captchaConfig): bool
     {
-        if (!$request->get(self::CAPTCHA_REQUEST_PARAMETER)) {
+        if (!$request->request->get(self::CAPTCHA_REQUEST_PARAMETER)) {
             return false;
         }
 
-        $captchaConfig = \func_get_args()[1] ?? [];
-
-        $secretKey = !empty($captchaConfig['config']['secretKey']) ? $captchaConfig['config']['secretKey'] : null;
-
-        if (!\is_string($secretKey)) {
+        $secretKey = $captchaConfig['config']['secretKey'] ?? null;
+        if (!\is_string($secretKey) || $secretKey === '') {
             return false;
         }
 
@@ -42,23 +36,26 @@ class GoogleReCaptchaV2 extends AbstractCaptcha
             $response = $this->client->request('POST', self::GOOGLE_CAPTCHA_VERIFY_ENDPOINT, [
                 'form_params' => [
                     'secret' => $secretKey,
-                    'response' => $request->get(self::CAPTCHA_REQUEST_PARAMETER),
+                    'response' => $request->request->get(self::CAPTCHA_REQUEST_PARAMETER),
                     'remoteip' => $request->getClientIp(),
                 ],
             ]);
 
             $responseRaw = $response->getBody()->getContents();
-            $response = json_decode($responseRaw, true);
+            try {
+                $response = json_decode($responseRaw, true, flags: \JSON_THROW_ON_ERROR);
+            } catch (\JsonException) {
+                $response = [];
+            }
 
-            return $response && (bool) $response['success'];
+            return \is_array($response)
+                && $response !== []
+                && $response['success'];
         } catch (ClientExceptionInterface) {
             return false;
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getName(): string
     {
         return self::CAPTCHA_NAME;

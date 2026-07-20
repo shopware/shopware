@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SearchKeyword\AnalyzedKeyword;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
@@ -32,7 +33,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
     /**
      * @param array<string, mixed> $productData
      * @param array<int, array{field: string, tokenize: bool, ranking: int}> $configFields
-     * @param array<int, string> $expected
+     * @param list<int|string> $expected
      */
     #[DataProvider('analyzeCases')]
     public function testAnalyze(array $productData, array $configFields, array $expected): void
@@ -41,10 +42,19 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         $product->assign($productData);
 
         $tokenizer = new Tokenizer(3, ['-', '_']);
-        $tokenFilter = $this->createMock(TokenFilter::class);
-        $tokenFilter->method('filter')->willReturnCallback(fn (array $tokens) => $tokens);
+        $tokenFilter = static::createStub(TokenFilter::class);
+        $tokenFilter->method('filter')->willReturnCallback(static fn (array $tokens) => $tokens);
 
-        $analyzer = new ProductSearchKeywordAnalyzer($tokenizer, $tokenFilter);
+        $configLoader = static::createStub(SearchConfigLoader::class);
+        $configLoader->method('load')
+            ->willReturn([
+                [
+                    'min_search_length' => 3,
+                ],
+            ]);
+
+        $analyzer = new ProductSearchKeywordAnalyzer($tokenizer, $tokenFilter, $configLoader);
+
         $analyzer = $analyzer->analyze($product, $this->context, $configFields);
         $analyzerResult = $analyzer->getKeys();
 
@@ -60,7 +70,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
      *
      * @param array<string, mixed> $productData
      * @param array<int, array{field: string, tokenize: bool, ranking: int}> $configFields
-     * @param array<int, string> $expected
+     * @param list<int|string> $expected
      */
     #[DataProvider('analyzeCases')]
     public function testAnalyzeWithIgnoredErrorNoticeReporting(array $productData, array $configFields, array $expected): void
@@ -73,9 +83,9 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{0:array<string, array<string, string|array<int|string, string|array<int|string>>>|int|string|TagCollection>, 1:array<int, array{field: string, tokenize: bool, ranking: int}>, 2:array<int, int|string>}>
+     * @return \Generator<string, array{0:array<string, array<string, string|array<int|string, string|array<int|string>>>|int|string|TagCollection>, 1:array<int, array{field: string, tokenize: bool, ranking: int}>, 2:list<int|string>}>
      */
-    public static function analyzeCases(): iterable
+    public static function analyzeCases(): \Generator
     {
         $tag1 = new TagEntity();
         $tag1->setId('tag-1');
@@ -235,6 +245,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
                 'part-a',
                 'part-b',
                 'product',
+                'physical',
                 'awesome product',
                 'part-a part-b',
             ],
@@ -243,17 +254,29 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
 
     public function testAssociativeArrayOrderIndependence(): void
     {
-        $tokenizer = $this->createMock(TokenizerInterface::class);
+        $tokenizer = static::createStub(TokenizerInterface::class);
         $tokenizer->method('tokenize')
-            ->willReturnCallback(function (string $text) {
+            ->willReturnCallback(static function (string $text) {
                 return explode(' ', $text);
             });
 
-        $tokenFilter = $this->createMock(AbstractTokenFilter::class);
+        $tokenFilter = static::createStub(AbstractTokenFilter::class);
         $tokenFilter->method('filter')
             ->willReturnArgument(0);
 
-        $analyzer = new ProductSearchKeywordAnalyzer($tokenizer, $tokenFilter);
+        $configLoader = static::createStub(SearchConfigLoader::class);
+        $configLoader->method('load')
+            ->willReturn([
+                [
+                    'min_search_length' => 3,
+                ],
+            ]);
+
+        $analyzer = new ProductSearchKeywordAnalyzer(
+            $tokenizer,
+            $tokenFilter,
+            $configLoader
+        );
 
         $config = [
             [
@@ -274,7 +297,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         ]);
 
         $result1 = $analyzer->analyze($product1, Context::createDefaultContext(), $config);
-        $words1 = $result1->map(fn (AnalyzedKeyword $keyword) => $keyword->getKeyword());
+        $words1 = $result1->map(static fn (AnalyzedKeyword $keyword) => $keyword->getKeyword());
         sort($words1);
 
         // Test with different order of keys
@@ -288,7 +311,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         ]);
 
         $result2 = $analyzer->analyze($product2, Context::createDefaultContext(), $config);
-        $words2 = $result2->map(fn (AnalyzedKeyword $keyword) => $keyword->getKeyword());
+        $words2 = $result2->map(static fn (AnalyzedKeyword $keyword) => $keyword->getKeyword());
         sort($words2);
 
         sort($words1);

@@ -67,10 +67,6 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show correct tooltip', async () => {
         const elementModeSettings = wrapper.get('.sw-product-settings-mode');
         expect(elementModeSettings.attributes()['tooltip-message']).toBe('sw-product.general.tooltipModeSettings');

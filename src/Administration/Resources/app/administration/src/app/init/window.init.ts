@@ -9,17 +9,29 @@ import type { Router } from 'vue-router';
 /**
  * @private
  */
+export const _windowLocationHelpers = {
+    reload(): void {
+        window.location.reload();
+    },
+    navigate(url: string): void {
+        window.location.href = url;
+    },
+};
+
+/**
+ * @private
+ */
 export default function initializeWindow(): void {
     // Handle incoming window requests from the ExtensionAPI
     Shopware.ExtensionAPI.handle('windowReload', () => {
-        window.location.reload();
+        _windowLocationHelpers.reload();
     });
 
     Shopware.ExtensionAPI.handle('windowRedirect', ({ newTab, url }) => {
         if (newTab) {
             window.open(url, '_blank');
         } else {
-            window.location.href = url;
+            _windowLocationHelpers.navigate(url);
         }
     });
 
@@ -37,5 +49,15 @@ export default function initializeWindow(): void {
             path: path && path.length > 0 ? path : '',
             replace: replace ?? false,
         });
+    });
+
+    Shopware.ExtensionAPI.handle('windowRouterGetPath', () => {
+        const $router = Shopware.Application.view?.router as unknown as Router;
+
+        if (!$router) {
+            return '';
+        }
+
+        return $router.currentRoute?.value?.fullPath || '';
     });
 }

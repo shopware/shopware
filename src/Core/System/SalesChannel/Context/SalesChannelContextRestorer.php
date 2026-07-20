@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -26,6 +27,8 @@ class SalesChannelContextRestorer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<OrderCollection> $orderRepository
      */
     public function __construct(
         private readonly AbstractSalesChannelContextFactory $factory,
@@ -187,11 +190,7 @@ class SalesChannelContextRestorer
 
         $this->eventDispatcher->dispatch(new SalesChannelContextRestorerOrderCriteriaEvent($criteria, $context));
 
-        /** @var OrderEntity|null $orderEntity */
-        $orderEntity = $this->orderRepository->search($criteria, $context)
-            ->get($orderId);
-
-        return $orderEntity;
+        return $this->orderRepository->search($criteria, $context)->getEntities()->get($orderId);
     }
 
     /**

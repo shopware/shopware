@@ -6,13 +6,16 @@ use Shopware\Core\Checkout\Cart\Order\Transformer\AddressTransformer;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @phpstan-type BillingAddressMapping array{customerAddressId: string, type: self::TYPE_BILLING}
+ * @phpstan-type ShippingAddressMapping array{customerAddressId: string, type: self::TYPE_SHIPPING, deliveryId: string}
+ */
 #[Package('checkout')]
 class OrderAddressService
 {
@@ -36,7 +39,7 @@ class OrderAddressService
     }
 
     /**
-     * @param array<int, array{customerAddressId: string, type: string, deliveryId?: string}> $addressMappings
+     * @param list<BillingAddressMapping|ShippingAddressMapping> $addressMappings
      */
     public function updateOrderAddresses(
         string $orderId,
@@ -60,40 +63,32 @@ class OrderAddressService
          */
         $updatedAddressIds = [];
         foreach ($addressMappings as $addressMapping) {
-            switch ($addressMapping['type']) {
-                case self::TYPE_BILLING:
-                    $newOrderAddressId = $this->handleBillingAddress(
-                        $order,
-                        $addressMapping,
-                        $addressMappings,
-                        $updatedAddressIds,
-                        $context
-                    );
-
-                    break;
-                case self::TYPE_SHIPPING:
-                    /** @var array{customerAddressId: string, type: string, deliveryId: string} $addressMapping */
-                    $newOrderAddressId = $this->handleShippingAddress(
-                        $order,
-                        $addressMapping,
-                        $addressMappings,
-                        $updatedAddressIds,
-                        $context
-                    );
-
-                    break;
-                default:
-                    throw OrderException::invalidOrderAddressMapping('Invalid type');
-            }
+            $newOrderAddressId = match ($addressMapping['type']) {
+                self::TYPE_BILLING => $this->handleBillingAddress(
+                    $order,
+                    $addressMapping,
+                    $addressMappings,
+                    $updatedAddressIds,
+                    $context
+                ),
+                self::TYPE_SHIPPING => $this->handleShippingAddress(
+                    $order,
+                    $addressMapping,
+                    $addressMappings,
+                    $updatedAddressIds,
+                    $context
+                ),
+                default => throw OrderException::invalidOrderAddressMapping('Invalid type'),
+            };
 
             $updatedAddressIds[] = $newOrderAddressId;
         }
     }
 
     /**
-     * @param array{customerAddressId: string, type: string} $mapping
-     * @param array<int, array{customerAddressId: string, type: string, deliveryId?: string}> $allMappings
-     * @param array<int, string> $alreadyUpdatedIds
+     * @param BillingAddressMapping $mapping
+     * @param list<BillingAddressMapping|ShippingAddressMapping> $allMappings
+     * @param list<string> $alreadyUpdatedIds
      */
     private function handleBillingAddress(
         OrderEntity $order,
@@ -123,9 +118,9 @@ class OrderAddressService
     }
 
     /**
-     * @param array{customerAddressId: string, type: string, deliveryId: string} $mapping
-     * @param array<int, array{customerAddressId: string, type: string, deliveryId?: string}> $allMappings
-     * @param array<int, string> $alreadyUpdatedIds
+     * @param ShippingAddressMapping $mapping
+     * @param list<BillingAddressMapping|ShippingAddressMapping> $allMappings
+     * @param list<string> $alreadyUpdatedIds
      */
     private function handleShippingAddress(
         OrderEntity $order,
@@ -136,12 +131,7 @@ class OrderAddressService
     ): string {
         $deliveryId = $mapping['deliveryId'];
 
-        /** @var OrderDeliveryCollection $deliveries */
-        $deliveries = $order->getDeliveries();
-
-        /** @var OrderDeliveryEntity|null $shippingDelivery */
-        $shippingDelivery = $deliveries->get($deliveryId);
-
+        $shippingDelivery = $order->getDeliveries()?->get($deliveryId);
         if ($shippingDelivery === null) {
             throw OrderException::orderDeliveryNotFound($deliveryId);
         }
@@ -186,8 +176,8 @@ class OrderAddressService
     }
 
     /**
-     * @param array<int, array{customerAddressId: string, type: string, deliveryId?: string}> $allMappings
-     * @param array<int, string> $alreadyUpdatedIds
+     * @param list<BillingAddressMapping|ShippingAddressMapping> $allMappings
+     * @param list<string> $alreadyUpdatedIds
      */
     private function getNewBillingOrderAddressId(
         OrderEntity $order,
@@ -212,8 +202,8 @@ class OrderAddressService
     }
 
     /**
-     * @param array<int, array{customerAddressId: string, type: string, deliveryId?: string}> $allMappings
-     * @param array<int, string> $alreadyUpdatedIds
+     * @param list<BillingAddressMapping|ShippingAddressMapping> $allMappings
+     * @param list<string> $alreadyUpdatedIds
      */
     private function getShippingOrderAddressId(
         OrderEntity $order,
@@ -237,7 +227,7 @@ class OrderAddressService
     }
 
     /**
-     * @param array<int, array{customerAddressId: string, type: string, deliveryId?: string}> $mappings
+     * @param list<BillingAddressMapping|ShippingAddressMapping> $mappings
      */
     private function mappingContainsBillingAddress(array $mappings): bool
     {
@@ -251,7 +241,7 @@ class OrderAddressService
     }
 
     /**
-     * @param array<int, array{customerAddressId: string, type: string, deliveryId?: string}> $mappings
+     * @param list<BillingAddressMapping|ShippingAddressMapping> $mappings
      */
     private function mappingContainsShippingAddress(string $deliveryId, array $mappings): bool
     {
@@ -266,8 +256,10 @@ class OrderAddressService
 
     private function getDeliveryIdForOrderAddressId(OrderEntity $order, string $orderAddressId): ?string
     {
-        /** @var OrderDeliveryCollection $deliveries */
         $deliveries = $order->getDeliveries();
+        if ($deliveries === null) {
+            return null;
+        }
 
         foreach ($deliveries as $delivery) {
             if ($delivery->getShippingOrderAddressId() === $orderAddressId) {
@@ -280,12 +272,7 @@ class OrderAddressService
 
     private function getOrderAddressIdForDeliveryId(OrderEntity $order, string $deliveryId): string
     {
-        /** @var OrderDeliveryCollection $deliveries */
-        $deliveries = $order->getDeliveries();
-
-        /** @var OrderDeliveryEntity|null $delivery */
-        $delivery = $deliveries->get($deliveryId);
-
+        $delivery = $order->getDeliveries()?->get($deliveryId);
         if ($delivery === null) {
             throw OrderException::orderDeliveryNotFound($deliveryId);
         }
@@ -294,7 +281,7 @@ class OrderAddressService
     }
 
     /**
-     * @param array<int, array{customerAddressId: string, type: string, deliveryId?: string}> $mappings
+     * @param list<BillingAddressMapping|ShippingAddressMapping> $mappings
      */
     private function validateMappings(array $mappings): void
     {

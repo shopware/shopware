@@ -7,9 +7,6 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('framework')]
 class FrameworkException extends HttpException
 {

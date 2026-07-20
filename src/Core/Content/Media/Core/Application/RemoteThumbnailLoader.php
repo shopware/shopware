@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace Shopware\Core\Content\Media\Core\Application;
 
@@ -8,8 +9,11 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollectio
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Core\Params\UrlParams;
 use Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\Service\ResetInterface;
@@ -23,7 +27,7 @@ use Symfony\Contracts\Service\ResetInterface;
 class RemoteThumbnailLoader implements ResetInterface
 {
     /**
-     * @var ?array<string, array<array{width: string, height: string}>>
+     * @var ?array<string, array<array{media_thumbnail_size_id: string, width: string, height: string}>>
      */
     private ?array $mediaFolderThumbnailSizes = null;
 
@@ -46,13 +50,13 @@ class RemoteThumbnailLoader implements ResetInterface
      * Generates the thumbnails for the media entities according to the provided pattern and media thumbnail sizes.
      * The generated thumbnails will be assigned to the entities afterward.
      *
-     * @param iterable<Entity> $media
+     * @param iterable<MediaEntity|PartialEntity> $media
      */
     public function load(iterable $media): void
     {
         $mapping = $this->map($media);
 
-        if (empty($mapping)) {
+        if ($mapping === []) {
             return;
         }
 
@@ -68,28 +72,32 @@ class RemoteThumbnailLoader implements ResetInterface
 
             $mediaEntity->assign(['url' => $urls[$mediaEntity->getUniqueIdentifier()]]);
 
-            $thumbnailSizes = $mediaThumbnailSizes[$mediaEntity->get('mediaFolderId')] ?? [];
+            $mediaFolderId = $mediaEntity->get('mediaFolderId');
+            $thumbnailSizes = $mediaThumbnailSizes[$mediaFolderId] ?? [];
 
-            if (empty($thumbnailSizes)) {
+            if ($thumbnailSizes === []) {
                 $mediaEntity->assign(['thumbnails' => new MediaThumbnailCollection()]);
 
                 continue;
             }
 
-            $path = $mediaEntity->get('path');
-            $updatedAt = $mediaEntity->get('updatedAt') ?? $mediaEntity->get('createdAt');
-
-            if (!($updatedAt instanceof \DateTimeInterface)) {
-                $updatedAt = null;
-            }
-
             $thumbnails = new MediaThumbnailCollection();
             foreach ($thumbnailSizes as $size) {
-                $url = $this->getUrl($baseUrl, $path, $size['width'], $size['height'], $updatedAt);
+                $url = $this->getUrl(
+                    $mediaEntity,
+                    $baseUrl,
+                    $size['width'],
+                    $size['height']
+                );
+                if ($url === null) {
+                    continue;
+                }
 
                 $thumbnail = new MediaThumbnailEntity();
                 $thumbnail->assign([
                     'id' => Uuid::randomHex(),
+                    'mediaId' => $mediaEntity->getUniqueIdentifier(),
+                    'mediaThumbnailSizeId' => $size['media_thumbnail_size_id'],
                     'width' => (int) $size['width'],
                     'height' => (int) $size['height'],
                     'url' => $url,
@@ -117,7 +125,7 @@ class RemoteThumbnailLoader implements ResetInterface
         $mapped = [];
 
         foreach ($entities as $entity) {
-            if (!$entity->has('path') || empty($entity->get('path'))) {
+            if (!$entity->has('path') || (string) $entity->get('path') === '') {
                 continue;
             }
             // don't generate private urls
@@ -132,7 +140,7 @@ class RemoteThumbnailLoader implements ResetInterface
     }
 
     /**
-     * @return array<string, array<array{width: string, height: string}>>
+     * @return array<string, array<array{media_thumbnail_size_id: string, width: string, height: string}>>
      */
     private function getMediaThumbnailSizes(): array
     {
@@ -140,24 +148,43 @@ class RemoteThumbnailLoader implements ResetInterface
             return $this->mediaFolderThumbnailSizes;
         }
 
-        $entities = $this->connection->fetchAllAssociative(
+        /** @var list<array{configuration_id: string, media_thumbnail_size_id: string, width: string, height: string}> $sizes */
+        $sizes = $this->connection->fetchAllAssociative(
             '
-            SELECT LOWER(HEX(mf.id)) as media_folder_id, mts.width, mts.height
-            FROM media_folder mf
-            INNER JOIN media_folder_configuration mfc ON mf.media_folder_configuration_id = mfc.id
-            INNER JOIN media_folder_configuration_media_thumbnail_size mfcmts ON mfcmts.media_folder_configuration_id = mfc.id
+            SELECT
+                LOWER(HEX(mfcmts.media_folder_configuration_id)) AS configuration_id,
+                LOWER(HEX(mts.id)) AS media_thumbnail_size_id,
+                mts.width,
+                mts.height
+            FROM media_folder_configuration_media_thumbnail_size mfcmts
             INNER JOIN media_thumbnail_size mts ON mfcmts.media_thumbnail_size_id = mts.id'
         );
 
-        if (empty($entities)) {
-            return [];
+        if ($sizes === []) {
+            return $this->mediaFolderThumbnailSizes = [];
         }
 
-        $grouped = [];
+        $configurationSizes = [];
+        foreach ($sizes as $size) {
+            $configurationSizes[$size['configuration_id']][] = [
+                'media_thumbnail_size_id' => $size['media_thumbnail_size_id'],
+                'width' => $size['width'],
+                'height' => $size['height'],
+            ];
+        }
 
-        /** @var array{media_folder_id: string, width: string, height: string} $entity */
-        foreach ($entities as $entity) {
-            $grouped[$entity['media_folder_id']][] = ['width' => $entity['width'], 'height' => $entity['height']];
+        /** @var array<string, string> $folderToConfiguration */
+        $folderToConfiguration = $this->connection->fetchAllKeyValue(
+            'SELECT LOWER(HEX(id)), LOWER(HEX(media_folder_configuration_id))
+             FROM media_folder
+             WHERE media_folder_configuration_id IS NOT NULL'
+        );
+
+        $grouped = [];
+        foreach ($folderToConfiguration as $folderId => $configurationId) {
+            if (isset($configurationSizes[$configurationId])) {
+                $grouped[$folderId] = $configurationSizes[$configurationId];
+            }
         }
 
         return $this->mediaFolderThumbnailSizes = $grouped;
@@ -168,19 +195,35 @@ class RemoteThumbnailLoader implements ResetInterface
         return \rtrim($this->filesystem->publicUrl(''), '/');
     }
 
-    private function getUrl(string $mediaUrl, string $mediaPath, string $width, string $height, ?\DateTimeInterface $mediaUpdatedAt): string
+    private function getUrl(MediaEntity|PartialEntity $mediaEntity, string $mediaUrl, string $width, string $height): ?string
     {
         return $this->extensions->publish(
             name: ResolveRemoteThumbnailUrlExtension::NAME,
             extension: new ResolveRemoteThumbnailUrlExtension(
                 $mediaUrl,
-                $mediaPath,
+                $mediaEntity->get('path'),
                 $width,
                 $height,
                 $this->pattern,
-                $mediaUpdatedAt
+                $mediaEntity->get('updatedAt') ?? $mediaEntity->get('createdAt'),
+                $mediaEntity,
             ),
-            function: function (string $mediaUrl, string $mediaPath, string $width, string $height, string $pattern, ?\DateTimeInterface $mediaUpdatedAt) {
+            function: static function (
+                string $mediaUrl,
+                string $mediaPath,
+                string $width,
+                string $height,
+                string $pattern,
+                ?\DateTimeInterface $mediaUpdatedAt,
+                Entity $mediaEntity,
+            ): string {
+                if (Feature::isActive('v6.8.0.0')) {
+                    $mediaPath = $mediaEntity->get('path');
+                    \assert(\is_string($mediaPath));
+                    $mediaUpdatedAt = $mediaEntity->get('updatedAt') ?? $mediaEntity->get('createdAt');
+                    \assert($mediaUpdatedAt instanceof \DateTimeInterface || $mediaUpdatedAt === null);
+                }
+
                 $replacements = [
                     str_starts_with($mediaPath, 'http') ? '' : $mediaUrl,
                     $mediaPath,

@@ -7,9 +7,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Storefront\Page\Page;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('framework')]
 class AddressEditorModalStruct extends Struct
 {
@@ -21,6 +18,9 @@ class AddressEditorModalStruct extends Struct
 
     protected ?string $addressId = null;
 
+    /**
+     * @var array<string, mixed>
+     */
     protected array $messages = [];
 
     protected ?CustomerAddressEntity $address = null;
@@ -67,11 +67,17 @@ class AddressEditorModalStruct extends Struct
         $this->addressId = $addressId;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getMessages(): array
     {
         return $this->messages;
     }
 
+    /**
+     * @param array<string, mixed> $messages
+     */
     public function setMessages(array $messages): void
     {
         $this->messages = $messages;

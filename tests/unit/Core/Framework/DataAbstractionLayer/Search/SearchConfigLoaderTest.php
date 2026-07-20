@@ -1,0 +1,141 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search;
+
+use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SystemSource;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
+
+/**
+ * @internal
+ */
+#[Package('framework')]
+#[CoversClass(SearchConfigLoader::class)]
+class SearchConfigLoaderTest extends TestCase
+{
+    /**
+     * @param array<string, list<array{and_logic: string, excluded_terms: string, min_search_length: int, field: string, tokenize: int, ranking: float, use_exact_subfield?: int}>> $configKeyedByLanguageId
+     * @param array<array{and_logic: string, field: string, tokenize: int, ranking: float, excluded_terms: array<string>, min_search_length: int, use_exact_subfield: int}> $expectedResult
+     */
+    #[DataProvider('loadDataProvider')]
+    public function testLoad(array $configKeyedByLanguageId, array $expectedResult): void
+    {
+        $connection = $this->createMock(Connection::class);
+
+        $firstLanguageId = array_key_first($configKeyedByLanguageId);
+        static::assertNotNull($firstLanguageId);
+        $connection->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn($configKeyedByLanguageId[$firstLanguageId]);
+
+        $loader = new SearchConfigLoader($connection);
+
+        $languageIdChain = array_values(array_filter(array_keys($configKeyedByLanguageId)));
+        static::assertNotEmpty($languageIdChain);
+
+        $context = new Context(
+            new SystemSource(),
+            [],
+            Defaults::CURRENCY,
+            $languageIdChain,
+        );
+
+        $result = $loader->load($context);
+
+        static::assertSame($expectedResult, $result);
+    }
+
+    public function testLoadWithNoResult(): void
+    {
+        $this->expectExceptionObject(DataAbstractionLayerException::configNotFound());
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([]);
+
+        $loader = new SearchConfigLoader($connection);
+
+        $context = new Context(
+            new SystemSource(),
+            [],
+            Defaults::CURRENCY,
+            [Defaults::LANGUAGE_SYSTEM],
+        );
+
+        $loader->load($context);
+    }
+
+    /**
+     * @return iterable<string, array{configKeyedByLanguageId: array<string, list<array{and_logic: string, excluded_terms: string, min_search_length: int, field: string, tokenize: int, ranking: float, use_exact_subfield?: int}>>, expectedResult: array<array{and_logic: string, field: string, tokenize: int, ranking: float, excluded_terms: array<string>, min_search_length: int, use_exact_subfield: int}>}>
+     */
+    public static function loadDataProvider(): iterable
+    {
+        yield 'one language config' => [
+            'configKeyedByLanguageId' => [
+                Defaults::LANGUAGE_SYSTEM => [[
+                    'and_logic' => 'and',
+                    'excluded_terms' => json_encode(['term1', 'term2'], \JSON_THROW_ON_ERROR),
+                    'min_search_length' => 5,
+                    'field' => 'name',
+                    'tokenize' => 1,
+                    'ranking' => 2.0,
+                    'use_exact_subfield' => 1,
+                ]],
+            ],
+            'expectedResult' => [
+                [
+                    'and_logic' => 'and',
+                    'excluded_terms' => ['term1', 'term2'],
+                    'min_search_length' => 5,
+                    'field' => 'name',
+                    'tokenize' => 1,
+                    'ranking' => 2.0,
+                    'use_exact_subfield' => 1,
+                ],
+            ],
+        ];
+
+        yield 'multi languages config' => [
+            'configKeyedByLanguageId' => [
+                Defaults::LANGUAGE_SYSTEM => [[
+                    'and_logic' => 'and',
+                    'field' => 'name',
+                    'tokenize' => 1,
+                    'ranking' => 100.0,
+                    'excluded_terms' => json_encode(['term1', 'term2'], \JSON_THROW_ON_ERROR),
+                    'min_search_length' => 5,
+                    'use_exact_subfield' => 0,
+                ]],
+                Uuid::randomHex() => [[
+                    'and_logic' => 'and',
+                    'excluded_terms' => json_encode(['term3', 'term4'], \JSON_THROW_ON_ERROR),
+                    'min_search_length' => 15,
+                    'field' => 'name',
+                    'tokenize' => 0,
+                    'ranking' => 50.0,
+                    'use_exact_subfield' => 1,
+                ]],
+            ],
+            'expectedResult' => [
+                [
+                    'and_logic' => 'and',
+                    'excluded_terms' => ['term1', 'term2'],
+                    'min_search_length' => 5,
+                    'field' => 'name',
+                    'tokenize' => 1,
+                    'ranking' => 100.0,
+                    'use_exact_subfield' => 0,
+                ],
+            ],
+        ];
+    }
+}

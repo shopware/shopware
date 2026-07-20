@@ -1,4 +1,4 @@
-import type { PropType } from 'vue';
+import './sw-order-state-history-modal.scss';
 import type RepositoryType from 'src/core/data/repository.data';
 import type CriteriaType from 'src/core/data/criteria.data';
 import template from './sw-order-state-history-modal.html.twig';
@@ -17,12 +17,14 @@ interface StateMachineHistoryData {
     createdAt: string;
     user?: {
         username: string;
+        email: string;
     };
     integration?: {
         label: string;
     };
     entity: string;
     referencedId?: string;
+    internalComment?: string;
 }
 
 interface CombinedStates {
@@ -120,27 +122,31 @@ export default Component.wrapComponentConfig({
             return [
                 {
                     property: 'createdAt',
-                    label: this.$tc('sw-order.stateHistoryModal.column.createdAt'),
+                    label: this.$t('sw-order.stateHistoryModal.column.createdAt'),
                 },
                 {
                     property: 'entity',
-                    label: this.$tc('sw-order.stateHistoryModal.column.entity'),
+                    label: this.$t('sw-order.stateHistoryModal.column.entity'),
                 },
                 {
                     property: 'user',
-                    label: this.$tc('sw-order.stateHistoryModal.column.user'),
+                    label: this.$t('sw-order.stateHistoryModal.column.user'),
                 },
                 {
                     property: 'transaction',
-                    label: this.$tc('sw-order.stateHistoryModal.column.transaction'),
+                    label: this.$t('sw-order.stateHistoryModal.column.transaction'),
                 },
                 {
                     property: 'delivery',
-                    label: this.$tc('sw-order.stateHistoryModal.column.delivery'),
+                    label: this.$t('sw-order.stateHistoryModal.column.delivery'),
                 },
                 {
                     property: 'order',
-                    label: this.$tc('sw-order.stateHistoryModal.column.order'),
+                    label: this.$t('sw-order.stateHistoryModal.column.order'),
+                },
+                {
+                    property: 'internalComment',
+                    label: this.$t('sw-order.stateHistoryModal.column.internalComment'),
                 },
             ];
         },
@@ -178,7 +184,6 @@ export default Component.wrapComponentConfig({
                 await this.getStateHistoryEntries();
             } catch (error: unknown) {
                 // @ts-expect-error
-                // eslint-disable-next-line max-len
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
                 const errorMessage = error?.response?.data?.errors?.[0]?.detail || '';
 
@@ -234,7 +239,8 @@ export default Component.wrapComponentConfig({
                                     // @ts-expect-error - states exists
                                     order_transaction: entry.fromStateMachineState,
                                 },
-                                { ...entry, user: undefined },
+                                entry,
+                                true,
                             ),
                         );
                     }
@@ -242,14 +248,18 @@ export default Component.wrapComponentConfig({
                     knownTransactionIds.push(entry.referencedId);
                 }
 
-                // @ts-expect-error - the entityName have to be order, order_transaction or order_delivery
+                // @ts-expect-error - the entityName has to be order, order_transaction or order_delivery
                 states[entry.entityName] = entry.toStateMachineState;
                 // @ts-expect-error - states exists
                 entries.push(this.createEntry(states, entry));
             });
 
             const lastTransaction = this.order.transactions?.last();
-            if (!!lastTransaction && !knownTransactionIds.includes(lastTransaction.id)) {
+            if (
+                !!lastTransaction &&
+                !knownTransactionIds.includes(lastTransaction.id) &&
+                (this.order.transactions?.length ?? 0) > 1
+            ) {
                 entries.push(
                     this.createEntry(
                         {
@@ -268,22 +278,22 @@ export default Component.wrapComponentConfig({
         createEntry(
             states: CombinedStates,
             entry: Entity<'state_machine_history'> | Entity<'order'> | Entity<'order_transaction'>,
+            hideUser = false,
         ): StateMachineHistoryData {
             return {
                 order: states.order,
                 transaction: states.order_transaction,
                 delivery: states.order_delivery,
                 createdAt: 'orderDateTime' in entry ? entry.orderDateTime : entry.createdAt,
-                user: 'user' in entry ? entry.user : undefined,
+                user: !hideUser && 'user' in entry ? entry.user : undefined,
                 integration: 'integration' in entry ? entry.integration : undefined,
                 entity: 'entityName' in entry ? entry.entityName : entry.getEntityName(),
                 referencedId: 'referencedId' in entry ? entry.referencedId : entry.id,
+                internalComment: 'internalComment' in entry ? entry.internalComment : undefined,
             };
         },
 
         getVariantState(entity: string, state: Entity<'state_machine_state'>): string {
-            // eslint-disable-next-line max-len
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-return
             return this.stateStyleDataProviderService.getStyle(`${entity}.state`, state.technicalName).variant;
         },
 
@@ -310,7 +320,7 @@ export default Component.wrapComponentConfig({
 
         getStateChangeAuthor(item: StateMachineHistoryData): string {
             if (item.user) {
-                return item.user.username;
+                return item.user.username || item.user.email;
             }
             if (item.integration) {
                 const integrationLabel = item.integration.label;

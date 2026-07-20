@@ -1,8 +1,8 @@
 .sw-condition-tree {
     .mt-button {
-        height: 32px;
-        border-radius: 4px;
-        padding: 2px 16px;
+        height: var(--scale-size-32);
+        border-radius: var(--scale-size-4);
+        padding: var(--scale-size-2) var(--scale-size-16);
         line-height: inherit;
     }
 
@@ -10,7 +10,22 @@
         margin-top: 0;
     }
 
-    & > .sw-condition-or-container {
-        border: none;
+    & > .condition-tree-node:first-child {
+        border: none !important;
+        background-color: transparent;
+        border-radius: 0;
+    }
+
+    .mt-datepicker__hint {
+        display: none;
+    }
+
+    .wrapper .dp__input {
+        padding: var(--scale-size-10) !important;
+    }
+
+    .sw-single-select__selection-text,
+    .sw-single-select__selection-input {
+        margin-right: var(--scale-size-40);
     }
 }

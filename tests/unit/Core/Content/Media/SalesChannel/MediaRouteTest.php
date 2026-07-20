@@ -3,12 +3,13 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\SalesChannel\MediaRoute;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -24,14 +25,23 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(MediaRoute::class)]
 class MediaRouteTest extends TestCase
 {
-    private EntityRepository&MockObject $mediaRepository;
+    /**
+     * @var EntityRepository<MediaCollection>&Stub
+     */
+    private EntityRepository&Stub $mediaRepository;
+
+    private CacheTagCollector&Stub $cacheTagCollector;
 
     private MediaRoute $mediaRoute;
 
     protected function setUp(): void
     {
-        $this->mediaRepository = $this->createMock(EntityRepository::class);
-        $this->mediaRoute = new MediaRoute($this->mediaRepository);
+        $this->mediaRepository = static::createStub(EntityRepository::class);
+        $this->cacheTagCollector = static::createStub(CacheTagCollector::class);
+        $this->mediaRoute = new MediaRoute(
+            $this->mediaRepository,
+            $this->cacheTagCollector,
+        );
     }
 
     public function testLoadReturnsMediaRouteResponse(): void
@@ -63,12 +73,21 @@ class MediaRouteTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $this->mediaRepository
+        $mediaRepository = $this->createMock(EntityRepository::class);
+        $mediaRepository
             ->expects($this->once())
             ->method('search')
             ->willReturn($mediaEntitySearchResult);
 
-        $response = $this->mediaRoute->load($request, $salesChannelContext);
+        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $cacheTagCollector
+            ->expects($this->once())
+            ->method('addTag')
+            ->with('media-testMediaId1', 'media-testMediaId2');
+
+        $mediaRoute = new MediaRoute($mediaRepository, $cacheTagCollector);
+
+        $response = $mediaRoute->load($request, $salesChannelContext);
         $mediaCollection = $response->getMediaCollection();
         $firstMediaEntity = $mediaCollection->first();
 
@@ -80,8 +99,7 @@ class MediaRouteTest extends TestCase
 
     public function testLoadThrowsMediaExceptionWhenMediaNotFound(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('A media id must be provided.');
+        $this->expectExceptionObject(MediaException::emptyMediaId());
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext

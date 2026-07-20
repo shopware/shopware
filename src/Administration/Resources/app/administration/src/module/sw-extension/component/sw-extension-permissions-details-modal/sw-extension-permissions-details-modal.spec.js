@@ -8,13 +8,12 @@ async function createWrapper({ permissions, modalTitle, selectedEntity }) {
         {
             global: {
                 mocks: {
-                    $tc: (...args) => (args.length === 1 ? args[0] : JSON.stringify(...args)),
+                    $t: (...args) => (args.length === 1 ? args[0] : JSON.stringify(...args)),
                     $te: () => true,
                 },
                 stubs: {
                     'sw-modal': {
                         props: ['title'],
-                        // eslint-disable-next-line max-len
                         template:
                             '<div><div class="sw-modal__title">{{ title }}</div><div class="sw-modal__body"><slot/></div><slot name="modal-footer"></slot></div>',
                     },
@@ -33,33 +32,6 @@ async function createWrapper({ permissions, modalTitle, selectedEntity }) {
  * @sw-package checkout
  */
 describe('sw-extension-permissions-details-modal', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper({
-            modalTitle: 'Sample Extension Label',
-            selectedEntity: 'product',
-            permissions: {
-                product: {
-                    product: [
-                        'create',
-                        'read',
-                    ],
-                    product_visibility: [
-                        'create',
-                        'read',
-                    ],
-                },
-                promotion: {
-                    promotion: [
-                        'create',
-                        'read',
-                    ],
-                },
-            },
-        });
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should display the permissions for creating and reading', async () => {
         const wrapper = await createWrapper({
             modalTitle: 'Sample Extension Label',
@@ -89,15 +61,11 @@ describe('sw-extension-permissions-details-modal', () => {
         const thead = wrapper.findAll('.sw-extension-permissions-details-modal__operation-header');
 
         expect(thead.at(0).text()).toBe('sw-extension-store.component.sw-extension-permissions-details-modal.operationRead');
-        expect(thead.at(1).text()).toBe(
-            'sw-extension-store.component.sw-extension-permissions-details-modal.operationUpdate',
-        );
+        expect(thead.at(1).text()).toBe('global.default.edit');
         expect(thead.at(2).text()).toBe(
             'sw-extension-store.component.sw-extension-permissions-details-modal.operationCreate',
         );
-        expect(thead.at(3).text()).toBe(
-            'sw-extension-store.component.sw-extension-permissions-details-modal.operationDelete',
-        );
+        expect(thead.at(3).text()).toBe('global.default.delete');
 
         const categoryHeader = wrapper.findAll('.sw-extension-permissions-details-modal__category');
 
@@ -200,15 +168,11 @@ describe('sw-extension-permissions-details-modal', () => {
         const thead = wrapper.findAll('.sw-extension-permissions-details-modal__operation-header');
 
         expect(thead.at(0).text()).toBe('sw-extension-store.component.sw-extension-permissions-details-modal.operationRead');
-        expect(thead.at(1).text()).toBe(
-            'sw-extension-store.component.sw-extension-permissions-details-modal.operationUpdate',
-        );
+        expect(thead.at(1).text()).toBe('global.default.edit');
         expect(thead.at(2).text()).toBe(
             'sw-extension-store.component.sw-extension-permissions-details-modal.operationCreate',
         );
-        expect(thead.at(3).text()).toBe(
-            'sw-extension-store.component.sw-extension-permissions-details-modal.operationDelete',
-        );
+        expect(thead.at(3).text()).toBe('global.default.delete');
 
         const categoryHeader = wrapper.findAll('.sw-extension-permissions-details-modal__category');
 

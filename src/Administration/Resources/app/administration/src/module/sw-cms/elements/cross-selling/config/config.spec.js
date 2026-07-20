@@ -46,6 +46,15 @@ async function createWrapper(customCmsElementConfig) {
                     'sw-modal': true,
                     'sw-entity-single-select': true,
                     'sw-product-variant-info': true,
+                    'sw-cms-inherit-wrapper': {
+                        template: '<div><slot :isInherited="false"></slot></div>',
+                        props: [
+                            'field',
+                            'element',
+                            'contentEntity',
+                            'label',
+                        ],
+                    },
                 },
                 provide: {
                     cmsService: Shopware.Service('cmsService'),

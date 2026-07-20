@@ -4,7 +4,9 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Pagelet\Country\CountryStateDataPageletLoadedHook;
 use Shopware\Storefront\Pagelet\Country\CountryStateDataPageletLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,7 +18,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('fundamentals@discovery')]
 class CountryStateController extends StorefrontController
 {
@@ -30,10 +32,18 @@ class CountryStateController extends StorefrontController
     /**
      * @deprecated tag:v6.8.0 - reason:remove-route - Remove POST request and use GET instead only
      */
-    #[Route(path: '/country/country-state-data', name: 'frontend.country.country.data', defaults: ['XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/country/country-state-data',
+        name: 'frontend.country.country.data',
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+        ],
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
+    )]
     public function getCountryData(Request $request, SalesChannelContext $context): Response
     {
-        $countryId = (string) $request->get('countryId');
+        $countryId = $request->query->getString('countryId', $request->request->getString('countryId'));
 
         if (!$countryId) {
             throw RoutingException::missingRequestParameter('countryId');

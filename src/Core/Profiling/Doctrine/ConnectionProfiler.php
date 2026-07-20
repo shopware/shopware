@@ -45,7 +45,7 @@ class ConnectionProfiler extends DataCollector implements LateDataCollectorInter
     {
         $profilingMiddleware = current(array_filter(
             $this->connection->getConfiguration()->getMiddlewares(),
-            fn (MiddlewareInterface $middleware) => $middleware instanceof ProfilingMiddleware
+            static fn (MiddlewareInterface $middleware) => $middleware instanceof ProfilingMiddleware
         ));
 
         if ($profilingMiddleware === false) {
@@ -157,11 +157,13 @@ class ConnectionProfiler extends DataCollector implements LateDataCollectorInter
             $this->groupedQueries[$connection] = $connectionGroupedQueries;
         }
 
-        foreach ($this->groupedQueries as $connection => $queries) {
-            foreach ($queries as $i => $query) {
-                $this->groupedQueries[$connection][$i]['executionPercent'] = $this->executionTimePercentage($query['executionMS'], $totalExecutionMS);
+        foreach ($this->groupedQueries as &$queries) {
+            foreach ($queries as &$query) {
+                $query['executionPercent'] = $this->executionTimePercentage($query['executionMS'], $totalExecutionMS);
             }
+            unset($query);
         }
+        unset($queries);
 
         return $this->groupedQueries;
     }
@@ -170,7 +172,7 @@ class ConnectionProfiler extends DataCollector implements LateDataCollectorInter
     {
         return array_sum(
             array_map(
-                fn (array $connectionGroupedQueries) => \count($connectionGroupedQueries),
+                static fn (array $connectionGroupedQueries) => \count($connectionGroupedQueries),
                 $this->getGroupedQueries()
             )
         );
@@ -233,8 +235,7 @@ class ConnectionProfiler extends DataCollector implements LateDataCollectorInter
 
                     try {
                         $param = $type->convertToDatabaseValue($param, $this->connection->getDatabasePlatform());
-                    } catch (\TypeError $e) {
-                    } catch (ConversionException $e) {
+                    } catch (\TypeError|ConversionException) {
                     }
                 }
             }

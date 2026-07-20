@@ -2,16 +2,19 @@
 
 namespace Shopware\Administration\Controller;
 
+use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Tag\Service\FilterTagIdsService;
+use Shopware\Core\System\Tag\TagDefinition;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['administration']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [AdministrationRouteScope::ID]])]
 #[Package('framework')]
 class AdminTagController extends AbstractController
 {
@@ -22,7 +25,12 @@ class AdminTagController extends AbstractController
     {
     }
 
-    #[Route(path: '/api/_admin/tag-filter-ids', name: 'api.admin.tag-filter-ids', defaults: ['_acl' => ['tag:read'], '_entity' => 'tag'], methods: ['POST'])]
+    #[Route(
+        path: '/api/_admin/tag-filter-ids',
+        name: 'api.admin.tag-filter-ids',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['tag:read'], PlatformRequest::ATTRIBUTE_ENTITY => TagDefinition::ENTITY_NAME],
+        methods: [Request::METHOD_POST]
+    )]
     public function filterIds(Request $request, Criteria $criteria, Context $context): JsonResponse
     {
         $filteredTagIdsStruct = $this->filterTagIdsService->filterIds($request, $criteria, $context);

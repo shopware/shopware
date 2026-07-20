@@ -26,11 +26,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class AclValidPermissionsInMethodRule implements Rule
 {
-    private AclValidPermissionsHelper $permissionsHelper;
-
-    public function __construct(AclValidPermissionsHelper $permissionsHelper)
+    public function __construct(private readonly AclValidPermissionsHelper $permissionsHelper)
     {
-        $this->permissionsHelper = $permissionsHelper;
     }
 
     public function getNodeType(): string
@@ -58,7 +55,7 @@ class AclValidPermissionsInMethodRule implements Rule
                             ->identifier('shopware.aclKey')
                             ->build();
                     }
-                } catch (\RuntimeException $e) {
+                } catch (\RuntimeException) {
                     $errors[] = RuleErrorBuilder::message(\sprintf(AclValidPermissionsHelper::MISSING_SCHEMA_ERROR_MESSAGE, $permission))
                         ->line($args[0]->getStartLine() ?: 0)
                         ->identifier('shopware.aclKey.missingSchema')

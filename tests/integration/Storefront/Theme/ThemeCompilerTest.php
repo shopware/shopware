@@ -5,12 +5,11 @@ namespace Shopware\Tests\Integration\Storefront\Theme;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
 use League\Flysystem\Filesystem;
-use PHPUnit\Framework\Attributes\CoversClass;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
-use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Source\SourceResolver;
@@ -21,7 +20,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\Service\AppConfigReader;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
@@ -52,7 +50,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[CoversClass(ThemeCompiler::class)]
 class ThemeCompilerTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -72,13 +69,16 @@ class ThemeCompilerTest extends TestCase
         $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
 
         // Avoid filesystem operations
-        $mockFilesystem = $this->createMock(Filesystem::class);
+        $mockThemeFilesystem = $this->createMock(Filesystem::class);
+        $mockTempFilesystem = $this->createMock(Filesystem::class);
+        $mockAssetFilesystem = $this->createMock(Filesystem::class);
 
         $this->mockSalesChannelId = '98432def39fc4624b33213a56b8c944d';
 
         $this->themeCompiler = new ThemeCompiler(
-            $mockFilesystem,
-            $mockFilesystem,
+            $mockThemeFilesystem,
+            $mockTempFilesystem,
+            $mockAssetFilesystem,
             new CopyBatchInputFactory(),
             $themeFileResolver,
             true,
@@ -89,8 +89,6 @@ class ThemeCompilerTest extends TestCase
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             static::getContainer()->get(ScssPhpCompiler::class),
-            [],
-            false
         );
     }
 
@@ -108,7 +106,7 @@ class ThemeCompilerTest extends TestCase
             'sw-border-color' => '#bcc1c7',
         ];
 
-        $actual = ReflectionHelper::getMethod(ThemeCompiler::class, 'formatVariables')->invoke($this->themeCompiler, $variables);
+        $actual = (new \ReflectionMethod(ThemeCompiler::class, 'formatVariables'))->invoke($this->themeCompiler, $variables);
 
         $expected = [
             '$sw-color-brand-primary: #008490;',
@@ -158,6 +156,21 @@ class ThemeCompilerTest extends TestCase
                     'type' => 'switch',
                     'value' => true,
                 ],
+                'sw-text-field' => [
+                    'name' => 'sw-text-field',
+                    'type' => 'text',
+                    'value' => '2px solid #000',
+                ],
+                'sw-textarea-field' => [
+                    'name' => 'sw-text-field',
+                    'type' => 'textarea',
+                    'value' => 'Lorem ipsum dolor',
+                ],
+                'sw-url-field' => [
+                    'name' => 'sw-url-field',
+                    'type' => 'url',
+                    'value' => 'https://www.example.com',
+                ],
                 'sw-multi-test' => [
                     'name' => 'sw-multi-test',
                     'type' => 'text',
@@ -180,7 +193,7 @@ class ThemeCompilerTest extends TestCase
             ],
         ];
 
-        $actual = ReflectionHelper::getMethod(ThemeCompiler::class, 'dumpVariables')->invoke(
+        $actual = (new \ReflectionMethod(ThemeCompiler::class, 'dumpVariables'))->invoke(
             $this->themeCompiler,
             $mockConfig,
             'themeId',
@@ -199,6 +212,9 @@ class ThemeCompilerTest extends TestCase
 \$sw-custom-footer: 1;
 \$sw-custom-cart: 0;
 \$sw-custom-product-box: 1;
+\$sw-text-field: 2px solid #000;
+\$sw-textarea-field: 'Lorem ipsum dolor';
+\$sw-url-field: 'https://www.example.com';
 \$sw-asset-theme-url: 'http://localhost';
 
 PHP_EOL;
@@ -230,7 +246,7 @@ PHP_EOL;
             ],
         ];
 
-        $actual = ReflectionHelper::getMethod(ThemeCompiler::class, 'dumpVariables')->invoke(
+        $actual = (new \ReflectionMethod(ThemeCompiler::class, 'dumpVariables'))->invoke(
             $this->themeCompiler,
             $mockConfig,
             'themeId',
@@ -271,7 +287,7 @@ PHP_EOL;
             ],
         ];
 
-        $actual = ReflectionHelper::getMethod(ThemeCompiler::class, 'dumpVariables')->invoke(
+        $actual = (new \ReflectionMethod(ThemeCompiler::class, 'dumpVariables'))->invoke(
             $this->themeCompiler,
             $mockConfig,
             'themeId',
@@ -312,7 +328,7 @@ $sw-asset-theme-url: \'http://localhost\';
             ],
         ];
 
-        $actual = ReflectionHelper::getMethod(ThemeCompiler::class, 'dumpVariables')->invoke(
+        $actual = (new \ReflectionMethod(ThemeCompiler::class, 'dumpVariables'))->invoke(
             $this->themeCompiler,
             $mockConfig,
             'themeId',
@@ -390,9 +406,18 @@ PHP_EOL;
             ]
         );
 
-        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
+        $event = new ThemeCompilerEnrichScssVariablesEvent([], TestDefaults::SALES_CHANNEL, Context::createDefaultContext());
 
-        $subscriber->enrichExtensionVars(new ThemeCompilerEnrichScssVariablesEvent([], TestDefaults::SALES_CHANNEL, Context::createDefaultContext()));
+        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
+        $exception = null;
+        try {
+            $subscriber->enrichExtensionVars($event);
+        } catch (\Throwable $throwable) {
+            $exception = $throwable->getMessage();
+        }
+        // No variables should be added when a DB exception occurs
+        static::assertNull($exception, 'No exception should be thrown, found: ' . $exception);
+        static::assertEmpty($event->getVariables());
     }
 
     /**
@@ -406,7 +431,7 @@ PHP_EOL;
         $projectDir = static::getContainer()->getParameter('kernel.project_dir');
         $testFolder = $projectDir . '/bla';
 
-        if (!file_exists($testFolder)) {
+        if (!\is_dir($testFolder)) {
             mkdir($testFolder);
         }
 
@@ -416,12 +441,13 @@ PHP_EOL;
         $config = new StorefrontPluginConfiguration('test');
         $config->setAssetPaths(['bla']);
 
-        $fs = new Filesystem(new MemoryFilesystemAdapter());
-        $tmpFs = new Filesystem(new MemoryFilesystemAdapter());
-
+        $fs = new Filesystem(new InMemoryFilesystemAdapter());
+        $tmpFs = new Filesystem(new InMemoryFilesystemAdapter());
+        $assetFs = new Filesystem(new InMemoryFilesystemAdapter());
         $compiler = new ThemeCompiler(
             $fs,
             $tmpFs,
+            $assetFs,
             new CopyBatchInputFactory(),
             $resolver,
             true,
@@ -432,10 +458,9 @@ PHP_EOL;
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             static::getContainer()->get(ScssPhpCompiler::class),
-            [],
-            false
         );
 
+        $exception = null;
         try {
             $compiler->compileTheme(
                 TestDefaults::SALES_CHANNEL,
@@ -446,13 +471,16 @@ PHP_EOL;
                 Context::createDefaultContext()
             );
         } catch (\Throwable $throwable) {
-            static::fail('ThemeCompiler->compile() should be executable without a database connection. But following Exception was thrown: ' . $throwable->getMessage());
-        } finally {
-            $this->resetEnvVars();
-            KernelLifecycleManager::bootKernel();
-            $this->startTransactionBefore();
-            rmdir($testFolder);
+            $exception = $throwable->getMessage();
         }
+
+        // Clean up, no matter what
+        $this->resetEnvVars();
+        KernelLifecycleManager::bootKernel();
+        $this->startTransactionBefore();
+        rmdir($testFolder);
+
+        static::assertNull($exception, 'ThemeCompiler->compile() should be executable without a database connection. But following Exception was thrown: ' . $exception);
     }
 
     public function testOutputsPluginCss(): void
@@ -479,18 +507,6 @@ PHP_EOL;
          * The behaviour of the ThemeCompiler will still ad variables with a null value,
          * but SCSS omits property definitions if they reference a variable with null value.
          */
-        $expectedCssOutput = <<<PHP_EOL
-.test-selector-plugin {
-\tbackground: #fff;
-\tcolor: #eee;
-}
-
-.test-selector-app {
-\tbackground: #aaa;
-\tcolor: #eee;
-}
-PHP_EOL;
-
         $expectedCssOutputNoAutoPrefix = <<<PHP_EOL
 .test-selector-plugin {
   background: #fff;
@@ -522,7 +538,7 @@ PHP_EOL;
         $sysConfService->set('SimplePlugin.config.simplePluginBackgroundcolor', '#fff');
         $sysConfService->set('SwagNoThemeCustomCss.config.noThemeCustomCssBackGroundcolor', '#aaa');
 
-        $compileStyles = ReflectionHelper::getMethod(ThemeCompiler::class, 'compileStyles');
+        $compileStyles = new \ReflectionMethod(ThemeCompiler::class, 'compileStyles');
         try {
             $actual = $compileStyles->invoke(
                 $this->themeCompiler,
@@ -596,7 +612,7 @@ Example:
 }
 PHP_EOL;
 
-        $actual = ReflectionHelper::getMethod(ThemeCompiler::class, 'compileStyles')->invoke(
+        $actual = (new \ReflectionMethod(ThemeCompiler::class, 'compileStyles'))->invoke(
             $this->themeCompiler,
             $featureMixin . $testScss,
             new StorefrontPluginConfiguration('test'),
@@ -633,7 +649,7 @@ PHP_EOL;
 }
 PHP_EOL;
 
-        $actual = ReflectionHelper::getMethod(ThemeCompiler::class, 'compileStyles')->invoke(
+        $actual = (new \ReflectionMethod(ThemeCompiler::class, 'compileStyles'))->invoke(
             $this->themeCompiler,
             $testScss,
             new StorefrontPluginConfiguration('test'),
@@ -658,7 +674,8 @@ PHP_EOL;
             new ConfigReader(),
             static::getContainer()->get(AppConfigReader::class),
             static::getContainer()->get('app.repository'),
-            static::getContainer()->get(SystemConfigService::class)
+            static::getContainer()->get(SystemConfigService::class),
+            static::getContainer()->get(LoggerInterface::class)
         );
     }
 
@@ -672,7 +689,8 @@ PHP_EOL;
             new ConfigReader(),
             static::getContainer()->get(AppConfigReader::class),
             static::getContainer()->get('app.repository'),
-            static::getContainer()->get(SystemConfigService::class)
+            static::getContainer()->get(SystemConfigService::class),
+            static::getContainer()->get(LoggerInterface::class)
         );
     }
 

@@ -12,16 +12,6 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
         border-radius: $border-radius;
         padding: 25px;
     }
-
-    &.has-nav {
-        padding-left: 20px;
-        padding-right: 20px;
-    }
-
-    &.has-border.has-nav {
-        padding-left: 40px;
-        padding-right: 40px;
-    }
 }
 
 .product-slider-container {
@@ -50,7 +40,7 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
         left: 0;
 
         &.has-border {
-            left: 30px;
+            left: 25px;
         }
     }
 }
@@ -66,7 +56,7 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
         right: 0;
 
         &.has-border {
-            right: 30px;
+            right: 25px;
         }
     }
 }

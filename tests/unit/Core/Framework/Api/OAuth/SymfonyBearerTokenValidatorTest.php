@@ -13,7 +13,7 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,19 +27,18 @@ class SymfonyBearerTokenValidatorTest extends TestCase
     // this is a valid token, generated for the test app secret
     private const VALID_TOKEN = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJ0ZXN0IiwianRpIjoiMDE4ZDlkY2NlMDBhNzA0YWIwMzRlYzA2OTQ5ODFlZDUiLCJpYXQiOjE3MDc3NDk0NjYuMTIyNzU2LCJuYmYiOjE3MDc3NDk0NjYuMTIyNzU2LCJleHAiOjQ4NjM0MjMwNjYuMTIyNDksInN1YiI6IjAxOGQ5ZGNjZTAwYTcwNGFiMDM0ZWMwNjk0OTgxZWQ1Iiwic2NvcGVzIjpbXX0.GnFYQ-VTo7zKnK9-M3m9v4FnugAtNp75kcb8mpxscwY';
 
-    private const TOKEN_USER_ID = '018d9dcce00a704ab034ec0694981ed5';
+    private const OAUTH_USER_ID = '018d9dcce00a704ab034ec0694981ed5';
 
     #[DataProvider('dataProviderInvalidRequests')]
     public function testInvalidRequests(Request $request): void
     {
         $validator = new SymfonyBearerTokenValidator(
-            $this->createMock(AccessTokenRepositoryInterface::class),
-            $this->createMock(Connection::class),
+            static::createStub(AccessTokenRepositoryInterface::class),
+            static::createStub(Connection::class),
             $this->getJwtConfiguration()
         );
 
-        static::expectException(OAuthServerException::class);
-        static::expectExceptionMessage('The resource owner or authorization server denied the request.');
+        $this->expectExceptionObject(OAuthServerException::accessDenied());
 
         $validator->validateAuthorization($request);
     }
@@ -48,20 +47,18 @@ class SymfonyBearerTokenValidatorTest extends TestCase
     {
         $request = new Request([], [], [], [], [], ['HTTP_authorization' => 'Bearer ' . self::VALID_TOKEN]);
 
-        $accessTokenRepository = $this->createMock(AccessTokenRepositoryInterface::class);
+        $accessTokenRepository = static::createStub(AccessTokenRepositoryInterface::class);
         $accessTokenRepository
             ->method('isAccessTokenRevoked')
-            ->with(self::TOKEN_USER_ID)
             ->willReturn(true);
 
         $validator = new SymfonyBearerTokenValidator(
             $accessTokenRepository,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             $this->getJwtConfiguration()
         );
 
-        static::expectException(OAuthServerException::class);
-        static::expectExceptionMessage('The resource owner or authorization server denied the request.');
+        $this->expectExceptionObject(OAuthServerException::accessDenied());
 
         $validator->validateAuthorization($request);
     }
@@ -71,15 +68,15 @@ class SymfonyBearerTokenValidatorTest extends TestCase
         $request = new Request([], [], [], [], [], ['HTTP_authorization' => 'Bearer ' . self::VALID_TOKEN]);
 
         $validator = new SymfonyBearerTokenValidator(
-            $this->createMock(AccessTokenRepositoryInterface::class),
+            static::createStub(AccessTokenRepositoryInterface::class),
             $this->getConnectionMock(null),
             $this->getJwtConfiguration()
         );
 
         $validator->validateAuthorization($request);
 
-        static::assertSame(self::TOKEN_USER_ID, $request->attributes->get('oauth_user_id'));
-        static::assertSame(self::TOKEN_USER_ID, $request->attributes->get('oauth_access_token_id'));
+        static::assertSame(self::OAUTH_USER_ID, $request->attributes->get('oauth_user_id'));
+        static::assertSame(self::OAUTH_USER_ID, $request->attributes->get('oauth_access_token_id'));
         static::assertSame('test', $request->attributes->get('oauth_client_id'));
         static::assertSame([], $request->attributes->get('oauth_scopes'));
     }
@@ -89,13 +86,27 @@ class SymfonyBearerTokenValidatorTest extends TestCase
         $request = new Request([], [], [], [], [], ['HTTP_authorization' => 'Bearer ' . self::VALID_TOKEN]);
 
         $validator = new SymfonyBearerTokenValidator(
-            $this->createMock(AccessTokenRepositoryInterface::class),
+            static::createStub(AccessTokenRepositoryInterface::class),
             $this->getConnectionMock(false),
             $this->getJwtConfiguration()
         );
 
-        static::expectException(OAuthServerException::class);
-        static::expectExceptionMessage('The resource owner or authorization server denied the request.');
+        $this->expectExceptionObject(OAuthServerException::accessDenied());
+
+        $validator->validateAuthorization($request);
+    }
+
+    public function testInactiveUser(): void
+    {
+        $request = new Request(server: ['HTTP_authorization' => 'Bearer ' . self::VALID_TOKEN]);
+
+        $validator = new SymfonyBearerTokenValidator(
+            static::createStub(AccessTokenRepositoryInterface::class),
+            $this->getConnectionMock(null, false),
+            $this->getJwtConfiguration()
+        );
+
+        $this->expectExceptionObject(OAuthServerException::accessDenied());
 
         $validator->validateAuthorization($request);
     }
@@ -108,13 +119,12 @@ class SymfonyBearerTokenValidatorTest extends TestCase
         $request = new Request([], [], [], [], [], ['HTTP_authorization' => 'Bearer ' . self::VALID_TOKEN]);
 
         $validator = new SymfonyBearerTokenValidator(
-            $this->createMock(AccessTokenRepositoryInterface::class),
+            static::createStub(AccessTokenRepositoryInterface::class),
             $this->getConnectionMock(date('Y-m-d H:i:s')),
             $this->getJwtConfiguration()
         );
 
-        static::expectException(OAuthServerException::class);
-        static::expectExceptionMessage('The resource owner or authorization server denied the request.');
+        $this->expectExceptionObject(OAuthServerException::accessDenied());
 
         $validator->validateAuthorization($request);
     }
@@ -149,15 +159,24 @@ class SymfonyBearerTokenValidatorTest extends TestCase
         return $config->withValidationConstraints(new SignedWith(new Sha256(), $key));
     }
 
-    private function getConnectionMock(mixed $returnValue): Connection&MockObject
+    private function getConnectionMock(mixed $returnValue, bool $active = true): Connection&Stub
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
-        $result = $this->createMock(Result::class);
-        $result->method('fetchOne')
-            ->willReturn($returnValue);
+        $result = static::createStub(Result::class);
+        $result->method('fetchAssociative')
+            ->willReturnCallback(static function () use ($returnValue, $active): array|false {
+                if ($returnValue === false) {
+                    return false;
+                }
 
-        $queryBuilder = $this->createMock(QueryBuilder::class);
+                return [
+                    'last_updated_password_at' => $returnValue,
+                    'active' => $active,
+                ];
+            });
+
+        $queryBuilder = static::createStub(QueryBuilder::class);
         $queryBuilder->method('select')->willReturn($queryBuilder);
         $queryBuilder->method('from')->willReturn($queryBuilder);
         $queryBuilder->method('where')->willReturn($queryBuilder);

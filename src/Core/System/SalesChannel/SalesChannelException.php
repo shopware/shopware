@@ -6,15 +6,14 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\System\SalesChannel\Exception\NoContextDataException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('discovery')]
 class SalesChannelException extends HttpException
 {
@@ -30,7 +29,7 @@ class SalesChannelException extends HttpException
     final public const NO_CONTEXT_DATA_EXCEPTION = 'SYSTEM__NO_CONTEXT_DATA_EXCEPTION';
     final public const LANGUAGE_NOT_FOUND = 'SYSTEM__LANGUAGE_NOT_FOUND';
     final public const SALES_CHANNEL_DOMAIN_IN_USE = 'SYSTEM__SALES_CHANNEL_DOMAIN_IN_USE';
-    public const INVALID_TYPE = 'FRAMEWORK__INVALID_TYPE';
+    final public const INVALID_TYPE = 'FRAMEWORK__INVALID_TYPE';
     final public const CURRENCY_INVALID_EXCEPTION = 'SYSTEM__CURRENCY_INVALID_EXCEPTION';
     final public const COUNTRY_INVALID_EXCEPTION = 'SYSTEM__COUNTRY_INVALID_EXCEPTION';
     final public const COUNTRY_STATE_INVALID_EXCEPTION = 'SYSTEM__COUNTRY_STATE_INVALID_EXCEPTION';
@@ -39,6 +38,13 @@ class SalesChannelException extends HttpException
     final public const ENCODING_MISSING_AGGREGATION_EXCEPTION = 'SYSTEM__ENCODING_MISSING_AGGREGATION_EXCEPTION';
     final public const ORDER_NOT_FOUND_CODE = 'SYSTEM__ORDER_NOT_FOUND_CODE';
     final public const MISSING_ORDER_ASSOCIATION_CODE = 'SYSTEM__MISSING_ORDER_ASSOCIATION_CODE';
+    final public const CONTEXT_TOKEN_NOT_ACCESSIBLE = 'SYSTEM__CONTEXT_TOKEN_NOT_ACCESSIBLE';
+    final public const SALES_CHANNEL_MAPPING_INVALID_OPERATION = 'SYSTEM__SALES_CHANNEL_MAPPING_INVALID_OPERATION';
+    final public const SALES_CHANNEL_FILE_INVALID_PATH = 'FRAMEWORK__SALES_CHANNEL_FILE_INVALID_PATH';
+    final public const SALES_CHANNEL_FILE_INVALID_FILE_FAMILY = 'FRAMEWORK__SALES_CHANNEL_FILE_INVALID_FILE_FAMILY';
+    final public const SALES_CHANNEL_FILE_MISSING_FILE_NAME = 'FRAMEWORK__SALES_CHANNEL_FILE_MISSING_FILE_NAME';
+    final public const SALES_CHANNEL_FILE_INVALID_TEMPLATE_OVERRIDES = 'FRAMEWORK__SALES_CHANNEL_FILE_INVALID_TEMPLATE_OVERRIDES';
+    final public const SALES_CHANNEL_FILE_NOT_FOUND = 'FRAMEWORK__SALES_CHANNEL_FILE_NOT_FOUND';
     private const INVALID_UUID_MESSAGE_TEMPLATE = 'Provided %s is not a valid UUID';
 
     public static function salesChannelNotFound(string $salesChannelId): self
@@ -105,7 +111,7 @@ class SalesChannelException extends HttpException
 
     public static function noContextData(string $salesChannelId): self
     {
-        return new self(
+        return new NoContextDataException(
             Response::HTTP_PRECONDITION_FAILED,
             self::NO_CONTEXT_DATA_EXCEPTION,
             'No context data found for SalesChannel "{{ salesChannelId }}"',
@@ -149,8 +155,21 @@ class SalesChannelException extends HttpException
         return PaymentException::unknownPaymentMethodById($paymentMethodId);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed, as the exception is no longer needed, use RestrictDeleteViolationException instead
+     */
     public static function salesChannelDomainInUse(?\Throwable $previous = null): ShopwareHttpException
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(
+                self::class,
+                __METHOD__,
+                'v6.8.0.0',
+                RestrictDeleteViolationException::class
+            )
+        );
+
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::SALES_CHANNEL_DOMAIN_IN_USE,
@@ -250,6 +269,15 @@ class SalesChannelException extends HttpException
         );
     }
 
+    public static function contextTokenNotAccessible(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CONTEXT_TOKEN_NOT_ACCESSIBLE,
+            'The context token is not accessible in Twig rendering context, as the token should never be leaked in HTML content.',
+        );
+    }
+
     public static function encodingMissingAggregationException(int|string $key, int $index): self
     {
         return new self(
@@ -274,6 +302,63 @@ class SalesChannelException extends HttpException
             self::MISSING_ORDER_ASSOCIATION_CODE,
             'The required association "{{ association }}" is missing .',
             ['association' => $association]
+        );
+    }
+
+    public static function invalidMappingOperation(string $message): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::SALES_CHANNEL_MAPPING_INVALID_OPERATION,
+            $message,
+        );
+    }
+
+    public static function invalidSalesChannelFilePath(string $path): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SALES_CHANNEL_FILE_INVALID_PATH,
+            'The sales channel file path "{{ path }}" is invalid.',
+            ['path' => $path]
+        );
+    }
+
+    public static function invalidSalesChannelFileFamily(string $fileFamily): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SALES_CHANNEL_FILE_INVALID_FILE_FAMILY,
+            'The sales channel file family "{{ fileFamily }}" is invalid.',
+            ['fileFamily' => $fileFamily]
+        );
+    }
+
+    public static function missingSalesChannelFileName(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SALES_CHANNEL_FILE_MISSING_FILE_NAME,
+            'Parameter "fileName" must be a string.'
+        );
+    }
+
+    public static function invalidSalesChannelFileTemplateOverrides(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SALES_CHANNEL_FILE_INVALID_TEMPLATE_OVERRIDES,
+            'Parameter "templateOverrides" must be an object.'
+        );
+    }
+
+    public static function salesChannelFileNotFound(string $fileFamily, string $fileName): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::SALES_CHANNEL_FILE_NOT_FOUND,
+            'Could not find sales channel file "{{ fileFamily }}/{{ fileName }}".',
+            ['fileFamily' => $fileFamily, 'fileName' => $fileName]
         );
     }
 }

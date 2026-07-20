@@ -12,7 +12,8 @@ class SearchFieldConfig
         private float $ranking,
         private readonly bool $tokenize,
         private readonly bool $andLogic = false,
-        private readonly bool $prefixMatch = true
+        private readonly bool $prefixMatch = true,
+        private readonly bool $useExactSubfield = false,
     ) {
     }
 
@@ -49,5 +50,36 @@ class SearchFieldConfig
     public function usePrefixMatch(): bool
     {
         return $this->prefixMatch;
+    }
+
+    public function useExactSubfield(): bool
+    {
+        return $this->useExactSubfield;
+    }
+
+    public function getFuzziness(string $token): string|int
+    {
+        // Disable fuzziness for numeric tokens or a serial of at least 3 digits
+        if (is_numeric($token) || preg_match('/\d{3,}/', $token)) {
+            return 0;
+        }
+
+        // (SKU-ish strings, e.g. "SD345-XYZ") - require exact match
+        if (preg_match('/[A-Za-z].*\d|\d.*[A-Za-z]/', $token)) {
+            return 0;
+        }
+
+        // Let AUTO:5,10 handle length thresholds (0 for <5, 1 for 5–9, 2 for ≥10)
+        return 'AUTO:5,10';
+    }
+
+    /**
+     * Lock a longer exact prefix on longer tokens so fuzzy expansion stays proportional:
+     * short tokens already allow few edits (AUTO:5,10) so lock 2 chars; long tokens carry
+     * more signal and can afford a 3-char lock without losing useful matches.
+     */
+    public function getPrefixLength(string $token): int
+    {
+        return mb_strlen($token) >= 10 ? 3 : 2;
     }
 }

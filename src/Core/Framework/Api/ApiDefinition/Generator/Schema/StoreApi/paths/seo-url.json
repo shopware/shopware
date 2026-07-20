@@ -13,14 +13,21 @@
                 "operationId": "readSeoUrl",
                 "parameters": [
                     {
-                        "name": "sw-language-id",
+                        "name": "sw-include-search-info",
                         "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
+                        "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
+                            "enum": [
+                                "0",
+                                "1"
+                            ],
+                            "default": "1"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -39,30 +46,34 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Entity search result containing seo urls.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "allOf": [
-                                        {
-                                            "properties": {
-                                                "elements": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/SeoUrl"
-                                                    }
-                                                }
-                                            },
-                                            "type": "object",
-                                            "required": ["elements"]
-                                        },
-                                        {
-                                            "$ref": "#/components/schemas/EntitySearchResult"
-                                        }
-                                    ]
-                                }
-                            }
-                        }
+                        "$ref": "#/components/responses/SeoUrlListResponse"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            },
+            "get": {
+                "tags": [
+                    "Sitemap & Routes",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Fetch SEO routes",
+                "description": "Perform a filtered search for seo urls.",
+                "operationId": "readSeoUrlGet",
+                "parameters": [
+                    {
+                        "x-parameter-group": "criteria"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/SeoUrlListResponse"
                     },
                     "404": {
                         "$ref": "#/components/responses/404"

@@ -34,7 +34,6 @@ export default {
             required: true,
             type: Array,
         },
-        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
         },
@@ -46,7 +45,6 @@ export default {
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         placeholder: {
@@ -100,6 +98,11 @@ export default {
             required: false,
             default: undefined,
         },
+        autocomplete: {
+            type: String,
+            required: false,
+            default: undefined,
+        },
     },
 
     data() {
@@ -141,7 +144,9 @@ export default {
                 });
             },
             set(newValue) {
-                this.currentValue = this.getKey(newValue, this.valueProperty);
+                // getKey (lodash get) returns undefined instead of null when clearing,
+                // which JSON.stringify drops from the save payload
+                this.currentValue = newValue ? this.getKey(newValue, this.valueProperty) : null;
                 this.$emit('item-selected', newValue);
             },
         },

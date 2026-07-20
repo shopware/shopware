@@ -46,8 +46,8 @@ class RepositoryFacadeTest extends TestCase
     {
         $result = $this->createFacade()->search('product', []);
 
-        static::assertCount(4, $result);
-        static::assertCount(4, $result->getIds());
+        static::assertCount(4, $result->getEntities());
+        static::assertCount(4, $result->getEntities()->getIds());
     }
 
     public function testSearchFilterWithoutApp(): void
@@ -61,8 +61,8 @@ class RepositoryFacadeTest extends TestCase
             ]
         );
 
-        static::assertCount(3, $result);
-        static::assertNotContains($this->ids->get('p2'), $result->getIds());
+        static::assertCount(3, $result->getEntities());
+        static::assertNotContains($this->ids->get('p2'), $result->getEntities()->getIds());
     }
 
     public function testSearchReadWithoutApp(): void
@@ -74,9 +74,9 @@ class RepositoryFacadeTest extends TestCase
             ]
         );
 
-        static::assertCount(2, $result);
-        static::assertContains($this->ids->get('p1'), $result->getIds());
-        static::assertContains($this->ids->get('p2'), $result->getIds());
+        static::assertCount(2, $result->getEntities());
+        static::assertContains($this->ids->get('p1'), $result->getEntities()->getIds());
+        static::assertContains($this->ids->get('p2'), $result->getEntities()->getIds());
     }
 
     public function testSearchAggregationWithoutApp(): void
@@ -90,7 +90,7 @@ class RepositoryFacadeTest extends TestCase
             ]
         );
 
-        static::assertCount(4, $result);
+        static::assertCount(4, $result->getEntities());
         $agg = $result->getAggregations()->get('sum');
         static::assertInstanceOf(SumResult::class, $agg);
         static::assertSame(600.0, $agg->getSum());
@@ -105,7 +105,7 @@ class RepositoryFacadeTest extends TestCase
             ]
         );
 
-        $actual = $result->getIds();
+        $actual = $result->getEntities()->getIds();
         $expected = $actual;
         sort($expected);
 
@@ -121,9 +121,9 @@ class RepositoryFacadeTest extends TestCase
             ]
         );
 
-        static::assertCount(2, $result);
-        static::assertContains($this->ids->get('p1'), $result->getIds());
-        static::assertContains($this->ids->get('p2'), $result->getIds());
+        static::assertCount(2, $result->getEntities());
+        static::assertContains($this->ids->get('p1'), $result->getEntities()->getIds());
+        static::assertContains($this->ids->get('p2'), $result->getEntities()->getIds());
     }
 
     public function testEmptyIdsWithoutApp(): void
@@ -179,7 +179,7 @@ class RepositoryFacadeTest extends TestCase
         );
 
         $result = $facade->search('product', []);
-        static::assertCount(4, $result);
+        static::assertCount(4, $result->getEntities());
 
         $result = $facade->ids('product', []);
         static::assertCount(4, $result->getIds());
@@ -391,6 +391,7 @@ class RepositoryFacadeTest extends TestCase
         return new ScriptAppInformation(
             $app->getId(),
             $app->getName(),
+            $app->getVersion(),
             $app->getIntegrationId()
         );
     }

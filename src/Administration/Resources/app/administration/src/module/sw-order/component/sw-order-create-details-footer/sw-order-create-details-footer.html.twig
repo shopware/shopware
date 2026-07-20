@@ -12,8 +12,8 @@
             size="small"
             entity="sales_channel"
             class="sw-order-create-details-footer__item"
-            :label="$tc('sw-order.createBase.detailsFooter.labelSalesChannel')"
-            :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderSalesChannel')"
+            :label="$t('sw-order.createBase.detailsFooter.labelSalesChannel')"
+            :placeholder="$t('sw-order.createBase.detailsFooter.placeholderSalesChannel')"
             show-clearable-button
         />
         {% endblock %}
@@ -27,9 +27,9 @@
             class="sw-order-create-details-footer__item"
             :disabled="!isCustomerActive"
             :criteria="paymentMethodCriteria"
-            :label="$tc('sw-order.createBase.detailsFooter.labelPaymentMethod')"
-            :help-text="$tc('sw-order.createBase.detailsFooter.helpTextPaymentMethod')"
-            :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderPaymentMethod')"
+            :label="$t('sw-order.createBase.detailsFooter.labelPaymentMethod')"
+            :help-text="$t('sw-order.createBase.detailsFooter.helpTextPaymentMethod')"
+            :placeholder="$t('sw-order.createBase.detailsFooter.placeholderPaymentMethod')"
             show-clearable-button
         />
         {% endblock %}
@@ -42,8 +42,8 @@
             class="sw-order-create-details-footer__item"
             :disabled="!isCustomerActive"
             :criteria="salesChannelCriteria"
-            :label="$tc('sw-order.createBase.detailsFooter.labelShippingMethod')"
-            :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderShippingMethod')"
+            :label="$t('sw-order.createBase.detailsFooter.labelShippingMethod')"
+            :placeholder="$t('sw-order.createBase.detailsFooter.placeholderShippingMethod')"
         />
         {% endblock %}
     </div>
@@ -57,8 +57,8 @@
             class="sw-order-create-details-footer__item"
             :disabled="!isCustomerActive"
             :criteria="salesChannelCriteria"
-            :label="$tc('sw-order.createBase.detailsFooter.labelOrderLanguage')"
-            :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderOrderLanguage')"
+            :label="$t('sw-order.createBase.detailsFooter.labelOrderLanguage')"
+            :placeholder="$t('sw-order.createBase.detailsFooter.placeholderOrderLanguage')"
             show-clearable-button
         />
         {% endblock %}
@@ -71,8 +71,8 @@
             class="sw-order-create-details-footer__item"
             :disabled="!isCustomerActive"
             :criteria="salesChannelCriteria"
-            :label="$tc('sw-order.createBase.detailsFooter.labelCurrency')"
-            :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderCurrency')"
+            :label="$t('sw-order.createBase.detailsFooter.labelCurrency')"
+            :placeholder="$t('sw-order.createBase.detailsFooter.placeholderCurrency')"
             show-clearable-button
         />
         {% endblock %}

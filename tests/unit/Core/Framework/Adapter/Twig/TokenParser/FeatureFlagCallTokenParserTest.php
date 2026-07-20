@@ -4,6 +4,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\TokenParser;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\FeatureFlagCallTokenParser;
 use Shopware\Core\Framework\Feature;
@@ -19,52 +21,50 @@ class FeatureFlagCallTokenParserTest extends TestCase
 {
     use EnvTestBehaviour;
 
-    #[DataProvider('providerCode')]
-    public function testCodeRun(string $twigCode, bool $shouldThrow): void
+    #[TestDox('sw_silent_feature_call wrapping an inactive flag suppresses Feature::triggerDeprecationOrThrow inside the rendered closure')]
+    public function testSilentFeatureCallSuppressesDeprecation(): void
     {
-        // deprecation warning wouldn't be rendered otherwise
+        // Deprecation warnings are suppressed in test mode by default
         $this->setEnvVars(['TESTS_RUNNING' => false, 'TEST_TWIG' => false]);
 
-        $deprecationMessage = null;
-        set_error_handler(function ($errno, $errstr) use (&$deprecationMessage) {
-            $deprecationMessage = $errstr;
+        $this->expectNotToPerformAssertions();
 
-            return true;
-        });
+        $twig = new Environment(new ArrayLoader([
+            'test.twig' => '{% sw_silent_feature_call "TEST_TWIG" %}{% do foo.call %}{% endsw_silent_feature_call %}',
+        ]));
+        $twig->addTokenParser(new FeatureFlagCallTokenParser());
+        $twig->render('test.twig', [
+            'foo' => new TestService(),
+        ]);
+    }
+
+    #[IgnoreDeprecations]
+    #[DataProvider('providerCode')]
+    public function testCodeRun(string $twigCode): void
+    {
+        // Deprecation warnings are suppressed in test mode by default
+        $this->setEnvVars(['TESTS_RUNNING' => false, 'TEST_TWIG' => false]);
+
+        $this->expectUserDeprecationMessage('Foooo');
 
         $twig = new Environment(new ArrayLoader(['test.twig' => $twigCode]));
         $twig->addTokenParser(new FeatureFlagCallTokenParser());
         $twig->render('test.twig', [
             'foo' => new TestService(),
         ]);
-
-        restore_error_handler();
-
-        if ($shouldThrow) {
-            static::assertNotNull($deprecationMessage);
-        } else {
-            static::assertNull($deprecationMessage);
-        }
     }
 
     /**
-     * @return iterable<array{0: string, 1: bool}>
+     * @return iterable<array{0: string}>
      */
     public static function providerCode(): iterable
     {
-        yield 'silenced' => [
-            '{% sw_silent_feature_call "TEST_TWIG" %}{% do foo.call %}{% endsw_silent_feature_call %}',
-            false,
-        ];
-
         yield 'triggers deprecation' => [
             '{% do foo.call %}',
-            true,
         ];
 
         yield 'test injection' => [
             '{% sw_silent_feature_call "aaa\' . system(\'id\') . \'bbb" %}{% do foo.call %}{% endsw_silent_feature_call %}',
-            true,
         ];
     }
 }

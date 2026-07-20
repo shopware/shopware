@@ -46,6 +46,7 @@ class ProductSearchConfigFieldDefinition extends EntityDefinition
         return [
             'tokenize' => false,
             'searchable' => false,
+            'useExactSubfield' => false,
             'ranking' => 0,
         ];
     }
@@ -63,13 +64,14 @@ class ProductSearchConfigFieldDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new FkField('product_search_config_id', 'searchConfigId', ProductSearchConfigDefinition::class))->addFlags(new Required()),
-            new FkField('custom_field_id', 'customFieldId', CustomFieldDefinition::class),
-            (new StringField('field', 'field'))->addFlags(new Required()),
-            (new BoolField('tokenize', 'tokenize'))->addFlags(new Required()),
-            (new BoolField('searchable', 'searchable'))->addFlags(new Required()),
-            (new IntField('ranking', 'ranking'))->addFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of Product Search Configuration field.'),
+            (new FkField('product_search_config_id', 'searchConfigId', ProductSearchConfigDefinition::class))->addFlags(new Required())->setDescription('Unique identity of Search Configuration.'),
+            (new FkField('custom_field_id', 'customFieldId', CustomFieldDefinition::class))->setDescription('Unique identity of custom field.'),
+            (new StringField('field', 'field'))->addFlags(new Required())->setDescription('Configuration of search field.'),
+            (new BoolField('tokenize', 'tokenize'))->addFlags(new Required())->setDescription('To decide whether the text within the field should undergo tokenization, which involves splitting it into smaller chunks.'),
+            (new BoolField('searchable', 'searchable'))->addFlags(new Required())->setDescription('To configure whether the field can be used for searching.'),
+            (new BoolField('use_exact_subfield', 'useExactSubfield'))->addFlags(new Required())->setDescription('To configure whether exact match queries should target the exact subfield, which uses the whitespace analyzer (lowercased, whitespace-tokenised) and bypasses the language analyzer (no stemming, no stop-word removal, no compound decomposition).'),
+            (new IntField('ranking', 'ranking'))->addFlags(new Required())->setDescription('Search ranking.'),
             new ManyToOneAssociationField('searchConfig', 'product_search_config_id', ProductSearchConfigDefinition::class, 'id', false),
             new ManyToOneAssociationField('customField', 'custom_field_id', CustomFieldDefinition::class, 'id', false),
         ]);

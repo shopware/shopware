@@ -1,78 +1,90 @@
-name: Epic 
+name: Epic
 description: A request of substantial size or complexity.
 type: Epic
 body:
     - type: markdown
       attributes:
           value: |
-              Thanks for taking the time to share your idea with us! If your request relates to enhancing or improving the Shopware product, please file it in [UserVoice](https://feedback.shopware.com/forums/942607-shopware-6-product-feedback-ideas). Also, please check our issues backlog to ensure that no one else has suggested your idea yet. 
+              Thanks for taking the time to share your idea with us! If your request relates to enhancing or improving the Shopware product, please file it in [UserVoice](https://feedback.shopware.com/forums/942607-shopware-6-product-feedback-ideas). Also, please check our issues backlog to ensure that no one else has suggested your idea yet.
     - type: textarea
       id: problem
       attributes:
           label: Problem we must solve
           description: Please provide a clear and concise description of the feature you're interested in.
       validations:
-        required: true
+          required: true
     - type: textarea
       id: problem-why
       attributes:
-        label: WHY we need to solve it
-        description: Now please tell us why we should solve this problem.
+          label: WHY we need to solve it
+          description: Now please tell us why we should solve this problem.
       validations:
-        required: true
+          required: true
     - type: textarea
       id: solution
       attributes:
-        label: Solution to the problem
-        description: If you have ideas for how we can solve the problem, please add them below. If there's already a related [Discussion](https://github.com/shopware/shopware/discussions) about planned or potential implementation, please link to it here.
+          label: Solution to the problem
+          description: If you have ideas for how we can solve the problem, please add them below. If there's already a related [Discussion](https://github.com/shopware/shopware/discussions) about planned or potential implementation, please link to it here.
       validations:
-        required: false
+          required: false
     - type: textarea
       id: solution-who
       attributes:
-        label: WHO benefits
-        description: Who are we solving the problem for—developers, merchants, etc.?
+          label: WHO benefits
+          description: Who are we solving the problem for—developers, merchants, etc.?
       validations:
-        required: false
+          required: false
+    - type: dropdown
+      id: accessibility
+      attributes:
+          label: Accessibility
+          description: What frontend work (if any) will this Epic include?
+          options:
+              - "Requires frontend work in the Storefront or outside the Admin"
+              - "Requires frontend work only in the Admin"
+              - "Backend-only work required"
+          default: 0
+      validations:
+          required: true
     - type: textarea
       id: solution-where
       attributes:
-        label: WHERE will we do it
-        description: Please tell us where the work is necessary—the core platform and/or specific areas, a specific extension, etc.
+          label: WHERE will we do it
+          description: Please tell us where the work is necessary—the core platform and/or specific areas, a specific extension, etc.
       validations:
-        required: true
+          required: true
     - type: textarea
       id: out-of-scope
       attributes:
-        label: Out of scope
-        description: Please add any details here that you think are essential for us to clarify scope.
+          label: Out of scope
+          description: Please add any details here that you think are essential for us to clarify scope.
       validations:
-        required: false
+          required: false
     - type: textarea
       id: acceptance-criteria
       attributes:
-        label: Acceptance criteria
-        description: Please share acceptance criteria—at least one indicator (a metric, condition, etc.) that would help us to validate that we've successfully fulfilled this request.
+          label: Acceptance criteria
+          description: Please share acceptance criteria—at least one indicator (a metric, condition, etc.) that would help us to validate that we've successfully fulfilled this request.
       validations:
-        required: true
+          required: true
     - type: checkboxes
       id: def-of-done
       attributes:
-        label: Definition of Done
-        description: Please use this checklist to indicate that the deliverable meets Shopware standards.
-        options:
-          - label: Fulfills all acceptance criteria defined during discovery.
-          - label: Integration/E2E testing in staging is done.
-          - label: All integration/E2E/unit tests passing; all critical or high-priority bugs are resolved.
-          - label: Fulfills compliance, performance, security, and cloud-readiness needs.
-          - label: Observability—includes monitoring, alerting, and logging; incident response handbooks updated.
-          - label: Documentation—developer docs are written or updated, including information on how the feature or change is adopted and tested. If new functionality, end user documentation is written or updated.
-          - label: (conditional) All new API endpoints have a defined API schema.
-          - label: (conditional) If the change affects the Storefront, it has been tested in the latest three versions of Firefox, Chrome, Edge, IE11, and Safari, as well as the different viewports and devices (Desktop / Tablet / Mobile). 
-          - label: (conditional) If the change affects the Administration, it has been tested in current versions of Firefox, Chrome, and Edge.          
-          - label: (conditional) Functionality that includes new API routes are callable via the Store-API (/store-api/[version]/).
-          - label: (conditional) If a new Admin module is created, the access control layer is provided, and permissions can be managed via the Users & Permissions module.
-          - label: (conditional) If a new UI input field or interactive element is introduced, the ACL wrapper is added.
-          - label: (conditional) Performance testing done if the change has a high performance impact, such as affecting scalability, load balancing, or query optimization.
+          label: Definition of Done
+          description: Please use this checklist to indicate that the deliverable meets Shopware standards.
+          options:
+              - label: Fulfills all acceptance criteria defined during discovery.
+              - label: Integration/E2E testing in staging is done.
+              - label: All integration/E2E/unit tests passing; all critical or high-priority bugs are resolved.
+              - label: Fulfills compliance, performance, security, and cloud-readiness needs.
+              - label: Observability—includes monitoring, alerting, and logging; incident response handbooks updated.
+              - label: Documentation—developer docs are written or updated, including information on how the feature or change is adopted and tested. If new functionality, end user documentation is written or updated.
+              - label: (conditional) All new API endpoints have a defined API schema.
+              - label: (conditional) If the change affects the Storefront, it has been tested in the latest three versions of Firefox, Chrome, Edge, IE11, and Safari, as well as the different viewports and devices (Desktop / Tablet / Mobile).
+              - label: (conditional) If the change affects the Administration, it has been tested in current versions of Firefox, Chrome, and Edge.
+              - label: (conditional) Functionality that includes new API routes are callable via the Store-API (/store-api/[version]/).
+              - label: (conditional) If a new Admin module is created, the access control layer is provided, and permissions can be managed via the Users & Permissions module.
+              - label: (conditional) If a new UI input field or interactive element is introduced, the ACL wrapper is added.
+              - label: (conditional) Performance testing done if the change has a high performance impact, such as affecting scalability, load balancing, or query optimization.
       validations:
-        required: false
+          required: false

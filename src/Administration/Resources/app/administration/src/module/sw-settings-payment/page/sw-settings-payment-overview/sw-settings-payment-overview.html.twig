@@ -7,7 +7,7 @@
         {% block sw_settings_payment_overview_smart_bar_actions_add %}
         <mt-button
             v-tooltip="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('payment.creator'),
                 showOnDisabledElements: true
             }"
@@ -17,7 +17,7 @@
             size="default"
             @click="$router.push({ name: 'sw.settings.payment.create' })"
         >
-            {{ $tc('sw-settings-payment.list.buttonAddPaymentMethod') }}
+            {{ $t('sw-settings-payment.list.buttonAddPaymentMethod') }}
         </mt-button>
         {% endblock %}
 
@@ -29,7 +29,7 @@
 
         {% block sw_settings_payment_overview_smart_bar_header_title %}
         <h2 class="sw-settings-payment-overview__title">
-            {{ $tc('sw-settings-payment.general.mainMenuItemGeneral') }}
+            {{ $t('sw-settings-payment.general.mainMenuItemGeneral') }}
         </h2>
         {% endblock %}
 
@@ -50,9 +50,11 @@
 
             {% block sw_settings_payment_overview_sorting_modal_card %}
             <mt-card
+                v-if="!isEmpty"
                 class="sw-settings-payment-overview__sorting_modal_card"
                 position-identifier="sw-settings-payment-overview-sorting-modal-card"
             >
+                {% block sw_settings_payment_overview_sorting_modal_card_button %}
                 <sw-button-process
                     :disabled="isLoading || undefined"
                     :is-loading="isLoading"
@@ -61,8 +63,9 @@
                     ghost
                     @click="showSortingModal = true"
                 >
-                    {{ $tc('sw-settings-payment.overview.openSortingModalButton') }}
+                    {{ $t('sw-settings-payment.overview.openSortingModalButton') }}
                 </sw-button-process>
+                {% endblock %}
             </mt-card>
             {% endblock %}
 
@@ -106,21 +109,13 @@
             {% endblock %}
 
             {% block sw_settings_payment_overview_empty_state %}
-            <sw-empty-state
+            <mt-empty-state
                 v-if="isEmpty"
-                :title="$tc('sw-empty-state.messageNoResultTitle')"
-            >
-                <template #default>
-                    {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
-                    <router-link
-                        class="sw-empty-state__description-link"
-                        :to="{ name: 'sw.profile.index.searchPreferences' }"
-                    >
-                        {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
-                    </router-link>
-                    {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
-                </template>
-            </sw-empty-state>
+                :icon="$route.meta.$module.icon"
+                :headline="$t('sw-empty-state.messageNoResultTitle')"
+                :link-text="$t('sw-empty-state.messageNoResultLink')"
+                :link-href="$router.resolve({ name: 'sw.profile.index.searchPreferences' }).href"
+            />
             {% endblock %}
 
         </sw-card-view>

@@ -19,7 +19,7 @@ class CustomFieldException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::CUSTOM_FIELD_NAME_INVALID,
-            'Invalid custom field name: It must begin with a letter or underscore, followed by letters, numbers, or underscores.',
+            'Invalid field name: Only letters, numbers, or underscores are allowed, and it must start with a letter or underscore.',
             ['field' => 'name', 'value' => $name]
         );
     }

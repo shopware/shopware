@@ -11,6 +11,8 @@ class ImageSliderItemStruct extends Struct
 {
     protected ?string $url = null;
 
+    protected ?string $ariaLabel = null;
+
     protected ?bool $newTab = null;
 
     protected ?MediaEntity $media = null;
@@ -33,6 +35,16 @@ class ImageSliderItemStruct extends Struct
     public function setUrl(?string $url): void
     {
         $this->url = $url;
+    }
+
+    public function getAriaLabel(): ?string
+    {
+        return $this->ariaLabel;
+    }
+
+    public function setAriaLabel(?string $ariaLabel): void
+    {
+        $this->ariaLabel = $ariaLabel;
     }
 
     public function getNewTab(): ?bool

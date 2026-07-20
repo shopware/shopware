@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Webhook\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
+use Shopware\Core\Framework\Webhook\Outbox\StreamLockService;
 use Shopware\Core\Framework\Webhook\Service\WebhookCleanup;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Clock\MockClock;
@@ -28,11 +28,14 @@ class WebhookCleanupTest extends TestCase
         $conn->expects($this->never())
             ->method('executeStatement');
 
-        $cleaner = new WebhookCleanup($config, $conn, new MockClock());
+        $streamLockService = $this->createMock(StreamLockService::class);
+        $streamLockService->expects($this->never())->method('deleteOrphanedStreams');
+
+        $cleaner = new WebhookCleanup($config, $conn, $streamLockService, new MockClock());
         $cleaner->removeOldLogs();
     }
 
-    public function testOldRecordsAreRemoved(): void
+    public function testOldRecordsAreRemovedInBatches(): void
     {
         $config = $this->createMock(SystemConfigService::class);
         $config->expects($this->once())
@@ -41,23 +44,18 @@ class WebhookCleanupTest extends TestCase
             ->willReturn(86400);
 
         $conn = $this->createMock(Connection::class);
-        $conn->expects($this->once())
+        $conn->expects($this->exactly(3))
             ->method('executeStatement')
-            ->with(
-                'DELETE FROM `webhook_event_log` WHERE `created_at` < :before AND (`delivery_status` = :success OR `delivery_status` = :failed) LIMIT :limit',
-                [
-                    'before' => '2023-01-01 13:04:00.000',
-                    'success' => WebhookEventLogDefinition::STATUS_SUCCESS,
-                    'failed' => WebhookEventLogDefinition::STATUS_FAILED,
-                    'limit' => 500,
-                ]
-            );
+            ->willReturnOnConsecutiveCalls(500, 302, 300);
 
-        $cleaner = new WebhookCleanup($config, $conn, new MockClock(new \DateTimeImmutable('2 January 2023 13:04')));
+        $streamLockService = $this->createMock(StreamLockService::class);
+        $streamLockService->expects($this->once())->method('deleteOrphanedStreams')->willReturn(0);
+
+        $cleaner = new WebhookCleanup($config, $conn, $streamLockService, new MockClock(new \DateTimeImmutable('2 January 2023 13:04')));
         $cleaner->removeOldLogs();
     }
 
-    public function testOldRecordsAreRemovedInBatched(): void
+    public function testOrphanStreamsAreLoopedUntilDrained(): void
     {
         $config = $this->createMock(SystemConfigService::class);
         $config->expects($this->once())
@@ -65,21 +63,15 @@ class WebhookCleanupTest extends TestCase
             ->with('core.webhook.entryLifetimeSeconds')
             ->willReturn(86400);
 
-        $conn = $this->createMock(Connection::class);
-        $conn->expects($this->exactly(2))
-            ->method('executeStatement')
-            ->with(
-                'DELETE FROM `webhook_event_log` WHERE `created_at` < :before AND (`delivery_status` = :success OR `delivery_status` = :failed) LIMIT :limit',
-                [
-                    'before' => '2023-01-01 13:04:00.000',
-                    'success' => WebhookEventLogDefinition::STATUS_SUCCESS,
-                    'failed' => WebhookEventLogDefinition::STATUS_FAILED,
-                    'limit' => 500,
-                ]
-            )
-            ->willReturnOnConsecutiveCalls(500, 302);
+        $conn = static::createStub(Connection::class);
+        $conn->method('executeStatement')->willReturn(0);
 
-        $cleaner = new WebhookCleanup($config, $conn, new MockClock(new \DateTimeImmutable('2 January 2023 13:04')));
+        $streamLockService = $this->createMock(StreamLockService::class);
+        $streamLockService->expects($this->exactly(3))
+            ->method('deleteOrphanedStreams')
+            ->willReturnOnConsecutiveCalls(500, 500, 42);
+
+        $cleaner = new WebhookCleanup($config, $conn, $streamLockService, new MockClock(new \DateTimeImmutable('2 January 2023 13:04')));
         $cleaner->removeOldLogs();
     }
 }

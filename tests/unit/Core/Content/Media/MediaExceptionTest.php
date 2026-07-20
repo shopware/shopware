@@ -412,4 +412,194 @@ class MediaExceptionTest extends TestCase
         static::assertSame('Unknown location type', $exception->getMessage());
         static::assertSame([], $exception->getParameters());
     }
+
+    public function testInvalidRequestParameter(): void
+    {
+        $parameterName = 'coverMediaId';
+
+        $exception = MediaException::invalidRequestParameter($parameterName);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_INVALID_REQUEST_PARAMETER, $exception->getErrorCode());
+        static::assertSame('The parameter "coverMediaId" is invalid.', $exception->getMessage());
+        static::assertSame(['parameter' => $parameterName], $exception->getParameters());
+    }
+
+    public function testEmptyMediaPath(): void
+    {
+        $mediaId = 'media-id-123';
+
+        $exception = MediaException::emptyMediaPath($mediaId);
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_EMPTY_PATH, $exception->getErrorCode());
+    }
+
+    public function testInvalidMimeType(): void
+    {
+        $mimeType = 'text/invalid';
+
+        $exception = MediaException::invalidMimeType($mimeType);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_INVALID_MIME_TYPE, $exception->getErrorCode());
+        static::assertStringContainsString($mimeType, $exception->getMessage());
+    }
+
+    public function testMimeTypeNotProvided(): void
+    {
+        $exception = MediaException::mimeTypeNotProvided();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(MediaException::CONTENT_MEDIA_NO_MIME_TYPE_PROVIDED, $exception->getErrorCode());
+        static::assertSame('mimeType is not provided', $exception->getMessage());
+    }
+
+    public function testFileNotProvided(): void
+    {
+        $exception = MediaException::fileNotProvided();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(MediaException::CONTENT_MEDIA_NO_FORM_DATA_FIELD_PROVIDED, $exception->getErrorCode());
+        static::assertSame('No file provided in request body', $exception->getMessage());
+    }
+
+    public function testInvalidUrlGeneratorParameter(): void
+    {
+        $exception = MediaException::invalidUrlGeneratorParameter('customKey');
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_INVALID_URL, $exception->getErrorCode());
+        static::assertStringContainsString('customKey', $exception->getMessage());
+    }
+
+    public function testInvalidDimension(): void
+    {
+        $exception = MediaException::invalidDimension('width', -5);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_INVALID_DIMENSION, $exception->getErrorCode());
+        static::assertStringContainsString('width', $exception->getMessage());
+        static::assertStringContainsString('-5', $exception->getMessage());
+        static::assertSame(['dimension' => 'width', 'value' => -5], $exception->getParameters());
+    }
+
+    public function testExternalMediaRequired(): void
+    {
+        $id = 'media-id-abc';
+
+        $exception = MediaException::externalMediaRequired($id);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_EXTERNAL_MEDIA_REQUIRED, $exception->getErrorCode());
+        static::assertStringContainsString($id, $exception->getMessage());
+        static::assertSame(['id' => $id], $exception->getParameters());
+    }
+
+    public function testInvalidThumbnailId(): void
+    {
+        $id = 'thumb-id-abc';
+
+        $exception = MediaException::invalidThumbnailId($id);
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_INVALID_THUMBNAIL_ID, $exception->getErrorCode());
+        static::assertStringContainsString($id, $exception->getMessage());
+        static::assertSame(['id' => $id], $exception->getParameters());
+    }
+
+    public function testInvalidThumbnailData(): void
+    {
+        $message = 'Each thumbnail must have "url", "width" and "height" fields';
+
+        $exception = MediaException::invalidThumbnailData($message);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_INVALID_THUMBNAIL_DATA, $exception->getErrorCode());
+        static::assertStringContainsString($message, $exception->getMessage());
+        static::assertSame(['message' => $message], $exception->getParameters());
+    }
+
+    public function testMediaFileTypeNotSupported(): void
+    {
+        $mediaId = 'media-id';
+        $expectedType = 'image/png';
+
+        $exception = MediaException::mediaFileTypeNotSupported($mediaId, $expectedType);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_FILE_TYPE_NOT_SUPPORTED, $exception->getErrorCode());
+        static::assertSame('Media with id media-id must be of type "image/png".', $exception->getMessage());
+        static::assertSame(['mediaId' => $mediaId, 'expectedType' => $expectedType], $exception->getParameters());
+    }
+
+    public function testCannotBanRequest(): void
+    {
+        $url = 'http://invalid-url';
+        $error = 'error';
+        $previousException = MediaException::cannotCreateTempFile();
+
+        $exception = MediaException::cannotBanRequest($url, $error, $previousException);
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_REVERSE_PROXY_CANNOT_BAN_URL, $exception->getErrorCode());
+        static::assertSame('BAN request failed to http://invalid-url failed with error: error', $exception->getMessage());
+        static::assertSame(['url' => $url, 'error' => $error], $exception->getParameters());
+        static::assertSame($previousException, $exception->getPrevious());
+    }
+
+    public function testPresignedUploadDisabled(): void
+    {
+        $exception = MediaException::presignedUploadDisabled();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_PRESIGNED_UPLOAD_DISABLED, $exception->getErrorCode());
+        static::assertSame('Presigned upload is disabled.', $exception->getMessage());
+    }
+
+    public function testPresignedUploadNotSupported(): void
+    {
+        $exception = MediaException::presignedUploadNotSupported();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_PRESIGNED_UPLOAD_NOT_SUPPORTED, $exception->getErrorCode());
+        static::assertSame('Presigned upload is not supported. S3 filesystem must be configured.', $exception->getMessage());
+    }
+
+    public function testPresignedUploadInvalidConfiguration(): void
+    {
+        $message = 'Missing required option "bucket"';
+
+        $exception = MediaException::presignedUploadInvalidConfiguration($message);
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_PRESIGNED_UPLOAD_INVALID_CONFIGURATION, $exception->getErrorCode());
+        static::assertSame('Invalid presigned upload configuration: Missing required option "bucket"', $exception->getMessage());
+        static::assertSame(['message' => $message], $exception->getParameters());
+    }
+
+    public function testPresignedUploadInvalidConfigurationWithPreviousException(): void
+    {
+        $previousException = new \RuntimeException('S3 client creation failed');
+
+        $exception = MediaException::presignedUploadInvalidConfiguration($previousException->getMessage(), $previousException);
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_PRESIGNED_UPLOAD_INVALID_CONFIGURATION, $exception->getErrorCode());
+        static::assertSame('Invalid presigned upload configuration: S3 client creation failed', $exception->getMessage());
+        static::assertSame($previousException, $exception->getPrevious());
+    }
+
+    public function testPresignedUploadFailed(): void
+    {
+        $previousException = new \RuntimeException('S3 connection failed');
+
+        $exception = MediaException::presignedUploadFailed($previousException);
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_PRESIGNED_UPLOAD_FAILED, $exception->getErrorCode());
+        static::assertSame('Failed to generate presigned URL: S3 connection failed', $exception->getMessage());
+        static::assertSame(['message' => 'S3 connection failed'], $exception->getParameters());
+        static::assertSame($previousException, $exception->getPrevious());
+    }
 }

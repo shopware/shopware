@@ -21,12 +21,6 @@ async function createWrapper(propsData = {}) {
 }
 
 describe('src/app/component/form/select/base/sw-select-selection-list', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render dismissable labels', async () => {
         const wrapper = await createWrapper({
             selections: [{ label: 'Selection1' }],
@@ -35,6 +29,22 @@ describe('src/app/component/form/select/base/sw-select-selection-list', () => {
         const element = wrapper.find('.sw-label');
         expect(element.exists()).toBeTruthy();
         expect(element.attributes().dismissable).toBe('true');
+    });
+
+    it('should pass autocomplete attribute to input', async () => {
+        const wrapper = await createWrapper({
+            autocomplete: 'off',
+        });
+
+        const input = wrapper.find('.sw-select-selection-list__input');
+        expect(input.attributes('autocomplete')).toBe('off');
+    });
+
+    it('should not render autocomplete attribute by default', async () => {
+        const wrapper = await createWrapper();
+
+        const input = wrapper.find('.sw-select-selection-list__input');
+        expect(input.attributes('autocomplete')).toBeUndefined();
     });
 
     it('should render labels which are not dismissable', async () => {

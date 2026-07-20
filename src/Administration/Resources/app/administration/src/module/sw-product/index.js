@@ -7,7 +7,7 @@ import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-product-basic-form', () => import('./component/sw-product-basic-form'));
 Shopware.Component.register('sw-product-deliverability-form', () => import('./component/sw-product-deliverability-form'));
 Shopware.Component.register(
@@ -27,6 +27,7 @@ Shopware.Component.register(
 );
 Shopware.Component.register('sw-product-price-form', () => import('./component/sw-product-price-form'));
 Shopware.Component.register('sw-product-settings-form', () => import('./component/sw-product-settings-form'));
+Shopware.Component.register('sw-product-measurement-form', () => import('./component/sw-product-measurement-form'));
 Shopware.Component.register('sw-product-packaging-form', () => import('./component/sw-product-packaging-form'));
 Shopware.Component.register('sw-product-seo-form', () => import('./component/sw-product-seo-form'));
 Shopware.Component.extend(
@@ -92,7 +93,12 @@ Shopware.Component.register(
     () => import('./component/sw-product-cross-selling-assignment'),
 );
 Shopware.Component.register('sw-product-layout-assignment', () => import('./component/sw-product-layout-assignment'));
-Shopware.Component.register('sw-product-settings-mode', () => import('./component/sw-product-settings-mode'));
+/**
+ * @deprecated tag:v6.8.0 - File will be removed. No longer used.
+ */
+if (!Shopware.Feature.isActive('v6.8.0.0')) {
+    Shopware.Component.register('sw-product-settings-mode', () => import('./component/sw-product-settings-mode'));
+}
 Shopware.Component.register('sw-product-properties', () => import('./component/sw-product-properties'));
 Shopware.Component.register('sw-product-add-properties-modal', () => import('./component/sw-product-add-properties-modal'));
 Shopware.Component.register('sw-product-detail-base', () => import('./view/sw-product-detail-base'));
@@ -105,7 +111,7 @@ Shopware.Component.register('sw-product-detail-cross-selling', () => import('./v
 Shopware.Component.register('sw-product-detail-reviews', () => import('./view/sw-product-detail-reviews'));
 Shopware.Component.register('sw-product-list', () => import('./page/sw-product-list'));
 Shopware.Component.register('sw-product-detail', () => import('./page/sw-product-detail'));
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-product', {
@@ -116,7 +122,7 @@ Module.register('sw-product', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#57D9A3',
-    icon: 'regular-products',
+    icon: 'solid-products',
     favicon: 'icon-module-products.png',
     entity: 'product',
 
@@ -138,11 +144,19 @@ Module.register('sw-product', {
             component: 'sw-product-detail',
             path: 'create',
             props: {
-                default: (route) => ({
-                    creationStates: route.query.creationStates ?? [
-                        'is-physical',
-                    ],
-                }),
+                default: (route) => {
+                    const props = {
+                        creationType: route.query.creationType ?? 'physical',
+                    };
+
+                    if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                        props.creationStates = route.query.creationStates ?? [
+                            'is-physical',
+                        ];
+                    }
+
+                    return props;
+                },
             },
             redirect: {
                 name: 'sw.product.create.base',
@@ -166,7 +180,7 @@ Module.register('sw-product', {
             component: 'sw-product-detail',
             path: 'detail/:id?',
             props: {
-                default: (route) => ({ productId: route.params.id }),
+                default: (route) => ({ productId: route.params.id?.toLowerCase() }),
             },
             redirect: {
                 name: 'sw.product.detail.base',

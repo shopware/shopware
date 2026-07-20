@@ -6,6 +6,7 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Serialize
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -15,16 +16,16 @@ abstract class AbstractEntitySerializer implements ResetInterface
     protected SerializerRegistry $serializerRegistry;
 
     /**
-     * @param array<mixed>|Struct|null $entity
+     * @param array<string, mixed>|Struct|null $entity
      *
-     * @return \Generator
+     * @return iterable<string, mixed>
      */
     abstract public function serialize(Config $config, EntityDefinition $definition, $entity): iterable;
 
     /**
-     * @param array<mixed>|\Traversable<mixed> $entity
+     * @param iterable<string, mixed> $entity
      *
-     * @return array<mixed>|\Traversable<mixed>
+     * @return iterable<string, mixed>
      */
     abstract public function deserialize(Config $config, EntityDefinition $definition, $entity);
 
@@ -42,6 +43,6 @@ abstract class AbstractEntitySerializer implements ResetInterface
 
     protected function getDecorated(): AbstractEntitySerializer
     {
-        throw new \RuntimeException('Implement getDecorated');
+        throw new DecorationPatternException(self::class);
     }
 }

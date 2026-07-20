@@ -4,10 +4,12 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Parser;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidRangeFilterParamException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -22,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\Clock;
 
 /**
  * @internal
@@ -34,7 +37,7 @@ use Shopware\Core\Framework\Log\Package;
  * @phpstan-type SuffixFilterType array{type: 'suffix', field: string, value: mixed}
  * @phpstan-type RangeFilterType array{type: 'range'|'until'|'since', field: string, value?: mixed, parameters: array<string, mixed>}
  * @phpstan-type EqualsAnyFilterType array{type: 'equalsAny', field: string, value: mixed}
- * @phpstan-type Query array{type: string, field?: string, value?: mixed, parameters?: array{operator: RangeFilter::*}, queries?: list<array{type: string, field?: string, value?: mixed}>}
+ * @phpstan-type Query array{type: string, field?: string, value?: mixed, parameters?: array{operator: RangeFilter::*}, queries?: list<array{type: string, field?: string, value?: mixed}>|null}
  */
 #[Package('framework')]
 class QueryStringParser
@@ -157,7 +160,7 @@ class QueryStringParser
                     $values = [$values];
                 }
 
-                if (empty($values)) {
+                if ($values === []) {
                     throw DataAbstractionLayerException::invalidFilterQuery('Parameter "value" for equalsAll filter does not contain any value.', $path . '/value');
                 }
 
@@ -185,7 +188,7 @@ class QueryStringParser
                     $values = [$values];
                 }
 
-                if (empty($values)) {
+                if ($values === []) {
                     throw DataAbstractionLayerException::invalidFilterQuery('Parameter "value" for equalsAny filter does not contain any value.', $path . '/value');
                 }
 
@@ -285,7 +288,7 @@ class QueryStringParser
             throw DataAbstractionLayerException::invalidFilterQuery(\sprintf('Parameter "parameter.operator" for %s filter is missing.', $query['type']), $path . '/parameter');
         }
 
-        $now = new \DateTimeImmutable();
+        $now = Clock::get()->now();
         $dateInterval = new \DateInterval($query['value']);
         if ($query['type'] === 'since') {
             $dateInterval->invert = 1;
@@ -343,12 +346,35 @@ class QueryStringParser
     private static function buildFieldName(EntityDefinition $definition, string $fieldName): string
     {
         $prefix = $definition->getEntityName() . '.';
+        $normalized = self::normalizeAssociationId($definition, $fieldName);
 
-        if (!str_contains($fieldName, $prefix)) {
-            return $prefix . $fieldName;
+        return str_starts_with($normalized, $prefix) ? $normalized : $prefix . $normalized;
+    }
+
+    /**
+     * Turns `manufacturer.id` or `product.properties.group.id` into the FK variant
+     * (`manufacturerId`, `product.properties.groupId`) whenever that FK really exists.
+     */
+    private static function normalizeAssociationId(EntityDefinition $definition, string $fieldName): string
+    {
+        $parts = explode('.', $fieldName);
+
+        if (\count($parts) < 2 || array_pop($parts) !== 'id') {
+            return $fieldName;
         }
 
-        return $fieldName;
+        $association = array_pop($parts);
+        if ($association === null) {
+            return $fieldName;
+        }
+
+        $candidate = $parts === []
+            ? $association . 'Id'
+            : implode('.', $parts) . '.' . $association . 'Id';
+
+        $field = EntityDefinitionQueryHelper::getField($candidate, $definition, $definition->getEntityName());
+
+        return $field instanceof FkField ? $candidate : $fieldName;
     }
 
     /**

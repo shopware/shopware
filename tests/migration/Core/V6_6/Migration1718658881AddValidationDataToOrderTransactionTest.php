@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1718658881AddValidationDataToOrderTransaction;
 
 /**
@@ -25,17 +26,19 @@ class Migration1718658881AddValidationDataToOrderTransactionTest extends TestCas
         $this->connection = static::getContainer()->get(Connection::class);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1718658881, (new Migration1718658881AddValidationDataToOrderTransaction())->getCreationTimestamp());
+    }
+
     public function testMigrate(): void
     {
         $this->rollback();
         $this->migrate();
         $this->migrate();
 
-        $manager = $this->connection->createSchemaManager();
-        $columns = $manager->listTableColumns('order_transaction');
-
-        static::assertArrayHasKey('validation_data', $columns);
-        static::assertFalse($columns['validation_data']->getNotnull());
+        $column = TableHelper::getColumnOfTable($this->connection, 'order_transaction', 'validation_data');
+        static::assertFalse($column->isNotNull);
     }
 
     private function migrate(): void

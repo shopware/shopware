@@ -31,7 +31,6 @@ export default {
         isShowDivider: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -50,8 +49,8 @@ export default {
     methods: {
         updateFilter(range) {
             const params = {
-                ...(range.from ? { gte: range.from } : {}),
-                ...(range.to ? { lte: range.to } : {}),
+                ...(range.from != null ? { gte: range.from } : {}),
+                ...(range.to != null ? { lte: range.to } : {}),
             };
 
             const filterCriteria = [Criteria.range(this.property, params)];

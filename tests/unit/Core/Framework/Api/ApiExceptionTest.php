@@ -17,6 +17,8 @@ use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingReverseAssociation;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -131,6 +133,7 @@ class ApiExceptionTest extends TestCase
         static::assertSame('API Expectations failed', $exception->getMessage());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testInvalidSyncOperation(): void
     {
         $exception = ApiException::invalidSyncOperation('Message');
@@ -239,6 +242,13 @@ class ApiExceptionTest extends TestCase
         static::assertSame('Unable to generate bundle directory for bundle "bundleName".', $exception->getMessage());
     }
 
+    public function testSchemaDefinitionNotReadable(): void
+    {
+        $exception = ApiException::schemaDefinitionNotReadable('file');
+
+        static::assertSame(ApiException::API_SCHEMA_DEFINITION_NOT_READABLE, $exception->getErrorCode());
+    }
+
     public function testInvalidSchemaDefinitions(): void
     {
         $exception = ApiException::invalidSchemaDefinitions('file', new \JsonException());
@@ -281,5 +291,31 @@ class ApiExceptionTest extends TestCase
 
         static::assertSame(ApiException::class, $exception::class);
         static::assertSame(ApiException::API_EXPECTED_USER, $exception->getErrorCode());
+    }
+
+    public function testUnsupportedStoreApiSchemaEndpoint(): void
+    {
+        $exception = ApiException::unsupportedStoreApiSchemaEndpoint();
+
+        static::assertSame(ApiException::API_UNSUPPORTED_STORE_API_SCHEMA_ENDPOINT, $exception->getErrorCode());
+        static::assertSame(
+            'The Store-API does not support the entity schema endpoint. Use `/store-api/_info/openapi3.json` for the OpenAPI specification.',
+            $exception->getMessage()
+        );
+    }
+
+    public function testCanNotResolveForeignKeysException(): void
+    {
+        $exception = ApiException::canNotResolveForeignKeysException([
+            ['pointer' => '/0/taxId', 'entity' => 'tax'],
+            ['pointer' => '/1/manufacturerId', 'entity' => 'product_manufacturer'],
+        ]);
+
+        static::assertSame(ApiException::API_INVALID_SYNC_RESOLVERS, $exception->getErrorCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertStringContainsString('Can not resolve foreign key at position /0/taxId. Reference field: tax', $exception->getMessage());
+        static::assertStringContainsString('Can not resolve foreign key at position /1/manufacturerId. Reference field: product_manufacturer', $exception->getMessage());
+        static::assertSame('/0/taxId', $exception->getParameter('pointer-0'));
+        static::assertSame('product_manufacturer', $exception->getParameter('field-1'));
     }
 }

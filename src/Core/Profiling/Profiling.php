@@ -6,6 +6,7 @@ use Composer\InstalledVersions;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Compiler\RemoveDevServices;
+use Shopware\Core\Profiling\DependencyInjection\CompilerPass\CartServiceCompilerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -28,7 +29,6 @@ class Profiling extends Bundle
      */
     public function build(ContainerBuilder $container): void
     {
-        /** @var string $environment */
         $environment = $container->getParameter('kernel.environment');
 
         parent::build($container);
@@ -42,6 +42,7 @@ class Profiling extends Bundle
 
         if ($environment === 'dev') {
             $loader->load('services_dev.xml');
+            $container->addCompilerPass(new CartServiceCompilerPass());
         }
 
         $container->addCompilerPass(new RemoveDevServices());
@@ -53,7 +54,7 @@ class Profiling extends Bundle
         \assert($this->container instanceof ContainerInterface, 'Container is not set yet, please call setContainer() before calling boot(), see `src/Core/Kernel.php:186`.');
 
         // The profiler registers all profiler integrations in the constructor
-        // Therefor we need to get the service once to initialize it
+        // Therefore we need to get the service once to initialize it
         $this->container->get(Profiler::class);
     }
 

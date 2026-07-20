@@ -1,30 +1,54 @@
-.is-act-confirmpage,
-.is-ctl-accountorder {
+.is-act-confirmpage, // @deprecated tag:v6.8.0 - Body class `is-act-confirmpage` will be removed, use active route classes starting with `is-active-route-*` instead.
+.is-ctl-accountorder, // @deprecated tag:v6.8.0 - Body class `is-ctl-accountorder` will be removed, use active route classes starting with `is-active-route-frontend-account-*` instead.
+.is-active-route-frontend-checkout-confirm-page,
+.is-active-route-frontend-account-order-page,
+.is-active-route-frontend-account-order-cancel,
+.is-active-route-frontend-account-order-single-page,
+.is-active-route-widgets-account-order-detail,
+.is-active-route-frontend-account-edit-order-page {
     .checkout {
         padding-top: 70px;
 
         .checkout-container {
-            @extend .row;
+            @include make-row();
         }
 
         .checkout-main {
-            @extend .col-lg-8;
-            @extend .offset-lg-2;
+            @include make-col-ready();
+
+            @include media-breakpoint-up(lg) {
+                @include make-col(8);
+                @include make-col-offset(2);
+            }
         }
 
         .checkout-additional {
-            @extend .col-sm-6;
-            @extend .offset-lg-2;
-            @extend .col-lg-4;
+            @include make-col-ready();
             margin-top: $spacer;
             margin-bottom: $spacer;
+
+            @include media-breakpoint-up(sm) {
+                @include make-col(6);
+            }
+
+            @include media-breakpoint-up(lg) {
+                @include make-col(4);
+                @include make-col-offset(2);
+            }
         }
 
         .checkout-aside {
-            @extend .col;
-            @extend .col-md-6;
-            @extend .offset-md-6;
-            @extend .col-lg-4;
+            @include make-col-ready();
+            @include make-col();
+
+            @include media-breakpoint-up(md) {
+                @include make-col(6);
+                @include make-col-offset(6);
+            }
+
+            @include media-breakpoint-up(lg) {
+                @include make-col(4);
+            }
         }
 
         .checkout-aside-no-offset {
@@ -40,6 +64,10 @@
 .confirm-payment,
 .confirm-product {
     margin-bottom: $spacer-lg;
+}
+
+.confirm-tos-bottom {
+    margin-bottom: $spacer-xl;
 }
 
 .confirm-payment-current,

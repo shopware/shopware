@@ -57,7 +57,6 @@ async function createWrapper(privileges = []) {
                     'sw-text-field': true,
                     'sw-language-info': true,
                     'sw-settings-price-rounding': true,
-                    'sw-empty-state': true,
                     'sw-skeleton': true,
                     'sw-card-filter': true,
                     'sw-data-grid-column-boolean': true,
@@ -66,18 +65,21 @@ async function createWrapper(privileges = []) {
                     'sw-settings-currency-country-modal': true,
                     'sw-custom-field-set-renderer': true,
                 },
+                mocks: {
+                    $route: {
+                        meta: {
+                            $module: {
+                                icon: 'solid-content',
+                            },
+                        },
+                    },
+                },
             },
         },
     );
 }
 
 describe('module/sw-settings-currency/page/sw-settings-currency-detail', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to save the currency', async () => {
         const wrapper = await createWrapper();
 

@@ -1,5 +1,6 @@
-import NavbarPlugin from 'src/plugin/navbar/navbar.plugin';
+import DeviceDetection from 'src/helper/device-detection.helper';
 import FocusHandler from 'src/helper/focus-handler.helper';
+import NavbarPlugin from 'src/plugin/navbar/navbar.plugin';
 
 describe('NavbarPlugin', () => {
     let navbarPlugin;
@@ -7,6 +8,7 @@ describe('NavbarPlugin', () => {
     let mockLink;
 
     beforeEach(() => {
+        jest.spyOn(DeviceDetection, 'isTouchDevice').mockReturnValue(false);
         // Create a mock DOM environment
         mockElement = document.createElement('div');
         mockLink = document.createElement('a');
@@ -43,23 +45,21 @@ describe('NavbarPlugin', () => {
     });
 
     test('init should omit click event for elements without a reference', () => {
-        // Create a new instance of NavbarPlugin inside the test
-        navbarPlugin = new NavbarPlugin(mockElement, {}, false);
-        mockLink.removeAttribute('href');
-        navbarPlugin._topLevelLinks = [mockLink];
+        const noHrefElement = document.createElement('div');
+        const noHrefLink = document.createElement('a');
+        noHrefLink.classList.add('main-navigation-link');
+        noHrefElement.appendChild(noHrefLink);
+        jest.spyOn(noHrefLink, 'addEventListener');
 
-        // Clear the mock history of addEventListener
-        mockLink.addEventListener.mockClear();
-
-        navbarPlugin.init();
+        navbarPlugin = new NavbarPlugin(noHrefElement);
 
         const addedEvents = {};
-        mockLink.addEventListener.mock.calls.forEach(call => {
+        noHrefLink.addEventListener.mock.calls.forEach(call => {
             addedEvents[call[0]] = call[1];
         });
 
         expect(navbarPlugin._topLevelLinks).not.toBeNull();
-        expect(mockLink.addEventListener).toHaveBeenCalledTimes(2);
+        expect(noHrefLink.addEventListener).toHaveBeenCalledTimes(2);
 
         expect(addedEvents['mouseenter']).toBeDefined();
         expect(typeof addedEvents['mouseenter']).toBe('function');
@@ -67,41 +67,65 @@ describe('NavbarPlugin', () => {
         expect(addedEvents['mouseleave']).toBeDefined();
         expect(typeof addedEvents['mouseleave']).toBe('function');
 
-        expect(addedEvents).not.toContain('click');
+        expect(addedEvents['click']).toBeUndefined();
     });
 
-    test('_toggleNavbar should handle mouseenter and mouseleave events', () => {
-        const mockEventEnter = {type: 'mouseenter'};
-        const mockEventLeave = {type: 'mouseleave'};
-
-        navbarPlugin._toggleNavbar = jest.fn();
-
-        navbarPlugin._toggleNavbar(mockLink, mockEventEnter);
-        expect(navbarPlugin._toggleNavbar).toHaveBeenCalledWith(mockLink, mockEventEnter);
-
-        navbarPlugin._toggleNavbar(mockLink, mockEventLeave);
-        expect(navbarPlugin._toggleNavbar).toHaveBeenCalledWith(mockLink, mockEventLeave);
-    });
-
-    test('_navigateToLinkOnClick should open in new window when target blank is set', () => {
+    test('_navigateToLinkOnClick should open in new window when target blank is set on a dropdown link', () => {
         const mockEventClick = { type: 'click', pageX: 99 };
-        const mockLink = { href: 'https://example.com', target: '_blank' };
+        const mockLink = {
+            href: 'https://example.com',
+            target: '_blank',
+            classList: { contains: jest.fn().mockReturnValue(true) },
+        };
 
         navbarPlugin._navigateToLinkOnClick(mockLink, mockEventClick);
 
         expect(window.open).toHaveBeenCalledWith(mockLink.href, '_blank', 'noopener, noreferrer');
     });
 
-    test('_navigateToLinkOnClick should set window.location.href if not target _blank', () => {
-        delete window.location;
-        window.location = new URL('https://www.example.com');
-
+    test('_navigateToLinkOnClick should not open a new window for a plain target blank link (native navigation handles it)', () => {
         const mockEventClick = { type: 'click', pageX: 99 };
-        const mockLink = { href: 'https://example.com/abc', target: '_self' };
+        const mockLink = {
+            href: 'https://example.com',
+            target: '_blank',
+            classList: { contains: jest.fn().mockReturnValue(false) },
+        };
 
         navbarPlugin._navigateToLinkOnClick(mockLink, mockEventClick);
 
-        expect(window.location.href).toBe(mockLink.href);
+        expect(window.open).not.toHaveBeenCalled();
+    });
+
+    test('_navigateToLinkOnClick should set window.location.href if not target _blank', () => {
+        const navigateToSpy = jest.spyOn(NavbarPlugin.prototype, '_navigateTo').mockImplementation(() => {});
+
+        const mockEventClick = { type: 'click', pageX: 99 };
+        const mockLink = {
+            href: 'https://example.com/abc',
+            target: '_self',
+            classList: { contains: jest.fn().mockReturnValue(true) },
+        };
+
+        navbarPlugin._navigateToLinkOnClick(mockLink, mockEventClick);
+
+        expect(mockLink.classList.contains).toHaveBeenCalledWith('dropdown-toggle');
+        expect(navigateToSpy).toHaveBeenCalledWith('https://example.com/abc');
+    });
+
+    test('_navigateToLinkOnClick should not redirect manually when link has no dropdown', () => {
+        const navigateToSpy = jest.spyOn(NavbarPlugin.prototype, '_navigateTo').mockImplementation(() => {});
+
+        const mockEventClick = { type: 'click', pageX: 99 };
+        const mockLink = {
+            href: 'https://example.com/abc',
+            target: '_self',
+            classList: { contains: jest.fn().mockReturnValue(false) },
+        };
+
+        navbarPlugin._navigateToLinkOnClick(mockLink, mockEventClick);
+
+        expect(mockLink.classList.contains).toHaveBeenCalledWith('dropdown-toggle');
+        expect(navigateToSpy).not.toHaveBeenCalled();
     });
 
     test('_closeAllDropdowns should close all dropdowns', () => {
@@ -130,7 +154,7 @@ describe('NavbarPlugin', () => {
         const mockDropdown = {
             show: jest.fn(),
             hide: jest.fn(),
-            _menu: {classList: {contains: jest.fn().mockReturnValue(false)}}
+            _menu: { classList: { contains: jest.fn().mockReturnValue(false) } },
         };
         window.bootstrap = {
             Dropdown: {
@@ -170,23 +194,28 @@ describe('NavbarPlugin', () => {
 
     test('_toggleNavbar should set _isMouseOver to true on mouseenter', () => {
         const mockEventEnter = {type: 'mouseenter'};
+        const mockDropdown = {_menu: {classList: {contains: jest.fn().mockReturnValue(false)}}};
+        window.bootstrap = {
+            Dropdown: {
+                getOrCreateInstance: jest.fn().mockReturnValue(mockDropdown),
+            },
+        };
+
         navbarPlugin._toggleNavbar(mockLink, mockEventEnter);
         expect(navbarPlugin._isMouseOver).toBe(true);
     });
 
     test('_toggleNavbar should call _debounce on mouseenter', () => {
         const mockEventEnter = {type: 'mouseenter'};
+        const mockDropdown = {_menu: {classList: {contains: jest.fn().mockReturnValue(false)}}};
+        window.bootstrap = {
+            Dropdown: {
+                getOrCreateInstance: jest.fn().mockReturnValue(mockDropdown),
+            },
+        };
         navbarPlugin._debounce = jest.fn();
         navbarPlugin._toggleNavbar(mockLink, mockEventEnter);
         expect(navbarPlugin._debounce).toHaveBeenCalled();
-    });
-
-    test('_closeAllDropdowns should call hide on dropdowns with show class', () => {
-        const mockDropdown = {hide: jest.fn(), _menu: {classList: {contains: jest.fn().mockReturnValue(true)}}};
-        window.bootstrap.Dropdown.getInstance.mockReturnValue(mockDropdown);
-        navbarPlugin._topLevelLinks = [mockLink];
-        navbarPlugin._closeAllDropdowns();
-        expect(mockDropdown.hide).toHaveBeenCalled();
     });
 
     test('current page is applied on load event', () => {
@@ -213,6 +242,57 @@ describe('NavbarPlugin', () => {
 
         expect(mockLink.getAttribute('aria-current')).toBe('page');
         expect(mockLink.classList.contains('active')).toBe(true);
+    });
+
+    test('active class is set for parent categories via window.activeNavigationPathIdList', () => {
+        // Create a subcategory link (current page)
+        const subcategoryLink = document.createElement('a');
+        subcategoryLink.classList.add('nav-item-subcategory-1-link');
+        subcategoryLink.setAttribute('href', 'https://example.com/subcategory');
+        mockElement.appendChild(subcategoryLink);
+
+        // Create a top-level category link (parent in path)
+        const topLevelLink = document.createElement('a');
+        topLevelLink.classList.add('nav-item-category-a-link');
+        topLevelLink.setAttribute('href', 'https://example.com/category-a');
+        mockElement.appendChild(topLevelLink);
+
+        // Set the current page as subcategory
+        window.activeNavigationId = 'subcategory-1';
+        // Set the path to include the parent category
+        window.activeNavigationPathIdList = ['category-a'];
+
+        navbarPlugin._setCurrentPage();
+
+        // Subcategory should have aria-current and active class
+        expect(subcategoryLink.getAttribute('aria-current')).toBe('page');
+        expect(subcategoryLink.classList.contains('active')).toBe(true);
+
+        // Top-level category should have active class (but no aria-current)
+        expect(topLevelLink.getAttribute('aria-current')).toBeNull();
+        expect(topLevelLink.classList.contains('active')).toBe(true);
+    });
+
+    test('active class is set for parent categories via options.pathIdList as fallback', () => {
+        // Create a top-level category link (parent in path)
+        const topLevelLink = document.createElement('a');
+        topLevelLink.classList.add('nav-item-category-b-link');
+        topLevelLink.setAttribute('href', 'https://example.com/category-b');
+        mockElement.appendChild(topLevelLink);
+
+        // Clear window.activeNavigationPathIdList to test fallback
+        delete window.activeNavigationPathIdList;
+        window.activeNavigationId = 'subcategory-2';
+
+        // Create a new plugin instance with pathIdList option
+        const pluginWithOptions = new NavbarPlugin(mockElement, {
+            pathIdList: ['category-b'],
+        }, false);
+        pluginWithOptions._topLevelLinks = [mockLink];
+        pluginWithOptions._setCurrentPage();
+
+        // Top-level category should have active class
+        expect(topLevelLink.classList.contains('active')).toBe(true);
     });
 
     test('_restoreFocusAfterBtnClose should focus related dropdown top level link', () => {
@@ -255,5 +335,75 @@ describe('NavbarPlugin', () => {
         navbarPlugin._restoreFocusAfterBtnClose(mockEvent);
 
         expect(mockLink.focus).not.toHaveBeenCalled();
+    });
+
+    test('_toggleNavbar should close all dropdowns on mouseenter nav item without dropdown', () => {
+        jest.useFakeTimers();
+
+        const mockEventEnter = {type: 'mouseenter'};
+        const mockLinkNoDropdown = mockLink.cloneNode();
+        mockLinkNoDropdown.noDropdown = true;
+        navbarPlugin._topLevelLinks.push(mockLinkNoDropdown);
+        const mockDropdown = {
+            show: jest.fn(),
+            hide: jest.fn(),
+            _menu: {classList: {contains: jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(true)}},
+        };
+        const mockNoDropdown = {
+            show: jest.fn(),
+            hide: jest.fn(),
+            _menu: null, // simulate no dropdown menu
+        };
+        window.bootstrap = {
+            Dropdown: {
+                getOrCreateInstance: (link) => link.noDropdown ? mockNoDropdown : mockDropdown,
+                getInstance: (link) => link.noDropdown ? mockNoDropdown : mockDropdown,
+            },
+        };
+        jest.spyOn(navbarPlugin, '_closeAllDropdowns');
+
+        // toggle link with dropdown
+        navbarPlugin._toggleNavbar(mockLink, mockEventEnter);
+
+        jest.runAllTimers();
+
+        expect(navbarPlugin._closeAllDropdowns).toHaveBeenCalled();
+        expect(mockDropdown.show).toHaveBeenCalled();
+
+        // reset _closeAllDropdowns call count
+        navbarPlugin._closeAllDropdowns.mockClear();
+
+        // toggle link without dropdown
+        navbarPlugin._toggleNavbar(mockLinkNoDropdown, mockEventEnter);
+
+        jest.runAllTimers();
+
+        expect(navbarPlugin._closeAllDropdowns).toHaveBeenCalled();
+        expect(mockDropdown.hide).toHaveBeenCalled();
+        expect(mockNoDropdown.show).not.toHaveBeenCalled();
+    });
+
+    test('_toggleNavbar should blur top level link on mouseenter', () => {
+        jest.useFakeTimers();
+
+        const mockEventEnter = {type: 'mouseenter'};
+        const mockDropdown = {
+            show: jest.fn(),
+            hide: jest.fn(),
+            _menu: {classList: {contains: jest.fn().mockReturnValue(false)}},
+        };
+        window.bootstrap = {
+            Dropdown: {
+                getOrCreateInstance: jest.fn().mockReturnValue(mockDropdown),
+                getInstance: jest.fn().mockReturnValue(mockDropdown),
+            },
+        };
+        mockLink.blur = jest.fn();
+
+        navbarPlugin._toggleNavbar(mockLink, mockEventEnter);
+
+        jest.runAllTimers();
+
+        expect(mockLink.blur).toHaveBeenCalled();
     });
 });

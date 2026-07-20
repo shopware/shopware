@@ -55,6 +55,10 @@ class CustomerAddressEntity extends Entity
 
     protected ?CustomerEntity $customer = null;
 
+    protected ?CustomerEntity $defaultBillingAddressCustomer = null;
+
+    protected ?CustomerEntity $defaultShippingAddressCustomer = null;
+
     protected ?string $hash = null;
 
     public function getCustomerId(): string
@@ -124,7 +128,7 @@ class CustomerAddressEntity extends Entity
 
     public function setZipcode(?string $zipcode): void
     {
-        $this->zipcode = empty($zipcode) ? null : $zipcode;
+        $this->zipcode = ($zipcode === null || $zipcode === '') ? null : $zipcode;
     }
 
     public function getCity(): string
@@ -245,6 +249,26 @@ class CustomerAddressEntity extends Entity
     public function setCustomer(CustomerEntity $customer): void
     {
         $this->customer = $customer;
+    }
+
+    public function getDefaultBillingAddressCustomer(): ?CustomerEntity
+    {
+        return $this->defaultBillingAddressCustomer;
+    }
+
+    public function setDefaultBillingAddressCustomer(?CustomerEntity $defaultBillingAddressCustomer): void
+    {
+        $this->defaultBillingAddressCustomer = $defaultBillingAddressCustomer;
+    }
+
+    public function getDefaultShippingAddressCustomer(): ?CustomerEntity
+    {
+        return $this->defaultShippingAddressCustomer;
+    }
+
+    public function setDefaultShippingAddressCustomer(?CustomerEntity $defaultShippingAddressCustomer): void
+    {
+        $this->defaultShippingAddressCustomer = $defaultShippingAddressCustomer;
     }
 
     public function getHash(): ?string

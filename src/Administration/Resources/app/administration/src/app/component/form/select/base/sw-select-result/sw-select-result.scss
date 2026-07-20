@@ -1,15 +1,7 @@
-@import "~scss/variables";
-
-$sw-select-result-active-color-background: lighten($color-shopware-brand-500, 40%);
-$sw-select-result-active-color-text: $color-shopware-brand-500;
-$sw-select-result-color-border: $color-gray-300;
-$sw-select-result-color-icon: darken($color-gray-100, 20%);
-$sw-select-result-transition-item-icon: all ease-in-out 0.15s;
-$sw-select-result-disabled-color-background: $color-gray-100;
-$sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
+$sw-select-result-disabled-color-text: var(--color-text-primary-disabled);
 
 .sw-select-result {
-    padding: 12px 15px;
+    padding: var(--scale-size-12) 15px;
     cursor: pointer;
     display: grid;
     grid-template-columns: auto 1fr auto auto;
@@ -19,7 +11,7 @@ $sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
 
     .sw-select-result__result-item-preview {
         order: 1;
-        margin-right: 10px;
+        margin-right: var(--scale-size-10);
         display: block;
         grid-area: a;
 
@@ -33,41 +25,41 @@ $sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
         word-break: break-word;
         display: flex;
         flex-direction: column;
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         order: 2;
         overflow: hidden;
         grid-area: b;
     }
 
     .sw-select-result__result-item-checkmark {
-        width: 16px;
-        height: 16px;
-        padding-top: 4px;
-        padding-right: 2px;
+        width: var(--scale-size-16);
+        height: var(--scale-size-16);
+        padding-top: var(--scale-size-4);
+        padding-right: var(--scale-size-2);
         padding-bottom: 3px;
-        padding-left: 2px;
+        padding-left: var(--scale-size-2);
     }
 
     &.is--active {
-        background: $sw-select-result-active-color-background;
-        color: $sw-select-result-active-color-text;
+        background: var(--color-background-brand-default);
+        color: var(--color-text-primary-default);
 
         .sw-select-result__result-item-text {
-            color: $sw-select-result-active-color-text;
+            color: var(--color-text-primary-default);
         }
     }
 
     .sw-select-result__result-item-description {
         width: 100%;
-        color: $color-gray-600;
+        color: var(--color-text-secondary-default);
         order: 3;
         line-height: 14px;
-        padding: 0 0 0 8px;
+        padding: 0 0 0 var(--scale-size-8);
         grid-area: c;
     }
 
     > .mt-icon {
-        color: $sw-select-result-color-icon;
+        color: var(--color-text-primary-default);
         margin-left: 10px;
         order: 4;
         justify-self: end;
@@ -82,7 +74,7 @@ $sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
 
         .sw-select-result__result-item-description {
             grid-column-start: 1;
-            padding: 8px 0 0;
+            padding: var(--scale-size-8) 0 0;
             order: 3;
 
             &:empty {
@@ -115,7 +107,7 @@ $sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
         color: $sw-select-result-disabled-color-text;
 
         &.is--active {
-            background: $sw-select-result-disabled-color-background;
+            background: var(--color-background-tertiary-default);
             color: $sw-select-result-disabled-color-text;
             cursor: default;
         }
@@ -136,7 +128,7 @@ $sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
     // Vue.js transitions
     .sw-select-result-appear-enter-active,
     .sw-select-result-appear-leave-active {
-        transition: $sw-select-result-transition-item-icon;
+        transition: all ease-in-out 0.15s;
         transform: translateY(0);
     }
 

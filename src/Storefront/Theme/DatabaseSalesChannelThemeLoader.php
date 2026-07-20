@@ -9,11 +9,13 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('framework')]
 /**
  * @internal
+ *
+ * @final
  */
-final class DatabaseSalesChannelThemeLoader
+class DatabaseSalesChannelThemeLoader
 {
     /**
-     * @var array<string, array<int, string>>
+     * @var array<string, list<string>>
      */
     private array $themes = [];
 
@@ -25,11 +27,11 @@ final class DatabaseSalesChannelThemeLoader
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     public function load(string $salesChannelId): array
     {
-        if (!empty($this->themes[$salesChannelId])) {
+        if (($this->themes[$salesChannelId] ?? []) !== []) {
             return $this->themes[$salesChannelId];
         }
 
@@ -42,7 +44,7 @@ final class DatabaseSalesChannelThemeLoader
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     private function readFromDB(string $salesChannelId): array
     {
@@ -70,11 +72,11 @@ final class DatabaseSalesChannelThemeLoader
             $usedThemes = array_merge($usedThemes, $themes['grandParentNames']);
         }
 
-        return $this->themes[$salesChannelId] = $usedThemes ?: [];
+        return $this->themes[$salesChannelId] = array_values($usedThemes) ?: [];
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     private function getGrantParents(mixed $grandParentThemeId): array
     {
@@ -96,6 +98,6 @@ final class DatabaseSalesChannelThemeLoader
             $filtered = array_merge($filtered, $this->getGrantParents($grandParents['grandParentThemeId']));
         }
 
-        return $filtered;
+        return array_values($filtered);
     }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
+use PHPUnit\Framework\ExpectationFailedException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -17,12 +18,13 @@ trait DatabaseTransactionBehaviour
     #[Before]
     public function startTransactionBefore(): void
     {
-        self::assertNull(
-            static::$lastTestCase,
-            'The previous test case\'s transaction was not closed properly.
+        if (static::$lastTestCase !== null) {
+            throw new ExpectationFailedException(
+                'The previous test case\'s transaction was not closed properly.
             This may affect following Tests in an unpredictable manner!
             Previous Test case: ' . (new \ReflectionClass($this))->getName() . '::' . static::$lastTestCase
-        );
+            );
+        }
 
         static::getContainer()
             ->get(Connection::class)
@@ -37,14 +39,14 @@ trait DatabaseTransactionBehaviour
         $connection = static::getContainer()
             ->get(Connection::class);
 
-        self::assertSame(
-            1,
-            $connection->getTransactionNestingLevel(),
-            'Too many Nesting Levels.
-            Probably one transaction was not closed properly.
-            This may affect following Tests in an unpredictable manner!
-            Current nesting level: "' . $connection->getTransactionNestingLevel() . '".'
-        );
+        if ($connection->getTransactionNestingLevel() !== 1) {
+            throw new ExpectationFailedException(
+                'Too many Nesting Levels.
+                Probably one transaction was not closed properly.
+                This may affect following Tests in an unpredictable manner!
+                Current nesting level: "' . $connection->getTransactionNestingLevel() . '".'
+            );
+        }
 
         $connection->rollBack();
 

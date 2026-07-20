@@ -22,7 +22,6 @@ export default {
         return {
             isLoading: false,
             isSaveSuccessful: false,
-            sliderValue: 0,
         };
     },
 
@@ -39,19 +38,6 @@ export default {
     methods: {
         async createdComponent() {
             this.isLoading = true;
-            try {
-                const values = await this.systemConfigApiService.getValues('core.media');
-                this.sliderValue =
-                    values['core.media.defaultLightIntensity'] !== undefined
-                        ? values['core.media.defaultLightIntensity']
-                        : 100;
-            } catch (error) {
-                if (error?.response?.data?.errors) {
-                    this.createErrorNotification(error.response.data.errors);
-                }
-            } finally {
-                this.isLoading = false;
-            }
         },
 
         saveFinish() {
@@ -64,15 +50,9 @@ export default {
 
             this.$refs.systemConfig
                 .saveAll()
-                .then(async () => {
+                .then(() => {
                     this.isLoading = false;
                     this.isSaveSuccessful = true;
-
-                    await this.systemConfigApiService.batchSave({
-                        null: {
-                            'core.media.defaultLightIntensity': this.sliderValue,
-                        },
-                    });
                 })
                 .catch((err) => {
                     this.isLoading = false;

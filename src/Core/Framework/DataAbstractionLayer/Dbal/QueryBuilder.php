@@ -96,15 +96,14 @@ class QueryBuilder extends DBALQueryBuilder
         }
         $sql = $query->getUnmodifiedSQL();
 
-        if ($this->getTitle()) {
-            $sql = '# ' . $this->title . \PHP_EOL . $sql;
+        if ($this->title) {
+            $sql = '-- ' . $this->title . \PHP_EOL . $sql;
         }
 
         return $sql;
     }
 
     /**
-     * @internal
      * {@inheritdoc}
      */
     public function select(string ...$expressions): self
@@ -115,7 +114,6 @@ class QueryBuilder extends DBALQueryBuilder
     }
 
     /**
-     * @internal
      * {@inheritdoc}
      */
     public function addSelect(string $expression, string ...$expressions): self
@@ -126,7 +124,6 @@ class QueryBuilder extends DBALQueryBuilder
     }
 
     /**
-     * @internal
      * {@inheritdoc}
      */
     public function orderBy(string $sort, ?string $order = null): self
@@ -137,7 +134,6 @@ class QueryBuilder extends DBALQueryBuilder
     }
 
     /**
-     * @internal
      * {@inheritdoc}
      */
     public function addOrderBy(string $sort, ?string $order = null): self

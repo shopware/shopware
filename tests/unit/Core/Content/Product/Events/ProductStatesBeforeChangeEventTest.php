@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\UpdatedStates;
 use Shopware\Core\Content\Product\Events\ProductStatesBeforeChangeEvent;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 
 /**
  * @internal
@@ -16,6 +17,7 @@ class ProductStatesBeforeChangeEventTest extends TestCase
 {
     public function testProductStatesBeforeChangeEvent(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
         $updatedStates = [new UpdatedStates('foobar', ['foo'], ['bar'])];
         $context = Context::createDefaultContext();
 

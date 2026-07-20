@@ -18,7 +18,7 @@
 
         {% block sw_media_list_selection_item_v2_preview_actions %}
         <sw-context-button
-            v-if="!hideActions"
+            v-if="!disabled && !hideActions"
             class="sw-media-list-selection-item-v2__context-button"
         >
             {% block sw_media_list_selection_item_v2_context %}
@@ -27,7 +27,7 @@
                 variant="danger"
                 @click="$emit('item-remove')"
             >
-                {{ $tc('global.sw-media-list-selection-item-v2.buttonRemove') }}
+                {{ $t('global.default.remove') }}
             </sw-context-menu-item>
             {% endblock %}
             {% endblock %}

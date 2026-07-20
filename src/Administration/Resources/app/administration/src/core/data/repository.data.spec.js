@@ -33,6 +33,8 @@ function mockContext() {
         authToken: {
             access: 'BwP_OL47uNW6k8iQzChh6SxE31XaleO_l4unyLNmFco',
         },
+        measurementLengthUnit: null,
+        measurementWeightUnit: null,
     };
 }
 
@@ -116,6 +118,19 @@ describe('repository.data.ts', () => {
         expect(actualHeaders).toEqual(exptectedHeaders);
     });
 
+    it('should include measurement units in headers', async () => {
+        const repositoryData = createRepositoryData('language');
+        const context = {
+            ...mockContext(),
+            measurementLengthUnit: 'cm',
+            measurementWeightUnit: 'kg',
+        };
+        const actualHeaders = repositoryData.buildHeaders(context);
+
+        expect(actualHeaders['sw-measurement-length-unit']).toBe('cm');
+        expect(actualHeaders['sw-measurement-weight-unit']).toBe('kg');
+    });
+
     it('should create one delete operation for multiple deletes', async () => {
         const ids = new IdCollection();
 
@@ -182,7 +197,8 @@ describe('repository.data.ts', () => {
         const request = clientMock.history.post[0];
 
         expect(request.url).toBe('_action/sync');
-        expect(request.headers['single-operation']).toBe(true);
+        // axios-mock-adapter stores custom header values as strings in request history.
+        expect(request.headers['single-operation']).toBe('true');
 
         expect(request.data).toEqual(
             JSON.stringify([

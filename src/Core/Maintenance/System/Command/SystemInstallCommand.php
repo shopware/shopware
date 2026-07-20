@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Maintenance\System\Command;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Installer\Finish\SystemLocker;
 use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
@@ -30,7 +33,10 @@ class SystemInstallCommand extends Command
     public function __construct(
         private readonly string $projectDir,
         private readonly SetupDatabaseAdapter $setupDatabaseAdapter,
-        private readonly DatabaseConnectionFactory $databaseConnectionFactory
+        private readonly DatabaseConnectionFactory $databaseConnectionFactory,
+        private readonly CacheClearer $cacheClearer,
+        private readonly SystemLocker $systemLocker,
+        private readonly ClockInterface $clock,
     ) {
         parent::__construct();
     }
@@ -61,11 +67,14 @@ class SystemInstallCommand extends Command
         $_ENV['BLUE_GREEN_DEPLOYMENT'] = $isBlueGreen;
         putenv('BLUE_GREEN_DEPLOYMENT=' . $isBlueGreen);
 
-        if (!$input->getOption('force') && file_exists($this->projectDir . '/install.lock')) {
+        if (!$input->getOption('force') && \is_file($this->projectDir . '/install.lock')) {
             $output->comment('install.lock already exists. Delete it or pass --force to do it anyway.');
 
             return self::FAILURE;
         }
+
+        // Delete old object cache, which can lead to wrong assumptions
+        $this->cacheClearer->clearObjectCache();
 
         $this->initializeDatabase($output, $input);
 
@@ -157,19 +166,24 @@ class SystemInstallCommand extends Command
             $commands[] = [
                 'command' => 'system:config:set',
                 'key' => 'core.frw.completedAt',
-                'value' => (new \DateTime())->format('Y-m-d H:i:s'),
+                'value' => $this->clock->now()->format('Y-m-d H:i:s'),
             ];
         }
 
         $result = $this->runCommands($commands, $output);
 
-        if (!file_exists($this->projectDir . '/public/.htaccess')
-            && file_exists($this->projectDir . '/public/.htaccess.dist')
-        ) {
-            copy($this->projectDir . '/public/.htaccess.dist', $this->projectDir . '/public/.htaccess');
+        if ($result !== self::SUCCESS) {
+            return $result;
         }
 
-        touch($this->projectDir . '/install.lock');
+        if ($this->shouldSkipFileOperations()) {
+            $output->comment('Skipping install.lock and .htaccess creation (SHOPWARE_SKIP_WEBINSTALLER is set)');
+
+            return $result;
+        }
+
+        $this->ensureHtaccessExists();
+        $this->systemLocker->lock();
 
         return $result;
     }
@@ -241,5 +255,26 @@ class SystemInstallCommand extends Command
         }
 
         return $application;
+    }
+
+    private function shouldSkipFileOperations(): bool
+    {
+        return (bool) EnvironmentHelper::getVariable('SHOPWARE_SKIP_WEBINSTALLER', false);
+    }
+
+    private function ensureHtaccessExists(): void
+    {
+        $htaccessPath = $this->projectDir . '/public/.htaccess';
+        $htaccessDistPath = $this->projectDir . '/public/.htaccess.dist';
+
+        if (\is_file($htaccessPath)) {
+            return;
+        }
+
+        if (!\is_file($htaccessDistPath)) {
+            return;
+        }
+
+        copy($htaccessDistPath, $htaccessPath);
     }
 }

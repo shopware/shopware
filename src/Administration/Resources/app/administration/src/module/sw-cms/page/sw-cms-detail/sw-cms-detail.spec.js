@@ -1,13 +1,16 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 
-import CMS from 'src/module/sw-cms/constant/sw-cms.constant';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import CmsPageTypeService from '../../../sw-cms/service/cms-page-type.service';
+
+const { CMS } = Shopware.Constants;
 
 const categoryID = 'TEST-CATEGORY-ID';
 const productID = 'TEST-PRODUCT-ID';
@@ -206,10 +209,12 @@ async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
                         isBlockAllowedInPageType: () => {
                             return true;
                         },
+                        getCmsBlockConfigByName(name) {
+                            return this.getCmsBlockRegistry()[name] ?? null;
+                        },
                     },
                     appCmsService: {},
                     cmsDataResolverService: {
-                        // eslint-disable-next-line prefer-promise-reject-errors
                         resolve: () => Promise.reject('foo'),
                     },
                     systemConfigApiService: {
@@ -262,8 +267,11 @@ async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
     );
 }
 
+const shopwareStoreGetter = Shopware.Store.get;
+
 describe('module/sw-cms/page/sw-cms-detail', () => {
     beforeEach(async () => {
+        Shopware.Store.get = shopwareStoreGetter;
         Shopware.Store.get('cmsPage').$reset();
 
         jest.spyOn(global.console, 'warn').mockImplementation(() => {});
@@ -271,13 +279,6 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         jest.clearAllMocks();
 
         global.activeAclRoles = [];
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should disable all fields when ACL rights are missing', async () => {
@@ -773,5 +774,84 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         expect(sections).toHaveLength(2);
         expect(sections[1].id).toBe('cloned-section-id');
         expect(sections[1].position).toBe(1);
+    });
+
+    it('should reset all related stores', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const mockCmsPageStore = {
+            $reset: jest.fn(),
+        };
+        const mockCategoryStore = {
+            $reset: jest.fn(),
+        };
+        const mockProductStore = {
+            $reset: jest.fn(),
+        };
+
+        Shopware.Store.get = jest.fn().mockImplementation((storeName) => {
+            switch (storeName) {
+                case 'cmsPage':
+                    return mockCmsPageStore;
+                case 'swCategoryDetail':
+                    return mockCategoryStore;
+                case 'swProductDetail':
+                    return mockProductStore;
+                default:
+                    return shopwareStoreGetter(storeName);
+            }
+        });
+
+        wrapper.vm.resetRelatedStores();
+
+        expect(mockCmsPageStore.$reset).toHaveBeenCalledTimes(1);
+        expect(mockCategoryStore.$reset).toHaveBeenCalledTimes(1);
+        expect(mockProductStore.$reset).toHaveBeenCalledTimes(1);
+    });
+
+    it('should handle stores that are not registered', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        Shopware.Store.get = jest.fn().mockImplementation((storeName) => {
+            if (storeName === 'swProductDetail') {
+                throw new Error('Store not registered');
+            }
+            return shopwareStoreGetter(storeName);
+        });
+
+        expect(() => wrapper.vm.resetRelatedStores()).not.toThrow();
+    });
+
+    it('should call resetRelatedStores in createdComponent', async () => {
+        const wrapper = await createWrapper();
+        const resetSpy = jest.spyOn(wrapper.vm, 'resetRelatedStores');
+
+        await wrapper.vm.createdComponent();
+
+        expect(resetSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should call resetRelatedStores in beforeDestroyedComponent', async () => {
+        const wrapper = await createWrapper();
+        const resetSpy = jest.spyOn(wrapper.vm, 'resetRelatedStores');
+
+        wrapper.vm.beforeDestroyedComponent();
+
+        expect(resetSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should set api language id on language change', async () => {
+        const wrapper = await createWrapper();
+        const defaultLanguageSpy = jest.spyOn(wrapper.vm.cmsPageState, 'setIsSystemDefaultLanguage');
+        const setApiLanguageSpy = jest.spyOn(Shopware.Store.get('context'), 'setApiLanguageId');
+        const loadPageSpy = jest.spyOn(wrapper.vm, 'loadPage');
+
+        wrapper.vm.onChangeLanguage('new-language');
+
+        expect(defaultLanguageSpy).toHaveBeenCalledWith(true);
+        expect(setApiLanguageSpy).toHaveBeenCalledWith('new-language');
+        expect(loadPageSpy).toHaveBeenCalledWith('1a');
     });
 });

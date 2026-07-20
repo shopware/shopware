@@ -37,6 +37,7 @@ async function createWrapper() {
                     'sw-error-summary': true,
                     'mt-slider': true,
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                     'sw-notification-center': true,
                     'sw-help-center-v2': true,
                     'router-link': true,
@@ -77,7 +78,6 @@ async function createWrapper() {
                         getValues: () => {
                             return Promise.resolve({
                                 'core.media.defaultEnableAugmentedReality': false,
-                                'core.media.defaultLightIntensity': 100,
                             });
                         },
                     },
@@ -88,37 +88,6 @@ async function createWrapper() {
 }
 
 describe('module/sw-settings-media/page/sw-settings-media', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
-    it('should handle error on creation', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        wrapper.vm.createErrorNotification = jest.fn();
-        wrapper.vm.systemConfigApiService.getValues = jest.fn(() => {
-            // eslint-disable-next-line prefer-promise-reject-errors
-            return Promise.reject({
-                response: {
-                    data: {
-                        errors: [
-                            {
-                                code: '0',
-                                detail: 'Oops!',
-                            },
-                        ],
-                    },
-                },
-            });
-        });
-
-        await wrapper.vm.createdComponent();
-
-        expect(wrapper.vm.createErrorNotification).toHaveBeenCalled();
-    });
-
     it('should save system config failed', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

@@ -8,15 +8,16 @@ use OpenSearchDSL\Query\Compound\DisMaxQuery;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Elasticsearch\AbstractTokenQueryBuilder;
 use Shopware\Elasticsearch\ElasticsearchException;
-use Shopware\Elasticsearch\TokenQueryBuilder;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchTokenizer;
 
 /**
- * @phpstan-type SearchConfig array{and_logic: string, field: string, tokenize: int, ranking: int}
+ * @phpstan-type SearchConfig array{and_logic: string, field: string, tokenize: int, ranking: int, use_exact_subfield?: int}
  */
 #[Package('framework')]
 class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
@@ -27,9 +28,10 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
     public function __construct(
         private readonly EntityDefinition $productDefinition,
         private readonly AbstractTokenFilter $tokenFilter,
-        private readonly TokenizerInterface $tokenizer,
         private readonly SearchConfigLoader $configLoader,
-        private readonly TokenQueryBuilder $tokenQueryBuilder
+        private readonly AbstractTokenQueryBuilder $tokenQueryBuilder,
+        private readonly ElasticsearchTokenizer $tokenizer,
+        private readonly float $dismaxTieBreaker = 0.2,
     ) {
     }
 
@@ -42,24 +44,26 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
     {
         $originalTerm = mb_strtolower((string) $criteria->getTerm());
 
-        $tokens = $this->tokenizer->tokenize($originalTerm);
+        $searchConfig = $this->configLoader->load($context);
+
+        $minSearchLength = $searchConfig[0]['min_search_length'] ?? AbstractTokenFilter::DEFAULT_MIN_SEARCH_TERM_LENGTH;
+        $tokens = $this->tokenizer->tokenize($originalTerm, $minSearchLength);
         $tokens = $this->tokenFilter->filter($tokens, $context);
 
-        if (empty(array_filter($tokens))) {
+        if (array_filter($tokens) === []) {
             throw ElasticsearchException::emptyQuery();
         }
 
-        $searchConfig = $this->configLoader->load($context);
-
-        $configs = array_map(function (array $item): SearchFieldConfig {
+        $configs = array_map(static function (array $item): SearchFieldConfig {
             return new SearchFieldConfig(
-                (string) $item['field'],
-                (float) $item['ranking'],
+                $item['field'],
+                $item['ranking'],
                 (bool) $item['tokenize'],
                 (bool) $item['and_logic'],
+                true,
+                (bool) $item['use_exact_subfield'],
             );
         }, $searchConfig);
-
         if (!$configs[0]->isAndLogic()) {
             $tokens = [$originalTerm];
         }
@@ -79,7 +83,7 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
             }
         }
 
-        if (empty($queries)) {
+        if ($queries === []) {
             throw ElasticsearchException::emptyQuery();
         }
 
@@ -110,6 +114,7 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
 
         $dismax->addQuery($tokensQuery);
         $dismax->addQuery($originalTermQuery);
+        $dismax->addParameter('tie_breaker', $this->dismaxTieBreaker);
 
         return $dismax;
     }

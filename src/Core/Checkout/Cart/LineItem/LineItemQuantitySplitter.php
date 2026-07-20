@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -47,11 +50,29 @@ class LineItemQuantitySplitter
 
         $definition = new QuantityPriceDefinition($unitPrice, $taxRules, $tmpItem->getQuantity());
 
-        $price = $this->quantityPriceCalculator->calculate($definition, $context);
+        if (Feature::isActive('v6.8.0.0')) {
+            $taxes = new CalculatedTaxCollection();
+            foreach ($lineItemPrice->getCalculatedTaxes() as $tax) {
+                $taxes->add(new CalculatedTax($tax->getTax() / $item->getQuantity() * $quantity, $tax->getTaxRate(), $tax->getPrice() / $item->getQuantity() * $quantity, $tax->getLabel()));
+            }
 
-        $price->assign([
-            'listPrice' => $lineItemPrice->getListPrice() ?? null,
-        ]);
+            $price = new CalculatedPrice(
+                $unitPrice,
+                $unitPrice * $quantity,
+                $taxes,
+                $taxRules,
+                $tmpItem->getQuantity(),
+                $lineItemPrice->getReferencePrice(),
+                $lineItemPrice->getListPrice(),
+                $lineItemPrice->getRegulationPrice(),
+            );
+        } else {
+            $price = $this->quantityPriceCalculator->calculate($definition, $context);
+
+            $price->assign([
+                'listPrice' => $lineItemPrice->getListPrice() ?? null,
+            ]);
+        }
 
         $tmpItem->setPrice($price);
 

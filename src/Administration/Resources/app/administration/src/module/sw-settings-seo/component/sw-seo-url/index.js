@@ -4,9 +4,20 @@
 
 import './store';
 import template from './sw-seo-url.html.twig';
+import './sw-seo-url.scss';
 
 const Criteria = Shopware.Data.Criteria;
 const EntityCollection = Shopware.Data.EntityCollection;
+
+/**
+ * Sequences that are not URL-allowed inside a SEO path: a `%` that is not
+ * part of a valid percent-escape, the fragment marker `#`, backslashes and
+ * ASCII control characters. Query strings (`?`) and valid `%XX` escapes are
+ * allowed. Keep this regex in sync with
+ * `Shopware\\Core\\Content\\Seo\\Validation\\Constraint\\ValidSeoPathInfo::DISALLOWED_CHARACTERS_PATTERN`.
+ */
+// eslint-disable-next-line no-control-regex
+const DISALLOWED_SEO_PATH_CHARS = /%(?![0-9A-Fa-f]{2})|[#\\\x00-\x1F\x7F]/;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -42,7 +53,6 @@ export default {
         hasDefaultTemplate: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -109,7 +119,24 @@ export default {
         },
 
         seoUrlHelptext() {
-            return this.isHeadlessSalesChannel ? this.$tc('sw-seo-url.textSeoUrlsDisallowedForHeadless') : null;
+            return this.isHeadlessSalesChannel ? this.$t('sw-seo-url.textSeoUrlsDisallowedForHeadless') : null;
+        },
+
+        seoPathInfoError() {
+            const seoPathInfo = this.currentSeoUrl?.seoPathInfo;
+
+            if (typeof seoPathInfo !== 'string' || seoPathInfo === '') {
+                return null;
+            }
+
+            if (!DISALLOWED_SEO_PATH_CHARS.test(seoPathInfo)) {
+                return null;
+            }
+
+            return {
+                code: 'CONTENT__SEO_URL_INVALID_CHARACTERS',
+                detail: this.$t('sw-seo-url.errorInvalidCharacters'),
+            };
         },
 
         hasAdditionalSeoSlot() {

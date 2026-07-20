@@ -38,6 +38,7 @@ async function createWrapper(additionalPromotionData = {}) {
                         props: ['disabled'],
                     },
                     'sw-loader': true,
+                    'sw-time-ago': true,
                 },
                 provide: {
                     repositoryFactory: {

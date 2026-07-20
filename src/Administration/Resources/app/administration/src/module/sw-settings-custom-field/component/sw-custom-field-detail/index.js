@@ -4,8 +4,9 @@
 import template from './sw-custom-field-detail.html.twig';
 import './sw-custom-field-detail.scss';
 
-const { Mixin, Context } = Shopware;
+const { Mixin, Context, Component } = Shopware;
 const { Criteria } = Shopware.Data;
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -49,10 +50,12 @@ export default {
     computed: {
         locales() {
             if (this.set.config.translated && this.set.config.translated === true) {
-                return Object.keys(this.$root.$i18n.messages);
+                // Only full locale codes (e.g. en-GB, de-DE) represent real admin languages.
+                // vue-i18n also registers short aliases (en, de) that must not become editable tabs.
+                return Object.keys(this.$root.$i18n.messages.value).filter((locale) => locale.includes('-'));
             }
 
-            return [this.$root.$i18n.fallbackLocale];
+            return [this.$root.$i18n.fallbackLocale.value];
         },
 
         canSave() {
@@ -65,18 +68,18 @@ export default {
 
         modalTitle() {
             if (this.currentCustomField._isNew) {
-                return this.$tc('sw-settings-custom-field.customField.detail.titleNewCustomField');
+                return this.$t('sw-settings-custom-field.customField.detail.titleNewCustomField');
             }
 
-            return this.$tc('sw-settings-custom-field.customField.detail.titleEditCustomField');
+            return this.$t('sw-settings-custom-field.customField.detail.titleEditCustomField');
         },
 
         labelSaveButton() {
             if (this.currentCustomField._isNew) {
-                return this.$tc('global.default.add');
+                return this.$t('global.default.add');
             }
 
-            return this.$tc('sw-settings-custom-field.customField.detail.buttonEditApply');
+            return this.$t('sw-settings-custom-field.customField.detail.buttonEditApply');
         },
 
         isProductCustomField() {
@@ -96,10 +99,14 @@ export default {
                 return {
                     id: key,
                     value: key,
-                    label: this.$tc(`sw-settings-custom-field.types.${key}`),
+                    label: this.$t(`sw-settings-custom-field.types.${key}`),
                 };
             });
         },
+
+        ...mapPropertyErrors('currentCustomField', [
+            'name',
+        ]),
     },
 
     created() {
@@ -124,6 +131,10 @@ export default {
 
             if (!this.currentCustomField.config.hasOwnProperty('customFieldPosition')) {
                 this.currentCustomField.config.customFieldPosition = 1;
+            }
+
+            if (!this.currentCustomField.includeInSearch) {
+                this.currentCustomField.includeInSearch = false;
             }
 
             if (!this.currentCustomField.allowCartExpose) {
@@ -178,8 +189,8 @@ export default {
         },
 
         createNameNotUniqueNotification() {
-            const notificationTitle = this.$tc('global.default.error');
-            const nameNotUniqueMessage = this.$tc('sw-settings-custom-field.set.detail.messageNameNotUnique');
+            const notificationTitle = this.$t('global.default.error');
+            const nameNotUniqueMessage = this.$t('sw-settings-custom-field.set.detail.messageNameNotUnique');
 
             this.createNotificationError({
                 title: notificationTitle,
@@ -188,8 +199,8 @@ export default {
         },
 
         createEntityTypeRequiredNotification() {
-            const notificationTitle = this.$tc('global.default.error');
-            const entityTypeRequiredTitle = this.$tc('sw-settings-custom-field.set.detail.entityTypeRequired');
+            const notificationTitle = this.$t('global.default.error');
+            const entityTypeRequiredTitle = this.$t('sw-settings-custom-field.set.detail.entityTypeRequired');
 
             this.createNotificationError({
                 title: notificationTitle,

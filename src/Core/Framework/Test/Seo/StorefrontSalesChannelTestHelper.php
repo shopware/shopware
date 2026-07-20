@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Seo;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -71,7 +72,7 @@ trait StorefrontSalesChannelTestHelper
         array $languageIds = [],
         ?string $categoryEntrypoint = null
     ): SalesChannelContext {
-        /** @var EntityRepository $repo */
+        /** @var EntityRepository<SalesChannelCollection> $repo */
         $repo = static::getContainer()->get('sales_channel.repository');
         $languageIds[] = $defaultLanguageId;
         $languageIds = array_unique($languageIds);
@@ -116,14 +117,14 @@ trait StorefrontSalesChannelTestHelper
         ]], Context::createDefaultContext());
 
         /** @var SalesChannelEntity $salesChannel */
-        $salesChannel = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
+        $salesChannel = $repo->search(new Criteria([$id]), Context::createDefaultContext())->getEntities()->first();
 
         return $this->createNewContext($salesChannel);
     }
 
     public function updateSalesChannelNavigationEntryPoint(string $id, string $categoryId): void
     {
-        /** @var EntityRepository $repo */
+        /** @var EntityRepository<SalesChannelCollection> $repo */
         $repo = static::getContainer()->get('sales_channel.repository');
 
         $repo->update([['id' => $id, 'navigationCategoryId' => $categoryId]], Context::createDefaultContext());
@@ -160,10 +161,11 @@ trait StorefrontSalesChannelTestHelper
             'customerNumber' => 'asdf',
         ];
 
+        /** @var EntityRepository<CustomerCollection> */
         $customerRepository = $container->get('customer.repository');
         $customerRepository->upsert([$customer], Context::createDefaultContext());
 
-        $customer = $customerRepository->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
+        $customer = $customerRepository->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(CustomerEntity::class, $customer);
 

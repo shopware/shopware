@@ -17,7 +17,7 @@ We implement two possible handlers **Synchronous Payment** and **Asynchronous Pa
 
 ### Synchronous Payment
 
-The synchronous payment is intended to execute a payment immediately after the order has been created, **without a user interaction**. The client can pass additional data to the handler to process the payment of the order. The handler can throw an `SyncPaymentProcessException` if an error occurs.
+The synchronous payment is intended to execute a payment immediately after the order has been created, **without a user interaction**. The client can pass additional data to the handler to process the payment of the order. The handler can throw an exception if an error occurs.
 
 The following diagram shows a happy case sequence of a synchronous payment handling. The error handling is described [here](#after-order-payment-error-case) 
 

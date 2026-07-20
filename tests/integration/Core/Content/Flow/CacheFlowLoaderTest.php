@@ -32,14 +32,13 @@ class CacheFlowLoaderTest extends TestCase
         /** @var EventDispatcher $dispatcher */
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
         $dispatcher->addListener(FlowEvents::FLOW_WRITTEN_EVENT, $listener);
 
         $flowLoader = static::getContainer()->get(CachedFlowLoader::class);
         $class = new \ReflectionClass($flowLoader);
         $property = $class->getProperty('flows');
-        $property->setAccessible(true);
         $property->setValue(
             $flowLoader,
             ['abc']

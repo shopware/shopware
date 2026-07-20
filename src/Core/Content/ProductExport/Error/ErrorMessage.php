@@ -10,9 +10,9 @@ class ErrorMessage extends Struct
 {
     protected string $message;
 
-    protected ?int $line;
+    protected ?int $line = null;
 
-    protected ?int $column;
+    protected ?int $column = null;
 
     public function getMessage(): string
     {

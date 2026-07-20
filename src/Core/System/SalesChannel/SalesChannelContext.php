@@ -9,8 +9,12 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnitTypeEnum;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Twig\SwTwigFunction;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
@@ -18,6 +22,7 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\Tax\TaxCollection;
+use Symfony\Component\Lock\LockInterface;
 
 #[Package('framework')]
 class SalesChannelContext extends Struct
@@ -29,9 +34,21 @@ class SalesChannelContext extends Struct
      */
     protected array $permissions = [];
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:parameter-name-change - Property `permisionsLocked` will be removed, use `permissionsLocked` instead
+     */
     protected bool $permisionsLocked = false;
 
+    protected bool $permissionsLocked = false;
+
     protected ?string $imitatingUserId = null;
+
+    protected MeasurementUnits $measurementSystem;
+
+    /**
+     * @internal
+     */
+    protected ?LockInterface $cartLock = null;
 
     /**
      * @internal
@@ -54,7 +71,15 @@ class SalesChannelContext extends Struct
         protected CashRoundingConfig $totalRounding,
         protected LanguageInfo $languageInfo,
         protected array $areaRuleIds = [],
+        ?MeasurementUnits $measurementSystem = null,
     ) {
+        $this->measurementSystem = $measurementSystem ?? new MeasurementUnits(
+            MeasurementUnits::DEFAULT_MEASUREMENT_SYSTEM,
+            [
+                MeasurementUnitTypeEnum::LENGTH->value => MeasurementUnits::DEFAULT_LENGTH_UNIT,
+                MeasurementUnitTypeEnum::WEIGHT->value => MeasurementUnits::DEFAULT_WEIGHT_UNIT,
+            ]
+        );
     }
 
     public function getCurrentCustomerGroup(): CustomerGroupEntity
@@ -192,13 +217,30 @@ class SalesChannelContext extends Struct
         $this->context->lockRules();
     }
 
+    public function isPermissionsLocked(): bool
+    {
+        /** @deprecated tag:v6.8.0 - `$this->permisionsLocked` will be removed from condition without replacement */
+        return $this->permissionsLocked || $this->permisionsLocked;
+    }
+
     public function lockPermissions(): void
     {
+        /** @deprecated tag:v6.8.0 - `$this->permisionsLocked` setter will be removed without replacement */
         $this->permisionsLocked = true;
+        $this->permissionsLocked = true;
     }
 
     public function getToken(): string
     {
+        /**
+         * @see SwTwigFunction::getAttribute
+         * Inside Twig rendering context, the token is not allowed to be accessed as it might expose sensitive information
+         * when the data is dumped into outputted HTML.
+         */
+        if (FieldVisibility::$isInTwigRenderingContext) {
+            throw SalesChannelException::contextTokenNotAccessible();
+        }
+
         return $this->token;
     }
 
@@ -230,7 +272,8 @@ class SalesChannelContext extends Struct
      */
     public function setPermissions(array $permissions): void
     {
-        if ($this->permisionsLocked) {
+        /** @deprecated tag:v6.8.0 - `$this->permisionsLocked` will be removed from condition without replacement */
+        if ($this->permisionsLocked || $this->permissionsLocked) {
             throw SalesChannelException::contextPermissionsLocked();
         }
 
@@ -273,6 +316,11 @@ class SalesChannelContext extends Struct
     public function getStates(): array
     {
         return $this->context->getStates();
+    }
+
+    public function state(\Closure $closure, string ...$states): mixed
+    {
+        return $this->context->state(fn () => $closure($this), ...$states);
     }
 
     public function getDomainId(): ?string
@@ -379,6 +427,36 @@ class SalesChannelContext extends Struct
         return $result;
     }
 
+    /**
+     * Executed the callback function with the given permissions set in the SalesChannelContext. If the
+     * permissions are locked, the callback is called with the original permissions of the SalesChannelContext.
+     *
+     * @template TReturn of mixed
+     *
+     * @param array<string, bool> $permissions
+     * @param callable(SalesChannelContext): TReturn $callback
+     *
+     * @return TReturn the return value of the provided callback function
+     */
+    public function withPermissions(array $permissions, callable $callback): mixed
+    {
+        /** @deprecated tag:v6.8.0 - `$this->permisionsLocked` will be removed from condition without replacement */
+        if ($this->permisionsLocked || $this->permissionsLocked) {
+            return $callback($this);
+        }
+
+        $originalPermissions = $this->getPermissions();
+        $permissions = array_merge($originalPermissions, $permissions);
+
+        $this->setPermissions($permissions);
+
+        $result = $callback($this);
+
+        $this->setPermissions($originalPermissions);
+
+        return $result;
+    }
+
     public function getCountryId(): string
     {
         return $this->shippingLocation->getCountry()->getId();
@@ -397,5 +475,31 @@ class SalesChannelContext extends Struct
     public function setLanguageInfo(LanguageInfo $languageInfo): void
     {
         $this->languageInfo = $languageInfo;
+    }
+
+    public function getMeasurementSystem(): MeasurementUnits
+    {
+        return $this->measurementSystem;
+    }
+
+    public function setMeasurementSystem(MeasurementUnits $measurementSystem): void
+    {
+        $this->measurementSystem = $measurementSystem;
+    }
+
+    /**
+     * @internal
+     */
+    public function getCartLock(): ?LockInterface
+    {
+        return $this->cartLock;
+    }
+
+    /**
+     * @internal
+     */
+    public function setCartLock(?LockInterface $cartLock): void
+    {
+        $this->cartLock = $cartLock;
     }
 }

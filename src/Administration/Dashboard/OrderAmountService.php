@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -14,12 +15,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal
  */
 #[Package('after-sales')]
-class OrderAmountService
+readonly class OrderAmountService
 {
     public function __construct(
-        private readonly Connection $connection,
-        private readonly CashRounding $rounding,
-        private readonly bool $timeZoneSupportEnabled,
+        private Connection $connection,
+        private CashRounding $rounding,
+        private bool $timeZoneSupportEnabled,
     ) {
     }
 
@@ -32,7 +33,8 @@ class OrderAmountService
 
         $accessor = '`order`.order_date_time';
 
-        if ($this->timeZoneSupportEnabled) {
+        // @deprecated tag:v6.8.0 - time zone support always enabled, remove if, but keep content
+        if ($this->timeZoneSupportEnabled || Feature::isActive('v6.8.0.0')) {
             $accessor = 'IFNULL(CONVERT_TZ(' . $accessor . ', :dbtimezone, :timezone), ' . $accessor . ')';
 
             $query->setParameter('dbtimezone', '+00:00');

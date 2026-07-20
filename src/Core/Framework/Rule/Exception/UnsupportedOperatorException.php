@@ -6,23 +6,19 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('fundamentals@after-sales')]
 class UnsupportedOperatorException extends ShopwareHttpException
 {
-    protected string $operator;
-
-    protected string $class;
-
     public function __construct(
-        string $operator,
-        string $class
+        protected string $operator,
+        protected string $class,
     ) {
-        $this->operator = $operator;
-        $this->class = $class;
-
         parent::__construct(
             'Unsupported operator {{ operator }} in {{ class }}',
-            ['operator' => $operator, 'class' => $class]
+            ['operator' => $this->operator, 'class' => $this->class]
         );
     }
 

@@ -5,6 +5,7 @@ import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
 const defaultElement = {
+    type: 'vimeo-video',
     config: {
         videoID: {
             value: 'foo-bar',
@@ -23,13 +24,20 @@ async function createWrapper() {
             },
             stubs: {
                 'sw-text-field': true,
-
                 'sw-colorpicker': true,
                 'sw-cms-mapping-field': true,
                 'sw-media-upload-v2': true,
                 'sw-media-modal-v2': true,
-
                 'sw-upload-listener': true,
+                'sw-cms-inherit-wrapper': {
+                    template: '<div><slot :isInherited="false"></slot></div>',
+                    props: [
+                        'field',
+                        'element',
+                        'contentEntity',
+                        'label',
+                    ],
+                },
             },
         },
     });

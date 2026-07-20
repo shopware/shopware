@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
@@ -34,6 +35,10 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
             unset($value['listPrice']['extensions']);
         }
 
+        if (isset($value['regulationPrice'])) {
+            unset($value['regulationPrice']['extensions']);
+        }
+
         $data->setValue($value);
 
         yield from parent::encode($field, $existence, $data, $parameters);
@@ -51,7 +56,7 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
         }
 
         $taxRules = array_map(
-            fn (array $tax) => new TaxRule(
+            static fn (array $tax) => new TaxRule(
                 (float) $tax['taxRate'],
                 (float) $tax['percentage']
             ),
@@ -59,7 +64,7 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
         );
 
         $calculatedTaxes = array_map(
-            fn (array $tax) => new CalculatedTax(
+            static fn (array $tax) => new CalculatedTax(
                 (float) $tax['tax'],
                 (float) $tax['taxRate'],
                 (float) $tax['price'],
@@ -81,10 +86,17 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
         }
 
         $listPrice = null;
-        if (isset($decoded['listPrice'])) {
+        if (isset($decoded['listPrice']) && ((float) ($decoded['listPrice']['price'] ?? 0)) > 0) {
             $listPrice = ListPrice::createFromUnitPrice(
                 (float) $decoded['unitPrice'],
                 (float) $decoded['listPrice']['price']
+            );
+        }
+
+        $regulationPrice = null;
+        if (isset($decoded['regulationPrice'])) {
+            $regulationPrice = new RegulationPrice(
+                (float) $decoded['regulationPrice']['price']
             );
         }
 
@@ -95,7 +107,8 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
             new TaxRuleCollection($taxRules),
             (int) $decoded['quantity'],
             $referencePriceDefinition,
-            $listPrice
+            $listPrice,
+            $regulationPrice
         );
     }
 }

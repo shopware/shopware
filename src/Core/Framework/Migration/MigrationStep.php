@@ -8,7 +8,10 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Database\TableHelper;
+use Shopware\Core\Framework\Util\UtilException;
 
 #[Package('framework')]
 abstract class MigrationStep
@@ -81,14 +84,21 @@ abstract class MigrationStep
         IndexerQueuer::registerIndexer($connection, $name, $indexerToRun);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:exception-change - Will throw {@see UtilException} instead of {@see TableNotFoundException}
+     *
+     * @param non-empty-string $table
+     */
     protected function indexExists(Connection $connection, string $table, string $index): bool
     {
-        $exists = $connection->fetchOne(
+        if (Feature::isActive('v6.8.0.0')) {
+            return TableHelper::indexExists($connection, $table, $index);
+        }
+
+        return (bool) $connection->fetchOne(
             'SHOW INDEXES FROM `' . $table . '` WHERE `key_name` LIKE :index',
             ['index' => $index]
         );
-
-        return !empty($exists);
     }
 
     protected function dropTableIfExists(Connection $connection, string $table): void

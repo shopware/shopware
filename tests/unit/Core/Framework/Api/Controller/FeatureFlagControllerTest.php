@@ -76,7 +76,7 @@ class FeatureFlagControllerTest extends TestCase
 
         $controller = new FeatureFlagController(
             $featureFlagService,
-            $this->createMock(CacheClearer::class)
+            static::createStub(CacheClearer::class)
         );
 
         $response = $controller->load();

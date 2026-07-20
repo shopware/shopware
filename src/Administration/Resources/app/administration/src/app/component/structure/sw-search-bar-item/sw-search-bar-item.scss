@@ -2,10 +2,10 @@
 @import "~scss/mixins";
 
 $sw-search-bar-item-border-radius: $border-radius-default;
-$sw-search-bar-item-color-label: $color-darkgray-200;
-$sw-search-bar-item-color-type: darken($color-gray-100, 25%);
-$sw-search-bar-item-hover-color-background: lighten($color-shopware-brand-500, 40%);
-$sw-search-bar-item-label-hover-color-text: $color-shopware-brand-500;
+$sw-search-bar-item-color-label: var(--color-text-primary-default);
+$sw-search-bar-item-color-type: var(--color-text-primary-default);
+$sw-search-bar-item-hover-color-background: var(--color-background-brand-default);
+$sw-search-bar-item-label-hover-color-text: var(--color-text-brand-default);
 
 .sw-search-bar-item {
     border-radius: $sw-search-bar-item-border-radius;
@@ -16,7 +16,12 @@ $sw-search-bar-item-label-hover-color-text: $color-shopware-brand-500;
         border-radius: $sw-search-bar-item-border-radius;
         display: flex;
         text-decoration: none;
-        line-height: $line-height-sm;
+        line-height: var(--font-line-height-s);
+
+        &:focus-visible {
+            outline-offset: var(--scale-size-2);
+            outline: var(--scale-size-2) solid var(--color-border-brand-default);
+        }
     }
 
     .mt-icon {
@@ -26,7 +31,7 @@ $sw-search-bar-item-label-hover-color-text: $color-shopware-brand-500;
 
     .sw-search-bar-item__label {
         color: $sw-search-bar-item-color-label;
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -35,7 +40,7 @@ $sw-search-bar-item-label-hover-color-text: $color-shopware-brand-500;
 
     .sw-search-bar-item__type {
         color: $sw-search-bar-item-color-type;
-        font-size: $font-size-xxs;
+        font-size: var(--font-size-2xs);
         margin-left: auto;
     }
 
@@ -78,7 +83,7 @@ $sw-search-bar-item-label-hover-color-text: $color-shopware-brand-500;
 
             span {
                 padding: 0 4px;
-                font-size: $font-size-xxs;
+                font-size: var(--font-size-2xs);
             }
         }
 
@@ -93,7 +98,7 @@ $sw-search-bar-item-label-hover-color-text: $color-shopware-brand-500;
         }
 
         .sw-highlight-text:not(:first-child) {
-            color: $color-gray-500;
+            color: var(--color-text-secondary-default);
         }
     }
 }

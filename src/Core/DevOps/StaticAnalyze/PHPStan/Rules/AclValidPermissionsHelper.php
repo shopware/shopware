@@ -29,10 +29,15 @@ class AclValidPermissionsHelper
         'system.plugin_maintain',
         'system.plugin_upload',
         'system:core:update',
+        'system:translation:read',
+        'system:translation:create',
+        'system:translation:update',
+        'system:translation:delete',
         'app',
         'api_send_email',
         'promotion.editor',
         'order_refund.editor',
+        'media.editor',
         'user_change_me',
         'notification:create',
     ];
@@ -44,7 +49,7 @@ class AclValidPermissionsHelper
 
     public function __construct(string $schemaPath = self::SCHEMA_FILE)
     {
-        if (!file_exists($schemaPath)) {
+        if (!\is_file($schemaPath)) {
             return;
         }
 

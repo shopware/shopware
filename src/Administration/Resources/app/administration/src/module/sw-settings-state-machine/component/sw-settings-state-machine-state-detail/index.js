@@ -63,14 +63,14 @@ export default Component.wrapComponentConfig({
                 await this.stateMachineStateRepository.save(this.stateMachineState);
 
                 this.createNotificationSuccess({
-                    title: this.$tc('global.default.success'),
-                    message: this.$tc('sw-settings-state-machine.state.notification.successMessage'),
+                    title: this.$t('global.default.success'),
+                    message: this.$t('sw-settings-state-machine.state.notification.successMessage'),
                 });
 
                 this.$emit('modal-close');
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-state-machine.state.notification.errorMessage'),
+                    message: this.$t('sw-settings-state-machine.state.notification.errorMessage'),
                 });
             }
         },

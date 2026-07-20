@@ -3,12 +3,11 @@
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
-use Symfony\Component\Validator\Exception\UnexpectedTypeException;
-use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
 #[Package('checkout')]
 class CustomerVatIdentificationValidator extends ConstraintValidator
@@ -23,7 +22,7 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
     public function validate(mixed $vatIds, Constraint $constraint): void
     {
         if (!$constraint instanceof CustomerVatIdentification) {
-            throw new UnexpectedTypeException($constraint, CustomerVatIdentification::class);
+            throw CustomerException::unexpectedConstraintType($constraint, CustomerVatIdentification::class);
         }
 
         if ($vatIds === null) {
@@ -31,7 +30,7 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
         }
 
         if (!is_iterable($vatIds)) {
-            throw new UnexpectedValueException($vatIds, 'iterable');
+            throw CustomerException::unexpectedConstraintValue('iterable', CustomerVatIdentification::class);
         }
 
         $vatIdPattern = $this->getVatIdPattern($constraint);
@@ -41,7 +40,7 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
 
         foreach ($vatIds as $vatId) {
             if (!preg_match($vatIdPattern, (string) $vatId)) {
-                $this->context->buildViolation($constraint->message)
+                $this->context->buildViolation($constraint->getMessage())
                     ->setParameter('{{ vatId }}', $this->formatValue($vatId))
                     ->setCode(CustomerVatIdentification::VAT_ID_FORMAT_NOT_CORRECT)
                     ->addViolation();

@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package inventory
  */
@@ -6,6 +8,7 @@ import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
 
 const { Store } = Shopware;
+const { cloneDeep } = Shopware.Utils.object;
 
 let productPropertiesMock = [
     { id: '01', groupId: 'sizeId', name: '30' },
@@ -86,6 +89,9 @@ async function createWrapper() {
         search: () => {
             return Promise.resolve({ total: 0 });
         },
+        searchIds: () => {
+            return Promise.resolve({ total: 0 });
+        },
     };
 
     return mount(await wrapTestComponent('sw-product-properties', { sync: true }), {
@@ -103,8 +109,8 @@ async function createWrapper() {
                                 @click="onClickRemoveInheritance">
                             </div>
                             <div v-else
-                                 class="sw-inheritance-switch--is-not-inherited"
-                                 @click="onClickRestoreInheritance">
+                                class="sw-inheritance-switch--is-not-inherited"
+                                @click="onClickRestoreInheritance">
                             </div>
                         </div>`,
                     methods: {
@@ -140,24 +146,51 @@ async function createWrapper() {
                         </div>
                     `,
                 },
+                'mt-empty-state': {
+                    props: [
+                        'headline',
+                        'description',
+                    ],
+                    template: `
+                        <div class="mt-empty-state">
+                            <div class="mt-empty-state__headline">{{ headline }}</div>
+                            <div
+                                v-if="description"
+                                class="mt-empty-state__description"
+                            >
+                                {{ description }}
+                            </div>
+                            <slot name="button"></slot>
+                        </div>
+                    `,
+                },
+                'mt-button': {
+                    props: ['disabled'],
+                    template: `
+                        <button :disabled="disabled">
+                            <slot></slot>
+                        </button>
+                    `,
+                },
                 'sw-entity-listing': {
-                    props: ['items'],
+                    props: [
+                        'items',
+                        'dataSource',
+                    ],
+                    computed: {
+                        listingItems() {
+                            return this.dataSource || this.items || [];
+                        },
+                    },
                     methods: {
                         resetSelection: () => {},
                     },
                     template: `
                         <div class="sw-entity-listing" ref="entityListing">
-                            <template v-for="item in items">
+                            <template v-for="item in listingItems" :key="item.id">
+                                <slot name="column-values" v-bind="{ item }"></slot>
                                 <slot name="actions" v-bind="{ item }"></slot>
                             </template>
-                        </div>
-                    `,
-                },
-                'sw-empty-state': {
-                    template: `
-                        <div class="sw-empty-state">
-                            <slot></slot>
-                            <slot name="actions"></slot>
                         </div>
                     `,
                 },
@@ -170,6 +203,15 @@ async function createWrapper() {
             provide: {
                 repositoryFactory: {
                     create: () => repositoryFactoryCreateResult,
+                },
+            },
+            mocks: {
+                $route: {
+                    meta: {
+                        $module: {
+                            icon: 'regular-content',
+                        },
+                    },
                 },
             },
         },
@@ -196,14 +238,6 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
                 isChild: () => true,
             },
         });
-    });
-
-    it('should be a Vue.JS component', async () => {
-        global.activeAclRoles = [];
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should get group ids successful', async () => {
@@ -296,6 +330,36 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         wrapper.vm.getProperties.mockRestore();
     });
 
+    it('should render property value labels in one wrapping container per property', async () => {
+        global.activeAclRoles = ['product.deleter'];
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.setData({
+            groupIds: [
+                'sizeId',
+                'colorId',
+            ],
+            properties: propertiesMock,
+        });
+
+        const valueContainers = wrapper.findAll('.sw-product-properties-list__column-values').filter((container) => {
+            return container.findAll('sw-label-stub').length > 0;
+        });
+
+        expect(valueContainers).toHaveLength(propertiesMock.length);
+        expect(valueContainers[0].findAll('sw-label-stub')).toHaveLength(propertiesMock[0].options.length);
+        expect(valueContainers[0].find('sw-label-stub').attributes('dismissable')).toBe('true');
+    });
+
+    it('should allow the property value column to wrap', async () => {
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.propertyColumns.find((column) => column.property === 'values').multiLine).toBe(true);
+    });
+
     it('should delete property value successful', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();
@@ -304,6 +368,8 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
             return Promise.resolve(propertiesMock);
         });
+
+        const getPropertiesSpy = jest.spyOn(wrapper.vm, 'getProperties').mockImplementation(() => Promise.resolve());
 
         Store.get('swProductDetail').product = productMock;
         await wrapper.vm.getGroupIds();
@@ -330,6 +396,8 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
                 }),
             ]),
         );
+        expect(getPropertiesSpy).toHaveBeenCalled();
+
         wrapper.vm.propertyGroupRepository.search.mockRestore();
     });
 
@@ -347,7 +415,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         await wrapper.vm.getGroupIds();
         await wrapper.vm.getProperties();
 
+        const getPropertiesSpy = jest.spyOn(wrapper.vm, 'getProperties').mockImplementation(() => Promise.resolve());
+
         wrapper.vm.onDeleteProperty(propertiesMock[0]);
+        await nextTick();
 
         expect(wrapper.vm.productProperties).toEqual(
             expect.arrayContaining([
@@ -363,7 +434,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
                 }),
             ]),
         );
+        expect(getPropertiesSpy).toHaveBeenCalled();
+
         wrapper.vm.propertyGroupRepository.search.mockRestore();
+        getPropertiesSpy.mockRestore();
     });
 
     it('should delete properties successful', async () => {
@@ -371,7 +445,6 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({ $refs: $refsMock });
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
             return Promise.resolve(propertiesMock);
         });
@@ -380,7 +453,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         await wrapper.vm.getGroupIds();
         await wrapper.vm.getProperties();
 
+        const getPropertiesSpy = jest.spyOn(wrapper.vm, 'getProperties').mockImplementation(() => Promise.resolve());
+
         wrapper.vm.onDeleteProperties();
+        await nextTick();
 
         expect(wrapper.vm.productProperties).toEqual(
             expect.arrayContaining([
@@ -396,7 +472,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
                 }),
             ]),
         );
+        expect(getPropertiesSpy).toHaveBeenCalled();
+
         wrapper.vm.propertyGroupRepository.search.mockRestore();
+        getPropertiesSpy.mockRestore();
     });
 
     it('should get properties when changing search term', async () => {
@@ -635,6 +714,21 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         expect(wrapper.find('.sw-inheritance-switch').exists()).toBeFalsy();
     });
 
+    it('should render card title as mt-card title', async () => {
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const cardElement = wrapper.get('.sw-product-properties__card');
+        const cardTitleWrapper = cardElement.get('.sw-inherit-wrapper__card-title');
+        const cardTitle = cardTitleWrapper.get('h3.mt-card__title');
+
+        expect(cardTitleWrapper.classes()).toContain('sw-inherit-wrapper__card-title');
+        expect(cardTitle.classes()).toEqual(['mt-card__title']);
+        expect(cardTitle.text()).toBe('sw-product.properties.cardTitle');
+        expect(cardTitleWrapper.find('.sw-inheritance-switch').exists()).toBeTruthy();
+    });
+
     it('should close properties modal and call a callback', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();
@@ -647,5 +741,33 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
         expect(wrapper.vm.turnOffAddPropertiesModal).toHaveBeenCalledTimes(1);
         expect(callbackUpdateCurrentValuesMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('should render custom empty-state copy when provided', async () => {
+        global.activeAclRoles = [];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const emptyPropertiesProductMock = cloneDeep(productMock);
+        const emptyPropertiesParentProductMock = cloneDeep(parentProductMock);
+
+        emptyPropertiesProductMock.properties = [];
+        emptyPropertiesParentProductMock.properties = [];
+
+        Store.get('swProductDetail').product = emptyPropertiesProductMock;
+        Store.get('swProductDetail').parentProduct = emptyPropertiesParentProductMock;
+
+        await wrapper.setProps({
+            emptyStateTitle: 'bulk-edit.emptyStateTitle',
+            emptyStateDescription: 'bulk-edit.emptyStateDescription',
+        });
+
+        await wrapper.vm.getGroupIds();
+        await wrapper.vm.getProperties();
+        await flushPromises();
+
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('bulk-edit.emptyStateTitle');
+        expect(wrapper.find('.mt-empty-state__description').text()).toBe('bulk-edit.emptyStateDescription');
     });
 });

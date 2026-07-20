@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tag\TagDefinition;
@@ -39,6 +40,7 @@ class TagGenerator implements DemodataGeneratorInterface
             $payload[] = [
                 'id' => Uuid::randomHex(),
                 'name' => $context->getFaker()->format('productName') . ' Tag',
+                'customFields' => [DemodataService::DEMODATA_CUSTOM_FIELDS_KEY => true],
             ];
         }
 

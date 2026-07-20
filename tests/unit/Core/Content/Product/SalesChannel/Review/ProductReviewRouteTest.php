@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Review;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute;
-use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -18,7 +20,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -26,17 +27,20 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(ProductReviewRoute::class)]
 class ProductReviewRouteTest extends TestCase
 {
-    private MockObject&EntityRepository $repository;
+    /**
+     * @var Stub&EntityRepository<ProductReviewCollection>
+     */
+    private Stub&EntityRepository $repository;
 
     private StaticSystemConfigService $config;
 
-    private MockObject&EventDispatcherInterface $eventDispatcher;
+    private CacheTagCollector&Stub $cacheTagCollector;
 
     private ProductReviewRoute $route;
 
     protected function setUp(): void
     {
-        $this->repository = $this->createMock(EntityRepository::class);
+        $this->repository = static::createStub(EntityRepository::class);
         $this->config = new StaticSystemConfigService([
             'test' => [
                 'core.listing.showReview' => true,
@@ -47,13 +51,10 @@ class ProductReviewRouteTest extends TestCase
                 'core.basicInformation.email' => 'noreply@example.com',
             ],
         ]);
-        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
-        $this->route = new ProductReviewRoute(
-            $this->repository,
-            $this->config,
-            $this->eventDispatcher
-        );
+        $this->cacheTagCollector = static::createStub(CacheTagCollector::class);
+
+        $this->route = $this->createRoute();
     }
 
     public function testLoad(): void
@@ -83,18 +84,19 @@ class ProductReviewRouteTest extends TestCase
             ])
         );
 
-        $this->repository
+        $repository = $this->createMock(EntityRepository::class);
+        $repository
             ->expects($this->once())
             ->method('search')
             ->with($expectedCriteria, $context);
 
-        $event = new AddCacheTagEvent($this->route::buildName($productId));
-        $this->eventDispatcher
+        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $cacheTagCollector
             ->expects($this->once())
-            ->method('dispatch')
-            ->with($event);
+            ->method('addTag')
+            ->with($this->route::buildName($productId));
 
-        $this->route->load(
+        $this->createRoute($repository, $cacheTagCollector)->load(
             $productId,
             new Request(),
             $salesChannelContext,
@@ -114,6 +116,20 @@ class ProductReviewRouteTest extends TestCase
             new Request(),
             $salesChannelContext,
             new Criteria(),
+        );
+    }
+
+    /**
+     * @param (EntityRepository<ProductReviewCollection>&MockObject)|null $repository
+     */
+    private function createRoute(
+        ?EntityRepository $repository = null,
+        ?CacheTagCollector $cacheTagCollector = null,
+    ): ProductReviewRoute {
+        return new ProductReviewRoute(
+            $repository ?? $this->repository,
+            $this->config,
+            $cacheTagCollector ?? $this->cacheTagCollector,
         );
     }
 }

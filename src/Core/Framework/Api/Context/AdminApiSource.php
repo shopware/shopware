@@ -10,9 +10,23 @@ class AdminApiSource implements ContextSource, \JsonSerializable
 {
     use JsonSerializableTrait;
 
+    /**
+     * Runtime privileges granted to authenticated Administration users by default.
+     *
+     * @var list<string>
+     */
+    public const DEFAULT_USER_PRIVILEGES = [
+        'language:read',
+        'locale:read',
+        'message_queue_stats:read',
+        'log_entry:create',
+        'currency:read',
+        'country:read',
+    ];
+
     public string $type = 'admin-api';
 
-    private bool $isAdmin;
+    private bool $isAdmin = false;
 
     /**
      * @var array<string>
@@ -21,9 +35,8 @@ class AdminApiSource implements ContextSource, \JsonSerializable
 
     public function __construct(
         private readonly ?string $userId,
-        private readonly ?string $integrationId = null
+        private readonly ?string $integrationId = null,
     ) {
-        $this->isAdmin = false;
     }
 
     public function getUserId(): ?string
@@ -47,6 +60,14 @@ class AdminApiSource implements ContextSource, \JsonSerializable
     public function setPermissions(array $permissions): void
     {
         $this->permissions = $permissions;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getPermissions(): array
+    {
+        return $this->permissions;
     }
 
     public function isAllowed(string $privilege): bool

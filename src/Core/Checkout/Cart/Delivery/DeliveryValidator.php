@@ -26,7 +26,9 @@ class DeliveryValidator implements CartValidatorInterface
 
             $errors->add(
                 new ShippingMethodBlockedError(
-                    (string) $shippingMethod->getTranslation('name')
+                    id: $shippingMethod->getId(),
+                    name: (string) $shippingMethod->getTranslation('name'),
+                    reason: 'rule not matching or inactive',
                 )
             );
         }

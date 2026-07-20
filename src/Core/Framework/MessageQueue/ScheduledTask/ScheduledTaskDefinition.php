@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\Clock;
 
 #[Package('framework')]
 class ScheduledTaskDefinition extends EntityDefinition
@@ -46,7 +47,7 @@ class ScheduledTaskDefinition extends EntityDefinition
 
     public function getDefaults(): array
     {
-        return ['nextExecutionTime' => new \DateTime()];
+        return ['nextExecutionTime' => Clock::get()->now()];
     }
 
     public function since(): ?string
@@ -57,14 +58,14 @@ class ScheduledTaskDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new StringField('name', 'name'))->addFlags(new Required()),
-            (new StringField('scheduled_task_class', 'scheduledTaskClass', 512))->addFlags(new Required()),
-            (new IntField('run_interval', 'runInterval', 0))->addFlags(new Required()),
-            (new IntField('default_run_interval', 'defaultRunInterval', 0))->addFlags(new Required()),
-            (new StringField('status', 'status'))->addFlags(new Required()),
-            new DateTimeField('last_execution_time', 'lastExecutionTime'),
-            (new DateTimeField('next_execution_time', 'nextExecutionTime'))->addFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of scheduled task.'),
+            (new StringField('name', 'name'))->addFlags(new Required())->setDescription('Name of the scheduled task.'),
+            (new StringField('scheduled_task_class', 'scheduledTaskClass', 512))->addFlags(new Required())->setDescription('Unique identity of scheduled task.'),
+            (new IntField('run_interval', 'runInterval', 0))->addFlags(new Required())->setDescription('The frequency interval at which the scheduled task must run like 5 min, 1 hours , etc'),
+            (new IntField('default_run_interval', 'defaultRunInterval', 0))->addFlags(new Required())->setDescription('Default run interval setting.'),
+            (new StringField('status', 'status'))->addFlags(new Required())->setDescription('When status is set, the ScheduledTask is made visible.'),
+            (new DateTimeField('last_execution_time', 'lastExecutionTime'))->setDescription('Time when the scheduled task was last executed.'),
+            (new DateTimeField('next_execution_time', 'nextExecutionTime'))->addFlags(new Required())->setDescription('Time when the scheduled task will execute next.'),
         ]);
     }
 }

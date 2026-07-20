@@ -7,8 +7,12 @@ use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\DocumentMerger;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
+use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,7 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('after-sales')]
 class DocumentController extends AbstractController
 {
@@ -29,7 +33,12 @@ class DocumentController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/document/{documentId}/{deepLinkCode}', name: 'api.action.download.document', methods: ['GET'], defaults: ['_acl' => ['document:read']])]
+    #[Route(
+        path: '/api/_action/document/{documentId}/{deepLinkCode}',
+        name: 'api.action.download.document',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['document:read']],
+        methods: [Request::METHOD_GET]
+    )]
     public function downloadDocument(Request $request, string $documentId, string $deepLinkCode, Context $context): Response
     {
         $download = $request->query->getBoolean('download');
@@ -49,7 +58,12 @@ class DocumentController extends AbstractController
         );
     }
 
-    #[Route(path: '/api/_action/order/{orderId}/{deepLinkCode}/document/{documentTypeName}/preview', name: 'api.action.document.preview', methods: ['GET'], defaults: ['_acl' => ['document:read']])]
+    #[Route(
+        path: '/api/_action/order/{orderId}/{deepLinkCode}/document/{documentTypeName}/preview',
+        name: 'api.action.document.preview',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['document:read']],
+        methods: [Request::METHOD_GET]
+    )]
     public function previewDocument(
         Request $request,
         string $orderId,
@@ -76,12 +90,17 @@ class DocumentController extends AbstractController
         );
     }
 
-    #[Route(path: '/api/_action/order/document/download', name: 'api.action.download.documents', methods: ['POST'], defaults: ['_acl' => ['document:read']])]
+    #[Route(
+        path: '/api/_action/order/document/download',
+        name: 'api.action.download.documents',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['document:read']],
+        methods: [Request::METHOD_POST]
+    )]
     public function downloadDocuments(Request $request, Context $context): Response
     {
-        $documentIds = $request->get('documentIds', []);
+        $documentIds = $request->request->all()['documentIds'] ?? [];
 
-        if (!\is_array($documentIds) || empty($documentIds)) {
+        if (!\is_array($documentIds) || $documentIds === []) {
             throw DocumentException::invalidRequestParameter('documentIds');
         }
 
@@ -104,11 +123,17 @@ class DocumentController extends AbstractController
     {
         $response = new Response($content);
 
+        try {
+            $filenameFallback = PathHelper::stripNonAsciiAndControlChars($filename, '_');
+        } catch (IllegalFileNameException) {
+            $filenameFallback = '';
+        }
+
         $disposition = HeaderUtils::makeDisposition(
             $forceDownload ? HeaderUtils::DISPOSITION_ATTACHMENT : HeaderUtils::DISPOSITION_INLINE,
             $filename,
             // only printable ascii
-            preg_replace('/[\x00-\x1F\x7F-\xFF]/', '_', $filename) ?? ''
+            $filenameFallback
         );
 
         $response->headers->set('Content-Type', $contentType);

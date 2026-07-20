@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -16,7 +15,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Storefront;
-use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
+use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -39,7 +38,6 @@ use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimpleTheme\SimpleTheme
 /**
  * @internal
  */
-#[CoversClass(ThemeLifecycleHandler::class)]
 class ThemeLifecycleHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -82,7 +80,7 @@ class ThemeLifecycleHandlerTest extends TestCase
                 TestDefaults::SALES_CHANNEL,
                 static::isString(),
                 static::isInstanceOf(Context::class),
-                static::callback(fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 2)
+                static::callback(static fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 2)
             );
 
         $configs = new StorefrontPluginConfigurationCollection([
@@ -103,7 +101,7 @@ class ThemeLifecycleHandlerTest extends TestCase
                 TestDefaults::SALES_CHANNEL,
                 static::isString(),
                 static::isInstanceOf(Context::class),
-                static::callback(fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 2)
+                static::callback(static fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 2)
             );
 
         $configs = new StorefrontPluginConfigurationCollection([
@@ -129,10 +127,12 @@ class ThemeLifecycleHandlerTest extends TestCase
         $themeRepository = static::getContainer()->get('theme.repository');
         $context = Context::createDefaultContext();
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', 'ThemeWithMultiInheritance'));
+        $criteria->addFilter(new EqualsFilter('technicalName', $installConfig->getTechnicalName()));
         $criteria->addAssociation('parentThemes');
-        /** @var ThemeEntity $theme */
-        $theme = $themeRepository->search($criteria, $context)->first();
+
+        $themeEntity = $themeRepository->search($criteria, $context)->getEntities()->first();
+        static::assertInstanceOf(ThemeEntity::class, $themeEntity);
+        static::assertSame($installConfig->getTechnicalName(), $themeEntity->getTechnicalName());
     }
 
     public function testHandleThemeInstallOrUpdateWillRecompileOnlyTouchedTheme(): void
@@ -147,7 +147,7 @@ class ThemeLifecycleHandlerTest extends TestCase
             ->with(
                 $themeId,
                 static::isInstanceOf(Context::class),
-                static::callback(fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 2)
+                static::callback(static fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 2)
             );
 
         $configs = new StorefrontPluginConfigurationCollection([
@@ -168,7 +168,7 @@ class ThemeLifecycleHandlerTest extends TestCase
                 TestDefaults::SALES_CHANNEL,
                 static::isString(),
                 static::isInstanceOf(Context::class),
-                static::callback(fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 1 && (
+                static::callback(static fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 1 && (
                     (
                         $configs->first() instanceof StorefrontPluginConfiguration
                         ? $configs->first()->getTechnicalName()
@@ -222,25 +222,21 @@ class ThemeLifecycleHandlerTest extends TestCase
         $this->themeLifecycleHandler->handleThemeInstallOrUpdate($uninstalledConfig, $configs, Context::createDefaultContext());
         $this->assignThemeToDefaultSalesChannel('SimpleTheme');
 
-        $wasThrown = false;
-
         $scCollection = new ThemeSalesChannelCollection();
         $scCollection->add(new ThemeSalesChannel(Uuid::randomHex(), Uuid::randomHex()));
         $this->themeServiceMock->expects($this->once())
             ->method('getThemeDependencyMapping')
             ->willReturn($scCollection);
 
-        try {
-            $this->themeLifecycleHandler->handleThemeUninstall($uninstalledConfig, Context::createDefaultContext());
-        } catch (ThemeAssignmentException $e) {
-            static::assertSame(
-                [TestDefaults::SALES_CHANNEL],
-                array_keys($e->getAssignedSalesChannels() ?? [])
-            );
-            $wasThrown = true;
-        }
+        $placeholderSalesChannelId = 'sc-id';
+        $this->expectExceptionObject(ThemeException::themeAssignmentException(
+            'Simple theme',
+            ['Simple theme' => [$placeholderSalesChannelId]],
+            [],
+            [$placeholderSalesChannelId => 'Headless'],
+        ));
 
-        static::assertTrue($wasThrown);
+        $this->themeLifecycleHandler->handleThemeUninstall($uninstalledConfig, Context::createDefaultContext());
     }
 
     private function assignThemeToDefaultSalesChannel(?string $themeName = null): void

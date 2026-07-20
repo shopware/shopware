@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import dictionary from 'src/module/sw-dashboard/snippet/en-GB.json';
+import dictionary from 'src/module/sw-dashboard/snippet/en.json';
 
 const hasOrderTodayMock = [
     {},
@@ -38,9 +38,10 @@ async function createWrapper(privileges = [], repository = {}) {
                 'sw-ai-copilot-badge': true,
                 'sw-context-button': true,
                 'sw-inheritance-switch': true,
+                'sw-time-ago': true,
             },
             mocks: {
-                $tc: (...args) => JSON.stringify([...args]),
+                $t: (...args) => JSON.stringify([...args]),
                 $i18n: {
                     locale: 'en-GB',
                     messages: {
@@ -118,6 +119,18 @@ describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
         expect(statisticsSum.exists()).toBeTruthy();
     });
 
+    it('should show chart cards while stats are loading', async () => {
+        wrapper = await createWrapper(['order.viewer']);
+
+        const orderToday = wrapper.find('.sw-dashboard-statistics__intro-stats-today');
+        const statisticsCount = wrapper.find('.sw-dashboard-statistics__statistics-count');
+        const statisticsSum = wrapper.find('.sw-dashboard-statistics__statistics-sum');
+
+        expect(orderToday.exists()).toBe(false);
+        expect(statisticsCount.exists()).toBe(true);
+        expect(statisticsSum.exists()).toBe(true);
+    });
+
     it('should show the todays stats', async () => {
         const orderSearchResult = {
             search: () =>
@@ -162,12 +175,23 @@ describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
     });
 
     it('should not exceed decimal places of two', async () => {
-        wrapper = await createWrapper(['order.viewer'], 43383.13234554);
-        await wrapper.setData({
-            hasOrderToday: hasOrderTodayMock,
-            orderSumToday: 43383.13234554,
-        });
+        wrapper = await createWrapper(['order.viewer']);
         await flushPromises();
+
+        await wrapper.setData({
+            todayOrderData: hasOrderTodayMock,
+            historyOrderDataCount: {
+                buckets: [
+                    {
+                        key: wrapper.vm.today.toISOString(),
+                        count: 1,
+                        totalAmount: {
+                            sum: 43383.13234554,
+                        },
+                    },
+                ],
+            },
+        });
 
         const todaysTotalSum = wrapper
             .find('.sw-dashboard-statistics__intro-stats-today-single-stat:nth-of-type(2) span:nth-of-type(2)')

@@ -20,13 +20,13 @@ class OpenApiValidationCommandTest extends TestCase
     {
         $command = new OpenApiValidationCommand(
             new MockHttpClient([new MockResponse('{"messages": [], "schemaValidationMessages": []}', [])]),
-            $this->createMock(DefinitionService::class)
+            static::createStub(DefinitionService::class)
         );
         $tester = new CommandTester($command);
 
         $tester->execute([]);
 
-        static::assertSame($tester->getStatusCode(), 0);
+        static::assertSame(0, $tester->getStatusCode());
     }
 
     public function testRunWithErrors(): void
@@ -52,12 +52,45 @@ class OpenApiValidationCommandTest extends TestCase
                     'messages' => [],
                 ], \JSON_THROW_ON_ERROR), [])]
             ),
-            $this->createMock(DefinitionService::class)
+            static::createStub(DefinitionService::class)
         );
         $tester = new CommandTester($command);
 
         $tester->execute([]);
 
-        static::assertSame($tester->getStatusCode(), 1);
+        static::assertSame(1, $tester->getStatusCode());
+    }
+
+    public function testRunWithInvalidApiTypeThrowsException(): void
+    {
+        $command = new OpenApiValidationCommand(
+            new MockHttpClient(),
+            static::createStub(DefinitionService::class)
+        );
+        $tester = new CommandTester($command);
+
+        $this->expectExceptionObject(new \InvalidArgumentException('Invalid --api-type, must be one of "api" or "store-api"'));
+
+        $tester->execute(['--api-type' => 'invalid']);
+    }
+
+    public function testRunWithApiTypes(): void
+    {
+        $command = new OpenApiValidationCommand(
+            new MockHttpClient([
+                new MockResponse('{"messages": [], "schemaValidationMessages": []}', []),
+                new MockResponse('{"messages": [], "schemaValidationMessages": []}', []),
+            ]),
+            static::createStub(DefinitionService::class)
+        );
+        $tester = new CommandTester($command);
+
+        // Test with DefinitionService::API
+        $tester->execute(['--api-type' => DefinitionService::API]);
+        static::assertSame(0, $tester->getStatusCode());
+
+        // Test with DefinitionService::STORE_API
+        $tester->execute(['--api-type' => DefinitionService::STORE_API]);
+        static::assertSame(0, $tester->getStatusCode());
     }
 }

@@ -7,7 +7,9 @@ import './sw-condition-operator-select.scss';
  */
 export default {
     template: template,
+
     emits: ['change'],
+
     props: {
         operators: {
             type: Array,
@@ -42,14 +44,15 @@ export default {
                 if (!this.condition.value) {
                     return null;
                 }
+
                 return this.condition.value.operator;
             },
+
             set(operator) {
                 if (!this.condition.value) {
-                    // eslint-disable-next-line vue/no-mutating-props
                     this.condition.value = {};
                 }
-                // eslint-disable-next-line vue/no-mutating-props
+
                 this.condition.value = { ...this.condition.value, operator };
             },
         },
@@ -58,7 +61,7 @@ export default {
             return this.operators.map(({ identifier, label }) => {
                 return {
                     identifier,
-                    label: this.plural ? this.$tc(label, 2) : this.$tc(label),
+                    label: this.plural ? this.$t(label, 2) : this.$t(label),
                 };
             });
         },

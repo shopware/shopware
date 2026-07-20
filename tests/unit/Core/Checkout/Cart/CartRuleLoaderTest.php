@@ -12,20 +12,27 @@ use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartFactory;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Checkout\Cart\Extension\CheckoutCartRuleLoaderExtension;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Cart\RuleLoader;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
 /**
@@ -77,15 +84,23 @@ class CartRuleLoaderTest extends TestCase
             ->with($salesChannelContext->getContext())
             ->willReturn(new RuleCollection());
 
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher
+            ->expects($this->exactly(2))
+            ->method('dispatch')
+            ->with(static::isInstanceOf(CheckoutCartRuleLoaderExtension::class));
+
         $cartRuleLoader = new CartRuleLoader(
             $persister,
             $processor,
             new NullLogger(),
-            $this->createMock(CacheInterface::class),
+            static::createStub(CacheInterface::class),
             $ruleLoader,
-            $this->createMock(TaxDetector::class),
-            $this->createMock(Connection::class),
+            static::createStub(TaxDetector::class),
+            static::createStub(Connection::class),
             $factory,
+            new ExtensionDispatcher($dispatcher),
+            static::createStub(AbstractTranslator::class),
         );
 
         static::assertSame($calculatedCart, $cartRuleLoader->loadByToken($salesChannelContext, $salesChannelContext->getToken())->getCart());
@@ -97,7 +112,11 @@ class CartRuleLoaderTest extends TestCase
         $country->setId(Generator::COUNTRY);
         $country->setCustomerTax(new TaxFreeConfig());
 
-        $salesChannelContext = Generator::generateSalesChannelContext(country: $country);
+        $customer = new CustomerEntity();
+        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_PRIVATE);
+        $customer->setId('test-id');
+
+        $salesChannelContext = Generator::generateSalesChannelContext(customer: $customer, country: $country);
 
         $rule1 = new RuleEntity();
         $rule1->setId(Uuid::randomHex());
@@ -138,7 +157,7 @@ class CartRuleLoaderTest extends TestCase
         $processor
             ->expects($this->exactly(3))
             ->method('process')
-            ->with(static::isInstanceOf(Cart::class), static::callback(function (SalesChannelContext $context) use ($ruleIds, $areaRuleIds) {
+            ->with(static::isInstanceOf(Cart::class), static::callback(static function (SalesChannelContext $context) use ($ruleIds, $areaRuleIds) {
                 static::assertSame($ruleIds, $context->getRuleIds());
                 static::assertSame($areaRuleIds, $context->getAreaRuleIds());
 
@@ -146,19 +165,102 @@ class CartRuleLoaderTest extends TestCase
             }), static::isInstanceOf(CartBehavior::class))
         ;
 
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher
+            ->expects($this->exactly(2))
+            ->method('dispatch')
+            ->with(static::isInstanceOf(CheckoutCartRuleLoaderExtension::class));
+
         $cartRuleLoader = new CartRuleLoader(
-            $this->createMock(AbstractCartPersister::class),
+            static::createStub(AbstractCartPersister::class),
             $processor,
             new NullLogger(),
-            $this->createMock(CacheInterface::class),
+            static::createStub(CacheInterface::class),
             $ruleLoader,
-            $this->createMock(TaxDetector::class),
-            $this->createMock(Connection::class),
-            $this->createMock(CartFactory::class),
+            static::createStub(TaxDetector::class),
+            static::createStub(Connection::class),
+            static::createStub(CartFactory::class),
+            new ExtensionDispatcher($dispatcher),
+            static::createStub(AbstractTranslator::class),
         );
 
         $cart = new Cart('test');
         $cart->setRuleIds($ruleIds);
         $cartRuleLoader->loadByCart($salesChannelContext, $cart, new CartBehavior());
+    }
+
+    public function testTranslatesProcessedCartErrorsWithSalesChannelLocale(): void
+    {
+        $reason = 'rule not matching or inactive';
+        $customer = new CustomerEntity();
+        $customer->setId('test-id');
+        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_PRIVATE);
+
+        $country = new CountryEntity();
+        $country->setId(Generator::COUNTRY);
+        $country->setCustomerTax(new TaxFreeConfig());
+
+        $salesChannelContext = Generator::generateSalesChannelContext(
+            customer: $customer,
+            languageInfo: new LanguageInfo('German', 'de-DE'),
+            country: $country,
+        );
+
+        $cart = new Cart('test');
+        $processedCart = new Cart('processed');
+        $processedCart->getErrors()->add(new ShippingMethodBlockedError(
+            id: 'shipping-method-id',
+            name: 'Standard',
+            reason: $reason,
+        ));
+
+        $processor = static::createStub(Processor::class);
+        $processor
+            ->method('process')
+            ->willReturn($processedCart);
+
+        $ruleLoader = $this->createMock(RuleLoader::class);
+        $ruleLoader
+            ->expects($this->once())
+            ->method('load')
+            ->with($salesChannelContext->getContext())
+            ->willReturn(new RuleCollection());
+
+        $translator = $this->createMock(AbstractTranslator::class);
+        $translator
+            ->expects($this->once())
+            ->method('trans')
+            ->willReturnCallback(static function (string $id, array $parameters, ?string $domain, ?string $locale) use ($salesChannelContext, $reason): string {
+                static::assertNull($domain);
+                static::assertSame($salesChannelContext->getLanguageInfo()->localeCode, $locale);
+                static::assertSame('checkout.shipping-method-blocked', $id);
+                static::assertSame([
+                    '%id%' => 'shipping-method-id',
+                    '%name%' => 'Standard',
+                    '%reason%' => $reason,
+                ], $parameters);
+
+                return 'Die Versandart "Standard" ist für Ihren aktuellen Warenkorb gesperrt.';
+            });
+
+        $cartRuleLoader = new CartRuleLoader(
+            static::createStub(AbstractCartPersister::class),
+            $processor,
+            new NullLogger(),
+            static::createStub(CacheInterface::class),
+            $ruleLoader,
+            static::createStub(TaxDetector::class),
+            static::createStub(Connection::class),
+            static::createStub(CartFactory::class),
+            new ExtensionDispatcher(static::createStub(EventDispatcherInterface::class)),
+            $translator,
+        );
+
+        $result = $cartRuleLoader->loadByCart($salesChannelContext, $cart, new CartBehavior());
+
+        static::assertSame(
+            'Die Versandart "Standard" ist für Ihren aktuellen Warenkorb gesperrt.',
+            $result->getCart()->getErrors()->first()?->getTranslatedMessage(),
+        );
     }
 }

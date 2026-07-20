@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\ImportExport\Command;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\ImportExport;
 use Shopware\Core\Content\ImportExport\ImportExportException;
@@ -18,7 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -48,7 +49,8 @@ class ImportEntityCommand extends Command
         private readonly EntityRepository $profileRepository,
         private readonly ImportExportFactory $importExportFactory,
         private readonly Connection $connection,
-        private readonly FilesystemOperator $filesystem
+        private readonly FilesystemOperator $filesystem,
+        private readonly ClockInterface $clock
     ) {
         parent::__construct();
     }
@@ -108,7 +110,7 @@ class ImportEntityCommand extends Command
             $dryRun
         );
 
-        $startTime = time();
+        $startTime = $this->clock->now()->getTimestamp();
 
         $importExport = $this->importExportFactory->create(
             $log->getId(),
@@ -131,7 +133,7 @@ class ImportEntityCommand extends Command
             $progressBar->setProgress($progress->getOffset());
         } while (!$progress->isFinished());
 
-        $elapsed = time() - $startTime;
+        $elapsed = $this->clock->now()->getTimestamp() - $startTime;
         $io->newLine(2);
 
         if ($printErrors) {
@@ -153,7 +155,7 @@ class ImportEntityCommand extends Command
 
             $io->success(\sprintf(
                 'Successfully imported %d records in %d seconds',
-                $progress->getProcessedRecords(),
+                $progress->getProcessedRecords() ?? 0,
                 $elapsed
             ));
 
@@ -164,7 +166,7 @@ class ImportEntityCommand extends Command
 
         $io->error(\sprintf(
             'Errors on import. Rolling back transactions for %d records. Time elapsed: %d seconds',
-            $progress->getProcessedRecords(),
+            $progress->getProcessedRecords() ?? 0,
             $elapsed
         ));
 
@@ -175,7 +177,7 @@ class ImportEntityCommand extends Command
     {
         $technicalName = $input->getOption('profile-technical-name');
 
-        if (!empty($technicalName)) {
+        if ($technicalName !== null && $technicalName !== '') {
             return $this->profileByTechnicalName($technicalName, $context);
         }
 
@@ -185,15 +187,13 @@ class ImportEntityCommand extends Command
     private function chooseProfile(Context $context, SymfonyStyle $io): ImportExportProfileEntity
     {
         $criteria = new Criteria();
-        $criteria->addFilter(
-            new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('type', ImportExportProfileEntity::TYPE_EXPORT)])
-        );
+        $criteria->addFilter(new NotEqualsFilter('type', ImportExportProfileEntity::TYPE_EXPORT));
 
         $result = $this->profileRepository->search($criteria, $context)->getEntities();
 
         $byName = [];
         foreach ($result as $profile) {
-            $byName[$profile->getLabel()] = $profile;
+            $byName[$profile->getTechnicalName()] = $profile;
         }
 
         $answer = $io->choice('Please choose a profile', array_keys($byName));
@@ -244,7 +244,7 @@ class ImportEntityCommand extends Command
         $importExport = $this->importExportFactory->create($log->getId());
         $results = $importExport->getLogEntity()->getResult();
 
-        if (empty($results)) {
+        if ($results === []) {
             return;
         }
 

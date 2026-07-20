@@ -61,7 +61,8 @@ class PromotionProcessor implements CartProcessorInterface
             if (!$data->has(self::DATA_KEY)) {
                 $lineItemPromotions = $original->getLineItems()->filterType(self::LINE_ITEM_TYPE);
                 foreach ($lineItemPromotions as $lineItemPromotion) {
-                    if (empty($lineItemPromotion->getReferencedId())) {
+                    $referencedId = $lineItemPromotion->getReferencedId();
+                    if ($referencedId === null || $referencedId === '') {
                         $toCalculate->addErrors(
                             new AutoPromotionNotFoundError($lineItemPromotion->getLabel() ?? $lineItemPromotion->getId())
                         );
@@ -76,13 +77,13 @@ class PromotionProcessor implements CartProcessorInterface
 
             if ($toCalculate->getPrice()->getTotalPrice() === 0.0) {
                 // We'll only display the `PromotionsOnCartPriceZeroError` if a promotion code is input and the cart price is zero. Auto-promotions are not considered in this case.
-                $discountPromotionsWithCode = $discountLineItems->filter(fn (LineItem $lineItem) => !$lineItem->hasPayloadValue('promotionCodeType') || $lineItem->getPayloadValue('promotionCodeType') !== PromotionItemBuilder::PROMOTION_TYPE_GLOBAL);
+                $discountPromotionsWithCode = $discountLineItems->filter(static fn (LineItem $lineItem) => !$lineItem->hasPayloadValue('promotionCodeType') || $lineItem->getPayloadValue('promotionCodeType') !== PromotionItemBuilder::PROMOTION_TYPE_GLOBAL);
                 if ($discountPromotionsWithCode->count() === 0) {
                     return;
                 }
 
                 $toCalculate->addErrors(
-                    new PromotionsOnCartPriceZeroError($discountPromotionsWithCode->fmap(fn (LineItem $lineItem) => $lineItem->getLabel()))
+                    new PromotionsOnCartPriceZeroError($discountPromotionsWithCode->fmap(static fn (LineItem $lineItem) => $lineItem->getLabel()))
                 );
 
                 return;

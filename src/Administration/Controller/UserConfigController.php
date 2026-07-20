@@ -3,6 +3,8 @@
 namespace Shopware\Administration\Controller;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
+use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -15,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigDefinition;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,6 +26,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [AdministrationRouteScope::ID]])]
 #[Package('fundamentals@framework')]
 class UserConfigController extends AbstractController
 {
@@ -33,11 +37,12 @@ class UserConfigController extends AbstractController
      */
     public function __construct(
         private readonly EntityRepository $userConfigRepository,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly ClockInterface $clock
     ) {
     }
 
-    #[Route(path: '/api/_info/config-me', name: 'api.config_me.get', defaults: ['auth_required' => true, '_routeScope' => ['administration']], methods: ['GET'])]
+    #[Route(path: '/api/_info/config-me', name: 'api.config_me.get', defaults: ['auth_required' => true], methods: ['GET'])]
     public function getConfigMe(Context $context, Request $request): Response
     {
         $userConfigs = $this->getOwnUserConfig($context, $request->query->all('keys'));
@@ -50,12 +55,12 @@ class UserConfigController extends AbstractController
         return new JsonResponse(['data' => $data]);
     }
 
-    #[Route(path: '/api/_info/config-me', name: 'api.config_me.update', defaults: ['auth_required' => true, '_routeScope' => ['administration']], methods: ['POST'])]
+    #[Route(path: '/api/_info/config-me', name: 'api.config_me.update', defaults: ['auth_required' => true], methods: ['POST', 'PATCH'])]
     public function updateConfigMe(Context $context, Request $request): Response
     {
         $postUpdateConfigs = $request->request->all();
 
-        if (empty($postUpdateConfigs)) {
+        if ($postUpdateConfigs === []) {
             return new JsonResponse(null, Response::HTTP_NO_CONTENT);
         }
 
@@ -73,7 +78,7 @@ class UserConfigController extends AbstractController
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('userId', $userId));
-        if (!empty($keys)) {
+        if ($keys !== []) {
             $criteria->addFilter(new EqualsAnyFilter('key', $keys));
         }
 
@@ -115,7 +120,7 @@ class UserConfigController extends AbstractController
                 'user_id' => Uuid::fromHexToBytes($userId),
                 'key' => $key,
                 'id' => Uuid::randomBytes(),
-                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ];
             if (\array_key_exists($key, $userConfigsGroupByKey)) {
                 $data['id'] = Uuid::fromHexToBytes($userConfigsGroupByKey[$key]);

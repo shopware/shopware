@@ -38,7 +38,6 @@ export default {
         editable: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -93,14 +92,14 @@ export default {
 
         unitPriceLabel() {
             if (this.taxStatus === 'net') {
-                return this.$tc('sw-order.detailBase.columnPriceNet');
+                return this.$t('sw-order.detailBase.columnPriceNet');
             }
 
             if (this.taxStatus === 'tax-free') {
-                return this.$tc('sw-order.detailBase.columnPriceTaxFree');
+                return this.$t('sw-order.detailBase.columnPriceTaxFree');
             }
 
-            return this.$tc('sw-order.detailBase.columnPriceGross');
+            return this.$t('sw-order.detailBase.columnPriceGross');
         },
 
         getLineItemColumns() {
@@ -122,6 +121,13 @@ export default {
                     primary: true,
                     inlineEdit: true,
                     multiLine: true,
+                },
+                {
+                    property: 'type',
+                    dataIndex: 'type',
+                    label: 'sw-order.detailBase.columnType',
+                    allowResize: false,
+                    visible: false,
                 },
                 {
                     property: 'payload.productNumber',
@@ -230,6 +236,7 @@ export default {
             };
             item.price = {
                 taxRules: [{ taxRate: 0 }],
+                calculatedTaxes: [{ taxRate: 0, tax: 0 }],
                 unitPrice: 0,
                 quantity: 1,
                 totalPrice: 0,
@@ -341,6 +348,23 @@ export default {
             return item.type === this.lineItemTypes.PRODUCT;
         },
 
+        canOpenProduct(item) {
+            return this.isProductItem(item) && !!item.productId;
+        },
+
+        getProductRoute(item) {
+            if (!this.canOpenProduct(item)) {
+                return null;
+            }
+
+            return {
+                name: 'sw.product.detail',
+                params: {
+                    id: item.productId,
+                },
+            };
+        },
+
         isPromotionItem(item) {
             return item.type === this.lineItemTypes.PROMOTION;
         },
@@ -358,8 +382,8 @@ export default {
 
         showTaxValue(item) {
             return (this.isCreditItem(item.id) || this.isPromotionItem(item)) && item.price.taxRules.length > 1
-                ? this.$tc('sw-order.detailBase.textCreditTax')
-                : `${item.price.taxRules[0].taxRate} %`;
+                ? this.$t('sw-order.detailBase.textCreditTax')
+                : `${item.price.calculatedTaxes[0].taxRate} %`;
         },
 
         checkItemPrice(price, item) {
@@ -377,7 +401,7 @@ export default {
             });
 
             const decorateTaxes = sortTaxes.map((taxItem) => {
-                return this.$tc(
+                return this.$t(
                     'sw-order.detailBase.taxDetail',
                     {
                         taxRate: taxItem.taxRate,
@@ -389,7 +413,7 @@ export default {
 
             return {
                 showDelay: 300,
-                message: `${this.$tc('sw-order.detailBase.tax')}<br>${decorateTaxes.join('<br>')}`,
+                message: `${this.$t('sw-order.detailBase.tax')}<br>${decorateTaxes.join('<br>')}`,
             };
         },
 
@@ -442,6 +466,7 @@ export default {
                 !this.itemCreatedFromProduct(item.id) &&
                 item.priceDefinition &&
                 item.priceDefinition.taxRules &&
+                item.price?.taxRules[0].taxRate === item.price.calculatedTaxes[0].taxRate &&
                 !this.isCreditItem(item.id)
             );
         },

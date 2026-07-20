@@ -6,7 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Storefront\Theme\Command\ThemePrepareIconsCommand;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -21,30 +23,21 @@ class ThemePrepareIconsCommandTest extends TestCase
     protected function setUp(): void
     {
         $this->testDir = __DIR__ . '/../fixtures/ThemePrepareIconsCommandIconsPath/';
-        static::assertDirectoryExists($this->testDir, 'Testdir: ' . $this->testDir . ' not found!');
-        $testFiles = glob($this->testDir . 'processed/*');
-        static::assertIsArray($testFiles);
-        @array_map('unlink', $testFiles);
-        @rmdir($this->testDir . 'processed');
 
         $command = new ThemePrepareIconsCommand();
         $this->commandTester = new CommandTester($command);
         $application = new Application();
-        $application->add($command);
+        $application->addCommand($command);
     }
 
     protected function tearDown(): void
     {
-        static::assertDirectoryExists($this->testDir, 'Testdir: ' . $this->testDir . ' not found!');
-        $testFiles = glob($this->testDir . 'processed/*');
-        static::assertIsArray($testFiles);
-        @array_map('unlink', $testFiles);
-        @rmdir($this->testDir . 'processed');
+        (new Filesystem())->remove($this->testDir . 'processed/');
     }
 
     public function testThemePrepareIconsCommandMissingPackageArg(): void
     {
-        static::expectExceptionMessage('Not enough arguments (missing: "package")');
+        $this->expectExceptionObject(new RuntimeException('Not enough arguments (missing: "package")'));
         $this->commandTester->execute([
             'path' => $this->testDir,
         ]);
@@ -52,7 +45,7 @@ class ThemePrepareIconsCommandTest extends TestCase
 
     public function testThemePrepareIconsCommandMissingPathArg(): void
     {
-        static::expectExceptionMessage('Not enough arguments (missing: "path")');
+        $this->expectExceptionObject(new RuntimeException('Not enough arguments (missing: "path")'));
         $this->commandTester->execute([
             'package' => 'default',
         ]);
@@ -66,7 +59,7 @@ class ThemePrepareIconsCommandTest extends TestCase
         ]);
 
         static::assertStringContainsString('StartIconpreparation', $this->minimizedOutput($this->commandTester->getDisplay()));
-        static::assertStringContainsString('[WARNING]StringcouldnotbeparsedasXML', $this->minimizedOutput($this->commandTester->getDisplay()));
+        static::assertStringContainsString('[WARNING]Couldnotread', $this->minimizedOutput($this->commandTester->getDisplay()));
         static::assertStringContainsString('mandIconsPath/invalid.svg', $this->minimizedOutput($this->commandTester->getDisplay()));
         static::assertStringContainsString('Processed1icons', $this->minimizedOutput($this->commandTester->getDisplay()));
 
@@ -77,7 +70,7 @@ class ThemePrepareIconsCommandTest extends TestCase
 . '<use xlink:href="#icons-default-align-center" />'
 . '</svg>';
 
-        static::assertSame($expectedIcon, file_get_contents($this->testDir . 'processed/valid.svg'));
+        static::assertSame($expectedIcon, (new Filesystem())->readFile($this->testDir . 'processed/valid.svg'));
         static::assertFileDoesNotExist($this->testDir . 'processed/invalid.svg');
         static::assertFileDoesNotExist($this->testDir . 'processed/null.svg');
     }
@@ -99,7 +92,7 @@ class ThemePrepareIconsCommandTest extends TestCase
             . '<use xlink:href="#icons-default-valid" />'
             . '</svg>';
 
-        static::assertSame($expectedIcon, file_get_contents($this->testDir . 'processed/valid.svg'));
+        static::assertSame($expectedIcon, (new Filesystem())->readFile($this->testDir . 'processed/valid.svg'));
         static::assertFileDoesNotExist($this->testDir . 'processed/invalid.svg');
         static::assertFileDoesNotExist($this->testDir . 'processed/null.svg');
     }
@@ -123,6 +116,7 @@ class ThemePrepareIconsCommandTest extends TestCase
             . '<use xlink:href="#icons-default-valid" fill="#12EF12" fill-rule="nonzero" />'
             . '</svg>';
 
+        static::assertFileExists($this->testDir . 'processed/valid.svg');
         static::assertSame($expectedIcon, file_get_contents($this->testDir . 'processed/valid.svg'));
         static::assertFileDoesNotExist($this->testDir . 'processed/invalid.svg');
         static::assertFileDoesNotExist($this->testDir . 'processed/null.svg');

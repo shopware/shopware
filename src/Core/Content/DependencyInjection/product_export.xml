@@ -6,10 +6,17 @@
     <parameters>
         <parameter key="product_export.directory">export</parameter>
         <parameter key="product_export.read_buffer_size">100</parameter>
+        <!-- Stale detection tuning: unlock stuck exports when older than max(min_seconds, factor * interval) -->
+        <parameter key="product_export.stale_min_seconds">300</parameter>
+        <parameter key="product_export.stale_interval_factor">2.0</parameter>
     </parameters>
     <services>
         <service id="Shopware\Core\Content\ProductExport\ProductExportDefinition">
             <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\Validator\FeedLabelValidator">
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Content\ProductExport\Service\ProductExportRenderer">
@@ -22,11 +29,13 @@
             <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportGenerator"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportFileHandler"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\ProductExport\Service\ProductExportFileHandler">
             <argument type="service" id="shopware.filesystem.private"/>
             <argument type="string">%product_export.directory%</argument>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\ProductExport\Service\ProductExportGenerator" public="true">
@@ -60,10 +69,11 @@
         <service id="Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="logger"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
-            <argument type="service" id="sales_channel.repository"/>
-            <argument type="service" id="product_export.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="messenger.default_bus"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
+            <argument type="string">%product_export.stale_min_seconds%</argument>
+            <argument type="string">%product_export.stale_interval_factor%</argument>
             <tag name="messenger.message_handler"/>
         </service>
 
@@ -80,6 +90,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="string">%product_export.read_buffer_size%</argument>
             <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <tag name="messenger.message_handler"/>
         </service>
 
@@ -97,8 +108,35 @@
             <argument type="tagged_iterator" tag="shopware.product_export.validator"/>
         </service>
 
+        <service id="Shopware\Core\Content\ProductExport\Validator\JsonlRowParser"/>
+
         <service id="Shopware\Core\Content\ProductExport\Validator\XmlValidator">
             <tag name="shopware.product_export.validator"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\Validator\OpenAiProductExportValidator">
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Validator\JsonlRowParser"/>
+            <tag name="shopware.product_export.validator"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\Validator\GoogleProductExportValidator">
+            <tag name="shopware.product_export.validator"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\Provider\AgenticCommerceProductExportProviderRegistry">
+            <argument type="tagged_iterator" tag="shopware.product_export.provider"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\Provider\OpenAiProductExportProvider">
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <tag name="shopware.product_export.provider"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\Provider\GoogleProductExportProvider">
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <tag name="shopware.product_export.provider"/>
         </service>
 
         <service id="Shopware\Core\Content\ProductExport\DataAbstractionLayer\ProductExportExceptionHandler">
@@ -112,6 +150,11 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Content\ProductExport\Subscriber\AgenticCommerceProductExportProviderContextSubscriber">
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Provider\AgenticCommerceProductExportProviderRegistry"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Content\ProductExport\SalesChannel\ExportController" public="true">
             <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExporter"/>
             <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportFileHandler"/>
@@ -119,6 +162,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="product_export.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
     </services>
 </container>

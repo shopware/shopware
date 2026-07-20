@@ -59,10 +59,6 @@ describe('src/app/mixin/user-settings.mixin.ts', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should reject when acl rights are missing', async () => {
         global.activeAclRoles = [];
 

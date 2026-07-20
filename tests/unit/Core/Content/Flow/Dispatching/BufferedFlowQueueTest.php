@@ -4,9 +4,10 @@ namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Flow\Dispatching\BufferedFlow;
 use Shopware\Core\Content\Flow\Dispatching\BufferedFlowQueue;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Test\Stub\Flow\DummyEvent;
 
 /**
  * @internal
@@ -26,20 +27,20 @@ class BufferedFlowQueueTest extends TestCase
     {
         static::assertTrue($this->bufferedFlowQueue->isEmpty());
 
-        $this->bufferedFlowQueue->queueFlow(new DummyEvent());
+        $this->bufferedFlowQueue->queueFlow(new BufferedFlow('dummy_event', Context::createDefaultContext(), []));
 
         static::assertFalse($this->bufferedFlowQueue->isEmpty());
     }
 
     public function testCanDequeueFlows(): void
     {
-        $event = new DummyEvent();
-        $this->bufferedFlowQueue->queueFlow($event);
+        $bufferedFlow = new BufferedFlow('dummy_event', Context::createDefaultContext(), []);
+        $this->bufferedFlowQueue->queueFlow($bufferedFlow);
 
         $flows = $this->bufferedFlowQueue->dequeueFlows();
 
         static::assertCount(1, $flows);
-        static::assertSame($event, $flows[0]);
+        static::assertSame($bufferedFlow, $flows[0]);
         static::assertTrue($this->bufferedFlowQueue->isEmpty());
     }
 }

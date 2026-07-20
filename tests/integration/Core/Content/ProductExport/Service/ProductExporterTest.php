@@ -7,6 +7,7 @@ use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
+use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Service\ProductExporter;
 use Shopware\Core\Content\ProductExport\Service\ProductExporterInterface;
@@ -31,6 +32,9 @@ class ProductExporterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductExportCollection>
+     */
     private EntityRepository $repository;
 
     private Context $context;
@@ -69,8 +73,7 @@ class ProductExporterTest extends TestCase
 
     public function testExportNotFound(): void
     {
-        static::expectException(ExportNotFoundException::class);
-        static::expectExceptionMessage('No product exports found');
+        $this->expectExceptionObject(new ExportNotFoundException());
 
         $this->service->export($this->salesChannelContext, new ExportBehavior());
     }
@@ -79,8 +82,7 @@ class ProductExporterTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        static::expectException(ExportNotFoundException::class);
-        static::expectExceptionMessage(\sprintf('Product export with ID %s not found', $id));
+        $this->expectExceptionObject(new ExportNotFoundException($id));
 
         $this->service->export($this->salesChannelContext, new ExportBehavior(), $id);
     }

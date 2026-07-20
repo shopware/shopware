@@ -1,0 +1,8 @@
+---
+title: Clarify demodata error message
+author: Adrian Bacani
+---
+
+# Core
+
+* Changed `\Shopware\Core\Framework\Demodata\Command` so that the `framework:demodata` command outputs a more concise message

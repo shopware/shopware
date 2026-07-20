@@ -23,6 +23,22 @@ export default {
             required: false,
             default: null,
         },
+
+        product: {
+            type: Object,
+            required: false,
+            default: null,
+        },
+    },
+
+    computed: {
+        pageName() {
+            if (!this.cmsPage) {
+                return this.$t('sw-product.layoutAssignment.title');
+            }
+
+            return this.cmsPage.translated?.name ?? this.cmsPage.name;
+        },
     },
 
     methods: {

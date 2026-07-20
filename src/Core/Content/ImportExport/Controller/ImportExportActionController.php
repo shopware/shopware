@@ -14,14 +14,17 @@ use Shopware\Core\Content\ImportExport\Service\SupportedFeaturesService;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -32,12 +35,14 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('fundamentals@after-sales')]
 class ImportExportActionController extends AbstractController
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<EntityCollection<ImportExportProfileEntity>> $profileRepository
      */
     public function __construct(
         private readonly SupportedFeaturesService $supportedFeaturesService,
@@ -125,7 +130,7 @@ class ImportExportActionController extends AbstractController
     #[Route(path: '/api/_action/import-export/file/download', name: 'api.action.import_export.file.download', defaults: ['auth_required' => false], methods: ['GET'])]
     public function download(Request $request, Context $context): Response
     {
-        /** @var array<string> $params */
+        /** @var array<string, string> $params */
         $params = $request->query->all();
         $definition = new DataValidationDefinition();
         $definition->add('fileId', new NotBlank(), new Type('string'));
@@ -200,7 +205,7 @@ class ImportExportActionController extends AbstractController
             ->getEntities()
             ->get($profileId);
 
-        if ($profile instanceof ImportExportProfileEntity) {
+        if ($profile) {
             return $profile;
         }
 
@@ -222,13 +227,13 @@ class ImportExportActionController extends AbstractController
         $mappings = $profile->getMapping() ?? [];
 
         $mappedKeys = array_column($mappings, 'key');
-        $propertyPaths = array_map(fn (string $key): array => explode('.', $key), $mappedKeys);
+        $propertyPaths = array_map(static fn (string $key): array => explode('.', $key), $mappedKeys);
 
         foreach ($propertyPaths as $properties) {
             $missingPrivileges = $this->getMissingPrivileges($properties, $definition, $context, $missingPrivileges);
         }
 
-        if (!empty($missingPrivileges)) {
+        if ($missingPrivileges !== []) {
             throw ImportExportException::missingPrivilege($missingPrivileges);
         }
     }
@@ -260,7 +265,7 @@ class ImportExportActionController extends AbstractController
             $missingPrivileges[] = $privilege;
         }
 
-        if (!empty($properties)) {
+        if ($properties !== []) {
             $missingPrivileges = $this->getMissingPrivileges($properties, $definition, $context, $missingPrivileges);
         }
 

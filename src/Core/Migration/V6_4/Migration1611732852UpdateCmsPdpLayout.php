@@ -11,8 +11,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1611732852UpdateCmsPdpLayout extends MigrationStep
@@ -91,7 +89,7 @@ class Migration1611732852UpdateCmsPdpLayout extends MigrationStep
                 default => [],
             };
 
-            if (empty($configData)) {
+            if ($configData === []) {
                 return;
             }
 

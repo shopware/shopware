@@ -17,6 +17,8 @@ use Shopware\Core\Content\ImportExport\Strategy\Import\BatchImportStrategy;
 use Shopware\Core\Content\ImportExport\Strategy\Import\OneByOneImportStrategy;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -74,6 +76,9 @@ class ImportExportFactory
         );
     }
 
+    /**
+     * @return EntityRepository<covariant EntityCollection<covariant Entity>>
+     */
     private function getRepository(ImportExportLogEntity $logEntity): EntityRepository
     {
         $profile = $logEntity->getProfile();

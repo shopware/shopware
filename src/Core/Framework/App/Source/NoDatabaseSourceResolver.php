@@ -9,32 +9,22 @@ use Shopware\Core\Framework\Util\Filesystem;
 
 /**
  * @internal
- *
- * @phpstan-import-type App from ActiveAppsLoader
  */
 #[Package('framework')]
 class NoDatabaseSourceResolver
 {
-    /**
-     * @var array<string, App>
-     */
-    private array $activeApps = [];
-
-    public function __construct(ActiveAppsLoader $activeAppsLoader)
+    public function __construct(private readonly ActiveAppsLoader $activeAppsLoader)
     {
-        $activeApps = $activeAppsLoader->getActiveApps();
-        $this->activeApps = array_combine(
-            array_map(fn (array $app) => $app['name'], $activeApps),
-            $activeApps
-        );
     }
 
     public function filesystem(string $appName): Filesystem
     {
-        if (!isset($this->activeApps[$appName])) {
-            throw AppException::notFoundByField($appName, 'name');
+        foreach ($this->activeAppsLoader->getActiveApps() as $activeApp) {
+            if ($activeApp['name'] === $appName) {
+                return new Filesystem($activeApp['path']);
+            }
         }
 
-        return new Filesystem($this->activeApps[$appName]['path']);
+        throw AppException::notFoundByField($appName, 'name');
     }
 }

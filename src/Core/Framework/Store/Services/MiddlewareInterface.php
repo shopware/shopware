@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
-use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -11,5 +10,5 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 interface MiddlewareInterface
 {
-    public function __invoke(ResponseInterface $response): ResponseInterface;
+    public function __invoke(callable $handler): callable;
 }

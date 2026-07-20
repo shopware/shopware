@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 
@@ -34,14 +35,21 @@ class CartMigrateCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    private string $redisUrl;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->redisUrl = (string) EnvironmentHelper::getVariable('REDIS_URL');
+
+        if ($this->redisUrl === '') {
+            static::markTestSkipped('Redis is not available');
+        }
+    }
+
     public function testWithRedisPrefix(): void
     {
-        $url = EnvironmentHelper::getVariable('REDIS_URL');
-
-        if (!$url) {
-            static::markTestSkipped('No redis server configured');
-        }
-
         static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM cart');
 
         $redisCart = new Cart(Uuid::randomHex());
@@ -53,21 +61,22 @@ class CartMigrateCommandTest extends TestCase
         $context = $this->getSalesChannelContext($redisCart->getToken());
 
         $factory = new RedisConnectionFactory('test-prefix-');
-        $redis = $factory->create((string) $url);
+        $redis = $factory->create($this->redisUrl);
         static::assertInstanceOf(\Redis::class, $redis);
         $redis->flushAll();
 
         $persister = new RedisCartPersister($redis, static::getContainer()->get('event_dispatcher'), static::getContainer()->get(CartSerializationCleaner::class), new CartCompressor(false, 'gzip'), 90);
         $persister->save($redisCart, $context);
 
-        $command = new CartMigrateCommand($redis, static::getContainer()->get(Connection::class), 90, $factory, new CartCompressor(false, 'gzip'));
+        $command = new CartMigrateCommand($redis, static::getContainer()->get(Connection::class), 90, $factory, new CartCompressor(false, 'gzip'), new NativeClock());
         $command->run(new ArrayInput(['from' => 'redis']), new NullOutput());
 
         $persister = new CartPersister(
             static::getContainer()->get(Connection::class),
             static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get(CartSerializationCleaner::class),
-            new CartCompressor(false, 'gzip')
+            new CartCompressor(false, 'gzip'),
+            new NativeClock()
         );
 
         $persister->load($redisCart->getToken(), $context);
@@ -76,12 +85,6 @@ class CartMigrateCommandTest extends TestCase
     #[DataProvider('dataProvider')]
     public function testRedisToSql(bool $sqlCompressed, bool $redisCompressed): void
     {
-        $url = EnvironmentHelper::getVariable('REDIS_URL');
-
-        if (!$url) {
-            static::markTestSkipped('No redis server configured');
-        }
-
         static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM cart');
 
         $redisCart = new Cart(Uuid::randomHex());
@@ -93,21 +96,22 @@ class CartMigrateCommandTest extends TestCase
         $context = $this->getSalesChannelContext($redisCart->getToken());
 
         $factory = static::getContainer()->get(RedisConnectionFactory::class);
-        $redis = $factory->create((string) $url);
+        $redis = $factory->create($this->redisUrl);
         static::assertInstanceOf(\Redis::class, $redis);
         $redis->flushAll();
 
         $persister = new RedisCartPersister($redis, static::getContainer()->get('event_dispatcher'), static::getContainer()->get(CartSerializationCleaner::class), new CartCompressor($redisCompressed, 'gzip'), 90);
         $persister->save($redisCart, $context);
 
-        $command = new CartMigrateCommand($redis, static::getContainer()->get(Connection::class), 90, $factory, new CartCompressor($redisCompressed, 'gzip'));
+        $command = new CartMigrateCommand($redis, static::getContainer()->get(Connection::class), 90, $factory, new CartCompressor($redisCompressed, 'gzip'), new NativeClock());
         $command->run(new ArrayInput(['from' => 'redis']), new NullOutput());
 
         $persister = new CartPersister(
             static::getContainer()->get(Connection::class),
             static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get(CartSerializationCleaner::class),
-            new CartCompressor($sqlCompressed, 'gzip')
+            new CartCompressor($sqlCompressed, 'gzip'),
+            new NativeClock()
         );
 
         $persister->load($redisCart->getToken(), $context);
@@ -116,12 +120,6 @@ class CartMigrateCommandTest extends TestCase
     #[DataProvider('dataProvider')]
     public function testSqlToRedis(bool $sqlCompressed, bool $redisCompressed): void
     {
-        $url = EnvironmentHelper::getVariable('REDIS_URL');
-
-        if (!$url) {
-            static::markTestSkipped('No redis server configured');
-        }
-
         static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM cart');
 
         $sqlCart = new Cart(Uuid::randomHex());
@@ -136,7 +134,8 @@ class CartMigrateCommandTest extends TestCase
             static::getContainer()->get(Connection::class),
             static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get(CartSerializationCleaner::class),
-            new CartCompressor(false, 'gzip')
+            new CartCompressor(false, 'gzip'),
+            new NativeClock()
         );
 
         $persister->save($sqlCart, $context);
@@ -145,11 +144,11 @@ class CartMigrateCommandTest extends TestCase
         static::assertNotEmpty($token);
 
         $factory = static::getContainer()->get(RedisConnectionFactory::class);
-        $redis = $factory->create((string) $url);
+        $redis = $factory->create($this->redisUrl);
         static::assertInstanceOf(\Redis::class, $redis);
         $redis->flushAll();
 
-        $command = new CartMigrateCommand($redis, static::getContainer()->get(Connection::class), 90, $factory, new CartCompressor($sqlCompressed, 'gzip'));
+        $command = new CartMigrateCommand($redis, static::getContainer()->get(Connection::class), 90, $factory, new CartCompressor($sqlCompressed, 'gzip'), new NativeClock());
         $command->run(new ArrayInput(['from' => 'sql']), new NullOutput());
 
         $persister = new RedisCartPersister($redis, static::getContainer()->get('event_dispatcher'), static::getContainer()->get(CartSerializationCleaner::class), new CartCompressor($redisCompressed, 'gzip'), 90);

@@ -33,12 +33,6 @@ const createWrapper = async ({ provide, ...additionalOptions } = {}, value = nul
 };
 
 describe('app/component/form/sw-number-field-deprecated', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should set value 0 when user deletes everything', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

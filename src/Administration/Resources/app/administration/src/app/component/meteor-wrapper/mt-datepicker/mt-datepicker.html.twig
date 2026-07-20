@@ -3,8 +3,9 @@
     :is24="is24HourFormat"
     :date-type="dateType"
     :locale="locale || userLocale"
-    :format="format || customFormat"
+    :format="format || datePickerFormat"
     :time-zone="timeZone || userTimeZone"
+    :text-input="true"
 >
     <!-- Dynamically pass all slots -->
     <template

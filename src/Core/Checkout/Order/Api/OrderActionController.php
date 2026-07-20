@@ -13,7 +13,9 @@ use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,7 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('checkout')]
 class OrderActionController extends AbstractController
 {
@@ -35,7 +37,12 @@ class OrderActionController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/order/{orderId}/state/{transition}', name: 'api.action.order.state_machine.order.transition_state', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/order/{orderId}/state/{transition}',
+        name: 'api.action.order.state_machine.order.transition_state',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order:update']],
+        methods: [Request::METHOD_POST]
+    )]
     public function orderStateTransition(
         string $orderId,
         string $transition,
@@ -43,7 +50,7 @@ class OrderActionController extends AbstractController
         Context $context
     ): JsonResponse {
         $documentTypes = $request->request->all('documentTypes');
-        if (\count($documentTypes) > 0) {
+        if ($documentTypes !== []) {
             $skipSentDocuments = (bool) $request->request->get('skipSentDocuments', false);
             $documentIds = $this->getDocumentIds('order', $orderId, $documentTypes, $skipSentDocuments);
         } else {
@@ -71,7 +78,12 @@ class OrderActionController extends AbstractController
         return new JsonResponse($toPlace->jsonSerialize());
     }
 
-    #[Route(path: '/api/_action/order_transaction/{orderTransactionId}/state/{transition}', name: 'api.action.order.state_machine.order_transaction.transition_state', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/order_transaction/{orderTransactionId}/state/{transition}',
+        name: 'api.action.order.state_machine.order_transaction.transition_state',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order_transaction:update']],
+        methods: [Request::METHOD_POST]
+    )]
     public function orderTransactionStateTransition(
         string $orderTransactionId,
         string $transition,
@@ -79,7 +91,7 @@ class OrderActionController extends AbstractController
         Context $context
     ): JsonResponse {
         $documentTypes = $request->request->all('documentTypes');
-        if (\count($documentTypes) > 0) {
+        if ($documentTypes !== []) {
             $skipSentDocuments = (bool) $request->request->get('skipSentDocuments', false);
             $documentIds = $this->getDocumentIds('order_transaction', $orderTransactionId, $documentTypes, $skipSentDocuments);
         } else {
@@ -107,7 +119,12 @@ class OrderActionController extends AbstractController
         return new JsonResponse($toPlace->jsonSerialize());
     }
 
-    #[Route(path: '/api/_action/order_delivery/{orderDeliveryId}/state/{transition}', name: 'api.action.order.state_machine.order_delivery.transition_state', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/order_delivery/{orderDeliveryId}/state/{transition}',
+        name: 'api.action.order.state_machine.order_delivery.transition_state',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order_delivery:update']],
+        methods: [Request::METHOD_POST]
+    )]
     public function orderDeliveryStateTransition(
         string $orderDeliveryId,
         string $transition,
@@ -115,7 +132,7 @@ class OrderActionController extends AbstractController
         Context $context
     ): JsonResponse {
         $documentTypes = $request->request->all('documentTypes');
-        if (\count($documentTypes) > 0) {
+        if ($documentTypes !== []) {
             $skipSentDocuments = (bool) $request->request->get('skipSentDocuments', false);
             $documentIds = $this->getDocumentIds('order_delivery', $orderDeliveryId, $documentTypes, $skipSentDocuments);
         } else {
@@ -146,7 +163,12 @@ class OrderActionController extends AbstractController
     /**
      * @throws PaymentException
      */
-    #[Route(path: '/api/_action/order_transaction_capture_refund/{refundId}', name: 'api.action.order.order_transaction_capture_refund', methods: ['POST'], defaults: ['_acl' => ['order_refund.editor']])]
+    #[Route(
+        path: '/api/_action/order_transaction_capture_refund/{refundId}',
+        name: 'api.action.order.order_transaction_capture_refund',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order_refund.editor']],
+        methods: [Request::METHOD_POST]
+    )]
     public function refundOrderTransactionCapture(string $refundId, Context $context): JsonResponse
     {
         $this->paymentRefundProcessor->processRefund($refundId, $context);
@@ -200,11 +222,11 @@ class OrderActionController extends AbstractController
         $documents = $query->executeQuery()->fetchAllAssociative();
 
         $documentsGroupByType = FetchModeHelper::group($documents);
-        /** @var array<string, array<array{sent: int, doc_id: string}>> $documentsGroupByType */
+        /** @var array<string, list<array{sent: string, doc_id: string}>> $documentsGroupByType */
         $documentIds = [];
-        foreach ($documentsGroupByType as $documents) {
+        foreach ($documentsGroupByType as $groupedDocuments) {
             // Latest document of type
-            $document = $documents[0];
+            $document = $groupedDocuments[0];
 
             if ($skipSentDocuments && $document['sent']) {
                 continue;

@@ -56,6 +56,17 @@ class ElasticsearchExceptionTest extends TestCase
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
     }
 
+    public function testIndexCreationFailed(): void
+    {
+        $exception = ElasticsearchException::indexCreationFailed('foo', ['settings' => ['index' => ['number_of_shards' => 1]]], new \RuntimeException('boom'));
+
+        static::assertSame(ElasticsearchException::INDEX_CREATION_ERROR, $exception->getErrorCode());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertStringContainsString('boom', $exception->getMessage());
+        static::assertSame('foo', $exception->getParameters()['index']);
+        static::assertArrayHasKey('payload', $exception->getParameters());
+    }
+
     public function testNestedAggregationMissingInFilterAggregation(): void
     {
         $exception = ElasticsearchException::nestedAggregationMissingInFilterAggregation('foo');

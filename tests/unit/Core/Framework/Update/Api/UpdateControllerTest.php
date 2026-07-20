@@ -31,19 +31,19 @@ class UpdateControllerTest extends TestCase
 {
     public function testCheckForUpdatesNoUpdate(): void
     {
-        $apiClient = $this->createMock(ApiClient::class);
+        $apiClient = static::createStub(ApiClient::class);
         $apiClient
             ->method('checkForUpdates')
             ->willReturn(new Version(['version' => '6.5.1.0', 'date' => '2020-01-01']));
 
         $updateController = new UpdateController(
             $apiClient,
-            $this->createMock(WriteableCheck::class),
-            $this->createMock(LicenseCheck::class),
-            $this->createMock(ExtensionCompatibility::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(SystemConfigService::class),
-            $this->createMock(AbstractExtensionLifecycle::class),
+            static::createStub(WriteableCheck::class),
+            static::createStub(LicenseCheck::class),
+            static::createStub(ExtensionCompatibility::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(AbstractExtensionLifecycle::class),
             '6.5.1.0'
         );
 
@@ -57,19 +57,19 @@ class UpdateControllerTest extends TestCase
 
     public function testCheckForUpdatesWithUpdate(): void
     {
-        $apiClient = $this->createMock(ApiClient::class);
+        $apiClient = static::createStub(ApiClient::class);
         $apiClient
             ->method('checkForUpdates')
             ->willReturn(new Version(['version' => '6.5.0.0', 'date' => '2020-01-01']));
 
         $updateController = new UpdateController(
             $apiClient,
-            $this->createMock(WriteableCheck::class),
-            $this->createMock(LicenseCheck::class),
-            $this->createMock(ExtensionCompatibility::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(SystemConfigService::class),
-            $this->createMock(AbstractExtensionLifecycle::class),
+            static::createStub(WriteableCheck::class),
+            static::createStub(LicenseCheck::class),
+            static::createStub(ExtensionCompatibility::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(AbstractExtensionLifecycle::class),
             '6.1.0'
         );
 
@@ -83,19 +83,19 @@ class UpdateControllerTest extends TestCase
 
     public function testCheckForUpdatesNoUpdateWithDisabledUpdateCheckByEnv(): void
     {
-        $apiClient = $this->createMock(ApiClient::class);
+        $apiClient = static::createStub(ApiClient::class);
         $apiClient
             ->method('checkForUpdates')
             ->willReturn(new Version(['version' => '6.5.0.0', 'date' => '2020-01-01']));
 
         $updateController = new UpdateController(
             $apiClient,
-            $this->createMock(WriteableCheck::class),
-            $this->createMock(LicenseCheck::class),
-            $this->createMock(ExtensionCompatibility::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(SystemConfigService::class),
-            $this->createMock(AbstractExtensionLifecycle::class),
+            static::createStub(WriteableCheck::class),
+            static::createStub(LicenseCheck::class),
+            static::createStub(ExtensionCompatibility::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(AbstractExtensionLifecycle::class),
             '6.1.0.0',
             true
         );
@@ -110,24 +110,24 @@ class UpdateControllerTest extends TestCase
 
     public function testCheckForRequirements(): void
     {
-        $writeableCheck = $this->createMock(WriteableCheck::class);
+        $writeableCheck = static::createStub(WriteableCheck::class);
         $writeableCheck
             ->method('check')
             ->willReturn(new ValidationResult('writeable', false, 'message'));
 
-        $licenseCheck = $this->createMock(LicenseCheck::class);
+        $licenseCheck = static::createStub(LicenseCheck::class);
         $licenseCheck
             ->method('check')
             ->willReturn(new ValidationResult('license', false, 'message'));
 
         $updateController = new UpdateController(
-            $this->createMock(ApiClient::class),
+            static::createStub(ApiClient::class),
             $writeableCheck,
             $licenseCheck,
-            $this->createMock(ExtensionCompatibility::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(SystemConfigService::class),
-            $this->createMock(AbstractExtensionLifecycle::class),
+            static::createStub(ExtensionCompatibility::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(AbstractExtensionLifecycle::class),
             '6.1.0'
         );
 
@@ -141,19 +141,19 @@ class UpdateControllerTest extends TestCase
 
     public function testCheckPluginCompatibility(): void
     {
-        $pluginCompatibility = $this->createMock(ExtensionCompatibility::class);
+        $pluginCompatibility = static::createStub(ExtensionCompatibility::class);
         $pluginCompatibility
             ->method('getExtensionCompatibilities')
             ->willReturn(['test' => true]);
 
         $updateController = new UpdateController(
-            $this->createMock(ApiClient::class),
-            $this->createMock(WriteableCheck::class),
-            $this->createMock(LicenseCheck::class),
+            static::createStub(ApiClient::class),
+            static::createStub(WriteableCheck::class),
+            static::createStub(LicenseCheck::class),
             $pluginCompatibility,
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(SystemConfigService::class),
-            $this->createMock(AbstractExtensionLifecycle::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(AbstractExtensionLifecycle::class),
             '6.1.0'
         );
 
@@ -172,12 +172,12 @@ class UpdateControllerTest extends TestCase
 
         $updateController = new UpdateController(
             $apiClient,
-            $this->createMock(WriteableCheck::class),
-            $this->createMock(LicenseCheck::class),
-            $this->createMock(ExtensionCompatibility::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(SystemConfigService::class),
-            $this->createMock(AbstractExtensionLifecycle::class),
+            static::createStub(WriteableCheck::class),
+            static::createStub(LicenseCheck::class),
+            static::createStub(ExtensionCompatibility::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(AbstractExtensionLifecycle::class),
             '6.1.0'
         );
 
@@ -190,28 +190,28 @@ class UpdateControllerTest extends TestCase
     {
         $events = [];
 
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
         $eventDispatcher
             ->method('dispatch')
-            ->willReturnCallback(function ($event) use (&$events): object {
+            ->willReturnCallback(static function ($event) use (&$events): object {
                 $events[] = $event;
 
                 return $event;
             });
 
         $updateController = new UpdateController(
-            $this->createMock(ApiClient::class),
-            $this->createMock(WriteableCheck::class),
-            $this->createMock(LicenseCheck::class),
-            $this->createMock(ExtensionCompatibility::class),
+            static::createStub(ApiClient::class),
+            static::createStub(WriteableCheck::class),
+            static::createStub(LicenseCheck::class),
+            static::createStub(ExtensionCompatibility::class),
             $eventDispatcher,
-            $this->createMock(SystemConfigService::class),
-            $this->createMock(AbstractExtensionLifecycle::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(AbstractExtensionLifecycle::class),
             '6.1.0'
         );
 
         $container = new ContainerBuilder();
-        $service = $this->createMock(Kernel::class);
+        $service = static::createStub(Kernel::class);
         $service->method('getContainer')->willReturn($container);
         $container->set('kernel', $service);
         $container->set('event_dispatcher', $eventDispatcher);
@@ -231,10 +231,10 @@ class UpdateControllerTest extends TestCase
     {
         $events = [];
 
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
         $eventDispatcher
             ->method('dispatch')
-            ->willReturnCallback(function ($event) use (&$events): object {
+            ->willReturnCallback(static function ($event) use (&$events): object {
                 $events[] = $event;
 
                 return $event;
@@ -244,24 +244,24 @@ class UpdateControllerTest extends TestCase
         $extension->setName('test');
         $extension->setType(ExtensionStruct::EXTENSION_TYPE_APP);
 
-        $pluginCompatibility = $this->createMock(ExtensionCompatibility::class);
+        $pluginCompatibility = static::createStub(ExtensionCompatibility::class);
         $pluginCompatibility
             ->method('getExtensionsToDeactivate')
             ->willReturn([$extension, $extension]);
 
         $updateController = new UpdateController(
-            $this->createMock(ApiClient::class),
-            $this->createMock(WriteableCheck::class),
-            $this->createMock(LicenseCheck::class),
+            static::createStub(ApiClient::class),
+            static::createStub(WriteableCheck::class),
+            static::createStub(LicenseCheck::class),
             $pluginCompatibility,
             $eventDispatcher,
-            $this->createMock(SystemConfigService::class),
-            $this->createMock(AbstractExtensionLifecycle::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(AbstractExtensionLifecycle::class),
             '6.1.0'
         );
 
         $container = new ContainerBuilder();
-        $service = $this->createMock(Kernel::class);
+        $service = static::createStub(Kernel::class);
         $service->method('getContainer')->willReturn($container);
         $container->set('kernel', $service);
         $container->set('event_dispatcher', $eventDispatcher);

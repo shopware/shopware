@@ -13,7 +13,7 @@ class Sha256 implements LegacyEncoderInterface
         return 'Sha256';
     }
 
-    public function isPasswordValid(string $password, string $hash): bool
+    public function isPasswordValid(#[\SensitiveParameter] string $password, string $hash): bool
     {
         [$iterations, $salt] = explode(':', $hash);
 
@@ -22,7 +22,7 @@ class Sha256 implements LegacyEncoderInterface
         return hash_equals($hash, $verifyHash);
     }
 
-    private function generateInternal(string $password, string $salt, int $iterations): string
+    private function generateInternal(#[\SensitiveParameter] string $password, string $salt, int $iterations): string
     {
         $hash = '';
         for ($i = 0; $i <= $iterations; ++$i) {

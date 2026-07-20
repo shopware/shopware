@@ -5,11 +5,14 @@
 import { mount } from '@vue/test-utils';
 import useSystem from '../../../../app/composables/use-system';
 
-async function createWrapper(loginSuccessfull) {
+const originalNavigatorLanguage = navigator.language;
+const originalNavigatorLanguages = navigator.languages;
+
+async function createWrapper(loginSuccessfull, useDefault = true, ssoUrl = 'https://sso.test') {
     const wrapper = mount(await wrapTestComponent('sw-login-login', { sync: true }), {
         global: {
             mocks: {
-                $tc: (...args) => JSON.stringify([...args]),
+                $t: (...args) => JSON.stringify([...args]),
             },
             provide: {
                 loginService: {
@@ -51,6 +54,9 @@ async function createWrapper(loginSuccessfull) {
 
                         localStorage.setItem('rememberMe', `${+duration}`);
                     },
+                    getLoginTemplateConfig: () => {
+                        return Promise.resolve({ useDefault: useDefault, ssoProviders: [], url: ssoUrl });
+                    },
                 },
                 userService: {},
                 licenseViolationService: {},
@@ -77,6 +83,10 @@ async function createWrapper(loginSuccessfull) {
 
     await flushPromises();
 
+    if (!useDefault) {
+        return { wrapper };
+    }
+
     const passwordInput = wrapper.findByLabel('["sw-login.index.labelPassword"]');
     const usernameInput = wrapper.get('#sw-field--username');
     const rememberMeCheckbox = wrapper.find('.mt-field--checkbox__container input');
@@ -85,15 +95,22 @@ async function createWrapper(loginSuccessfull) {
 }
 
 describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
-    beforeAll(() => {
-        useSystem().locales.value.push(navigator.language);
-    });
+    beforeEach(() => {
+        Shopware.Application.getContainer('factory').locale.setSystemFallbackLocale(null);
 
-    it('should be a Vue.js component', async () => {
-        const { wrapper } = await createWrapper(false);
-        await flushPromises();
+        localStorage.removeItem('sw-admin-locale');
 
-        expect(wrapper.vm).toBeTruthy();
+        Object.defineProperty(window.navigator, 'language', {
+            value: originalNavigatorLanguage,
+            configurable: true,
+        });
+        Object.defineProperty(window.navigator, 'languages', {
+            value: originalNavigatorLanguages,
+            configurable: true,
+        });
+
+        useSystem().locales.value = [];
+        useSystem().registerAdminLocale('en-GB');
     });
 
     it('should show a warning if the login is rate limited', async () => {
@@ -141,5 +158,72 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         const rememberMeDuration = Number(localStorage.getItem('rememberMe'));
         expect(rememberMeDuration).toBeGreaterThan(1600000);
         expect(rememberMeDuration).toBeLessThanOrEqual(+expectedDuration);
+    });
+
+    it('should use the system fallback locale when browser and english fallbacks are unavailable', async () => {
+        Object.defineProperty(window.navigator, 'language', {
+            value: 'es-ES',
+            configurable: true,
+        });
+        Object.defineProperty(window.navigator, 'languages', {
+            value: ['es-ES'],
+            configurable: true,
+        });
+
+        useSystem().locales.value = [];
+        useSystem().registerAdminLocale('de-DE');
+        Shopware.Application.getContainer('factory').locale.setSystemFallbackLocale('de-DE');
+
+        const setAdminLocaleSpy = jest.spyOn(Shopware.Store.get('session'), 'setAdminLocale');
+
+        await createWrapper(true);
+
+        expect(setAdminLocaleSpy).toHaveBeenCalledWith('de-DE');
+    });
+
+    it('should redirect for SSO login', async () => {
+        const navigateToSpy = jest.fn();
+        const component = await wrapTestComponent('sw-login-login', { sync: true });
+        component.methods._navigateTo = navigateToSpy;
+
+        mount(component, {
+            global: {
+                mocks: {
+                    $t: (...args) => JSON.stringify([...args]),
+                },
+                provide: {
+                    loginService: {
+                        loginByUsername: () => Promise.resolve(),
+                        setRememberMe: () => {},
+                        getLoginTemplateConfig: () => {
+                            return Promise.resolve({ useDefault: false, ssoProviders: [], url: 'https://sso.test' });
+                        },
+                    },
+                    userService: {},
+                    licenseViolationService: {},
+                },
+                stubs: {
+                    'router-view': true,
+                    'sw-loader': true,
+                    'sw-text-field': true,
+                    'sw-text-field-deprecated': true,
+                    'sw-contextual-field': true,
+                    'sw-block-field': true,
+                    'router-link': true,
+                    'sw-checkbox-field': true,
+                    'sw-checkbox-field-deprecated': true,
+                    'sw-base-field': true,
+                    'sw-field-error': true,
+                    'sw-field-copyable': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
+                },
+            },
+        });
+
+        await flushPromises();
+
+        expect(navigateToSpy).toHaveBeenCalledWith('https://sso.test');
     });
 });

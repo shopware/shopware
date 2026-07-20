@@ -1,3 +1,4 @@
+{% block address_item %}
 <li class="col-12 col-lg-6 d-flex">
     <div class="p-3 border address-manager-select-address flex-fill">
         <div class="row h-100">
@@ -9,11 +10,13 @@
                 {% endblock %}
 
                 {% block address_item_dropdown %}
+                    {% set addressItemDropdownId = 'address-item-dropdown-' ~ random() %}
+
                     <div class="dropdown">
                         {% block address_item_dropdown_button %}
                             <button
                                 type="button"
-                                id="address-item-dropdown-btn-{{ address.id }}"
+                                id="{{ addressItemDropdownId }}"
                                 data-bs-toggle="dropdown"
                                 aria-expanded="false"
                                 aria-label="{{ 'account.addressOptionsBtn'|trans|sw_sanitize }}"
@@ -23,7 +26,7 @@
                             </button>
                         {% endblock %}
 
-                        <ul class="dropdown-menu" aria-labelledby="address-item-dropdown-btn-{{ address.id }}">
+                        <ul class="dropdown-menu" aria-labelledby="{{ addressItemDropdownId }}">
                             {% block address_item_dropdown_items %}
                                 <li>
                                     <a
@@ -89,15 +92,18 @@
                 {% set snippet = 'account.addressesTitleDefaultBillingAddress' %}
             {% endif %}
 
-            {% if defaultShipping or defaultBilling %}
-                {% block address_item_badge %}
-                    <div class="mt-auto d-flex justify-content-end">
-                        <span class="address-item-default-badge fs-6 fw-semibold px-4 py-1 rounded-pill text-bg-info">
-                            {{ snippet|trans|sw_sanitize }}
-                        </span>
-                    </div>
-               {% endblock %}
-            {% endif %}
+            {% block address_item_badge_content %}
+                {% if defaultShipping or defaultBilling %}
+                    {% block address_item_badge %}
+                        <div class="mt-auto d-flex justify-content-end">
+                            <span class="address-item-default-badge fs-6 fw-semibold px-4 py-1 rounded-pill text-bg-info">
+                                {{ snippet|trans|sw_sanitize }}
+                            </span>
+                        </div>
+                    {% endblock %}
+                {% endif %}
+            {% endblock %}
         </div>
     </div>
 </li>
+{% endblock %}

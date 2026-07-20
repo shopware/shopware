@@ -112,7 +112,7 @@ const router = createRouter({
     history: createWebHashHistory(),
 });
 
-async function createWrapper() {
+async function createWrapper({ checkShopId = jest.fn(() => Promise.resolve()) } = {}) {
     // delete global $router and $routes mocks
     delete config.global.mocks.$router;
     delete config.global.mocks.$route;
@@ -127,13 +127,17 @@ async function createWrapper() {
             stubs: {
                 'sw-admin-menu': true,
                 'router-view': true,
-                'sw-app-app-url-changed-modal': true,
+                'sw-app-shop-id-change-modal': true,
                 'sw-sidebar-renderer': true,
                 'sw-error-boundary': true,
+                'sw-settings-services-grant-permissions-modal': true,
+                'sw-settings-usage-data-consent-modal': true,
+                'sw-settings-usage-data-consent-modal-data-provider': true,
+                'sw-request-consent-modal': true,
             },
             provide: {
-                appUrlChangeService: {
-                    getUrlDiff: jest.fn(() => Promise.resolve()),
+                shopIdChangeService: {
+                    checkShopId,
                 },
                 userActivityApiService: {
                     increment: jest.fn(() => Promise.resolve()),
@@ -155,12 +159,12 @@ describe('src/app/component/structure/sw-desktop', () => {
         Shopware.Store.get('session').setCurrentUser({
             id: 'id',
         });
-    });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
+        Shopware.Store.get('context').app.config.settings = {
+            appsRequireAppUrl: true,
+            appUrlReachable: true,
+            enableStagingMode: false,
+        };
     });
 
     it('should be update userConfig when at index route', async () => {
@@ -221,17 +225,49 @@ describe('src/app/component/structure/sw-desktop', () => {
         expect(getModuleMetadata.mock.results[0].value).toBe(false);
     });
 
-    it('should call not urlDiffService when appUrlReachable is false', async () => {
+    it('should not call shopIdChangeService when appUrlReachable is false', async () => {
         Shopware.Store.get('context').app.config.settings.appsRequireAppUrl = false;
 
         const wrapper = await createWrapper();
 
-        const urlDiffSpy = jest.spyOn(wrapper.vm.appUrlChangeService, 'getUrlDiff');
+        const checkShopIdSpy = jest.spyOn(wrapper.vm.shopIdChangeService, 'checkShopId');
 
         await wrapper.vm.$router.push({ name: 'sw.product.create.base' });
         await flushPromises();
 
-        expect(urlDiffSpy).not.toHaveBeenCalled();
+        expect(checkShopIdSpy).not.toHaveBeenCalled();
+    });
+
+    it('should not render consent modal provider while shop ID check is pending', async () => {
+        const checkShopId = jest.fn(() => new Promise(() => {}));
+
+        const wrapper = await createWrapper({ checkShopId });
+
+        expect(checkShopId).toHaveBeenCalledTimes(1);
+        expect(wrapper.find('sw-settings-usage-data-consent-modal-data-provider-stub').exists()).toBe(false);
+    });
+
+    it('should render consent modal provider after shop ID check resolves without changes', async () => {
+        const wrapper = await createWrapper({
+            checkShopId: jest.fn(() => Promise.resolve(null)),
+        });
+
+        await flushPromises();
+
+        expect(wrapper.vm.isShopIdCheckPending).toBe(false);
+        expect(wrapper.vm.shopIdCheck).toBeNull();
+        expect(wrapper.vm.showUsageDataConsentModalDataProvider).toBe(true);
+    });
+
+    it('should not render consent modal provider while shop ID change modal is shown', async () => {
+        const wrapper = await createWrapper({
+            checkShopId: jest.fn(() => Promise.resolve({ apps: [], fingerprints: {} })),
+        });
+
+        await flushPromises();
+
+        expect(wrapper.find('sw-app-shop-id-change-modal-stub').exists()).toBe(true);
+        expect(wrapper.find('sw-settings-usage-data-consent-modal-data-provider-stub').exists()).toBe(false);
     });
 
     it('should show the staging bar, when enabled', async () => {

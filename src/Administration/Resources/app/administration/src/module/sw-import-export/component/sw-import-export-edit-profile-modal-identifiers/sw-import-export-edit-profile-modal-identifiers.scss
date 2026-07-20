@@ -1,10 +1,7 @@
-/* stylelint-disable max-nesting-depth */
-@import "~scss/variables";
-
 .sw-import-export-edit-profile-modal-identifiers {
     display: flex;
     flex-direction: column;
-    border-top: 1px solid $color-gray-300;
+    border-top: 1px solid var(--color-border-secondary-default);
 
     &__grid,
     &__empty-state {
@@ -24,7 +21,7 @@
             }
 
             .sw-data-grid__cell-content {
-                padding: 20px 30px;
+                padding: var(--scale-size-20) var(--scale-size-30);
             }
         }
 

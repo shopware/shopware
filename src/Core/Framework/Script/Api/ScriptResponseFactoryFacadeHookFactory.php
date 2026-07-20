@@ -18,16 +18,19 @@ class ScriptResponseFactoryFacadeHookFactory extends HookServiceFactory
 {
     public function __construct(
         private readonly RouterInterface $router,
-        private readonly ?ScriptController $scriptController
+        /**
+         * @deprecated tag:v6.8.0 - only needed for the deprecated render() BC path.
+         *
+         * @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable. Don't do that! Will be removed with v6.8.0 when render() is removed from the core response facade)
+         */
+        private readonly ?ScriptController $scriptController = null,
     ) {
     }
 
     public function factory(Hook $hook, Script $script): ScriptResponseFactoryFacade
     {
-        $salesChannelContext = null;
-        if ($hook instanceof SalesChannelContextAware) {
-            $salesChannelContext = $hook->getSalesChannelContext();
-        }
+        // @deprecated tag:v6.8.0 - only needed for the deprecated render() BC path.
+        $salesChannelContext = $hook instanceof SalesChannelContextAware ? $hook->getSalesChannelContext() : null;
 
         return new ScriptResponseFactoryFacade(
             $this->router,

@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
-use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -46,9 +45,7 @@ class RulePayloadSubscriberTest extends TestCase
 
         $this->rulePayloadSubscriber = new RulePayloadSubscriber(
             $this->updater,
-            static::getContainer()->get(ScriptTraces::class),
-            static::getContainer()->getParameter('kernel.cache_dir'),
-            static::getContainer()->getParameter('kernel.debug')
+            static::getContainer()->get('service_container'),
         );
 
         $this->ruleDefinition = static::getContainer()->get(RuleDefinition::class);

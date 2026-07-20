@@ -44,7 +44,7 @@ class GenerateThumbnailsCommandTest extends TestCase
     private Context $context;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $initialMediaIds;
 
@@ -59,7 +59,6 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $this->thumbnailCommand = static::getContainer()->get(GenerateThumbnailsCommand::class);
 
-        /** @var array<string> $ids */
         $ids = $this->mediaRepository->searchIds(new Criteria(), $this->context)->getIds();
         $this->initialMediaIds = $ids;
     }
@@ -216,8 +215,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             static::markTestSkipped('Remote thumbnails is enabled. Skipping thumbnail generation test.');
         }
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Could not find a folder with name "non-existing-folder"');
+        $this->expectExceptionObject(MediaException::mediaFolderNameNotFound('non-existing-folder'));
 
         $commandTester = new CommandTester($this->thumbnailCommand);
         $commandTester->execute(['--folder-name' => 'non-existing-folder']);
@@ -229,8 +227,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             static::markTestSkipped('Remote thumbnails is enabled. Skipping thumbnail generation test.');
         }
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Provided batch size is invalid.');
+        $this->expectExceptionObject(MediaException::invalidBatchSize());
 
         $commandTester = new CommandTester($this->thumbnailCommand);
         $commandTester->execute(['--batch-size' => 'test']);
@@ -241,8 +238,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->createValidMediaFiles();
         $newMedia = $this->getNewMediaEntities();
 
-        $thumbnailServiceMock = $this->getMockBuilder(ThumbnailService::class)
-            ->disableOriginalConstructor()->getMock();
+        $thumbnailServiceMock = $this->createMock(ThumbnailService::class);
 
         $thumbnailServiceMock->expects($this->exactly(\count($this->initialMediaIds) + $newMedia->count()))
             ->method('updateThumbnails')
@@ -264,8 +260,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->createValidMediaFiles();
         $newMedia = $this->getNewMediaEntities();
 
-        $thumbnailServiceMock = $this->getMockBuilder(ThumbnailService::class)
-            ->disableOriginalConstructor()->getMock();
+        $thumbnailServiceMock = $this->createMock(ThumbnailService::class);
 
         $thumbnailServiceMock->expects($this->exactly(\count($this->initialMediaIds) + $newMedia->count()))
             ->method('updateThumbnails')
@@ -378,7 +373,7 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     private function getNewMediaEntities(): MediaCollection
     {
-        if (!empty($this->initialMediaIds)) {
+        if ($this->initialMediaIds !== []) {
             $criteria = new Criteria($this->initialMediaIds);
             $result = $this->mediaRepository->searchIds($criteria, $this->context);
             static::assertSame(\count($this->initialMediaIds), $result->getTotal());
@@ -386,7 +381,7 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addAssociation('thumbnails');
-        if (!empty($this->initialMediaIds)) {
+        if ($this->initialMediaIds !== []) {
             $criteria->addFilter(new NotFilter(
                 NotFilter::CONNECTION_AND,
                 [

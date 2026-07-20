@@ -92,6 +92,7 @@ describe('FormHandler Plugin', () => {
     });
 
     test('should validate form on submit', () => {
+        HTMLElement.prototype.scrollIntoView = jest.fn();
         const submitEvent = new Event('submit', { cancelable: true });
         const eventSpy = jest.spyOn(submitEvent, 'preventDefault');
 
@@ -113,6 +114,48 @@ describe('FormHandler Plugin', () => {
 
         // The first invalid field should get focus.
         expect(document.activeElement).toBe(nameField);
+    });
+
+    test('should show custom error message with spaces on submit', () => {
+        HTMLElement.prototype.scrollIntoView = jest.fn();
+
+        document.body.innerHTML = `
+            <form id="customMsgForm">
+                <div class="form-group">
+                    <label for="fullname">Full Name</label>
+                    <input
+                        type="text"
+                        name="fullname"
+                        id="fullname"
+                        data-validation="required"
+                        data-form-validation-error-message="Please fill in your full name"
+                        aria-describedby="fullname-feedback"
+                    >
+                    <div
+                        id="fullname-feedback"
+                        class="form-field-feedback"
+                    ></div>
+                </div>
+
+                <button type="submit">Submit</button>
+            </form>
+        `;
+
+        window.formValidation = new FormValidation();
+
+        const customForm = document.querySelector('#customMsgForm');
+        const field = document.querySelector('#fullname');
+        const feedback = document.querySelector('#fullname-feedback');
+
+        field.checkVisibility = jest.fn().mockReturnValue(true);
+
+        new FormHandler(customForm);
+
+        const submitEvent = new Event('submit', { cancelable: true });
+        customForm.dispatchEvent(submitEvent);
+
+        expect(field.classList).toContain(window.formValidation.config.invalidClass);
+        expect(feedback.innerHTML).toBe('<div class="invalid-feedback">Please fill in your full name</div>');
     });
 
     test('should do custom validity check', () => {

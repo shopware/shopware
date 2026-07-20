@@ -8,10 +8,15 @@
                 parent: cookieGroup
             } only %}
 
-            {% if cookieGroup.entries is not empty or cookieGroup.snippet_description is defined %}
+            {# @deprecated tag:v6.8.0 - Use `cookieGroup.description` instead of `cookieGroup.snippet_description`. Support for `cookieGroup.snippet_description` will be removed. #}
+            {% set snippetDescription = cookieGroup.snippet_description ?? cookieGroup.description %}
+            {# @deprecated tag:v6.8.0 - Use `cookieGroup.name` instead of `cookieGroup.snippet_name`. Support for `cookieGroup.snippet_name` will be removed. #}
+            {% set snippetName = cookieGroup.snippet_name ?? cookieGroup.name %}
 
-                {% set cookieGroupName = cookieGroup.snippet_name|replace({'cookie.': ''}) %}
-                {% set cookieGroupId = 'offcanvas-cookie-entries-' ~ cookieGroupName %}
+            {% if cookieGroup.entries is not empty or snippetDescription %}
+
+                {% set cookieGroupName = (snippetName|default(''))|replace({'cookie.': '', ' ': '-'}) %}
+                {% set cookieGroupId = 'offcanvas-cookie-entries-' ~ cookieGroupName|lower %}
 
                 {% block cookie_configuration_group_collapse_button %}
                     <button type="button"
@@ -29,8 +34,8 @@
 
                 <div id="{{ cookieGroupId }}" class="offcanvas-cookie-entries collapse">
 
-                    {% if cookieGroup.snippet_description %}
-                        <p>{{ cookieGroup.snippet_description|trans|sw_sanitize }}</p>
+                    {% if snippetDescription %}
+                        <p>{{ snippetDescription|trans|sw_sanitize }}</p>
                     {% endif %}
 
                     {% for entry in cookieGroup.entries %}

@@ -143,12 +143,6 @@ const createAdvancedSelectionModal = async (customOptions) => {
 };
 
 describe('components/sw-entity-advanced-selection-modal', () => {
-    it('should be a Vue.js component', async () => {
-        const searchModal = await createAdvancedSelectionModal();
-
-        expect(searchModal.vm).toBeTruthy();
-    });
-
     it('should respect the entered search term in criteria', async () => {
         const searchModal = await createAdvancedSelectionModal();
 

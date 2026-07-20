@@ -1,0 +1,49 @@
+{% block sw_sales_channel_detail_agentic_commerce_integration %}
+<div class="sw-sales-channel-detail-agentic-commerce-integration">
+    {% block sw_sales_channel_detail_agentic_commerce_integration_card %}
+    <mt-card
+        v-if="!isLoading"
+        position-identifier="sw-sales-channel-detail-agentic-commerce-integration"
+        :is-loading="isLoading"
+        :title="$t(integrationSnippetPrefix + '.cardTitle')"
+    >
+        <sw-container>
+            {% block sw_sales_channel_detail_agentic_commerce_integration_introduction %}
+            <div class="sw-sales-channel-detail-agentic-commerce-integration__introduction">
+                <h6 class="sw-sales-channel-detail-agentic-commerce-integration__introduction-title">
+                    {{ $t(integrationSnippetPrefix + '.introduction.title') }}
+                </h6>
+
+                <p class="sw-sales-channel-detail-agentic-commerce-integration__introduction-description">
+                    {{ $t(integrationSnippetPrefix + '.introduction.description') }}
+                </p>
+            </div>
+            {% endblock %}
+
+            {% block sw_sales_channel_detail_agentic_commerce_integration_steps %}
+            <div class="sw-sales-channel-detail-agentic-commerce-integration__step-by-step">
+                <h6 class="sw-sales-channel-detail-agentic-commerce-integration__step-by-step-title">
+                    {{ $t('sw-sales-channel.detail.agenticCommerce.integration.stepByStepTitle') }}
+                </h6>
+
+                <ol
+                    class="sw-sales-channel-detail-agentic-commerce-integration__step-by-step-list"
+                    v-html="$t(integrationSnippetPrefix + '.stepByStep')"
+                ></ol>
+            </div>
+            {% endblock %}
+
+            {% block sw_sales_channel_detail_agentic_commerce_integration_feed_url %}
+            <mt-text-field
+                v-if="feedUrl"
+                v-model="feedUrl"
+                :label="$t('sw-sales-channel.detail.agenticCommerce.integration.feedUrlLabel')"
+                :disabled="true"
+                :copyable="true"
+            />
+            {% endblock %}
+        </sw-container>
+    </mt-card>
+    {% endblock %}
+</div>
+{% endblock %}

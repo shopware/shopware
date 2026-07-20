@@ -27,6 +27,9 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
      */
     private EntityRepository $seoUrlRepository;
 
+    /**
+     * @var SalesChannelRepository<SeoUrlCollection>
+     */
     private SalesChannelRepository $salesChannelSeoUrlRepository;
 
     protected function setUp(): void
@@ -85,7 +88,7 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
         $enId = Uuid::randomHex();
         $foreignKey = Uuid::randomHex();
 
-        $this->upsertLanguage($deLanguageId, 'test de');
+        $this->upsertLanguage($deLanguageId, 'de-DE-1');
         $salesChannelContext = $this->createStorefrontSalesChannelContext(Uuid::randomHex(), 'test', $deLanguageId);
 
         $this->seoUrlRepository->create(
@@ -283,9 +286,10 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
         $languageRepo->upsert([[
             'id' => $id,
             'name' => $name,
+            'active' => true,
             'locale' => [
                 'id' => $id,
-                'code' => 'X-' . $name,
+                'code' => $name,
                 'name' => 'test',
                 'territory' => $name . ' territory',
             ],

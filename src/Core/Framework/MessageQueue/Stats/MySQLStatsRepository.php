@@ -12,7 +12,9 @@ use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageTypeStatsEntity;
 /**
  * @internal
  *
- * @codeCoverageIgnore tested via an integration test
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\MessageQueue\Stats\MySQLStatsRepositoryTest
  */
 #[Package('framework')]
 class MySQLStatsRepository extends AbstractStatsRepository
@@ -89,6 +91,6 @@ class MySQLStatsRepository extends AbstractStatsRepository
         $this->connection->createQueryBuilder()->delete('messenger_stats')
             ->where('created_at < :olderThan')
             ->setParameter('olderThan', $olderThan->format(Defaults::STORAGE_DATE_TIME_FORMAT))
-            ->executeQuery();
+            ->executeStatement();
     }
 }

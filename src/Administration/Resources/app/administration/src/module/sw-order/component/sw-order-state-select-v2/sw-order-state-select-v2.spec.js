@@ -22,11 +22,6 @@ describe('src/module/sw-order/component/sw-order-state-select-v2', () => {
         });
     }
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should disabled single select if transition options props are empty', async () => {
         const wrapper = await createWrapper();
         const singleSelect = wrapper.findComponent('.sw-single-select');

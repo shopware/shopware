@@ -46,7 +46,7 @@ class ElasticsearchCleanIndicesCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $indices = $this->outdatedIndexDetector->get();
 
-        if (empty($indices)) {
+        if ($indices === null || $indices === []) {
             $io->writeln('No indices to be deleted.');
 
             return self::SUCCESS;

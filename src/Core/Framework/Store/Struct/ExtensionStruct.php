@@ -8,9 +8,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('checkout')]
 class ExtensionStruct extends Struct
 {
@@ -96,6 +93,8 @@ class ExtensionStruct extends Struct
     protected ?StoreCategoryCollection $categories = null;
 
     protected ?PermissionCollection $permissions = null;
+
+    protected ?PermissionCollection $requestedPermissions = null;
 
     protected bool $active = false;
 

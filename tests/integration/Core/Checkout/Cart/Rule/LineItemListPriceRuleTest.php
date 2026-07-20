@@ -130,7 +130,8 @@ class LineItemListPriceRuleTest extends TestCase
         ?float $lineItemAmount2,
         bool $expected,
         bool $lineItem1WithoutPrice = false,
-        bool $lineItem2WithoutPrice = false
+        bool $lineItem2WithoutPrice = false,
+        ?float $containerLineItemAmount = null
     ): void {
         $this->rule->assign([
             'amount' => $amount,
@@ -401,7 +402,6 @@ class LineItemListPriceRuleTest extends TestCase
         foreach ($rules as $rule) {
             // test combination with currency rule to validate currency list prices+
 
-            /** @var list<string> $currencyIds */
             $currencyIds = array_values($ids->getList(['currency']));
 
             $wrapper = new AndRule([

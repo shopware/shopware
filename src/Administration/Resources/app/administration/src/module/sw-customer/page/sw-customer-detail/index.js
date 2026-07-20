@@ -1,7 +1,6 @@
 import './sw-customer-detail.scss';
 import template from './sw-customer-detail.html.twig';
 import errorConfig from '../../error-config.json';
-import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
  * @sw-package checkout
@@ -11,6 +10,7 @@ const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { ShopwareError } = Shopware.Classes;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
+const { CUSTOMER } = Shopware.Constants;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -39,6 +39,12 @@ export default {
             type: String,
             required: true,
         },
+    },
+
+    provide() {
+        return {
+            loadCustomer: this.loadCustomer.bind(this),
+        };
     },
 
     data() {
@@ -102,7 +108,10 @@ export default {
                 .addAssociation('requestedGroup')
                 .addAssociation('boundSalesChannel');
 
-            criteria.getAssociation('addresses').addSorting(Criteria.sort('firstName'), 'ASC', false);
+            criteria
+                .getAssociation('addresses')
+                .addSorting(Criteria.sort('firstName'), 'ASC', false)
+                .setLimit(criteria.limit);
 
             return criteria;
         },
@@ -173,8 +182,6 @@ export default {
 
     methods: {
         async loadCustomer() {
-            const defaultSalutationId = await this.getDefaultSalutation();
-
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-customer-detail__customer',
                 path: 'customer',
@@ -182,9 +189,26 @@ export default {
             });
             this.isLoading = true;
 
-            this.customerRepository.get(this.customerId, Shopware.Context.api, this.defaultCriteria).then((customer) => {
+            try {
+                const customer = await this.customerRepository.get(
+                    this.customerId,
+                    Shopware.Context.api,
+                    this.defaultCriteria,
+                );
                 this.customer = customer;
-                if (!this.customer?.salutationId) {
+
+                if (!this.customer) {
+                    this.createNotificationError({
+                        message: this.$t('sw-customer.detail.messageCustomerNotFound'),
+                    });
+                    void this.$router.push({ name: 'sw.customer.index' });
+
+                    return;
+                }
+
+                const defaultSalutationId = await this.getDefaultSalutation();
+
+                if (!this.customer.salutationId) {
                     this.customer.salutationId = defaultSalutationId;
                 }
 
@@ -195,9 +219,13 @@ export default {
 
                     return address;
                 });
-
+            } catch {
+                this.createNotificationError({
+                    message: this.$t('global.notification.notificationLoadingDataErrorMessage'),
+                });
+            } finally {
                 this.isLoading = false;
-            });
+            }
         },
 
         async createdComponent() {
@@ -266,7 +294,7 @@ export default {
 
             if (hasError) {
                 this.createNotificationError({
-                    message: this.$tc('sw-customer.detail.messageSaveError'),
+                    message: this.$t('sw-customer.detail.messageSaveError'),
                 });
                 this.isLoading = false;
                 return false;
@@ -291,7 +319,7 @@ export default {
                 .then(() => {
                     this.isSaveSuccessful = true;
                     this.createNotificationSuccess({
-                        message: this.$tc(
+                        message: this.$t(
                             'sw-customer.detail.messageSaveSuccess',
                             {
                                 name: `${this.customer.firstName} ${this.customer.lastName}`,
@@ -302,7 +330,7 @@ export default {
                 })
                 .catch((exception) => {
                     this.createNotificationError({
-                        message: this.$tc('sw-customer.detail.messageSaveError'),
+                        message: this.$t('sw-customer.detail.messageSaveError'),
                     });
                     this.isLoading = false;
                     throw exception;
@@ -341,7 +369,7 @@ export default {
                 Shopware.Store.get('error').addApiError({
                     expression: `customer.${this.customer.id}.passwordConfirm`,
                     error: new ShopwareError({
-                        detail: this.$tc('sw-customer.error.passwordDoNotMatch'),
+                        detail: this.$t('sw-customer.error.passwordDoNotMatch'),
                         code: 'password_not_match',
                     }),
                 });
@@ -357,12 +385,12 @@ export default {
                 .accept(this.customer.id)
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-customer.customerGroupRegistration.acceptMessage'),
+                        message: this.$t('sw-customer.customerGroupRegistration.acceptMessage'),
                     });
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-customer.customerGroupRegistration.errorMessage'),
+                        message: this.$t('sw-customer.customerGroupRegistration.errorMessage'),
                     });
                 })
                 .finally(() => {
@@ -375,12 +403,12 @@ export default {
                 .decline(this.customer.id)
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-customer.customerGroupRegistration.declineMessage'),
+                        message: this.$t('sw-customer.customerGroupRegistration.declineMessage'),
                     });
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-customer.customerGroupRegistration.errorMessage'),
+                        message: this.$t('sw-customer.customerGroupRegistration.errorMessage'),
                     });
                 })
                 .finally(() => {

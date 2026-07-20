@@ -29,13 +29,19 @@
                             {% block buy_widget_price_block_table_body_inner %}
                                 {% for price in product.calculatedPrices %}
                                     {% block buy_widget_price_block_table_body_row %}
+                                        {# @deprecated tag:v6.8.0 - Tiered Offer microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
                                         <tr class="product-block-prices-row"
+                                            {% if not feature('JSON_LD_DATA') %}
                                             itemprop="offers" itemscope
-                                            itemtype="https://schema.org/Offer">
+                                            itemtype="https://schema.org/Offer"
+                                            {% endif %}>
                                             {% block buy_widget_price_block_table_body_cell_quantity %}
                                                 <th scope="row" class="product-block-prices-cell product-block-prices-cell-thin">
-                                                    <meta itemprop="priceCurrency" content="{{ context.currency.translated.shortName }}">
-                                                    <meta itemprop="price" content="{{ price.unitPrice }}">
+                                                    {# @deprecated tag:v6.8.0 - Offer price/currency microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
+                                                    {% if not feature('JSON_LD_DATA') %}
+                                                        <meta itemprop="priceCurrency" content="{{ context.currency.translated.shortName }}">
+                                                        <meta itemprop="price" content="{{ price.unitPrice }}">
+                                                    {% endif %}
 
                                                     {% if loop.last %}
                                                         {{ 'detail.priceDataInfoFrom'|trans|sw_sanitize }}
@@ -80,13 +86,24 @@
             {% set price = product.calculatedPrices.first %}
         {% endif %}
 
-        <meta itemprop="price"
-              content="{{ price.unitPrice }}">
+        {# @deprecated tag:v6.8.0 - Offer price microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
+        {% if not feature('JSON_LD_DATA') %}
+            <meta itemprop="price"
+                  content="{{ price.unitPrice }}">
+        {% endif %}
 
         {% block buy_widget_price_content %}
             {% set listPrice = price.listPrice %}
             {% set isListPrice = price.listPrice.percentage > 0 %}
             {% set isRegulationPrice = price.regulationPrice != null %}
+
+            <span class="visually-hidden product-detail-price-label">
+                {% if isListPrice %}
+                    {{ 'listing.listPriceLabel'|trans|sw_sanitize }}
+                {% else %}
+                    {{ 'listing.regularPriceLabel'|trans|sw_sanitize }}
+                {% endif %}
+            </span>
 
             <p class="product-detail-price{% if isListPrice %} with-list-price{% endif %}{% if isRegulationPrice %} with-regulation-price{% endif %}">
                 {{ price.unitPrice|currency }}
@@ -98,18 +115,34 @@
                         <span class="list-price-badge">&#37;</span>
                     {% endblock %}
 
+                    {# @deprecated tag:v6.8.0 - Snippets listing.beforeListPrice and listing.afterListPrice will be removed. Use twig blocks instead. #}
                     {% set afterListPriceSnippetExists = 'listing.afterListPrice'|trans|length > 0 %}
                     {% set beforeListPriceSnippetExists = 'listing.beforeListPrice'|trans|length > 0 %}
 
                     {% block buy_widget_was_price_wrapper %}
                         <span class="product-detail-list-price-wrapper">
-                            {% if beforeListPriceSnippetExists %}{{'listing.beforeListPrice'|trans|trim}}{% endif %}
+                            {% block buy_widget_was_price_before %}
+                                {% sw_include '@Storefront/storefront/component/product/list-price-affix.html.twig' with {
+                                    position: 'before'
+                                } %}
+                            {% endblock %}
 
+                            {# @deprecated tag:v6.8.0 - Snippet listing.beforeListPrice output will be removed. Use twig blocks instead. #}
+                            {% if beforeListPriceSnippetExists %}{{ 'listing.beforeListPrice'|trans|trim }}{% endif %}
+
+                            <span class="visually-hidden list-price-label">{{ 'listing.regularPriceLabel'|trans|sw_sanitize }}</span>
+
+                            {# @deprecated tag:v6.8.0 - The conditional "list-price-price" class will be set unconditionally. #}
                             <span{% if not (afterListPriceSnippetExists or beforeListPriceSnippetExists) %} class="list-price-price"{% endif %}>{{ listPrice.price|currency }}</span>
 
-                            {% if afterListPriceSnippetExists %}
-                                {{'listing.afterListPrice'|trans|trim}}
-                            {% endif %}
+                            {% block buy_widget_was_price_after %}
+                                {% sw_include '@Storefront/storefront/component/product/list-price-affix.html.twig' with {
+                                    position: 'after'
+                                } %}
+                            {% endblock %}
+
+                            {# @deprecated tag:v6.8.0 - Snippet listing.afterListPrice output will be removed. Use twig blocks instead. #}
+                            {% if afterListPriceSnippetExists %}{{ 'listing.afterListPrice'|trans|trim }}{% endif %}
 
                             <span class="list-price-percentage">{{ 'detail.listPricePercentage'|trans({'%price%': listPrice.percentage })|sw_sanitize }}</span>
                         </span>
@@ -123,30 +156,19 @@
             {% endif %}
         {% endblock %}
 
-        {% if product.purchaseUnit %}
-            {% block buy_widget_price_unit %}
-                <div class="product-detail-price-unit">
-                    {% block buy_widget_price_unit_label %}
-                        <span class="price-unit-label">
-                            {{ 'detail.priceUnitName'|trans|sw_sanitize }}
-                        </span>
-                    {% endblock %}
-
-                    {% block buy_widget_price_unit_content %}
-                        <span class="price-unit-content">
-                            {{ product.purchaseUnit }} {{ product.unit.translated.name }}
-                        </span>
-                    {% endblock %}
-
-                    {% if price.referencePrice is not null %}
-                        {% block buy_widget_price_unit_reference_content %}
-                            <span class="price-unit-reference-content">
-                                ({{ price.referencePrice.price|currency }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }})
-                            </span>
-                        {% endblock %}
-                    {% endif %}
-                </div>
+        <!-- @deprecated tag:v6.8.0 - block will be moved into buy-widget.html.twig -->
+        {% block buy_widget_price_unit %}
+            <!-- @deprecated tag:v6.8.0 - block will be moved into buy-widget.html.twig -->
+            {% block buy_widget_price_unit_label %}
             {% endblock %}
-        {% endif %}
+
+            <!-- @deprecated tag:v6.8.0 - block will be moved into buy-widget.html.twig -->
+            {% block buy_widget_price_unit_content %}
+            {% endblock %}
+
+            <!-- @deprecated tag:v6.8.0 - block will be moved into buy-widget.html.twig -->
+            {% block buy_widget_price_unit_reference_content %}
+            {% endblock %}
+        {% endblock %}
     {% endif %}
 {% endblock %}

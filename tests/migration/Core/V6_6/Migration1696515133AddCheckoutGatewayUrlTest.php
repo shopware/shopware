@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1696515133AddCheckoutGatewayUrl;
 
 /**
@@ -25,17 +26,19 @@ class Migration1696515133AddCheckoutGatewayUrlTest extends TestCase
         $this->connection = static::getContainer()->get(Connection::class);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1696515133, (new Migration1696515133AddCheckoutGatewayUrl())->getCreationTimestamp());
+    }
+
     public function testMigrate(): void
     {
         $this->rollback();
         $this->migrate();
         $this->migrate();
 
-        $manager = $this->connection->createSchemaManager();
-        $columns = $manager->listTableColumns('app');
-
-        static::assertArrayHasKey('checkout_gateway_url', $columns);
-        static::assertFalse($columns['checkout_gateway_url']->getNotnull());
+        $urlColumn = TableHelper::getColumnOfTable($this->connection, 'app', 'checkout_gateway_url');
+        static::assertFalse($urlColumn->isNotNull);
     }
 
     private function migrate(): void

@@ -39,22 +39,23 @@ export default {
 
         successMessage() {
             if (!this.licensed) {
-                return this.$tc('sw-first-run-wizard.finish.messageNotLicensed');
+                return this.$t('sw-first-run-wizard.finish.messageNotLicensed');
             }
 
             const { edition } = this;
 
-            return this.$tc('sw-first-run-wizard.finish.message', {}, { edition });
+            return this.$t('sw-first-run-wizard.finish.message', {}, { edition });
         },
 
         buttonConfig() {
-            const disabledExtensionManagement = Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
+            const disabledExtensionManagement =
+                Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
             const prevRoute = disabledExtensionManagement ? 'shopware.account' : 'store';
 
             return [
                 {
                     key: 'back',
-                    label: this.$tc('sw-first-run-wizard.general.buttonBack'),
+                    label: this.$t('global.default.back'),
                     position: 'left',
                     variant: 'secondary',
                     action: `sw.first.run.wizard.index.${prevRoute}`,
@@ -62,7 +63,7 @@ export default {
                 },
                 {
                     key: 'finish',
-                    label: this.$tc('sw-first-run-wizard.general.buttonFinish'),
+                    label: this.$t('sw-first-run-wizard.general.buttonFinish'),
                     position: 'right',
                     variant: 'primary',
                     action: this.onFinish.bind(this),
@@ -108,7 +109,7 @@ export default {
         },
 
         setTitle() {
-            this.$emit('frw-set-title', this.$tc('sw-first-run-wizard.finish.modalTitle'));
+            this.$emit('frw-set-title', this.$t('sw-first-run-wizard.finish.modalTitle'));
         },
 
         updateButtons() {

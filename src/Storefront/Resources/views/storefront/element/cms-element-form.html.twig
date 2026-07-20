@@ -48,6 +48,25 @@
                                         }
                                     %}
                                 {% endblock %}
+                            {% elseif element.config.type.value is same as('revocationRequest') %}
+                                {% block element_form_revocation_request_form_title %}
+                                    <div class="card-title mb-4">
+                                        {% if element.config.title.value %}
+                                            {{ element.config.title.value|sw_sanitize }}
+                                        {% else %}
+                                            {{ 'revocationRequest.headline'|trans }}
+                                        {% endif %}
+                                    </div>
+                                {% endblock %}
+
+                                {% block element_form_revocation_request_form_form %}
+                                    {% sw_include '@Storefront/storefront/element/cms-element-form/form-types/online-revocation-request-form.html.twig'
+                                        with {
+                                        action: 'frontend.form.revocation.request',
+                                        submitText: 'revocationRequest.formSubmit'|sw_sanitize
+                                    }
+                                    %}
+                                {% endblock %}
                             {% endif %}
                         {% endblock %}
                     </div>

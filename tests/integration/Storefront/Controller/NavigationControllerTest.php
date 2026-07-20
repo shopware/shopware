@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -63,9 +65,85 @@ class NavigationControllerTest extends TestCase
         static::assertArrayHasKey(MenuOffcanvasPageletLoadedHook::HOOK_NAME, $traces);
     }
 
+    public function testStorefrontRedirectsOutOfRangePaginationTo301(): void
+    {
+        // 5 products, default limit 24 → lastPage = 1; p=99 must redirect.
+        $seoPath = $this->createCategoryWithProducts(5);
+
+        $response = $this->request('GET', $seoPath . '?p=99', []);
+
+        static::assertSame(301, $response->getStatusCode());
+
+        $location = $response->headers->get('Location');
+        static::assertNotNull($location);
+        static::assertStringNotContainsString('p=99', $location);
+        static::assertStringNotContainsString('p=', $location);
+    }
+
+    public function testStorefrontPreservesOtherQueryParamsOnRedirect(): void
+    {
+        $seoPath = $this->createCategoryWithProducts(5);
+
+        $response = $this->request('GET', $seoPath . '?p=99&order=price-asc', []);
+
+        static::assertSame(301, $response->getStatusCode());
+
+        $location = $response->headers->get('Location');
+        static::assertNotNull($location);
+        static::assertStringContainsString('order=price-asc', $location);
+        static::assertStringNotContainsString('p=99', $location);
+        static::assertStringNotContainsString('p=', $location);
+    }
+
+    public function testStorefrontInRangePaginationStillReturns200(): void
+    {
+        // 6 products, limit=2 → lastPage = 3; p=2 must succeed.
+        $seoPath = $this->createCategoryWithProducts(6);
+
+        $response = $this->request('GET', $seoPath . '?p=2&limit=2', []);
+
+        static::assertSame(200, $response->getStatusCode());
+    }
+
+    public function testOffcanvasBackLinkAtFooterRootReturnsToMainEntry(): void
+    {
+        $this->createFooterTree();
+
+        $response = $this->request(
+            'GET',
+            'widgets/menu/offcanvas?navigationId=' . $this->ids->get('issue-13510-footer'),
+            []
+        );
+
+        static::assertSame(200, $response->getStatusCode());
+
+        $backLinkHref = $this->extractBackLinkHref((string) $response->getContent());
+
+        static::assertStringNotContainsString('navigationId=', $backLinkHref);
+    }
+
+    public function testOffcanvasBackLinkAtFooterSubcategoryClimbsToParent(): void
+    {
+        $this->createFooterTree();
+
+        $response = $this->request(
+            'GET',
+            'widgets/menu/offcanvas?navigationId=' . $this->ids->get('issue-13510-footer-about'),
+            []
+        );
+
+        static::assertSame(200, $response->getStatusCode());
+
+        $backLinkHref = $this->extractBackLinkHref((string) $response->getContent());
+
+        static::assertStringContainsString(
+            'navigationId=' . $this->ids->get('issue-13510-footer'),
+            $backLinkHref
+        );
+    }
+
     private function createData(): void
     {
-        /** @var SalesChannelEntity $salesChannel */
         $salesChannel = static::getContainer()->get('sales_channel.repository')->search(
             (new Criteria())->addFilter(
                 new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT),
@@ -73,6 +151,8 @@ class NavigationControllerTest extends TestCase
             ),
             Context::createDefaultContext()
         )->first();
+
+        static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
 
         $category = [
             'id' => $this->ids->create('category'),
@@ -82,5 +162,147 @@ class NavigationControllerTest extends TestCase
         ];
 
         static::getContainer()->get('category.repository')->create([$category], Context::createDefaultContext());
+    }
+
+    /**
+     * Creates a category with a product-listing CMS page and $count simple products.
+     * Returns the SEO path for the category (e.g. `listing-test-category/`).
+     *
+     * The SEO URL is queried from the database after creation so the path is always accurate.
+     */
+    private function createCategoryWithProducts(int $count): string
+    {
+        $salesChannelId = $this->getSalesChannelId();
+
+        /** @var SalesChannelEntity $salesChannel */
+        $salesChannel = static::getContainer()->get('sales_channel.repository')->search(
+            new Criteria([$salesChannelId]),
+            Context::createDefaultContext()
+        )->first();
+
+        $categoryId = $this->ids->create('out-of-range-category');
+
+        $products = [];
+        for ($i = 0; $i < $count; ++$i) {
+            $products[] = [
+                'id' => $this->ids->create('out-of-range-product-' . $i),
+                'productNumber' => $this->ids->get('out-of-range-product-' . $i),
+                'name' => 'Test product ' . $i,
+                'stock' => 10,
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
+                'tax' => ['name' => 'tax-' . $i, 'taxRate' => 15],
+                'manufacturer' => ['id' => $this->ids->create('out-of-range-manufacturer-' . $i), 'name' => 'manu-' . $i],
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $salesChannelId, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+                'categories' => [['id' => $categoryId]],
+            ];
+        }
+
+        static::getContainer()->get('category.repository')->create([[
+            'id' => $categoryId,
+            'name' => 'Out-of-range test category',
+            'type' => 'page',
+            'parentId' => $salesChannel->getNavigationCategoryId(),
+            'cmsPage' => [
+                'id' => $this->ids->create('out-of-range-cms-page'),
+                'type' => 'product_list',
+                'sections' => [[
+                    'position' => 0,
+                    'type' => 'sidebar',
+                    'blocks' => [[
+                        'type' => 'product-listing',
+                        'position' => 1,
+                        'slots' => [
+                            ['type' => 'product-listing', 'slot' => 'content'],
+                        ],
+                    ]],
+                ]],
+            ],
+        ]], Context::createDefaultContext());
+
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+
+        // Retrieve the SEO URL generated for this category so requests bypass
+        // the technical-URL → SEO-URL redirect and land directly on the listing.
+        /** @var SeoUrlEntity|null $seoUrl */
+        $seoUrl = static::getContainer()->get('seo_url.repository')->search(
+            (new Criteria())->addFilter(
+                new EqualsFilter('foreignKey', $categoryId),
+                new EqualsFilter('salesChannelId', $salesChannelId),
+                new EqualsFilter('isCanonical', true)
+            ),
+            Context::createDefaultContext()
+        )->first();
+
+        static::assertNotNull(
+            $seoUrl,
+            \sprintf('SEO URL for category %s was not generated; cannot exercise the storefront listing flow.', $categoryId)
+        );
+
+        return ltrim($seoUrl->getSeoPathInfo(), '/');
+    }
+
+    private function createFooterTree(): void
+    {
+        $salesChannelId = $this->getSalesChannelId();
+
+        /** @var SalesChannelEntity $salesChannel */
+        $salesChannel = static::getContainer()->get('sales_channel.repository')->search(
+            new Criteria([$salesChannelId]),
+            Context::createDefaultContext()
+        )->first();
+
+        static::getContainer()->get('category.repository')->create([[
+            'id' => $this->ids->create('issue-13510-intermediate'),
+            'parentId' => $salesChannel->getNavigationCategoryId(),
+            'name' => 'Issue 13510 Intermediate',
+            'type' => 'page',
+            'active' => true,
+            'visible' => true,
+            'children' => [
+                [
+                    'id' => $this->ids->create('issue-13510-main'),
+                    'name' => 'Issue 13510 Main',
+                    'type' => 'page',
+                    'active' => true,
+                    'visible' => true,
+                ],
+                [
+                    'id' => $this->ids->create('issue-13510-footer'),
+                    'name' => 'Issue 13510 Footer',
+                    'type' => 'page',
+                    'active' => true,
+                    'visible' => true,
+                    'children' => [[
+                        'id' => $this->ids->create('issue-13510-footer-about'),
+                        'name' => 'Issue 13510 About',
+                        'type' => 'page',
+                        'active' => true,
+                        'visible' => true,
+                    ]],
+                ],
+            ],
+        ]], Context::createDefaultContext());
+
+        static::getContainer()->get('sales_channel.repository')->update([[
+            'id' => $salesChannelId,
+            'navigationCategoryId' => $this->ids->get('issue-13510-main'),
+            'footerCategoryId' => $this->ids->get('issue-13510-footer'),
+        ]], Context::createDefaultContext());
+    }
+
+    private function extractBackLinkHref(string $html): string
+    {
+        $matched = preg_match(
+            '#<a[^>]*class="[^"]*\bis-back-link\b[^"]*"[^>]*href="([^"]+)"#',
+            $html,
+            $matches
+        );
+
+        static::assertSame(1, $matched, 'No back-link rendered in offcanvas response.');
+
+        return html_entity_decode($matches[1]);
     }
 }

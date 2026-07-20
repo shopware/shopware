@@ -29,8 +29,8 @@ class ChangeShippingLocationCommandHandlerTest extends TestCase
         $parameters = [];
 
         $handler = new ChangeShippingLocationCommandHandler(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
         );
 
         $handler->handle($command, $context, $parameters);
@@ -56,7 +56,7 @@ class ChangeShippingLocationCommandHandlerTest extends TestCase
 
         $countryResult = new IdSearchResult(
             1,
-            [['primaryKey' => 'countryId', 'data' => []]],
+            ['countryId' => ['primaryKey' => 'countryId', 'data' => []]],
             $expectedCriteria,
             $context->getContext()
         );
@@ -68,7 +68,7 @@ class ChangeShippingLocationCommandHandlerTest extends TestCase
             ->with(static::equalTo($expectedCriteria), $context->getContext())
             ->willReturn($countryResult);
 
-        $handler = new ChangeShippingLocationCommandHandler($countryRepo, $this->createMock(EntityRepository::class));
+        $handler = new ChangeShippingLocationCommandHandler($countryRepo, static::createStub(EntityRepository::class));
         $handler->handle($command, $context, $parameters);
 
         static::assertSame(['countryId' => 'countryId'], $parameters);
@@ -106,7 +106,7 @@ class ChangeShippingLocationCommandHandlerTest extends TestCase
 
         $this->expectExceptionObject(GatewayException::handlerException('Country with iso code {{ isoCode }} not found', ['isoCode' => 'DE']));
 
-        $handler = new ChangeShippingLocationCommandHandler($countryRepo, $this->createMock(EntityRepository::class));
+        $handler = new ChangeShippingLocationCommandHandler($countryRepo, static::createStub(EntityRepository::class));
         $handler->handle($command, $context, $parameters);
 
         static::assertSame([], $parameters);
@@ -123,7 +123,7 @@ class ChangeShippingLocationCommandHandlerTest extends TestCase
 
         $countryStateResult = new IdSearchResult(
             1,
-            [['primaryKey' => 'countryStateId', 'data' => []]],
+            ['countryStateId' => ['primaryKey' => 'countryStateId', 'data' => []]],
             $expectedCriteria,
             $context->getContext()
         );
@@ -135,7 +135,7 @@ class ChangeShippingLocationCommandHandlerTest extends TestCase
             ->with(static::equalTo($expectedCriteria), $context->getContext())
             ->willReturn($countryStateResult);
 
-        $handler = new ChangeShippingLocationCommandHandler($this->createMock(EntityRepository::class), $countryStateRepo);
+        $handler = new ChangeShippingLocationCommandHandler(static::createStub(EntityRepository::class), $countryStateRepo);
         $handler->handle($command, $context, $parameters);
 
         static::assertSame(['countryStateId' => 'countryStateId'], $parameters);
@@ -166,7 +166,7 @@ class ChangeShippingLocationCommandHandlerTest extends TestCase
 
         $this->expectExceptionObject(GatewayException::handlerException('Country state with short code {{ shortCode }} not found', ['shortCode' => 'DE-BY']));
 
-        $handler = new ChangeShippingLocationCommandHandler($this->createMock(EntityRepository::class), $countryStateRepo);
+        $handler = new ChangeShippingLocationCommandHandler(static::createStub(EntityRepository::class), $countryStateRepo);
         $handler->handle($command, $context, $parameters);
 
         static::assertSame([], $parameters);
@@ -190,7 +190,7 @@ class ChangeShippingLocationCommandHandlerTest extends TestCase
 
         $countryResult = new IdSearchResult(
             1,
-            [['primaryKey' => 'countryId', 'data' => []]],
+            ['countryId' => ['primaryKey' => 'countryId', 'data' => []]],
             $expectedCountryIso,
             $context->getContext()
         );
@@ -207,7 +207,7 @@ class ChangeShippingLocationCommandHandlerTest extends TestCase
 
         $countryStateResult = new IdSearchResult(
             1,
-            [['primaryKey' => 'countryStateId', 'data' => []]],
+            ['countryStateId' => ['primaryKey' => 'countryStateId', 'data' => []]],
             $expectedStateCriteria,
             $context->getContext()
         );

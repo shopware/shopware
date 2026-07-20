@@ -23,7 +23,7 @@
                         name="sw-field--searchTerm"
                         class="sw-property-search__search-field"
                         :disabled="isAddOnly"
-                        :placeholder="$tc('sw-property-search.placeholderSearch')"
+                        :placeholder="$t('sw-property-search.placeholderSearch')"
                         autocomplete="off"
                         @focus="onFocusSearch"
                         @update:model-value="onSearchOptions"
@@ -92,7 +92,7 @@
                         class="sw-property-search__tree-selection__column-items-selected"
                         data-index="assignedOptions"
                     >
-                        <span v-if="item.optionCount > 0">{{ $tc('sw-property-search.selected', { count: item.optionCount }, item.optionCount) }}</span>
+                        <span v-if="item.optionCount > 0">{{ $t('sw-property-search.selected', { count: item.optionCount }, item.optionCount) }}</span>
                     </sw-grid-column>
                     {% endblock %}
                 </template>
@@ -215,21 +215,16 @@
         </sw-grid>
         {% endblock %}
         {% block sw_property_search_empty %}
-        <sw-empty-state
+        <mt-empty-state
             v-else
-            :absolute="false"
-            :title="$tc('sw-property-search.noPropertiesFound')"
-            :subline="$tc('sw-property-search.noPropertiesFoundDescription')"
+            :icon="$route.meta.$module.icon"
+            :headline="$t('sw-property-search.noPropertiesFound')"
+            :description="$t('sw-property-search.noPropertiesFoundDescription')"
         >
-            <template #icon>
-                {% block sw_property_search_empty_image %}
-                <img
-                    :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                    :alt="$tc('sw-property-search.noPropertiesFound')"
-                >
-                {% endblock %}
-            </template>
-        </sw-empty-state>
+            <!-- @deprecated tag:v6.8.0 - block will be removed -->
+            {% block sw_property_search_empty_image %}
+            {% endblock %}
+        </mt-empty-state>
         {% endblock %}
     </div>
     {% endblock %}

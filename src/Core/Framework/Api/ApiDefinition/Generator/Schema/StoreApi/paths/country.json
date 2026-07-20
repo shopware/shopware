@@ -9,18 +9,25 @@
                     "Endpoints supporting Criteria "
                 ],
                 "summary": "Fetch countries",
-                "description": "Perform a filtered search for countries",
+                "description": "Perform a filtered search for countries\n\n**Available Associations:**\n- `states` - States/provinces/regions within the country",
                 "operationId": "readCountry",
                 "parameters": [
                     {
-                        "name": "sw-language-id",
+                        "name": "sw-include-search-info",
                         "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
+                        "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
+                            "enum": [
+                                "0",
+                                "1"
+                            ],
+                            "default": "1"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -39,29 +46,31 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Entity search result containing countries.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "allOf": [
-                                        {
-                                            "properties": {
-                                                "elements": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/Country"
-                                                    }
-                                                }
-                                            },
-                                            "type": "object"
-                                        },
-                                        {
-                                            "$ref": "#/components/schemas/EntitySearchResult"
-                                        }
-                                    ]
-                                }
-                            }
-                        }
+                        "$ref": "#/components/responses/CountryListResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            },
+            "get": {
+                "tags": [
+                    "System & Context",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Fetch countries",
+                "description": "Perform a filtered search for countries\n\n**Available Associations:**\n- `states` - States/provinces/regions within the country",
+                "operationId": "readCountryGet",
+                "parameters": [
+                    {
+                        "x-parameter-group": "criteria"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/CountryListResponse"
                     }
                 },
                 "security": [

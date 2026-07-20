@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
@@ -34,7 +35,8 @@ class BaseSalesChannelContext
         protected ShippingLocation $shippingLocation,
         private readonly CashRoundingConfig $itemRounding,
         private readonly CashRoundingConfig $totalRounding,
-        private readonly LanguageInfo $languageInfo
+        private readonly LanguageInfo $languageInfo,
+        private readonly MeasurementUnits $measurementSystemInfo,
     ) {
     }
 
@@ -106,6 +108,11 @@ class BaseSalesChannelContext
     public function getLanguageInfo(): LanguageInfo
     {
         return $this->languageInfo;
+    }
+
+    public function getMeasurementSystemInfo(): MeasurementUnits
+    {
+        return $this->measurementSystemInfo;
     }
 
     public function getApiAlias(): string

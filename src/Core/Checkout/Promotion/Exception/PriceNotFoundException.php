@@ -8,9 +8,9 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @codeCoverageIgnore
- *
  * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use PromotionException::priceNotFound() instead
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class PriceNotFoundException extends PromotionException

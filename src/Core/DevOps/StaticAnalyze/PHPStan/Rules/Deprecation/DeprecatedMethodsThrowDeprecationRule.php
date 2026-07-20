@@ -34,6 +34,8 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:remove-entity',
         // Only the route on controller will be removed
         'reason:remove-route',
+        // Interface methods that will be removed should trigger deprecations instead.
+        'reason:remove-interface',
         // Throwing deprecations in PHPStan rules would cause problems while executed
         'reason:remove-phpstan-rule',
         // Classes that will be internal are still called from inside the core, therefore they do not trigger deprecations.
@@ -46,6 +48,10 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:becomes-final',
         // If the return type change, the functionality itself is not deprecated, therefore they do not trigger deprecations.
         'reason:return-type-change',
+        // If the parameter type change, the functionality itself is not deprecated, therefore they do not trigger deprecations.
+        'reason:parameter-type-change',
+        // If a parameter becomes more flexible, this does not need action and trigger a deprecation warning.
+        'reason:parameter-type-extension',
         // If there will be in the class hierarchy of a class we mark the whole class as deprecated, but the functionality itself is not deprecated, therefore they do not trigger deprecations.
         'reason:class-hierarchy-change',
         // If we change the visibility of a method we can't know from where it was called and whether the call will be valid in the future, therefore they do not trigger deprecations.
@@ -64,6 +70,8 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:remove-constraint-annotation',
         // Container factory for deprecated service
         'reason:factory-for-deprecation',
+        // Rules still need to be called for rule evaluation, therefore they do not trigger deprecations.
+        'reason:remove-rule',
     ];
 
     public function getNodeType(): string
@@ -73,6 +81,10 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
 
     public function processNode(Node $node, Scope $scope): array
     {
+        if (!($node->isPublic() || $node->isProtected()) || $node->isAbstract() || $node->isMagic()) {
+            return [];
+        }
+
         if (!$scope->isInClass()) {
             return [];
         }
@@ -83,12 +95,10 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
             return [];
         }
 
-        if (!($node->isPublic() || $node->isProtected()) || $node->isAbstract() || $node->isMagic()) {
-            return [];
-        }
-
-        $methodContent = $this->getMethodContent($node, $scope, $class);
         $method = $class->getMethod($node->name->name, $scope);
+
+        // reading the method content requires file I/O, so only do it when a deprecation is present
+        $methodContent = fn (): string => $this->getMethodContent($node, $scope, $class);
 
         $classDeprecation = $class->getDeprecatedDescription();
         if ($classDeprecation && !$this->handlesDeprecationCorrectly($classDeprecation, $methodContent)) {
@@ -149,7 +159,10 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         return $content;
     }
 
-    private function handlesDeprecationCorrectly(string $deprecation, string $method): bool
+    /**
+     * @param \Closure(): string $methodContent
+     */
+    private function handlesDeprecationCorrectly(string $deprecation, \Closure $methodContent): bool
     {
         foreach (self::RULE_EXCEPTIONS as $exception) {
             if (\str_contains($deprecation, $exception)) {
@@ -157,7 +170,7 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
             }
         }
 
-        return \str_contains($method, 'Feature::triggerDeprecationOrThrow(');
+        return \str_contains($methodContent(), 'Feature::triggerDeprecationOrThrow(');
     }
 
     private function isTestClass(ClassReflection $class): bool

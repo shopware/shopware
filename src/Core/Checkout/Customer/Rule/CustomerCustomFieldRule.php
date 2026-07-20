@@ -47,7 +47,7 @@ class CustomerCustomFieldRule extends Rule
             return false;
         }
 
-        $customer = $scope->getSalesChannelContext()->getCustomer();
+        $customer = $scope->getCustomer();
 
         if ($customer === null) {
             return false;
@@ -55,7 +55,7 @@ class CustomerCustomFieldRule extends Rule
 
         $customFields = $customer->getCustomFields() ?? [];
 
-        return CustomFieldRule::match($this->renderedField, $this->renderedFieldValue, $this->operator, $customFields);
+        return CustomFieldRule::match($this->renderedField, $this->renderedFieldValue, $this->operator, $customFields, $scope->getSalesChannelContext());
     }
 
     public function getConstraints(): array

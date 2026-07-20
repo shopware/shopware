@@ -4,7 +4,9 @@ namespace Shopware\Tests\Integration\Core\Content\ProductStream\DataAbstractionL
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer;
+use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Defaults;
@@ -32,12 +34,18 @@ class ProductStreamIndexerTest extends TestCase
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductStreamCollection>
+     */
     private EntityRepository $productStreamRepository;
 
     private ProductStreamIndexer $indexer;
 
     private Connection $connection;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepo;
 
     private Context $context;
@@ -123,7 +131,7 @@ class ProductStreamIndexerTest extends TestCase
         $this->indexer->handle($message);
 
         /** @var ProductStreamEntity $entity */
-        $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->get($id);
+        $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
         static::assertNotNull($entity->getApiFilter());
         static::assertCount(2, $entity->getApiFilter());
 
@@ -235,7 +243,7 @@ class ProductStreamIndexerTest extends TestCase
         $this->indexer->handle($message);
 
         /** @var ProductStreamEntity $entity */
-        $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->get($id);
+        $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
         static::assertNotNull($entity->getApiFilter());
         static::assertCount(1, $entity->getApiFilter());
         static::assertSame('multi', $entity->getApiFilter()[0]['type']);
@@ -323,7 +331,7 @@ class ProductStreamIndexerTest extends TestCase
         $this->indexer->handle($message);
 
         /** @var ProductStreamEntity $entity */
-        $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->get($id);
+        $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
         static::assertNull($entity->getApiFilter());
         static::assertTrue($entity->isInvalid());
     }
@@ -385,7 +393,7 @@ class ProductStreamIndexerTest extends TestCase
         $this->indexer->handle($message);
 
         /** @var ProductStreamEntity $entity */
-        $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->get($id);
+        $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
         static::assertNull($entity->getApiFilter());
         static::assertTrue($entity->isInvalid());
     }
@@ -447,7 +455,7 @@ class ProductStreamIndexerTest extends TestCase
         $this->indexer->handle($message);
 
         /** @var ProductStreamEntity $entity */
-        $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->get($id);
+        $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
         static::assertNull($entity->getApiFilter());
         static::assertTrue($entity->isInvalid());
     }
@@ -508,7 +516,7 @@ class ProductStreamIndexerTest extends TestCase
         $this->indexer->handle($message);
 
         /** @var ProductStreamEntity $entity */
-        $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->get($id);
+        $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
         static::assertNotNull($entity->getApiFilter());
         static::assertCount(1, $entity->getApiFilter());
         static::assertSame('range', $entity->getApiFilter()[0]['type']);

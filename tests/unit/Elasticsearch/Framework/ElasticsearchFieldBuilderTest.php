@@ -52,7 +52,7 @@ class ElasticsearchFieldBuilderTest extends TestCase
             'cf_baz' => 'int',
         ]]);
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $utils = new ElasticsearchIndexingUtils(
             $connection,
@@ -98,6 +98,74 @@ class ElasticsearchFieldBuilderTest extends TestCase
                         'search' => [
                             'type' => 'text',
                             'analyzer' => 'sw_english_analyzer',
+                        ],
+                        'ngram' => [
+                            'type' => 'text',
+                            'analyzer' => 'sw_ngram_analyzer',
+                        ],
+                    ],
+                ],
+            ],
+        ], $result);
+    }
+
+    public function testBuildTranslatedTechnicalField(): void
+    {
+        $deLanguageId = Uuid::randomHex();
+        $enLanguageId = Uuid::randomHex();
+
+        $languageLoader = new StaticLanguageLoader([
+            $deLanguageId => [
+                'id' => $deLanguageId,
+                'parentId' => 'parentId',
+                'code' => 'de-DE',
+            ],
+            $enLanguageId => [
+                'id' => $enLanguageId,
+                'parentId' => 'parentId',
+                'code' => 'en-GB',
+            ],
+        ]);
+
+        $dispatcher = new EventDispatcher();
+        $parameterBag = new ParameterBag();
+
+        $connection = static::createStub(Connection::class);
+
+        $utils = new ElasticsearchIndexingUtils(
+            $connection,
+            $dispatcher,
+            $parameterBag,
+        );
+
+        $builder = new ElasticsearchFieldBuilder($languageLoader, $utils, [
+            'en' => 'sw_english_analyzer',
+            'de' => 'sw_german_analyzer',
+        ]);
+
+        $result = $builder->translated(AbstractElasticsearchDefinition::TECHNICAL_TERM_SEARCH_FIELD);
+
+        static::assertSame([
+            'properties' => [
+                $deLanguageId => [
+                    'fields' => [
+                        'search' => [
+                            'type' => 'text',
+                            'analyzer' => 'sw_german_technical_term_index_analyzer',
+                            'search_analyzer' => 'sw_german_technical_term_search_analyzer',
+                        ],
+                        'ngram' => [
+                            'type' => 'text',
+                            'analyzer' => 'sw_ngram_analyzer',
+                        ],
+                    ],
+                ],
+                $enLanguageId => [
+                    'fields' => [
+                        'search' => [
+                            'type' => 'text',
+                            'analyzer' => 'sw_english_technical_term_index_analyzer',
+                            'search_analyzer' => 'sw_english_technical_term_search_analyzer',
                         ],
                         'ngram' => [
                             'type' => 'text',
@@ -202,6 +270,37 @@ class ElasticsearchFieldBuilderTest extends TestCase
         ], $result);
     }
 
+    public function testCustomFieldsPropertiesAreOmittedWhenNoMappingsExist(): void
+    {
+        $languageId = Uuid::randomHex();
+
+        $languageLoader = new StaticLanguageLoader([
+            $languageId => [
+                'id' => $languageId,
+                'parentId' => null,
+                'code' => 'en-GB',
+            ],
+        ]);
+
+        $dispatcher = new EventDispatcher();
+        $parameterBag = new ParameterBag();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())->method('fetchAllKeyValue')->willReturn([]);
+
+        $utils = new ElasticsearchIndexingUtils(
+            $connection,
+            $dispatcher,
+            $parameterBag,
+        );
+
+        $builder = new ElasticsearchFieldBuilder($languageLoader, $utils, []);
+
+        $result = $builder->customFields('product', Context::createDefaultContext());
+
+        static::assertSame(['properties' => [$languageId => ['type' => 'object', 'dynamic' => true]]], $result);
+    }
+
     public function testBuildDatetimeField(): void
     {
         $dateTimeField = ElasticsearchFieldBuilder::datetime(['properties' => [
@@ -212,7 +311,7 @@ class ElasticsearchFieldBuilderTest extends TestCase
 
         static::assertSame([
             'type' => 'date',
-            'format' => 'yyyy-MM-dd HH:mm:ss.000||strict_date_optional_time||epoch_millis',
+            'format' => 'yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time||epoch_millis',
             'ignore_malformed' => true,
             'properties' => [
                 'foo' => [

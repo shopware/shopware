@@ -30,26 +30,26 @@ class SlotConfigFieldSerializerTest extends TestCase
     public function testEncodeUsesSlotConfigFieldSerializerConstraints(): void
     {
         $id = Uuid::randomHex();
-        $expected = new All([
-            'constraints' => new Collection([
-                'allowExtraFields' => false,
-                'allowMissingFields' => false,
-                'fields' => [
+        $expected = new All(
+            constraints: new Collection(
+                fields: [
                     'source' => [
-                        new Choice([
-                            'choices' => [
+                        new Choice(
+                            choices: [
                                 FieldConfig::SOURCE_STATIC,
                                 FieldConfig::SOURCE_MAPPED,
                                 FieldConfig::SOURCE_PRODUCT_STREAM,
                                 FieldConfig::SOURCE_DEFAULT,
                             ],
-                        ]),
+                        ),
                         new NotBlank(),
                     ],
                     'value' => [],
                 ],
-            ]),
-        ]);
+                allowExtraFields: false,
+                allowMissingFields: false,
+            ),
+        );
 
         $serializer = $this->getSerializer($id, $expected);
 
@@ -63,7 +63,7 @@ class SlotConfigFieldSerializerTest extends TestCase
         );
 
         $pair = new KeyValuePair('id', $id, false);
-        $data = $this->createMock(WriteParameterBag::class);
+        $data = static::createStub(WriteParameterBag::class);
 
         $field = new SlotConfigField('id', 'id');
         $serializer->encode($field, $existence, $pair, $data)->current();
@@ -80,7 +80,7 @@ class SlotConfigFieldSerializerTest extends TestCase
 
         return new SlotConfigFieldSerializer(
             $validator,
-            $this->createMock(DefinitionInstanceRegistry::class)
+            static::createStub(DefinitionInstanceRegistry::class)
         );
     }
 }

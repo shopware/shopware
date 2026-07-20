@@ -2,9 +2,10 @@
 
 namespace Shopware\Tests\Integration\Core\System\SalesChannel\SalesChannel;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -14,7 +15,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -22,15 +22,20 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(ContextSwitchRoute::class)]
 #[Group('store-api')]
 class ContextSwitchRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
+    /**
+     * @var EntityRepository<CustomerCollection>
+     */
     private EntityRepository $customerRepository;
 
+    /**
+     * @var EntityRepository<CustomerAddressCollection>
+     */
     private EntityRepository $customerAddressRepository;
 
     protected function setUp(): void
@@ -94,6 +99,16 @@ class ContextSwitchRouteTest extends TestCase
             'Customer is not logged in.',
             $content['errors'][0]['detail'] ?? null
         );
+    }
+
+    public function testUpdateContextWithNonLoggedInCustomerAndEmptyAddressIds(): void
+    {
+        $this->getSalesChannelBrowser()->request('PATCH', '/store-api/context', [
+            'billingAddressId' => '',
+            'shippingAddressId' => '',
+        ]);
+
+        static::assertSame(Response::HTTP_OK, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
     }
 
     public function testInvalidParameters(): void
@@ -244,6 +259,7 @@ class ContextSwitchRouteTest extends TestCase
                         'id' => $id,
                         'name' => 'Testlanguage',
                         'localeId' => $this->getLocaleIdOfSystemLanguage(),
+                        'active' => true,
                         'parentId' => Defaults::LANGUAGE_SYSTEM,
                     ],
                     'currencyId' => Defaults::CURRENCY,

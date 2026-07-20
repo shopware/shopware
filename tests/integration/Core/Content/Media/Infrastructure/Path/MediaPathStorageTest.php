@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Content\Media\Infrastructure\Path;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Statement;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaPathStorage;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
@@ -15,7 +14,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[CoversClass(SqlMediaPathStorage::class)]
 class MediaPathStorageTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -62,11 +60,19 @@ class MediaPathStorageTest extends TestCase
             'created_at' => '2022-01-01',
         ]);
 
+        $inserts->addInsert('media_thumbnail_size', [
+            'id' => $ids->getBytes('thumbnail-size-1'),
+            'width' => 100,
+            'height' => 100,
+            'created_at' => '2022-01-01',
+        ]);
+
         $inserts->addInsert('media_thumbnail', [
             'id' => $ids->getBytes('media_thumbnail'),
             'media_id' => $ids->getBytes('media'),
             'width' => 100,
             'height' => 100,
+            'media_thumbnail_size_id' => $ids->getBytes('thumbnail-size-1'),
             'created_at' => '2022-01-01',
         ]);
 

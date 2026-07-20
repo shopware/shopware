@@ -37,7 +37,6 @@ export default {
         allowEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -72,6 +71,9 @@ export default {
             return Shopware.Store.get('swProductDetail').isLoading;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Unused, will be removed without replacement
+         */
         productCrossSellingRepository() {
             return this.repositoryFactory.create('product_cross_selling');
         },
@@ -98,30 +100,41 @@ export default {
             return criteria;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Unused, will be removed without replacement
+         */
         crossSellingAssigmentRepository() {
             return this.repositoryFactory.create('product_cross_selling_assigned_products');
+        },
+
+        crossSellingTitle() {
+            return (
+                this.crossSelling.name ||
+                this.crossSelling.translated?.name ||
+                this.$t('sw-product.crossselling.newCrossSellingTitle')
+            );
         },
 
         sortingTypes() {
             return [
                 {
-                    label: this.$tc('sw-product.crossselling.priceDescendingSortingType'),
+                    label: this.$t('sw-product.crossselling.priceDescendingSortingType'),
                     value: 'cheapestPrice:DESC',
                 },
                 {
-                    label: this.$tc('sw-product.crossselling.priceAscendingSortingType'),
+                    label: this.$t('sw-product.crossselling.priceAscendingSortingType'),
                     value: 'cheapestPrice:ASC',
                 },
                 {
-                    label: this.$tc('sw-product.crossselling.nameSortingType'),
+                    label: this.$t('sw-product.crossselling.nameSortingType'),
                     value: 'name:ASC',
                 },
                 {
-                    label: this.$tc('sw-product.crossselling.releaseDateDescendingSortingType'),
+                    label: this.$t('sw-product.crossselling.releaseDateDescendingSortingType'),
                     value: 'releaseDate:DESC',
                 },
                 {
-                    label: this.$tc('sw-product.crossselling.releaseDateAscendingSortingType'),
+                    label: this.$t('sw-product.crossselling.releaseDateAscendingSortingType'),
                     value: 'releaseDate:ASC',
                 },
             ];
@@ -130,11 +143,11 @@ export default {
         crossSellingTypes() {
             return [
                 {
-                    label: this.$tc('sw-product.crossselling.productStreamType'),
+                    label: this.$t('sw-product.crossselling.productStreamType'),
                     value: 'productStream',
                 },
                 {
-                    label: this.$tc('sw-product.crossselling.productListType'),
+                    label: this.$t('sw-product.crossselling.productListType'),
                     value: 'productList',
                 },
             ];
@@ -148,6 +161,9 @@ export default {
             return `${this.crossSelling.sortBy}:${this.crossSelling.sortDirection}`;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Unused, will be removed without replacement
+         */
         disablePositioning() {
             return !!this.term || this.sortBy !== 'position';
         },
@@ -174,6 +190,12 @@ export default {
                     label: item.label,
                 };
             });
+        },
+
+        productStreamCriteria() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('internal', false));
+            return criteria;
         },
     },
 

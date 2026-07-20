@@ -36,12 +36,23 @@ class FileLoader
     {
         $media = $this->findMediaById($mediaId, $context);
 
-        return $this->getFileSystem($media)->read($this->getFilePath($media));
+        return $this->loadMediaEntityFile($media);
     }
 
     public function loadMediaFileStream(string $mediaId, Context $context): StreamInterface
     {
         $media = $this->findMediaById($mediaId, $context);
+
+        return $this->loadMediaEntityFileStream($media);
+    }
+
+    public function loadMediaEntityFile(MediaEntity $media): string
+    {
+        return $this->getFileSystem($media)->read($this->getFilePath($media));
+    }
+
+    public function loadMediaEntityFileStream(MediaEntity $media): StreamInterface
+    {
         $resource = $this->getFileSystem($media)->readStream($this->getFilePath($media));
 
         return $this->streamFactory->createStreamFromResource($resource);

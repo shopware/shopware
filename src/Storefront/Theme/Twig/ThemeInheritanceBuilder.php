@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Theme\Twig;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 
 #[Package('framework')]
 class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
@@ -11,50 +12,57 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
     /**
      * @internal
      */
-    public function __construct(private readonly StorefrontPluginRegistry $themeRegistry)
-    {
+    public function __construct(
+        private readonly ThemeRuntimeConfigService $themeRuntimeConfigService,
+    ) {
     }
 
     /**
      * {@inheritdoc}
      *
-     * @param array<string, float|array<mixed>> $bundles
-     * @param array<string, bool|array<mixed>> $themes
+     * @param array<string, int> $bundles Bundle names mapped to their priority values (lower = higher priority)
+     * @param array<string, bool> $themes Active theme names mapped to their activation status
      *
-     * @return array<string, float|array<mixed>>
+     * @return array<string, int> Reordered bundles maintaining original priority values
      */
     public function build(array $bundles, array $themes): array
     {
-        // Sort bundles by priority
         arsort($bundles);
 
         $keys = array_keys($themes);
-
         $theme = array_shift($keys);
 
+        // Get inheritance slots from theme.json: ['@Storefront' => [], '@Plugins' => [], ...]
+        // @ prefix indicates placeholder slots
         $inheritance = $this->getThemeInheritance((string) $theme, $themes);
 
         foreach (array_keys($bundles) as $bundle) {
             $key = '@' . $bundle;
 
             if (isset($inheritance[$key])) {
+                // Bundle has explicit position in theme.json
                 $inheritance[$key][] = $bundle;
-
                 continue;
             }
+
             if ($this->isTheme($bundle)) {
+                // Themes handled by getThemeInheritance
                 continue;
             }
 
+            // Non-explicit plugins go into @Plugins wildcard
             $inheritance['@Plugins'][] = $bundle;
         }
 
         /*
-         * Reverse the order here so our reversal after flattening doesn't
-         * collaterally invert our desired plugin order.
+         * Double-reversal preserves plugin priority order:
+         * Input: ['Plugin1' => 0, 'Plugin2' => 1] (sorted by priority)
+         * After this reversal: ['Plugin2', 'Plugin1']
+         * After final reversal: ['Plugin1', 'Plugin2'] (original order restored)
          */
         $inheritance['@Plugins'] = array_reverse($inheritance['@Plugins']);
 
+        // Flatten inheritance slots
         $flat = [];
         foreach ($inheritance as $namespace) {
             foreach ($namespace as $bundle) {
@@ -62,8 +70,10 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
             }
         }
 
+        // Reverse: last element = highest priority
         $flat = array_reverse($flat);
 
+        // Rebuild with original priority values
         $new = [];
         foreach ($flat as $bundle) {
             $new[$bundle] = $bundles[$bundle];
@@ -73,7 +83,7 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
     }
 
     /**
-     * @param array<string, bool|array<mixed>> $themes
+     * @param array<string, bool> $themes
      *
      * @return array<string, array<int, string>>
      */
@@ -93,17 +103,15 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
 
         $default = $this->injectPluginWildcard($default);
 
-        $themeConfig = $this->themeRegistry
-            ->getConfigurations()
-            ->getByTechnicalName($theme);
+        $runtimeConfig = $this->themeRuntimeConfigService->getRuntimeConfigByName($theme);
 
-        if (!$themeConfig) {
+        if (!$runtimeConfig) {
             return $default;
         }
 
-        $inheritance = $themeConfig->getViewInheritance();
+        $inheritance = $runtimeConfig->viewInheritance;
 
-        if (empty($inheritance)) {
+        if ($inheritance === []) {
             return $default;
         }
 
@@ -141,13 +149,7 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
 
     private function isTheme(string $bundle): bool
     {
-        $themeConfig = $this->themeRegistry->getConfigurations()->getByTechnicalName($bundle);
-
-        if ($themeConfig === null) {
-            return false;
-        }
-
-        if ($themeConfig->getIsTheme()) {
+        if (\in_array($bundle, $this->themeRuntimeConfigService->getActiveThemeNames(), true)) {
             return true;
         }
 

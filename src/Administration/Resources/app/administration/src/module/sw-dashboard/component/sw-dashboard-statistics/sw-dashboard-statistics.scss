@@ -1,61 +1,59 @@
-@import "~scss/variables";
-
-$content-max-width: 960px;
-
 .sw-dashboard-statistics {
     &__card-headline {
         display: flex;
         justify-content: space-between;
         align-items: flex-end;
-        max-width: $content-max-width;
+        max-width: 60rem;
         margin: 0 auto;
-        padding-top: 32px;
-        padding-bottom: 16px;
+        padding-bottom: var(--scale-size-12);
 
         h1 {
-            color: $color-darkgray-200;
-            font-size: $font-size-m;
-            line-height: 25px;
-            font-weight: normal;
+            color: var(--color-text-primary-default);
+            font-size: var(--font-size-s);
+            line-height: var(--font-line-height-s);
+            font-weight: var(--font-weight-regular);
             margin-bottom: 0;
-        }
-
-        &-timerange {
-            color: $color-gray-500;
         }
     }
 
-    &__intro-stats-today {
-        &-stats {
-            display: flex;
-            justify-content: center;
-            padding: 40px 20px;
-            border-bottom: 1px solid $color-gray-300;
+    &__intro-stats {
+        .sw-data-grid {
+            border-radius: var(--border-radius-card);
+        }
+    }
+
+    &__card-headline-timerange {
+        color: var(--color-text-primary-default);
+    }
+
+    &__intro-stats-today-stats {
+        display: flex;
+        justify-content: center;
+        padding: var(--scale-size-24);
+        border-bottom: 1px solid var(--color-border-secondary-default);
+    }
+
+    &__intro-stats-today-single-stat {
+        align-items: flex-end;
+        margin-right: var(--scale-size-40);
+
+        &-number-type {
+            font-size: var(--font-size-s);
+            color: var(--color-text-secondary-default);
+            margin-right: var(--scale-size-10);
         }
 
-        &-single-stat {
-            display: flex;
-            margin-right: 40px;
-
-            &-number-type {
-                font-size: $font-size-m;
-                color: $color-gray-800;
-                margin-top: 10px;
-                margin-right: 10px;
-            }
-
-            &-number-value {
-                font-size: $font-size-3xl;
-            }
+        &-number-value {
+            font-size: var(--font-size-2xl);
         }
     }
 
     &__title {
-        font-weight: $font-weight-semi-bold;
+        font-weight: var(--font-weight-semibold);
     }
 
     &__help-text {
-        margin-left: 8px;
+        margin-left: var(--scale-size-8);
     }
 
     .sw-block-field__block {

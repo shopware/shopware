@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Seo;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandler;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Defaults;
@@ -35,7 +36,7 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
         /** @var Router|MockObject $router */
         $router = $this->createMock(Router::class);
         $router->method('generate')
-            ->willReturnCallback(fn ($name, $params) => match ($name) {
+            ->willReturnCallback(static fn ($name, $params) => match ($name) {
                 'frontend.detail.page' => '/detail/' . ($params['productId'] ?? ''),
                 'frontend.navigation.page' => '/navigation/' . ($params['navigationId'] ?? ''),
                 default => '',
@@ -183,7 +184,7 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
             ],
         ];
 
-        /** @var EntityRepository $repo */
+        /** @var EntityRepository<SeoUrlCollection> $repo */
         $repo = static::getContainer()->get('seo_url.repository');
         $repo->create($seoUrls, Context::createDefaultContext());
 

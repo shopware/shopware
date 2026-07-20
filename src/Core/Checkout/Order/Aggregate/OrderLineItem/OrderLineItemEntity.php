@@ -14,6 +14,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
@@ -60,7 +61,7 @@ class OrderLineItemEntity extends Entity
     protected ?PriceDefinitionInterface $priceDefinition = null;
 
     /**
-     * @var array<string>|null
+     * @var array<mixed>|null
      */
     protected ?array $payload = null;
 
@@ -86,6 +87,8 @@ class OrderLineItemEntity extends Entity
     protected ?OrderTransactionCaptureRefundPositionCollection $orderTransactionCaptureRefundPositions = null;
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement. Use payload.productType instead.
+     *
      * @var array<int, string>
      */
     protected array $states = [];
@@ -248,12 +251,42 @@ class OrderLineItemEntity extends Entity
         return $this->payload;
     }
 
+    public function getPayloadValue(string $key): mixed
+    {
+        if (!$this->hasPayloadValue($key)) {
+            return null;
+        }
+
+        return $this->payload[$key] ?? null;
+    }
+
+    public function hasPayloadValue(string $key): bool
+    {
+        return isset($this->payload[$key]);
+    }
+
     /**
      * @param array<string, mixed>|null $payload
      */
     public function setPayload(?array $payload): void
     {
         $this->payload = $payload;
+    }
+
+    public function setPayloadValue(string $key, mixed $value): void
+    {
+        $this->payload[$key] = $value;
+    }
+
+    public function jsonSerialize(): array
+    {
+        $data = parent::jsonSerialize();
+
+        if (isset($data['payload']) && \is_array($data['payload'])) {
+            unset($data['payload']['purchasePrices']);
+        }
+
+        return $data;
     }
 
     public function getParentId(): ?string
@@ -388,17 +421,31 @@ class OrderLineItemEntity extends Entity
 
     /**
      * @return array<int, string>
+     *
+     * @deprecated tag:v6.8.0 - Will be removed. Use getPayloadValue(\'productType\') instead.
      */
     public function getStates(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, 'getStates', 'v6.8.0.0', 'getPayloadValue(\'productType\')')
+        );
+
         return $this->states;
     }
 
     /**
      * @param array<int, string> $states
+     *
+     * @deprecated tag:v6.8.0 - Will be removed. Use setPayloadValue('productType', value) instead.
      */
     public function setStates(array $states): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, 'hasState', 'v6.8.0.0', 'setPayloadValue(\'productType\', value)')
+        );
+
         $this->states = $states;
     }
 

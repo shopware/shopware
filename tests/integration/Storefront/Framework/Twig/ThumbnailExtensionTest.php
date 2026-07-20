@@ -1,0 +1,341 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Integration\Storefront\Framework\Twig;
+
+use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\Exception;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\Adapter\Twig\Extension\FeatureFlagExtension;
+use Shopware\Core\Framework\Adapter\Twig\Extension\NodeExtension;
+use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
+use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
+use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Kernel;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\Framework\BundleFixture;
+use Shopware\Storefront\Framework\Twig\Extension\ConfigExtension;
+use Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter;
+use Shopware\Storefront\Framework\Twig\TemplateConfigAccessor;
+use Shopware\Storefront\Framework\Twig\ThumbnailExtension;
+use Shopware\Storefront\Storefront;
+use Shopware\Storefront\Theme\AbstractResolvedConfigLoader;
+use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
+use Shopware\Storefront\Theme\ThemeScripts;
+use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
+use Twig\Loader\FilesystemLoader;
+
+/**
+ * @internal
+ */
+class ThumbnailExtensionTest extends TestCase
+{
+    use IntegrationTestBehaviour;
+
+    /**
+     * @throws SyntaxError
+     * @throws \Throwable
+     * @throws Exception
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    public function testSwThumbnailsRendersCorrectImageHtml(): void
+    {
+        $result = $this->renderTemplate('@Storefront/storefront/thumbnail-default.html.twig', [
+            'media' => $this->createExampleMedia(),
+            'context' => Generator::generateSalesChannelContext(),
+        ]);
+
+        // Expect the image to be rendered with the default attributes
+        static::assertStringContainsString('src="https://shopware.local/media/cute-cat.webp"', $result);
+        static::assertStringContainsString('alt="Very cute cat alt"', $result);
+        static::assertStringContainsString('title="Very cute cat title"', $result);
+        static::assertStringContainsString('loading="eager"', $result);
+    }
+
+    /**
+     * @throws SyntaxError
+     * @throws \Throwable
+     * @throws Exception
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    public function testSwThumbnailsRendersDecorativeImageWithEmptyAltAttr(): void
+    {
+        $result = $this->renderTemplate('@Storefront/storefront/thumbnail-decorative.html.twig', [
+            'media' => $this->createExampleMedia(),
+            'context' => Generator::generateSalesChannelContext(),
+        ]);
+
+        // Expect the image to be rendered with empty alt attribute
+        static::assertStringContainsString('alt=""', $result);
+
+        // Other empty attributes like title are omitted
+        static::assertStringNotContainsString('title=""', $result);
+    }
+
+    /**
+     * @throws SyntaxError
+     * @throws \Throwable
+     * @throws Exception
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    public function testSwThumbnailsRendersImageWithoutAltAttr(): void
+    {
+        $result = $this->renderTemplate('@Storefront/storefront/thumbnail-alt-false.html.twig', [
+            'media' => $this->createExampleMedia(),
+            'context' => Generator::generateSalesChannelContext(),
+        ]);
+
+        // Expect the image to be rendered without alt attribute
+        static::assertStringNotContainsString('alt=', $result);
+
+        // Other attributes are set
+        static::assertStringContainsString('title="Very cute cat title"', $result);
+    }
+
+    /**
+     * @throws SyntaxError
+     * @throws \Throwable
+     * @throws Exception
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    public function testSwThumbnailsRendersSrcsetAttrWhenMediaThumbnailsAreGiven(): void
+    {
+        $result = $this->renderTemplate('@Storefront/storefront/thumbnail-default.html.twig', [
+            'media' => $this->createExampleMediaWithThumbnails([280, 400, 800, 1920]),
+            'context' => Generator::generateSalesChannelContext(),
+        ]);
+
+        static::assertStringContainsString('src="https://shopware.local/media/cute-cat.webp"', $result);
+        static::assertStringContainsString('srcset="https://shopware.local/thumbnail/cute-cat_800x800.webp 800w, https://shopware.local/thumbnail/cute-cat_400x400.webp 400w, https://shopware.local/thumbnail/cute-cat_280x280.webp 280w, https://shopware.local/thumbnail/cute-cat_1920x1920.webp 1920w"', $result);
+    }
+
+    /**
+     * @throws SyntaxError
+     * @throws \Throwable
+     * @throws Exception
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    public function testSwThumbnailsRendersSizesAttrWithValueForEveryBreakpoint(): void
+    {
+        $result = $this->renderTemplate('@Storefront/storefront/thumbnail-with-columns.html.twig', [
+            'media' => $this->createExampleMediaWithThumbnails([280, 400, 800, 1920]),
+            'context' => Generator::generateSalesChannelContext(),
+        ]);
+
+        // Regression test for https://github.com/shopware/shopware/issues/16710.
+        // Every breakpoint entry in the auto-generated sizes attribute must carry
+        // a non-empty value. Before the fix the xxl entry was missing and produced
+        // "(min-width: ...px) ," in the rendered output.
+        $sizes = self::getSizesAttribute($result);
+
+        self::assertSizesAttributeHasValueForEveryBreakpoint($sizes);
+    }
+
+    /**
+     * @throws SyntaxError
+     * @throws \Throwable
+     * @throws Exception
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    #[DataProvider('productBoxLayoutProvider')]
+    public function testProductBoxThumbnailSizesContainXxlBreakpointValue(string $layout): void
+    {
+        $result = $this->renderTemplate('@Storefront/storefront/product-box-thumbnail-sizes.html.twig', [
+            'layout' => $layout,
+            'media' => $this->createExampleMediaWithThumbnails([280, 400, 800, 1920]),
+            'context' => Generator::generateSalesChannelContext(),
+            // with v6.8.0.0 breakpoint defaults are only resolved for theme-bound renders
+            'themeId' => Uuid::randomHex(),
+        ]);
+
+        $sizes = self::getSizesAttribute($result);
+
+        self::assertSizesAttributeHasValueForEveryBreakpoint($sizes);
+        static::assertStringContainsString('(min-width: 1400px) 280px', $sizes);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function productBoxLayoutProvider(): iterable
+    {
+        yield 'standard layout' => ['standard'];
+        yield 'image layout' => ['image'];
+    }
+
+    private static function getSizesAttribute(string $result): string
+    {
+        static::assertSame(1, preg_match('/\ssizes="(?P<sizes>[^"]+)"/', $result, $matches), 'sizes attribute is missing');
+        static::assertIsString($matches['sizes']);
+
+        return $matches['sizes'];
+    }
+
+    private static function assertSizesAttributeHasValueForEveryBreakpoint(string $sizes): void
+    {
+        $entries = array_map('trim', explode(',', $sizes));
+        $fallback = array_pop($entries);
+
+        static::assertNotEmpty($fallback, 'sizes fallback entry is empty');
+
+        foreach ($entries as $i => $entry) {
+            static::assertMatchesRegularExpression(
+                '/^\(min-width:[^)]*\)\s+\S+/',
+                $entry,
+                \sprintf('Sizes entry #%d has an empty value: "%s"', $i, $entry)
+            );
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     *
+     * @throws SyntaxError
+     * @throws \Throwable
+     * @throws Exception
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    private function renderTemplate(string $templatePath, array $data): string
+    {
+        $storefrontBundleFileName = (new \ReflectionClass(Storefront::class))->getFileName();
+        static::assertNotFalse($storefrontBundleFileName);
+
+        [$twig, $templateFinder] = $this->createFinder([
+            new BundleFixture('StorefrontTest', __DIR__ . '/fixtures/Storefront/'),
+            new BundleFixture('Storefront', \dirname($storefrontBundleFileName)),
+        ]);
+
+        $templatePath = $templateFinder->find($templatePath);
+        $template = $twig->loadTemplate($twig->getTemplateClass($templatePath), $templatePath);
+
+        return $template->render($data);
+    }
+
+    private function createExampleMedia(): MediaEntity
+    {
+        $media = new MediaEntity();
+        $media->setId('test-media-id');
+        $media->setUrl('https://shopware.local/media/cute-cat.webp');
+        $media->setPath('media/cute-cat.webp');
+        $media->setTranslated([
+            'title' => 'Very cute cat title',
+            'alt' => 'Very cute cat alt',
+        ]);
+
+        return $media;
+    }
+
+    /**
+     * @param array<int> $thumbnailSizes
+     */
+    private function createExampleMediaWithThumbnails(array $thumbnailSizes): MediaEntity
+    {
+        $media = $this->createExampleMedia();
+
+        $media->setThumbnails($this->createThumbnails($thumbnailSizes));
+
+        return $media;
+    }
+
+    /**
+     * @param array<int> $thumbnailSizes
+     */
+    private function createThumbnails(array $thumbnailSizes): MediaThumbnailCollection
+    {
+        $thumbnailCollection = new MediaThumbnailCollection();
+
+        foreach ($thumbnailSizes as $size) {
+            $thumbnail = new MediaThumbnailEntity();
+            $thumbnail->setId('thumb-' . $size);
+            $thumbnail->setWidth($size);
+            $thumbnail->setHeight($size);
+            $thumbnail->setUrl('https://shopware.local/thumbnail/cute-cat_' . $size . 'x' . $size . '.webp');
+            $thumbnailCollection->add($thumbnail);
+        }
+
+        return $thumbnailCollection;
+    }
+
+    /**
+     * @param BundleFixture[] $bundles
+     *
+     * @throws LoaderError
+     * @throws Exception
+     *
+     * @return array{0: Environment, 1: TemplateFinder}
+     */
+    private function createFinder(array $bundles): array
+    {
+        $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
+
+        foreach ($bundles as $bundle) {
+            $directory = $bundle->getPath() . '/Resources/views';
+            $loader->addPath($directory);
+            $loader->addPath($directory, $bundle->getName());
+        }
+
+        $twig = new Environment($loader);
+
+        $kernel = $this->createMock(Kernel::class);
+        $kernel->method('getBundles')
+            ->willReturn($bundles);
+
+        $scopeDetector = $this->createMock(TemplateScopeDetector::class);
+        $scopeDetector->method('getScopes')
+            ->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
+
+        $templateFinder = new TemplateFinder(
+            $twig,
+            $loader,
+            sys_get_temp_dir() . '/' . uniqid('twig_test_', true),
+            new NamespaceHierarchyBuilder([
+                new BundleHierarchyBuilder(
+                    $kernel,
+                    static::getContainer()->get(Connection::class)
+                ),
+            ]),
+            $scopeDetector,
+        );
+
+        // Needed for the ConfigExtension, so the theme_config('breakpoint.sm') calls return the actual breakpoints.
+        $templateConfigAccessor = new TemplateConfigAccessor(
+            $this->createMock(SystemConfigService::class),
+            new ThemeConfigValueAccessor(
+                $this->createMock(AbstractResolvedConfigLoader::class),
+                $this->createMock(CacheTagCollector::class)
+            ),
+            static::createStub(ThemeScripts::class),
+            'test',
+            [],
+        );
+
+        $twig->addExtension(new NodeExtension($templateFinder, $scopeDetector));
+        $twig->getExtension(NodeExtension::class)->getFinder();
+        $twig->addExtension(new ThumbnailExtension($templateFinder));
+        $twig->addExtension(new FeatureFlagExtension());
+
+        // url encoder and theme_config are used inside the thumbnail.html.twig template
+        $twig->addExtension(new ConfigExtension($templateConfigAccessor));
+        $twig->addExtension(new UrlEncodingTwigFilter());
+
+        return [$twig, $templateFinder];
+    }
+}

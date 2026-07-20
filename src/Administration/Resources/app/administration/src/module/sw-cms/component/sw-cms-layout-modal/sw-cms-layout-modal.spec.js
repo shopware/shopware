@@ -52,7 +52,11 @@ async function createWrapper() {
                             search: searchMock,
                         }),
                     },
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                     systemConfigApiService: {
                         getValues: (query) => {
                             if (query !== 'core.cms') {
@@ -116,6 +120,7 @@ async function createWrapper() {
                     'sw-help-text': true,
                     'sw-ai-copilot-badge': true,
                     'sw-provide': { template: `<slot/>`, inheritAttrs: false },
+                    'sw-time-ago': true,
                 },
             },
         },

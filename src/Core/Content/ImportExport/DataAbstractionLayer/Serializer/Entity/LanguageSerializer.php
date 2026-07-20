@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Language\LanguageEntity;
 use Symfony\Contracts\Service\ResetInterface;
@@ -24,6 +25,8 @@ class LanguageSerializer extends EntitySerializer implements ResetInterface
 
     /**
      * @internal
+     *
+     * @param EntityRepository<LanguageCollection> $languageRepository
      */
     public function __construct(private readonly EntityRepository $languageRepository)
     {
@@ -74,7 +77,7 @@ class LanguageSerializer extends EntitySerializer implements ResetInterface
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('locale.code', $code));
         $criteria->addAssociation('locale');
-        $language = $this->languageRepository->search($criteria, Context::createDefaultContext())->first();
+        $language = $this->languageRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         $this->cacheLanguages[$code] = null;
         if ($language instanceof LanguageEntity && $language->getLocale() !== null) {

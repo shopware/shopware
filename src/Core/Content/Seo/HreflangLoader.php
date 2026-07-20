@@ -32,7 +32,7 @@ class HreflangLoader implements HreflangLoaderInterface
 
         $domains = $this->fetchSalesChannelDomains($salesChannelContext->getSalesChannelId());
 
-        if ($parameter->getRoute() === 'frontend.home.page') {
+        if ($parameter->isHomepage()) {
             return $this->getHreflangForHomepage($domains, $salesChannelContext->getSalesChannel()->getHreflangDefaultDomainId());
         }
 

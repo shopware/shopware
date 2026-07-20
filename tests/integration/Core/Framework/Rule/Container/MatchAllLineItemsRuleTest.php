@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Rule\Container;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\LineItemInCategoryRule;
+use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
@@ -34,6 +35,9 @@ class MatchAllLineItemsRuleTest extends TestCase
      */
     private EntityRepository $ruleRepository;
 
+    /**
+     * @var EntityRepository<RuleConditionCollection>
+     */
     private EntityRepository $conditionRepository;
 
     private Context $context;
@@ -83,7 +87,7 @@ class MatchAllLineItemsRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id));
 
         $this->ruleRepository->delete([['id' => $ruleId]], $this->context);
         $this->conditionRepository->delete([['id' => $id]], $this->context);
@@ -117,7 +121,7 @@ class MatchAllLineItemsRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id));
         $ruleStruct = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->getEntities()->get($ruleId);
         static::assertInstanceOf(RuleEntity::class, $ruleStruct);
         static::assertEquals(new AndRule([new MatchAllLineItemsRule([new LineItemInCategoryRule(MatchAllLineItemsRule::OPERATOR_EQ, $categoryIds)])]), $ruleStruct->getPayload());

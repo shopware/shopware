@@ -14,13 +14,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
 class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
 {
@@ -43,7 +46,12 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/customer/wishlist/delete/{productId}', name: 'store-api.customer.wishlist.delete', methods: ['DELETE'], defaults: ['_loginRequired' => true])]
+    #[Route(
+        path: '/store-api/customer/wishlist/delete/{productId}',
+        name: 'store-api.customer.wishlist.delete',
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        methods: [Request::METHOD_DELETE]
+    )]
     public function delete(string $productId, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannelId())) {

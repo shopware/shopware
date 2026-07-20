@@ -14,13 +14,13 @@ use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
-use Shopware\Core\Framework\Event\SalesChannelAware;
+use Shopware\Core\Framework\Event\SalesChannelContextAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('checkout')]
-class CustomerDoubleOptInRegistrationEvent extends Event implements SalesChannelAware, CustomerAware, MailAware, ScalarValuesAware, FlowEventAware
+class CustomerDoubleOptInRegistrationEvent extends Event implements SalesChannelContextAware, CustomerAware, MailAware, ScalarValuesAware, FlowEventAware
 {
     final public const EVENT_NAME = 'checkout.customer.double_opt_in_registration';
 
@@ -36,8 +36,8 @@ class CustomerDoubleOptInRegistrationEvent extends Event implements SalesChannel
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('customer', new EntityType(CustomerDefinition::class))
-            ->add('confirmUrl', new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->add(CustomerAware::CUSTOMER, new EntityType(CustomerDefinition::class))
+            ->add(FlowMailVariables::CONFIRM_URL, new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
 
     public function getName(): string

@@ -9,7 +9,6 @@
         :advanced-selection-parameters="getAdvancedSelectionParameters()"
         @update:entity-collection="onUpdateCollection"
     >
-
         <template #before-item-list>
             {% block sw_select_rule_create_select_before %}
             <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
@@ -17,7 +16,7 @@
                 class="sw-select-rule-create__create-rule-item sw-select-result"
                 @click="openCreateRuleModal"
             >
-                {{ $tc('sw-select-rule-create.addNewRule') }}
+                {{ $t('sw-select-rule-create.addNewRule') }}
             </div>
             {% endblock %}
         </template>
@@ -45,6 +44,7 @@
                             :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
                             :search-term="searchTerm"
                         />
+
                         <template v-else>
                             {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
                         </template>
@@ -61,6 +61,7 @@
     <sw-entity-single-select
         v-else
         entity="rule"
+        :popover-classes="['sw-select-rule-create__popover']"
         :criteria="ruleFilter"
         :value="ruleId"
         :size="size"
@@ -77,10 +78,11 @@
                 class="sw-select-rule-create__create-rule-item sw-select-result"
                 @click="openCreateRuleModal"
             >
-                {{ $tc('sw-select-rule-create.addNewRule') }}
+                {{ $t('sw-select-rule-create.addNewRule') }}
             </div>
             {% endblock %}
         </template>
+
         <template #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
             {% block sw_select_rule_create_select_entity_select_result_list_item %}
             <slot
@@ -104,6 +106,7 @@
                             :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
                             :search-term="searchTerm"
                         />
+
                         <template v-else>
                             {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
                         </template>

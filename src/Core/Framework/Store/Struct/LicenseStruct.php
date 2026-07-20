@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\Store\Struct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('checkout')]
 class LicenseStruct extends Struct
 {
@@ -21,7 +18,7 @@ class LicenseStruct extends Struct
 
     protected float $netPrice;
 
-    protected ?\DateTimeImmutable $nextBookingDate;
+    protected ?\DateTimeImmutable $nextBookingDate = null;
 
     protected ExtensionStruct $licensedExtension;
 

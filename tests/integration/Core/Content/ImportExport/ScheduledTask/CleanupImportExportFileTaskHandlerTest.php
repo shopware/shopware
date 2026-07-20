@@ -3,11 +3,14 @@
 namespace Shopware\Tests\Integration\Core\Content\ImportExport\ScheduledTask;
 
 use League\Flysystem\FilesystemOperator;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogCollection;
 use Shopware\Core\Content\ImportExport\Message\DeleteFileHandler;
 use Shopware\Core\Content\ImportExport\Message\DeleteFileMessage;
 use Shopware\Core\Content\ImportExport\ScheduledTask\CleanupImportExportFileTaskHandler;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -21,8 +24,14 @@ use Symfony\Component\Messenger\TraceableMessageBus;
 #[Package('fundamentals@after-sales')]
 class CleanupImportExportFileTaskHandlerTest extends AbstractImportExportTestCase
 {
+    /**
+     * @var EntityRepository<ImportExportLogCollection>
+     */
     private EntityRepository $logRepository;
 
+    /**
+     * @var EntityRepository<EntityCollection<ImportExportFileEntity>>
+     */
     private EntityRepository $fileRepository;
 
     private FilesystemOperator $filesystem;

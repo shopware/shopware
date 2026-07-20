@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\MessageQueue\Subscriber;
 
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Clock\ClockInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
@@ -15,14 +17,15 @@ use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
  * @internal
  */
 #[Package('framework')]
-final class PluginLifecycleSubscriber implements EventSubscriberInterface
+final readonly class PluginLifecycleSubscriber implements EventSubscriberInterface
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly TaskRegistry $registry,
-        private readonly CacheItemPoolInterface $restartSignalCachePool
+        private TaskRegistry $registry,
+        private CacheItemPoolInterface $restartSignalCachePool,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -41,7 +44,7 @@ final class PluginLifecycleSubscriber implements EventSubscriberInterface
 
         // signal worker restart
         $cacheItem = $this->restartSignalCachePool->getItem(StopWorkerOnRestartSignalListener::RESTART_REQUESTED_TIMESTAMP_KEY);
-        $cacheItem->set(microtime(true));
+        $cacheItem->set((float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT));
         $this->restartSignalCachePool->save($cacheItem);
     }
 }

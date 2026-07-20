@@ -6,7 +6,6 @@ import { Vector2, Vector3 } from 'src/helper/vector.helper';
  * ImageZoomPlugin class
  */
 export default class ImageZoomPlugin extends Plugin {
-
     static options = {
 
         /**
@@ -66,7 +65,7 @@ export default class ImageZoomPlugin extends Plugin {
 
         /**
          * selector to determent if the image is active at the moment
-         * set to fall if this should be ignored
+         * set to false if this should be ignored
          *
          * @type string|boolean
          */
@@ -101,15 +100,33 @@ export default class ImageZoomPlugin extends Plugin {
         this._updateTranslateRange();
         this._initHammer();
         this._registerEvents();
-        this._setActionButtonState();
+        
+        // Set button state after a brief delay to ensure image is laid out
+        setTimeout(() => {
+            this._setActionButtonState();
+        }, 0);
     }
 
     /**
      * updates the zoom values
      */
     update() {
-        this._updateTransform();
-        this._setActionButtonState();
+        // Reset transform state when switching images
+        this._storedTransform = new Vector3(0, 0, 1);
+        this._transform = new Vector3(0, 0, 1);
+        
+        // Recalculate sizes for the new image
+        this._imageMaxSize = new Vector2(this._image.naturalWidth, this._image.naturalHeight).multiply(2);
+        this._imageSize = new Vector2(this._image.offsetWidth, this._image.offsetHeight);
+        this._containerSize = new Vector2(this.el.offsetWidth, this.el.offsetHeight);
+        
+        this._updateTranslateRange();
+        this._updateTransform(true);
+        
+        // Set button state after a brief delay to ensure image is laid out
+        setTimeout(() => {
+            this._setActionButtonState();
+        }, 0);
     }
 
     /**
@@ -118,9 +135,14 @@ export default class ImageZoomPlugin extends Plugin {
      * @private
      */
     _initHammer() {
-        this._hammer = new Hammer(this.el);
+        this._hammer = new Hammer(this._image, {
+            touchAction: 'none',
+        });
         this._hammer.get('pinch').set({ enable: true });
-        this._hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+        this._hammer.get('pan').set({ 
+            direction: Hammer.DIRECTION_ALL,
+            threshold: 0,
+        });
     }
 
     /**
@@ -129,10 +151,12 @@ export default class ImageZoomPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
-        this._hammer.on('pan', event => this._onPan(event));
+        this._hammer.on('panstart', () => {
+            this._panStartTransform = new Vector3(this._storedTransform.x, this._storedTransform.y, this._storedTransform.z);
+        });
+        this._hammer.on('pan panend pancancel', event => this._onPan(event));
         this._hammer.on('pinch pinchmove', event => this._onPinch(event));
         this._hammer.on('doubletap', event => this._onDoubleTap(event));
-        this._hammer.on('panend pancancel pinchend pinchcancel', event => this._onInteractionEnd(event));
 
         this.el.addEventListener('wheel', event => this._onMouseWheel(event), false);
         this._image.addEventListener('mousedown', event => event.preventDefault(), false);
@@ -164,7 +188,20 @@ export default class ImageZoomPlugin extends Plugin {
      */
     _onPan(event) {
         if (this._isActive()) {
-            this._transform = this._storedTransform.add(new Vector3(event.deltaX, event.deltaY, 0));
+            // On isFinal event, just store the current transform without recalculating
+            if (event.isFinal) {
+                this._updateStoredTransformVector();
+                this._setActionButtonState();
+                this._setCursor('default');
+                this._panStartTransform = null;
+                this.$emitter.publish('onPan');
+                return;
+            }
+
+            // Use the transform captured at panstart instead of storedTransform
+            const baseTransform = this._panStartTransform || this._storedTransform;
+
+            this._transform = baseTransform.add(new Vector3(event.deltaX, event.deltaY, 0));
             this._unsetTransition();
             this._updateTransform();
             this._setCursor('move');
@@ -181,13 +218,17 @@ export default class ImageZoomPlugin extends Plugin {
      */
     _onPinch(event) {
         if (this._isActive()) {
-            const x = this._storedTransform.x + event.deltaX;
-            const y = this._storedTransform.x + event.deltaY;
+            // Pinch events may not have reliable deltaX/deltaY, use 0 as fallback
+            const deltaX = (typeof event.deltaX === 'number' && !isNaN(event.deltaX)) ? event.deltaX : 0;
+            const deltaY = (typeof event.deltaY === 'number' && !isNaN(event.deltaY)) ? event.deltaY : 0;
+
+            const x = this._storedTransform.x + deltaX;
+            const y = this._storedTransform.y + deltaY;
             const z = this._storedTransform.z * event.scale;
 
             this._transform = new Vector3(x, y, z);
             this._unsetTransition();
-            this._updateTransform();
+            this._updateTransform(event.isFinal);
             this._setCursor('move');
         }
 
@@ -207,7 +248,7 @@ export default class ImageZoomPlugin extends Plugin {
             this._transform = new Vector3(
                 this._transform.x,
                 this._transform.y,
-                z
+                z,
             );
 
             this._setTransition();
@@ -243,7 +284,7 @@ export default class ImageZoomPlugin extends Plugin {
             this._transform = new Vector3(
                 this._transform.x,
                 this._transform.y,
-                1
+                1,
             );
 
             this._setTransition();
@@ -334,7 +375,6 @@ export default class ImageZoomPlugin extends Plugin {
     _updateTransform(updateStoredTransform) {
         this._updateTranslateRange();
         this._clampTransform();
-        this._setActionButtonState();
 
         const translateX = `translateX(${Math.round(this._transform.x)}px)`;
         const translateY = `translateY(${Math.round(this._transform.y)}px)`;
@@ -347,6 +387,7 @@ export default class ImageZoomPlugin extends Plugin {
 
         if (updateStoredTransform) {
             this._updateStoredTransformVector();
+            this._setActionButtonState();
         }
 
         this.$emitter.publish('updateTransform');
@@ -358,19 +399,22 @@ export default class ImageZoomPlugin extends Plugin {
      * @private
      */
     _setActionButtonState() {
-        if (this._transform.z === 1 && this._getMaxZoomValue() === 1) {
+        const currentZoom = this._transform.z;
+        const maxZoom = this._getMaxZoomValue();
+
+        if (currentZoom === 1 && maxZoom === 1) {
             this._setButtonDisabledState(this._zoomResetActionElement);
             this._setButtonDisabledState(this._zoomOutActionElement);
             this._setButtonDisabledState(this._zoomInActionElement);
-        } else if (this._getMaxZoomValue() === this._transform.z && this._isTranslatable()) {
+        } else if (maxZoom === currentZoom && !this._isTranslatable()) {
             this._setButtonDisabledState(this._zoomResetActionElement);
             this._setButtonDisabledState(this._zoomOutActionElement);
             this._setButtonDisabledState(this._zoomInActionElement);
-        } else if (this._getMaxZoomValue() === this._transform.z) {
+        } else if (maxZoom === currentZoom) {
             this._unsetButtonDisabledState(this._zoomResetActionElement);
             this._unsetButtonDisabledState(this._zoomOutActionElement);
             this._setButtonDisabledState(this._zoomInActionElement);
-        } else if (this._transform.z === 1) {
+        } else if (currentZoom === 1) {
             this._setButtonDisabledState(this._zoomResetActionElement);
             this._setButtonDisabledState(this._zoomOutActionElement);
             this._unsetButtonDisabledState(this._zoomInActionElement);
@@ -389,7 +433,7 @@ export default class ImageZoomPlugin extends Plugin {
      * @private
      */
     _isTranslatable(){
-        return this._translateRange.x === 0 && this._translateRange.y === 0;
+        return this._translateRange.x > 0 || this._translateRange.y > 0;
     }
 
     /**
@@ -437,7 +481,7 @@ export default class ImageZoomPlugin extends Plugin {
         scaledImageSize.x = Math.round(scaledImageSize.x);
         scaledImageSize.y = Math.round(scaledImageSize.y);
 
-        this._translateRange = scaledImageSize.subtract(this._containerSize).clamp(0, scaledImageSize).divide(2);
+        this._translateRange = scaledImageSize.subtract(this._containerSize).clamp(0, Infinity).divide(2);
     }
 
     /**
@@ -453,7 +497,9 @@ export default class ImageZoomPlugin extends Plugin {
             return 1;
         }
 
-        const max = this._imageMaxSize.divide(this._imageSize);
+        // Always use current natural dimensions, not the cached _imageMaxSize
+        const currentImageMaxSize = new Vector2(this._image.naturalWidth, this._image.naturalHeight).multiply(2);
+        const max = currentImageMaxSize.divide(this._imageSize);
 
         return Math.max(max.x, max.y);
     }

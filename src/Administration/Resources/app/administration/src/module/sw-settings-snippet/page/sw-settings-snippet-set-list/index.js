@@ -67,6 +67,9 @@ export default {
             return this.acl.can('snippet.editor') ? this.$t('global.default.edit') : this.$t('global.default.view');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -121,8 +124,9 @@ export default {
 
         loadBaseFiles() {
             return this.snippetSetService.getBaseFiles().then((response) => {
-                this.baseFiles = Object.values(response.items ?? {});
-                this.baseFiles.sort((a, b) => a.name.localeCompare(b.name));
+                this.baseFiles = Object.values(response.items ?? {})
+                    .filter((file, index, self) => index === self.findIndex((other) => other.name === file.name))
+                    .sort((a, b) => a.name.localeCompare(b.name));
             });
         },
 
@@ -143,6 +147,31 @@ export default {
 
             await this.snippetSetRepository.save(newSnippetSet);
             await this.getList();
+
+            this.toggleInlineEdit(newSnippetSet.id);
+        },
+
+        toggleInlineEdit(id) {
+            if (!this.acl.can('snippet.editor')) {
+                return;
+            }
+
+            if (!this.$refs.snippetSetList) {
+                return;
+            }
+
+            if (!this.snippetSets.some((item) => item.id === id)) {
+                return;
+            }
+
+            this.$refs.snippetSetList.currentInlineEditId = id;
+
+            if (typeof this.$refs.snippetSetList.enableInlineEdit === 'function') {
+                this.$refs.snippetSetList.enableInlineEdit();
+                return;
+            }
+
+            this.$refs.snippetSetList.isInlineEditActive = true;
         },
 
         onInlineEditSave(item) {
@@ -207,7 +236,7 @@ export default {
                 await this.snippetSetRepository.delete(this.showDeleteModal);
                 await this.getList();
                 this.createDeleteSuccessNote();
-            } catch (e) {
+            } catch (_e) {
                 this.createDeleteErrorNote();
             }
 

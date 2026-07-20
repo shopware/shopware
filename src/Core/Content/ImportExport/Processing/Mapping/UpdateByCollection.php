@@ -20,6 +20,9 @@ class UpdateByCollection extends Collection
         $this->set($element->getEntityName(), $element);
     }
 
+    /**
+     * @param iterable<UpdateBy|array<string, mixed>|string> $data
+     */
     public static function fromIterable(iterable $data): self
     {
         if ($data instanceof UpdateByCollection) {

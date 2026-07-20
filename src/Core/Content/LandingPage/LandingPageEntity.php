@@ -8,6 +8,7 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tag\TagCollection;
@@ -42,6 +43,9 @@ class LandingPageEntity extends Entity
 
     protected ?string $url = null;
 
+    /**
+     * @var array<string, array<string, array<string, mixed>>|null>|null
+     */
     protected ?array $slotConfig = null;
 
     protected ?SeoUrlCollection $seoUrls = null;
@@ -156,13 +160,28 @@ class LandingPageEntity extends Entity
         $this->url = $url;
     }
 
+    /**
+     * @return array<string, array<string, array<string, mixed>>|null>|null
+     */
     public function getSlotConfig(): ?array
     {
         return $this->slotConfig;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - $slotConfig will be mandatory in future implementation
+     *
+     * @param array<string, array<string, array<string, mixed>>|null>|null $slotConfig
+     */
     public function setSlotConfig(?array $slotConfig): void
     {
+        if ($slotConfig === null) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                '$slotConfig will be mandatory in future implementation'
+            );
+        }
+
         $this->slotConfig = $slotConfig;
     }
 

@@ -22,13 +22,11 @@ export default {
         collapsible: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         overlay: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         options: {
@@ -85,7 +83,7 @@ export default {
 
         propertyGroupOptionCriteria() {
             const criteria = new Criteria(this.optionPage, 10);
-            criteria.addSorting(Criteria.sort('name', 'ASC'));
+            criteria.addSorting(Criteria.sort('name', 'ASC', true));
 
             if (this.currentGroup) {
                 criteria.addFilter(Criteria.equals('groupId', this.currentGroup.id));

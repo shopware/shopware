@@ -2,16 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Rule\DataAbstractionLayer;
 
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\RuleAreaUpdater;
 use Shopware\Core\Content\Rule\RuleDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -38,6 +38,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -47,20 +48,24 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(RuleAreaUpdater::class)]
 class RuleAreaUpdaterTest extends TestCase
 {
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
     private RuleDefinition $definition;
 
-    private MockObject&RuleConditionRegistry $conditionRegistry;
+    private Stub&RuleConditionRegistry $conditionRegistry;
 
     private RuleAreaUpdater $areaUpdater;
 
+    private StaticDefinitionInstanceRegistry $registry;
+
+    private MockClock $clock;
+
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
         $this->connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
 
-        $this->conditionRegistry = $this->createMock(RuleConditionRegistry::class);
+        $this->conditionRegistry = static::createStub(RuleConditionRegistry::class);
 
         $registry = new StaticDefinitionInstanceRegistry(
             [
@@ -69,30 +74,26 @@ class RuleAreaUpdaterTest extends TestCase
                 RuleAreaTestOneToMany::class,
                 RuleAreaTestOneToOne::class,
                 RuleAreaTestManyToOne::class,
+                ReferenceDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         /** @var RuleDefinition $entityDefinition */
         $entityDefinition = $registry->getByEntityName('rule');
         $this->definition = $entityDefinition;
+        $this->registry = $registry;
 
-        $cacheInvalidator = $this->createMock(CacheInvalidator::class);
-        $this->areaUpdater = new RuleAreaUpdater(
-            $this->connection,
-            $this->definition,
-            $this->conditionRegistry,
-            $cacheInvalidator,
-            $registry
-        );
+        $this->clock = new MockClock('2026-01-13 11:00:00');
+        $this->areaUpdater = $this->createAreaUpdater();
     }
 
     public function testUpdate(): void
     {
         $id = Uuid::randomHex();
 
-        $resultStatement = $this->createMock(Result::class);
+        $resultStatement = static::createStub(Result::class);
         $resultStatement->method('fetchAllAssociative')->willReturn([
             [
                 'array_key' => $id,
@@ -103,34 +104,35 @@ class RuleAreaUpdaterTest extends TestCase
             ],
         ]);
 
-        $this->connection->method('executeQuery')->with(
-            'SELECT LOWER(HEX(`rule`.`id`)) AS array_key, IF(`rule`.`one_to_one` IS NOT NULL, 1, 0) AS oneToOne, '
-            . 'EXISTS(SELECT 1 FROM `one_to_many` WHERE `rule_id` = `rule`.`id`) AS oneToMany, IF(`rule`.`many_to_one` IS NOT NULL, 1, 0) AS manyToOne, '
-            . 'EXISTS(SELECT 1 FROM `mapping` WHERE `rule_id` = `rule`.`id`) AS manyToMany, '
-            . 'EXISTS(SELECT 1 FROM rule_condition WHERE (`rule_id` = `rule`.`id`) AND (`type` IN (:flowTypes))) AS flowCondition '
-            . 'FROM rule WHERE `rule`.`id` IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList([$id]), 'flowTypes' => ['orderTags']],
-            ['ids' => ArrayParameterType::BINARY, 'flowTypes' => ArrayParameterType::STRING]
-        )->willReturn($resultStatement);
+        $connection = $this->createMock(Connection::class);
+        $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
+        $connection->expects($this->once())
+            ->method('executeQuery')
+            ->willReturnCallback(function (string $sql, array $params) use ($resultStatement, $id): Result {
+                static::assertSame(['ids' => Uuid::fromHexToBytesList([$id]), 'flowTypes' => ['orderTags']], $params);
+
+                return $resultStatement;
+            });
 
         $statement = $this->createMock(Statement::class);
         $params = [
             ['areas', json_encode([RuleAreas::PRODUCT_AREA, RuleAreas::PROMOTION_AREA, RuleAreas::PAYMENT_AREA, RuleAreas::SHIPPING_AREA])],
             ['id', Uuid::fromHexToBytes($id)],
+            ['updatedAt', $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
         ];
         $matcher = $this->exactly(\count($params));
         $statement->expects($matcher)
             ->method('bindValue')
-            ->willReturnCallback(function (string $key, $value) use ($matcher, $params): void {
+            ->willReturnCallback(static function (string $key, $value) use ($matcher, $params): void {
                 self::assertSame($params[$matcher->numberOfInvocations() - 1][0], $key);
                 self::assertSame($params[$matcher->numberOfInvocations() - 1][1], $value);
             });
         $statement->expects($this->once())->method('executeStatement')->willReturn(1);
-        $this->connection->method('prepare')->willReturn($statement);
+        $connection->method('prepare')->willReturn($statement);
 
         $this->conditionRegistry->method('getFlowRuleNames')->willReturn(['orderTags']);
 
-        $this->areaUpdater->update([$id]);
+        $this->createAreaUpdater($connection)->update([$id]);
     }
 
     public function testTriggerChangeset(): void
@@ -139,14 +141,17 @@ class RuleAreaUpdaterTest extends TestCase
 
         $oneToManyField = $fieldCollection->get('oneToMany');
         $manyToOneField = $fieldCollection->get('manyToOne');
+        $manyToManyField = $fieldCollection->get('manyToMany');
 
         static::assertInstanceOf(OneToManyAssociationField::class, $oneToManyField);
         static::assertInstanceOf(ManyToOneAssociationField::class, $manyToOneField);
+        static::assertInstanceOf(ManyToManyAssociationField::class, $manyToManyField);
 
         $event = new PreWriteValidationEvent(WriteContext::createFromContext(Context::createDefaultContext()), [
-            new DeleteCommand($oneToManyField->getReferenceDefinition(), [], $this->createMock(EntityExistence::class)),
-            new UpdateCommand($manyToOneField->getReferenceDefinition(), [], [], $this->createMock(EntityExistence::class), ''),
-            new UpdateCommand($oneToManyField->getReferenceDefinition(), ['rule_id' => 'foo'], [], $this->createMock(EntityExistence::class), ''),
+            new DeleteCommand($oneToManyField->getReferenceDefinition(), [], static::createStub(EntityExistence::class)),
+            new UpdateCommand($manyToOneField->getReferenceDefinition(), [], [], static::createStub(EntityExistence::class), ''),
+            new UpdateCommand($oneToManyField->getReferenceDefinition(), ['rule_id' => 'foo'], [], static::createStub(EntityExistence::class), ''),
+            new UpdateCommand($manyToManyField->getReferenceDefinition(), ['rule_id' => 'foo'], [], static::createStub(EntityExistence::class), ''),
         ]);
 
         $this->areaUpdater->triggerChangeSet($event);
@@ -154,10 +159,11 @@ class RuleAreaUpdaterTest extends TestCase
         /** @var DeleteCommand[]|UpdateCommand[] $commands */
         $commands = $event->getCommands();
 
-        static::assertCount(3, $commands);
+        static::assertCount(4, $commands);
         static::assertTrue($commands[0]->requiresChangeSet());
         static::assertFalse($commands[1]->requiresChangeSet());
         static::assertTrue($commands[2]->requiresChangeSet());
+        static::assertTrue($commands[3]->requiresChangeSet());
     }
 
     public function testOnEntityWritten(): void
@@ -168,6 +174,7 @@ class RuleAreaUpdaterTest extends TestCase
         $idB = Uuid::randomBytes();
         $idC = Uuid::randomBytes();
         $idD = Uuid::randomBytes();
+        $idE = Uuid::randomBytes();
 
         $event = new EntityWrittenContainerEvent($context, new NestedEventCollection([
             new EntityWrittenEvent('many_to_one', [
@@ -186,21 +193,51 @@ class RuleAreaUpdaterTest extends TestCase
                     true
                 )),
             ], $context, []),
+            new EntityWrittenEvent('mapping', [
+                new EntityWriteResult(
+                    $idA,
+                    [
+                        'ruleId' => Uuid::fromBytesToHex($idE),
+                        'referenceId' => Uuid::randomHex(),
+                    ],
+                    'mapping',
+                    EntityWriteResult::OPERATION_INSERT
+                ),
+            ], $context, []),
         ]), []);
 
         $resultStatement = $this->createMock(Result::class);
         $resultStatement->expects($this->once())->method('fetchAllAssociative')->willReturn([]);
-        $this->connection->method('executeQuery')
-            ->with(static::anything(), static::equalTo(['ids' => [Uuid::fromHexToBytes($idA), $idB, $idC, $idD], 'flowTypes' => ['orderTags']]))
-            ->willReturn($resultStatement);
 
-        $statement = $this->createMock(Statement::class);
-        $statement->method('getWrappedStatement')->willReturn($this->createMock(\Doctrine\DBAL\Driver\Statement::class));
-        $this->connection->method('prepare')->willReturn($statement);
+        $connection = $this->createMock(Connection::class);
+        $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
+        $connection->expects($this->once())
+            ->method('executeQuery')
+            ->willReturnCallback(function (string $sql, array $params) use ($resultStatement, $idA, $idB, $idC, $idD, $idE): Result {
+                static::assertSame(['ids' => [Uuid::fromHexToBytes($idA), $idB, $idC, $idD, $idE], 'flowTypes' => ['orderTags']], $params);
+
+                return $resultStatement;
+            });
+
+        $statement = static::createStub(Statement::class);
+        $statement->method('getWrappedStatement')->willReturn(static::createStub(\Doctrine\DBAL\Driver\Statement::class));
+        $connection->method('prepare')->willReturn($statement);
 
         $this->conditionRegistry->method('getFlowRuleNames')->willReturn(['orderTags']);
 
-        $this->areaUpdater->onEntityWritten($event);
+        $this->createAreaUpdater($connection)->onEntityWritten($event);
+    }
+
+    private function createAreaUpdater(?Connection $connection = null): RuleAreaUpdater
+    {
+        return new RuleAreaUpdater(
+            $connection ?? $this->connection,
+            $this->definition,
+            $this->conditionRegistry,
+            static::createStub(CacheInvalidator::class),
+            $this->registry,
+            $this->clock,
+        );
     }
 }
 
@@ -299,8 +336,27 @@ class RuleAreaTestManyToMany extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            new FkField('rule_id', 'ruleId', RuleDefinition::class),
-            new FkField('reference_id', 'referenceId', 'ReferenceMock'),
+            new FkField('rule_id', 'ruleId', RuleAreaDefinitionTest::class),
+            new FkField('reference_id', 'referenceId', ReferenceDefinition::class),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+#[Package('fundamentals@after-sales')]
+class ReferenceDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'reference';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            new ManyToManyAssociationField('rule', RuleAreaDefinitionTest::class, RuleAreaTestManyToMany::class, 'reference_id', 'rule_id'),
         ]);
     }
 }

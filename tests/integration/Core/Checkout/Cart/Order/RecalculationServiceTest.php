@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Order;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -20,8 +21,10 @@ use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Order\RecalculationService;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
@@ -33,24 +36,26 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionDiscountUnknownConditionError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Country\CountryEntity;
@@ -58,7 +63,6 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 use Shopware\Core\Test\Stub\Rule\TrueRule;
 use Shopware\Core\Test\TestDefaults;
@@ -122,6 +126,143 @@ class RecalculationServiceTest extends TestCase
         );
 
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
+    }
+
+    public function testCreateVersionSucceedsForOrderWithUnregisteredRuleConditionInPriceDefinition(): void
+    {
+        // Simulates an order whose price-definition filter references a rule condition contributed by a
+        // plugin that has since been uninstalled. Opening such an order in the Administration creates an
+        // order version (a clone), which re-encodes the price definition - this must not fail.
+        $cart = $this->generateDemoCart();
+        $orderId = $this->persistCart($cart)['orderId'];
+
+        // stable serialized values; avoids importing the rule/price-definition classes just for the test
+        $originalFilter = ['_name' => 'unknownPluginRule', 'operator' => '='];
+        $priceDefinition = ['type' => 'percentage', 'percentage' => -20, 'filter' => $originalFilter];
+
+        $connection = static::getContainer()->get(Connection::class);
+        $lineItemId = $connection->fetchOne(
+            'SELECT LOWER(HEX(id)) FROM order_line_item WHERE order_id = :id LIMIT 1',
+            ['id' => Uuid::fromHexToBytes($orderId)]
+        );
+        static::assertIsString($lineItemId);
+
+        $connection->update(
+            'order_line_item',
+            ['price_definition' => json_encode($priceDefinition, \JSON_THROW_ON_ERROR)],
+            ['id' => Uuid::fromHexToBytes($lineItemId)]
+        );
+
+        // the order must still be readable (decode no longer throws)
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $this->context)->getEntities()->first();
+        static::assertNotNull($order);
+
+        // this is what the order detail page triggers on load; createVersionedOrder() asserts HTTP 200
+        $versionId = $this->createVersionedOrder($orderId);
+
+        // the unresolvable filter round-trips losslessly into the cloned version
+        $stored = $connection->fetchOne(
+            'SELECT price_definition FROM order_line_item WHERE id = :id AND version_id = :version',
+            ['id' => Uuid::fromHexToBytes($lineItemId), 'version' => Uuid::fromHexToBytes($versionId)]
+        );
+        static::assertIsString($stored);
+        $decoded = json_decode($stored, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame($originalFilter, $decoded['filter']);
+    }
+
+    public function testRecalculateSucceedsForOrderWithUnregisteredRuleConditionInPromotionFilter(): void
+    {
+        // A promotion discount whose "consider" rule was contributed by a now-uninstalled plugin: the
+        // filter inside the discount line item's price definition references a rule that is no longer
+        // registered. Recalculating the order must complete (products keep their normal price definition).
+        $cart = $this->generateDemoCart();
+        $orderId = $this->persistCart($cart)['orderId'];
+        $versionId = $this->createVersionedOrder($orderId);
+
+        // attach a real automatic percentage promotion -> creates a genuine promotion discount line item
+        $promotionId = $this->createPromotion(10.0, null, PromotionDiscountEntity::TYPE_PERCENTAGE);
+        $this->applyAutomaticPromotions($orderId, $versionId, $promotionId);
+
+        // simulate the plugin being uninstalled: point the discount's price-definition filter at an
+        // unregistered rule condition. Only the filter is touched; the rest of the discount is untouched.
+        $connection = static::getContainer()->get(Connection::class);
+        $row = $connection->fetchAssociative(
+            'SELECT id, price_definition FROM order_line_item WHERE order_id = :oid AND version_id = :vid AND type = :type LIMIT 1',
+            ['oid' => Uuid::fromHexToBytes($orderId), 'vid' => Uuid::fromHexToBytes($versionId), 'type' => PromotionProcessor::LINE_ITEM_TYPE]
+        );
+        static::assertIsArray($row);
+        $priceDefinition = json_decode((string) $row['price_definition'], true, 512, \JSON_THROW_ON_ERROR);
+        $priceDefinition['filter'] = ['_name' => 'unknownPluginRule', 'operator' => '='];
+        $connection->update(
+            'order_line_item',
+            ['price_definition' => json_encode($priceDefinition, \JSON_THROW_ON_ERROR)],
+            ['id' => $row['id'], 'version_id' => Uuid::fromHexToBytes($versionId)]
+        );
+
+        // recalculation must complete without throwing
+        $versionContext = $this->context->createWithVersionId($versionId);
+        $errors = static::getContainer()->get(RecalculationService::class)->recalculate($orderId, $versionContext);
+
+        // dropping the discount must be surfaced as a warning instead of happening silently
+        $unknownConditionErrors = $errors->filterInstance(PromotionDiscountUnknownConditionError::class);
+        static::assertCount(1, $unknownConditionErrors);
+        $unknownConditionError = $unknownConditionErrors->first();
+        static::assertInstanceOf(PromotionDiscountUnknownConditionError::class, $unknownConditionError);
+        static::assertSame('unknownPluginRule', $unknownConditionError->getOriginalConditionName());
+
+        // order is still intact: products survive, and the now-unmatchable discount is dropped (fail-closed)
+        $order = $this->orderRepository->search(
+            (new Criteria([$orderId]))->addAssociation('lineItems'),
+            $versionContext
+        )->getEntities()->first();
+        static::assertNotNull($order);
+        static::assertNotNull($order->getLineItems());
+        static::assertGreaterThan(0, $order->getLineItems()->filterByType(LineItem::PRODUCT_LINE_ITEM_TYPE)->count());
+        static::assertCount(0, $order->getLineItems()->filterByType(PromotionProcessor::LINE_ITEM_TYPE));
+    }
+
+    #[DataProvider('customLineItemProvider')]
+    public function testAddCustomLineItemSdf(LineItem $lineItem, int $positionCount): void
+    {
+        $cart = $this->generateDemoCart();
+        $orderId = $this->persistCart($cart)['orderId'];
+        $versionId = $this->createVersionedOrder($orderId);
+        $context = Context::createDefaultContext()->createWithVersionId($versionId);
+
+        $this->getContainer()->get(RecalculationService::class)->addCustomLineItem($orderId, $lineItem, $context);
+
+        $criteria = (new Criteria([$orderId]))
+            ->addAssociation('lineItems')
+            ->addAssociation('deliveries.positions');
+
+        $order = $this->orderRepository->search($criteria, $context)->getEntities()->get($orderId);
+        static::assertNotNull($order);
+
+        $lineItems = $order->getLineItems();
+        static::assertNotNull($lineItems);
+        static::assertCount(3, $lineItems);
+
+        $positions = $order->getDeliveries()?->first()?->getPositions();
+        static::assertNotNull($positions);
+        static::assertCount($positionCount, $positions);
+    }
+
+    public static function customLineItemProvider(): \Generator
+    {
+        yield 'line item type custom, shipping cost aware' => [
+            (new LineItem(Uuid::randomHex(), LineItem::CUSTOM_LINE_ITEM_TYPE))
+                ->setLabel('Test custom line item')
+                ->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection([new TaxRule(19)]))),
+            3,
+        ];
+
+        yield 'line item type custom, not shipping cost aware' => [
+            (new LineItem(Uuid::randomHex(), LineItem::CUSTOM_LINE_ITEM_TYPE))
+                ->setLabel('Test custom line item')
+                ->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection([new TaxRule(19)])))
+                ->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL),
+            2,
+        ];
     }
 
     public function testPersistOrderAndConvertToCart(): void
@@ -206,7 +347,7 @@ class RecalculationServiceTest extends TestCase
 
         foreach ($cart->getDeliveries() as $delivery) {
             // remove address from ShippingLocation
-            $property = ReflectionHelper::getProperty(ShippingLocation::class, 'address');
+            $property = new \ReflectionProperty(ShippingLocation::class, 'address');
             $property->setValue($delivery->getLocation(), null);
 
             foreach ($delivery->getPositions() as $position) {
@@ -268,10 +409,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/recalculate',
-                $orderId
-            ),
+            \sprintf('/api/_action/order/%s/recalculate', $orderId),
             [],
             [],
             [
@@ -292,10 +430,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order 2nd time
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/recalculate',
-                $orderId
-            ),
+            \sprintf('/api/_action/order/%s/recalculate', $orderId),
             [],
             [],
             [
@@ -319,10 +454,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/recalculate',
-                $orderId
-            ),
+            \sprintf('/api/_action/order/%s/recalculate', $orderId),
             [],
             [],
             [
@@ -347,8 +479,7 @@ class RecalculationServiceTest extends TestCase
         $cart = $this->generateDemoCart();
         $orderId = $this->persistCart($cart)['orderId'];
 
-        static::expectException(OrderException::class);
-        static::expectExceptionMessage("Order with id $orderId can not be recalculated because it is in the live version. Please create a new version");
+        $this->expectExceptionObject(OrderException::canNotRecalculateLiveVersion($orderId));
 
         $service = static::getContainer()->get(RecalculationService::class);
 
@@ -371,10 +502,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/recalculate',
-                $orderId
-            ),
+            \sprintf('/api/_action/order/%s/recalculate', $orderId),
             [],
             [],
             [
@@ -395,10 +523,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order 2nd time
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/recalculate',
-                $orderId
-            ),
+            \sprintf('/api/_action/order/%s/recalculate', $orderId),
             [],
             [],
             [
@@ -489,10 +614,7 @@ class RecalculationServiceTest extends TestCase
 
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/recalculate',
-                $orderId
-            ),
+            \sprintf('/api/_action/order/%s/recalculate', $orderId),
             [],
             [],
             [
@@ -611,14 +733,11 @@ class RecalculationServiceTest extends TestCase
         // create version of order
         $versionId = $this->createVersionedOrder($orderId);
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/promotion-item',
-                $orderId
-            ),
-            server: ['HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId],
-            content: (string) json_encode(['code' => 'some-random-code'], \JSON_THROW_ON_ERROR)
+            \sprintf('/api/_action/order/%s/promotion-item', $orderId),
+            ['code' => 'some-random-code'],
+            ['HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId],
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -628,15 +747,16 @@ class RecalculationServiceTest extends TestCase
         static::assertCount(1, $content['errors']);
 
         $errors = array_values($content['errors']);
-        static::assertSame($errors[0]['message'], 'Promotion with code some-random-code not found!');
+        static::assertSame($errors[0]['translatedMessage'], 'Promo code "some-random-code" could not be found.');
     }
 
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testToggleAutomaticPromotions(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         // create order
         $cart = $this->generateDemoCart();
         ['orderId' => $orderId, 'orderDateTime' => $orderDateTime, 'stateId' => $stateId] = $this->persistCart($cart);
@@ -654,9 +774,10 @@ class RecalculationServiceTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testToggleAutomaticPromotionsForDelivery(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         // create order
         $cart = $this->generateDemoCart();
 
@@ -701,7 +822,7 @@ class RecalculationServiceTest extends TestCase
 
         static::assertCount(1, $content['errors']);
         static::assertNotNull($promotionItem);
-        static::assertSame('Discount auto promotion has been added', array_values($content['errors'])[0]['message']);
+        static::assertSame('Discount "auto promotion" has been added', array_values($content['errors'])[0]['translatedMessage']);
         static::assertSame($order->getStateId(), $stateId);
 
         // On recalculation, promotion is applied once more, creating a new line item.
@@ -731,7 +852,7 @@ class RecalculationServiceTest extends TestCase
         static::assertCount(1, $content['errors']);
 
         $errors = array_values($content['errors']);
-        static::assertSame('Discount delivery promotion has been added', $errors[0]['message']);
+        static::assertSame('Discount "delivery promotion" has been added', $errors[0]['translatedMessage']);
         static::assertSame($order->getStateId(), $stateId);
 
         static::assertNotNull($order->getDeliveries());
@@ -1079,7 +1200,7 @@ class RecalculationServiceTest extends TestCase
         $shippingMethod = $this->addSecondPriceRuleToShippingMethod($priceRuleId, $shippingMethodId);
         $this->salesChannelContext->setRuleIds(array_merge($this->salesChannelContext->getRuleIds(), [$priceRuleId]));
 
-        $prop = ReflectionHelper::getProperty(SalesChannelContext::class, 'shippingMethod');
+        $prop = new \ReflectionProperty(SalesChannelContext::class, 'shippingMethod');
         $prop->setValue($this->salesChannelContext, $shippingMethod);
 
         // create order
@@ -1108,7 +1229,7 @@ class RecalculationServiceTest extends TestCase
         $shippingMethod = $this->addSecondShippingMethodPriceRule($priceRuleId, $shippingMethodId);
         $this->salesChannelContext->setRuleIds(array_merge($this->salesChannelContext->getRuleIds(), [$priceRuleId]));
 
-        $prop = ReflectionHelper::getProperty(SalesChannelContext::class, 'shippingMethod');
+        $prop = new \ReflectionProperty(SalesChannelContext::class, 'shippingMethod');
         $prop->setValue($this->salesChannelContext, $shippingMethod);
 
         // create order
@@ -1144,7 +1265,7 @@ class RecalculationServiceTest extends TestCase
         $shippingMethod = $this->addSecondShippingMethodPriceRule($priceRuleId, $shippingMethodId);
         $this->salesChannelContext->setRuleIds(array_merge($this->salesChannelContext->getRuleIds(), [$priceRuleId]));
 
-        $prop = ReflectionHelper::getProperty(SalesChannelContext::class, 'shippingMethod');
+        $prop = new \ReflectionProperty(SalesChannelContext::class, 'shippingMethod');
         $prop->setValue($this->salesChannelContext, $shippingMethod);
 
         // create order
@@ -1172,7 +1293,7 @@ class RecalculationServiceTest extends TestCase
         $shippingMethod = $this->createTwoConditionsWithDifferentQuantities($priceRuleId, $shippingMethodId, DeliveryCalculator::CALCULATION_BY_PRICE);
         $this->salesChannelContext->setRuleIds(array_merge($this->salesChannelContext->getRuleIds(), [$priceRuleId]));
 
-        $prop = ReflectionHelper::getProperty(SalesChannelContext::class, 'shippingMethod');
+        $prop = new \ReflectionProperty(SalesChannelContext::class, 'shippingMethod');
         $prop->setValue($this->salesChannelContext, $shippingMethod);
 
         // create order
@@ -1199,7 +1320,7 @@ class RecalculationServiceTest extends TestCase
         $shippingMethod = $this->createTwoConditionsWithDifferentQuantities($priceRuleId, $shippingMethodId, DeliveryCalculator::CALCULATION_BY_WEIGHT);
         $this->salesChannelContext->setRuleIds(array_merge($this->salesChannelContext->getRuleIds(), [$priceRuleId]));
 
-        $prop = ReflectionHelper::getProperty(SalesChannelContext::class, 'shippingMethod');
+        $prop = new \ReflectionProperty(SalesChannelContext::class, 'shippingMethod');
         $prop->setValue($this->salesChannelContext, $shippingMethod);
 
         // create order
@@ -1304,10 +1425,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/recalculate',
-                $orderId
-            ),
+            \sprintf('/api/_action/order/%s/recalculate', $orderId),
             [],
             [],
             [
@@ -1327,7 +1445,7 @@ class RecalculationServiceTest extends TestCase
         static::assertSame($order->getLineItems()->count(), 2);
 
         // delete all line items
-        $ids = $order->getLineItems()->fmap(fn (OrderLineItemEntity $lineItem) => ['id' => $lineItem->getId()]);
+        $ids = $order->getLineItems()->fmap(static fn (OrderLineItemEntity $lineItem) => ['id' => $lineItem->getId()]);
         static::getContainer()->get('order_line_item.repository')->delete(array_values($ids), $versionContext);
 
         $order = $this->orderRepository->search($criteria, $versionContext)->get($orderId);
@@ -1338,10 +1456,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order 2nd time
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/recalculate',
-                $orderId
-            ),
+            \sprintf('/api/_action/order/%s/recalculate', $orderId),
             [],
             [],
             [
@@ -1386,7 +1501,7 @@ class RecalculationServiceTest extends TestCase
     private function resetPayloadProtection(Cart $cart): void
     {
         // remove delivery information from line items
-        $payloadProtection = ReflectionHelper::getProperty(LineItem::class, 'payloadProtection');
+        $payloadProtection = new \ReflectionProperty(LineItem::class, 'payloadProtection');
 
         foreach ($cart->getLineItems()->getFlat() as $lineItem) {
             $payloadProtection->setValue($lineItem, []);
@@ -1682,7 +1797,7 @@ class RecalculationServiceTest extends TestCase
         $orderId = static::getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
 
         $criteria = new Criteria([$orderId]);
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->get($orderId);
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->get($orderId);
         static::assertNotNull($order);
 
         return [
@@ -1697,10 +1812,7 @@ class RecalculationServiceTest extends TestCase
     {
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
-                '/api/_action/version/order/%s',
-                $orderId
-            )
+            \sprintf('/api/_action/version/order/%s', $orderId)
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -1744,10 +1856,7 @@ class RecalculationServiceTest extends TestCase
 
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/recalculate',
-                $orderId
-            ),
+            \sprintf('/api/_action/order/%s/recalculate', $orderId),
             [],
             [],
             [
@@ -1806,18 +1915,13 @@ class RecalculationServiceTest extends TestCase
         ];
 
         // add product to order
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/lineItem',
-                $orderId
-            ),
-            [],
-            [],
+            \sprintf('/api/_action/order/%s/lineItem', $orderId),
+            $data,
             [
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ],
-            (string) json_encode($data, \JSON_THROW_ON_ERROR)
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -1878,18 +1982,13 @@ class RecalculationServiceTest extends TestCase
         ];
 
         // add credit item to order
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/creditItem',
-                $orderId
-            ),
-            [],
-            [],
+            \sprintf('/api/_action/order/%s/creditItem', $orderId),
+            $data,
             [
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ],
-            (string) json_encode($data, \JSON_THROW_ON_ERROR)
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -1932,18 +2031,13 @@ class RecalculationServiceTest extends TestCase
         ];
 
         // add promotion item to order
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/promotion-item',
-                $orderId
-            ),
-            [],
-            [],
+            \sprintf('/api/_action/order/%s/promotion-item', $orderId),
+            $data,
             [
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ],
-            (string) json_encode($data, \JSON_THROW_ON_ERROR)
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -1966,7 +2060,7 @@ class RecalculationServiceTest extends TestCase
         static::assertCount(1, $content['errors']);
 
         $errors = array_values($content['errors']);
-        static::assertSame($errors[0]['message'], 'Discount GET5 has been added');
+        static::assertSame($errors[0]['translatedMessage'], 'Discount "GET5" has been added');
         static::assertSame($stateId, $order->getStateId());
 
         return $order;
@@ -1984,18 +2078,13 @@ class RecalculationServiceTest extends TestCase
         ];
 
         // add promotion item to order
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/applyAutomaticPromotions',
-                $orderId
-            ),
-            [],
-            [],
+            \sprintf('/api/_action/order/%s/applyAutomaticPromotions', $orderId),
+            $data,
             [
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ],
-            (string) json_encode($data)
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -2036,18 +2125,13 @@ class RecalculationServiceTest extends TestCase
         ];
 
         // add promotion item to order
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/toggleAutomaticPromotions',
-                $orderId
-            ),
-            [],
-            [],
+            \sprintf('/api/_action/order/%s/toggleAutomaticPromotions', $orderId),
+            $data,
             [
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ],
-            (string) json_encode($data)
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -2074,7 +2158,7 @@ class RecalculationServiceTest extends TestCase
         static::assertCount(1, $content['errors']);
 
         $errors = array_values($content['errors']);
-        static::assertSame($errors[0]['message'], 'Discount auto promotion has been added');
+        static::assertSame($errors[0]['translatedMessage'], 'Discount "auto promotion" has been added');
         static::assertSame($stateId, $order->getStateId());
     }
 
@@ -2090,18 +2174,13 @@ class RecalculationServiceTest extends TestCase
         ];
 
         // add promotion item to order
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/toggleAutomaticPromotions',
-                $orderId
-            ),
-            [],
-            [],
+            \sprintf('/api/_action/order/%s/toggleAutomaticPromotions', $orderId),
+            $data,
             [
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ],
-            (string) json_encode($data)
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -2146,7 +2225,7 @@ class RecalculationServiceTest extends TestCase
         $deliveryTimeData = $this->createDeliveryTime();
 
         $ruleRegistry = static::getContainer()->get(RuleConditionRegistry::class);
-        $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
+        $prop = new \ReflectionProperty(RuleConditionRegistry::class, 'rules');
         $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
 
         $taxId = Uuid::randomHex();
@@ -2471,7 +2550,7 @@ class RecalculationServiceTest extends TestCase
     {
         $paymentMethodId = Uuid::randomHex();
         $ruleRegistry = static::getContainer()->get(RuleConditionRegistry::class);
-        $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
+        $prop = new \ReflectionProperty(RuleConditionRegistry::class, 'rules');
         $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
 
         $data = [

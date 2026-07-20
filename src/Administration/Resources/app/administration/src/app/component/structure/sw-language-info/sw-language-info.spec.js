@@ -18,7 +18,7 @@ describe('src/app/component/structure/sw-language-info', () => {
         wrapper = mount(await wrapTestComponent('sw-language-info', { sync: true }), {
             global: {
                 mocks: {
-                    $tc: (snippetKey, args, count) => {
+                    $t: (snippetKey, args, count) => {
                         let value = `|${snippetKey}|${count}|`;
 
                         if (typeof args !== 'object') {
@@ -41,10 +41,6 @@ describe('src/app/component/structure/sw-language-info', () => {
                 },
             },
         });
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain the languageId', async () => {

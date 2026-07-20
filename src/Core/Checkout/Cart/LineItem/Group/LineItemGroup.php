@@ -10,15 +10,7 @@ class LineItemGroup
     /**
      * @var array<string, LineItemQuantity>
      */
-    private array $items;
-
-    /**
-     * @internal
-     */
-    public function __construct()
-    {
-        $this->items = [];
-    }
+    private array $items = [];
 
     /**
      * Adds a new data entry for the provided line item id.
@@ -50,6 +42,6 @@ class LineItemGroup
      */
     public function hasItems(): bool
     {
-        return \count($this->items) > 0;
+        return $this->items !== [];
     }
 }

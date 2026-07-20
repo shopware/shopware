@@ -37,7 +37,7 @@ class EmailRuleTest extends TestCase
         $this->expectExceptionObject(CustomerException::unsupportedValue(\gettype(null), EmailRule::class));
 
         $customer = new CustomerEntity();
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getCustomer')->willReturn($customer);
 
         $scope = new CheckoutRuleScope($salesChannelContext);
@@ -52,7 +52,7 @@ class EmailRuleTest extends TestCase
 
         $customer = new CustomerEntity();
         $customer->setEmail('*');
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getCustomer')->willReturn($customer);
 
         $scope = new CheckoutRuleScope($salesChannelContext);
@@ -73,7 +73,7 @@ class EmailRuleTest extends TestCase
         static::assertArrayHasKey('operator', $ruleConstraints, 'Constraint operator not found in Rule');
         $operators = $ruleConstraints['operator'];
         static::assertEquals(new NotBlank(), $operators[0]);
-        static::assertEquals(new Choice($expectedOperators), $operators[1]);
+        static::assertEquals(new Choice(choices: $expectedOperators), $operators[1]);
 
         static::assertArrayHasKey('email', $ruleConstraints, 'Constraint email not found in Rule');
         $email = $ruleConstraints['email'];
@@ -84,7 +84,7 @@ class EmailRuleTest extends TestCase
     #[DataProvider('getMatchValues')]
     public function testRuleMatching(string $operator, string $customerEmail, string $email, bool $expected, bool $noCustomer = false): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         $customer = new CustomerEntity();
         $customer->setEmail($customerEmail);

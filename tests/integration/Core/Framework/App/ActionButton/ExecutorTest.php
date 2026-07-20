@@ -7,7 +7,6 @@ use Opis\JsonSchema\Errors\ErrorFormatter;
 use Opis\JsonSchema\Errors\ValidationError;
 use Opis\JsonSchema\ValidationResult;
 use Opis\JsonSchema\Validator;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
@@ -16,6 +15,8 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payload\Source;
+use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -28,7 +29,6 @@ use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 /**
  * @internal
  */
-#[CoversClass(Executor::class)]
 #[Package('framework')]
 class ExecutorTest extends TestCase
 {
@@ -308,17 +308,15 @@ class ExecutorTest extends TestCase
         $this->executor->execute($action, Context::createDefaultContext());
     }
 
-    public function testThrowsExceptionIfAppUrlChangeIsDetected(): void
+    public function testThrowsExceptionIfShopIdFingerprintsHaveChanged(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
         $systemConfigService = static::getContainer()->get(SystemConfigService::class);
-        $systemConfigService->set(
-            ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY,
-            [
-                'app_url' => 'http://random-shop.url',
-                'value' => 'shopId',
-            ]
-        );
+        $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, (array) ShopId::v2('shopId', [
+            AppUrl::IDENTIFIER => 'http://random-shop.url',
+        ]));
+
+        static::getContainer()->get(ShopIdProvider::class)->reset();
 
         $appUrl = EnvironmentHelper::getVariable('APP_URL');
         static::assertIsString($appUrl);
@@ -336,8 +334,7 @@ class ExecutorTest extends TestCase
         static::assertNotNull($this->app->getAppSecret());
         $this->signResponse($this->app->getAppSecret());
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('Detected APP_URL change');
+        $this->expectExceptionObject(AppException::actionButtonProcessException($action->getActionId(), 'Changes in your system were detected that suggest a change of the shop ID.'));
         $this->executor->execute($action, Context::createDefaultContext());
     }
 

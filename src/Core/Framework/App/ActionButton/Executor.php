@@ -5,10 +5,11 @@ namespace Shopware\Core\Framework\App\ActionButton;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\ServerException;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\ActionButton\Response\ActionButtonResponseFactory;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
@@ -35,7 +36,8 @@ class Executor
         private readonly ShopIdProvider $shopIdProvider,
         private readonly RouterInterface $router,
         private readonly RequestStack $requestStack,
-        private readonly KernelInterface $kernel
+        private readonly KernelInterface $kernel,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -43,13 +45,13 @@ class Executor
     {
         try {
             $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException $e) {
+        } catch (ShopIdChangeSuggestedException $e) {
             throw AppException::actionButtonProcessException($action->getActionId(), $e->getMessage(), $e);
         }
 
         $payload = $action->asPayload();
         $payload['meta'] = [
-            'timestamp' => (new \DateTime())->getTimestamp(),
+            'timestamp' => $this->clock->now()->getTimestamp(),
             'reference' => Uuid::randomHex(),
             'language' => $context->getLanguageId(),
         ];
@@ -62,7 +64,7 @@ class Executor
             $content = $this->executeHttpRequest($action, $context, $payload, $appSecret);
         }
 
-        if (empty($content)) {
+        if ($content === '') {
             return new JsonResponse();
         }
 
@@ -85,7 +87,7 @@ class Executor
     /**
      * @param array<mixed> $payload
      */
-    private function executeHttpRequest(AppAction $action, Context $context, array $payload, string $appSecret): string
+    private function executeHttpRequest(AppAction $action, Context $context, array $payload, #[\SensitiveParameter] string $appSecret): string
     {
         try {
             $response = $this->guzzleClient->post(
@@ -107,7 +109,7 @@ class Executor
 
             // InCase use only want to response without action type response
             // bypass check auth if status code is success
-            if ($statusCode >= 200 && $statusCode < 300 && empty($body)) {
+            if ($statusCode >= 200 && $statusCode < 300 && $body === '') {
                 return '';
             }
 

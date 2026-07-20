@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerAffiliateAndCampaignCodeAction;
+use Shopware\Core\Content\Flow\FlowCollection;
 use Shopware\Core\Content\Test\Flow\OrderActionTrait;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -25,6 +26,9 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
     use CacheTestBehaviour;
     use OrderActionTrait;
 
+    /**
+     * @var EntityRepository<FlowCollection>
+     */
     private EntityRepository $flowRepository;
 
     protected function setUp(): void
@@ -82,44 +86,41 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
     }
 
     /**
-     * @return array<int, mixed>
+     * @return iterable<string, mixed>
      */
-    public static function createDataProvider(): array
+    public static function createDataProvider(): iterable
     {
-        return [
-            // existed data / update data / expect data
+        yield 'new entity stores affiliate and campaign codes' => [
+            [],
             [
-                [],
-                [
-                    'affiliateCode' => ['value' => '11111', 'upsert' => false],
-                    'campaignCode' => ['value' => '22222', 'upsert' => false],
-                ],
-                ['affiliateCode' => '11111', 'campaignCode' => '22222'],
+                'affiliateCode' => ['value' => '11111', 'upsert' => false],
+                'campaignCode' => ['value' => '22222', 'upsert' => false],
             ],
+            ['affiliateCode' => '11111', 'campaignCode' => '22222'],
+        ];
+        yield 'existing affiliate and campaign codes are kept when upsert is disabled' => [
+            ['affiliateCode' => '11111', 'campaignCode' => '22222'],
             [
-                ['affiliateCode' => '11111', 'campaignCode' => '22222'],
-                [
-                    'affiliateCode' => ['value' => '33333', 'upsert' => false],
-                    'campaignCode' => ['value' => '33333', 'upsert' => false],
-                ],
-                ['affiliateCode' => '11111', 'campaignCode' => '22222'],
+                'affiliateCode' => ['value' => '33333', 'upsert' => false],
+                'campaignCode' => ['value' => '33333', 'upsert' => false],
             ],
+            ['affiliateCode' => '11111', 'campaignCode' => '22222'],
+        ];
+        yield 'campaign code is updated when only campaign upsert is enabled' => [
+            ['affiliateCode' => '11111', 'campaignCode' => '22222'],
             [
-                ['affiliateCode' => '11111', 'campaignCode' => '22222'],
-                [
-                    'affiliateCode' => ['value' => '33333', 'upsert' => false],
-                    'campaignCode' => ['value' => '33333', 'upsert' => true],
-                ],
-                ['affiliateCode' => '11111', 'campaignCode' => '33333'],
+                'affiliateCode' => ['value' => '33333', 'upsert' => false],
+                'campaignCode' => ['value' => '33333', 'upsert' => true],
             ],
+            ['affiliateCode' => '11111', 'campaignCode' => '33333'],
+        ];
+        yield 'affiliate and campaign codes are updated when both upserts are enabled' => [
+            ['affiliateCode' => '11111', 'campaignCode' => '22222'],
             [
-                ['affiliateCode' => '11111', 'campaignCode' => '22222'],
-                [
-                    'affiliateCode' => ['value' => '33333', 'upsert' => true],
-                    'campaignCode' => ['value' => '33333', 'upsert' => true],
-                ],
-                ['affiliateCode' => '33333', 'campaignCode' => '33333'],
+                'affiliateCode' => ['value' => '33333', 'upsert' => true],
+                'campaignCode' => ['value' => '33333', 'upsert' => true],
             ],
+            ['affiliateCode' => '33333', 'campaignCode' => '33333'],
         ];
     }
 }

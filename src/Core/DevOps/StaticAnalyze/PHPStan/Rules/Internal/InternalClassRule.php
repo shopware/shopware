@@ -195,6 +195,7 @@ class InternalClassRule implements Rule
             return false;
         }
 
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (only class constant is used) */
         return $class->getParentClass()->getName() === StorefrontController::class;
     }
 
@@ -262,7 +263,7 @@ class InternalClassRule implements Rule
             return false;
         }
 
-        return !empty($class->getAttributes(AsMessageHandler::class));
+        return $class->getAttributes(AsMessageHandler::class) !== [];
     }
 
     private function isFinal(ClassReflection $class, string $doc): bool

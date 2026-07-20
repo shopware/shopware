@@ -17,6 +17,8 @@
             :class="{ 'is--placeholder': currentValue === null }"
             :disabled="disabled"
             :value="currentValue"
+            :aria-label="$attrs['aria-label']"
+            :aria-labelledby="$attrs['aria-labelledby']"
             @change="onChange"
             @focus="setFocusClass"
             @blur="removeFocusClass"
@@ -54,6 +56,7 @@
             <mt-icon
                 name="regular-chevron-down-xs"
                 size="16px"
+                color="var(--color-icon-primary-default)"
                 decorative
             />
         </div>

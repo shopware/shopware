@@ -32,9 +32,10 @@
             <mt-button
                 size="small"
                 variant="secondary"
+                data-analytics-id="sw-order-create-address-modal.close-address-modal"
                 @click="onCloseAddressModal"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             {% endblock %}
 
@@ -43,9 +44,10 @@
                 :is-loading="isLoading"
                 variant="primary"
                 size="small"
+                data-analytics-id="sw-order-create-address-modal.submit-address-form"
                 @click="onSubmitAddressForm"
             >
-                {{ $tc('sw-customer.detailAddresses.buttonSaveAndSelect') }}
+                {{ $t('sw-customer.detailAddresses.buttonSaveAndSelect') }}
             </mt-button>
             {% endblock %}
         </template>
@@ -61,7 +63,7 @@
         {% block sw_order_create_address_modal_toolbar %}
         <template #toolbar>
             <sw-card-filter
-                :placeholder="$tc('sw-order.addressSelection.searchAddressToolbarPlaceholder')"
+                :placeholder="$t('sw-order.addressSelection.searchAddressToolbarPlaceholder')"
                 @sw-card-filter-term-change="onSearchAddress"
             >
                 {% block sw_order_create_address_modal_add_button %}
@@ -70,13 +72,14 @@
                         class="sw-order-create-address-modal__add-btn"
                         size="small"
                         variant="secondary"
+                        data-analytics-id="sw-order-create-address-modal.add-new-address"
                         @click="onAddNewAddress"
                     >
                         <mt-icon
                             name="regular-plus-circle-s"
                             size="16px"
                         />
-                        {{ $tc('sw-customer.detailAddresses.buttonAddAddress') }}
+                        {{ $t('sw-customer.detailAddresses.buttonAddAddress') }}
                     </mt-button>
                 </template>
                 {% endblock %}
@@ -90,7 +93,7 @@
                 class="sw-order-create-address-modal__card is--empty"
             >
                 <sw-empty-state
-                    :title="$tc('sw-order.addressSelection.emptySearchResults')"
+                    :title="$t('sw-order.addressSelection.emptySearchResults')"
                     :icon="'regular-book-user'"
                 >
                     {% block sw_order_create_address_modal_empty_state_content %}
@@ -109,7 +112,7 @@
                         v-if="isCurrentSelected(address.id)"
                         class="sw-order-create-address-modal__card-label"
                     >
-                        {{ $tc('sw-order.addressSelection.currentlySelected') }}<br><br>
+                        {{ $t('sw-order.addressSelection.currentlySelected') }}<br><br>
                     </span>
                     <sw-address :address="address" />
                     <a
@@ -119,16 +122,17 @@
                         @click="onEditAddress(address)"
                         @keydown.enter="onEditAddress(address)"
                     >
-                        {{ $tc('sw-customer.detailBase.buttonTitleEditAddress') }}
+                        {{ $t('sw-customer.detailBase.buttonTitleEditAddress') }}
                     </a>
                 </div>
                 <div class="sw-order-create-address-modal__select-btn">
                     <mt-button
                         v-if="!isCurrentSelected(address.id)"
                         variant="secondary"
+                        data-analytics-id="sw-order-create-address-modal.select-existing-address"
                         @click="onSelectExistingAddress(address)"
                     >
-                        {{ $tc('sw-customer.detailAddresses.buttonSelect') }}
+                        {{ $t('sw-customer.detailAddresses.buttonSelect') }}
                     </mt-button>
                 </div>
             </div>
@@ -143,9 +147,10 @@
         <mt-button
             size="small"
             variant="secondary"
+            data-analytics-id="sw-order-create-address-modal.cancel"
             @click="onCancel"
         >
-            {{ $tc('sw-customer.detailAddresses.buttonClose') }}
+            {{ $t('global.default.close') }}
         </mt-button>
         {% endblock %}
     </template>

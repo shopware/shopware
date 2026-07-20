@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package fundamentals@framework
  */
@@ -28,6 +30,8 @@ async function createWrapper(
     options = {
         isNew: false,
     },
+    isSso = { isSso: false },
+    roleSaveFunction = jest.fn(() => Promise.resolve()),
 ) {
     privilegeMappingEntries.forEach((mappingEntry) => privilegesService.addPrivilegeMappingEntry(mappingEntry));
 
@@ -89,12 +93,17 @@ async function createWrapper(
                                     name: 'demoRole',
                                     privileges: privileges,
                                 }),
-                            save: jest.fn(() => Promise.resolve()),
+                            save: roleSaveFunction,
                         }),
                     },
                     userService: {},
                     privileges: privilegesService,
                     appAclService: appAclService,
+                    ssoSettingsService: {
+                        isSso: () => {
+                            return Promise.resolve(isSso);
+                        },
+                    },
                 },
             },
         },
@@ -106,11 +115,6 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     beforeEach(async () => {
         privilegesService = new PrivilegesService();
-    });
-
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not contain any privileges', async () => {
@@ -198,6 +202,8 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
             privileges: [
                 'orders.create_discounts',
                 'system.clear_cache',
+                'language:read',
+                'currency:read',
                 'product:update',
                 'order:read',
             ],
@@ -233,6 +239,8 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
         expect(wrapper.vm.role.privileges).toContain('orders.create_discounts');
         expect(wrapper.vm.role.privileges).not.toContain('system:clear:cache');
         expect(wrapper.vm.role.privileges).not.toContain('order:create:discount');
+        expect(wrapper.vm.role.privileges).not.toContain('language:read');
+        expect(wrapper.vm.role.privileges).not.toContain('currency:read');
         expect(wrapper.vm.role.privileges).not.toContain('product:update');
         expect(wrapper.vm.role.privileges).not.toContain('order:read');
 
@@ -274,7 +282,6 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                 privileges: [
                     'system.clear_cache',
                     'system:clear:cache',
-                    ...wrapper.vm.privileges.getRequiredPrivileges(),
                 ].sort(),
             },
             contextMock,
@@ -329,7 +336,6 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     'system:clear:cache',
                     'orders.create_discounts',
                     'order:create:discount',
-                    ...wrapper.vm.privileges.getRequiredPrivileges(),
                 ].sort(),
             },
             contextMock,
@@ -385,7 +391,6 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     'system:clear:cache',
                     'orders.create_discounts',
                     'order:create:discount',
-                    ...wrapper.vm.privileges.getRequiredPrivileges(),
                     'product:read',
                 ].sort(),
             },
@@ -444,7 +449,6 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     'system:clear:cache',
                     'orders.create_discounts',
                     'order:create:discount',
-                    ...wrapper.vm.privileges.getRequiredPrivileges(),
                     'product:read',
                     'currency:update',
                 ].sort(),
@@ -538,7 +542,6 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     'rule:create',
                     'rule:read',
                     'rule:update',
-                    ...wrapper.vm.privileges.getRequiredPrivileges(),
                 ].sort(),
             },
             contextMock,
@@ -650,5 +653,57 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
         const saveButton = wrapper.find('.sw-users-permissions-role-detail__button-save');
         expect(saveButton.attributes().disabled).toBeUndefined();
+    });
+
+    it('should open password confirm modal', async () => {
+        const saveFunction = jest.fn().mockReturnValue(Promise.resolve());
+        wrapper = await createWrapper(
+            {
+                aclPrivileges: ['users_and_permissions.editor'],
+            },
+            {
+                options: {
+                    isNew: true,
+                },
+            },
+            { isSso: false },
+            saveFunction,
+        );
+        await flushPromises();
+
+        const saveButton = wrapper.find('.sw-users-permissions-role-detail__button-save');
+        await saveButton.trigger('click');
+        await flushPromises();
+
+        const passwordConfirmModal = wrapper.find('sw-verify-user-modal-stub');
+
+        expect(saveButton.attributes().disabled).toBeUndefined();
+        expect(wrapper.find('.sw-skeleton').exists()).toBe(false);
+
+        expect(passwordConfirmModal.exists()).toBeTruthy();
+        expect(saveFunction).not.toHaveBeenCalled();
+    });
+
+    it('should save role without pw confirmation', async () => {
+        const saveFunction = jest.fn().mockReturnValue(Promise.resolve());
+        wrapper = await createWrapper(
+            {
+                aclPrivileges: ['users_and_permissions.editor'],
+            },
+            {
+                options: {
+                    isNew: true,
+                },
+            },
+            { isSso: true },
+            saveFunction,
+        );
+        await flushPromises();
+
+        const saveButton = wrapper.find('.sw-users-permissions-role-detail__button-save');
+        await saveButton.trigger('click');
+        await flushPromises();
+
+        expect(saveFunction).toHaveBeenCalled();
     });
 });

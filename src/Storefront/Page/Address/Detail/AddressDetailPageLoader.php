@@ -122,10 +122,9 @@ class AddressDetailPageLoader
      */
     private function getAddress(Request $request, SalesChannelContext $context, CustomerEntity $customer): ?CustomerAddressEntity
     {
-        if (!$request->get('addressId')) {
+        if (!$addressId = $request->attributes->getString('addressId')) {
             return null;
         }
-        $addressId = $request->get('addressId');
 
         if (!Uuid::isValid($addressId)) {
             throw UuidException::invalidUuid($addressId);

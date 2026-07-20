@@ -10,8 +10,8 @@ use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Plugin\ExtensionExtractor;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
-use Shopware\Core\Framework\Plugin\PluginExtractor;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\PluginZipDetector;
@@ -35,7 +35,7 @@ class PluginManagementServiceTest extends TestCase
 
     private const TEST_PLUGIN_ZIP_NAME = 'SwagFashionTheme.zip';
     private const TEST_APP_ZIP_NAME = 'App.zip';
-    private const FIXTURE_PATH = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/';
+    private const FIXTURE_PATH = __DIR__ . '/../../../../../tests/integration/Core/Framework/Plugin/_fixtures/';
     private const PLUGIN_ZIP_FIXTURE_PATH = self::FIXTURE_PATH . self::TEST_PLUGIN_ZIP_NAME;
     private const APP_ZIP_FIXTURE_PATH = self::FIXTURE_PATH . self::TEST_APP_ZIP_NAME;
     private const PLUGINS_PATH = self::FIXTURE_PATH . 'plugins';
@@ -67,6 +67,7 @@ class PluginManagementServiceTest extends TestCase
     {
         $this->filesystem->remove(self::PLUGIN_FASHION_THEME_PATH);
         $this->filesystem->remove(self::PLUGIN_ZIP_FIXTURE_PATH);
+        $this->filesystem->remove(self::APP_ZIP_FIXTURE_PATH);
         $this->filesystem->remove($this->cacheDir);
 
         Kernel::getConnection()->executeStatement('DELETE FROM plugin');
@@ -121,14 +122,14 @@ class PluginManagementServiceTest extends TestCase
 
     public function testClearContainerCacheWhenPluginZipIsGiven(): void
     {
-        $this->getPluginManagementService()->extractPluginZip(self::PLUGIN_ZIP_FIXTURE_PATH, true);
+        $this->getPluginManagementService()->extractPluginZip(self::PLUGIN_ZIP_FIXTURE_PATH);
 
         static::assertFalse($this->containerCacheExists());
     }
 
     public function testDoNotClearContainerCacheWhenAppZipIsGiven(): void
     {
-        $this->getPluginManagementService()->extractPluginZip(self::APP_ZIP_FIXTURE_PATH, true);
+        $this->getPluginManagementService()->extractPluginZip(self::APP_ZIP_FIXTURE_PATH);
 
         static::assertTrue($this->containerCacheExists());
     }
@@ -137,10 +138,9 @@ class PluginManagementServiceTest extends TestCase
     {
         $previousKernelClass = KernelFactory::$kernelClass;
 
-        // We need a new fixed cache dir, therefore we reuse the StaticAnalyzeKernel class
+        // We need a new fixed cache dir, therefore, we reuse the StaticAnalyzeKernel class
         KernelFactory::$kernelClass = StaticAnalyzeKernel::class;
 
-        /** @var Kernel $newTestKernel */
         $newTestKernel = KernelFactory::create(
             'test',
             true,
@@ -148,7 +148,8 @@ class PluginManagementServiceTest extends TestCase
             new StaticKernelPluginLoader(KernelLifecycleManager::getClassLoader()),
             static::getContainer()->get(Connection::class)
         );
-        // reset kernel class for further tests
+        static::assertInstanceOf(Kernel::class, $newTestKernel);
+        // reset the kernel class for further tests
         KernelFactory::$kernelClass = $previousKernelClass;
         $newTestKernel->boot();
         $cacheDir = $newTestKernel->getCacheDir();
@@ -167,9 +168,9 @@ class PluginManagementServiceTest extends TestCase
         return new PluginManagementService(
             self::PLUGINS_PATH,
             new PluginZipDetector(),
-            new PluginExtractor([
-                'plugin' => self::PLUGINS_PATH,
-                'app' => self::APPS_PATH,
+            new ExtensionExtractor([
+                PluginManagementService::PLUGIN => self::PLUGINS_PATH,
+                PluginManagementService::APP => self::APPS_PATH,
             ], $this->filesystem),
             $this->getPluginService(),
             $this->filesystem,
@@ -181,7 +182,7 @@ class PluginManagementServiceTest extends TestCase
     private function getPluginService(): PluginService
     {
         return $this->createPluginService(
-            __DIR__ . '/_fixture/plugins',
+            self::FIXTURE_PATH . 'plugins',
             static::getContainer()->getParameter('kernel.project_dir'),
             static::getContainer()->get('plugin.repository'),
             static::getContainer()->get('language.repository'),
@@ -200,8 +201,10 @@ class PluginManagementServiceTest extends TestCase
             $this->cacheDir,
             'test',
             false,
+            false,
             static::getContainer()->get('messenger.default_bus'),
-            static::getContainer()->get('logger')
+            static::getContainer()->get('logger'),
+            static::getContainer()->get('lock.factory')
         );
     }
 

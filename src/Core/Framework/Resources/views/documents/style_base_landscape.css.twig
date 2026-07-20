@@ -1,10 +1,15 @@
 <style type="text/css">
     {% block document_style %}
         body {
-            font-family: 'Source Sans Pro', sans-serif;
+            font-family: 'Source Sans Pro', "DejaVu Sans", sans-serif;
             font-size: 12px;
             line-height: 12px;
             width: 100%;
+        }
+
+        main {
+            width: 100%;
+            float: right;
         }
 
         .letter-header {
@@ -44,6 +49,7 @@
         /*Page */
         @page {
             margin-top: 200px;
+            margin-bottom: 50px;
         }
 
         /* Header */
@@ -91,18 +97,23 @@
             width: 100%;
             border-spacing: 0 2px;
             border-collapse: collapse;
+            table-layout: fixed;
         }
 
         .line-item-table tbody tr:first-child > td {
-            padding-top: 20px;
+            padding-top: 12px;
         }
 
         .line-item-table tbody tr > td {
-            padding-bottom: 5px;
+            padding-bottom: 6px;
+            padding-left: 5px;
+            padding-right: 5px;
+            word-break: break-word;
+            overflow-wrap: break-word;
         }
 
         .line-item-table tbody tr:first-child > .line-item-breakable .label-wrapper {
-            top: 20px;
+            top: 12px;
         }
 
         .line-item-table-header {
@@ -110,19 +121,36 @@
         }
 
         .line-item-table-header > th, .line-item-table:last-child {
-            padding-bottom: 20px;
+            padding-bottom: 12px;
             border-bottom: 1px solid rgba(0, 0, 0, 0.15);
         }
 
+        .line-item-table-header > th.position {
+            width: 6%;
+            padding-right: 10px;
+        }
+
+        .line-item-table-header > th.product-number {
+            width: 16%;
+            padding-right: 10px;
+        }
+
+        .line-item-table-header > th.product-label {
+            width: auto;
+        }
+
         .line-item-table-header > th.numbers {
+            width: 7%;
             text-align: right;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+            padding-left: 10px;
+        }
+
+        .line-item-table-header > th.numbers.incl-vat {
+            width: 10%;
         }
 
         .line-item-table-header > th.incl-vat {
             position: relative;
-            width: auto;
         }
 
         .line-item-table-header > th.incl-vat > span {
@@ -227,6 +255,13 @@
         .page-count {
             width: 100%;
             float: left;
+            display: none;
+        }
+
+        @media dompdf {
+            .page-count {
+                display: block;
+            }
         }
 
         .pagenum:after {
@@ -247,9 +282,8 @@
         /* Footer */
         footer {
             position: fixed;
-            bottom: 30px;
+            bottom: 10px;
             font-size: 8px;
-            padding-top: 30px;
             line-height: 9px;
             width: 100%;
         }

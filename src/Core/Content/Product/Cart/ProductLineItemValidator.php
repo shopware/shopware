@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartValidatorInterface;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -15,7 +16,7 @@ class ProductLineItemValidator implements CartValidatorInterface
     public function validate(Cart $cart, ErrorCollection $errors, SalesChannelContext $context): void
     {
         $behavior = $cart->getBehavior();
-        if ($behavior !== null && $behavior->hasPermission(ProductCartProcessor::SKIP_PRODUCT_STOCK_VALIDATION)) {
+        if ($behavior !== null && $behavior->hasPermission(CheckoutPermissions::SKIP_PRODUCT_STOCK_VALIDATION)) {
             return;
         }
 

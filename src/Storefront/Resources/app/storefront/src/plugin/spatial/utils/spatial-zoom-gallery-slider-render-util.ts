@@ -47,11 +47,9 @@ export default class SpatialZoomGallerySliderRenderUtil {
         this.zoomModalElement = zoomModalElement;
 
         // @ts-ignore
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
         this.zoomModalPlugin = window.PluginManager.getPluginInstanceFromElement(this.zoomModalElement, 'ZoomModal');
 
         // initialize the util once the slider is created & initialized
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
         this.zoomModalPlugin.$emitter.subscribe('initSlider', () => {
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.plugin.initViewer();
@@ -62,11 +60,9 @@ export default class SpatialZoomGallerySliderRenderUtil {
      * Initializes the util.
      */
     public initViewer() {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         this.sliderPlugin = this.zoomModalPlugin.gallerySliderPlugin;
         this.tnsSlider = this.sliderPlugin?._slider;
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
         const currentPage = this.tnsSlider?.getInfo().index ?? 0;
         if (currentPage == this.plugin.sliderIndex) {
             this.changeZoomActionsVisibility(false);
@@ -81,7 +77,6 @@ export default class SpatialZoomGallerySliderRenderUtil {
      */
     private initEventListeners() {
         // listen to active slide changes
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
         this.tnsSlider?.events.on('indexChanged', this.indexChangedEvent.bind(this));
 
         // listen to slider rebuild events
@@ -98,8 +93,7 @@ export default class SpatialZoomGallerySliderRenderUtil {
         this.plugin.setReady(false);
         // @ts-ignore
         this.plugin.el = event.target.querySelector(
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            `[${SpatialZoomGallerySliderRenderUtil.options.zoomSliderPositionAttribute}="${this.plugin.sliderIndex}"]`
+            `[${SpatialZoomGallerySliderRenderUtil.options.zoomSliderPositionAttribute}="${this.plugin.sliderIndex}"]`,
         );
 
         this.initViewer();
@@ -122,7 +116,6 @@ export default class SpatialZoomGallerySliderRenderUtil {
             // We should only start rendering after the slider has finished sliding
             setTimeout(() => {
                 // recheck if the slide is still active
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
                 if (this.plugin.sliderIndex == this.tnsSlider.getInfo().index) {
                     this.changeZoomActionsVisibility(false);
                     this.plugin.startRendering();

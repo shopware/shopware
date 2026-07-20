@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
@@ -73,6 +74,8 @@ class CancelOrderRouteTest extends TestCase
         static::assertNotEmpty($contextToken);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
+
+        $this->getContainer()->get(SystemConfigService::class)->set('core.cart.enableOrderRefunds', true);
     }
 
     public function testCancelMyOwnOrder(): void

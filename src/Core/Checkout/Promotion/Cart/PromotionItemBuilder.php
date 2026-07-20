@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionD
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
@@ -132,7 +133,7 @@ class PromotionItemBuilder
         $promotionItem->setLabel($promotion->getTranslation('name'));
         $promotionItem->setDescription($promotion->getTranslation('name'));
         $promotionItem->setGood(false);
-        $promotionItem->setRemovable(true);
+        $promotionItem->setRemovable($code !== '' || !Feature::isActive('PERMANENT_AUTOMATIC_PROMOTIONS'));
         $promotionItem->setPriceDefinition($promotionDefinition);
 
         // always make sure we have a valid code entry.
@@ -242,6 +243,11 @@ class PromotionItemBuilder
 
         // specifies if the promotion is not combinable with any other promotion
         $payload['preventCombination'] = $promotion->isPreventCombination();
+
+        // set whether the promotion has limited redemptions
+        $payload['limitedRedemptions'] = $promotion->getMaxRedemptionsGlobal()
+            || $promotion->getMaxRedemptionsPerCustomer()
+            || $promotion->isUseIndividualCodes();
 
         // If all combinations are prevented the exclusions dont matter
         // otherwise sets a list of excluded promotion ids

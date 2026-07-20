@@ -11,9 +11,10 @@
            class="line-item-label"
            title="{{ label }}"
             {% if lineItemModalLink %}
-                data-ajax-modal="modal"
+                data-ajax-modal="true"
                 data-modal-class="quickview-modal"
                 data-url="{{ lineItemModalLink }}"
+                aria-haspopup="dialog"
             {% endif %}
         >
             {{ label|u.truncate(60, '...', false)|raw }}

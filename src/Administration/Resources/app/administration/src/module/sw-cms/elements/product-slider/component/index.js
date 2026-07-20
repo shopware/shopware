@@ -48,11 +48,14 @@ export default {
 
         classes() {
             return {
-                'has--navigation-indent': this.element.config.navigationArrows.value === 'outside',
+                [`has--navigation-${this.element.config.navigationArrows.value}`]: this.hasNavigationArrows,
                 'has--border': !!this.element.config.border.value,
             };
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, is not used anymore
+         */
         navArrowsClasses() {
             if (this.hasNavigationArrows) {
                 return [`has--arrow-${this.element.config.navigationArrows.value}`];
@@ -104,6 +107,10 @@ export default {
         this.mountedComponent();
     },
 
+    beforeUnmount() {
+        this.beforeUnmountComponent();
+    },
+
     methods: {
         createdComponent() {
             this.initElementConfig('product-slider');
@@ -112,6 +119,30 @@ export default {
 
         mountedComponent() {
             this.setSliderRowLimit();
+            this.registerProductHolderResizeObserver();
+        },
+
+        beforeUnmountComponent() {
+            if (this.productHolderResizeObserver) {
+                this.productHolderResizeObserver.disconnect();
+                this.productHolderResizeObserver = null;
+            }
+        },
+
+        /**
+         * The product holder width is not reliable yet when the component mounts, which results in
+         * too few visible boxes. Recalculate the limit once the layout reports the final width.
+         */
+        registerProductHolderResizeObserver() {
+            if (!this.$refs.productHolder || typeof ResizeObserver === 'undefined') {
+                return;
+            }
+
+            this.productHolderResizeObserver = new ResizeObserver(() => {
+                this.setSliderRowLimit();
+            });
+
+            this.productHolderResizeObserver.observe(this.$refs.productHolder);
         },
 
         setSliderRowLimit() {
@@ -148,7 +179,7 @@ export default {
                 elWidth -= fakeLookWidth;
             }
 
-            this.sliderBoxLimit = Math.floor(boxWidth / (elWidth + elGap));
+            this.sliderBoxLimit = Math.min(3, Math.floor(boxWidth / (elWidth + elGap)));
         },
 
         getProductEl(product) {

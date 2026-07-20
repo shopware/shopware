@@ -10,12 +10,14 @@
                     {% endblock %}
 
                     {% block component_review_overview %}
+                        {# @deprecated tag:v6.8.0 - AggregateRating microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
                         <div class="product-detail-review-rating"
-                            {% if totalReviewCount > 0 %}
-                                itemprop="aggregateRating" itemscope itemtype="https://schema.org/AggregateRating"
+                            {% if not feature('JSON_LD_DATA') and totalReviewCount > 0 %}
+                            itemprop="aggregateRating" itemscope itemtype="https://schema.org/AggregateRating"
                             {% endif %}>
 
-                            {% if totalReviewCount > 0 %}
+                            {# @deprecated tag:v6.8.0 - AggregateRating microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
+                            {% if not feature('JSON_LD_DATA') and totalReviewCount > 0 %}
                                 <meta itemprop="bestRating" content="5">
                                 <meta itemprop="ratingCount" content="{{ totalReviewCount }}">
                                 <meta itemprop="ratingValue" content="{{ productAvgRating }}">
@@ -55,6 +57,8 @@
                               method="post"
                               data-form-ajax-submit="true"
                               data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}">
+
+                            <input type="hidden" name="redirectTo" value="{{ redirectTo }}">
 
                             {% if app.request.get('language') %}
                                 <input type="hidden" name="language" value="{{ app.request.get('language') }}">

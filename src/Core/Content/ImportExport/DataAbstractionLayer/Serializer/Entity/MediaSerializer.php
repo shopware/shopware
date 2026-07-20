@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Ent
 
 use Shopware\Core\Content\ImportExport\Exception\InvalidMediaUrlException;
 use Shopware\Core\Content\ImportExport\Exception\MediaDownloadException;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\File\FileSaver;
@@ -16,7 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\UrlEncoder;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Service\ResetInterface;
@@ -59,8 +62,12 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
 
         $url = $entity['url'] ?? null;
 
-        if (empty($url)) {
+        if ($url === null || $url === '') {
             return $deserialized;
+        }
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $url = UrlEncoder::encodeUrl($url);
         }
 
         if (!filter_var($url, \FILTER_VALIDATE_URL)) {
@@ -86,7 +93,7 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
 
             $parsed = parse_url((string) $url);
             if (!$parsed) {
-                throw new \RuntimeException('Error parsing media URL: ' . $url);
+                throw ImportExportException::failedParsingMediaUrl($url);
             }
 
             $pathInfo = pathinfo($parsed['path'] ?? '');
@@ -122,7 +129,7 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
      */
     public function persistMedia(EntityWrittenEvent $event): void
     {
-        if (empty($this->cacheMediaFiles)) {
+        if ($this->cacheMediaFiles === []) {
             return;
         }
 
@@ -174,7 +181,7 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
 
         $fallbackFolderId = $this->mediaFolderRepository->searchIds($criteria, $context)->firstId();
         if ($fallbackFolderId === null) {
-            throw new \RuntimeException('Failed to find default media folder for import_export_profile');
+            throw ImportExportException::mediaFolderNotFoundForImportExportProfile();
         }
 
         return $fallbackFolderId;

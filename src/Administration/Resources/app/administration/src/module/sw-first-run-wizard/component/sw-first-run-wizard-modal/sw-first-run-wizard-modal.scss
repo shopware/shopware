@@ -1,12 +1,10 @@
-@import "~scss/variables";
-
 .sw-first-run-wizard-modal {
     &.sw-modal--large .sw-modal__dialog {
-        height: 720px;
-        max-height: calc(100vh - 48px);
+        height: 45rem;
+        max-height: calc(100dvh - 2rem);
         display: flex;
         justify-content: space-between;
-        max-width: 1030px !important;
+        max-width: 64rem !important;
     }
 
     &.sw-modal .sw-modal__body {
@@ -26,15 +24,15 @@
             }
 
             &.two {
-                grid-template-columns: 230px 4fr;
+                grid-template-columns: var(--scale-size-224) 4fr;
             }
         }
 
         .sw-first-run-wizard-modal-content__steps {
             min-width: 100%;
-            padding: 24px;
+            padding: var(--scale-size-24);
             margin-right: 25%;
-            border-right: 1px solid $color-gray-300;
+            border-right: 1px solid var(--color-border-secondary-default);
         }
 
         .sw-first-run-wizard-modal-content__page {
@@ -43,7 +41,7 @@
             align-items: center;
             justify-content: center;
             overflow-y: auto;
-            padding: 24px;
+            padding: var(--scale-size-24);
         }
     }
 
@@ -55,7 +53,7 @@
         display: flex !important;
 
         .footer-left .mt-button {
-            margin-right: 12px;
+            margin-right: var(--scale-size-12);
 
             &:last-child {
                 margin-right: 0;
@@ -63,7 +61,7 @@
         }
 
         .footer-right .mt-button {
-            margin-left: 12px;
+            margin-left: var(--scale-size-12);
 
             &:first-child {
                 margin-left: 0;
@@ -84,7 +82,7 @@
             justify-content: space-between;
 
             .skip-button {
-                margin-right: 12px;
+                margin-right: var(--scale-size-12);
             }
         }
     }

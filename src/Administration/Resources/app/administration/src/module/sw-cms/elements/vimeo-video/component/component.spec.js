@@ -5,6 +5,7 @@ import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
 const defaultElement = {
+    type: 'vimeo-video',
     config: {
         displayMode: {
             value: 'standard',

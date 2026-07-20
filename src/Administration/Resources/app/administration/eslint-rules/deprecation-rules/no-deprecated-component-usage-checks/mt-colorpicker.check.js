@@ -42,11 +42,11 @@ const handleMtColorpicker = (context, node) => {
     if (valueAttribute) {
         context.report({
             node: valueAttribute,
-            message: `[${mtComponentName}] The "value" prop is deprecated. Use "modelValue" instead.`,
+            message: `[${mtComponentName}] The "value" prop is deprecated. Use "model-value" instead.`,
             *fix(fixer)  {
                 if (context.options.includes('disableFix')) return;
 
-                yield fixer.replaceText(valueAttribute.key, 'modelValue');
+                yield fixer.replaceText(valueAttribute.key, 'model-value');
             }
         });
     }
@@ -54,7 +54,7 @@ const handleMtColorpicker = (context, node) => {
     if (vModelValue) {
         context.report({
             node: vModelValue,
-            message: `[${mtComponentName}] The "value" prop is deprecated. Use "modelValue" instead.`,
+            message: `[${mtComponentName}] The "value" prop is deprecated. Use "model-value" instead.`,
             *fix(fixer)  {
                 if (context.options.includes('disableFix')) return;
 
@@ -66,11 +66,11 @@ const handleMtColorpicker = (context, node) => {
     if (valueAttributeExpression) {
         context.report({
             node: valueAttributeExpression,
-            message: `[${mtComponentName}] The "value" prop is deprecated. Use "modelValue" instead.`,
+            message: `[${mtComponentName}] The "value" prop is deprecated. Use "model-value" instead.`,
             *fix(fixer)  {
                 if (context.options.includes('disableFix')) return;
 
-                yield fixer.replaceText(valueAttributeExpression.key.argument, 'modelValue');
+                yield fixer.replaceText(valueAttributeExpression.key.argument, 'model-value');
             }
         });
     }
@@ -78,11 +78,11 @@ const handleMtColorpicker = (context, node) => {
     if (updateValueEvent) {
         context.report({
             node: updateValueEvent,
-            message: `[${mtComponentName}] The "update:value" event is deprecated. Use "update:modelValue" instead.`,
+            message: `[${mtComponentName}] The "update:value" event is deprecated. Use "update:mode-value" instead.`,
             *fix(fixer)  {
                 if (context.options.includes('disableFix')) return;
 
-                yield fixer.replaceText(updateValueEvent.key.argument, 'update:modelValue');
+                yield fixer.replaceText(updateValueEvent.key.argument, 'update:model-value');
             }
         });
     }
@@ -126,7 +126,7 @@ const mtColorpickerValidTests = [
 
 const mtColorpickerInvalidTests = [
     {
-        name: '"mt-colorpicker" wrong "value" prop usage should be replaced with "modelValue"',
+        name: '"mt-colorpicker" wrong "value" prop usage should be replaced with "model-value"',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -134,14 +134,14 @@ const mtColorpickerInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-colorpicker modelValue="Hello World" />
+                <mt-colorpicker model-value="Hello World" />
             </template>`,
         errors: [{
-            message: '[mt-colorpicker] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-colorpicker] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
-        name: '"mt-colorpicker" wrong "value" prop usage should be replaced with "modelValue" [disableFix]',
+        name: '"mt-colorpicker" wrong "value" prop usage should be replaced with "model-value" [disableFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -149,11 +149,11 @@ const mtColorpickerInvalidTests = [
                 <mt-colorpicker value="Hello World" />
             </template>`,
         errors: [{
-            message: '[mt-colorpicker] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-colorpicker] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
-        name: '"mt-colorpicker" wrong "value" prop usage should be replaced with "modelValue" [expression]',
+        name: '"mt-colorpicker" wrong "value" prop usage should be replaced with "model-value" [expression]',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -161,14 +161,14 @@ const mtColorpickerInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-colorpicker :modelValue="myValue" />
+                <mt-colorpicker :model-value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-colorpicker] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-colorpicker] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
-        name: '"mt-colorpicker" wrong "value" prop usage should be replaced with "modelValue" [expression, disableFix]',
+        name: '"mt-colorpicker" wrong "value" prop usage should be replaced with "model-value" [expression, disableFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -176,7 +176,7 @@ const mtColorpickerInvalidTests = [
                 <mt-colorpicker :value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-colorpicker] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-colorpicker] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -191,7 +191,7 @@ const mtColorpickerInvalidTests = [
                 <mt-colorpicker v-model="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-colorpicker] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-colorpicker] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -203,11 +203,11 @@ const mtColorpickerInvalidTests = [
                 <mt-colorpicker v-model:value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-colorpicker] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-colorpicker] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
-        name: '"mt-colorpicker" wrong "update:value" event usage should be replaced with "update:modelValue"',
+        name: '"mt-colorpicker" wrong "update:value" event usage should be replaced with "update:mode-value"',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -215,14 +215,14 @@ const mtColorpickerInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-colorpicker @update:modelValue="updateValue" />
+                <mt-colorpicker @update:model-value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-colorpicker] The "update:value" event is deprecated. Use "update:modelValue" instead.',
+            message: '[mt-colorpicker] The "update:value" event is deprecated. Use "update:mode-value" instead.',
         }],
     },
     {
-        name: '"mt-colorpicker" wrong "update:value" event usage should be replaced with "update:modelValue" [disableFix]',
+        name: '"mt-colorpicker" wrong "update:value" event usage should be replaced with "update:mode-value" [disableFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -230,7 +230,7 @@ const mtColorpickerInvalidTests = [
                 <mt-colorpicker @update:value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-colorpicker] The "update:value" event is deprecated. Use "update:modelValue" instead.',
+            message: '[mt-colorpicker] The "update:value" event is deprecated. Use "update:mode-value" instead.',
         }],
     },
     {

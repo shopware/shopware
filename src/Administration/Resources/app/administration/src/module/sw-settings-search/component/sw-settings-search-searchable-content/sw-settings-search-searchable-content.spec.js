@@ -54,11 +54,20 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-search/component/sw-settings-search-searchable-content', () => {
-    it('should be a Vue.JS component', async () => {
+    it('should keep parent name disabled in default configs', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm).toBeTruthy();
+        const parentNameConfig = wrapper.vm.fieldConfigs.find(({ value }) => value === 'parent.name');
+
+        expect(parentNameConfig).toEqual(
+            expect.objectContaining({
+                defaultConfigs: {
+                    searchable: false,
+                    ranking: 560,
+                    tokenize: true,
+                },
+            }),
+        );
     });
 
     it('Should be show example modal when the link was clicked', async () => {

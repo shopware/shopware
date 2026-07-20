@@ -11,7 +11,7 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
         global: {
             renderStubDefaultSlot: true,
             mocks: {
-                $tc(translationKey) {
+                $t(translationKey) {
                     return translationKey;
                 },
             },
@@ -128,6 +128,7 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
                 'sw-field-error': true,
+                'router-link': true,
             },
         },
     };
@@ -151,13 +152,6 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
 }
 
 describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should return identifier', async () => {
         const wrapper = await createWrapper();
 

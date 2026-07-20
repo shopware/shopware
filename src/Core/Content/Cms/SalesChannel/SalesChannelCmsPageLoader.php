@@ -14,7 +14,7 @@ use Shopware\Core\Content\Cms\Events\CmsPageLoadedEvent;
 use Shopware\Core\Content\Cms\Events\CmsPageLoaderCriteriaEvent;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductBoxStruct;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
-use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -36,7 +36,8 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
     public function __construct(
         private readonly EntityRepository $cmsPageRepository,
         private readonly CmsSlotsDataResolver $slotDataResolver,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly CacheTagCollector $cacheTagCollector,
     ) {
     }
 
@@ -66,7 +67,7 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
                 continue;
             }
 
-            $sections->sort(fn (CmsSectionEntity $a, CmsSectionEntity $b) => $a->getPosition() <=> $b->getPosition());
+            $sections->sort(static fn (CmsSectionEntity $a, CmsSectionEntity $b) => $a->getPosition() <=> $b->getPosition());
 
             if (!$resolverContext) {
                 $resolverContext = new ResolverContext($context, $request);
@@ -78,14 +79,14 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
                 if ($blocks === null) {
                     continue;
                 }
-                $blocks->sort(fn (CmsBlockEntity $a, CmsBlockEntity $b) => $a->getPosition() <=> $b->getPosition());
+                $blocks->sort(static fn (CmsBlockEntity $a, CmsBlockEntity $b) => $a->getPosition() <=> $b->getPosition());
 
                 foreach ($blocks as $block) {
                     $slots = $block->getSlots();
                     if ($slots === null) {
                         continue;
                     }
-                    $slots->sort(fn (CmsSlotEntity $a, CmsSlotEntity $b) => $a->getSlot() <=> $b->getSlot());
+                    $slots->sort(static fn (CmsSlotEntity $a, CmsSlotEntity $b) => $a->getSlot() <=> $b->getSlot());
                 }
             }
 
@@ -101,7 +102,7 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
 
         $this->dispatcher->dispatch(new CmsPageLoadedEvent($request, $pages, $context));
 
-        $this->dispatcher->dispatch(new AddCacheTagEvent(...$this->extractProductIds($pages)));
+        $this->cacheTagCollector->addTag(...$this->extractProductIds($pages));
 
         return $result;
     }
@@ -124,7 +125,7 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
                 $slot->setConfig($slot->getTranslation('config'));
             }
 
-            if (empty($config)) {
+            if ($config === []) {
                 continue;
             }
 
@@ -133,10 +134,7 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
             }
 
             $defaultConfig = $slot->getConfig() ?? [];
-            $merged = array_replace_recursive(
-                $defaultConfig,
-                $config[$slot->getId()]
-            );
+            $merged = $this->overrideArray($defaultConfig, $config[$slot->getId()]);
 
             $slot->setConfig($merged);
             $slot->addTranslated('config', $merged);
@@ -202,5 +200,35 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
             ...array_map(EntityCacheKeyGenerator::buildStreamTag(...), $streamIds),
             ...array_map(EntityCacheKeyGenerator::buildCmsTag(...), $pages->getIds()),
         ];
+    }
+
+    /**
+     * Recursively overrides the original array with values from the override array.
+     * Merges recursively for associative arrays and replaces completely for index arrays.
+     *
+     * @param array<string, mixed> $original
+     * @param array<string, mixed> $override
+     *
+     * @return array<string, mixed>
+     */
+    private function overrideArray(array $original, array $override): array
+    {
+        foreach ($override as $key => $value) {
+            $originalValue = $original[$key] ?? null;
+            if (
+                \is_array($originalValue)
+                && \is_array($value)
+                && !array_is_list($originalValue)
+                && !array_is_list($value)
+            ) {
+                $original[$key] = $this->overrideArray($originalValue, $value);
+                continue;
+            }
+
+            // Simple value override
+            $original[$key] = $value;
+        }
+
+        return $original;
     }
 }

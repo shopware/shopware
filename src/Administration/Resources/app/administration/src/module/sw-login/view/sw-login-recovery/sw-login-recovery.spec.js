@@ -17,37 +17,21 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-login-recovery', { sync: true }), {
         global: {
             mocks: {
-                $tc: (...args) => JSON.stringify([...args]),
+                $t: (...args) => JSON.stringify([...args]),
                 $router: { push: jest.fn() },
             },
             provide: {
-                userRecoveryService: {
-                    createRecovery: () => {
-                        return new Promise((resolve, reject) => {
-                            const response = {
-                                config: {
-                                    url: 'test.test.de',
-                                },
-                                response: {
-                                    data: {
-                                        errors: {
-                                            status: 429,
-                                            meta: {
-                                                parameters: {
-                                                    seconds: 1,
-                                                },
-                                            },
-                                        },
-                                    },
-                                },
-                            };
-
-                            reject(response);
-                        });
-                    },
-                },
                 userService: {},
                 licenseViolationService: {},
+                validationApiService: {
+                    validateEmailAddress: (arg) => {
+                        if (arg.includes('invalid')) {
+                            return Promise.resolve(false);
+                        }
+
+                        return Promise.resolve(true);
+                    },
+                },
             },
             stubs: {
                 'router-view': true,
@@ -73,11 +57,36 @@ describe('module/sw-login/recovery.spec.js', () => {
     let wrapper;
 
     beforeEach(async () => {
-        wrapper = await createWrapper();
-    });
+        if (!Shopware.Service('userRecoveryService')) {
+            Shopware.Service().register('userRecoveryService', () => {
+                return {
+                    createRecovery: () => {
+                        return new Promise((resolve, reject) => {
+                            const response = {
+                                config: {
+                                    url: 'test.test.de',
+                                },
+                                response: {
+                                    data: {
+                                        errors: {
+                                            status: 429,
+                                            meta: {
+                                                parameters: {
+                                                    seconds: 1,
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            };
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
+                            reject(response);
+                        });
+                    },
+                };
+            });
+        }
+        wrapper = await createWrapper();
     });
 
     it('should redirect on submit', async () => {
@@ -95,5 +104,18 @@ describe('module/sw-login/recovery.spec.js', () => {
                 waitTime: 1,
             },
         });
+    });
+
+    it('button should be disabled until enter a valid email address', async () => {
+        await wrapper.get('input').setValue('invalid@email');
+        await flushPromises();
+
+        const button = await wrapper.find('.mt-button--primary');
+        expect(button.wrapperElement).toBeDisabled();
+
+        await wrapper.get('input').setValue('valid@email.sw');
+        await flushPromises();
+
+        expect(button.wrapperElement).toBeEnabled();
     });
 });

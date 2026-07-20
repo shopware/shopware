@@ -6,23 +6,21 @@
     :is-association="isAssociation"
     :disabled="disabled || undefined"
     :inherited-value="parentProduct.properties"
+    :class="{ 'is--disabled': disabled }"
 >
     <template #content="{ isInherited, updateCurrentValue, isInheritField, restoreInheritance, removeInheritance }">
         {% block sw_product_properties_card %}
         <mt-card
             class="sw-product-properties__card"
-            :class="{
-                'is--inherited': isInherited,
-                'is--disabled': disabled,
-            }"
             position-identifier="sw-product-properties"
+            :title="$t('sw-product.properties.cardTitle')"
             :is-loading="isLoading"
         >
             <template #title>
                 {% block sw_product_properties_card_title %}
                 <div
-                    class="sw-card__title"
-                    :class="{ 'is--inherited': isInherited }"
+                    class="sw-inherit-wrapper__card-title"
+                    :class="{ 'sw-inherit-wrapper__card-title--inherited': isInherited }"
                 >
                     {% block sw_product_properties_card_title_icon %}
                     <sw-inheritance-switch
@@ -36,7 +34,9 @@
                     {% endblock %}
 
                     {% block sw_product_properties_card_title_text %}
-                    {{ $tc('sw-product.properties.cardTitle') }}
+                    <h3 class="mt-card__title">
+                        {{ $t('sw-product.properties.cardTitle') }}
+                    </h3>
                     {% endblock %}
                 </div>
                 {% endblock %}
@@ -55,14 +55,14 @@
                     >
                         <sw-container
                             columns="1fr auto"
-                            gap="0 15px"
+                            gap="0 var(--scale-size-16)"
                         >
                             {% block sw_product_properties_filled_state_header_form_control %}
                             <sw-simple-search-field
                                 v-model:value="searchTerm"
                                 variant="form"
                                 size="small"
-                                :placeholder="$tc('sw-product.properties.placeholderSearchAddedProperties')"
+                                :placeholder="$t('sw-product.properties.placeholderSearchAddedProperties')"
                                 :disabled="isPropertiesLoading || undefined"
                                 @search-term-change="onChangeSearchTerm"
                             />
@@ -71,18 +71,17 @@
                             {% block sw_product_properties_filled_state_header_button %}
                             <mt-button
                                 v-tooltip="{
-                                    message: $tc('sw-privileges.tooltip.warning'),
+                                    message: $t('sw-privileges.tooltip.warning'),
                                     disabled: acl.can('product.editor'),
                                     showOnDisabledElements: true
                                 }"
                                 class="sw-product-properties__button-add-property"
-                                ghost
                                 size="small"
                                 :disabled="!acl.can('product.editor') || undefined"
                                 variant="secondary"
                                 @click="turnOnAddPropertiesModal"
                             >
-                                {{ $tc('sw-product.properties.buttonAddProperty') }}
+                                {{ $t('sw-product.properties.buttonAddProperty') }}
                             </mt-button>
                             {% endblock %}
                         </sw-container>
@@ -97,7 +96,6 @@
                         detail-route="sw.property.detail"
                         identifier="sw-product-properties-list"
                         plain-appearance
-                        :items="properties"
                         :data-source="properties"
                         :columns="propertyColumns"
                         :repository="propertyGroupRepository"
@@ -111,12 +109,10 @@
                     >
                         <template #column-values="{ item }">
                             {% block sw_product_properties_filled_state_body_filled_state_column_values %}
-                            <div
-                                v-for="option in item.options"
-                                :key="option.id"
-                                class="sw-product-properties-list__column-values"
-                            >
+                            <div class="sw-product-properties-list__column-values">
                                 <sw-label
+                                    v-for="option in item.options"
+                                    :key="option.id"
                                     size="medium"
                                     :dismissable="acl.can('product.deleter')"
                                     @dismiss="onDeletePropertyValue(option)"
@@ -134,7 +130,7 @@
                                 size="small"
                                 @click="onDeleteProperty(item)"
                             >
-                                {{ $tc('global.default.delete') }}
+                                {{ $t('global.default.delete') }}
                             </mt-button>
                             {% endblock %}
                         </template>
@@ -146,7 +142,7 @@
                                 size="small"
                                 @click="onDeleteProperties"
                             >
-                                {{ $tc('global.default.delete') }}
+                                {{ $t('global.default.delete') }}
                             </mt-button>
                             {% endblock %}
                         </template>
@@ -154,22 +150,16 @@
                     {% endblock %}
 
                     {% block sw_product_properties_filled_state_body_empty_state %}
-                    <sw-empty-state
+                    <mt-empty-state
                         v-if="properties.length <= 0"
                         class="sw-product-properties__empty-state has--no-search-result"
-                        :absolute="false"
-                        :show-description="false"
-                        :title="$tc('sw-product.properties.titleEmptyStateList')"
+                        :icon="$route.meta.$module.icon"
+                        :headline="$t('sw-product.properties.titleEmptyStateList')"
                     >
-                        <template #icon>
-                            {% block sw_product_properties_filled_state_body_empty_state_image %}
-                            <img
-                                :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                                :alt="$tc('sw-product.properties.titleEmptyStateList')"
-                            >
-                            {% endblock %}
-                        </template>
-                    </sw-empty-state>
+                        <!-- @deprecated tag:v6.8.0 - block will be removed -->
+                        {% block sw_product_properties_filled_state_body_empty_state_image %}
+                        {% endblock %}
+                    </mt-empty-state>
                     {% endblock %}
 
                     {% block sw_product_properties_filled_state_body_loading_state %}
@@ -180,40 +170,33 @@
             </template>
 
             {% block sw_product_properties_empty_state %}
-            <sw-empty-state
+            <mt-empty-state
                 v-if="!productHasProperties"
                 class="sw-product-properties__empty-state has--no-properties"
-                :absolute="false"
-                :show-description="false"
-                :title="$tc('sw-product.properties.titleEmptyState')"
+                :icon="$route.meta.$module.icon"
+                :headline="emptyStateTitle || $t('sw-product.properties.titleEmptyState')"
+                :description="emptyStateDescription || $t('sw-product.properties.descriptionEmptyState')"
             >
-                <template #icon>
-                    {% block sw_product_properties_empty_state_image %}
-                    <img
-                        :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                        :alt="$tc('sw-product.properties.titleEmptyState')"
-                    >
-                    {% endblock %}
-                </template>
-
-                <template #actions>
+                <!-- @deprecated tag:v6.8.0 - block will be removed -->
+                {% block sw_product_properties_empty_state_image %}
+                {% endblock %}
+                <template #button>
                     {% block sw_product_properties_empty_state_button %}
                     <mt-button
                         v-tooltip="{
-                            message: $tc('sw-privileges.tooltip.warning'),
+                            message: $t('sw-privileges.tooltip.warning'),
                             disabled: acl.can('product.editor'),
                             showOnDisabledElements: true
                         }"
-                        ghost
                         :disabled="!acl.can('product.editor') || undefined"
                         variant="secondary"
                         @click="turnOnAddPropertiesModal"
                     >
-                        {{ $tc('sw-product.properties.buttonAddProperties') }}
+                        {{ $t('sw-product.properties.buttonAddProperties') }}
                     </mt-button>
                     {% endblock %}
                 </template>
-            </sw-empty-state>
+            </mt-empty-state>
             {% endblock %}
         </mt-card>
         {% endblock %}

@@ -41,13 +41,18 @@ class InAppPurchaseUpdater
 
     private function fetchFromStore(Context $context): void
     {
+        // without authentication headers the request will fail anyway
+        if (!$headers = $this->storeRequestOptionsProvider->getAuthenticationHeader($context)) {
+            return;
+        }
+
         try {
             $response = $this->client->request(
                 Request::METHOD_GET,
                 $this->fetchEndpoint,
                 [
                     'query' => $this->storeRequestOptionsProvider->getDefaultQueryParameters($context),
-                    'headers' => $this->storeRequestOptionsProvider->getAuthenticationHeader($context),
+                    'headers' => $headers,
                 ],
             );
 
@@ -57,7 +62,7 @@ class InAppPurchaseUpdater
                 $body = $response->getBody()->getContents();
 
                 if ($this->validateData($body)) {
-                    $this->systemConfigService->set(InAppPurchaseProvider::CONFIG_STORE_IAP_KEY, $body);
+                    $this->systemConfigService->set(InAppPurchaseProvider::CONFIG_STORE_IAP_KEY, $body, null, false);
                 } else {
                     $this->logger->error('Error fetching in-app purchases from store', ['error' => 'Invalid response format']);
                 }

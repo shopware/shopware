@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
+use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -14,12 +15,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal - Fetch the $referenceDocumentId if set, otherwise fetch the latest document
  */
 #[Package('after-sales')]
-final class ReferenceInvoiceLoader
+final readonly class ReferenceInvoiceLoader
 {
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
+    public function __construct(private Connection $connection)
     {
     }
 
@@ -45,25 +46,25 @@ final class ReferenceInvoiceLoader
         $builder->where('`document_type`.`technical_name` IN (:technicalNames)')
             ->andWhere('`document`.`order_id` = :orderId');
 
-        $builder->setParameter('technicalNames', [InvoiceRenderer::TYPE, ZugferdEmbeddedRenderer::TYPE], ArrayParameterType::STRING);
+        $builder->setParameter('technicalNames', [InvoiceRenderer::TYPE, ZugferdRenderer::TYPE, ZugferdEmbeddedRenderer::TYPE], ArrayParameterType::STRING);
         $builder->setParameter('orderId', Uuid::fromHexToBytes($orderId));
 
         $builder->orderBy('`document`.`sent`', 'DESC');
         $builder->addOrderBy('`document`.`created_at`', 'DESC');
 
-        if (!empty($referenceDocumentId)) {
+        if ($referenceDocumentId && Uuid::isValid($referenceDocumentId)) {
             $builder->andWhere('`document`.`id` = :documentId');
             $builder->setParameter('documentId', Uuid::fromHexToBytes($referenceDocumentId));
         }
 
         $documents = $builder->executeQuery()->fetchAllAssociative();
 
-        if (empty($documents)) {
+        if ($documents === []) {
             return [];
         }
 
-        $results = array_filter($documents, function (array $document) use ($deepLinkCodeRendererConfig) {
-            if (!empty($deepLinkCodeRendererConfig)) {
+        $results = array_filter($documents, static function (array $document) use ($deepLinkCodeRendererConfig) {
+            if ($deepLinkCodeRendererConfig !== null && $deepLinkCodeRendererConfig !== '') {
                 return $document['orderVersionId'] === $document['versionId']
                     && $deepLinkCodeRendererConfig === $document['deepLinkCode'];
             }
@@ -75,6 +76,6 @@ final class ReferenceInvoiceLoader
         $documents[0]['orderVersionId'] = Defaults::LIVE_VERSION;
 
         // Return the first document from the filtered results, or the first document if no filter was applied
-        return empty($results) ? $documents[0] : reset($results);
+        return $results === [] ? $documents[0] : reset($results);
     }
 }

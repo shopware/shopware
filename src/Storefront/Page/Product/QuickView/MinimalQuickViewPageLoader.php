@@ -31,7 +31,7 @@ class MinimalQuickViewPageLoader
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): MinimalQuickViewPage
     {
-        $productId = $request->get('productId');
+        $productId = $request->attributes->get('productId');
         if (!$productId) {
             throw RoutingException::missingRequestParameter('productId', '/productId');
         }

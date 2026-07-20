@@ -21,6 +21,7 @@
         />
     </sw-wizard-page>
     {% endblock %}
+
     {% block sw_import_export_new_profile_wizard_page_csv %}
     <sw-wizard-page
         :position="csvUploadPagePosition"
@@ -33,6 +34,7 @@
         />
     </sw-wizard-page>
     {% endblock %}
+
     {% block sw_import_export_new_profile_wizard_page_mapping %}
     <sw-wizard-page
         :position="2"
@@ -58,7 +60,7 @@
                 :disabled="nextButtonDisabled"
                 @click="onFinish"
             >
-                {{ $tc('sw-import-export.profile.addProfileLabel') }}
+                {{ $t('sw-import-export.profile.addProfileLabel') }}
             </mt-button>
             {% endblock %}
 
@@ -70,7 +72,7 @@
                     variant="secondary"
                     @click="onNextPage"
                 >
-                    {{ $tc('sw-import-export.profile.skipCsvUpload') }}
+                    {{ $t('sw-import-export.profile.skipCsvUpload') }}
                 </mt-button>
                 {% endblock %}
 
@@ -81,7 +83,7 @@
                     :disabled="nextButtonDisabled"
                     @click="onNextPage"
                 >
-                    {{ $tc('sw-wizard.nextButton') }}
+                    {{ $t('sw-wizard.nextButton') }}
                 </mt-button>
             {% endblock %}
             </template>
@@ -92,13 +94,12 @@
     {% block sw_import_export_new_profile_wizard_violation_modal %}
     <sw-modal
         v-if="showValidationError"
-        :title="$tc('global.default.error')"
+        :title="$t('global.default.error')"
         class="sw-import-export-new-profile-wizard__violation-modal"
         @modal-close="resetViolations"
     >
-
         {% block sw_import_export_new_profile_wizard_violation_modal_message %}
-        <p>{{ $tc('sw-import-export.profile.violationMessage') }}</p>
+        <p>{{ $t('sw-import-export.profile.violationMessage') }}</p>
         {% endblock %}
 
         {% block sw_import_export_new_profile_wizard_violation_modal_required_fields %}
@@ -121,7 +122,7 @@
                 variant="secondary"
                 @click="resetViolations"
             >
-                {{ $tc('sw-import-export.profile.closeViolation') }}
+                {{ $t('sw-import-export.profile.closeViolation') }}
             </mt-button>
         </template>
         {% endblock %}

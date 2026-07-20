@@ -73,7 +73,7 @@ class TestAppServer
 
         $proof = \hash_hmac('sha256', $shopId . $shopUrl . $appName, self::TEST_SETUP_SECRET);
 
-        return (string) \json_encode(['proof' => $proof, 'secret' => self::APP_SECRET, 'confirmation_url' => self::CONFIRMATION_URL], \JSON_THROW_ON_ERROR);
+        return \json_encode(['proof' => $proof, 'secret' => self::APP_SECRET, 'confirmation_url' => self::CONFIRMATION_URL], \JSON_THROW_ON_ERROR);
     }
 
     private function isRegistration(RequestInterface $request): bool

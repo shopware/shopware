@@ -1,7 +1,8 @@
 @import "~scss/variables";
 
 .sw-cms-page-form {
-    margin: 0 40px;
+    max-width: 60rem;
+    margin: 0 auto;
 
     &.is--compact {
         .sw-cms-page-form__section-divider {
@@ -15,6 +16,7 @@
 
         .sw-cms-page-form__section-actions {
             position: static;
+            padding: 1rem 0;
         }
 
         .sw-cms-page-form__section-action {
@@ -22,10 +24,6 @@
             max-width: $content-width;
             width: 100%;
             margin: 9px auto;
-
-            @media screen and (max-width: 1360px) {
-                max-width: 770px;
-            }
         }
 
         .sw-cms-page-form__section-action-label {
@@ -33,9 +31,13 @@
         }
     }
 
+    .sw-cms-page-form__banner-inheritance {
+        margin-bottom: 0;
+    }
+
     .sw-cms-page-form__element-config {
         margin-bottom: 22px;
-        border-bottom: 1px solid $color-gray-300;
+        border-bottom: 1px solid var(--color-border-secondary-default);
 
         &:last-child {
             margin-bottom: 0;
@@ -57,7 +59,6 @@
 
     .sw-cms-page-form__block-card {
         margin: 0 auto;
-        margin-top: 18px;
     }
 
     .sw-cms-page-form__block-card + .sw-cms-page-form__block-card {
@@ -73,13 +74,11 @@
         text-align: center;
         height: 20px;
         margin: 85px 0;
-        color: $color-gray-500;
+        color: var(--color-text-secondary-default);
     }
 
     &__section {
         position: relative;
-        padding: 50px 30px 70px;
-        border-bottom: 2px solid $color-gray-300;
         width: 100%;
 
         &:first-of-type {
@@ -92,6 +91,14 @@
 
         &:last-of-type {
             border-bottom: 0 none;
+        }
+
+        .mt-card__wrapper {
+            margin-bottom: 1rem;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
         }
     }
 
@@ -116,12 +123,12 @@
     &__section-action-icon {
         display: inline-block;
         margin-right: 10px;
-        color: $color-gray-900;
+        color: var(--color-icon-primary-default);
     }
 
     &__section-action-label {
-        color: #52667a;
-        font-weight: $font-weight-semi-bold;
+        color: var(--color-text-primary-default);
+        font-weight: var(--font-weight-semibold);
         line-height: 22px;
         width: 190px;
         word-wrap: break-word;
@@ -147,8 +154,8 @@
     &__section-type-name,
     &__section-type-icon {
         margin-right: 10px;
-        color: #b3bfcc;
-        font-weight: $font-weight-semi-bold;
+        color: var(--color-text-secondary-default);
+        font-weight: var(--font-weight-semibold);
     }
 
     &__section-divider {
@@ -157,13 +164,13 @@
         width: 100%;
         height: 1px;
         border: 0 none;
-        background: #d1d9e0;
+        background: var(--color-background-tertiary-default);
     }
 
     &__device-actions,
     &__block-device-actions {
         width: 96px;
-        color: $color-gray-500;
+        color: var(--color-text-secondary-default);
         display: flex;
         gap: 10px;
         align-items: center;

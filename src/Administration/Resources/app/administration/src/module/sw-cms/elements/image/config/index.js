@@ -47,17 +47,17 @@ export default {
                 {
                     id: 1,
                     value: 'standard',
-                    label: this.$tc('sw-cms.elements.general.config.label.displayModeStandard'),
+                    label: this.$t('sw-cms.elements.general.config.label.displayModeStandard'),
                 },
                 {
                     id: 2,
                     value: 'stretch',
-                    label: this.$tc('sw-cms.elements.general.config.label.displayModeStretch'),
+                    label: this.$t('sw-cms.elements.general.config.label.displayModeStretch'),
                 },
                 {
                     id: 3,
                     value: 'cover',
-                    label: this.$tc('sw-cms.elements.general.config.label.displayModeCover'),
+                    label: this.$t('sw-cms.elements.general.config.label.displayModeCover'),
                 },
             ];
         },
@@ -67,17 +67,17 @@ export default {
                 {
                     id: 1,
                     value: 'flex-start',
-                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignTop'),
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignTop'),
                 },
                 {
                     id: 2,
                     value: 'center',
-                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignCenter'),
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignCenter'),
                 },
                 {
                     id: 3,
                     value: 'flex-end',
-                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignBottom'),
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignBottom'),
                 },
             ];
         },
@@ -87,17 +87,17 @@ export default {
                 {
                     id: 1,
                     value: 'flex-start',
-                    label: this.$tc('sw-cms.elements.general.config.label.horizontalAlignLeft'),
+                    label: this.$t('sw-cms.elements.general.config.label.horizontalAlignLeft'),
                 },
                 {
                     id: 2,
                     value: 'center',
-                    label: this.$tc('sw-cms.elements.general.config.label.horizontalAlignCenter'),
+                    label: this.$t('sw-cms.elements.general.config.label.horizontalAlignCenter'),
                 },
                 {
                     id: 3,
                     value: 'flex-end',
-                    label: this.$tc('sw-cms.elements.general.config.label.horizontalAlignRight'),
+                    label: this.$t('sw-cms.elements.general.config.label.horizontalAlignRight'),
                 },
             ];
         },
@@ -162,18 +162,39 @@ export default {
         },
 
         onChangeMinHeight(value) {
-            this.element.config.minHeight.value = value === null ? '' : value;
-
-            this.$emit('element-update', this.element);
+            this.element.config.minHeight.value = this.formatMinHeight(value);
+            this.emitUpdate();
         },
 
-        onChangeDisplayMode() {
-            this.$emit('element-update', this.element);
+        formatMinHeight(value) {
+            if (value === null || value === '') {
+                return '';
+            }
+
+            const trimmed = String(value).trim();
+
+            return this.isUnitlessNumber(trimmed) ? `${trimmed}px` : trimmed;
+        },
+
+        isUnitlessNumber(value) {
+            return /^\d+(\.\d+)?$/.test(value);
+        },
+
+        onChangeDisplayMode(value) {
+            // min-height is only meaningful in cover mode; clear it otherwise so no value is persisted/sent
+            if (value !== 'cover') {
+                this.element.config.minHeight.value = '';
+            }
+
+            this.emitUpdate();
         },
 
         onChangeIsDecorative(value) {
             this.element.config.isDecorative.value = value;
+            this.emitUpdate();
+        },
 
+        emitUpdate() {
             this.$emit('element-update', this.element);
         },
     },

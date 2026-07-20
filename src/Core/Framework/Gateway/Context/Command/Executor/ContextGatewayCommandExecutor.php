@@ -40,7 +40,6 @@ class ContextGatewayCommandExecutor
         $parameters = [];
 
         if ($tokenCommand = $commands->getSingleTokenCommand()) {
-            /** @phpstan-ignore symplify.noDynamicName */
             $this->registry->get($tokenCommand::COMMAND_KEY)->handle($tokenCommand, $context, $parameters);
 
             $token = $parameters['token'];
@@ -66,7 +65,7 @@ class ContextGatewayCommandExecutor
 
         $response = new ContextTokenResponse($context->getToken());
 
-        if (!empty($parameters)) {
+        if ($parameters !== []) {
             $response = $this->contextSwitchRoute->switchContext(new RequestDataBag($parameters), $context);
         }
 

@@ -4,7 +4,7 @@
     :class="taggedFieldClasses"
     v-bind="$attrs"
 >
-    <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
+    <template #sw-field-input="{ identification, error, disabled: isFieldDisabled, size, setFocusClass, removeFocusClass }">
         {% block sw_tagged_field_inner %}
         <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
         <ul
@@ -16,7 +16,7 @@
                 :key="`sw-tagged-field-value--${index}`"
             >
                 <sw-label
-                    :dismissable="!disabled"
+                    :dismissable="!disabled && !isFieldDisabled"
                     :size="size"
                     @selected="setFocus(true)"
                     @dismiss="dismissTag(index)"
@@ -34,7 +34,7 @@
                     type="text"
                     class="sw-tagged-field__input"
                     :class="taggedFieldInputClasses"
-                    :disabled="disabled"
+                    :disabled="disabled || isFieldDisabled"
                     :placeholder="placeholder"
                     @focus="setFocus(true)"
                     @blur="setFocus(false)"

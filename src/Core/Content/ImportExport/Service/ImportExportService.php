@@ -119,7 +119,7 @@ class ImportExportService
     {
         $criteria = new Criteria([$logId]);
         $criteria->addAssociation('file');
-        $current = $this->logRepository->search($criteria, Context::createDefaultContext())->first();
+        $current = $this->logRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         if (!$current instanceof ImportExportLogEntity) {
             throw ImportExportException::logEntityNotFound($logId);
         }
@@ -208,7 +208,7 @@ class ImportExportService
         $logEntity->setActivity($activity);
         $logEntity->setState(Progress::STATE_PROGRESS);
         $logEntity->setProfileId($profile->getId());
-        $logEntity->setProfileName($profile->getTranslation('label'));
+        $logEntity->setProfileName($profile->getTechnicalName());
         $logEntity->setFileId($file->getId());
         $logEntity->setRecords(0);
         $logEntity->setConfig($this->getConfig($profile, $config));
@@ -221,7 +221,7 @@ class ImportExportService
         }
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($logEntity): void {
-            $logData = array_filter($logEntity->jsonSerialize(), fn ($value) => $value !== null);
+            $logData = array_filter($logEntity->jsonSerialize(), static fn ($value) => $value !== null);
             $this->logRepository->create([$logData], $context);
         });
 
@@ -252,7 +252,7 @@ class ImportExportService
         $parameters['enclosure'] = $profileEntity->getEnclosure();
         $parameters['sourceEntity'] = $profileEntity->getSourceEntity();
         $parameters['fileType'] = $profileEntity->getFileType();
-        $parameters['profileName'] = $profileEntity->getTranslation('label');
+        $parameters['profileName'] = $profileEntity->getTechnicalName();
 
         return [
             'mapping' => $config['mapping'] ?? $profileEntity->getMapping(),

@@ -54,7 +54,7 @@ async function createWrapper(privileges = []) {
                 },
 
                 mocks: {
-                    $tc: (key) => key,
+                    $t: (key) => key,
                     $device: {
                         removeResizeListener: () => {},
                         getSystemKey: () => {},
@@ -172,13 +172,6 @@ async function createWrapper(privileges = []) {
 describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     beforeAll(() => {
         Shopware.Store.get('session').setCurrentUser({});
-    });
-
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be render tab', async () => {

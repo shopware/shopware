@@ -1,4 +1,5 @@
 import type { NotificationVariant } from 'src/app/store/notification.store';
+
 /**
  * @sw-package framework
  *
@@ -7,10 +8,8 @@ import type { NotificationVariant } from 'src/app/store/notification.store';
 export default function initializeNotifications(): void {
     // Handle incoming notifications from the ExtensionAPI
     Shopware.ExtensionAPI.handle('notificationDispatch', (notificationOptions) => {
-        // @ts-expect-error - t is callable
-        const message = notificationOptions.message ?? Shopware.Snippet.tc('global.notification.noMessage');
-        // @ts-expect-error - tc is callable
-        const title = notificationOptions.title ?? Shopware.Snippet.tc('global.notification.noTitle');
+        const message = notificationOptions.message ?? 'global.notification.noMessage';
+        const title = notificationOptions.title ?? 'global.notification.noTitle';
         const actions = notificationOptions.actions ?? [];
         const appearance = notificationOptions.appearance ?? 'notification';
         const growl = notificationOptions.growl ?? true;

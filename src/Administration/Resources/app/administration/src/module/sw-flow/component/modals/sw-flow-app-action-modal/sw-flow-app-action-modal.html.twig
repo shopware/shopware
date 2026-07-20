@@ -6,7 +6,8 @@
     <template #modal-header>
         {% block sw_flow_app_action_modal_header %}
         <div class="sw-flow-app-action-modal__header">
-            {{ actionLabel }}
+            <span>{{ actionLabel }}</span>
+
             <span class="sw-flow-app-action-modal__app-badge">
                 {{ appBadge }}
             </span>
@@ -39,6 +40,7 @@
         {% endblock %}
     </div>
     {% endblock %}
+
     <sw-form-field-renderer
         v-for="field in fields"
         :key="field.name"
@@ -48,6 +50,7 @@
         :error="errors[field.name]"
         @update:value="onChange($event, field)"
     />
+
     {% endblock %}
     <template #modal-footer>
         {% block sw_flow_app_action_modal_footer_cancel_button %}
@@ -57,7 +60,7 @@
             variant="secondary"
             @click="onClose"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -68,7 +71,7 @@
             size="small"
             @click="onSave"
         >
-            {{ $tc('sw-flow.modals.buttonSaveAction') }}
+            {{ $t('sw-flow.modals.buttonSaveAction') }}
         </mt-button>
         {% endblock %}
     </template>

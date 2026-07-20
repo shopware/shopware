@@ -3,7 +3,7 @@
  */
 import './acl';
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-users-permissions', () => import('./page/sw-users-permissions'));
 Shopware.Component.register(
     'sw-users-permissions-user-listing',
@@ -48,7 +48,22 @@ Shopware.Component.register(
     'sw-users-permissions-role-view-detailed',
     () => import('./view/sw-users-permissions-role-view-detailed'),
 );
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register(
+    'sw-sso-users-permission-user-detail',
+    () => import('./page/sw-sso-users-permission-user-detail'),
+);
+Shopware.Component.register('sw-user-sso-invitation-modal', () => import('./components/sw-user-sso-invitation-modal'));
+Shopware.Component.register('sw-user-sso-status-label', () => import('./components/sw-user-sso-status-label'));
+Shopware.Component.register(
+    'sw-user-sso-access-key-create-modal',
+    () => import('./components/sw-user-sso-access-key-create-modal'),
+);
+Shopware.Component.register(
+    'sw-users-permissions-role-mcp-reference-modal',
+    () => import('./component/sw-users-permissions-role-mcp-reference-modal'),
+);
+
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-users-permissions', {
@@ -59,7 +74,7 @@ Shopware.Module.register('sw-users-permissions', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'regular-cog',
+    icon: 'regular-user',
     favicon: 'icon-module-settings.png',
     entity: 'user',
 
@@ -75,6 +90,14 @@ Shopware.Module.register('sw-users-permissions', {
         'user.detail': {
             component: 'sw-users-permissions-user-detail',
             path: 'user.detail/:id?',
+            meta: {
+                parentPath: 'sw.users.permissions.index',
+                privilege: 'users_and_permissions.viewer',
+            },
+        },
+        'user.sso.detail': {
+            component: 'sw-sso-users-permission-user-detail',
+            path: 'user.sso.detail/:id?',
             meta: {
                 parentPath: 'sw.users.permissions.index',
                 privilege: 'users_and_permissions.viewer',

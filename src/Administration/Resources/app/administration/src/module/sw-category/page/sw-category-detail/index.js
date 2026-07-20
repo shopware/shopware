@@ -4,8 +4,7 @@ import './sw-category-detail.scss';
 
 const { Context, Mixin } = Shopware;
 const { Criteria, ChangesetGenerator, EntityCollection } = Shopware.Data;
-const { cloneDeep, merge } = Shopware.Utils.object;
-const type = Shopware.Utils.types;
+const { isArray, isEmpty, isEqual } = Shopware.Utils.types;
 
 /**
  * @sw-package discovery
@@ -170,7 +169,7 @@ export default {
         tooltipSave() {
             if (!this.acl.can('category.editor')) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('category.editor'),
                     showOnDisabledElements: true,
                 };
@@ -187,7 +186,7 @@ export default {
         landingPageTooltipSave() {
             if (!this.acl.can('landing_page.editor')) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('landing_page.editor'),
                     showOnDisabledElements: true,
                 };
@@ -228,6 +227,7 @@ export default {
 
             criteria.addAssociation('tags');
             criteria.addAssociation('salesChannels');
+            criteria.addAssociation('translations');
 
             return criteria;
         },
@@ -409,21 +409,6 @@ export default {
                     return null;
                 }
 
-                if (this.category.slotConfig !== null) {
-                    cmsPage.sections.forEach((section) => {
-                        section.blocks.forEach((block) => {
-                            block.slots.forEach((slot) => {
-                                if (this.category.slotConfig[slot.id]) {
-                                    if (slot.config === null) {
-                                        slot.config = {};
-                                    }
-                                    merge(slot.config, cloneDeep(this.category.slotConfig[slot.id]));
-                                }
-                            });
-                        });
-                    });
-                }
-
                 this.updateCmsPageDataMapping();
                 this.cmsPageState.setCurrentPage(cmsPage);
 
@@ -460,21 +445,6 @@ export default {
                 const cmsPage = response.get(cmsPageId);
                 if (cmsPageId !== this.cmsPageId) {
                     return null;
-                }
-
-                if (this.landingPage.slotConfig !== null) {
-                    cmsPage.sections.forEach((section) => {
-                        section.blocks.forEach((block) => {
-                            block.slots.forEach((slot) => {
-                                if (this.landingPage.slotConfig[slot.id]) {
-                                    if (slot.config === null) {
-                                        slot.config = {};
-                                    }
-                                    merge(slot.config, cloneDeep(this.landingPage.slotConfig[slot.id]));
-                                }
-                            });
-                        });
-                    });
                 }
 
                 this.updateCmsPageDataMappingForLandingPage();
@@ -517,8 +487,8 @@ export default {
                 await this.loadLandingPageCustomFieldSet();
             } catch {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                    title: this.$t('global.default.error'),
+                    message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
                 });
             } finally {
                 this.isLoading = false;
@@ -654,10 +624,8 @@ export default {
         async onSave() {
             this.isSaveSuccessful = false;
 
-            const pageOverrides = this.getCmsPageOverrides();
-
-            if (type.isPlainObject(pageOverrides)) {
-                this.category.slotConfig = cloneDeep(pageOverrides);
+            if (isEmpty(this.category.slotConfig)) {
+                this.category.slotConfig = null;
             }
 
             if (!this.entryPointOverwriteConfirmed) {
@@ -668,31 +636,35 @@ export default {
             }
 
             this.isLoading = true;
-            await this.updateSeoUrls();
 
-            const response = await this.systemConfigApiService.getValues('core.cms');
+            try {
+                await this.updateSeoUrls();
 
-            this.defaultCategoryId = response['core.cms.default_category_cms_page'];
+                const response = await this.systemConfigApiService.getValues('core.cms');
 
-            if (this.category.cmsPageId === this.defaultCategoryId) {
-                this.category.cmsPageId = null;
-            }
+                this.defaultCategoryId = response['core.cms.default_category_cms_page'];
 
-            return this.categoryRepository
-                .save(this.category, { ...Shopware.Context.api })
-                .then(() => {
-                    this.isSaveSuccessful = true;
-                    this.entryPointOverwriteConfirmed = false;
-                    return this.setCategory();
-                })
-                .catch(() => {
-                    this.isLoading = false;
-                    this.entryPointOverwriteConfirmed = false;
+                if (this.category.cmsPageId === this.defaultCategoryId) {
+                    this.category.cmsPageId = null;
+                }
 
+                await this.categoryRepository.save(this.category, { ...Shopware.Context.api });
+
+                this.isSaveSuccessful = true;
+                this.entryPointOverwriteConfirmed = false;
+                return this.setCategory();
+            } catch (error) {
+                this.isLoading = false;
+                this.entryPointOverwriteConfirmed = false;
+
+                if (!error.response?.data?.errors) {
                     this.createNotificationError({
-                        message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
+                        message: this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
                     });
-                });
+                }
+
+                return Promise.reject(error);
+            }
         },
 
         checkForEntryPointOverwrite() {
@@ -732,10 +704,8 @@ export default {
         onSaveLandingPage() {
             this.isSaveSuccessful = false;
 
-            const pageOverrides = this.getCmsPageOverrides();
-
-            if (type.isPlainObject(pageOverrides)) {
-                this.landingPage.slotConfig = cloneDeep(pageOverrides);
+            if (isEmpty(this.landingPage.slotConfig)) {
+                this.landingPage.slotConfig = null;
             }
 
             if (this.landingPageId !== 'create') {
@@ -772,7 +742,7 @@ export default {
                     }
 
                     this.createNotificationError({
-                        message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
+                        message: this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
                     });
                 });
         },
@@ -790,31 +760,45 @@ export default {
             });
 
             this.createNotificationError({
-                message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
+                message: this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
             });
         },
 
-        getCmsPageOverrides() {
-            if (this.cmsPage === null) {
-                return null;
-            }
-
-            this.deleteSpecifcKeys(this.cmsPage.sections);
-
-            const { changes } = this.changesetGenerator.generate(this.cmsPage);
-
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
+        extractSlotOverrides(origin, changes) {
             const slotOverrides = {};
+
             if (changes === null) {
                 return slotOverrides;
             }
 
-            if (type.isArray(changes.sections)) {
+            if (isArray(changes.sections)) {
                 changes.sections.forEach((section) => {
-                    if (type.isArray(section.blocks)) {
+                    const originSection = origin?.sections?.find((oSection) => oSection.id === section.id);
+
+                    if (isArray(section.blocks)) {
                         section.blocks.forEach((block) => {
-                            if (type.isArray(block.slots)) {
+                            const originBlock = originSection?.blocks?.find((oBlock) => oBlock.id === block.id);
+
+                            if (isArray(block.slots)) {
                                 block.slots.forEach((slot) => {
-                                    slotOverrides[slot.id] = slot.config;
+                                    const originSlot = originBlock?.slots?.find((oSlot) => oSlot.id === slot.id);
+                                    const originSlotConfig = originSlot?.translated.config;
+
+                                    if (slot.config && originSlotConfig) {
+                                        Object.keys(slot.config).forEach((key) => {
+                                            if (!isEqual(slot.config[key], originSlotConfig[key])) {
+                                                if (!slotOverrides[slot.id]) {
+                                                    slotOverrides[slot.id] = {};
+                                                }
+                                                slotOverrides[slot.id][key] = slot.config[key];
+                                            }
+                                        });
+                                    } else if (slot.config) {
+                                        slotOverrides[slot.id] = slot.config;
+                                    }
                                 });
                             }
                         });
@@ -825,6 +809,24 @@ export default {
             return slotOverrides;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
+        getCmsPageOverrides() {
+            if (this.cmsPage === null) {
+                return null;
+            }
+
+            this.deleteSpecifcKeys(this.cmsPage.sections);
+
+            const { changes } = this.changesetGenerator.generate(this.cmsPage);
+            const origin = this.cmsPage.getOrigin();
+            return this.extractSlotOverrides(origin, changes);
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         deleteSpecifcKeys(sections) {
             if (!sections) {
                 return;
@@ -872,7 +874,32 @@ export default {
                 seoUrls.map((seoUrl) => {
                     if (seoUrl.seoPathInfo) {
                         seoUrl.isModified = true;
-                        return this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId);
+                        return this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId).catch((error) => {
+                            if (error.response?.data?.errors) {
+                                error.response.data.errors.forEach((apiError) => {
+                                    const messageKey = `global.error-codes.${apiError.detail}`;
+                                    const params = apiError.meta?.parameters || {};
+                                    const translatedMessage = this.$t(messageKey, params);
+
+                                    const errorMessage =
+                                        translatedMessage !== messageKey
+                                            ? translatedMessage
+                                            : apiError.detail ||
+                                              apiError.title ||
+                                              this.$t('global.notification.unspecifiedSaveErrorMessage');
+
+                                    this.createNotificationError({
+                                        message: errorMessage,
+                                    });
+                                });
+                            } else {
+                                this.createNotificationError({
+                                    message: error.message || this.$t('global.notification.unspecifiedSaveErrorMessage'),
+                                });
+                            }
+
+                            return Promise.reject(error);
+                        });
                     }
 
                     return Promise.resolve();

@@ -22,6 +22,7 @@ class AdminMigrationCompilerPassTest extends TestCase
         $container = new ContainerBuilder();
         $container->register(MigrationSource::class . '.core.V6_4', MigrationSource::class)->setPublic(true);
         $container->register(MigrationSource::class . '.core.V6_6', MigrationSource::class)->setPublic(true);
+        $container->register(MigrationSource::class . '.core.V6_7', MigrationSource::class)->setPublic(true);
 
         $container->addCompilerPass(new AdministrationMigrationCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
         $container->compile(false);

@@ -18,6 +18,8 @@ use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Messenger\Envelope;
@@ -35,8 +37,14 @@ class SitemapGenerateTaskHandlerTest extends TestCase
 
     private SitemapGenerateTaskHandler $sitemapHandler;
 
+    /**
+     * @var EntityRepository<SalesChannelDomainCollection>
+     */
     private EntityRepository $salesChannelDomainRepository;
 
+    /**
+     * @var EntityRepository<SalesChannelCollection>
+     */
     private EntityRepository $salesChannelRepository;
 
     private MockObject&MessageBusInterface $messageBusMock;
@@ -58,12 +66,11 @@ class SitemapGenerateTaskHandlerTest extends TestCase
 
     public function testNotHandelDuplicateWithSameLanguage(): void
     {
-        /** @var list<string> $salesChannelIds */
         $salesChannelIds = $this->salesChannelRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
 
         $salesChannelContext = $this->createStorefrontSalesChannelContext(Uuid::randomHex(), 'test-sitemap-task-handler');
 
-        $nonDefaults = array_values(array_filter(array_map(function (string $id): ?array {
+        $nonDefaults = array_values(array_filter(array_map(static function (string $id): ?array {
             if ($id === TestDefaults::SALES_CHANNEL) {
                 return null;
             }
@@ -107,10 +114,9 @@ class SitemapGenerateTaskHandlerTest extends TestCase
 
     public function testItGeneratesCorrectMessagesIfLastLanguageIsFirstOfNextSalesChannel(): void
     {
-        /** @var list<string> $salesChannelIds */
         $salesChannelIds = $this->salesChannelRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
 
-        $nonDefaults = array_values(array_filter(array_map(function (string $id): ?array {
+        $nonDefaults = array_values(array_filter(array_map(static function (string $id): ?array {
             if ($id === TestDefaults::SALES_CHANNEL) {
                 return null;
             }

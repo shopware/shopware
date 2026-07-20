@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Checkout\Document\Service;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
@@ -13,7 +15,8 @@ use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
-use Shopware\Core\Checkout\Document\Renderer\RendererResult;
+use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
+use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
@@ -43,7 +46,8 @@ class DocumentGenerator
         private readonly DocumentFileRendererRegistry $fileRendererRegistry,
         private readonly MediaService $mediaService,
         private readonly EntityRepository $documentRepository,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -51,7 +55,7 @@ class DocumentGenerator
         string $documentId,
         Context $context,
         string $deepLinkCode = '',
-        string $fileType = PdfRenderer::FILE_EXTENSION
+        ?string $fileType = PdfRenderer::FILE_EXTENSION
     ): ?RenderedDocument {
         $criteria = (new Criteria([$documentId]))
             ->addAssociations([
@@ -68,6 +72,8 @@ class DocumentGenerator
         if (!$document) {
             throw DocumentException::documentNotFound($documentId);
         }
+
+        $fileType ??= $document->getDocumentMediaFile()?->getFileExtension() ?? PdfRenderer::FILE_EXTENSION;
 
         $document = $this->ensureDocumentMediaFileGenerated($document, $fileType, $context);
         $documentMedia = $this->loadMediaByFileType($document, $fileType);
@@ -92,8 +98,8 @@ class DocumentGenerator
         $config = new DocumentRendererConfig();
         $config->deepLinkCode = $deepLinkCode;
 
-        if (!empty($operation->getConfig()['custom']['invoiceNumber'])) {
-            $invoiceNumber = (string) $operation->getConfig()['custom']['invoiceNumber'];
+        $invoiceNumber = (string) ($operation->getConfig()['custom']['invoiceNumber'] ?? '');
+        if ($invoiceNumber !== '') {
             $operation->setReferencedDocumentId($this->getReferenceId($operation->getOrderId(), $invoiceNumber));
         }
 
@@ -134,7 +140,7 @@ class DocumentGenerator
             try {
                 $document = $success[$orderId] ?? null;
 
-                if (!($document instanceof RenderedDocument)) {
+                if (!$document instanceof RenderedDocument) {
                     continue;
                 }
 
@@ -143,7 +149,7 @@ class DocumentGenerator
                 $deepLinkCode = Random::getAlphanumericString(32);
                 $id = $operation->getDocumentId() ?? Uuid::randomHex();
 
-                $mediaId = $this->resolveMediaId($operation, $context, $document, $documentType, $rendered);
+                $mediaId = $this->resolveMediaId($operation, $context, $document);
                 $mediaIdForHtmlA11y = $this->resolveMediaIdForA11y($operation, $context, $document);
 
                 $records[] = [
@@ -205,7 +211,7 @@ class DocumentGenerator
                 'id' => $documentId,
                 'documentMediaFileId' => $mediaId,
                 'documentA11yMediaFileId' => null,
-                'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'now' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ],
         ], $context);
 
@@ -217,7 +223,7 @@ class DocumentGenerator
      */
     private function writeRecords(array $records, Context $context): void
     {
-        if (empty($records)) {
+        if ($records === []) {
             return;
         }
 
@@ -311,7 +317,7 @@ class DocumentGenerator
         return $document;
     }
 
-    private function resolveMediaId(DocumentGenerateOperation $operation, Context $context, RenderedDocument $document, ?string $documentType = null, ?RendererResult $result = null): ?string
+    private function resolveMediaId(DocumentGenerateOperation $operation, Context $context, RenderedDocument $document): ?string
     {
         if ($operation->isStatic()) {
             return null;
@@ -337,13 +343,19 @@ class DocumentGenerator
             SELECT LOWER(HEX(document.id))
             FROM document INNER JOIN document_type
                 ON document.document_type_id = document_type.id
-            WHERE document_type.technical_name = :technicalName
+            WHERE document_type.technical_name IN (:technicalNames)
             AND document.document_number = :invoiceNumber
             AND document.order_id = :orderId
         ', [
-            'technicalName' => InvoiceRenderer::TYPE,
+            'technicalNames' => [
+                InvoiceRenderer::TYPE,
+                ZugferdRenderer::TYPE,
+                ZugferdEmbeddedRenderer::TYPE,
+            ],
             'invoiceNumber' => $invoiceNumber,
             'orderId' => Uuid::fromHexToBytes($orderId),
+        ], [
+            'technicalNames' => ArrayParameterType::STRING,
         ]);
     }
 
@@ -366,11 +378,23 @@ class DocumentGenerator
 
     private function loadMediaByFileType(?DocumentEntity $document, string $fileType): ?MediaEntity
     {
-        $medias = array_filter([
-            $document?->getDocumentMediaFile(),
-            $document?->getDocumentA11yMediaFile(),
-        ], fn (?MediaEntity $media) => $media?->getFileExtension() === strtolower($fileType));
+        if ($document === null) {
+            return null;
+        }
 
-        return array_shift($medias) ?? null;
+        foreach ([
+            $document->getDocumentMediaFile(),
+            $document->getDocumentA11yMediaFile(),
+        ] as $media) {
+            if (
+                $media !== null
+                && $media->getFileExtension() !== null
+                && strcasecmp($media->getFileExtension(), $fileType) === 0
+            ) {
+                return $media;
+            }
+        }
+
+        return null;
     }
 }

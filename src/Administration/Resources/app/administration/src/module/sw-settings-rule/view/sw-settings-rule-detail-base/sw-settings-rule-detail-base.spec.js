@@ -1,6 +1,7 @@
 import { reactive } from 'vue';
 import { mount } from '@vue/test-utils';
 import RuleConditionService from 'src/app/service/rule-condition.service';
+import { PRODUCT_STREAM_CONDITIONS } from '../../constant/sw-settings-rule.constant';
 
 /**
  * @sw-package fundamentals@after-sales
@@ -25,6 +26,22 @@ const defaultProps = {
         },
     },
 };
+
+function buildRuleConditionService() {
+    const ruleConditionService = new RuleConditionService();
+
+    ruleConditionService.addCondition('cartLineItemProductType', {
+        label: 'global.sw-condition.condition.cartLineItemProductTypeRule',
+    });
+
+    ruleConditionService.registerDeprecation('cartLineItemProductStates', {
+        version: 'v6.8.0.0',
+        replacement: 'cartLineItemProductType',
+        label: 'global.sw-condition.condition.cartLineItemProductStatesRule',
+    });
+
+    return ruleConditionService;
+}
 
 async function createWrapper(props = defaultProps, privileges = ['rule.editor']) {
     return mount(await wrapTestComponent('sw-settings-rule-detail-base', { sync: true }), {
@@ -58,9 +75,10 @@ async function createWrapper(props = defaultProps, privileges = ['rule.editor'])
                 'sw-field-error': true,
                 'sw-label': true,
                 'sw-extension-teaser-popover': true,
+                'mt-banner': true,
             },
             provide: {
-                ruleConditionDataProviderService: new RuleConditionService(),
+                ruleConditionDataProviderService: buildRuleConditionService(),
                 acl: {
                     can: (identifier) => {
                         return privileges.includes(identifier);
@@ -204,6 +222,138 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             await conditionTree.vm.$emit('initial-loading-done');
 
             expect(wrapper.emitted('tree-finished-loading')).toBeTruthy();
+        });
+
+        it('should show warning banner when indexing is disabled and rule contains product stream conditions', async () => {
+            Shopware.Context.app.productStreamIndexingEnabled = false;
+
+            const props = {
+                ...defaultProps,
+                conditions: [
+                    {
+                        type: PRODUCT_STREAM_CONDITIONS[0],
+                    },
+                ],
+            };
+
+            const wrapper = await createWrapper(props);
+            await flushPromises();
+
+            const banner = wrapper.find('.sw-settings-rule-detail-base__product-stream-warning mt-banner-stub');
+            expect(banner.exists()).toBe(true);
+            expect(banner.attributes('variant')).toBe('attention');
+        });
+
+        it('should not show warning banner when indexing is enabled', async () => {
+            Shopware.Context.app.productStreamIndexingEnabled = true;
+
+            const props = {
+                ...defaultProps,
+                conditions: [
+                    {
+                        type: PRODUCT_STREAM_CONDITIONS[0],
+                    },
+                ],
+            };
+
+            const wrapper = await createWrapper(props);
+            await flushPromises();
+
+            expect(wrapper.find('.sw-settings-rule-detail-base__product-stream-warning mt-banner-stub').exists()).toBe(
+                false,
+            );
+        });
+
+        it('should not show warning banner when no product stream conditions exist', async () => {
+            Shopware.Context.app.productStreamIndexingEnabled = false;
+
+            const props = {
+                ...defaultProps,
+                conditions: [
+                    {
+                        type: 'cartCartAmount',
+                    },
+                ],
+            };
+
+            const wrapper = await createWrapper(props);
+            await flushPromises();
+
+            expect(wrapper.find('.sw-settings-rule-detail-base__product-stream-warning mt-banner-stub').exists()).toBe(
+                false,
+            );
+        });
+
+        it('should show warning banner when product stream conditions exist in nested children', async () => {
+            Shopware.Context.app.productStreamIndexingEnabled = false;
+
+            const props = {
+                ...defaultProps,
+                conditions: [
+                    {
+                        type: 'orContainer',
+                        children: [
+                            {
+                                type: 'andContainer',
+                                children: [
+                                    {
+                                        type: PRODUCT_STREAM_CONDITIONS[0],
+                                        children: [],
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            };
+
+            const wrapper = await createWrapper(props);
+            await flushPromises();
+
+            const banner = wrapper.find('.sw-settings-rule-detail-base__product-stream-warning mt-banner-stub');
+            expect(banner.exists()).toBe(true);
+            expect(banner.attributes('variant')).toBe('attention');
+        });
+
+        it('should show product type warning when cartLineItemProductStates condition exists', async () => {
+            Shopware.Context.app.productStreamIndexingEnabled = true;
+
+            const props = {
+                ...defaultProps,
+                conditions: [
+                    {
+                        type: 'cartLineItemProductStates',
+                    },
+                ],
+            };
+
+            const wrapper = await createWrapper(props);
+            await flushPromises();
+
+            const banner = wrapper.find('.sw-settings-rule-detail-base__product-type-warning mt-banner-stub');
+            expect(banner.exists()).toBe(true);
+            expect(banner.attributes('variant')).toBe('attention');
+        });
+
+        it('should not show product type warning when cartLineItemProductStates condition does not exist', async () => {
+            const props = {
+                ...defaultProps,
+                conditions: [
+                    {
+                        type: 'cartAmount',
+                        children: [
+                            {
+                                type: 'lineItemOfType',
+                            },
+                        ],
+                    },
+                ],
+            };
+
+            const wrapper = await createWrapper(props);
+            await flushPromises();
+
+            expect(wrapper.find('.sw-settings-rule-detail-base__product-type-warning mt-banner-stub').exists()).toBe(false);
         });
     });
 

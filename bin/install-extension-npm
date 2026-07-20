@@ -20,7 +20,7 @@ jq -c '.[]' "var/plugins.json" | while read -r config; do
   srcPath=$(echo "$config" | jq -r '.basePath')
   adminPath=$(echo "$config" | jq -r '(.basePath + .administration.path)')
   storefrontPath=$(echo "$config" | jq -r '(.basePath + .storefront.path)')
-  bundlePaths=()
+  bundlePaths=("$srcPath")
 
   if [[ -d "$adminPath" ]]; then
     bundlePaths+=("$adminPath")

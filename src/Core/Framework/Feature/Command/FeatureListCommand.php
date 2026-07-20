@@ -25,7 +25,7 @@ final class FeatureListCommand extends Command
 
         $formatted = [];
 
-        if (empty($features)) {
+        if ($features === []) {
             $io->info('No features are registered.');
 
             return self::SUCCESS;

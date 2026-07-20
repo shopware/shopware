@@ -32,6 +32,16 @@ async function createWrapper() {
                     'sw-media-modal-v2': true,
                     'sw-context-button': true,
                     'sw-context-menu-item': true,
+                    'sw-cms-inherit-wrapper': {
+                        template: '<div><slot :isInherited="false"></slot></div>',
+                        props: [
+                            'field',
+                            'element',
+                            'contentEntity',
+                            'label',
+                        ],
+                    },
+                    'sw-container': await wrapTestComponent('sw-container'),
                 },
             },
             props: {
@@ -50,6 +60,10 @@ async function createWrapper() {
                             value: 'standard',
                         },
                         url: {
+                            source: 'static',
+                            value: null,
+                        },
+                        ariaLabel: {
                             source: 'static',
                             value: null,
                         },
@@ -73,6 +87,10 @@ async function createWrapper() {
                             source: 'static',
                             value: false,
                         },
+                        fetchPriorityHigh: {
+                            source: 'static',
+                            value: false,
+                        },
                     },
                     data: {},
                 },
@@ -87,14 +105,8 @@ describe('src/module/sw-cms/elements/image/config', () => {
         await setupCmsEnvironment();
     });
 
-    it('should be a Vue.js component', async () => {
+    it('should clear the minHeight value when changing display mode away from cover', async () => {
         const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
-    it('should keep minHeight value when changing display mode', async () => {
-        const wrapper = await createWrapper('settings');
 
         await selectMtSelectOptionByText(
             wrapper,
@@ -102,6 +114,7 @@ describe('src/module/sw-cms/elements/image/config', () => {
             '.sw-cms-el-config-image__display-mode input',
         );
 
+        // minHeight is only relevant in cover mode and stays untouched while in cover
         expect(wrapper.vm.element.config.minHeight.value).toBe('340px');
 
         await selectMtSelectOptionByText(
@@ -110,8 +123,38 @@ describe('src/module/sw-cms/elements/image/config', () => {
             '.sw-cms-el-config-image__display-mode input',
         );
 
-        // Should still have the previous value
+        // Leaving cover mode clears the value so no min-height is persisted/sent through the API
+        expect(wrapper.vm.element.config.minHeight.value).toBe('');
+    });
+
+    it('should append px to a unitless min height value', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.onChangeMinHeight('500');
+        expect(wrapper.vm.element.config.minHeight.value).toBe('500px');
+
+        wrapper.vm.onChangeMinHeight('260.5');
+        expect(wrapper.vm.element.config.minHeight.value).toBe('260.5px');
+    });
+
+    it('should keep an explicitly given unit on the min height value', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.onChangeMinHeight('340px');
         expect(wrapper.vm.element.config.minHeight.value).toBe('340px');
+
+        wrapper.vm.onChangeMinHeight('20rem');
+        expect(wrapper.vm.element.config.minHeight.value).toBe('20rem');
+    });
+
+    it('should clear the min height value when emptied', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.onChangeMinHeight('');
+        expect(wrapper.vm.element.config.minHeight.value).toBe('');
+
+        wrapper.vm.onChangeMinHeight(null);
+        expect(wrapper.vm.element.config.minHeight.value).toBe('');
     });
 
     it('should change the isDecorative value', async () => {

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Choice as ChoiceFlag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\Choice as ChoiceConstraint;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
@@ -82,9 +84,14 @@ class StringFieldSerializer extends AbstractFieldSerializer
      */
     protected function getConstraints(Field $field): array
     {
+        $maxLength = $field->getMaxLength();
+        if ($maxLength < 1) {
+            $maxLength = null;
+        }
+
         $constraints = [
             new Type('string'),
-            new Length(['max' => $field->getMaxLength()]),
+            new Length(max: $maxLength),
         ];
 
         if (!$field->is(AllowEmptyString::class)) {
@@ -93,6 +100,11 @@ class StringFieldSerializer extends AbstractFieldSerializer
 
         if ($field->is(AllowEmptyString::class) && $field->is(Required::class)) {
             $constraints[] = new NotNull();
+        }
+
+        $choice = $field->getFlag(ChoiceFlag::class);
+        if ($choice instanceof ChoiceFlag && $choice->isStrict() && $choice->getChoices() !== []) {
+            $constraints[] = new ChoiceConstraint(choices: $choice->getChoices(), strict: true);
         }
 
         return $constraints;

@@ -3,13 +3,23 @@
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
+use Symfony\Contracts\Service\ResetInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
+/**
+ * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal in v6.8.0
+ */
 #[Package('framework')]
-class SwSanitizeTwigFilter extends AbstractExtension
+class SwSanitizeTwigFilter extends AbstractExtension implements ResetInterface
 {
+    /**
+     * @var array<string, string>
+     */
+    private array $cache = [];
+
     /**
      * @internal
      */
@@ -27,8 +37,32 @@ class SwSanitizeTwigFilter extends AbstractExtension
     /**
      * @param array<string, mixed> $options
      */
-    public function sanitize(string $text, ?array $options = [], bool $override = false): string
+    public function sanitize(?string $text, ?array $options = [], bool $override = false): string
     {
-        return $this->sanitizer->sanitize($text, $options, $override);
+        if ($text === null) {
+            return '';
+        }
+
+        $options ??= [];
+
+        $hash = Hasher::hash($options);
+
+        if ($override) {
+            $hash .= '-override';
+        }
+
+        $textKey = $hash . Hasher::hash($text);
+        if (isset($this->cache[$textKey])) {
+            return $this->cache[$textKey];
+        }
+
+        $this->cache[$textKey] = $this->sanitizer->sanitize($text, $options, $override);
+
+        return $this->cache[$textKey];
+    }
+
+    public function reset(): void
+    {
+        $this->cache = [];
     }
 }

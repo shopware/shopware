@@ -10,21 +10,12 @@ use Shopware\Core\Framework\Struct\Struct;
 class Tree extends Struct
 {
     /**
-     * @var TreeItem[]
-     */
-    protected array $tree;
-
-    protected ?CategoryEntity $active = null;
-
-    /**
      * @param TreeItem[] $tree
      */
     public function __construct(
-        ?CategoryEntity $active,
-        array $tree
+        protected ?CategoryEntity $active,
+        protected array $tree,
     ) {
-        $this->tree = $tree;
-        $this->active = $active;
     }
 
     public function isSelected(CategoryEntity $category): bool

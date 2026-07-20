@@ -7,10 +7,10 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
-use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
  * @internal
@@ -21,7 +21,7 @@ class StoreApiCustomFieldMapperTest extends TestCase
 {
     public function testMappingRemovesNotAllowedFields(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $mapper = new StoreApiCustomFieldMapper($connection, ['customer' => [['name' => 'allowed', 'type' => 'string']]]);
         static::assertSame(['allowed' => 'yes'], $mapper->map('customer', new RequestDataBag(['bla' => 'foo', 'allowed' => 'yes'])));
@@ -29,7 +29,7 @@ class StoreApiCustomFieldMapperTest extends TestCase
 
     public function testMappingDecodesFieldTypes(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $mapper = new StoreApiCustomFieldMapper($connection, ['customer' => [
             ['name' => 'string', 'type' => CustomFieldTypes::TEXT],
@@ -48,9 +48,9 @@ class StoreApiCustomFieldMapperTest extends TestCase
             'int' => '1',
             'float' => '1.1',
             'bool' => 'true',
-            'json' => new ParameterBag(['foo' => 'bar']),
+            'json' => new DataBag(['foo' => 'bar']),
             'singleSelect' => 'foo',
-            'multiSelect' => new ParameterBag(['foo', 'bar']),
+            'multiSelect' => new DataBag(['foo', 'bar']),
             'date' => '2020-01-01T00:00:00+00:00',
         ]));
 

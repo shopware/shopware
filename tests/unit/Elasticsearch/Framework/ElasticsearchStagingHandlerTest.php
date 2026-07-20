@@ -20,12 +20,17 @@ class ElasticsearchStagingHandlerTest extends TestCase
 {
     public function testCancel(): void
     {
-        $event = new SetupStagingEvent(Context::createDefaultContext(), $this->createMock(SymfonyStyle::class));
+        $event = new SetupStagingEvent(
+            Context::createDefaultContext(),
+            static::createStub(SymfonyStyle::class),
+            false,
+            [],
+        );
 
-        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper = static::createStub(ElasticsearchHelper::class);
         $helper->method('allowIndexing')->willReturn(true);
 
-        $detector = $this->createMock(ElasticsearchOutdatedIndexDetector::class);
+        $detector = static::createStub(ElasticsearchOutdatedIndexDetector::class);
         $detector->method('getAllUsedIndices')->willReturn(['index1', 'index2']);
 
         $handler = new ElasticsearchStagingHandler(true, $helper, $detector);
@@ -37,9 +42,14 @@ class ElasticsearchStagingHandlerTest extends TestCase
     #[DataProvider('disabledProvider')]
     public function testDisabled(bool $check, bool $indexing): void
     {
-        $event = new SetupStagingEvent(Context::createDefaultContext(), $this->createMock(SymfonyStyle::class));
+        $event = new SetupStagingEvent(
+            Context::createDefaultContext(),
+            static::createStub(SymfonyStyle::class),
+            false,
+            [],
+        );
 
-        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper = static::createStub(ElasticsearchHelper::class);
         $helper->method('allowIndexing')->willReturn($indexing);
 
         $detector = $this->createMock(ElasticsearchOutdatedIndexDetector::class);

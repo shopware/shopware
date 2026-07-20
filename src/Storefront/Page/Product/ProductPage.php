@@ -2,8 +2,10 @@
 
 namespace Shopware\Storefront\Page\Product;
 
+use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
@@ -22,6 +24,15 @@ class ProductPage extends Page
     protected PropertyGroupCollection $configuratorSettings;
 
     protected PropertyGroupOptionCollection $selectedOptions;
+
+    /**
+     * A small sample of approved reviews used exclusively for JSON-LD structured data output.
+     * This contains at most ProductPageLoader::MAX_REVIEWS_IN_JSON_LD items — it must NOT be
+     * used to display reviews in templates.
+     */
+    protected ?ProductReviewResult $structuredDataReviews = null;
+
+    protected ?BreadcrumbCollection $breadcrumb = null;
 
     public function getProduct(): SalesChannelProductEntity
     {
@@ -71,6 +82,26 @@ class ProductPage extends Page
     public function setSelectedOptions(PropertyGroupOptionCollection $selectedOptions): void
     {
         $this->selectedOptions = $selectedOptions;
+    }
+
+    public function getStructuredDataReviews(): ?ProductReviewResult
+    {
+        return $this->structuredDataReviews;
+    }
+
+    public function setStructuredDataReviews(ProductReviewResult $structuredDataReviews): void
+    {
+        $this->structuredDataReviews = $structuredDataReviews;
+    }
+
+    public function getBreadcrumb(): ?BreadcrumbCollection
+    {
+        return $this->breadcrumb;
+    }
+
+    public function setBreadcrumb(?BreadcrumbCollection $breadcrumb): void
+    {
+        $this->breadcrumb = $breadcrumb;
     }
 
     public function getEntityName(): string

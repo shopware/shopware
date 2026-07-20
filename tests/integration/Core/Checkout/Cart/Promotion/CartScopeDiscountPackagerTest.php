@@ -50,7 +50,7 @@ class CartScopeDiscountPackagerTest extends TestCase
 
         $packages = $packager->getMatchingItems($discount, $cart, $context);
 
-        $ids = $packages->first()?->getMetaData()->map(fn (LineItemQuantity $item) => $item->getLineItemId());
+        $ids = $packages->first()?->getMetaData()->map(static fn (LineItemQuantity $item) => $item->getLineItemId());
 
         static::assertSame($expected, $ids);
     }

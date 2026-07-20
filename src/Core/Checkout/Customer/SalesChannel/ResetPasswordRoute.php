@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -13,25 +14,25 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
+use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\EqualTo;
-use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
 class ResetPasswordRoute extends AbstractResetPasswordRoute
 {
@@ -46,9 +47,10 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
         private readonly EntityRepository $customerRecoveryRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly DataValidator $validator,
-        private readonly SystemConfigService $systemConfigService,
         private readonly RequestStack $requestStack,
-        private readonly RateLimiter $rateLimiter
+        private readonly RateLimiter $rateLimiter,
+        private readonly DataValidationFactoryInterface $passwordValidationFactory,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -88,6 +90,8 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
             $cacheKey = strtolower((string) $customer->getEmail()) . '-' . $request->getClientIp();
 
             $this->rateLimiter->reset(RateLimiter::LOGIN_ROUTE, $cacheKey);
+            $this->rateLimiter->resetIfConfigured(RateLimiter::LOGIN_USER, strtolower((string) $customer->getEmail()));
+            $this->rateLimiter->resetIfConfigured(RateLimiter::LOGIN_CLIENT, (string) $request->getClientIp());
             $this->rateLimiter->reset(RateLimiter::RESET_PASSWORD, $cacheKey);
         }
 
@@ -97,6 +101,10 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
             'legacyPassword' => null,
             'legacyEncoder' => null,
         ];
+
+        if ($customer->getDoubleOptInRegistration() && $customer->getDoubleOptInConfirmDate() === null) {
+            $customerData['doubleOptInConfirmDate'] = $this->clock->now();
+        }
 
         $this->customerRepository->update([$customerData], $context->getContext());
         $this->deleteRecoveryForCustomer($customerRecovery, $context->getContext());
@@ -111,9 +119,8 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
     {
         $definition = new DataValidationDefinition('customer.password.update');
 
-        $minPasswordLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannelId());
-
-        $definition->add('newPassword', new NotBlank(), new Length(['min' => $minPasswordLength]), new EqualTo(['propertyPath' => 'newPasswordConfirm']));
+        $passwordDefinition = $this->passwordValidationFactory->update($context);
+        $definition->add('newPassword', new EqualTo(propertyPath: 'newPasswordConfirm'), ...$passwordDefinition->getProperty('password'));
 
         $this->dispatchValidationEvent($definition, $data, $context->getContext());
 
@@ -143,7 +150,6 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
 
         $fieldValidations = $validations[$field];
 
-        /** @var EqualTo|null $equalityValidation */
         $equalityValidation = null;
 
         foreach ($fieldValidations as $emailValidation) {
@@ -158,12 +164,12 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
             return;
         }
 
-        $compareValue = $data[$equalityValidation->propertyPath] ?? null;
+        $compareValue = $data[$equalityValidation->propertyPath ?? ''] ?? null;
         if ($data[$field] === $compareValue) {
             return;
         }
 
-        $message = str_replace('{{ compared_value }}', $compareValue ?? '', (string) $equalityValidation->message);
+        $message = str_replace('{{ compared_value }}', $compareValue ?? '', $equalityValidation->message);
 
         $violations = new ConstraintViolationList();
         $violations->add(new ConstraintViolation($message, $equalityValidation->message, [], '', $field, $data[$field]));
@@ -187,7 +193,7 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
 
         $recovery = $this->customerRecoveryRepository->search($criteria, $context)->getEntities()->first();
 
-        $validDateTime = (new \DateTime())->sub(new \DateInterval('PT2H'));
+        $validDateTime = $this->clock->now()->sub(new \DateInterval('PT2H'));
 
         return $recovery && $validDateTime < $recovery->getCreatedAt();
     }

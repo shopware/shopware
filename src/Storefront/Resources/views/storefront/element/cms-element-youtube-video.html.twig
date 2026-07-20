@@ -55,11 +55,12 @@
             {% set iframeClass = 'cms-element-youtube-video__video' %}
 
             {% if config.needsConfirmation.value == false %}
-                <iframe class="{{ iframeClass }}"
-                        src="{{ videoUrl }}"
-                        title="{{ config.iframeTitle.value }}"
-                        allowfullscreen="allowfullscreen">
-                </iframe>
+                <iframe
+                    class="{{ iframeClass }}"
+                    src="{{ videoUrl }}"
+                    title="{{ config.iframeTitle.value }}"
+                    allowfullscreen="allowfullscreen"
+                ></iframe>
             {% else %}
                 {% set pluginConfiguration = {
                     cookieName: 'youtube-video',
@@ -76,9 +77,11 @@
                 } %}
 
                 {% block element_youtube_video_placeholder %}
-                    <div class="cms-element-youtube-video__placeholder"
-                         data-cms-gdpr-video-element="true"
-                         data-cms-gdpr-video-element-options="{{ pluginConfiguration|json_encode }}">
+                    <div
+                        class="cms-element-youtube-video__placeholder"
+                        data-cms-gdpr-video-element="true"
+                        data-cms-gdpr-video-element-options="{{ pluginConfiguration|json_encode }}"
+                    >
 
                         {% if elementData.media %}
                             {% sw_thumbnails 'cms-element-youtube-video__placeholder' with {

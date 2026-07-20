@@ -79,21 +79,18 @@ export default {
         showHeader: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         showFooter: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         closable: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -192,6 +189,10 @@ export default {
 
         closeModalOnEscapeKey(event) {
             if (!event.target.classList.contains('sw-modal__dialog') || event.target !== document.activeElement) {
+                return;
+            }
+
+            if (!this.closable) {
                 return;
             }
 

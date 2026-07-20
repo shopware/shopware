@@ -142,7 +142,7 @@ The admin menu only supports up to three levels of nesting.`,
         },
 
         sidebarCollapseIcon() {
-            return this.isExpanded ? 'regular-chevron-circle-left' : 'regular-chevron-circle-right';
+            return 'solid-panel-right';
         },
 
         scrollbarOffsetStyle() {

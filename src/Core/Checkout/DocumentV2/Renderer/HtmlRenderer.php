@@ -4,7 +4,8 @@ namespace Shopware\Core\Checkout\DocumentV2\Renderer;
 
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
-use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
+use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
@@ -48,12 +49,15 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
 
     public function renderToString(RenderInput $input, RenderState $state, Context $context): RenderResult
     {
-        $renderData = $input->requireData(
-            $input->documentType,
-            AbstractRenderData::class,
+        $meta = $input->requireData(
+            DocumentMetaProvider::KEY,
+            DocumentMetaRenderData::class,
         );
 
-        $configuration = new TemplateContext($renderData);
+        $typeData = $input->getAllData();
+        unset($typeData[DocumentMetaProvider::KEY]);
+
+        $configuration = new TemplateContext($meta, $typeData);
 
         $template = \sprintf(self::TEMPLATE_PATTERN, $input->documentType);
 
@@ -67,14 +71,14 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
             ],
         );
 
-        $fileStem = $renderData->config->buildFileStem($renderData->documentNumber);
+        $fileStem = $meta->config->buildFileStem($meta->documentNumber);
 
         return new RenderResult(
-            self::FORMAT->value,
-            $content,
-            $fileStem,
-            self::FORMAT->fileExtension(),
-            self::FORMAT->mimeType(),
+            format: self::FORMAT->value,
+            content: $content,
+            fileName: $fileStem,
+            fileExtension: self::FORMAT->fileExtension(),
+            mimeType: self::FORMAT->mimeType(),
         );
     }
 }

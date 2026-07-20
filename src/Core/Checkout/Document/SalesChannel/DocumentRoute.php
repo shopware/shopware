@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Content\Media\Util\PathHelper;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -227,11 +228,11 @@ final class DocumentRoute extends AbstractDocumentRoute
         }
 
         // Verify email and zip code with this order
-        if ($request->get('email', false) && $request->get('zipcode', false)) {
+        if (RequestParamHelper::get($request, 'email', false) && RequestParamHelper::get($request, 'zipcode', false)) {
             $billingAddress = $order->getBillingAddress();
             if ($billingAddress === null
-                || strtolower($request->get('email')) !== strtolower($orderCustomer->getEmail())
-                || strtoupper($request->get('zipcode')) !== strtoupper($billingAddress->getZipcode() ?: '')) {
+                || strtolower(RequestParamHelper::get($request, 'email')) !== strtolower($orderCustomer->getEmail())
+                || strtoupper(RequestParamHelper::get($request, 'zipcode')) !== strtoupper($billingAddress->getZipcode() ?: '')) {
                 throw DocumentException::wrongGuestCredentials();
             }
         } else {

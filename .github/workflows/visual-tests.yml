@@ -51,8 +51,7 @@ jobs:
           install: 'true'
           workers: 1
           extra-options: >-
-            ${{ inputs.update-snapshots && ' --update-snapshots' || '' }}
-            ${{ inputs.filter && format(' --grep="{0}"', inputs.filter) || '' }}
+            ${{ inputs.update-snapshots && ' --update-snapshots' || '' }} ${{ inputs.filter && format(' --grep="{0}"', inputs.filter) || '' }}
           use-currents: ${{ inputs.currents && 'true' || '' }}
           currents-project-id: ${{ secrets.CURRENTS_PROJECT_ID_VISUAL }}
           currents-record-key: ${{ secrets.CURRENTS_RECORD_KEY }}

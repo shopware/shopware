@@ -130,5 +130,6 @@ function collectPlaywrightErrors(report) {
 }
 
 function stripAnsi(value) {
+  // eslint-disable-next-line no-control-regex -- intentional: strip ANSI SGR escapes from tool output
   return value.replace(/\u001b\[[0-9;]*m/g, '');
 }

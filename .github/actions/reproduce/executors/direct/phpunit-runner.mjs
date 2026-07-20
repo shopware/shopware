@@ -9,7 +9,7 @@ import { FILES } from '../../bundle.mjs';
  * Owns filesystem placement and process invocation only; it deliberately returns raw output so
  * classification remains a separate policy decision.
  */
-export function runPhpunit(specPath, shop, plan, target) {
+export function runPhpunit(specPath, shop, _plan, _target) {
   if (process.env.PHPUNIT_REPORT) {
     return fs.readFileSync(process.env.PHPUNIT_REPORT, 'utf8');
   }

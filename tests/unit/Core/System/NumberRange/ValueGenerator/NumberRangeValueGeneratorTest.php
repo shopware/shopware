@@ -20,6 +20,7 @@ use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\Inc
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternDate;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternIncrement;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -53,7 +54,7 @@ class NumberRangeValueGeneratorTest extends TestCase
         $numberRangeValueGenerator = new NumberRangeValueGenerator(
             new ValueGeneratorPatternRegistry([
                 new ValueGeneratorPatternIncrement(
-                    new IncrementSqlStorage($connection),
+                    new IncrementSqlStorage($connection, new NativeClock()),
                 ),
             ]),
             $dispatcher,
@@ -233,7 +234,7 @@ class NumberRangeValueGeneratorTest extends TestCase
 
     private function getGenerator(string $pattern): NumberRangeValueGenerator
     {
-        $incrPattern = $this->createMock(ValueGeneratorPatternIncrement::class);
+        $incrPattern = static::createStub(ValueGeneratorPatternIncrement::class);
         $incrPattern->method('getPatternId')->willReturn('n');
         $incrPattern->method('generate')->willReturn('5');
 

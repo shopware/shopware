@@ -38,8 +38,8 @@ class EntityReadTool extends McpToolResponse
     {
         $context = $this->contextProvider->getContext();
 
-        if (!$this->registry->has($entity)) { // @codeCoverageIgnore
-            return $this->error(\sprintf('Entity "%s" not found. Use the shopware://entities resource for available entity names.', $entity)); // @codeCoverageIgnore
+        if (!$this->registry->has($entity)) {
+            return $this->error(\sprintf('Entity "%s" not found. Use the shopware://entities resource for available entity names.', $entity));
         }
 
         if ($error = $this->requirePrivilege($context, $entity . ':read')) {
@@ -64,7 +64,7 @@ class EntityReadTool extends McpToolResponse
         $this->applyDefaultIncludes($definition, $criteriaObj);
 
         $result = $repository->search($criteriaObj, $context);
-        $entityResult = $result->get($id);
+        $entityResult = $result->getEntities()->get($id);
 
         if ($entityResult === null) {
             return $this->error(\sprintf('Entity "%s" with ID "%s" not found.', $entity, $id));

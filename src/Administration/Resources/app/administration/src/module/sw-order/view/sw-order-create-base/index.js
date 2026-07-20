@@ -301,9 +301,21 @@ export default {
                 this.setCurrency(customer);
 
                 await this.updateCustomerContext();
-            } catch {
+            } catch (error) {
+                let message = this.$t('sw-order.create.messageSwitchCustomerError');
+                const errorCode = error.response?.data?.errors?.[0]?.code;
+
+                if (errorCode) {
+                    const messageKey = `global.error-codes.${errorCode}`;
+                    const translatedMessage = this.$t(messageKey);
+
+                    if (translatedMessage !== messageKey) {
+                        message = `${message}: ${translatedMessage}`;
+                    }
+                }
+
                 this.createNotificationError({
-                    message: this.$t('sw-order.create.messageSwitchCustomerError'),
+                    message,
                 });
             } finally {
                 this.isLoadingDetail = false;

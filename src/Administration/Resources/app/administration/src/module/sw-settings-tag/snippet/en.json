@@ -14,7 +14,6 @@
       "contextMenuDuplicate": "Duplicate tag",
       "contextMenuDelete": "Delete tag",
       "messageDeleteSuccess": "Tag \"{name}\" deleted.",
-      "buttonDelete": "Delete",
       "titleEmptyStateList": "No tags found.",
       "searchPlaceholder": "Search tags...",
       "filter": "Filter",
@@ -75,7 +74,6 @@
       "editTitle": "Edit \"{name}\"",
       "generalTab": "General",
       "assignmentsTab": "Assignments",
-      "buttonSave": "Save",
       "assignments": {
         "searchPlaceholder": "Search entities...",
         "assignments": "assigned",

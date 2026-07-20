@@ -72,6 +72,37 @@ describe('mailApiService', () => {
             expect(clientMock.history.post[0].url).toBe(`/_action/mail-template/send`);
             expect(clientMock.history.post[0].headers['sw-language-id']).toBe('language-id');
         });
+
+        it('does not fall back to persisted mail template type data', async () => {
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return;
+            }
+
+            const { mailApiService, clientMock } = getMailApiService();
+
+            await mailApiService.sendMailTemplate(
+                'test@example.com',
+                'Test User',
+                {
+                    contentHtml: '<p>Test</p>',
+                    contentPlain: 'Test',
+                    subject: 'Test Subject',
+                    senderMail: 'sender@example.com',
+                    senderName: 'Sender',
+                    mailTemplateType: {
+                        templateData: {
+                            order: {
+                                id: 'order-id',
+                            },
+                        },
+                    },
+                },
+                { getIds: jest.fn().mockReturnValue([]) },
+                'sales-channel-id',
+            );
+
+            expect(JSON.parse(clientMock.history.post[0].data).mailTemplateData).toEqual({});
+        });
     });
 
     describe('buildRenderPreview', () => {

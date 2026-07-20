@@ -28,8 +28,9 @@ class CategoryNameCmsElementResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $htmlSanitizer = new HtmlSanitizer(null, false, ['basic' => ['tags' => ['h1']]]);
-        $this->resolver = new CategoryNameCmsElementResolver($htmlSanitizer);
+        $sanitizer = static::createStub(HtmlSanitizer::class);
+        $sanitizer->method('sanitize')->willReturnArgument(0);
+        $this->resolver = new CategoryNameCmsElementResolver($sanitizer);
     }
 
     public function testType(): void
@@ -144,13 +145,13 @@ class CategoryNameCmsElementResolverTest extends TestCase
 
     private function createResolverContext(): ResolverContext
     {
-        return new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        return new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
     }
 
     private function createResolverContextWithCategory(CategoryEntity $category): EntityResolverContext
     {
         return new EntityResolverContext(
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             new Request(),
             new CategoryDefinition(),
             $category

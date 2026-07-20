@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
 use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
+use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
@@ -282,6 +283,7 @@ class WebhookDrainToAsyncCommandTest extends TestCase
         $deliveryService = new WebhookDeliveryService(
             $webhookClient,
             static::getContainer()->get(AppPayloadServiceHelper::class),
+            static::getContainer()->get(WebhookSigningSecretResolver::class),
             static::getContainer()->get(WebhookOutboxStore::class),
             static::getContainer()->get(RetryDelayCalculator::class),
             static::getContainer()->get('messenger.default_bus'),

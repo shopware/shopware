@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -48,7 +49,8 @@ class UnusedMediaPurgerTest extends TestCase
         $this->unusedMediaPurger = new UnusedMediaPurger(
             $this->mediaRepo,
             $this->createMock(Connection::class),
-            new EventDispatcher()
+            new EventDispatcher(),
+            new NativeClock()
         );
     }
 
@@ -82,7 +84,7 @@ class UnusedMediaPurgerTest extends TestCase
                 $withManufacturer->getId(),
             ]),
             $this->context
-        );
+        )->getEntities();
 
         static::assertNull($result->get($txt->getId()));
         static::assertNull($result->get($png->getId()));
@@ -121,7 +123,7 @@ class UnusedMediaPurgerTest extends TestCase
                 $pdf->getId(),
             ]),
             $this->context
-        );
+        )->getEntities();
 
         static::assertNull($result->get($txt->getId()));
         static::assertNull($result->get($png->getId()));
@@ -154,6 +156,7 @@ class UnusedMediaPurgerTest extends TestCase
             $this->mediaRepo,
             $connection,
             $eventDispatcher,
+            new NativeClock()
         );
 
         $deleted = $purger->deleteNotUsedMedia(gracePeriodDays: 1);
@@ -162,7 +165,7 @@ class UnusedMediaPurgerTest extends TestCase
         static::assertSame(0, $deleted);
 
         $stillExisting = $this->mediaRepo
-            ->search(new Criteria([$txt->getId()]), $this->context)
+            ->search(new Criteria([$txt->getId()]), $this->context)->getEntities()
             ->get($txt->getId());
         static::assertNotNull($stillExisting);
     }
@@ -189,6 +192,7 @@ class UnusedMediaPurgerTest extends TestCase
             $this->mediaRepo,
             $connection,
             $eventDispatcher,
+            new NativeClock()
         );
 
         $batches = iterator_to_array($purger->getNotUsedMedia(offset: 0, gracePeriodDays: 1), false);
@@ -207,6 +211,7 @@ class UnusedMediaPurgerTest extends TestCase
             $this->mediaRepo,
             $connection,
             new EventDispatcher(),
+            new NativeClock()
         );
 
         $batches = iterator_to_array($purger->getNotUsedMedia(offset: 99999, gracePeriodDays: 1), false);
@@ -236,7 +241,7 @@ class UnusedMediaPurgerTest extends TestCase
                 $unusedMedia->getId(),
             ]),
             $this->context
-        );
+        )->getEntities();
 
         static::assertNotNull($result->get($usedByA11yDocument->getId()));
         static::assertNull($result->get($unusedMedia->getId()));

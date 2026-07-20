@@ -63,4 +63,16 @@ describe('integrationApiService', () => {
 
         expect(JSON.parse(clientMock.history.post[0].data)).toEqual({ allowlist: null });
     });
+
+    it('updateAdmin sends PATCH to integration endpoint', async () => {
+        const { integrationApiService, clientMock } = getIntegrationApiService();
+        const integrationId = 'abc123';
+
+        clientMock.onPatch(`integration/${integrationId}`).reply(204, null);
+
+        await expect(integrationApiService.updateAdmin(integrationId, true)).resolves.not.toThrow();
+
+        expect(clientMock.history.patch).toHaveLength(1);
+        expect(JSON.parse(clientMock.history.patch[0].data)).toEqual({ admin: true });
+    });
 });

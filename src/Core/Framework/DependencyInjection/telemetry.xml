@@ -8,11 +8,23 @@
         <service id="Shopware\Core\Framework\Telemetry\Metrics\Meter" public="true" lazy="true">
             <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Transport\TransportCollection"/>
             <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfigProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\MetricLabelProcessor"/>
 
             <argument type="service" id="logger"/>
             <argument>%env(APP_ENV)%</argument>
+            <argument>%shopware.telemetry.metrics.enabled%</argument>
         </service>
 
+        <service id="Shopware\Core\Framework\Telemetry\Telemetry">
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter"/>
+            <argument>%env(APP_ENV)%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Telemetry\Metrics\MetricLabelProcessor">
+            <argument>%shopware.telemetry.metrics.replace_unknown_label_values_with%</argument>
+            <argument type="service" id="logger"/>
+            <argument>%env(APP_ENV)%</argument>
+        </service>
 
         <service id="Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfigProvider">
             <argument>%shopware.telemetry.metrics.definitions%</argument>
@@ -20,12 +32,35 @@
 
         <service id="Shopware\Core\Framework\Telemetry\Metrics\Config\TransportConfigProvider">
             <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfigProvider"/>
+            <argument>%shopware.telemetry.metrics.namespace%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Telemetry\Metrics\Transport\TransportCollection" lazy="true">
             <factory class="Shopware\Core\Framework\Telemetry\Metrics\Transport\TransportCollection" method="create"/>
             <argument type="tagged_iterator" tag="shopware.metric_transport_factory"/>
             <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Config\TransportConfigProvider"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Telemetry\Metrics\ScheduledTask\CollectPeriodicMetricsTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Telemetry\Metrics\Subscriber\TelemetryFlushListener">
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Transport\TransportCollection"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
+
+            <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.telemetry.subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Telemetry\Metrics\ScheduledTask\CollectPeriodicMetricsTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter"/>
+            <argument type="tagged_iterator" tag="shopware.telemetry.periodic_metric_collector"/>
+
+            <tag name="messenger.message_handler"/>
         </service>
     </services>
 </container>

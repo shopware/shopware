@@ -94,7 +94,7 @@ class StructEncoder implements ResetInterface
                 $entities = [];
 
                 foreach (\array_values($data['elements']) as $index => $value) {
-                    $entity = $struct->getAt($index);
+                    $entity = $struct->getEntities()->getAt($index);
                     if (!$entity instanceof Struct) {
                         throw SalesChannelException::encodingInvalidStructException(\sprintf('Entity at index "%d" is not a valid struct', $index));
                     }

@@ -658,7 +658,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $this->customerId));
 
-        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertNotNull($customer);
 
         $customerDefinition = new CustomerDefinition();
@@ -823,7 +823,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
     {
         $criteria = new Criteria([$this->customerId]);
 
-        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertNotNull($customer);
 
         return $customer;

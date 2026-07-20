@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\Media\Upload;
 
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Event\UpdateMediaPathEvent;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 use Shopware\Core\Content\Media\Event\MediaPathChangedEvent;
 use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
+use Shopware\Core\Content\Media\File\FileInfoHelper;
 use Shopware\Core\Content\Media\File\FileNameValidator;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -50,6 +52,7 @@ readonly class PresignedMediaUploadService
         private MediaFileExtensionValidator $extensionValidator,
         private AbstractMediaPathStrategy $mediaPathStrategy,
         private LoggerInterface $logger,
+        private ClockInterface $clock,
     ) {
         $this->fileNameValidator = new FileNameValidator();
     }
@@ -115,7 +118,9 @@ readonly class PresignedMediaUploadService
                 $this->cleanupOldMediaData($media, $payload->path, $context);
             }
 
-            $mimeType = $s3Metadata->contentType ?? $payload->mimeType;
+            // The S3 object stores the canonical Content-Type incl. `charset` (see PresignedUploadUrlGenerator);
+            // strip any parameters so the persisted entity mimeType stays bare for media-type/extension detection.
+            $mimeType = FileInfoHelper::stripParameters($s3Metadata->contentType ?? $payload->mimeType);
 
             $this->persistMediaData($mediaId, $payload, $s3Metadata, $mimeType, $media, $context);
             $this->dispatchFinalizeEvents($mediaId, $payload->path, $mimeType, $context);
@@ -148,13 +153,13 @@ readonly class PresignedMediaUploadService
 
             $this->extensionValidator->validate($payload->extension, $media->isPrivate(), $context, $payload->mediaId);
 
-            return ['mediaId' => $payload->mediaId, 'uploadedAt' => new \DateTimeImmutable()];
+            return ['mediaId' => $payload->mediaId, 'uploadedAt' => $this->clock->now()];
         }
 
         $this->extensionValidator->validate($payload->extension, $payload->private, $context);
 
         $mediaId = Uuid::randomHex();
-        $uploadedAt = new \DateTimeImmutable();
+        $uploadedAt = $this->clock->now();
 
         $data = [
             'id' => $mediaId,
@@ -255,7 +260,7 @@ readonly class PresignedMediaUploadService
             'fileName' => $payload->fileName,
             'mediaTypeRaw' => serialize($mediaType),
             'metaData' => $this->buildMetadata($s3Metadata->etag, $mimeType, $payload),
-            'uploadedAt' => $media->getUploadedAt() ?? new \DateTime(),
+            'uploadedAt' => $media->getUploadedAt() ?? $this->clock->now(),
         ];
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($data): void {

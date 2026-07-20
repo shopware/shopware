@@ -20,6 +20,10 @@ class TraceableTransport implements MetricTransportInterface
         $this->metrics[] = $metric;
     }
 
+    public function flush(): void
+    {
+    }
+
     /**
      * @return Metric[]
      */

@@ -305,8 +305,12 @@ export default class ListingPlugin extends Plugin {
         const resetAllButtonEl = this.activeFilterContainer.querySelector(this.options.resetAllFilterButtonSelector,
         );
 
-        resetAllButtonEl.removeEventListener('click', this.resetAllFilter.bind(this));
-        resetAllButtonEl.addEventListener('click', this.resetAllFilter.bind(this));
+        if (!this._boundResetAllFilter) {
+            this._boundResetAllFilter = this.resetAllFilter.bind(this);
+        }
+
+        resetAllButtonEl.removeEventListener('click', this._boundResetAllFilter);
+        resetAllButtonEl.addEventListener('click', this._boundResetAllFilter);
 
         if (!this._showResetAll) {
             resetAllButtonEl.remove();

@@ -28,8 +28,8 @@ class AppMcpToolLoader extends AbstractAppMcpLoader
     public function __construct(
         Connection $connection,
         AppMcpCapabilityExecutor $executor,
+        LoggerInterface $logger,
         private readonly array $allowedTools = [],
-        ?LoggerInterface $logger = null,
     ) {
         parent::__construct($connection, $executor, $logger);
     }
@@ -91,7 +91,7 @@ class AppMcpToolLoader extends AbstractAppMcpLoader
             $arguments = $request instanceof CallToolRequest ? $request->arguments : [];
 
             return $this->executor->execute($toolName, $appSecret, $url, $arguments, $appVersion);
-        }, true);
+        });
     }
 
     /**

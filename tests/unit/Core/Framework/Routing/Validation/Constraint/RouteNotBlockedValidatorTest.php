@@ -21,7 +21,7 @@ class RouteNotBlockedValidatorTest extends TestCase
     public function testValidateThrowsExceptionForWrongConstraintType(): void
     {
         $wrongConstraint = new Uuid();
-        $blocklistService = $this->createMock(RouteBlocklistService::class);
+        $blocklistService = static::createStub(RouteBlocklistService::class);
 
         $validator = new RouteNotBlockedValidator($blocklistService);
 
@@ -64,7 +64,7 @@ class RouteNotBlockedValidatorTest extends TestCase
 
     public function testValidateAddsViolationForNonStringValue(): void
     {
-        $blocklistService = $this->createMock(RouteBlocklistService::class);
+        $blocklistService = static::createStub(RouteBlocklistService::class);
         $constraint = new RouteNotBlocked();
 
         $violationBuilder = $this->createMock(ConstraintViolationBuilderInterface::class);

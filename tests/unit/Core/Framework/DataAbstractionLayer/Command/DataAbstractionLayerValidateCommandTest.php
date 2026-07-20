@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\DataAbstractionLayerValidateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -19,7 +20,7 @@ class DataAbstractionLayerValidateCommandTest extends TestCase
 
     public function testValidationErrors(): void
     {
-        $validator = $this->createMock(DefinitionValidator::class);
+        $validator = static::createStub(DefinitionValidator::class);
         $validator->method('validate')->willReturn([
             'Shopware\\Core\\Content\\Product\\ProductDefinition' => ['Error 1', 'Error 2'],
             'Shopware\\Core\\Content\\Category\\CategoryDefinition' => ['Error 3'],
@@ -36,9 +37,29 @@ class DataAbstractionLayerValidateCommandTest extends TestCase
         static::assertStringContainsString('Error 3', $commandTester->getDisplay());
     }
 
+    public function testFormatJsonOutput(): void
+    {
+        $validator = static::createStub(DefinitionValidator::class);
+        $validator->method('validate')->willReturn([
+            'Shopware\\Core\\Content\\Product\\ProductDefinition' => ['Error 1'],
+        ]);
+        $command = new DataAbstractionLayerValidateCommand($validator);
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['--format' => 'json']);
+
+        static::assertSame(1, $commandTester->getStatusCode());
+        static::assertStringContainsString('ProductDefinition', $commandTester->getDisplay());
+        static::assertStringContainsString('Error 1', $commandTester->getDisplay());
+        static::assertJson($commandTester->getDisplay());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with `--json` option
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testJsonOutput(): void
     {
-        $validator = $this->createMock(DefinitionValidator::class);
+        $validator = static::createStub(DefinitionValidator::class);
         $validator->method('validate')->willReturn([
             'Shopware\\Core\\Content\\Product\\ProductDefinition' => ['Error 1'],
         ]);
@@ -52,9 +73,24 @@ class DataAbstractionLayerValidateCommandTest extends TestCase
         static::assertJson($commandTester->getDisplay());
     }
 
-    public function testNamespaceFilter(): void
+    public function testTolerateForeignKeyOptionIsPassedToValidator(): void
     {
         $validator = $this->createMock(DefinitionValidator::class);
+        $validator->expects($this->once())
+            ->method('validate')
+            ->with(['fk.first', 'fk.second'])
+            ->willReturn([]);
+        $command = new DataAbstractionLayerValidateCommand($validator);
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['--tolerate-foreign-key' => ['fk.first', 'fk.second']]);
+
+        static::assertSame(0, $commandTester->getStatusCode());
+        static::assertStringContainsString('No errors found', $commandTester->getDisplay());
+    }
+
+    public function testNamespaceFilter(): void
+    {
+        $validator = static::createStub(DefinitionValidator::class);
         $validator->method('validate')->willReturn([
             'Shopware\\Core\\Content\\Product\\ProductDefinition' => ['Error 1'],
             'Shopware\\Core\\Content\\Category\\CategoryDefinition' => ['Error 2'],
@@ -74,7 +110,7 @@ class DataAbstractionLayerValidateCommandTest extends TestCase
 
     public function testNamespaceFilterWithPartialNamespace(): void
     {
-        $validator = $this->createMock(DefinitionValidator::class);
+        $validator = static::createStub(DefinitionValidator::class);
         $validator->method('validate')->willReturn([
             'Shopware\\Core\\Content\\Product\\ProductDefinition' => ['Error 1'],
             'Shopware\\Core\\Content\\Category\\CategoryDefinition' => ['Error 2'],
@@ -95,7 +131,7 @@ class DataAbstractionLayerValidateCommandTest extends TestCase
 
     public function testNamespaceFilterWithMultipleNamespaces(): void
     {
-        $validator = $this->createMock(DefinitionValidator::class);
+        $validator = static::createStub(DefinitionValidator::class);
         $validator->method('validate')->willReturn([
             'Shopware\\Core\\Content\\Product\\ProductDefinition' => ['Error 1'],
             'Shopware\\Core\\Content\\Category\\CategoryDefinition' => ['Error 2'],

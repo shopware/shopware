@@ -1,5 +1,10 @@
 <?php declare(strict_types=1);
 
+use Doctrine\DBAL\Connection;
+use Mcp\Capability\Registry;
+use Mcp\Server as McpServer;
+use Mcp\Server\Builder as McpServerBuilder;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Framework\Api\OAuth\ClientRepository;
@@ -10,6 +15,7 @@ use Shopware\Core\Framework\App\Aggregate\AppMcpResource\AppMcpResourceDefinitio
 use Shopware\Core\Framework\App\Aggregate\AppMcpResourceTranslation\AppMcpResourceTranslationDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppMcpToolTranslation\AppMcpToolTranslationDefinition;
+use Shopware\Core\Framework\App\Lifecycle\Handler\McpLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Persister\McpPromptPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\McpResourcePersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\McpToolPersister;
@@ -22,17 +28,21 @@ use Shopware\Core\Framework\Mcp\Authentication\McpAuthenticationListener;
 use Shopware\Core\Framework\Mcp\Authentication\McpExceptionListener;
 use Shopware\Core\Framework\Mcp\Command\DebugMcpCommand;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\Mcp\Context\StoreApiMcpContextProvider;
 use Shopware\Core\Framework\Mcp\Controller\IntegrationMcpAllowlistController;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\Controller\McpToolListController;
+use Shopware\Core\Framework\Mcp\Controller\StoreApiMcpServerController;
 use Shopware\Core\Framework\Mcp\Controller\UserMcpAllowlistController;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpCapabilityExecutor;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPromptLoader;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpResourceLoader;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpToolLoader;
+use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
 use Shopware\Core\Framework\Mcp\Prompt\ShopwareContextPrompt;
+use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Resource\BusinessEventsResource;
 use Shopware\Core\Framework\Mcp\Resource\CurrencyListResource;
 use Shopware\Core\Framework\Mcp\Resource\EntityListResource;
@@ -43,6 +53,7 @@ use Shopware\Core\Framework\Mcp\Resource\SalesChannelListResource;
 use Shopware\Core\Framework\Mcp\Resource\StateMachineResource;
 use Shopware\Core\Framework\Mcp\Resource\ToolResultResource;
 use Shopware\Core\Framework\Mcp\Session\McpSessionCleanupSubscriber;
+use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\Mcp\Tool\EntityAggregateTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityDeleteTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
@@ -56,6 +67,7 @@ use Shopware\Core\Framework\Mcp\Tool\SystemConfigReadTool;
 use Shopware\Core\Framework\Mcp\Tool\SystemConfigWriteTool;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiContextTool;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Cache\Psr16Cache;
@@ -64,6 +76,7 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();
@@ -74,11 +87,14 @@ return static function (ContainerConfigurator $container): void {
     $services->set(McpContextProvider::class)
         ->args([service('request_stack')]);
 
+    $services->set(StoreApiMcpContextProvider::class)
+        ->args([service('request_stack')]);
+
     $services->set(McpAllowlistFilter::class);
 
     $services->set(McpAllowlistProvider::class)
         ->args([
-            service('Doctrine\DBAL\Connection'),
+            service(Connection::class),
             service('request_stack'),
             param('shopware.mcp.tool_dependencies'),
         ]);
@@ -93,6 +109,17 @@ return static function (ContainerConfigurator $container): void {
     $services->set(McpExceptionListener::class)
         ->tag('kernel.event_subscriber');
 
+    $services->set(McpSessionIdValidator::class);
+
+    $services->set(McpRateLimiter::class)
+        ->args([service(RateLimiter::class)]);
+
+    $services->set(McpAllowedHostsProvider::class)
+        ->args([
+            service(Connection::class),
+            env('APP_URL'),
+        ]);
+
     $services->set(McpServerController::class)
         ->public()
         ->args([
@@ -101,7 +128,9 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.http_foundation_factory')->nullOnInvalid(),
             service('mcp.psr17_factory')->nullOnInvalid(),
             service('mcp.psr17_factory')->nullOnInvalid(),
-            service(RateLimiter::class),
+            service(McpRateLimiter::class),
+            service(McpSessionIdValidator::class),
+            service(McpAllowedHostsProvider::class),
             service(McpAllowlistProvider::class),
             service('logger'),
             service(McpAllowlistFilter::class),
@@ -109,8 +138,48 @@ return static function (ContainerConfigurator $container): void {
         ->tag('controller.service_arguments')
         ->tag('monolog.logger', ['channel' => 'mcp']);
 
+    $services->set('mcp.store_api.registry', Registry::class)
+        ->args([service('event_dispatcher'), service('logger')])
+        ->tag('monolog.logger', ['channel' => 'mcp']);
+
+    $services->set('mcp.store_api.server.builder', McpServerBuilder::class)
+        ->factory([McpServer::class, 'builder'])
+        ->call('setServerInfo', [
+            'Shopware Store API',
+            '1.0.0',
+            'Shopware Store API MCP server for sales-channel and customer-context operations.',
+        ])
+        ->call('setPaginationLimit', [param('mcp.pagination_limit')])
+        ->call('setInstructions', ['This MCP server exposes Store API capabilities. All operations run in the current sales-channel context and use Store API authentication headers.'])
+        ->call('setEventDispatcher', [service('event_dispatcher')])
+        ->call('setRegistry', [service('mcp.store_api.registry')])
+        ->call('setSession', [service('mcp.session.store')->nullOnInvalid()])
+        ->call('addRequestHandlers', [tagged_iterator('mcp.store_api.request_handler')])
+        ->call('addNotificationHandlers', [tagged_iterator('mcp.store_api.notification_handler')])
+        ->call('setLogger', [service('logger')])
+        ->tag('monolog.logger', ['channel' => 'mcp']);
+
+    $services->set('mcp.store_api.server', McpServer::class)
+        ->factory([service('mcp.store_api.server.builder'), 'build']);
+
+    $services->set(StoreApiMcpServerController::class)
+        ->public()
+        ->args([
+            service('mcp.store_api.server')->nullOnInvalid(),
+            service('mcp.psr_http_factory')->nullOnInvalid(),
+            service('mcp.http_foundation_factory')->nullOnInvalid(),
+            service('mcp.psr17_factory')->nullOnInvalid(),
+            service('mcp.psr17_factory')->nullOnInvalid(),
+            service(McpRateLimiter::class),
+            service(McpSessionIdValidator::class),
+            service(McpAllowedHostsProvider::class),
+            service('logger'),
+        ])
+        ->tag('controller.service_arguments')
+        ->tag('monolog.logger', ['channel' => 'mcp']);
+
     $services->set(AppMcpPrivilegeProvider::class)
-        ->args([service('Doctrine\DBAL\Connection'), service('logger')])
+        ->args([service(Connection::class), service('logger')])
         ->tag('monolog.logger', ['channel' => 'mcp']);
 
     $services->set(McpCapabilityCatalog::class)
@@ -149,7 +218,7 @@ return static function (ContainerConfigurator $container): void {
         ->tag('console.command');
 
     $services->set(ToolResultCacheStorage::class)
-        ->args([service('Doctrine\DBAL\Connection')]);
+        ->args([service(Connection::class), service(ClockInterface::class)]);
 
     $services->set(McpSessionCleanupSubscriber::class)
         ->args([service(ToolResultCacheStorage::class)])
@@ -201,7 +270,7 @@ return static function (ContainerConfigurator $container): void {
         ->args([
             service(DefinitionInstanceRegistry::class),
             service(McpContextProvider::class),
-            service('Doctrine\DBAL\Connection'),
+            service(Connection::class),
         ])
         ->tag('mcp.tool');
 
@@ -209,7 +278,7 @@ return static function (ContainerConfigurator $container): void {
         ->args([
             service(DefinitionInstanceRegistry::class),
             service(McpContextProvider::class),
-            service('Doctrine\DBAL\Connection'),
+            service(Connection::class),
         ])
         ->tag('mcp.tool');
 
@@ -225,7 +294,7 @@ return static function (ContainerConfigurator $container): void {
             service(DefinitionInstanceRegistry::class),
             service(McpContextProvider::class),
             service(StateMachineRegistry::class),
-            service('Doctrine\DBAL\Connection'),
+            service(Connection::class),
         ])
         ->tag('mcp.tool');
 
@@ -236,6 +305,10 @@ return static function (ContainerConfigurator $container): void {
             service(DefinitionInstanceRegistry::class),
         ])
         ->tag('mcp.tool');
+
+    $services->set(StoreApiContextTool::class)
+        ->args([service(StoreApiMcpContextProvider::class)])
+        ->tag('shopware.store_api_mcp.tool');
 
     // Prompt
     $services->set(ShopwareContextPrompt::class)
@@ -278,7 +351,7 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(ExtensionsResource::class)
         ->args([
-            service('Doctrine\DBAL\Connection'),
+            service(Connection::class),
             service('kernel'),
         ])
         ->tag('mcp.resource');
@@ -303,16 +376,16 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(AppMcpToolLoader::class)
         ->args([
-            service('Doctrine\DBAL\Connection'),
+            service(Connection::class),
             service(AppMcpCapabilityExecutor::class),
-            param('shopware.mcp.allowed_tools'),
             service('logger'),
+            param('shopware.mcp.allowed_tools'),
         ])
         ->tag('mcp.loader');
 
     $services->set(AppMcpPromptLoader::class)
         ->args([
-            service('Doctrine\DBAL\Connection'),
+            service(Connection::class),
             service(AppMcpCapabilityExecutor::class),
             service('logger'),
         ])
@@ -321,7 +394,7 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(AppMcpResourceLoader::class)
         ->args([
-            service('Doctrine\DBAL\Connection'),
+            service(Connection::class),
             service(AppMcpCapabilityExecutor::class),
             service('logger'),
         ])
@@ -336,6 +409,15 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(McpResourcePersister::class)
         ->args([service('app_mcp_resource.repository')]);
+
+    $services->set(McpLifecycleHandler::class)
+        ->args([
+            service(McpToolPersister::class),
+            service(McpPromptPersister::class),
+            service(McpResourcePersister::class),
+        ])
+        ->tag('shopware.app_lifecycle.handler', ['priority' => -1300])
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
 
     // DAL definitions
     $services->set(AppMcpToolDefinition::class)

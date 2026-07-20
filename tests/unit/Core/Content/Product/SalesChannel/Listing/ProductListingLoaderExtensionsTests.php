@@ -54,7 +54,7 @@ class ProductListingLoaderExtensionsTests extends TestCase
 
         $extension = new ResolveListingIdsExtension(
             new Criteria(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $result = (new ExtensionDispatcher($dispatcher))->publish(
@@ -98,7 +98,7 @@ class ProductListingLoaderExtensionsTests extends TestCase
 
         $extension = new ResolveListingExtension(
             new Criteria(),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
         );
 
         $result = (new ExtensionDispatcher($dispatcher))->publish(

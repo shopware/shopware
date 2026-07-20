@@ -37,7 +37,7 @@ class SsoUserInvitationMailServiceTest extends TestCase
         $localeRepository = static::getContainer()->get('locale.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('code', 'pl-PL'));
-        $locale = $localeRepository->search($criteria, Context::createDefaultContext())->first();
+        $locale = $localeRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(LocaleEntity::class, $locale);
 
@@ -90,5 +90,6 @@ class SsoUserInvitationMailServiceTest extends TestCase
 
         static::assertInstanceOf(MailBeforeSentEvent::class, $caughtEvent);
         static::assertSame('Administrator invited you to join Demostore', $caughtEvent->getData()['subject']);
+        static::assertNull($caughtEvent->getData()['senderEmail']);
     }
 }

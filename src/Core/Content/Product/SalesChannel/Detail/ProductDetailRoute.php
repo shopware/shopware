@@ -12,7 +12,6 @@ use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Detail\Event\ResolveVariantIdEvent;
@@ -155,7 +154,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
                     $resolverContext
                 );
 
-                $cmsPage = $pages->first();
+                $cmsPage = $pages->getEntities()->first();
                 if ($cmsPage instanceof CmsPageEntity) {
                     $product->setCmsPage($cmsPage);
                 }
@@ -251,7 +250,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             ]
         );
 
-        if (empty($productData)) {
+        if ($productData === false) {
             return [null, null];
         }
 
@@ -379,7 +378,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             $slots = explode('|', $slots);
         }
 
-        if (!empty($slots) && \is_array($slots)) {
+        if (\is_array($slots) && $slots !== []) {
             $criteria
                 ->getAssociation('sections.blocks')
                 ->addFilter(new EqualsAnyFilter('slots.id', $slots));
@@ -388,14 +387,14 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         return $criteria;
     }
 
-    private function getBreadcrumbCategory(Request $request, ProductEntity $product, SalesChannelContext $context): ?CategoryEntity
+    private function getBreadcrumbCategory(Request $request, SalesChannelProductEntity $product, SalesChannelContext $context): ?CategoryEntity
     {
         if (Feature::isActive('BREADCRUMB_REWORK') || Feature::isActive('v6.8.0.0')) {
             if ($this->config->getBool('core.listing.buildBreadcrumbByReferrerCategory', $context->getSalesChannelId())) {
                 $referrerCategoryId = $request->query->get('referrerCategoryId');
 
-                if ($referrerCategoryId !== null && \in_array($referrerCategoryId, $product->getCategoryIds() ?? [], true)) {
-                    return $this->breadcrumbBuilder->loadCategory($referrerCategoryId, $context->getContext());
+                if ($referrerCategoryId !== null) {
+                    return $this->breadcrumbBuilder->getProductCategoryByReferrer($referrerCategoryId, $product, $context);
                 }
             }
         }

@@ -40,6 +40,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestAggregation;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Util\DateHistogramCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -1323,8 +1324,7 @@ class EntityAggregatorTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAggregation(new TestAggregation('taxRate', 'foo'));
 
-        $this->expectException(InvalidAggregationQueryException::class);
-        $this->expectExceptionMessage('Aggregation of type Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestAggregation not supported');
+        $this->expectExceptionObject(new InvalidAggregationQueryException('Aggregation of type Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestAggregation not supported'));
 
         $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
     }
@@ -1336,8 +1336,11 @@ class EntityAggregatorTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAggregation(new SumAggregation('`taxRate`', 'taxRate'));
 
-        static::expectException(\InvalidArgumentException::class);
-        static::expectExceptionMessage('Backtick not allowed in identifier');
+        if (Feature::isActive('v6.8.0.0')) {
+            static::expectExceptionObject(DataAbstractionLayerException::invalidIdentifier('`taxRate`'));
+        } else {
+            static::expectExceptionObject(new \InvalidArgumentException('Backtick not allowed in identifier'));
+        }
         $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
     }
 

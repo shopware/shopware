@@ -30,7 +30,7 @@ class MediaUrlLoaderTest extends TestCase
 
         $subscriber = new MediaUrlLoader(
             new MediaUrlGenerator($filesystem),
-            $this->createMock(RemoteThumbnailLoader::class)
+            static::createStub(RemoteThumbnailLoader::class)
         );
 
         $subscriber->loaded([$entity]);

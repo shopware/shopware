@@ -36,6 +36,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -417,11 +418,11 @@ class CreditNoteRendererTest extends TestCase
         array $invoiceCreditIds,
         array $creditNoteCreditIds
     ): CreditNoteRenderer {
-        $orderRepository = $this->createMock(EntityRepository::class);
+        $orderRepository = static::createStub(EntityRepository::class);
         $orderRepository->method('search')->willReturn($orderSearchResult);
         $orderRepository->method('createVersion')->willReturn('new-order-version-id');
 
-        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder = static::createStub(QueryBuilder::class);
         $queryBuilder->method('select')->willReturnSelf();
         $queryBuilder->method('from')->willReturnSelf();
         $queryBuilder->method('innerJoin')->willReturnSelf();
@@ -431,11 +432,11 @@ class CreditNoteRendererTest extends TestCase
         $queryBuilder->method('orderBy')->willReturnSelf();
         $queryBuilder->method('addOrderBy')->willReturnSelf();
 
-        $result = $this->createMock(Result::class);
+        $result = static::createStub(Result::class);
         $result->method('fetchAllAssociative')->willReturn($invoiceData);
         $queryBuilder->method('executeQuery')->willReturn($result);
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $connection->method('createQueryBuilder')->willReturn($queryBuilder);
         $referenceInvoiceLoader = new ReferenceInvoiceLoader($connection);
@@ -467,17 +468,18 @@ class CreditNoteRendererTest extends TestCase
         return new CreditNoteRenderer(
             $orderRepository,
             new DocumentConfigLoader(
-                $this->createMock(
+                static::createStub(
                     EntityRepository::class
                 ),
-                $this->createMock(EntityRepository::class)
+                static::createStub(EntityRepository::class)
             ),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(NumberRangeValueGeneratorInterface::class),
             $referenceInvoiceLoader,
             $connection,
-            $this->createMock(DocumentFileRendererRegistry::class),
-            $this->createMock(ValidatorInterface::class),
+            static::createStub(DocumentFileRendererRegistry::class),
+            static::createStub(ValidatorInterface::class),
+            new NativeClock()
         );
     }
 }

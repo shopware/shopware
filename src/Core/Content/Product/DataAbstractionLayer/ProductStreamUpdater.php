@@ -7,15 +7,16 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition;
-use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
+use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamWriteResultHelper;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException as DeprecatedUnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
@@ -102,7 +103,8 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         try {
             $newMatches = $this->collectMatchingIdsInLanguageContexts($this->getLanguageContexts($message->getContext()), $criteria);
-        } catch (UnmappedFieldException) {
+        } catch (UnmappedFieldException|DeprecatedUnmappedFieldException) {
+            // @deprecated tag:v6.8.0 - drop DeprecatedUnmappedFieldException, unmappedField() only returns UnmappedFieldException then
             // invalid filter, remove all mappings
             $newMatches = [];
         }
@@ -153,17 +155,13 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             return null;
         }
 
-        $ids = $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME);
-        $filterIds = $event->getPrimaryKeysWithPropertyChange(ProductStreamFilterDefinition::ENTITY_NAME, [
-            'type',
-            'field',
-            'value',
-            'operator',
-            'parameters',
-            'position',
-        ]);
+        if ($event->getEventByEntityName(ProductStreamFilterDefinition::ENTITY_NAME) === null) {
+            return null;
+        }
 
-        if ($ids === [] || $filterIds === []) {
+        $ids = ProductStreamWriteResultHelper::getAffectedStreamIds($event);
+
+        if ($ids === []) {
             return null;
         }
 
@@ -195,7 +193,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         foreach ($streams as $stream) {
             $filter = json_decode((string) $stream['api_filter'], true, 512, \JSON_THROW_ON_ERROR);
-            if (empty($filter)) {
+            if (!\is_array($filter) || $filter === []) {
                 continue;
             }
 
@@ -207,7 +205,8 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
             try {
                 $matchedIds = $this->collectMatchingIdsInLanguageContexts($languageContexts, $criteria);
-            } catch (UnmappedFieldException) {
+            } catch (UnmappedFieldException|DeprecatedUnmappedFieldException) {
+                // @deprecated tag:v6.8.0 - drop DeprecatedUnmappedFieldException, unmappedField() only returns UnmappedFieldException then
                 // skip if filter field is not found
                 continue;
             }

@@ -35,8 +35,8 @@ class AppScriptProductPriceCalculatorTest extends TestCase
         $decorated = $this->createMock(ProductPriceCalculator::class);
         $decorated->expects($this->once())->method('calculate')->with($products);
 
-        $calculator = new AppScriptProductPriceCalculator($decorated, $executor, $this->createMock(ScriptPriceStubs::class));
+        $calculator = new AppScriptProductPriceCalculator($decorated, $executor, static::createStub(ScriptPriceStubs::class));
 
-        $calculator->calculate($products, $this->createMock(SalesChannelContext::class));
+        $calculator->calculate($products, static::createStub(SalesChannelContext::class));
     }
 }

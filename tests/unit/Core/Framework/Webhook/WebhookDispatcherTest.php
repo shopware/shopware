@@ -79,7 +79,7 @@ class WebhookDispatcherTest extends TestCase
 
         $webhookDispatcher = new WebhookDispatcher(
             $eventDispatcherMock,
-            $this->createMock(WebhookManager::class),
+            static::createStub(WebhookManager::class),
         );
 
         $webhookDispatcher->addSubscriber($subscriber);
@@ -101,7 +101,7 @@ class WebhookDispatcherTest extends TestCase
 
         $webhookDispatcher = new WebhookDispatcher(
             $eventDispatcherMock,
-            $this->createMock(WebhookManager::class),
+            static::createStub(WebhookManager::class),
         );
 
         $webhookDispatcher->removeSubscriber($subscriber);
@@ -118,7 +118,7 @@ class WebhookDispatcherTest extends TestCase
 
         $webhookDispatcher = new WebhookDispatcher(
             $eventDispatcherMock,
-            $this->createMock(WebhookManager::class),
+            static::createStub(WebhookManager::class),
         );
 
         $webhookDispatcher->addListener('event', $listener, 5);
@@ -135,7 +135,7 @@ class WebhookDispatcherTest extends TestCase
 
         $webhookDispatcher = new WebhookDispatcher(
             $eventDispatcherMock,
-            $this->createMock(WebhookManager::class),
+            static::createStub(WebhookManager::class),
         );
 
         $webhookDispatcher->removeListener('event', $listener);
@@ -150,7 +150,7 @@ class WebhookDispatcherTest extends TestCase
 
         $webhookDispatcher = new WebhookDispatcher(
             $eventDispatcherMock,
-            $this->createMock(WebhookManager::class),
+            static::createStub(WebhookManager::class),
         );
 
         $webhookDispatcher->getListeners('event');
@@ -167,7 +167,7 @@ class WebhookDispatcherTest extends TestCase
 
         $webhookDispatcher = new WebhookDispatcher(
             $eventDispatcherMock,
-            $this->createMock(WebhookManager::class),
+            static::createStub(WebhookManager::class),
         );
 
         $webhookDispatcher->getListenerPriority('event', $listener);
@@ -182,7 +182,7 @@ class WebhookDispatcherTest extends TestCase
 
         $webhookDispatcher = new WebhookDispatcher(
             $eventDispatcherMock,
-            $this->createMock(WebhookManager::class),
+            static::createStub(WebhookManager::class),
         );
 
         $webhookDispatcher->hasListeners('event');

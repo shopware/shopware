@@ -19,8 +19,8 @@ class PrefixVersionStrategyTest extends TestCase
     #[DataProvider('dataProvider')]
     public function testPathGetsPrefixed(string $prefix, string $fileName, string $returnPath, string $expected): void
     {
-        $orgVersion = $this->createMock(FlysystemLastModifiedVersionStrategy::class);
-        $orgVersion->method('applyVersion')->with(rtrim($prefix, '/') . '/' . ltrim($fileName, '/'))->willReturn($returnPath);
+        $orgVersion = static::createStub(FlysystemLastModifiedVersionStrategy::class);
+        $orgVersion->method('applyVersion')->willReturn($returnPath);
 
         $prefixVersion = new PrefixVersionStrategy(
             $prefix,

@@ -23,10 +23,10 @@ class StockStorageTest extends TestCase
         $ids = new IdsCollection();
 
         $productIds = $ids->getList(['p-1', 'p-2', 'p-3']);
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
-        $connection = $this->createMock(Connection::class);
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $connection = static::createStub(Connection::class);
+        $dispatcher = static::createStub(EventDispatcherInterface::class);
 
         $stockStorage = new StockStorage($connection, $dispatcher);
 
@@ -38,7 +38,7 @@ class StockStorageTest extends TestCase
 
     public function testEmptyChangesDoNotDispatchEvent(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
 
         $dispatcher->expects($this->never())->method('dispatch');

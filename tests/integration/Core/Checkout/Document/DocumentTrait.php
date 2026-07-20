@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
@@ -61,6 +62,7 @@ trait DocumentTrait
             'languageId' => Defaults::LANGUAGE_SYSTEM,
             'email' => 'test@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
+            'guest' => true,
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
@@ -177,6 +179,48 @@ trait DocumentTrait
         return $cartService->add($cart, $lineItems, $this->salesChannelContext);
     }
 
+    private function createShippingMethod(float $price = 10.0): string
+    {
+        $shippingMethodId = Uuid::randomHex();
+        $repository = static::getContainer()->get('shipping_method.repository');
+
+        $repository->create([[
+            'id' => $shippingMethodId,
+            'type' => 0,
+            'name' => 'test shipping method',
+            'technicalName' => Uuid::randomHex(),
+            'bindShippingfree' => false,
+            'active' => true,
+            'salesChannels' => [
+                ['id' => TestDefaults::SALES_CHANNEL],
+            ],
+            'salesChannelDefaultAssignments' => [
+                ['id' => TestDefaults::SALES_CHANNEL],
+            ],
+            'prices' => [[
+                'name' => 'Std',
+                'currencyPrice' => [[
+                    'currencyId' => Defaults::CURRENCY,
+                    'net' => $price,
+                    'gross' => $price,
+                    'linked' => false,
+                ]],
+                'currencyId' => Defaults::CURRENCY,
+                'calculation' => 1,
+                'quantityStart' => 1,
+            ]],
+            'deliveryTime' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'test',
+                'min' => 1,
+                'max' => 90,
+                'unit' => DeliveryTimeEntity::DELIVERY_TIME_DAY,
+            ],
+        ]], $this->context);
+
+        return $shippingMethodId;
+    }
+
     private function getBaseConfig(string $documentType, ?string $salesChannelId = null): ?DocumentBaseConfigEntity
     {
         /** @var EntityRepository<DocumentTypeCollection> $documentTypeRepository */
@@ -198,7 +242,7 @@ trait DocumentTrait
             $criteria->addFilter(new EqualsFilter('salesChannels.documentTypeId', $documentTypeId));
         }
 
-        $config = $documentBaseConfigRepository->search($criteria, Context::createDefaultContext())->first();
+        $config = $documentBaseConfigRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         if ($config === null) {
             return null;

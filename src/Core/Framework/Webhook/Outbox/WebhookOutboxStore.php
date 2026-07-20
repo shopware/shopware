@@ -16,7 +16,9 @@ use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 /**
  * @internal
  *
- * @codeCoverageIgnore Integration tested with \Shopware\Tests\Integration\Core\Framework\Webhook\Outbox\WebhookOutboxStoreTest
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\Webhook\Outbox\WebhookOutboxStoreTest
  */
 #[Package('framework')]
 class WebhookOutboxStore
@@ -502,8 +504,10 @@ class WebhookOutboxStore
             ['sequence' => $sequence, 'id' => $eventLogId]
         );
 
+        // Restart the stream's cleanup grace window on every delivery write.
         $this->connection->executeStatement(
-            'INSERT IGNORE INTO webhook_stream (id, partition_key, created_at) VALUES (:id, :pk, :now)',
+            'INSERT INTO webhook_stream (id, partition_key, created_at) VALUES (:id, :pk, :now)
+             ON DUPLICATE KEY UPDATE created_at = :now',
             [
                 'id' => Uuid::randomBytes(),
                 'pk' => $insert->partitionKey,

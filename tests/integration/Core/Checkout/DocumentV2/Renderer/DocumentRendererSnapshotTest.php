@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\CancellationInvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\CancellationInvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Renderer\HtmlRenderer;
@@ -294,7 +295,7 @@ class DocumentRendererSnapshotTest extends TestCase
         return $data;
     }
 
-    private function buildCancellationInvoiceRenderData(OrderEntity $order): InvoiceRenderData
+    private function buildCancellationInvoiceRenderData(OrderEntity $order): CancellationInvoiceRenderData
     {
         $this->seedDemoBaseConfig('storno');
         $this->seedReferenceInvoice($order->getId());

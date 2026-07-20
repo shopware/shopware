@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Log\Package;
  * @codeCoverageIgnore
  */
 #[Package('after-sales')]
-final readonly class InvoiceRenderData extends AbstractRenderData
+readonly class InvoiceRenderData extends AbstractRenderData
 {
     /**
      * @param list<LineItemView> $lineItems
@@ -47,26 +47,5 @@ final readonly class InvoiceRenderData extends AbstractRenderData
          */
         public array $custom = [],
     ) {
-    }
-
-    /**
-     * @param array<string, mixed>|null $custom
-     */
-    public function with(?TypeCode $typeCode = null, ?array $custom = null): self
-    {
-        return new self(
-            typeCode: $typeCode ?? $this->typeCode,
-            buyerReference: $this->buyerReference,
-            buyer: $this->buyer,
-            deliveryDate: $this->deliveryDate,
-            lineItems: $this->lineItems,
-            allowanceCharges: $this->allowanceCharges,
-            taxBreakdown: $this->taxBreakdown,
-            monetarySummation: $this->monetarySummation,
-            paymentMeans: $this->paymentMeans,
-            paymentDueDate: $this->paymentDueDate,
-            intraCommunityDelivery: $this->intraCommunityDelivery,
-            custom: $custom ?? $this->custom,
-        );
     }
 }

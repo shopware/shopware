@@ -6,9 +6,8 @@ use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
-use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\CancellationInvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Template\Calculation\OrderInverter;
-use Shopware\Core\Checkout\DocumentV2\Template\Enum\TypeCode;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -47,7 +46,7 @@ final readonly class CancellationInvoiceDataProvider extends AbstractDocumentDat
         OrderEntity $order,
         DocumentGenerationRequest $generationRequest,
         Context $context,
-    ): InvoiceRenderData {
+    ): CancellationInvoiceRenderData {
         $referencedInvoiceNumber = $this->resolveReferencedInvoiceNumber(
             $order->getId(),
             $generationRequest->referencedDocumentId,
@@ -55,14 +54,16 @@ final readonly class CancellationInvoiceDataProvider extends AbstractDocumentDat
 
         OrderInverter::invert($order);
 
-        $invoice = $this->invoiceDataProvider->provideRenderingData($order, $generationRequest, $context);
+        $invoice = $this->invoiceDataProvider->provideRenderingData(
+            $order,
+            $generationRequest,
+            $context,
+        );
 
-        return $invoice->with(
-            typeCode: TypeCode::CANCELLATION_INVOICE,
-            custom: [
-                'stornoNumber' => $generationRequest->documentNumber,
-                'invoiceNumber' => $referencedInvoiceNumber,
-            ],
+        return CancellationInvoiceRenderData::fromInvoice(
+            $invoice,
+            $generationRequest->documentNumber,
+            $referencedInvoiceNumber,
         );
     }
 

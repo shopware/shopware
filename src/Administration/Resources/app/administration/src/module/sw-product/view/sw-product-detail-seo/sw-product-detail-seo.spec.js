@@ -122,9 +122,6 @@ async function createWrapper(privileges = []) {
                     create: (entity) => repositoryMockFactory(entity),
                 },
                 validationService: {},
-                seoUrlService: {
-                    getStoreApiConfigs: jest.fn().mockResolvedValue([]),
-                },
             },
             stubs: {
                 'mt-card': {

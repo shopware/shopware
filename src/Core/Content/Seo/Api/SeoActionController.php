@@ -33,10 +33,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Routing\RouterInterface;
 
 #[Package('inventory')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
@@ -58,8 +56,6 @@ class SeoActionController extends AbstractController
         private readonly EntityRepository $salesChannelRepository,
         private readonly RequestCriteriaBuilder $requestCriteriaBuilder,
         private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
-        private readonly RouterInterface $router,
-        private readonly RequestStack $requestStack,
         private readonly iterable $entitySeoUrlRoutes = []
     ) {
     }
@@ -269,41 +265,6 @@ class SeoActionController extends AbstractController
         return new JsonResponse(['defaultTemplate' => $seoUrlRoute->getConfig()->getTemplate()]);
     }
 
-    /**
-     * Returns the store-api SEO URL route configs used by headless sales channels. When an `id` is provided,
-     * the generated base path info of each route is included, so the Administration can create canonical
-     * SEO URLs (and template blueprints) for headless sales channels without mapping storefront routes.
-     */
-    #[Route(
-        path: '/api/_action/seo-url/store-api-configs',
-        name: 'api.seo-url.store-api-configs',
-        methods: [Request::METHOD_GET]
-    )]
-    public function getStoreApiSeoUrlConfigs(Request $request): JsonResponse
-    {
-        $id = $request->query->get('id');
-        $id = \is_string($id) && $id !== '' ? $id : null;
-
-        $configs = [];
-        foreach ($this->entitySeoUrlRoutes as $entitySeoUrlRoute) {
-            $config = $entitySeoUrlRoute->getConfig();
-
-            $data = [
-                'routeName' => $config->getRouteName(),
-                'entityName' => $config->getDefinition()->getEntityName(),
-                'template' => $config->getTemplate(),
-            ];
-
-            if ($id !== null) {
-                $data['pathInfo'] = $this->generateStoreApiPathInfo($config, $id);
-            }
-
-            $configs[] = $data;
-        }
-
-        return new JsonResponse($configs);
-    }
-
     private function validateSeoUrlTemplate(Request $request): void
     {
         if (!$request->request->has('template')) {
@@ -353,10 +314,6 @@ class SeoActionController extends AbstractController
 
         $template = $seoUrlTemplate['template'] ?? '';
 
-        if ($salesChannel->isHeadless() && trim($template) !== '' && !$this->isFullUrlTemplate($template)) {
-            throw SeoException::invalidHeadlessTemplate();
-        }
-
         $criteria = $previewCriteria ?? new Criteria();
         $criteria->setLimit(10);
         $route->prepareCriteria($criteria, $salesChannel);
@@ -369,26 +326,6 @@ class SeoActionController extends AbstractController
         $result = $this->seoUrlGenerator->generate($ids, $template, $route, $context, $salesChannel);
 
         return \is_array($result) ? $result : iterator_to_array($result);
-    }
-
-    private function isFullUrlTemplate(string $template): bool
-    {
-        return preg_match('#^https?://.+#i', trim($template)) === 1;
-    }
-
-    private function generateStoreApiPathInfo(SeoUrlRouteConfig $config, string $id): string
-    {
-        // Mirrors SeoUrlGenerator: generate the internal path from the route + primary key and strip the
-        // request base path so the result matches the path info of generated store-api SEO URLs.
-        $pathInfo = $this->router->generate($config->getRouteName(), $config->getPrimaryKeyParameter($id));
-
-        $basePath = $this->requestStack->getMainRequest()?->getBasePath() ?? '';
-
-        if ($basePath !== '' && str_starts_with($pathInfo, $basePath)) {
-            return substr($pathInfo, \strlen($basePath));
-        }
-
-        return $pathInfo;
     }
 
     private function findEntitySeoUrlRoute(string $routeName): ?EntitySeoUrlRouteInterface

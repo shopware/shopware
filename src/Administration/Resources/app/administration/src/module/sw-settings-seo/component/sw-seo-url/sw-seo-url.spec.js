@@ -2,7 +2,7 @@
  * @sw-package inventory
  */
 
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 // from Defaults.php
 const STOREFRONT_TYPE_ID = '8a243080f92e4c719546314b577cf82b';
@@ -24,22 +24,6 @@ const SALES_CHANNELS = [
     { id: PRODUCT_COMPARISON_SALES_CHANNEL_ID, typeId: PRODUCT_COMPARISON_TYPE_ID },
     { id: AGENTIC_COMMERCE_SALES_CHANNEL_ID, typeId: AGENTIC_COMMERCE_TYPE_ID },
 ];
-
-const STORE_API_CONFIGS = [
-    { routeName: 'store-api.product.detail', entityName: 'product', template: '', pathInfo: `/store-api/product/${FK}` },
-    { routeName: 'store-api.category.detail', entityName: 'category', template: '', pathInfo: `/store-api/category/${FK}` },
-    {
-        routeName: 'store-api.landing-page.detail',
-        entityName: 'landing_page',
-        template: '',
-        pathInfo: `/store-api/landing-page/${FK}`,
-    },
-];
-
-const invalidHeadlessError = { detail: 'sw-seo-url-template-card.general.invalidHeadlessUrlTemplate' };
-
-// store-api configs returned by the mocked seoUrlService.getStoreApiConfigs, overridable per test
-let storeApiConfigsResponse = [];
 
 function createEntityCollection(entities = []) {
     return new Shopware.Data.EntityCollection('collection', 'collection', {}, null, entities);
@@ -85,9 +69,6 @@ async function createWrapper() {
                         schema: { entity: {} },
                     }),
                 },
-                seoUrlService: {
-                    getStoreApiConfigs: jest.fn(() => Promise.resolve(storeApiConfigsResponse)),
-                },
             },
         },
     });
@@ -97,7 +78,6 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
     let wrapper;
 
     beforeEach(async () => {
-        storeApiConfigsResponse = [];
         wrapper = await createWrapper();
         Shopware.Store.get('swSeoUrl').currentSeoUrl = '';
     });
@@ -189,6 +169,8 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
         ['Pepper-white-ground-pearl/SW10098'],
         ['foo/bar?x=1'],
         ['caf%C3%A9/SW10098'],
+        // headless channels store absolute URLs; they must not be flagged either
+        ['https://example.com/product'],
         [''],
         [null],
     ])('accepts "%s" as SEO path', async (validPath) => {
@@ -239,65 +221,6 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
     });
 
     it.each([
-        'product',
-        'category',
-        'landing_page',
-    ])('should create a new %s seo url from the resolved store-api config for a headless sales channel', async (entity) => {
-        setSalesChannels();
-        storeApiConfigsResponse = STORE_API_CONFIGS;
-        const config = STORE_API_CONFIGS.find((entry) => entry.entityName === entity);
-
-        await wrapper.setProps({ entity, urls: [seoUrl({ routeName: 'frontend.some.page', salesChannelId: null })] });
-        await wrapper.vm.onSalesChannelChanged(HEADLESS_SALES_CHANNEL_ID);
-        await flushPromises();
-
-        expect(wrapper.vm.seoUrlService.getStoreApiConfigs).toHaveBeenCalledWith(FK);
-        expect(wrapper.vm.currentSeoUrl).toEqual(
-            expectedCurrentSeoUrl({
-                routeName: config.routeName,
-                pathInfo: config.pathInfo,
-                salesChannelId: HEADLESS_SALES_CHANNEL_ID,
-            }),
-        );
-    });
-
-    it('should fall back to the default seo url when the entity has no store-api equivalent', async () => {
-        setSalesChannels();
-        // the endpoint returns configs for other entities only, none matching this component's entity
-        storeApiConfigsResponse = [STORE_API_CONFIGS.find((entry) => entry.entityName === 'category')];
-
-        await wrapper.setProps({ entity: 'product', urls: [seoUrl()] });
-        await wrapper.vm.onSalesChannelChanged(HEADLESS_SALES_CHANNEL_ID);
-        await flushPromises();
-
-        expect(wrapper.vm.currentSeoUrl).toEqual(
-            expectedCurrentSeoUrl({
-                routeName: 'frontend.detail.page',
-                pathInfo: `/detail/${FK}`,
-                salesChannelId: HEADLESS_SALES_CHANNEL_ID,
-            }),
-        );
-    });
-
-    it('should not request store-api configs for a non-headless sales channel', async () => {
-        setSalesChannels();
-        storeApiConfigsResponse = STORE_API_CONFIGS;
-
-        await wrapper.setProps({ entity: 'product', urls: [seoUrl()] });
-        await wrapper.vm.onSalesChannelChanged(STOREFRONT_SALES_CHANNEL_ID);
-        await flushPromises();
-
-        expect(wrapper.vm.seoUrlService.getStoreApiConfigs).not.toHaveBeenCalled();
-        expect(wrapper.vm.currentSeoUrl).toEqual(
-            expectedCurrentSeoUrl({
-                routeName: 'frontend.detail.page',
-                pathInfo: `/detail/${FK}`,
-                salesChannelId: STOREFRONT_SALES_CHANNEL_ID,
-            }),
-        );
-    });
-
-    it.each([
         [
             'storefront',
             STOREFRONT_SALES_CHANNEL_ID,
@@ -342,59 +265,13 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
         expect(wrapper.vm.seoUrlHelptext).toBe('sw-seo-url.textSeoUrlsNotSupported');
     });
 
-    it('should not flag the seo path for non-headless sales channels', async () => {
+    it('should not flag a relative seo path for a headless sales channel', async () => {
         setSalesChannels();
         Shopware.Store.get('swSeoUrl').currentSeoUrl = { seoPathInfo: 'some/relative/path' };
 
-        wrapper.vm.currentSalesChannelId = STOREFRONT_SALES_CHANNEL_ID;
-
-        expect(wrapper.vm.isHeadlessSalesChannel).toBe(false);
-        expect(wrapper.vm.seoPathInfoError).toBeNull();
-    });
-
-    it.each([
-        [
-            'a relative path',
-            'some/relative/path',
-            invalidHeadlessError,
-        ],
-        [
-            'an empty value',
-            '',
-            null,
-        ],
-        [
-            'a blank value',
-            '   ',
-            null,
-        ],
-        [
-            'a null value',
-            null,
-            null,
-        ],
-        [
-            'a value without protocol',
-            'www.example.com/product',
-            invalidHeadlessError,
-        ],
-        [
-            'a valid http url',
-            'http://example.com/product',
-            null,
-        ],
-        [
-            'a valid https url',
-            'https://example.com/product',
-            null,
-        ],
-    ])('should flag the seo path for a headless sales channel with %s', async (_, seoPathInfo, expectedError) => {
-        setSalesChannels();
-        Shopware.Store.get('swSeoUrl').currentSeoUrl = { seoPathInfo };
-
         wrapper.vm.currentSalesChannelId = HEADLESS_SALES_CHANNEL_ID;
 
-        expect(wrapper.vm.isHeadlessSalesChannel).toBe(true);
-        expect(wrapper.vm.seoPathInfoError).toEqual(expectedError);
+        // headless templates may be relative (resolved against the sales channel domain), so no error
+        expect(wrapper.vm.seoPathInfoError).toBeNull();
     });
 });

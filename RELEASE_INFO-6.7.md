@@ -600,6 +600,13 @@ Plugins that build `Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument` ins
 ### Text-based media is stored and served with an explicit charset
 
 Text-based media files (`text/plain`, `text/csv`, `text/html`, `text/xml`, `application/json`, `application/xml`) are now written to storage with an explicit `Content-Type: …; charset=utf-8`. Previously the charset was missing, so serving such a file directly from object storage / CDN made browsers fall back to a non-UTF-8 encoding and render umlauts and other multi-byte characters as mojibake. This applies to both the server-side upload path and the presigned direct-to-S3 upload path. The `mimeType` persisted on the media entity stays bare (without the charset parameter), so no code reading it needs to change.
+### SEO URLs for headless sales channels
+
+Headless (API type) sales channels can now generate SEO URLs and be used for product export feeds. Products, categories and landing pages generate SEO URLs for headless channels via dedicated store-api routes (`store-api.product.detail`, `store-api.category.detail`, `store-api.landing-page.detail`).
+
+- The `seo_url_template` entity gained an `is_headless` flag that discriminates the storefront (`frontend.*`) and headless (`store-api.*`) route families. Storefront channels resolve the non-headless templates, headless channels the headless ones — the two inheritance chains are kept separate.
+- Three default `store-api.*` templates are seeded (one per entity), mirroring the relative template of their storefront counterpart. Headless channels inherit these defaults just like storefront channels inherit the `frontend.*` defaults; the resolved path is prefixed with the host of the sales channel's domain. A per-channel template may be an absolute URL (`https://…`), which is then used as-is.
+- Product export feeds now accept both *Storefront* and *Headless* sales channels.
 
 ### Webhooks are signed with the current app secret after a secret rotation
 

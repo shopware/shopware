@@ -178,6 +178,7 @@ class SeoUrlUpdaterTest extends TestCase
             'route_name' => ProductStoreApiUrlRoute::ROUTE_NAME,
             'entity_name' => ProductDefinition::ENTITY_NAME,
             'template' => '{{ product.translated.name }}',
+            'is_headless' => 1,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
@@ -209,9 +210,15 @@ class SeoUrlUpdaterTest extends TestCase
         static::assertNull($this->findHeadlessProductSeoUrl($this->ids->get('hidden')));
     }
 
-    public function testHeadlessSalesChannelDoesNotInheritDefaultTemplate(): void
+    public function testHeadlessSalesChannelInheritsDefaultTemplate(): void
     {
         $connection = static::getContainer()->get(Connection::class);
+
+        // Reset the store-api templates (incl. the seeded default) so the test controls the values.
+        $connection->executeStatement(
+            'DELETE FROM `seo_url_template` WHERE `route_name` = :route',
+            ['route' => ProductStoreApiUrlRoute::ROUTE_NAME]
+        );
 
         // "all sales channels" default template (sales_channel_id IS NULL) for the store-api route ...
         $connection->insert('seo_url_template', [
@@ -220,20 +227,22 @@ class SeoUrlUpdaterTest extends TestCase
             'route_name' => ProductStoreApiUrlRoute::ROUTE_NAME,
             'entity_name' => ProductDefinition::ENTITY_NAME,
             'template' => '{{ product.translated.name }}',
+            'is_headless' => 1,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
-        // ... and a headless channel row without an own template (NULL) must NOT inherit that default.
+        // ... a headless channel row without an own template (NULL) inherits that default.
         $connection->insert('seo_url_template', [
             'id' => Uuid::randomBytes(),
             'sales_channel_id' => Uuid::fromHexToBytes($this->headlessSalesChannel['id']),
             'route_name' => ProductStoreApiUrlRoute::ROUTE_NAME,
             'entity_name' => ProductDefinition::ENTITY_NAME,
             'template' => null,
+            'is_headless' => 1,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
-        $product = (new ProductBuilder($this->ids, 'headless-no-inherit'))
+        $product = (new ProductBuilder($this->ids, 'headless-inherit'))
             ->price(100)
             ->name('inherited-product')
             ->visibility($this->headlessSalesChannel['id'])
@@ -243,10 +252,12 @@ class SeoUrlUpdaterTest extends TestCase
 
         static::getContainer()->get(SeoUrlUpdater::class)->update(
             ProductStoreApiUrlRoute::ROUTE_NAME,
-            [$this->ids->get('headless-no-inherit')]
+            [$this->ids->get('headless-inherit')]
         );
 
-        static::assertNull($this->findHeadlessProductSeoUrl($this->ids->get('headless-no-inherit')));
+        $seoUrl = $this->findHeadlessProductSeoUrl($this->ids->get('headless-inherit'));
+        static::assertNotNull($seoUrl);
+        static::assertSame('inherited-product', $seoUrl->getSeoPathInfo());
     }
 
     /**

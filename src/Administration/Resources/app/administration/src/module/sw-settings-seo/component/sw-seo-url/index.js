@@ -10,9 +10,6 @@ const Criteria = Shopware.Data.Criteria;
 const EntityCollection = Shopware.Data.EntityCollection;
 const { Defaults } = Shopware;
 
-// Mirrors the core headless template validation (SeoActionController::isFullUrlTemplate).
-const FULL_URL_PATTERN = /^https?:\/\/.+/i;
-
 /**
  * Sequences that are not URL-allowed inside a SEO path: a `%` that is not
  * part of a valid percent-escape, the fragment marker `#`, backslashes and
@@ -27,10 +24,7 @@ const DISALLOWED_SEO_PATH_CHARS = /%(?![0-9A-Fa-f]{2})|[#\\\x00-\x1F\x7F]/;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'seoUrlService',
-    ],
+    inject: ['repositoryFactory'],
 
     emits: ['on-change-sales-channel'],
 
@@ -38,12 +32,6 @@ export default {
 
     props: {
         salesChannelId: {
-            type: String,
-            required: false,
-            default: null,
-        },
-
-        entity: {
             type: String,
             required: false,
             default: null,
@@ -86,9 +74,6 @@ export default {
         return {
             currentSalesChannelId: this.salesChannelId,
             showEmptySeoUrlError: false,
-            // Store-api route config (route name + generated base path info) for this entity, resolved on
-            // demand for headless sales channels. Null while unknown or when no store-api equivalent exists.
-            storeApiConfig: null,
         };
     },
 
@@ -115,22 +100,6 @@ export default {
 
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
-        },
-
-        isHeadlessSalesChannel() {
-            if (!Shopware.Store.get('swSeoUrl')) {
-                return true;
-            }
-
-            if (Shopware.Store.get('swSeoUrl').salesChannelCollection === null) {
-                return true;
-            }
-
-            const salesChannel = Shopware.Store.get('swSeoUrl').salesChannelCollection.find((entry) => {
-                return entry.id === this.currentSalesChannelId;
-            });
-
-            return this.currentSalesChannelId !== null && salesChannel?.typeId === Defaults.apiSalesChannelTypeId;
         },
 
         isUnsupportedSalesChannel() {
@@ -161,20 +130,19 @@ export default {
 
         seoPathInfoError() {
             const seoPathInfo = this.currentSeoUrl?.seoPathInfo;
-            const trimmed = typeof seoPathInfo === 'string' ? seoPathInfo.trim() : '';
 
-            if (this.isHeadlessSalesChannel && trimmed !== '' && !FULL_URL_PATTERN.test(trimmed)) {
-                return { detail: this.$t('sw-seo-url-template-card.general.invalidHeadlessUrlTemplate') };
+            if (typeof seoPathInfo !== 'string' || seoPathInfo === '') {
+                return null;
             }
 
-            if (typeof seoPathInfo === 'string' && seoPathInfo !== '' && DISALLOWED_SEO_PATH_CHARS.test(seoPathInfo)) {
-                return {
-                    code: 'CONTENT__SEO_URL_INVALID_CHARACTERS',
-                    detail: this.$t('sw-seo-url.errorInvalidCharacters'),
-                };
+            if (!DISALLOWED_SEO_PATH_CHARS.test(seoPathInfo)) {
+                return null;
             }
 
-            return null;
+            return {
+                code: 'CONTENT__SEO_URL_INVALID_CHARACTERS',
+                detail: this.$t('sw-seo-url.errorInvalidCharacters'),
+            };
         },
 
         hasAdditionalSeoSlot() {
@@ -218,32 +186,6 @@ export default {
 
             this.salesChannelRepository.search(salesChannelCriteria).then((salesChannelCollection) => {
                 Shopware.Store.get('swSeoUrl').salesChannelCollection = salesChannelCollection;
-
-                // The initially selected sales channel may already be a headless one; resolve its store-api
-                // config once the sales channels are known so the current SEO URL targets the store-api route.
-                if (this.isHeadlessSalesChannel) {
-                    this.resolveStoreApiConfig().then(() => this.refreshCurrentSeoUrl());
-                }
-            });
-        },
-
-        resolveStoreApiConfig() {
-            // Store-api route configs only apply to headless sales channels and need the entity type plus a
-            // foreign key to resolve the generated base path info of the matching route.
-            if (!this.isHeadlessSalesChannel || !this.entity) {
-                this.storeApiConfig = null;
-                return Promise.resolve();
-            }
-
-            const foreignKey =
-                this.defaultSeoUrl?.foreignKey ?? this.seoUrlCollection.find((item) => item.foreignKey)?.foreignKey;
-            if (!foreignKey) {
-                this.storeApiConfig = null;
-                return Promise.resolve();
-            }
-
-            return this.seoUrlService.getStoreApiConfigs(foreignKey).then((configs) => {
-                this.storeApiConfig = configs.find((config) => config.entityName === this.entity) ?? null;
             });
         },
 
@@ -312,20 +254,12 @@ export default {
                         return item.pathInfo && item.routeName && item.foreignKey;
                     }) || {};
 
-                let routeName = this.defaultSeoUrl?.routeName ?? seoUrl.routeName;
-                let pathInfo = this.defaultSeoUrl?.pathInfo ?? seoUrl.pathInfo;
-
-                if (this.isHeadlessSalesChannel && this.storeApiConfig) {
-                    routeName = this.storeApiConfig.routeName;
-                    pathInfo = this.storeApiConfig.pathInfo;
-                }
-
                 entity.foreignKey = this.defaultSeoUrl?.foreignKey ?? seoUrl.foreignKey;
                 entity.isCanonical = true;
                 entity.languageId = actualLanguageId;
                 entity.salesChannelId = this.currentSalesChannelId;
-                entity.routeName = routeName;
-                entity.pathInfo = pathInfo;
+                entity.routeName = this.defaultSeoUrl?.routeName ?? seoUrl.routeName;
+                entity.pathInfo = this.defaultSeoUrl?.pathInfo ?? seoUrl.pathInfo;
                 entity.isModified = true;
 
                 this.seoUrlCollection.add(entity);
@@ -340,7 +274,7 @@ export default {
         onSalesChannelChanged(salesChannelId) {
             this.currentSalesChannelId = salesChannelId;
             this.$emit('on-change-sales-channel', salesChannelId);
-            this.resolveStoreApiConfig().then(() => this.refreshCurrentSeoUrl());
+            this.refreshCurrentSeoUrl();
         },
     },
 };

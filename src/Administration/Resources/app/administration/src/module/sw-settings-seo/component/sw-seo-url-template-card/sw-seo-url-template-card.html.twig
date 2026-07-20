@@ -35,7 +35,7 @@
                 {% block sw_seo_url_template_card_entries_input_wrapper %}
                 <sw-inherit-wrapper
                     v-model:value="seoUrlTemplate.template"
-                    :has-parent="seoUrlTemplate.salesChannelId !== null && !salesChannelIsHeadless"
+                    :has-parent="seoUrlTemplate.salesChannelId !== null"
                     :inherited-value="getPlaceholder(seoUrlTemplate)"
                     @update:value="onInput(seoUrlTemplate)"
                 >
@@ -48,7 +48,7 @@
                             :is-inherited="props.isInherited"
                             :model-value="props.currentValue"
                             :disabled="props.isInherited"
-                            :error="errorMessages[seoUrlTemplate.id] || seoUrlTemplatesTemplateError[index]"
+                            :error="seoUrlTemplatesTemplateError[index]"
                             :name="`sw-field--seo-url-template-${seoUrlTemplate.entity}`"
                             :label="getLabel(seoUrlTemplate)"
                             :placeholder="getPlaceholder(seoUrlTemplate)"

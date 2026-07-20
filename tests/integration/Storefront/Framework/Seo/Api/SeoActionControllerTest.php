@@ -251,28 +251,6 @@ class SeoActionControllerTest extends TestCase
         static::assertSame('https://foo.bar/test', $data[0]['seoPathInfo']);
     }
 
-    public function testPreviewForHeadlessStoreApiRouteRequiresFullUrl(): void
-    {
-        $salesChannelId = Uuid::randomHex();
-        $this->createSalesChannelContext(['id' => $salesChannelId, 'typeId' => Defaults::SALES_CHANNEL_TYPE_API, 'name' => 'test']);
-
-        $data = [
-            'routeName' => ProductStoreApiUrlRoute::ROUTE_NAME,
-            'entityName' => static::getContainer()->get(ProductDefinition::class)->getEntityName(),
-            'template' => '{{ product.name }}',
-            'salesChannelId' => $salesChannelId,
-        ];
-        $this->getBrowser()->jsonRequest('POST', '/api/_action/seo-url-template/preview', $data);
-
-        $response = $this->getBrowser()->getResponse();
-        static::assertSame(400, $response->getStatusCode(), (string) $response->getContent());
-        $content = $response->getContent();
-        static::assertIsString($content);
-        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertSame('CONTENT__INVALID_HEADLESS_SEO_URL_TEMPLATE', $data['errors'][0]['code']);
-    }
-
     public function testPreviewForHeadlessStoreApiRouteWithEmptyTemplateIsNotInvalid(): void
     {
         $salesChannelId = Uuid::randomHex();

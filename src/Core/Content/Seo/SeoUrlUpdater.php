@@ -155,8 +155,9 @@ class SeoUrlUpdater
         $salesChannelTemplates = $this->connection->fetchAllKeyValue(
             'SELECT LOWER(HEX(sales_channel_id)) as sales_channel_id, template
              FROM seo_url_template
-             WHERE route_name LIKE :route',
-            ['route' => $routeName]
+             WHERE route_name LIKE :route
+               AND is_headless = :isHeadless',
+            ['route' => $routeName, 'isHeadless' => (int) $isHeadless]
         );
 
         $hasDefaultTemplate = \array_key_exists('', $salesChannelTemplates);
@@ -169,11 +170,7 @@ class SeoUrlUpdater
 
         $result = [];
         foreach ($domains as $domain) {
-            $template = $salesChannelTemplates[$domain['salesChannelId']] ?? null;
-
-            if ($template === null && !$isHeadless) {
-                $template = $default;
-            }
+            $template = $salesChannelTemplates[$domain['salesChannelId']] ?? $default;
 
             if ($template === null) {
                 continue;

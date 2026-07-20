@@ -18,9 +18,14 @@ const AGENTIC_COMMERCE_SALES_CHANNEL_ID = 'agentic-commerce-sales-channel-id';
 
 let createdEntityCounter = 0;
 
+// minimal entity stub: getOrigin() returns a mutable snapshot, mirroring the DAL change-tracking API
+function entityStub(data) {
+    return { ...data, getOrigin: () => ({}) };
+}
+
 function createSeoUrlTemplateEntity() {
     createdEntityCounter += 1;
-    return { id: `seo-url-template-${createdEntityCounter}` };
+    return entityStub({ id: `seo-url-template-${createdEntityCounter}` });
 }
 
 function createSearchResult(items = []) {
@@ -29,8 +34,26 @@ function createSearchResult(items = []) {
     return collection;
 }
 
-function storefrontDefault(entityName, routeName) {
-    return { id: `default-${entityName}`, routeName, entityName, salesChannelId: null, template: 't' };
+function storefrontDefault(entityName, routeName, template = 't') {
+    return entityStub({
+        id: `default-${entityName}`,
+        routeName,
+        entityName,
+        salesChannelId: null,
+        template,
+        isHeadless: false,
+    });
+}
+
+function headlessDefault(entityName, routeName, template = 't') {
+    return entityStub({
+        id: `default-${entityName}-headless`,
+        routeName,
+        entityName,
+        salesChannelId: null,
+        template,
+        isHeadless: true,
+    });
 }
 
 // storefront default templates in their natural (product, landing page, category) order
@@ -40,28 +63,28 @@ const STOREFRONT_DEFAULTS = [
     storefrontDefault('category', 'frontend.navigation.page'),
 ];
 
-function headlessTemplateError(detail = 'raw backend message') {
-    return { response: { data: { errors: [{ code: 'CONTENT__INVALID_HEADLESS_SEO_URL_TEMPLATE', detail }] } } };
-}
+// the matching store-api (headless) defaults, seeded by the migration, loaded alongside the storefront ones
+const HEADLESS_DEFAULTS = [
+    headlessDefault('product', 'store-api.product.detail'),
+    headlessDefault('landing_page', 'store-api.landing-page.detail'),
+    headlessDefault('category', 'store-api.category.detail'),
+];
 
-async function createWrapper({ defaultTemplates = [], salesChannelTemplates = [] } = {}) {
+const ALL_DEFAULTS = [
+    ...STOREFRONT_DEFAULTS,
+    ...HEADLESS_DEFAULTS,
+];
+
+async function createWrapper({ defaultTemplates = ALL_DEFAULTS, salesChannelTemplates = [] } = {}) {
     const seoUrlTemplateService = {
         preview: jest.fn().mockResolvedValue([]),
         getContext: jest.fn().mockResolvedValue({}),
     };
 
-    const seoUrlService = {
-        getStoreApiConfigs: jest.fn().mockResolvedValue([
-            { routeName: 'store-api.product.detail', entityName: 'product', template: '' },
-            { routeName: 'store-api.category.detail', entityName: 'category', template: '' },
-            { routeName: 'store-api.landing-page.detail', entityName: 'landing_page', template: '' },
-        ]),
-    };
-
     const seoUrlTemplateRepository = {
         route: '/seo-url-template',
         schema: { entity: 'seo_url_template' },
-        // first call (no sales channel) returns the storefront defaults, the next call returns the templates
+        // first call (no sales channel) returns the defaults, the next call returns the templates
         // already saved for the selected sales channel, every further call returns nothing
         search: jest
             .fn()
@@ -96,7 +119,6 @@ async function createWrapper({ defaultTemplates = [], salesChannelTemplates = []
             },
             provide: {
                 seoUrlTemplateService,
-                seoUrlService,
                 repositoryFactory: {
                     create: (entity) => (entity === 'sales_channel' ? salesChannelRepository : seoUrlTemplateRepository),
                 },
@@ -131,15 +153,18 @@ describe('src/module/sw-settings-seo/component/sw-seo-url-template-card', () => 
         expect(wrapper.vm.salesChannelIsHeadless).toBe(false);
     });
 
-    it('should recognize headless store-api routes', async () => {
+    it('should only display the storefront defaults on the "All Sales Channels" view', async () => {
         const { wrapper } = await createWrapper();
 
-        expect(wrapper.vm.isHeadlessRoute('store-api.product.detail')).toBe(true);
-        expect(wrapper.vm.isHeadlessRoute('store-api.landing-page.detail')).toBe(true);
-        expect(wrapper.vm.isHeadlessRoute('frontend.detail.page')).toBe(false);
+        // the headless (store-api) defaults are kept as a blueprint but not shown on the default view
+        expect(routeNamesForSalesChannel(wrapper, null)).toEqual([
+            'frontend.detail.page',
+            'frontend.landing.page',
+            'frontend.navigation.page',
+        ]);
     });
 
-    it('should create and render store-api template fields without default values for a headless sales channel', async () => {
+    it('should create the store-api template fields from the headless defaults for a headless sales channel', async () => {
         const { wrapper, seoUrlTemplateService } = await createWrapper();
 
         await wrapper.vm.onSalesChannelChanged(HEADLESS_SALES_CHANNEL_ID);
@@ -233,12 +258,16 @@ describe('src/module/sw-settings-seo/component/sw-seo-url-template-card', () => 
         },
     );
 
-    it('should not provide an inherited placeholder for headless templates', async () => {
+    it('should provide the inherited default placeholder for a headless template of a concrete channel', async () => {
         const { wrapper } = await createWrapper();
 
+        // per-channel headless template inherits the store-api default template value
         expect(
             wrapper.vm.getPlaceholder({ routeName: 'store-api.product.detail', salesChannelId: HEADLESS_SALES_CHANNEL_ID }),
-        ).toBeNull();
+        ).toBe('t');
+
+        // a default row itself ("All Sales Channels") has nothing to inherit
+        expect(wrapper.vm.getPlaceholder({ routeName: 'store-api.product.detail', salesChannelId: null })).toBeNull();
     });
 
     it('should provide dedicated translated labels for headless store-api routes', async () => {
@@ -252,13 +281,12 @@ describe('src/module/sw-settings-seo/component/sw-seo-url-template-card', () => 
         );
     });
 
-    it('should only persist headless templates that have a value and never duplicate blank blueprint rows', async () => {
+    it('should persist the filled-in headless template with its value', async () => {
         const { wrapper, seoUrlTemplateRepository } = await createWrapper();
 
         await wrapper.vm.onSalesChannelChanged(HEADLESS_SALES_CHANNEL_ID);
         await flushPromises();
 
-        // user only fills in the product template, the other two stay empty
         const productTemplate = wrapper.vm
             .getTemplatesForSalesChannel(HEADLESS_SALES_CHANNEL_ID)
             .find((template) => template.routeName === 'store-api.product.detail');
@@ -270,9 +298,33 @@ describe('src/module/sw-settings-seo/component/sw-seo-url-template-card', () => 
         expect(seoUrlTemplateRepository.sync).toHaveBeenCalledTimes(1);
         const syncedCollection = [...seoUrlTemplateRepository.sync.mock.calls[0][0]];
 
-        // only the filled-in product template is persisted, no blank store-api.* / frontend.* rows
-        expect(syncedCollection.map((entry) => entry.routeName)).toEqual(['store-api.product.detail']);
-        syncedCollection.forEach((entry) => expect(entry.template).not.toBeNull());
+        // the filled-in product template is part of the sync payload with its value
+        const productSync = syncedCollection.find((entry) => entry.routeName === 'store-api.product.detail');
+        expect(productSync.template).toBe('https://foo.bar/product/{{ product.id }}');
+    });
+
+    it('should sync the headless default template with the storefront one on the "All Sales Channels" view', async () => {
+        const { wrapper, seoUrlTemplateRepository } = await createWrapper();
+
+        // edit the storefront product default on the "All Sales Channels" view
+        const productDefault = wrapper.vm
+            .getTemplatesForSalesChannel(null)
+            .find((template) => template.routeName === 'frontend.detail.page');
+        productDefault.template = '{{ product.productNumber }}';
+
+        wrapper.vm.onClickSave();
+        await flushPromises();
+
+        expect(seoUrlTemplateRepository.sync).toHaveBeenCalledTimes(1);
+        const synced = [...seoUrlTemplateRepository.sync.mock.calls[0][0]];
+
+        // both the storefront default and its headless counterpart are persisted with the same value
+        const productHeadlessDefault = synced.find((entry) => entry.routeName === 'store-api.product.detail');
+        expect(productHeadlessDefault).toBeTruthy();
+        expect(productHeadlessDefault.template).toBe('{{ product.productNumber }}');
+        expect(synced.find((entry) => entry.routeName === 'frontend.detail.page').template).toBe(
+            '{{ product.productNumber }}',
+        );
     });
 
     it('should emit the headless state when the sales channel changes', async () => {
@@ -287,34 +339,19 @@ describe('src/module/sw-settings-seo/component/sw-seo-url-template-card', () => 
         expect(wrapper.emitted('sales-channel-changed').at(-1)).toEqual([false]);
     });
 
-    it('should append store-api routes that have no matching default template', async () => {
-        const { wrapper } = await createWrapper({
-            defaultTemplates: [storefrontDefault('product', 'frontend.detail.page')],
-        });
-
-        await wrapper.vm.onSalesChannelChanged(HEADLESS_SALES_CHANNEL_ID);
-        await flushPromises();
-
-        // product follows its matched default first, the unmatched store-api routes are appended
-        expect(routeNamesForSalesChannel(wrapper, HEADLESS_SALES_CHANNEL_ID)).toEqual([
-            'store-api.product.detail',
-            'store-api.category.detail',
-            'store-api.landing-page.detail',
-        ]);
-    });
-
     it('should keep the storefront default order and reuse a store-api template already saved for the channel', async () => {
         const { wrapper } = await createWrapper({
-            defaultTemplates: STOREFRONT_DEFAULTS,
+            defaultTemplates: ALL_DEFAULTS,
             // the product store-api template was already saved for this channel and is loaded from the DB
             salesChannelTemplates: [
-                {
+                entityStub({
                     id: 'saved-product',
                     routeName: 'store-api.product.detail',
                     entityName: 'product',
                     salesChannelId: HEADLESS_SALES_CHANNEL_ID,
+                    isHeadless: true,
                     template: 'https://foo.bar/{{ product.id }}',
-                },
+                }),
             ],
         });
 
@@ -323,7 +360,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-url-template-card', () => 
 
         const templates = [...wrapper.vm.getTemplatesForSalesChannel(HEADLESS_SALES_CHANNEL_ID)];
 
-        // store-api routes replace their placeholder in the storefront default order, product not duplicated
+        // store-api routes follow the headless default order, product not duplicated
         expect(templates.map((template) => template.routeName)).toEqual([
             'store-api.product.detail',
             'store-api.landing-page.detail',
@@ -344,31 +381,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-url-template-card', () => 
         expect(seoUrlTemplateService.getContext).toHaveBeenCalled();
     });
 
-    it('should translate the headless full-url error, keep it off the DAL field, and clear it once the preview succeeds', async () => {
-        const { wrapper, seoUrlTemplateService } = await createWrapper();
-        const entity = {
-            id: 'headless-entity',
-            routeName: 'store-api.product.detail',
-            entityName: 'product',
-            template: '{{ product.name }}',
-        };
-
-        seoUrlTemplateService.preview.mockRejectedValueOnce(headlessTemplateError());
-        await wrapper.vm.fetchSeoUrlPreview(entity);
-        await flushPromises();
-        expect(wrapper.vm.errorMessages[entity.id]).toEqual({
-            code: 'CONTENT__INVALID_HEADLESS_SEO_URL_TEMPLATE',
-            detail: 'sw-seo-url-template-card.general.invalidHeadlessUrlTemplate',
-        });
-        expect(Shopware.Store.get('error').getApiErrorFromPath('seo_url_template', entity.id, ['template'])).toBeNull();
-
-        seoUrlTemplateService.preview.mockResolvedValueOnce([{ seoPathInfo: 'https://foo.bar/test' }]);
-        await wrapper.vm.fetchSeoUrlPreview(entity);
-        await flushPromises();
-        expect(wrapper.vm.errorMessages[entity.id]).toBeNull();
-    });
-
-    it('should keep the raw backend error for non-headless template errors', async () => {
+    it('should store the backend error detail for template errors', async () => {
         const { wrapper, seoUrlTemplateService } = await createWrapper();
         const error = { code: 'FRAMEWORK__INVALID_SEO_TEMPLATE', detail: 'Twig syntax error' };
         seoUrlTemplateService.preview.mockRejectedValue({ response: { data: { errors: [error] } } });
@@ -382,6 +395,6 @@ describe('src/module/sw-settings-seo/component/sw-seo-url-template-card', () => 
         await wrapper.vm.fetchSeoUrlPreview(entity);
         await flushPromises();
 
-        expect(wrapper.vm.errorMessages[entity.id]).toEqual(error);
+        expect(wrapper.vm.errorMessages[entity.id]).toBe('Twig syntax error');
     });
 });

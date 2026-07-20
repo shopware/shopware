@@ -487,7 +487,7 @@ class SeoUrlUpdateListenerTest extends TestCase
 
         $criteria = new Criteria([$id1, $id2]);
         $criteria->addAssociation('seoUrls');
-        $products = $this->productRepository->search($criteria, Context::createDefaultContext());
+        $products = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities();
 
         /** @var ProductEntity $first */
         $first = $products->first();
@@ -562,7 +562,7 @@ class SeoUrlUpdateListenerTest extends TestCase
 
         $criteria = new Criteria([$parentId, $child1Id, $child2Id]);
         $criteria->addAssociation('seoUrls');
-        $products = $this->productRepository->search($criteria, Context::createDefaultContext());
+        $products = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities();
 
         /** @var ProductEntity $parent */
         $parent = $products->get($parentId);
@@ -622,7 +622,7 @@ class SeoUrlUpdateListenerTest extends TestCase
         // we don't check parent category here, because it's the home page and therefore has no seo url
         $criteria = new Criteria([$child1Id, $child2Id]);
         $criteria->addAssociation('seoUrls');
-        $categories = $categoryRepository->search($criteria, Context::createDefaultContext());
+        $categories = $categoryRepository->search($criteria, Context::createDefaultContext())->getEntities();
 
         // check that seo Urls are empty, as the categories are not assigned to a sales channel yet
         $child1 = $categories->get($child1Id);
@@ -652,7 +652,7 @@ class SeoUrlUpdateListenerTest extends TestCase
         // we don't check parent category here, because it's the home page and therefore has no seo url
         $criteria = new Criteria([$child1Id, $child2Id]);
         $criteria->addAssociation('seoUrls');
-        $categories = $categoryRepository->search($criteria, Context::createDefaultContext());
+        $categories = $categoryRepository->search($criteria, Context::createDefaultContext())->getEntities();
 
         $child1 = $categories->get($child1Id);
         static::assertInstanceOf(CategoryEntity::class, $child1);
@@ -720,7 +720,7 @@ class SeoUrlUpdateListenerTest extends TestCase
         $criteria->addAssociation('seoUrls');
 
         /** @var ProductEntity $product */
-        $product = $productRepo->search($criteria, Context::createDefaultContext())->first();
+        $product = $productRepo->search($criteria, Context::createDefaultContext())->getEntities()->first();
         /** @var SeoUrlCollection $seoUrls */
         $seoUrls = $product->getSeoUrls();
         static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);

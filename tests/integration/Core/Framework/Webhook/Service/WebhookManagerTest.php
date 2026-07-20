@@ -108,7 +108,7 @@ class WebhookManagerTest extends TestCase
         $customerId = Uuid::randomHex();
         $this->createCustomer($customerId);
 
-        $customer = static::getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->get($customerId);
+        $customer = static::getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->get($customerId);
         static::assertInstanceOf(CustomerEntity::class, $customer);
         $event = new CustomerLoginEvent(
             static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
@@ -128,7 +128,7 @@ class WebhookManagerTest extends TestCase
         $customerId = Uuid::randomHex();
         $this->createCustomer($customerId);
 
-        $customer = static::getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->get($customerId);
+        $customer = static::getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->get($customerId);
         static::assertInstanceOf(CustomerEntity::class, $customer);
         $event = new CustomerLoginEvent(
             static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
@@ -154,7 +154,7 @@ class WebhookManagerTest extends TestCase
         $customerId = Uuid::randomHex();
         $this->createCustomer($customerId);
 
-        $customer = static::getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->get($customerId);
+        $customer = static::getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->get($customerId);
         static::assertInstanceOf(CustomerEntity::class, $customer);
         $event = new CustomerLoginEvent(
             static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
@@ -217,7 +217,7 @@ class WebhookManagerTest extends TestCase
         $customerId = Uuid::randomHex();
         $this->createCustomer($customerId);
 
-        $customer = static::getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->get($customerId);
+        $customer = static::getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->get($customerId);
         static::assertInstanceOf(CustomerEntity::class, $customer);
         $event = new CustomerLoginEvent(
             static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),

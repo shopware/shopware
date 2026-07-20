@@ -54,25 +54,31 @@
 .product-detail-garan-label {
     margin-bottom: $spacer;
 
-    &-trigger {
-        display: inline-block;
-        padding: 0;
-        border: 0;
-        background: none;
-
-        svg {
-            width: 100%;
-            height: auto;
-        }
+    svg {
+        width: 100%;
+        max-width: 200px;
+        height: auto;
     }
 }
 
-.product-detail-garan-label-modal-body {
-    text-align: center;
+.product-detail-garan-label-show-link {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacer-xs;
+    margin-bottom: $spacer;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: $link-color;
+    text-decoration: underline;
+}
+
+.product-detail-garan-label-full {
+    margin-bottom: $spacer;
 
     svg {
         width: 100%;
-        max-width: 480px;
+        max-width: 320px;
         height: auto;
     }
 }

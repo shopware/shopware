@@ -588,6 +588,15 @@ $infoItemRemoveMdSpace: 1;
     font-size: $font-size-sm;
 }
 
+.line-item-garan-label {
+    margin-top: $spacer-sm;
+
+    svg {
+        max-width: 200px;
+        height: auto;
+    }
+}
+
 .line-item-label {
     color: $body-color;
     font-weight: $font-weight-bold;

@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1783944800AddGaranLabel;
 
 /**
@@ -19,8 +18,6 @@ use Shopware\Core\Migration\V6_7\Migration1783944800AddGaranLabel;
 class Migration1783944800AddGaranLabelTest extends TestCase
 {
     private const MAIL_TEMPLATE_TYPE = 'order_confirmation_mail';
-
-    private const SYSTEM_CONFIG_KEY = 'core.cart.showGaranLabelInOrderConfirmation';
 
     private readonly Connection $connection;
 
@@ -43,8 +40,6 @@ class Migration1783944800AddGaranLabelTest extends TestCase
             }
         }
 
-        $this->connection->delete('system_config', ['configuration_key' => self::SYSTEM_CONFIG_KEY]);
-
         $this->originalMailTranslations = $this->fetchMailTranslations();
     }
 
@@ -56,8 +51,6 @@ class Migration1783944800AddGaranLabelTest extends TestCase
             } catch (\Throwable) {
             }
         }
-
-        $this->connection->delete('system_config', ['configuration_key' => self::SYSTEM_CONFIG_KEY]);
 
         foreach ($this->originalMailTranslations as $languageId => $translation) {
             $this->connection->update(
@@ -96,34 +89,6 @@ class Migration1783944800AddGaranLabelTest extends TestCase
         static::assertSame('integer', $monthsColumn->type);
     }
 
-    public function testInsertsSystemConfigOnceAndKeepsManualChanges(): void
-    {
-        $this->migration->update($this->connection);
-        $this->migration->update($this->connection);
-
-        $config = $this->getSystemConfigValues();
-        $id = array_key_first($config);
-        static::assertNotNull($id);
-
-        static::assertCount(1, $config);
-        static::assertSame(['_value' => true], $config[$id]);
-
-        $this->connection->update(
-            'system_config',
-            ['configuration_value' => '{"_value": false}'],
-            ['id' => Uuid::fromHexToBytes((string) $id)]
-        );
-
-        $this->migration->update($this->connection);
-
-        $config = $this->getSystemConfigValues();
-        $id = array_key_first($config);
-        static::assertNotNull($id);
-
-        static::assertCount(1, $config);
-        static::assertSame(['_value' => false], $config[$id]);
-    }
-
     public function testMailTemplateContainsGaranLabel(): void
     {
         $this->migration->update($this->connection);
@@ -133,22 +98,7 @@ class Migration1783944800AddGaranLabelTest extends TestCase
 
         foreach ($translations as $translation) {
             static::assertStringContainsString('sw_garan_label', $translation['content_html']);
-            static::assertStringContainsString('config(\'core.cart.showGaranLabelInOrderConfirmation\')', $translation['content_html']);
         }
-    }
-
-    /**
-     * @return array<string, array{'_value': bool}>
-     */
-    private function getSystemConfigValues(): array
-    {
-        return array_map(
-            static fn (string $json) => json_decode($json, true),
-            $this->connection->fetchAllKeyValue(
-                'SELECT LOWER(HEX(`id`)), `configuration_value` FROM `system_config` WHERE `configuration_key` = :key',
-                ['key' => self::SYSTEM_CONFIG_KEY],
-            )
-        );
     }
 
     /**

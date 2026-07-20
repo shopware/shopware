@@ -7,6 +7,11 @@
 {% set showTaxPrice = config('core.cart.columnTaxInsteadUnitPrice') %}
 {% set showSubtotal = config('core.cart.showSubtotal') %}
 
+{% set showLegalGuaranteeNotice = config('core.cart.showLegalGuaranteeNotice') %}
+{% set legalGuaranteeNoticeModalId = 'legalGuaranteeNoticeModal' %}
+{% set legalGuaranteeNoticeModalTagOpen = '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-bs-toggle="modal" data-bs-target="#' ~ legalGuaranteeNoticeModalId ~ '">' %}
+{% set legalGuaranteeNoticeModalTagClose = '</button>' %}
+
 {% block page_checkout_main_content %}
     {% block page_checkout_confirm %}
         {% block page_checkout_confirm_header %}
@@ -74,9 +79,11 @@
                                 {% block page_checkout_confirm_tos_control_label %}
                                     <label for="tos"
                                         class="checkout-confirm-tos-label custom-control-label">
-                                        {{ 'checkout.confirmTermsTextModal'|trans({
+                                        {{ (showLegalGuaranteeNotice ? 'checkout.confirmTermsTextModalWithGuarantee' : 'checkout.confirmTermsTextModal')|trans({
                                             '%tosModalTagOpen%': tosModalTagOpen,
                                             '%tosModalTagClose%': tosModalTagClose,
+                                            '%legalGuaranteeNoticeModalTagOpen%': legalGuaranteeNoticeModalTagOpen,
+                                            '%legalGuaranteeNoticeModalTagClose%': legalGuaranteeNoticeModalTagClose,
                                         })|raw }}
                                     </label>
                                 {% endblock %}
@@ -262,9 +269,11 @@
                             {% block page_checkout_confirm_tos_auto_confirmed_label_bottom %}
                                 <label for="tos"
                                        class="checkout-confirm-tos-label custom-control-label">
-                                    {{ 'checkout.confirmTermsTextModal'|trans({
+                                    {{ (showLegalGuaranteeNotice ? 'checkout.confirmTermsTextModalWithGuarantee' : 'checkout.confirmTermsTextModal')|trans({
                                         '%tosModalTagOpen%': tosModalTagOpen,
                                         '%tosModalTagClose%': tosModalTagClose,
+                                        '%legalGuaranteeNoticeModalTagOpen%': legalGuaranteeNoticeModalTagOpen,
+                                        '%legalGuaranteeNoticeModalTagClose%': legalGuaranteeNoticeModalTagClose,
                                     })|raw }}
                                 </label>
                             {% endblock %}
@@ -280,11 +289,13 @@
 
                 {% block page_checkout_confirm_tos_auto_confirmed_text %}
                     <div class="checkout-confirm-tos-information my-3 fs-6">
-                        {{ 'checkout.autoConfirmTermsText'|trans({
+                        {{ (showLegalGuaranteeNotice ? 'checkout.autoConfirmTermsTextWithGuarantee' : 'checkout.autoConfirmTermsText')|trans({
                             '%tosModalTagOpen%': tosModalTagOpen,
                             '%tosModalTagClose%': tosModalTagClose,
                             '%revocationModalTagOpen%': revocationModalTagOpen,
                             '%revocationModalTagClose%': revocationModalTagClose,
+                            '%legalGuaranteeNoticeModalTagOpen%': legalGuaranteeNoticeModalTagOpen,
+                            '%legalGuaranteeNoticeModalTagClose%': legalGuaranteeNoticeModalTagClose,
                         })|raw }}
                     </div>
                 {% endblock %}
@@ -316,21 +327,7 @@
     {% endblock %}
 
     {% block page_checkout_confirm_legal_guarantee_notice %}
-        {% if config('core.cart.showLegalGuaranteeNotice') %}
-            {% set legalGuaranteeNoticeModalId = 'legalGuaranteeNoticeModal' %}
-
-            {% block page_checkout_confirm_legal_guarantee_notice_link %}
-                <p class="confirm-legal-guarantee-notice-link fs-6">
-                    <button type="button"
-                            class="btn btn-link-inline"
-                            aria-haspopup="dialog"
-                            data-bs-toggle="modal"
-                            data-bs-target="#{{ legalGuaranteeNoticeModalId }}">
-                        {{ 'checkout.confirmLegalGuaranteeNoticeLink'|trans|sw_sanitize }}
-                    </button>
-                </p>
-            {% endblock %}
-
+        {% if showLegalGuaranteeNotice %}
             {% block page_checkout_confirm_legal_guarantee_notice_modal %}
                 <div class="modal modal-lg fade"
                      id="{{ legalGuaranteeNoticeModalId }}"

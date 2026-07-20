@@ -103,6 +103,12 @@
                                                             } %}
                                                         {% endblock %}
                                                     {% endif %}
+
+                                                    {% if lineItem.referencedId %}
+                                                        {% block component_line_item_type_product_garan_label %}
+                                                            {% sw_include '@Storefront/storefront/component/line-item/element/garan-label.html.twig' %}
+                                                        {% endblock %}
+                                                    {% endif %}
                                                 </div>
                                                 {% endblock %}
                                             </div>

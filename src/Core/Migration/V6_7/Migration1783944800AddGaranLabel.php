@@ -3,10 +3,8 @@
 namespace Shopware\Core\Migration\V6_7;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Traits\MailUpdate;
 use Shopware\Core\Migration\Traits\UpdateMailTrait;
 use Symfony\Component\Filesystem\Filesystem;
@@ -28,7 +26,6 @@ class Migration1783944800AddGaranLabel extends MigrationStep
     {
         $this->updateProductWithHarmonisedLabelFields($connection);
         $this->updateConfirmationMailsWithHarmonisedLabels($connection);
-        $this->updateSystemConfigWithSetting($connection);
     }
 
     public function updateDestructive(Connection $connection): void
@@ -63,25 +60,5 @@ class Migration1783944800AddGaranLabel extends MigrationStep
         );
 
         $this->updateMail($update, $connection);
-    }
-
-    private function updateSystemConfigWithSetting(Connection $connection): void
-    {
-        $config = $connection->fetchAllAssociativeIndexed(
-            'SELECT `configuration_value` FROM `system_config` WHERE `configuration_key` = ? and `sales_channel_id` is null',
-            ['core.cart.showGaranLabelInOrderConfirmation']
-        );
-
-        if ($config !== []) {
-            return;
-        }
-
-        $connection->insert('system_config', [
-            'id' => Uuid::randomBytes(),
-            'configuration_key' => 'core.cart.showGaranLabelInOrderConfirmation',
-            'configuration_value' => json_encode(['_value' => true]),
-            'sales_channel_id' => null,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
     }
 }

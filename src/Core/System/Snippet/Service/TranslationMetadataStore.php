@@ -81,6 +81,16 @@ class TranslationMetadataStore
         $this->save($metadata);
     }
 
+    public function getRemoteMetadata(): MetadataCollection
+    {
+        $elements = [];
+        foreach ($this->fetchRemoteMetadataArray() as $metadata) {
+            $elements[] = MetadataEntry::create($metadata);
+        }
+
+        return new MetadataCollection($elements);
+    }
+
     public function getLocalMetadata(): MetadataCollection
     {
         $path = $this->getPath();

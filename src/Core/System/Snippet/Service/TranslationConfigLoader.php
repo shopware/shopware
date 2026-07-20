@@ -27,6 +27,10 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
 
     private const METADATA_URL = 'metadata-url';
 
+    private const COMMUNITY_TRANSLATIONS_URL = 'community-translations-url';
+
+    private const DOCUMENTATION_URL = 'documentation-url';
+
     /**
      * @description Maps the snake_case keys of the `shopware.translation` config section to the dash-separated keys used in translation.yaml.
      */
@@ -61,6 +65,12 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
 
         $repositoryUrl = $this->getUrlFromConfigByType(self::REPOSITORY_URL, $config);
         $metadataUrl = $this->getUrlFromConfigByType(self::METADATA_URL, $config);
+        $communityTranslationsUrl = isset($config[self::COMMUNITY_TRANSLATIONS_URL])
+            ? $this->getUrlFromConfigByType(self::COMMUNITY_TRANSLATIONS_URL, $config)
+            : null;
+        $documentationUrl = isset($config[self::DOCUMENTATION_URL])
+            ? $this->getUrlFromConfigByType(self::DOCUMENTATION_URL, $config)
+            : null;
 
         /** @var list<string> $plugins */
         $plugins = $config['plugins'];
@@ -68,6 +78,8 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
 
         $languages = $config['languages'] ?? [];
         $excludedLocales = $config['excluded-locales'] ?? [];
+        $pseudoLocales = $config['pseudo-locales'] ?? [];
+        $completenessThreshold = (int) ($config['completeness-threshold'] ?? 90);
 
         $locales = [];
         $languageData = [];
@@ -87,6 +99,10 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
             $pluginMapping,
             $metadataUrl,
             $excludedLocales,
+            $communityTranslationsUrl,
+            $documentationUrl,
+            $pseudoLocales,
+            $completenessThreshold,
         );
     }
 

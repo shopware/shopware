@@ -27,6 +27,9 @@ async function createWrapper(privileges = [], customStubs = {}) {
                             limit: 25,
                         },
                     },
+                    $router: {
+                        push: jest.fn(),
+                    },
                 },
                 provide: {
                     repositoryFactory: {
@@ -45,6 +48,11 @@ async function createWrapper(privileges = [], customStubs = {}) {
                                 ]);
                             },
                         }),
+                    },
+                    translationService: {
+                        getList: jest.fn().mockResolvedValue({ total: 0, items: [] }),
+                        update: jest.fn().mockResolvedValue(),
+                        install: jest.fn().mockResolvedValue(),
                     },
                     acl: {
                         can: (identifier) => {
@@ -124,6 +132,7 @@ async function createWrapper(privileges = [], customStubs = {}) {
                     'sw-card-view': true,
                     'sw-card': true,
                     'sw-label': true,
+                    'sw-settings-language-add-modal': true,
                     ...customStubs,
                 },
             },
@@ -267,5 +276,267 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
         const snippetLink = wrapper.find('.sw-settings-language-list__snippet-link');
         expect(snippetLink.exists()).toBe(true);
         expect(snippetLink.text()).toContain('manageSnippets');
+    });
+
+    it('should load the salesChannels association', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.listingCriteria).toEqual(
+            expect.objectContaining({
+                associations: expect.arrayContaining([
+                    expect.objectContaining({
+                        association: 'salesChannels',
+                    }),
+                ]),
+            }),
+        );
+    });
+
+    it('should render the sales channels and snippet status columns', async () => {
+        const wrapper = await createWrapper();
+
+        const columns = wrapper.vm.getColumns.map((column) => column.property);
+
+        expect(columns).toContain('salesChannels');
+        expect(columns).toContain('snippetStatus');
+    });
+
+    it('should render an update all snippets button', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const updateButton = wrapper.find('.sw-settings-language-list__button-update-snippets');
+
+        expect(updateButton.exists()).toBe(true);
+    });
+
+    it('should disable the update-all button when nothing is updatable', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const updateButton = wrapper.find('.sw-settings-language-list__button-update-snippets');
+
+        // no metadata => nothing updatable
+        expect(updateButton.attributes('disabled')).toBeDefined();
+
+        wrapper.vm.translationMetadata = { 'fr-FR': { locale: 'fr-FR', updateAvailable: true } };
+        await flushPromises();
+
+        expect(updateButton.attributes('disabled')).toBeUndefined();
+    });
+
+    it('should label the assigned sales channels by count', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.salesChannelLabel({ salesChannels: [] })).toContain('salesChannelNone');
+        expect(wrapper.vm.salesChannelLabel({})).toContain('salesChannelNone');
+        expect(
+            wrapper.vm.salesChannelLabel({
+                salesChannels: [
+                    {},
+                    {},
+                    {},
+                ],
+            }),
+        ).toContain('salesChannelCount');
+    });
+
+    it('should only expose the update status derived from the translation metadata', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.translationMetadata = {
+            'es-ES': { locale: 'es-ES', lastUpdate: '2026-07-20T00:00:00+00:00', updateAvailable: false },
+            'fr-FR': { locale: 'fr-FR', lastUpdate: '2026-07-20T00:00:00+00:00', updateAvailable: true },
+        };
+
+        // Shopware default languages are never checked for snippet updates
+        expect(wrapper.vm.getSnippetStatus({ locale: { code: 'de-DE' } })).toBeNull();
+        expect(wrapper.vm.getSnippetStatus({ locale: { code: 'en-GB' } })).toBeNull();
+        // up-to-date and custom locales no longer render a badge
+        expect(wrapper.vm.getSnippetStatus({ locale: { code: 'es-ES' } })).toBeNull();
+        expect(wrapper.vm.getSnippetStatus({ locale: { code: 'zh-CN' } })).toBeNull();
+        // only an available update is surfaced
+        expect(wrapper.vm.getSnippetStatus({ locale: { code: 'fr-FR' } })).toBe('updateAvailable');
+    });
+
+    it('should derive isUpdatingSnippets from the currently updating locales', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.isUpdatingSnippets).toBe(false);
+
+        wrapper.vm.updatingLocales = ['fr-FR'];
+
+        expect(wrapper.vm.isUpdatingSnippets).toBe(true);
+    });
+
+    it('should open the add language modal via the add button', async () => {
+        const wrapper = await createWrapper(['language.creator']);
+        await flushPromises();
+
+        expect(wrapper.findComponent('sw-settings-language-add-modal-stub').exists()).toBe(false);
+
+        await wrapper.find('.sw-settings-language-list__button-create').trigger('click');
+
+        expect(wrapper.vm.showAddLanguageModal).toBe(true);
+        expect(wrapper.findComponent('sw-settings-language-add-modal-stub').exists()).toBe(true);
+    });
+
+    it('should close the modal and redirect to the detail page of the added language', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.showAddLanguageModal = true;
+        jest.spyOn(wrapper.vm.languageRepository, 'search').mockResolvedValue({
+            first: () => ({ id: 'new-language-id' }),
+        });
+
+        await wrapper.vm.onLanguageAdded('fr-FR');
+
+        expect(wrapper.vm.showAddLanguageModal).toBe(false);
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
+            name: 'sw.settings.language.detail',
+            params: { id: 'new-language-id' },
+            query: { languageCreated: 'true' },
+        });
+    });
+
+    it('should reload the list when the added language cannot be resolved', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        jest.spyOn(wrapper.vm.languageRepository, 'search').mockResolvedValue({
+            first: () => null,
+        });
+        const getListSpy = jest.spyOn(wrapper.vm, 'getList').mockResolvedValue();
+
+        await wrapper.vm.onLanguageAdded('xx-XX');
+
+        expect(getListSpy).toHaveBeenCalled();
+        expect(wrapper.vm.$router.push).not.toHaveBeenCalled();
+    });
+
+    it('should sequentially install every updatable language when updating all snippets', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.translationMetadata = {
+            'fr-FR': { locale: 'fr-FR', updateAvailable: true },
+            'es-ES': { locale: 'es-ES', updateAvailable: true },
+            'it-IT': { locale: 'it-IT', updateAvailable: false },
+        };
+
+        await wrapper.vm.onUpdateAllSnippets();
+
+        expect(wrapper.vm.translationService.install).toHaveBeenCalledTimes(2);
+        expect(wrapper.vm.translationService.install).toHaveBeenNthCalledWith(1, {
+            locales: ['fr-FR'],
+            activate: true,
+        });
+        expect(wrapper.vm.translationService.install).toHaveBeenNthCalledWith(2, {
+            locales: ['es-ES'],
+            activate: true,
+        });
+        expect(wrapper.vm.translationService.update).not.toHaveBeenCalled();
+    });
+
+    it('should load the translation metadata once on creation and not on every list fetch', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.translationService.getList).toHaveBeenCalledTimes(1);
+
+        await wrapper.vm.getList();
+
+        expect(wrapper.vm.translationService.getList).toHaveBeenCalledTimes(1);
+    });
+
+    it('should refetch the translation metadata on refresh', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.translationService.getList).toHaveBeenCalledTimes(1);
+
+        wrapper.vm.onRefresh();
+        await flushPromises();
+
+        expect(wrapper.vm.translationService.getList).toHaveBeenCalledTimes(2);
+    });
+
+    it('should update the snippets of a single language and refetch the metadata', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.vm.onUpdateSnippets({ locale: { code: 'fr-FR' } });
+
+        expect(wrapper.vm.translationService.install).toHaveBeenCalledWith({
+            locales: ['fr-FR'],
+            activate: true,
+        });
+        // created (1) + reload after the update (2)
+        expect(wrapper.vm.translationService.getList).toHaveBeenCalledTimes(2);
+    });
+
+    it('should mark only the updating language as updating', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.translationMetadata = {
+            'fr-FR': { locale: 'fr-FR', updateAvailable: true },
+            'es-ES': { locale: 'es-ES', updateAvailable: true },
+        };
+        wrapper.vm.updatingLocales = ['fr-FR'];
+
+        expect(wrapper.vm.getSnippetStatus({ locale: { code: 'fr-FR' } })).toBe('updating');
+        expect(wrapper.vm.getSnippetStatus({ locale: { code: 'es-ES' } })).toBe('updateAvailable');
+    });
+
+    it('should only offer selected languages that actually have an update available', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.translationMetadata = {
+            'fr-FR': { locale: 'fr-FR', updateAvailable: true },
+            'es-ES': { locale: 'es-ES', updateAvailable: true },
+            'it-IT': { locale: 'it-IT', updateAvailable: false },
+        };
+        wrapper.vm.snippetSelection = {
+            a: { locale: { code: 'fr-FR' } },
+            b: { locale: { code: 'es-ES' } },
+            c: { locale: { code: 'it-IT' } },
+            d: { locale: { code: 'de-DE' } },
+        };
+
+        expect(wrapper.vm.selectedUpdatableLocales).toEqual([
+            'fr-FR',
+            'es-ES',
+        ]);
+    });
+
+    it('should sequentially install the snippets for each selected updatable language', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.translationMetadata = {
+            'fr-FR': { locale: 'fr-FR', updateAvailable: true },
+            'es-ES': { locale: 'es-ES', updateAvailable: true },
+        };
+        wrapper.vm.snippetSelection = {
+            a: { locale: { code: 'fr-FR' } },
+            b: { locale: { code: 'es-ES' } },
+        };
+
+        await wrapper.vm.onUpdateSelectedSnippets();
+
+        expect(wrapper.vm.translationService.install).toHaveBeenCalledTimes(2);
+        expect(wrapper.vm.translationService.install).toHaveBeenNthCalledWith(1, {
+            locales: ['fr-FR'],
+            activate: true,
+        });
+        expect(wrapper.vm.translationService.install).toHaveBeenNthCalledWith(2, {
+            locales: ['es-ES'],
+            activate: true,
+        });
     });
 });

@@ -36,69 +36,135 @@ class TranslationControllerTest extends TestCase
     {
         $this->config = new TranslationConfig(
             new Uri('http://localhost:8000'),
-            ['de-DE', 'es-ES'],
+            ['fr-FR', 'es-ES', 'ach-UG'],
             [],
             new LanguageCollection([
-                new Language('de-DE', 'Deutsch'),
+                new Language('fr-FR', 'Français'),
                 new Language('es-ES', 'Español'),
+                new Language('ach-UG', 'Acholi (Pseudo Language)'),
             ]),
             new PluginMappingCollection(),
             new Uri('http://localhost:8000/metadata.json'),
-            [],
+            ['de-DE', 'en-GB'],
+            new Uri('https://translate.shopware.com'),
+            new Uri('https://developer.shopware.com/docs/concepts/translations/'),
+            ['ach-UG'],
+            90,
         );
     }
 
-    public function testListReturnsConfiguredLocalesWithMetadata(): void
+    public function testListReturnsRemoteProgressAndUpdateState(): void
     {
         $metadataStore = static::createStub(TranslationMetadataStore::class);
+        // fr-FR is installed at an older version than the remote offers
         $metadataStore->method('getLocalMetadata')->willReturn(new MetadataCollection([
             MetadataEntry::create([
-                'locale' => 'de-DE',
+                'locale' => 'fr-FR',
                 'updatedAt' => '2025-08-07T11:26:28.974+00:00',
+                'progress' => 90,
+            ]),
+        ]));
+        $metadataStore->method('getRemoteMetadata')->willReturn(new MetadataCollection([
+            MetadataEntry::create([
+                'locale' => 'fr-FR',
+                'updatedAt' => '2026-01-01T00:00:00.000+00:00',
+                'progress' => 100,
+            ]),
+            MetadataEntry::create([
+                'locale' => 'es-ES',
+                'updatedAt' => '2026-01-01T00:00:00.000+00:00',
+                'progress' => 80,
+            ]),
+        ]));
+
+        $content = $this->decode($this->createController(metadataStore: $metadataStore)->list());
+        static::assertSame(3, $content['total']);
+        static::assertSame('https://translate.shopware.com', $content['meta']['communityTranslationsUrl']);
+        static::assertSame('https://developer.shopware.com/docs/concepts/translations/', $content['meta']['documentationUrl']);
+        static::assertSame(90, $content['meta']['completenessThreshold']);
+        static::assertSame(['de-DE', 'en-GB'], $content['meta']['builtInLocales']);
+
+        $byLocale = array_column($content['items'], null, 'locale');
+
+        // fr-FR: progress comes from remote, installed => lastUpdate set, remote newer => updateAvailable
+        static::assertSame(100, $byLocale['fr-FR']['progress']);
+        static::assertNotNull($byLocale['fr-FR']['lastUpdate']);
+        static::assertTrue($byLocale['fr-FR']['updateAvailable']);
+
+        // es-ES: remote progress is reported even though it is not installed
+        static::assertSame(80, $byLocale['es-ES']['progress']);
+        static::assertNull($byLocale['es-ES']['lastUpdate']);
+        static::assertFalse($byLocale['es-ES']['updateAvailable']);
+
+        // ach-UG is configured as a pseudo language, the real locales are not
+        static::assertTrue($byLocale['ach-UG']['isPseudoLanguage']);
+        static::assertFalse($byLocale['fr-FR']['isPseudoLanguage']);
+        static::assertFalse($byLocale['es-ES']['isPseudoLanguage']);
+    }
+
+    public function testListReportsRemoteProgressWhenNothingInstalled(): void
+    {
+        $metadataStore = static::createStub(TranslationMetadataStore::class);
+        $metadataStore->method('getLocalMetadata')->willReturn(new MetadataCollection());
+        $metadataStore->method('getRemoteMetadata')->willReturn(new MetadataCollection([
+            MetadataEntry::create([
+                'locale' => 'fr-FR',
+                'updatedAt' => '2026-01-01T00:00:00.000+00:00',
                 'progress' => 100,
             ]),
         ]));
 
-        $response = $this->createController(metadataStore: $metadataStore)->list();
-
-        $content = $this->decode($response);
-        static::assertSame(2, $content['total']);
-        static::assertCount(2, $content['items']);
-
+        $content = $this->decode($this->createController(metadataStore: $metadataStore)->list());
         $byLocale = array_column($content['items'], null, 'locale');
 
-        static::assertSame('Deutsch', $byLocale['de-DE']['name']);
-        static::assertSame(100, $byLocale['de-DE']['progress']);
-        static::assertNotNull($byLocale['de-DE']['lastUpdate']);
+        static::assertSame(100, $byLocale['fr-FR']['progress']);
+        static::assertNull($byLocale['fr-FR']['lastUpdate']);
+        static::assertFalse($byLocale['fr-FR']['updateAvailable']);
+    }
 
-        // es-ES is configured but not installed
-        static::assertSame('Español', $byLocale['es-ES']['name']);
-        static::assertNull($byLocale['es-ES']['progress']);
-        static::assertNull($byLocale['es-ES']['lastUpdate']);
+    public function testListDegradesWhenRemoteMetadataUnavailable(): void
+    {
+        $metadataStore = static::createStub(TranslationMetadataStore::class);
+        $metadataStore->method('getLocalMetadata')->willReturn(new MetadataCollection([
+            MetadataEntry::create([
+                'locale' => 'fr-FR',
+                'updatedAt' => '2025-08-07T11:26:28.974+00:00',
+                'progress' => 90,
+            ]),
+        ]));
+        $metadataStore->method('getRemoteMetadata')->willThrowException(new \RuntimeException('remote unavailable'));
+
+        $content = $this->decode($this->createController(metadataStore: $metadataStore)->list());
+        $byLocale = array_column($content['items'], null, 'locale');
+
+        // remote down => no progress, no update flag; local install marker (lastUpdate) stays
+        static::assertNull($byLocale['fr-FR']['progress']);
+        static::assertFalse($byLocale['fr-FR']['updateAvailable']);
+        static::assertNotNull($byLocale['fr-FR']['lastUpdate']);
     }
 
     public function testInstallLoadsRequestedLocalesAndSavesMetadata(): void
     {
-        $metadata = $this->metadataCollection(['de-DE' => true, 'es-ES' => false]);
+        $metadata = $this->metadataCollection(['fr-FR' => true, 'es-ES' => false]);
         $metadataStore = $this->createMock(TranslationMetadataStore::class);
         $metadataStore->expects($this->once())
             ->method('getUpdatedLocalMetadata')
-            ->with(['de-DE', 'es-ES'])
+            ->with(['fr-FR', 'es-ES'])
             ->willReturn($metadata);
         $metadataStore->expects($this->once())->method('save')->with($metadata);
 
         $translationLoader = $this->createMock(AbstractTranslationLoader::class);
         $translationLoader->expects($this->once())
             ->method('load')
-            ->with('de-DE', static::isInstanceOf(Context::class), true);
+            ->with('fr-FR', static::isInstanceOf(Context::class), true);
 
         $response = $this->createController($metadataStore, $translationLoader)->install(
-            new InstallTranslationRequest(locales: ['de-DE', 'es-ES']),
+            new InstallTranslationRequest(locales: ['fr-FR', 'es-ES']),
             $this->context()
         );
 
         $content = $this->decode($response);
-        static::assertSame(['de-DE'], $content['updated']);
+        static::assertSame(['fr-FR'], $content['updated']);
         static::assertSame(['es-ES'], $content['skipped']);
         static::assertSame([], $content['unavailable']);
     }
@@ -113,14 +179,14 @@ class TranslationControllerTest extends TestCase
         $translationLoader->expects($this->never())->method('load');
 
         $response = $this->createController($metadataStore, $translationLoader)->install(
-            new InstallTranslationRequest(locales: ['de-DE']),
+            new InstallTranslationRequest(locales: ['fr-FR']),
             $this->context()
         );
 
         $content = $this->decode($response);
         static::assertSame([], $content['updated']);
         static::assertSame([], $content['skipped']);
-        static::assertSame(['de-DE'], $content['unavailable']);
+        static::assertSame(['fr-FR'], $content['unavailable']);
     }
 
     public function testInstallAllUsesConfiguredLocales(): void
@@ -128,8 +194,8 @@ class TranslationControllerTest extends TestCase
         $metadataStore = $this->createMock(TranslationMetadataStore::class);
         $metadataStore->expects($this->once())
             ->method('getUpdatedLocalMetadata')
-            ->with(['de-DE', 'es-ES'])
-            ->willReturn($this->metadataCollection(['de-DE' => false, 'es-ES' => false]));
+            ->with(['fr-FR', 'es-ES', 'ach-UG'])
+            ->willReturn($this->metadataCollection(['fr-FR' => false, 'es-ES' => false]));
 
         $this->createController($metadataStore)->install(new InstallTranslationRequest(all: true), $this->context());
     }
@@ -137,15 +203,15 @@ class TranslationControllerTest extends TestCase
     public function testInstallActivateFalseIsPassedToLoader(): void
     {
         $metadataStore = static::createStub(TranslationMetadataStore::class);
-        $metadataStore->method('getUpdatedLocalMetadata')->willReturn($this->metadataCollection(['de-DE' => true]));
+        $metadataStore->method('getUpdatedLocalMetadata')->willReturn($this->metadataCollection(['fr-FR' => true]));
 
         $translationLoader = $this->createMock(AbstractTranslationLoader::class);
         $translationLoader->expects($this->once())
             ->method('load')
-            ->with('de-DE', static::isInstanceOf(Context::class), false);
+            ->with('fr-FR', static::isInstanceOf(Context::class), false);
 
         $this->createController($metadataStore, $translationLoader)->install(
-            new InstallTranslationRequest(locales: ['de-DE'], activate: false),
+            new InstallTranslationRequest(locales: ['fr-FR'], activate: false),
             $this->context()
         );
     }
@@ -158,7 +224,7 @@ class TranslationControllerTest extends TestCase
         $translationLoader = $this->createMock(AbstractTranslationLoader::class);
         $translationLoader->expects($this->never())->method('load');
 
-        $this->expectExceptionObject(SnippetException::invalidLocalesProvided('xx-XX', 'de-DE, es-ES'));
+        $this->expectExceptionObject(SnippetException::invalidLocalesProvided('xx-XX', 'fr-FR, es-ES, ach-UG'));
 
         $this->createController($metadataStore, $translationLoader)->install(
             new InstallTranslationRequest(locales: ['xx-XX']),
@@ -181,7 +247,7 @@ class TranslationControllerTest extends TestCase
 
     public function testUpdateLoadsAllInstalledRequiringUpdate(): void
     {
-        $metadata = $this->metadataCollection(['de-DE' => true, 'es-ES' => false]);
+        $metadata = $this->metadataCollection(['fr-FR' => true, 'es-ES' => false]);
         $metadataStore = $this->createMock(TranslationMetadataStore::class);
         $metadataStore->method('getLocalMetadata')->willReturn($metadata);
         $metadataStore->expects($this->once())
@@ -193,12 +259,12 @@ class TranslationControllerTest extends TestCase
         $translationLoader = $this->createMock(AbstractTranslationLoader::class);
         $translationLoader->expects($this->once())
             ->method('load')
-            ->with('de-DE', static::isInstanceOf(Context::class), true);
+            ->with('fr-FR', static::isInstanceOf(Context::class), true);
 
         $response = $this->createController($metadataStore, $translationLoader)->update($this->context());
 
         $content = $this->decode($response);
-        static::assertSame(['de-DE'], $content['updated']);
+        static::assertSame(['fr-FR'], $content['updated']);
         static::assertSame(['es-ES'], $content['skipped']);
         static::assertSame([], $content['unavailable']);
     }
@@ -206,9 +272,9 @@ class TranslationControllerTest extends TestCase
     public function testDeleteRemovesFilesAndMetadata(): void
     {
         $translationRemover = $this->createMock(TranslationRemover::class);
-        $translationRemover->expects($this->once())->method('remove')->with('de-DE');
+        $translationRemover->expects($this->once())->method('remove')->with('fr-FR');
 
-        $response = $this->createController(translationRemover: $translationRemover)->delete('de-DE');
+        $response = $this->createController(translationRemover: $translationRemover)->delete('fr-FR');
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         static::assertEmpty($response->getContent());
@@ -219,7 +285,7 @@ class TranslationControllerTest extends TestCase
         $translationRemover = $this->createMock(TranslationRemover::class);
         $translationRemover->expects($this->never())->method('remove');
 
-        $this->expectExceptionObject(SnippetException::invalidLocalesProvided('xx-XX', 'de-DE, es-ES'));
+        $this->expectExceptionObject(SnippetException::invalidLocalesProvided('xx-XX', 'fr-FR, es-ES, ach-UG'));
 
         $this->createController(translationRemover: $translationRemover)->delete('xx-XX');
     }

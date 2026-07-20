@@ -183,6 +183,34 @@ describe('sw-bulk-edit-save-modal-success', () => {
         wrapper.vm.orderDocumentApiService.download.mockRestore();
     });
 
+    it('should be able to download documents of a non-default document type', async () => {
+        window.URL.createObjectURL = jest.fn();
+
+        wrapper.vm.orderDocumentApiService.download = jest.fn(() =>
+            Promise.resolve({
+                headers: {
+                    'content-disposition': 'filename=example.pdf',
+                },
+                data: 'http://downloadlink',
+            }),
+        );
+
+        await wrapper.setData({
+            latestDocuments: {
+                partial_cancellation: {
+                    foo: 'bar',
+                },
+            },
+        });
+
+        await wrapper.vm.downloadDocument('partial_cancellation');
+
+        expect(wrapper.vm.orderDocumentApiService.download).toHaveBeenCalled();
+        expect(wrapper.vm.document.partial_cancellation.isDownloading).toBe(false);
+
+        wrapper.vm.orderDocumentApiService.download.mockRestore();
+    });
+
     it('should not be able to download documents', async () => {
         wrapper.vm.orderDocumentApiService.download = jest.fn(() => Promise.resolve());
 

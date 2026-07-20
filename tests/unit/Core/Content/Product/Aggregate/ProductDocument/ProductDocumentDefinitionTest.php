@@ -9,7 +9,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentColle
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -21,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -43,8 +43,8 @@ class ProductDocumentDefinitionTest extends TestCase
                 MediaDefinition::class,
                 VersionDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGateway::class),
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class),
         );
 
         $definition = $registry->getByEntityName(ProductDocumentDefinition::ENTITY_NAME);
@@ -73,48 +73,41 @@ class ProductDocumentDefinitionTest extends TestCase
         static::assertSame(ProductDocumentCollection::class, $this->definition->getCollectionClass());
     }
 
-    public function testParentDefinitionClass(): void
+    public function testProductIsTheParentDefinition(): void
     {
-        $method = new \ReflectionMethod(ProductDocumentDefinition::class, 'getParentDefinitionClass');
-
-        static::assertSame(ProductDefinition::class, $method->invoke($this->definition));
+        static::assertInstanceOf(ProductDefinition::class, $this->definition->getParentDefinition());
     }
 
-    public function testFields(): void
+    public function testPrimaryKeyIsVersioned(): void
     {
         $fields = $this->definition->getFields();
 
         $id = $fields->get('id');
         static::assertInstanceOf(IdField::class, $id);
-        static::assertTrue($id->is(ApiAware::class));
         static::assertTrue($id->is(PrimaryKey::class));
         static::assertTrue($id->is(Required::class));
+        static::assertTrue($id->is(ApiAware::class));
 
         $versionId = $fields->get('versionId');
         static::assertInstanceOf(VersionField::class, $versionId);
         static::assertTrue($versionId->is(ApiAware::class));
+    }
+
+    public function testProductReferenceIsReverseInheritedForVariants(): void
+    {
+        $fields = $this->definition->getFields();
 
         $productId = $fields->get('productId');
         static::assertInstanceOf(FkField::class, $productId);
         static::assertSame('product_id', $productId->getStorageName());
-        static::assertTrue($productId->is(ApiAware::class));
         static::assertTrue($productId->is(Required::class));
+        static::assertTrue($productId->is(ApiAware::class));
 
         $productVersionId = $fields->get('productVersionId');
         static::assertInstanceOf(ReferenceVersionField::class, $productVersionId);
         static::assertSame(ProductDefinition::class, $productVersionId->getVersionReferenceClass());
-        static::assertTrue($productVersionId->is(ApiAware::class));
         static::assertTrue($productVersionId->is(Required::class));
-
-        $mediaId = $fields->get('mediaId');
-        static::assertInstanceOf(FkField::class, $mediaId);
-        static::assertSame('media_id', $mediaId->getStorageName());
-        static::assertTrue($mediaId->is(ApiAware::class));
-        static::assertTrue($mediaId->is(Required::class));
-
-        $position = $fields->get('position');
-        static::assertInstanceOf(IntField::class, $position);
-        static::assertTrue($position->is(ApiAware::class));
+        static::assertTrue($productVersionId->is(ApiAware::class));
 
         $product = $fields->get('product');
         static::assertInstanceOf(ManyToOneAssociationField::class, $product);
@@ -124,10 +117,29 @@ class ProductDocumentDefinitionTest extends TestCase
         $reverseInherited = $product->getFlag(ReverseInherited::class);
         static::assertInstanceOf(ReverseInherited::class, $reverseInherited);
         static::assertSame('productDocuments', $reverseInherited->getReversedPropertyName());
+    }
+
+    public function testMediaReferenceIsRequired(): void
+    {
+        $fields = $this->definition->getFields();
+
+        $mediaId = $fields->get('mediaId');
+        static::assertInstanceOf(FkField::class, $mediaId);
+        static::assertSame('media_id', $mediaId->getStorageName());
+        static::assertTrue($mediaId->is(Required::class));
+        static::assertTrue($mediaId->is(ApiAware::class));
 
         $media = $fields->get('media');
         static::assertInstanceOf(ManyToOneAssociationField::class, $media);
         static::assertSame(MediaDefinition::class, $media->getReferenceClass());
         static::assertTrue($media->is(ApiAware::class));
+    }
+
+    public function testPositionField(): void
+    {
+        $position = $this->definition->getFields()->get('position');
+
+        static::assertInstanceOf(IntField::class, $position);
+        static::assertTrue($position->is(ApiAware::class));
     }
 }

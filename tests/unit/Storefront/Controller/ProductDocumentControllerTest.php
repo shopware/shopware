@@ -21,7 +21,7 @@ class ProductDocumentControllerTest extends TestCase
     public function testDownloadDelegatesToProductDocumentDownloadRoute(): void
     {
         $request = new Request();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $response = new Response('download');
 
         $route = $this->createMock(AbstractProductDocumentDownloadRoute::class);

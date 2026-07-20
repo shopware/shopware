@@ -14,6 +14,7 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRouteResponse
 use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentDownloadRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -30,11 +31,11 @@ class ProductDocumentDownloadRouteTest extends TestCase
     public function testGetDecoratedThrowsException(): void
     {
         $route = new ProductDocumentDownloadRoute(
-            $this->createMock(AbstractProductDetailRoute::class),
-            $this->createMock(DownloadResponseGenerator::class),
+            static::createStub(AbstractProductDetailRoute::class),
+            static::createStub(DownloadResponseGenerator::class),
         );
 
-        static::expectException(DecorationPatternException::class);
+        static::expectExceptionObject(new DecorationPatternException(ProductDocumentDownloadRoute::class));
 
         $route->getDecorated();
     }
@@ -44,7 +45,7 @@ class ProductDocumentDownloadRouteTest extends TestCase
         $productId = 'product-id';
         $documentId = 'document-id';
         $request = new Request(['existing' => 'query-value'], [], ['existingAttribute' => 'attribute-value']);
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $media = new MediaEntity();
         $media->setId('media-id');
 
@@ -78,6 +79,7 @@ class ProductDocumentDownloadRouteTest extends TestCase
                     $sorting = $productDocumentsCriteria->getSorting();
                     static::assertCount(1, $sorting);
                     static::assertSame('position', $sorting[0]->getField());
+                    static::assertSame(FieldSorting::ASCENDING, $sorting[0]->getDirection());
 
                     return true;
                 }),
@@ -97,6 +99,20 @@ class ProductDocumentDownloadRouteTest extends TestCase
         static::assertSame($response, $route->load($productId, $documentId, $request, $context));
     }
 
+    public function testLoadThrowsWhenDocumentsAssociationIsNotLoaded(): void
+    {
+        $documentId = 'document-id';
+
+        $route = new ProductDocumentDownloadRoute(
+            $this->createProductDetailRoute(new SalesChannelProductEntity()),
+            $this->createDownloadResponseGeneratorExpectingNoDownload(),
+        );
+
+        static::expectExceptionObject(ProductException::productDocumentNotFound($documentId));
+
+        $route->load('product-id', $documentId, new Request(), static::createStub(SalesChannelContext::class));
+    }
+
     public function testLoadThrowsWhenDocumentDoesNotBelongToProduct(): void
     {
         $documentId = 'missing-document-id';
@@ -107,12 +123,12 @@ class ProductDocumentDownloadRouteTest extends TestCase
 
         $route = new ProductDocumentDownloadRoute(
             $this->createProductDetailRoute($product),
-            $this->createMock(DownloadResponseGenerator::class),
+            $this->createDownloadResponseGeneratorExpectingNoDownload(),
         );
 
         static::expectExceptionObject(ProductException::productDocumentNotFound($documentId));
 
-        $route->load('product-id', $documentId, new Request(), $this->createMock(SalesChannelContext::class));
+        $route->load('product-id', $documentId, new Request(), static::createStub(SalesChannelContext::class));
     }
 
     public function testLoadThrowsWhenDocumentHasNoMedia(): void
@@ -125,22 +141,32 @@ class ProductDocumentDownloadRouteTest extends TestCase
 
         $route = new ProductDocumentDownloadRoute(
             $this->createProductDetailRoute($product),
-            $this->createMock(DownloadResponseGenerator::class),
+            $this->createDownloadResponseGeneratorExpectingNoDownload(),
         );
 
         static::expectExceptionObject(ProductException::productDocumentNotFound($documentId));
 
-        $route->load('product-id', $documentId, new Request(), $this->createMock(SalesChannelContext::class));
+        $route->load('product-id', $documentId, new Request(), static::createStub(SalesChannelContext::class));
     }
 
     private function createProductDetailRoute(SalesChannelProductEntity $product): AbstractProductDetailRoute
     {
-        $productDetailRoute = $this->createMock(AbstractProductDetailRoute::class);
+        $productDetailRoute = static::createStub(AbstractProductDetailRoute::class);
         $productDetailRoute
             ->method('load')
             ->willReturn(new ProductDetailRouteResponse($product, null));
 
         return $productDetailRoute;
+    }
+
+    private function createDownloadResponseGeneratorExpectingNoDownload(): DownloadResponseGenerator
+    {
+        $downloadResponseGenerator = $this->createMock(DownloadResponseGenerator::class);
+        $downloadResponseGenerator
+            ->expects($this->never())
+            ->method('getResponse');
+
+        return $downloadResponseGenerator;
     }
 
     private function createProductDocument(string $id, ?MediaEntity $media = null): ProductDocumentEntity

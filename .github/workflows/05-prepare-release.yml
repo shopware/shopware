@@ -123,12 +123,12 @@ jobs:
         run: echo 'is protected'
 
       - name: Mark dir as safe
-        run: git config --global --add safe.directory $PWD
+        run: git config --global --add safe.directory "$PWD"
 
       - name: split
         run: |
           bash .github/bin/split.bash split_repo "${{ matrix.package }}"
-          git config --global --add safe.directory $PWD/repos/${{ matrix.package }}
+          git config --global --add safe.directory "$PWD/repos/${{ matrix.package }}"
           rm -Rf .git
 
       - name: Include assets

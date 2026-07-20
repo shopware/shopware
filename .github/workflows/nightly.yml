@@ -36,7 +36,7 @@ jobs:
           shopware-repository: ${{ github.repository }}
       - name: Run PHPUnit
         run: |
-          ./vendor/bin/phpunit --group=redis --testsuite migration,unit,integration,devops
+          ./vendor/bin/phpunit --testsuite redis
 
   admin:
     if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
@@ -76,7 +76,7 @@ jobs:
     uses: ./.github/workflows/downstream.yml
     secrets: inherit
     with:
-      nightly: true
+      nightly: "true"
   prepare-release: # This will only execute dry-runs and push current trunk to the many-repos
     if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/05-prepare-release.yml

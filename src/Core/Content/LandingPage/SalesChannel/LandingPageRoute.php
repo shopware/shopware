@@ -79,7 +79,7 @@ class LandingPageRoute extends AbstractLandingPageRoute
             $resolverContext
         );
 
-        $cmsPage = $pages->first();
+        $cmsPage = $pages->getEntities()->first();
         if ($cmsPage === null) {
             throw LandingPageException::notFound($pageId);
         }

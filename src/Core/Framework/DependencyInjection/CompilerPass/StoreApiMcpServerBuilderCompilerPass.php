@@ -68,7 +68,7 @@ class StoreApiMcpServerBuilderCompilerPass implements CompilerPassInterface
             $info = McpToolAttributeReader::resolveInfo($class, McpResource::class, ['uri', 'name', 'description', 'mimeType']);
 
             if ($info !== null) {
-                $builderDef->addMethodCall('addResource', [$class, $info['uri'], $info['name'], $info['description'], $info['mimeType']]);
+                $builderDef->addMethodCall('addResource', [$class, $info['uri'], $info['name'], null, $info['description'], $info['mimeType']]);
             }
         }
     }

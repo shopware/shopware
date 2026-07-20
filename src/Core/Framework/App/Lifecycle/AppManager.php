@@ -750,7 +750,7 @@ class AppManager
     private function ensureMeetsRequirements(Manifest $manifest): void
     {
         $violations = $this->requirementsValidator->validate($manifest);
-        if (\count($violations) > 0) {
+        if ($violations !== []) {
             throw AppException::requirementsNotMet(...$violations);
         }
     }

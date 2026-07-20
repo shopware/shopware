@@ -63,7 +63,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $app->getId()));
 
-        $customEntities = $this->customEntityRepository->search($criteria, $this->context);
+        $customEntities = $this->customEntityRepository->search($criteria, $this->context)->getEntities();
 
         static::assertTrue(TableHelper::tableExists($this->connection, 'custom_entity_test'));
         static::assertCount(1, $customEntities);
@@ -73,7 +73,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
 
         $this->createLifecycleService($app)->removeApp($app, $this->context, true);
 
-        $customEntities = $this->customEntityRepository->search(new Criteria([$customEntity->getId()]), $this->context);
+        $customEntities = $this->customEntityRepository->search(new Criteria([$customEntity->getId()]), $this->context)->getEntities();
 
         $customEntity = $customEntities->first();
         static::assertNotNull($customEntity);
@@ -103,7 +103,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $app->getId()));
 
-        $customEntities = $this->customEntityRepository->search($criteria, $this->context);
+        $customEntities = $this->customEntityRepository->search($criteria, $this->context)->getEntities();
 
         static::assertTrue(TableHelper::tableExists($this->connection, 'custom_entity_test'));
         static::assertCount(1, $customEntities);
@@ -113,7 +113,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
 
         $this->createLifecycleService($app)->removeApp($app, $this->context, false);
 
-        $customEntities = $this->customEntityRepository->search(new Criteria([$customEntity->getId()]), $this->context);
+        $customEntities = $this->customEntityRepository->search(new Criteria([$customEntity->getId()]), $this->context)->getEntities();
 
         static::assertFalse(TableHelper::tableExists($this->connection, 'custom_entity_test'));
         static::assertCount(0, $customEntities);

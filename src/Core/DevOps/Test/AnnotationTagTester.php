@@ -152,6 +152,15 @@ class AnnotationTagTester
             throw new \InvalidArgumentException('Incorrect format for experimental annotation. Properties `stableVersion` and/or `feature` are not declared.');
         }
 
+        $unknownProperties = array_diff(array_keys($properties), ['stableVersion', 'feature']);
+        if ($unknownProperties !== []) {
+            throw new \InvalidArgumentException(\sprintf(
+                'Unknown propert%s %s in experimental annotation. Only `stableVersion` and `feature` are allowed.',
+                \count($unknownProperties) === 1 ? 'y' : 'ies',
+                implode(', ', $unknownProperties)
+            ));
+        }
+
         // `stableVersion` is required; `feature` is optional (it only applies to flag-gated
         // experimental code) but must be in ALL_CAPS format when present.
         match (true) {

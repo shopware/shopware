@@ -246,8 +246,22 @@ class AnnotationTagTesterTest extends TestCase
 
     public static function experimentalAnnotationsWithoutStableVersionProvider(): \Generator
     {
-        yield 'Wrong key for the version' => ['@experimental tag:v6.5.0 feature:TEST_FEATURE'];
         yield 'Only feature property' => ['@experimental feature:TEST_FEATURE'];
+    }
+
+    #[DataProvider('experimentalAnnotationsWithUnknownPropertyProvider')]
+    public function testExperimentalWithUnknownPropertyThrowsException(string $content): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/Unknown propert/');
+        $this->annotationTagTester->validateExperimentalAnnotations($content);
+    }
+
+    public static function experimentalAnnotationsWithUnknownPropertyProvider(): \Generator
+    {
+        yield 'Typo in feature key' => ['@experimental stableVersion:v6.5.0 feture:lower'];
+        yield 'Unknown property key' => ['@experimental stableVersion:v6.5.0 name:testFeature'];
+        yield 'Unknown key for the version' => ['@experimental tag:v6.5.0 feature:TEST_FEATURE'];
     }
 
     #[DoesNotPerformAssertions]
@@ -255,6 +269,21 @@ class AnnotationTagTesterTest extends TestCase
     {
         // `feature` is optional: an ungated experimental API declares only `stableVersion`.
         $this->annotationTagTester->validateExperimentalAnnotations('@experimental stableVersion:v6.5.0');
+    }
+
+    #[DoesNotPerformAssertions]
+    #[DataProvider('experimentalAnnotationsWithTrailingTextProvider')]
+    public function testExperimentalWithTrailingTextDoesNotThrow(string $content): void
+    {
+        // Non-property tokens after the known properties (a closing docblock terminator or an
+        // explanatory note) are ignored, as long as no unknown `key:value` property is present.
+        $this->annotationTagTester->validateExperimentalAnnotations($content);
+    }
+
+    public static function experimentalAnnotationsWithTrailingTextProvider(): \Generator
+    {
+        yield 'Single-line annotation terminator' => ['/** @experimental stableVersion:v6.5.0 feature:TEST_FEATURE */'];
+        yield 'Explanatory note after feature' => ['@experimental stableVersion:v6.5.0 feature:TEST_FEATURE this is a temporary note'];
     }
 
     public function testExperimentalStableVersionMustNotHaveMoreThanThreeDigits(): void

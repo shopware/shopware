@@ -148,6 +148,7 @@ use Shopware\Storefront\Page\Navigation\Error\ErrorPageLoader;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoader;
 use Shopware\Storefront\Page\Newsletter\Subscribe\NewsletterSubscribePageLoader;
 use Shopware\Storefront\Page\Product\Configurator\ProductPageConfiguratorLoader;
+use Shopware\Storefront\Page\Product\ProductDocumentSubscriber;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader;
 use Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser;
@@ -551,6 +552,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SystemConfigService::class),
             service(CategoryBreadcrumbBuilder::class),
         ]);
+
+    $services->set(ProductDocumentSubscriber::class)
+        ->tag('kernel.event_subscriber');
 
     $services->set(MinimalQuickViewPageLoader::class)
         ->args([

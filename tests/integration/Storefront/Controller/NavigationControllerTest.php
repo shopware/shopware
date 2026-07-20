@@ -152,7 +152,7 @@ class NavigationControllerTest extends TestCase
                 new EqualsFilter('domains.url', $_SERVER['APP_URL'])
             ),
             Context::createDefaultContext()
-        )->first();
+        )->getEntities()->first();
 
         static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
 
@@ -180,7 +180,7 @@ class NavigationControllerTest extends TestCase
         $salesChannel = static::getContainer()->get('sales_channel.repository')->search(
             new Criteria([$salesChannelId]),
             Context::createDefaultContext()
-        )->first();
+        )->getEntities()->first();
 
         $categoryId = $this->ids->create('out-of-range-category');
 
@@ -236,7 +236,7 @@ class NavigationControllerTest extends TestCase
                 new EqualsFilter('isCanonical', true)
             ),
             Context::createDefaultContext()
-        )->first();
+        )->getEntities()->first();
 
         static::assertNotNull(
             $seoUrl,
@@ -254,7 +254,7 @@ class NavigationControllerTest extends TestCase
         $salesChannel = static::getContainer()->get('sales_channel.repository')->search(
             new Criteria([$salesChannelId]),
             Context::createDefaultContext()
-        )->first();
+        )->getEntities()->first();
 
         static::getContainer()->get('category.repository')->create([[
             'id' => $this->ids->create('issue-13510-intermediate'),

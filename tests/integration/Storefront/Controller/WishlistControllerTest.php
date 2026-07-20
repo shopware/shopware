@@ -344,7 +344,7 @@ class WishlistControllerTest extends TestCase
 
         $repo->create([$customer], Context::createDefaultContext());
 
-        $entity = $repo->search(new Criteria([$this->customerId]), Context::createDefaultContext())->first();
+        $entity = $repo->search(new Criteria([$this->customerId]), Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(CustomerEntity::class, $entity);
 

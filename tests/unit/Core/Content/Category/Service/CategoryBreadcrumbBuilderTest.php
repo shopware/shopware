@@ -19,6 +19,7 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -178,20 +179,26 @@ class CategoryBreadcrumbBuilderTest extends TestCase
                 static::assertNotNull($levelSorting);
                 static::assertSame(FieldSorting::DESCENDING, $levelSorting->getDirection());
 
-                static::assertTrue($criteria->hasEqualsFilter('visible'));
+                static::assertContains('visible', $criteria->getFilterFields());
+                static::assertContains('active', $criteria->getFilterFields());
+
+                $visibleActiveAndFilter = array_values(array_filter(
+                    $criteria->getFilters(),
+                    static fn (Filter $filter) => $filter instanceof AndFilter && \array_intersect(['visible', 'active'], $filter->getFields()) === ['visible', 'active']
+                ))[0] ?? null;
+
+                static::assertInstanceOf(AndFilter::class, $visibleActiveAndFilter);
 
                 $visibleFilter = array_values(array_filter(
-                    $criteria->getFilters(),
+                    $visibleActiveAndFilter->getQueries(),
                     static fn (Filter $filter) => $filter instanceof EqualsFilter && $filter->getField() === 'visible'
                 ))[0] ?? null;
 
                 static::assertInstanceOf(EqualsFilter::class, $visibleFilter);
                 static::assertTrue($visibleFilter->getValue());
 
-                static::assertTrue($criteria->hasEqualsFilter('active'));
-
                 $activeFilter = array_values(array_filter(
-                    $criteria->getFilters(),
+                    $visibleActiveAndFilter->getQueries(),
                     static fn (Filter $filter) => $filter instanceof EqualsFilter && $filter->getField() === 'active'
                 ))[0] ?? null;
 

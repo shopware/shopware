@@ -30,7 +30,7 @@ class EntityRepositoryInFrontendLayer
             $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Pagelet/*')->filter($isNewRepoUse)->getElements(),
         );
 
-        if (\count($newRepoUseInFrontend) === 0) {
+        if ($newRepoUseInFrontend === []) {
             return;
         }
 

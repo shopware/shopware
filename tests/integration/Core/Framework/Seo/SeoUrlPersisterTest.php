@@ -942,7 +942,7 @@ class SeoUrlPersisterTest extends TestCase
                 (new Criteria())->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT))->setLimit(1),
                 Context::createDefaultContext()
             )
-            ->first();
+            ->getEntities()->first();
 
         if ($salesChannel === null) {
             static::markTestSkipped('Sales channel with type of storefront is required');

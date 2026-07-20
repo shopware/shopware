@@ -87,7 +87,7 @@ class LogCleanupTaskHandlerTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', LogCleanupTask::getTaskName()));
-        $task = $this->scheduledTaskRepository->search($criteria, Context::createDefaultContext())->first();
+        $task = $this->scheduledTaskRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertNotNull($task);
         static::assertSame(LogCleanupTask::getDefaultInterval(), $task->getRunInterval());

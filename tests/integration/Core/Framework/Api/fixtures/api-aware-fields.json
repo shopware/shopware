@@ -788,7 +788,6 @@
     "product_document.productId",
     "product_document.productVersionId",
     "product_document.mediaId",
-    "product_document.title",
     "product_document.position",
     "product_document.product",
     "product_document.media",

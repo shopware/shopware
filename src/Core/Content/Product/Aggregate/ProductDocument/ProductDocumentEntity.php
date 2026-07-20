@@ -19,8 +19,6 @@ class ProductDocumentEntity extends Entity
 
     protected string $mediaId;
 
-    protected ?string $title = null;
-
     protected int $position;
 
     protected ?ProductEntity $product = null;
@@ -55,16 +53,6 @@ class ProductDocumentEntity extends Entity
     public function setMediaId(string $mediaId): void
     {
         $this->mediaId = $mediaId;
-    }
-
-    public function getTitle(): ?string
-    {
-        return $this->title;
-    }
-
-    public function setTitle(?string $title): void
-    {
-        $this->title = $title;
     }
 
     public function getPosition(): int

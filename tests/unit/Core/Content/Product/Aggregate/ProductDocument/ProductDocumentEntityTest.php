@@ -25,7 +25,6 @@ class ProductDocumentEntityTest extends TestCase
         $entity->setProductId('product-id');
         $entity->setProductVersionId('product-version-id');
         $entity->setMediaId('media-id');
-        $entity->setTitle('Document title');
         $entity->setPosition(3);
         $entity->setProduct($product);
         $entity->setMedia($media);
@@ -33,13 +32,8 @@ class ProductDocumentEntityTest extends TestCase
         static::assertSame('product-id', $entity->getProductId());
         static::assertSame('product-version-id', $entity->getProductVersionId());
         static::assertSame('media-id', $entity->getMediaId());
-        static::assertSame('Document title', $entity->getTitle());
         static::assertSame(3, $entity->getPosition());
         static::assertSame($product, $entity->getProduct());
         static::assertSame($media, $entity->getMedia());
-
-        $entity->setTitle(null);
-
-        static::assertNull($entity->getTitle());
     }
 }

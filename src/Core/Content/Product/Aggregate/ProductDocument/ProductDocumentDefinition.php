@@ -14,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -59,7 +58,6 @@ class ProductDocumentDefinition extends EntityDefinition
             (new ReferenceVersionField(ProductDefinition::class))->addFlags(new ApiAware(), new Required()),
 
             (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of the media.'),
-            (new StringField('title', 'title'))->addFlags(new ApiAware())->setDescription('Optional display title of the product document.'),
             (new IntField('position', 'position'))->addFlags(new ApiAware())->setDescription('The order in which the product documents are displayed.'),
 
             (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id'))->addFlags(new ApiAware(), new ReverseInherited('productDocuments')),

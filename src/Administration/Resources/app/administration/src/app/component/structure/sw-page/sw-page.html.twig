@@ -57,24 +57,21 @@
             >
                 <slot name="smart-bar-back">
                     {% block sw_page_slot_smart_bar_back %}
-                    <router-link
+                    <mt-button
                         v-if="parentRoute"
                         class="smart-bar__back-btn"
+                        variant="secondary"
+                        size="small"
+                        square
                         :aria-label="$t('global.sw-page.backButton')"
                         :title="$t('global.sw-page.backButton')"
-                        :to="routerBack"
-                        :style="{ 'color': pageColor }"
+                        @click="$router.push(routerBack)"
                     >
                         <mt-icon
-                            name="regular-chevron-left"
-                            size="16px"
+                            name="solid-long-arrow-left"
+                            size="12px"
                         />
-                        <mt-icon
-                            v-if="module && module.icon"
-                            :name="module.icon"
-                            size="16px"
-                        />
-                    </router-link>
+                    </mt-button>
                     {% endblock %}
                 </slot>
             </div>

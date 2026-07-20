@@ -7,6 +7,7 @@
         :title="$t('sw-settings-usage-data.consent-modal.title')"
         :closable="false"
         hide-header
+        :initial-focus="false"
     >
         <template #default>
             <div class="sw-settings-usage-data-consent-modal__content">
@@ -40,8 +41,9 @@
                 />
 
                 <i18n-t
+                    v-if="visibleOptions.length"
                     tag="p"
-                    keypath="sw-settings-usage-data.consent-modal.opt-out-info.snippet"
+                    :keypath="optOutInfoSnippet"
                     class="sw-setting-usage-data-consent-modal__legal"
                 >
                     <template #settings>
@@ -49,6 +51,9 @@
                     </template>
                     <template #profile>
                         <i>{{ $t('sw-settings-usage-data.consent-modal.opt-out-info.profile') }}</i>
+                    </template>
+                    <template #link>
+                        <i>{{ $t(optOutInfoLink) }}</i>
                     </template>
                 </i18n-t>
             </div>

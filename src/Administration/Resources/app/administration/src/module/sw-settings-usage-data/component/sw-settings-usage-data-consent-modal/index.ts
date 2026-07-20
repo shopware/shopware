@@ -88,6 +88,18 @@ export default Shopware.Component.wrapComponentConfig({
             return this.visibleOptions.length === 1;
         },
 
+        optOutInfoSnippet() {
+            return this.showSingleOptionActions
+                ? 'sw-settings-usage-data.consent-modal.opt-out-info.single-option-snippet'
+                : 'sw-settings-usage-data.consent-modal.opt-out-info.snippet';
+        },
+
+        optOutInfoLink() {
+            return this.showUserDataConsent
+                ? 'sw-settings-usage-data.consent-modal.opt-out-info.profile'
+                : 'sw-settings-usage-data.consent-modal.opt-out-info.settings';
+        },
+
         showStoreDataConsent() {
             if (this.initialStoreDataConsent) {
                 return false;

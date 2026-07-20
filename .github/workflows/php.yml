@@ -87,6 +87,10 @@ jobs:
         with:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
+          keep-composer-tools: true
+
+      - name: Install Danger # analysed via phpstan-paths.php + registered in phpstan-bootstrap.php
+        run: composer install -d vendor-bin/danger-php --no-interaction
 
       - name: Generate Schema
         run: composer run framework:schema:dump
@@ -283,6 +287,9 @@ jobs:
         with:
           keep-composer-tools: "true"
           migration-coverage: ${{ matrix.suite == 'migration' }}
+      - name: Install Danger # the unit tests for the Danger rules type against the danger-php package
+        if: ${{ matrix.suite == 'unit' }}
+        run: composer install -d vendor-bin/danger-php --no-interaction
       - name: Run PHPUnit with coverage
         uses: ./.github/actions/phpunit-run
         with:

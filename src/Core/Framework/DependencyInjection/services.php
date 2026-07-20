@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Adapter\Kernel\HttpKernel;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Adapter\Storage\MySQLKeyValueStorage;
+use Shopware\Core\Framework\Adapter\Translation\ConstraintViolationTranslator;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\AppTemplateIterator;
 use Shopware\Core\Framework\Adapter\Twig\BackwardCompatibleIntlExtension;
@@ -136,6 +137,7 @@ use Shopware\Core\System\Snippet\Filter\TranslationKeyFilter;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
 use Shopware\Core\System\Snippet\Service\TranslationRemover;
+use Shopware\Core\System\Snippet\Service\TranslationUpdater;
 use Shopware\Core\System\Snippet\SnippetService;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -428,6 +430,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('monolog.logger');
 
+    $services->set(ConstraintViolationTranslator::class)
+        ->args([
+            service('translator'),
+        ]);
+
     // Snippets
     $services->set(SnippetService::class)
         ->lazy()
@@ -458,7 +465,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(TranslationConfig::class),
             service(TranslationMetadataStore::class),
-            service(TranslationLoader::class),
+            service(TranslationUpdater::class),
             service(TranslationRemover::class),
         ])
         ->call('setContainer', [

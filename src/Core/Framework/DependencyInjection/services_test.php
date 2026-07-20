@@ -33,6 +33,7 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Validation\TestDefin
 use Shopware\Core\Framework\Test\Filesystem\Adapter\MemoryAdapterFactory;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessageHandler;
 use Shopware\Core\Framework\Test\TestCacheClearer;
+use Shopware\Core\Framework\Test\TestCaseHelper\StoreApiSessionListener;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
 use Shopware\Core\Framework\Test\TestSessionStorageFactory;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
@@ -135,6 +136,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->alias('test.browser', 'test.client');
+
+    $services->set(StoreApiSessionListener::class)
+        ->tag('kernel.event_subscriber');
 
     $services->set('test.client', TestBrowser::class)
         ->share(false)

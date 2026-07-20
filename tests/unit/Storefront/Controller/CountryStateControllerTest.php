@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('fundamentals@discovery')]
 #[CoversClass(CountryStateController::class)]
 class CountryStateControllerTest extends TestCase
 {

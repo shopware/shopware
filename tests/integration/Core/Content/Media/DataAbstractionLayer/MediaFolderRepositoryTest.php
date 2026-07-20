@@ -65,7 +65,7 @@ class MediaFolderRepositoryTest extends TestCase
         $folderRepository = $this->folderRepository;
         $media = null;
         $this->context->scope(Context::USER_SCOPE, static function (Context $context) use (&$media, $folderId, $folderRepository): void {
-            $media = $folderRepository->search(new Criteria([$folderId]), $context);
+            $media = $folderRepository->search(new Criteria([$folderId]), $context)->getEntities();
         });
 
         static::assertNotNull($media);
@@ -85,7 +85,7 @@ class MediaFolderRepositoryTest extends TestCase
             ],
         ], $this->context);
 
-        $media = $this->folderRepository->search(new Criteria([$folderId]), $this->context);
+        $media = $this->folderRepository->search(new Criteria([$folderId]), $this->context)->getEntities();
 
         static::assertCount(1, $media);
     }
@@ -116,7 +116,7 @@ class MediaFolderRepositoryTest extends TestCase
             ],
             $this->context
         );
-        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->getEntities()->get($mediaId);
         static::assertInstanceOf(MediaEntity::class, $media);
 
         $mediaPath = $media->getPath();
@@ -177,7 +177,7 @@ class MediaFolderRepositoryTest extends TestCase
             ],
             $this->context
         );
-        $media = $this->mediaRepository->search(new Criteria([$childMediaId, $parentMediaId]), $this->context);
+        $media = $this->mediaRepository->search(new Criteria([$childMediaId, $parentMediaId]), $this->context)->getEntities();
 
         $childMedia = $media->get($childMediaId);
         static::assertInstanceOf(MediaEntity::class, $childMedia);
@@ -248,7 +248,7 @@ class MediaFolderRepositoryTest extends TestCase
             ],
             $this->context
         );
-        $media = $this->mediaRepository->search(new Criteria([$childMediaId, $parentMediaId]), $this->context);
+        $media = $this->mediaRepository->search(new Criteria([$childMediaId, $parentMediaId]), $this->context)->getEntities();
 
         $childMedia = $media->get($childMediaId);
         static::assertInstanceOf(MediaEntity::class, $childMedia);
@@ -266,8 +266,8 @@ class MediaFolderRepositoryTest extends TestCase
 
         $this->folderRepository->delete([['id' => $childFolderId]], $this->context);
 
-        static::assertArrayHasKey($parentFolderId, $this->folderRepository->search(new Criteria([$parentFolderId, $childFolderId]), $this->context)->getIds());
-        static::assertArrayHasKey($parentMediaId, $this->mediaRepository->search(new Criteria([$childMediaId, $parentMediaId]), $this->context)->getIds());
+        static::assertArrayHasKey($parentFolderId, $this->folderRepository->search(new Criteria([$parentFolderId, $childFolderId]), $this->context)->getEntities()->getIds());
+        static::assertArrayHasKey($parentMediaId, $this->mediaRepository->search(new Criteria([$childMediaId, $parentMediaId]), $this->context)->getEntities()->getIds());
 
         $this->runWorker();
 
@@ -317,7 +317,7 @@ class MediaFolderRepositoryTest extends TestCase
             ],
             $this->context
         );
-        $media = $this->mediaRepository->search(new Criteria([$childMediaId, $parentMediaId]), $this->context);
+        $media = $this->mediaRepository->search(new Criteria([$childMediaId, $parentMediaId]), $this->context)->getEntities();
 
         $childMedia = $media->get($childMediaId);
         static::assertInstanceOf(MediaEntity::class, $childMedia);
@@ -386,7 +386,7 @@ class MediaFolderRepositoryTest extends TestCase
             ],
             $this->context
         );
-        $media = $this->mediaRepository->search(new Criteria([$childMediaId, $parentMediaId]), $this->context);
+        $media = $this->mediaRepository->search(new Criteria([$childMediaId, $parentMediaId]), $this->context)->getEntities();
 
         $childMedia = $media->get($childMediaId);
         static::assertInstanceOf(MediaEntity::class, $childMedia);

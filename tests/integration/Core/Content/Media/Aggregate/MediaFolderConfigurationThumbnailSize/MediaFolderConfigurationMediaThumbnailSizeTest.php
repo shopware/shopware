@@ -50,7 +50,7 @@ class MediaFolderConfigurationMediaThumbnailSizeTest extends TestCase
         $criteria = new Criteria([$configurationId]);
         $criteria->addAssociation('mediaThumbnailSizes');
 
-        $read = $repository->search($criteria, $context);
+        $read = $repository->search($criteria, $context)->getEntities();
         $configuration = $read->get($configurationId);
 
         static::assertInstanceOf(MediaFolderConfigurationEntity::class, $configuration);

@@ -35,7 +35,7 @@ final class DummyScheduledTaskHandler extends ScheduledTaskHandler
         /** @var ScheduledTaskEntity $task */
         $task = $this->scheduledTaskRepository
             ->search(new Criteria([$this->taskId]), Context::createCLIContext())
-            ->get($this->taskId);
+            ->getEntities()->get($this->taskId);
 
         if ($task->getStatus() !== ScheduledTaskDefinition::STATUS_RUNNING) {
             throw new \Exception('Scheduled Task was not marked as running.');

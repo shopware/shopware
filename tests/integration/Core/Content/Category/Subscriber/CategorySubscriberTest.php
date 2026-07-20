@@ -39,7 +39,7 @@ class CategorySubscriberTest extends TestCase
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $searchResult = static::getContainer()->get('sales_channel.category.repository')
-            ->search($criteria, $salesChannelContext);
+            ->search($criteria, $salesChannelContext)->getEntities();
 
         $category = $searchResult->get($ids->get('c.1'));
 

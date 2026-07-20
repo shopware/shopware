@@ -94,7 +94,7 @@ class EntryPointValidatorTest extends TestCase
         ], $context);
 
         /** @var CategoryEntity|null $category */
-        $category = $this->categoryRepository->search(new Criteria([$categoryId]), $context)->first();
+        $category = $this->categoryRepository->search(new Criteria([$categoryId]), $context)->getEntities()->first();
         static::assertNotNull($category);
         static::assertSame(CategoryDefinition::TYPE_PAGE, $category->getType());
     }

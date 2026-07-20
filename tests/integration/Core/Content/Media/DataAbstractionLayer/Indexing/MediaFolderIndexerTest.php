@@ -108,7 +108,7 @@ class MediaFolderIndexerTest extends TestCase
         ], $this->context);
 
         /** @var MediaFolderEntity $folder */
-        $folder = $this->mediaFolderRepository->search(new Criteria([$parentId]), $this->context)->first();
+        $folder = $this->mediaFolderRepository->search(new Criteria([$parentId]), $this->context)->getEntities()->first();
 
         static::assertSame(1, $folder->getChildCount());
     }

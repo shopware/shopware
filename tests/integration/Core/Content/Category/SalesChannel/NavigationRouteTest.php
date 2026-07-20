@@ -397,7 +397,7 @@ class NavigationRouteTest extends TestCase
         $criteria->addFilter(new EqualsFilter('routeName', $routeName));
 
         $existingSeoUrls = $this->getContainer()->get('seo_url.repository')
-            ->search($criteria, Context::createDefaultContext());
+            ->search($criteria, Context::createDefaultContext())->getEntities();
 
         $data = [
             'salesChannelId' => $this->ids->get('sales-channel'),

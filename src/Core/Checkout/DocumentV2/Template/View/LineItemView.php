@@ -101,19 +101,19 @@ final readonly class LineItemView
 
         $quantity = $lineItem->getQuantity();
 
-        if ($quantity <= 0 && !$allowNegative) {
-            throw DocumentV2Exception::invalidOrderData(
-                $order->getId(),
-                'lineItem.quantity',
-                \sprintf('Line item "%s" has negative quantity.', $lineItem->getIdentifier()),
-            );
-        }
-
-        if ($quantity === 0 && $allowNegative) {
+        if ($quantity === 0) {
             throw DocumentV2Exception::invalidOrderData(
                 $order->getId(),
                 'lineItem.quantity',
                 \sprintf('Line item "%s" has zero quantity.', $lineItem->getIdentifier()),
+            );
+        }
+
+        if ($quantity < 0 && !$allowNegative) {
+            throw DocumentV2Exception::invalidOrderData(
+                $order->getId(),
+                'lineItem.quantity',
+                \sprintf('Line item "%s" has negative quantity.', $lineItem->getIdentifier()),
             );
         }
 

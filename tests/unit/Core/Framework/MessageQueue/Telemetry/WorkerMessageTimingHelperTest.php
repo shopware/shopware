@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\Telemetry;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Telemetry\WorkerMessageTimingHelper;
 
 /**
  * @internal
  */
 #[CoversClass(WorkerMessageTimingHelper::class)]
+#[Package('framework')]
 class WorkerMessageTimingHelperTest extends TestCase
 {
     public function testElapsedMsReturnsElapsedMillisecondsAfterStart(): void

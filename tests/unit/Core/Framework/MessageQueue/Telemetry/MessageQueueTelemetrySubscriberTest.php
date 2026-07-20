@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\Telemetry;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Service\MessageSizeCalculator;
 use Shopware\Core\Framework\MessageQueue\Telemetry\MessageGroupResolver;
 use Shopware\Core\Framework\MessageQueue\Telemetry\MessageQueueTelemetrySubscriber;
@@ -19,6 +20,7 @@ use Symfony\Component\Messenger\Event\WorkerMessageReceivedEvent;
  * @internal
  */
 #[CoversClass(MessageQueueTelemetrySubscriber::class)]
+#[Package('framework')]
 class MessageQueueTelemetrySubscriberTest extends TestCase
 {
     /**

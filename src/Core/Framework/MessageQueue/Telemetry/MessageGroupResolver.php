@@ -10,22 +10,17 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
  * Buckets a messenger message class into a small, bounded set of groups, so the large, plugin-extensible
  * set of message classes does not blow up the metric label cardinality.
  *
- * Classification prefers the two structural families that have a stable base class — scheduled tasks
- * ({@see ScheduledTask}) and DAL indexing ({@see EntityIndexingMessage}) — resolved with `is_a()` so that
- * plugin messages extending them are grouped correctly for free. Everything else is matched by namespace
- * fragment. Results are memoized per class name: workers are long-lived, so each distinct message class
- * resolves once per process.
- *
- * The structural `is_a()` checks win, so a message that is an indexing message or scheduled task is grouped by that
- * mechanism even when its namespace points at a domain (e.g. `MediaIndexingMessage` is `indexer`, not `business`);
- * `other` then also collects framework-external and plugin messages that match no fragment.
- *
  * Owns its bounded output set (`other` as default), so the consuming metric label may use `policy: open`.
  * Known outputs: indexer, webhook, scheduled-task, mail, business, system, other.
  *
- * The hardcoded maps are intentional (optimized for deletion): while the label set is still changing, one
- * map with no extension API is simpler to maintain. Once the groups are stable we can switch to a cleaner
+ * The hardcoded maps are intentional (optimized for deletion). Once the groups are stable we can switch to a cleaner
  * approach, e.g. a telemetry-group attribute on the message class.
+ *
+ * Classification runs in order: the two structural families with a stable base class first — scheduled
+ * tasks ({@see ScheduledTask}) and DAL indexing ({@see EntityIndexingMessage}), resolved via `is_a()` so
+ * plugin subclasses group for free — then the {@see NAMESPACE_GROUPS} fragment map, else `other`. The
+ * structural checks win, so such a message is grouped by them even when its namespace points at another
+ * domain. Results are memoized per class name; workers are long-lived, so each class resolves once.
  *
  * @internal
  *
@@ -37,10 +32,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 class MessageGroupResolver
 {
     /**
-     * Namespace fragment → group, first match wins. Applied only after the structural `is_a()` checks, so
-     * scheduled tasks and DAL indexing messages living in these namespaces are already classified and
-     * cannot be mislabeled here (e.g. `Framework\Webhook\ScheduledTask\CleanupWebhookEventLogTask` is a
-     * `ScheduledTask` and never reaches the `Framework\Webhook\` webhook fragment).
+     * Namespace fragment → group, first match wins (see class docblock for the classification logic and priority).
      *
      * @var array<string, string>
      */
@@ -64,7 +56,8 @@ class MessageGroupResolver
         'Content\\ProductExport\\' => 'business',
         'Content\\Sitemap\\' => 'business',
 
-        // system — framework, infrastructure & housekeeping
+        // system — event-driven framework/infra housekeeping
+        // note that periodic cache invalidations are a `scheduled-task`
         'Framework\\Adapter\\Cache\\' => 'system',
         'Framework\\App\\Message\\' => 'system',
         'Storefront\\Theme\\' => 'system', // theme compilation

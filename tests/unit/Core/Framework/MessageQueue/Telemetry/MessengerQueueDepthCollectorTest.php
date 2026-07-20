@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\Telemetry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Telemetry\MessengerQueueDepthCollector;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Symfony\Component\DependencyInjection\ServiceLocator;
@@ -16,6 +17,7 @@ use Symfony\Component\Messenger\Transport\Receiver\ReceiverInterface;
  * @internal
  */
 #[CoversClass(MessengerQueueDepthCollector::class)]
+#[Package('framework')]
 class MessengerQueueDepthCollectorTest extends TestCase
 {
     public function testEmitsDepthPerCountableTransport(): void

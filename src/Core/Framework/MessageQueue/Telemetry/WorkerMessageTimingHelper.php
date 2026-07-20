@@ -34,7 +34,6 @@ class WorkerMessageTimingHelper
 
     public function start(object $message): void
     {
-        /** @phpstan-ignore typePerfect.noArrayAccessOnObject (array access is the idiomatic \WeakMap API; the rule flags it only because it does not yet exempt ArrayAccess containers) */
         $this->startTimes[$message] = hrtime(true);
     }
 
@@ -44,13 +43,11 @@ class WorkerMessageTimingHelper
      */
     public function elapsedMs(object $message): ?float
     {
-        /** @phpstan-ignore typePerfect.noArrayAccessOnObject (array access is the idiomatic \WeakMap API; the rule flags it only because it does not yet exempt ArrayAccess containers) */
         $start = $this->startTimes[$message] ?? null;
         if ($start === null) {
             return null;
         }
 
-        /** @phpstan-ignore typePerfect.noArrayAccessOnObject (array access is the idiomatic \WeakMap API; the rule flags it only because it does not yet exempt ArrayAccess containers) */
         unset($this->startTimes[$message]);
 
         return (hrtime(true) - $start) / 1_000_000;

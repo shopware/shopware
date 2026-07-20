@@ -14,6 +14,7 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
 use Shopware\Core\Framework\Adapter\Cache\Message\RefreshHttpCacheMessage;
 use Shopware\Core\Framework\App\Message\RotateAppSecretMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\RegisterScheduledTaskMessage;
 use Shopware\Core\Framework\MessageQueue\Telemetry\MessageGroupResolver;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
@@ -26,6 +27,7 @@ use Symfony\Component\Mailer\Messenger\SendEmailMessage;
  * @internal
  */
 #[CoversClass(MessageGroupResolver::class)]
+#[Package('framework')]
 class MessageGroupResolverTest extends TestCase
 {
     /**

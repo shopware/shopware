@@ -158,6 +158,11 @@
         line-height: var(--font-line-height-2xs);
     }
 
+    .sw-admin-menu__collapse-button {
+        color: var(--color-text-primary-default);
+        cursor: pointer;
+    }
+
     .sw-admin-menu__off-canvas-close {
         width: var(--scale-size-32);
         height: var(--scale-size-32);

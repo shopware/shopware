@@ -79,7 +79,7 @@ class ZugferdEmbeddedPdfRendererTest extends TestCase
         $this->metaProvider = static::getContainer()->get(DocumentMetaProvider::class);
         $this->orderRepository = static::getContainer()->get('order.repository');
 
-        $this->seedDemoInvoiceBaseConfig();
+        $this->seedDemoBaseConfig(DocumentType::INVOICE->value);
     }
 
     protected function tearDown(): void

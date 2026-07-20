@@ -6,12 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Service\Mail;
 use Shopware\Core\Content\Mail\Service\MailFactory;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\HappyPathValidator;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(MailFactory::class)]
 class MailFactoryTest extends TestCase
 {

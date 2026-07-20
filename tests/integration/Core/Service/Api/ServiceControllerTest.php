@@ -46,7 +46,7 @@ class ServiceControllerTest extends TestCase
         $browser->jsonRequest('POST', '/api/service/uninstall/' . $serviceName);
 
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
-        static::assertNull($this->appRepository->search(new Criteria([$appId]), Context::createDefaultContext())->first());
+        static::assertNull($this->appRepository->search(new Criteria([$appId]), Context::createDefaultContext())->getEntities()->first());
     }
 
     public function testServiceCannotUninstallAnotherService(): void
@@ -62,7 +62,7 @@ class ServiceControllerTest extends TestCase
         $browser->jsonRequest('POST', '/api/service/uninstall/' . $otherServiceName);
 
         static::assertSame(Response::HTTP_NOT_FOUND, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
-        static::assertNotNull($this->appRepository->search(new Criteria([$otherAppId]), Context::createDefaultContext())->first());
+        static::assertNotNull($this->appRepository->search(new Criteria([$otherAppId]), Context::createDefaultContext())->getEntities()->first());
     }
 
     /**

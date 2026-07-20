@@ -2312,7 +2312,7 @@ class ElasticsearchProductTest extends TestCase
         $esProduct = $esProducts[$ids->get('dal-1')];
 
         $criteria = new Criteria([$ids->get('dal-1')]);
-        $dalProduct = $this->productRepository->search($criteria, $context)->first();
+        $dalProduct = $this->productRepository->search($criteria, $context)->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][Defaults::LANGUAGE_SYSTEM]);
@@ -2327,7 +2327,7 @@ class ElasticsearchProductTest extends TestCase
         $esProduct = $esProducts[$ids->get('dal-1')];
 
         $criteria = new Criteria([$ids->get('dal-1')]);
-        $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
+        $dalProduct = $this->productRepository->search($criteria, $languageContext)->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-1')]);
@@ -2342,7 +2342,7 @@ class ElasticsearchProductTest extends TestCase
         $esProduct = $esProducts[$ids->get('dal-1')];
 
         $criteria = new Criteria([$ids->get('dal-1')]);
-        $dalProduct = $this->productRepository->search($criteria, $languageContext)
+        $dalProduct = $this->productRepository->search($criteria, $languageContext)->getEntities()
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
@@ -2362,7 +2362,7 @@ class ElasticsearchProductTest extends TestCase
         $esProduct = $esProducts[$ids->get('dal-2.1')];
 
         $criteria = new Criteria([$ids->get('dal-2.1')]);
-        $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
+        $dalProduct = $this->productRepository->search($criteria, $languageContext)->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-2')]);
@@ -2381,7 +2381,7 @@ class ElasticsearchProductTest extends TestCase
         $esProduct = $esProducts[$ids->get('dal-2.2')];
 
         $criteria = new Criteria([$ids->get('dal-2.2')]);
-        $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
+        $dalProduct = $this->productRepository->search($criteria, $languageContext)->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-2')]);
@@ -2400,7 +2400,7 @@ class ElasticsearchProductTest extends TestCase
         $esProduct = $esProducts[$ids->get('dal-2.2')];
 
         $criteria = new Criteria([$ids->get('dal-2.2')]);
-        $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
+        $dalProduct = $this->productRepository->search($criteria, $languageContext)->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-1')]);

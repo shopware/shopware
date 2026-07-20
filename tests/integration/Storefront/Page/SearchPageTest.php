@@ -31,7 +31,7 @@ class SearchPageTest extends TestCase
 
         $page = $this->getPageLoader()->load($request, $context);
 
-        static::assertEmpty($page->getListing());
+        static::assertEmpty($page->getListing()->getEntities());
         static::assertSame(self::TEST_TERM, $page->getSearchTerm());
         self::assertPageEvent(SearchPageLoadedEvent::class, $homePageLoadedEvent, $context, $request, $page);
     }

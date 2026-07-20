@@ -9,12 +9,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\FrameworkException;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('framework')]
 #[CoversClass(CookieGroupCollection::class)]
 class CookieGroupCollectionTest extends TestCase
 {

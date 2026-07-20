@@ -21,17 +21,64 @@ class ProductDescriptionTeaserIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function testHandleReconcilesDriftedTeaser(): void
+    public function testHandleBackfillsMissingTeaser(): void
     {
         $ids = new IdsCollection();
         $this->createProduct($ids);
 
         $connection = static::getContainer()->get(Connection::class);
 
-        // Simulate drift: a raw write that bypasses the DAL leaves the teaser stale.
+        // Simulate a row that existed before the column was added: the teaser is still missing.
         $connection->executeStatement(
-            'UPDATE product_translation SET description_teaser = :wrong WHERE product_id = :id',
-            ['wrong' => 'stale value', 'id' => Uuid::fromHexToBytes($ids->get('product'))]
+            'UPDATE product_translation SET description_teaser = NULL WHERE product_id = :id',
+            ['id' => Uuid::fromHexToBytes($ids->get('product'))]
+        );
+
+        $this->getIndexer()->handle(new EntityIndexingMessage([$ids->get('product')]));
+
+        $teaser = $connection->fetchOne(
+            'SELECT description_teaser FROM product_translation WHERE product_id = :id',
+            ['id' => Uuid::fromHexToBytes($ids->get('product'))]
+        );
+
+        static::assertSame('Hello World', $teaser);
+    }
+
+    public function testHandleRewritesStaleTeaser(): void
+    {
+        $ids = new IdsCollection();
+        $this->createProduct($ids);
+
+        $connection = static::getContainer()->get(Connection::class);
+
+        // A non-null but stale teaser (e.g. left behind by a raw-SQL write or a change to the
+        // html_sanitizer rules) is rebuilt from the current description.
+        $connection->executeStatement(
+            'UPDATE product_translation SET description_teaser = :value WHERE product_id = :id',
+            ['value' => 'stale value', 'id' => Uuid::fromHexToBytes($ids->get('product'))]
+        );
+
+        $this->getIndexer()->handle(new EntityIndexingMessage([$ids->get('product')]));
+
+        $teaser = $connection->fetchOne(
+            'SELECT description_teaser FROM product_translation WHERE product_id = :id',
+            ['id' => Uuid::fromHexToBytes($ids->get('product'))]
+        );
+
+        static::assertSame('Hello World', $teaser);
+    }
+
+    public function testHandleLeavesUpToDateTeaserUntouched(): void
+    {
+        $ids = new IdsCollection();
+        $this->createProduct($ids);
+
+        $connection = static::getContainer()->get(Connection::class);
+
+        // A teaser that already matches the current description is left as-is (no needless rewrite).
+        $connection->executeStatement(
+            'UPDATE product_translation SET description_teaser = :value WHERE product_id = :id',
+            ['value' => 'Hello World', 'id' => Uuid::fromHexToBytes($ids->get('product'))]
         );
 
         $this->getIndexer()->handle(new EntityIndexingMessage([$ids->get('product')]));

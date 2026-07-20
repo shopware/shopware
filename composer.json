@@ -300,6 +300,8 @@
         "init:js": " ",
         "init:testdb": "Initializes the test database",
         "lint": "Shorthand for the composer commands 'stylelint', 'eslint', 'cs' and 'translation:lint'",
+        "lint:actions": "Lints GitHub Actions workflows/actions with actionlint and checks their formatting with yamlfmt",
+        "lint:actions:fix": "Formats GitHub Actions workflows/actions with yamlfmt",
         "lint:snippets": "Validates existence of snippets in all core-supported languages",
         "ludtwig:storefront": "Codestyle checks for all Storefront twig files using ludtwig",
         "ludtwig:storefront:fix": "Auto-fixes all fixable twig codestyle in Storefront",
@@ -402,16 +404,6 @@
             "@php bin/console theme:compile --sync || true"
         ],
         "check:license": "bash -c \"vendor/bin/composer-license-checker check -a $(sed -z 's/\\n/ -a /g' .allowed-licenses)\"",
-        "ecs": [
-            "echo \"\\e[31mDeprecated! Use 'cs' instead\n\\e[0m\"",
-            "php-cs-fixer fix --dry-run --diff"
-        ],
-        "cs": "php-cs-fixer fix --dry-run --diff",
-        "ecs-fix": [
-            "echo \"\\e[31mDeprecated! Use 'cs-fix' instead\n\\e[0m\"",
-            "php-cs-fixer fix -v"
-        ],
-        "cs-fix": "php-cs-fixer fix -v",
         "eslint": [
             "@eslint:admin",
             "@eslint:storefront",
@@ -466,8 +458,11 @@
             "@stylelint",
             "@eslint",
             "@cs",
-            "@php bin/shopware translation:validate"
+            "@php bin/shopware translation:validate",
+            "@lint:actions"
         ],
+        "lint:actions": ".github/bin/lint-actions.bash",
+        "lint:actions:fix": ".github/bin/lint-actions.bash --fix",
         "lint:snippets": "@php bin/shopware translation:validate",
         "ludtwig:storefront": "cd ./src/Storefront/Resources/views; ludtwig .",
         "ludtwig:storefront:fix": "@ludtwig:storefront --fix",
@@ -488,6 +483,16 @@
         "npm:storefront:check-license": "export ALLOWED_LICENSES=\"$(sed -z 's/\\n/;/g' .allowed-licenses)\"; cd src/Storefront/Resources/app/storefront; bash -c \"node_modules/.bin/license-checker-rseidelsohn --onlyAllow \\\"$ALLOWED_LICENSES\\\" --excludePrivatePackages\"",
         "phpbench": "phpbench run --report=compressed",
         "dependency-analyzer":  "composer-dependency-analyser",
+        "ecs": [
+            "echo \"\\e[31mDeprecated! Use 'cs' instead\n\\e[0m\"",
+            "php-cs-fixer fix --dry-run --diff"
+        ],
+        "cs": "php-cs-fixer fix --dry-run --diff",
+        "ecs-fix": [
+            "echo \"\\e[31mDeprecated! Use 'cs-fix' instead\n\\e[0m\"",
+            "php-cs-fixer fix -v"
+        ],
+        "cs-fix": "php-cs-fixer fix -v",
         "phpstan": [
             "Composer\\Config::disableProcessTimeout",
             "@php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php",
@@ -497,6 +502,10 @@
             "php src/Core/DevOps/StaticAnalyze/print-ignored-errors-by-area.php phpstan-baseline.neon"
         ],
         "rector": [
+            "@php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php",
+            "rector process --dry-run"
+        ],
+        "rector-fix": [
             "@php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php",
             "rector process"
         ],

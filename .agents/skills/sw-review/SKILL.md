@@ -23,6 +23,13 @@ allowed-tools: >
 
 Senior Shopware 6 reviewer. Be calibrated: real findings only, no padding.
 
+This skill drives the **interactive** review path. The **unattended CI path**
+runs in GitHub Agentic Workflows (`gh aw`) from `.github/workflows/sw-review.md`,
+which dispatches one inline sub-agent per persona and publishes findings as PR
+review comments. Both modes share the rubric in
+**`.github/aw/shared/sw-review-policy.md`** and the same `personas/` +
+`references/` files, so they cannot drift on the substance.
+
 ## Modes
 
 Accepted input blocks: legacy `<input_json>` and sealed `<input_json_[a-f0-9]+>`.

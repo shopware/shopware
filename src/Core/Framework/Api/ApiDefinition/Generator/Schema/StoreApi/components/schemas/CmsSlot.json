@@ -5,13 +5,80 @@
     "components": {
         "schemas": {
             "CmsSlot": {
-                "required": ["apiAlias"],
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "apiAlias",
+                    "id",
+                    "type",
+                    "slot",
+                    "blockId"
+                ],
                 "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "versionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "cmsBlockVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "fieldConfig": {
+                        "type": "object"
+                    },
+                    "type": {
+                        "description": "It indicates the types of content that can be defined within the slot which includes `image`, `text`, `form`, `product-listing`, `category-navigation`, `product-box`, `buy-box`, `sidebar-filter`, etc.",
+                        "type": "string"
+                    },
+                    "slot": {
+                        "description": "Key-value pair to configure which element to be shown in which slot.",
+                        "type": "string"
+                    },
+                    "locked": {
+                        "type": "boolean"
+                    },
+                    "config": {
+                        "type": "object"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "data": {
+                        "type": "object",
+                        "readOnly": true
+                    },
+                    "blockId": {
+                        "description": "Unique identity of CMS block where slot is defined.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "translated": {
+                        "type": "object"
+                    },
+                    "block": {
+                        "$ref": "#/components/schemas/CmsBlock"
+                    },
                     "apiAlias": {
                         "type": "string",
-                        "enum": ["cms_slot"]
+                        "enum": [
+                            "cms_slot"
+                        ]
                     }
-                }
+                },
+                "type": "object"
             }
         }
     }

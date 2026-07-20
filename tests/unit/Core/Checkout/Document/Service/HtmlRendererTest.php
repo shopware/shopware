@@ -29,7 +29,7 @@ class HtmlRendererTest extends TestCase
 {
     public function testGetContentType(): void
     {
-        $htmlRenderer = new HtmlRenderer($this->createMock(DocumentTemplateRenderer::class), '', new ExtensionDispatcher(new EventDispatcher()));
+        $htmlRenderer = new HtmlRenderer(static::createStub(DocumentTemplateRenderer::class), '', new ExtensionDispatcher(new EventDispatcher()));
 
         static::assertSame('text/html', $htmlRenderer->getContentType());
     }
@@ -38,7 +38,7 @@ class HtmlRendererTest extends TestCase
     {
         $dispatcher = new EventDispatcher();
         $renderer = new HtmlRenderer(
-            $this->createMock(DocumentTemplateRenderer::class),
+            static::createStub(DocumentTemplateRenderer::class),
             '',
             new ExtensionDispatcher($dispatcher),
         );
@@ -149,7 +149,7 @@ class HtmlRendererTest extends TestCase
         );
 
         $htmlRenderer = new HtmlRenderer(
-            $this->createMock(DocumentTemplateRenderer::class),
+            static::createStub(DocumentTemplateRenderer::class),
             '',
             new ExtensionDispatcher(new EventDispatcher()),
         );

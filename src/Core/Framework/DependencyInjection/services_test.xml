@@ -101,6 +101,10 @@
 
         <service id="test.browser" alias="test.client" />
 
+        <service id="Shopware\Core\Framework\Test\TestCaseHelper\StoreApiSessionListener">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="test.client" class="Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser" shared="false" public="true">
             <argument type="service" id="kernel" />
             <argument>%test.client.parameters%</argument>
@@ -167,19 +171,6 @@
 
         <service id="Shopware\Core\Test\Integration\App\TestAppServer">
             <argument type="service" id="GuzzleHttp\Handler\MockHandler"/>
-        </service>
-
-        <service id="shopware.translation.mock_handler" class="GuzzleHttp\Handler\MockHandler" public="true"/>
-
-        <service id="shopware.translation.client" class="GuzzleHttp\Client">
-            <argument type="collection">
-                <argument key="handler" type="service">
-                    <service class="GuzzleHttp\HandlerStack">
-                        <factory class="GuzzleHttp\HandlerStack" method="create"/>
-                        <argument type="service" id="shopware.translation.mock_handler"/>
-                    </service>
-                </argument>
-            </argument>
         </service>
 
         <service id="GuzzleHttp\Handler\MockHandler" public="true">

@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Cache;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
@@ -11,7 +10,6 @@ use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 /**
  * @internal
  */
-#[Group('redis')]
 class RedisConnectionFactoryTest extends TestCase
 {
     #[DataProvider('prefixProvider')]

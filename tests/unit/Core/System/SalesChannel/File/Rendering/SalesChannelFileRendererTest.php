@@ -97,6 +97,51 @@ class SalesChannelFileRendererTest extends TestCase
         static::assertSame('plugin + core', $renderer->render($file, $context));
     }
 
+    public function testLegacyLowercaseExtensionRendersUppercaseCoreTemplate(): void
+    {
+        $templateOverrideLoader = new SalesChannelFileTemplateOverrideLoader();
+        $loader = new ChainLoader([
+            $templateOverrideLoader,
+            new ArrayLoader([
+                '@Framework/files/agentic/AGENTS.md.twig' => '{% block content %}core{% endblock %}',
+                '@Ucp/files/agentic/agents.md.twig' => '{% sw_extends \'files/agentic/agents.md.twig\' %}{% block content %}plugin + {{ parent() }}{% endblock %}',
+            ]),
+        ]);
+        $twig = new Environment($loader);
+        $scopeDetector = static::createStub(TemplateScopeDetector::class);
+        $scopeDetector->method('getScopes')->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
+        $hierarchyBuilder = new NamespaceHierarchyBuilder([
+            new SalesChannelFileRendererTestHierarchyBuilder(['Ucp' => 0, 'Framework' => -1]),
+        ]);
+        $templateFinder = new TemplateFinder($twig, $loader, '', $hierarchyBuilder, $scopeDetector);
+        $twig->addExtension(new NodeExtension($templateFinder, $scopeDetector));
+
+        $renderer = new SalesChannelFileRenderer(
+            $twig,
+            $this->createTemplateResolver($templateFinder, $loader, $hierarchyBuilder),
+            $templateOverrideLoader,
+            $this->createSeoUrlPlaceholderHandler(),
+            $this->createSalesChannelRepository(),
+            $this->createExtensionDispatcher()
+        );
+        $file = new SalesChannelFile(
+            'agentic',
+            'AGENTS.md',
+            'files/agentic/AGENTS.md.twig',
+            'text/markdown; charset=utf-8',
+            'files/agentic/AGENTS.md.twig',
+            [],
+            [
+                'files/agentic/AGENTS.md.twig',
+                'files/agentic/agents.md.twig',
+            ],
+        );
+
+        static::assertSame('plugin + merchant core', $renderer->render($file, $this->createSalesChannelContext(), [
+            'Framework' => '{% block content %}merchant core{% endblock %}',
+        ]));
+    }
+
     public function testRenderEntryIsResolvedThroughTemplateFinderInsteadOfDiscoveredSourceOrder(): void
     {
         $templateOverrideLoader = new SalesChannelFileTemplateOverrideLoader();

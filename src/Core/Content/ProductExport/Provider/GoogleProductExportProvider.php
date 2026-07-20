@@ -146,7 +146,7 @@ class GoogleProductExportProvider extends AbstractAgenticCommerceProductExportPr
         $criteria = (new Criteria([$salesChannelContext->getSalesChannelId()]))
             ->addAssociation('countries');
 
-        $salesChannel = $this->salesChannelRepository->search($criteria, $salesChannelContext->getContext())->first();
+        $salesChannel = $this->salesChannelRepository->search($criteria, $salesChannelContext->getContext())->getEntities()->first();
 
         if ($salesChannel === null) {
             return null;

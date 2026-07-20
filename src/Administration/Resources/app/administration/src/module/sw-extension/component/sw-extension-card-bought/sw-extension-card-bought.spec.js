@@ -683,7 +683,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                     expired: true,
                 },
                 expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.testPhaseExpiredAt',
-                expectedicon: 'regular-exclamation-circle',
+                expectedIcon: 'regular-exclamation-circle',
             },
         ])('$testCaseName', async ({ storeLicense, expectedTextSnippet, expectedIcon }) => {
             jest.spyOn(Shopware.Utils.format, 'date').mockImplementation(() => '06/08/2021');

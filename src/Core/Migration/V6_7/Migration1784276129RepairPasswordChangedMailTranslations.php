@@ -17,7 +17,7 @@ class Migration1784276129RepairPasswordChangedMailTranslations extends Migration
 
     private const CORRECT_GERMAN_NAME = 'Kunden-Passwort geändert';
 
-    private const GERMAN_LANGUAGE_ISO = 'de-DE';
+    private const GERMAN_LOCALE_PREFIX = 'de-%';
 
     public function getCreationTimestamp(): int
     {
@@ -27,7 +27,8 @@ class Migration1784276129RepairPasswordChangedMailTranslations extends Migration
     public function update(Connection $connection): void
     {
         // Migration1763377570 picked its German target language via the de-DE translation code,
-        // so the repair must match over the same relation instead of the language's own locale.
+        // so the repair matches over the same relation instead of the language's own locale.
+        // The de-% prefix also covers broken values copied into other German-variant languages.
         $connection->executeStatement(
             'UPDATE `mail_template_type_translation` AS `translation`
              INNER JOIN `mail_template_type` AS `type` ON `type`.`id` = `translation`.`mail_template_type_id`
@@ -35,11 +36,11 @@ class Migration1784276129RepairPasswordChangedMailTranslations extends Migration
              INNER JOIN `locale` ON `locale`.`id` = `language`.`translation_code_id`
              SET `translation`.`name` = :correctName
              WHERE `type`.`technical_name` = :technicalName
-                 AND `locale`.`code` = :germanIso
+                 AND `locale`.`code` LIKE :germanLocalePrefix
                  AND `translation`.`name` = :wrongName',
             [
                 'technicalName' => CustomerPasswordChangedEvent::EVENT_NAME,
-                'germanIso' => self::GERMAN_LANGUAGE_ISO,
+                'germanLocalePrefix' => self::GERMAN_LOCALE_PREFIX,
                 'wrongName' => self::WRONG_GERMAN_NAME,
                 'correctName' => self::CORRECT_GERMAN_NAME,
             ],
@@ -53,11 +54,11 @@ class Migration1784276129RepairPasswordChangedMailTranslations extends Migration
              INNER JOIN `locale` ON `locale`.`id` = `language`.`translation_code_id`
              SET `translation`.`subject` = :correctSubject
              WHERE `type`.`technical_name` = :technicalName
-                 AND `locale`.`code` = :germanIso
+                 AND `locale`.`code` LIKE :germanLocalePrefix
                  AND `translation`.`subject` = :wrongSubject',
             [
                 'technicalName' => CustomerPasswordChangedEvent::EVENT_NAME,
-                'germanIso' => self::GERMAN_LANGUAGE_ISO,
+                'germanLocalePrefix' => self::GERMAN_LOCALE_PREFIX,
                 'wrongSubject' => self::WRONG_GERMAN_NAME,
                 'correctSubject' => self::CORRECT_GERMAN_NAME,
             ],

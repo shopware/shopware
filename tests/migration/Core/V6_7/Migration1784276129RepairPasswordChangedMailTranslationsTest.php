@@ -55,8 +55,8 @@ class Migration1784276129RepairPasswordChangedMailTranslationsTest extends TestC
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        static::assertSame('Kunden-Passwort geändert', $this->fetchGermanTypeName($mailTemplateTypeId, $deLanguageId));
-        static::assertSame('Kunden-Passwort geändert', $this->fetchGermanSubject($mailTemplateTypeId, $deLanguageId));
+        static::assertSame('Kunden-Passwort geändert', $this->fetchTypeName($mailTemplateTypeId, $deLanguageId));
+        static::assertSame('Kunden-Passwort geändert', $this->fetchSubject($mailTemplateTypeId, $deLanguageId));
     }
 
     public function testUpdateKeepsCustomizedGermanTranslations(): void
@@ -78,15 +78,69 @@ class Migration1784276129RepairPasswordChangedMailTranslationsTest extends TestC
 
         (new Migration1784276129RepairPasswordChangedMailTranslations())->update($this->connection);
 
-        static::assertSame('Passwort-Info', $this->fetchGermanTypeName($mailTemplateTypeId, $deLanguageId));
-        static::assertSame('Ihr Passwort wurde geändert', $this->fetchGermanSubject($mailTemplateTypeId, $deLanguageId));
+        static::assertSame('Passwort-Info', $this->fetchTypeName($mailTemplateTypeId, $deLanguageId));
+        static::assertSame('Ihr Passwort wurde geändert', $this->fetchSubject($mailTemplateTypeId, $deLanguageId));
     }
 
     public function testUpdateRepairsRegionalLanguageWithGermanTranslationCode(): void
     {
         $mailTemplateTypeId = $this->getMailTemplateTypeId();
         $languageId = $this->createLanguage('de-CH', 'de-DE');
+        $this->seedBrokenTranslationsForLanguage($mailTemplateTypeId, $languageId);
 
+        (new Migration1784276129RepairPasswordChangedMailTranslations())->update($this->connection);
+
+        static::assertSame('Kunden-Passwort geändert', $this->fetchTypeName($mailTemplateTypeId, $languageId));
+        static::assertSame('Kunden-Passwort geändert', $this->fetchSubject($mailTemplateTypeId, $languageId));
+    }
+
+    public function testUpdateRepairsCopiedTranslationsOfGermanVariantLanguages(): void
+    {
+        $mailTemplateTypeId = $this->getMailTemplateTypeId();
+        $languageId = $this->createLanguage('de-AT', 'de-AT');
+        $this->seedBrokenTranslationsForLanguage($mailTemplateTypeId, $languageId);
+
+        (new Migration1784276129RepairPasswordChangedMailTranslations())->update($this->connection);
+
+        static::assertSame('Kunden-Passwort geändert', $this->fetchTypeName($mailTemplateTypeId, $languageId));
+        static::assertSame('Kunden-Passwort geändert', $this->fetchSubject($mailTemplateTypeId, $languageId));
+    }
+
+    public function testUpdateIgnoresBrokenValuesOfNonGermanLanguages(): void
+    {
+        $mailTemplateTypeId = $this->getMailTemplateTypeId();
+        $languageId = $this->createLanguage('nl-NL', 'nl-NL');
+        $this->seedBrokenTranslationsForLanguage($mailTemplateTypeId, $languageId);
+
+        (new Migration1784276129RepairPasswordChangedMailTranslations())->update($this->connection);
+
+        static::assertSame('Kunden-Password geändert', $this->fetchTypeName($mailTemplateTypeId, $languageId));
+        static::assertSame('Kunden-Password geändert', $this->fetchSubject($mailTemplateTypeId, $languageId));
+    }
+
+    public function testUpdateWithoutPasswordChangedMailTemplateTypeDoesNothing(): void
+    {
+        $mailTemplateTypeId = $this->getMailTemplateTypeId();
+
+        $this->connection->executeStatement(
+            'DELETE FROM `mail_template_translation` WHERE `mail_template_id` IN (
+                SELECT `id` FROM `mail_template` WHERE `mail_template_type_id` = :typeId
+            )',
+            ['typeId' => $mailTemplateTypeId],
+        );
+        $this->connection->executeStatement('DELETE FROM `mail_template` WHERE `mail_template_type_id` = :typeId', ['typeId' => $mailTemplateTypeId]);
+        $this->connection->executeStatement('DELETE FROM `mail_template_type` WHERE `id` = :typeId', ['typeId' => $mailTemplateTypeId]);
+
+        (new Migration1784276129RepairPasswordChangedMailTranslations())->update($this->connection);
+
+        static::assertFalse($this->connection->fetchOne(
+            'SELECT `id` FROM `mail_template_type` WHERE `technical_name` = :technicalName',
+            ['technicalName' => CustomerPasswordChangedEvent::EVENT_NAME],
+        ));
+    }
+
+    private function seedBrokenTranslationsForLanguage(string $mailTemplateTypeId, string $languageId): void
+    {
         $this->connection->insert('mail_template_type_translation', [
             'mail_template_type_id' => $mailTemplateTypeId,
             'language_id' => $languageId,
@@ -109,32 +163,6 @@ class Migration1784276129RepairPasswordChangedMailTranslationsTest extends TestC
             'content_plain' => '',
             'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
-
-        (new Migration1784276129RepairPasswordChangedMailTranslations())->update($this->connection);
-
-        static::assertSame('Kunden-Passwort geändert', $this->fetchGermanTypeName($mailTemplateTypeId, $languageId));
-        static::assertSame('Kunden-Passwort geändert', $this->fetchGermanSubject($mailTemplateTypeId, $languageId));
-    }
-
-    public function testUpdateWithoutPasswordChangedMailTemplateTypeDoesNothing(): void
-    {
-        $mailTemplateTypeId = $this->getMailTemplateTypeId();
-
-        $this->connection->executeStatement(
-            'DELETE FROM `mail_template_translation` WHERE `mail_template_id` IN (
-                SELECT `id` FROM `mail_template` WHERE `mail_template_type_id` = :typeId
-            )',
-            ['typeId' => $mailTemplateTypeId],
-        );
-        $this->connection->executeStatement('DELETE FROM `mail_template` WHERE `mail_template_type_id` = :typeId', ['typeId' => $mailTemplateTypeId]);
-        $this->connection->executeStatement('DELETE FROM `mail_template_type` WHERE `id` = :typeId', ['typeId' => $mailTemplateTypeId]);
-
-        (new Migration1784276129RepairPasswordChangedMailTranslations())->update($this->connection);
-
-        static::assertFalse($this->connection->fetchOne(
-            'SELECT `id` FROM `mail_template_type` WHERE `technical_name` = :technicalName',
-            ['technicalName' => CustomerPasswordChangedEvent::EVENT_NAME],
-        ));
     }
 
     private function createLanguage(string $localeCode, string $translationCode): string
@@ -171,7 +199,7 @@ class Migration1784276129RepairPasswordChangedMailTranslationsTest extends TestC
         return $mailTemplateTypeId;
     }
 
-    private function fetchGermanTypeName(string $mailTemplateTypeId, string $languageId): string
+    private function fetchTypeName(string $mailTemplateTypeId, string $languageId): string
     {
         $name = $this->connection->fetchOne(
             'SELECT `name` FROM `mail_template_type_translation` WHERE `mail_template_type_id` = :typeId AND `language_id` = :languageId',
@@ -182,7 +210,7 @@ class Migration1784276129RepairPasswordChangedMailTranslationsTest extends TestC
         return $name;
     }
 
-    private function fetchGermanSubject(string $mailTemplateTypeId, string $languageId): string
+    private function fetchSubject(string $mailTemplateTypeId, string $languageId): string
     {
         $subject = $this->connection->fetchOne(
             'SELECT `subject` FROM `mail_template_translation` WHERE `language_id` = :languageId AND `mail_template_id` IN (

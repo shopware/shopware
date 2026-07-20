@@ -29,7 +29,14 @@ export async function fullRun({ target, out, reset: doReset }) {
   if (!fs.existsSync(FILES.plan)) {
     return fail(target, out, 'reproduction-plan.json not found — author the bundle before verifying');
   }
-  const plan = readJson(FILES.plan);
+  // A malformed plan blocks the leg with a reason instead of throwing an unhandled rejection that
+  // would leave no result.json (fail() reads the plan with a {} fallback, so it cannot re-throw).
+  let plan;
+  try {
+    plan = readJson(FILES.plan);
+  } catch (err) {
+    return fail(target, out, `reproduction-plan.json is not valid JSON: ${err?.message || err}`);
+  }
 
   if (doReset) {
     // A failed restore of an EXISTING snapshot blocks the leg — never judge a symptom on un-restored,

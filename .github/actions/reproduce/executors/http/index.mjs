@@ -24,7 +24,9 @@ export class HttpExecutor extends ReproductionExecutor {
    * Store API access keys are requested only when the sequence actually targets Store API routes.
    */
   async prepare({ plan }) {
-    const requests = plan.requests || [plan.request];
+    // An explicit `requests: []` is truthy, so guard on length before falling back to the single
+    // `request`; an empty list yields no response and is classified inconclusive, never reproduced.
+    const requests = plan.requests?.length ? plan.requests : (plan.request ? [plan.request] : []);
     const assertions = plan.assertions || (plan.assertion ? [plan.assertion] : []);
     const ids = await resolveBundlePlaceholders({
       values: [requests, assertions],

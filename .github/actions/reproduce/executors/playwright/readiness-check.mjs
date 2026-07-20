@@ -99,7 +99,15 @@ async function runCheck(page, c, index, failures, observations) {
   const url = `${target}${target.includes('?') ? '&' : '?'}seededReadiness=${Date.now()}-${index}`;
   const elementTimeout = Number(c.timeout_ms || 15000);
   const navTimeout = Number(c.timeout_ms || 30000);
-  await page.goto(url, { waitUntil: c.waitUntil || 'load', timeout: navTimeout });
+  // A nav timeout / net::ERR_* must be recorded as a readiness failure, not thrown: runCheck's
+  // contract is "records failures without throwing", and check() wraps the loop in try/finally with
+  // no catch — an escaping rejection would kill the leg with no blocked result.json.
+  try {
+    await page.goto(url, { waitUntil: c.waitUntil || 'load', timeout: navTimeout });
+  } catch (err) {
+    failures.push(`${name}: navigation to ${url} failed (${String(err?.message || err).split('\n')[0]})`);
+    return;
+  }
 
   const consent = page.getByRole('button', { name: 'Only technically required' });
   if (await consent.count() === 1) {

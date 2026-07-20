@@ -9,6 +9,7 @@
 // confidence < 0.7) or an inconclusive leg → needs_human_review. Emits KEY=VALUE to $GITHUB_OUTPUT
 // (and stdout): has_results, reported, trunk, verdict, unsure_reason, fix_candidate.
 import fs from 'node:fs';
+import { readJson as readJsonOr } from '../bundle.mjs';
 
 const MATRIX = {
   'reproduced/reproduced': 'live_bug',
@@ -28,13 +29,7 @@ const MATRIX = {
 /**
  * Reads optional JSON verdict artifacts, returning null when a leg did not upload one.
  */
-const readJson = (path) => {
-  try {
-    return JSON.parse(fs.readFileSync(path, 'utf8'));
-  } catch {
-    return null;
-  }
-};
+const readJson = (path) => readJsonOr(path, null);
 /**
  * Compacts verdict output values for safe `GITHUB_OUTPUT` emission.
  */

@@ -8,22 +8,16 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { FILES } from '../bundle.mjs';
+import { FILES, readJson as readJsonOr } from '../bundle.mjs';
 
 const templates = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'templates');
 const DATA = JSON.parse(fs.readFileSync(path.join(templates, 'verdicts.json'), 'utf8'));
 const OUT = process.env.OUT || 'comment.md';
 
 /**
- * Reads optional JSON report artifacts, returning null for absent leg outputs.
+ * Reads optional JSON report artifacts, returning null for absent or unparseable leg outputs.
  */
-const readJson = (p) => {
-  try {
-    return JSON.parse(fs.readFileSync(p, 'utf8'));
-  } catch {
-    return null;
-  }
-};
+const readJson = (p) => readJsonOr(p, null);
 /**
  * Replaces simple `{{KEY}}` placeholders in phrase templates.
  */
@@ -238,7 +232,7 @@ function renderVerdict() {
       : '',
     TESTCASE: defang(script),
     TESTCASE_LANG: specLeg?.evidence?.script_lang || 'sh',
-    TESTCASE_TOOL: p.testcase_tool[plan.executor] || specLeg?.evidence?.script_lang || 'sh',
+    TESTCASE_TOOL: (p.testcase_tool && p.testcase_tool[plan.executor]) || specLeg?.evidence?.script_lang || 'sh',
     ASSERTIONS: script ? assertionList(specLeg?.assertion?.checks) : '', // http: the expectations, beside the curl
     FIXTURES: hasFixtures ? defang(fs.readFileSync(fixturesPath, 'utf8').trim()) : '',
     RUN_URL: process.env.RUN_URL || '',
@@ -406,6 +400,9 @@ function resultChecks(leg) {
         lines.push(`${callOf(c)} // ❌`, `/* got:\n${blockSafe(actual)}\n*/`);
       } else {
         lines.push(`${callOf(c)} // ❌ got ${qval(actual)}`);
+      }
+      if (c.jqError) {
+        lines.push(`//   jq: ${clean(c.jqError)}`);
       }
     }
     lines.push('```');

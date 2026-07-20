@@ -303,8 +303,8 @@ export async function refreshIndexes(indexers = ['category.indexer', 'product.in
         break;
       }
       const next = data.offset?.offset ?? data.offset ?? null;
-      if (next === null) {
-        break;
+      if (next === null || next === offset) {
+        break; // no advance (e.g. a numeric offset of 0) — stop instead of re-indexing the same page
       }
       offset = next;
     }

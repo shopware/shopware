@@ -54,8 +54,13 @@ Two shapes, depending on the healthy response:
   later body checks (which would be unreadable on the error) simply don't run — no `inconclusive`.
   Add those body checks anyway for the healthy leg (`.data present`, a returned value…).
 
-(Safety net: if the deciding assert is a value comparison on a field that's unreadable on a non-2xx
-response, the leg is `inconclusive` rather than a bogus `reproduced`; `present`/`absent` are exempt.)
+(Safety net: if a value comparison targets a field jq can't read — a bad filter, a non-JSON body, or
+a wrong-shape access — the leg is `inconclusive` (never a bogus `reproduced`) on any status, and jq's
+error is surfaced in the leg output so you can fix it during `repro try`; `present`/`absent` are
+exempt. **If the shape itself is the symptom** — an array where an object is expected, a changed
+field count — assert a *readable* projection like `.data | type` (`equals "object"`) or
+`.data | length` rather than relying on jq erroring; that makes the difference a real value
+comparison that also flips correctly on trunk.)
 
 ## direct — `ReproTest.php`
 

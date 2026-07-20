@@ -5,7 +5,8 @@
  * configured symptom exception means the reported behavior reproduced.
  */
 export function classifyPhpunitOutput(output, plan) {
-  const firstError = phpunitFailureBlock(output).replace(/\s+/g, ' ').slice(0, 700);
+  const failureBlock = phpunitFailureBlock(output);
+  const firstError = failureBlock.replace(/\s+/g, ' ').slice(0, 700);
   // Order matters: check the authoritative failure/error signals FIRST, so a captured line that merely
   // starts with "OK" (in a test's own stdout) can't flip a real failure to healthy.
   // A failure/error only counts as REPRODUCED when it matches the plan's symptom marker
@@ -13,8 +14,13 @@ export function classifyPhpunitOutput(output, plan) {
   // likely a failed setup/precondition assertion — NOT the reported symptom — so it's inconclusive,
   // never a false `reproduced`. The symptom assertion must carry a distinctive token in its
   // failure/exception message that this pattern matches.
+  //
+  // Match the pattern against the FIRST failure paragraph (method-name header stripped by
+  // phpunitFailureBlock), not the whole output: otherwise the token appearing in an echoed test
+  // source line, a stack-trace path, or the test method name would flip a failed setup assertion to
+  // a false `reproduced`. Fall back to the full output only for hard fatals with no failure block.
   const symptomPattern = plan.assertion?.symptom_pattern;
-  const matchesSymptom = symptomPattern ? new RegExp(symptomPattern).test(output) : false;
+  const matchesSymptom = symptomPattern ? new RegExp(symptomPattern).test(failureBlock || output) : false;
   if (/FAILURES!/.test(output)) {
     if (matchesSymptom) {
       return { status: 'reproduced', matched: false, reporter: phpunitFailureBlock(output) || `symptom assertion failed (matched '${symptomPattern}')`, reason: null };

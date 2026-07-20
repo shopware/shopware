@@ -22,7 +22,20 @@ const EXECUTORS = {
  * readiness checks stay in `full-run.mjs` so both trusted and preview runs share ordering.
  */
 export async function executeBundle({ target, out }) {
-  const plan = readJson(FILES.plan);
+  // A malformed plan must become a BLOCKED leg with a reason, not an unhandled rejection that leaves
+  // no result.json (which the verdict step would misread as a missing leg). validate.mjs is advisory
+  // (continue-on-error), so the plan can still be invalid JSON when we reach here.
+  let plan;
+  try {
+    plan = readJson(FILES.plan);
+  } catch (err) {
+    const reason = `reproduction-plan.json is not valid JSON: ${err?.message || err}`;
+    const result = blockedResult({}, target, reason);
+    writeJson(out, result);
+    console.error(`::error::${reason}`);
+    console.log(`status=blocked  (${reason})`);
+    return result;
+  }
 
   // Fail CLOSED. A trusted verify (REPRO_ALLOW_VERIFY=1) runs the agent-authored playwright/direct
   // spec host-side, outside the awf agent sandbox, so it MUST run inside the egress-locked container.

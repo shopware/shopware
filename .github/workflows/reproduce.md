@@ -275,11 +275,18 @@ post-steps:
         sudo socat "TCP-LISTEN:3306,bind=${GW},fork,reuseaddr" TCP:127.0.0.1:3306 &
         sleep 2
         sudo iptables -I DOCKER-USER -j DROP
-      fi   # http: no container (data-only)
+      elif [ "$EXE" = http ]; then
+        # http runs no agent-authored process, but the assertion `field` is a jq PROGRAM the host-side
+        # leg evaluates. Run jq in an egress-locked image with no env passthrough so `env`/`$ENV`
+        # cannot exfiltrate a runner secret into the verdict comment (see assertion-classifier.mjs).
+        docker build -t repro-jq:local - < .github/actions/reproduce/dev/jq-sandbox.Dockerfile
+        { echo "REPRO_SANDBOX=1"; echo "REPRO_SANDBOX_JQ_IMAGE=repro-jq:local"; } >> "$GITHUB_ENV"
+      fi
       # Proof-of-arm: only reached if the taken branch fully succeeded (set -e), i.e. the container
       # image is present AND egress is dropped. executeBundle refuses to run a playwright/direct
       # trusted verify without this, so a swallowed arm failure fails CLOSED (blocked leg), never an
-      # unsandboxed execution. (http sets it too but doesn't require it — data-only, no container.)
+      # unsandboxed execution. (http sets it too but doesn't require it — jq falls back to a scrubbed
+      # host env when unarmed, so no secret is exposed either way.)
       echo "REPRO_SANDBOX_ARMED=1" >> "$GITHUB_ENV"
 
   - name: Authoritative reported-version verification
@@ -509,9 +516,20 @@ safe-outputs:
             sudo iptables -I DOCKER-USER -j DROP        # container egress: host only, no internet
             echo "REPRO_SANDBOX_ARMED=1" >> "$GITHUB_ENV"   # proof-of-arm; verify refuses without it (fail closed)
 
+        # SANDBOX (http only): the leg stays host-side, but the assertion `field` is a jq PROGRAM.
+        # Build a tiny jq image so the field is evaluated inside `--network none` with no env
+        # passthrough — jq's env/$ENV cannot leak a runner secret into the verdict comment.
+        - name: Arm http sandbox
+          if: steps.bundle.outputs.run_trunk == 'true' && steps.plan.outputs.executor == 'http' && steps.provision.outcome == 'success'
+          run: |
+            set -euo pipefail
+            docker build -t repro-jq:local - < .github/actions/reproduce/dev/jq-sandbox.Dockerfile
+            echo "REPRO_SANDBOX_JQ_IMAGE=repro-jq:local" >> "$GITHUB_ENV"
+
         # UNTRUSTED: re-executes the agent-authored spec/test. playwright → egress-locked Playwright
         # container reaching the shop at host.docker.internal; direct → egress-locked PHP container
-        # reaching the DB via the socat relay; http stays host-side (data-only, no code execution).
+        # reaching the DB via the socat relay; http stays host-side but evaluates its jq field in an
+        # egress-locked jq container (no code execution otherwise).
         # Read-only token; the trunk leg is uploaded as data for reproduce-report to judge.
         - name: Verify on trunk
           id: trunk_verify
@@ -523,8 +541,8 @@ safe-outputs:
             REPRO_RESOLVED_VERSION: trunk   # trusted version stamped into result.json (not the agent's plan.version)
             APP_URL: ${{ steps.plan.outputs.executor == 'playwright' && 'http://host.docker.internal:8000' || steps.provision.outputs.app_url }}
             SW_ACCESS_KEY: ${{ steps.provision.outputs.access_key }}
-            REPRO_SANDBOX: ${{ (steps.plan.outputs.executor == 'playwright' || steps.plan.outputs.executor == 'direct') && '1' || '' }}
-            # REPRO_SANDBOX_PW_IMAGE / REPRO_SANDBOX_PHP_IMAGE are exported by the matching "Arm … sandbox" step.
+            REPRO_SANDBOX: ${{ (steps.plan.outputs.executor == 'playwright' || steps.plan.outputs.executor == 'direct' || steps.plan.outputs.executor == 'http') && '1' || '' }}
+            # REPRO_SANDBOX_PW_IMAGE / REPRO_SANDBOX_PHP_IMAGE / REPRO_SANDBOX_JQ_IMAGE are exported by the matching "Arm … sandbox" step.
           run: node .github/actions/reproduce/cli/repro.mjs verify   # records video too when the plan sets record_video
 
         # Assemble the trunk leg (result.json + evidence) as a data artifact. A missing result.json is

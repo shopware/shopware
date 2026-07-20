@@ -19,7 +19,7 @@ const discoveredFiles = [
     },
     {
         fileFamily: 'agentic',
-        fileName: 'agents.md',
+        fileName: 'AGENTS.md',
         contentType: 'text/markdown; charset=utf-8',
         configuration: null,
     },
@@ -195,9 +195,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files
         await flushPromises();
 
         expect(wrapper.text()).toContain('llms.txt');
-        expect(wrapper.text()).toContain('agents.md');
+        expect(wrapper.text()).toContain('AGENTS.md');
         expect(wrapper.text()).toContain('/llms.txt');
-        expect(wrapper.text()).toContain('/agents.md');
+        expect(wrapper.text()).toContain('/AGENTS.md');
         expect(wrapper.text()).toContain('A Markdown index for AI assistants.');
         expect(wrapper.text()).toContain('Context and operating guidance for agent clients.');
         expect(wrapper.text()).toContain('sw-sales-channel.detail.agenticFiles.description');
@@ -272,6 +272,35 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files
 
         expect(wrapper.vm.files[0].configuration.enabled).toBe(false);
         expect(wrapper.vm.salesChannel.salesChannelFiles.find((item) => item.fileName === 'llms.txt').enabled).toBe(false);
+    });
+
+    it('reuses existing lowercase configuration for the uppercase core file', async () => {
+        const configuration = {
+            id: 'legacy-agents-file-id',
+            fileFamily: 'agentic',
+            fileName: 'agents.md',
+            enabled: true,
+            templateOverrides: {
+                Framework: 'Legacy override',
+            },
+        };
+        const { wrapper } = await createWrapper({
+            salesChannel: {
+                id: 'sales-channel-id',
+                salesChannelFiles: [configuration],
+            },
+        });
+
+        await flushPromises();
+
+        const file = wrapper.vm.files.find((item) => item.fileName === 'AGENTS.md');
+        wrapper.vm.onToggleEnabled(file);
+
+        expect(wrapper.vm.salesChannel.salesChannelFiles).toEqual([configuration]);
+        expect(configuration.enabled).toBe(false);
+        expect(configuration.templateOverrides).toEqual({
+            Framework: 'Legacy override',
+        });
     });
 
     it('shows edit as the first context menu action', async () => {

@@ -8,6 +8,18 @@ Store API requests now remain stateless unless application or extension code exp
 
 ## Core
 
+### Product `descriptionTeaser` backfill runs once as a post-update indexer
+
+The `product.description_teaser.indexer` that fills `descriptionTeaser` for products predating the column (introduced in 6.7.12) is now a one-time post-update indexer: it runs once through the post-update flow after the update and is no longer executed by `bin/console dal:refresh:index`. It rebuilds each teaser from the current description and rewrites only the rows whose stored value is missing or out of date. Ongoing changes continue to be kept in sync synchronously on write by the product description-teaser subscriber.
+
+### Agentic file names are matched case-insensitively
+
+Agentic file names are now matched case-insensitively. Core uses the standard `/AGENTS.md` spelling, while existing `/agents.md` URLs, lowercase extension templates, enabled states, and merchant overrides continue to work.
+
+### Shopware Services are updated by the scheduled service task
+
+The daily `services.install` scheduled task now runs a reconcile pass: in addition to installing newly-registered Shopware Services, it converges every already-installed service to the latest revision advertised by the service registry. Previously an installed service was only updated when it pushed an update via `POST /api/services/trigger-update`, so a shop that missed a push stayed on a stale revision until the next push. Updates are idempotent — a service already on the latest revision is a no-op — and no configuration change is required (services must be enabled as before).
+
 ### Per-thumbnail post-processing event and progressive JPEG thumbnails
 
 Thumbnail generation gained a new extension point and two output improvements:

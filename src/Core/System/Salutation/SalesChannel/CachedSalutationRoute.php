@@ -14,7 +14,6 @@ use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Shopware\Core\System\Salutation\Event\SalutationRouteCacheKeyEvent;
 use Shopware\Core\System\Salutation\Event\SalutationRouteCacheTagsEvent;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -22,7 +21,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed
  */
-#[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('checkout')]
 class CachedSalutationRoute extends AbstractSalutationRoute
 {
@@ -54,7 +52,6 @@ class CachedSalutationRoute extends AbstractSalutationRoute
         return $this->decorated;
     }
 
-    #[Route(path: '/store-api/salutation', name: 'store-api.salutation', methods: ['GET', 'POST'], defaults: ['_entity' => 'salutation'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): SalutationRouteResponse
     {
         if (Feature::isActive('cache_rework')) {

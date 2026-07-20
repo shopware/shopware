@@ -156,7 +156,8 @@ class CartRestorer
     {
         $request = $this->requestStack->getMainRequest();
 
-        if (!$request?->hasSession()) {
+        // Only synchronize an initialized storefront session. Store API requests must remain stateless.
+        if (!$request?->hasSession(true)) {
             return;
         }
 

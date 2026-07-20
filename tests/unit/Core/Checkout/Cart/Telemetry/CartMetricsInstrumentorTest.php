@@ -91,6 +91,8 @@ class CartMetricsInstrumentorTest extends TestCase
             // informational cart notices ("discount applied", "method switched") are not errors
             $this->error('n1', Error::LEVEL_NOTICE, 'promotion-discount-added'),
             $this->error('n2', Error::LEVEL_NOTICE, 'shipping-method-changed'),
+            // any level below warning
+            $this->error('g1', Error::LEVEL_WARNING - 1, 'below-warning'),
         );
 
         $this->createInstrumentor()->measure($this->createContext(), fn (): Cart => $cart);

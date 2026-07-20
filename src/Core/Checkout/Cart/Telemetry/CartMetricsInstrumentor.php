@@ -59,7 +59,6 @@ class CartMetricsInstrumentor
             value: $durationMs,
             labels: ['sales_channel_type' => $salesChannelType, 'has_promotions' => $hasPromotions],
         ));
-
         // Counts top-level cart rows, not the flattened tree: a bundle of three sub-items is 1,
         // not 4. Nested children are excluded intentionally so basket size reflects rows rather than
         // structure — revisit if counting bundle sub-items proves the more useful signal.
@@ -80,10 +79,12 @@ class CartMetricsInstrumentor
         // spikes flag checkout friction, and the flat counter keeps that signal cheap
         // and low-noise. Per-error emission and error classification probably is a logging concern.
         //
-        // NOTICE-level entries are excluded — they are informational cart messages ("discount applied", "method switched"), not errors.
+        // Count warning-level and above only — informational cart messages ("discount applied",
+        // "method switched") sit at NOTICE and are excluded. Equals-or-bigger guards against new low-severity
+        // levels added later
         $count = 0;
         foreach ($cart->getErrors() as $error) {
-            if ($error->getLevel() !== Error::LEVEL_NOTICE) {
+            if ($error->getLevel() >= Error::LEVEL_WARNING) {
                 ++$count;
             }
         }

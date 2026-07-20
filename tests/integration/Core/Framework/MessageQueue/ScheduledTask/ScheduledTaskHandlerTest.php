@@ -74,7 +74,7 @@ class ScheduledTaskHandlerTest extends TestCase
 
         static::assertTrue($handler->wasCalled());
 
-        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->getEntities()->get($taskId);
 
         static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         $newOriginalNextExecution = clone $originalNextExecution;
@@ -128,7 +128,7 @@ class ScheduledTaskHandlerTest extends TestCase
 
         static::assertTrue($handler->wasCalled());
 
-        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->getEntities()->get($taskId);
 
         static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
@@ -174,7 +174,7 @@ class ScheduledTaskHandlerTest extends TestCase
 
         static::assertTrue($handler->wasCalled());
 
-        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->getEntities()->get($taskId);
         static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertSame(ScheduledTaskDefinition::STATUS_FAILED, $task->getStatus());
     }
@@ -211,7 +211,7 @@ class ScheduledTaskHandlerTest extends TestCase
 
         static::assertTrue($handler->wasCalled());
 
-        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->getEntities()->get($taskId);
         static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
     }
@@ -256,7 +256,7 @@ class ScheduledTaskHandlerTest extends TestCase
 
         static::assertFalse($handler->wasCalled());
 
-        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->getEntities()->get($taskId);
         static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertSame($status, $task->getStatus());
     }

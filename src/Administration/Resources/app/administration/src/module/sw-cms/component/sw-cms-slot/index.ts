@@ -118,7 +118,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         cmsSlotSettingsClasses() {
-            if (this.elementConfig?.defaultConfig && !this.element?.locked) {
+            if (this.elementConfig?.defaultConfig && !this.isElementLocked) {
                 return null;
             }
 
@@ -129,7 +129,7 @@ export default Shopware.Component.wrapComponentConfig({
             if (this.elementConfig?.disabledConfigInfoTextKey) {
                 return {
                     message: this.$t(this.elementConfig.disabledConfigInfoTextKey),
-                    disabled: !!this.elementConfig.defaultConfig && !this.element.locked,
+                    disabled: !!this.elementConfig.defaultConfig && !this.isElementLocked,
                 };
             }
 
@@ -141,6 +141,17 @@ export default Shopware.Component.wrapComponentConfig({
 
         modalVariant() {
             return this.element.type === 'html' ? 'full' : 'large';
+        },
+
+        isElementLocked() {
+            return (
+                this.element.locked ||
+                (Shopware.Store.get('cmsPage').currentPage?.type === 'product_detail' &&
+                    [
+                        'buy-box',
+                        'product-description-reviews',
+                    ].includes(this.element.type))
+            );
         },
     },
 
@@ -159,7 +170,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onSettingsButtonClick() {
-            if (!this.elementConfig?.defaultConfig || this.element?.locked) {
+            if (!this.elementConfig?.defaultConfig || this.isElementLocked) {
                 return;
             }
 

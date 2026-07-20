@@ -172,6 +172,20 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         expect(customComponent.attributes().disabled).toBeUndefined();
     });
 
+    it('should lock product-specific elements on product detail pages without changing the slot', async () => {
+        Shopware.Store.get('cmsPage').currentPage = { type: 'product_detail' };
+
+        const wrapper = await createWrapper({
+            element: {
+                type: 'product-description-reviews',
+                locked: false,
+            },
+        });
+
+        expect(wrapper.vm.isElementLocked).toBe(true);
+        expect(wrapper.props('element').locked).toBe(false);
+    });
+
     it('should show a tooltip when the element is not disabled', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({

@@ -9,7 +9,7 @@ const productMock = {
     description: 'This product is awesome',
 };
 
-async function createWrapper() {
+async function createWrapper(props = {}) {
     return mount(
         await wrapTestComponent('sw-cms-el-product-description-reviews', {
             sync: true,
@@ -37,6 +37,7 @@ async function createWrapper() {
                         value: null,
                     },
                 },
+                ...props,
             },
         },
     );
@@ -74,6 +75,18 @@ describe('src/module/sw-cms/elements/product-description-reviews/component', () 
         await flushPromises();
 
         expect(wrapper.find('.sw-cms-el-product-description-reviews__placeholder').exists()).toBeTruthy();
+    });
+
+    it('should not change the persisted lock state on product detail pages', async () => {
+        const element = {
+            config: {},
+            data: {},
+        };
+        Shopware.Store.get('cmsPage').currentPage.type = 'product_detail';
+
+        await createWrapper({ element });
+
+        expect(element.locked).toBeUndefined();
     });
 
     it('should display data when product is selected', async () => {

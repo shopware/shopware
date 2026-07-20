@@ -1,0 +1,32 @@
+# Fast unit checks for the issue-reproduction action's pure decision logic (assertion/output
+# classifiers, verdict matrix). Path-filtered so it only runs when that action changes — it costs
+# nothing on the pushes that don't touch it. Deliberately does NOT exercise the executors/runners
+# (docker, Playwright, fetch); those are proven by the end-to-end sample runs, not mocked here.
+name: reproduce-action-tests
+
+on:
+  push:
+    paths:
+      - '.github/actions/reproduce/**'
+      - '.github/workflows/reproduce-action-tests.yml'
+  pull_request:
+    paths:
+      - '.github/actions/reproduce/**'
+      - '.github/workflows/reproduce-action-tests.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
+        with:
+          node-version: '22'
+      - name: Syntax-check every .mjs (cheap lint; no ESLint config covers this tree)
+        run: find .github/actions/reproduce -name '*.mjs' -print0 | xargs -0 -n1 node --check
+      - name: Run unit tests
+        working-directory: .github/actions/reproduce
+        run: node --test $(find . -name '*.test.mjs')

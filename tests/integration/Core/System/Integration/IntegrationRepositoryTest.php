@@ -47,10 +47,8 @@ class IntegrationRepositoryTest extends TestCase
 
         $this->repository->create($records, $context);
 
-        $entities = $this->repository->search(new Criteria([$id]), $context);
-        $entity = $entities
-            ->getEntities()
-            ->first();
+        $entities = $this->repository->search(new Criteria([$id]), $context)->getEntities();
+        $entity = $entities->first();
 
         static::assertNotNull($entity);
         static::assertCount(1, $entities);
@@ -74,10 +72,8 @@ class IntegrationRepositoryTest extends TestCase
 
         $this->repository->create($records, $context);
 
-        $entities = $this->repository->search(new Criteria([$id]), $context);
-        $entity = $entities
-            ->getEntities()
-            ->first();
+        $entities = $this->repository->search(new Criteria([$id]), $context)->getEntities();
+        $entity = $entities->first();
 
         static::assertNotNull($entity);
         static::assertCount(1, $entities);
@@ -103,10 +99,8 @@ class IntegrationRepositoryTest extends TestCase
 
         $this->repository->create($records, $context);
 
-        $entities = $this->repository->search(new Criteria([$id]), $context);
-        $entity = $entities
-            ->getEntities()
-            ->first();
+        $entities = $this->repository->search(new Criteria([$id]), $context)->getEntities();
+        $entity = $entities->first();
 
         static::assertNotNull($entity);
         static::assertCount(1, $entities);

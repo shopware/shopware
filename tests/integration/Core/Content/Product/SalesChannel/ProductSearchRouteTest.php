@@ -552,10 +552,10 @@ class ProductSearchRouteTest extends TestCase
 
             static::assertSame(
                 $shouldBeFound,
-                $result->getListingResult()->has($ids->get($productNumber)),
+                $result->getListingResult()->getEntities()->has($ids->get($productNumber)),
                 \sprintf(
                     'Product was%s found, but should%s be found for term "%s".',
-                    $result->getListingResult()->has($ids->get($productNumber)) ? '' : ' not',
+                    $result->getListingResult()->getEntities()->has($ids->get($productNumber)) ? '' : ' not',
                     $shouldBeFound ? '' : ' not',
                     $searchTerm
                 )
@@ -569,10 +569,10 @@ class ProductSearchRouteTest extends TestCase
 
             static::assertSame(
                 $shouldBeFound,
-                $result->getListingResult()->has($ids->get($productNumber)),
+                $result->getListingResult()->getEntities()->has($ids->get($productNumber)),
                 \sprintf(
                     'Product was%s found, but should%s be found for term "%s".',
-                    $result->getListingResult()->has($ids->get($productNumber)) ? '' : ' not',
+                    $result->getListingResult()->getEntities()->has($ids->get($productNumber)) ? '' : ' not',
                     $shouldBeFound ? '' : ' not',
                     $searchTerm
                 )

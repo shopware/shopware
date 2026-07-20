@@ -54,7 +54,7 @@ class CustomerSalutationSubscriberTest extends TestCase
         $customer = $this->customerRepository->search(
             new Criteria([$this->ids->get('customer')]),
             Context::createDefaultContext()
-        )->first();
+        )->getEntities()->first();
 
         static::assertNotNull($customer->getSalutationId());
     }
@@ -77,7 +77,7 @@ class CustomerSalutationSubscriberTest extends TestCase
         $customer = $this->customerRepository->search(
             new Criteria([$this->ids->get('customer')]),
             Context::createDefaultContext()
-        )->first();
+        )->getEntities()->first();
 
         static::assertNull($customer->getSalutationId());
     }

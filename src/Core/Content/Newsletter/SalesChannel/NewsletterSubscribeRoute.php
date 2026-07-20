@@ -256,11 +256,11 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
             ->add('option', new NotBlank(), new Choice(choices: array_keys($this->getOptionSelection($context, $dataBag->get('email')))));
 
         if ($dataBag->get('firstName') !== null && $dataBag->get('firstName') !== '') {
-            $definition->add('firstName', new NotBlank(), new Regex(pattern: self::DOMAIN_NAME_REGEX, match: false));
+            $definition->add('firstName', new NotBlank(), new Regex(pattern: self::DOMAIN_NAME_REGEX, message: 'error.urlNotAllowed', match: false));
         }
 
         if ($dataBag->get('lastName') !== null && $dataBag->get('lastName') !== '') {
-            $definition->add('lastName', new NotBlank(), new Regex(pattern: self::DOMAIN_NAME_REGEX, match: false));
+            $definition->add('lastName', new NotBlank(), new Regex(pattern: self::DOMAIN_NAME_REGEX, message: 'error.urlNotAllowed', match: false));
         }
 
         if ($validateStorefrontUrl) {

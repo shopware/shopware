@@ -3,13 +3,11 @@ import type { FixtureTypes, Task } from '@fixtures/AcceptanceTest';
 import { createRandomImage, getMediaId, encodeImage } from '@fixtures/AcceptanceTest';
 
 export const UploadImage = base.extend<{ UploadImage: Task }, FixtureTypes>({
-    UploadImage: async ({ AdminProductDetail, AdminApiContext }, use ) => {
-
+    UploadImage: async ({ AdminProductDetail, AdminApiContext }, use) => {
         let uploadedMediaName: string;
 
         const task = (imageName: string) => {
             return async function UploadImage() {
-
                 uploadedMediaName = imageName;
 
                 // Create Image
@@ -19,32 +17,32 @@ export const UploadImage = base.extend<{ UploadImage: Task }, FixtureTypes>({
                 await AdminProductDetail.uploadMediaButton.click();
                 const fileChooser = await fileChooserPromise;
                 await fileChooser.setFiles({
-                    name: `${ imageName }.png`,
+                    name: `${imageName}.png`,
                     mimeType: 'image/png',
                     buffer: encodeImage(image),
                 });
 
                 // Wait until media is saved via API
-                const response = await AdminProductDetail.page.waitForResponse(`${ process.env['APP_URL'] }api/search/media`);
+                const response = await AdminProductDetail.page.waitForResponse(`${process.env['APP_URL']}api/search/media`);
                 expect(response.ok()).toBeTruthy();
 
                 const mediaResourceResponse = await response.json();
 
                 expect(mediaResourceResponse.data[0]).toEqual(
-                  expect.objectContaining({
-                      attributes: expect.objectContaining({
-                          fileName: imageName,
-                          mimeType: 'image/png',
-                      }),
-                  }),
+                    expect.objectContaining({
+                        attributes: expect.objectContaining({
+                            fileName: imageName,
+                            mimeType: 'image/png',
+                        }),
+                    }),
                 );
-            }
-        }
+            };
+        };
 
         await use(task);
 
         // Delete image from database
-        if(uploadedMediaName) {
+        if (uploadedMediaName) {
             const uploadedMediaId = await getMediaId(uploadedMediaName, AdminApiContext);
             await AdminApiContext.delete(`media/${uploadedMediaId}`);
         }

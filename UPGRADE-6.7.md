@@ -1,5 +1,11 @@
 # 6.7.13.0
 
+## Storefront form validation messages use Shopware snippets
+
+Storefront form validation messages in `FormController` are now translated using the violation code through Shopware's translator instead of using the already translated Symfony validator message. This affects contact, newsletter, and revocation forms.
+
+If a plugin provides custom constraints used by these forms, add matching translations to `Resources/snippet/storefront.<locale>.json` below the `error` key. For example, the violation code `VIOLATION::MY_CUSTOM_ERROR` requires the snippet key `error.VIOLATION::MY_CUSTOM_ERROR`.
+
 ## `LineItemPurchasePriceRule` uses a `type` field instead of `isNet`
 
 The rule condition `cartLineItemPurchasePrice` (`Shopware\Core\Checkout\Cart\Rule\LineItemPurchasePriceRule`) now stores the price type in a `type` field (`CartPrice::TAX_STATE_GROSS` = `gross` / `CartPrice::TAX_STATE_NET` = `net`) instead of the previous `isNet` boolean. The constructor argument changed from `bool $isNet` to `?string $type`.

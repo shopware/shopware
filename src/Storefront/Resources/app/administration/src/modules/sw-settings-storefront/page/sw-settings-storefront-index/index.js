@@ -108,22 +108,32 @@ export default {
             }
 
             if (this.currentSalesChannelStorefrontSettings['core.storefrontSettings.iconCache'] === '') {
-                this.currentSalesChannelStorefrontSettings['core.storefrontSettings.iconCache'] = this.isGlobalConfig ? true : null;
+                this.currentSalesChannelStorefrontSettings['core.storefrontSettings.iconCache'] = this.isGlobalConfig
+                    ? true
+                    : null;
             }
 
             if (this.currentSalesChannelStorefrontSettings['core.storefrontSettings.speculationRules'] === '') {
-                this.currentSalesChannelStorefrontSettings['core.storefrontSettings.speculationRules'] = this.isGlobalConfig ? false : null;
+                this.currentSalesChannelStorefrontSettings['core.storefrontSettings.speculationRules'] = this.isGlobalConfig
+                    ? false
+                    : null;
             }
 
             try {
                 await Promise.all([
                     this.systemConfigApiService.saveValues({
-                        'core.storefrontSettings.asyncThemeCompilation': this.storefrontSettings['core.storefrontSettings.asyncThemeCompilation'],
+                        'core.storefrontSettings.asyncThemeCompilation':
+                            this.storefrontSettings['core.storefrontSettings.asyncThemeCompilation'],
                     }),
-                    this.systemConfigApiService.saveValues({
-                        'core.storefrontSettings.iconCache': this.currentSalesChannelStorefrontSettings['core.storefrontSettings.iconCache'],
-                        'core.storefrontSettings.speculationRules': this.currentSalesChannelStorefrontSettings['core.storefrontSettings.speculationRules'],
-                    }, this.selectedSalesChannelId),
+                    this.systemConfigApiService.saveValues(
+                        {
+                            'core.storefrontSettings.iconCache':
+                                this.currentSalesChannelStorefrontSettings['core.storefrontSettings.iconCache'],
+                            'core.storefrontSettings.speculationRules':
+                                this.currentSalesChannelStorefrontSettings['core.storefrontSettings.speculationRules'],
+                        },
+                        this.selectedSalesChannelId,
+                    ),
                 ]);
 
                 this.isSaveSuccessful = true;

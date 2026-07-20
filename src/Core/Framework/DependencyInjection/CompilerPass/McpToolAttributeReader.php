@@ -34,27 +34,6 @@ final class McpToolAttributeReader
     }
 
     /**
-     * @param list<\ReflectionAttribute<object>> $attributes
-     * @param list<string> $fields
-     *
-     * @return array<string, mixed>|null
-     */
-    private static function extract(array $attributes, array $fields): ?array
-    {
-        foreach ($attributes as $attribute) {
-            $props = get_object_vars($attribute->newInstance());
-            $result = [];
-            foreach ($fields as $field) {
-                $result[$field] = $props[$field] ?? null;
-            }
-
-            return $result;
-        }
-
-        return null;
-    }
-
-    /**
      * Resolves the first $attributeClass instance declared at class level or on __invoke and
      * returns the attribute object itself (the value object), or null when the class or attribute
      * is absent. Prefer this over resolveInfo() when the caller only needs typed access to the
@@ -81,6 +60,27 @@ final class McpToolAttributeReader
 
         foreach ($attributes as $attribute) {
             return $attribute->newInstance();
+        }
+
+        return null;
+    }
+
+    /**
+     * @param list<\ReflectionAttribute<object>> $attributes
+     * @param list<string> $fields
+     *
+     * @return array<string, mixed>|null
+     */
+    private static function extract(array $attributes, array $fields): ?array
+    {
+        foreach ($attributes as $attribute) {
+            $props = get_object_vars($attribute->newInstance());
+            $result = [];
+            foreach ($fields as $field) {
+                $result[$field] = $props[$field] ?? null;
+            }
+
+            return $result;
         }
 
         return null;

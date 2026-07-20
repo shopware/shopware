@@ -2,10 +2,10 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Http;
 
-use Mcp\Server\Transport\StreamableHttpTransport;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Mcp\Http\McpHttpTransportFactory;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\PlatformRequest;
@@ -34,9 +34,13 @@ class McpHttpTransportFactoryTest extends TestCase
         static::assertFalse((new McpHttpTransportFactory($message, $psr17, $psr17, null, $hosts))->isAvailable());
     }
 
-    public function testCreateTransportBuildsStreamableHttpTransport(): void
+    public function testCreateTransportBuildsTransportWithoutError(): void
     {
-        static::assertInstanceOf(StreamableHttpTransport::class, $this->factory()->createTransport(new Request()));
+        // The return type guarantees the concrete transport; this exercises the middleware wiring
+        // (seeding the DNS-rebinding protection with the allowed hosts) without error.
+        $this->expectNotToPerformAssertions();
+
+        $this->factory()->createTransport(new Request());
     }
 
     public function testCreateStreamReturnsStreamWithGivenContent(): void
@@ -77,7 +81,7 @@ class McpHttpTransportFactoryTest extends TestCase
         static::assertStringStartsWith('text/event-stream', (string) $response->headers->get('Content-Type'));
     }
 
-    private function psrResponse(string $contentType, string $body): \Psr\Http\Message\ResponseInterface
+    private function psrResponse(string $contentType, string $body): ResponseInterface
     {
         $psr17 = new Psr17Factory();
 

@@ -1,3 +1,23 @@
+# 6.7.14.0 (upcoming)
+
+## Features
+
+## API
+
+## Core
+
+### MCP server no longer requires the `MCP_SERVER` feature flag
+
+The MCP server is now always enabled. The `MCP_SERVER` feature flag has been removed, so the `/api/_mcp` and `/store-api/_mcp` endpoints are available without setting any flag. The MCP classes stay marked `@experimental` until 6.8.0, so the API may still change before then.
+
+## Administration
+
+## Storefront
+
+## App System
+
+## Hosting & Configuration
+
 # 6.7.13.0 (upcoming)
 
 ## Critical Fixes
@@ -7,10 +27,6 @@
 Store API requests now remain stateless unless application or extension code explicitly starts a session. Previously, several sales channel and Storefront event subscribers could initialize Symfony's lazy session factory during Store API requests, causing unnecessary session storage growth and potentially taking PHP session locks. Storefront session handling, including customer imitation, remains unchanged.
 
 ## Core
-
-### MCP server no longer requires the `MCP_SERVER` feature flag
-
-The MCP server is now always enabled. The `MCP_SERVER` feature flag has been removed, so the `/api/_mcp` and `/store-api/_mcp` endpoints are available without setting any flag. The MCP classes stay marked `@experimental` until 6.8.0, so the API may still change before then.
 
 ### Product `descriptionTeaser` backfill runs once as a post-update indexer
 

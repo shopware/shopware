@@ -179,6 +179,13 @@
         <testsuite name="integration">
             <directory>tests/integration</directory>
         </testsuite>
+        <!-- Tests that need a real Redis (nightly redis job); new redis tests must be listed here — the RedisGroupUsage Danger rule points authors to this suite -->
+        <testsuite name="redis">
+            <file>tests/integration/Core/Checkout/Cart/RedisCartPersisterTest.php</file>
+            <file>tests/integration/Core/Framework/Adapter/Cache/InvalidatorStorage/RedisInvalidatorStorageTest.php</file>
+            <file>tests/integration/Core/Framework/Adapter/Cache/RedisConnectionFactoryTest.php</file>
+            <file>tests/integration/Core/Framework/Increment/RedisIncrementerTest.php</file>
+        </testsuite>
 
         <!-- Framework is split in sub suites to improve the pipeline efficiency -->
         <testsuite name="core-framework-batch1">

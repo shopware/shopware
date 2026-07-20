@@ -76,7 +76,7 @@ class McpServerBuilderCompilerPass implements CompilerPassInterface
             $resourceInfo = McpToolAttributeReader::resolveInfo($class, McpResource::class, ['uri', 'name', 'description', 'mimeType']);
 
             if ($resourceInfo !== null) {
-                $builderDef->addMethodCall('addResource', [$class, $resourceInfo['uri'], $resourceInfo['name'], $resourceInfo['description'], $resourceInfo['mimeType']]);
+                $builderDef->addMethodCall('addResource', [$class, $resourceInfo['uri'], $resourceInfo['name'], null, $resourceInfo['description'], $resourceInfo['mimeType']]);
             }
         }
     }

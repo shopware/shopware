@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Provider;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -53,12 +54,25 @@ class CancellationInvoiceDataProviderTest extends TestCase
 {
     private const COMPANY_COUNTRY_ID = '0190a3f5cafa70f5b6e7e5b8f0c0c0c0';
 
-    public function testGetKeyAndDocumentTypes(): void
+    public function testKeyIsStorno(): void
     {
-        $provider = $this->createProvider();
+        static::assertSame('storno', $this->createProvider()->getKey());
+    }
 
-        static::assertSame('storno', $provider->getKey());
-        static::assertSame([DocumentType::CANCELLATION_INVOICE->value], $provider->getDocumentTypes());
+    #[DataProvider('supportsProvider')]
+    public function testSupportsOnlyCancellationInvoice(string $documentType, bool $expected): void
+    {
+        static::assertSame($expected, $this->createProvider()->supports($documentType));
+    }
+
+    /**
+     * @return \Generator<string, array{string, bool}>
+     */
+    public static function supportsProvider(): \Generator
+    {
+        yield 'cancellation invoice is supported' => [DocumentType::CANCELLATION_INVOICE->value, true];
+        yield 'other core type is not supported' => [DocumentType::INVOICE->value, false];
+        yield 'plugin-defined type is not supported' => ['my_plugin_document', false];
     }
 
     public function testEnrichOrderCriteriaDelegatesToInvoiceProvider(): void

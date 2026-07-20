@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Mcp\Command;
 
 use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\Prompt;
-use Mcp\Schema\Resource;
+use Mcp\Schema\ResourceDefinition;
 use Mcp\Schema\ResourceTemplate;
 use Mcp\Schema\Tool;
 use Mcp\Server\Builder;
@@ -131,7 +131,7 @@ class DebugMcpCommand extends Command
         }
 
         foreach ($this->registry->getResources()->references as $resource) {
-            \assert($resource instanceof Resource);
+            \assert($resource instanceof ResourceDefinition);
 
             if (($resource->name ?? $resource->uri) === $name || $resource->uri === $name) {
                 $ref = $this->registry->getResource($resource->uri, false);
@@ -226,7 +226,7 @@ class DebugMcpCommand extends Command
     /**
      * @param \Closure|array{0: object|string, 1: string}|string $handler
      */
-    private function renderResourceDetail(SymfonyStyle $io, Resource $resource, \Closure|array|string $handler): void
+    private function renderResourceDetail(SymfonyStyle $io, ResourceDefinition $resource, \Closure|array|string $handler): void
     {
         $meta = [['Type' => 'resource'], ['URI' => $resource->uri], ['Source' => $this->describeHandler($handler)]];
         if ($resource->mimeType !== null) {
@@ -353,7 +353,7 @@ class DebugMcpCommand extends Command
 
         $rows = [];
         foreach ($page->references as $resource) {
-            \assert($resource instanceof Resource);
+            \assert($resource instanceof ResourceDefinition);
 
             $ref = $this->registry->getResource($resource->uri, false);
             $rows[] = [$resource->name ?? $resource->uri, $this->describeHandler($ref->handler)];

@@ -33,11 +33,9 @@ final readonly class CancellationInvoiceDataProvider extends AbstractDocumentDat
         return self::KEY;
     }
 
-    public function getDocumentTypes(): array
+    public function supports(string $documentType): bool
     {
-        return [
-            DocumentType::CANCELLATION_INVOICE->value,
-        ];
+        return $documentType === DocumentType::CANCELLATION_INVOICE->value;
     }
 
     public function enrichOrderCriteria(Criteria $criteria): void
@@ -62,7 +60,7 @@ final readonly class CancellationInvoiceDataProvider extends AbstractDocumentDat
         return $invoice->with(
             typeCode: TypeCode::CANCELLATION_INVOICE,
             custom: [
-                'stornoNumber' => $invoice->documentNumber,
+                'stornoNumber' => $generationRequest->documentNumber,
                 'invoiceNumber' => $referencedInvoiceNumber,
             ],
         );

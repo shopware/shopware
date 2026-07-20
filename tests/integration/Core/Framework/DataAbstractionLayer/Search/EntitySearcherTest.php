@@ -436,28 +436,28 @@ class EntitySearcherTest extends TestCase
         $result = $this->productRepository->search($criteria, $context);
 
         static::assertSame(4, $result->getTotal());
-        static::assertTrue($result->has($variant1));
-        static::assertTrue($result->has($variant2));
-        static::assertTrue($result->has($variant5));
-        static::assertTrue($result->has($variant6));
+        static::assertTrue($result->getEntities()->has($variant1));
+        static::assertTrue($result->getEntities()->has($variant2));
+        static::assertTrue($result->getEntities()->has($variant5));
+        static::assertTrue($result->getEntities()->has($variant6));
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('product.optionIds', [$yellowId]));
 
         $result = $this->productRepository->search($criteria, $context);
         static::assertSame(2, $result->getTotal());
-        static::assertTrue($result->has($variant5));
-        static::assertTrue($result->has($variant6));
+        static::assertTrue($result->getEntities()->has($variant5));
+        static::assertTrue($result->getEntities()->has($variant6));
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('product.optionIds', [$yellowId, $smallId]));
 
         $result = $this->productRepository->search($criteria, $context);
         static::assertSame(4, $result->getTotal());
-        static::assertTrue($result->has($variant5));
-        static::assertTrue($result->has($variant6));
-        static::assertTrue($result->has($variant4));
-        static::assertTrue($result->has($variant2));
+        static::assertTrue($result->getEntities()->has($variant5));
+        static::assertTrue($result->getEntities()->has($variant6));
+        static::assertTrue($result->getEntities()->has($variant4));
+        static::assertTrue($result->getEntities()->has($variant2));
     }
 
     public function testSortingByProvidedIds(): void

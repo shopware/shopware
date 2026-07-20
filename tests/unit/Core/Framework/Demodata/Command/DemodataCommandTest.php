@@ -21,6 +21,7 @@ use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\Demodata\Command\DemodataCommand;
 use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Demodata\Event\DemodataRequestCreatedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
@@ -32,6 +33,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
+#[Package('fundamentals@after-sales')]
 #[CoversClass(DemodataCommand::class)]
 class DemodataCommandTest extends TestCase
 {

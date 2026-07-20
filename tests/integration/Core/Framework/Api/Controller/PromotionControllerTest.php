@@ -271,7 +271,7 @@ class PromotionControllerTest extends TestCase
         $criteria->addAssociation('discounts');
 
         /** @var PromotionEntity|null $promotion */
-        $promotion = $this->promotionRepository->search($criteria, $this->context)->get($id);
+        $promotion = $this->promotionRepository->search($criteria, $this->context)->getEntities()->get($id);
 
         return $promotion;
     }

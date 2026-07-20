@@ -291,7 +291,7 @@ class TranslatedVersionsTest extends TestCase
         /** @var ProductEntity $product */
         $product = static::getContainer()
             ->get('product.repository')
-            ->search(new Criteria([$id]), $context)->first();
+            ->search(new Criteria([$id]), $context)->getEntities()->first();
 
         static::assertTrue($context->considerInheritance());
         static::assertSame($name, $product->getTranslated()['name'], \sprintf(

@@ -136,7 +136,7 @@ class ManyToManyAssociationFieldTest extends TestCase
         $criteria->addFields(['name']);
         $criteria->addAssociation('properties');
 
-        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(PartialEntity::class, $product);
         static::assertSame('test', $product->get('name'));
@@ -183,7 +183,7 @@ class ManyToManyAssociationFieldTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addFields(['productNumber', 'properties.name', 'properties.group.customFields', 'cover.media.fileName']);
 
-        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(PartialEntity::class, $product);
 
         $properties = $product->get('properties');

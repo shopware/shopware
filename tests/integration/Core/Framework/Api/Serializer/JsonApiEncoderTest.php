@@ -238,7 +238,7 @@ class JsonApiEncoderTest extends TestCase
 
         $productDefinition = static::getContainer()->get(ProductDefinition::class);
 
-        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities()->get($productId);
         $encoder = static::getContainer()->get(JsonApiEncoder::class);
         $encodedResponse = $encoder->encode(new Criteria(), $productDefinition, $product, SerializationFixture::API_BASE_URL);
         $actual = json_decode((string) $encodedResponse, true, 512, \JSON_THROW_ON_ERROR);
@@ -286,7 +286,7 @@ class JsonApiEncoderTest extends TestCase
 
         $productDefinition = static::getContainer()->get(ProductDefinition::class);
 
-        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities()->get($productId);
         $encoder = static::getContainer()->get(JsonApiEncoder::class);
         $encodedResponse = $encoder->encode(new Criteria(), $productDefinition, $product, SerializationFixture::API_BASE_URL);
         $actual = json_decode((string) $encodedResponse, true, 512, \JSON_THROW_ON_ERROR);

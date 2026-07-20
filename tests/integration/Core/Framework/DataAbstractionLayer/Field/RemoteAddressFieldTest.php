@@ -46,7 +46,7 @@ class RemoteAddressFieldTest extends TestCase
 
         $orderCustomer = static::getContainer()->get('order_customer.repository')
             ->search($criteria, Context::createDefaultContext())
-            ->first();
+            ->getEntities()->first();
 
         static::assertInstanceOf(OrderCustomerEntity::class, $orderCustomer);
         static::assertNotSame($remoteAddress, $orderCustomer->getRemoteAddress());
@@ -65,7 +65,7 @@ class RemoteAddressFieldTest extends TestCase
 
         $orderCustomer = static::getContainer()->get('order_customer.repository')
             ->search($criteria, Context::createDefaultContext())
-            ->first();
+            ->getEntities()->first();
 
         static::assertInstanceOf(OrderCustomerEntity::class, $orderCustomer);
         static::assertSame($remoteAddress, $orderCustomer->getRemoteAddress());
@@ -84,7 +84,7 @@ class RemoteAddressFieldTest extends TestCase
 
         $customer = static::getContainer()->get('customer.repository')
             ->search($criteria, Context::createDefaultContext())
-            ->first();
+            ->getEntities()->first();
 
         static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertNotSame('127.0.0.1', $customer->getRemoteAddress());

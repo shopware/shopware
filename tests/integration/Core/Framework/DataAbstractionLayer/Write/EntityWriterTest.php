@@ -565,7 +565,7 @@ class EntityWriterTest extends TestCase
         $media = $this->getMediaRepository()->search(
             new Criteria([$id]),
             Context::createDefaultContext()
-        )->get($id);
+        )->getEntities()->get($id);
 
         static::assertInstanceOf(MediaEntity::class, $media);
         static::assertStringContainsString('/testFile.jpg', $media->getUrl());
@@ -602,7 +602,7 @@ class EntityWriterTest extends TestCase
         $media = $this->getMediaRepository()->search(
             new Criteria([$id]),
             Context::createDefaultContext()
-        )->get($id);
+        )->getEntities()->get($id);
 
         static::assertInstanceOf(MediaEntity::class, $media);
         static::assertStringContainsString('/testFile.jpg', $media->getUrl());
@@ -741,7 +741,7 @@ class EntityWriterTest extends TestCase
 
         $manufacturer = static::getContainer()->get('product_manufacturer.repository')
             ->search(new Criteria([$manufacturerId]), Context::createDefaultContext())
-            ->get($manufacturerId);
+            ->getEntities()->get($manufacturerId);
 
         static::assertNotNull($manufacturer);
         static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
@@ -924,7 +924,7 @@ class EntityWriterTest extends TestCase
             $context,
         );
 
-        $product = $productRepository->search(new Criteria([$productId]), $context)->first();
+        $product = $productRepository->search(new Criteria([$productId]), $context)->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertIsArray($product->getCustomFields());

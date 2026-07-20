@@ -105,7 +105,7 @@ class ApiControllerVersionTest extends TestCase
             new EqualsFilter('versionId', $versionId)
         );
 
-        static::assertCount(0, $productRepo->search($criteria, Context::createDefaultContext()));
+        static::assertCount(0, $productRepo->search($criteria, Context::createDefaultContext())->getEntities());
     }
 
     public function testDeleteVersionWithLiveVersion(): void

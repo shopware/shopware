@@ -458,7 +458,7 @@ class AuthControllerTest extends TestCase
             Context::createDefaultContext()
         );
 
-        static::assertCount(0, $logEntries);
+        static::assertCount(0, $logEntries->getEntities());
         $logger->setHandlers($handlers);
     }
 
@@ -835,7 +835,7 @@ class AuthControllerTest extends TestCase
 
         $repo->create([$customer], Context::createDefaultContext());
 
-        return $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
+        return $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->first();
     }
 
     private function getAuthController(?AbstractSendPasswordRecoveryMailRoute $sendPasswordRecoveryMailRoute = null): AuthController

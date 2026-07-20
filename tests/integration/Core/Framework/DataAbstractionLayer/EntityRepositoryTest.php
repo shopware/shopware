@@ -95,7 +95,7 @@ class EntityRepositoryTest extends TestCase
 
         $result = $repository->search($criteria, Context::createDefaultContext());
 
-        static::assertCount(0, $result);
+        static::assertCount(0, $result->getEntities());
     }
 
     /**
@@ -530,10 +530,10 @@ class EntityRepositoryTest extends TestCase
         static::assertNull($criteria->getLimit());
         static::assertNull($criteria->getOffset());
 
-        static::assertCount(1, $locale);
+        static::assertCount(1, $locale->getEntities());
 
-        static::assertTrue($locale->has($id));
-        $locale = $locale->get($id);
+        static::assertTrue($locale->getEntities()->has($id));
+        $locale = $locale->getEntities()->get($id);
         static::assertInstanceOf(LocaleEntity::class, $locale);
         static::assertSame('Test', $locale->getName());
     }
@@ -570,10 +570,10 @@ class EntityRepositoryTest extends TestCase
         static::assertNull($criteria->getLimit());
         static::assertNull($criteria->getOffset());
 
-        static::assertCount(1, $locale);
+        static::assertCount(1, $locale->getEntities());
 
-        static::assertTrue($locale->has($id));
-        $locale = $locale->get($id);
+        static::assertTrue($locale->getEntities()->has($id));
+        $locale = $locale->getEntities()->get($id);
         static::assertInstanceOf(LocaleEntity::class, $locale);
         static::assertSame('Test', $locale->getName());
     }
@@ -643,10 +643,10 @@ class EntityRepositoryTest extends TestCase
         static::assertNull($manufacturerCriteria->getLimit());
         static::assertNull($manufacturerCriteria->getOffset());
 
-        static::assertCount(2, $products);
+        static::assertCount(2, $products->getEntities());
 
-        static::assertTrue($products->has($id));
-        $product = $products->get($id);
+        static::assertTrue($products->getEntities()->has($id));
+        $product = $products->getEntities()->get($id);
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertSame('Test', $product->getName());
     }
@@ -787,9 +787,9 @@ class EntityRepositoryTest extends TestCase
         static::assertNull($manufacturerCriteria->getLimit());
         static::assertNull($manufacturerCriteria->getOffset());
 
-        static::assertCount(2, $products);
+        static::assertCount(2, $products->getEntities());
 
-        $product = $products->get($id);
+        $product = $products->getEntities()->get($id);
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertSame('Test', $product->getName());
     }
@@ -830,12 +830,12 @@ class EntityRepositoryTest extends TestCase
         static::assertNull($criteria->getLimit());
         static::assertNull($criteria->getOffset());
 
-        static::assertCount(2, $entities);
-        static::assertTrue($entities->has($id));
-        static::assertTrue($entities->has($newId));
+        static::assertCount(2, $entities->getEntities());
+        static::assertTrue($entities->getEntities()->has($id));
+        static::assertTrue($entities->getEntities()->has($newId));
 
-        $old = $entities->get($id);
-        $new = $entities->get($newId);
+        $old = $entities->getEntities()->get($id);
+        $new = $entities->getEntities()->get($newId);
 
         static::assertInstanceOf(CategoryEntity::class, $old);
         static::assertInstanceOf(CategoryEntity::class, $new);
@@ -1049,12 +1049,12 @@ class EntityRepositoryTest extends TestCase
         static::assertNull($addressCriteria->getLimit());
         static::assertNull($addressCriteria->getOffset());
 
-        static::assertCount(2, $entities);
-        static::assertTrue($entities->has($recordA));
-        static::assertTrue($entities->has($newId));
+        static::assertCount(2, $entities->getEntities());
+        static::assertTrue($entities->getEntities()->has($recordA));
+        static::assertTrue($entities->getEntities()->has($newId));
 
-        $old = $entities->get($recordA);
-        $new = $entities->get($newId);
+        $old = $entities->getEntities()->get($recordA);
+        $new = $entities->getEntities()->get($newId);
         static::assertInstanceOf(CustomerEntity::class, $old);
         static::assertInstanceOf(CustomerEntity::class, $new);
 
@@ -1286,12 +1286,12 @@ class EntityRepositoryTest extends TestCase
 
         $entities = $repository->search(new Criteria([$id, $newId]), $context);
 
-        static::assertCount(2, $entities);
-        static::assertTrue($entities->has($id));
-        static::assertTrue($entities->has($newId));
+        static::assertCount(2, $entities->getEntities());
+        static::assertTrue($entities->getEntities()->has($id));
+        static::assertTrue($entities->getEntities()->has($newId));
 
-        $old = $entities->get($id);
-        $new = $entities->get($newId);
+        $old = $entities->getEntities()->get($id);
+        $new = $entities->getEntities()->get($newId);
         static::assertInstanceOf(ProductEntity::class, $old);
         static::assertInstanceOf(ProductEntity::class, $new);
 

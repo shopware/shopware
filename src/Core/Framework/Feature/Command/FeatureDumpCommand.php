@@ -10,6 +10,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Filesystem\Filesystem;
 
 #[AsCommand(name: 'feature:dump', description: 'Dumps all features', aliases: ['administration:dump:features'])]
 #[Package('framework')]
@@ -18,8 +19,10 @@ class FeatureDumpCommand extends Command
     /**
      * @internal
      */
-    public function __construct(private readonly Kernel $kernel)
-    {
+    public function __construct(
+        private readonly Kernel $kernel,
+        private readonly Filesystem $filesystem,
+    ) {
         parent::__construct();
     }
 
@@ -32,7 +35,7 @@ class FeatureDumpCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        file_put_contents(
+        $this->filesystem->dumpFile(
             $this->kernel->getProjectDir() . '/var/config_js_features.json',
             json_encode(Feature::getAll(), \JSON_THROW_ON_ERROR)
         );

@@ -319,6 +319,9 @@ class PluginException extends HttpException
         );
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public static function consoleApplicationNotFound(): self
     {
         return new self(

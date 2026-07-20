@@ -22,6 +22,10 @@ export default {
         Mixin.getByName('notification'),
     ],
 
+    shortcuts: {
+        OF: 'openFilterSidebar',
+    },
+
     data() {
         return {
             languages: null,
@@ -32,6 +36,7 @@ export default {
             isLoading: true,
             sortBy: 'active',
             sortDirection: 'DESC',
+            filterSidebarItem: null,
         };
     },
 
@@ -119,6 +124,18 @@ export default {
     },
 
     methods: {
+        registerFilterSidebarItem(sidebarItem) {
+            this.filterSidebarItem = sidebarItem;
+        },
+
+        openFilterSidebar() {
+            if (!this.filterSidebarItem?.openContent) {
+                return;
+            }
+
+            this.filterSidebarItem.openContent();
+        },
+
         getList() {
             this.isLoading = true;
             return this.languageRepository.search(this.listingCriteria).then((languageResult) => {

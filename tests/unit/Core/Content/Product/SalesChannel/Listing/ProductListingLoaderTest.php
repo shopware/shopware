@@ -65,12 +65,13 @@ class ProductListingLoaderTest extends TestCase
     public function testLoadAddsDisplayGroupGroupingByDefault(): void
     {
         $this->systemConfigService
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(3))
             ->method('getBool')
             ->willReturnCallback(function (string $key, string $salesChannelId): bool {
                 static::assertSame($this->salesChannelContext->getSalesChannelId(), $salesChannelId);
 
                 return match ($key) {
+                    'core.listing.partialDataLoading' => false,
                     'core.listing.hideCloseoutProductsWhenOutOfStock' => false,
                     'core.listing.findBestVariant' => false,
                     default => throw new \RuntimeException('Unexpected config key ' . $key),
@@ -82,10 +83,10 @@ class ProductListingLoaderTest extends TestCase
             ->method('searchIds')
             ->willReturnCallback(function (Criteria $criteria): IdSearchResult {
                 static::assertCount(1, $criteria->getGroupFields());
-                static::assertTrue(\count(array_filter(
+                static::assertTrue(array_filter(
                     $criteria->getFilters(),
                     static fn ($filter): bool => $filter instanceof NotEqualsFilter && $filter->getField() === 'displayGroup'
-                )) > 0);
+                ) !== []);
 
                 return $this->createIdSearchResult($criteria, [
                     'red-l' => ['score' => 10.0],
@@ -128,12 +129,13 @@ class ProductListingLoaderTest extends TestCase
         $resolvePreviewEventSeen = false;
 
         $this->systemConfigService
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('getBool')
             ->willReturnCallback(function (string $key, string $salesChannelId): bool {
                 static::assertSame($this->salesChannelContext->getSalesChannelId(), $salesChannelId);
 
                 return match ($key) {
+                    'core.listing.partialDataLoading' => false,
                     'core.listing.hideCloseoutProductsWhenOutOfStock' => false,
                     default => throw new \RuntimeException('Unexpected config key ' . $key),
                 };
@@ -144,10 +146,10 @@ class ProductListingLoaderTest extends TestCase
             ->method('searchIds')
             ->willReturnCallback(function (Criteria $criteria): IdSearchResult {
                 static::assertCount(0, $criteria->getGroupFields());
-                static::assertFalse(\count(array_filter(
+                static::assertFalse(array_filter(
                     $criteria->getFilters(),
                     static fn ($filter): bool => $filter instanceof NotEqualsFilter && $filter->getField() === 'displayGroup'
-                )) > 0);
+                ) !== []);
 
                 return $this->createIdSearchResult($criteria, [
                     'variant-a' => ['score' => 10.0],
@@ -206,13 +208,14 @@ class ProductListingLoaderTest extends TestCase
         $configKeys = [];
 
         $this->systemConfigService
-            ->expects($this->exactly(3))
+            ->expects($this->exactly(4))
             ->method('getBool')
             ->willReturnCallback(function (string $key, string $salesChannelId) use (&$configKeys): bool {
                 static::assertSame($this->salesChannelContext->getSalesChannelId(), $salesChannelId);
                 $configKeys[] = $key;
 
                 return match ($key) {
+                    'core.listing.partialDataLoading' => false,
                     'core.listing.hideCloseoutProductsWhenOutOfStock' => false,
                     'core.listing.findBestVariant' => false,
                     default => throw new \RuntimeException('Unexpected config key ' . $key),
@@ -274,6 +277,7 @@ class ProductListingLoaderTest extends TestCase
         static::assertTrue($previewLoaded);
         static::assertTrue($resolvePreviewEventSeen);
         static::assertSame([
+            'core.listing.partialDataLoading',
             'core.listing.findBestVariant',
             'core.listing.hideCloseoutProductsWhenOutOfStock',
             'core.listing.findBestVariant',
@@ -286,12 +290,13 @@ class ProductListingLoaderTest extends TestCase
         $previewLoaded = false;
 
         $this->systemConfigService
-            ->expects($this->exactly(3))
+            ->expects($this->exactly(4))
             ->method('getBool')
             ->willReturnCallback(function (string $key, string $salesChannelId): bool {
                 static::assertSame($this->salesChannelContext->getSalesChannelId(), $salesChannelId);
 
                 return match ($key) {
+                    'core.listing.partialDataLoading' => false,
                     'core.listing.hideCloseoutProductsWhenOutOfStock' => false,
                     'core.listing.findBestVariant' => true,
                     default => throw new \RuntimeException('Unexpected config key ' . $key),

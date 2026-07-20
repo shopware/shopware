@@ -10,11 +10,13 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
+use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\DocumentV2\Renderer\HtmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\PdfRenderer;
-use Shopware\Core\Checkout\DocumentV2\Renderer\XmlRenderer;
+use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdEmbeddedPdfRenderer;
+use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdXmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Subscriber\DocumentBaseConfigSyncSubscriber;
 use Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\DocumentV2\Template\ZugferdTwigExtension;
@@ -24,6 +26,7 @@ use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
@@ -45,6 +48,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('document_base_config.repository'),
             service('country.repository'),
+            service('media.repository'),
+            service(SystemConfigService::class),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -53,6 +58,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
         ])
         ->tag('kernel.event_subscriber');
+
+    $services->set(DocumentMetaProvider::class)
+        ->args([
+            service(DocumentConfigLoader::class),
+        ])
+        ->tag('shopware.document_v2.provider');
 
     $services->set(InvoiceDataProvider::class)
         ->public()
@@ -89,7 +100,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(XmlFormatter::class);
 
-    $services->set(XmlRenderer::class)
+    $services->set(ZugferdXmlRenderer::class)
         ->public()
         ->args([
             service(DocumentTemplateRenderer::class),
@@ -101,6 +112,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             param('shopware.dompdf.options'),
+        ])
+        ->tag('shopware.document_v2.renderer');
+
+    $services->set(ZugferdEmbeddedPdfRenderer::class)
+        ->public()
+        ->args([
+            param('kernel.shopware_version'),
         ])
         ->tag('shopware.document_v2.renderer');
 

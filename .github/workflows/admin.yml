@@ -37,7 +37,7 @@ jobs:
           shopware-repository: ${{ github.repository }}
 
       - name: Cache ESLint and Stylelint
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             src/Administration/Resources/app/administration/node_modules/.eslintcache
@@ -110,7 +110,7 @@ jobs:
     name: "License check"
     env:
       WHITELISTED_JS_PACKAGES: 'abab@2.0.1;administration;taffydb@2.6.2'
-      NODE_VERSION: 'lts/*'  
+      NODE_VERSION: 'lts/*'
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -132,16 +132,16 @@ jobs:
   admin-check:
     if: always()
     needs:
-    - markdown-only-changes
-    - lint
-    - admin
-    - license-check
+      - markdown-only-changes
+      - lint
+      - admin
+      - license-check
 
     runs-on: Ubuntu-latest
     steps:
-    - name: Decide whether the needed jobs succeeded or failed
-      uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
-      with:
-        # allowed-failures: docs, linters
-        allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'lint, admin, license-check' || '' }}
-        jobs: ${{ toJSON(needs) }}
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
+        with:
+          # allowed-failures: docs, linters
+          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'lint, admin, license-check' || '' }}
+          jobs: ${{ toJSON(needs) }}

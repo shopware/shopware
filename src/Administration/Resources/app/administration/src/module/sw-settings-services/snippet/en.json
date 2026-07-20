@@ -37,6 +37,7 @@
       "status-inactive": "Inactive",
       "updated-at-label": "Last updated: {updatedAt}",
       "version": "Version: {version}",
+      "cannot-remove-or-deactivate": "Cannot be removed or deactivated",
       "deactivate-modal": {
         "warning": "Are you sure you want to deactivate “{serviceName}”?",
         "consequences": "This will result in an immediate loss of access to the Service and all associated processes."
@@ -52,13 +53,15 @@
     "revoke-permissions-modal": {
       "title": "Revoke permissions",
       "p-1": "Are you sure you want to revoke permissions?",
-      "p-2": "This will deactivate certain Shopware Services and result in loss of all related functionality.",
+      "p-2": "This revokes permissions only for services that use general Services consent. Those services may be deactivated and lose related functionality.",
+      "p-3": "The following services are connected to Shopware Account and will keep their required permissions:",
       "label-button-revoke-permissions": "Revoke permissions"
     },
     "deactivate-modal": {
       "title": "Deactivate Shopware Services",
       "p-1": "Are you sure you want to deactivate Shopware Services?",
-      "p-2": "This will result in losing access to all current and future Shopware Services. We'd like to know what you don't like about Shopware Services. Give us your feedback so we can improve Shopware Services in the future!",
+      "p-2": "This deactivates only services that use general Services consent. Services connected to Shopware Account remain active.",
+      "p-3": "The following services are connected to Shopware Account and will remain active:",
       "label-feedback-link": "Give feedback"
     },
     "dashboard-banner": {

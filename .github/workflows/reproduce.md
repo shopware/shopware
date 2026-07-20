@@ -313,6 +313,7 @@ post-steps:
         giveup.txt
         agent-summary.md
         workspace-edits.txt
+        media/
       if-no-files-found: ignore
       retention-days: 7
 

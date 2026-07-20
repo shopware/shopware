@@ -8,13 +8,27 @@ export function classifyPhpunitOutput(output, plan) {
   const firstError = phpunitFailureBlock(output).replace(/\s+/g, ' ').slice(0, 700);
   // Order matters: check the authoritative failure/error signals FIRST, so a captured line that merely
   // starts with "OK" (in a test's own stdout) can't flip a real failure to healthy.
+  // A failure/error only counts as REPRODUCED when it matches the plan's symptom marker
+  // (assertion.symptom_pattern, required for direct plans by validate.mjs). Otherwise it's most
+  // likely a failed setup/precondition assertion — NOT the reported symptom — so it's inconclusive,
+  // never a false `reproduced`. The symptom assertion must carry a distinctive token in its
+  // failure/exception message that this pattern matches.
+  const symptomPattern = plan.assertion?.symptom_pattern;
+  const matchesSymptom = symptomPattern ? new RegExp(symptomPattern).test(output) : false;
   if (/FAILURES!/.test(output)) {
-    return { status: 'reproduced', matched: false, reporter: phpunitFailureBlock(output) || 'assertion failed (symptom present)', reason: null };
+    if (matchesSymptom) {
+      return { status: 'reproduced', matched: false, reporter: phpunitFailureBlock(output) || `symptom assertion failed (matched '${symptomPattern}')`, reason: null };
+    }
+    return {
+      status: 'inconclusive',
+      matched: null,
+      reporter: 'PHPUnit failed, but not the marked symptom assertion',
+      reason: `a PHPUnit assertion failed but it did not match the symptom marker (assertion.symptom_pattern${symptomPattern ? ` = '${symptomPattern}'` : ' is not set'}) — likely a failed setup/precondition, not the reported symptom: ${firstError}`,
+    };
   }
   if (/ERRORS!|No tests executed|Fatal error|PHP Fatal|Uncaught/.test(output)) {
-    const pattern = plan.assertion?.symptom_pattern;
-    if (pattern && new RegExp(pattern).test(output)) {
-      return { status: 'reproduced', matched: false, reporter: `symptom exception matched '${pattern}'`, reason: null };
+    if (matchesSymptom) {
+      return { status: 'reproduced', matched: false, reporter: `symptom exception matched '${symptomPattern}'`, reason: null };
     }
     return {
       status: 'inconclusive',

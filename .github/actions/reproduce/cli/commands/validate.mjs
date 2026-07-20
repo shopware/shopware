@@ -67,6 +67,21 @@ export function validate() {
   }
   if (plan.executor === 'direct') {
     add(!fs.existsSync(plan.script_path || FILES.testPhp), `direct plan needs ${plan.script_path || FILES.testPhp}`);
+    // A direct symptom must be machine-recognizable: without a marker, ANY PHPUnit failure (incl. a
+    // failed setup/precondition assertion) would be mistaken for the reported symptom. Require a
+    // regex that matches ONLY the symptom assertion's failure/exception message.
+    const symptomPattern = plan.assertion?.symptom_pattern;
+    add(
+      !symptomPattern || typeof symptomPattern !== 'string',
+      'direct plan needs assertion.symptom_pattern — a regex matching a distinctive token in the SYMPTOM assertion\'s failure/exception message, so a failed setup assertion is not mistaken for the symptom',
+    );
+    if (typeof symptomPattern === 'string' && symptomPattern) {
+      try {
+        new RegExp(symptomPattern);
+      } catch {
+        errors.push(`assertion.symptom_pattern is not a valid regex: ${JSON.stringify(symptomPattern)}`);
+      }
+    }
   }
   if (plan.executor === 'playwright') {
     errors.push(...validateSpec(plan));

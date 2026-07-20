@@ -8,6 +8,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { FILES } from '../bundle.mjs';
 
 const templates = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'templates');
 const DATA = JSON.parse(fs.readFileSync(path.join(templates, 'verdicts.json'), 'utf8'));
@@ -29,17 +30,34 @@ const readJson = (p) => {
 const fill = (str, vars) => String(str ?? '').replace(/{{(\w+)}}/g, (_, k) => vars[k] ?? '');
 
 /**
+ * Neutralizes the two ways agent-authored content can break out of the comment structure: the
+ * `<details>`/`<summary>` tags the comment is built from, and the ``` code-fence terminators that wrap
+ * the test case / fixtures. Both are content/verdict-spoofing vectors (GitHub already strips scripts).
+ */
+const defang = (text) => String(text ?? '')
+  .replace(/<(\/?(?:details|summary)\b[^>]*)>/gi, '&lt;$1&gt;') // can't close the comment's spoilers
+  .replace(/`{3,}/g, (run) => [...run].join('​'));    // can't close a fenced block (ZWSP between backticks)
+
+/**
  * Bounds and defangs agent-authored prose before it enters the public verdict comment.
  *
- * The agent summary and give-up reason are shaped by the untrusted issue. Secret redaction runs later
- * at the write() boundary, but this also caps length and neutralizes the `<details>`/`<summary>` tags
- * the comment is built from, so injected markdown can't break out of a spoiler or balloon the comment.
+ * The summary/give-up reason/test case are shaped by the untrusted issue. Secret redaction runs later
+ * at the write() boundary; this caps length and defangs the structure-breaking tokens.
  */
 const safeProse = (text, max = 2000) => {
   const s = String(text ?? '');
   const capped = s.length > max ? `${s.slice(0, max)}\n… (truncated)` : s;
-  return capped.replace(/<(\/?(?:details|summary)\b[^>]*)>/gi, '&lt;$1&gt;');
+  return defang(capped);
 };
+
+/**
+ * The spec filename is derived from the TRUSTED executor default, never from agent-authored
+ * `plan.script_path`: that value is interpolated into a file read in the write-token report job, so
+ * an injected `../../../etc/passwd` would read an arbitrary file and publish it to the public issue.
+ * validate.mjs pins script_path to this default, but it is continue-on-error and skips the incomplete
+ * branch, so the renderer must not trust it.
+ */
+const specFileName = (plan) => (plan.executor === 'direct' ? FILES.testPhp : FILES.specTs);
 
 /**
  * Reads an auxiliary agent artifact for inclusion in the issue comment.
@@ -129,7 +147,7 @@ if (process.env.MODE === 'incomplete') {
   // Still show the authored bundle when one exists (e.g. a blocked run): the test case + fixtures are
   // what a human needs to see what was attempted, even though no verdict was reached.
   const plan = readJson(`${art}/repro-plan/reproduction-plan.json`) || {};
-  const specFile = `${art}/repro-plan/${plan.script_path || 'repro.spec.ts'}`;
+  const specFile = `${art}/repro-plan/${specFileName(plan)}`;
   const script = fs.existsSync(specFile) ? fs.readFileSync(specFile, 'utf8').trim() : '';
   const fixturesPath = `${art}/repro-plan/fixtures.json`;
   const hasFixtures = fs.existsSync(fixturesPath);
@@ -139,10 +157,10 @@ if (process.env.MODE === 'incomplete') {
     AGENT_SUMMARY: safeProse(readExtra('agent-summary.md')),
     EDITS: edits,
     SCENARIO: scenarioBlock(plan),
-    TESTCASE: script,
+    TESTCASE: defang(script),
     TESTCASE_LANG: plan.executor === 'direct' ? 'php' : 'ts',
     TESTCASE_TOOL: (DATA.phrases.testcase_tool && DATA.phrases.testcase_tool[plan.executor]) || plan.executor || 'test',
-    FIXTURES: hasFixtures ? fs.readFileSync(fixturesPath, 'utf8').trim() : '',
+    FIXTURES: hasFixtures ? defang(fs.readFileSync(fixturesPath, 'utf8').trim()) : '',
   }));
 } else {
   write(renderVerdict());
@@ -182,7 +200,7 @@ function renderVerdict() {
   // Source the authored test case from the repro-plan artifact so it shows even when the leg that
   // would carry it blocked before running (a blocked leg records no evidence.script). Fall back to
   // leg evidence for executors with no spec file on disk (http).
-  const specFile = `${art}/repro-plan/${plan.script_path || 'repro.spec.ts'}`;
+  const specFile = `${art}/repro-plan/${specFileName(plan)}`;
   const script = (fs.existsSync(specFile) ? fs.readFileSync(specFile, 'utf8').trim() : '') || specLeg?.evidence?.script || '';
   const fixturesPath = `${art}/repro-plan/fixtures.json`;
   const hasFixtures = fs.existsSync(fixturesPath);
@@ -218,11 +236,11 @@ function renderVerdict() {
     DETAILS_HEADING: scenarioBlock(plan) || agentSummary || script || hasFixtures
       ? '### Reproduction details'
       : '',
-    TESTCASE: script,
+    TESTCASE: defang(script),
     TESTCASE_LANG: specLeg?.evidence?.script_lang || 'sh',
     TESTCASE_TOOL: p.testcase_tool[plan.executor] || specLeg?.evidence?.script_lang || 'sh',
     ASSERTIONS: script ? assertionList(specLeg?.assertion?.checks) : '', // http: the expectations, beside the curl
-    FIXTURES: hasFixtures ? fs.readFileSync(fixturesPath, 'utf8').trim() : '',
+    FIXTURES: hasFixtures ? defang(fs.readFileSync(fixturesPath, 'utf8').trim()) : '',
     RUN_URL: process.env.RUN_URL || '',
   };
   return render(fs.readFileSync(path.join(templates, 'comment.verdict.md'), 'utf8'), ctx);
@@ -233,7 +251,7 @@ function renderVerdict() {
  */
 function scenarioBlock(plan) {
   return Array.isArray(plan.scenario) && plan.scenario.length
-    ? plan.scenario.map((s) => `- ${s.replace(/^(Given|When|Then|And|But) /, '**$1** ')}`).join('\n')
+    ? plan.scenario.map((s) => `- ${defang(String(s)).replace(/^(Given|When|Then|And|But) /, '**$1** ')}`).join('\n')
     : '';
 }
 

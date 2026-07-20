@@ -79,7 +79,11 @@ class ReproTest extends TestCase
 }
 ```
 
-Status: `OK` ⇒ `not_reproduced`; `FAILURES!` ⇒ `reproduced`; `ERRORS!`/fatal ⇒ `inconclusive`
-(cross-version mismatch) — **unless** the symptom is an exception: set `assertion.symptom_pattern`
-to a regex, and a matching error counts as `reproduced` (DAL writes throw during synchronous
-indexing, so the symptom often escapes a try/catch around a later call).
+Status: `OK` ⇒ `not_reproduced`. A `FAILURES!` or `ERRORS!`/fatal counts as `reproduced` **only when
+it matches `assertion.symptom_pattern`** — a regex you **must** set on a direct plan. Mark your
+SYMPTOM assertion with a distinctive token in its message and match it, e.g.
+`static::assertFalse($item->isStackable(), 'REPRO_SYMPTOM: line item became stackable');` with
+`"symptom_pattern": "REPRO_SYMPTOM"`. A failure that does **not** match is `inconclusive` (treated as a
+failed setup/precondition assertion, not the reported symptom) — so setup asserts stay unmarked. For
+an exception symptom (e.g. a DAL write that throws during synchronous indexing), `symptom_pattern`
+matches the exception text instead.

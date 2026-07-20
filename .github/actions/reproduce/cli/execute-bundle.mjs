@@ -4,7 +4,7 @@
  * This is the single "run the test and classify" step; reset, seeding, and readiness checks live in
  * `full-run.mjs` so the trusted and preview flows share ordering.
  */
-import { FILES, readJson, writeJson, makeResult } from '../bundle.mjs';
+import { FILES, readJson, writeJson, makeResult, blockedResult } from '../bundle.mjs';
 
 // Executors are imported lazily so a leg only loads the module chain it actually uses. Importing the
 // Playwright executor eagerly pulls in `@playwright/test` (via boilerplate/login-state.mjs), which
@@ -44,14 +44,27 @@ export async function executeBundle({ target, out }) {
   }
 
   const load = EXECUTORS[plan.executor];
-  const result = load ? await (await load()).executor.run({ plan, target }) : makeResult({
-    plan,
-    target,
-    status: 'inconclusive',
-    assertion: { matched: null },
-    evidence: { reporter_output: `unknown executor '${plan.executor}'` },
-    blockedReason: `plan.executor '${plan.executor}' is not one of playwright/http/direct`,
-  });
+  let result;
+  if (!load) {
+    result = makeResult({
+      plan,
+      target,
+      status: 'inconclusive',
+      assertion: { matched: null },
+      evidence: { reporter_output: `unknown executor '${plan.executor}'` },
+      blockedReason: `plan.executor '${plan.executor}' is not one of playwright/http/direct`,
+    });
+  } else {
+    // An agent-authored plan can make classify/prepare throw (e.g. an invalid regex in an http
+    // assertion `matches` op or a `symptom_pattern`, neither fully validated). Catch it and write a
+    // BLOCKED leg with the reason, so the leg is judged as blocked — never discarded as "incomplete"
+    // for want of a result.json (mirrors full-run.mjs fail() + the trunk YAML fallback).
+    try {
+      result = await (await load()).executor.run({ plan, target });
+    } catch (err) {
+      result = blockedResult(plan, target, `executor '${plan.executor}' threw during run: ${err?.message || err}`);
+    }
+  }
   writeJson(out, result);
   console.log(`status=${result.status}  (${result.evidence.reporter_output})`);
   return result;

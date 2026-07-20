@@ -6,6 +6,7 @@
  * `seed-error.txt` and throw so both agent preview and official legs get an actionable blocker.
  */
 import fs from 'node:fs';
+import path from 'node:path';
 import { FILES, ENTITY_PLACEHOLDERS, STABLE_IDS, readJson, fillPlaceholders, unresolvedPlaceholders } from '../../bundle.mjs';
 import { resolvePlaceholders, sync, uploadMedia, refreshIndexes } from '../../admin-api.mjs';
 
@@ -144,10 +145,25 @@ async function uploadFixtureMedia(uploads, ids) {
         throw new SeedError(`_repro_media_uploads entry requires ${field}`);
       }
     }
-    if (!fs.existsSync(entry.path)) {
-      throw new SeedError(`_repro_media_uploads path does not exist: ${entry.path}`);
+    // The media bytes are read from the host with a fixture-controlled path. Confine it to the
+    // bundle's `media/` dir and require a regular file, so a crafted `path` (absolute, or `../`
+    // traversal) can't read an arbitrary host file (e.g. /etc/passwd) and upload it. Author media
+    // under `media/` in the bundle and reference it relative to that dir (e.g. "logo.png").
+    const mediaRoot = path.resolve('media');
+    const resolved = path.resolve(mediaRoot, entry.path);
+    if (resolved !== mediaRoot && !resolved.startsWith(mediaRoot + path.sep)) {
+      throw new SeedError(`_repro_media_uploads path must be inside the bundle media/ dir (got '${entry.path}')`);
     }
-    const result = await uploadMedia(entry);
+    let stat = null;
+    try {
+      stat = fs.statSync(resolved);
+    } catch {
+      stat = null;
+    }
+    if (!stat || !stat.isFile()) {
+      throw new SeedError(`_repro_media_uploads path is not a regular file under media/: ${entry.path}`);
+    }
+    const result = await uploadMedia({ ...entry, path: resolved });
     if (!result.ok) {
       throw new SeedError(`media upload HTTP ${result.status} for ${entry.mediaId}: ${result.detail || ''}`);
     }

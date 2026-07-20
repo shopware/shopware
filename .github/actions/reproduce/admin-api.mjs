@@ -260,6 +260,8 @@ async function errorDetail(res) {
  * actual uploaded bytes before the leg opens the Media library.
  */
 export async function uploadMedia({ mediaId, path, extension, mimeType, fileName }) {
+  // `path` is read straight off the host, so the CALLER must confine it to a regular file inside the
+  // bundle media dir (see seed.mjs) — never pass an unvalidated, fixture-controlled path here.
   const fs = await import('node:fs');
   const query = new URLSearchParams({ extension });
   if (fileName) {

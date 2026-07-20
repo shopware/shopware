@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Subscriber;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -24,9 +26,12 @@ use Symfony\Contracts\Service\ResetInterface;
 #[Package('discovery')]
 class MediaVisibilityRestrictionSubscriber implements EventSubscriberInterface, ResetInterface
 {
-    private const PRODUCT_DOWNLOAD_ENTITY = 'product_download';
+    private const PRIVATE_ALLOWED_DEFAULT_FOLDER_ENTITIES = ['product_download', 'product_document'];
 
-    private ?string $productDownloadMediaFolderId = null;
+    /**
+     * @var list<string>|null
+     */
+    private ?array $privateAllowedMediaFolderIds = null;
 
     public function __construct(private readonly Connection $connection)
     {
@@ -71,7 +76,7 @@ class MediaVisibilityRestrictionSubscriber implements EventSubscriberInterface, 
 
     public function reset(): void
     {
-        $this->productDownloadMediaFolderId = null;
+        $this->privateAllowedMediaFolderIds = null;
     }
 
     private function addMediaFolderRestriction(Criteria $criteria): void
@@ -129,14 +134,15 @@ class MediaVisibilityRestrictionSubscriber implements EventSubscriberInterface, 
     {
         $filters = [
             new EqualsFilter('private', false),
-            new MultiFilter('AND', [
-                new EqualsFilter('private', true),
-                new MultiFilter('OR', [
-                    new EqualsFilter('mediaFolderId', $this->getProductDownloadMediaFolderId()),
-                    new EqualsFilter('mediaFolder.defaultFolder.entity', 'product_document'),
-                ]),
-            ]),
         ];
+
+        $privateAllowedFolderIds = $this->getPrivateAllowedMediaFolderIds();
+        if ($privateAllowedFolderIds !== []) {
+            $filters[] = new MultiFilter('AND', [
+                new EqualsFilter('private', true),
+                new EqualsAnyFilter('mediaFolderId', $privateAllowedFolderIds),
+            ]);
+        }
 
         return new MultiFilter('OR', [
             ...$filters,
@@ -157,25 +163,27 @@ class MediaVisibilityRestrictionSubscriber implements EventSubscriberInterface, 
             && !$context->hasState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT);
     }
 
-    private function getProductDownloadMediaFolderId(): string
+    /**
+     * @return list<string>
+     */
+    private function getPrivateAllowedMediaFolderIds(): array
     {
-        if ($this->productDownloadMediaFolderId !== null) {
-            return $this->productDownloadMediaFolderId;
+        if ($this->privateAllowedMediaFolderIds !== null) {
+            return $this->privateAllowedMediaFolderIds;
         }
 
-        $folderId = $this->connection->fetchOne(
+        $folderIds = $this->connection->fetchFirstColumn(
             <<<'SQL'
                 SELECT LOWER(HEX(`media_folder`.`id`))
                 FROM `media_folder`
                 INNER JOIN `media_default_folder`
                     ON `media_default_folder`.`id` = `media_folder`.`default_folder_id`
-                WHERE `media_default_folder`.`entity` = :entity
+                WHERE `media_default_folder`.`entity` IN (:entities)
             SQL,
-            ['entity' => self::PRODUCT_DOWNLOAD_ENTITY]
+            ['entities' => self::PRIVATE_ALLOWED_DEFAULT_FOLDER_ENTITIES],
+            ['entities' => ArrayParameterType::STRING]
         );
 
-        \assert(\is_string($folderId));
-
-        return $this->productDownloadMediaFolderId = $folderId;
+        return $this->privateAllowedMediaFolderIds = array_values(array_filter($folderIds, \is_string(...)));
     }
 }

@@ -68,18 +68,7 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
     }
 
     .smart-bar__back-btn {
-        width: 54px;
-        height: var(--scale-size-24);
-        line-height: var(--font-line-height-m);
-        display: grid;
-        grid-template-columns: 30px var(--scale-size-24);
-        align-items: center;
         margin-left: 20px;
-
-        .mt-icon.icon--regular-chevron-left-s {
-            line-height: var(--font-line-height-m);
-            margin: auto;
-        }
     }
 
     .smart-bar__content {

@@ -102,7 +102,7 @@ Two layers are required: the DI tag **and** the directory must appear in `mcp.ya
 |---|---|---|
 | `bin/console debug:mcp` | Full registry — same source as the HTTP endpoint | Quick manual check during development |
 | `McpCapabilityDiscoveryTest` | HTTP → `tools/list` (full kernel) | CI — authoritative end-to-end check |
-| `McpServiceConfigTest` / `McpFeatureFlagTest` | DI layer only | Fast unit-level guard for tag/registration |
+| `McpServiceRegistrationTest` | DI layer only | Fast integration-level guard that every MCP service is registered in the container |
 
 `bin/console debug:mcp` now uses the same `Registry` as the HTTP endpoint (populated by calling `Builder::build()`), so it shows core tools, plugin tools, and app tools in one view. It is the fastest way to check that a newly registered capability is visible.
 

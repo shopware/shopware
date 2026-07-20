@@ -480,9 +480,7 @@ class DebugMcpCommandTest extends TestCase
         $catalog = new McpCapabilityCatalog(
             $registry,
             $this->stubPrivilegeProvider(),
-            [],
-            [],
-            ['shopware-entity-search' => 'catalogue'],
+            toolGroups: ['shopware-entity-search' => 'catalogue'],
         );
 
         $tester = new CommandTester($this->makeCommand($registry, catalog: $catalog));

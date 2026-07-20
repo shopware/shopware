@@ -141,20 +141,43 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
         foreach ($container->findTaggedServiceIds('mcp.tool') as $serviceId => $tags) {
             $definition = $container->getDefinition($serviceId);
             $class = $definition->getClass() ?? $serviceId;
-            $toolInfo = McpToolAttributeReader::resolveInfo($class, McpTool::class, ['name', 'description']);
 
-            if ($toolInfo === null || $toolInfo['name'] === null || !class_exists($class)) {
+            if (!class_exists($class)) {
+                $this->warnMissingToolClass($serviceId, $class);
+
                 continue;
             }
 
-            $groupInfo = McpToolAttributeReader::resolveInfo($class, McpToolGroup::class, ['group']);
-            $group = $groupInfo !== null && \is_string($groupInfo['group']) && $groupInfo['group'] !== ''
-                ? $groupInfo['group']
-                : (explode('-', (string) $toolInfo['name'])[0] ?: 'other');
+            $tool = McpToolAttributeReader::resolveAttribute($class, McpTool::class);
+            if ($tool === null || $tool->name === null || $tool->name === '') {
+                continue;
+            }
 
-            $groupMap[$toolInfo['name']] = $group;
+            $group = McpToolAttributeReader::resolveAttribute($class, McpToolGroup::class)?->group;
+            $group = $group !== null && $group !== ''
+                ? $group
+                : (explode('-', $tool->name)[0] ?: 'other');
+
+            $groupMap[$tool->name] = $group;
         }
 
         $container->setParameter('shopware.mcp.tool_groups', $groupMap);
+    }
+
+    /**
+     * A service tagged "mcp.tool" whose class cannot be autoloaded is almost always a development or
+     * configuration mistake. We skip it rather than fail the whole container build, but surface it as
+     * a warning so the misconfiguration is not lost silently.
+     */
+    private function warnMissingToolClass(string $serviceId, string $class): void
+    {
+        trigger_error(
+            \sprintf(
+                'MCP tool service "%s" is tagged "mcp.tool" but its class "%s" cannot be loaded; skipping it during tool analysis.',
+                $serviceId,
+                $class,
+            ),
+            \E_USER_WARNING,
+        );
     }
 }

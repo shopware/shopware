@@ -18,7 +18,7 @@ VALUES (
     UNHEX('98432def39fc4624b33213a56b8c944d'),
     NULL,
     NULL,
-    ':createdAt',
+    ':now',
     NULL
 ), (
     UNHEX('7912f4de72aa43d792bcebae4eb45c5c'),
@@ -35,7 +35,7 @@ VALUES (
     UNHEX('98432def39fc4624b33213a56b8c944d'),
     NULL,
     NULL,
-    ':createdAt' - INTERVAL 24 DAY,
+    ':now' - INTERVAL 24 DAY,
     NULL
 ), (
     UNHEX('ee367309f56445bf88ab944c81907951'),
@@ -52,7 +52,7 @@ VALUES (
     UNHEX('98432def39fc4624b33213a56b8c944d'),
     NULL,
     NULL,
-    ':createdAt' - INTERVAL 30 DAY,
+    ':now' - INTERVAL 30 DAY,
     NULL
 ), (
     UNHEX('9420908cc96b42379ff86fa1e5a6f10b'),
@@ -69,7 +69,7 @@ VALUES (
     UNHEX('98432def39fc4624b33213a56b8c944d'),
     NULL,
     NULL,
-    ':createdAt' - INTERVAL 31 DAY,
+    ':now' - INTERVAL 31 DAY,
     NULL
 ), (
     UNHEX('0d095dffd93b48a6b22300a1dad879d3'),
@@ -86,7 +86,7 @@ VALUES (
     UNHEX('98432def39fc4624b33213a56b8c944d'),
     NULL,
     NULL,
-    ':createdAt' - INTERVAL 40 DAY,
+    ':now' - INTERVAL 40 DAY,
     NULL
 ), (
     UNHEX('0d095dffd93b48a6b22300a1dad879d4'),
@@ -103,8 +103,8 @@ VALUES (
     UNHEX('98432def39fc4624b33213a56b8c944d'),
     NULL,
     NULL,
-    ':createdAt' - INTERVAL 20 DAY,
-    NULL
+    ':now' - INTERVAL 20 DAY,
+    ':now' - INTERVAL 20 DAY
 ), (
     UNHEX('0d095dffd93b48a6b22300a1dad879d5'),
     'test@fooOptOut',
@@ -120,6 +120,6 @@ VALUES (
     UNHEX('98432def39fc4624b33213a56b8c944d'),
     NULL,
     NULL,
-    ':createdAt' - INTERVAL 40 DAY,
-    NULL
+    ':now' - INTERVAL 40 DAY,
+    ':now' - INTERVAL 35 DAY
 );

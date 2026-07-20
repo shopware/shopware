@@ -40,7 +40,7 @@ class LocalesReadinessCheck extends BaseCheck
             static fn (string $locale) => !LocaleHelper::isLocale($locale)
         );
 
-        $status = \count($invalidLocales) === 0 ? Status::OK : Status::WARNING;
+        $status = $invalidLocales === [] ? Status::OK : Status::WARNING;
 
         return new Result(
             $this->name(),

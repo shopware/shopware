@@ -77,6 +77,7 @@
             <argument type="service" id="Shopware\Core\Service\ServiceLifecycle"/>
             <argument type="service" id="messenger.bus.default"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\Service\ScheduledTask\InstallServicesTask">

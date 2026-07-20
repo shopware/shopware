@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Page\Robots;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
@@ -15,7 +15,9 @@ use Shopware\Storefront\Page\Robots\RobotsPage;
 use Shopware\Storefront\Page\Robots\RobotsPageLoadedEvent;
 use Shopware\Storefront\Page\Robots\RobotsPageLoader;
 use Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct;
+use Shopware\Storefront\Page\Robots\Struct\RobotsDirective;
 use Shopware\Storefront\Page\Robots\Struct\RobotsDirectiveType;
+use Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,7 +28,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(RobotsPageLoader::class)]
 class RobotsPageLoaderTest extends TestCase
 {
-    private MockObject&EventDispatcherInterface $eventDispatcher;
+    private Stub&EventDispatcherInterface $eventDispatcher;
 
     /**
      * @var StaticEntityRepository<SalesChannelDomainCollection>
@@ -39,7 +41,7 @@ class RobotsPageLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->eventDispatcher = static::createStub(EventDispatcherInterface::class);
         $this->salesChannelDomainRepository = new StaticEntityRepository([]);
         $this->systemConfigService = new StaticSystemConfigService();
 
@@ -172,14 +174,15 @@ class RobotsPageLoaderTest extends TestCase
         $domains = [$domain];
 
         // Expect event to be dispatched twice (once per load call)
-        $this->eventDispatcher->expects($this->exactly(2))
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->exactly(2))
             ->method('dispatch')
             ->with(static::isInstanceOf(RobotsPageLoadedEvent::class));
 
         // Test with empty string robots rules
         $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [
             'core.basicInformation.robotsRules' => '',
-        ]);
+        ], $eventDispatcher);
 
         $page = $this->robotsPageLoader->load($request, $context);
 
@@ -187,7 +190,7 @@ class RobotsPageLoaderTest extends TestCase
         static::assertEquals(['https://example.com/sitemap.xml'], $page->getSitemaps());
 
         // Test with no robots rules configured at all
-        $this->robotsPageLoader = $this->setupLoaderWithDomains($domains);
+        $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [], $eventDispatcher);
 
         $page = $this->robotsPageLoader->load($request, $context);
 
@@ -310,14 +313,15 @@ class RobotsPageLoaderTest extends TestCase
         static::assertCount(5, $directives); // We expect 5 directives: 1 Crawl-delay + 4 path directives
 
         // Check that Crawl-delay (non-path directive) is present
-        $crawlDelayDirectives = array_filter($directives, fn ($d) => $d->type === RobotsDirectiveType::CRAWL_DELAY);
+        $crawlDelayDirectives = array_filter($directives, static fn ($d) => $d->type === RobotsDirectiveType::CRAWL_DELAY);
         static::assertCount(1, $crawlDelayDirectives);
 
         // Check that both domain's path directives are present with correct paths
         $this->assertDirectivePaths($directives, RobotsDirectiveType::DISALLOW, ['/account/', '/en/private/']);
         $this->assertDirectivePaths($directives, RobotsDirectiveType::ALLOW, ['/en/api/', '/widgets/']);
 
-        // Domain rules should still exist but only contain the path directives for each domain
+        // Domain rules should still exist for both domains but user-agent path directives
+        // must be rendered only inside the global user-agent block, not duplicated here.
         $domainRules = $page->getDomainRules();
         $firstDomainRule = $domainRules->first();
         $secondDomainRule = $domainRules->last();
@@ -328,8 +332,8 @@ class RobotsPageLoaderTest extends TestCase
         static::assertSame('', $firstDomainRule->getBasePath());
         static::assertSame('/en', $secondDomainRule->getBasePath());
 
-        static::assertCount(2, $firstDomainRule->getDirectives());
-        static::assertCount(2, $secondDomainRule->getDirectives());
+        static::assertCount(0, $firstDomainRule->getDirectives());
+        static::assertCount(0, $secondDomainRule->getDirectives());
     }
 
     public function testLoadWithUserAgentBlocksOnlyNonPathDirectives(): void
@@ -438,7 +442,7 @@ class RobotsPageLoaderTest extends TestCase
         static::assertCount(2, $globalBlocks);
 
         // Sort by user agent for consistent testing
-        usort($globalBlocks, fn ($a, $b) => strcmp($a->userAgent, $b->userAgent));
+        usort($globalBlocks, static fn ($a, $b) => strcmp($a->userAgent, $b->userAgent));
 
         $bingbotBlock = $globalBlocks[0];
         $googlebotBlock = $globalBlocks[1];
@@ -529,7 +533,7 @@ class RobotsPageLoaderTest extends TestCase
      * @param SalesChannelDomainEntity[] $domains
      * @param array<string, string|array<int, string>> $config
      */
-    private function setupLoaderWithDomains(array $domains, array $config = []): RobotsPageLoader
+    private function setupLoaderWithDomains(array $domains, array $config = [], ?EventDispatcherInterface $eventDispatcher = null): RobotsPageLoader
     {
         $this->salesChannelDomainRepository = new StaticEntityRepository([
             new SalesChannelDomainCollection($domains),
@@ -549,7 +553,7 @@ class RobotsPageLoaderTest extends TestCase
         }
 
         return new RobotsPageLoader(
-            $this->eventDispatcher,
+            $eventDispatcher ?? $this->eventDispatcher,
             $this->salesChannelDomainRepository,
             $this->systemConfigService,
             new RobotsDirectiveParser(new EventDispatcher())
@@ -571,24 +575,36 @@ class RobotsPageLoaderTest extends TestCase
     }
 
     /**
-     * Common setup for tests that need event dispatcher expectations
+     * Common setup for tests that need event dispatcher expectations.
+     *
+     * Rebuilds the loader with a mock dispatcher (kept separate from the
+     * stub property) so the expectation is verified against the instance the
+     * loader actually dispatches through.
      */
     private function setupEventDispatcherExpectation(): void
     {
-        $this->eventDispatcher->expects($this->once())
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(RobotsPageLoadedEvent::class));
+
+        $this->robotsPageLoader = new RobotsPageLoader(
+            $eventDispatcher,
+            $this->salesChannelDomainRepository,
+            $this->systemConfigService,
+            new RobotsDirectiveParser(new EventDispatcher())
+        );
     }
 
     /**
      * Helper to assert that User-agent blocks have correct directive types
      *
-     * @param array<\Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock> $globalBlocks
+     * @param array<RobotsUserAgentBlock> $globalBlocks
      */
     private function assertUserAgentBlocksHaveCorrectDirectiveTypes(array $globalBlocks): void
     {
         // Sort by directive count for consistent testing (both should have 2 directives)
-        usort($globalBlocks, fn ($a, $b) => \count($a->directives) <=> \count($b->directives));
+        usort($globalBlocks, static fn ($a, $b) => \count($a->directives) <=> \count($b->directives));
 
         $firstBlock = $globalBlocks[0];
         $secondBlock = $globalBlocks[1];
@@ -614,7 +630,7 @@ class RobotsPageLoaderTest extends TestCase
     /**
      * Collects and sorts all directive types from given blocks
      *
-     * @param array<\Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock> $blocks
+     * @param array<RobotsUserAgentBlock> $blocks
      *
      * @return list<RobotsDirectiveType>
      */
@@ -622,12 +638,12 @@ class RobotsPageLoaderTest extends TestCase
     {
         $allDirectiveTypes = [];
         foreach ($blocks as $block) {
-            $types = array_map(fn ($d) => $d->type, $block->directives);
+            $types = array_map(static fn ($d) => $d->type, $block->directives);
             $allDirectiveTypes = array_merge($allDirectiveTypes, $types);
         }
 
         // Sort by enum value for consistent ordering
-        usort($allDirectiveTypes, fn ($a, $b) => $a->value <=> $b->value);
+        usort($allDirectiveTypes, static fn ($a, $b) => $a->value <=> $b->value);
 
         return $allDirectiveTypes;
     }
@@ -635,13 +651,13 @@ class RobotsPageLoaderTest extends TestCase
     /**
      * Asserts that directives contain specific paths for a given directive type
      *
-     * @param array<\Shopware\Storefront\Page\Robots\Struct\RobotsDirective> $directives
+     * @param array<RobotsDirective> $directives
      * @param list<string> $expectedPaths
      */
     private function assertDirectivePaths(array $directives, RobotsDirectiveType $type, array $expectedPaths): void
     {
-        $filteredDirectives = array_filter($directives, fn ($d) => $d->type === $type);
-        $actualPaths = array_map(fn ($d) => $d->value, array_values($filteredDirectives));
+        $filteredDirectives = array_filter($directives, static fn ($d) => $d->type === $type);
+        $actualPaths = array_map(static fn ($d) => $d->value, array_values($filteredDirectives));
         sort($actualPaths);
         sort($expectedPaths);
 

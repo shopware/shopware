@@ -4,6 +4,7 @@
 {% set ORDER_TRANSACTION_STATE_CANCELLED = constant('Shopware\\Core\\Checkout\\Order\\Aggregate\\OrderTransaction\\OrderTransactionStates::STATE_CANCELLED') %}
 {% set ORDER_TRANSACTION_STATE_UNCONFIRMED = constant('Shopware\\Core\\Checkout\\Order\\Aggregate\\OrderTransaction\\OrderTransactionStates::STATE_UNCONFIRMED') %}
 {% set ALLOWED_TRANSACTION_STATES = constant('Shopware\\Core\\Checkout\\Order\\SalesChannel\\OrderService::ALLOWED_TRANSACTION_STATES') %}
+{% set ORDER_STATE_OPEN = constant('Shopware\\Core\\Checkout\\Order\\OrderStates::STATE_OPEN') %}
 {% set ORDER_STATE_CANCELLED = constant('Shopware\\Core\\Checkout\\Order\\OrderStates::STATE_CANCELLED') %}
 {% set PRODUCT_LINE_ITEM_TYPE = constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') %}
 
@@ -18,6 +19,7 @@
             ] %}
 
             {% set orderState = order.stateMachineState.technicalName %}
+            {% set allowOrderCancellation = orderState == ORDER_STATE_OPEN and config('core.cart.enableOrderRefunds') %}
             {% if feature('v6.8.0.0') %}
                 {% set orderPaymentState = order.primaryOrderTransaction.stateMachineState.technicalName %}
             {% else %}
@@ -69,7 +71,6 @@
                                         type="button"
                                         id="accountOrderDropdown-{{ order.id }}"
                                         data-bs-toggle="dropdown"
-                                        aria-haspopup="true"
                                         aria-expanded="false"
                                         aria-label="{{ 'account.orderActions'|trans|sw_sanitize }}">
                                     {% sw_icon 'more-horizontal' %}
@@ -77,8 +78,7 @@
                             {% endblock %}
 
                             {% block page_account_order_item_context_menu_content %}
-                                <div class="dropdown-menu dropdown-menu-end order-table-header-context-menu-content"
-                                     aria-labelledby="accountOrderDropdown-{{ order.id }}">
+                                <div class="dropdown-menu dropdown-menu-end order-table-header-context-menu-content">
                                     {% if orderState != ORDER_STATE_CANCELLED and orderPaymentState in ALLOWED_TRANSACTION_STATES %}
                                         {% block page_account_order_item_context_menu_content_change_payment_button %}
                                             {% if isPaymentNeeded %}
@@ -147,7 +147,7 @@
                                     {% endblock %}
 
                                     {% block page_account_order_item_context_menu_cancel_order %}
-                                        {% if orderState != ORDER_STATE_CANCELLED and config('core.cart.enableOrderRefunds') %}
+                                        {% if allowOrderCancellation %}
 
                                             {% set modalId = 'cancelOrderModal-' ~ order.id %}
 
@@ -163,7 +163,7 @@
                             {% endblock %}
                         {% endblock %}
 
-                        {% if orderState != ORDER_STATE_CANCELLED %}
+                        {% if allowOrderCancellation %}
                             {% sw_include '@Storefront/storefront/page/account/order/cancel-order-modal.html.twig' %}
                         {% endif %}
                     </div>

@@ -6,8 +6,8 @@ use Shopware\Core\DevOps\Docs\ArrayWriter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
+use Shopware\Core\Framework\Webhook\Hookable\HookableEventDescriber;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -31,10 +31,13 @@ class DocsAppEventCommand extends Command
 
     /**
      * @internal
+     *
+     * @param iterable<HookableEventDescriber> $hookableEventDescribers
      */
     public function __construct(
         private readonly BusinessEventCollector $businessEventCollector,
         private readonly HookableEventCollector $hookableEventCollector,
+        private readonly iterable $hookableEventDescribers,
         private readonly Environment $twig
     ) {
         parent::__construct();
@@ -77,13 +80,13 @@ class DocsAppEventCommand extends Command
         $io->section('Generates documentation for all events that can be registered as webhook');
 
         file_put_contents(
-            self::EVENT_DOCUMENT_PATH,
+            $this->getListEventPath(),
             $this->render()
         );
 
         $io->success('All events were generated successfully');
 
-        $io->note(self::EVENT_DOCUMENT_PATH);
+        $io->note($this->getListEventPath());
 
         return self::SUCCESS;
     }
@@ -130,13 +133,17 @@ class DocsAppEventCommand extends Command
      */
     private function collectHookables(array &$eventsDoc): void
     {
-        foreach (Hookable::HOOKABLE_EVENTS as $class => $eventName) {
-            $eventsDoc[] = new HookableEventDoc(
-                $eventName,
-                Hookable::HOOKABLE_EVENTS_DESCRIPTION[$class],
-                Hookable::HOOKABLE_EVENTS_PRIVILEGES[$class] ? '`' . implode('` `', Hookable::HOOKABLE_EVENTS_PRIVILEGES[$class]) . '`' : '-',
-                null,
-            );
+        foreach ($this->hookableEventDescribers as $describer) {
+            foreach ($describer->describe() as $eventDescription) {
+                $permissions = $eventDescription->privileges ? '`' . implode('` `', $eventDescription->privileges) . '`' : '-';
+
+                $eventsDoc[] = new HookableEventDoc(
+                    $eventDescription->eventName,
+                    $eventDescription->description,
+                    $permissions,
+                    null,
+                );
+            }
         }
     }
 }

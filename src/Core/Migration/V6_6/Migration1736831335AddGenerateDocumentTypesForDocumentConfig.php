@@ -29,7 +29,7 @@ class Migration1736831335AddGenerateDocumentTypesForDocumentConfig extends Migra
      */
     public function update(Connection $connection): void
     {
-        $connection->transactional(function (Connection $transaction): void {
+        $connection->transactional(static function (Connection $transaction): void {
             $documentConfig = $transaction->executeQuery(
                 <<<'SQL'
                     SELECT `document_base_config`.`id`, `document_base_config`.`config` FROM `document_base_config`
@@ -40,7 +40,7 @@ class Migration1736831335AddGenerateDocumentTypesForDocumentConfig extends Migra
                 ['technicalName' => ArrayParameterType::STRING],
             )->fetchAllAssociative();
 
-            if (empty($documentConfig)) {
+            if ($documentConfig === []) {
                 return;
             }
 

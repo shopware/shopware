@@ -49,8 +49,7 @@ class AppLoaderTest extends TestCase
         static::assertSame('test', $app->getMetadata()->getName());
         static::assertSame('1.0.0', $app->getMetadata()->getVersion());
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('App test is managed by Composer and cannot be deleted');
+        $this->expectExceptionObject(AppException::cannotDeleteManaged('test'));
         $appLoader->deleteApp('test');
     }
 

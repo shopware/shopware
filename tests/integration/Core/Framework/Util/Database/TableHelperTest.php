@@ -12,7 +12,6 @@ use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Types\Types;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -28,7 +27,6 @@ use Shopware\Tests\Integration\Core\Framework\Util\Database\TableHelper\Exceptio
 /**
  * @internal
  */
-#[CoversClass(TableHelper::class)]
 class TableHelperTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -40,12 +38,6 @@ class TableHelperTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = self::getContainer()->get(Connection::class);
-        TableHelper::resetSchemaManager();
-    }
-
-    protected function tearDown(): void
-    {
-        TableHelper::resetSchemaManager();
     }
 
     public function testTableExists(): void
@@ -320,18 +312,6 @@ class TableHelperTest extends TestCase
             ProductDefinition::ENTITY_NAME,
             ['id', 'version_id'],
         );
-    }
-
-    public function testResetSchemaManager(): void
-    {
-        static::assertTrue(TableHelper::tableExists($this->connection, ProductDefinition::ENTITY_NAME));
-        // Invalid connection would normally cause an exception while getting the SchemaManager, but it is cached as static class property
-        static::assertTrue(TableHelper::tableExists($this->getInvalidConnection(), ProductDefinition::ENTITY_NAME));
-
-        TableHelper::resetSchemaManager();
-
-        $this->expectExceptionObject($this->createUtilExceptionForInvalidConnection());
-        static::assertTrue(TableHelper::tableExists($this->getInvalidConnection(), ProductDefinition::ENTITY_NAME));
     }
 
     private function getInvalidConnection(): Connection

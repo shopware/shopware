@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\ImportExport\Service;
 
 use League\Flysystem\FilesystemOperator;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
@@ -19,13 +18,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * @internal
  */
 #[Package('fundamentals@after-sales')]
-#[CoversClass(MappingService::class)]
 class MappingServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -53,7 +52,8 @@ class MappingServiceTest extends TestCase
         $this->mappingService = new MappingService(
             static::getContainer()->get(FileService::class),
             $this->profileRepository,
-            static::getContainer()->get(DefinitionInstanceRegistry::class)
+            static::getContainer()->get(DefinitionInstanceRegistry::class),
+            new NativeClock()
         );
     }
 
@@ -73,13 +73,14 @@ class MappingServiceTest extends TestCase
 
         $this->profileRepository->create([$profile], Context::createDefaultContext());
 
-        if (empty($profile['mapping'])) {
+        $hasNoMapping = $profile['mapping'] === null || $profile['mapping'] === [];
+        if ($hasNoMapping) {
             $this->expectExceptionObject(ImportExportException::profileWithoutMappings($profile['id']));
         }
 
         $fileId = $this->mappingService->createTemplate(Context::createDefaultContext(), $profile['id']);
 
-        if (empty($profile['mapping'])) {
+        if ($hasNoMapping) {
             return;
         }
 

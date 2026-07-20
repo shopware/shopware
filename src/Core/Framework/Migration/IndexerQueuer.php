@@ -35,7 +35,7 @@ class IndexerQueuer
         }
 
         // Upgrade possible old format to empty array
-        return array_map(function ($options) {
+        return array_map(static function ($options) {
             return \is_array($options) ? $options : [];
         }, $indexers);
     }
@@ -96,7 +96,7 @@ class IndexerQueuer
      */
     private static function upsert(Connection $connection, ?string $id, array $indexerList): void
     {
-        if (empty($indexerList) && $id !== null) {
+        if ($indexerList === [] && $id !== null) {
             $connection->delete('system_config', ['id' => $id]);
 
             return;

@@ -40,7 +40,7 @@ class PriceListingFilterHandler extends AbstractListingFilterHandler
 
         return new Filter(
             'price',
-            !empty($range),
+            $range !== [],
             [new StatsAggregation('price', 'product.cheapestPrice', true, true, false, false)],
             new RangeFilter('product.cheapestPrice', $range),
             [

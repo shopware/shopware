@@ -105,7 +105,7 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
 
         $ids = array_unique(array_filter($productIds->all()));
 
-        if (\count($ids) === 0) {
+        if ($ids === []) {
             return [];
         }
 

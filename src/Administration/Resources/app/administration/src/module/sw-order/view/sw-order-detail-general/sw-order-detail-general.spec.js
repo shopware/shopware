@@ -106,7 +106,7 @@ async function createWrapper() {
                 'sw-number-field-deprecated': true,
             },
             mocks: {
-                $tc: (key, value) => {
+                $t: (key, value) => {
                     if (!value) {
                         return key;
                     }

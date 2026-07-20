@@ -3,13 +3,14 @@
 namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\TableNotFoundException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 
 trait ColumnExistsTrait
 {
     /**
-     * @deprecated tag:v6.8.0 - reason:exception-change - Will throw {@see \Shopware\Core\Framework\Util\UtilException} instead of {@see \Doctrine\DBAL\Exception\TableNotFoundException}
+     * @deprecated tag:v6.8.0 - reason:exception-change - Will no longer throw a {@see TableNotFoundException} for missing tables but return false
      *
      * @param non-empty-string $table
      */
@@ -19,11 +20,9 @@ trait ColumnExistsTrait
             return TableHelper::columnExists($connection, $table, $column);
         }
 
-        $exists = $connection->fetchOne(
+        return (bool) $connection->fetchOne(
             'SHOW COLUMNS FROM `' . $table . '` WHERE `Field` LIKE :column',
             ['column' => $column]
         );
-
-        return !empty($exists);
     }
 }

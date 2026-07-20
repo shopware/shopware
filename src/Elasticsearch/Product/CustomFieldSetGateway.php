@@ -11,7 +11,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  *
- * @codeCoverageIgnore Integration tested with \Shopware\Tests\Integration\Elasticsearch\Product\CustomFieldSetGatewayTest
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Elasticsearch\Product\CustomFieldSetGatewayTest
  */
 #[Package('framework')]
 class CustomFieldSetGateway
@@ -44,6 +46,24 @@ class CustomFieldSetGateway
         $customFields = FetchModeHelper::group($result);
 
         return $customFields;
+    }
+
+    /**
+     * @param array<string> $setIds
+     *
+     * @return array<string>
+     */
+    public function fetchAppOwnedFieldSetIds(array $setIds): array
+    {
+        if ($setIds === []) {
+            return [];
+        }
+
+        return $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(id)) FROM custom_field_set WHERE id IN (:ids) AND app_id IS NOT NULL',
+            ['ids' => Uuid::fromHexToBytesList($setIds)],
+            ['ids' => ArrayParameterType::STRING]
+        );
     }
 
     /**

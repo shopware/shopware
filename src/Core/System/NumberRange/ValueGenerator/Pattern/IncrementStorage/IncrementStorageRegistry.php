@@ -3,26 +3,21 @@
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\NumberRange\Exception\IncrementStorageNotFoundException;
+use Shopware\Core\System\NumberRange\NumberRangeException;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 
 #[Package('framework')]
 class IncrementStorageRegistry
 {
     /**
-     * @var AbstractIncrementStorage[]
-     */
-    private array $storages;
-
-    /**
      * @internal
      *
-     * @param AbstractIncrementStorage[] $storages
+     * @param ServiceLocator<AbstractIncrementStorage> $storages
      */
     public function __construct(
-        iterable $storages,
+        private readonly ServiceLocator $storages,
         private readonly string $configuredStorage
     ) {
-        $this->storages = $storages instanceof \Traversable ? iterator_to_array($storages) : $storages;
     }
 
     public function getStorage(?string $storage = null): AbstractIncrementStorage
@@ -31,11 +26,11 @@ class IncrementStorageRegistry
             $storage = $this->configuredStorage;
         }
 
-        if (!isset($this->storages[$storage])) {
-            throw new IncrementStorageNotFoundException($storage, array_keys($this->storages));
+        if (!$this->storages->has($storage)) {
+            throw NumberRangeException::incrementStorageNotFound($storage, array_keys($this->storages->getProvidedServices()));
         }
 
-        return $this->storages[$storage];
+        return $this->storages->get($storage);
     }
 
     public function migrate(string $from, string $to): void

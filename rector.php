@@ -1,12 +1,13 @@
 <?php declare(strict_types=1);
 
+use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\CodeQuality\Rector\BooleanAnd\SimplifyEmptyArrayCheckRector;
 use Rector\CodeQuality\Rector\Empty_\SimplifyEmptyCheckOnEmptyArrayRector;
 use Rector\CodeQuality\Rector\Identical\StrlenZeroToIdenticalEmptyStringRector;
 use Rector\CodeQuality\Rector\Ternary\TernaryEmptyArrayArrayDimFetchToCoalesceRector;
 use Rector\CodingStyle\Rector\FuncCall\CountArrayToEmptyArrayComparisonRector;
-use Rector\Php55\Rector\Class_\ClassConstantToSelfClassRector;
 use Rector\Config\RectorConfig;
+use Rector\Php55\Rector\Class_\ClassConstantToSelfClassRector;
 use Rector\Strict\Rector\Empty_\DisallowedEmptyRuleFixerRector;
 
 return RectorConfig::configure()
@@ -23,6 +24,10 @@ return RectorConfig::configure()
         '**/node_modules/*',
         '**/Resources/*',
     ])
+    ->withCache(
+        cacheDirectory: __DIR__ . '/var/cache/rector',
+        cacheClass: FileCacheStorage::class,
+    )
     ->withRules([
         ClassConstantToSelfClassRector::class,
         DisallowedEmptyRuleFixerRector::class,

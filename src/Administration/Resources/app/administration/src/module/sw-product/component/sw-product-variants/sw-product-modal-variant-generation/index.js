@@ -26,6 +26,7 @@ export default {
 
     mixins: [
         Mixin.getByName('listing'),
+        Mixin.getByName('notification'),
     ],
 
     props: {
@@ -98,13 +99,13 @@ export default {
 
         progressMessage() {
             if (this.progressType === 'delete') {
-                return this.$tc('sw-product.variations.progressTypeDeleted');
+                return this.$t('sw-product.variations.progressTypeDeleted');
             }
             if (this.progressType === 'upsert') {
-                return this.$tc('sw-product.variations.progressTypeGenerated');
+                return this.$t('sw-product.variations.progressTypeGenerated');
             }
             if (this.progressType === 'calc') {
-                return this.$tc('sw-product.variations.progressTypeCalculated');
+                return this.$t('sw-product.variations.progressTypeCalculated');
             }
             return '';
         },
@@ -118,10 +119,10 @@ export default {
 
         buttonLabel() {
             if (this.variantsNumber <= 0) {
-                return this.$tc('sw-product.variations.deleteVariationsButton');
+                return this.$t('sw-product.variations.deleteVariationsButton');
             }
 
-            return this.$tc('sw-product.variations.generateVariationsButton');
+            return this.$t('sw-product.variations.generateVariationsButton');
         },
 
         isGenerateButtonDisabled() {
@@ -336,8 +337,14 @@ export default {
             this.variantsGenerator
                 .saveVariants(this.variantGenerationQueue)
                 .then(() => {
+                    return this.variantsGenerator.saveVariantRestrictions();
+                })
+                .then(() => {
                     this.addOriginalConfiguratorSettings();
-                    return this.productRepository.save(this.product);
+                    return this.variantsGenerator.saveConfiguratorSettings(
+                        this.product.configuratorSettings,
+                        this.variantGenerationQueue.createQueue,
+                    );
                 })
                 .then(() => {
                     this.$emit('variations-finish-generate');
@@ -347,6 +354,15 @@ export default {
                     this.maxProgress = 0;
 
                     this.swProductDetailLoadAll();
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                    this.actualProgress = 0;
+                    this.maxProgress = 0;
+
+                    this.createNotificationError({
+                        message: this.$t('sw-product.variations.generatedListMessageGenerateError'),
+                    });
                 });
         },
 
@@ -512,7 +528,6 @@ export default {
             this.originalConfiguratorSettings.forEach((configSetting) => {
                 this.product.configuratorSettings.add(configSetting);
             });
-
             this.calcVariantsNumber();
         },
 

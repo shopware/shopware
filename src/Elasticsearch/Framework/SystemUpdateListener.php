@@ -37,7 +37,7 @@ class SystemUpdateListener
 
         $entitiesToReindex = $this->storage->get(self::CONFIG_KEY, []);
 
-        if (empty($entitiesToReindex)) {
+        if ($entitiesToReindex === []) {
             return;
         }
 

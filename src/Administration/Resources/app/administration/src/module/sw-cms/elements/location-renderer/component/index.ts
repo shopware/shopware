@@ -26,7 +26,6 @@ export default Component.wrapComponentConfig({
         src(): string {
             // Add this.element.id to the url as a query param
             const url = new URL(this.elementData.appData.baseUrl);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             url.searchParams.set('elementId', this.element.id);
 
             return url.toString();
@@ -92,12 +91,10 @@ export default Component.wrapComponentConfig({
                 scope: this,
                 deprecated: true,
                 deprecationMessage:
-                    // eslint-disable-next-line max-len
                     'The general cms element data set is deprecated. Please use a specific cms data set instead by provoding the element id.',
             });
 
             this.unpublishDataWithElementId = Shopware.ExtensionAPI.publishData({
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 id: `${this.publishingKey}__${this.element.id}`,
                 path: 'element',
                 scope: this,

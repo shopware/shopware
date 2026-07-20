@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\Sitemap\Provider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Sitemap\Provider\ProductUrlProvider;
@@ -135,7 +136,7 @@ class ProductUrlProviderTest extends TestCase
 
         $urlResult = $this->getProductUrlProvider()->getUrls($this->salesChannelContext, 3);
         $host = $this->getHost($this->salesChannelContext);
-        $locations = array_map(fn ($url) => $host . '/' . $url->getLoc(), $urlResult->getUrls());
+        $locations = array_map(static fn ($url) => $host . '/' . $url->getLoc(), $urlResult->getUrls());
 
         foreach ($products as $product) {
             $urlGenerate = $this->getComparisonUrl($product['id']);
@@ -320,6 +321,7 @@ class ProductUrlProviderTest extends TestCase
 
         return [
             'stock' => 100,
+            'type' => ProductDefinition::TYPE_PHYSICAL,
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
             'tax' => ['id' => $taxId],
             'manufacturer' => ['name' => 'test'],

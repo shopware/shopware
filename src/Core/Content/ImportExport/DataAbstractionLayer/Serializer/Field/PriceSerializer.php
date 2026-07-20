@@ -90,7 +90,7 @@ class PriceSerializer extends FieldSerializer
             }
         }
 
-        if (empty($prices)) {
+        if ($prices === []) {
             return null;
         }
 

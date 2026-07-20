@@ -72,19 +72,16 @@ export default {
             },
         },
 
-        // eslint-disable-next-line vue/require-prop-types
         validation: {
             required: false,
             default: null,
         },
 
-        // eslint-disable-next-line vue/require-prop-types
         label: {
             required: false,
             default: true,
         },
 
-        // eslint-disable-next-line vue/require-prop-types
         compact: {
             required: false,
             default: false,
@@ -96,7 +93,6 @@ export default {
             default: null,
         },
 
-        // eslint-disable-next-line vue/require-prop-types
         disabled: {
             required: false,
             default: false,
@@ -135,7 +131,6 @@ export default {
         inherited: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: undefined,
         },
 
@@ -228,12 +223,12 @@ export default {
         },
 
         labelGross() {
-            const label = this.grossLabel ? this.grossLabel : this.$tc('global.sw-price-field.labelPriceGross');
+            const label = this.grossLabel ? this.grossLabel : this.$t('global.sw-price-field.labelPriceGross');
             return this.label ? label : '';
         },
 
         labelNet() {
-            const label = this.netLabel ? this.netLabel : this.$tc('global.sw-price-field.labelPriceNet');
+            const label = this.netLabel ? this.netLabel : this.$t('global.sw-price-field.labelPriceNet');
             return this.label ? label : '';
         },
 

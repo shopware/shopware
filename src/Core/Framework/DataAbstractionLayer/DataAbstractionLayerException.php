@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\FieldAccessorBuilderNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\InvalidSortingDirectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryExcep
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingSystemTranslationException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingTranslationLanguageException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnableToLoadPathException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnsupportedCommandTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
@@ -30,6 +32,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Hook;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Elasticsearch\Product\ElasticsearchProductException;
 use Symfony\Component\HttpFoundation\Response;
@@ -48,6 +51,7 @@ class DataAbstractionLayerException extends HttpException
     public const INVALID_API_CRITERIA_IDS = 'FRAMEWORK__INVALID_API_CRITERIA_IDS';
     public const CANNOT_CREATE_NEW_VERSION = 'FRAMEWORK__CANNOT_CREATE_NEW_VERSION';
     public const VERSION_MERGE_ALREADY_LOCKED = 'FRAMEWORK__VERSION_MERGE_ALREADY_LOCKED';
+    public const VERSION_MERGE_SAME_VERSION = 'FRAMEWORK__VERSION_MERGE_SAME_VERSION';
     public const INVALID_LANGUAGE_ID = 'FRAMEWORK__INVALID_LANGUAGE_ID';
     public const VERSION_NO_COMMITS_FOUND = 'FRAMEWORK__VERSION_NO_COMMITS_FOUND';
     public const VERSION_NOT_EXISTS = 'FRAMEWORK__VERSION_NOT_EXISTS';
@@ -138,6 +142,45 @@ class DataAbstractionLayerException extends HttpException
     public const INVALID_SYNC_OPERATION_EXCEPTION = 'FRAMEWORK__DAL_INVALID_SYNC_OPERATION';
     public const FOREIGN_KEY_HAS_NO_ASSOCIATION_FIELD = 'FRAMEWORK__FOREIGN_KEY_HAS_NO_ASSOCIATION_FIELD';
     public const WRONG_FIELD_TYPE_FOR_EXTENSION = 'FRAMEWORK__WRONG_FIELD_TYPE_FOR_EXTENSION';
+    public const DBAL_SERIALIZED_FIELD_REQUIRES_INDEXER = 'FRAMEWORK__DBAL_SERIALIZED_FIELD_REQUIRES_INDEXER';
+    public const INVALID_WRITE_CONTEXT = 'FRAMEWORK__DAL_INVALID_WRITE_CONTEXT';
+    public const TREE_UPDATER_ERROR = 'FRAMEWORK__DAL_TREE_UPDATER_ERROR';
+    public const ASSOCIATION_NOT_INHERITED = 'FRAMEWORK__DAL_ASSOCIATION_NOT_INHERITED';
+    public const ENTITY_HYDRATOR_ERROR = 'FRAMEWORK__DAL_ENTITY_HYDRATOR_ERROR';
+    public const UNABLE_TO_LOAD_PATH = 'FRAMEWORK__DAL_UNABLE_TO_LOAD_PATH';
+
+    public const CRITERIA_FIELDS_AND_EXCLUDED_FIELDS_MUTUALLY_EXCLUSIVE = 'FRAMEWORK__DAL_CRITERIA_FIELDS_AND_EXCLUDED_FIELDS_MUTUALLY_EXCLUSIVE';
+    public const FIELD_CANNOT_BE_EXCLUDED = 'FRAMEWORK__DAL_FIELD_CANNOT_BE_EXCLUDED';
+    public const CANNOT_EXCLUDE_UNKNOWN_FIELD = 'FRAMEWORK__DAL_CANNOT_EXCLUDE_UNKNOWN_FIELD';
+
+    public static function criteriaFieldsAndExcludedFieldsAreMutuallyExclusive(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CRITERIA_FIELDS_AND_EXCLUDED_FIELDS_MUTUALLY_EXCLUSIVE,
+            'Criteria::addFields() (allowlist) and Criteria::excludeFields() (denylist) cannot be combined on the same criteria.',
+        );
+    }
+
+    public static function fieldCannotBeExcluded(string $field, string $entity, string $reason): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::FIELD_CANNOT_BE_EXCLUDED,
+            'Field "{{ field }}" of entity "{{ entity }}" cannot be excluded because {{ reason }}.',
+            ['field' => $field, 'entity' => $entity, 'reason' => $reason],
+        );
+    }
+
+    public static function cannotExcludeUnknownField(string $field, string $entity): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CANNOT_EXCLUDE_UNKNOWN_FIELD,
+            'Field "{{ field }}" cannot be excluded: it is not a top-level field of entity "{{ entity }}".',
+            ['field' => $field, 'entity' => $entity],
+        );
+    }
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -266,7 +309,7 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    public static function invalidSortQuery(string $message, string $path = ''): self
+    public static function invalidSortQuery(string $message, string $path = ''): InvalidSortQueryException
     {
         return new InvalidSortQueryException(
             $message,
@@ -290,6 +333,16 @@ class DataAbstractionLayerException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::VERSION_MERGE_ALREADY_LOCKED,
             'Merging of version {{ versionId }} is locked, as the merge is already running by another process.',
+            ['versionId' => $versionId]
+        );
+    }
+
+    public static function versionMergeSameVersion(string $versionId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::VERSION_MERGE_SAME_VERSION,
+            'Cannot merge version {{ versionId }} into itself.',
             ['versionId' => $versionId]
         );
     }
@@ -341,7 +394,7 @@ class DataAbstractionLayerException extends HttpException
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'),
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'),
         );
 
         return new self(
@@ -369,7 +422,7 @@ class DataAbstractionLayerException extends HttpException
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'),
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'),
         );
 
         return new self(
@@ -389,7 +442,7 @@ class DataAbstractionLayerException extends HttpException
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'),
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'),
         );
 
         return new self(
@@ -525,7 +578,7 @@ class DataAbstractionLayerException extends HttpException
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'),
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'),
         );
 
         return new self(
@@ -932,7 +985,7 @@ class DataAbstractionLayerException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return Exception\UnmappedFieldException
      */
     public static function unmappedField(string $field, EntityDefinition $definition): self|UnmappedFieldException
     {
@@ -940,15 +993,7 @@ class DataAbstractionLayerException extends HttpException
             return new UnmappedFieldException($field, $definition);
         }
 
-        $fieldParts = explode('.', $field);
-        $name = array_pop($fieldParts);
-
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::DBAL_UNMAPPED_FIELD,
-            'Field "{{ field }}" in entity "{{ entity }}" was not found.',
-            ['field' => $name, 'entity' => $definition->getEntityName()]
-        );
+        return new Exception\UnmappedFieldException($field, $definition);
     }
 
     /**
@@ -998,7 +1043,7 @@ class DataAbstractionLayerException extends HttpException
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'),
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'),
         );
 
         return new self(
@@ -1150,7 +1195,7 @@ class DataAbstractionLayerException extends HttpException
     }
 
     /**
-     * @param array<string, list<string>> $restrictions
+     * @param array<string, list<array<string, mixed>>> $restrictions
      */
     public static function restrictDeleteViolations(EntityDefinition $definition, array $restrictions): RestrictDeleteViolationException
     {
@@ -1200,5 +1245,67 @@ class DataAbstractionLayerException extends HttpException
             self::WRONG_FIELD_TYPE_FOR_EXTENSION,
             'Only AssociationFields, FkFields/ReferenceVersionFields for a ManyToOneAssociationField or fields flagged as Runtime can be added as Extension.',
         );
+    }
+
+    public static function serializedFieldRequiresIndexer(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DBAL_SERIALIZED_FIELD_REQUIRES_INDEXER,
+            'Serialized fields can only be written by an indexer.',
+        );
+    }
+
+    public static function invalidWriteContext(string $message): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_WRITE_CONTEXT,
+            $message,
+        );
+    }
+
+    public static function treeUpdateError(string $message): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::TREE_UPDATER_ERROR,
+            $message,
+        );
+    }
+
+    public static function associationNotInherited(string $association): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::ASSOCIATION_NOT_INHERITED,
+            'Association "{{ association }}" is not marked as inherited',
+            ['association' => $association],
+        );
+    }
+
+    /**
+     * @param list<string> $permissions
+     */
+    public static function missingPrivileges(array $permissions): ShopwareHttpException
+    {
+        return new MissingPrivilegeException($permissions);
+    }
+
+    public static function entityHydratorError(string $message): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::ENTITY_HYDRATOR_ERROR,
+            $message,
+        );
+    }
+
+    /**
+     * @param array<string, string> $paths
+     */
+    public static function unableToLoadPath(string $path, array $paths): UnableToLoadPathException
+    {
+        return new UnableToLoadPathException($path, $paths);
     }
 }

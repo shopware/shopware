@@ -143,7 +143,7 @@ class CmsSlotsDataResolver
     }
 
     /**
-     * @param string[][] $directReads
+     * @param array<string, array<string>> $directReads
      *
      * @return array<string, EntitySearchResult<covariant EntityCollection<covariant Entity>>>
      */
@@ -241,12 +241,12 @@ class CmsSlotsDataResolver
         }
 
         // sortings must be an own search
-        if (\count($criteria->getSorting())) {
+        if ($criteria->getSorting() !== []) {
             return false;
         }
 
         // queries must be an own search
-        if (\count($criteria->getQueries())) {
+        if ($criteria->getQueries() !== []) {
             return false;
         }
 
@@ -264,11 +264,11 @@ class CmsSlotsDataResolver
         );
 
         // any kind of filters must be an own search
-        if (!empty($filters)) {
+        if ($filters !== []) {
             return false;
         }
 
-        if (empty($criteria->getIds())) {
+        if ($criteria->getIds() === []) {
             return false;
         }
 
@@ -359,7 +359,7 @@ class CmsSlotsDataResolver
                 }
 
                 $ids = $criteria->getIds();
-                $filtered = $entities[$definition]->filter(fn (Entity $entity) => \in_array($entity->getUniqueIdentifier(), $ids, true));
+                $filtered = $entities[$definition]->filter(static fn (Entity $entity) => \in_array($entity->getUniqueIdentifier(), $ids, true));
 
                 $result->add($key, $filtered);
             }

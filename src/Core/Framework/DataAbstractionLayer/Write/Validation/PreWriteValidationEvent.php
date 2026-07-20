@@ -41,6 +41,17 @@ class PreWriteValidationEvent extends Event implements ShopwareEvent
         return $this->commands;
     }
 
+    /**
+     * @return list<WriteCommand>
+     */
+    public function getCommandsForEntity(string $entity): array
+    {
+        return array_values(array_filter(
+            $this->commands,
+            static fn (WriteCommand $command): bool => $command->getEntityName() === $entity
+        ));
+    }
+
     public function getExceptions(): WriteException
     {
         return $this->writeContext->getExceptions();
@@ -59,7 +70,7 @@ class PreWriteValidationEvent extends Event implements ShopwareEvent
      */
     public function getDeletedPrimaryKeys(string $entity): array
     {
-        return $this->findPrimaryKeys($entity, fn (WriteCommand $command) => $command instanceof DeleteCommand);
+        return $this->findPrimaryKeys($entity, static fn (WriteCommand $command) => $command instanceof DeleteCommand);
     }
 
     /**

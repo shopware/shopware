@@ -92,4 +92,10 @@ class MailTemplateTypes
     final public const MAILTYPE_REVIEW_FORM = 'review_form';
 
     final public const MAILTYPE_DOCUMENT_A11Y = 'a11y_mail';
+
+    final public const MAILTYPE_ORDER_PAYMENT_METHOD_CHANGED = 'order.payment_method.changed';
+
+    final public const MAILTYPE_REVOCATION_REQUEST_MERCHANT = 'revocation_request.merchant';
+
+    final public const MAILTYPE_REVOCATION_REQUEST_CUSTOMER = 'revocation_request.customer';
 }

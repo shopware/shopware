@@ -14,8 +14,15 @@
 }
 
 .sw-import-export-edit-profile-modal__violation-modal {
+    &:has(.sw-import-export-edit-profile-modal__violation-modal-missing-required-field):has(.sw-import-export-edit-profile-modal__violation-modal-duplicate-mapping) {
+        .sw-import-export-edit-profile-modal__violation-modal-duplicate-mapping {
+            margin-top: var(--scale-size-26);
+        }
+    }
+
     ul {
-        margin-left: var(--scale-size-32);
-        margin-top: var(--scale-size-18);
+        margin-left: var(--scale-size-18);
+        margin-top: var(--scale-size-10);
+        list-style-type: disc;
     }
 }

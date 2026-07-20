@@ -1,0 +1,10 @@
+<div style="font-family:arial; font-size:12px;">
+    <p>Hallo {% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},</p>
+    <p>wir bestätigen, dass die Zahlungsart für Ihre Bestellung erfolgreich geändert wurde.</p>
+    <p>
+        <strong>Bestellnummer:</strong> {{ order.orderNumber }}<br>
+        <strong>Neue Zahlungsart:</strong> {{ order.transactions.last.paymentMethod.translated.name }}
+    </p>
+    <p>Ihre Bestellung wird nun mit der ausgewählten Zahlungsart weiter verarbeitet.</p>
+    <p>Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.</p>
+</div>

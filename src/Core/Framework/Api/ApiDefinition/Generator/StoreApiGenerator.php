@@ -71,6 +71,20 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
         ksort($definitions);
 
+        $schemaPaths = [$this->schemaPath];
+
+        if ($bundleName !== null && $bundleName !== '') {
+            $schemaPaths = array_merge([$this->schemaPath . '/components', $this->schemaPath . '/tags'], $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
+        } else {
+            $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
+        }
+
+        $loader = new OpenApiFileLoader($schemaPaths);
+        $jsonSpec = $loader->loadOpenapiSpecification();
+        $jsonSchemaNames = isset($jsonSpec['components']['schemas']) ? array_keys($jsonSpec['components']['schemas']) : [];
+
+        $overriddenSchemaNames = [];
+
         foreach ($definitions as $definition) {
             if (!$definition instanceof EntityDefinition) {
                 continue;
@@ -84,6 +98,12 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
             $schema = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel, $onlyReference);
 
+            $overlapping = array_intersect(array_keys($schema), $jsonSchemaNames);
+
+            foreach ($overlapping as $schemaName) {
+                $overriddenSchemaNames[] = $schemaName;
+            }
+
             $openApi->components->merge($schema);
         }
 
@@ -93,21 +113,14 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $data = json_decode($openApi->toJson(), true, 512, \JSON_THROW_ON_ERROR);
         $data['paths'] ??= [];
 
-        $schemaPaths = [$this->schemaPath];
+        $this->stripOverriddenPhpSchemas($data, $overriddenSchemaNames);
 
-        if (!empty($bundleName)) {
-            $schemaPaths = array_merge([$this->schemaPath . '/components', $this->schemaPath . '/tags'], $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
-        } else {
-            $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
-        }
-
-        $loader = new OpenApiFileLoader($schemaPaths);
-
-        $preFinalSpecs = $this->mergeComponentsSchemaRequiredFieldsRecursive($data, $loader->loadOpenapiSpecification());
+        $preFinalSpecs = $this->mergeComponentsSchemaRequiredFieldsRecursive($data, $jsonSpec);
         /** @var OpenApiSpec $finalSpecs */
         $finalSpecs = array_replace_recursive($data, $preFinalSpecs);
 
         $this->resolveParameterGroups($finalSpecs);
+        $this->injectLanguageIdHeader($finalSpecs);
         $this->enrichPathsWithAssociations($finalSpecs, $definitions);
 
         return $finalSpecs;
@@ -191,6 +204,17 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                 ],
                 'description' => 'Accepted response content types',
             ]),
+            new Parameter([
+                'parameter' => 'swLanguageId',
+                'name' => 'sw-language-id',
+                'in' => 'header',
+                'required' => false,
+                'schema' => [
+                    'type' => 'string',
+                    'pattern' => '^[0-9a-f]{32}$',
+                ],
+                'description' => 'Instructs Shopware to return the response in the given language.',
+            ]),
         ];
 
         if (!is_iterable($openApi->paths)) {
@@ -199,7 +223,6 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
         foreach ($openApi->paths as $path) {
             foreach (self::OPERATION_KEYS as $key) {
-                // @phpstan-ignore property.dynamicName (We check the keys via OPERATION_KEYS)
                 $operation = $path->$key;
 
                 if (!$operation instanceof Operation) {
@@ -215,6 +238,34 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                     new Parameter(['ref' => '#/components/parameters/contentType']),
                     new Parameter(['ref' => '#/components/parameters/accept']),
                 );
+            }
+        }
+    }
+
+    /**
+     * For schemas that exist in both PHP and JSON, strips the PHP-generated data
+     * down to only plugin extension fields. The JSON schema becomes the source of
+     * truth for the base definition, while plugin extensions are preserved.
+     *
+     * @param array<string, mixed> $data
+     * @param list<string> $schemaNames
+     */
+    private function stripOverriddenPhpSchemas(array &$data, array $schemaNames): void
+    {
+        foreach ($schemaNames as $schemaName) {
+            if (!isset($data['components']['schemas'][$schemaName])) {
+                continue;
+            }
+
+            $extensions = $data['components']['schemas'][$schemaName]['properties']['extensions'] ?? null;
+
+            unset($data['components']['schemas'][$schemaName]);
+
+            if ($extensions !== null) {
+                $data['components']['schemas'][$schemaName] = [
+                    'type' => 'object',
+                    'properties' => ['extensions' => $extensions],
+                ];
             }
         }
     }
@@ -332,6 +383,53 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     }
 
     /**
+     * Injects the sw-language-id header into Store API operations whose
+     * responses can surface translated content. DELETE operations are skipped
+     * because they only confirm removal and do not return localised payloads,
+     * and tooling endpoints under /_info/* are skipped because they serve
+     * schema and routing metadata. The HTTP-method filter is portable across
+     * third-party plugins and apps that contribute their own Store API
+     * endpoints. Operations that already declare the header (by name or $ref)
+     * are left untouched so bundle-provided schemas with an explicit
+     * declaration are never duplicated.
+     *
+     * @param OpenApiSpec $specs
+     */
+    private function injectLanguageIdHeader(array &$specs): void
+    {
+        foreach ($specs['paths'] as $path => &$pathDefinition) {
+            if (str_starts_with((string) $path, '/_info/')) {
+                continue;
+            }
+
+            foreach (self::OPERATION_KEYS as $method) {
+                if ($method === 'delete') {
+                    continue;
+                }
+
+                if (!isset($pathDefinition[$method])) {
+                    continue;
+                }
+
+                if (!\is_array($pathDefinition[$method]['parameters'] ?? null)) {
+                    $pathDefinition[$method]['parameters'] = [];
+                }
+
+                foreach ($pathDefinition[$method]['parameters'] as $param) {
+                    if (
+                        (isset($param['name']) && strtolower((string) $param['name']) === 'sw-language-id')
+                        || (isset($param['$ref']) && $param['$ref'] === '#/components/parameters/swLanguageId')
+                    ) {
+                        continue 2;
+                    }
+                }
+
+                $pathDefinition[$method]['parameters'][] = ['$ref' => '#/components/parameters/swLanguageId'];
+            }
+        }
+    }
+
+    /**
      * Automatically enriches path descriptions with available associations
      *
      * @param OpenApiSpec $specs
@@ -351,7 +449,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
             }
 
             $doc = $this->getAssociationsDocumentation($def);
-            if (!empty($doc)) {
+            if ($doc !== '') {
                 $associationDocs[$def->getEntityName()] = $doc;
             }
         }
@@ -623,7 +721,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
             $associations[] = $line;
         }
 
-        if (empty($associations)) {
+        if ($associations === []) {
             return '';
         }
 

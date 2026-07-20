@@ -5,9 +5,11 @@ namespace Shopware\Tests\Unit\Core\Content\Product\DataAbstractionLayer\Cheapest
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceAccessorBuilder;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceField;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -53,7 +55,7 @@ class CheapestPriceAccessorBuilderTest extends TestCase
 
         $sql = $this->builder->buildAccessor('product', $priceField, $context, 'cheapestPrice.percentage');
 
-        static::assertSame('COALESCE((ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(`product`.`cheapest_price_accessor`, "$.ruledefault.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.percentage.gross")) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100), 0)', $sql);
+        static::assertSame('(100 - COALESCE((ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(`product`.`cheapest_price_accessor`, "$.ruledefault.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.percentage.gross")) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100)))', $sql);
     }
 
     public function testWithPercentageAccessorWithRule(): void
@@ -67,7 +69,7 @@ class CheapestPriceAccessorBuilderTest extends TestCase
 
         $sql = $this->builder->buildAccessor('product', $priceField, $context, 'cheapestPrice.percentage');
 
-        static::assertSame('COALESCE((ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(`product`.`cheapest_price_accessor`, "$.rule' . $ruleId . '.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.percentage.gross")) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100),(ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(`product`.`cheapest_price_accessor`, "$.ruledefault.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.percentage.gross")) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100), 0)', $sql);
+        static::assertSame('(100 - COALESCE((ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(`product`.`cheapest_price_accessor`, "$.rule' . $ruleId . '.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.percentage.gross")) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100),(ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(`product`.`cheapest_price_accessor`, "$.ruledefault.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.percentage.gross")) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100)))', $sql);
     }
 
     public function testRuleLimit(): void
@@ -82,6 +84,76 @@ class CheapestPriceAccessorBuilderTest extends TestCase
 
         $sql = $this->builder->buildAccessor('product', $priceField, $context, 'cheapestPrice.percentage');
 
-        static::assertSame('COALESCE((ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(`product`.`cheapest_price_accessor`, "$.rule' . $ruleId . '.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.percentage.gross")) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100),(ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(`product`.`cheapest_price_accessor`, "$.ruledefault.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.percentage.gross")) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100), 0)', $sql);
+        static::assertSame('(100 - COALESCE((ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(`product`.`cheapest_price_accessor`, "$.rule' . $ruleId . '.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.percentage.gross")) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100),(ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(`product`.`cheapest_price_accessor`, "$.ruledefault.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.percentage.gross")) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100)))', $sql);
+    }
+
+    public function testReturnsNullForNonCheapestPriceField(): void
+    {
+        $field = new StringField('name', 'name');
+        $context = Context::createDefaultContext();
+
+        static::assertNull($this->builder->buildAccessor('product', $field, $context, 'name'));
+    }
+
+    public function testPriceAccessorDoesNotInvert(): void
+    {
+        $priceField = new CheapestPriceField('cheapest_price_accessor', 'cheapest_price_accessor');
+        $context = Context::createDefaultContext();
+
+        $sql = $this->builder->buildAccessor('product', $priceField, $context, 'cheapestPrice');
+
+        static::assertNotNull($sql);
+        static::assertStringNotContainsString('100 -', $sql);
+    }
+
+    public function testListPriceAccessorDoesNotInvert(): void
+    {
+        $priceField = new CheapestPriceField('cheapest_price_accessor', 'cheapest_price_accessor');
+        $context = Context::createDefaultContext();
+
+        $sql = $this->builder->buildAccessor('product', $priceField, $context, 'cheapestPrice.listPrice');
+
+        static::assertNotNull($sql);
+        static::assertStringNotContainsString('100 -', $sql);
+    }
+
+    public function testPercentageAccessorWithNetContext(): void
+    {
+        $priceField = new CheapestPriceField('cheapest_price_accessor', 'cheapest_price_accessor');
+        $context = Context::createDefaultContext();
+        $context->setTaxState(CartPrice::TAX_STATE_NET);
+
+        $sql = $this->builder->buildAccessor('product', $priceField, $context, 'cheapestPrice.percentage');
+
+        static::assertNotNull($sql);
+        static::assertStringStartsWith('(100 -', $sql);
+        static::assertStringContainsString('percentage.net', $sql);
+        static::assertStringNotContainsString('percentage.gross', $sql);
+    }
+
+    public function testPercentageAccessorWithExplicitGrossOverride(): void
+    {
+        $priceField = new CheapestPriceField('cheapest_price_accessor', 'cheapest_price_accessor');
+        $context = Context::createDefaultContext();
+        $context->setTaxState(CartPrice::TAX_STATE_NET);
+
+        $sql = $this->builder->buildAccessor('product', $priceField, $context, 'cheapestPrice.percentage.gross');
+
+        static::assertNotNull($sql);
+        static::assertStringStartsWith('(100 -', $sql);
+        static::assertStringContainsString('percentage.gross', $sql);
+    }
+
+    public function testPercentageAccessorWithExplicitNetOverride(): void
+    {
+        $priceField = new CheapestPriceField('cheapest_price_accessor', 'cheapest_price_accessor');
+        $context = Context::createDefaultContext();
+
+        $sql = $this->builder->buildAccessor('product', $priceField, $context, 'cheapestPrice.percentage.net');
+
+        static::assertNotNull($sql);
+        static::assertStringStartsWith('(100 -', $sql);
+        static::assertStringContainsString('percentage.net', $sql);
+        static::assertStringNotContainsString('percentage.gross', $sql);
     }
 }

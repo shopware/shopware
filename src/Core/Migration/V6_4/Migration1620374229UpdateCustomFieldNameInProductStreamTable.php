@@ -28,7 +28,7 @@ class Migration1620374229UpdateCustomFieldNameInProductStreamTable extends Migra
             ORDER BY custom_field.`name` ASC
         ');
 
-        if (empty($customFields)) {
+        if ($customFields === []) {
             return;
         }
 

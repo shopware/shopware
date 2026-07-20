@@ -40,7 +40,7 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
 
         $term = mb_substr(trim($term), 0, $this->searchTermMaxLength);
 
-        if (empty($term)) {
+        if ($term === '') {
             throw RoutingException::missingRequestParameter('search');
         }
 

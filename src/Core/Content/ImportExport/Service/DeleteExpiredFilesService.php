@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Service;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -19,8 +20,10 @@ class DeleteExpiredFilesService
     /**
      * @param EntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository
      */
-    public function __construct(private readonly EntityRepository $fileRepository)
-    {
+    public function __construct(
+        private readonly EntityRepository $fileRepository,
+        private readonly ClockInterface $clock
+    ) {
     }
 
     public function countFiles(Context $context): int
@@ -36,7 +39,7 @@ class DeleteExpiredFilesService
         $criteria = $this->buildCriteria();
 
         $ids = $this->fileRepository->searchIds($criteria, $context)->getIds();
-        $ids = array_map(fn ($id) => ['id' => $id], $ids);
+        $ids = array_map(static fn ($id) => ['id' => $id], $ids);
         $this->fileRepository->delete($ids, $context);
     }
 
@@ -46,7 +49,7 @@ class DeleteExpiredFilesService
         $criteria->addFilter(new RangeFilter(
             'expireDate',
             [
-                RangeFilter::LT => (new \DateTimeImmutable('-30 days'))->format(\DATE_ATOM),
+                RangeFilter::LT => $this->clock->now()->modify('-30 days')->format(\DATE_ATOM),
             ]
         ));
 

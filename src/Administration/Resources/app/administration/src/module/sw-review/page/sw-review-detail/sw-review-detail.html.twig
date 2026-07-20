@@ -2,7 +2,7 @@
 <sw-page class="sw-review-detail">
     {% block sw_review_detail_header %}
     <template #smart-bar-header>
-        <h2>{{ placeholder(review, 'title', $tc('sw-review.detail.textHeadline')) }}</h2>
+        <h2>{{ placeholder(review, 'title', $t('sw-review.detail.textHeadline')) }}</h2>
     </template>
     {% endblock %}
 
@@ -15,7 +15,7 @@
             size="default"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -30,7 +30,7 @@
             @update:process-success="onSaveFinish"
             @click="onSave"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -49,7 +49,7 @@
                 <mt-card
                     v-if="review"
                     position-identifier="sw-review-detail-basic-info"
-                    :title="$tc('sw-review.detail.cardTitleReviewInfo')"
+                    :title="$t('sw-review.detail.cardTitleReviewInfo')"
                 >
                     {% block sw_customer_card_rows %}
                     <template #grid>
@@ -84,7 +84,7 @@
                                                 />
 
                                                 <div class="star-count-description">
-                                                    {{ $tc(`sw-review.detail.review${Math.round(stars)}PointRatingText`) }}
+                                                    {{ $t(`sw-review.detail.review${Math.round(stars)}PointRatingText`) }}
                                                 </div>
                                             </div>
                                         </div>
@@ -115,7 +115,7 @@
                                             <sw-description-list>
                                                 {% block sw_customer_base_metadata_created_at_label %}
                                                 <dt class="sw-review-base-info__label">
-                                                    {{ $tc('sw-review.detail.labelCreatedAt') }}
+                                                    {{ $t('sw-review.detail.labelCreatedAt') }}
                                                 </dt>
                                                 {% endblock %}
 
@@ -134,7 +134,7 @@
                                             <sw-description-list>
                                                 {% block sw_customer_base_metadata_sales_channel_label %}
                                                 <dt class="sw-review-base-info__label">
-                                                    {{ $tc('sw-review.detail.labelSalesChannel') }}
+                                                    {{ $t('sw-review.detail.labelSalesChannel') }}
                                                 </dt>
                                                 {% endblock %}
 
@@ -150,7 +150,7 @@
                                             <sw-description-list>
                                                 {% block sw_customer_base_metadata_product_label %}
                                                 <dt class="sw-review-base-info__label">
-                                                    {{ $tc('sw-review.detail.labelProduct') }}
+                                                    {{ $t('sw-review.detail.labelProduct') }}
                                                 </dt>
                                                 {% endblock %}
 
@@ -166,7 +166,7 @@
                                             <sw-description-list>
                                                 {% block sw_customer_base_metadata_customer_label %}
                                                 <dt class="sw-review-base-info__label">
-                                                    {{ $tc('sw-review.detail.labelCustomer') }}
+                                                    {{ $t('sw-review.detail.labelCustomer') }}
                                                 </dt>
                                                 {% endblock %}
 
@@ -185,7 +185,7 @@
                                             <sw-description-list>
                                                 {% block sw_customer_base_metadata_email_label %}
                                                 <dt class="sw-review-base-info__label">
-                                                    {{ $tc('sw-review.detail.labelEmail') }}
+                                                    {{ $t('sw-review.detail.labelEmail') }}
                                                 </dt>
                                                 {% endblock %}
 
@@ -214,7 +214,7 @@
                     v-if="review"
                     position-identifier="sw-review-detail-properties"
                     class="sw-review-properties"
-                    :title="$tc('sw-review.detail.cardTitleReviewProperties')"
+                    :title="$t('sw-review.detail.cardTitleReviewProperties')"
                 >
                     {% block sw_review_detail_basic_info_card_description_list %}
                     <sw-container
@@ -233,7 +233,7 @@
                             required
                             show-clearable-button
                             :disabled="!acl.can('review.editor')"
-                            :label="$tc('sw-review.detail.labelLanguage')"
+                            :label="$t('sw-review.detail.labelLanguage')"
                             :criteria="languageCriteria"
                         />
                         {% endblock %}
@@ -244,7 +244,7 @@
                             name="sw-field--review-status"
                             class="status-switch"
                             :disabled="!acl.can('review.editor')"
-                            :label="$tc('sw-review.detail.labelStatus')"
+                            :label="$t('sw-review.detail.labelStatus')"
                             bordered
                         />
                         {% endblock %}
@@ -255,7 +255,7 @@
                 <mt-card
                     v-if="review"
                     position-identifier="sw-review-detail-comment"
-                    :title="$tc('sw-review.detail.labelComment')"
+                    :title="$t('sw-review.detail.labelComment')"
                 >
                     {% block sw_review_detail_basic_info_card_comment %}
                     <mt-textarea
@@ -263,8 +263,8 @@
                         name="sw-field--review-comment"
                         class="sw-review__comment-field"
                         :disabled="!acl.can('review.editor')"
-                        :label="$tc('sw-review.detail.titleCardComment')"
-                        :placeholder="$tc('sw-review.detail.placeholderComment')"
+                        :label="$t('sw-review.detail.titleCardComment')"
+                        :placeholder="$t('sw-review.detail.placeholderComment')"
                     />
                     {% endblock %}
                 </mt-card>
@@ -273,7 +273,7 @@
                 <mt-card
                     v-if="showCustomFields"
                     position-identifier="sw-review-detail-custom-field-sets"
-                    :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                    :title="$t('sw-settings-custom-field.general.mainMenuItemGeneral')"
                 >
                     <sw-custom-field-set-renderer
                         :entity="review"

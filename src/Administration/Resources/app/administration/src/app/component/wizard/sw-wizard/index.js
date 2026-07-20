@@ -48,7 +48,6 @@ export default {
         showNavigationDots: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default() {
                 return false;
             },
@@ -65,7 +64,6 @@ export default {
         leftButtonDisabled: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default() {
                 return false;
             },
@@ -74,7 +72,6 @@ export default {
         rightButtonDisabled: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default() {
                 return false;
             },

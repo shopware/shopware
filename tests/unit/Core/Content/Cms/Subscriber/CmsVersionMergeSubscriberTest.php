@@ -10,6 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeVersionMergeEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @phpstan-import-type Writes from BeforeVersionMergeEvent
+ *
  * @internal
  */
 #[CoversClass(CmsVersionMergeSubscriber::class)]
@@ -25,16 +27,8 @@ class CmsVersionMergeSubscriberTest extends TestCase
     }
 
     /**
-     * @param array{
-     *      insert: array<string, array<int, mixed>>,
-     *      update: array<string, array<int, mixed>>,
-     *      delete: array<string, array<int, mixed>>
-     *  } $writes
-     * @param array{
-     *      insert: array<string, array<int, mixed>>,
-     *      update: array<string, array<int, mixed>>,
-     *      delete: array<string, array<int, mixed>>
-     *  } $expectedWrites
+     * @param Writes $writes
+     * @param Writes $expectedWrites
      */
     #[DataProvider('versionMergeEventDataProvider')]
     public function testOnVersionMerge(array $writes, array $expectedWrites): void
@@ -61,10 +55,12 @@ class CmsVersionMergeSubscriberTest extends TestCase
             'writes' => [
                 'insert' => ['cms_slot' => [['id' => $slotId1, 'blockId' => $blockId1, 'cmsBlockVersionId' => $versionId1]]],
                 'delete' => [],
+                'update' => [],
             ],
             'expectedWrites' => [
                 'insert' => ['cms_slot' => [['id' => $slotId1, 'blockId' => $blockId1, 'cmsBlockVersionId' => $versionId1]]],
                 'delete' => [],
+                'update' => [],
             ],
         ];
 
@@ -77,6 +73,7 @@ class CmsVersionMergeSubscriberTest extends TestCase
                 'delete' => ['cms_block' => [
                     ['id' => $blockId1, 'versionId' => $versionId1],
                 ]],
+                'update' => [],
             ],
             'expectedWrites' => [
                 'insert' => ['cms_slot' => [
@@ -85,6 +82,7 @@ class CmsVersionMergeSubscriberTest extends TestCase
                 'delete' => ['cms_block' => [
                     ['id' => $blockId1, 'versionId' => $versionId1],
                 ]],
+                'update' => [],
             ],
         ];
 
@@ -96,6 +94,7 @@ class CmsVersionMergeSubscriberTest extends TestCase
                 'delete' => ['cms_block' => [
                     ['id' => $blockId1, 'versionId' => $versionId2],
                 ]],
+                'update' => [],
             ],
             'expectedWrites' => [
                 'insert' => ['cms_slot' => [
@@ -104,6 +103,7 @@ class CmsVersionMergeSubscriberTest extends TestCase
                 'delete' => ['cms_block' => [
                     ['id' => $blockId1, 'versionId' => $versionId2],
                 ]],
+                'update' => [],
             ],
         ];
     }

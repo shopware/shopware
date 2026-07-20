@@ -46,8 +46,8 @@ class MediaCreationSubscriberTest extends TestCase
     {
         new StaticDefinitionInstanceRegistry(
             [$definition = new MediaDefinition()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         return $definition;
@@ -63,9 +63,9 @@ class MediaCreationSubscriberTest extends TestCase
 
         $command = new InsertCommand(
             $definition,
-            ['path' => 'media/Bildschirm­foto 2023-06-24 um 16.30.36.png'],
+            ['path' => 'media/Bildschirm­fotö 2023-06-24 um 16.30.36.png'],
             ['id' => $this->ids->getBytes('media-1')],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             '/0'
         );
 
@@ -76,7 +76,7 @@ class MediaCreationSubscriberTest extends TestCase
 
         $subscriber->beforeWrite($event);
 
-        static::assertSame('media/Bildschirmfoto 2023-06-24 um 16.30.36.png', $command->getPayload()['path']);
+        static::assertSame('media/Bildschirmfotö 2023-06-24 um 16.30.36.png', $command->getPayload()['path']);
     }
 
     public function testPathIsReplacedOnInsert(): void
@@ -91,7 +91,7 @@ class MediaCreationSubscriberTest extends TestCase
             $definition,
             ['path' => 'media/Bildschirm­foto 2023-06-24 um 16.30.36.png'],
             ['id' => $this->ids->getBytes('media-1')],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             '/0'
         );
 
@@ -117,7 +117,7 @@ class MediaCreationSubscriberTest extends TestCase
             $definition,
             ['path' => 'media/Bildschirmfoto 2023-06-24 um 16.30.36.png'],
             ['id' => $this->ids->getBytes('media-1')],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             '/0'
         );
 

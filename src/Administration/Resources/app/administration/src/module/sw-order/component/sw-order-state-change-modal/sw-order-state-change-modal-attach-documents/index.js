@@ -26,6 +26,7 @@ export default {
     data() {
         return {
             sendMail: true,
+            internalComment: null,
         };
     },
 
@@ -38,7 +39,7 @@ export default {
                 }
             });
 
-            this.$emit('on-confirm', docIds, this.sendMail);
+            this.$emit('on-confirm', docIds, this.sendMail, this.internalComment?.trim() || null);
         },
     },
 };

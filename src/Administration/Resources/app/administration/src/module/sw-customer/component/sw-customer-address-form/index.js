@@ -70,7 +70,6 @@ export default {
             'city',
             'countryId',
             'phoneNumber',
-            'vatId',
             'countryStateId',
             'salutationId',
             'city',
@@ -149,6 +148,15 @@ export default {
                     this.address.country = this.country;
                     this.getCountryStates();
                 });
+            },
+        },
+
+        isBusinessAccountType: {
+            immediate: true,
+            handler(newVal) {
+                const definition = EntityDefinition.get(this.address.getEntityName());
+
+                definition.properties.company.flags.required = newVal;
             },
         },
 

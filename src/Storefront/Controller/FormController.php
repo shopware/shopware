@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Content\ContactForm\SalesChannel\AbstractContactFormRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
+use Shopware\Core\Content\RevocationRequest\SalesChannel\AbstractRevocationRequestRoute;
+use Shopware\Core\Framework\Adapter\Translation\ConstraintViolationTranslator;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -37,7 +40,9 @@ class FormController extends StorefrontController
     public function __construct(
         private readonly AbstractContactFormRoute $contactFormRoute,
         private readonly AbstractNewsletterSubscribeRoute $subscribeRoute,
-        private readonly AbstractNewsletterUnsubscribeRoute $unsubscribeRoute
+        private readonly AbstractNewsletterUnsubscribeRoute $unsubscribeRoute,
+        private readonly AbstractRevocationRequestRoute $abstractRevocationRequestRoute,
+        private readonly ConstraintViolationTranslator $constraintViolationTranslator,
     ) {
     }
 
@@ -70,7 +75,7 @@ class FormController extends StorefrontController
         } catch (ConstraintViolationException $formViolations) {
             $violations = [];
             foreach ($formViolations->getViolations() as $violation) {
-                $violations[] = $violation->getMessage();
+                $violations[] = $this->constraintViolationTranslator->translate($violation);
             }
             $response[] = [
                 'type' => 'danger',
@@ -114,6 +119,56 @@ class FormController extends StorefrontController
         return new JsonResponse($response);
     }
 
+    #[Route(
+        path: '/form/revocation/request',
+        name: 'frontend.form.revocation.request',
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_CAPTCHA => true,
+        ],
+        methods: [Request::METHOD_POST]
+    )]
+    public function sendRevocationRequest(RequestDataBag $data, SalesChannelContext $context): JsonResponse
+    {
+        $response = [];
+
+        try {
+            $message = $this->abstractRevocationRequestRoute->request($data, $context)
+                ->getIndividualSuccessMessage();
+
+            if ($message === '') {
+                $message = $this->trans('revocationRequest.success');
+            }
+
+            $response[] = [
+                'type' => 'success',
+                'alert' => $message,
+            ];
+        } catch (ConstraintViolationException $formViolations) {
+            $violations = [];
+            foreach ($formViolations->getViolations() as $violation) {
+                $violations[] = $this->constraintViolationTranslator->translate($violation);
+            }
+            $response[] = [
+                'type' => 'danger',
+                'alert' => $this->renderView('@Storefront/storefront/utilities/alert.html.twig', [
+                    'type' => 'danger',
+                    'list' => $violations,
+                ]),
+            ];
+        } catch (RateLimitExceededException $exception) {
+            $response[] = [
+                'type' => 'info',
+                'alert' => $this->renderView('@Storefront/storefront/utilities/alert.html.twig', [
+                    'type' => 'info',
+                    'content' => $this->trans('error.rateLimitExceeded', ['%seconds%' => $exception->getWaitTime()]),
+                ]),
+            ];
+        }
+
+        return new JsonResponse($response);
+    }
+
     /**
      * @return list<array<string|int, mixed>>
      */
@@ -124,7 +179,12 @@ class FormController extends StorefrontController
         try {
             $data->set('storefrontUrl', $request->attributes->get(RequestTransformer::STOREFRONT_URL));
 
-            $this->subscribeRoute->subscribe($data, $context, false);
+            if (Feature::isActive('v6.8.0.0')) {
+                $this->subscribeRoute->subscribeWithResponse($data, $context, false);
+            } else {
+                $this->subscribeRoute->subscribe($data, $context, false);
+            }
+
             $response[] = [
                 'type' => 'success',
                 'alert' => $this->trans('newsletter.subscriptionPersistedSuccess'),
@@ -138,14 +198,22 @@ class FormController extends StorefrontController
             ];
         } catch (ConstraintViolationException $exception) {
             $errors = [];
-            foreach ($exception->getViolations() as $error) {
-                $errors[] = $error->getMessage();
+            foreach ($exception->getViolations() as $violation) {
+                $errors[] = $this->constraintViolationTranslator->translate($violation);
             }
             $response[] = [
                 'type' => 'danger',
                 'alert' => $this->renderView('@Storefront/storefront/utilities/alert.html.twig', [
                     'type' => 'danger',
                     'list' => $errors,
+                ]),
+            ];
+        } catch (RateLimitExceededException $exception) {
+            $response[] = [
+                'type' => 'info',
+                'alert' => $this->renderView('@Storefront/storefront/utilities/alert.html.twig', [
+                    'type' => 'info',
+                    'content' => $this->trans('error.rateLimitExceeded', ['%seconds%' => $exception->getWaitTime()]),
                 ]),
             ];
         } catch (\Exception) {
@@ -176,14 +244,22 @@ class FormController extends StorefrontController
             ];
         } catch (ConstraintViolationException $exception) {
             $errors = [];
-            foreach ($exception->getViolations() as $error) {
-                $errors[] = $error->getMessage();
+            foreach ($exception->getViolations() as $violation) {
+                $errors[] = $this->constraintViolationTranslator->translate($violation);
             }
             $response[] = [
                 'type' => 'danger',
                 'alert' => $this->renderView('@Storefront/storefront/utilities/alert.html.twig', [
                     'type' => 'danger',
                     'list' => $errors,
+                ]),
+            ];
+        } catch (RateLimitExceededException $exception) {
+            $response[] = [
+                'type' => 'info',
+                'alert' => $this->renderView('@Storefront/storefront/utilities/alert.html.twig', [
+                    'type' => 'info',
+                    'content' => $this->trans('error.rateLimitExceeded', ['%seconds%' => $exception->getWaitTime()]),
                 ]),
             ];
         } catch (\Exception) {

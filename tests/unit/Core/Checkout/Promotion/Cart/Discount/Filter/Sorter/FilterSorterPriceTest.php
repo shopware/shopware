@@ -41,7 +41,7 @@ class FilterSorterPriceTest extends TestCase
 
         $sorter->sort(new DiscountPackageCollection([$package]));
 
-        $ordered = $package->getMetaData()->fmap(fn (LineItemQuantity $item) => $item->getLineItemId());
+        $ordered = $package->getMetaData()->fmap(static fn (LineItemQuantity $item) => $item->getLineItemId());
 
         static::assertSame($expected, $ordered);
     }

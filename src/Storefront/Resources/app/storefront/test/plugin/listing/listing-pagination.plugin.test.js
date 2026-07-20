@@ -40,6 +40,11 @@ describe('listing-pagination.plugin', () => {
         // Import plugin class async because of feature toggles inside static options
         const { default: ListingPaginationPlugin }  = await import('src/plugin/listing/listing-pagination.plugin');
 
+        const canonicalLink = document.createElement('link');
+        canonicalLink.setAttribute('rel', 'canonical');
+        canonicalLink.setAttribute('href', 'https://example.com/paginated-page');
+        document.head.appendChild(canonicalLink);
+
         document.body.innerHTML = template;
         const element = document.querySelector('[data-listing-pagination]');
 
@@ -63,6 +68,7 @@ describe('listing-pagination.plugin', () => {
 
         global.fetch = jest.fn(() =>
             Promise.resolve({
+                ok: true,
                 text: () => Promise.resolve(`
                 <div class="cms-element-product-listing-wrapper" data-listing="true">
                     <div class="cms-element-product-listing">
@@ -75,6 +81,13 @@ describe('listing-pagination.plugin', () => {
                 `),
             })
         );
+    });
+
+    afterEach(() => {
+        const canonicalLink = document.head.querySelector('link[rel="canonical"]');
+        if (canonicalLink) {
+            canonicalLink.remove();
+        }
     });
 
     test('plugin instance is created', () => {
@@ -90,9 +103,16 @@ describe('listing-pagination.plugin', () => {
         await new Promise(process.nextTick);
 
         // Ensure correct page is communicated to listing plugin
-        expect(listingPaginationPlugin.getValues).toReturnWith({ 'p': '3' });
+        expect(listingPaginationPlugin.getValues).toHaveReturnedWith({ 'p': '3' });
         expect(getValuesSpy).toHaveBeenCalledTimes(1);
         expect(changeListingSpy).toHaveBeenCalledTimes(1);
+
+        // Ensure the canonical URL is updated
+        const canonicalMetaTag = document.head.querySelector('link[rel="canonical"]');
+        if (canonicalMetaTag?.href) {
+            const canonicalUrl = new URL(canonicalMetaTag.href);
+            expect(canonicalUrl.searchParams.get('p')).toBe('3');
+        }
     });
 
     test('tries to set the focus back to the pagination link when content changes after pagination', async () => {

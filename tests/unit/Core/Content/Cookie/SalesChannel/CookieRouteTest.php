@@ -27,7 +27,7 @@ class CookieRouteTest extends TestCase
     {
         $this->expectExceptionObject(new DecorationPatternException(CookieRoute::class));
 
-        $cookieProvider = $this->createMock(CookieProvider::class);
+        $cookieProvider = static::createStub(CookieProvider::class);
         (new CookieRoute($cookieProvider))->getDecorated();
     }
 
@@ -39,9 +39,8 @@ class CookieRouteTest extends TestCase
         $cookieGroup->setEntries(new CookieEntryCollection([new CookieEntry('test-cookie')]));
         $expectedCookieGroups = new CookieGroupCollection([$cookieGroup]);
 
-        $cookieProvider = $this->createMock(CookieProvider::class);
+        $cookieProvider = static::createStub(CookieProvider::class);
         $cookieProvider->method('getCookieGroups')
-            ->with(static::isInstanceOf(Request::class), $salesChannelContext)
             ->willReturn($expectedCookieGroups);
 
         $cookieRoute = new CookieRoute($cookieProvider);
@@ -76,10 +75,10 @@ class CookieRouteTest extends TestCase
         $cookieGroup2->setEntries(new CookieEntryCollection([new CookieEntry('test-cookie-2')]));
         $cookieGroups2 = new CookieGroupCollection([$cookieGroup2]);
 
-        $cookieProvider1 = $this->createMock(CookieProvider::class);
+        $cookieProvider1 = static::createStub(CookieProvider::class);
         $cookieProvider1->method('getCookieGroups')->willReturn($cookieGroups1);
 
-        $cookieProvider2 = $this->createMock(CookieProvider::class);
+        $cookieProvider2 = static::createStub(CookieProvider::class);
         $cookieProvider2->method('getCookieGroups')->willReturn($cookieGroups2);
 
         $response1 = (new CookieRoute($cookieProvider1))->getCookieGroups(new Request(), $salesChannelContext);
@@ -111,10 +110,10 @@ class CookieRouteTest extends TestCase
         // Collection 2: B, A order (different insertion order)
         $collection2 = new CookieGroupCollection([$group2, $group1]);
 
-        $cookieProvider1 = $this->createMock(CookieProvider::class);
+        $cookieProvider1 = static::createStub(CookieProvider::class);
         $cookieProvider1->method('getCookieGroups')->willReturn($collection1);
 
-        $cookieProvider2 = $this->createMock(CookieProvider::class);
+        $cookieProvider2 = static::createStub(CookieProvider::class);
         $cookieProvider2->method('getCookieGroups')->willReturn($collection2);
 
         $response1 = (new CookieRoute($cookieProvider1))->getCookieGroups(new Request(), $salesChannelContext);
@@ -145,7 +144,7 @@ class CookieRouteTest extends TestCase
             $statisticalGroup,
         ]);
 
-        $cookieProvider = $this->createMock(CookieProvider::class);
+        $cookieProvider = static::createStub(CookieProvider::class);
         $cookieProvider->method('getCookieGroups')->willReturn($originalGroups);
 
         $response = (new CookieRoute($cookieProvider))->getCookieGroups(new Request(), $salesChannelContext);
@@ -189,7 +188,7 @@ class CookieRouteTest extends TestCase
                 $this->timestamp = time();
                 $this->objectProperty = new \stdClass();
                 $this->objectProperty->dynamic = random_int(1, 1000);
-                $this->callableProperty = fn () => 'dynamic';
+                $this->callableProperty = static fn () => 'dynamic';
             }
         };
 
@@ -219,10 +218,10 @@ class CookieRouteTest extends TestCase
         $extendedGroup->setEntries(new CookieEntryCollection([$extendedEntry]));
         $extendedGroups = new CookieGroupCollection([$extendedGroup]);
 
-        $standardProvider = $this->createMock(CookieProvider::class);
+        $standardProvider = static::createStub(CookieProvider::class);
         $standardProvider->method('getCookieGroups')->willReturn($standardGroups);
 
-        $extendedProvider = $this->createMock(CookieProvider::class);
+        $extendedProvider = static::createStub(CookieProvider::class);
         $extendedProvider->method('getCookieGroups')->willReturn($extendedGroups);
 
         $standardResponse = (new CookieRoute($standardProvider))->getCookieGroups(new Request(), $salesChannelContext);
@@ -253,10 +252,10 @@ class CookieRouteTest extends TestCase
         $modifiedGroup->description = 'Modified description'; // Only change this property
         $groups2 = new CookieGroupCollection([$modifiedGroup]);
 
-        $provider1 = $this->createMock(CookieProvider::class);
+        $provider1 = static::createStub(CookieProvider::class);
         $provider1->method('getCookieGroups')->willReturn($groups1);
 
-        $provider2 = $this->createMock(CookieProvider::class);
+        $provider2 = static::createStub(CookieProvider::class);
         $provider2->method('getCookieGroups')->willReturn($groups2);
 
         $response1 = (new CookieRoute($provider1))->getCookieGroups(new Request(), $salesChannelContext);
@@ -280,9 +279,8 @@ class CookieRouteTest extends TestCase
         $cookieGroup->setEntries(new CookieEntryCollection([$malformedEntry]));
         $cookieGroups = new CookieGroupCollection([$cookieGroup]);
 
-        $cookieProvider = $this->createMock(CookieProvider::class);
+        $cookieProvider = static::createStub(CookieProvider::class);
         $cookieProvider->method('getCookieGroups')
-            ->with(static::isInstanceOf(Request::class), $salesChannelContext)
             ->willReturn($cookieGroups);
 
         $cookieRoute = new CookieRoute($cookieProvider);
@@ -307,7 +305,7 @@ class CookieRouteTest extends TestCase
         $cookieGroup->setEntries(new CookieEntryCollection([$hashEntry, $otherEntry]));
         $cookieGroups = new CookieGroupCollection([$cookieGroup]);
 
-        $cookieProvider = $this->createMock(CookieProvider::class);
+        $cookieProvider = static::createStub(CookieProvider::class);
         $cookieProvider->method('getCookieGroups')->willReturn($cookieGroups);
 
         $cookieRoute = new CookieRoute($cookieProvider);
@@ -333,7 +331,7 @@ class CookieRouteTest extends TestCase
 
         $cookieGroups = new CookieGroupCollection([$groupWithoutEntries, $groupWithHashEntry]);
 
-        $cookieProvider = $this->createMock(CookieProvider::class);
+        $cookieProvider = static::createStub(CookieProvider::class);
         $cookieProvider->method('getCookieGroups')->willReturn($cookieGroups);
 
         $cookieRoute = new CookieRoute($cookieProvider);
@@ -361,7 +359,7 @@ class CookieRouteTest extends TestCase
         // Place required group first in collection to match early return behavior
         $cookieGroups = new CookieGroupCollection([$requiredGroup, $secondGroup]);
 
-        $cookieProvider = $this->createMock(CookieProvider::class);
+        $cookieProvider = static::createStub(CookieProvider::class);
         $cookieProvider->method('getCookieGroups')->willReturn($cookieGroups);
 
         $cookieRoute = new CookieRoute($cookieProvider);

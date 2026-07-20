@@ -40,7 +40,7 @@ class PaymentHandlerRegistryTest extends TestCase
     {
         $this->ids = new IdsCollection();
 
-        $qb = $this->createMock(QueryBuilder::class);
+        $qb = static::createStub(QueryBuilder::class);
         $qb->method('select')->willReturnSelf();
         $qb->method('from')->willReturnSelf();
         $qb->method('leftJoin')->willReturnSelf();
@@ -54,18 +54,18 @@ class PaymentHandlerRegistryTest extends TestCase
                 if (\array_key_exists($paymentMethodId, $this->registeredHandlers)) {
                     $handler = $this->registeredHandlers[$paymentMethodId];
 
-                    $result = $this->createMock(Result::class);
+                    $result = $this->createStub(Result::class);
                     $result
                         ->method('fetchAssociative')
                         ->willReturn(['handler_identifier' => $handler::class]);
                 } else {
-                    $result = $this->createMock(Result::class);
+                    $result = $this->createStub(Result::class);
                     $result
                         ->method('fetchAssociative')
                         ->willReturn(false);
                 }
 
-                $newQb = $this->createMock(QueryBuilder::class);
+                $newQb = $this->createStub(QueryBuilder::class);
                 $newQb
                     ->method('executeQuery')
                     ->willReturn($result);
@@ -73,7 +73,7 @@ class PaymentHandlerRegistryTest extends TestCase
                 return $newQb;
             });
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection
             ->method('createQueryBuilder')
             ->willReturn($qb);
@@ -99,7 +99,7 @@ class PaymentHandlerRegistryTest extends TestCase
     {
         $registry = new PaymentHandlerRegistry(
             new ServiceLocator([
-                AbstractPaymentHandler::class => fn () => new class {
+                AbstractPaymentHandler::class => static fn () => new class {
                 },
             ]),
             $this->connection,
@@ -165,7 +165,7 @@ class PaymentHandlerRegistryTest extends TestCase
             ->with('paymentMethodId', Uuid::fromHexToBytes($uuid))
             ->willReturnSelf();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection
             ->method('createQueryBuilder')
             ->willReturn($qb);
@@ -199,6 +199,6 @@ class PaymentHandlerRegistryTest extends TestCase
 
         $this->registeredHandlers[Uuid::fromHexToBytes($this->ids->get($handler))] = $class;
 
-        return new ServiceLocator([$class::class => fn () => $class]);
+        return new ServiceLocator([$class::class => static fn () => $class]);
     }
 }

@@ -184,7 +184,7 @@ class ConfigurationService
         $criteria->addFilter(new EqualsFilter('name', $name));
 
         /** @var AppEntity|null $result */
-        $result = $this->appRepository->search($criteria, $context)->first();
+        $result = $this->appRepository->search($criteria, $context)->getEntities()->first();
 
         return $result;
     }

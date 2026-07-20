@@ -202,6 +202,38 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
         expect(wrapper.vm.currentPage.id).toBe('cmsPageId');
     });
 
+    it('should reset translated slotConfig overrides when changing the layout', async () => {
+        const wrapper = await createWrapper();
+        Store.get('swProductDetail').product = {
+            id: '1',
+            slotConfig: {
+                currentSlotId: {
+                    content: {
+                        value: 'current override',
+                    },
+                },
+            },
+            translations: [
+                {
+                    languageId: 'de-DE',
+                    slotConfig: {
+                        staleSlotId: {
+                            content: {
+                                value: 'stale override',
+                            },
+                        },
+                    },
+                },
+            ],
+        };
+
+        wrapper.vm.onSelectLayout('cmsPageId');
+        await nextTick();
+
+        expect(wrapper.vm.product.slotConfig).toBeNull();
+        expect(wrapper.vm.product.translations[0].slotConfig).toBeNull();
+    });
+
     it('should be able to reset a product page layout', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.onResetLayout();

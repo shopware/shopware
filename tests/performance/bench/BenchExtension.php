@@ -21,7 +21,7 @@ class BenchExtension implements ExtensionInterface
     public function load(Container $container): void
     {
         if (!$this->resolver instanceof OptionsResolver) {
-            throw new \Exception(self::class . '::configure must be called before running the load method');
+            throw new \LogicException(self::class . '::configure must be called before running the load method');
         }
 
         $_SERVER['APP_ENV'] = 'test';
@@ -40,30 +40,43 @@ class BenchExtension implements ExtensionInterface
             ->setProjectDir($_ENV['PROJECT_DIR'] ?? null)
             ->bootstrap();
 
-        (new Fixtures())->load(__DIR__ . '/data.json');
+        $fixtures = new Fixtures();
+        $fixtures->load(__DIR__ . '/data-initial.json');
+        Fixtures::getIds(); // Load the saved IDs to use them for the customer
+        $fixtures->load(__DIR__ . '/data-customer.json'); // Customer needs some data to be present in the DB, so it could not be created in the same sync operation as the other data
 
         // TODO: Resolve autoloading to [Commercial]/tests/performance/bench so native phpbench `core.extensions` can be used
         $fixturePath = $bootstrapper->getPluginPath('SwagCommercial') . '/tests/performance/bench/Common';
         $symfonyContainer = KernelLifecycleManager::getKernel()->getContainer();
-        $container->register('symfony-container', fn () => $symfonyContainer);
+        $container->register('symfony-container', static fn () => $symfonyContainer);
         $runGroup = $this->getRunGroup();
 
         foreach ($this->findFixtures($fixturePath) as $fixtureFile) {
+            // Get classes before requiring the file
+            $declaredBefore = get_declared_classes();
             require $fixtureFile;
-            $declared = get_declared_classes();
-            /** @var string $currentFixtureClass */
-            $currentFixtureClass = end($declared);
-            if (!str_contains($currentFixtureClass, 'Fixture.php')) {
-                $currentFixtureClass = $declared[\count($declared) - 2];
+            // Get classes after requiring the file
+            $declaredAfter = get_declared_classes();
+            // Find all newly declared classes (fixes bug where parent class was incorrectly picked up)
+            $newClasses = array_diff($declaredAfter, $declaredBefore);
+
+            if ($newClasses === []) {
+                continue;
             }
 
-            if (
-                is_subclass_of($currentFixtureClass, AbstractGroupAwareExtension::class)
-                && \constant("$currentFixtureClass::TARGET_GROUP") === $runGroup
-            ) {
-                $fixture = new $currentFixtureClass($container);
-                $fixture->configure($this->resolver);
-                $fixture->load($container);
+            // Iterate through all newly declared classes to find the fixture
+            // (a file may declare helper classes before the actual fixture class)
+            foreach ($newClasses as $currentFixtureClass) {
+                if (
+                    is_subclass_of($currentFixtureClass, AbstractGroupAwareExtension::class)
+                    && \defined("$currentFixtureClass::TARGET_GROUP")
+                    && \constant("$currentFixtureClass::TARGET_GROUP") === $runGroup
+                ) {
+                    $fixture = new $currentFixtureClass($container);
+                    $fixture->configure($this->resolver);
+                    $fixture->load($container);
+                    break; // Found and loaded the fixture, no need to check other classes from this file
+                }
             }
         }
 
@@ -77,10 +90,7 @@ class BenchExtension implements ExtensionInterface
         $this->resolver = $resolver;
     }
 
-    /**
-     * @return mixed
-     */
-    public static function parseEnvVar(string $varName, mixed $default = false)
+    public static function parseEnvVar(string $varName, mixed $default = false): mixed
     {
         if (isset($_SERVER[$varName])) {
             return filter_var($_SERVER[$varName], \FILTER_VALIDATE_BOOLEAN);
@@ -89,6 +99,9 @@ class BenchExtension implements ExtensionInterface
         return $default;
     }
 
+    /**
+     * @return \Generator<string>
+     */
     private function findFixtures(string $fixturePath): \Generator
     {
         if (is_file($fixturePath) && preg_match('/\.php$/', basename($fixturePath))) {
@@ -98,9 +111,7 @@ class BenchExtension implements ExtensionInterface
             if (\is_array($directory)) {
                 foreach ($directory as $subName) {
                     if (!preg_match('/^\.+$/', $subName)) {
-                        foreach ($this->findFixtures($fixturePath . \DIRECTORY_SEPARATOR . $subName) as $fixture) {
-                            yield $fixture;
-                        }
+                        yield from $this->findFixtures($fixturePath . \DIRECTORY_SEPARATOR . $subName);
                     }
                 }
             }

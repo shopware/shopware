@@ -1,4 +1,8 @@
 .sw-flow-detail {
+    .sw-card-view .sw-card-view__content {
+        overflow: auto;
+    }
+
     &__warning {
         max-width: 60rem;
     }

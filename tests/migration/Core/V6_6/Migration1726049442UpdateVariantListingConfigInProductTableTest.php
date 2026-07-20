@@ -52,6 +52,13 @@ class Migration1726049442UpdateVariantListingConfigInProductTableTest extends Te
         static::assertSame(1726049442, (new Migration1726049442UpdateVariantListingConfigInProductTable())->getCreationTimestamp());
     }
 
+    public function testMigrationDoesNothingWhenNoMatchingParentProducts(): void
+    {
+        (new Migration1726049442UpdateVariantListingConfigInProductTable())->update($this->connection);
+
+        static::assertSame(0, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM product'));
+    }
+
     public function testMigration(): void
     {
         $this->createProducts();
@@ -101,6 +108,28 @@ class Migration1726049442UpdateVariantListingConfigInProductTableTest extends Te
         }
 
         static::assertSame($expectedProducts, $products);
+    }
+
+    public function testMigrationWidensDisplayGroupColumnBeforeWritingSha256(): void
+    {
+        $this->connection->executeStatement('ALTER TABLE `product` MODIFY `display_group` VARCHAR(50) NULL');
+
+        $this->createProducts();
+
+        (new Migration1726049442UpdateVariantListingConfigInProductTable())->update($this->connection);
+
+        $column = $this->connection->fetchAssociative('SHOW COLUMNS FROM `product` LIKE :column', [
+            'column' => 'display_group',
+        ]);
+        static::assertIsArray($column);
+        static::assertSame('varchar(64)', strtolower((string) $column['Type']));
+
+        $displayGroup = $this->connection->fetchOne(
+            'SELECT display_group FROM product WHERE product_number = :number',
+            ['number' => 'product 5']
+        );
+        static::assertIsString($displayGroup);
+        static::assertSame(64, \strlen($displayGroup));
     }
 
     private function createProducts(): void

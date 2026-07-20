@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 
-// eslint-disable-next-line import/no-extraneous-dependencies
 import colors from 'picocolors';
 import RepositoryFactory from 'src/core/data/repository-factory.data';
 import EntityHydrator from 'src/core/data/entity-hydrator.data';
@@ -10,15 +9,18 @@ import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import EntityFactory from 'src/core/data/entity-factory.data';
 import ErrorResolverError from 'src/core/data/error-resolver.data';
 import createHTTPClient from 'src/core/factory/http.factory';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import MockAdapter from 'axios-mock-adapter';
-// eslint-disable-next-line import/no-unresolved
 import EntitySchema from '../../_mocks_/entity-schema.json';
 
 // Add all entities from entity-schema
-Object.entries(EntitySchema).forEach(([entityName, entityInformation]) => {
-    Shopware.EntityDefinition.add(entityName, entityInformation);
-});
+Object.entries(EntitySchema).forEach(
+    ([
+        entityName,
+        entityInformation,
+    ]) => {
+        Shopware.EntityDefinition.add(entityName, entityInformation);
+    },
+);
 
 // This function throws an error if some request has no mocked return value
 function throwMissingImplementationError(config) {
@@ -26,7 +28,8 @@ function throwMissingImplementationError(config) {
         return;
     }
 
-    console.error(colors.yellow(`
+    console.error(
+        colors.yellow(`
 You should to implement mock data for this route: "${config.url}".
 
 ############### Example ###############
@@ -55,7 +58,8 @@ responses.addResponse({
 You can disable this error with this code:
 
 global.repositoryFactoryMock.showError = false;
-`));
+`),
+    );
 }
 
 // This registry contains all customs test responses (with axios-mock-adapter)
@@ -79,8 +83,9 @@ class ResponseRegistry {
     }
 
     getResponse({ url, method }) {
-        return this.registry.find(response => {
-            const isUrlValid = (response.url instanceof RegExp && response.url.match) ? response.url.match(url) : response.url === url;
+        return this.registry.find((response) => {
+            const isUrlValid =
+                response.url instanceof RegExp && response.url.match ? response.url.match(url) : response.url === url;
 
             return isUrlValid && response.method.toUpperCase() === method.toUpperCase();
         });
@@ -90,7 +95,7 @@ class ResponseRegistry {
 // create a mock for the httpClient for creating custom responses
 function clientMockFactory() {
     const client = createHTTPClient();
-    
+
     // The client is now a dispatcher that routes to axiosV0 or axiosV1
     // We need to mock both underlying axios instances
     const clientMockV0 = new MockAdapter(client.axiosV0);
@@ -110,11 +115,17 @@ function clientMockFactory() {
                 throwMissingImplementationError(config);
             }
 
-            return [customResponse.status, customResponse.response];
+            return [
+                customResponse.status,
+                customResponse.response,
+            ];
         }
 
         throwMissingImplementationError(config);
-        return [500, {}];
+        return [
+            500,
+            {},
+        ];
     };
 
     // Apply the same reply handler to both axios versions
@@ -126,7 +137,7 @@ function clientMockFactory() {
         const combinedArray = [];
         // Make it behave like an array by setting up the prototype
         Object.setPrototypeOf(combinedArray, Array.prototype);
-        
+
         // Override array methods to combine both histories
         return new Proxy(combinedArray, {
             get(target, prop) {
@@ -134,7 +145,7 @@ function clientMockFactory() {
                 if (prop === 'length') {
                     return clientMockV0.history[method].length + clientMockV1.history[method].length;
                 }
-                
+
                 // For numeric indices, access combined arrays
                 const index = Number(prop);
                 if (Number.isInteger(index) && index >= 0) {
@@ -144,15 +155,18 @@ function clientMockFactory() {
                     }
                     return clientMockV1.history[method][index - v0Length];
                 }
-                
+
                 // For array methods, operate on combined array
                 if (typeof Array.prototype[prop] === 'function') {
-                    return function(...args) {
-                        const combined = [...clientMockV0.history[method], ...clientMockV1.history[method]];
+                    return function (...args) {
+                        const combined = [
+                            ...clientMockV0.history[method],
+                            ...clientMockV1.history[method],
+                        ];
                         return combined[prop](...args);
                     };
                 }
-                
+
                 return target[prop];
             },
         });
@@ -218,12 +232,6 @@ const changesetGenerator = new ChangesetGenerator();
 const entityFactory = new EntityFactory();
 const errorResolver = new ErrorResolverError();
 
-const repositoryFactory = new RepositoryFactory(
-    hydrator,
-    changesetGenerator,
-    entityFactory,
-    httpClient,
-    errorResolver,
-);
+const repositoryFactory = new RepositoryFactory(hydrator, changesetGenerator, entityFactory, httpClient, errorResolver);
 
 export default repositoryFactory;

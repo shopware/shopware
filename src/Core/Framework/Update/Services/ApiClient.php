@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Update\Services;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Struct\Version;
@@ -25,7 +26,8 @@ class ApiClient
         private readonly HttpClientInterface $client,
         private readonly bool $shopwareUpdateEnabled,
         private readonly string $shopwareVersion,
-        private readonly string $projectDir
+        private readonly string $projectDir,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -37,7 +39,7 @@ class ApiClient
                 'version' => $fakeVersion,
                 'title' => 'Shopware ' . $fakeVersion,
                 'body' => 'This is a fake version for testing purposes',
-                'date' => new \DateTimeImmutable(),
+                'date' => $this->clock->now(),
                 'fixedVulnerabilities' => [],
             ]);
         }
@@ -83,7 +85,7 @@ class ApiClient
         /** @var non-empty-array<string> $versions */
         $versions = $this->client->request('GET', 'https://releases.shopware.com/changelog/index.json')->toArray();
 
-        usort($versions, function ($a, $b) {
+        usort($versions, static function ($a, $b) {
             return version_compare($b, $a);
         });
 

@@ -67,6 +67,7 @@ class ProductLoadedSubscriberTest extends TestCase
         $productEntity = static::getContainer()
             ->get('sales_channel.product.repository')
             ->search(new Criteria([$ids->get('p.1')]), $salesChannelContext)
+            ->getEntities()
             ->first();
 
         static::assertInstanceOf(SalesChannelProductEntity::class, $productEntity);
@@ -96,6 +97,7 @@ class ProductLoadedSubscriberTest extends TestCase
         $productEntity = static::getContainer()
             ->get('sales_channel.product.repository')
             ->search($criteria, $salesChannelContext)
+            ->getEntities()
             ->first();
 
         static::assertNotNull($productEntity);
@@ -123,6 +125,7 @@ class ProductLoadedSubscriberTest extends TestCase
         $productEntity = static::getContainer()
             ->get('sales_channel.product.repository')
             ->search($criteria, $salesChannelContext)
+            ->getEntities()
             ->first();
 
         static::assertInstanceOf(SalesChannelProductEntity::class, $productEntity);
@@ -175,6 +178,7 @@ class ProductLoadedSubscriberTest extends TestCase
         $productEntity = static::getContainer()
             ->get('sales_channel.product.repository')
             ->search($criteria, $salesChannelContext)
+            ->getEntities()
             ->first();
 
         static::assertNotNull($productEntity);
@@ -403,6 +407,7 @@ class ProductLoadedSubscriberTest extends TestCase
         $productEntity = static::getContainer()
             ->get('product.repository')
             ->search($criteria, $context)
+            ->getEntities()
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $productEntity);
@@ -1090,8 +1095,8 @@ class ProductLoadedSubscriberTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $product
-     * @param array<string, string> $expected
+     * @param array<string, mixed> $product
+     * @param list<array<string, string>> $expected
      */
     #[DataProvider('optionCases')]
     public function testOptionSorting(array $product, array $expected, Criteria $criteria): void
@@ -1115,6 +1120,7 @@ class ProductLoadedSubscriberTest extends TestCase
         $productEntity = static::getContainer()
             ->get('product.repository')
             ->search($criteria, $context)
+            ->getEntities()
             ->first();
 
         /** @var PropertyGroupOptionCollection $options */
@@ -1122,7 +1128,7 @@ class ProductLoadedSubscriberTest extends TestCase
 
         static::assertInstanceOf(PropertyGroupOptionCollection::class, $options);
 
-        $names = $options->map(fn (PropertyGroupOptionEntity $option) => [
+        $names = $options->map(static fn (PropertyGroupOptionEntity $option) => [
             'name' => $option->getName(),
         ]);
 
@@ -1130,7 +1136,7 @@ class ProductLoadedSubscriberTest extends TestCase
     }
 
     /**
-     * @return array<mixed>
+     * @return list<array{array<string, mixed>, list<array<string, string>>}>
      */
     public static function optionCases(): array
     {
@@ -1154,7 +1160,7 @@ class ProductLoadedSubscriberTest extends TestCase
         $optionsDescCriteria->getAssociation('options')->addSorting(new FieldSorting('name', 'DESC'));
 
         return [
-            1 => [
+            [
                 array_merge($defaults, [
                     'options' => [
                         [
@@ -1181,7 +1187,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 ],
                 $optionsAscCriteria,
             ],
-            2 => [
+            [
                 array_merge($defaults, [
                     'options' => [
                         [
@@ -1309,6 +1315,7 @@ class ProductLoadedSubscriberTest extends TestCase
 
             $product = static::getContainer()->get('sales_channel.product.repository')
                 ->search(new Criteria([$id]), $context)
+                ->getEntities()
                 ->get($id);
 
             static::assertInstanceOf(SalesChannelProductEntity::class, $product);
@@ -1327,6 +1334,7 @@ class ProductLoadedSubscriberTest extends TestCase
             $partialCriteria->addFields(['price', 'taxId']);
             $product = static::getContainer()->get('sales_channel.product.repository')
                 ->search($partialCriteria, $context)
+                ->getEntities()
                 ->get($id);
 
             static::assertInstanceOf(PartialEntity::class, $product);

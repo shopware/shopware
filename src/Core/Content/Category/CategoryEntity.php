@@ -12,6 +12,7 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tag\TagCollection;
@@ -65,6 +66,9 @@ class CategoryEntity extends Entity
 
     protected ?string $cmsPageId = null;
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
     protected bool $cmsPageIdSwitched = false;
 
     protected ?CmsPageEntity $cmsPage = null;
@@ -74,7 +78,7 @@ class CategoryEntity extends Entity
     protected ?ProductStreamEntity $productStream = null;
 
     /**
-     * @var array<mixed>|null
+     * @var array<string, array<string, array<string, mixed>>|null>|null
      */
     protected ?array $slotConfig = null;
 
@@ -312,13 +316,29 @@ class CategoryEntity extends Entity
         $this->cmsPageId = $cmsPageId;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
     public function getCmsPageIdSwitched(): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         return $this->cmsPageIdSwitched;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
     public function setCmsPageIdSwitched(bool $switched): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         $this->cmsPageIdSwitched = $switched;
     }
 
@@ -343,7 +363,7 @@ class CategoryEntity extends Entity
     }
 
     /**
-     * @return array<mixed>|null
+     * @return array<string, array<string, array<string, mixed>>|null>|null
      */
     public function getSlotConfig(): ?array
     {
@@ -351,7 +371,7 @@ class CategoryEntity extends Entity
     }
 
     /**
-     * @param array<mixed> $slotConfig
+     * @param array<string, array<string, array<string, mixed>>|null> $slotConfig
      */
     public function setSlotConfig(array $slotConfig): void
     {

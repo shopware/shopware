@@ -126,7 +126,8 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
                 $currentRequest->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $context->getToken());
             }
 
-            $requestSession = $currentRequest?->hasSession() ? $currentRequest->getSession() : null;
+            // Only synchronize an initialized storefront session. Store API requests must remain stateless.
+            $requestSession = $currentRequest?->hasSession(true) ? $currentRequest->getSession() : null;
 
             // Remove imitating user id from session, if there is no customer
             if ($requestSession && $context->getImitatingUserId() && !$context->getCustomerId()) {
@@ -135,7 +136,7 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
             }
 
             // skip cart calculation on ESI sub-requests if it has already been done.
-            $esiRequest = $currentRequest?->attributes->has('_sw_esi') ?? false;
+            $esiRequest = $currentRequest?->attributes->has('_esi') ?? false;
             if (!$this->cartService->hasCart($token) || !$esiRequest) {
                 // @deprecated tag:v6.8.0 - Permission will always be true
                 $result = $context->withPermissions(

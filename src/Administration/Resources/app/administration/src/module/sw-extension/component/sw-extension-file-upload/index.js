@@ -83,7 +83,7 @@ export default {
                         .updateExtensionData()
                         .then(() => {
                             return this.createNotificationSuccess({
-                                message: this.$tc('sw-extension.my-extensions.fileUpload.messageUploadSuccess'),
+                                message: this.$t('sw-extension.my-extensions.fileUpload.messageUploadSuccess'),
                             });
                         });
                 })
@@ -96,7 +96,7 @@ export default {
                         }
 
                         const message = [
-                            this.$tc(error.message),
+                            this.$t(error.message),
                             error.details,
                         ]
                             .filter(Boolean)
@@ -118,7 +118,7 @@ export default {
         },
 
         showStoreError(error) {
-            const docLink = this.$tc('sw-extension.errors.messageToTheShopwareDocumentation', error.parameters, 0);
+            const docLink = this.$t('sw-extension.errors.messageToTheShopwareDocumentation', error.parameters, 0);
             this.createNotificationError({
                 message: `${error.message} ${docLink}`,
                 autoClose: false,

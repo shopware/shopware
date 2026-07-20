@@ -31,7 +31,6 @@ export default {
         allowEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -63,7 +62,7 @@ export default {
         },
 
         modalTitle() {
-            return this.currentOption?.translated?.name || this.$tc('sw-property.detail.textOptionHeadline');
+            return this.currentOption?.translated?.name || this.$t('sw-property.detail.textOptionHeadline');
         },
 
         ...mapPropertyErrors('currentOption', ['name']),

@@ -99,17 +99,31 @@
                         {{ price.unitPrice|currency }}
 
                         {% if isListPrice and not displayFrom and not displayFromVariants %}
+                            {# @deprecated tag:v6.8.0 - Snippets listing.beforeListPrice and listing.afterListPrice will be removed. Use twig blocks instead. #}
                             {% set afterListPriceSnippetExists = 'listing.afterListPrice'|trans|length > 0 %}
                             {% set beforeListPriceSnippetExists = 'listing.beforeListPrice'|trans|length > 0 %}
-                            {% set hideStrikeTrough = beforeListPriceSnippetExists or afterListPriceSnippetExists %}
 
-                            <span class="list-price{% if hideStrikeTrough %} list-price-no-line-through{% endif %}">
+                            <span class="list-price list-price-no-line-through">
+                                {% block component_product_box_main_price_before %}
+                                    {% sw_include '@Storefront/storefront/component/product/list-price-affix.html.twig' with {
+                                        position: 'before'
+                                    } %}
+                                {% endblock %}
+
+                                {# @deprecated tag:v6.8.0 - Snippet listing.beforeListPrice output will be removed. Use twig blocks instead. #}
                                 {% if beforeListPriceSnippetExists %}{{ 'listing.beforeListPrice'|trans|trim|sw_sanitize }}{% endif %}
 
                                 <span class="visually-hidden list-price-label">{{ 'listing.regularPriceLabel'|trans|sw_sanitize }}</span>
 
                                 <span class="list-price-price">{{ price.listPrice.price|currency }}</span>
 
+                                {% block component_product_box_main_price_after %}
+                                    {% sw_include '@Storefront/storefront/component/product/list-price-affix.html.twig' with {
+                                        position: 'after'
+                                    } %}
+                                {% endblock %}
+
+                                {# @deprecated tag:v6.8.0 - Snippet listing.afterListPrice output will be removed. Use twig blocks instead. #}
                                 {% if afterListPriceSnippetExists %}{{ 'listing.afterListPrice'|trans|trim|sw_sanitize }}{% endif %}
 
                                 <span class="list-price-percentage">{{ 'detail.listPricePercentage'|trans({'%price%': price.listPrice.percentage })|sw_sanitize }}</span>
@@ -143,7 +157,8 @@
                 <button class="product-price-tax-link btn btn-link-inline fs-6"
                         type="button"
                         data-ajax-modal="true"
-                        data-url="{{ path(cmsPath, { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}">
+                        data-url="{{ path(cmsPath, { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}"
+                        aria-haspopup="dialog">
                     {% if context.taxState == 'gross' %}
                         {{ 'general.grossTaxInformation'|trans|sw_sanitize }}
                     {% else %}

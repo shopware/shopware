@@ -4,6 +4,8 @@ namespace Shopware\Core\Content\ProductStream;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductStreamMapping\ProductStreamMappingDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductExport\ProductExportDefinition;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationDefinition;
@@ -13,10 +15,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
@@ -37,6 +41,7 @@ class ProductStreamDefinition extends EntityDefinition
     {
         return [
             'internal' => false,
+            'displayAsGroup' => true,
         ];
     }
 
@@ -71,12 +76,14 @@ class ProductStreamDefinition extends EntityDefinition
             (new TranslatedField('description'))->addFlags(new ApiAware()),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             (new BoolField('internal', 'internal'))->addFlags(new ApiAware())->setDescription('When the boolean value is `true` indicating that it is for internal use only and will not appear in product stream listings.'),
-
+            (new BoolField('display_as_group', 'displayAsGroup'))->addFlags(new ApiAware())->setDescription('When enabled, matching variants are grouped according to the product presentation setting. Disable to show them individually.'),
             (new TranslationsAssociationField(ProductStreamTranslationDefinition::class, 'product_stream_id'))->addFlags(new Required()),
             (new OneToManyAssociationField('filters', ProductStreamFilterDefinition::class, 'product_stream_id'))->addFlags(new CascadeDelete()),
             new OneToManyAssociationField('productCrossSellings', ProductCrossSellingDefinition::class, 'product_stream_id'),
-            new OneToManyAssociationField('productExports', ProductExportDefinition::class, 'product_stream_id', 'id'),
+            (new OneToManyAssociationField('productExports', ProductExportDefinition::class, 'product_stream_id', 'id'))->addFlags(new RestrictDelete()),
             new OneToManyAssociationField('categories', CategoryDefinition::class, 'product_stream_id'),
+
+            (new ManyToManyAssociationField('products', ProductDefinition::class, ProductStreamMappingDefinition::class, 'product_stream_id', 'product_id'))->addFlags(new CascadeDelete())->setDescription('Products this product stream includes'),
         ]);
     }
 }

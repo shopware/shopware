@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package discovery
  */
@@ -474,11 +476,12 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         });
         await wrapper.setData({
             showElementSettings: true,
+            isElementSettingsInitialized: true,
         });
         await flushPromises();
 
         expect(wrapper.vm.showElementSettings).toBe(true);
-        wrapper.vm.onCloseSettingsModal();
+        await wrapper.vm.onCloseSettingsModal();
         expect(wrapper.vm.showElementSettings).toBe(false);
         expect(mockHandleUpdateContent).toHaveBeenCalledTimes(1);
     });
@@ -492,13 +495,81 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         });
         await wrapper.setData({
             showElementSettings: false,
+            isElementSettingsInitialized: true,
         });
         await flushPromises();
 
         expect(wrapper.vm.showElementSettings).toBe(false);
-        wrapper.vm.onCloseSettingsModal();
+        await wrapper.vm.onCloseSettingsModal();
         expect(wrapper.vm.showElementSettings).toBe(false);
         expect(mockHandleUpdateContent).not.toHaveBeenCalled();
+    });
+
+    it('should not close the settings modal if handleUpdateContent returns false', async () => {
+        const mockPreventClose = jest.fn(() => Promise.resolve(false));
+        const wrapper = mount(await wrapTestComponent('sw-cms-slot', { sync: true }), {
+            props: {
+                element: { type: 'with_config_and_unlocked' },
+            },
+            global: {
+                stubs: {
+                    'foo-bar': {
+                        template: '<div class="foo-bar"><slot></slot></div>',
+                        methods: {
+                            handleUpdateContent: mockPreventClose,
+                        },
+                    },
+                    'sw-modal': {
+                        template: '<div class="sw-modal"><slot></slot></div>',
+                    },
+                    'sw-sidebar-collapse': true,
+                    'sw-skeleton-bar': true,
+                },
+                provide: {
+                    cmsService: Shopware.Service('cmsService'),
+                    cmsElementFavorites: Shopware.Service('cmsElementFavorites'),
+                },
+            },
+        });
+
+        await wrapper.setData({
+            showElementSettings: true,
+            isElementSettingsInitialized: true,
+        });
+        await flushPromises();
+
+        await wrapper.vm.onCloseSettingsModal();
+        expect(mockPreventClose).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.showElementSettings).toBe(true);
+    });
+
+    it('should keep the settings modal mounted after first close and allow reopening', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            element: {
+                type: 'with_config_and_unlocked',
+                locked: false,
+            },
+        });
+
+        wrapper.vm.onSettingsButtonClick();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-modal').exists()).toBe(true);
+        expect(wrapper.vm.showElementSettings).toBe(true);
+
+        await wrapper.vm.onCloseSettingsModal();
+        await flushPromises();
+
+        expect(wrapper.vm.showElementSettings).toBe(false);
+        expect(wrapper.find('.sw-modal').exists()).toBe(true);
+
+        wrapper.vm.onSettingsButtonClick();
+        await flushPromises();
+
+        expect(wrapper.vm.showElementSettings).toBe(true);
+        expect(wrapper.find('.sw-modal').exists()).toBe(true);
     });
 
     it('should toggle the element being favorite', async () => {

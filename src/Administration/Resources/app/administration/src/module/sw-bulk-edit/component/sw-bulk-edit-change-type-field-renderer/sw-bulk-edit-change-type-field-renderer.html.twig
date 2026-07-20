@@ -17,7 +17,7 @@
                 <mt-checkbox
                     v-model:checked="bulkEditData[formField.name].isChanged"
                     class="sw-bulk-edit-change-field__change"
-                    :label="!formField.config.changeLabel ? $tc('sw-bulk-edit.general.defaultChangeLabel') : formField.config.changeLabel"
+                    :label="!formField.config.changeLabel ? $t('sw-bulk-edit.general.defaultChangeLabel') : formField.config.changeLabel"
                     :help-text="formField.labelHelpText"
                     :disabled="!!bulkEditData[formField.name].disabled"
                     @update:checked="onChangeToggle($event, formField.name)"

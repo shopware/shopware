@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\Subscriber\Storefront\StorefrontCartSubscriber;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -59,6 +60,7 @@ class StorefrontCartSubscriberTest extends TestCase
     public function testResetCodesWithSession(): void
     {
         $session = $this->createMock(SessionInterface::class);
+        $session->method('isStarted')->willReturn(true);
         $session->expects($this->once())
             ->method('set')
             ->with(StorefrontCartSubscriber::SESSION_KEY_PROMOTION_CODES, []);
@@ -206,6 +208,28 @@ class StorefrontCartSubscriberTest extends TestCase
     }
 
     public function testOnLineItemRemovedPromotionNoCodeButPromotionId(): void
+    {
+        $cart = Generator::createCart();
+        $lineItem = new LineItem('id', PromotionProcessor::LINE_ITEM_TYPE);
+        $lineItem->setPayloadValue('promotionId', 'PROMOID');
+        $lineItem->setRemovable(true);
+        $cart->add($lineItem);
+        $cart->addExtension(CartExtension::KEY, new CartExtension());
+
+        $subscriber = $this->createSubscriber();
+        $event = new BeforeLineItemRemovedEvent($lineItem, $cart, Generator::generateSalesChannelContext());
+
+        $subscriber->onLineItemRemoved($event);
+        $extension = $cart->getExtensionOfType(CartExtension::KEY, CartExtension::class);
+        static::assertInstanceOf(CartExtension::class, $extension);
+        static::assertFalse($extension->hasCode('PROMOID'));
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
+    #[DisabledFeatures(['PERMANENT_AUTOMATIC_PROMOTIONS'])]
+    public function testOnLineItemRemovedPromotionNoCodeButPromotionIdBlocksPromotionWhenFeatureDisabled(): void
     {
         $cart = Generator::createCart();
         $lineItem = new LineItem('id', PromotionProcessor::LINE_ITEM_TYPE);

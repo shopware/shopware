@@ -87,7 +87,7 @@ class ProductReviewGenerator implements DemodataGeneratorInterface
             }
         }
 
-        if (!empty($payload)) {
+        if ($payload !== []) {
             $this->writer->upsert($this->productReviewDefinition, $payload, $writeContext);
 
             $context->getConsole()->progressAdvance(\count($payload));

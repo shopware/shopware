@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Action;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\Action\RemoveOrderTagAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
@@ -24,14 +24,16 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 #[CoversClass(RemoveOrderTagAction::class)]
 class RemoveOrderTagActionTest extends TestCase
 {
-    /** @var MockObject&EntityRepository<EntityCollection<Entity>> */
-    private MockObject&EntityRepository $repository;
+    /**
+     * @var Stub&EntityRepository<EntityCollection<Entity>>
+     */
+    private Stub&EntityRepository $repository;
 
     private RemoveOrderTagAction $action;
 
     protected function setUp(): void
     {
-        $this->repository = $this->createMock(EntityRepository::class);
+        $this->repository = static::createStub(EntityRepository::class);
         $this->action = new RemoveOrderTagAction($this->repository);
     }
 
@@ -61,23 +63,25 @@ class RemoveOrderTagActionTest extends TestCase
         ]);
         $flow->setConfig($config);
 
-        $this->repository->expects($this->once())
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->once())
             ->method('delete')
-            ->with(array_map(fn ($id) => [
+            ->with(array_map(static fn ($id) => [
                 'orderId' => $orderId,
                 'tagId' => $id['id'],
             ], $expected));
 
-        $this->action->handleFlow($flow);
+        $this->createAction($repository)->handleFlow($flow);
     }
 
     public function testActionWithNotAware(): void
     {
         $flow = new StorableFlow('foo', Context::createDefaultContext());
 
-        $this->repository->expects($this->never())->method('update');
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->never())->method('update');
 
-        $this->action->handleFlow($flow);
+        $this->createAction($repository)->handleFlow($flow);
     }
 
     public function testActionWithEmptyConfig(): void
@@ -86,9 +90,10 @@ class RemoveOrderTagActionTest extends TestCase
             OrderAware::ORDER_ID => Uuid::randomHex(),
         ]);
 
-        $this->repository->expects($this->never())->method('update');
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->never())->method('update');
 
-        $this->action->handleFlow($flow);
+        $this->createAction($repository)->handleFlow($flow);
     }
 
     public static function actionExecutedProvider(): \Generator
@@ -104,6 +109,14 @@ class RemoveOrderTagActionTest extends TestCase
             ['tagIds' => self::keys($ids->getList(['tag-1', 'tag-2']))],
             $ids->getIdArray(['tag-1', 'tag-2']),
         ];
+    }
+
+    /**
+     * @param EntityRepository<EntityCollection<Entity>>|null $repository
+     */
+    private function createAction(?EntityRepository $repository = null): RemoveOrderTagAction
+    {
+        return new RemoveOrderTagAction($repository ?? $this->repository);
     }
 
     /**

@@ -211,7 +211,7 @@ class CacheClearer
 
         $files = iterator_to_array($finder->getIterator());
 
-        if (\count($files) > 0) {
+        if ($files !== []) {
             $this->filesystem->remove(array_map(static fn (\SplFileInfo $file): string => $file->getPathname(), $files));
         }
     }

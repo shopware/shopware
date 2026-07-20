@@ -5,8 +5,8 @@ namespace Shopware\Tests\Integration\Administration\Snippet;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\Filesystem as Flysystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Administration\Snippet\SnippetFinder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -26,7 +26,6 @@ use Symfony\Component\Finder\SplFileInfo;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(SnippetFinder::class)]
 class SnippetFinderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -46,6 +45,8 @@ class SnippetFinderTest extends TestCase
             $configLoader->load(),
             static::getContainer()->get(TranslationLoader::class),
             static::getContainer()->get(HtmlSanitizer::class),
+            new NullLogger(),
+            false,
         );
     }
 
@@ -197,7 +198,7 @@ class SnippetFinderTest extends TestCase
             ->ignoreUnreadableDirs()
             ->name($namePattern);
 
-        $fileArray = array_map(fn (SplFileInfo $file) => $file->getRealPath(), \iterator_to_array($finder->getIterator()));
+        $fileArray = array_map(static fn (SplFileInfo $file) => $file->getRealPath(), \iterator_to_array($finder->getIterator()));
         $fileArray = $this->ensureFileOrder(\array_values($fileArray));
 
         $files = new SnippetPathCollection();

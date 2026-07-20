@@ -47,7 +47,9 @@ final readonly class SendMailHandler
             throw $e;
         }
 
-        $mail = unserialize($mailData);
+        /** @phpstan-ignore shopware.unserializeUsage */
+        $mail = \unserialize($mailData);
+
         if (!is_a($mail, Email::class)) {
             $this->logger->error('The mail data file does not contain a valid email object. Mail could not be sent.', ['mailDataPath' => $mailDataPath]);
 

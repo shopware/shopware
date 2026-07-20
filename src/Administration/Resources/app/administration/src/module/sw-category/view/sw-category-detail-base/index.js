@@ -40,11 +40,11 @@ export default {
             return [
                 {
                     value: 'page',
-                    label: this.$tc('sw-category.base.general.types.page'),
+                    label: this.$t('sw-category.base.general.types.page'),
                 },
                 {
                     value: 'folder',
-                    label: this.$tc('sw-category.base.general.types.folder'),
+                    label: this.$t('sw-category.base.general.types.folder'),
                 },
                 // eslint-disable-next-line no-warning-comments
                 // @todo NEXT-22697 - Re-implement, when re-enabling cms-aware
@@ -62,10 +62,10 @@ export default {
 
         typeLinkLabel() {
             if (this.isSalesChannelEntryPoint) {
-                return this.$tc('sw-category.base.general.types.linkUnavailable');
+                return this.$t('sw-category.base.general.types.linkUnavailable');
             }
 
-            return this.$tc('sw-category.base.general.types.link');
+            return this.$t('sw-category.base.general.types.link');
         },
 
         categoryTypeHelpText() {
@@ -76,7 +76,7 @@ export default {
                     'link',
                 ].includes(this.category.type)
             ) {
-                return this.$tc(`sw-category.base.general.types.helpText.${this.category.type}`);
+                return this.$t(`sw-category.base.general.types.helpText.${this.category.type}`);
             }
 
             return null;

@@ -38,9 +38,9 @@ class Install extends Command
             return Command::FAILURE;
         }
 
-        $installed = $this->manager->install(Context::createCLIContext());
+        $installed = $this->manager->reconcile(Context::createCLIContext());
 
-        if (empty($installed)) {
+        if ($installed === []) {
             $io->info('No services were installed');
         } else {
             $io->success(\sprintf('Done. Installed %s', implode(', ', $installed)));

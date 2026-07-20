@@ -35,13 +35,12 @@
         {% block sw_plugin_box_container_button %}
         <mt-button
             v-if="hasPluginConfig"
-            ghost
             size="small"
             class="sw-plugin-box__button"
             variant="secondary"
             @click="$router.push({ name: 'sw.extension.config', params: { namespace: plugin.name } })"
         >
-            {{ $tc('sw-plugin-box.buttonPluginSettings') }}
+            {{ $t('sw-plugin-box.buttonPluginSettings') }}
         </mt-button>
         {% endblock %}
     </sw-container>

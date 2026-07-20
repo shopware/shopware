@@ -60,7 +60,6 @@ export default {
         alpha: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -79,7 +78,6 @@ export default {
         colorLabels: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -129,7 +127,6 @@ export default {
         },
 
         sliderBackground() {
-            // eslint-disable-next-line max-len
             return `linear-gradient(90deg, hsla(${this.hueValue}, ${this.saturationValue}%, ${this.luminanceValue}%, 0), hsl(${this.hueValue}, ${this.saturationValue}%, ${this.luminanceValue}%)), url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 20 20\' width=\'100%25\' height=\'100%25\'%3E%3Crect width=\'10\' height=\'10\' x=\'00\' y=\'00\' fill=\'%23cdd5db\' /%3E%3Crect width=\'10\' height=\'10\' x=\'10\' y=\'10\' fill=\'%23cdd5db\' /%3E%3C/svg%3E")`;
         },
 
@@ -530,7 +527,6 @@ export default {
                 return {};
             }
 
-            // eslint-disable-next-line prefer-const
             let { hue, saturation, luminance, alpha } = color;
 
             saturation /= 100;

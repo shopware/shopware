@@ -56,12 +56,14 @@ class ProductReviewLoader extends AbstractProductReviewLoader
             ->load($productParentId ?? $productId, $request, $context, $reviewCriteria)
             ->getResult();
 
-        $reviewResult = ProductReviewResult::createFrom($reviews);
-        $reviewResult->setMatrix($this->getReviewRatingMatrix($reviews));
-        $reviewResult->setCustomerReview($this->getCustomerReview($productId, $context));
-        $reviewResult->setTotalReviewsInCurrentLanguage($this->getTotalReviewsInCurrentLanguage($reviews));
-        $reviewResult->setProductId($productId);
-        $reviewResult->setParentId($productParentId ?? $productId);
+        $reviewResult = ProductReviewResult::fromSearchResult(
+            $reviews,
+            $this->getReviewRatingMatrix($reviews),
+            $productId,
+            $this->getTotalReviewsInCurrentLanguage($reviews),
+            $this->getCustomerReview($productId, $context),
+            $productParentId ?? $productId,
+        );
 
         $this->eventDispatcher->dispatch(new ProductReviewsLoadedEvent($reviewResult, $request, $context));
 
@@ -92,7 +94,7 @@ class ProductReviewLoader extends AbstractProductReviewLoader
         if ($aggregation instanceof TermsResult) {
             $buckets = $aggregation->getBuckets();
 
-            return empty($buckets) ? 0 : $buckets[0]->getCount();
+            return $buckets === [] ? 0 : $buckets[0]->getCount();
         }
 
         return $reviews->getTotal();
@@ -155,7 +157,7 @@ class ProductReviewLoader extends AbstractProductReviewLoader
         $reviewFilters = [];
         $points = RequestParamHelper::get($request, self::PARAMETER_NAME_POINTS, []);
 
-        if (\is_array($points) && \count($points) > 0) {
+        if (\is_array($points) && $points !== []) {
             $pointFilter = [];
             foreach ($points as $point) {
                 $pointFilter[] = new RangeFilter('points', [

@@ -14,20 +14,27 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\App\Source\SourceResolver;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Plugin\Event\AssetUploadEvent;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Util\Hasher;
+use Symfony\Component\DependencyInjection\Exception\ParameterNotFoundException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal with next major. Should then be moved to the `Shopware\Core\Framework\Adapter\Asset` namespace
+ */
 #[Package('framework')]
 class AssetService
 {
@@ -44,7 +51,8 @@ class AssetService
         private readonly KernelPluginLoader $pluginLoader,
         private readonly CacheInvalidator $cacheInvalidator,
         private readonly SourceResolver $sourceResolver,
-        private readonly ParameterBagInterface $parameterBag
+        private readonly ParameterBagInterface $parameterBag,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -116,16 +124,17 @@ class AssetService
     {
         $this->removeAssets($bundleName);
 
+        $bundle = null;
         try {
             $bundle = $this->getBundle($bundleName);
-
-            if ($bundle instanceof Plugin) {
-                foreach ($this->getAdditionalBundles($bundle) as $additionalBundle) {
-                    $this->removeAssets($additionalBundle->getName());
-                }
-            }
         } catch (PluginNotFoundException) {
             // plugin is already unloaded, we cannot find it. Ignore it
+        }
+
+        if ($bundle instanceof Plugin) {
+            foreach ($this->getAdditionalBundles($bundle) as $additionalBundle) {
+                $this->removeAssets($additionalBundle->getName());
+            }
         }
     }
 
@@ -172,7 +181,7 @@ class AssetService
 
         $targetDirectory = $this->getTargetDirectory($bundleOrAppName);
 
-        if (empty($manifest) || !isset($manifest[$bundleOrAppName])) {
+        if ($manifest === [] || !isset($manifest[$bundleOrAppName])) {
             // if there is no manifest file or no entry for the current bundle, we need to remove all assets and start fresh
             $this->assetFilesystem->deleteDirectory($targetDirectory);
         }
@@ -258,23 +267,30 @@ class AssetService
         // as files with changed hashes
         $uploads = array_keys(array_diff_assoc($localManifest, $remoteManifest));
 
-        // diff the opposite way to find files which are present remote, but not locally.
+        // diff the opposite way to find files which are present remotely, but not locally.
         // we use array_diff_key because we don't care about the hash, just the file names
-        foreach (array_keys(array_diff_key($remoteManifest, $localManifest)) as $file) {
-            $this->assetFilesystem->delete(Path::join($targetDirectory, $file));
-        }
+        $filesToDelete = array_keys(array_diff_key($remoteManifest, $localManifest));
+
+        $uploadEvent = $this->eventDispatcher->dispatch(new AssetUploadEvent(
+            $uploads,
+            $filesToDelete,
+        ));
 
         $batches = [];
-
-        foreach ($uploads as $file) {
+        foreach ($uploadEvent->filesToUpload as $file) {
             $batches[] = new CopyBatchInput(
                 Path::join($originDir, $file),
                 [Path::join($targetDirectory, $file)],
-                $this->parameterBag->get('shopware.filesystem.asset.config')['visibility'] ?? Visibility::PUBLIC,
+                $this->getAssetVisibility(),
             );
         }
 
         CopyBatch::copy($this->assetFilesystem, ...$batches);
+
+        // Delete remote files, that are not present locally
+        foreach ($uploadEvent->filesToDelete as $file) {
+            $this->assetFilesystem->delete(Path::join($targetDirectory, $file));
+        }
     }
 
     /**
@@ -331,9 +347,13 @@ class AssetService
     }
 
     /**
+     * Manifest file is saved in private file system and not in asset file system itself to ensure,
+     * that no information about installed apps and plugins are exposed
+     *
      * @param array<string, array<string, string>> $manifest
      *
      * @throws \JsonException
+     * @throws FilesystemException
      */
     private function writeManifest(array $manifest): void
     {
@@ -347,8 +367,34 @@ class AssetService
         );
     }
 
+    /**
+     * If the private file system is remotely, but the assets are stored locally, it could lead to problems.
+     * Therefore, we do not save a manifest file at all.
+     */
     private function areAssetsStoredLocally(): bool
     {
         return $this->parameterBag->get('shopware.filesystem.asset.type') === 'local';
+    }
+
+    private function getAssetVisibility(): string
+    {
+        $legacyVisibility = null;
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            // Remove the whole $legacyVisibility block when removing the v6.8.0.0 feature flag.
+            try {
+                $assetConfig = $this->parameterBag->get('shopware.filesystem.asset.config');
+            } catch (ParameterNotFoundException) {
+                $assetConfig = null;
+            }
+
+            $legacyVisibility = \is_array($assetConfig) ? $assetConfig['visibility'] ?? null : null;
+        }
+
+        try {
+            return (string) ($legacyVisibility ?? $this->parameterBag->get('shopware.filesystem.asset.visibility') ?? Visibility::PUBLIC);
+        } catch (ParameterNotFoundException) {
+            return Visibility::PUBLIC;
+        }
     }
 }

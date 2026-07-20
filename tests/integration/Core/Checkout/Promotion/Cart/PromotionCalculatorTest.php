@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Promotion\Cart;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -41,7 +40,6 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineIte
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(PromotionCalculator::class)]
 class PromotionCalculatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -328,6 +326,45 @@ class PromotionCalculatorTest extends TestCase
         static::assertSame('Promotion Black Friday not eligible for cart!', $thirdCalculatedCard->getErrors()->first()->getMessage());
         static::assertCount(1, $thirdCalculatedCard->getLineItems());
         static::assertSame(10.0, $thirdCalculatedCard->getPrice()->getTotalPrice());
+    }
+
+    public function testCustomLineItemNotStackableBecomesStackable(): void
+    {
+        $promotionId = $this->getPromotionId();
+        $discountItem = $this->getDiscountItem($promotionId);
+
+        $discountItems = new LineItemCollection([$discountItem]);
+        $original = new Cart(Uuid::randomHex());
+
+        $productLineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $productLineItem->setPrice(new CalculatedPrice(90.0, 90.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+        $productLineItem->setStackable(true);
+
+        $customLineItem = new LineItem(Uuid::randomHex(), LineItem::CUSTOM_LINE_ITEM_TYPE);
+        $customLineItem->setPrice(new CalculatedPrice(10.0, 10.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+        $customLineItem->setStackable(false);
+
+        $toCalculate = new Cart(Uuid::randomHex());
+        $toCalculate->add($productLineItem);
+        $toCalculate->add($customLineItem);
+        $toCalculate->setPrice(new CartPrice(84.03, 100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS));
+
+        $this->promotionCalculator->calculate($discountItems, $original, $toCalculate, $this->salesChannelContext, new CartBehavior());
+        static::assertCount(3, $toCalculate->getLineItems());
+        $promotionLineItems = $toCalculate->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE);
+        static::assertCount(1, $promotionLineItems);
+
+        $promotionLineItem = $promotionLineItems->first();
+
+        static::assertNotNull($promotionLineItem);
+        static::assertNotNull($promotionLineItem->getPrice());
+
+        static::assertSame(-10.0, $promotionLineItem->getPrice()->getTotalPrice());
+
+        // Ensure that non-stackable items are still not stackable!
+        $customLineItem = $toCalculate->get($customLineItem->getId());
+        static::assertNotNull($customLineItem);
+        static::assertFalse($customLineItem->isStackable());
     }
 
     private function getPromotionId(bool $preventCombination = false, int $priority = 1, bool $useCodes = true, string $type = PromotionDiscountEntity::TYPE_ABSOLUTE): string

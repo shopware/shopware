@@ -180,7 +180,7 @@ class ThemeDumpCommand extends Command
                     \sprintf(
                         '%s || Assigned to: %s',
                         $themeName,
-                        $salesChannels ? implode(', ', $salesChannels->map(fn (SalesChannelEntity $channel) => $channel->getName())) : ''
+                        $salesChannels ? implode(', ', $salesChannels->map(static fn (SalesChannelEntity $channel) => $channel->getName())) : ''
                     );
                 $choices .= \PHP_EOL;
                 continue;

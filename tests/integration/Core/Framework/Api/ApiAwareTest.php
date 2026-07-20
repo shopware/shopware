@@ -7,6 +7,7 @@ use Shopware\Administration\Snippet\AppAdministrationSnippetDefinition;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Notification\NotificationDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -59,7 +60,19 @@ class ApiAwareTest extends TestCase
         if (!\is_string($expected)) {
             static::fail(__DIR__ . '/fixtures/api-aware-fields.json could not be read');
         }
-        $expected = \json_decode($expected, true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
+        $expected = \json_decode($expected, true, flags: \JSON_THROW_ON_ERROR);
+
+        if (Feature::isActive('v6.8.0.0')) {
+            // Deprecated fields removed with v6.8.0.0; user_recovery.createdAt loses ApiAware
+            // because defineFields() now overrides the ApiAware default field
+            $expected = array_values(array_diff($expected, [
+                'user_recovery.createdAt',
+                'category.cmsPageIdSwitched',
+                'product.states',
+                'order_address.vatId',
+                'order_line_item.states',
+            ]));
+        }
 
         if (static::getContainer()->has(ThemeDefinition::class)) {
             $expected = array_merge(

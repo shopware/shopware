@@ -327,6 +327,155 @@ class ProductControllerTest extends TestCase
         static::assertArrayHasKey('product-page-loaded', $traces);
     }
 
+    public function testProductPageDepthMicrodataUsesDepthItemProp(): void
+    {
+        Feature::skipTestIfActive('JSON_LD_DATA', $this);
+
+        $productId = $this->createProduct(['length' => 12.0]);
+
+        $response = $this->request(
+            'GET',
+            '/my-product/' . $productId,
+            []
+        );
+
+        $this->checkStatusCode($response);
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        static::assertStringContainsString('<meta itemprop="depth"', $content);
+        static::assertStringContainsString('content="12 mm"', $content);
+        static::assertStringNotContainsString('itemprop="length"', $content);
+    }
+
+    public function testSeparateProductGalleryCmsElementRendersImageMicrodata(): void
+    {
+        Feature::skipTestIfActive('JSON_LD_DATA', $this);
+
+        $cmsPageId = Uuid::randomHex();
+
+        static::getContainer()->get('cms_page.repository')->create([
+            [
+                'id' => $cmsPageId,
+                'type' => 'product_detail',
+                'sections' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'type' => 'default',
+                        'position' => 0,
+                        'blocks' => [
+                            [
+                                'id' => Uuid::randomHex(),
+                                'type' => 'image-gallery',
+                                'position' => 0,
+                                'sectionPosition' => 'main',
+                                'slots' => [
+                                    [
+                                        'id' => Uuid::randomHex(),
+                                        'type' => 'image-gallery',
+                                        'slot' => 'imageGallery',
+                                        'config' => [
+                                            'sliderItems' => ['source' => 'mapped', 'value' => 'product.media'],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $productId = $this->createProduct([
+            'cmsPageId' => $cmsPageId,
+            'media' => [
+                [
+                    'id' => Uuid::randomHex(),
+                    'position' => 0,
+                    'media' => [
+                        'fileName' => 'gallery-image',
+                    ],
+                ],
+            ],
+        ]);
+
+        $response = $this->request(
+            'GET',
+            '/my-product/' . $productId,
+            []
+        );
+
+        $this->checkStatusCode($response);
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($content);
+
+        static::assertCount(1, $crawler->filter('img.gallery-slider-image[itemprop="image"]'));
+    }
+
+    public function testReferencePriceIsRenderedWithSingleCalculatedPrice(): void
+    {
+        $unitId = Uuid::randomHex();
+        $ruleId = Uuid::randomHex();
+        $productId = $this->createProduct([
+            'unitId' => $unitId,
+            'unit' => [
+                'id' => $unitId,
+                'shortCode' => 'ml',
+                'name' => 'Milliliter',
+            ],
+            'purchaseUnit' => 500.0,
+            'referenceUnit' => 1000.0,
+            'prices' => [
+                [
+                    'quantityStart' => 1,
+                    'rule' => [
+                        'id' => $ruleId,
+                        'priority' => 1,
+                        'name' => 'Reference price rule',
+                        'conditions' => [
+                            [
+                                'type' => 'orContainer',
+                                'position' => 0,
+                                'children' => [
+                                    [
+                                        'type' => 'andContainer',
+                                        'position' => 0,
+                                        'children' => [
+                                            ['type' => 'alwaysValid', 'position' => 0],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'price' => [
+                        ['currencyId' => Defaults::CURRENCY, 'gross' => 4.0, 'net' => 3.36, 'linked' => false],
+                    ],
+                ],
+            ],
+        ]);
+
+        $response = $this->request(
+            'GET',
+            '/my-product/' . $productId,
+            []
+        );
+
+        $this->checkStatusCode($response);
+
+        $crawler = new Crawler();
+        $crawler->addHtmlContent((string) $response->getContent());
+
+        $referencePrice = $crawler->filter('.price-unit-reference-content');
+
+        static::assertCount(1, $referencePrice);
+        static::assertStringContainsString('/ 1000 Milliliter', $referencePrice->text());
+    }
+
     public function testProductQuickViewWidgetLoadedHookScriptsAreExecuted(): void
     {
         $productId = $this->createProduct();
@@ -342,6 +491,44 @@ class ProductControllerTest extends TestCase
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(ProductQuickViewWidgetLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testProductQuickViewManufacturerIsNotLinkedWithoutUrl(): void
+    {
+        $productId = $this->createProduct(['manufacturer' => ['name' => 'no-link-manufacturer']]);
+
+        $response = $this->request('GET', '/quickview/' . $productId, []);
+
+        $this->checkStatusCode($response);
+
+        $crawler = new Crawler();
+        $crawler->addHtmlContent((string) $response->getContent());
+
+        $manufacturerLink = $crawler->filter('a.quickview-minimal-product-manufacturer');
+        static::assertCount(0, $manufacturerLink);
+
+        $manufacturer = $crawler->filter('span.quickview-minimal-product-manufacturer');
+        static::assertCount(1, $manufacturer);
+        static::assertStringContainsString('no-link-manufacturer', $manufacturer->text());
+    }
+
+    public function testProductQuickViewManufacturerIsLinkedWithUrl(): void
+    {
+        $productId = $this->createProduct(['manufacturer' => ['name' => 'linked-manufacturer', 'link' => 'shopware.com']]);
+
+        $response = $this->request('GET', '/quickview/' . $productId, []);
+
+        $this->checkStatusCode($response);
+
+        $crawler = new Crawler();
+        $crawler->addHtmlContent((string) $response->getContent());
+
+        $manufacturerLink = $crawler->filter('a.quickview-minimal-product-manufacturer');
+        static::assertCount(1, $manufacturerLink);
+        static::assertSame('https://shopware.com', $manufacturerLink->attr('href'));
+        static::assertStringContainsString('linked-manufacturer', $manufacturerLink->text());
+
+        static::assertCount(0, $crawler->filter('span.quickview-minimal-product-manufacturer'));
     }
 
     public function testProductReviewsLoadedScriptsAreExecuted(): void
@@ -362,7 +549,14 @@ class ProductControllerTest extends TestCase
 
         $content = $response->getContent();
         static::assertIsString($content);
-        static::assertStringContainsString('<p class="product-detail-review-item-content" itemprop="description" lang="en-GB">', $content);
+
+        if (Feature::isActive('JSON_LD_DATA')) {
+            static::assertStringContainsString('class="product-detail-review-item-content"', $content);
+        } else {
+            static::assertStringContainsString('class="product-detail-review-item-content"', $content);
+            static::assertStringContainsString('itemprop="description"', $content);
+        }
+
         static::assertStringContainsString(self::TEST_CONTENT, $content);
     }
 
@@ -382,7 +576,10 @@ class ProductControllerTest extends TestCase
         return $request;
     }
 
-    private function createProduct(): string
+    /**
+     * @param array<string, mixed> $overrides
+     */
+    private function createProduct(array $overrides = []): string
     {
         $id = Uuid::randomHex();
 
@@ -414,6 +611,8 @@ class ProductControllerTest extends TestCase
             ],
         ];
 
+        $product = array_replace_recursive($product, $overrides);
+
         $repository = static::getContainer()->get('product.repository');
 
         $repository->create([$product], Context::createDefaultContext());
@@ -441,19 +640,19 @@ class ProductControllerTest extends TestCase
             ],
             'defaultBillingAddressId' => $addressId,
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'email' => 'testuser@example.com',
+            'email' => $customerId . '@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'salutationId' => $this->getValidSalutationId(),
-            'customerNumber' => '12345',
+            'customerNumber' => $customerId,
         ];
 
         $repo = static::getContainer()->get('customer.repository');
 
         $repo->create([$customer], Context::createDefaultContext());
 
-        $entity = $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
+        $entity = $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(CustomerEntity::class, $entity);
 

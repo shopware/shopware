@@ -2,7 +2,7 @@
  * @sw-package discovery
  */
 
-import { mount } from '@vue/test-utils';
+import { flushPromises, mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
 const mediaDataMock = {
@@ -26,7 +26,7 @@ async function createWrapper() {
                     cmsService: Shopware.Service('cmsService'),
                     repositoryFactory: {
                         create: () => ({
-                            get: () => Promise.resolve(coverMediaMock),
+                            get: (id) => Promise.resolve(id === coverMediaMock.id ? coverMediaMock : mediaDataMock),
                         }),
                     },
                 },
@@ -153,6 +153,35 @@ describe('src/module/sw-cms/elements/video/component', () => {
 
         const video = wrapper.find('video');
         expect(video.attributes('src')).toContain('http://shopware.com/demo-video.mp4');
+    });
+
+    it('should resolve mapped media ids from custom fields', async () => {
+        Shopware.Store.get('cmsPage').setCurrentDemoEntity({
+            customFields: {
+                heroVideo: '1',
+            },
+        });
+
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            element: {
+                type: 'video',
+                config: {
+                    ...wrapper.props().element.config,
+                    media: {
+                        source: 'mapped',
+                        value: 'category.customFields.heroVideo',
+                    },
+                },
+                data: {},
+            },
+        });
+
+        await flushPromises();
+
+        const video = wrapper.find('video');
+        expect(video.attributes('src')).toContain(mediaDataMock.url);
     });
 
     it('should show cover poster when cover media is present', async () => {

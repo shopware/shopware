@@ -12,7 +12,6 @@ export default {
     template,
 
     inject: [
-        'feature',
         'shopIdChangeService',
         'userActivityApiService',
     ],
@@ -21,6 +20,7 @@ export default {
         return {
             noNavigation: false,
             shopIdCheck: null,
+            isShopIdCheckPending: true,
         };
     },
 
@@ -38,6 +38,10 @@ export default {
 
         isStaging() {
             return Shopware.Store.get('context').app.config.settings?.enableStagingMode === true;
+        },
+
+        showUsageDataConsentModalDataProvider() {
+            return !this.isShopIdCheckPending && this.shopIdCheck === null;
         },
     },
 
@@ -79,10 +83,17 @@ export default {
         async updateShopIdChangeModal() {
             if (!Shopware.Store.get('context').app.config.settings?.appsRequireAppUrl) {
                 this.shopIdCheck = null;
+                this.isShopIdCheckPending = false;
                 return;
             }
 
-            this.shopIdCheck = await this.shopIdChangeService.checkShopId();
+            this.isShopIdCheckPending = true;
+
+            try {
+                this.shopIdCheck = await this.shopIdChangeService.checkShopId();
+            } finally {
+                this.isShopIdCheckPending = false;
+            }
         },
 
         closeModal() {
@@ -166,8 +177,8 @@ export default {
 
             // get metadata in searchMatcher
             const metadata = module.searchMatcher(
-                new RegExp(`^${this.$tc(title).toLowerCase()}(.*)`),
-                this.$tc(title, 2),
+                new RegExp(`^${this.$t(title).toLowerCase()}(.*)`),
+                this.$t(title, 2),
                 module,
             );
 

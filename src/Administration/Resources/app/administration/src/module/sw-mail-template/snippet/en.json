@@ -21,11 +21,7 @@
       "columnMailType": "Type",
       "columnDescription": "Description",
       "columnSalesChannels": "Sales Channels",
-      "contextMenuDelete": "Delete",
-      "contextMenuEdit": "Edit",
-      "contextMenuDuplicate": "Duplicate",
       "textDeleteConfirm": "Are you sure you want to delete the email template \"{subject}\"?",
-      "buttonDelete": "Delete",
       "titleSidebarItemRefresh": "Refresh",
       "errorMediaItemDuplicated": "Media item already assigned",
       "columnFilename": "File name",
@@ -59,8 +55,7 @@
         "placeholderHtml": "Enter email template HTML text..."
       },
       "media": {
-        "titleCard": "Attachments",
-        "buttonDelete": "Delete"
+        "titleCard": "Attachments"
       },
       "sidebar": {
         "labelContextMenuAddToMailTemplate": "Add as attachment",
@@ -71,10 +66,18 @@
         "titleShowPreview": "Show preview",
         "titleShowAvailableVariables": "Variables",
         "copyTooltip": "Copy to clipboard.",
-        "languageNotAssignedToSalesChannel": "The current language is not assigned to the selected sales channel."
+        "languageNotAssignedToSalesChannel": "The current language is not assigned to the selected sales channel.",
+        "previewSalesChannelHint": "Used to determine the sales-channel-specific header and footer.",
+        "selectTriggerEventLabel": "Trigger event",
+        "selectTriggerEventHint": "Used to determine available data."
       },
       "previewModalTitle": "Preview",
-      "buttonSave": "Save",
+      "previewModalMailHeaderPlainLabel": "Mail header (Plain text)",
+      "previewModalMailContentPlainLabel": "Mail content (Plain text)",
+      "previewModalMailFooterPlainLabel": "Mail footer (Plain text)",
+      "previewModalMailHeaderHtmlLabel": "Mail header (HTML)",
+      "previewModalMailContentHtmlLabel": "Mail content (HTML)",
+      "previewModalMailFooterHtmlLabel": "Mail footer (HTML)",
       "textHeadline": "New email template",
       "textHeadlineEdit": "Edit email template",
       "titleResult": "Email template",
@@ -95,11 +98,7 @@
       "columnName": "Name",
       "columnDescription": "Description",
       "columnSalesChannels": "Sales Channels",
-      "contextMenuDelete": "Delete",
-      "contextMenuEdit": "Edit",
-      "contextMenuDuplicate": "Duplicate",
       "textDeleteConfirm": "Are you sure you want to delete the header and footer \"{name}\"?",
-      "buttonDelete": "Delete",
       "titleSidebarItemRefresh": "Refresh",
       "messageDeleteError": "The header and footer \"{name}\" cannot be deleted, while Sales Channels are configured.",
       "emptyStateTitle": "No email header and footer yet",
@@ -129,7 +128,6 @@
         "placeholderPlain": "Enter plain text email footer...",
         "placeholderHtml": "Enter formatted text email footer..."
       },
-      "buttonSave": "Save",
       "textHeadline": "New email header/footer",
       "titleResult": "Email header/footer",
       "messageSaveSuccess": "The email header/footer \"{name}\" has been saved.",

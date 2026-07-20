@@ -50,7 +50,7 @@ export default {
         },
         rootFolder() {
             const root = this.mediaFolderRepository.create(Context.api);
-            root.name = this.$tc('sw-media.index.rootFolderName');
+            root.name = this.$t('sw-media.index.rootFolderName');
             root.id = null;
             return root;
         },

@@ -43,12 +43,12 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
     private const TEMPLATE_FILE = __DIR__ . '/../../Resources/templates/service-reference.md.twig';
     private const GENERATED_DOC_FILE = __DIR__ . '/../../Resources/generated/';
 
-    private readonly DocBlockFactoryInterface $docFactory;
-
     /**
      * @var array<string, string>
      */
-    private array $injectedServices = [];
+    protected array $injectedServices = [];
+
+    private readonly DocBlockFactoryInterface $docFactory;
 
     public function __construct(
         private readonly Environment $twig,
@@ -59,14 +59,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
             'example' => Example::class,
         ]);
 
-        $methodDocs = $this->docFactory->create(
-            new \ReflectionClass(ServiceStubs::class)
-        )->getTagsByName('method');
-
-        foreach ($methodDocs as $methodDoc) {
-            if (!$methodDoc instanceof Method) {
-                continue;
-            }
+        foreach ($this->getServiceStubMethodDocs() as $methodDoc) {
             $this->injectedServices[
                 ltrim((string) $methodDoc->getReturnType(), '\\')
             ] = $methodDoc->getMethodName();
@@ -145,6 +138,18 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
     }
 
     /**
+     * @return Method[]
+     */
+    protected function getServiceStubMethodDocs(): array
+    {
+        $tags = $this->docFactory->create(
+            new \ReflectionClass(ServiceStubs::class)
+        )->getTagsByName('method');
+
+        return array_values(array_filter($tags, static fn ($tag) => $tag instanceof Method));
+    }
+
+    /**
      * @return list<class-string<object>>
      */
     private function findScriptServices(): array
@@ -176,7 +181,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
             $scriptServices[] = $class;
         }
 
-        if (\count($scriptServices) === 0) {
+        if ($scriptServices === []) {
             throw DocsException::noScriptServicesFound();
         }
         sort($scriptServices);
@@ -233,10 +238,6 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
             $reflection = new \ReflectionClass($service);
 
             $docBlock = $this->docFactory->create($reflection);
-            if ($docBlock->hasTag('internal')) {
-                // skip @internal classes
-                continue;
-            }
 
             $deprecated = $docBlock->getTagsByName('deprecated')[0] ?? null;
 
@@ -461,7 +462,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
                 }
             }
 
-            if (\count($files) === 0) {
+            if ($files === []) {
                 throw DocsException::exampleFileNotFound(
                     $method->getName(),
                     $method->getDeclaringClass()->getName(),

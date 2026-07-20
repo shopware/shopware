@@ -6,11 +6,11 @@
         justify-content: space-between;
 
         .sw-field {
-            margin-right: 20px;
+            margin-right: var(--scale-size-20);
         }
     }
 
     .sw-product-basic-form__inheritance-wrapper-description {
-        margin-bottom: 12px;
+        margin-bottom: var(--scale-size-12);
     }
 }

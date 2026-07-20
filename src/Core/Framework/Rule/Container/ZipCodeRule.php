@@ -5,11 +5,9 @@ namespace Shopware\Core\Framework\Rule\Container;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\Framework\Util\FloatComparator;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 #[Package('fundamentals@after-sales')]
 abstract class ZipCodeRule extends Rule
@@ -27,25 +25,14 @@ abstract class ZipCodeRule extends Rule
     public function getConstraints(): array
     {
         $constraints = [
-            'operator' => [
-                new NotBlank(),
-                new Choice(choices: [
-                    self::OPERATOR_EQ,
-                    self::OPERATOR_NEQ,
-                    self::OPERATOR_EMPTY,
-                    self::OPERATOR_GTE,
-                    self::OPERATOR_LTE,
-                    self::OPERATOR_GT,
-                    self::OPERATOR_LT,
-                ]),
-            ],
+            'operator' => RuleConstraints::numericOperators(),
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {
             return $constraints;
         }
 
-        $constraints['zipCodes'] = [new NotBlank(), new ArrayOfType('string')];
+        $constraints['zipCodes'] = RuleConstraints::stringArray();
 
         return $constraints;
     }
@@ -61,13 +48,13 @@ abstract class ZipCodeRule extends Rule
         $compareZipCode = \is_array($this->zipCodes) ? $this->zipCodes[0] : null;
 
         return match ($this->operator) {
-            Rule::OPERATOR_EQ => !empty($this->getMatches($zipCode)),
-            Rule::OPERATOR_NEQ => empty($this->getMatches($zipCode)),
+            Rule::OPERATOR_EQ => $this->getMatches($zipCode) !== [],
+            Rule::OPERATOR_NEQ => $this->getMatches($zipCode) === [],
             self::OPERATOR_GTE => is_numeric($zipCode) && is_numeric($compareZipCode) && FloatComparator::greaterThanOrEquals((float) $zipCode, (float) $compareZipCode),
             self::OPERATOR_LTE => is_numeric($zipCode) && is_numeric($compareZipCode) && FloatComparator::lessThanOrEquals((float) $zipCode, (float) $compareZipCode),
             self::OPERATOR_GT => is_numeric($zipCode) && is_numeric($compareZipCode) && FloatComparator::greaterThan((float) $zipCode, (float) $compareZipCode),
             self::OPERATOR_LT => is_numeric($zipCode) && is_numeric($compareZipCode) && FloatComparator::lessThan((float) $zipCode, (float) $compareZipCode),
-            self::OPERATOR_EMPTY => empty($zipCode),
+            self::OPERATOR_EMPTY => $zipCode === '',
             default => throw RuleException::unsupportedOperator($this->operator, self::class),
         };
     }
@@ -77,7 +64,7 @@ abstract class ZipCodeRule extends Rule
      */
     private function getMatches(string $zipCode): array
     {
-        return array_filter((array) $this->zipCodes, function (string $zipCodeMatch) use ($zipCode) {
+        return array_filter((array) $this->zipCodes, static function (string $zipCodeMatch) use ($zipCode) {
             $zipCodeMatch = str_replace('\*', '(.*?)', preg_quote($zipCodeMatch, '/'));
             $regex = \sprintf('/^%s$/i', $zipCodeMatch);
 

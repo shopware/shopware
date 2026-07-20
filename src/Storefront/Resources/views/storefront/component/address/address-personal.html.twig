@@ -67,6 +67,7 @@
                         disabled: (onlyCompanyRegistration) ? 'true',
                         additionalClass: 'col-md-6 contact-type',
                         additionalSelectClass: 'contact-select',
+                        autocomplete: "off",
                         attributes: {
                             'data-form-field-toggle': 'true',
                             'data-form-field-toggle-target': toggleTarget,
@@ -231,8 +232,10 @@
                             {# @deprecated tag:v6.8.0 - Unused variable `editMode` and will be removed #}
                             {% set editMode = true %}
 
+                            {# There is no country select on the profile form, so derive the "required" state from the customer's default billing country (same source the backend validates against). #}
                             {% sw_include '@Storefront/storefront/component/address/address-personal-vat-id.html.twig' with {
                                 'vatIds': data.get('vatIds'),
+                                'vatIdRequired': data.defaultBillingAddress.country.vatIdRequired ?? false,
                             } %}
                         {% endblock %}
                     </div>

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -38,7 +39,7 @@ class CreateMigrationCommand extends Command
         private readonly MigrationFileRenderer $migrationFileRenderer,
         private readonly string $coreDir,
         private readonly string $shopwareVersion,
-        private readonly \DateTimeImmutable $now = new \DateTimeImmutable()
+        private readonly ClockInterface $clock
     ) {
         parent::__construct();
     }
@@ -54,7 +55,7 @@ class CreateMigrationCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $timestamp = (string) $this->now->getTimestamp();
+        $timestamp = (string) $this->clock->now()->getTimestamp();
 
         $namespace = $this->getNamespace($input);
         $directory = $this->getDirectory($input);
@@ -134,7 +135,7 @@ class CreateMigrationCommand extends Command
 
         $queries = $this->queryGenerator->generateQueries($entityDefinition);
 
-        if (!empty($queries)) {
+        if ($queries !== []) {
             $path = Path::join($directory, MigrationFileRenderer::createMigrationClassName($timestamp, $entity) . '.php');
 
             $className = MigrationFileRenderer::createMigrationClassName($timestamp, $entity);

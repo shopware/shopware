@@ -14,6 +14,7 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\CoreExtension;
+use Twig\Markup;
 use Twig\Node\Expression\AbstractExpression;
 use Twig\Node\Expression\BlockReferenceExpression;
 use Twig\Node\Node;
@@ -60,7 +61,7 @@ class TwigFeaturesWithInheritanceExtension extends AbstractExtension
      */
     public function parseSwBlockFunction(Parser $parser, Node $fakeNode, Node $argsNode, int $line): AbstractExpression
     {
-        $fakeFunction = new TwigFunction('sw_block', fn ($name, $template = null) => null);
+        $fakeFunction = new TwigFunction('sw_block', static fn ($name, $template = null) => null);
         $args = (new CallableArgumentsExtractor($fakeNode, $fakeFunction))->extractArguments($argsNode);
 
         // sw-fix-start
@@ -102,7 +103,7 @@ class TwigFeaturesWithInheritanceExtension extends AbstractExtension
         bool $withContext = true,
         bool $ignoreMissing = false,
         bool $sandboxed = false
-    ): string {
+    ): string|Markup {
         // sw-fix-start
         if (\is_array($template)) {
             foreach ($template as &$value) {

@@ -37,12 +37,12 @@ export default {
             return [
                 {
                     id: 1,
-                    label: this.$tc('sw-boolean-filter.active'),
+                    label: this.$t('sw-boolean-filter.active'),
                     value: 'true',
                 },
                 {
                     id: 2,
-                    label: this.$tc('sw-boolean-filter.inactive'),
+                    label: this.$t('sw-boolean-filter.inactive'),
                     value: 'false',
                 },
             ];

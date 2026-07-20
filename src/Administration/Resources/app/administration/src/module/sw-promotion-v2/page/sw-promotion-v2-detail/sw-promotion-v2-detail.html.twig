@@ -3,7 +3,7 @@
 
     {% block sw_promotion_v2_detail_header %}
     <template #smart-bar-header>
-        <h2>{{ placeholder(promotion, 'name', $tc('sw-promotion-v2.detail.header.titleEdit')) }}</h2>
+        <h2>{{ placeholder(promotion, 'name', $t('sw-promotion-v2.detail.header.titleEdit')) }}</h2>
     </template>
     {% endblock %}
 
@@ -19,7 +19,7 @@
             size="default"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -35,7 +35,7 @@
             @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </sw-button-process>
         {% endblock %}
 
@@ -57,7 +57,7 @@
 
             {% block sw_promotion_v2_detail_content_language_info %}
             <sw-language-info
-                :entity-description="placeholder(promotion, 'name', $tc('sw-promotion-v2.detail.header.titleCreate'))"
+                :entity-description="placeholder(promotion, 'name', $t('sw-promotion-v2.detail.header.titleCreate'))"
                 :is-new-entity="!promotionId"
             />
             {% endblock %}
@@ -72,31 +72,31 @@
                 {% block sw_promotion_v2_detail_content_tabs_general %}
                 <sw-tabs-item
                     :route="{ name: 'sw.promotion.v2.detail.base', params: { id: $route.params.id } }"
-                    :title="$tc('sw-promotion-v2.detail.tabs.tabGeneral')"
+                    :title="$t('sw-promotion-v2.detail.tabs.tabGeneral')"
                     :has-error="swPromotionV2DetailBaseError"
                     :disabled="!promotionId || undefined"
                 >
-                    {{ $tc('sw-promotion-v2.detail.tabs.tabGeneral') }}
+                    {{ $t('sw-promotion-v2.detail.tabs.tabGeneral') }}
                 </sw-tabs-item>
                 {% endblock %}
 
                 {% block sw_promotion_v2_detail_content_tabs_conditions %}
                 <sw-tabs-item
                     :route="{ name: 'sw.promotion.v2.detail.conditions', params: { id: $route.params.id } }"
-                    :title="$tc('sw-promotion-v2.detail.tabs.tabConditions')"
+                    :title="$t('sw-promotion-v2.detail.tabs.tabConditions')"
                     :disabled="!promotionId || undefined"
                 >
-                    {{ $tc('sw-promotion-v2.detail.tabs.tabConditions') }}
+                    {{ $t('sw-promotion-v2.detail.tabs.tabConditions') }}
                 </sw-tabs-item>
                 {% endblock %}
 
                 {% block sw_promotion_v2_detail_content_tabs_discounts %}
                 <sw-tabs-item
                     :route="{ name: 'sw.promotion.v2.detail.discounts', params: { id: $route.params.id } }"
-                    :title="$tc('sw-promotion-v2.detail.tabs.tabDiscounts')"
+                    :title="$t('sw-promotion-v2.detail.tabs.tabDiscounts')"
                     :disabled="!promotionId || undefined"
                 >
-                    {{ $tc('sw-promotion-v2.detail.tabs.tabDiscounts') }}
+                    {{ $t('sw-promotion-v2.detail.tabs.tabDiscounts') }}
                 </sw-tabs-item>
                 {% endblock %}
 
@@ -130,11 +130,11 @@
             <sw-modal
                 v-if="!!showCodeTypeChangeModal"
                 class="sw-promotion-v2-detail__change-modal"
-                :title="$tc('sw-promotion-v2.detail.codeChangeModal.title')"
+                :title="$t('sw-promotion-v2.detail.codeChangeModal.title')"
                 @modal-close="onCloseCodeTypeChangeModal"
             >
 
-                {{ $tc('sw-promotion-v2.detail.codeChangeModal.text') }}
+                {{ $t('sw-promotion-v2.detail.codeChangeModal.text') }}
 
                 {% block sw_promotion_v2_detail_change_code_type_modal_footer %}
                 <template #modal-footer>
@@ -146,7 +146,7 @@
                         variant="secondary"
                         @click="onCloseCodeTypeChangeModal"
                     >
-                        {{ $tc('global.default.cancel') }}
+                        {{ $t('global.default.cancel') }}
                     </mt-button>
                     {% endblock %}
 
@@ -157,7 +157,7 @@
                         variant="primary"
                         @click="onConfirmSave"
                     >
-                        {{ $tc('global.default.confirm') }}
+                        {{ $t('global.default.confirm') }}
                     </mt-button>
                     {% endblock %}
 

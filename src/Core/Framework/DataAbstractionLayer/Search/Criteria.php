@@ -30,6 +30,10 @@ class Criteria extends Struct implements \Stringable
 
     final public const STATE_DISABLE_SEARCH_INFO = 'disableSearchInfo';
 
+    final public const STATE_SCORE_RANKED_GROUPING = 'scoreRankedGrouping';
+
+    final public const SCORE_FIELD = '_score';
+
     /**
      * no total count will be selected. Should be used if no pagination required (fastest)
      */
@@ -115,6 +119,11 @@ class Criteria extends Struct implements \Stringable
     protected array $fields = [];
 
     /**
+     * @var list<string>
+     */
+    protected array $excludedFields = [];
+
+    /**
      * @param array<IDStructure>|null $ids
      */
     public function __construct(?array $ids = null, protected int $nestingLevel = 0)
@@ -194,7 +203,7 @@ class Criteria extends Struct implements \Stringable
      */
     public function hasEqualsFilter($field): bool
     {
-        return \count(array_filter($this->filters, static fn (Filter $filter) /* EqualsFilter $filter */ => $filter instanceof EqualsFilter && $filter->getField() === $field)) > 0;
+        return array_filter($this->filters, static fn (Filter $filter) /* EqualsFilter $filter */ => $filter instanceof EqualsFilter && $filter->getField() === $field) !== [];
     }
 
     /**
@@ -492,7 +501,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @param array<string>|array<int, array<string>> $ids
+     * @param array<IDStructure> $ids
      */
     public function cloneForRead(array $ids = []): Criteria
     {
@@ -507,6 +516,7 @@ class Criteria extends Struct implements \Stringable
 
         $self->associations = $associations;
         $self->fields = $this->fields;
+        $self->excludedFields = $this->excludedFields;
 
         return $self;
     }
@@ -574,22 +584,22 @@ class Criteria extends Struct implements \Stringable
 
     public function useIdSorting(): bool
     {
-        if (empty($this->getIds())) {
+        if ($this->getIds() === []) {
             return false;
         }
 
         // manual sorting provided
-        if (!empty($this->getSorting())) {
+        if ($this->getSorting() !== []) {
             return false;
         }
 
         // result will be sorted by interpreted search term and the calculated ranking
-        if (!empty($this->getTerm())) {
+        if (($this->getTerm() ?? '') !== '') {
             return false;
         }
 
         // result will be sorted by calculated ranking
-        if (!empty($this->getQueries())) {
+        if ($this->getQueries() !== []) {
             return false;
         }
 
@@ -618,6 +628,10 @@ class Criteria extends Struct implements \Stringable
      */
     public function addFields(array $fields): self
     {
+        if ($this->excludedFields !== []) {
+            throw DataAbstractionLayerException::criteriaFieldsAndExcludedFieldsAreMutuallyExclusive();
+        }
+
         $this->fields = array_merge($this->fields, $fields);
 
         return $this;
@@ -629,6 +643,31 @@ class Criteria extends Struct implements \Stringable
     public function getFields(): array
     {
         return $this->fields;
+    }
+
+    /**
+     * Denylist counterpart to {@see addFields()}: loads the full, typed entity but omits the given
+     * storage fields. Cannot be combined with addFields(); required and write-protected fields cannot be excluded.
+     *
+     * @param list<string> $fields
+     */
+    public function excludeFields(array $fields): self
+    {
+        if ($this->fields !== []) {
+            throw DataAbstractionLayerException::criteriaFieldsAndExcludedFieldsAreMutuallyExclusive();
+        }
+
+        $this->excludedFields = array_merge($this->excludedFields, $fields);
+
+        return $this;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getExcludedFields(): array
+    {
+        return $this->excludedFields;
     }
 
     /**
@@ -664,7 +703,7 @@ class Criteria extends Struct implements \Stringable
      */
     private function validateIds(array $ids): void
     {
-        if (\count($ids) === 0) {
+        if ($ids === []) {
             throw DataAbstractionLayerException::invalidCriteriaIds($ids, 'Ids should not be empty');
         }
 

@@ -7,6 +7,8 @@ use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\DocumentMerger;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
+use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -121,11 +123,17 @@ class DocumentController extends AbstractController
     {
         $response = new Response($content);
 
+        try {
+            $filenameFallback = PathHelper::stripNonAsciiAndControlChars($filename, '_');
+        } catch (IllegalFileNameException) {
+            $filenameFallback = '';
+        }
+
         $disposition = HeaderUtils::makeDisposition(
             $forceDownload ? HeaderUtils::DISPOSITION_ATTACHMENT : HeaderUtils::DISPOSITION_INLINE,
             $filename,
             // only printable ascii
-            preg_replace('/[\x00-\x1F\x7F-\xFF]/', '_', $filename) ?? ''
+            $filenameFallback
         );
 
         $response->headers->set('Content-Type', $contentType);

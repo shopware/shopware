@@ -65,12 +65,20 @@ class RefreshableAppDryRun extends AbstractAppLifecycle
         $this->toBeInstalled[$manifest->getMetadata()->getName()] = $manifest;
     }
 
+    public function activate(string $appId, Context $context): void
+    {
+    }
+
+    public function deactivate(string $appId, Context $context): void
+    {
+    }
+
     public function update(Manifest $manifest, AppUpdateParameters $parameters, array $app, Context $context): void
     {
         $this->toBeUpdated[$manifest->getMetadata()->getName()] = $manifest;
     }
 
-    public function delete(string $appName, array $app, Context $context, bool $keepUserData = false): void
+    public function uninstall(string $appName, array $app, Context $context, bool $keepUserData = false): void
     {
         $this->toBeDeleted[$appName] = $appName;
     }
@@ -101,9 +109,9 @@ class RefreshableAppDryRun extends AbstractAppLifecycle
 
     public function isEmpty(): bool
     {
-        return \count($this->toBeInstalled) === 0
-            && \count($this->toBeUpdated) === 0
-            && \count($this->toBeDeleted) === 0;
+        return $this->toBeInstalled === []
+            && $this->toBeUpdated === []
+            && $this->toBeDeleted === [];
     }
 
     /**

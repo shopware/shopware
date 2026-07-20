@@ -7,29 +7,27 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Consent\ConsentDefinition;
+use Shopware\Core\System\Consent\ConsentDefinitionRegistry;
 use Shopware\Core\System\Consent\ConsentException;
 use Shopware\Core\System\Consent\ConsentRepository;
 use Shopware\Core\System\Consent\ConsentScope;
 use Shopware\Core\System\Consent\ConsentStatus;
 use Shopware\Core\System\Consent\DTO\ConsentState;
+use Shopware\Core\System\Consent\DTO\ConsentStateRecord;
 use Shopware\Core\System\Consent\Event\ConsentAcceptedEvent;
 use Shopware\Core\System\Consent\Event\ConsentRevokedEvent;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
  */
 #[Package('data-services')]
-class ConsentService
+class ConsentService implements ResetInterface
 {
     /**
      * @var array<string, ConsentScope>
      */
     private array $consentScopes;
-
-    /**
-     * @var array<string, ConsentDefinition>
-     */
-    private array $consentDefinitions;
 
     /**
      * @var array<string, ConsentState>
@@ -38,11 +36,10 @@ class ConsentService
 
     /**
      * @param iterable<ConsentScope> $consentScopes
-     * @param iterable<ConsentDefinition> $consentDefinitions
      */
     public function __construct(
         iterable $consentScopes,
-        iterable $consentDefinitions,
+        private readonly ConsentDefinitionRegistry $consentDefinitionRegistry,
         private readonly ConsentRepository $consentRepository,
         private readonly EventDispatcherInterface $eventDispatcher
     ) {
@@ -51,12 +48,6 @@ class ConsentService
             $scopes[$scope->getName()] = $scope;
         }
         $this->consentScopes = $scopes;
-
-        $definitions = [];
-        foreach ($consentDefinitions as $definition) {
-            $definitions[$definition->getName()] = $definition;
-        }
-        $this->consentDefinitions = $definitions;
     }
 
     /**
@@ -76,52 +67,106 @@ class ConsentService
                 status: ConsentStatus::UNSET,
                 actor: null,
                 updatedAt: null,
+                acceptedRevision: null,
+                latestRevision: $consent->getLatestRevision(),
             );
-        }, $this->consentDefinitions);
+        }, $this->consentDefinitionRegistry->all());
     }
 
     public function getConsentState(string $name, Context $context): ConsentState
     {
-        $state = $this->list($context)[$name] ?? null;
+        $consent = $this->consentDefinitionRegistry->get($name);
+        $key = $this->key($consent, $context);
 
-        if ($state === null) {
-            throw ConsentException::notFound($name);
+        $states = $this->fetchStates($context);
+        if (isset($states[$key])) {
+            return $states[$key];
         }
 
-        return $state;
+        return new ConsentState(
+            name: $consent->getName(),
+            scopeName: $consent->getScopeName(),
+            identifier: $this->getScope($consent)->resolveIdentifier($context),
+            status: ConsentStatus::UNSET,
+            actor: null,
+            updatedAt: null,
+            acceptedRevision: null,
+            latestRevision: $consent->getLatestRevision(),
+        );
     }
 
-    public function acceptConsent(string $name, Context $context): ConsentState
+    public function acceptConsent(string $name, Context $context, ?string $revision = null): ConsentState
     {
-        $updatedState = $this->updateState($name, ConsentStatus::ACCEPTED, $context);
+        $consent = $this->consentDefinitionRegistry->get($name);
+        $this->validatePermissions($context, $consent);
 
-        \assert(\is_string($updatedState->actor));
-        $this->eventDispatcher->dispatch(new ConsentAcceptedEvent($updatedState->name, $updatedState->scopeName, $updatedState->identifier, $updatedState->actor));
+        $stored = $this->findStoredStateRecord($consent, $context);
+
+        if ($stored !== null && $stored->status === ConsentStatus::ACCEPTED) {
+            if ($revision === null && $stored->revision === null) {
+                return $this->createConsentState($consent, $stored, null);
+            }
+        }
+
+        $revision = $this->resolveRevisionForAcceptance($consent, $revision);
+
+        if ($stored !== null && $stored->status === ConsentStatus::ACCEPTED && $stored->revision === $revision) {
+            return $this->createConsentState($consent, $stored, $revision);
+        }
+
+        $scope = $this->getScope($consent);
+
+        $this->consentRepository->updateConsentState(
+            $consent,
+            $scope->resolveIdentifier($context),
+            ConsentStatus::ACCEPTED,
+            $scope->resolveActorIdentifier($context),
+            $revision,
+        );
 
         $this->invalidateState();
+
+        $updatedState = $this->getConsentState($name, $context);
+
+        \assert(\is_string($updatedState->actor));
+        $this->eventDispatcher->dispatch(new ConsentAcceptedEvent($updatedState->name, $updatedState->scopeName, $updatedState->identifier, $updatedState->actor, $updatedState->acceptedRevision));
 
         return $updatedState;
     }
 
     public function revokeConsent(string $name, Context $context): ConsentState
     {
+        $this->validatePermissions($context, $this->consentDefinitionRegistry->get($name));
         $updatedState = $this->updateState($name, ConsentStatus::REVOKED, $context);
 
         \assert(\is_string($updatedState->actor));
         $this->eventDispatcher->dispatch(new ConsentRevokedEvent($updatedState->name, $updatedState->scopeName, $updatedState->identifier, $updatedState->actor));
 
-        $this->invalidateState();
-
         return $updatedState;
     }
 
-    private function getConsentDefinition(string $name): ConsentDefinition
+    public function reset(): void
     {
-        if (!isset($this->consentDefinitions[$name])) {
-            throw ConsentException::notFound($name);
+        $this->invalidateState();
+    }
+
+    /**
+     * If no revision is provided, the current latest revision is accepted implicitly.
+     * If a revision is provided explicitly, it must still match the current latest revision.
+     */
+    private function resolveRevisionForAcceptance(ConsentDefinition $consent, ?string $revision): ?string
+    {
+        $latestRevision = $consent->getLatestRevision();
+
+        if ($revision === null) {
+            return $latestRevision;
         }
 
-        return $this->consentDefinitions[$name];
+        if ($latestRevision === null || $revision !== $latestRevision) {
+            throw ConsentException::invalidRevision($consent->getName(), $revision, $latestRevision);
+        }
+
+        return $latestRevision;
     }
 
     /**
@@ -137,7 +182,7 @@ class ConsentService
 
         foreach ($this->consentRepository->fetchAllConsentStates() as $record) {
             $state = ConsentState::fromDefinitionAndRecord(
-                $this->getConsentDefinition($record->name),
+                $this->consentDefinitionRegistry->get($record->name),
                 $record
             );
 
@@ -145,6 +190,33 @@ class ConsentService
         }
 
         return $this->states = $states;
+    }
+
+    private function findStoredStateRecord(ConsentDefinition $consent, Context $context): ?ConsentStateRecord
+    {
+        $identifier = $this->getScope($consent)->resolveIdentifier($context);
+
+        foreach ($this->consentRepository->fetchAllConsentStates() as $record) {
+            if ($record->name === $consent->getName() && $record->identifier === $identifier) {
+                return $record;
+            }
+        }
+
+        return null;
+    }
+
+    private function createConsentState(ConsentDefinition $consent, ConsentStateRecord $record, ?string $latestRevision): ConsentState
+    {
+        return new ConsentState(
+            name: $consent->getName(),
+            scopeName: $consent->getScopeName(),
+            identifier: $record->identifier,
+            status: $record->status,
+            actor: $record->actor,
+            updatedAt: $record->updatedAt,
+            acceptedRevision: $record->revision,
+            latestRevision: $latestRevision,
+        );
     }
 
     private function key(ConsentState|ConsentDefinition $consent, Context $context): string
@@ -173,27 +245,39 @@ class ConsentService
         return $this->consentScopes[$consent->getScopeName()];
     }
 
-    private function updateState(string $name, ConsentStatus $status, Context $context): ConsentState
+    private function updateState(string $name, ConsentStatus $status, Context $context, ?string $revision = null): ConsentState
     {
-        $consent = $this->getConsentDefinition($name);
-
-        $this->validatePermissions($context, $consent);
+        $consent = $this->consentDefinitionRegistry->get($name);
+        $revision = $status === ConsentStatus::ACCEPTED ? $revision : null;
 
         $key = $this->key($consent, $context);
 
         $states = $this->fetchStates($context);
-        if (isset($states[$key]) && $states[$key]->status === $status) {
-            return $states[$key];
+        $stored = $states[$key] ?? null;
+
+        if ($stored !== null) {
+            if ($stored->status === $status && $stored->acceptedRevision === $revision) {
+                return $stored;
+            }
+
+            if ($stored->status === ConsentStatus::DECLINED && $status === ConsentStatus::REVOKED) {
+                return $stored;
+            }
         }
 
         $scope = $this->getScope($consent);
 
-        return $this->consentRepository->updateConsentState(
+        $this->consentRepository->updateConsentState(
             $consent,
             $scope->resolveIdentifier($context),
             $status,
-            $scope->resolveActorIdentifier($context)
+            $scope->resolveActorIdentifier($context),
+            $revision,
         );
+
+        $this->invalidateState();
+
+        return $this->getConsentState($name, $context);
     }
 
     private function validatePermissions(Context $context, ConsentDefinition $consent): void
@@ -213,7 +297,7 @@ class ConsentService
             }
         }
 
-        if (!empty($missingPermissions)) {
+        if ($missingPermissions !== []) {
             throw ConsentException::insufficientPermissions($consent->getName(), $missingPermissions);
         }
     }

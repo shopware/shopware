@@ -49,7 +49,7 @@ class ProductKeywordDictionaryDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of product keyword.'),
-            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of the language.'),
+            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new PrimaryKey(), new ApiAware(), new Required())->setDescription('Unique identity of the language.'),
 
             (new StringField('keyword', 'keyword'))->addFlags(new ApiAware(), new Required())->setDescription('The keywords that help to search the product.'),
             (new StringField('reversed', 'reversed'))->addFlags(new Computed())->setDescription('The keywords are revered for the search.'),

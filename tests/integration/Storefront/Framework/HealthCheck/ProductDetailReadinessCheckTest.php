@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Storefront\Framework\HealthCheck;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -21,7 +20,6 @@ use Shopware\Storefront\Framework\SystemCheck\ProductDetailReadinessCheck;
 /**
  * @internal
  */
-#[CoversClass(ProductDetailReadinessCheck::class)]
 class ProductDetailReadinessCheckTest extends TestCase
 {
     use CacheTestBehaviour;

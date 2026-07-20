@@ -6,6 +6,8 @@
 
 The Shopware Administration uses **Jest** as the primary testing framework for unit and component tests. This document provides a basic overview of the testing infrastructure and common patterns.
 
+For normative test rules, see [Administration testing](../../../../../../../coding-guidelines/administration/testing.md).
+
 For detailed examples and advanced topics, see the [official Shopware Jest testing documentation](https://developer.shopware.com/docs/guides/plugins/plugins/testing/jest-admin.html).
 
 ## Technology Stack
@@ -132,14 +134,9 @@ beforeAll(() => {
     }
 ```
 
-## Best Practices
+## Coding Guidelines
 
-- ✅ Test behavior, not implementation details
-- ✅ Use `shallowMount` for better isolation
-- ✅ Always clean up wrappers in `afterEach`
-- ✅ Use `flushPromises()` after async operations
-- ❌ Don't test Vue.js framework internals
-- ❌ Avoid overly complex test setups
+See [Administration testing](../../../../../../../coding-guidelines/administration/testing.md).
 
 ## Configuration
 

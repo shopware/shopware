@@ -122,7 +122,7 @@ class MailHeaderFooterRepositoryTest extends TestCase
 
         foreach ($data as $expect) {
             $id = $expect['id'];
-            $mailHeaderFooter = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
+            $mailHeaderFooter = $this->repository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
             static::assertInstanceOf(MailHeaderFooterEntity::class, $mailHeaderFooter);
             static::assertSame($expect['systemDefault'], $mailHeaderFooter->getSystemDefault());
             static::assertSame($expect['name'], $mailHeaderFooter->getName());
@@ -203,7 +203,7 @@ class MailHeaderFooterRepositoryTest extends TestCase
     /**
      * Prepare a defined number of test data.
      *
-     * @return array<string, array<string, mixed>>
+     * @return non-empty-array<string, array<string, mixed>>
      */
     private function prepareHeaderFooterTestData(int $num = 1, string $add = ''): array
     {
@@ -222,6 +222,7 @@ class MailHeaderFooterRepositoryTest extends TestCase
                 'footerHtml' => \sprintf('<h1>Test footer %d %s </h1>', $i, $add),
             ];
         }
+        static::assertNotSame([], $data);
 
         return $data;
     }

@@ -5,7 +5,7 @@ import './acl';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-snippet-set-list', () => import('./page/sw-settings-snippet-set-list'));
 Shopware.Component.register('sw-settings-snippet-list', () => import('./page/sw-settings-snippet-list'));
 Shopware.Component.register('sw-settings-snippet-detail', () => import('./page/sw-settings-snippet-detail'));
@@ -19,7 +19,7 @@ Shopware.Component.register(
     'sw-settings-snippet-filter-switch',
     () => import('./component/sidebar/sw-settings-snippet-filter-switch'),
 );
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-snippet', {
@@ -29,7 +29,7 @@ Module.register('sw-settings-snippet', {
     description: 'sw-settings-snippet.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#9AA8B5',
+    color: 'var(--color-icon-secondary-default)',
     icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'snippet',

@@ -5,11 +5,11 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\EventListener;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
+use PHPUnit\Metadata\Api\DataProvider as DataProviderObject;
 use Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\ShopwareHttpException;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Shopware\Core\System\NumberRange\NumberRangeException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -23,8 +23,6 @@ class ErrorResponseFactoryTest extends TestCase
     public function testStackTraceForExceptionInDebugMode(\Exception $exception): void
     {
         $factory = new ErrorResponseFactory();
-
-        /* @var JsonResponse $response */
         $response = $factory->getResponseFromException($exception, true);
 
         $data = null;
@@ -40,14 +38,32 @@ class ErrorResponseFactoryTest extends TestCase
             ? $data['errors'][0]['trace']
             : $data['errors'][0]['meta']['trace'];
 
-        static::assertSame(self::class, $stack[0]['class']);
-        static::assertSame('getResponseFromExceptionProvider', $stack[0]['function']);
+        $expectedStackTrace = [
+            [
+                'class' => self::class,
+                'function' => 'getResponseFromExceptionProvider',
+            ],
+            [
+                'class' => DataProviderObject::class,
+                'function' => 'dataProvidedByMethods',
+            ],
+            [
+                'class' => DataProviderObject::class,
+                'function' => 'providedData',
+            ],
+        ];
 
-        static::assertSame(\PHPUnit\Metadata\Api\DataProvider::class, $stack[1]['class']);
-        static::assertSame('dataProvidedByMethods', $stack[1]['function']);
+        if ($exception instanceof ShopwareHttpException) {
+            array_unshift($expectedStackTrace, [
+                'class' => NumberRangeException::class,
+                'function' => 'noConfigurationForEntity',
+            ]);
+        }
 
-        static::assertSame(\PHPUnit\Metadata\Api\DataProvider::class, $stack[2]['class']);
-        static::assertSame('providedData', $stack[2]['function']);
+        foreach ($expectedStackTrace as $index => $trace) {
+            static::assertSame($trace['class'], $stack[$index]['class']);
+            static::assertSame($trace['function'], $stack[$index]['function']);
+        }
     }
 
     #[DataProvider('getResponseFromExceptionProvider')]
@@ -55,7 +71,6 @@ class ErrorResponseFactoryTest extends TestCase
     {
         $factory = new ErrorResponseFactory();
 
-        /* @var JsonResponse $response */
         $response = $factory->getResponseFromException(new \Exception('test'));
         $data = null;
         if ($response->getContent()) {
@@ -80,7 +95,7 @@ class ErrorResponseFactoryTest extends TestCase
 
         yield 'exception' => [new \Exception($message)];
         yield 'http exception' => [new HttpException(500)];
-        yield 'shopware http exception' => [new PageNotFoundException($message)];
+        yield 'domain exception' => [NumberRangeException::noConfigurationForEntity($message)];
     }
 
     public function testItTransformsRegularExceptionsToJson(): void
@@ -272,19 +287,17 @@ class ErrorResponseFactoryTest extends TestCase
     }
 
     /**
-     * @return array<string, array{string}>
+     * @return iterable<string, array{string}>
      */
-    public static function invalidUtf8SequencesProvider(): array
+    public static function invalidUtf8SequencesProvider(): iterable
     {
-        return [
-            'Invalid 2 Octet Sequence' => ["\xc3\x28"],
-            'Invalid Sequence Identifier' => ["\xa0\xa1"],
-            'Invalid 3 Octet Sequence (in 2nd Octet)' => ["\xe2\x28\xa1"],
-            'Invalid 3 Octet Sequence (in 3rd Octet)' => ["\xe2\x82\x28"],
-            'Invalid 4 Octet Sequence (in 2nd Octet)' => ["\xf0\x28\x8c\xbc"],
-            'Invalid 4 Octet Sequence (in 3rd Octet)' => ["\xf0\x90\x28\xbc"],
-            'Invalid 4 Octet Sequence (in 4th Octet)' => ["\xf0\x28\x8c\x28"],
-        ];
+        yield 'Invalid 2 Octet Sequence' => ["\xc3\x28"];
+        yield 'Invalid Sequence Identifier' => ["\xa0\xa1"];
+        yield 'Invalid 3 Octet Sequence (in 2nd Octet)' => ["\xe2\x28\xa1"];
+        yield 'Invalid 3 Octet Sequence (in 3rd Octet)' => ["\xe2\x82\x28"];
+        yield 'Invalid 4 Octet Sequence (in 2nd Octet)' => ["\xf0\x28\x8c\xbc"];
+        yield 'Invalid 4 Octet Sequence (in 3rd Octet)' => ["\xf0\x90\x28\xbc"];
+        yield 'Invalid 4 Octet Sequence (in 4th Octet)' => ["\xf0\x28\x8c\x28"];
     }
 
     #[DataProvider('invalidUtf8SequencesProvider')]

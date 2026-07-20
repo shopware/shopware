@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
@@ -19,7 +20,9 @@ use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 use Shopware\Elasticsearch\Admin\AdminIndexingBehavior;
 use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Shopware\Elasticsearch\Admin\Indexer\PromotionAdminSearchIndexer;
+use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 use Shopware\Elasticsearch\Test\AdminElasticsearchTestBehaviour;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -52,10 +55,11 @@ class AdminSearchRegistryTest extends TestCase
             $this->connection,
             static::getContainer()->get(IteratorFactory::class),
             static::getContainer()->get('promotion.repository'),
+            static::getContainer()->get(ElasticsearchFieldBuilder::class),
             100
         );
 
-        $searchHelper = new AdminElasticsearchHelper(true, true, 'sw-admin');
+        $searchHelper = new AdminElasticsearchHelper(true, true, 'sw-admin', 'test', true, $this->createMock(LoggerInterface::class));
         $this->registry = new AdminSearchRegistry(
             ['promotion' => $indexer],
             $this->connection,
@@ -67,7 +71,30 @@ class AdminSearchRegistryTest extends TestCase
             [
                 'settings' => [
                     'analysis' => [
+                        'normalizer' => [
+                            'sw_lowercase_normalizer' => [
+                                'type' => 'custom',
+                                'filter' => ['lowercase'],
+                            ],
+                        ],
+                        'char_filter' => [
+                            'sw_decimal_normalize' => [
+                                'type' => 'pattern_replace',
+                                'pattern' => '(\\d),(\\d)',
+                                'replacement' => '$1.$2',
+                            ],
+                            'sw_unit_glue' => [
+                                'type' => 'pattern_replace',
+                                'pattern' => '(^|\\s)(\\d+(?:[./,\'\\-]\\d+)*)\\s+([^\\d\\s])',
+                                'replacement' => '$1$2$3',
+                            ],
+                        ],
                         'analyzer' => [
+                            'sw_whitespace_analyzer' => [
+                                'type' => 'custom',
+                                'tokenizer' => 'whitespace',
+                                'filter' => ['lowercase'],
+                            ],
                             'sw_ngram_analyzer' => [
                                 'type' => 'custom',
                                 'tokenizer' => 'whitespace',
@@ -76,6 +103,18 @@ class AdminSearchRegistryTest extends TestCase
                                     'sw_ngram_filter',
                                 ],
                             ],
+                            'sw_admin_completion_index_analyzer' => [
+                                'type' => 'custom',
+                                'tokenizer' => 'whitespace',
+                                'char_filter' => ['sw_decimal_normalize', 'sw_unit_glue'],
+                                'filter' => ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'sw_length_min', 'remove_duplicates'],
+                            ],
+                            'sw_admin_completion_search_analyzer' => [
+                                'type' => 'custom',
+                                'tokenizer' => 'whitespace',
+                                'char_filter' => ['sw_decimal_normalize', 'sw_unit_glue'],
+                                'filter' => ['sw_word_delimiter_filter', 'lowercase', 'sw_length_min', 'remove_duplicates', 'sw_unique_filter'],
+                            ],
                         ],
                         'filter' => [
                             'sw_ngram_filter' => [
@@ -83,11 +122,31 @@ class AdminSearchRegistryTest extends TestCase
                                 'min_gram' => 4,
                                 'max_gram' => 5,
                             ],
+                            'sw_word_delimiter_filter' => [
+                                'type' => 'word_delimiter_graph',
+                                'preserve_original' => true,
+                                'catenate_all' => true,
+                                'catenate_words' => true,
+                                'catenate_numbers' => true,
+                                'split_on_case_change' => true,
+                                'generate_word_parts' => true,
+                                'split_on_numerics' => true,
+                            ],
+                            'sw_length_min' => [
+                                'type' => 'length',
+                                'min' => 2,
+                            ],
+                            'sw_unique_filter' => [
+                                'type' => 'unique',
+                                'only_on_same_position' => false,
+                            ],
                         ],
                     ],
                 ],
             ],
-            []
+            [],
+            'test',
+            new NativeClock()
         );
     }
 
@@ -107,25 +166,21 @@ class AdminSearchRegistryTest extends TestCase
         $indices = array_values($this->client->indices()->getMapping(['index' => $index]))[0];
         $properties = $indices['mappings']['properties'];
 
-        $expectedProperties = [
-            'id' => ['type' => 'keyword'],
-            'text' => [
-                'type' => 'text',
-                'fields' => [
-                    'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                ],
-            ],
-            'entityName' => ['type' => 'keyword'],
-            'parameters' => ['type' => 'keyword'],
-            'textBoosted' => [
-                'type' => 'text',
-                'fields' => [
-                    'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                ],
-            ],
-        ];
+        // Assert base properties exist
+        static::assertArrayHasKey('id', $properties);
+        static::assertArrayHasKey('text', $properties);
+        static::assertArrayHasKey('entityName', $properties);
+        static::assertArrayHasKey('parameters', $properties);
+        static::assertArrayHasKey('textBoosted', $properties);
 
-        static::assertEquals($expectedProperties, $properties);
+        if (Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+            // Assert promotion-specific properties from mapping()
+            static::assertArrayHasKey('active', $properties);
+            static::assertArrayHasKey('name', $properties);
+            static::assertArrayHasKey('validFrom', $properties);
+            static::assertArrayHasKey('validUntil', $properties);
+            static::assertArrayHasKey('createdAt', $properties);
+        }
     }
 
     public function testRefresh(): void
@@ -155,25 +210,21 @@ class AdminSearchRegistryTest extends TestCase
         $indices = array_values($this->client->indices()->getMapping(['index' => $index]))[0];
         $properties = $indices['mappings']['properties'];
 
-        $expectedProperties = [
-            'id' => ['type' => 'keyword'],
-            'text' => [
-                'type' => 'text',
-                'fields' => [
-                    'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                ],
-            ],
-            'entityName' => ['type' => 'keyword'],
-            'parameters' => ['type' => 'keyword'],
-            'textBoosted' => [
-                'type' => 'text',
-                'fields' => [
-                    'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                ],
-            ],
-        ];
+        // Assert base properties exist
+        static::assertArrayHasKey('id', $properties);
+        static::assertArrayHasKey('text', $properties);
+        static::assertArrayHasKey('entityName', $properties);
+        static::assertArrayHasKey('parameters', $properties);
+        static::assertArrayHasKey('textBoosted', $properties);
 
-        static::assertEquals($expectedProperties, $properties);
+        if (Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+            // Assert promotion-specific properties from mapping()
+            static::assertArrayHasKey('active', $properties);
+            static::assertArrayHasKey('name', $properties);
+            static::assertArrayHasKey('validFrom', $properties);
+            static::assertArrayHasKey('validUntil', $properties);
+            static::assertArrayHasKey('createdAt', $properties);
+        }
     }
 
     protected function getDiContainer(): ContainerInterface

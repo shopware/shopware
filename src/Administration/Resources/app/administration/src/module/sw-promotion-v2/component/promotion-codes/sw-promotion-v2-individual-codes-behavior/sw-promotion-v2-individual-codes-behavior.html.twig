@@ -12,7 +12,7 @@
         <template #toolbar>
             {% block sw_promotion_v2_individual_codes_behavior_toolbar_filter %}
             <sw-card-filter
-                :placeholder="$tc('sw-promotion-v2.detail.base.codes.individual.searchPlaceholder')"
+                :placeholder="$t('sw-promotion-v2.detail.base.codes.individual.searchPlaceholder')"
                 @sw-card-filter-term-change="onSearchTermChange"
             >
                 <template #filter>
@@ -20,26 +20,24 @@
                     {% block sw_promotion_v2_individual_codes_behavior_toolbar_filter_add_codes %}
                     <mt-button
                         class="sw-promotion-v2-individual-codes-behavior__add-codes-action"
-                        ghost
                         size="small"
                         :disabled="!acl.can('promotion.editor')"
                         variant="secondary"
                         @click="onOpenAddCodesModal"
                     >
-                        {{ $tc('sw-promotion-v2.detail.base.codes.individual.addButton') }}
+                        {{ $t('sw-promotion-v2.detail.base.codes.individual.addButton') }}
                     </mt-button>
                     {% endblock %}
 
                     {% block sw_promotion_v2_individual_codes_behavior_toolbar_filter_generate_codes %}
                     <mt-button
                         class="sw-promotion-v2-individual-codes-behavior__generate-codes-action"
-                        ghost
                         size="small"
                         :disabled="!acl.can('promotion.editor')"
                         variant="secondary"
                         @click="onOpenGenerateCodesModal"
                     >
-                        {{ $tc('sw-promotion-v2.detail.base.codes.individual.generateButton') }}
+                        {{ $t('sw-promotion-v2.detail.base.codes.individual.generateButton') }}
                     </mt-button>
                     {% endblock %}
 
@@ -127,7 +125,7 @@
                         :disabled="!(item.payload && item.payload.customerId)"
                         @click="routeToCustomer(item.payload)"
                     >
-                        {{ $tc('sw-promotion-v2.detail.base.codes.individual.openCustomer') }}
+                        {{ $t('sw-promotion-v2.detail.base.codes.individual.openCustomer') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -138,7 +136,7 @@
                         :disabled="!acl.can('promotion.editor')"
                         @click="onShowCodeDeleteModal(item.id)"
                     >
-                        {{ $tc('sw-property.list.contextMenuDelete') }}
+                        {{ $t('global.default.delete') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -156,7 +154,7 @@
                         @click="onShowCodeBulkDeleteModal"
                         @keydown.enter="onShowCodeBulkDeleteModal"
                     >
-                        {{ $tc('global.default.delete') }}
+                        {{ $t('global.default.delete') }}
                     </span>
                     {% endblock %}
 
@@ -171,7 +169,7 @@
                         v-if="codeDeleteModal === item.id"
                         class="sw-promotion-v2-individual-codes-behavior__confirm-delete-modal"
                         type="delete"
-                        :text="$tc('sw-promotion-v2.detail.base.codes.individual.textDeleteConfirm', { code: item.code }, 1)"
+                        :text="$t('sw-promotion-v2.detail.base.codes.individual.textDeleteConfirm', { code: item.code }, 1)"
                         @confirm="onConfirmCodeDelete(item.id)"
                         @close="onCloseDeleteModal"
                         @cancel="onCloseDeleteModal"
@@ -195,7 +193,7 @@
         {% block sw_promotion_v2_individual_codes_behavior_empty_state %}
         <sw-empty-state
             class="sw-promotion-v2-individual-codes-behavior__empty-state"
-            :title="$tc('sw-promotion-v2.detail.base.codes.individual.emptyStateTitle')"
+            :title="$t('sw-promotion-v2.detail.base.codes.individual.emptyStateTitle')"
             :absolute="false"
         >
 
@@ -204,7 +202,7 @@
                 <img
                     class="sw-promotion-v2-individual-codes-behavior__empty-state-icon"
                     :src="assetFilter('/administration/administration/static/img/empty-states/promotion-empty-state.svg')"
-                    :alt="$tc('sw-promotion-v2.detail.base.codes.individual.emptyStateTitle')"
+                    :alt="$t('sw-promotion-v2.detail.base.codes.individual.emptyStateTitle')"
                 >
             </template>
             {% endblock %}
@@ -213,12 +211,11 @@
             <template #actions>
                 <mt-button
                     class="sw-promotion-v2-individual-codes-behavior__empty-state-generate-action"
-                    ghost
                     :disabled="!acl.can('promotion.editor')"
                     variant="secondary"
                     @click="onOpenGenerateCodesModal"
                 >
-                    {{ $tc('sw-promotion-v2.detail.base.codes.individual.generateButton') }}
+                    {{ $t('sw-promotion-v2.detail.base.codes.individual.generateButton') }}
                 </mt-button>
             </template>
             {% endblock %}
@@ -253,7 +250,7 @@
         v-if="addCodesModal"
         class="sw-promotion-v2-individual-codes-behavior__add-codes-modal"
         variant="small"
-        :title="$tc('sw-promotion-v2.detail.base.codes.individual.addCodesModal.title')"
+        :title="$t('sw-promotion-v2.detail.base.codes.individual.addCodesModal.title')"
         @modal-close="onCloseAddCodesModal"
     >
 
@@ -262,7 +259,7 @@
 
             {% block sw_promotion_v2_individual_codes_behavior_add_codes_modal_description %}
             <p class="sw-promotion-v2-individual-codes-behavior__description">
-                {{ $tc('sw-promotion-v2.detail.base.codes.individual.addCodesModal.description') }}
+                {{ $t('sw-promotion-v2.detail.base.codes.individual.addCodesModal.description') }}
             </p>
             {% endblock %}
 
@@ -270,7 +267,7 @@
             <mt-number-field
                 v-model="newCodeAmount"
                 class="sw-promotion-v2-individual-codes-behavior__code-amount"
-                :label="$tc('sw-promotion-v2.detail.base.codes.individual.addCodesModal.codeAmountLabel')"
+                :label="$t('sw-promotion-v2.detail.base.codes.individual.addCodesModal.codeAmountLabel')"
                 :min="1"
             />
             {% endblock %}
@@ -288,7 +285,7 @@
                 variant="secondary"
                 @click="onCloseAddCodesModal"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             {% endblock %}
 
@@ -301,7 +298,7 @@
                 :process-success="false"
                 @click="onAddCodes"
             >
-                {{ $tc('sw-promotion-v2.detail.base.codes.individual.addCodesModal.addCodesButton') }}
+                {{ $t('sw-promotion-v2.detail.base.codes.individual.addCodesModal.addCodesButton') }}
             </sw-button-process>
             {% endblock %}
 

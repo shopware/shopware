@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Service;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -22,7 +21,6 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[Package('fundamentals@after-sales')]
-#[CoversClass(ProductReviewCountService::class)]
 class ProductReviewCountServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -55,7 +53,7 @@ class ProductReviewCountServiceTest extends TestCase
 
         $customerRepo = static::getContainer()->get('customer.repository');
         /** @var CustomerCollection $customers */
-        $customers = $customerRepo->search(new Criteria([$this->ids->get('c1'), $this->ids->get('c2')]), Context::createDefaultContext());
+        $customers = $customerRepo->search(new Criteria([$this->ids->get('c1'), $this->ids->get('c2')]), Context::createDefaultContext())->getEntities();
 
         $firstCustomer = $customers->get($this->ids->get('c1'));
         static::assertInstanceOf(CustomerEntity::class, $firstCustomer);

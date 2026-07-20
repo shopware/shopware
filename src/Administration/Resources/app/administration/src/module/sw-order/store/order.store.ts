@@ -164,22 +164,19 @@ const swOrderStore = Shopware.Store.register({
         },
 
         createCart({ salesChannelId }: { salesChannelId: string }) {
-            return (
-                Service('cartStoreService')
-                    .createCart(salesChannelId)
+            return Service('cartStoreService')
+                .createCart(salesChannelId)
+                .then((response: AxiosResponse): string => {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                    .then((response: AxiosResponse): string => {
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                        const token = response.data.token as string;
-                        this.setCartToken(token);
-                        return token;
-                    })
-                    .then((contextToken) => {
-                        return Service('contextStoreService')
-                            .getSalesChannelContext(salesChannelId, contextToken)
-                            .then((response: AxiosResponse) => this.setContext(response.data as SalesChannelContext));
-                    })
-            );
+                    const token = response.data.token as string;
+                    this.setCartToken(token);
+                    return token;
+                })
+                .then((contextToken) => {
+                    return Service('contextStoreService')
+                        .getSalesChannelContext(salesChannelId, contextToken)
+                        .then((response: AxiosResponse) => this.setContext(response.data as SalesChannelContext));
+                });
         },
 
         getCart({ salesChannelId, contextToken }: { salesChannelId: string; contextToken: string }) {

@@ -26,14 +26,22 @@ export default {
         isAssociation: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         showInheritanceSwitcher: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
+        },
+        emptyStateTitle: {
+            type: String,
+            required: false,
+            default: null,
+        },
+        emptyStateDescription: {
+            type: String,
+            required: false,
+            default: null,
         },
     },
 
@@ -95,6 +103,7 @@ export default {
                     property: 'values',
                     label: 'sw-product.properties.columnValue',
                     sortable: false,
+                    multiLine: true,
                 },
             ];
         },

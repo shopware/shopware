@@ -28,14 +28,14 @@ class ProductListingCriteriaExtensionTest extends TestCase
 
         $extension = new ProductListingCriteriaExtension(
             new Criteria(),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             'categoryId'
         );
 
         $result = (new ExtensionDispatcher($dispatcher))->publish(
             name: ProductListingCriteriaExtension::NAME,
             extension: $extension,
-            function: function (Criteria $criteria, SalesChannelContext $context, string $categoryId): Criteria {
+            function: static function (Criteria $criteria, SalesChannelContext $context, string $categoryId): Criteria {
                 $criteria->addFilter(
                     new EqualsFilter('product.categoriesRo.id', $categoryId)
                 );

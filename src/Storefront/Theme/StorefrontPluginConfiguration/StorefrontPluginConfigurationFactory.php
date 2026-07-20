@@ -10,8 +10,9 @@ use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Storefront\Framework\ThemeInterface;
-use Shopware\Storefront\Theme\Exception\InvalidThemeBundleException;
-use Shopware\Storefront\Theme\Exception\ThemeCompileException;
+use Shopware\Storefront\Theme\Exception\ThemeException;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
 #[Package('framework')]
@@ -22,7 +23,8 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
      */
     public function __construct(
         private readonly KernelPluginLoader $pluginLoader,
-        private readonly SourceResolver $sourceResolver
+        private readonly SourceResolver $sourceResolver,
+        private readonly Filesystem $filesystem,
     ) {
     }
 
@@ -39,16 +41,13 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
 
         $config = $this->createPluginConfig($bundle->getName(), $bundle->getPath());
         if ($bundle instanceof Plugin) {
+            $additionalBundleParameters = new AdditionalBundleParameters(
+                $this->pluginLoader->getClassLoader(),
+                $this->pluginLoader->getPluginInstances(),
+                []
+            );
             $config->setAdditionalBundles(
-                !empty(
-                    $bundle->getAdditionalBundles(
-                        new AdditionalBundleParameters(
-                            $this->pluginLoader->getClassLoader(),
-                            $this->pluginLoader->getPluginInstances(),
-                            []
-                        )
-                    )
-                )
+                $bundle->getAdditionalBundles($additionalBundleParameters) !== []
             );
         }
 
@@ -71,52 +70,48 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
      */
     public function createFromThemeJson(string $name, array $data, string $path): StorefrontPluginConfiguration
     {
-        try {
-            $config = new StorefrontPluginConfiguration($name);
+        $config = new StorefrontPluginConfiguration($name);
 
-            $config->setThemeJson($data);
-            $config->setStorefrontEntryFilepath($this->getEntryFile($path));
-            $config->setIsTheme(true);
-            $config->setName($data['name']);
-            $config->setAuthor($data['author']);
+        $config->setThemeJson($data);
+        $config->setStorefrontEntryFilepath($this->getEntryFile($path));
+        $config->setIsTheme(true);
+        $config->setName($data['name']);
+        $config->setAuthor($data['author']);
 
-            if (\array_key_exists('style', $data) && \is_array($data['style'])) {
-                $this->resolveStyleFiles($data['style'], $config);
-            }
+        if (\array_key_exists('style', $data) && \is_array($data['style'])) {
+            $this->resolveStyleFiles($data['style'], $config);
+        }
 
-            if (\array_key_exists('script', $data) && \is_array($data['script'])) {
-                $fileCollection = FileCollection::createFromArray($data['script']);
-                $config->setScriptFiles($fileCollection);
-            }
+        if (\array_key_exists('script', $data) && \is_array($data['script'])) {
+            $fileCollection = FileCollection::createFromArray($data['script']);
+            $config->setScriptFiles($fileCollection);
+        }
 
-            if (\array_key_exists('asset', $data)) {
-                $config->setAssetPaths($data['asset']);
-            }
+        if (\array_key_exists('asset', $data)) {
+            $config->setAssetPaths($data['asset']);
+        }
 
-            if (\array_key_exists('previewMedia', $data)) {
-                $config->setPreviewMedia($data['previewMedia']);
-            }
+        if (\array_key_exists('previewMedia', $data)) {
+            $config->setPreviewMedia($data['previewMedia']);
+        }
 
-            if (\array_key_exists('config', $data)) {
-                $config->setThemeConfig($data['config']);
-            }
+        if (\array_key_exists('config', $data)) {
+            $config->setThemeConfig($data['config']);
+        }
 
-            if (\array_key_exists('views', $data)) {
-                $config->setViewInheritance($data['views']);
-            }
+        if (\array_key_exists('views', $data)) {
+            $config->setViewInheritance($data['views']);
+        }
 
-            if (\array_key_exists('configInheritance', $data)) {
-                $config->setConfigInheritance($data['configInheritance']);
-                $baseConfig = $config->getThemeConfig();
-                $baseConfig['configInheritance'] = $data['configInheritance'];
-                $config->setThemeConfig($baseConfig);
-            }
+        if (\array_key_exists('configInheritance', $data)) {
+            $config->setConfigInheritance($data['configInheritance']);
+            $baseConfig = $config->getThemeConfig();
+            $baseConfig['configInheritance'] = $data['configInheritance'];
+            $config->setThemeConfig($baseConfig);
+        }
 
-            if (\array_key_exists('iconSets', $data)) {
-                $config->setIconSets($data['iconSets']);
-            }
-        } catch (\Throwable) {
-            $config = new StorefrontPluginConfiguration($name);
+        if (\array_key_exists('iconSets', $data)) {
+            $config->setIconSets($data['iconSets']);
         }
 
         return $config;
@@ -149,32 +144,25 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
         $pathname = $path . \DIRECTORY_SEPARATOR . 'Resources/theme.json';
 
         if (!\is_file($pathname)) {
-            throw new InvalidThemeBundleException($name);
+            throw ThemeException::invalidThemeBundle($name);
         }
 
         try {
-            $fileContent = file_get_contents($pathname);
-            if ($fileContent === false) {
-                throw new ThemeCompileException(
-                    $name,
-                    'Unable to read theme.json'
-                );
-            }
+            $fileContent = $this->filesystem->readFile($pathname);
+        } catch (IOException $e) {
+            throw ThemeException::themeCompileException($name, 'Unable to read theme.json', $e);
+        }
 
-            /** @var array<string, mixed> $data */
-            $data = json_decode($fileContent, true);
-            if (json_last_error() !== \JSON_ERROR_NONE) {
-                throw new ThemeCompileException(
-                    $name,
-                    'Unable to parse theme.json. Message: ' . json_last_error_msg()
-                );
-            }
+        try {
+            $data = json_decode($fileContent, true, flags: \JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            throw ThemeException::themeCompileException($name, 'Unable to parse theme.json. Message: ' . $e->getMessage(), $e);
+        }
 
+        try {
             $config = $this->createFromThemeJson($name, $data, $path);
-        } catch (ThemeCompileException $e) {
-            throw $e;
-        } catch (\Exception $e) {
-            throw new ThemeCompileException(
+        } catch (\Throwable $e) {
+            throw ThemeException::themeCompileException(
                 $name,
                 \sprintf(
                     'Got exception while parsing theme config. Exception message "%s"',

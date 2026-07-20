@@ -33,10 +33,11 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
             }
 
             promises = orders.map((order) => {
-                const optionsMail = {
+                const options = {
                     documentTypes: change.documentTypes,
                     skipSentDocuments: change.skipSentDocuments,
                     sendMail: change.sendMail,
+                    internalComment: change.internalComment,
                 };
 
                 switch (change.field) {
@@ -44,7 +45,7 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
                         return this.orderStateMachineService.transitionOrderTransactionState(
                             order.transactions.first()?.id,
                             change.value,
-                            optionsMail,
+                            options,
                             {},
                             {
                                 'sw-skip-trigger-flow': !shouldTriggerFlows,
@@ -54,7 +55,7 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
                         return this.orderStateMachineService.transitionOrderDeliveryState(
                             order.deliveries.first()?.id,
                             change.value,
-                            optionsMail,
+                            options,
                             {},
                             {
                                 'sw-skip-trigger-flow': !shouldTriggerFlows,
@@ -64,7 +65,7 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
                         return this.orderStateMachineService.transitionOrderState(
                             order.id,
                             change.value,
-                            optionsMail,
+                            options,
                             {},
                             {
                                 'sw-skip-trigger-flow': !shouldTriggerFlows,

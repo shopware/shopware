@@ -53,7 +53,7 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
             return;
         }
 
-        if (empty($criteria->getFields())) {
+        if ($criteria->getFields() === []) {
             $criteria
                 ->addAssociation('prices')
                 ->addAssociation('unit')

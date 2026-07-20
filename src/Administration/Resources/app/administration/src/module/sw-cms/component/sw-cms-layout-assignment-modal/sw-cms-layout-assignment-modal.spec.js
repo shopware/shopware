@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package discovery
  */
@@ -150,7 +152,7 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
                                     :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
                                     alt=""
                                 >
-                                <p>{{ $tc('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentEmptyStateDescription') }}</p>
+                                <p>{{ $t('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentEmptyStateDescription') }}</p>
                             </slot>
                         </div>
                     `,
@@ -670,7 +672,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     it('should contain all available shop pages', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.shopPages).toHaveLength(9);
+        expect(wrapper.vm.shopPages).toHaveLength(10);
 
         expect(wrapper.vm.shopPages).toEqual(
             expect.arrayContaining([
@@ -708,6 +710,10 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                 }),
                 expect.objectContaining({
                     value: 'core.basicInformation.contactPage',
+                    label: expect.any(String),
+                }),
+                expect.objectContaining({
+                    value: 'core.basicInformation.revocationRequestPage',
                     label: expect.any(String),
                 }),
             ]),

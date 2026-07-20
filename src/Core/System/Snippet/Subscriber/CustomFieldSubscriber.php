@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Snippet\Subscriber;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -24,8 +25,10 @@ class CustomFieldSubscriber implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly ClockInterface $clock,
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -50,7 +53,7 @@ class CustomFieldSubscriber implements EventSubscriberInterface
                     $snippetSets = $this->connection->fetchAllAssociative('SELECT id, iso FROM snippet_set');
                 }
 
-                if (empty($snippetSets)) {
+                if ($snippetSets === []) {
                     return;
                 }
 
@@ -58,7 +61,7 @@ class CustomFieldSubscriber implements EventSubscriberInterface
             }
         }
 
-        if (empty($snippets)) {
+        if ($snippets === []) {
             return;
         }
 
@@ -108,7 +111,7 @@ class CustomFieldSubscriber implements EventSubscriberInterface
                 'custom_fields' => json_encode([
                     self::CUSTOM_FIELD_ID_FIELD => $writeResult->getPrimaryKey(),
                 ], \JSON_THROW_ON_ERROR),
-                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ];
         }
     }

@@ -44,7 +44,7 @@ class SalesChannelIndexer extends EntityIndexer
 
         $ids = $iterator->fetch();
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return null;
         }
 
@@ -55,7 +55,7 @@ class SalesChannelIndexer extends EntityIndexer
     {
         $updates = $event->getPrimaryKeys(SalesChannelDefinition::ENTITY_NAME);
 
-        if (empty($updates)) {
+        if ($updates === []) {
             return null;
         }
 
@@ -70,7 +70,7 @@ class SalesChannelIndexer extends EntityIndexer
         }
 
         $ids = array_unique(array_filter($ids));
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 

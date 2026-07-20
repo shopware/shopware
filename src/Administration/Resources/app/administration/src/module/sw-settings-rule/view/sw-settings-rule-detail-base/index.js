@@ -93,8 +93,22 @@ export default {
             );
         },
 
-        showProductStateConditionWarning() {
-            return Array.isArray(this.conditions) && this.hasConditionType(this.conditions, 'cartLineItemProductStates');
+        deprecatedConditionsInUse() {
+            if (!this.conditions) {
+                return [];
+            }
+
+            return this.ruleConditionDataProviderService.getDeprecationsInTree(this.conditions);
+        },
+
+        flowOnlyConditionLabels() {
+            if (!this.conditions) {
+                return [];
+            }
+
+            return this.ruleConditionDataProviderService
+                .getFlowOnlyTypesInTree(this.conditions)
+                .map((entry) => this.$t(entry.label));
         },
     },
 
@@ -123,20 +137,6 @@ export default {
                     condition.children &&
                     Array.isArray(condition.children) &&
                     this.hasProductStreamConditions(condition.children)
-                );
-            });
-        },
-
-        hasConditionType(conditions, conditionType) {
-            return conditions.some((condition) => {
-                if (condition.type === conditionType) {
-                    return true;
-                }
-
-                return (
-                    condition.children &&
-                    Array.isArray(condition.children) &&
-                    this.hasConditionType(condition.children, conditionType)
                 );
             });
         },

@@ -3,7 +3,7 @@
     {% block sw_settings_country_address_handling_options %}
     <mt-card
         position-identifier="sw-settings-country-address-handling-options"
-        :title="$tc('sw-settings-country.detail.titleOptions')"
+        :title="$t('sw-settings-country.detail.titleOptions')"
         :is-loading="isLoading"
     >
         <sw-container class="sw-settings-country-address-handling__options-container">
@@ -13,8 +13,17 @@
                 class="sw-settings-country-address-handling__option-items"
                 bordered
                 :disabled="!acl.can('country.editor') || undefined"
-                :label="$tc('sw-settings-country.detail.labelForceStateInRegistration')"
+                :label="$t('sw-settings-country.detail.labelForceStateInRegistration')"
                 @update:model-value="updateCountry('forceStateInRegistration', $event)"
+            />
+
+            <mt-switch
+                :model-value="isDisplayStateInRegistrationActive"
+                class="sw-settings-country-address-handling__option-items"
+                bordered
+                :disabled="isDisplayStateInRegistrationDisabled || undefined"
+                :label="$t('sw-settings-country.detail.labelDisplayStateInRegistration')"
+                @update:model-value="updateCountry('displayStateInRegistration', $event)"
             />
 
             <mt-switch
@@ -22,7 +31,7 @@
                 class="sw-settings-country-address-handling__option-items"
                 bordered
                 :disabled="!acl.can('country.editor') || undefined"
-                :label="$tc('sw-settings-country.detail.labelPostalCodeRequired')"
+                :label="$t('sw-settings-country.detail.labelPostalCodeRequired')"
                 @update:model-value="updateCountry('postalCodeRequired', $event)"
             />
 
@@ -31,8 +40,8 @@
                 class="sw-settings-country-address-handling__option-items"
                 bordered
                 :disabled="!hasDefaultPostalCodePattern || !acl.can('country.editor') || undefined"
-                :label="$tc('sw-settings-country.detail.labelCheckPostalCodePattern')"
-                :help-text="$tc('sw-settings-country.detail.helpTextCheckPostalCodePattern')"
+                :label="$t('sw-settings-country.detail.labelCheckPostalCodePattern')"
+                :help-text="$t('sw-settings-country.detail.helpTextCheckPostalCodePattern')"
                 @update:model-value="updateCountry('checkPostalCodePattern', $event)"
             />
 
@@ -42,8 +51,8 @@
                     :model-value="country.checkAdvancedPostalCodePattern"
                     class="sw-settings-country-address-handling__option-items"
                     :disabled="!acl.can('country.editor') || disabledAdvancedPostalCodePattern || undefined"
-                    :label="$tc('sw-settings-country.detail.labelCheckAdvancedPostalCodePattern')"
-                    :help-text="$tc('sw-settings-country.detail.helpTextAdvancedPostalCodePattern', {5: '{5}', 4: '{4}', 2: '{2}'}, 0)"
+                    :label="$t('sw-settings-country.detail.labelCheckAdvancedPostalCodePattern')"
+                    :help-text="$t('sw-settings-country.detail.helpTextAdvancedPostalCodePattern')"
                     @update:model-value="updateCountry('checkAdvancedPostalCodePattern', $event)"
                 />
 
@@ -52,7 +61,7 @@
                     class="sw-settings-country-address-handling__text-field"
                     :class="{'is--disabled': !country.checkAdvancedPostalCodePattern}"
                     :disabled="!acl.can('country.editor') || undefined"
-                    :placeholder="$tc('sw-settings-country.detail.placeholderAdvancedPostalCodePattern')"
+                    :placeholder="$t('sw-settings-country.detail.placeholderAdvancedPostalCodePattern')"
                     @update:model-value="updateCountry('advancedPostalCodePattern', $event)"
                 />
             </div>
@@ -63,38 +72,74 @@
     {% block sw_settings_country_address_handling_formatting %}
     <mt-card
         position-identifier="sw-settings-country-address-handling-formatting"
-        :title="$tc('sw-settings-country.detail.titleFormatting')"
+        :title="$t('sw-settings-country.detail.titleFormatting')"
         :is-loading="isLoading"
     >
+        <template #headerRight>
+            <mt-button
+                class="sw-settings-country-address-handling__button-reset"
+                variant="critical"
+                ghost
+                size="small"
+                @click="resetMarkup"
+            >
+                {{ $t('sw-settings-country.detail.buttonResetMarkup') }}
+            </mt-button>
+        </template>
+
         <sw-container class="sw-settings-country-address-handling__options-container">
             <div class="sw-settings-country-address-handling__address-markup">
-                <sw-multi-snippet-drag-and-drop
-                    v-for="(snippet, index) in addressFormat"
-                    :key="index"
-                    v-droppable="{ data: { snippet, index }, dragGroup: 'sw-multi-snippet' }"
-                    v-draggable="{ ...dragConf, data: { snippet, index }}"
-                    :value="snippet"
-                    :line-position="index"
-                    :get-label-property="getLabelProperty"
-                    :total-lines="addressFormat.length"
-                    @update:value="change"
-                    @drop-end="onDropEnd"
-                    @position-move="moveToNewPosition"
-                    @add-new-line="addNewLineAt"
-                    @open-snippet-modal="openSnippetModal"
-                />
+                <template
+                    v-for="row in addressFormatRows"
+                    :key="row.key"
+                >
+                    <sw-multi-snippet-drag-and-drop
+                        v-if="row.isPlaceholder"
+                        class="is--row-placeholder"
+                        :value="row.snippet"
+                        :line-position="row.index"
+                        :get-label-property="getLabelProperty"
+                        :total-lines="addressFormat.length"
+                        disabled
+                    />
+
+                    <sw-multi-snippet-drag-and-drop
+                        v-else
+                        v-droppable="{ data: { snippet: row.snippet, index: row.index }, dragGroup: 'sw-multi-snippet' }"
+                        v-draggable="{ ...dragConf, data: { snippet: row.snippet, index: row.index }}"
+                        :class="{
+                            'is--row-dragging': !!rowDragPreview,
+                            'is--row-drag-preview-source': row.isSource,
+                        }"
+                        :value="row.snippet"
+                        :line-position="row.index"
+                        :get-label-property="getLabelProperty"
+                        :total-lines="addressFormat.length"
+                        :external-drag-preview="snippetDragPreview"
+                        :is-snippet-dragging="!!snippetDragItem"
+                        @update:value="change"
+                        @drag-start="onSnippetDragStart"
+                        @drag-enter="onSnippetDragEnter"
+                        @drop-end="onDropEnd"
+                        @position-move="moveToNewPosition"
+                        @add-new-line="addNewLineAt"
+                        @open-snippet-modal="openSnippetModal"
+                    />
+                </template>
             </div>
 
             <div class="sw-settings-country-address-handling__address-preview">
-                <div class="sw-card__title">
-                    {{ $tc('sw-settings-country.detail.previewTitle') }}
-                </div>
+                <hr class="sw-settings-country-address-handling__preview-separator">
+
+                <h3 class="sw-settings-country-address-handling__preview-title">
+                    {{ $t('sw-settings-country.detail.previewTitle') }}
+                </h3>
 
                 <sw-entity-single-select
                     v-model:value="customerId"
                     class="sw-settings-country-address-handling__customer-select"
-                    :label="$tc('sw-settings-country.detail.labelCustomer')"
-                    :placeholder="$tc('sw-settings-country.detail.placeholderSelectCustomer')"
+                    :label="$t('sw-settings-country.detail.labelCustomer')"
+                    :placeholder="$t('sw-settings-country.detail.placeholderSelectCustomer')"
                     entity="customer"
                     show-clearable-button
                     :criteria="customerCriteria"
@@ -102,16 +147,11 @@
                     @update:value="onChangeCustomer"
                 />
 
-                <sw-settings-country-preview-template :formatting-address="formattingAddress" />
-
-                <mt-button
-                    class="sw-settings-country-address-handling__button-reset"
-                    variant="critical"
-                    ghost
-                    @click="resetMarkup"
-                >
-                    {{ $tc('sw-settings-country.detail.buttonResetMarkup') }}
-                </mt-button>
+                <sw-settings-country-preview-template
+                    v-if="customer"
+                    :formatting-address="formattingAddress"
+                    :is-loading="isPreviewLoading"
+                />
             </div>
         </sw-container>
     </mt-card>

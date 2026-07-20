@@ -36,10 +36,10 @@ class ShopIdProvider implements ResetInterface
     /**
      * @throws ShopIdChangeSuggestedException
      */
-    public function getShopId(): string
+    public function getShopId(): ShopId
     {
         if ($this->shopId) {
-            return $this->shopId->id;
+            return $this->shopId;
         }
 
         $this->shopId = $this->fetchShopIdFromSystemConfig() ?? $this->regenerateAndSetShopId();
@@ -55,7 +55,7 @@ class ShopIdProvider implements ResetInterface
             $this->regenerateAndSetShopId($this->shopId->id);
         }
 
-        return $this->shopId->id;
+        return $this->shopId;
     }
 
     public function regenerateAndSetShopId(?string $existingShopId = null): ShopId
@@ -72,8 +72,8 @@ class ShopIdProvider implements ResetInterface
 
     public function deleteShopId(): void
     {
-        $this->systemConfigService->delete(self::SHOP_ID_SYSTEM_CONFIG_KEY);
-        $this->systemConfigService->delete(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
+        $this->systemConfigService->delete(self::SHOP_ID_SYSTEM_CONFIG_KEY, null, true);
+        $this->systemConfigService->delete(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2, null, false);
 
         $this->reset();
 
@@ -95,8 +95,15 @@ class ShopIdProvider implements ResetInterface
             $oldShopId = null;
         }
 
-        $this->systemConfigService->set(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2, (array) $shopId);
-        $this->eventDispatcher->dispatch(new ShopIdChangedEvent($shopId, $oldShopId));
+        $this->systemConfigService->set(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2, $shopId->toArray(), null, false);
+
+        // A regeneration can keep the id while refreshing fingerprints (APP_URL move, V1->V2 upgrade);
+        // that is not a change of shop identity, so the event only fires when the id actually differs.
+        if ($oldShopId?->id !== $shopId->id) {
+            $this->eventDispatcher->dispatch(new ShopIdChangedEvent($shopId, $oldShopId));
+        }
+
+        $this->shopId = $shopId;
     }
 
     private function hasAppsRegisteredAtAppServers(): bool

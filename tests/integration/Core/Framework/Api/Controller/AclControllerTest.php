@@ -44,7 +44,7 @@ class AclControllerTest extends TestCase
 
     public function testGetAdditionalPrivilegesEvent(): void
     {
-        $getAdditionalPrivileges = function (AclGetAdditionalPrivilegesEvent $event): void {
+        $getAdditionalPrivileges = static function (AclGetAdditionalPrivilegesEvent $event): void {
             $privileges = $event->getPrivileges();
             static::assertContains('system:clear:cache', $privileges);
             $privileges[] = 'my_custom_privilege';

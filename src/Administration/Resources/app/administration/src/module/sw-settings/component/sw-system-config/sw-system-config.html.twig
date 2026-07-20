@@ -5,7 +5,7 @@
         class="sw-system-config__global-sales-channel-switch"
     >
         <sw-sales-channel-switch
-            :label="$tc('sw-settings.system-config.labelSalesChannelSelect')"
+            :label="$t('sw-settings.system-config.labelSalesChannelSelect')"
             @change-sales-channel-id="onSalesChannelChanged"
         />
     </div>
@@ -15,9 +15,10 @@
         v-for="card, index in config"
         :key="index"
         position-identifier="sw-system-config-content"
-        :class="`sw-system-config__card--${index}`"
+        :class="[ `sw-system-config__card--${index}`, card.name ? `sw-system-config__card--${kebabCase(card.name)}` : null ]"
         :is-loading="isLoading"
         :title="getInlineSnippet(card.title)"
+        :subtitle="getInlineSnippet(card.subtitle)"
     >
         <slot name="title">
             <sw-ai-copilot-badge v-if="card.aiBadge" />
@@ -33,7 +34,7 @@
             #toolbar
         >
             <sw-sales-channel-switch
-                :label="$tc('sw-settings.system-config.labelSalesChannelSelect')"
+                :label="$t('sw-settings.system-config.labelSalesChannelSelect')"
                 @change-sales-channel-id="onSalesChannelChanged"
             />
         </template>
@@ -41,7 +42,7 @@
         <template v-if="hasCssFields">
             {% block sw_system_config_content_compile_notice %}
             <mt-banner variant="attention">
-                {{ $tc('sw-settings.system-config.compileNotice') }}
+                {{ $t('sw-settings.system-config.compileNotice') }}
             </mt-banner>
             {% endblock %}
         </template>
@@ -52,6 +53,7 @@
                     name="card-element"
                     v-bind="{ element: getElementBind(element), config: actualConfigData[currentSalesChannelId], card }"
                 >
+                    {% block sw_system_config_content_card_group %}
                     <template v-if="isMeteorComponent(element)">
                         <sw-inherit-wrapper
                             v-model:value="actualConfigData[currentSalesChannelId][element.name]"
@@ -92,6 +94,7 @@
                         </sw-inherit-wrapper>
                     {% endblock %}
                     </template>
+                    {% endblock %}
                 </slot>
             </template>
             <slot name="card-element-last"></slot>

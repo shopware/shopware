@@ -7,12 +7,14 @@ use OpenSearchDSL\Query\Compound\BoolQuery;
 use OpenSearchDSL\Query\TermLevel\ExistsQuery;
 use OpenSearchDSL\Query\TermLevel\RangeQuery;
 use OpenSearchDSL\Query\TermLevel\TermQuery;
+use OpenSearchDSL\Query\TermLevel\TermsQuery;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
@@ -52,9 +54,17 @@ class ProductCriteriaParser extends CriteriaParser
 
             $query = new BoolQuery();
 
-            $query->add(
-                new TermQuery('active', true),
-            );
+            // Shopware\Administration\Controller\AdminProductStreamController::productStreamPreview() add ProductAvailableFilter
+            // but remove active filter, so we need to check if active filter is added to the query
+            foreach ($filter->getQueries() as $subFilter) {
+                if ($subFilter instanceof EqualsFilter && \in_array($subFilter->getField(), ['product.active', 'active'], true)) {
+                    $query->add(
+                        new TermQuery('active', true),
+                    );
+
+                    break;
+                }
+            }
 
             $query->add(
                 new RangeQuery('visibility_' . $filter->getSalesChannelId(), [RangeFilter::GTE => $filter->getVisibility()]),
@@ -78,6 +88,17 @@ class ProductCriteriaParser extends CriteriaParser
             }
 
             return new TermQuery('categoryTree', $filter->getValue());
+        }
+
+        if ($filter instanceof EqualsAnyFilter && \str_contains($filter->getField(), 'categoriesRo.id')) {
+            /**
+             * @deprecated tag:v6.8.0 - this if statement will be always true
+             */
+            if (!Feature::isActive('v6.8.0.0') && !$this->storage->has(ElasticsearchOptimizeSwitch::FLAG)) {
+                return $this->decorated->parseFilter($filter, $definition, $root, $context);
+            }
+
+            return new TermsQuery('categoryTree', array_values($filter->getValue()));
         }
 
         return parent::parseFilter($filter, $definition, $root, $context);

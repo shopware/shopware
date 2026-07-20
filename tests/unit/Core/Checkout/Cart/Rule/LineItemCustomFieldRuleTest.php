@@ -33,7 +33,7 @@ class LineItemCustomFieldRuleTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->salesChannelContext = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
+        $this->salesChannelContext = static::createStub(SalesChannelContext::class);
         $this->salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
     }
 
@@ -45,8 +45,7 @@ class LineItemCustomFieldRuleTest extends TestCase
 
     public function testGetConstraints(): void
     {
-        $rule = new LineItemCustomFieldRule();
-        $ruleConstraints = $rule->getConstraints();
+        $ruleConstraints = (new LineItemCustomFieldRule())->getConstraints();
 
         static::assertArrayHasKey('operator', $ruleConstraints, 'Rule Constraint operator is not defined');
         static::assertArrayHasKey('renderedField', $ruleConstraints, 'Rule Constraint renderedField is not defined');
@@ -112,7 +111,7 @@ class LineItemCustomFieldRuleTest extends TestCase
     public function testWithoutCustomField(): void
     {
         $rule = self::setupBoolRule(false);
-        $scope = new LineItemScope($this->createLineItem(), $this->salesChannelContext);
+        $scope = new LineItemScope(self::createLineItem(), $this->salesChannelContext);
         static::assertFalse($rule->match($scope));
 
         $rule->assign(['operator' => Rule::OPERATOR_NEQ]);
@@ -163,38 +162,38 @@ class LineItemCustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @param bool|string|null $customFieldValueInLineItem
+     * @param list<int>|bool|string|null $customFieldValueInLineItem
      */
     #[DataProvider('customFieldCartScopeProvider')]
     public function testCustomFieldCartScope(
         LineItemCustomFieldRule $rule,
-        $customFieldValueInLineItem,
+        array|bool|string|null $customFieldValueInLineItem,
         bool $result
     ): void {
         $lineItemCollection = new LineItemCollection([
             $this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => $customFieldValueInLineItem]),
         ]);
 
-        $cart = $this->createCart($lineItemCollection);
+        $cart = self::createCart($lineItemCollection);
         $scope = new CartRuleScope($cart, $this->salesChannelContext);
         static::assertSame($result, $rule->match($scope));
     }
 
     /**
-     * @param bool|string|null $customFieldValueInLineItem
+     * @param list<int>|bool|string|null $customFieldValueInLineItem
      */
     #[DataProvider('customFieldCartScopeProvider')]
     public function testCustomFieldCartScopeNested(
         LineItemCustomFieldRule $rule,
-        $customFieldValueInLineItem,
+        array|bool|string|null $customFieldValueInLineItem,
         bool $result
     ): void {
         $lineItemCollection = new LineItemCollection([
             $this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => $customFieldValueInLineItem]),
         ]);
 
-        $containerLineItem = $this->createContainerLineItem($lineItemCollection);
-        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+        $containerLineItem = self::createContainerLineItem($lineItemCollection);
+        $cart = self::createCart(new LineItemCollection([$containerLineItem]));
 
         $scope = new CartRuleScope($cart, $this->salesChannelContext);
         static::assertSame($result, $rule->match($scope));
@@ -257,7 +256,7 @@ class LineItemCustomFieldRuleTest extends TestCase
      */
     private function createLineItemWithCustomFields(array $customFields = []): LineItem
     {
-        return $this->createLineItem()->setPayloadValue('customFields', $customFields);
+        return self::createLineItem()->setPayloadValue('customFields', $customFields);
     }
 
     private static function setupFloatRule(string|float $customFieldValue): LineItemCustomFieldRule

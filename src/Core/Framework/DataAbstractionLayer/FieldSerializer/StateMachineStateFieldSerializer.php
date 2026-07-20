@@ -25,7 +25,7 @@ class StateMachineStateFieldSerializer extends FkFieldSerializer
         KeyValuePair $data,
         WriteParameterBag $parameters
     ): \Generator {
-        if (!($field instanceof StateMachineStateField)) {
+        if (!$field instanceof StateMachineStateField) {
             throw DataAbstractionLayerException::invalidSerializerField(StateMachineStateField::class, $field);
         }
 

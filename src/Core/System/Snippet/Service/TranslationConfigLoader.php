@@ -100,7 +100,7 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
             throw SnippetException::translationConfigurationFileDoesNotExist($this->getConfigFilename(), $e);
         }
 
-        if (empty(\trim($content))) {
+        if (\trim($content) === '') {
             throw SnippetException::translationConfigurationFileIsEmpty($this->getConfigFilename());
         }
 
@@ -152,7 +152,7 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
 
     private function getValidatedUrl(string $urlString, string $type): Uri
     {
-        if (\mb_strlen(\trim($urlString)) < 1) {
+        if (\trim($urlString) === '') {
             throw SnippetException::invalidRepositoryUrl(
                 $urlString,
                 new \InvalidArgumentException(\sprintf('"%s" in the translation config must not be empty.', $type))
@@ -165,7 +165,7 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
             throw SnippetException::invalidRepositoryUrl($urlString, $e);
         }
 
-        if (empty($url->getScheme()) || empty($url->getHost())) {
+        if ($url->getScheme() === '' || $url->getHost() === '') {
             throw SnippetException::invalidRepositoryUrl(
                 $urlString,
                 new MalformedUriException(\sprintf('"%s" must contain a schema and a host.', $type))

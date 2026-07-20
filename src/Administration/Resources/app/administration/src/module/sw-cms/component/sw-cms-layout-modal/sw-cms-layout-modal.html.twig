@@ -2,7 +2,7 @@
 <sw-modal
     class="sw-cms-layout-modal"
     variant="large"
-    :title="$tc('sw-cms.components.cmsLayoutModal.modalTitle')"
+    :title="$t('sw-cms.components.cmsLayoutModal.modalTitle')"
     @modal-close="closeModal"
 >
 
@@ -13,7 +13,7 @@
         <sw-simple-search-field
             v-model:value="term"
             class="sw-cms-layout-modal__header-search"
-            :placeholder="$tc('sw-cms.general.placeholderSearchBar')"
+            :placeholder="$t('sw-cms.general.placeholderSearchBar')"
             @search-term-change="onSearch"
         />
         {% endblock %}
@@ -203,14 +203,14 @@
             variant="secondary"
             @click="closeModal"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         <mt-button
             variant="primary"
             class="sw-cms-layout-modal__button-select-layout"
             @click="selectLayout"
         >
-            {{ $tc('sw-cms.components.cmsLayoutModal.actionConfirm') }}
+            {{ $t('sw-cms.components.cmsLayoutModal.actionConfirm') }}
         </mt-button>
     </template>
     {% endblock %}

@@ -34,7 +34,7 @@ class ValidatorFactory
         }
 
         $messages = array_map(
-            fn (ConstraintViolationInterface $violation) => $violation->getPropertyPath() . ': ' . $violation->getMessage(),
+            static fn (ConstraintViolationInterface $violation) => $violation->getPropertyPath() . ': ' . $violation->getMessage(),
             iterator_to_array($violations)
         );
 

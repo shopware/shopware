@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('discovery')]
@@ -26,6 +27,9 @@ class LandingPageTranslationEntity extends TranslationEntity
 
     protected ?string $keywords = null;
 
+    /**
+     * @var array<string, array<string, array<string, mixed>>|null>|null
+     */
     protected ?array $slotConfig = null;
 
     public function getLandingPageId(): string
@@ -98,13 +102,28 @@ class LandingPageTranslationEntity extends TranslationEntity
         $this->keywords = $keywords;
     }
 
+    /**
+     * @return array<string, array<string, array<string, mixed>>|null>|null
+     */
     public function getSlotConfig(): ?array
     {
         return $this->slotConfig;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - $slotConfig will be mandatory in future implementation
+     *
+     * @param array<string, array<string, array<string, mixed>>|null>|null $slotConfig
+     */
     public function setSlotConfig(?array $slotConfig): void
     {
+        if ($slotConfig === null) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                '$slotConfig will be mandatory in future implementation'
+            );
+        }
+
         $this->slotConfig = $slotConfig;
     }
 }

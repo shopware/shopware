@@ -122,13 +122,11 @@ export function getObjectDiff(a: any, b: any): any {
         // @ts-expect-error
         if (type.isArray(b[key])) {
             // @ts-expect-error
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-argument
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             const changes = getArrayChanges(a[key], b[key]);
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             if (Object.keys(changes).length > 0) {
                 // @ts-expect-error
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 return { ...acc, [key]: b[key] };
             }
 
@@ -173,7 +171,6 @@ export function getArrayChanges(a: any[], b: any[]): any[] {
     }
 
     if (!type.isArray(a) || !type.isArray(b)) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return b;
     }
 

@@ -73,7 +73,6 @@ export default Component.wrapComponentConfig({
         },
 
         isCustomerActive(): boolean {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
             return Store.get('swOrder').isCustomerActive;
         },
 
@@ -100,11 +99,7 @@ export default Component.wrapComponentConfig({
                 languageId: value.context.languageIdChain[0],
                 shippingMethodId: value.shippingMethod.id,
                 paymentMethodId: value.paymentMethod.id,
-                // eslint-disable-next-line max-len
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
                 billingAddressId: value.customer?.activeBillingAddress?.id ?? '',
-                // eslint-disable-next-line max-len
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
                 shippingAddressId: value.customer?.activeShippingAddress?.id ?? '',
             };
         },
@@ -134,7 +129,6 @@ export default Component.wrapComponentConfig({
             }
 
             if (this.promotionCodes.length) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 promises.push(this.addPromotionCodes());
             }
 

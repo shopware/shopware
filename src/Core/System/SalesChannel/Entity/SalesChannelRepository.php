@@ -101,7 +101,7 @@ class SalesChannelRepository
 
         $ids = $this->doSearch($criteria, $salesChannelContext);
 
-        if (empty($ids->getIds())) {
+        if ($ids->getIds() === []) {
             /** @var TEntityCollection $collection */
             $collection = $this->definition->getCollectionClass();
 
@@ -123,7 +123,7 @@ class SalesChannelRepository
                 $data = $search[$element->getUniqueIdentifier()];
                 unset($data['id']);
 
-                if (empty($data)) {
+                if ($data === []) {
                     continue;
                 }
 
@@ -215,7 +215,7 @@ class SalesChannelRepository
         $processed = [];
 
         // process all associations breadth-first
-        while (!empty($queue) && --$maxCount > 0) {
+        while ($queue !== [] && --$maxCount > 0) {
             $cur = array_shift($queue);
 
             $definition = $cur['definition'];

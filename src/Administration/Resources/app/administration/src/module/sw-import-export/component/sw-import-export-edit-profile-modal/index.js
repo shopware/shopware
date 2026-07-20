@@ -39,7 +39,6 @@ export default {
         show: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default() {
                 return true;
             },
@@ -48,8 +47,9 @@ export default {
 
     data() {
         return {
-            missingRequiredFields: [],
+            duplicateMappings: [],
             systemRequiredFields: {},
+            missingRequiredFields: [],
         };
     },
 
@@ -72,18 +72,18 @@ export default {
 
         modalTitle() {
             return this.isNew
-                ? this.$tc('sw-import-export.profile.newProfileLabel')
-                : this.$tc('sw-import-export.profile.editProfileLabel');
+                ? this.$t('sw-import-export.profile.newProfileLabel')
+                : this.$t('sw-import-export.profile.editProfileLabel');
         },
 
         saveLabelSnippet() {
             return this.isNew
-                ? this.$tc('sw-import-export.profile.addProfileLabel')
-                : this.$tc('sw-import-export.profile.saveProfileLabel');
+                ? this.$t('sw-import-export.profile.addProfileLabel')
+                : this.$t('sw-import-export.profile.saveProfileLabel');
         },
 
         showValidationError() {
-            return this.missingRequiredFields.length > 0;
+            return this.missingRequiredFields.length > 0 || this.duplicateMappings.length > 0;
         },
 
         profileRepository() {
@@ -111,7 +111,7 @@ export default {
             this.getParentProfileSelected().then((parentProfile) => {
                 this.checkValidation(parentProfile);
 
-                if (this.missingRequiredFields.length === 0) {
+                if (!this.showValidationError) {
                     this.$emit('profile-save');
                 }
             });
@@ -137,7 +137,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-import-export.profile.messageSearchParentProfileError'),
+                        message: this.$t('sw-import-export.profile.messageSearchParentProfileError'),
                     });
                 });
         },
@@ -149,8 +149,10 @@ export default {
             }
 
             const parentMapping = parentProfile ? parentProfile.mapping : [];
+
             const isOnlyUpdateProfile =
                 this.profile.config.createEntities === false && this.profile.config.updateEntities === true;
+
             const validationErrors = this.importExportProfileMapping.validate(
                 this.profile.sourceEntity,
                 this.profile.mapping,
@@ -158,13 +160,13 @@ export default {
                 isOnlyUpdateProfile,
             );
 
-            if (validationErrors.missingRequiredFields.length > 0) {
-                this.missingRequiredFields = validationErrors.missingRequiredFields;
-            }
+            this.missingRequiredFields = validationErrors.missingRequiredFields;
+            this.duplicateMappings = validationErrors.duplicateMappings;
         },
 
         resetViolations() {
             this.missingRequiredFields = [];
+            this.duplicateMappings = [];
         },
 
         loadSystemRequiredFieldsForEntity(entityName) {

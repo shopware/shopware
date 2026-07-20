@@ -129,7 +129,7 @@ class ImportExportFileRepositoryTest extends TestCase
                 }
             }
 
-            $missingPropertyPaths = array_map(fn ($property) => '/' . $property, $requiredProperties);
+            $missingPropertyPaths = array_map(static fn ($property) => '/' . $property, $requiredProperties);
 
             static::assertSame($missingPropertyPaths, $foundViolations);
         }
@@ -144,7 +144,7 @@ class ImportExportFileRepositoryTest extends TestCase
 
         foreach ($data as $expect) {
             $id = $expect['id'];
-            $result = $this->repository->search(new Criteria([$id]), $this->context);
+            $result = $this->repository->search(new Criteria([$id]), $this->context)->getEntities();
             $importExportFile = $result->get($id);
             static::assertInstanceOf(ImportExportFileEntity::class, $importExportFile);
             static::assertCount(1, $result);
@@ -163,7 +163,7 @@ class ImportExportFileRepositoryTest extends TestCase
 
         $this->repository->create(array_values($data), $this->context);
 
-        $result = $this->repository->search(new Criteria([Uuid::randomHex()]), $this->context);
+        $result = $this->repository->search(new Criteria([Uuid::randomHex()]), $this->context)->getEntities();
         static::assertCount(0, $result);
     }
 
@@ -280,7 +280,7 @@ class ImportExportFileRepositoryTest extends TestCase
     /**
      * Prepare a defined number of test data.
      *
-     * @return array<string, mixed>
+     * @return non-empty-array<string, mixed>
      */
     protected function prepareImportExportFileTestData(int $num = 1, string $add = ''): array
     {
@@ -297,6 +297,7 @@ class ImportExportFileRepositoryTest extends TestCase
                 'accessToken' => Random::getBase64UrlString(32),
             ];
         }
+        static::assertNotSame([], $data);
 
         return $data;
     }

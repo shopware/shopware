@@ -24,7 +24,7 @@ class CustomerNewsletterSalesChannelsUpdater
      */
     public function update(array $ids, bool $reverseUpdate = false): void
     {
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -124,7 +124,7 @@ SQL;
 
         $customerIds = RetryableQuery::retryable($this->connection, fn (): array => $this->connection->fetchFirstColumn($sql));
 
-        if (empty($customerIds)) {
+        if ($customerIds === []) {
             return;
         }
 
@@ -162,7 +162,7 @@ SQL;
             ];
         }
 
-        if (empty($parameters)) {
+        if ($parameters === []) {
             return;
         }
 

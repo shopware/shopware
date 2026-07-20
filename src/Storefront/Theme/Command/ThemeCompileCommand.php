@@ -2,6 +2,8 @@
 
 namespace Shopware\Storefront\Theme\Command;
 
+use Psr\Clock\ClockInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractAvailableThemeProvider;
@@ -27,7 +29,8 @@ class ThemeCompileCommand extends Command
      */
     public function __construct(
         private readonly ThemeService $themeService,
-        private readonly AbstractAvailableThemeProvider $themeProvider
+        private readonly AbstractAvailableThemeProvider $themeProvider,
+        private readonly ClockInterface $clock
     ) {
         parent::__construct();
     }
@@ -58,7 +61,7 @@ class ThemeCompileCommand extends Command
         $onlySalesChannel = ((array) $input->getOption('only')) ?: null;
         $skipSalesChannel = ((array) $input->getOption('skip')) ?: null;
         if ($onlySalesChannel !== null && $skipSalesChannel !== null
-            && \count(array_intersect($onlySalesChannel, $skipSalesChannel)) > 0) {
+            && array_intersect($onlySalesChannel, $skipSalesChannel) !== []) {
             $this->io->error('The sales channel includes and skips contain contradicting entries:' . implode(
                 ', ',
                 array_intersect($onlySalesChannel, $skipSalesChannel)
@@ -70,7 +73,7 @@ class ThemeCompileCommand extends Command
         $onlyThemes = ((array) $input->getOption('only-themes')) ?: null;
         $skipThemes = ((array) $input->getOption('skip-themes')) ?: null;
         if ($onlyThemes !== null && $skipThemes !== null
-            && \count(array_intersect($onlyThemes, $skipThemes)) > 0) {
+            && array_intersect($onlyThemes, $skipThemes) !== []) {
             $this->io->error('The theme includes and skips contain contradicting entries:' . implode(
                 ', ',
                 array_intersect($onlyThemes, $skipThemes)
@@ -89,9 +92,9 @@ class ThemeCompileCommand extends Command
 
             $this->io->block(\sprintf('Compiling theme for sales channel for : %s', $salesChannelId));
 
-            $start = microtime(true);
+            $start = (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT);
             $this->themeService->compileTheme($salesChannelId, $themeId, $context, null, !$input->getOption('keep-assets'));
-            $this->io->note(\sprintf('Took %f seconds', microtime(true) - $start));
+            $this->io->note(\sprintf('Took %f seconds', (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT) - $start));
         }
 
         return self::SUCCESS;

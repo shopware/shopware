@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
  * @phpstan-type ShopIdV2Config array{id: string, version: 2, fingerprints: array<string, string>}
  */
 #[Package('framework')]
-readonly class ShopId
+readonly class ShopId implements \Stringable
 {
     /**
      * @param array<string, string> $fingerprints
@@ -23,6 +23,11 @@ readonly class ShopId
         public array $fingerprints = [],
         public int $version = 2,
     ) {
+    }
+
+    public function __toString(): string
+    {
+        return $this->id;
     }
 
     public function getFingerprint(string $identifier): ?string
@@ -57,6 +62,22 @@ readonly class ShopId
         }
 
         throw AppException::invalidShopIdConfiguration();
+    }
+
+    /**
+     * @return array{
+     *    id: string,
+     *    fingerprints: array<string, string>,
+     *    version: int
+     * }
+     */
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'fingerprints' => $this->fingerprints,
+            'version' => $this->version,
+        ];
     }
 
     /**

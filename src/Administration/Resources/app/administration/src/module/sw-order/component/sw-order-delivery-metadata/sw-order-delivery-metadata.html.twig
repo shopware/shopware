@@ -13,17 +13,17 @@
         {% block sw_order_delivery_metadata_deliveries_data %}
         <sw-description-list>
             {% block sw_order_delivery_metadata_shipping_method %}
-            <dt>{{ $tc('sw-order.detailDeliveries.labelShippingMethod') }}</dt>
+            <dt>{{ $t('sw-order.detailDeliveries.labelShippingMethod') }}</dt>
             <dd>{{ delivery.shippingMethod.translated.name }}</dd>
             {% endblock %}
 
             {% block sw_order_delivery_metadata_delivery_date %}
-            <dt>{{ $tc('sw-order.detailDeliveries.labelDeliveryDate') }}</dt>
+            <dt>{{ $t('sw-order.detailDeliveries.labelDeliveryDate') }}</dt>
             <dd>{{ dateFilter(delivery.shippingDateEarliest, { month: '2-digit', day: '2-digit' }) }}</dd>
             {% endblock %}
 
             {% block sw_order_delivery_metadata_shipping_costs %}
-            <dt>{{ $tc('sw-order.detailDeliveries.labelShippingCosts') }}</dt>
+            <dt>{{ $t('sw-order.detailDeliveries.labelShippingCosts') }}</dt>
             <dd>{{ currencyFilter(order.shippingTotal, order.currency.isoCode) }}</dd>
             {% endblock %}
 
@@ -36,17 +36,17 @@
         <sw-description-list>
             <sw-address
                 class="sw-order-delivery-metdata__address"
-                :headline="$tc('sw-order.detailBase.headlineDeliveryAddress')"
+                :headline="$t('sw-order.detailBase.headlineDeliveryAddress')"
                 :address="delivery.shippingOrderAddress"
                 :formatting-address="formattingAddress"
             />
             {% block sw_order_delivery_metadata_delivery_phone_number %}
-            <dt>{{ $tc('sw-order.detailBase.labelCustomerPhoneNumber') }}</dt>
+            <dt>{{ $t('sw-order.detailBase.labelCustomerPhoneNumber') }}</dt>
             <dd v-if="delivery.shippingOrderAddress.phoneNumber">
                 {{ delivery.shippingOrderAddress.phoneNumber }}
             </dd>
             <dd v-else>
-                {{ $tc('sw-order.detailBase.labelNoPhoneNumber') }}
+                {{ $t('sw-order.detailBase.labelNoPhoneNumber') }}
             </dd>
             {% endblock %}
         </sw-description-list>

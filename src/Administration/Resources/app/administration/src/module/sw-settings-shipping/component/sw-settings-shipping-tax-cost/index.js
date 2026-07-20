@@ -50,15 +50,15 @@ export default {
         shippingCostTaxOptions() {
             return [
                 {
-                    label: this.$tc('sw-settings-shipping.shippingCostOptions.auto'),
+                    label: this.$t('sw-settings-shipping.shippingCostOptions.auto'),
                     value: 'auto',
                 },
                 {
-                    label: this.$tc('sw-settings-shipping.shippingCostOptions.highest'),
+                    label: this.$t('sw-settings-shipping.shippingCostOptions.highest'),
                     value: 'highest',
                 },
                 {
-                    label: this.$tc('sw-settings-shipping.shippingCostOptions.fixed'),
+                    label: this.$t('sw-settings-shipping.shippingCostOptions.fixed'),
                     value: 'fixed',
                 },
             ];
@@ -96,7 +96,7 @@ export default {
             }
 
             if (this.$te(`global.tax-rates.${tax.name}`)) {
-                return this.$tc(`global.tax-rates.${tax.name}`);
+                return this.$t(`global.tax-rates.${tax.name}`);
             }
 
             return tax.name;

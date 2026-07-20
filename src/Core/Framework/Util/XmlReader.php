@@ -63,7 +63,7 @@ abstract class XmlReader
     {
         $children = self::getChildByName($list, $name);
 
-        if (\count($children) === 0) {
+        if ($children === []) {
             return null;
         }
 

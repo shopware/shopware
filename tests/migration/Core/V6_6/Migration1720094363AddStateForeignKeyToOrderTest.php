@@ -34,6 +34,11 @@ class Migration1720094363AddStateForeignKeyToOrderTest extends TestCase
         $this->connection = static::getContainer()->get(Connection::class);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1720094363, (new Migration1720094363AddStateForeignKeyToOrder())->getCreationTimestamp());
+    }
+
     public function testMigrate(): void
     {
         try {
@@ -42,7 +47,7 @@ class Migration1720094363AddStateForeignKeyToOrderTest extends TestCase
             $initialState = static::getContainer()->get(InitialStateIdLoader::class)->get('order.state');
             $otherState = static::getContainer()->get(StateMachineRegistry::class)
                 ->getStateMachine(OrderStates::STATE_MACHINE, Context::createDefaultContext())
-                ->getStates()?->filter(function (StateMachineStateEntity $state) use ($initialState) {
+                ->getStates()?->filter(static function (StateMachineStateEntity $state) use ($initialState) {
                     return $state->getId() !== $initialState;
                 })->first()?->getId() ?? Uuid::randomHex();
             $invalidState = Uuid::randomHex();

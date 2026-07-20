@@ -27,27 +27,46 @@ class Migration1730790665ElectronicInvoice extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $documentType = $connection->fetchOne('SELECT `id` FROM `document_type` WHERE technical_name like \'%zugferd%\'');
-        if ($documentType !== false) {
+        $types = [
+            ZugferdRenderer::TYPE => [
+                'de' => ['name' => 'Rechnung: ZUGFeRD E-Rechnung'],
+                'en' => ['name' => 'Invoice: ZUGFeRD E-invoice'],
+            ],
+            ZugferdEmbeddedRenderer::TYPE => [
+                'de' => ['name' => 'Rechnung: PDF mit eingebetteter ZUGFeRD E-Rechnung'],
+                'en' => ['name' => 'Invoice: PDF with embedded ZUGFeRD E-invoice'],
+            ],
+        ];
+
+        foreach ($types as $technicalName => $translations) {
+            $this->addDocumentType($technicalName, $translations, $connection);
+        }
+    }
+
+    /**
+     * @param array<string, array<string, string>> $translations
+     */
+    private function addDocumentType(string $technicalName, array $translations, Connection $connection): void
+    {
+        $typeId = $connection->fetchOne(
+            'SELECT `id` FROM `document_type` WHERE technical_name = :technicalName',
+            ['technicalName' => $technicalName]
+        );
+
+        if ($typeId) {
             return;
         }
 
         $createdAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        $electronicInvoiceId = Uuid::randomBytes();
-        $embeddedInvoiceId = Uuid::randomBytes();
 
-        $connection->insert('document_type', ['id' => $electronicInvoiceId, 'technical_name' => ZugferdRenderer::TYPE, 'created_at' => $createdAt]);
-        $connection->insert('document_type', ['id' => $embeddedInvoiceId, 'technical_name' => ZugferdEmbeddedRenderer::TYPE, 'created_at' => $createdAt]);
+        $typeId = Uuid::randomBytes();
+        $connection->insert('document_type', ['id' => $typeId, 'technical_name' => $technicalName, 'created_at' => $createdAt]);
 
-        $zugferdTranslation = new Translations(
-            ['document_type_id' => $electronicInvoiceId, 'name' => 'Rechnung: ZUGFeRD E-Rechnung'],
-            ['document_type_id' => $electronicInvoiceId, 'name' => 'Invoice: ZUGFeRD E-invoice']
+        $translation = new Translations(
+            array_merge(['document_type_id' => $typeId], $translations['de']),
+            array_merge(['document_type_id' => $typeId], $translations['en'])
         );
-        $embeddedTranslation = new Translations(
-            ['document_type_id' => $embeddedInvoiceId, 'name' => 'Rechnung: PDF mit eingebetteter ZUGFeRD E-Rechnung'],
-            ['document_type_id' => $embeddedInvoiceId, 'name' => 'Invoice: PDF with embedded ZUGFeRD E-invoice']
-        );
-        $this->importTranslation('document_type_translation', $zugferdTranslation, $connection);
-        $this->importTranslation('document_type_translation', $embeddedTranslation, $connection);
+
+        $this->importTranslation('document_type_translation', $translation, $connection);
     }
 }

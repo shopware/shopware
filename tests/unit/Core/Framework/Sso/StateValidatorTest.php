@@ -28,8 +28,8 @@ class StateValidatorTest extends TestCase
     {
         $validator = new StateValidator();
 
-        $session = $this->createMock(SessionInterface::class);
-        $session->method('get')->with(StateValidator::SESSION_KEY)->willReturn($storedState);
+        $session = static::createStub(SessionInterface::class);
+        $session->method('get')->willReturn($storedState);
 
         $code = Uuid::randomHex();
 
@@ -50,53 +50,94 @@ class StateValidatorTest extends TestCase
         static::assertSame($code, $request->request->get('code'));
     }
 
-    /**
-     * @return array<string, array{state: string|null, storedState: string|null, expectException: bool}>
-     */
-    public static function validateTestDataProvider(): array
+    public function testValidateRemovesSessionKeyAfterSuccess(): void
     {
-        return [
-            'state and storedState is null' => [
-                'state' => null,
-                'storedState' => null,
-                'expectException' => true,
-            ],
+        $validator = new StateValidator();
 
-            'state is empty and storedState is null' => [
-                'state' => '',
-                'storedState' => null,
-                'expectException' => true,
-            ],
+        $session = $this->createMock(SessionInterface::class);
+        $session->method('get')->with(StateValidator::SESSION_KEY)->willReturn(self::VALID);
+        $session->expects($this->once())->method('remove')->with(StateValidator::SESSION_KEY);
 
-            'state is empty and storedState is empty' => [
-                'state' => '',
-                'storedState' => '',
-                'expectException' => true,
-            ],
+        $request = new Request(['rdm' => self::VALID, 'code' => Uuid::randomHex()]);
+        $request->setSession($session);
 
-            'state has invalid length and storedState is set' => [
-                'state' => self::INVALID_LENGTH,
-                'storedState' => self::VALID,
-                'expectException' => true,
-            ],
+        $validator->validateRequest($request);
+    }
 
-            'state has valid length and storedState is different' => [
-                'state' => self::VALID,
-                'storedState' => self::VALID_DIFFERENT,
-                'expectException' => true,
-            ],
+    public function testCreateRandomReusesExistingKey(): void
+    {
+        $validator = new StateValidator();
 
-            'state is valid and storedState is null' => [
-                'state' => self::VALID,
-                'storedState' => null,
-                'expectException' => true,
-            ],
+        $session = $this->createMock(SessionInterface::class);
+        $session->method('get')->with(StateValidator::SESSION_KEY)->willReturn(self::VALID);
+        $session->expects($this->never())->method('set');
 
-            'state is valid and storedState equals' => [
-                'state' => self::VALID,
-                'storedState' => self::VALID,
-                'expectException' => false,
-            ],
+        $request = new Request();
+        $request->setSession($session);
+
+        $result = $validator->createRandom($request);
+
+        static::assertSame(self::VALID, $result);
+    }
+
+    public function testCreateRandomGeneratesNewKeyWhenNoneExists(): void
+    {
+        $validator = new StateValidator();
+
+        $session = $this->createMock(SessionInterface::class);
+        $session->method('get')->with(StateValidator::SESSION_KEY)->willReturn(null);
+        $session->expects($this->once())->method('set')->with(
+            StateValidator::SESSION_KEY,
+            static::callback(static fn (string $value): bool => \strlen($value) === 64),
+        );
+
+        $request = new Request();
+        $request->setSession($session);
+
+        $result = $validator->createRandom($request);
+
+        static::assertSame(64, \strlen($result));
+    }
+
+    /**
+     * @return iterable<string, array{state: string|null, storedState: string|null, expectException: bool}>
+     */
+    public static function validateTestDataProvider(): iterable
+    {
+        yield 'state and storedState is null' => [
+            'state' => null,
+            'storedState' => null,
+            'expectException' => true,
+        ];
+        yield 'state is empty and storedState is null' => [
+            'state' => '',
+            'storedState' => null,
+            'expectException' => true,
+        ];
+        yield 'state is empty and storedState is empty' => [
+            'state' => '',
+            'storedState' => '',
+            'expectException' => true,
+        ];
+        yield 'state has invalid length and storedState is set' => [
+            'state' => self::INVALID_LENGTH,
+            'storedState' => self::VALID,
+            'expectException' => true,
+        ];
+        yield 'state has valid length and storedState is different' => [
+            'state' => self::VALID,
+            'storedState' => self::VALID_DIFFERENT,
+            'expectException' => true,
+        ];
+        yield 'state is valid and storedState is null' => [
+            'state' => self::VALID,
+            'storedState' => null,
+            'expectException' => true,
+        ];
+        yield 'state is valid and storedState equals' => [
+            'state' => self::VALID,
+            'storedState' => self::VALID,
+            'expectException' => false,
         ];
     }
 }

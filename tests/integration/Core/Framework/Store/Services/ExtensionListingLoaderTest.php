@@ -32,7 +32,7 @@ class ExtensionListingLoaderTest extends TestCase
     public function testServerNotReachable(): void
     {
         $this->getStoreRequestHandler()->reset();
-        $this->getStoreRequestHandler()->append(function (): void {
+        $this->getStoreRequestHandler()->append(static function (): void {
             throw new ClientException('', new Request('GET', ''), new Response(500, [], ''));
         });
 

@@ -1,7 +1,6 @@
 /**
  * @sw-package discovery
  */
-/* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 import { MtSwitch, MtUrlField } from '@shopware-ag/meteor-component-library';
@@ -352,5 +351,53 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         // Should still only have one item and the URL should be updated
         expect(wrapper.vm.element.config.sliderItems.value).toHaveLength(1);
         expect(wrapper.vm.element.config.sliderItems.value[0].mediaUrl).toBe('http://shopware.com/image1-updated.jpg');
+    });
+
+    it('should prefer the resolved media item url in the settings link preview', async () => {
+        const wrapper = await createWrapper('settings', [
+            {
+                mediaId: '1',
+                mediaUrl: 'http://shopware.com/image1-stale.jpg',
+                ariaLabel: null,
+                newTab: false,
+                url: null,
+            },
+        ]);
+        await flushPromises();
+
+        await wrapper.setData({
+            mediaItems: [
+                {
+                    id: '1',
+                    url: 'http://shopware.com/image1-current.jpg',
+                },
+            ],
+        });
+        await wrapper.vm.$nextTick();
+
+        const previewImage = wrapper.find('.sw-cms-el-config-image-slider__settings-link-prefix');
+
+        expect(previewImage.exists()).toBe(true);
+        expect(previewImage.attributes('src')).toBe('http://shopware.com/image1-current.jpg');
+    });
+
+    it('should not render a settings link preview when the media item cannot be resolved', async () => {
+        const wrapper = await createWrapper('settings', [
+            {
+                mediaId: 'missing-media',
+                mediaUrl: 'http://shopware.com/image1-stale.jpg',
+                ariaLabel: null,
+                newTab: false,
+                url: null,
+            },
+        ]);
+        await flushPromises();
+
+        await wrapper.setData({ mediaItems: [] });
+        await wrapper.vm.$nextTick();
+
+        const previewImage = wrapper.find('.sw-cms-el-config-image-slider__settings-link-prefix');
+
+        expect(previewImage.exists()).toBe(false);
     });
 });

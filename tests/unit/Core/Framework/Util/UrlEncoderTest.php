@@ -105,4 +105,12 @@ class UrlEncoderTest extends TestCase
             UrlEncoder::encodeUrl('../media/file name.jpg')
         );
     }
+
+    public function testEncodePathSegmentsEncodesSpecialCharacters(): void
+    {
+        static::assertSame(
+            'media/foo/my%20file.jpg',
+            UrlEncoder::encodePathSegments('media/foo/my file.jpg')
+        );
+    }
 }

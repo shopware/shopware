@@ -48,7 +48,7 @@ class ShopIdProviderTest extends TestCase
         static::assertIsArray($shopIdConfig);
 
         static::assertArrayHasKey('id', $shopIdConfig);
-        static::assertSame($shopId, $shopIdConfig['id']);
+        static::assertSame($shopId->id, $shopIdConfig['id']);
 
         static::assertArrayHasKey('version', $shopIdConfig);
         static::assertSame(2, $shopIdConfig['version']);
@@ -70,7 +70,7 @@ class ShopIdProviderTest extends TestCase
 
         $this->setEnvVars(['APP_URL' => $newAppUrl = 'https://new.url']);
 
-        $shopId = $this->shopIdProvider->getShopId();
+        $shopId = $this->shopIdProvider->getShopId()->id;
         $shopIdV2Config = $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
 
         static::assertIsArray($shopIdV2Config);
@@ -109,14 +109,14 @@ class ShopIdProviderTest extends TestCase
     {
         /** @var string $appUrlBeforeUpdate */
         $appUrlBeforeUpdate = EnvironmentHelper::getVariable('APP_URL');
-        $shopIdBeforeUpdate = $this->shopIdProvider->getShopId();
+        $shopIdBeforeUpdate = $this->shopIdProvider->getShopId()->id;
         $shopIdConfigBeforeUpdate = $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
         static::assertSame($appUrlBeforeUpdate, $shopIdConfigBeforeUpdate['fingerprints'][AppUrl::IDENTIFIER] ?? null);
 
         $this->shopIdProvider->reset();
 
         $this->setEnvVars(['APP_URL' => $newAppUrl = 'https://new.url']);
-        $shopIdAfterUpdate = $this->shopIdProvider->getShopId();
+        $shopIdAfterUpdate = $this->shopIdProvider->getShopId()->id;
         static::assertSame($shopIdBeforeUpdate, $shopIdAfterUpdate);
         $shopIdConfigAfterUpdate = $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
         static::assertSame($newAppUrl, $shopIdConfigAfterUpdate['fingerprints'][AppUrl::IDENTIFIER] ?? null);

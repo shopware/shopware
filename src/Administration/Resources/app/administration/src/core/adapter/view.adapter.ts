@@ -36,11 +36,8 @@ export default abstract class ViewAdapter {
         this.Application = Application;
         this.applicationFactory = Application.getContainer('factory');
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         this.componentFactory = this.applicationFactory.component;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         this.stateFactory = this.applicationFactory.state;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         this.localeFactory = this.applicationFactory.locale;
         this.root = null;
     }

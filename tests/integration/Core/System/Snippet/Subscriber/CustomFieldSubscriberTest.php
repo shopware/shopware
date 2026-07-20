@@ -55,7 +55,7 @@ class CustomFieldSubscriberTest extends TestCase
 
     /**
      * @param list<string> $snippetSets
-     * @param list<array{id: string, name: string, customFields: list<array{id: string, name: string, type: string, config: array{label: array<string, string>}}>}> $customFieldSets
+     * @param list<array{id: string, name?: string, customFields: list<array{id: string, name?: string, type?: string, config: array{label?: array<string, string>}}>}> $customFieldSets
      * @param array<string, array<string, string>> $expectedSnippets
      */
     #[DataProvider('snippetAndCustomFieldProvider')]
@@ -88,11 +88,21 @@ class CustomFieldSubscriberTest extends TestCase
         static::assertSame($expectedCount, (int) $snippetCount[0]);
         foreach ($snippets as $locale => $languageSnippets) {
             foreach ($languageSnippets as $snippet) {
-                static::assertSame($expectedSnippets[$locale][$snippet['translation_key']], $snippet['value']);
+                $snippetKey = $snippet['translation_key'];
+                static::assertNotNull($snippetKey);
+                static::assertSame($expectedSnippets[$locale][$snippetKey], $snippet['value']);
             }
         }
     }
 
+    /**
+     * @return \Generator<string, array{
+     *     snippetSets: list<string>,
+     *     customFieldSets: list<array{id: string, name?: string, customFields: list<array{id: string, name?: string, type?: string, config: array{label?: array<string, string>}}>}>,
+     *     expectedSnippets: array<string, array<string, string>>,
+     *     expectedCount: int
+     * }>
+     */
     public static function snippetAndCustomFieldProvider(): \Generator
     {
         $customFieldSet = Uuid::randomHex();

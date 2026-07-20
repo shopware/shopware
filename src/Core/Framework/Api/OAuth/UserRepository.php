@@ -15,6 +15,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class UserRepository implements UserRepositoryInterface
 {
     /**
+     * Bcrypt hash for a static dummy password used to equalize timing when no user is found.
+     */
+    private const DUMMY_PASSWORD_HASH = '$2y$12$PVcA5R6ri9kS.7FnFUBRIOLwqU//bCicx5RFxwecAAccbmZ7V7PKu';
+
+    /**
      * @internal
      */
     public function __construct(
@@ -36,17 +41,23 @@ class UserRepository implements UserRepositoryInterface
         }
 
         $builder = $this->connection->createQueryBuilder();
-        $user = $builder->select('user.id', 'user.password')
+        $user = $builder->select('user.id', 'user.password', 'user.active')
             ->from('user')
             ->where('username = :username')
             ->setParameter('username', $username)
             ->fetchAssociative();
 
         if (!$user) {
-            return null;
+            // Prevent user enumeration via timing attacks by always running password_verify().
+            $user = ['password' => self::DUMMY_PASSWORD_HASH];
+            $password = 'invalid-password-will-always-fail';
         }
 
         if (!password_verify($password, (string) $user['password'])) {
+            return null;
+        }
+
+        if (!(bool) $user['active']) {
             return null;
         }
 

@@ -75,9 +75,9 @@ export default {
 
         modalTitle() {
             if (!this.rule || this.rule.isNew()) {
-                return this.$tc('sw-rule-modal.modalTitleNew');
+                return this.$t('sw-rule-modal.modalTitleNew');
             }
-            return this.placeholder(this.rule, 'name', this.$tc('sw-rule-modal.modalTitleModify'));
+            return this.placeholder(this.rule, 'name', this.$t('sw-rule-modal.modalTitleModify'));
         },
 
         ...mapPropertyErrors('rule', [
@@ -157,7 +157,7 @@ export default {
 
             if (!tooltip.disabled) {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
+                    title: this.$t('global.default.error'),
                     message: tooltip.message,
                 });
                 return false;
@@ -174,11 +174,11 @@ export default {
                 this.rule[this.ruleAwareGroupKey] = [];
             }
 
-            const titleSaveSuccess = this.$tc('global.default.success');
-            const messageSaveSuccess = this.$tc('sw-rule-modal.messageSaveSuccess', { name: this.rule.name }, 0);
+            const titleSaveSuccess = this.$t('global.default.success');
+            const messageSaveSuccess = this.$t('sw-rule-modal.messageSaveSuccess', { name: this.rule.name }, 0);
 
-            const titleSaveError = this.$tc('global.default.error');
-            const messageSaveError = this.$tc('sw-rule-modal.messageSaveError', { name: this.rule.name }, 0);
+            const titleSaveError = this.$t('global.default.error');
+            const messageSaveError = this.$t('sw-rule-modal.messageSaveError', { name: this.rule.name }, 0);
 
             this.isLoading = true;
             return this.ruleRepository

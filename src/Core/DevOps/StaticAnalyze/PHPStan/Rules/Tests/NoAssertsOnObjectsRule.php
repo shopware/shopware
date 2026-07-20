@@ -43,7 +43,7 @@ class NoAssertsOnObjectsRule implements Rule
             return [];
         }
 
-        if (!\in_array((string) $node->name, ['assertEquals', 'assertSame'], true)) {
+        if ((string) $node->name !== 'assertEquals') {
             return [];
         }
 
@@ -53,6 +53,9 @@ class NoAssertsOnObjectsRule implements Rule
         }
 
         $type = $scope->getType($firstArg->value);
+        if ($type->isObject()->no()) {
+            return [];
+        }
 
         foreach (self::FORBIDDEN_OBJECTS as $object => $message) {
             if ((new ObjectType($object))->isSuperTypeOf($type)->yes()) {

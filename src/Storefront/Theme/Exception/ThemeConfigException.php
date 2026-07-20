@@ -42,7 +42,7 @@ class ThemeConfigException extends ShopwareHttpException
 
     public function tryToThrow(): void
     {
-        if (\count($this->exceptions)) {
+        if ($this->exceptions !== []) {
             throw $this;
         }
     }

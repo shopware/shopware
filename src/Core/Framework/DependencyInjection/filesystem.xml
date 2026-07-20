@@ -46,6 +46,7 @@
 
         <service class="Shopware\Core\Framework\Adapter\Filesystem\Adapter\AwsS3v3Factory" id="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory.amazon_s3">
             <argument>%shopware.filesystem.batch_write_size%</argument>
+            <argument type="service" id="shopware.filesystem.s3.client" on-invalid="null"/>
             <tag name="shopware.filesystem.factory"/>
         </service>
 

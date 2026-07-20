@@ -75,6 +75,7 @@
     },
     "mediaLibrary": {
       "labelButtonLoadMore": "Weitere laden",
+      "labelButtonLoadAll": "Alle laden",
       "titleEmptyState": "Noch keine Medien vorhanden",
       "descriptionEmptyState": "Verwaltung von Medien."
     },
@@ -108,9 +109,6 @@
     },
     "sw-media-save-modal": {
       "titleModal": "In Medien speichern"
-    },
-    "sw-model-viewer": {
-      "titleModal": "Model Viewer"
     }
   },
   "sw-privileges": {

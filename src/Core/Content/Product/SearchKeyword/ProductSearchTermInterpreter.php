@@ -31,6 +31,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         private readonly AbstractTokenFilter $tokenFilter,
         private readonly KeywordLoader $keywordLoader,
         private readonly SearchConfigLoader $configLoader,
+        private readonly int $relevantKeywordCount = self::RELEVANT_KEYWORD_COUNT,
     ) {
     }
 
@@ -44,7 +45,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         $tokens = $this->tokenFilter->filter($tokens, $context);
         $originalTokens = $tokens;
 
-        if (empty($tokens)) {
+        if ($tokens === []) {
             return new SearchPattern(new SearchTerm(''));
         }
 
@@ -66,8 +67,8 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         $pattern->setTokenTerms($matches);
 
         $scoring = $this->score($tokens, $originalTokens, ArrayNormalizer::flatten($matches), $minSearchLength);
-        // only use the 8 best matches, otherwise the query might explode
-        $scoring = \array_slice($scoring, 0, self::RELEVANT_KEYWORD_COUNT, true);
+        // only use the configured best matches, otherwise the query might explode
+        $scoring = \array_slice($scoring, 0, $this->relevantKeywordCount, true);
 
         foreach ($scoring as $keyword => $score) {
             $this->logger->info('Search match: ' . $keyword . ' with score ' . (float) $score);
@@ -191,7 +192,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
             /** @phpstan-ignore arguments.count (This ignore should be removed when the deprecated method signature is updated) */
             $matchSegments = $this->tokenizer->tokenize($match, $minSearchLength);
             $exactMatch = \count($originalTokens) === \count($matchSegments)
-                && \count(array_diff($originalTokens, $matchSegments)) === 0;
+                && array_diff($originalTokens, $matchSegments) === [];
             $exactTokenMatches = array_intersect($originalTokens, $matchSegments);
 
             $score = ($exactMatch ? 2 : 1) + \count($exactTokenMatches) * 4;
@@ -219,7 +220,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
             $scoring[$match] = $score / 10;
         }
 
-        uasort($scoring, fn ($a, $b) => $b <=> $a);
+        uasort($scoring, static fn ($a, $b) => $b <=> $a);
 
         return $scoring;
     }

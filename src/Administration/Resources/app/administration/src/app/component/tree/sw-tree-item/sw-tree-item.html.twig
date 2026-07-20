@@ -107,7 +107,7 @@
                         v-model="item.data.name"
                         class="sw-tree-detail__edit-tree-item"
                         :prevent-empty-submit="true"
-                        :placeholder="$tc(`${translationContext}.general.buttonCreate`)"
+                        :placeholder="$t(`${translationContext}.general.buttonCreate`)"
                         @input="onFinishNameingElement"
                         @blur="onBlurTreeItemInput(item)"
                         @submit-cancel="onCancelSubmit(item)"
@@ -174,7 +174,7 @@
                         class="sw-tree-item__without-position-action"
                         @click="addElement(item)"
                     >
-                        {{ $tc(`${translationContext}.general.actions.withoutPosition`) }}
+                        {{ $t(`${translationContext}.general.actions.withoutPosition`) }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -185,7 +185,7 @@
                         class="sw-tree-item__before-action"
                         @click="addElement(item, 'before')"
                     >
-                        {{ $tc(`${translationContext}.general.actions.createBefore`) }}
+                        {{ $t(`${translationContext}.general.actions.createBefore`) }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -196,7 +196,7 @@
                         class="sw-tree-item__after-action"
                         @click="addElement(item, 'after')"
                     >
-                        {{ $tc(`${translationContext}.general.actions.createAfter`) }}
+                        {{ $t(`${translationContext}.general.actions.createAfter`) }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -207,7 +207,7 @@
                         class="sw-tree-item__sub-action"
                         @click="addSubElement(item); openTreeItem(true)"
                     >
-                        {{ $tc(`${translationContext}.general.actions.createSub`) }}
+                        {{ $t(`${translationContext}.general.actions.createSub`) }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -217,7 +217,7 @@
                         class="sw-context-menu__duplicate-action"
                         @click="onDuplicate(item)"
                     >
-                        {{ $tc(`global.default.duplicate`) }}
+                        {{ $t(`global.default.duplicate`) }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -225,7 +225,7 @@
                     <div class="sw-context-menu__group">
                         {% block sw_tree_items_actions_edit %}
                         <sw-context-menu-item @click="onChangeRoute(item)">
-                            {{ $tc('global.default.edit') }}
+                            {{ $t('global.default.edit') }}
                         </sw-context-menu-item>
                         {% endblock %}
 
@@ -236,7 +236,7 @@
                             variant="danger"
                             @click="deleteElement(item)"
                         >
-                            {{ $tc('global.default.delete') }}
+                            {{ $t('global.default.delete') }}
                         </sw-context-menu-item>
                         {% endblock %}
                     </div>
@@ -257,7 +257,7 @@
             :id="item.id"
             class="sw-tree-item__children"
             role="group"
-            :aria-label="$tc(`sw-tree-item.childrenLabel`, { name: getName(item) })"
+            :aria-label="$t(`sw-tree-item.childrenLabel`, { name: getName(item) })"
         >
             {% block sw_tree_item_children_items %}
             <sw-tree-item
@@ -295,7 +295,7 @@
                                 v-model="item.data.name"
                                 class="sw-tree-detail__edit-tree-item"
                                 :prevent-empty-submit="true"
-                                :placeholder="$tc(`${translationContext}.general.buttonCreate`)"
+                                :placeholder="$t(`${translationContext}.general.buttonCreate`)"
                                 @input="onFinishNameingElement"
                                 @blur="onBlurTreeItemInput(item)"
                                 @submit-cancel="onCancelSubmit(item)"
@@ -356,7 +356,7 @@
                                 class="sw-tree-item__without-position-action"
                                 @click="addElement(item)"
                             >
-                                {{ $tc(`${translationContext}.general.actions.withoutPosition`) }}
+                                {{ $t(`${translationContext}.general.actions.withoutPosition`) }}
                             </sw-context-menu-item>
                             {% endblock %}
 
@@ -367,7 +367,7 @@
                                 class="sw-tree-item__before-action"
                                 @click="addElement(item, 'before')"
                             >
-                                {{ $tc(`${translationContext}.general.actions.createBefore`) }}
+                                {{ $t(`${translationContext}.general.actions.createBefore`) }}
                             </sw-context-menu-item>
                             {% endblock %}
 
@@ -378,7 +378,7 @@
                                 class="sw-tree-item__after-action"
                                 @click="addElement(item, 'after')"
                             >
-                                {{ $tc(`${translationContext}.general.actions.createAfter`) }}
+                                {{ $t(`${translationContext}.general.actions.createAfter`) }}
                             </sw-context-menu-item>
                             {% endblock %}
 
@@ -389,7 +389,7 @@
                                 class="sw-tree-item__sub-action"
                                 @click="addSubElement(item); openTreeItem(true)"
                             >
-                                {{ $tc(`${translationContext}.general.actions.createSub`) }}
+                                {{ $t(`${translationContext}.general.actions.createSub`) }}
                             </sw-context-menu-item>
                             {% endblock %}
 
@@ -399,7 +399,7 @@
                                 class="sw-context-menu__duplicate-action"
                                 @click="onDuplicate(item)"
                             >
-                                {{ $tc(`global.default.duplicate`) }}
+                                {{ $t(`global.default.duplicate`) }}
                             </sw-context-menu-item>
                             {% endblock %}
 
@@ -407,7 +407,7 @@
                             <div class="sw-context-menu__group">
                                 {% block sw_tree_items_transition_actions_edit %}
                                 <sw-context-menu-item @click="onChangeRoute(item)">
-                                    {{ $tc('global.default.edit') }}
+                                    {{ $t('global.default.edit') }}
                                 </sw-context-menu-item>
                                 {% endblock %}
 
@@ -418,7 +418,7 @@
                                     variant="danger"
                                     @click="deleteElement(item)"
                                 >
-                                    {{ $tc('global.default.delete') }}
+                                    {{ $t('global.default.delete') }}
                                 </sw-context-menu-item>
                                 {% endblock %}
                             </div>

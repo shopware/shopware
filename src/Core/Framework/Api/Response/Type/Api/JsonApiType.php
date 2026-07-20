@@ -89,6 +89,10 @@ class JsonApiType extends JsonFactoryBase
             'total' => $searchResult->getTotal(),
         ];
 
+        if ($searchResult->getStates() !== []) {
+            $rootNode['meta']['states'] = $searchResult->getStates();
+        }
+
         $fields = new ResponseFields(
             RequestParamHelper::get($request, 'includes', []),
             RequestParamHelper::get($request, 'excludes', []),
@@ -107,7 +111,7 @@ class JsonApiType extends JsonFactoryBase
         $response = $this->serializer->encode(
             $criteria,
             $definition,
-            $searchResult,
+            $searchResult->getEntities(),
             $this->getApiBaseUrl($request),
             $rootNode
         );

@@ -152,7 +152,7 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
 
         $ids = array_column($result['buckets'], 'key');
 
-        if (empty($ids)) {
+        if ($ids === []) {
             $definition = $this->registry->getByEntityName($aggregation->getEntity());
             /** @var class-string<EntityCollection<Entity>> $class */
             $class = $definition->getCollectionClass();

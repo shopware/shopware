@@ -58,7 +58,6 @@ export function initializeUserNotifications() {
     }
 }
 
-// eslint-disable-next-line no-use-before-define
 function _getOriginalNotification(notificationId: string, store: NotificationStore) {
     let originalNotification = store.notifications[notificationId];
     if (originalNotification === undefined) {

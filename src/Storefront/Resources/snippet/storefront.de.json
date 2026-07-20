@@ -40,7 +40,6 @@
     "categories": "Kategorien",
     "showCategory": "%category% anzeigen",
     "required": "*",
-    "requiredFields": "Die mit einem Stern (*) markierten Felder sind Pflichtfelder.",
     "privacyTitle": "Datenschutz",
     "privacyNoticeText": "Ich habe die <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen und die <a data-ajax-modal=\"true\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"AGB\">AGB</a> gelesen und bin mit ihnen einverstanden.",
     "privacyNoticeTextModal": "Ich habe die %privacyModalTagOpen%Datenschutzbestimmungen%privacyModalTagClose% zur Kenntnis genommen und die %tosModalTagOpen%AGB%tosModalTagClose% gelesen und bin mit ihnen einverstanden.",
@@ -120,6 +119,7 @@
     "VIOLATION::BILLING_ADDRESS_INVALID_TYPE_ERROR": "Die Rechnungsadresse muss ein gültiges Objekt sein. Siehe /store-api/_info/openapi3.json#/components/schemas/CustomerAddressBody für die korrekte Struktur.",
     "VIOLATION::SHIPPING_ADDRESS_INVALID_TYPE_ERROR": "Die Lieferadresse muss entweder null oder ein gültiges Objekt sein. Siehe /store-api/_info/openapi3.json#/components/schemas/CustomerAddressBody für die korrekte Struktur.",
     "VIOLATION::PASSWORD_IS_TOO_LONG": "Das gewählte Passwort ist zu lang.",
+    "VIOLATION::PASSWORD_IS_TOO_SHORT": "Das gewählte Passwort ist zu kurz.",
     "VIOLATION::RECAPTCHA_COOKIE_REQUIRED": "Bitte akzeptieren Sie die technisch erforderlichen Cookies, um die reCAPTCHA-Überprüfung zu ermöglichen.",
     "FRAMEWORK__INVALID_CAPTCHA_VALUE": "Es ist ein Fehler mit der Captcha-Überprüfung aufgetreten.",
     "message-default": "Leider ist etwas schiefgelaufen",
@@ -129,6 +129,7 @@
     "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "Die gewählte Zahlungsart konnte nicht gefunden werden.",
     "productNotFound": "Produkt \"%number%\" konnte nicht gefunden werden.",
     "VIOLATION::TOO_SHORT_ERROR": "Die Eingabe ist zu kurz.",
+    "VIOLATION::INVALID_PATTERN_ERROR": "Die Eingabe entspricht nicht dem erforderlichen Format.",
     "product-not-found": "Das Produkt wurde nicht gefunden.",
     "message-403-ajax": "Die Sitzung ist abgelaufen. Bitte laden Sie die Seite neu und versuchen Sie es erneut.",
     "message-403": "Die Sitzung ist abgelaufen. Bitte kehren Sie zur letzten Seite zurück neu und versuchen Sie  es erneut.",
@@ -142,7 +143,8 @@
     "CHECKOUT__ORDER_ORDER_CANCELLED": "Die Bestellung mit der Bestellnummer \"%orderNumber%\" wurde storniert und kann nicht nachträglich bearbeitet werden.",
     "CHECKOUT__ORDER_ORDER_NOT_FOUND": "Diese Bestellung konnte nicht gefunden werden.",
     "CHECKOUT__CART_HASH_MISMATCH": "Produkte oder Preise in Deinem Warenkorb haben sich möglicherweise geändert. Bitte überprüfe den Warenkorb, bevor Du die Bestellung aufgibst.",
-    "CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY": "Die angegebene Menge (%quantity%) ist ungültig."
+    "CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY": "Die angegebene Menge (%quantity%) ist ungültig.",
+    "urlNotAllowed": "Bitte geben Sie in diesem Feld keine URL ein."
   },
   "account": {
     "externalPaymentCanceled": "Wir haben Ihre Bestellung erhalten, aber die Zahlung wurde abgebrochen. Bitte ändern Sie Ihre Zahlungsmethode oder versuchen Sie es erneut.",
@@ -392,12 +394,15 @@
     "orderTrackingNotAvailable": "Nicht verfügbar",
     "addressDefault": "Standard",
     "addressModalTitle": "Adressen",
-    "addressModalFooterClose": "Schließen",
     "addressNewShipping": "Füge eine neue Versandadresse hinzu",
     "addressNewBilling": "Füge eine neue Rechnungsadresse hinzu",
     "addressSaveAndUse": "Speichern und verwenden",
     "addressSuccessfulChange": "Adresse erfolgreich geändert.",
-    "addressSearchPlaceholder": "Suche Adressen ..."
+    "addressSearchPlaceholder": "Suche Adressen ...",
+    "convertGuestTitle": "Erstelle Kundenkonto",
+    "convertGuestInfo": "Setze ein Passwort für <span class=\"account-guest-conversion__subtitle\">%email%</span>",
+    "privacyNoticeTextModal": "Mit der Festlegung eines Passworts bestätigen Sie, dass Sie unsere %privacyModalTagOpen%Datenschutzhinweise%privacyModalTagClose% gelesen und unsere %tosModalTagOpen%Allgemeinen Geschäftsbedingungen%tosModalTagClose% akzeptiert haben.",
+    "convertSucceeded": "Ihr Kundenkonto wurde erfolgreich erstellt. Sie können sich jetzt anmelden."
   },
   "address": {
     "streetLabel": "Straße und Hausnummer",
@@ -463,6 +468,7 @@
     "cartItemInfoId": "Produkt-Nr.:",
     "addPromotionLabel": "Gutscheincode",
     "addPromotionPlaceholder": "Gutscheincode eingeben ...",
+    "addPromotionApplyAction": "Gutscheincode anwenden",
     "addProductLabel": "Produktnummer",
     "addProductPlaceholder": "Produktnummer eingeben ...",
     "summaryPositionPrice": "Zwischensumme",
@@ -472,6 +478,7 @@
     "summaryNetPrice": "Gesamtnettosumme",
     "summaryTax": "zzgl. %rate% % MwSt.",
     "summaryTaxLabeled": "zzgl. %rate% % %label%",
+    "summaryTaxInclude": "inkl. %rate% % MwSt.",
     "summaryOffCanvasLabel": "Warenkorb-Zusammenfassung",
     "proceedLink": "Zur Kasse",
     "addressEqualText": "Entspricht der Lieferadresse",
@@ -489,8 +496,6 @@
     "confirmChooseShipping": "Versandart auswählen",
     "confirmCurrentPaymentShipping": "Aktuelle Auswahl:",
     "confirmSelectionNone": "Nichts ausgewählt",
-    "confirmChangePaymentShippingSave": "Speichern",
-    "confirmChangePaymentShippingCancel": "Abbrechen",
     "confirmSubmit": "Zahlungspflichtig bestellen",
     "confirmDigitalContentHeader": "Zugriff auf digitale Inhalte",
     "confirmTermsHeader": "AGB und Widerrufsbelehrung",
@@ -529,7 +534,9 @@
     "customerCommentPlaceholder": "Kommentieren Sie hier ...",
     "cart-merged-hint": "Der aktuelle Warenkorb enthält u.U. zusätzliche Produkte, die noch von einem früheren Besuch gespeichert waren.",
     "collapseTriggerMore": "Mehr zeigen",
-    "collapseTriggerLess": "Weniger zeigen"
+    "collapseTriggerLess": "Weniger zeigen",
+    "createAccountHeading": "Um zukünftige Einkäufe zu beschleunigen, erstellen Sie ein Benutzerkonto.",
+    "createAccountButton": "Konto erstellen"
   },
   "listing": {
     "filterTitleText": "Produkte filtern",
@@ -590,6 +597,7 @@
     "subscribeOption": "Newsletter abonnieren",
     "unsubscribeOption": "Newsletter abbestellen",
     "formSubmit": "Abonnieren",
+    "formSubmitUnsubscribe": "Abbestellen",
     "subscriptionPersistedSuccess": "Sie haben gerade unseren Newsletter abonniert.\n Um die Registrierung abzuschließen, suchen Sie in Ihrer E-Mail-Box nach unserer Bestätigungsmail und klicken Sie auf den darin enthaltenen Link.",
     "subscriptionPersistedInfo": "Sollten Sie in den nächsten Minuten keine Bestätigungs-E-Mail erhalten, sind Sie eventuell bereits für den Newsletter angemeldet. Durchsuchen Sie Ihren Posteingang und auch den Spamordner. Versuchen Sie danach, sich ein weiteres Mal anzumelden und wenden Sie sich an unseren Support, falls auch das nicht funktioniert.",
     "subscriptionRevokeSuccess": "Sie haben sich erfolgreich vom Newsletter abgemeldet.",
@@ -616,6 +624,22 @@
     "privacyNoticeTextPage": "Ich habe die <a href=\"%privacyUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen und erkenne diese an.",
     "formSubmit": "Abschicken",
     "success": "Wir haben Ihre Kontaktanfrage erhalten und werden sie schnellstmöglich bearbeiten."
+  },
+  "revocationRequest": {
+    "headline": "Widerruf",
+    "firstNameLabel": "Vorname",
+    "firstNamePlaceholder": "Vornamen eingeben ...",
+    "lastNameLabel": "Nachname",
+    "lastNamePlaceholder": "Nachnamen eingeben ...",
+    "eMailLabel": "E-Mail-Adresse",
+    "eMailPlaceholder": "E-Mail-Adresse eingeben ...",
+    "contractNumberLabel": "Vertragsnummer (Bestellnummer, Abonnementnummer, ...)",
+    "contractNumberPlaceholder": "Vertragsnummer eingeben ...",
+    "commentLabel": "Kommentar",
+    "commentPlaceholder": "Kommentar eingeben ...",
+    "privacyNoticeTextModal": "Unsere Datenschutzhinweise finden Sie %privacyModalTagOpen%hier%privacyModalTagClose%.",
+    "formSubmit": "Widerruf bestätigen",
+    "success": "Wir haben Ihren Widerrufsantrag erhalten und werden ihn schnellstmöglich bearbeiten."
   },
   "search": {
     "headline": "{0} Zu \"%searchTerm%\" wurde kein Produkt gefunden | {1} Zu \"%searchTerm%\" wurde 1 Produkt gefunden | [0,Inf[ Zu \"%searchTerm%\" wurden %count% Produkte gefunden",
@@ -654,7 +678,6 @@
     "reviewFormContentLabel": "Ihre Erfahrungen",
     "reviewFormContentPlaceholder": "Teilen Sie ihre Erfahrungen ...",
     "reviewFormSubmitText": "Abschicken",
-    "reviewFormCancelText": "Abbrechen",
     "reviewFormErrorAlert": "Es ist ein Fehler aufgetreten. Bitte überprüfen Sie, ob alle Felder richtig ausgefüllt wurden.",
     "reviewFormSuccessAlert": "Vielen Dank für Ihre Bewertung. Wir werden Ihre Bewertung prüfen und ggf. freischalten. Bitte haben Sie ein wenig Geduld.",
     "reviewFormSuccessUpdateAlert": "Vielen Dank für das Bearbeiten Ihrer Bewertung. Die Bewertung wird wieder sichtbar, sobald wir Sie erneut freigeschaltet haben.",
@@ -676,7 +699,6 @@
     "reviewLoginDescription": "Bewertungen können nur von angemeldeten Benutzern abgegeben werden. Bitte loggen Sie sich ein, oder erstellen Sie einen neuen Account.",
     "reviewRegisterLink": "Neuer Kunde?",
     "reviewLoginSignupLink": "Klicken Sie hier, um sich anzumelden.",
-    "reviewLoginCancelButton": "Abbrechen",
     "reviewAvgRate": "von",
     "reviewAvgRateElements": "Sternen",
     "reviewAvgRatingAltText": "Durchschnittliche Bewertung von %points% von %maxPoints% Sternen",
@@ -721,6 +743,10 @@
           "solution": "Bitte versuche es erneut oder wende Dich an unseren Support."
         }
       }
+    },
+    "animation": {
+      "toggle": "Animation ein/aus",
+      "select": "Animation auswählen"
     }
   },
   "wishlist": {
@@ -748,6 +774,8 @@
     "serviceHotline": "Unterstützung und Beratung unter: <a href=\"tel:+49180000000\">0180 - 000000</a> Mo-Fr, 09:00 - 17:00 Uhr",
     "serviceContactText": "Oder über unser <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Kontaktformular\">Kontaktformular</a>.",
     "serviceContactTextPage": "Oder über unser <a href=\"%url%\" title=\"Kontaktformular\">Kontaktformular</a>.",
+    "serviceRevocationRequestText": "<a class=\"btn btn-primary\" data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Vertrag widerrufen\">Vertrag widerrufen</a>",
+    "serviceRevocationRequestTextPage": "<a class=\"btn btn-primary\" href=\"%url%\" title=\"Vertrag widerrufen\">Vertrag widerrufen</a>",
     "newsletterInput": "E-Mail-Adresse",
     "newsletter": "Abonnieren Sie jetzt unseren regelmäßig erscheinenden Newsletter, um rechtzeitig über neue Produkte und Angebote informiert zu werden.",
     "includeVatText": "%star%Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders angegeben.",
@@ -770,7 +798,6 @@
     "deny": "Nur technisch notwendige",
     "configure": "Konfigurieren",
     "configuration": "Einstellungen",
-    "save": "Speichern",
     "acceptAll": "Alle Cookies akzeptieren",
     "headline": "Cookie-Voreinstellungen",
     "close": "Cookie-Voreinstellungen schließen",
@@ -830,7 +857,9 @@
         "increase": "Anzahl erhöhen",
         "increaseOfProduct": "Erhöhe die Anzahl von %product%",
         "decrease": "Anzahl verringern",
-        "decreaseOfProduct": "Verringere die Anzahl %product%"
+        "decreaseOfProduct": "Verringere die Anzahl %product%",
+        "stockAdjusted": "Ihre Menge wurde auf %quantity% aktualisiert.",
+        "outOfStock": "Das Produkt ist nicht mehr verfügbar."
       },
       "configurator": {
         "legend": "%group_name%<span class=\"%hidden_cls%\">&nbsp;auswählen</span>"

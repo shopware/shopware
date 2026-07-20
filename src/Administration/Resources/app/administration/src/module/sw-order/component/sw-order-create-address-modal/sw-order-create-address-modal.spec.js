@@ -43,7 +43,7 @@ async function createWrapper() {
                     repositoryFactory: {
                         create: () => ({
                             search: () => {
-                                return Promise.resolve();
+                                return Promise.resolve([]);
                             },
                         }),
                     },
@@ -77,8 +77,8 @@ describe('src/module/sw-order/component/sw-order-create-address-modal', () => {
     it('should dispatch error with invalid company field', async () => {
         await wrapper.setData({
             addresses: [
-                { id: '12345', isNew: () => {} },
-                { id: '02', isNew: () => {} },
+                { id: '12345', isNew: () => {}, getEntityName: () => 'customer_address' },
+                { id: '02', isNew: () => {}, getEntityName: () => 'customer_address' },
             ],
         });
 

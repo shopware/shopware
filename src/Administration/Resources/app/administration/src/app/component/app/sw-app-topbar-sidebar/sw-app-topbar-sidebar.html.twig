@@ -1,9 +1,8 @@
 <template v-if="sidebars && sidebars.length === 1">
     <button
-        v-tooltip="{ message: sidebars[0].title, placement: 'right' }"
         class="sw-app-topbar-sidebar__icon"
         :class="{ 'sw-app-topbar-sidebar__icon-active': sidebars[0].active }"
-        :aria-label="$tc('sidebar.ariaLabelButtonOpen')"
+        :aria-label="$t('sidebar.ariaLabelButtonOpen')"
         @click="setActiveSidebar(sidebars[0].locationId)"
     >
         <mt-icon

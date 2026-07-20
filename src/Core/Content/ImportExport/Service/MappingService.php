@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Service;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
@@ -34,7 +35,8 @@ class MappingService extends AbstractMappingService
     public function __construct(
         private readonly AbstractFileService $fileService,
         private readonly EntityRepository $profileRepository,
-        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry
+        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -51,7 +53,7 @@ class MappingService extends AbstractMappingService
             throw ImportExportException::profileNotFound($profileId);
         }
         $mappings = $profile->getMapping();
-        if (empty($mappings)) {
+        if ($mappings === null || $mappings === []) {
             throw ImportExportException::profileWithoutMappings($profileId);
         }
 
@@ -64,7 +66,7 @@ class MappingService extends AbstractMappingService
         }
 
         // create the file
-        $expireDate = new \DateTimeImmutable();
+        $expireDate = $this->clock->now();
         $expireDate = $expireDate->modify('+1 hour');
         $fileEntity = $this->fileService->storeFile(
             $context,
@@ -113,7 +115,7 @@ class MappingService extends AbstractMappingService
         // read the first CSV line
         $record = fgetcsv($fileHandle, 0, $delimiter, $enclosure, $escape);
         fclose($fileHandle);
-        if (empty($record) || $record[0] === null) {
+        if (!\is_array($record) || $record[0] === null) {
             throw ImportExportException::invalidFileContent($file->getFilename());
         }
 
@@ -155,8 +157,13 @@ class MappingService extends AbstractMappingService
             $mappings = $profile->getMapping();
             if ($mappings !== null) {
                 foreach ($mappings as $mapping) {
-                    if (\is_array($mapping) && !empty($mapping['key']) && !empty($mapping['mappedKey'])) {
-                        $keyLookupTable[(string) $mapping['mappedKey']] = (string) $mapping['key'];
+                    if (!\is_array($mapping)) {
+                        continue;
+                    }
+                    $key = (string) ($mapping['key'] ?? '');
+                    $mappedKey = (string) ($mapping['mappedKey'] ?? '');
+                    if ($key !== '' && $mappedKey !== '') {
+                        $keyLookupTable[$mappedKey] = $key;
                     }
                 }
             }
@@ -238,13 +245,13 @@ class MappingService extends AbstractMappingService
 
                 // try full key first (something like 'tax_rate' which is a field of the tax entity).
                 $associationGuess = $this->guessKeyFromMappedKey($keyLookupTable, $fullKey, $associationDefinition, $depthLimit - 1);
-                if (!empty($associationGuess)) {
+                if ($associationGuess !== '') {
                     return $associationField->getPropertyName() . '.' . $associationGuess;
                 }
 
                 // try the leftover key next (something like 'rate' if the full key was 'tax_rate').
                 $associationGuess = $this->guessKeyFromMappedKey($keyLookupTable, $leftoverKey, $associationDefinition, $depthLimit - 1);
-                if (!empty($associationGuess)) {
+                if ($associationGuess !== '') {
                     return $associationField->getPropertyName() . '.' . $associationGuess;
                 }
             }

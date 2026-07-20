@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Elasticsearch\Admin;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Framework\Context;
@@ -15,6 +14,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Elasticsearch\Test\AdminElasticsearchTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -33,6 +33,13 @@ class AdminSearchControllerTest extends TestCase
      */
     private EntityRepository $promotionRepository;
 
+    /**
+     * Built once for the whole class by the first run of setUp(). The first-test-indexes pattern was
+     * replaced by guarded setUp because a data-provided test (testElasticSearch) can no longer also
+     * receive the ids via #[Depends] - see NoDependsWithDataProviderRule.
+     */
+    private static IdsCollection $indexedIds;
+
     protected function setUp(): void
     {
         if (!static::getContainer()->getParameter('elasticsearch.administration.enabled')) {
@@ -42,37 +49,25 @@ class AdminSearchControllerTest extends TestCase
         $this->connection = static::getContainer()->get(Connection::class);
 
         $this->promotionRepository = static::getContainer()->get('promotion.repository');
-    }
 
-    public function testIndexing(): IdsCollection
-    {
-        static::expectNotToPerformAssertions();
-
-        $this->connection->executeStatement('DELETE FROM promotion');
-
-        $this->clearElasticsearch();
-        $this->indexElasticSearch(['--only' => ['promotion']]);
-
-        $ids = new IdsCollection();
-        $this->createData($ids);
-
-        $this->refreshIndex();
-
-        return $ids;
+        if (!isset(self::$indexedIds)) {
+            self::$indexedIds = $this->buildIndex();
+        }
     }
 
     /**
-     * @param array<string, string> $data
-     * @param array<string> $expectedPromotions
+     * @param array{term: string, entities: list<string>} $data
+     * @param list<string> $expectedPromotions
      */
-    #[Depends('testIndexing')]
     #[DataProvider('providerSearchCases')]
-    public function testElasticSearch(array $data, array $expectedPromotions, IdsCollection $ids): void
+    public function testElasticSearch(array $data, array $expectedPromotions): void
     {
+        $ids = self::$indexedIds;
+
         $this->getBrowser()->request('POST', '/api/_admin/es-search', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR) ?: null);
         $response = $this->getBrowser()->getResponse();
 
-        static::assertSame(200, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         $content = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
@@ -92,9 +87,9 @@ class AdminSearchControllerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{array<string, string|array<string>>, array<string>}>
+     * @return \Generator<string, array{array{term: string, entities: list<string>}, list<string>}>
      */
-    public static function providerSearchCases(): iterable
+    public static function providerSearchCases(): \Generator
     {
         yield 'search with normal term' => [
             [
@@ -171,6 +166,21 @@ class AdminSearchControllerTest extends TestCase
     protected function getDiContainer(): ContainerInterface
     {
         return static::getContainer();
+    }
+
+    private function buildIndex(): IdsCollection
+    {
+        $this->connection->executeStatement('DELETE FROM promotion');
+
+        $this->clearElasticsearch();
+        $this->indexElasticSearch(['--only' => ['promotion']]);
+
+        $ids = new IdsCollection();
+        $this->createData($ids);
+
+        $this->refreshIndex();
+
+        return $ids;
     }
 
     private function createData(IdsCollection $ids): void

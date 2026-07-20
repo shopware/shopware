@@ -64,7 +64,7 @@ class DocumentConfigurationFactory
                 $property = new \ReflectionProperty($baseConfig, $key);
                 $propertyType = $property->getType();
 
-                if (!($propertyType instanceof \ReflectionNamedType)) {
+                if (!$propertyType instanceof \ReflectionNamedType) {
                     $baseConfig->__set($key, $value);
                     continue;
                 }

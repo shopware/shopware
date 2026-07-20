@@ -70,7 +70,7 @@ class AuthMiddleware
                 return $handler($request, $options);
             }
 
-            $successCallback = function (ResponseInterface $response) use ($secret, $signature, $request) {
+            $successCallback = static function (ResponseInterface $response) use ($secret, $signature, $request) {
                 if ($response->getStatusCode() !== 401) {
                     if (!$signature->isResponseAuthentic($response, $secret)) {
                         throw new ServerException(
@@ -97,7 +97,7 @@ class AuthMiddleware
     {
         if (isset($options[self::APP_REQUEST_CONTEXT])) {
             $context = $options[self::APP_REQUEST_CONTEXT];
-            if (!($context instanceof Context)) {
+            if (!$context instanceof Context) {
                 throw new InvalidArgumentException('app_request_context must be instance of Context');
             }
             $request = $this->getLanguageHeaderRequest($request, $context);

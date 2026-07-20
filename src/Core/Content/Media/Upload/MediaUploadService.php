@@ -2,17 +2,24 @@
 
 namespace Shopware\Core\Content\Media\Upload;
 
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
 use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
 use Shopware\Core\Content\Media\File\FileFetcher;
 use Shopware\Core\Content\Media\File\FileSaver;
+use Shopware\Core\Content\Media\File\FileUrlValidatorInterface;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaException;
+use Shopware\Core\Content\Media\Thumbnail\ExternalThumbnailCollection;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -31,6 +38,8 @@ readonly class MediaUploadService
      * @internal
      *
      * @param EntityRepository<MediaCollection> $mediaRepository
+     * @param EntityRepository<MediaThumbnailCollection> $thumbnailRepository
+     * @param EntityRepository<MediaThumbnailSizeCollection> $thumbnailSizeRepository
      */
     public function __construct(
         private EntityRepository $mediaRepository,
@@ -38,14 +47,21 @@ readonly class MediaUploadService
         private FileSaver $fileSaver,
         private EventDispatcherInterface $eventDispatcher,
         private HttpClientInterface $httpClient,
+        private EntityRepository $thumbnailRepository,
+        private EntityRepository $thumbnailSizeRepository,
+        private FileUrlValidatorInterface $fileUrlValidator,
+        private bool $enableUrlValidation = true,
     ) {
     }
 
     /**
      * Upload a new media file from a local path
      */
-    public function uploadFromLocalPath(string $filePath, Context $context, MediaUploadParameters $params = new MediaUploadParameters()): string
-    {
+    public function uploadFromLocalPath(
+        string $filePath,
+        Context $context,
+        MediaUploadParameters $params = new MediaUploadParameters()
+    ): string {
         $size = filesize($filePath);
 
         if ($size === false) {
@@ -66,8 +82,11 @@ readonly class MediaUploadService
     /**
      * Upload a new media file provided as form-data in the Request object
      */
-    public function uploadFromRequest(Request $request, Context $context, MediaUploadParameters $params = new MediaUploadParameters()): string
-    {
+    public function uploadFromRequest(
+        Request $request,
+        Context $context,
+        MediaUploadParameters $params = new MediaUploadParameters()
+    ): string {
         $file = $request->files->get('file');
 
         if (!$file instanceof UploadedFile) {
@@ -88,10 +107,13 @@ readonly class MediaUploadService
     }
 
     /**
-     * Download the given media file from the URL and upload it as own file
+     * Download the given media file from the URL and upload it as a media file
      */
-    public function uploadFromURL(string $url, Context $context, MediaUploadParameters $params = new MediaUploadParameters()): string
-    {
+    public function uploadFromURL(
+        string $url,
+        Context $context,
+        MediaUploadParameters $params = new MediaUploadParameters()
+    ): string {
         $tempFile = tempnam(sys_get_temp_dir(), '');
 
         if (!$tempFile) {
@@ -114,9 +136,13 @@ readonly class MediaUploadService
     /**
      * Link the external URL into a new Media object. Shopware does not store any file
      */
-    public function linkURL(string $url, Context $context, MediaUploadParameters $params = new MediaUploadParameters()): string
-    {
-        $params->fillDefaultFileName(basename($url));
+    public function linkURL(
+        string $url,
+        Context $context,
+        MediaUploadParameters $params = new MediaUploadParameters()
+    ): string {
+        $decodedUrl = urldecode($url);
+        $params->fillDefaultFileName(basename($decodedUrl));
 
         if ($params->mimeType === null) {
             throw MediaException::mimeTypeNotProvided();
@@ -124,25 +150,22 @@ readonly class MediaUploadService
 
         if ($params->deduplicate) {
             $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('path', $url));
+            $criteria->addFilter(new OrFilter([
+                new EqualsFilter('path', $url),
+                new EqualsFilter('path', $decodedUrl),
+            ]));
 
             if ($mediaId = $this->mediaRepository->searchIds($criteria, $context)->firstId()) {
                 return $mediaId;
             }
         }
 
-        $headers = $this->httpClient->request('HEAD', $url)->getHeaders();
-
-        if (!isset($headers['content-length'])) {
-            throw MediaException::fileNotFound($url);
-        }
-
         $payload = [
             'id' => $params->id ?? Uuid::randomHex(),
-            'userId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null,
+            'userId' => $this->getUserIdFromContext($context),
             'private' => $params->private ?? false,
-            'path' => $url,
-            'fileSize' => (int) $headers['content-length'][0],
+            'path' => $decodedUrl,
+            'fileSize' => $this->getContentSizeFromValidExternalUrl($url),
             'fileName' => $params->getFileNameWithoutExtension(),
             'fileExtension' => $params->getFileNameExtension(),
             'mimeType' => $params->mimeType,
@@ -156,7 +179,75 @@ readonly class MediaUploadService
             $this->mediaRepository->create([$payload], $context);
         });
 
+        if ($params->getThumbnails()->count() > 0) {
+            $this->createExternalThumbnails($payload['id'], $params->getThumbnails(), $context);
+        }
+
         return $payload['id'];
+    }
+
+    public function addExternalThumbnailsToMedia(string $mediaId, ExternalThumbnailCollection $thumbnails, Context $context): void
+    {
+        $this->createExternalThumbnails($mediaId, $thumbnails, $context);
+    }
+
+    public function deleteAllExternalThumbnails(string $mediaId, Context $context): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('mediaId', $mediaId));
+        $criteria->addFilter(new PrefixFilter('path', 'http'));
+
+        $thumbnailIds = $this->thumbnailRepository->searchIds($criteria, $context)->getIds();
+
+        if ($thumbnailIds === []) {
+            return;
+        }
+
+        $deletePayload = \array_map(static fn (string $id) => ['id' => $id], $thumbnailIds);
+
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($deletePayload): void {
+            $this->thumbnailRepository->delete($deletePayload, $context);
+        });
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Use {@see assertValidExternalUrl()} on an injected MediaUploadService instance or
+     * {@see isExternalUrl()} and throw an exception instead.
+     */
+    public static function validateExternalUrl(string $url): void
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'MediaUploadService::validateExternalUrl() is deprecated, use assertValidExternalUrl() on an injected MediaUploadService instance instead.'
+        );
+
+        if (!self::isExternalUrl($url)) {
+            throw MediaException::invalidUrl($url);
+        }
+    }
+
+    /**
+     * Validates that $url is a well-formed external HTTP(S) URL and does not target a private or reserved IP range.
+     * Throws an exception if either check fails.
+     */
+    public function assertValidExternalUrl(string $url): void
+    {
+        if (!self::isExternalUrl($url)) {
+            throw MediaException::invalidUrl($url);
+        }
+
+        if ($this->enableUrlValidation && !$this->fileUrlValidator->isValid($url)) {
+            throw MediaException::illegalUrl($url);
+        }
+    }
+
+    /**
+     * Returns true if $url looks like an external HTTP(S) URL (format check only, no IP validation).
+     * Use this to distinguish a URL-based media path from a local file path.
+     */
+    public static function isExternalUrl(string $url): bool
+    {
+        return (bool) preg_match('/^https?:\/\/.+/', $url);
     }
 
     private function upload(MediaFile $media, Context $context, MediaUploadParameters $params): string
@@ -221,5 +312,75 @@ readonly class MediaUploadService
         $this->mediaRepository->create([$payload], $context);
 
         return $id;
+    }
+
+    private function getContentSizeFromValidExternalUrl(string $url): int
+    {
+        $this->assertValidExternalUrl($url);
+
+        $headers = $this->httpClient->request('HEAD', $url, ['max_redirects' => 0])->getHeaders();
+        if (!\array_key_exists('content-length', $headers)) {
+            throw MediaException::fileNotFound($url);
+        }
+
+        return (int) $headers['content-length'][0];
+    }
+
+    private function getUserIdFromContext(Context $context): ?string
+    {
+        return $context->getSource() instanceof AdminApiSource
+            ? $context->getSource()->getUserId()
+            : null;
+    }
+
+    private function createExternalThumbnails(string $mediaId, ExternalThumbnailCollection $thumbnails, Context $context): void
+    {
+        $thumbnailPayloads = [];
+
+        foreach ($thumbnails as $thumbnail) {
+            $this->assertValidExternalUrl($thumbnail->url);
+            $decodedUrl = urldecode($thumbnail->url);
+
+            $sizeId = $this->getOrCreateThumbnailSize($thumbnail->width, $thumbnail->height, $context);
+
+            $thumbnailPayloads[] = [
+                'id' => Uuid::randomHex(),
+                'mediaId' => $mediaId,
+                'path' => $decodedUrl,
+                'width' => $thumbnail->width,
+                'height' => $thumbnail->height,
+                'mediaThumbnailSizeId' => $sizeId,
+            ];
+        }
+
+        if ($thumbnailPayloads === []) {
+            return;
+        }
+
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($thumbnailPayloads): void {
+            $this->thumbnailRepository->create($thumbnailPayloads, $context);
+        });
+    }
+
+    private function getOrCreateThumbnailSize(int $width, int $height, Context $context): string
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('width', $width));
+        $criteria->addFilter(new EqualsFilter('height', $height));
+
+        $existingId = $this->thumbnailSizeRepository->searchIds($criteria, $context)->firstId();
+
+        if ($existingId !== null) {
+            return $existingId;
+        }
+
+        $sizeId = Uuid::randomHex();
+        $this->thumbnailSizeRepository->create([[
+            'id' => $sizeId,
+            'width' => $width,
+            'height' => $height,
+        ]], $context);
+
+        return $sizeId;
     }
 }

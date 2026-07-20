@@ -2,7 +2,7 @@ const { RuleTester } = require('eslint');
 const rule = require('./no-compat-conditions');
 
 const ruleTester = new RuleTester({
-    parserOptions: { ecmaVersion: 2021 },
+    languageOptions: { ecmaVersion: 2021 },
 });
 
 ruleTester.run('no-compat-conditions', rule, {

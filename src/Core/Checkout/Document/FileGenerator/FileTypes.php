@@ -9,4 +9,7 @@ class FileTypes
 {
     final public const PDF = 'pdf';
     final public const XML = 'xml';
+
+    final public const PDF_CONTENT_TYPE = 'application/pdf';
+    final public const XML_CONTENT_TYPE = 'application/xml';
 }

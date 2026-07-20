@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Rule\BillingStateRule;
@@ -20,7 +19,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal
  */
 #[Package('fundamentals@after-sales')]
-#[CoversClass(BillingStateRule::class)]
 #[Group('rules')]
 class BillingStateRuleTest extends TestCase
 {
@@ -66,7 +64,7 @@ class BillingStateRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id));
         $this->ruleRepository->delete([['id' => $ruleId]], $this->context);
         $this->conditionRepository->delete([['id' => $id]], $this->context);
     }

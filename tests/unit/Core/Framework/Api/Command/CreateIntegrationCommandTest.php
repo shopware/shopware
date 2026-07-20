@@ -17,14 +17,12 @@ use Symfony\Component\Dotenv\Dotenv;
 class CreateIntegrationCommandTest extends TestCase
 {
     /**
-     * @return array<array<bool>>
+     * @return iterable<array<bool>>
      */
-    public static function createIntegrationDataProvider(): array
+    public static function createIntegrationDataProvider(): iterable
     {
-        return [
-            ['adminOption' => false],
-            ['adminOption' => true],
-        ];
+        yield 'integration is created without admin privileges' => ['adminOption' => false];
+        yield 'integration is created with admin privileges' => ['adminOption' => true];
     }
 
     #[DataProvider('createIntegrationDataProvider')]
@@ -37,7 +35,7 @@ class CreateIntegrationCommandTest extends TestCase
         $admin = null;
         $integrationRepository->expects($this->once())
             ->method('create')
-            ->with(static::callback(function ($input) use (&$accessKey, &$secretAccessKey, &$admin) {
+            ->with(static::callback(static function ($input) use (&$accessKey, &$secretAccessKey, &$admin) {
                 $accessKey = $input[0]['accessKey'];
                 $secretAccessKey = $input[0]['secretAccessKey'];
                 $admin = $input[0]['admin'];
@@ -80,7 +78,7 @@ class CreateIntegrationCommandTest extends TestCase
         $admin = null;
         $integrationRepository->expects($this->once())
             ->method('create')
-            ->with(static::callback(function ($input) use (&$accessKey, &$secretAccessKey, &$admin) {
+            ->with(static::callback(static function ($input) use (&$accessKey, &$secretAccessKey, &$admin) {
                 $accessKey = $input[0]['accessKey'];
                 $secretAccessKey = $input[0]['secretAccessKey'];
                 $admin = $input[0]['admin'];

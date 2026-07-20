@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package inventory
  */
@@ -55,9 +57,13 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                     },
                     mocks: {
                         $t: (v) => v,
-                        $tc: (v) => v,
                     },
                     provide: {
+                        mediaPresignedUploadService: {
+                            prepareUpload: jest.fn(),
+                            uploadToPresignedUrl: jest.fn(),
+                            finalizeUpload: jest.fn(),
+                        },
                         repositoryFactory: {
                             create: () => {
                                 return {

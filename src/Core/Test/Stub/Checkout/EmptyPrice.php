@@ -26,4 +26,9 @@ class EmptyPrice extends CalculatedPrice
 
         parent::__construct($unitPrice, $totalPrice, $calculatedTaxes, $taxRules, $quantity, $referencePrice, $listPrice, $regulationPrice);
     }
+
+    public function getApiAlias(): string
+    {
+        return 'empty_price';
+    }
 }

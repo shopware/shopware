@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Event\AppPermissionsUpdated;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -14,7 +15,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  *
- * @codeCoverageIgnore @see \Shopware\Tests\Integration\Core\Framework\App\Permission\PrivilegesTest
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\App\Privileges\PrivilegesTest
  */
 #[Package('framework')]
 class Privileges
@@ -35,11 +38,11 @@ class Privileges
      */
     public function updatePrivileges(string $appId, array $accept, array $revoke, Context $context): void
     {
-        if (\count($accept) === 0 && \count($revoke) === 0) {
+        if ($accept === [] && $revoke === []) {
             return;
         }
 
-        if (\count(array_intersect($accept, $revoke)) !== 0) {
+        if (array_intersect($accept, $revoke) !== []) {
             throw AppException::conflictingPrivilegeUpdate();
         }
 
@@ -119,7 +122,7 @@ class Privileges
     public function getPrivileges(array $appIds = []): array
     {
         return array_map(
-            fn (array $privileges): array => $privileges[0],
+            static fn (array $privileges): array => $privileges[0],
             $this->fetchPrivileges($appIds)
         );
     }
@@ -173,7 +176,7 @@ class Privileges
             ['id' => Uuid::fromHexToBytes($appId)]
         );
 
-        $existingPrivileges = json_decode($existingPrivileges, true, \JSON_THROW_ON_ERROR);
+        $existingPrivileges = json_decode($existingPrivileges, true, flags: \JSON_THROW_ON_ERROR);
 
         sort($privileges);
         sort($existingPrivileges);
@@ -200,8 +203,8 @@ class Privileges
     private function decodePrivileges(array $privileges): array
     {
         return array_map(
-            fn (?string $appPrivileges) => $appPrivileges
-                ? json_decode($appPrivileges, true, \JSON_THROW_ON_ERROR)
+            static fn (?string $appPrivileges) => $appPrivileges
+                ? json_decode($appPrivileges, true, flags: \JSON_THROW_ON_ERROR)
                 : [],
             $privileges
         );
@@ -226,9 +229,9 @@ class Privileges
             ['appIds' => ArrayParameterType::STRING]
         );
 
-        return array_map(fn (array $row): array => [
-            json_decode($row['privileges'], true, \JSON_THROW_ON_ERROR),
-            json_decode($row['requested_privileges'], true, \JSON_THROW_ON_ERROR),
+        return array_map(static fn (array $row): array => [
+            json_decode($row['privileges'], true, flags: \JSON_THROW_ON_ERROR),
+            json_decode($row['requested_privileges'], true, flags: \JSON_THROW_ON_ERROR),
         ], $privileges);
     }
 
@@ -238,8 +241,9 @@ class Privileges
      */
     private function writePrivileges(string $appId, array $privileges, array $requestedPrivileges, Context $context): void
     {
-        $this->connection->transactional(
-            function (Connection $transaction) use ($appId, $privileges, $requestedPrivileges): void {
+        RetryableTransaction::transactional(
+            $this->connection,
+            static function (Connection $transaction) use ($appId, $privileges, $requestedPrivileges): void {
                 $transaction->executeStatement(
                     <<<'SQL'
                 UPDATE `acl_role`

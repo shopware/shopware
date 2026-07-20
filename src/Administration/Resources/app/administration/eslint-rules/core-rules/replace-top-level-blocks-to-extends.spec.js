@@ -2,11 +2,11 @@ const RulerTester = require('eslint').RuleTester;
 const rule = require('./replace-top-level-blocks-to-extends');
 
 const tester = new RulerTester({
-    parserOptions: {
+    languageOptions: {
+        parser: require('vue-eslint-parser'),
         ecmaVersion: 2015,
         sourceType: 'module',
     },
-    parser: require.resolve('vue-eslint-parser'),
 });
 
 tester.run('replace-top-level-blocks-to-extends', rule, {

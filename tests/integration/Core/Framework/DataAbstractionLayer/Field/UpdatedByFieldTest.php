@@ -71,7 +71,7 @@ class UpdatedByFieldTest extends TestCase
         $payload = $this->createOrderPayload();
         $orderRepository->create([$payload], $context);
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($orderRepository, $payload): void {
+        $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($orderRepository, $payload): void {
             $orderRepository->update([
                 [
                     'id' => $payload['id'],
@@ -98,7 +98,7 @@ class UpdatedByFieldTest extends TestCase
         $payload = $this->createOrderPayload();
         $orderRepository->create([$payload], $context);
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($orderRepository, $payload): void {
+        $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($orderRepository, $payload): void {
             $orderRepository->update([
                 [
                     'id' => $payload['id'],
@@ -114,6 +114,64 @@ class UpdatedByFieldTest extends TestCase
 
         static::assertNotNull($result);
         static::assertSame($userId, $result->getUpdatedById());
+    }
+
+    public function testUpdatedByUpdateWithCrudScope(): void
+    {
+        $userId = $this->fetchFirstIdFromTable('user');
+        $context = $this->getAdminContext($userId);
+
+        $payload = $this->createOrderPayload();
+        $this->orderRepository->create([$payload], $context);
+
+        $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($payload): void {
+            $this->orderRepository->update([
+                [
+                    'id' => $payload['id'],
+                    'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                ],
+            ], $context);
+        });
+
+        $result = $this->orderRepository->search(
+            new Criteria([$payload['id']]),
+            $context
+        )->getEntities()->first();
+
+        static::assertNotNull($result);
+        static::assertSame($userId, $result->getUpdatedById());
+    }
+
+    public function testUpdatedByChangesToLastCrudUser(): void
+    {
+        [$firstUserId, $secondUserId] = $this->fetchFirstTwoUserIds();
+
+        $createContext = $this->getAdminContext($firstUserId);
+        $updateContext = $this->getAdminContext($secondUserId);
+
+        $payload = $this->createOrderPayload();
+
+        $createContext->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($payload): void {
+            $this->orderRepository->create([$payload], $context);
+        });
+
+        $updateContext->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($payload): void {
+            $this->orderRepository->update([
+                [
+                    'id' => $payload['id'],
+                    'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                ],
+            ], $context);
+        });
+
+        $result = $this->orderRepository->search(
+            new Criteria([$payload['id']]),
+            $updateContext
+        )->getEntities()->first();
+
+        static::assertNotNull($result);
+        static::assertSame($firstUserId, $result->getCreatedById());
+        static::assertSame($secondUserId, $result->getUpdatedById());
     }
 
     private function getAdminContext(string $userId): Context
@@ -179,6 +237,37 @@ class UpdatedByFieldTest extends TestCase
     private function fetchFirstIdFromTable(string $table): string
     {
         return Uuid::fromBytesToHex((string) static::getContainer()->get(Connection::class)->fetchOne('SELECT id FROM ' . $table . ' LIMIT 1'));
+    }
+
+    /**
+     * @return array{0: string, 1: string}
+     */
+    private function fetchFirstTwoUserIds(): array
+    {
+        $ids = static::getContainer()->get(Connection::class)->fetchFirstColumn('SELECT id FROM user LIMIT 2');
+
+        if (\count($ids) < 2) {
+            $secondUserId = Uuid::randomHex();
+            $uniqueSuffix = substr($secondUserId, 0, 8);
+
+            static::getContainer()->get('user.repository')->create([[
+                'id' => $secondUserId,
+                'email' => \sprintf('second-admin-%s@example.com', $uniqueSuffix),
+                'firstName' => 'Second',
+                'lastName' => 'Admin',
+                'password' => TestDefaults::HASHED_PASSWORD,
+                'username' => \sprintf('second-admin-%s', $uniqueSuffix),
+                'localeId' => Uuid::fromBytesToHex((string) static::getContainer()->get(Connection::class)->fetchOne('SELECT id FROM locale LIMIT 1')),
+                'aclRoles' => [],
+            ]], Context::createDefaultContext());
+
+            $ids[] = Uuid::fromHexToBytes($secondUserId);
+        }
+
+        return [
+            Uuid::fromBytesToHex((string) $ids[0]),
+            Uuid::fromBytesToHex((string) $ids[1]),
+        ];
     }
 
     private function fetchOrderStateId(string $orderStateTechnicalName): string

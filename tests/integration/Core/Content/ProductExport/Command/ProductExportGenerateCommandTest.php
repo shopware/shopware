@@ -79,8 +79,7 @@ class ProductExportGenerateCommandTest extends TestCase
 
         $commandTester = new CommandTester($this->productExportGenerateCommand);
 
-        static::expectException(ProductExportException::class);
-        static::expectExceptionMessage('Only sales channels from type "Storefront" can be used for exports.');
+        $this->expectExceptionObject(ProductExportException::salesChannelNotAllowed());
 
         $commandTester->execute([
             'sales-channel-id' => $nonStorefrontSalesChannelId,
@@ -108,7 +107,7 @@ class ProductExportGenerateCommandTest extends TestCase
         $criteria->addAssociation('salesChannel');
         $criteria->addFilter(new EqualsFilter('salesChannel.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
 
-        $domain = $repository->search($criteria, $this->context)->first();
+        $domain = $repository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(SalesChannelDomainEntity::class, $domain);
 
         return $domain;

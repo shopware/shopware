@@ -24,6 +24,8 @@ class ProductTranslationEntity extends TranslationEntity
 
     protected ?string $description = null;
 
+    protected ?string $descriptionTeaser = null;
+
     protected ?string $metaTitle = null;
 
     protected ?string $packUnit = null;
@@ -33,9 +35,13 @@ class ProductTranslationEntity extends TranslationEntity
     protected ?ProductEntity $product = null;
 
     /**
-     * @var array<string, mixed>|null
+     * @var array<string, array<string, array<string, mixed>>|null>|null
      */
     protected ?array $slotConfig = null;
+
+    protected ?string $ogTitle = null;
+
+    protected ?string $ogDescription = null;
 
     /**
      * @var array<string>|null
@@ -82,6 +88,16 @@ class ProductTranslationEntity extends TranslationEntity
         $this->description = $description;
     }
 
+    public function getDescriptionTeaser(): ?string
+    {
+        return $this->descriptionTeaser;
+    }
+
+    public function setDescriptionTeaser(?string $descriptionTeaser): void
+    {
+        $this->descriptionTeaser = $descriptionTeaser;
+    }
+
     public function getMetaTitle(): ?string
     {
         return $this->metaTitle;
@@ -123,7 +139,7 @@ class ProductTranslationEntity extends TranslationEntity
     }
 
     /**
-     * @return array<string, mixed>|null
+     * @return array<string, array<string, array<string, mixed>>|null>|null
      */
     public function getSlotConfig(): ?array
     {
@@ -131,7 +147,7 @@ class ProductTranslationEntity extends TranslationEntity
     }
 
     /**
-     * @param array<string, mixed> $slotConfig
+     * @param array<string, array<string, array<string, mixed>>|null> $slotConfig
      */
     public function setSlotConfig(array $slotConfig): void
     {
@@ -172,5 +188,25 @@ class ProductTranslationEntity extends TranslationEntity
     public function setProductVersionId(string $productVersionId): void
     {
         $this->productVersionId = $productVersionId;
+    }
+
+    public function getOgTitle(): ?string
+    {
+        return $this->ogTitle;
+    }
+
+    public function setOgTitle(?string $ogTitle): void
+    {
+        $this->ogTitle = $ogTitle;
+    }
+
+    public function getOgDescription(): ?string
+    {
+        return $this->ogDescription;
+    }
+
+    public function setOgDescription(?string $ogDescription): void
+    {
+        $this->ogDescription = $ogDescription;
     }
 }

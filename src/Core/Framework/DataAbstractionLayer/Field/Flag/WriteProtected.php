@@ -19,6 +19,9 @@ class WriteProtected extends Flag
         }
     }
 
+    /**
+     * @return list<string>
+     */
     public function getAllowedScopes(): array
     {
         return array_keys($this->allowedScopes);
@@ -29,6 +32,9 @@ class WriteProtected extends Flag
         return isset($this->allowedScopes[$scope]);
     }
 
+    /**
+     * @return \Generator<string, list<list<string>>>
+     */
     public function parse(): \Generator
     {
         yield 'write_protected' => [

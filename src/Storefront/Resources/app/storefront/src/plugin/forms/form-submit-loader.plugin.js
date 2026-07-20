@@ -77,7 +77,7 @@ export default class FormSubmitLoaderPlugin extends Plugin {
         const formId = this._form.id;
         if (formId) {
             this._submitButtons = this._submitButtons.concat(Array.from(
-                this._form.closest(this.options.formWrapperSelector).querySelectorAll(`:not(form) > button[type=submit][form="${formId}"]`)
+                this._form.closest(this.options.formWrapperSelector).querySelectorAll(`:not(form) > button[type=submit][form="${formId}"]`),
             ));
         }
 

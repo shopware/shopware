@@ -3,11 +3,9 @@
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable import/no-named-default */
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-/* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import type { default as Bottle, Decorator } from 'bottlejs';
-import type { NavigationGuardNext, RouteLocationNormalizedLoaded, RouteLocationRaw, Router } from 'vue-router';
+import type { NavigationGuardNext, RouteLocationNormalized, RouteLocationNormalizedLoaded, Router } from 'vue-router';
 // Import explicitly global types from meteor-admin-sdk
 import '@shopware-ag/meteor-admin-sdk';
 import type FeatureService from 'src/app/service/feature.service';
@@ -32,6 +30,7 @@ import type ShopIdChangeService from 'src/core/service/api/shop-id-change.servic
 import type ProductTypeApiService from 'src/app/service/product-type.api.service';
 import type { ComponentInternalInstance, PropType as VuePropType } from 'vue';
 import type { I18n } from 'vue-i18n';
+import type { LegacyConditionCaseOptions } from 'src/app/component/structure/sw-block-override/shim/legacy-condition-context';
 import type {
     Store,
     mapActions as mapVuexActions,
@@ -68,7 +67,6 @@ import type RuleConditionService from './app/service/rule-condition.service';
 import type SystemConfigApiService from './core/service/api/system-config.api.service';
 import type UpdateApiService from './core/service/api/update.api.service';
 import type UserRecoveryApiService from './core/service/api/user-recovery.api.service';
-import type { UsageDataApiService } from './core/service/api/usage-data.api.service';
 import type ConfigApiService from './core/service/api/config.api.service';
 import type ImportExportService from './module/sw-import-export/service/importExport.service';
 import type WorkerNotificationFactory from './core/factory/worker-notification.factory';
@@ -76,6 +74,8 @@ import type NotificationMixin from './app/mixin/notification.mixin';
 import type ValidationMixin from './app/mixin/validation.mixin';
 import type UserSettingsMixin from './app/mixin/user-settings.mixin';
 import type SwInlineSnippetMixin from './app/mixin/sw-inline-snippet.mixin';
+import type TranslateWithFallbackMixin from './app/mixin/translate-with-fallback.mixin';
+import type NotificationTranslationMixin from './app/mixin/notification-translation.mixin';
 import type SalutationMixin from './app/mixin/salutation.mixin';
 import type RuleContainerMixin from './app/mixin/rule-container.mixin';
 import type RemoveApiErrorMixin from './app/mixin/remove-api-error.mixin';
@@ -87,6 +87,7 @@ import type SwExtensionErrorMixin from './module/sw-extension/mixin/sw-extension
 import type CmsElementMixin from './module/sw-cms/mixin/sw-cms-element.mixin';
 import type CmsStateMixin from './module/sw-cms/mixin/sw-cms-state.mixin';
 import type GenericConditionMixin from './app/mixin/generic-condition.mixin';
+import type RuleBetweenOperatorMixin from './app/mixin/rule-between-operator.mixin';
 import type SwFormFieldMixin from './app/mixin/form-field.mixin';
 import type DiscardDetailPageChangesMixin from './app/mixin/discard-detail-page-changes.mixin';
 import type PrivilegesService from './app/service/privileges.service';
@@ -122,7 +123,6 @@ import type { SidebarStore } from './app/store/sidebar.store';
 import type { MenuItemStore } from './app/store/menu-item.store';
 import type { NotificationStore } from './app/store/notification.store';
 import type { TabsStore } from './app/store/tabs.store';
-import type { UsageData } from './app/store/usage-data.store';
 import type { SessionStore } from './app/store/session.store';
 import type { SwCategoryDetailStore } from './module/sw-category/page/sw-category-detail/store';
 import type { SwSeoUrlStore } from './module/sw-settings-seo/component/sw-seo-url/store';
@@ -136,7 +136,6 @@ import type { SwProfileStore } from './module/sw-profile/store/sw-profile.store'
 import type { SwPromotionDetailStore } from './module/sw-promotion-v2/page/sw-promotion-v2-detail/store';
 import type { SwFlowStore } from './module/sw-flow/store/flow.store';
 import type { SwBulkStore } from './app/store/sw-bulk-edit.store';
-// eslint-disable-next-line max-len
 import type createTextEditorDataMappingButton from './app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-cms-data-mapping';
 import type SsoSettingsService from './core/service/api/sso-settings.service';
 import type SsoInvitationService from './core/service/api/sso-invitation.service';
@@ -145,6 +144,7 @@ import type CUSTOMERConstant from './module/sw-customer/constant/sw-customer.con
 import type FLOWConstant from './module/sw-flow/constant/flow.constant';
 import type SnippetApiService from './core/service/api/snippet.api.service';
 import type ConsentApiService from './core/consent/consent.api.service';
+import type ValidationApiService from './core/service/api/validation.api.service';
 // trick to make it an "external module" to support global type extension
 
 // base methods for subContainer
@@ -224,7 +224,7 @@ declare global {
         _sw_extension_component_collection: DevtoolComponent[];
         _swLoginOverrides?: Array<() => void>;
         startApplication: () => void;
-        _pageLoadTime_: number;
+        removePageLoadingIndicator: () => void;
     }
 
     const _features_: {
@@ -236,7 +236,6 @@ declare global {
     /**
      * Define global container for the bottle.js containers
      */
-    // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface ServiceContainer extends SubContainer<'service'> {
         acl: AclService;
         appAclService: $TSFixMe;
@@ -290,7 +289,6 @@ declare global {
         systemConfigApiService: SystemConfigApiService;
         timezoneService: $TSFixMe;
         updateService: UpdateApiService;
-        usageDataService: UsageDataApiService;
         userActivityService: UserActivityService;
         userRecoveryService: UserRecoveryApiService;
         userService: UserApiService;
@@ -301,6 +299,7 @@ declare global {
         shopIdChangeService: ShopIdChangeService;
         productTypeService: ProductTypeApiService;
         consentApiService: ConsentApiService;
+        validationApiService: ValidationApiService;
     }
 
     interface MixinContainer {
@@ -308,6 +307,8 @@ declare global {
         validation: typeof ValidationMixin;
         'user-settings': typeof UserSettingsMixin;
         'sw-inline-snippet': typeof SwInlineSnippetMixin;
+        'translate-with-fallback': typeof TranslateWithFallbackMixin;
+        'notification-translation': typeof NotificationTranslationMixin;
         salutation: typeof SalutationMixin;
         ruleContainer: typeof RuleContainerMixin;
         'remove-api-error': typeof RemoveApiErrorMixin;
@@ -321,21 +322,19 @@ declare global {
         'generic-condition': typeof GenericConditionMixin;
         'sw-form-field': typeof SwFormFieldMixin;
         'discard-detail-page-changes': typeof DiscardDetailPageChangesMixin;
+        'rule-between-operator': typeof RuleBetweenOperatorMixin;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface InitContainer extends SubContainer<'init'> {
         state: $TSFixMe; // has to be removed once we moved to vite
         router: $TSFixMe;
         httpClient: AxiosInstance;
     }
-    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     interface InitPostContainer extends SubContainer<'init-post'> {}
     interface InitPreContainer extends SubContainer<'init-pre'> {
         state: $TSFixMe;
         apiServices: Promise<typeof ApiServiceFactory>;
     }
-    // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface FactoryContainer extends SubContainer<'factory'> {
         component: typeof AsyncComponentFactory;
         template: $TSFixMe;
@@ -388,7 +387,6 @@ declare global {
      * Define global state for the Vuex store
      * @deprecated tag:v6.8.0 - Will be removed use PiniaRootState instead
      */
-    // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface VuexRootState {
         swCategoryDetail: $TSFixMe;
     }
@@ -421,7 +419,6 @@ declare global {
         menuItem: MenuItemStore;
         notification: NotificationStore;
         tabs: TabsStore;
-        usageData: UsageData;
         session: SessionStore;
         swCategoryDetail: SwCategoryDetailStore;
         swSeoUrl: SwSeoUrlStore;
@@ -529,14 +526,46 @@ interface CustomProperties extends ServiceContainer {
     $te: I18n<{}, {}, {}, string, true>['global']['te'];
     $tc: I18n<{}, {}, {}, string, true>['global']['t'];
     $t: I18n<{}, {}, {}, string, true>['global']['t'];
-    $dataScope: () => ComponentInternalInstance['proxy'];
+    $sanitize: (dirtyHtml: string, config?: Record<string, unknown>) => string;
+    $dataScope: ComponentInternalInstance['proxy'];
+    /**
+     * Starts a generated legacy block condition chain on the current Vue component instance.
+     * Use it only from transformed `v-if` code emitted by the legacy block condition rewrite.
+     *
+     * @example
+     * this.$swLegacyBlockIf('sw_card:0', isVisible, {
+     *     segmentCaseIndex: 0,
+     *     renderOrderSegment: 'defaultSlot',
+     * });
+     */
+    $swLegacyBlockIf: (chainKey: string, expression: unknown, options: LegacyConditionCaseOptions) => boolean;
+    /**
+     * Continues a generated legacy block condition chain on the current Vue component instance.
+     * Use it only from transformed `v-else-if` code emitted by the legacy block condition rewrite.
+     *
+     * @example
+     * this.$swLegacyBlockElseIf('sw_card:0', hasFallback, {
+     *     segmentCaseIndex: 1,
+     *     renderOrderSegment: 'shimExtension',
+     * });
+     */
+    $swLegacyBlockElseIf: (chainKey: string, expression: unknown, options: LegacyConditionCaseOptions) => boolean;
+    /**
+     * Finishes a generated legacy block condition chain on the current Vue component instance.
+     * Use it only from transformed `v-else` code emitted by the legacy block condition rewrite.
+     *
+     * @example
+     * this.$swLegacyBlockElse('sw_card:0', {
+     *     segmentCaseIndex: 2,
+     *     renderOrderSegment: 'nativeExtension',
+     * });
+     */
+    $swLegacyBlockElse: (chainKey: string, options: LegacyConditionCaseOptions) => boolean;
 }
 
 declare module '@vue/runtime-core' {
-    // eslint-disable-next-line @typescript-eslint/no-shadow,@typescript-eslint/no-empty-interface
     interface App extends CustomProperties {}
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface ComponentCustomProperties extends CustomProperties {}
 
     interface ComponentCustomOptions {
@@ -556,8 +585,16 @@ declare module '@vue/runtime-core' {
             helpText?: string;
         };
 
-        beforeRouteEnter?: (to: RouteLocationRaw, from: RouteLocationRaw, next: NavigationGuardNext) => void;
-        beforeRouteLeave?: (to: RouteLocationRaw, from: RouteLocationRaw, next: NavigationGuardNext) => void;
+        beforeRouteEnter?: (
+            to: RouteLocationNormalized,
+            from: RouteLocationNormalizedLoaded,
+            next: NavigationGuardNext,
+        ) => void;
+        beforeRouteLeave?: (
+            to: RouteLocationNormalized,
+            from: RouteLocationNormalizedLoaded,
+            next: NavigationGuardNext,
+        ) => void;
     }
 
     interface PropOptions {

@@ -2,7 +2,7 @@
 <sw-modal
     class="sw-sales-channel-products-assignment-modal"
     variant="large"
-    :title="$tc('sw-sales-channel.detail.productAssignmentModal.title')"
+    :title="$t('sw-sales-channel.detail.productAssignmentModal.title')"
     @modal-close="onCloseModal"
 >
     <template #default>
@@ -16,30 +16,30 @@
                 {% block sw_sales_channel_products_assignment_modal_tabs_single_products %}
                 <sw-tabs-item
                     name="singleProducts"
-                    :title="$tc('sw-sales-channel.detail.productAssignmentModal.singleProducts')"
+                    :title="$t('sw-sales-channel.detail.productAssignmentModal.singleProducts')"
                     :active-tab="active"
                 >
-                    {{ $tc('sw-sales-channel.detail.productAssignmentModal.singleProducts') }}
+                    {{ $t('sw-sales-channel.detail.productAssignmentModal.singleProducts') }}
                 </sw-tabs-item>
                 {% endblock %}
 
                 {% block sw_sales_channel_products_assignment_modal_tabs_categories %}
                 <sw-tabs-item
                     name="categories"
-                    :title="$tc('sw-sales-channel.detail.productAssignmentModal.categories.title')"
+                    :title="$t('sw-sales-channel.detail.productAssignmentModal.categories.title')"
                     :active-tab="active"
                 >
-                    {{ $tc('sw-sales-channel.detail.productAssignmentModal.categories.title') }}
+                    {{ $t('sw-sales-channel.detail.productAssignmentModal.categories.title') }}
                 </sw-tabs-item>
                 {% endblock %}
 
                 {% block sw_sales_channel_products_assignment_modal_tab_dynamic_product_groups %}
                 <sw-tabs-item
                     name="dynamicProductGroups"
-                    :title="$tc('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.title')"
+                    :title="$t('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.title')"
                     :active-tab="active"
                 >
-                    {{ $tc('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.title') }}
+                    {{ $t('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.title') }}
                 </sw-tabs-item>
                 {% endblock %}
             </template>
@@ -94,7 +94,7 @@
             variant="secondary"
             @click="onCloseModal"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -105,7 +105,7 @@
             :is-loading="isAssignProductLoading || isProductLoading"
             @click="onAddProducts"
         >
-            {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', { productCount: productCount }, productCount) }}
+            {{ $t('sw-sales-channel.detail.products.buttonAddProducts', { productCount: productCount }, productCount) }}
         </mt-button>
         {% endblock %}
     </template>

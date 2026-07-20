@@ -44,7 +44,7 @@ class SeoUrlUpdater
     public function update(string $routeName, array $ids): void
     {
         $templates = $routeName !== '' ? $this->loadUrlTemplate($routeName) : [];
-        if (empty($templates)) {
+        if ($templates === []) {
             return;
         }
 

@@ -144,7 +144,6 @@ async function createWrapper(privileges = []) {
                                     if (mailTemplate.mailTemplateTypeId) {
                                         return Promise.resolve();
                                     }
-                                    // eslint-disable-next-line prefer-promise-reject-errors
                                     return Promise.reject({
                                         response: {
                                             data: {

@@ -29,29 +29,22 @@ class BasicCaptcha extends AbstractCaptcha
     ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function supports(Request $request, array $captchaConfig): bool
     {
-        /** @var SalesChannelContext|null $context */
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
-        $salesChannelId = $context ? $context->getSalesChannelId() : null;
+        $salesChannelId = $context instanceof SalesChannelContext ? $context->getSalesChannelId() : null;
 
         $activeCaptchas = $this->systemConfigService->get('core.basicInformation.activeCaptchasV2', $salesChannelId);
 
-        if (empty($activeCaptchas) || !\is_array($activeCaptchas)) {
+        if (!\is_array($activeCaptchas) || $activeCaptchas === []) {
             return false;
         }
 
         return $request->isMethod(Request::METHOD_POST)
-            && \in_array(self::CAPTCHA_NAME, array_keys($activeCaptchas), true)
+            && \array_key_exists(self::CAPTCHA_NAME, $activeCaptchas)
             && $activeCaptchas[self::CAPTCHA_NAME]['isActive'];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function isValid(Request $request, array $captchaConfig): bool
     {
         $basicCaptchaValue = $request->request->get(self::CAPTCHA_REQUEST_PARAMETER);
@@ -71,25 +64,16 @@ class BasicCaptcha extends AbstractCaptcha
         return strtolower((string) $basicCaptchaValue) === strtolower((string) $captchaSession);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function shouldBreak(): bool
     {
         return false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getName(): string
     {
         return self::CAPTCHA_NAME;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getViolations(): ConstraintViolationList
     {
         $violations = new ConstraintViolationList();

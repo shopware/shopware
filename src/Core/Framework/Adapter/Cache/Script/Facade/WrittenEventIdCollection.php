@@ -45,7 +45,7 @@ class WrittenEventIdCollection implements \IteratorAggregate
     {
         $writeResults = array_values(array_filter(
             $this->writeResults,
-            static fn (EntityWriteResult $result): bool => \count(\array_intersect(array_keys($result->getPayload()), $properties)) > 0
+            static fn (EntityWriteResult $result): bool => \array_intersect(array_keys($result->getPayload()), $properties) !== []
         ));
 
         return new self($writeResults);

@@ -3,6 +3,7 @@ import './sw-newsletter-recipient-list.scss';
 
 const {
     Mixin,
+    Context,
     Data: { Criteria },
 } = Shopware;
 
@@ -24,6 +25,10 @@ export default {
         Mixin.getByName('listing'),
     ],
 
+    shortcuts: {
+        OF: 'openFilterSidebar',
+    },
+
     data() {
         return {
             isLoading: false,
@@ -31,7 +36,7 @@ export default {
             total: 0,
             sortBy: 'createdAt',
             sortDirection: 'DESC',
-            filterSidebarIsOpen: false,
+            filterSidebarItem: null,
             languageFilters: [],
             languageFilterValue: [],
             salesChannelFilters: [],
@@ -93,6 +98,14 @@ export default {
                 { value: 'optOut', label: this.$t('sw-newsletter-recipient.list.optOut') },
             ];
         },
+
+        adminEsEnable() {
+            if (!Shopware.Feature.isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+                return false;
+            }
+
+            return Context.app.adminEsEnable ?? false;
+        },
     },
 
     created() {
@@ -137,7 +150,11 @@ export default {
                 criteria.addFilter(item);
             });
 
-            criteria = await this.addQueryScores(this.term, criteria);
+            if (this.adminEsEnable) {
+                criteria.setTerm(this.term);
+            } else {
+                criteria = await this.addQueryScores(this.term, criteria);
+            }
 
             if (!this.entitySearchable) {
                 this.total = 0;
@@ -203,16 +220,16 @@ export default {
             await this.getList();
         },
 
-        closeContent() {
-            if (this.filterSidebarIsOpen) {
-                this.$refs.filterSideBar.closeContent();
-                this.filterSidebarIsOpen = false;
+        registerFilterSidebarItem(sidebarItem) {
+            this.filterSidebarItem = sidebarItem;
+        },
 
+        openFilterSidebar() {
+            if (!this.filterSidebarItem?.openContent) {
                 return;
             }
 
-            this.$refs.filterSideBar.openContent();
-            this.filterSidebarIsOpen = true;
+            this.filterSidebarItem.openContent();
         },
 
         getColumns() {

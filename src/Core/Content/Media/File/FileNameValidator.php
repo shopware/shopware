@@ -43,7 +43,7 @@ class FileNameValidator
      */
     public function validateFileName(string $fileName): void
     {
-        if (empty($fileName)) {
+        if ($fileName === '') {
             throw MediaException::emptyMediaFilename();
         }
 

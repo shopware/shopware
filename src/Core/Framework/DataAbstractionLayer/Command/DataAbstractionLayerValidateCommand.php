@@ -3,9 +3,11 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\Console\OutputFormatTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -21,6 +23,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[Package('framework')]
 class DataAbstractionLayerValidateCommand extends Command
 {
+    use OutputFormatTrait;
+
     /**
      * @internal
      */
@@ -32,11 +36,13 @@ class DataAbstractionLayerValidateCommand extends Command
     protected function configure(): void
     {
         parent::configure();
+        $this->addFormatOption([self::FORMAT_TABLE, self::FORMAT_JSON]);
+        /** @deprecated tag:v6.8.0 - Use `--format json` instead */
         $this->addOption(
             'json',
             null,
             InputOption::VALUE_NONE,
-            'Output as JSON'
+            '[DEPRECATED] Use `--format json` instead.'
         );
         $this->addOption(
             'namespaces',
@@ -44,24 +50,44 @@ class DataAbstractionLayerValidateCommand extends Command
             InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
             'Only output errors for these PHP namespaces (comma-separated or repeatable)'
         );
+        $this->addOption(
+            'tolerate-foreign-key',
+            null,
+            InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
+            'Foreign key constraint name that is tolerated to reference a non-standard key (repeatable)'
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $asJson = $input->getOption('json');
-        $namespaces = $input->getOption('namespaces') ?? [];
         $io = new ShopwareStyle($input, $output);
+
+        if ($input->getOption('json')) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'The "--json" option of the "dal:validate" command is deprecated and will be removed in v6.8.0. Use "--format json" instead.'
+            );
+            $input->setOption('format', self::FORMAT_JSON);
+        }
+
+        $format = $this->resolveFormat($input, $output, [self::FORMAT_TABLE, self::FORMAT_JSON]);
+        if ($format === null) {
+            return self::INVALID;
+        }
+
+        $asJson = $format === self::FORMAT_JSON;
+        $namespaces = $input->getOption('namespaces') ?? [];
         if (!$asJson) {
             $io->title('Data Abstraction Layer Validation');
         }
 
-        $errors = $this->validator->validate();
+        $errors = $this->validator->validate($input->getOption('tolerate-foreign-key'));
 
         // Filter errors by namespaces if provided
-        if (!empty($namespaces)) {
+        if ($namespaces !== []) {
             $errors = array_filter(
                 $errors,
-                function ($_, $class) use ($namespaces) {
+                static function ($_, $class) use ($namespaces) {
                     foreach ($namespaces as $ns) {
                         if (str_starts_with($class, (string) $ns)) {
                             return true;
@@ -74,7 +100,7 @@ class DataAbstractionLayerValidateCommand extends Command
             );
         }
 
-        $hasErrors = \count($errors) > 0;
+        $hasErrors = $errors !== [];
         if ($asJson) {
             if ($hasErrors) {
                 $io->write(json_encode($errors, \JSON_THROW_ON_ERROR));

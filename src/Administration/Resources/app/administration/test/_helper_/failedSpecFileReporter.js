@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 /**
  * @sw-package framework
  */
@@ -25,7 +23,7 @@ class FailedSpecFileReporter {
 
             Array.from(this.failedFiles)
                 .sort()
-                .forEach(file => {
+                .forEach((file) => {
                     // Using relative path for cleaner output
                     const relativePath = file.split('/').slice(-3).join('/');
                     console.error(`\x1b[31m❌ ${relativePath}\x1b[0m`);

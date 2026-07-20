@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Webhook\Hookable;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity as EntityAttribute;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -14,7 +15,11 @@ use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorResponse;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
 use Shopware\Core\Framework\Webhook\Hookable;
+use Shopware\Core\Framework\Webhook\Hookable\CoreHookableEventDescriber;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
+use Shopware\Core\Framework\Webhook\Hookable\HookableEventDescriber;
+use Shopware\Core\Framework\Webhook\Hookable\HookableEventDescription;
+use Shopware\Core\Framework\Webhook\WebhookException;
 
 /**
  * @internal
@@ -22,6 +27,8 @@ use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 #[CoversClass(HookableEventCollector::class)]
 class HookableEventCollectorTest extends TestCase
 {
+    private const MANIFEST_FIXTURE = __DIR__ . '/../../../../../integration/Core/Framework/App/Manifest/_fixtures/minimal/manifest.xml';
+
     private HookableEventCollector $hookableEventCollector;
 
     private BusinessEventCollector $businessEventCollector;
@@ -41,14 +48,15 @@ class HookableEventCollectorTest extends TestCase
         $this->hookableEventCollector = new HookableEventCollector(
             $this->businessEventCollector,
             $this->definitionRegistry,
-            new \ArrayIterator($hookableEntityDefinitions)
+            new \ArrayIterator($hookableEntityDefinitions),
+            new \ArrayIterator([new CoreHookableEventDescriber()])
         );
     }
 
     public function testGetHookableEventNamesWithPrivilegesReturnsCorrectStructure(): void
     {
         $context = Context::createDefaultContext();
-        $result = $this->hookableEventCollector->getHookableEventNamesWithPrivileges($context);
+        $result = $this->hookableEventCollector->getHookableEventNamesWithPrivileges($context, Manifest::createFromXmlFile(self::MANIFEST_FIXTURE));
 
         static::assertIsArray($result);
         static::assertNotEmpty($result);
@@ -68,7 +76,10 @@ class HookableEventCollectorTest extends TestCase
         foreach (Hookable::HOOKABLE_EVENTS as $eventName) {
             static::assertArrayHasKey($eventName, $result);
             static::assertArrayHasKey('privileges', $result[$eventName]);
-            static::assertSame([], $result[$eventName]['privileges']);
+        }
+
+        foreach (Hookable::HOOKABLE_EVENTS as $class => $eventName) {
+            static::assertSame(Hookable::HOOKABLE_EVENTS_PRIVILEGES[$class], $result[$eventName]['privileges']);
         }
     }
 
@@ -81,6 +92,7 @@ class HookableEventCollectorTest extends TestCase
         $hookableEventCollector = new HookableEventCollector(
             $this->businessEventCollector,
             $definitionRegistry,
+            [],
             []
         );
 
@@ -110,6 +122,7 @@ class HookableEventCollectorTest extends TestCase
         $hookableEventCollector = new HookableEventCollector(
             $this->businessEventCollector,
             $this->definitionRegistry,
+            [],
             []
         );
 
@@ -178,15 +191,41 @@ class HookableEventCollectorTest extends TestCase
             new \ArrayIterator([
                 $this->createProductDefinition(),
                 new TestEntityWithAttribute(),
-            ])
+            ]),
+            []
         );
 
         $context = Context::createDefaultContext();
-        $result = $hookableEventCollector->getHookableEventNamesWithPrivileges($context);
+        $result = $hookableEventCollector->getHookableEventNamesWithPrivileges($context, Manifest::createFromXmlFile(self::MANIFEST_FIXTURE));
 
         static::assertArrayHasKey('checkout.customer.login', $result);
         static::assertArrayHasKey('privileges', $result['checkout.customer.login']);
         static::assertSame(['product:read'], $result['checkout.customer.login']['privileges']);
+    }
+
+    public function testGetHookableEventNamesWithPrivilegesThrowsOnDuplicateDescribedEvents(): void
+    {
+        $hookableEventCollector = new HookableEventCollector(
+            $this->businessEventCollector,
+            $this->definitionRegistry,
+            [],
+            new \ArrayIterator([
+                new TestHookableEventDescriber('duplicate.described.event', 'First duplicate event.', ['first:read']),
+                new TestHookableEventDescriber('duplicate.described.event', 'Second duplicate event.', ['second:read']),
+            ])
+        );
+
+        $this->expectExceptionObject(
+            WebhookException::duplicateDescribedEvent(
+                'duplicate.described.event',
+                TestHookableEventDescriber::class
+            )
+        );
+
+        $hookableEventCollector->getHookableEventNamesWithPrivileges(
+            Context::createDefaultContext(),
+            Manifest::createFromXmlFile(self::MANIFEST_FIXTURE)
+        );
     }
 
     private function createProductDefinition(): EntityDefinition
@@ -225,4 +264,32 @@ class HookableEventCollectorTest extends TestCase
 #[EntityAttribute(name: 'test_entity')]
 class TestEntityWithAttribute extends Entity
 {
+}
+
+/**
+ * @internal Test fixture
+ */
+class TestHookableEventDescriber implements HookableEventDescriber
+{
+    /**
+     * @param list<string> $privileges
+     */
+    public function __construct(
+        private readonly string $eventName,
+        private readonly string $description,
+        private readonly array $privileges
+    ) {
+    }
+
+    public function describe(): array
+    {
+        return [];
+    }
+
+    public function describeForValidation(Manifest $manifest): array
+    {
+        return [
+            new HookableEventDescription($this->eventName, $this->description, $this->privileges),
+        ];
+    }
 }

@@ -20,19 +20,25 @@ use Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent;
 use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute;
 use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
 use Shopware\Core\Content\Media\SalesChannel\MediaRoute;
+use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefinition;
 use Shopware\Core\Content\Product\Events\InvalidateProductCache;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
+use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamWriteResultHelper;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent;
 use Shopware\Core\Content\Sitemap\SalesChannel\SitemapRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -104,6 +110,12 @@ class CacheInvalidationSubscriber
         // invalidates the complete cached config immediately
         $this->cacheInvalidator->invalidate([CachedSystemConfigLoader::CACHE_TAG], true);
 
+        // SystemConfig is often uses to store internal values. In such cases clients can set silent flag to true,
+        // so no http cache invalidations will happen.
+        if ($event->silent) {
+            return;
+        }
+
         // global system config tag is used in all http caches that access system config, that should be invalidated delayed
         $this->cacheInvalidator->invalidate(['system.config-' . $event->salesChannelId]);
     }
@@ -119,7 +131,7 @@ class CacheInvalidationSubscriber
 
         $setIds = $this->getSetIds($snippets->getIds());
 
-        if (empty($setIds)) {
+        if ($setIds === []) {
             return;
         }
 
@@ -160,11 +172,46 @@ class CacheInvalidationSubscriber
         $this->cacheInvalidator->invalidate($tags, force: $event->force);
     }
 
+    public function invalidateProductCrossSelling(EntityWrittenContainerEvent $event): void
+    {
+        $productIds = $this->getChangedCrossSellingProductIds($event);
+
+        if ($productIds === []) {
+            return;
+        }
+
+        $this->cacheInvalidator->invalidate(array_map(ProductDetailRoute::buildName(...), $productIds), true);
+    }
+
+    public function invalidateProductCrossSellingBeforeDeletion(EntityDeleteEvent $event): void
+    {
+        $productIds = $this->getDeletedCrossSellingProductIds($event);
+
+        if ($productIds === []) {
+            return;
+        }
+
+        $event->addSuccess(
+            fn () => $this->cacheInvalidator->invalidate(array_map(ProductDetailRoute::buildName(...), $productIds), true)
+        );
+    }
+
     public function invalidateStreamIds(EntityWrittenContainerEvent $event): void
     {
         // invalidates all routes which are loaded based on a stream (e.G. category listing and cross selling)
-        $ids = array_map(EntityCacheKeyGenerator::buildStreamTag(...), $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME));
-        $this->cacheInvalidator->invalidate($ids);
+        $streamIds = [
+            ...$event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME),
+            ...ProductStreamWriteResultHelper::getAffectedStreamIds($event),
+        ];
+
+        $streamIds = array_values(array_unique($streamIds));
+
+        if ($streamIds === []) {
+            return;
+        }
+
+        $ids = array_map(EntityCacheKeyGenerator::buildStreamTag(...), $streamIds);
+        $this->cacheInvalidator->invalidate($ids, force: true);
     }
 
     public function invalidateCategoryRouteByCategoryIds(CategoryIndexerEvent $event): void
@@ -217,7 +264,7 @@ class CacheInvalidationSubscriber
             $tags[] = CountryStateRoute::ALL_TAG;
         }
 
-        if (empty($tags)) {
+        if ($tags === []) {
             // invalidates the country-state route when a state changed or an assignment between the state and country changed
             $tags = array_map(
                 CountryStateRoute::buildName(...),
@@ -241,7 +288,7 @@ class CacheInvalidationSubscriber
             SalesChannelDefinition::ENTITY_NAME,
             ['navigationCategoryId', 'navigationCategoryDepth', 'serviceCategoryId', 'footerCategoryId']
         );
-        if (!empty($changedSalesChannelSettings)) {
+        if ($changedSalesChannelSettings !== []) {
             // if the sales channel settings changed, we invalidate the complete navigation route
             $this->cacheInvalidator->invalidate([NavigationRoute::ALL_TAG]);
 
@@ -252,7 +299,7 @@ class CacheInvalidationSubscriber
             CategoryDefinition::ENTITY_NAME,
             ['parentId', 'afterCategoryId', 'visible', 'active']
         );
-        if (!empty($changedCategoryData)) {
+        if ($changedCategoryData !== []) {
             // if category data that has impact on navigation changes, we invalidate the complete navigation route
             $this->cacheInvalidator->invalidate([NavigationRoute::ALL_TAG]);
 
@@ -260,7 +307,7 @@ class CacheInvalidationSubscriber
         }
 
         $deletedCategories = $event->getDeletedPrimaryKeys(CategoryDefinition::ENTITY_NAME);
-        if (!empty($deletedCategories)) {
+        if ($deletedCategories !== []) {
             // if the category is deleted, we invalidate the complete navigation route
             $this->cacheInvalidator->invalidate([NavigationRoute::ALL_TAG]);
 
@@ -271,7 +318,7 @@ class CacheInvalidationSubscriber
             CategoryTranslationDefinition::ENTITY_NAME,
             ['name']
         );
-        if (!empty($changedCategoryTranslationData)) {
+        if ($changedCategoryTranslationData !== []) {
             // if translated category data that has impact on navigation changes, we invalidate the complete navigation route
             $this->cacheInvalidator->invalidate([NavigationRoute::ALL_TAG]);
         }
@@ -352,7 +399,7 @@ class CacheInvalidationSubscriber
 
         $keys = array_filter(array_unique($keys));
 
-        if (empty($keys)) {
+        if ($keys === []) {
             return;
         }
 
@@ -365,7 +412,7 @@ class CacheInvalidationSubscriber
         // invalidates the product listing route, each time a manufacturer changed
         $ids = $event->getPrimaryKeys(ProductManufacturerDefinition::ENTITY_NAME);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -394,7 +441,7 @@ class CacheInvalidationSubscriber
         // invalidates all stream based pages and routes before the product indexer changes product_stream_mapping
         $ids = $event->getPrimaryKeys(ProductDefinition::ENTITY_NAME);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -421,7 +468,7 @@ class CacheInvalidationSubscriber
         // invalidates the product listing route, each time a property changed
         $ids = $event->getDeletedPrimaryKeys(ProductPropertyDefinition::ENTITY_NAME);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return [];
         }
 
@@ -457,7 +504,7 @@ class CacheInvalidationSubscriber
     private function getChangedShippingMethods(EntityWrittenContainerEvent $event): array
     {
         $ids = $event->getPrimaryKeys(ShippingMethodDefinition::ENTITY_NAME);
-        if (empty($ids)) {
+        if ($ids === []) {
             return [];
         }
 
@@ -494,7 +541,7 @@ class CacheInvalidationSubscriber
     private function getChangedPaymentMethods(EntityWrittenContainerEvent $event): array
     {
         $ids = $event->getPrimaryKeys(PaymentMethodDefinition::ENTITY_NAME);
-        if (empty($ids)) {
+        if ($ids === []) {
             return [];
         }
 
@@ -531,7 +578,7 @@ class CacheInvalidationSubscriber
     private function getChangedCountries(EntityWrittenContainerEvent $event): array
     {
         $ids = $event->getPrimaryKeys(CountryDefinition::ENTITY_NAME);
-        if (empty($ids)) {
+        if ($ids === []) {
             return [];
         }
 
@@ -569,7 +616,7 @@ class CacheInvalidationSubscriber
     private function getChangedSalutations(EntityWrittenContainerEvent $event): array
     {
         $ids = $event->getPrimaryKeys(SalutationDefinition::ENTITY_NAME);
-        if (empty($ids)) {
+        if ($ids === []) {
             return [];
         }
 
@@ -582,7 +629,7 @@ class CacheInvalidationSubscriber
     private function getChangedLanguages(EntityWrittenContainerEvent $event): array
     {
         $ids = $event->getPrimaryKeys(LanguageDefinition::ENTITY_NAME);
-        if (empty($ids)) {
+        if ($ids === []) {
             return [];
         }
 
@@ -621,7 +668,7 @@ class CacheInvalidationSubscriber
     {
         $ids = $event->getPrimaryKeys(CurrencyDefinition::ENTITY_NAME);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return [];
         }
 
@@ -684,6 +731,143 @@ class CacheInvalidationSubscriber
              WHERE product_stream_mapping.product_id IN (:ids)
              AND product_stream_mapping.product_version_id = :version',
             ['ids' => Uuid::fromHexToBytesList($ids), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getChangedCrossSellingProductIds(EntityWrittenContainerEvent $event): array
+    {
+        /** @var list<string> $crossSellingIds */
+        $crossSellingIds = array_values([
+            ...$event->getPrimaryKeys(ProductCrossSellingDefinition::ENTITY_NAME),
+            ...$this->getCrossSellingIdsFromAssignedProductWrites($event->getEventByEntityName(ProductCrossSellingAssignedProductsDefinition::ENTITY_NAME)),
+            ...$this->getCrossSellingIdsByAssignedProductIds($event->getPrimaryKeys(ProductCrossSellingAssignedProductsDefinition::ENTITY_NAME)),
+            ...$this->getCrossSellingIdsFromTranslationPrimaryKeys($event->getPrimaryKeys(ProductCrossSellingTranslationDefinition::ENTITY_NAME)),
+        ]);
+
+        return $this->getProductIdsByCrossSellingIds($crossSellingIds);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getDeletedCrossSellingProductIds(EntityDeleteEvent $event): array
+    {
+        /** @var list<string> $assignedProductIds */
+        $assignedProductIds = array_values($event->getIds(ProductCrossSellingAssignedProductsDefinition::ENTITY_NAME));
+
+        /** @var list<string> $crossSellingIds */
+        $crossSellingIds = array_values([
+            ...$event->getIds(ProductCrossSellingDefinition::ENTITY_NAME),
+            ...$this->getCrossSellingIdsByAssignedProductIds($assignedProductIds),
+            ...$this->getCrossSellingIdsFromTranslationPrimaryKeys(array_values($event->getIds(ProductCrossSellingTranslationDefinition::ENTITY_NAME))),
+        ]);
+
+        return $this->getProductIdsByCrossSellingIds($crossSellingIds);
+    }
+
+    /**
+     * @param list<string|array<string, string>> $ids
+     *
+     * @return list<string>
+     */
+    private function getCrossSellingIdsFromTranslationPrimaryKeys(array $ids): array
+    {
+        $crossSellingIds = [];
+
+        foreach ($ids as $id) {
+            if (!\is_array($id)) {
+                continue;
+            }
+
+            $crossSellingId = $id['productCrossSellingId'] ?? $id['product_cross_selling_id'] ?? null;
+
+            if (!\is_string($crossSellingId)) {
+                continue;
+            }
+
+            $crossSellingIds[] = Uuid::isValid($crossSellingId) ? $crossSellingId : Uuid::fromBytesToHex($crossSellingId);
+        }
+
+        return array_values(array_unique($crossSellingIds));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getCrossSellingIdsFromAssignedProductWrites(?EntityWrittenEvent $event): array
+    {
+        if ($event === null) {
+            return [];
+        }
+
+        $crossSellingIds = [];
+
+        foreach ($event->getWriteResults() as $writeResult) {
+            $payload = $writeResult->getPayload();
+            $payloadId = $payload['crossSellingId'] ?? $payload['cross_selling_id'] ?? null;
+
+            if (\is_string($payloadId)) {
+                $crossSellingIds[] = Uuid::isValid($payloadId) ? $payloadId : Uuid::fromBytesToHex($payloadId);
+            }
+
+            $state = $writeResult->getExistence()?->getState() ?? [];
+            $stateId = $state['crossSellingId'] ?? $state['cross_selling_id'] ?? null;
+
+            if (\is_string($stateId)) {
+                $crossSellingIds[] = Uuid::isValid($stateId) ? $stateId : Uuid::fromBytesToHex($stateId);
+            }
+        }
+
+        return array_values(array_unique($crossSellingIds));
+    }
+
+    /**
+     * @param list<string> $ids
+     *
+     * @return list<string>
+     */
+    private function getCrossSellingIdsByAssignedProductIds(array $ids): array
+    {
+        $ids = array_values(array_unique($ids));
+
+        if ($ids === []) {
+            return [];
+        }
+
+        return $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT LOWER(HEX(cross_selling_id))
+             FROM product_cross_selling_assigned_products
+             WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($ids)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+    }
+
+    /**
+     * @param list<string> $ids
+     *
+     * @return list<string>
+     */
+    private function getProductIdsByCrossSellingIds(array $ids): array
+    {
+        $ids = array_values(array_unique($ids));
+
+        if ($ids === []) {
+            return [];
+        }
+
+        return $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT LOWER(HEX(COALESCE(product.parent_id, product.id)))
+             FROM product_cross_selling
+             INNER JOIN product
+                ON product.id = product_cross_selling.product_id
+                AND product.version_id = product_cross_selling.product_version_id
+             WHERE product_cross_selling.id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($ids)],
             ['ids' => ArrayParameterType::BINARY]
         );
     }

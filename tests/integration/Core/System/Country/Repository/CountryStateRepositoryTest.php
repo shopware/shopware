@@ -54,7 +54,7 @@ class CountryStateRepositoryTest extends TestCase
         $criteria = new Criteria();
 
         $builder = static::getContainer()->get(EntityScoreQueryBuilder::class);
-        $pattern = static::getContainer()->get(SearchTermInterpreter::class)->interpret('match', Context::createDefaultContext());
+        $pattern = static::getContainer()->get(SearchTermInterpreter::class)->interpret('match');
         $context = Context::createDefaultContext();
         $queries = $builder->buildScoreQueries(
             $pattern,

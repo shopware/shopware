@@ -38,19 +38,22 @@ export default Shopware.Component.wrapComponentConfig({
         urlHandler: null | (() => void);
         locationHeight: null | number;
         signedIframeSrc: null | string;
+        isFirstLoad: boolean;
     } {
         return {
             heightHandler: null,
             urlHandler: null,
             locationHeight: null,
             signedIframeSrc: null,
+            isFirstLoad: true,
         };
     },
 
     created() {
         this.heightHandler = Shopware.ExtensionAPI.handle('locationUpdateHeight', ({ height, locationId }) => {
             if (locationId === this.locationId) {
-                this.locationHeight = Number(height) ?? null;
+                const parsed = Number(height);
+                this.locationHeight = Number.isNaN(parsed) ? null : parsed;
             }
         });
 
@@ -130,7 +133,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         iFrameSrc(): string {
-            const urlObject = new URL(this.src, window.location.origin);
+            const urlObject = new URL(this.src, this._getLocationOrigin());
             urlObject.searchParams.append('location-id', this.locationId);
 
             return urlObject.toString();
@@ -165,12 +168,30 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        onIframeLoad() {
+            // Hard dev server reload of a plugin was triggered. To ensure consistency, we need to reload the entire page.
+            // This also fixes a crash where ui components are added in an endless loop. See PR #14347.
+            if (this.isFirstLoad) {
+                this.isFirstLoad = false;
+            } else {
+                this._reloadPage();
+            }
+        },
+
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _reloadPage() {
+            window.location.reload();
+        },
+
+        _getLocationOrigin() {
+            return window.location.origin;
+        },
+
         signIframeSrc() {
             if (!this.extension || !this.extensionIsApp) {
                 return;
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
             this.extensionSdkService
                 .signIframeSrc(this.extension.name, this.iFrameSrc)
                 .then((response) => {
@@ -208,7 +229,6 @@ export default Shopware.Component.wrapComponentConfig({
                     }
 
                     this.signedIframeSrc = urlObject.toString();
-                    // eslint-disable-next-line @typescript-eslint/no-empty-function
                 })
                 .catch(() => {});
         },

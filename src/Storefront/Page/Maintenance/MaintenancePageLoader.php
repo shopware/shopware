@@ -2,9 +2,11 @@
 
 namespace Shopware\Storefront\Page\Maintenance;
 
+use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
@@ -28,7 +30,7 @@ class MaintenancePageLoader
     }
 
     /**
-     * @throws PageNotFoundException
+     * @throws CmsException|PageNotFoundException
      */
     public function load(string $cmsErrorLayoutId, Request $request, SalesChannelContext $context): MaintenancePage
     {
@@ -37,19 +39,27 @@ class MaintenancePageLoader
             $page = MaintenancePage::createFrom($page);
 
             $pages = $this->cmsPageLoader->load($request, new Criteria([$cmsErrorLayoutId]), $context)->getEntities();
-
-            $cmsPage = $pages->first();
-            if ($cmsPage === null) {
+        } catch (\Throwable) {
+            if (!Feature::isActive('v6.8.0.0')) {
+                /** @phpstan-ignore shopware.domainException (Will be fixed with next major) */
                 throw new PageNotFoundException($cmsErrorLayoutId);
             }
-
-            $page->setCmsPage($cmsPage);
-
-            $this->eventDispatcher->dispatch(new MaintenancePageLoadedEvent($page, $context, $request));
-
-            return $page;
-        } catch (\Exception) {
-            throw new PageNotFoundException($cmsErrorLayoutId);
+            throw CmsException::pageNotFound($cmsErrorLayoutId);
         }
+
+        $cmsPage = $pages->first();
+        if ($cmsPage === null) {
+            if (!Feature::isActive('v6.8.0.0')) {
+                /** @phpstan-ignore shopware.domainException (Will be fixed with next major) */
+                throw new PageNotFoundException($cmsErrorLayoutId);
+            }
+            throw CmsException::pageNotFound($cmsErrorLayoutId);
+        }
+
+        $page->setCmsPage($cmsPage);
+
+        $this->eventDispatcher->dispatch(new MaintenancePageLoadedEvent($page, $context, $request));
+
+        return $page;
     }
 }

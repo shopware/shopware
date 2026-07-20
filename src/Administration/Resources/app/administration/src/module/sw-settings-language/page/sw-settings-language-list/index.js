@@ -22,6 +22,10 @@ export default {
         Mixin.getByName('notification'),
     ],
 
+    shortcuts: {
+        OF: 'openFilterSidebar',
+    },
+
     data() {
         return {
             languages: null,
@@ -32,6 +36,7 @@ export default {
             isLoading: true,
             sortBy: 'active',
             sortDirection: 'DESC',
+            filterSidebarItem: null,
         };
     },
 
@@ -112,9 +117,25 @@ export default {
         allowDelete() {
             return this.acl.can('language.deleter');
         },
+
+        cardTitle() {
+            return `${this.$t('sw-settings-language.list.cardTitle')} (${this.total})`;
+        },
     },
 
     methods: {
+        registerFilterSidebarItem(sidebarItem) {
+            this.filterSidebarItem = sidebarItem;
+        },
+
+        openFilterSidebar() {
+            if (!this.filterSidebarItem?.openContent) {
+                return;
+            }
+
+            this.filterSidebarItem.openContent();
+        },
+
         getList() {
             this.isLoading = true;
             return this.languageRepository.search(this.listingCriteria).then((languageResult) => {
@@ -155,7 +176,7 @@ export default {
         tooltipDelete(languageId) {
             if (!this.acl.can('language.deleter') && !this.isDefault(languageId)) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('language.deleter'),
                     showOnDisabledElements: true,
                 };

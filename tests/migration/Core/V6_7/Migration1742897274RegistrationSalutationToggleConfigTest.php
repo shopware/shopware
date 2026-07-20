@@ -19,6 +19,11 @@ class Migration1742897274RegistrationSalutationToggleConfigTest extends TestCase
 {
     use KernelTestBehaviour;
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1742897274, (new Migration1742897274RegistrationSalutationToggleConfig())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $connection = self::getContainer()->get(Connection::class);
@@ -31,6 +36,7 @@ class Migration1742897274RegistrationSalutationToggleConfigTest extends TestCase
 
         $newConfiguration = $this->getConditionValues();
         $id = array_key_first($newConfiguration);
+        static::assertNotNull($id);
 
         static::assertCount(1, $newConfiguration);
         static::assertSame(['_value' => true], $newConfiguration[$id]);
@@ -47,6 +53,7 @@ class Migration1742897274RegistrationSalutationToggleConfigTest extends TestCase
 
         $newConfiguration = $this->getConditionValues();
         $id = array_key_first($newConfiguration);
+        static::assertNotNull($id);
 
         static::assertCount(1, $newConfiguration);
         static::assertSame(['_value' => false], $newConfiguration[$id]);
@@ -58,7 +65,7 @@ class Migration1742897274RegistrationSalutationToggleConfigTest extends TestCase
     private function getConditionValues(): array
     {
         return array_map(
-            function (string $json) { return json_decode($json, true); },
+            static function (string $json) { return json_decode($json, true); },
             static::getContainer()->get(Connection::class)->fetchAllKeyValue(
                 'SELECT LOWER(HEX(`id`)), `configuration_value` FROM `system_config` WHERE `configuration_key` = ?',
                 ['core.loginRegistration.showSalutation'],

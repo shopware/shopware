@@ -226,7 +226,7 @@ class RegisterController extends StorefrontController
                 throw RoutingException::missingRequestParameter('errorRoute');
             }
 
-            if (empty($request->request->get('errorRoute'))) {
+            if ($request->request->getString('errorRoute') === '') {
                 $request->request->set('errorRoute', 'frontend.account.register.page');
             }
 
@@ -250,6 +250,10 @@ class RegisterController extends StorefrontController
     )]
     public function confirmRegistration(SalesChannelContext $context, QueryDataBag $queryDataBag): Response
     {
+        if ($this->isHeadRequest()) {
+            return new Response(status: Response::HTTP_NO_CONTENT);
+        }
+
         try {
             $customerId = $this->registerConfirmRoute
                 ->confirm($queryDataBag->toRequestDataBag(), $context)

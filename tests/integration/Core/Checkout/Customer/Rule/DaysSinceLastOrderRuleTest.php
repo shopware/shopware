@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
@@ -33,7 +32,6 @@ use Symfony\Component\Validator\Constraints\Type;
  * @internal
  */
 #[Package('fundamentals@after-sales')]
-#[CoversClass(DaysSinceLastOrderRule::class)]
 #[Group('rules')]
 class DaysSinceLastOrderRuleTest extends TestCase
 {
@@ -130,7 +128,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id));
         $this->ruleRepository->delete([['id' => $ruleId]], $this->context);
         $this->conditionRepository->delete([['id' => $id]], $this->context);
     }
@@ -181,7 +179,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $result = $customerRepository->search(
             new Criteria([$orderData[0]['orderCustomer']['customer']['id']]),
             $defaultContext
-        );
+        )->getEntities();
 
         static::assertNotNull($result->first());
         static::assertSame(1, $result->first()->getOrderCount());

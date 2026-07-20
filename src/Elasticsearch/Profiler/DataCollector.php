@@ -33,7 +33,7 @@ class DataCollector extends BaseDataCollector
         $enabled = $this->enabled;
         $client = $this->client;
 
-        if (empty($client->getCalledRequests()) && $context instanceof Context && $context->getSource() instanceof AdminApiSource) {
+        if ($client->getCalledRequests() === [] && $context instanceof Context && $context->getSource() instanceof AdminApiSource) {
             $enabled = $this->adminEnabled;
             $client = $this->adminClient;
         }

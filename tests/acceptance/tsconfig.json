@@ -9,6 +9,7 @@
       "@page-objects/*": ["page-objects/*"],
       "@tasks/*": ["tasks/*"],
       "@data/*": ["test-data/*"],
+      "@helpers/*": ["helpers/*"]
     }
   }
 }

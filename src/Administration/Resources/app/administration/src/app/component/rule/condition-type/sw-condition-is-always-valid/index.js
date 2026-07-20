@@ -1,8 +1,5 @@
 import template from './sw-condition-always-valid.html.twig';
 
-const { Component } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
-
 /**
  * @public
  * @sw-package fundamentals@after-sales
@@ -30,16 +27,10 @@ export default {
         selectValues() {
             return [
                 {
-                    label: this.$tc('global.default.yes'),
+                    label: this.$t('global.default.yes'),
                     value: true,
                 },
             ];
-        },
-
-        ...mapPropertyErrors('condition', ['value.isNew']),
-
-        currentError() {
-            return this.conditionValueIsNewError;
         },
     },
 };

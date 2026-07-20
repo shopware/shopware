@@ -7,7 +7,7 @@
         <mt-number-field
             v-model="width"
             class="sw-media-add-thumbnail-form__input-width"
-            :label="$tc('global.sw-media-add-thumbnail-form.labelMaximumSize')"
+            :label="$t('global.sw-media-add-thumbnail-form.labelMaximumSize')"
             :min="1"
             :step="1"
             :validation="width > 0"
@@ -45,12 +45,11 @@
     {% block sw_media_add_thumbnail_add_button %}
     <mt-button
         class="sw-media-folder-settings__add-thumbnail-size-action"
-        ghost
         :disabled="disabled || width === null || height === null || width === 0 || height === 0"
         variant="secondary"
         @click="onAdd"
     >
-        {{ $tc('global.default.add') }}
+        {{ $t('global.default.add') }}
     </mt-button>
     {% endblock %}
 </div>

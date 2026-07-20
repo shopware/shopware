@@ -15,6 +15,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
+use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
@@ -48,7 +49,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
     public function __construct(
         private readonly EntityRepository $crossSellingRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly ProductStreamBuilderInterface $productStreamBuilder,
+        private readonly ProductStreamBuilderInterface|AbstractProductStreamBuilder $productStreamBuilder,
         private readonly SalesChannelRepository $productRepository,
         private readonly SystemConfigService $systemConfigService,
         private readonly ProductListingLoader $listingLoader,
@@ -111,10 +112,6 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         $tags = [];
 
         foreach ($elements as $element) {
-            if ($element->getStreamId() !== null) {
-                $tags[] = EntityCacheKeyGenerator::buildStreamTag($element->getStreamId());
-            }
-
             foreach ($element->getProducts() as $product) {
                 $tags[] = EntityCacheKeyGenerator::buildProductTag($product->getId());
 
@@ -149,9 +146,18 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         $productStreamId = $crossSelling->getProductStreamId();
         \assert(\is_string($productStreamId));
 
-        $filters = $this->productStreamBuilder->buildFilters($productStreamId, $context->getContext());
+        $this->cacheTagCollector->addTag(
+            EntityCacheKeyGenerator::buildStreamTag($productStreamId)
+        );
 
-        $criteria->addFilter(...$filters)
+        $productStreamBuilder = $this->productStreamBuilder;
+        if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
+            $productStreamBuilder->enrichCriteria($criteria, $productStreamId, $context->getContext());
+        } else {
+            $criteria->addFilter(...$productStreamBuilder->buildFilters($productStreamId, $context->getContext()));
+        }
+
+        $criteria
             ->addFilter(new NotEqualsFilter('product.id', $crossSelling->getProductId()))
             ->setOffset(0)
             ->setLimit($crossSelling->getLimit())
@@ -195,7 +201,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
             ProductVisibilityDefinition::VISIBILITY_LINK
         );
 
-        if (!\count($ids)) {
+        if ($ids === []) {
             return $element;
         }
 

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework\DataAbstractionLayer;
 
 use OpenSearchDSL\Aggregation\Bucketing\CompositeAggregation;
 use OpenSearchDSL\Sort\FieldSort;
+use OpenSearchDSL\Sort\NestedSort;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -62,7 +63,7 @@ class CriteriaParserTest extends TestCase
         /** @var CompositeAggregation $esAgg */
         $esAgg = (new CriteriaParser(
             new EntityDefinitionQueryHelper(),
-            $this->createMock(CustomFieldService::class),
+            static::createStub(CustomFieldService::class),
             new ArrayKeyValueStorage([]),
         ))->parseAggregation($aggs, $definition, Context::createDefaultContext());
 
@@ -107,7 +108,7 @@ class CriteriaParserTest extends TestCase
 
         $parser = new CriteriaParser(
             new EntityDefinitionQueryHelper(),
-            $this->createMock(CustomFieldService::class),
+            static::createStub(CustomFieldService::class),
             new ArrayKeyValueStorage([]),
         );
 
@@ -134,7 +135,7 @@ class CriteriaParserTest extends TestCase
 
         $parser = new CriteriaParser(
             new EntityDefinitionQueryHelper(),
-            $this->createMock(CustomFieldService::class),
+            static::createStub(CustomFieldService::class),
             new ArrayKeyValueStorage([]),
         );
 
@@ -154,7 +155,7 @@ class CriteriaParserTest extends TestCase
 
         $parser = new CriteriaParser(
             new EntityDefinitionQueryHelper(),
-            $this->createMock(CustomFieldService::class),
+            static::createStub(CustomFieldService::class),
             new ArrayKeyValueStorage([
                 ElasticsearchOptimizeSwitch::FLAG => true,
             ]),
@@ -175,10 +176,9 @@ class CriteriaParserTest extends TestCase
     {
         $definition = $this->getDefinition();
 
-        $parser = new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class), new ArrayKeyValueStorage([]));
+        $parser = new CriteriaParser(new EntityDefinitionQueryHelper(), static::createStub(CustomFieldService::class), new ArrayKeyValueStorage([]));
 
-        static::expectException(ElasticsearchException::class);
-        static::expectExceptionMessage(\sprintf('Provided filter of class %s is not supported', CustomFilter::class));
+        $this->expectExceptionObject(ElasticsearchException::unsupportedFilter(CustomFilter::class));
         $parser->parseFilter(new CustomFilter(), $definition, ProductDefinition::ENTITY_NAME, Context::createDefaultContext());
     }
 
@@ -187,7 +187,7 @@ class CriteriaParserTest extends TestCase
     {
         $definition = $this->getDefinition();
 
-        $accessor = (new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class), new ArrayKeyValueStorage([])))->buildAccessor($definition, $field, $context);
+        $accessor = (new CriteriaParser(new EntityDefinitionQueryHelper(), static::createStub(CustomFieldService::class), new ArrayKeyValueStorage([])))->buildAccessor($definition, $field, $context);
 
         static::assertSame($expectedAccessor, $accessor);
     }
@@ -247,17 +247,17 @@ EOT,
                 'stats' => [
                     'script' => [
                         'source' => <<<EOT
-double getPercentage(def accessors, def doc) {
+double getRatio(def accessors, def doc) {
     for (accessor in accessors) {
         def key = accessor['key'];
         if (!doc.containsKey(key) || doc[key].empty) {
             continue;
         }\n
-        return (double) doc[key].value;
+        return 100 - (double) doc[key].value;
     }\n
     return 0;
 }\n
-return getPercentage(params['accessors'], doc);\n
+return getRatio(params['accessors'], doc);\n
 EOT,
                         'lang' => 'painless',
                         'params' => [
@@ -658,7 +658,7 @@ EOT,
             [
                 'script' => [
                     'script' => [
-                        'inline' => <<<EOT
+                        'source' => <<<EOT
 String getPercentageKey(def accessors, def doc) {
     for (accessor in accessors) {
         def key = accessor['key'];
@@ -682,23 +682,23 @@ if (percentageKey == '') {
     return false;
 }
 
-def percentage = (double) doc[percentageKey].value;
+def ratio = 100 - (double) doc[percentageKey].value;
 
 def match = true;
 if (params.containsKey('eq')) {
-    match = match && percentage == params['eq'];
+    match = match && ratio == params['eq'];
 }
 if (params.containsKey('gte')) {
-    match = match && percentage >= params['gte'];
+    match = match && ratio >= params['gte'];
 }
 if (params.containsKey('gt')) {
-    match = match && percentage > params['gt'];
+    match = match && ratio > params['gt'];
 }
 if (params.containsKey('lte')) {
-    match = match && percentage <= params['lte'];
+    match = match && ratio <= params['lte'];
 }
 if (params.containsKey('lt')) {
-    match = match && percentage < params['lt'];
+    match = match && ratio < params['lt'];
 }
 
 return match;
@@ -772,7 +772,7 @@ EOT,
     {
         $definition = $this->getDefinition(ProductManufacturerDefinition::ENTITY_NAME);
 
-        $customFieldService = $this->createMock(CustomFieldService::class);
+        $customFieldService = static::createStub(CustomFieldService::class);
 
         if ($customField instanceof Field) {
             $customFieldService->method('getCustomField')->willReturn($customField);
@@ -1046,13 +1046,13 @@ EOT,
 
         yield 'nested translated field' => [
             new FieldSorting('product_manufacturer.products.name', FieldSorting::ASCENDING),
-            new FieldSort('products.name.' . Defaults::LANGUAGE_SYSTEM, FieldSorting::ASCENDING, null, ['nested' => ['path' => 'products']]),
+            new FieldSort('products.name.' . Defaults::LANGUAGE_SYSTEM, FieldSorting::ASCENDING, new NestedSort('products')),
             null,
         ];
 
         yield 'nested translated field with root prefix' => [
             new FieldSorting('products.name', FieldSorting::ASCENDING),
-            new FieldSort('products.name.' . Defaults::LANGUAGE_SYSTEM, FieldSorting::ASCENDING, null, ['nested' => ['path' => 'products']]),
+            new FieldSort('products.name.' . Defaults::LANGUAGE_SYSTEM, FieldSorting::ASCENDING, new NestedSort('products')),
             null,
         ];
 
@@ -1108,14 +1108,14 @@ EOT,
 
         $sortedFilter = (new CriteriaParser(
             new EntityDefinitionQueryHelper(),
-            $this->createMock(CustomFieldService::class),
+            static::createStub(CustomFieldService::class),
             new ArrayKeyValueStorage([]),
         ))->parseFilter($filter, $definition, '', $context);
 
         $sortedFilterArray = $sortedFilter->toArray();
 
         // Unset the 'source' key before comparison.
-        unset($sortedFilterArray['script']['script']['inline']);
+        unset($sortedFilterArray['script']['script']['source']);
 
         static::assertEquals($expectedFilter, $sortedFilterArray);
     }
@@ -1295,6 +1295,24 @@ EOT,
                 ],
             ],
         ];
+
+        yield 'EqualsFilter null on nested association field' => [
+            new EqualsFilter('unit.id', null),
+            [
+                'bool' => [
+                    'must_not' => [
+                        [
+                            'nested' => [
+                                'path' => 'unit',
+                                'query' => [
+                                    'exists' => ['field' => 'unit.id'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
     }
 
     public function getDefinition(string $entityName = 'product'): EntityDefinition
@@ -1308,8 +1326,8 @@ EOT,
                 ProductTranslationDefinition::class,
                 UnitTranslationDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         return $instanceRegistry->getByEntityName($entityName);
@@ -1328,7 +1346,7 @@ EOT,
 
         $sorting = (new CriteriaParser(
             new EntityDefinitionQueryHelper(),
-            $this->createMock(CustomFieldService::class),
+            static::createStub(CustomFieldService::class),
             new ArrayKeyValueStorage([]),
         ))->parseSorting($sorting, $definition, $context);
 
@@ -1522,7 +1540,7 @@ return Double.MIN_VALUE;
 
         $parsedSorting = (new CriteriaParser(
             new EntityDefinitionQueryHelper(),
-            $this->createMock(CustomFieldService::class),
+            static::createStub(CustomFieldService::class),
             new ArrayKeyValueStorage([]),
         ))->parseSorting($sorting, $definition, $context);
 

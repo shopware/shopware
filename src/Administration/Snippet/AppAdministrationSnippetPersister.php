@@ -53,7 +53,7 @@ readonly class AppAdministrationSnippetPersister
         }
 
         // only throw exception if snippets are given but not en-GB
-        if (!\array_key_exists('en-GB', $snippets) && !empty($snippets)) {
+        if (!\array_key_exists('en-GB', $snippets) && $snippets !== []) {
             throw SnippetException::defaultLanguageNotGiven('en-GB');
         }
 

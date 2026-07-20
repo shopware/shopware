@@ -136,7 +136,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
 
         $result = $analyzer->analyze($product, Context::createDefaultContext(), $config);
 
-        $words = $result->map(fn (AnalyzedKeyword $keyword) => $keyword->getKeyword());
+        $words = $result->map(static fn (AnalyzedKeyword $keyword) => $keyword->getKeyword());
 
         static::assertSame(
             ['searchable', 'match', 'array', '10000000', '10.99999', 'nested'],

@@ -109,7 +109,7 @@ class PaymentController extends AbstractController
 
         try {
             $deprecatedParameter = null;
-            Feature::silent('v6.8.0.0', function () use (&$deprecatedParameter): void {
+            Feature::silent('v6.8.0.0', static function () use (&$deprecatedParameter): void {
                 $deprecatedParameter ??= new TokenStruct();
             });
             \assert($deprecatedParameter instanceof TokenStruct);

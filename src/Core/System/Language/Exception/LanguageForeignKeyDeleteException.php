@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('fundamentals@discovery')]
 /**
  * @deprecated tag:v6.8.0 - Will be removed, as the exception is no longer needed, languages now also throw RestrictDeleteViolationException
@@ -20,7 +23,7 @@ class LanguageForeignKeyDeleteException extends ShopwareHttpException
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
             Feature::deprecatedClassMessage(
-                __CLASS__,
+                self::class,
                 'v6.8.0.0',
                 RestrictDeleteViolationException::class
             )
@@ -38,7 +41,7 @@ class LanguageForeignKeyDeleteException extends ShopwareHttpException
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
             Feature::deprecatedClassMessage(
-                __CLASS__,
+                self::class,
                 'v6.8.0.0',
                 RestrictDeleteViolationException::class
             )
@@ -52,7 +55,7 @@ class LanguageForeignKeyDeleteException extends ShopwareHttpException
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
             Feature::deprecatedClassMessage(
-                __CLASS__,
+                self::class,
                 'v6.8.0.0',
                 RestrictDeleteViolationException::class
             )

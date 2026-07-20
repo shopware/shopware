@@ -21,11 +21,12 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Event\FirstRunWizardFinishedEvent;
 use Shopware\Core\Framework\Store\Event\FirstRunWizardStartedEvent;
-use Shopware\Core\Framework\Store\Exception\LicenseDomainVerificationException;
+use Shopware\Core\Framework\Store\Event\ShopwareAccountLoginEvent;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\Framework\Store\Services\StoreService;
 use Shopware\Core\Framework\Store\Services\TrackingEventClient;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 use Shopware\Core\Framework\Store\Struct\DomainVerificationRequestStruct;
 use Shopware\Core\Framework\Store\Struct\FrwState;
@@ -36,6 +37,7 @@ use Shopware\Core\Framework\Store\Struct\StorePluginStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
+use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -77,19 +79,19 @@ class FirstRunWizardServiceTest extends TestCase
 
     public function testFrwLoginFailsIfContextSourceIsNotAdminApi(): void
     {
-        $frwClient = $this->createMock(FirstRunWizardClient::class);
+        $frwClient = static::createStub(FirstRunWizardClient::class);
         $frwClient->method('frwLogin')
             ->willThrowException(new InvalidContextSourceException(AdminApiSource::class, SystemSource::class));
 
         $frwService = new FirstRunWizardService(
-            $this->createMock(StoreService::class),
-            $this->createMock(SystemConfigService::class),
-            $this->createMock(FilesystemOperator::class),
+            static::createStub(StoreService::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(FilesystemOperator::class),
             true,
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             $frwClient,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(TrackingEventClient::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(TrackingEventClient::class),
         );
 
         $this->expectException(InvalidContextSourceException::class);
@@ -223,6 +225,34 @@ class FirstRunWizardServiceTest extends TestCase
         );
 
         $frwService->upgradeAccessToken($this->context);
+    }
+
+    public function testUpgradeAccessTokenDispatchesShopwareAccountLoginEvent(): void
+    {
+        $shopUserTokenResponse = [
+            'shopUserToken' => [
+                'token' => 'shop-us3r-t0k3n',
+                'expirationDate' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            ],
+            'shopSecret' => 'shop-s3cr3t',
+        ];
+
+        $frwClient = $this->createMock(FirstRunWizardClient::class);
+        $frwClient->expects($this->once())
+            ->method('upgradeAccessToken')
+            ->willReturn($shopUserTokenResponse);
+
+        $eventDispatcher = new CollectingEventDispatcher();
+
+        $frwService = $this->createFirstRunWizardService(
+            eventDispatcher: $eventDispatcher,
+            frwClient: $frwClient,
+        );
+
+        $frwService->upgradeAccessToken($this->context);
+
+        static::assertCount(1, $eventDispatcher->getEvents());
+        static::assertInstanceOf(ShopwareAccountLoginEvent::class, $eventDispatcher->getEvents()[0]);
     }
 
     public function testFrwShouldNotRunIfAutoRunIsDisabled(): void
@@ -390,7 +420,7 @@ class FirstRunWizardServiceTest extends TestCase
             frwClient: $frwClient,
         );
 
-        $this->expectException(LicenseDomainVerificationException::class);
+        $this->expectExceptionObject(StoreException::licenseDomainVerificationFailure($domain));
 
         $frwService->verifyLicenseDomain($domain, $this->context);
         static::assertEmpty($systemConfigService->all());
@@ -433,8 +463,7 @@ class FirstRunWizardServiceTest extends TestCase
             frwClient: $frwClient,
         );
 
-        $this->expectException(LicenseDomainVerificationException::class);
-        $this->expectExceptionMessage(\sprintf('License host verification failed for domain "%s."', $domain));
+        $this->expectExceptionObject(StoreException::licenseDomainVerificationFailure($domain));
 
         $frwService->verifyLicenseDomain($domain, $this->context);
     }
@@ -910,14 +939,14 @@ class FirstRunWizardServiceTest extends TestCase
         ?TrackingEventClient $trackingEventClient = null,
     ): FirstRunWizardService {
         return new FirstRunWizardService(
-            $storeService ?? $this->createMock(StoreService::class),
-            $systemConfigService ?? $this->createMock(SystemConfigService::class),
-            $filesystemOperator ?? $this->createMock(FilesystemOperator::class),
+            $storeService ?? static::createStub(StoreService::class),
+            $systemConfigService ?? static::createStub(SystemConfigService::class),
+            $filesystemOperator ?? static::createStub(FilesystemOperator::class),
             $autoRun ?? true,
-            $eventDispatcher ?? $this->createMock(EventDispatcherInterface::class),
-            $frwClient ?? $this->createMock(FirstRunWizardClient::class),
-            $userConfigRepository ?? $this->createMock(EntityRepository::class),
-            $trackingEventClient ?? $this->createMock(TrackingEventClient::class),
+            $eventDispatcher ?? static::createStub(EventDispatcherInterface::class),
+            $frwClient ?? static::createStub(FirstRunWizardClient::class),
+            $userConfigRepository ?? static::createStub(EntityRepository::class),
+            $trackingEventClient ?? static::createStub(TrackingEventClient::class),
         );
     }
 }

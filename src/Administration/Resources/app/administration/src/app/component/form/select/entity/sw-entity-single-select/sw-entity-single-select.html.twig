@@ -67,6 +67,7 @@
                 type="text"
                 :placeholder="placeholder"
                 :aria-label="label"
+                :autocomplete="autocomplete"
                 @input="onInputSearchTerm"
             >
             {% endblock %}
@@ -84,7 +85,7 @@
             :options="results"
             :is-loading="isLoading"
             :popover-classes="popoverClasses"
-            :empty-message="$tc('global.sw-single-select.messageNoResults', { term: searchTerm })"
+            :empty-message="$t('global.sw-single-select.messageNoResults', { term: searchTerm })"
             :focus-el="$refs.swSelectInput"
             @paginate="paginate"
             @item-select="setValue"
@@ -99,7 +100,7 @@
                     class="sw-single-select-filtering__advanced-selection sw-select-result"
                     @click="openAdvancedSelectionModal"
                 >
-                    {{ $tc('global.sw-entity-advanced-selection-modal.link') }}
+                    {{ $t('global.sw-entity-advanced-selection-modal.link') }}
                 </div>
                 {% endblock %}
 

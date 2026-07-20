@@ -52,7 +52,7 @@ class SCSSValidator
     {
         foreach ($customAllowedRegex as $regex) {
             preg_match('/' . $regex . '/i', $value, $parsed);
-            if (isset($parsed[0]) && !empty($parsed[0])) {
+            if (isset($parsed[0]) && $parsed[0] !== '') {
                 return true;
             }
         }

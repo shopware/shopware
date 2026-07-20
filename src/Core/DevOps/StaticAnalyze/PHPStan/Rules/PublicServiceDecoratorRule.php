@@ -47,7 +47,7 @@ class PublicServiceDecoratorRule implements Rule
             return [];
         }
 
-        if (empty($service->getTags())) {
+        if ($service->getTags() === []) {
             return [];
         }
 

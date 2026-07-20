@@ -23,7 +23,7 @@ class ParsedRobots
 
     public function hasUserAgentBlocks(): bool
     {
-        return \count($this->userAgentBlocks) > 0;
+        return $this->userAgentBlocks !== [];
     }
 
     public function hasErrors(): bool

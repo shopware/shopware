@@ -245,6 +245,50 @@ class LineItemTest extends TestCase
         static::assertSame(2, $lineItem->getPayloadValue('test'));
     }
 
+    public function testSetPayloadValueCanProtectPayloadValue(): void
+    {
+        $lineItem = new LineItem('abc', 'type', null, 5);
+        $lineItem->setPayloadValue('visible', 'test', false);
+        $lineItem->setPayloadValue('protected', 'test', true);
+
+        static::assertSame('test', $lineItem->getPayloadValue('protected'));
+        static::assertArrayHasKey('protected', $lineItem->getPayload());
+
+        $payload = self::getSerializedPayload($lineItem);
+
+        static::assertArrayHasKey('visible', $payload);
+        static::assertArrayNotHasKey('protected', $payload);
+    }
+
+    public function testSetPayloadValueCanRemovePayloadProtection(): void
+    {
+        $lineItem = new LineItem('abc', 'type', null, 5);
+        $lineItem->setPayloadValue('test', 'protected', true);
+
+        $payload = self::getSerializedPayload($lineItem);
+
+        static::assertArrayNotHasKey('test', $payload);
+
+        $lineItem->setPayloadValue('test', 'visible', false);
+
+        $payload = self::getSerializedPayload($lineItem);
+
+        static::assertSame('visible', $payload['test']);
+    }
+
+    public function testSetPayloadValueKeepsProtectionWithoutThirdArgument(): void
+    {
+        $lineItem = new LineItem('abc', 'type', null, 5);
+        $lineItem->setPayloadValue('test', 'protected', true);
+        $lineItem->setPayloadValue('test', 'updated');
+
+        static::assertSame('updated', $lineItem->getPayloadValue('test'));
+
+        $payload = self::getSerializedPayload($lineItem);
+
+        static::assertArrayNotHasKey('test', $payload);
+    }
+
     public function testReplacePayloadNonRecursively(): void
     {
         $lineItem = new LineItem('abc', 'type', null, 5);
@@ -310,8 +354,7 @@ class LineItemTest extends TestCase
     #[DataProvider('provideInvalidIdentifiers')]
     public function testIdentifierValidationForInvalidFormat(string $identifier): void
     {
-        $this->expectException(CartException::class);
-        $this->expectExceptionMessage('Identifier contains invalid characters. Only alphanumeric characters, dashes, underscores and dots are allowed.');
+        $this->expectExceptionObject(CartException::lineItemInvalid('Identifier contains invalid characters. Only alphanumeric characters, dashes, underscores and dots are allowed.'));
 
         new LineItem($identifier, 'type');
     }
@@ -333,8 +376,7 @@ class LineItemTest extends TestCase
 
     public function testIdentifierValidationForInvalidLength(): void
     {
-        $this->expectException(CartException::class);
-        $this->expectExceptionMessage('Identifier is too long. Maximum length is 100 characters.');
+        $this->expectExceptionObject(CartException::lineItemInvalid('Identifier is too long. Maximum length is 100 characters.'));
 
         new LineItem(str_repeat('a', 101), 'type');
     }
@@ -379,5 +421,18 @@ class LineItemTest extends TestCase
         ];
 
         static::assertSame($expectedArray, $parent->getHashContent());
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function getSerializedPayload(LineItem $lineItem): array
+    {
+        $data = $lineItem->jsonSerialize();
+
+        static::assertArrayHasKey('payload', $data);
+        static::assertIsArray($data['payload']);
+
+        return $data['payload'];
     }
 }

@@ -78,7 +78,10 @@ abstract class StorefrontController extends AbstractController
 
         $this->container->get('event_dispatcher')->dispatch($event);
 
-        $iconCacheEnabled = $this->getSystemConfigService()->get('core.storefrontSettings.iconCache') ?? true;
+        $iconCacheEnabled = $this->getSystemConfigService()->get(
+            'core.storefrontSettings.iconCache',
+            $event->getSalesChannelContext()->getSalesChannelId()
+        ) ?? true;
 
         if ($iconCacheEnabled) {
             IconCacheTwigFilter::enable();
@@ -191,10 +194,14 @@ abstract class StorefrontController extends AbstractController
         $params = RequestParamHelper::get($request, $param);
 
         if (\is_string($params)) {
-            $params = json_decode($params, true);
+            try {
+                $params = json_decode($params, true, flags: \JSON_THROW_ON_ERROR);
+            } catch (\JsonException) {
+                $params = [];
+            }
         }
 
-        if (empty($params) || \is_numeric($params)) {
+        if ($params === null || \is_numeric($params)) {
             $params = [];
         }
 
@@ -217,6 +224,7 @@ abstract class StorefrontController extends AbstractController
         $request = $this->container->get('request_stack')->getMainRequest();
         $exists = [];
 
+        /** @phpstan-ignore shopware.unsafeRequestHasSession (using $skipIfUninitialized = false as session will be started intentionally later; this can take the PHP session lock and is limited to storefront flash handling inspecting the flash bag.) */
         if ($request && $request->hasSession() && $request->getSession() instanceof FlashBagAwareSessionInterface) {
             $exists = $request->getSession()->getFlashBag()->peekAll();
         }
@@ -318,5 +326,20 @@ abstract class StorefrontController extends AbstractController
     protected function getSystemConfigService(): SystemConfigService
     {
         return $this->container->get(SystemConfigService::class);
+    }
+
+    /**
+     * Because some email-clients try to fetch previews for links in mails,
+     * they send a HEAD-request. But because Symfony is routing HEAD-requests
+     * as GET-requests, a subscriber would be confirmed without clicking the link,
+     * only by the HEAD-request.
+     * To determine if the current request is a "HEAD" request or a "GET" request, this
+     * helper method exists.
+     *
+     * Beware: $request->getMethod() or $request->getRealMethod() will both return "GET".
+     */
+    protected function isHeadRequest(): bool
+    {
+        return isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'HEAD';
     }
 }

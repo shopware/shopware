@@ -7,7 +7,7 @@
         ref="swMediaModal"
         class="sw-media-modal-v2"
         width="full"
-        :title="$tc('sw-media.sw-media-modal-v2.titleModal')"
+        :title="$t('sw-media.sw-media-modal-v2.titleModal')"
     >
 
         {% block sw_media_modal_v2_content %}
@@ -29,7 +29,7 @@
                         :active-tab="active"
                         :disabled="hasUploads"
                     >
-                        {{ $tc('sw-media.sw-media-modal-v2.labelTabItemLibrary') }}
+                        {{ $t('sw-media.sw-media-modal-v2.labelTabItemLibrary') }}
                     </sw-tabs-item>
                     {% endblock %}
 
@@ -39,7 +39,7 @@
                         :active-tab="active"
                         @click="resetSelection"
                     >
-                        {{ $tc('sw-media.sw-media-modal-v2.labelTabItemUpload') }}
+                        {{ $t('sw-media.sw-media-modal-v2.labelTabItemUpload') }}
                     </sw-tabs-item>
                     {% endblock %}
                     {% endblock %}
@@ -169,7 +169,7 @@
                     variant="secondary"
                     @click="onEmitModalClosed"
                 >
-                    {{ $tc('global.default.cancel') }}
+                    {{ $t('global.default.cancel') }}
                 </mt-button>
                 {% endblock %}
 
@@ -179,7 +179,7 @@
                     :disabled="selection.length < 1"
                     @click="onEmitSelection"
                 >
-                    {{ $tc('sw-media.sw-media-modal-v2.labelButtonSaveSelection') }}
+                    {{ $t('sw-media.sw-media-modal-v2.labelButtonSaveSelection') }}
                 </mt-button>
                 {% endblock %}
             </div>

@@ -26,15 +26,15 @@ class ContactFormValidationFactoryTest extends TestCase
     #[DataProvider('systemConfigDataProvider')]
     public function testCreate(bool $required, \Closure $expectsClosure): void
     {
-        $systemConfigServiceMock = $this->createMock(SystemConfigService::class);
+        $systemConfigServiceMock = static::createStub(SystemConfigService::class);
         $systemConfigServiceMock->method('get')->willReturn($required);
 
         $validation = new ContactFormValidationFactory(
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             $systemConfigServiceMock
         );
 
-        $contextMock = $this->createMock(SalesChannelContext::class);
+        $contextMock = static::createStub(SalesChannelContext::class);
 
         $definition = $validation->create($contextMock);
 
@@ -45,7 +45,7 @@ class ContactFormValidationFactoryTest extends TestCase
     {
         yield 'is required' => [
             true,
-            function (DataValidationDefinition $definition, SalesChannelContext $context): void {
+            static function (DataValidationDefinition $definition, SalesChannelContext $context): void {
                 static::assertEquals($definition->getProperties(), [
                     'salutationId' => [
                         new NotBlank(),
@@ -69,7 +69,7 @@ class ContactFormValidationFactoryTest extends TestCase
 
         yield 'is not required' => [
             false,
-            function (DataValidationDefinition $definition, SalesChannelContext $context): void {
+            static function (DataValidationDefinition $definition, SalesChannelContext $context): void {
                 static::assertEquals($definition->getProperties(), [
                     'salutationId' => [
                         new NotBlank(),

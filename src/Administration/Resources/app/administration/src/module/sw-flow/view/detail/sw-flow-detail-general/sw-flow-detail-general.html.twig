@@ -6,13 +6,13 @@
         variant="attention"
         class="sw-flow-detail-general__warning-unknow-trigger"
     >
-        <p>{{ $tc('sw-flow.flowNotification.messageUnknownTriggerWarning') }}</p>
-        <p>{{ $tc('sw-flow.flowNotification.textIntroduce') }}</p>
+        <p>{{ $t('sw-flow.flowNotification.messageUnknownTriggerWarning') }}</p>
+        <p>{{ $t('sw-flow.flowNotification.textIntroduce') }}</p>
 
         <ul>
-            <li>{{ $tc('sw-flow.flowNotification.textGuide1') }}</li>
-            <li>{{ $tc('sw-flow.flowNotification.textGuide2') }}</li>
-            <li>{{ $tc('sw-flow.flowNotification.textGuide3') }}</li>
+            <li>{{ $t('sw-flow.flowNotification.textGuide1') }}</li>
+            <li>{{ $t('sw-flow.flowNotification.textGuide2') }}</li>
+            <li>{{ $t('sw-flow.flowNotification.textGuide3') }}</li>
         </ul>
     </mt-banner>
 
@@ -20,7 +20,7 @@
         class="sw-flow-detail-general__general-card"
         position-identifier="sw-flow-detail-general"
         :class="{'sw-flow-detail-general__template': isTemplate }"
-        :title="$tc('sw-flow.detail.labelGeneralCard')"
+        :title="$t('sw-flow.detail.labelGeneralCard')"
         :is-loading="isLoading"
     >
         {% block sw_flow_detail_general_information_name %}
@@ -29,8 +29,8 @@
             class="sw-flow-detail-general__general-name"
             :required="!isTemplate"
             :disabled="!acl.can('flow.editor') || undefined"
-            :label="$tc('sw-flow.detail.labelGeneralInformationName')"
-            :placeholder="$tc('sw-flow.detail.placeholderGeneralInformationName')"
+            :label="$t('sw-flow.detail.labelGeneralInformationName')"
+            :placeholder="$t('sw-flow.detail.placeholderGeneralInformationName')"
             :error="flowNameError"
             name="sw-field--flow-name"
         />
@@ -42,8 +42,8 @@
             name="sw-field--flow-description"
             class="sw-flow-detail-general__general-description"
             :disabled="!acl.can('flow.editor') || undefined"
-            :label="$tc('sw-flow.detail.labelGeneralInformationDescription')"
-            :placeholder="$tc('sw-flow.detail.placeholderGeneralInformationDescription')"
+            :label="$t('sw-flow.detail.labelGeneralInformationDescription')"
+            :placeholder="$t('sw-flow.detail.placeholderGeneralInformationDescription')"
         />
         {% endblock %}
 
@@ -57,7 +57,7 @@
                 v-model="flow.priority"
                 class="sw-flow-detail-general__general-priority"
                 :disabled="!acl.can('flow.editor') || undefined"
-                :label="$tc('sw-flow.detail.labelGeneralInformationPriority')"
+                :label="$t('sw-flow.detail.labelGeneralInformationPriority')"
                 :step="1"
                 :min="0"
                 number-type="int"
@@ -72,7 +72,7 @@
                 name="sw-field--flow-active"
                 class="sw-flow-detail-general__general-active"
                 :disabled="!acl.can('flow.editor') || isUnknownTrigger || undefined"
-                :label="$tc('sw-flow.detail.labelGeneralInformationActive')"
+                :label="$t('sw-flow.detail.labelGeneralInformationActive')"
                 bordered
             />
             {% endblock %}

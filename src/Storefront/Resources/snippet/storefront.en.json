@@ -40,11 +40,10 @@
     "categories": "Categories",
     "showCategory": "Show %category%",
     "required": "*",
-    "requiredFields": "Fields marked with asterisks (*) are required.",
     "privacyTitle": "Privacy",
-    "privacyNoticeText": "By selecting continue you confirm that you have read our <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Data protection information\">data protection information</a> and accepted our <a data-ajax-modal=\"true\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"general terms and conditions\">general terms and conditions</a>.",
-    "privacyNoticeTextModal": "By selecting continue you confirm that you have read our %privacyModalTagOpen%data protection information%privacyModalTagClose% and accepted our %tosModalTagOpen%general terms and conditions%tosModalTagClose%.",
-    "privacyNoticeTextPage": "By selecting continue you confirm that you have read our <a href=\"%privacyUrl%\">data protection information</a> and accepted our <a href=\"%tosUrl%\">general terms and conditions</a>.",
+    "privacyNoticeText": "I have acknowledged the <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Privacy policy\">privacy policy</a> and have read and agree to the <a data-ajax-modal=\"true\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"general terms and conditions\">general terms and conditions</a>.",
+    "privacyNoticeTextModal": "I have acknowledged the %privacyModalTagOpen%privacy policy%privacyModalTagClose% and have read and agree to the %tosModalTagOpen%general terms and conditions%tosModalTagClose%.",
+    "privacyNoticeTextPage": "I have acknowledged the <a href=\"%privacyUrl%\">privacy policy</a> and have read and agree to the <a href=\"%tosUrl%\">general terms and conditions</a>.",
     "privacyLink": "Privacy policy",
     "imprintLink": "Imprint",
     "404ErrorPageHeader": "Page not found",
@@ -120,6 +119,7 @@
     "VIOLATION::BILLING_ADDRESS_INVALID_TYPE_ERROR": "The billing address must be a valid object. Please refer to /store-api/_info/openapi3.json#/components/schemas/CustomerAddressBody for the correct structure.",
     "VIOLATION::SHIPPING_ADDRESS_INVALID_TYPE_ERROR": "The shipping address must be either null or a valid object. Please refer to /store-api/_info/openapi3.json#/components/schemas/CustomerAddressBody for the correct structure.",
     "VIOLATION::PASSWORD_IS_TOO_LONG": "The chosen password is too long.",
+    "VIOLATION::PASSWORD_IS_TOO_SHORT": "The chosen password is too short.",
     "VIOLATION::RECAPTCHA_COOKIE_REQUIRED": "Please accept the technically required cookies to enable the reCAPTCHA verification.",
     "FRAMEWORK__INVALID_CAPTCHA_VALUE": "There was an error with the captcha verification.",
     "message-default": "Unfortunately, something went wrong.",
@@ -129,6 +129,7 @@
     "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "The selected payment method does not exist.",
     "productNotFound": "Product \"%number%\" not found.",
     "VIOLATION::TOO_SHORT_ERROR": "Input is too short.",
+    "VIOLATION::INVALID_PATTERN_ERROR": "The input does not match the required format.",
     "product-not-found": "The product could not be found.",
     "message-403-ajax": "Your session has expired. Please reload the page and try again.",
     "message-403": "Your session has expired. Please return to the last page and try again.",
@@ -142,7 +143,8 @@
     "CHECKOUT__ORDER_ORDER_CANCELLED": "The order with the order number \"%orderNumber%\" was canceled and cannot be edited afterwards.",
     "CHECKOUT__ORDER_ORDER_NOT_FOUND": "This order could not be found.",
     "CHECKOUT__CART_HASH_MISMATCH": "Products or prices in your shopping cart may have changed. Please check your shopping cart before placing your order.",
-    "CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY": "The quantity (%quantity%) is incorrect."
+    "CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY": "The quantity (%quantity%) is incorrect.",
+    "urlNotAllowed": "Please do not enter a URL in this field."
   },
   "account": {
     "externalPaymentCanceled": "We have received your order, but the payment was aborted. Please change your payment method or try again.",
@@ -392,12 +394,15 @@
     "orderTrackingNotAvailable": "Not available",
     "addressDefault": "Default",
     "addressModalTitle": "Addresses",
-    "addressModalFooterClose": "Close",
     "addressNewShipping": "Add new shipping address",
     "addressNewBilling": "Add new billing address",
     "addressSaveAndUse": "Save and use",
     "addressSuccessfulChange": "Address successful changed",
-    "addressSearchPlaceholder": "Search addresses..."
+    "addressSearchPlaceholder": "Search addresses...",
+    "convertGuestTitle": "Create customer account",
+    "convertGuestInfo": "Set password for <span class=\"account-guest-conversion__subtitle\">%email%</span>",
+    "privacyNoticeTextModal": "By setting a password you confirm that you have read our %privacyModalTagOpen%data protection information%privacyModalTagClose% and accepted our %tosModalTagOpen%general terms and conditions%tosModalTagClose%.",
+    "convertSucceeded": "Account successfully created. You can now log in."
   },
   "address": {
     "streetLabel": "Street address",
@@ -463,6 +468,7 @@
     "cartItemInfoId": "Product number:",
     "addPromotionLabel": "Promo code",
     "addPromotionPlaceholder": "Enter promo code...",
+    "addPromotionApplyAction": "Apply promo code",
     "addProductLabel": "Product number",
     "addProductPlaceholder": "Enter product number...",
     "summaryPositionPrice": "Total",
@@ -472,6 +478,7 @@
     "summaryNetPrice": "Net total",
     "summaryTax": "plus %rate%% VAT",
     "summaryTaxLabeled": "plus %rate%% %label%",
+    "summaryTaxInclude": "incl. %rate%% VAT",
     "summaryOffCanvasLabel": "Shopping cart summary",
     "proceedLink": "Go to checkout",
     "addressEqualText": "Same as shipping address",
@@ -489,8 +496,6 @@
     "confirmChooseShipping": "Choose shipping method",
     "confirmCurrentPaymentShipping": "Current selection:",
     "confirmSelectionNone": "None selected",
-    "confirmChangePaymentShippingSave": "Save",
-    "confirmChangePaymentShippingCancel": "Cancel",
     "confirmSubmit": "Submit order",
     "confirmDigitalContentHeader": "Digital content access",
     "confirmTermsHeader": "Terms and conditions and cancellation policy",
@@ -529,7 +534,9 @@
     "customerCommentPlaceholder": "Comment here...",
     "cart-merged-hint": "The current shopping cart might contain additional products that have been added and saved during a previous visit.",
     "collapseTriggerMore": "Show more",
-    "collapseTriggerLess": "Show less"
+    "collapseTriggerLess": "Show less",
+    "createAccountHeading": "To accelerate future purchases create a user account.",
+    "createAccountButton": "Create account"
   },
   "listing": {
     "filterTitleText": "Filter products",
@@ -590,6 +597,7 @@
     "subscribeOption": "Subscribe to newsletter",
     "unsubscribeOption": "Unsubscribe from newsletter",
     "formSubmit": "Subscribe",
+    "formSubmitUnsubscribe": "Unsubscribe",
     "subscriptionPersistedSuccess": "You have just subscribed to our newsletter.\n To complete the sign-up process, search your inbox for our confirmation email and click on the link provided with it.",
     "subscriptionPersistedInfo": "If you do not receive a confirmation email in the next few minutes, you may already be subscribed to the newsletter. Check your inbox and spam folder. Then try to subscribe again and contact our support if this does not work either.",
     "subscriptionRevokeSuccess": "You have successfully unsubscribed from the newsletter.",
@@ -611,11 +619,27 @@
     "subjectPlaceholder": "Enter subject...",
     "commentLabel": "Comment",
     "commentPlaceholder": "Enter comment...",
-    "privacyNoticeText": "By selecting continue you confirm that you have read and agree to our <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" data-prev-url=\"%prevUrl%\" href=\"%privacyUrl%\" title=\"Data protection information\">data protection information</a>.",
-    "privacyNoticeTextModal": "By selecting continue you confirm that you have read and agree to our %privacyModalTagOpen%data protection information%privacyModalTagClose%.",
-    "privacyNoticeTextPage": "By selecting continue you confirm that you have read and agree to our <a href=\"%privacyUrl%\" title=\"Data protection information\">data protection information</a>.",
+    "privacyNoticeText": "I have read and acknowledge the <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" data-prev-url=\"%prevUrl%\" href=\"%privacyUrl%\" title=\"Privacy policy\">privacy policy</a>.",
+    "privacyNoticeTextModal": "I have read and acknowledge the %privacyModalTagOpen%privacy policy%privacyModalTagClose%.",
+    "privacyNoticeTextPage": "I have read and acknowledge the <a href=\"%privacyUrl%\" title=\"Privacy policy\">privacy policy</a>.",
     "formSubmit": "Submit",
     "success": "We have received your contact request and will process it as soon as possible."
+  },
+  "revocationRequest": {
+    "headline": "Revocation",
+    "firstNameLabel": "First name",
+    "firstNamePlaceholder": "Enter first name...",
+    "lastNameLabel": "Last name",
+    "lastNamePlaceholder": "Enter last name...",
+    "eMailLabel": "Email address",
+    "eMailPlaceholder": "Enter email address...",
+    "contractNumberLabel": "Contract number (order number, subscription number, ...)",
+    "contractNumberPlaceholder": "Enter contract number...",
+    "commentLabel": "Comment",
+    "commentPlaceholder": "Enter comment...",
+    "privacyNoticeTextModal": "Our Privacy Notice is available %privacyModalTagOpen%here%privacyModalTagClose%.",
+    "formSubmit": "Confirm revocation",
+    "success": "We have received your revocation request and will process it as soon as possible."
   },
   "search": {
     "headline": "{0} 0 products found for \"%searchTerm%\" | {1} One product found for \"%searchTerm%\" | [0,Inf[ %count% products found for \"%searchTerm%\"",
@@ -654,7 +678,6 @@
     "reviewFormContentLabel": "Your review",
     "reviewFormContentPlaceholder": "Enter your review...",
     "reviewFormSubmitText": "Submit",
-    "reviewFormCancelText": "Cancel",
     "reviewFormErrorAlert": "An error occurred. Please make sure you filled in all fields correctly.",
     "reviewFormSuccessAlert": "Thank you for submitting your review. We will examine the review and eventually unlock it, please be patient.",
     "reviewFormSuccessUpdateAlert": "Thank you for editing your review. Changes will be visible as soon as we have unlocked them.",
@@ -676,7 +699,6 @@
     "reviewLoginDescription": "Reviews can only be submitted while being logged in. Please enter your login details below.",
     "reviewRegisterLink": "New customer?",
     "reviewLoginSignupLink": "Click here to sign up.",
-    "reviewLoginCancelButton": "Cancel",
     "reviewAvgRate": "out of",
     "reviewAvgRateElements": "stars",
     "reviewAvgRatingAltText": "Average rating of %points% out of %maxPoints% stars",
@@ -721,6 +743,10 @@
           "solution": "Please try again or contact our support."
         }
       }
+    },
+    "animation": {
+      "toggle": "Animation play/pause",
+      "select": "Select animation"
     }
   },
   "wishlist": {
@@ -748,6 +774,8 @@
     "serviceHotline": "Support and counselling via: <a href=\"tel:+49180000000\">0180 - 000000</a> Mon-Fri, 9 am - 5 pm",
     "serviceContactText": "Or via our <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Contact form\">contact form</a>.",
     "serviceContactTextPage": "Or via our <a href=\"%url%\" title=\"Contact form\">contact form</a>.",
+    "serviceRevocationRequestText": "<a class=\"btn btn-primary\" data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Revoke a Contract\">Revoke a contract</a>",
+    "serviceRevocationRequestTextPage": "<a class=\"btn btn-primary\" href=\"%url%\" title=\"Revoke a Contract\">Revoke a contract</a>",
     "newsletterInput": "Email address",
     "newsletter": "Subscribe to our regular newsletter now to stay tuned on the latest products and special offers.",
     "includeVatText": "%star%All prices incl. VAT plus <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
@@ -770,7 +798,6 @@
     "deny": "Only technically required",
     "configure": "Configure",
     "configuration": "Settings",
-    "save": "Save",
     "acceptAll": "Accept all cookies",
     "headline": "Cookie preferences",
     "close": "Close cookie preferences",
@@ -830,7 +857,9 @@
         "increase": "Increase quantity",
         "increaseOfProduct": "Increase quantity of %product%",
         "decrease": "Decrease quantity",
-        "decreaseOfProduct": "Decrease quantity of %product%"
+        "decreaseOfProduct": "Decrease quantity of %product%",
+        "stockAdjusted": "Your quantity has been updated to %quantity%.",
+        "outOfStock": "The product is no longer available."
       },
       "configurator": {
         "legend": "<span class=\"%hidden_cls%\">Select&nbsp;</span>%group_name%"

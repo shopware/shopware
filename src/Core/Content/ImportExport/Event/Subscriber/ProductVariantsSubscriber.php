@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -77,7 +78,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
 
         $variants = $this->parseVariantString($row['variants']);
 
-        $entityWrittenEvent = $entityWrittenEvents->filter(fn ($event) => $event->getEntityName() === ProductDefinition::ENTITY_NAME)->first();
+        $entityWrittenEvent = $entityWrittenEvents->filter(static fn ($event) => $event->getEntityName() === ProductDefinition::ENTITY_NAME)->first();
 
         if (!$entityWrittenEvent instanceof EntityWrittenEvent) {
             return;
@@ -85,7 +86,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
 
         $writeResults = $entityWrittenEvent->getWriteResults();
 
-        if (empty($writeResults)) {
+        if ($writeResults === []) {
             return;
         }
 
@@ -158,11 +159,11 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
             $groupName = trim($groupOptions[0]);
             $options = array_filter(array_map('trim', explode(',', $groupOptions[1])));
 
-            if (empty($groupName) || empty($options)) {
+            if ($groupName === '' || $options === []) {
                 $this->throwExceptionFailedParsingVariants($variantsString);
             }
 
-            $options = array_map(fn ($option) => \sprintf('%s|%s', $groupName, $option), $options);
+            $options = array_map(static fn (string $option): string => \sprintf('%s|%s', $groupName, $option), $options);
 
             $result[] = $options;
         }
@@ -214,13 +215,19 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
             $variantId = Uuid::fromStringToHex(\sprintf('%s.%s', $parentId, $key));
             $variantProductNumber = \sprintf('%s.%s', $productNumber, $key);
 
-            $payload[] = [
+            $variant = [
                 'id' => $variantId,
                 'parentId' => $parentId,
                 'productNumber' => $variantProductNumber,
                 'stock' => 0,
                 'options' => $options,
             ];
+
+            if (Feature::isActive('v6.8.0.0')) {
+                $variant['type'] = ProductDefinition::TYPE_PHYSICAL;
+            }
+
+            $payload[] = $variant;
         }
 
         return $payload;

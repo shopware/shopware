@@ -2,11 +2,11 @@ const RulerTester = require('eslint').RuleTester;
 const rule = require('./remove-empty-templates');
 
 const tester = new RulerTester({
-    parserOptions: {
+    languageOptions: {
+        parser: require('vue-eslint-parser'),
         ecmaVersion: 2015,
         sourceType: 'module',
     },
-    parser: require.resolve('vue-eslint-parser'),
 });
 
 tester.run('remove-empty-templates', rule, {

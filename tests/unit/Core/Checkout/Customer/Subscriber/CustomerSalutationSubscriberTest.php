@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\Subscriber;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerSalutationSubscriber;
@@ -21,13 +21,13 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('checkout')]
 class CustomerSalutationSubscriberTest extends TestCase
 {
-    private MockObject&Connection $connection;
+    private Connection&Stub $connection;
 
     private CustomerSalutationSubscriber $salutationSubscriber;
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
 
         $this->salutationSubscriber = new CustomerSalutationSubscriber($this->connection);
     }
@@ -58,9 +58,10 @@ class CustomerSalutationSubscriberTest extends TestCase
             [],
         );
 
-        $this->connection->expects($this->never())->method('executeStatement');
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('executeStatement');
 
-        $this->salutationSubscriber->setDefaultSalutation($event);
+        $this->createSubscriber($connection)->setDefaultSalutation($event);
     }
 
     public function testDefaultSalutation(): void
@@ -76,9 +77,10 @@ class CustomerSalutationSubscriberTest extends TestCase
             [],
         );
 
-        $this->connection->expects($this->once())
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
             ->method('executeStatement')
-            ->willReturnCallback(function ($sql, $params) use ($customerId): int {
+            ->willReturnCallback(static function ($sql, $params) use ($customerId): int {
                 static::assertSame($params, [
                     'id' => Uuid::fromHexToBytes($customerId),
                     'notSpecified' => 'not_specified',
@@ -98,6 +100,11 @@ class CustomerSalutationSubscriberTest extends TestCase
                 return 1;
             });
 
-        $this->salutationSubscriber->setDefaultSalutation($event);
+        $this->createSubscriber($connection)->setDefaultSalutation($event);
+    }
+
+    private function createSubscriber(Connection $connection): CustomerSalutationSubscriber
+    {
+        return new CustomerSalutationSubscriber($connection);
     }
 }

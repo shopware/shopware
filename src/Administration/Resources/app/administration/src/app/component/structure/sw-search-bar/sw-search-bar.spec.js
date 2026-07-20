@@ -1,8 +1,9 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package framework
  */
 
-/* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
 import 'src/app/component/structure/sw-search-bar';
 import 'src/app/component/structure/sw-search-bar-item';
@@ -451,6 +452,31 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(wrapper.vm.searchTerm).toBe('Foo product');
     });
 
+    it('should keep the current search term in $route watcher when the new route has no term', async () => {
+        wrapper = await createWrapper({
+            initialSearchType: 'product',
+            initialSearch: 'shirt',
+        });
+
+        const route = {
+            query: {},
+        };
+
+        wrapper.vm.$options.watch.$route.call(wrapper.vm, route);
+
+        expect(wrapper.vm.searchTerm).toBe('shirt');
+    });
+
+    it('should update off-canvas state when admin menu toggles it', async () => {
+        wrapper = await createWrapper();
+
+        wrapper.vm.isOffCanvasShown = true;
+
+        Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', false);
+
+        expect(wrapper.vm.isOffCanvasShown).toBe(false);
+    });
+
     it('should search with repository when no service is set in searchTypeService', async () => {
         wrapper = await createWrapper(
             {
@@ -581,6 +607,62 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(moduleFilterSelect.text()).toBe('global.entities.product');
     });
 
+    it('should change search bar type when activating module filters with keyboard', async () => {
+        wrapper = await createWrapper(
+            {
+                initialSearchType: '',
+            },
+            {
+                all: {
+                    entityName: '',
+                    placeholderSnippet: '',
+                    listingRoute: '',
+                },
+                ...searchTypeServiceTypes,
+            },
+        );
+
+        const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
+        await moduleFilterSelect.trigger('click');
+
+        const moduleFilterItems = wrapper.findAll(
+            '.sw-search-bar__types_module-filters-container .sw-search-bar__type-item',
+        );
+        await moduleFilterItems.at(1).trigger('keydown.enter');
+
+        expect(moduleFilterSelect.text()).toBe('global.entities.product');
+    });
+
+    it('should keep the search term when switching module filters', async () => {
+        wrapper = await createWrapper(
+            {
+                initialSearchType: '',
+            },
+            {
+                all: {
+                    entityName: '',
+                    placeholderSnippet: '',
+                    listingRoute: '',
+                },
+                ...searchTypeServiceTypes,
+            },
+        );
+
+        const searchInput = wrapper.find('.sw-search-bar__input');
+        await searchInput.setValue('shirt');
+
+        const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
+        await moduleFilterSelect.trigger('click');
+
+        const moduleFilterItems = wrapper.findAll(
+            '.sw-search-bar__types_module-filters-container .sw-search-bar__type-item',
+        );
+        await moduleFilterItems.at(2).trigger('click');
+
+        expect(wrapper.vm.searchTerm).toBe('shirt');
+        expect(searchInput.element.value).toBe('shirt');
+    });
+
     it('should search with repository after selecting module filter', async () => {
         wrapper = await createWrapper(
             {
@@ -671,7 +753,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
     it('should search for module and action with a default module', async () => {
         register('sw-order', {
             title: 'Orders',
-            color: '#A092F0',
+            color: 'var(--color-purple-500)',
             icon: 'regular-shopping-bag',
             entity: 'order',
 
@@ -861,7 +943,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         it(`should search for module and action with the term "${term}" when the ACL privilege is missing`, async () => {
             register(`sw-${term}`, {
                 title: `${term}s`,
-                color: '#A092F0',
+                color: 'var(--color-purple-500)',
                 icon: 'regular-shopping-bag',
                 entity: term,
 
@@ -919,7 +1001,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         it(`should search for module and action with the term "${term}" when the ACL is can view`, async () => {
             register(`sw-${term}`, {
                 title: `${term}s`,
-                color: '#A092F0',
+                color: 'var(--color-purple-500)',
                 icon: 'regular-shopping-bag',
                 entity: term,
 
@@ -971,7 +1053,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
             expect(module.total).toBe(1);
 
             expect(module.entities[0].icon).toBe('regular-shopping-bag');
-            expect(module.entities[0].color).toBe('#A092F0');
+            expect(module.entities[0].color).toBe('var(--color-purple-500)');
             expect(module.entities[0].label).toBe(`${term}s`);
             expect(module.entities[0].entity).toBe(term);
             expect(module.entities[0].route.name).toBe(`sw.${term}.index`);
@@ -1579,7 +1661,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         const term = 'customer';
         register(`sw-${term}`, {
             title: `${term}s`,
-            color: '#A092F0',
+            color: 'var(--color-purple-500)',
             icon: 'regular-shopping-bag',
             entity: term,
 

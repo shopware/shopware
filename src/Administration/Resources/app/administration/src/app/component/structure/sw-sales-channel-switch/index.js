@@ -27,12 +27,10 @@ export default {
             required: false,
             default: false,
         },
-        // eslint-disable-next-line vue/require-default-prop
         abortChangeFunction: {
             type: Function,
             required: false,
         },
-        // eslint-disable-next-line vue/require-default-prop
         saveChangesFunction: {
             type: Function,
             required: false,

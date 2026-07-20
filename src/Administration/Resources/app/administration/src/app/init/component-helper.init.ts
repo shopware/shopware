@@ -10,7 +10,6 @@ import {
     mapActions as mapVuexActions,
 } from 'vuex';
 import { mapState, mapActions } from 'pinia';
-// eslint-disable-next-line max-len
 import createTextEditorDataMappingButton from 'src/app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-cms-data-mapping/index';
 
 import * as mapErrors from 'src/app/service/map-errors.service';

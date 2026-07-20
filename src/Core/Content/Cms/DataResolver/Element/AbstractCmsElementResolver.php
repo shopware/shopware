@@ -37,7 +37,7 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
         // E.g. `product.description` does not exist, but will be found if the first part is omitted.
         $smartDetect = true;
 
-        while (\count($entityPath) > 0) {
+        while ($entityPath !== []) {
             $entityPathPart = array_shift($entityPath);
 
             if ($value === null) {
@@ -119,7 +119,7 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
         // E.g. `product.description` does not exist, but will be found if the first part is omitted.
         $smartDetect = true;
 
-        while (\count($parts) > 0) {
+        while ($parts !== []) {
             $part = array_shift($parts);
             $value = $fields->get($part);
 

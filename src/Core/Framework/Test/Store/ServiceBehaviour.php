@@ -23,7 +23,7 @@ trait ServiceBehaviour
 
         $ids = $idResult->getIds();
         if (\count($ids)) {
-            $appRepository->delete(array_map(fn (string $id) => ['id' => $id], $ids), Context::createDefaultContext());
+            $appRepository->delete(array_map(static fn (string $id) => ['id' => $id], $ids), Context::createDefaultContext());
         }
 
         $fs = new Filesystem();

@@ -71,7 +71,7 @@ class EntityLoadedEventFactoryTest extends TestCase
         static::assertNotNull($events);
         static::assertContainsOnlyInstancesOf(EntityLoadedEvent::class, $events);
         /** @var NestedEventCollection<EntityLoadedEvent<Entity>> $events */
-        $createdEvents = $events->map(fn (EntityLoadedEvent $event): string => $event->getName());
+        $createdEvents = $events->map(static fn (EntityLoadedEvent $event): string => $event->getName());
         sort($createdEvents);
 
         static::assertSame([
@@ -91,7 +91,7 @@ class EntityLoadedEventFactoryTest extends TestCase
         static::assertNotNull($events);
         static::assertContainsOnlyInstancesOf(EntityLoadedEvent::class, $events);
         /** @var NestedEventCollection<EntityLoadedEvent<Entity>> $events */
-        $createdEvents = $events->map(fn (EntityLoadedEvent $event): string => $event->getName());
+        $createdEvents = $events->map(static fn (EntityLoadedEvent $event): string => $event->getName());
         sort($createdEvents);
 
         static::assertSame([

@@ -17,6 +17,7 @@ class ConsentStateRecord
         public readonly ConsentStatus $status,
         public readonly string $actor,
         public readonly string $updatedAt,
+        public readonly ?string $revision = null,
     ) {
     }
 }

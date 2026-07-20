@@ -46,19 +46,19 @@ export default {
         return {
             calculationTypes: [
                 {
-                    label: this.$tc('sw-settings-shipping.priceMatrix.calculationLineItemCount'),
+                    label: this.$t('sw-settings-shipping.priceMatrix.calculationLineItemCount'),
                     value: 1,
                 },
                 {
-                    label: this.$tc('sw-settings-shipping.priceMatrix.calculationPrice'),
+                    label: this.$t('sw-settings-shipping.priceMatrix.calculationPrice'),
                     value: 2,
                 },
                 {
-                    label: this.$tc('sw-settings-shipping.priceMatrix.calculationWeight'),
+                    label: this.$t('sw-settings-shipping.priceMatrix.calculationWeight'),
                     value: 3,
                 },
                 {
-                    label: this.$tc('sw-settings-shipping.priceMatrix.calculationVolume'),
+                    label: this.$t('sw-settings-shipping.priceMatrix.calculationVolume'),
                     value: 4,
                 },
             ],
@@ -137,13 +137,13 @@ export default {
 
         confirmDeleteText() {
             const name = this.priceGroup.rule ? this.priceGroup.rule.name : '';
-            return this.$tc('sw-settings-shipping.priceMatrix.textDeleteConfirm', { name }, Number(!!this.priceGroup.rule));
+            return this.$t('sw-settings-shipping.priceMatrix.textDeleteConfirm', { name }, Number(!!this.priceGroup.rule));
         },
 
         currencyColumns() {
             return this.currencies.map((currency, index) => {
                 let label = currency.translated.name || currency.name;
-                label = `${label} ${this.$tc('sw-settings-shipping.priceMatrix.labelGrossNet')}`;
+                label = `${label} ${this.$t('sw-settings-shipping.priceMatrix.labelGrossNet')}`;
                 return {
                     property: `price-${currency.isoCode}`,
                     label: label,
@@ -221,18 +221,18 @@ export default {
 
         mainRulePlaceholder() {
             if (this.priceGroup.isNew) {
-                return this.$tc('sw-settings-shipping.priceMatrix.chooseOrCreateRule');
+                return this.$t('sw-settings-shipping.priceMatrix.chooseOrCreateRule');
             }
 
-            return this.$tc('sw-settings-shipping.priceMatrix.noRestriction');
+            return this.$t('sw-settings-shipping.priceMatrix.noRestriction');
         },
 
         cardTitle() {
             if (!this.priceGroup.rule && !this.priceGroup.isNew) {
-                return this.$tc('sw-settings-shipping.priceMatrix.noRestriction');
+                return this.$t('sw-settings-shipping.priceMatrix.noRestriction');
             }
 
-            return this.priceGroup.rule ? this.priceGroup.rule.name : this.$tc('sw-settings-shipping.priceMatrix.titleCard');
+            return this.priceGroup.rule ? this.priceGroup.rule.name : this.$t('sw-settings-shipping.priceMatrix.titleCard');
         },
 
         prices() {
@@ -325,7 +325,7 @@ export default {
             // RuleId can not set to null if there is already an unrestricted rule
             if (!ruleId && this.unrestrictedPriceMatrixExists && this.priceGroup.ruleId !== ruleId) {
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-shipping.priceMatrix.unrestrictedRuleAlreadyExistsMessage'),
+                    message: this.$t('sw-settings-shipping.priceMatrix.unrestrictedRuleAlreadyExistsMessage'),
                 });
                 return;
             }
@@ -387,7 +387,7 @@ export default {
             // if it is the only item in the priceGroup
             if (this.priceGroup.prices.length <= 1) {
                 this.createNotificationInfo({
-                    message: this.$tc('sw-settings-shipping.priceMatrix.deletionNotPossibleMessage'),
+                    message: this.$t('sw-settings-shipping.priceMatrix.deletionNotPossibleMessage'),
                 });
 
                 return;

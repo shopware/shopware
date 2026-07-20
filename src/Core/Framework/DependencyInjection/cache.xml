@@ -56,6 +56,8 @@
             <argument>%shopware.cache.invalidation.delay_enabled%</argument>
             <argument>%shopware.cache.invalidation.tag_invalidation_log_enabled%</argument>
             <argument type="service" id="Shopware\Core\Framework\Util\Backtrace\BacktraceCollector"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway" on-invalid="null"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\InvalidateCacheTask">
@@ -121,8 +123,10 @@
             <tag name="kernel.event_listener" event="Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent" method="invalidateIndexedLandingPages" priority="2000" />
 
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\InvalidateProductCache" method="invalidateProduct" priority="2001" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent" method="invalidateProductCrossSellingBeforeDeletion" priority="2001" />
 
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateCmsPageIds" priority="2001" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateProductCrossSelling" priority="2001" />
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateCurrencyRoute" priority="2002" />
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateLanguageRoute" priority="2003" />
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateNavigationRoute" priority="2004" />
@@ -249,6 +253,7 @@
             <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter" />
 
             <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.telemetry.subscriber"/>
         </service>
     </services>
 </container>

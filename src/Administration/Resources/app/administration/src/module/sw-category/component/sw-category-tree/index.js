@@ -37,21 +37,18 @@ export default {
         allowEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         allowCreate: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         allowDelete: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -94,14 +91,14 @@ export default {
 
         contextMenuTooltipText() {
             if (!this.allowEdit) {
-                return this.$tc('sw-privileges.tooltip.warning');
+                return this.$t('sw-privileges.tooltip.warning');
             }
 
             return null;
         },
 
         criteria() {
-            return new Criteria(1, 500)
+            return new Criteria()
                 .addAssociation('navigationSalesChannels')
                 .addAssociation('footerSalesChannels')
                 .addAssociation('serviceSalesChannels');
@@ -298,7 +295,7 @@ export default {
 
             if (hasNavigationCategories) {
                 this.createNotificationError({
-                    message: this.$tc('sw-category.general.errorNavigationEntryPointMultiple'),
+                    message: this.$t('sw-category.general.errorNavigationEntryPointMultiple'),
                 });
 
                 const categories = ids.map((id) => {
@@ -378,7 +375,10 @@ export default {
                 }
 
                 if (checked === true) {
-                    this.$refs.categoryTree.checkedElementsCount -= 1;
+                    this.$refs.categoryTree.checkedElementsCount = Math.max(
+                        0,
+                        this.$refs.categoryTree.checkedElementsCount - 1,
+                    );
                     this.$emit('category-checked-elements-count', this.$refs.categoryTree.checkedElementsCount);
                 }
             });
@@ -577,29 +577,29 @@ export default {
             const { serviceSalesChannels, footerSalesChannels } = category;
 
             if (serviceSalesChannels !== null && serviceSalesChannels?.length > 0) {
-                return this.$tc(
+                return this.$t(
                     'sw-category.general.errorNavigationEntryPoint',
                     {
-                        entryPointLabel: this.$tc('sw-category.base.entry-point-card.types.labelServiceNavigation'),
+                        entryPointLabel: this.$t('sw-category.base.entry-point-card.types.labelServiceNavigation'),
                     },
                     0,
                 );
             }
 
             if (footerSalesChannels !== null && footerSalesChannels?.length > 0) {
-                return this.$tc(
+                return this.$t(
                     'sw-category.general.errorNavigationEntryPoint',
                     {
-                        entryPointLabel: this.$tc('sw-category.base.entry-point-card.types.labelFooterNavigation'),
+                        entryPointLabel: this.$t('sw-category.base.entry-point-card.types.labelFooterNavigation'),
                     },
                     0,
                 );
             }
 
-            return this.$tc(
+            return this.$t(
                 'sw-category.general.errorNavigationEntryPoint',
                 {
-                    entryPointLabel: this.$tc('sw-category.base.entry-point-card.types.labelMainNavigation'),
+                    entryPointLabel: this.$t('sw-category.base.entry-point-card.types.labelMainNavigation'),
                 },
                 0,
             );

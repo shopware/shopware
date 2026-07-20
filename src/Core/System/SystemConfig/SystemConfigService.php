@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SystemConfig;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Bundle;
@@ -43,6 +44,7 @@ class SystemConfigService implements ResetInterface
         private readonly EventDispatcherInterface $dispatcher,
         private readonly SymfonySystemConfigService $symfonySystemConfigService,
         private readonly CacheTagCollector $cacheTagCollector,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -166,10 +168,6 @@ class SystemConfigService implements ResetInterface
 
         $configs = $queryBuilder->executeQuery()->fetchAllNumeric();
 
-        if ($configs === []) {
-            return [];
-        }
-
         $merged = [];
 
         foreach ($configs as [$key, $value]) {
@@ -194,6 +192,7 @@ class SystemConfigService implements ResetInterface
         }
 
         $merged = $this->symfonySystemConfigService->override($merged, $salesChannelId, $inherit, false);
+        $merged = array_filter($merged, static fn (string $key) => str_starts_with($key, $domain), \ARRAY_FILTER_USE_KEY);
 
         $event = new SystemConfigDomainLoadedEvent($domain, $merged, $inherit, $salesChannelId);
         $this->dispatcher->dispatch($event);
@@ -203,17 +202,35 @@ class SystemConfigService implements ResetInterface
 
     /**
      * @param array<mixed>|bool|float|int|string|null $value
+     *
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $silent will be added in v6.8.0, default will be true
      */
-    public function set(string $key, $value, ?string $salesChannelId = null): void
+    public function set(string $key, $value, ?string $salesChannelId = null /* , bool $silent = true */): void
     {
-        $this->setMultiple([$key => $value], $salesChannelId);
+        // @deprecated tag:v6.8.0 - remove whole if statement below
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+            $silent = \func_num_args() >= 4 ? (bool) func_get_arg(3) : true;
+        } else {
+            $silent = \func_num_args() >= 4 ? (bool) func_get_arg(3) : false;
+        }
+
+        $this->setMultiple([$key => $value], $salesChannelId, $silent);
     }
 
     /**
      * @param array<string, array<mixed>|bool|float|int|string|null> $values
+     *
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $silent will be added in v6.8.0, default will be true
      */
-    public function setMultiple(array $values, ?string $salesChannelId = null): void
+    public function setMultiple(array $values, ?string $salesChannelId = null /* , bool $silent = true */): void
     {
+        // @deprecated tag:v6.8.0 - remove whole if statement below
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+            $silent = \func_num_args() >= 3 ? (bool) func_get_arg(2) : true;
+        } else {
+            $silent = \func_num_args() >= 3 ? (bool) func_get_arg(2) : false;
+        }
+
         foreach ($values as $key => $value) {
             if ($this->symfonySystemConfigService->has($key)) {
                 /**
@@ -278,7 +295,7 @@ class SystemConfigService implements ResetInterface
                     'system_config',
                     [
                         'configuration_value' => Json::encode(['_value' => $value]),
-                        'updated_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                        'updated_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                     ],
                     [
                         'id' => $existingIds[$key],
@@ -297,7 +314,7 @@ class SystemConfigService implements ResetInterface
                     'configuration_key' => $key,
                     'configuration_value' => Json::encode(['_value' => $value]),
                     'sales_channel_id' => $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null,
-                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ],
             );
 
@@ -305,7 +322,7 @@ class SystemConfigService implements ResetInterface
         }
 
         // Delete all null values
-        if (!empty($toBeDeleted)) {
+        if ($toBeDeleted !== []) {
             $qb = $this->connection
                 ->createQueryBuilder()
                 ->where('configuration_key IN (:keys)')
@@ -324,8 +341,8 @@ class SystemConfigService implements ResetInterface
 
         $insertQueue->execute();
 
-        // Dispatch the hook before the events to invalid the cache
-        $this->dispatcher->dispatch(new SystemConfigChangedHook($values, $this->getAppMapping(), $salesChannelId));
+        // Dispatch the hook before the events to invalidate the cache
+        $this->dispatcher->dispatch(new SystemConfigChangedHook($values, $this->getAppMapping(), $salesChannelId, $silent));
 
         // Dispatch events that the given values have been changed
         foreach ($events as $event) {
@@ -335,9 +352,19 @@ class SystemConfigService implements ResetInterface
         $this->dispatcher->dispatch(new SystemConfigMultipleChangedEvent($values, $salesChannelId));
     }
 
-    public function delete(string $key, ?string $salesChannel = null): void
+    /**
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $silent will be added in v6.8.0, default will be true
+     */
+    public function delete(string $key, ?string $salesChannel = null /* , bool $silent = true */): void
     {
-        $this->setMultiple([$key => null], $salesChannel);
+        // @deprecated tag:v6.8.0 - remove whole if statement below
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+            $silent = \func_num_args() >= 3 ? (bool) func_get_arg(2) : true;
+        } else {
+            $silent = \func_num_args() >= 3 ? (bool) func_get_arg(2) : false;
+        }
+
+        $this->setMultiple([$key => null], $salesChannel, $silent);
     }
 
     /**
@@ -371,7 +398,7 @@ class SystemConfigService implements ResetInterface
                 }
 
                 if ($override || !isset($relevantSettings[$key])) {
-                    $this->set($key, $element['defaultValue']);
+                    $this->set($key, $element['defaultValue'], null, false);
                 }
             }
         }
@@ -402,7 +429,7 @@ class SystemConfigService implements ResetInterface
             }
         }
 
-        if (empty($configKeys)) {
+        if ($configKeys === []) {
             return;
         }
 
@@ -416,11 +443,11 @@ class SystemConfigService implements ResetInterface
         $keysForDelete = array_fill_keys($configKeys, null);
 
         // Delete config keys for global scope
-        $this->setMultiple($keysForDelete, null);
+        $this->setMultiple($keysForDelete, null, false);
 
-        // Delete overriden config keys for each sales channel
+        // Delete overridden config keys for each sales channel
         foreach ($salesChannelIds as $salesChannelId) {
-            $this->setMultiple($keysForDelete, Uuid::fromBytesToHex($salesChannelId));
+            $this->setMultiple($keysForDelete, Uuid::fromBytesToHex($salesChannelId), false);
         }
     }
 
@@ -437,7 +464,7 @@ class SystemConfigService implements ResetInterface
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
         );
 
         $result = $param();
@@ -454,7 +481,7 @@ class SystemConfigService implements ResetInterface
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
         );
 
         return [];

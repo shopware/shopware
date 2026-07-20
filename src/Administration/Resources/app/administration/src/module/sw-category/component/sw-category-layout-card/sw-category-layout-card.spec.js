@@ -6,7 +6,12 @@ import { mount } from '@vue/test-utils';
 const categoryId = 'some-category-id';
 const cmsPageId = 'some-cms-page-id';
 
-async function createWrapper() {
+async function createWrapper(
+    category = {
+        id: categoryId,
+        cmsPageId,
+    },
+) {
     return mount(await wrapTestComponent('sw-category-layout-card', { sync: true }), {
         global: {
             stubs: {
@@ -45,10 +50,7 @@ async function createWrapper() {
             },
         },
         props: {
-            category: {
-                id: categoryId,
-                cmsPageId,
-            },
+            category,
         },
     });
 }
@@ -182,5 +184,41 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
             name: 'sw.cms.detail',
             params: { id: cmsPageId },
         });
+    });
+
+    it('should reset translated slotConfig overrides when changing the layout', async () => {
+        const translatedSlotConfig = {
+            staleSlotId: {
+                content: {
+                    value: 'stale override',
+                },
+            },
+        };
+
+        const category = {
+            id: categoryId,
+            cmsPageId,
+            slotConfig: {
+                currentSlotId: {
+                    content: {
+                        value: 'current override',
+                    },
+                },
+            },
+            translations: [
+                {
+                    languageId: 'some-other-language-id',
+                    slotConfig: translatedSlotConfig,
+                },
+            ],
+        };
+
+        const wrapper = await createWrapper(category);
+
+        wrapper.vm.onLayoutSelect('new-layout-id');
+
+        expect(category.cmsPageId).toBe('new-layout-id');
+        expect(category.slotConfig).toBeNull();
+        expect(category.translations[0].slotConfig).toBeNull();
     });
 });

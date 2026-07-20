@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Rule;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Clock\Clock;
 
 #[Package('fundamentals@after-sales')]
 abstract class RuleScope
@@ -15,6 +16,6 @@ abstract class RuleScope
 
     public function getCurrentTime(): \DateTimeImmutable
     {
-        return new \DateTimeImmutable();
+        return Clock::get()->now();
     }
 }

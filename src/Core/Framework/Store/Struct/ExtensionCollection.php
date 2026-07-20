@@ -37,7 +37,7 @@ class ExtensionCollection extends Collection
 
     public function filterByType(string $type): self
     {
-        return $this->filter(fn (ExtensionStruct $ext) => $ext->getType() === $type);
+        return $this->filter(static fn (ExtensionStruct $ext) => $ext->getType() === $type);
     }
 
     protected function getExpectedClass(): ?string

@@ -15,7 +15,7 @@
 
     <template #smart-bar-header>
         <h2 class="sw-generic-custom-entity-list__title">
-            {{ $tc(`${customEntityName}.moduleTitle`) }}
+            {{ $t(`${customEntityName}.moduleTitle`) }}
 
             <span v-if="!isLoading">
                 ({{ total }})
@@ -30,7 +30,7 @@
             size="default"
             @click="$router.push({ name: 'sw.custom.entity.create' })"
         >
-            {{ $tc('global.default.add') }}
+            {{ $t('global.default.add') }}
         </mt-button>
     </template>
 

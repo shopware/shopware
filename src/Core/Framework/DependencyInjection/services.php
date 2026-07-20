@@ -144,6 +144,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Runtime\Runner\Symfony\HttpKernelRunner;
 use Symfony\Component\Runtime\Runner\Symfony\ResponseRunner;
@@ -782,6 +783,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(FeatureDumpCommand::class)
         ->args([
             service('kernel'),
+            service(Filesystem::class),
         ])
         ->tag('console.command')
         ->tag('console.command', ['command' => 'administration:dump:features']);

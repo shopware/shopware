@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\Reference;
 /**
  * @internal
  *
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  */
 #[Package('framework')]
 class StoreApiMcpServerBuilderCompilerPass implements CompilerPassInterface

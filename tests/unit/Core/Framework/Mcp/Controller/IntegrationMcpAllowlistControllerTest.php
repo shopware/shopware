@@ -21,33 +21,6 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(IntegrationMcpAllowlistController::class)]
 class IntegrationMcpAllowlistControllerTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        $_SERVER['MCP_SERVER'] = '1';
-    }
-
-    protected function tearDown(): void
-    {
-        unset($_SERVER['MCP_SERVER']);
-    }
-
-    public function testSaveReturnsNotFoundWhenFeatureFlagIsOff(): void
-    {
-        $_SERVER['MCP_SERVER'] = false;
-        try {
-            $repository = $this->createMock(EntityRepository::class);
-            $repository->expects($this->never())->method('search');
-            $repository->expects($this->never())->method('update');
-
-            $controller = new IntegrationMcpAllowlistController($repository);
-            $response = $controller->save('some-id', $this->makeRequest(['allowlist' => null]), Context::createDefaultContext());
-
-            static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
-        } finally {
-            $_SERVER['MCP_SERVER'] = '1';
-        }
-    }
-
     public function testSaveStructuredAllowlist(): void
     {
         $integrationId = Uuid::randomHex();

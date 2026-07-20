@@ -1,5 +1,23 @@
 # 6.7.14.0 (upcoming)
 
+## Features
+
+## API
+
+## Core
+
+### MCP server no longer requires the `MCP_SERVER` feature flag
+
+The MCP server is now always enabled. The `MCP_SERVER` feature flag has been removed, so the `/api/_mcp` and `/store-api/_mcp` endpoints are available without setting any flag. The MCP classes stay marked `@experimental` until 6.8.0, so the API may still change before then.
+
+## Administration
+
+## Storefront
+
+## App System
+
+## Hosting & Configuration
+
 # 6.7.13.0
 
 ## Storefront

@@ -72,7 +72,7 @@ class EntityWrittenContainerEventTest extends TestCase
             new EntityWrittenEvent('product', [$update], $context),
         ]);
 
-        /** @phpstan-ignore argument.type */
+        /** @phpstan-ignore argument.type (Intentionally passes a non-written event to cover the defensive runtime guard.) */
         $event = new EntityWrittenContainerEvent($context, $nestedEvents, []);
 
         static::assertSame([$update], $event->getResults('product')->getElements());

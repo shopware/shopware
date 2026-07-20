@@ -1,7 +1,3 @@
-/**
- * @sw-package framework
- */
-
 import { POLL_BACKGROUND_INTERVAL, POLL_FOREGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 import template from './sw-notification-center.html.twig';
 import './sw-notification-center.scss';
@@ -9,6 +5,7 @@ import './sw-notification-center.scss';
 const { Mixin } = Shopware;
 
 /**
+ * @sw-package framework
  * @private
  */
 export default {
@@ -22,9 +19,9 @@ export default {
 
     data() {
         return {
-            additionalContextMenuClasses: {
-                'sw-notification-center__context-container': true,
-            },
+            isOpened: false,
+            optionsMenuOpen: false,
+            isBellRinging: false,
             showDeleteModal: false,
             unsubscribeFromStore: null,
         };
@@ -35,10 +32,20 @@ export default {
             return Object.values(Shopware.Store.get('notification').notifications).reverse();
         },
 
+        hasNotifications() {
+            return this.notifications.length > 0;
+        },
+
         additionalContextButtonClass() {
             return {
                 'sw-notification-center__context-button--new-available': this.notifications.some((n) => !n.visited),
             };
+        },
+    },
+
+    watch: {
+        isOpened(value) {
+            this.onVisibilityChange(value);
         },
     },
 
@@ -54,37 +61,58 @@ export default {
     },
 
     methods: {
-        onContextMenuOpen() {
-            Shopware.Store.get('notification').workerProcessPollInterval = POLL_FOREGROUND_INTERVAL;
+        onVisibilityChange(isOpened) {
+            const store = Shopware.Store.get('notification');
+
+            if (isOpened) {
+                store.workerProcessPollInterval = POLL_FOREGROUND_INTERVAL;
+                return;
+            }
+
+            store.setAllNotificationsVisited();
+            store.workerProcessPollInterval = POLL_BACKGROUND_INTERVAL;
         },
-        onContextMenuClose() {
-            Shopware.Store.get('notification').setAllNotificationsVisited();
-            Shopware.Store.get('notification').workerProcessPollInterval = POLL_BACKGROUND_INTERVAL;
-        },
+
         openDeleteModal() {
+            this.optionsMenuOpen = false;
+            this.isOpened = false;
             this.showDeleteModal = true;
         },
+
         onConfirmDelete() {
             Shopware.Store.get('notification').clearNotificationsForCurrentUser();
             this.showDeleteModal = false;
         },
+
         onCloseDeleteModal() {
             this.showDeleteModal = false;
         },
-        changeVisibility(visible) {
-            if (this.$refs.notificationCenterContextButton === undefined) {
-                return;
-            }
 
-            if (visible) {
-                this.$refs.notificationCenterContextButton.openMenu();
-                return;
-            }
-
-            this.$refs.notificationCenterContextButton.showMenu = false;
-            this.$refs.notificationCenterContextButton.removeMenuFromBody();
-            this.$refs.notificationCenterContextButton.$emit('context-menu-after-close');
+        onEmptyStateBellClick() {
+            this.isBellRinging = true;
         },
+
+        togglePanel() {
+            this.changeVisibility(!this.isOpened);
+        },
+
+        onPanelClose() {
+            if (this.optionsMenuOpen) {
+                return;
+            }
+
+            this.changeVisibility(false);
+        },
+
+        changeVisibility(visible) {
+            this.isOpened = visible;
+
+            if (!visible) {
+                this.showDeleteModal = false;
+                this.optionsMenuOpen = false;
+            }
+        },
+
         createNotificationFromSystemError({ name, args }) {
             if (name !== 'addSystemError') {
                 return;

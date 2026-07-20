@@ -126,7 +126,7 @@ class AccountOrderPageLoaderTest extends TestCase
             $salesChannel
         );
 
-        $order = $page->getOrders()->first();
+        $order = $page->getOrders()->getEntities()->first();
 
         static::assertInstanceOf(OrderEntity::class, $order);
         static::assertNotNull($order->getPrimaryOrderDelivery());

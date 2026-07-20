@@ -87,6 +87,12 @@ export default {
                 ].includes(value);
             },
         },
+
+        tooltipShortcut: {
+            type: Array,
+            required: false,
+            default: () => [],
+        },
     },
 
     data() {

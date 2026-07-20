@@ -10,15 +10,12 @@ use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
-use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
+use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Renderer\PdfRenderer;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
-use Shopware\Core\Checkout\DocumentV2\Template\Enum\TypeCode;
-use Shopware\Core\Checkout\DocumentV2\Template\View\MonetarySummationView;
-use Shopware\Core\Checkout\DocumentV2\Template\View\TradePartyView;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -55,10 +52,10 @@ class PdfRendererTest extends TestCase
         $state = new RenderState();
         $state->add($html);
 
-        $renderData = $this->createRenderData(filenamePrefix: 'invoice_');
+        $meta = $this->createMeta(filenamePrefix: 'invoice_');
 
         $result = $renderer->renderToString(
-            $this->createInput($renderData),
+            $this->createInput($meta),
             $state,
             Context::createDefaultContext(),
         );
@@ -75,18 +72,18 @@ class PdfRendererTest extends TestCase
     {
         $renderer = new PdfRenderer(self::DOMPDF_OPTIONS);
 
-        static::expectExceptionObject(
+        $this->expectExceptionObject(
             DocumentV2Exception::unknownRenderResult(DocumentFormat::HTML->value),
         );
 
         $renderer->renderToString(
-            $this->createInput($this->createRenderData()),
+            $this->createInput($this->createMeta()),
             new RenderState(),
             Context::createDefaultContext(),
         );
     }
 
-    public function testThrowsWhenInvoiceRenderDataMissing(): void
+    public function testThrowsWhenMetaRenderDataMissing(): void
     {
         $renderer = new PdfRenderer(self::DOMPDF_OPTIONS);
         $html = $this->htmlResult('<html><body><p>invoice body</p></body></html>');
@@ -101,8 +98,8 @@ class PdfRendererTest extends TestCase
             [],
         );
 
-        static::expectExceptionObject(
-            DocumentV2Exception::unknownRenderData(InvoiceDataProvider::KEY, InvoiceRenderData::class),
+        $this->expectExceptionObject(
+            DocumentV2Exception::unknownRenderData(DocumentMetaProvider::KEY, DocumentMetaRenderData::class),
         );
 
         $renderer->renderToString($input, $state, Context::createDefaultContext());
@@ -124,7 +121,7 @@ class PdfRendererTest extends TestCase
         $state->add($html);
 
         $result = $renderer->renderToString(
-            $this->createInput($this->createRenderData()),
+            $this->createInput($this->createMeta()),
             $state,
             Context::createDefaultContext(),
         );
@@ -151,7 +148,7 @@ class PdfRendererTest extends TestCase
         $state->add($this->htmlResult($raw));
 
         $result = $renderer->renderToString(
-            $this->createInput($this->createRenderData()),
+            $this->createInput($this->createMeta()),
             $state,
             Context::createDefaultContext(),
         );
@@ -172,13 +169,13 @@ class PdfRendererTest extends TestCase
         );
     }
 
-    private function createInput(InvoiceRenderData $data): RenderInput
+    private function createInput(DocumentMetaRenderData $meta): RenderInput
     {
         return new RenderInput(
             DocumentType::INVOICE->value,
-            $data->documentNumber,
+            $meta->documentNumber,
             $this->createOrder(),
-            [InvoiceDataProvider::KEY => $data],
+            [DocumentMetaProvider::KEY => $meta],
         );
     }
 
@@ -192,9 +189,9 @@ class PdfRendererTest extends TestCase
         return $order;
     }
 
-    private function createRenderData(?string $filenamePrefix = null): InvoiceRenderData
+    private function createMeta(?string $filenamePrefix = null): DocumentMetaRenderData
     {
-        return new InvoiceRenderData(
+        return new DocumentMetaRenderData(
             config: new DocumentConfig(
                 pageSize: 'a4',
                 pageOrientation: 'portrait',
@@ -212,42 +209,6 @@ class PdfRendererTest extends TestCase
             documentDate: 'date',
             documentNumber: '12345',
             documentComment: null,
-            templatePaths: [
-                DocumentFormat::HTML->value => '@Framework/documents/invoice.html.twig',
-            ],
-            typeCode: TypeCode::INVOICE,
-            buyerReference: '10000',
-            buyer: new TradePartyView(
-                id: null,
-                name: '',
-                street: null,
-                additionalAddressLine1: null,
-                additionalAddressLine2: null,
-                zipcode: null,
-                city: null,
-                countrySubdivision: null,
-                countryIso: null,
-                email: null,
-            ),
-            deliveryDate: null,
-            lineItems: [],
-            allowanceCharges: [],
-            taxBreakdown: [],
-            monetarySummation: new MonetarySummationView(
-                0,
-                0,
-                0,
-                0,
-                0,
-                'EUR',
-                0,
-                0,
-                0,
-                0
-            ),
-            paymentMeans: null,
-            paymentDueDate: null,
-            intraCommunityDelivery: false,
         );
     }
 }

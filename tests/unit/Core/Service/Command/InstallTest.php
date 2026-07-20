@@ -19,7 +19,7 @@ class InstallTest extends TestCase
         $manager = $this->createMock(LifecycleManager::class);
         $manager->method('enabled')
             ->willReturn(true);
-        $manager->expects($this->once())->method('install')->willReturn([]);
+        $manager->expects($this->once())->method('reconcile')->willReturn([]);
 
         $command = new Install($manager);
         $tester = new CommandTester($command);
@@ -30,14 +30,16 @@ class InstallTest extends TestCase
 
     public function testCommandWhenServicesAreDisabled(): void
     {
-        $manager = static::createStub(LifecycleManager::class);
+        $manager = $this->createMock(LifecycleManager::class);
         $manager->method('enabled')
             ->willReturn(false);
+        $manager->expects($this->never())->method('reconcile');
 
         $command = new Install($manager);
         $tester = new CommandTester($command);
-        $tester->execute([]);
+        $exitCode = $tester->execute([]);
 
+        static::assertSame(Install::FAILURE, $exitCode);
         static::assertStringContainsString('Services are disabled. Please enable them to install services.', $tester->getDisplay());
     }
 
@@ -46,7 +48,7 @@ class InstallTest extends TestCase
         $manager = $this->createMock(LifecycleManager::class);
         $manager->method('enabled')
             ->willReturn(true);
-        $manager->expects($this->once())->method('install')->willReturn([
+        $manager->expects($this->once())->method('reconcile')->willReturn([
             'MyCoolService1',
             'MyCoolService2',
         ]);

@@ -124,7 +124,7 @@ class DumpClassSchemaCommand extends Command
     }
 
     /**
-     * @param array <int, Stmt> $stmts
+     * @param array<int, Stmt> $stmts
      *
      * @return array<int, Node>
      */
@@ -138,7 +138,7 @@ class DumpClassSchemaCommand extends Command
     }
 
     /**
-     * @return array <int, Node>|null
+     * @return array<int, Node>|null
      */
     private function parseFile(string $filePath): ?array
     {

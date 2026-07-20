@@ -401,7 +401,8 @@ export default {
             return (
                 salesChannelFiles.find((configuration) => {
                     return (
-                        configuration.fileFamily === this.file?.fileFamily && configuration.fileName === this.file?.fileName
+                        configuration.fileFamily === this.file?.fileFamily &&
+                        configuration.fileName.toLowerCase() === this.file?.fileName.toLowerCase()
                     );
                 }) ?? null
             );

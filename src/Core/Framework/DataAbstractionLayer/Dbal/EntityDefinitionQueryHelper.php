@@ -463,7 +463,11 @@ class EntityDefinitionQueryHelper
      *
      * @param array<string, mixed> $partial
      */
-    public function addTranslationSelect(string $root, EntityDefinition $definition, QueryBuilder $query, Context $context, array $partial = []): void
+    /**
+     * @param array<string, mixed> $partial
+     * @param list<string> $excludedFields
+     */
+    public function addTranslationSelect(string $root, EntityDefinition $definition, QueryBuilder $query, Context $context, array $partial = [], array $excludedFields = []): void
     {
         $translationDefinition = $definition->getTranslationDefinition();
 
@@ -477,6 +481,10 @@ class EntityDefinitionQueryHelper
         );
         if ($partial !== []) {
             $fields = $fields->filter(static fn (Field $field) => isset($partial[$field->getPropertyName()]));
+        }
+        if ($excludedFields !== []) {
+            // honor Criteria::excludeFields() for translated columns (e.g. product description)
+            $fields = $fields->filter(static fn (Field $field) => !\in_array($field->getPropertyName(), $excludedFields, true));
         }
 
         $translationChain = self::buildTranslationChain(

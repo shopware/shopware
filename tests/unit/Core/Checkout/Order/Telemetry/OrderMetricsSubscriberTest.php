@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\Telemetry\OrderMetricsSubscriber;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -24,6 +25,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  * @internal
  */
 #[CoversClass(OrderMetricsSubscriber::class)]
+#[Package('checkout')]
 class OrderMetricsSubscriberTest extends TestCase
 {
     /**

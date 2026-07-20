@@ -6,12 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Telemetry\SalesChannelTypeResolver;
 
 /**
  * @internal
  */
 #[CoversClass(SalesChannelTypeResolver::class)]
+#[Package('checkout')]
 class SalesChannelTypeResolverTest extends TestCase
 {
     #[DataProvider('typeProvider')]

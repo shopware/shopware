@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Telemetry\CartMetricsInstrumentor;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -20,6 +21,7 @@ use Shopware\Core\System\SalesChannel\Telemetry\SalesChannelTypeResolver;
  * @internal
  */
 #[CoversClass(CartMetricsInstrumentor::class)]
+#[Package('checkout')]
 class CartMetricsInstrumentorTest extends TestCase
 {
     /**

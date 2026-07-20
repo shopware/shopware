@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\Context;
@@ -11,8 +10,7 @@ use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal only for use by the app-system
@@ -32,8 +30,7 @@ class UninstallAppCommand extends Command
     }
 
     public function __invoke(
-        InputInterface $input,
-        OutputInterface $output,
+        SymfonyStyle $io,
         #[Argument(description: 'The name of the app')]
         string $name,
         #[Option(description: 'Keep user data of the app')]
@@ -41,7 +38,6 @@ class UninstallAppCommand extends Command
         #[Option(description: 'Use this option to skip recompiling of all themes')]
         bool $skipThemeCompile = false,
     ): int {
-        $io = new ShopwareStyle($input, $output);
         $context = Context::createCLIContext();
         if ($skipThemeCompile) {
             // Storefront's ThemeLifecycleHandler reads this context state to skip theme compilation

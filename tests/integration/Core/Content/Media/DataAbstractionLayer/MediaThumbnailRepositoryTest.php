@@ -85,7 +85,7 @@ class MediaThumbnailRepositoryTest extends TestCase
         ], Context::createDefaultContext());
 
         $media = static::getContainer()->get('media.repository')
-            ->search(new Criteria([$mediaId]), Context::createDefaultContext())
+            ->search(new Criteria([$mediaId]), Context::createDefaultContext())->getEntities()
             ->get($mediaId);
 
         static::assertInstanceOf(MediaEntity::class, $media);

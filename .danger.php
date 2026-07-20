@@ -15,6 +15,7 @@ use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingMigrationTests;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingReleaseInfo;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingUnitTests;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\PhpstanBaselineGrowth;
+use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\RedisGroupUsage;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\RemovedTwigBlocks;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\RouteSnapshotExtension;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\ShopwareYamlConfigSchemaHint;
@@ -38,6 +39,7 @@ return (new Config())
     ->useRule(new ShopwareYamlConfigSchemaHint())
     ->useRule(new AgenticCommercePluginHint())
     ->useRule(new MissingMigrationTests())
+    ->useRule(new RedisGroupUsage())
     ->useRule(new SqlHeredocUsage())
     ->useRule(new RemovedTwigBlocks())
     ->useRule(new InvalidFileNameCharacters())

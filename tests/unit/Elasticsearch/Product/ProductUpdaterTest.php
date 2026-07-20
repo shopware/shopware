@@ -8,14 +8,12 @@ use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Product\Events\ProductStockAlteredEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Elasticsearch\Product\ProductUpdater;
 
 /**
  * @internal
  */
-#[Package('inventory')]
 #[CoversClass(ProductUpdater::class)]
 class ProductUpdaterTest extends TestCase
 {

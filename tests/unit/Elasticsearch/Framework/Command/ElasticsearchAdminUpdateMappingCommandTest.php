@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchAdminUpdateMappingCommand;
 use Symfony\Component\Console\Command\Command;
@@ -13,7 +12,6 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
-#[Package('inventory')]
 #[CoversClass(ElasticsearchAdminUpdateMappingCommand::class)]
 class ElasticsearchAdminUpdateMappingCommandTest extends TestCase
 {

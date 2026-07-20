@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -27,7 +26,6 @@ use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 /**
  * @internal
  */
-#[Package('inventory')]
 #[CoversClass(ElasticsearchHelper::class)]
 class ElasticsearchHelperTest extends TestCase
 {

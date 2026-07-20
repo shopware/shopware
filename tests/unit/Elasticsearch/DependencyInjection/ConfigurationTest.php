@@ -4,13 +4,11 @@ namespace Shopware\Tests\Unit\Elasticsearch\DependencyInjection;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\DependencyInjection\Configuration;
 
 /**
  * @internal
  */
-#[Package('inventory')]
 #[CoversClass(Configuration::class)]
 class ConfigurationTest extends TestCase
 {

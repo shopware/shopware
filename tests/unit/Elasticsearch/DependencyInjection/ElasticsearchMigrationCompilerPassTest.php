@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Elasticsearch\DependencyInjection;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Elasticsearch\DependencyInjection\ElasticsearchMigrationCompilerPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -12,7 +11,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * @internal
  */
-#[Package('inventory')]
 #[CoversClass(ElasticsearchMigrationCompilerPass::class)]
 class ElasticsearchMigrationCompilerPassTest extends TestCase
 {

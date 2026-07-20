@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
@@ -17,7 +16,6 @@ use Shopware\Elasticsearch\Framework\SystemUpdateListener;
 /**
  * @internal
  */
-#[Package('inventory')]
 #[CoversClass(SystemUpdateListener::class)]
 class SystemUpdateListenerTest extends TestCase
 {

@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework\Subscriber;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Event\InvalidateExpiredCacheRequestEvent;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\Indexing\IndexManager;
 use Shopware\Elasticsearch\Framework\Subscriber\InvalidateExpiredCacheSubscriber;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,7 +12,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('inventory')]
 #[CoversClass(InvalidateExpiredCacheSubscriber::class)]
 class InvalidateExpiredCacheSubscriberTest extends TestCase
 {

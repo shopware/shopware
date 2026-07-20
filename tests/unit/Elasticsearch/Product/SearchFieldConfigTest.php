@@ -4,13 +4,11 @@ namespace Shopware\Tests\Unit\Elasticsearch\Product;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Product\SearchFieldConfig;
 
 /**
  * @internal
  */
-#[Package('inventory')]
 #[CoversClass(SearchFieldConfig::class)]
 class SearchFieldConfigTest extends TestCase
 {

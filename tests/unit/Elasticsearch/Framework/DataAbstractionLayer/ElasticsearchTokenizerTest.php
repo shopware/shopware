@@ -5,13 +5,11 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework\DataAbstractionLayer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchTokenizer;
 
 /**
  * @internal
  */
-#[Package('inventory')]
 #[CoversClass(ElasticsearchTokenizer::class)]
 class ElasticsearchTokenizerTest extends TestCase
 {

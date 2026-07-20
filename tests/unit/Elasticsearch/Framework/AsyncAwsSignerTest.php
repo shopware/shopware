@@ -11,14 +11,12 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\AsyncAwsSigner;
 
 /**
  * @internal
  */
-#[Package('inventory')]
 #[CoversClass(AsyncAwsSigner::class)]
 class AsyncAwsSignerTest extends TestCase
 {

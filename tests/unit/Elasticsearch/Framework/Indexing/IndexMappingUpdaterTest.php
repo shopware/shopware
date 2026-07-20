@@ -11,7 +11,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Framework\Indexing\IndexMappingProvider;
@@ -23,7 +22,6 @@ use Shopware\Elasticsearch\Product\ElasticsearchProductException;
 /**
  * @internal
  */
-#[Package('inventory')]
 #[CoversClass(IndexMappingUpdater::class)]
 class IndexMappingUpdaterTest extends TestCase
 {

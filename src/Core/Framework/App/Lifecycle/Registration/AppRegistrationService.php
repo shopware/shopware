@@ -21,8 +21,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Telemetry\Metrics\Meter;
-use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 
 /**
  * @internal only for use by the app-system
@@ -49,7 +47,6 @@ class AppRegistrationService
         private readonly string $shopwareVersion,
         private readonly ClockInterface $clock,
         private readonly LoggerInterface $logger,
-        private readonly Meter $meter,
     ) {
     }
 
@@ -59,10 +56,9 @@ class AppRegistrationService
     }
 
     /**
-     * Re-register an app, signing with a specific secret we believe the app still holds, instead of the
-     * stored app_secret. Recovery uses this after a rotation that ended without a clear answer: the app may
-     * have switched to the unconfirmed secret without us ever learning of it, so recovery signs with each
-     * candidate secret in turn until the app accepts one.
+     * Re-register an app, signing with a specific secret we believe the app still holds instead of the
+     * stored app_secret. A null candidate is a plain first-registration handshake for an app that never
+     * registered.
      */
     public function reRegisterWithAppHeldSecret(
         Manifest $manifest,
@@ -71,7 +67,7 @@ class AppRegistrationService
         string $secretAccessKey,
         Context $context,
         #[\SensitiveParameter]
-        string $appHeldSecret
+        ?string $appHeldSecret
     ): void {
         $this->register($manifest, $id, $secretAccessKey, $context, $appHeldSecret);
     }
@@ -96,10 +92,8 @@ class AppRegistrationService
         try {
             $appResponse = $this->registerWithApp($manifest, $app, $context, $currentSecret);
         } catch (GuzzleException $e) {
-            // The handshake failed before the app gave us a new secret. Leave any unconfirmed secret from an
-            // earlier rotation untouched — it is the only saved record of a secret the app minted.
-            $this->recordRegistrationFailure('handshake_failed');
-
+            // The handshake failed before the app minted a new secret — any unconfirmed secret from an
+            // earlier attempt stays untouched.
             throw $this->registrationFailedFromResponse($app, $e);
         }
 
@@ -130,18 +124,15 @@ class AppRegistrationService
         } catch (ClientException $e) {
             // A 4xx means the app answered and clearly rejected the confirm. Drop the rejected secret so
             // app_secret stays on the current (old) value; both sides now agree on the old secret.
-            // this is true, because we already passed the initial register step at this point
             $this->dropRejectedAppSecret($app->getId(), $context, $secret);
 
             $this->logger->warning('App secret rotation rejected by app, kept current secret', $logContext);
-            $this->recordRegistrationFailure('rejected');
 
             throw $this->registrationFailedFromResponse($app, $e);
         } catch (GuzzleException $e) {
             // Any other failure (5xx, timeout) is unclear: the app may have switched to the new secret before
             // it failed. Keep the unconfirmed secret so recovery can try it later.
             $this->logger->warning('App secret rotation outcome unknown, unconfirmed secret retained', $logContext);
-            $this->recordRegistrationFailure('ambiguous');
 
             throw $this->registrationFailedFromResponse($app, $e);
         }
@@ -150,16 +141,6 @@ class AppRegistrationService
         $this->commitAppSecret($app->getId(), $context, $secret);
 
         $this->logger->info('App secret committed after confirmation', $logContext);
-    }
-
-    /**
-     * Count a registration/re-registration confirm *failure*. Tagged only with the failure reason, not the
-     * app, to keep the number of distinct series small; which app it was stays in the logs. Install, rotation
-     * and recovery confirms all pass through here; a successful confirm is not metered.
-     */
-    private function recordRegistrationFailure(string $outcome): void
-    {
-        $this->meter->emit(new ConfiguredMetric('app.registration.failure.count', 1, ['outcome' => $outcome]));
     }
 
     private function registrationFailedFromResponse(AppEntity $app, GuzzleException $e): AppException
@@ -173,9 +154,8 @@ class AppRegistrationService
                 ? $data['error']
                 : \sprintf('Got status code %d, with response: %s', $response->getStatusCode(), $responseBody);
 
-            // A 4xx means the app clearly rejected the request (for example, a signature it does not trust).
-            // We use a different exception type than for a 5xx/transport failure, so recovery can tell apart
-            // a wrong secret ("try the other one") from an unknown outcome ("keep the unconfirmed and retry").
+            // A 4xx is a clear rejection (e.g. a signature the app does not trust) — a distinct type so
+            // recovery can tell a wrong secret ("try the next candidate") from an unknown outcome ("retry").
             if ($e instanceof ClientException) {
                 return AppException::appRegistrationRejected($app->getName(), $reason, $e);
             }
@@ -204,8 +184,7 @@ class AppRegistrationService
     private function saveUnconfirmedAppSecrets(string $id, Context $context, #[\SensitiveParameter] string $secret): void
     {
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($id, $secret): void {
-            // Prepend, most-recent first: a rotation starts from an empty list; a recovery adds its new secret
-            // ahead of the ones it is still trying. Read-then-write is safe under the per-app lock.
+            // Prepend, most-recent first: a recovery adds its new mint ahead of the ones it is still trying.
             $unconfirmed = $this->fetchApp($id, $context)->getUnconfirmedAppSecrets() ?? [];
             $unconfirmed = array_values(array_unique(array_merge([$secret], $unconfirmed)));
             if (\count($unconfirmed) > self::MAX_UNCONFIRMED_APP_SECRETS) {
@@ -218,14 +197,14 @@ class AppRegistrationService
                 );
             }
 
-            $this->appRepository->update([['id' => $id, 'unconfirmedAppSecrets' => $unconfirmed, 'unconfirmedAppSecretsUpdatedAt' => $this->clock->now()]], $context);
+            $this->appRepository->update([['id' => $id, 'unconfirmedAppSecrets' => $unconfirmed]], $context);
         });
     }
 
     private function commitAppSecret(string $id, Context $context, #[\SensitiveParameter] string $secret): void
     {
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($id, $secret): void {
-            $this->appRepository->update([['id' => $id, 'appSecret' => $secret, 'unconfirmedAppSecrets' => null, 'unconfirmedAppSecretsUpdatedAt' => null]], $context);
+            $this->appRepository->update([['id' => $id, 'appSecret' => $secret, 'unconfirmedAppSecrets' => null]], $context);
         });
     }
 
@@ -242,7 +221,6 @@ class AppRegistrationService
             $this->appRepository->update([[
                 'id' => $id,
                 'unconfirmedAppSecrets' => $unconfirmed === [] ? null : $unconfirmed,
-                'unconfirmedAppSecretsUpdatedAt' => $unconfirmed === [] ? null : $this->clock->now(),
             ]], $context);
         });
     }

@@ -451,7 +451,7 @@ When an app has a `Resources/config/custom-fields.xml` file, it takes priority o
 
 ### App installation recovers ambiguously failed registrations
 
-A newly registered or rotated app secret only becomes active once the app confirms it. If an installation or secret rotation is interrupted before that confirmation — a crash, a timeout, or an unreachable app server — re-running `bin/console app:install <app-name>` now recovers the app instead of reporting it as already installed. The `app.unconfirmed_app_secrets.count` telemetry gauge shows how many apps currently await recovery.
+A newly registered or rotated app secret only becomes active once the app confirms it. If an installation or secret rotation is interrupted before that confirmation — a crash, a timeout, or an unreachable app server — re-running `bin/console app:install <app-name>` now recovers the app instead of reporting it as already installed.
 
 ### Tax provider priority is preserved across app updates
 

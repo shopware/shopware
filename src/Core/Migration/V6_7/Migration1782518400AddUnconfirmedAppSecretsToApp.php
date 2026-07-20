@@ -23,7 +23,5 @@ class Migration1782518400AddUnconfirmedAppSecretsToApp extends MigrationStep
         // secret at the head, plus any a prior ambiguous recovery left behind. Recovery signs with each in
         // turn; the list is cleared once a secret is committed.
         $this->addColumn($connection, 'app', 'unconfirmed_app_secrets', 'JSON');
-        // When the list was last written, so we can spot one that has been stuck for a long time.
-        $this->addColumn($connection, 'app', 'unconfirmed_app_secrets_updated_at', 'DATETIME(3)');
     }
 }

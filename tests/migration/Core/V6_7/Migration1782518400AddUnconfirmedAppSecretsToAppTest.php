@@ -28,25 +28,21 @@ class Migration1782518400AddUnconfirmedAppSecretsToAppTest extends TestCase
     {
         $connection = self::getContainer()->get(Connection::class);
 
-        $this->dropUnconfirmedAppSecretsColumnsIfExist($connection);
+        $this->dropUnconfirmedAppSecretsColumnIfExists($connection);
 
         $migration = new Migration1782518400AddUnconfirmedAppSecretsToApp();
         // running it twice must be safe: the second run should add nothing and not fail
         $migration->update($connection);
         $migration->update($connection);
 
-        foreach (['unconfirmed_app_secrets', 'unconfirmed_app_secrets_updated_at'] as $columnName) {
-            static::assertTrue(TableHelper::columnExists($connection, 'app', $columnName));
-            static::assertFalse(TableHelper::getColumnOfTable($connection, 'app', $columnName)->isNotNull);
-        }
+        static::assertTrue(TableHelper::columnExists($connection, 'app', 'unconfirmed_app_secrets'));
+        static::assertFalse(TableHelper::getColumnOfTable($connection, 'app', 'unconfirmed_app_secrets')->isNotNull);
     }
 
-    private function dropUnconfirmedAppSecretsColumnsIfExist(Connection $connection): void
+    private function dropUnconfirmedAppSecretsColumnIfExists(Connection $connection): void
     {
-        foreach (['unconfirmed_app_secrets', 'unconfirmed_app_secrets_updated_at'] as $columnName) {
-            if (TableHelper::columnExists($connection, 'app', $columnName)) {
-                $connection->executeStatement(\sprintf('ALTER TABLE `app` DROP COLUMN `%s`', $columnName));
-            }
+        if (TableHelper::columnExists($connection, 'app', 'unconfirmed_app_secrets')) {
+            $connection->executeStatement('ALTER TABLE `app` DROP COLUMN `unconfirmed_app_secrets`');
         }
     }
 }

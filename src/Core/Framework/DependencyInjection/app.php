@@ -81,7 +81,6 @@ use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
-use Shopware\Core\Framework\App\Lifecycle\AppRegistrationLock;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\App\Lifecycle\Handler\ActionButtonLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\CmsBlockLifecycleHandler;
@@ -135,7 +134,6 @@ use Shopware\Core\Framework\App\Subscriber\CustomFieldProtectionSubscriber;
 use Shopware\Core\Framework\App\Subscriber\DiscardUnconfirmedAppSecretsListener;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService;
 use Shopware\Core\Framework\App\Telemetry\AppTelemetrySubscriber;
-use Shopware\Core\Framework\App\Telemetry\StuckUnconfirmedAppSecretsMetricCollector;
 use Shopware\Core\Framework\App\Template\TemplateDefinition;
 use Shopware\Core\Framework\App\Template\TemplateLoader;
 use Shopware\Core\Framework\App\Url\AppUrlVerificationPrinter;
@@ -473,7 +471,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('kernel.shopware_version'),
             service(ClockInterface::class),
             service('logger'),
-            service(Meter::class),
         ]);
 
     $services->set(AppSecretRotationService::class)
@@ -485,14 +482,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('logger'),
             service(ManifestFactory::class),
             service(ClockInterface::class),
-            service(AppRegistrationLock::class),
-            service(Meter::class),
-        ]);
-
-    $services->set(AppRegistrationLock::class)
-        ->args([
-            service('lock.factory'),
-            service('logger'),
         ]);
 
     $services->set(AppFeatureValidator::class)
@@ -540,19 +529,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DeletedAppsGateway::class),
             service(AppRequirementsValidator::class),
             service(ClockInterface::class),
-            service(AppRegistrationLock::class),
         ]);
-
-    $services->set(StuckUnconfirmedAppSecretsMetricCollector::class)
-        ->args([
-            service(AppSecretRotationService::class),
-        ])
-        ->tag('shopware.telemetry.periodic_metric_collector');
 
     $services->set(DiscardUnconfirmedAppSecretsListener::class)
         ->args([
             service('app.repository'),
-            service(AppSecretRotationService::class),
         ])
         ->tag('kernel.event_listener');
 

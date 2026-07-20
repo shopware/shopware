@@ -20,7 +20,6 @@ use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
-use Shopware\Core\Framework\App\Lifecycle\AppSecretRecoveryResult;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
@@ -221,7 +220,7 @@ class AppSecretRotationEndToEndTest extends TestCase
         $this->enqueueReRegistrationAttempt(minting: $recoveredSecret, confirmResponse: new Response(403));
         $this->enqueueReRegistrationAttempt(minting: $recoveredSecret, confirmResponse: new Response(200));
 
-        $this->rotationService->recoverNow($app->getId(), $this->context);
+        $this->rotationService->rotateNow($app->getId(), $this->context, AppSecretRotationService::TRIGGER_CLI);
 
         $recovered = $this->getInstalledApp();
         static::assertSame($recoveredSecret, $recovered->getAppSecret());
@@ -259,7 +258,7 @@ class AppSecretRotationEndToEndTest extends TestCase
         $confirmsBeforeRecovery = $this->confirmCount();
         $this->enqueueReRegistrationAttempt(minting: $recoveredSecret, confirmResponse: new Response(200));
 
-        $this->rotationService->recoverNow($app->getId(), $this->context);
+        $this->rotationService->rotateNow($app->getId(), $this->context, AppSecretRotationService::TRIGGER_CLI);
 
         $recovered = $this->getInstalledApp();
         static::assertSame($recoveredSecret, $recovered->getAppSecret());
@@ -287,16 +286,16 @@ class AppSecretRotationEndToEndTest extends TestCase
         static::assertSame([$pendingSecret], $this->getInstalledApp()->getUnconfirmedAppSecrets());
 
         // A transient proxy/WAF 4xx can look like a definitive rejection. Recovery exhausts both candidates
-        // and reports "claimed", but it must keep the pending record so the operator can retry after the
-        // transient clears.
+        // and fails, but it must keep the pending record so the operator can retry after the transient clears.
         $this->enqueueReRegistrationAttempt(minting: 'transient-recovery-secret', confirmResponse: new Response(403));
         $this->enqueueReRegistrationAttempt(minting: 'transient-recovery-secret', confirmResponse: new Response(403));
 
-        static::assertSame(
-            AppSecretRecoveryResult::Claimed,
-            $this->rotationService->recoverNow($app->getId(), $this->context),
-            'Recovery must report claimed when every candidate receives a 4xx.'
-        );
+        try {
+            $this->rotationService->rotateNow($app->getId(), $this->context, AppSecretRotationService::TRIGGER_CLI);
+            static::fail('Recovery must fail when every candidate receives a 4xx.');
+        } catch (AppException $e) {
+            static::assertSame(AppException::APP_SECRET_RECOVERY_FAILED, $e->getErrorCode());
+        }
 
         $afterTransientFailure = $this->getInstalledApp();
         static::assertSame($committedSecret, $afterTransientFailure->getAppSecret());
@@ -306,7 +305,7 @@ class AppSecretRotationEndToEndTest extends TestCase
         $recoveredSecret = 'recovered-after-transient';
         $this->enqueueReRegistrationAttempt(minting: $recoveredSecret, confirmResponse: new Response(200));
 
-        $this->rotationService->recoverNow($app->getId(), $this->context);
+        $this->rotationService->rotateNow($app->getId(), $this->context, AppSecretRotationService::TRIGGER_CLI);
 
         $recovered = $this->getInstalledApp();
         static::assertSame($recoveredSecret, $recovered->getAppSecret());
@@ -336,7 +335,7 @@ class AppSecretRotationEndToEndTest extends TestCase
         $confirmsBeforeRecovery = $this->confirmCount();
         $this->enqueueReRegistrationAttempt(minting: $recoveredSecret, confirmResponse: new Response(200));
 
-        $this->rotationService->recoverNow($app->getId(), $this->context);
+        $this->rotationService->rotateNow($app->getId(), $this->context, AppSecretRotationService::TRIGGER_CLI);
 
         $recovered = $this->getInstalledApp();
         static::assertSame($recoveredSecret, $recovered->getAppSecret());
@@ -351,7 +350,7 @@ class AppSecretRotationEndToEndTest extends TestCase
         );
     }
 
-    public function testRecoveryRollsBackTheIntegrationAndPreservesThePendingWhenAnAttemptFailsAmbiguously(): void
+    public function testRecoveryKeepsTheFreshIntegrationAndThePendingWhenAnAttemptFailsAmbiguously(): void
     {
         $app = $this->installApp();
         $committedSecret = $app->getAppSecret();
@@ -366,12 +365,12 @@ class AppSecretRotationEndToEndTest extends TestCase
         $integrationBeforeRecovery = $afterRotation->getIntegrationId();
 
         // Recovery's first attempt cannot even complete the handshake (a transport failure, not a rejection):
-        // the outcome is unknown. No fresh credentials were delivered, so the integration switch is undone and
-        // the recovery record is preserved for a retry rather than left broken. Only a single 5xx is enqueued —
-        // it answers the handshake, so the confirm is never reached.
+        // the outcome is unknown. A pending secret exists, so the fresh integration stays — a later retry
+        // re-registers against it and hands its credentials over on the confirm — and the recovery record is
+        // preserved. Only a single 5xx is enqueued — it answers the handshake, so the confirm is never reached.
         $this->enqueueFailedHandshake(new Response(500));
         try {
-            $this->rotationService->recoverNow($app->getId(), $this->context);
+            $this->rotationService->rotateNow($app->getId(), $this->context, AppSecretRotationService::TRIGGER_CLI);
             static::fail('An ambiguous recovery attempt must surface as a registration failure.');
         } catch (AppRegistrationException $e) {
             static::assertSame(AppException::REGISTRATION_FAILED, $e->getErrorCode());
@@ -380,7 +379,7 @@ class AppSecretRotationEndToEndTest extends TestCase
         $afterRecovery = $this->getInstalledApp();
         static::assertSame($committedSecret, $afterRecovery->getAppSecret());
         static::assertSame([$pendingSecret], $afterRecovery->getUnconfirmedAppSecrets());
-        static::assertSame($integrationBeforeRecovery, $afterRecovery->getIntegrationId());
+        static::assertNotSame($integrationBeforeRecovery, $afterRecovery->getIntegrationId());
     }
 
     // §3 — Hard failures: a 4xx rejection means the registration is claimed, so the operator must change the
@@ -395,15 +394,16 @@ class AppSecretRotationEndToEndTest extends TestCase
         $this->seedCrashedFirstRegistration($app->getId(), $rejectedPendingSecret);
 
         // The app rejects the pending secret (4xx) and there is no committed secret to fall back to, so the
-        // registration cannot be recovered programmatically — recovery notifies (claimed) for operator action
+        // registration cannot be recovered programmatically — recovery fails loudly for operator action
         // rather than silently failing or losing state.
         $this->enqueueReRegistrationAttempt(minting: 'rejected', confirmResponse: new Response(403));
 
-        static::assertSame(
-            AppSecretRecoveryResult::Claimed,
-            $this->rotationService->recoverNow($app->getId(), $this->context),
-            'Recovery must report the registration as claimed when the only candidate is rejected.'
-        );
+        try {
+            $this->rotationService->rotateNow($app->getId(), $this->context, AppSecretRotationService::TRIGGER_CLI);
+            static::fail('Recovery must fail when the only candidate is rejected.');
+        } catch (AppException $e) {
+            static::assertSame(AppException::APP_SECRET_RECOVERY_FAILED, $e->getErrorCode());
+        }
 
         $reverted = $this->getInstalledApp();
         // No committed secret to restore, and the pending record is retained for a retry or explicit discard.

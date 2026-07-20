@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
@@ -21,8 +20,6 @@ use Shopware\Core\Framework\App\Event\PostAppDeletedEvent;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\AppFeatureValidator;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
-use Shopware\Core\Framework\App\Lifecycle\AppRegistrationLock;
-use Shopware\Core\Framework\App\Lifecycle\AppSecretRecoveryResult;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\App\Lifecycle\Handler\AbstractLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
@@ -35,6 +32,7 @@ use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
 use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
@@ -48,13 +46,11 @@ use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
 use Symfony\Component\Clock\NativeClock;
-use Symfony\Component\Lock\LockFactory;
-use Symfony\Component\Lock\LockInterface;
-use Symfony\Component\Lock\Store\InMemoryStore;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppManager::class)]
 class AppManagerTest extends TestCase
 {
@@ -91,8 +87,6 @@ class AppManagerTest extends TestCase
 
     private DeletedAppsGateway $deletedAppsGateway;
 
-    private AppRegistrationLock $registrationLock;
-
     protected function setUp(): void
     {
         $this->eventDispatcher = new CollectingEventDispatcher();
@@ -110,7 +104,6 @@ class AppManagerTest extends TestCase
         $this->configReader = $this->createMock(ConfigReader::class);
         $this->requirementsValidator = static::createStub(AppRequirementsValidator::class);
         $this->deletedAppsGateway = static::createStub(DeletedAppsGateway::class);
-        $this->registrationLock = new AppRegistrationLock(new LockFactory(new InMemoryStore()), new NullLogger());
     }
 
     public function testInstallThrowsIfAppIsNotCompatible(): void
@@ -178,6 +171,10 @@ class AppManagerTest extends TestCase
         $existingApp = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
         $appRepository = AppFixture::createAppRepository($existingApp);
 
+        // an installed app without a pending secret is rejected outright, never sent into recovery
+        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
+        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+
         $this->expectExceptionObject(AppException::alreadyInstalled('test'));
 
         $this->createAppManager($appRepository)
@@ -244,22 +241,6 @@ class AppManagerTest extends TestCase
             ->install($manifest, new AppInstallParameters(), $context);
     }
 
-    public function testExistingAppWithoutPendingSecretIsAlreadyInstalled(): void
-    {
-        $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
-
-        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
-        $this->appSecretRotationService->expects($this->never())->method('recoverNow');
-
-        $this->expectExceptionObject(AppException::alreadyInstalled('test'));
-
-        $this->createAppManager(AppFixture::createAppRepository($app))->install(
-            ManifestFixture::empty(),
-            new AppInstallParameters(),
-            Context::createDefaultContext()
-        );
-    }
-
     public function testInstallRepairsCompletedAppWithoutReplayingLifecycleOrActivation(): void
     {
         $context = Context::createDefaultContext();
@@ -273,9 +254,8 @@ class AppManagerTest extends TestCase
 
         $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
         $this->appSecretRotationService->expects($this->once())
-            ->method('recoverNow')
-            ->with($app->getId(), $context, static::isInstanceOf(LockInterface::class))
-            ->willReturn(AppSecretRecoveryResult::Recovered);
+            ->method('rotateNow')
+            ->with($app->getId(), $context, AppSecretRotationService::TRIGGER_RECOVERY);
 
         $handler = $this->createMock(AbstractLifecycleHandler::class);
         $handler->expects($this->never())->method('install');
@@ -311,7 +291,7 @@ class AppManagerTest extends TestCase
         $appRepository->addSearch(new AppCollection([$pendingApp]));
 
         $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
-        $this->appSecretRotationService->expects($this->never())->method('recoverNow');
+        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
 
         $this->expectExceptionObject(AppException::notCompatible('test'));
 
@@ -347,7 +327,7 @@ class AppManagerTest extends TestCase
             ->willReturn([$violation]);
 
         $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
-        $this->appSecretRotationService->expects($this->never())->method('recoverNow');
+        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
 
         $this->expectExceptionObject(AppException::requirementsNotMet($violation));
 
@@ -373,9 +353,8 @@ class AppManagerTest extends TestCase
 
         $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
         $this->appSecretRotationService->expects($this->once())
-            ->method('recoverNow')
-            ->with($pendingApp->getId(), $context, static::isInstanceOf(LockInterface::class))
-            ->willReturn(AppSecretRecoveryResult::Recovered);
+            ->method('rotateNow')
+            ->with($pendingApp->getId(), $context, AppSecretRotationService::TRIGGER_RECOVERY);
         $this->registrationService->expects($this->never())->method('registerApp');
 
         $handler = $this->createMock(AbstractLifecycleHandler::class);
@@ -420,8 +399,7 @@ class AppManagerTest extends TestCase
 
         $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
         $this->appSecretRotationService->expects($this->once())
-            ->method('recoverNow')
-            ->willReturn(AppSecretRecoveryResult::Recovered);
+            ->method('rotateNow');
         $this->registrationService->expects($this->never())->method('registerApp');
 
         $handler = $this->createMock(AbstractLifecycleHandler::class);
@@ -451,8 +429,8 @@ class AppManagerTest extends TestCase
 
         $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
         $this->appSecretRotationService->expects($this->once())
-            ->method('recoverNow')
-            ->willReturn(AppSecretRecoveryResult::Claimed);
+            ->method('rotateNow')
+            ->willThrowException(AppException::appSecretRecoveryFailed('test'));
         $this->scriptExecutor->expects($this->never())->method('execute');
 
         $this->expectExceptionObject(AppException::appSecretRecoveryFailed('test'));
@@ -476,7 +454,7 @@ class AppManagerTest extends TestCase
 
         $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
         $this->appSecretRotationService->expects($this->once())
-            ->method('recoverNow')
+            ->method('rotateNow')
             ->willThrowException($failure);
         $this->scriptExecutor->expects($this->never())->method('execute');
 
@@ -909,7 +887,6 @@ XML,
             $this->deletedAppsGateway,
             $this->requirementsValidator,
             new NativeClock(),
-            $this->registrationLock
         );
     }
 

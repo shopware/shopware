@@ -35,7 +35,6 @@ class AppException extends HttpException
     public const REGISTRATION_FAILED = 'FRAMEWORK__APP_REGISTRATION_FAILED';
     public const APP_REGISTRATION_REJECTED = 'FRAMEWORK__APP_REGISTRATION_REJECTED';
     public const APP_SECRET_RECOVERY_FAILED = 'FRAMEWORK__APP_SECRET_RECOVERY_FAILED';
-    public const APP_SECRET_ROTATION_IN_PROGRESS = 'FRAMEWORK__APP_SECRET_ROTATION_IN_PROGRESS';
     public const LICENSE_COULD_NOT_BE_VERIFIED = 'FRAMEWORK__APP_LICENSE_COULD_NOT_BE_VERIFIED';
     public const INVALID_CONFIGURATION = 'FRAMEWORK__APP_INVALID_CONFIGURATION';
     public const JWT_GENERATION_REQUIRES_CUSTOMER_LOGGED_IN = 'FRAMEWORK__APP_JWT_GENERATION_REQUIRES_CUSTOMER_LOGGED_IN';
@@ -76,7 +75,6 @@ class AppException extends HttpException
     final public const APP_URL_INVALID = 'FRAMEWORK__APP_URL_INVALID';
     final public const MANIFEST_NOT_FOUND = 'FRAMEWORK__APP_MANIFEST_NOT_FOUND';
     final public const APP_REQUIREMENTS_NOT_MET = 'FRAMEWORK__APP_REQUIREMENTS_NOT_MET';
-    final public const APP_SECRET_LOCK_UNAVAILABLE = 'FRAMEWORK__APP_SECRET_LOCK_UNAVAILABLE';
     final public const RE_REGISTRATION_FAILED = 'FRAMEWORK__APP_RE_REGISTRATION_FAILED';
 
     /**
@@ -149,10 +147,6 @@ class AppException extends HttpException
 
     public static function appRegistrationRejected(string $appName, string $reason, ?\Throwable $previous = null): self
     {
-        // A definitive 4xx is still a registration failure, so it is an AppRegistrationException like the
-        // ambiguous case (registrationFailed) — same `catch (AppRegistrationException)` and error handling.
-        // The dedicated subtype lets recovery tell "wrong secret" (try the next candidate) from "no clear
-        // answer" (keep the unconfirmed and retry) with a type-based catch instead of an error-code check.
         return new AppRegistrationRejectedException(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::APP_REGISTRATION_REJECTED,
@@ -169,29 +163,6 @@ class AppException extends HttpException
             self::APP_SECRET_RECOVERY_FAILED,
             'App "{{ appName }}" rejected every saved credential candidate. The pending recovery state was kept; retry "bin/console app:secret:rotate {{ appName }}" or "bin/console app:install {{ appName }}". If the registration is permanently lost, run the "reinstall-apps" shop ID change strategy.',
             ['appName' => $appName]
-        );
-    }
-
-    public static function appSecretRotationInProgress(string $appId): self
-    {
-        return new self(
-            Response::HTTP_CONFLICT,
-            self::APP_SECRET_ROTATION_IN_PROGRESS,
-            'A secret rotation, recovery, or resumed installation is already running for app "{{ appId }}"; try again shortly.',
-            ['appId' => $appId]
-        );
-    }
-
-    public static function appSecretLockUnavailable(string $appId, ?\Throwable $previous = null): self
-    {
-        // The per-app lock's store is unreachable (Redis/DB down or a bad LOCK_DSN). Fail closed with a typed,
-        // retryable 503 so the raw infrastructure exception doesn't escape the lock.
-        return new self(
-            Response::HTTP_SERVICE_UNAVAILABLE,
-            self::APP_SECRET_LOCK_UNAVAILABLE,
-            'Could not acquire the lock to safely rotate or recover the secret for app "{{ appId }}"; the locking backend is unavailable, try again shortly.',
-            ['appId' => $appId],
-            $previous
         );
     }
 

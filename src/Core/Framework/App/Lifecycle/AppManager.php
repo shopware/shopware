@@ -52,7 +52,6 @@ use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
-use Symfony\Component\Lock\LockInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -93,7 +92,6 @@ class AppManager
         private readonly DeletedAppsGateway $deletedAppsGateway,
         private readonly AppRequirementsValidator $requirementsValidator,
         private readonly ClockInterface $clock,
-        private readonly AppRegistrationLock $registrationLock,
     ) {
     }
 
@@ -102,9 +100,8 @@ class AppManager
         $appName = $manifest->getMetadata()->getName();
         $app = $this->loadAppByName($appName, $context);
 
-        // A pending secret is the durable trace of a prior registration that never confirmed. Recover it
-        // before validation so a completed app's credential repair isn't blocked by a later compatibility
-        // change; a half-finished install is still validated inside recoverInstallation.
+        // A pending secret marks a registration that never confirmed. Recover before validation so a
+        // completed app's credential repair isn't blocked by a later compatibility change.
         if ($app?->getUnconfirmedAppSecrets() !== null) {
             $this->recoverInstallation($manifest, $parameters, $app, $context);
 
@@ -288,53 +285,45 @@ class AppManager
         AppEntity $app,
         Context $context
     ): void {
-        $this->registrationLock->locked($app->getId(), function (LockInterface $lock) use ($manifest, $parameters, $app, $context): void {
-            // Re-read after taking the lock: another installation may have completed recovery in the meantime.
-            $app = $this->loadApp($app->getId(), $context);
-            if ($app->getUnconfirmedAppSecrets() === null) {
-                throw AppException::alreadyInstalled($app->getName());
-            }
+        // Re-read: another installation may have completed recovery in the meantime.
+        $app = $this->loadApp($app->getId(), $context);
+        if ($app->getUnconfirmedAppSecrets() === null) {
+            throw AppException::alreadyInstalled($app->getName());
+        }
 
-            // Capture this before recovery commits a secret and the installed event removes a retained
-            // deleted-app secret. These are the two durable markers that the install lifecycle never finished.
-            $resumeInstallation = !$app->getAppSecret()
-                || $this->deletedAppsGateway->getDeletedAppSecret($app->getName()) !== null;
+        // Capture this before recovery commits a secret and the installed event removes a retained
+        // deleted-app secret. These are the two durable markers that the install lifecycle never finished.
+        $resumeInstallation = !$app->getAppSecret()
+            || $this->deletedAppsGateway->getDeletedAppSecret($app->getName()) !== null;
 
-            if ($resumeInstallation) {
-                // These checks belong to installation, not credential repair. Run them before recovery clears
-                // the only durable pending marker, otherwise a failed validation would strand the app row.
-                $this->ensureIsCompatible($manifest);
-                $this->ensureMeetsRequirements($manifest);
-                $this->registrationLock->refresh($lock, $app->getId());
-            }
+        if ($resumeInstallation) {
+            // These checks belong to installation, not credential repair. Run them before recovery clears
+            // the only durable pending marker, otherwise a failed validation would strand the app row.
+            $this->ensureIsCompatible($manifest);
+            $this->ensureMeetsRequirements($manifest);
+        }
 
-            $result = $this->appSecretRotationService->recoverNow($app->getId(), $context, $lock);
-            if ($result === AppSecretRecoveryResult::Claimed) {
-                throw AppException::appSecretRecoveryFailed($app->getName());
-            }
+        $this->appSecretRotationService->rotateNow(
+            $app->getId(),
+            $context,
+            AppSecretRotationService::TRIGGER_RECOVERY
+        );
 
-            if ($result === AppSecretRecoveryResult::NothingToRecover) {
-                throw AppException::alreadyInstalled($app->getName());
-            }
+        // A completed app only needed its credentials repaired — replaying install handlers or activation
+        // would duplicate side effects.
+        if (!$resumeInstallation) {
+            return;
+        }
 
-            // A completed app only needed its credentials repaired. Replaying install handlers or changing
-            // activation would duplicate side effects on an app that was already fully installed.
-            if (!$resumeInstallation) {
-                return;
-            }
+        $app = $this->persistAppAfterRegistration(
+            $manifest,
+            $app->getId(),
+            $this->getDefaultLocale($context),
+            $context,
+            true
+        );
 
-            $this->registrationLock->refresh($lock, $app->getId());
-
-            $app = $this->persistAppAfterRegistration(
-                $manifest,
-                $app->getId(),
-                $this->getDefaultLocale($context),
-                $context,
-                true
-            );
-
-            $this->completeInstallation($app, $manifest, $parameters, $context);
-        });
+        $this->completeInstallation($app, $manifest, $parameters, $context);
     }
 
     private function completeInstallation(
@@ -424,41 +413,36 @@ class AppManager
         $metadata['sourceConfig'] = $manifest->getSourceConfig();
         $metadata['inAppPurchasesGatewayUrl'] = $manifest->getGateways()?->getInAppPurchasesGateway()?->getUrl();
 
-        // Serialise against a concurrent rotation/recovery of the same app (it reads the manifest/metadata
-        // this rewrites). Unconditional locking is simpler than locking only the paths that register.
-        $this->registrationLock->locked($id, function () use ($manifest, $metadata, $id, $install, $parameters, $secretAccessKey, $context): void {
-            $this->updateMetadata($metadata, $context);
+        $this->updateMetadata($metadata, $context);
 
-            $app = $this->loadApp($id, $context);
+        $app = $this->loadApp($id, $context);
 
-            $this->updateCustomEntities($app, $manifest);
+        $this->updateCustomEntities($app, $manifest);
 
-            $this->permissionLifecycle->updatePrivileges(
-                $manifest->getPermissions(),
-                $id,
-                $manifest->validatesPermissions() === false && $parameters->acceptPermissions,
-                $context
-            );
+        $this->permissionLifecycle->updatePrivileges(
+            $manifest->getPermissions(),
+            $id,
+            $manifest->validatesPermissions() === false && $parameters->acceptPermissions,
+            $context
+        );
 
-            // If the app has no secret yet, but now specifies setup data we do a registration to get an app secret
-            // this mostly happens during install, but may happen in the update case if the app previously worked without an external server
-            // additionally during install it might happen that we still have an old secret stored for the app from a previous installation
-            // in that case we still need to run the registration to rotate that secret
-            if ((!$app->getAppSecret() || $install) && $manifest->getSetup()) {
-                try {
-                    $this->registrationService->registerApp($manifest, $id, $secretAccessKey, $context);
-                } catch (AppRegistrationException $e) {
-                    // An ambiguous failure leaves an unconfirmed secret the app may already hold, so deleting the
-                    // app would lose it — keep the half-installed app for a later installation repair. Roll
-                    // back only a clean failure that left no unconfirmed secret.
-                    if ($this->loadApp($id, $context)->getUnconfirmedAppSecrets() === null) {
-                        $this->removeAppData($app, $context);
-                    }
-
-                    throw $e;
+        // If the app has no secret yet, but now specifies setup data we do a registration to get an app secret
+        // this mostly happens during install, but may happen in the update case if the app previously worked without an external server
+        // additionally during install it might happen that we still have an old secret stored for the app from a previous installation
+        // in that case we still need to run the registration to rotate that secret
+        if ((!$app->getAppSecret() || $install) && $manifest->getSetup()) {
+            try {
+                $this->registrationService->registerApp($manifest, $id, $secretAccessKey, $context);
+            } catch (AppRegistrationException $e) {
+                // An ambiguous failure leaves an unconfirmed secret the app may already hold, so deleting
+                // the app would lose it — keep the half-installed app for a later installation repair.
+                if ($this->loadApp($id, $context)->getUnconfirmedAppSecrets() === null) {
+                    $this->removeAppData($app, $context);
                 }
+
+                throw $e;
             }
-        });
+        }
 
         return $this->persistAppAfterRegistration($manifest, $id, $defaultLocale, $context, $install);
     }

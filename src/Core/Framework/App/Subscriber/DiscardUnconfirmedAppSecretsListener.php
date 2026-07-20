@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\App\Subscriber;
 
 use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\App\ShopId\ShopIdDeletedEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -26,7 +25,6 @@ class DiscardUnconfirmedAppSecretsListener
      */
     public function __construct(
         private readonly EntityRepository $appRepository,
-        private readonly AppSecretRotationService $appSecretRotationService,
     ) {
     }
 
@@ -39,9 +37,15 @@ class DiscardUnconfirmedAppSecretsListener
 
         /** @var list<string> $appIds */
         $appIds = $this->appRepository->searchIds($criteria, $context)->getIds();
-
-        foreach ($appIds as $appId) {
-            $this->appSecretRotationService->discardNow($appId, $context);
+        if ($appIds === []) {
+            return;
         }
+
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($appIds): void {
+            $this->appRepository->update(
+                array_map(static fn (string $appId) => ['id' => $appId, 'unconfirmedAppSecrets' => null], $appIds),
+                $context
+            );
+        });
     }
 }

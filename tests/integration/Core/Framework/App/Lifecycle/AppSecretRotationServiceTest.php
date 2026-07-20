@@ -6,7 +6,6 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\AppSecretRecoveryResult;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
@@ -133,35 +132,6 @@ class AppSecretRotationServiceTest extends TestCase
         static::assertSame($integration->getSecretAccessKey(), $rolledBackIntegration->getSecretAccessKey());
         static::assertSame($originalAppSecret, $rolledBack->getAppSecret());
         static::assertNull($rolledBack->getUnconfirmedAppSecrets());
-    }
-
-    public function testRecoverNowReportsNothingToRecoverWithoutAnyHttpCall(): void
-    {
-        $appDir = __DIR__ . '/../Manifest/_fixtures/test';
-        $this->loadAppsFromDir($appDir);
-
-        $app = $this->getInstalledApp();
-        $this->seedSecrets($app->getId(), 'current-secret', null);
-        $requestsAfterInstall = $this->getRequestCount();
-
-        static::assertSame(
-            AppSecretRecoveryResult::NothingToRecover,
-            $this->service->recoverNow($app->getId(), $this->context)
-        );
-
-        // recovery concludes before any HTTP call when there is nothing pending
-        static::assertSame($requestsAfterInstall, $this->getRequestCount());
-    }
-
-    private function seedSecrets(string $appId, string $appSecret, ?string $pendingSecret): void
-    {
-        $this->context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($appId, $appSecret, $pendingSecret): void {
-            $this->appRepository->update([[
-                'id' => $appId,
-                'appSecret' => $appSecret,
-                'unconfirmedAppSecrets' => $pendingSecret === null ? null : [$pendingSecret],
-            ]], $context);
-        });
     }
 
     private function buildHandshakeResponse(Manifest $manifest, string $appSecret): string

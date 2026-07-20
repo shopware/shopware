@@ -29,7 +29,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClient;
-use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Integration\IntegrationEntity;
 use Symfony\Component\Clock\NativeClock;
@@ -289,14 +288,12 @@ class AppRegistrationServiceTest extends TestCase
                 if ($update->numberOfInvocations() === 1) {
                     static::assertSame($this->testApp->getId(), $payload[0]['id']);
                     static::assertSame(['4pp-s3cr3t'], $payload[0]['unconfirmedAppSecrets']);
-                    static::assertInstanceOf(\DateTimeInterface::class, $payload[0]['unconfirmedAppSecretsUpdatedAt']);
                 } else {
                     static::assertSame(
                         [[
                             'id' => $this->testApp->getId(),
                             'appSecret' => '4pp-s3cr3t',
                             'unconfirmedAppSecrets' => null,
-                            'unconfirmedAppSecretsUpdatedAt' => null,
                         ]],
                         $payload
                     );
@@ -645,7 +642,6 @@ class AppRegistrationServiceTest extends TestCase
             '6.5.2.0',
             new NativeClock(),
             new NullLogger(),
-            static::createStub(Meter::class),
         );
     }
 

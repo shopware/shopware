@@ -25,7 +25,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Store\Services\StoreClient;
-use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -242,7 +241,6 @@ class AppRegistrationServiceTest extends TestCase
             Kernel::SHOPWARE_FALLBACK_VERSION,
             new NativeClock(),
             new NullLogger(),
-            static::getContainer()->get(Meter::class)
         );
 
         static::expectException(AppRegistrationException::class);

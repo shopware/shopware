@@ -67,7 +67,8 @@ class ProductPageSeoUrlRouteTest extends TestCase
 
         $channels = static::getContainer()
             ->get('sales_channel.repository')
-            ->search(new Criteria([$salesChannelId]), $context);
+            ->search(new Criteria([$salesChannelId]), $context)
+            ->getEntities();
 
         $channel = $channels->get($salesChannelId);
 

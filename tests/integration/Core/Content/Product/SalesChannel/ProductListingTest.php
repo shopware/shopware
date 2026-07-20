@@ -161,8 +161,8 @@ class ProductListingTest extends TestCase
             ->getResult();
 
         static::assertSame(7, $listing->getTotal());
-        static::assertFalse($listing->has($this->productIdWidth100));
-        static::assertTrue($listing->has($this->productIdWidth150));
+        static::assertFalse($listing->getEntities()->has($this->productIdWidth100));
+        static::assertTrue($listing->getEntities()->has($this->productIdWidth150));
     }
 
     public function testListingWithProductStreamAndAdditionalCriteria(): void

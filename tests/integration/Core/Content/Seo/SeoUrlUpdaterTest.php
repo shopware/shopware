@@ -147,7 +147,7 @@ class SeoUrlUpdaterTest extends TestCase
         $seoUrl = static::getContainer()->get('seo_url.repository')->search(
             $criteria,
             Context::createDefaultContext()
-        )->first();
+        )->getEntities()->first();
 
         // Check if seo url was created
         static::assertNotNull($seoUrl);
@@ -162,7 +162,7 @@ class SeoUrlUpdaterTest extends TestCase
         $seoUrl = static::getContainer()->get('seo_url.repository')->search(
             $criteria,
             Context::createDefaultContext()
-        )->first();
+        )->getEntities()->first();
 
         // Check that no seo url was created.
         static::assertNull($seoUrl);

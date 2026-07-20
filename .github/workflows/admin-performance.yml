@@ -43,13 +43,15 @@ jobs:
       - name: Define environment
         shell: bash
         run: |
-          echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
-          echo "MAILER_DSN=smtp://localhost:1025" >> $GITHUB_ENV
-          echo "MAILPIT_BASE_URL=http://localhost:8025" >> $GITHUB_ENV
-          echo "SHOPWARE_HTTP_CACHE_ENABLED=0" >> $GITHUB_ENV
-          echo "SHOPWARE_DISABLE_UPDATE_CHECK=true" >> $GITHUB_ENV
-          echo "BLUE_GREEN_DEPLOYMENT=1" >> $GITHUB_ENV
-          echo "ENABLE_SERVICES=0" >> $GITHUB_ENV
+          {
+            echo "REDIS_URL=redis://localhost:6379"
+            echo "MAILER_DSN=smtp://localhost:1025"
+            echo "MAILPIT_BASE_URL=http://localhost:8025"
+            echo "SHOPWARE_HTTP_CACHE_ENABLED=0"
+            echo "SHOPWARE_DISABLE_UPDATE_CHECK=true"
+            echo "BLUE_GREEN_DEPLOYMENT=1"
+            echo "ENABLE_SERVICES=0"
+          } >> "$GITHUB_ENV"
 
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
@@ -89,7 +91,7 @@ jobs:
           EOF
 
       - name: Start Caddy reverse proxy
-        run: docker run --name caddy-proxy --network host -v $PWD/Caddyfile:/etc/caddy/Caddyfile:ro -d caddy:2.8
+        run: docker run --name caddy-proxy --network host -v "$PWD/Caddyfile:/etc/caddy/Caddyfile:ro" -d caddy:2.8
 
       - name: Wait for server
         run: |

@@ -602,8 +602,8 @@ class ProductDetailRouteTest extends TestCase
         SalesChannelProductEntity $product,
         bool $buildBreadcrumbByReferrerCategory,
         ?string $referrerCategoryId,
+        InvokedCount $getProductCategoryByReferrerCount,
         InvokedCount $getProductSeoCategoryCount,
-        InvokedCount $loadCategoryCount,
         ?CategoryEntity $breadcrumbCategory
     ): void {
         $productRepository = $this->createMock(SalesChannelRepository::class);
@@ -621,11 +621,11 @@ class ProductDetailRouteTest extends TestCase
             );
         $this->systemConfig->method('getBool')->willReturn($buildBreadcrumbByReferrerCategory);
         $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $breadcrumbBuilder->expects($getProductCategoryByReferrerCount)
+            ->method('getProductCategoryByReferrer')
+            ->willReturn($breadcrumbCategory);
         $breadcrumbBuilder->expects($getProductSeoCategoryCount)
             ->method('getProductSeoCategory')
-            ->willReturn($breadcrumbCategory);
-        $breadcrumbBuilder->expects($loadCategoryCount)
-            ->method('loadCategory')
             ->willReturn($breadcrumbCategory);
 
         $request = new Request();
@@ -643,6 +643,8 @@ class ProductDetailRouteTest extends TestCase
     {
         $defaultBreadcrumbCategory = new CategoryEntity();
         $defaultBreadcrumbCategory->setId(Uuid::randomHex());
+        $parentCategory = new CategoryEntity();
+        $parentCategory->setId(Uuid::randomHex());
         $secondCategory = new CategoryEntity();
         $secondCategory->setId(Uuid::randomHex());
         $thirdCategory = new CategoryEntity();
@@ -659,8 +661,8 @@ class ProductDetailRouteTest extends TestCase
             $product,
             false,
             null,
-            new InvokedCount(1),
             new InvokedCount(0),
+            new InvokedCount(1),
             $defaultBreadcrumbCategory,
         ];
 
@@ -668,8 +670,8 @@ class ProductDetailRouteTest extends TestCase
             $productWithoutCategories,
             false,
             null,
-            new InvokedCount(1),
             new InvokedCount(0),
+            new InvokedCount(1),
             null,
         ];
 
@@ -677,8 +679,8 @@ class ProductDetailRouteTest extends TestCase
             $product,
             true,
             null,
-            new InvokedCount(1),
             new InvokedCount(0),
+            new InvokedCount(1),
             $defaultBreadcrumbCategory,
         ];
 
@@ -686,9 +688,18 @@ class ProductDetailRouteTest extends TestCase
             $product,
             true,
             $secondCategory->getId(),
-            new InvokedCount(0),
             new InvokedCount(1),
+            new InvokedCount(0),
             $secondCategory,
+        ];
+
+        yield 'Load breadcrumb category by referrerCategoryId with enabled referrer feature and referrerCategoryId being a parent of a category assigned to the product' => [
+            $product,
+            true,
+            $parentCategory->getId(),
+            new InvokedCount(1),
+            new InvokedCount(0),
+            $parentCategory,
         ];
 
         yield 'Load default breadcrumb category with enabled referrer feature and unassigned referrerCategoryId' => [

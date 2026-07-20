@@ -92,7 +92,7 @@ class AddressControllerTest extends TestCase
 
         /** @var EntityRepository<CustomerAddressCollection> $repository */
         $repository = static::getContainer()->get('customer_address.repository');
-        $address = $repository->search($criteria, $context->getContext())
+        $address = $repository->search($criteria, $context->getContext())->getEntities()
             ->get($id2);
 
         static::assertInstanceOf(CustomerAddressEntity::class, $address);
@@ -104,7 +104,7 @@ class AddressControllerTest extends TestCase
         /** @var EntityRepository<CustomerAddressCollection> $repository */
         $repository = static::getContainer()->get('customer_address.repository');
         $exists = $repository
-            ->search($criteria, $context->getContext())
+            ->search($criteria, $context->getContext())->getEntities()
             ->has($id2);
 
         static::assertFalse($exists);

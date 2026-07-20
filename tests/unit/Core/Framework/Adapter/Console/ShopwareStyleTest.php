@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -20,10 +21,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 #[CoversClass(ShopwareStyle::class)]
 class ShopwareStyleTest extends TestCase
 {
-    protected function tearDown(): void
-    {
-        unset($_SERVER['PROGRESS_BAR_CHARACTER']);
-    }
+    use EnvTestBehaviour;
 
     #[TestDox('createProgressBar throws, because the class deprecation is enforced when v6.8.0.0 is active')]
     public function testCreateProgressBarThrowsWhenV68IsActive(): void
@@ -51,7 +49,7 @@ class ShopwareStyleTest extends TestCase
     #[TestDox('createProgressBar takes the progress character from the PROGRESS_BAR_CHARACTER env variable')]
     public function testCreateProgressBarUsesProgressCharacterFromEnvironment(): void
     {
-        $_SERVER['PROGRESS_BAR_CHARACTER'] = '#';
+        $this->setEnvVars(['PROGRESS_BAR_CHARACTER' => '#']);
         $style = new ShopwareStyle(new ArrayInput([]), new BufferedOutput());
 
         $progressBar = $style->createProgressBar(10);

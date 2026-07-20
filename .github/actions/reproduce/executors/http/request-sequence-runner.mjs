@@ -26,7 +26,7 @@ export class HttpRequestSequenceRunner {
         const request = await this.requestPreparer.prepare(requests[i], ids);
 
         this.ensureResolvedRequest(request, i);
-        evaluation.fakeScript += this.renderCurl(request);
+        evaluation.fakeScript += this.renderCurl(request, i === requests.length - 1, requests.length);
 
         const response = await this.fetchRequest(request, i);
         evaluation.code = String(response.status);
@@ -61,12 +61,19 @@ export class HttpRequestSequenceRunner {
   /**
    * Renders an approximate reproduction script without harness-owned credentials.
    */
-  renderCurl({ method, path, body, authoredHeaders }) {
+  renderCurl({ method, path, body, authoredHeaders }, isLast, total) {
     const shownHeaders = Object.entries(authoredHeaders)
       .filter(([key]) => !this.requestPreparer.isExecutorOwnedHeader(key))
       .map(([key, value]) => ` -H "${key}: ${value}"`).join('');
 
-    return `curl -sS -X ${method} "$APP_URL${path}"${shownHeaders}${body ? ` --data '${body}'` : ''}\n`;
+    // With a setup sequence, annotate each request's role so a reader knows the checks bind ONLY to
+    // the final (symptom) request — earlier requests are setup that just has to return 2xx. A single
+    // request needs no label (it is obviously the asserted one).
+    const label = total > 1
+      ? `${isLast ? '# symptom — the checks below run on this response' : '# setup — must return 2xx (not checked)'}\n`
+      : '';
+
+    return `${label}curl -sS -X ${method} "$APP_URL${path}"${shownHeaders}${body ? ` --data '${body}'` : ''}\n`;
   }
 
   async fetchRequest({ method, path, body, headers }, index) {

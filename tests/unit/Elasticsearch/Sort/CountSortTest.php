@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Elasticsearch\Sort;
 use OpenSearchDSL\Sort\FieldSort;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Sort\CountSort;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CountSort::class)]
 class CountSortTest extends TestCase
 {

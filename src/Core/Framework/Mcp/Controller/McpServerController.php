@@ -19,7 +19,6 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlist;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
@@ -38,7 +37,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Shopware-aware entry point for the MCP protocol over HTTP.
  * Applies Shopware's Admin API authentication and route scoping, then delegates
@@ -55,7 +54,7 @@ class McpServerController
      *
      * The five PhpMcp bundle params below are nullable because they are injected via
      * nullOnInvalid(): when the MCP bundle is absent they resolve to null.
-     * Once MCP_SERVER is stable (v6.8.0) remove the nullable types and the null guards in handle().
+     * Once MCP is stable (v6.8.0) remove the nullable types and the null guards in handle().
      */
     public function __construct(
         private readonly ?Server $server,
@@ -80,8 +79,7 @@ class McpServerController
     )]
     public function handle(Request $request): Response
     {
-        if (!Feature::isActive('MCP_SERVER')
-            || $this->server === null
+        if ($this->server === null
             || $this->httpMessageFactory === null
             || $this->httpFoundationFactory === null
             || $this->responseFactory === null

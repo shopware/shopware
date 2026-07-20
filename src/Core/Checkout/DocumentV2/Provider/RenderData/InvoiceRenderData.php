@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Log\Package;
  * @codeCoverageIgnore
  */
 #[Package('after-sales')]
-readonly class InvoiceRenderData extends AbstractRenderData
+final readonly class InvoiceRenderData extends AbstractRenderData
 {
     /**
      * @param list<LineItemView> $lineItems

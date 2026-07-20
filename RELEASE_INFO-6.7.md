@@ -1,5 +1,14 @@
-# 6.7.13.0 (upcoming)
+# 6.7.14.0 (upcoming)
 
+# 6.7.13.0
+
+## Storefront
+
+### Deprecated `type` variable in address manager templates
+
+The Twig variable `type` in the address manager modal templates (`address-manager-modal-list.html.twig`, `address-manager-modal-create-address.html.twig`, and `address-manager-item.html.twig`) is deprecated in favor of `addressType`.
+The old variable remains available during the transition and will be removed with Shopware 6.8.
+Themes and plugins that extend these templates should migrate to `addressType`.
 ## Critical Fixes
 
 ### Store API requests no longer start PHP sessions

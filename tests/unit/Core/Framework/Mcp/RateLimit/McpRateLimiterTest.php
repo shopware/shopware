@@ -58,20 +58,29 @@ class McpRateLimiterTest extends TestCase
         $this->mcpRateLimiter->enforceForAdminApi($request);
     }
 
-    public function testEnforceForStoreApiUsesSalesChannelContextKey(): void
+    public function testEnforceForStoreApiEnforcesBothContextAndPerIpBuckets(): void
     {
         $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannelId')->willReturn('sales-channel-id');
         $salesChannelContext->method('getToken')->willReturn('context-token');
 
         $request = new Request();
+        $request->server->set('REMOTE_ADDR', '192.168.1.1');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
 
-        $this->rateLimiter->expects($this->once())
+        $calls = [];
+        $this->rateLimiter->expects($this->exactly(2))
             ->method('ensureAccepted')
-            ->with(RateLimiter::MCP_STORE_API, 'sales-channel-id-context-token');
+            ->willReturnCallback(static function (string $route, string $key) use (&$calls): void {
+                $calls[] = [$route, $key];
+            });
 
         $this->mcpRateLimiter->enforceForStoreApi($request);
+
+        static::assertSame([
+            [RateLimiter::MCP_STORE_API, 'sales-channel-id-context-token'],
+            [RateLimiter::MCP_STORE_API, '192.168.1.1'],
+        ], $calls);
     }
 
     /**
@@ -84,7 +93,7 @@ class McpRateLimiterTest extends TestCase
     }
 
     #[DataProvider('storeApiFallbackKeyProvider')]
-    public function testEnforceForStoreApiFallsBackWithoutContext(?string $remoteAddr, string $expectedKey): void
+    public function testEnforceForStoreApiWithoutContextOnlyEnforcesPerIpBucket(?string $remoteAddr, string $expectedKey): void
     {
         $request = new Request();
         if ($remoteAddr !== null) {

@@ -364,10 +364,11 @@ shopware:
                     - limit: 1000
                       interval: '10 minutes'
             mcp_store_api:
-                # Tighter than the Admin API: this endpoint is customer/sales-channel facing and
-                # the rate-limit key (sales-channel context token) is cheap to rotate, so the
-                # effective protection is closer to per-IP. Still generous enough for an AI agent
-                # to browse, search and build a cart in a single session.
+                # Customer/sales-channel facing, so tighter than the Admin API. McpRateLimiter
+                # enforces this route with two keys: the sales-channel context token (primary) and
+                # the client IP. The context token is cheap to rotate, so the per-IP bucket is the
+                # backstop that cannot be bypassed that way. Both buckets share these limits and are
+                # still generous enough for an AI agent to browse, search and build a cart.
                 enabled: true
                 policy: 'time_backoff'
                 reset: '1 hours'

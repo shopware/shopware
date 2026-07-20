@@ -234,25 +234,27 @@ class AnnotationTagTesterTest extends TestCase
     public static function incorrectExperimentalAnnotationsFormatProvider(): \Generator
     {
         yield 'No properties added' => ['@experimental'];
-        yield 'Added only stableVersion property' => ['@experimental stableVersion:v6.5.0'];
-        yield 'Added only feature property' => ['@experimental feature:TEST_FEATURE'];
         yield 'Incorrect separator' => ['@experimental stableVersion=v6.5.0 feature1=testFeature'];
     }
 
-    public function testExperimentalTagWithoutStableVersionPropertyThrowsException(): void
+    #[DataProvider('experimentalAnnotationsWithoutStableVersionProvider')]
+    public function testExperimentalWithoutStableVersionPropertyThrowsException(string $content): void
     {
-        $deprecatedContent = '@experimental tag:v6.5.0 feature:TEST_FEATURE';
-
         $this->expectExceptionObject(new \InvalidArgumentException('Could not find property stableVersion in experimental annotation.'));
-        $this->annotationTagTester->validateExperimentalAnnotations($deprecatedContent);
+        $this->annotationTagTester->validateExperimentalAnnotations($content);
     }
 
-    public function testExperimentalWithoutFeaturePropertyWillThrowException(): void
+    public static function experimentalAnnotationsWithoutStableVersionProvider(): \Generator
     {
-        $deprecatedContent = '@experimental stableVersion:v6.5.0 name:testFeature';
+        yield 'Wrong key for the version' => ['@experimental tag:v6.5.0 feature:TEST_FEATURE'];
+        yield 'Only feature property' => ['@experimental feature:TEST_FEATURE'];
+    }
 
-        $this->expectExceptionObject(new \InvalidArgumentException('Could not find property feature in experimental annotation.'));
-        $this->annotationTagTester->validateExperimentalAnnotations($deprecatedContent);
+    #[DoesNotPerformAssertions]
+    public function testExperimentalWithOnlyStableVersionPropertyDoesNotThrow(): void
+    {
+        // `feature` is optional: an ungated experimental API declares only `stableVersion`.
+        $this->annotationTagTester->validateExperimentalAnnotations('@experimental stableVersion:v6.5.0');
     }
 
     public function testExperimentalStableVersionMustNotHaveMoreThanThreeDigits(): void

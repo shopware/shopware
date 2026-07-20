@@ -37,16 +37,6 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(McpAllowlistFilter::class)]
 class McpServerControllerTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        $_SERVER['MCP_SERVER'] = '1';
-    }
-
-    protected function tearDown(): void
-    {
-        unset($_SERVER['MCP_SERVER']);
-    }
-
     public function testHandleReturnsResponseForValidMcpRequest(): void
     {
         $body = json_encode([
@@ -757,18 +747,6 @@ class McpServerControllerTest extends TestCase
         $result = $data->result ?? new \stdClass();
         static::assertInstanceOf(\stdClass::class, $result);
         static::assertObjectNotHasProperty('_meta', $result);
-    }
-
-    public function testHandleReturnsNotFoundWhenFeatureFlagIsOff(): void
-    {
-        $_SERVER['MCP_SERVER'] = false;
-        try {
-            $controller = $this->buildController(new ServerRequest('POST', '/api/_mcp'));
-            $response = $controller->handle(new Request());
-            static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
-        } finally {
-            $_SERVER['MCP_SERVER'] = '1';
-        }
     }
 
     /**

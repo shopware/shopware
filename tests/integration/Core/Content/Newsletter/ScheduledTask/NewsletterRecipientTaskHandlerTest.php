@@ -89,6 +89,7 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
             '7912f4de72aa43d792bcebae4eb45c5c',
             'ee367309f56445bf88ab944c81907951',
             '0d095dffd93b48a6b22300a1dad879d4',
+            '0d095dffd93b48a6b22300a1dad879d5',
         ];
 
         foreach ($expectedIds as $id) {
@@ -98,7 +99,7 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
         $deletedIds = [
             '9420908cc96b42379ff86fa1e5a6f10b',
             '0d095dffd93b48a6b22300a1dad879d3',
-            '0d095dffd93b48a6b22300a1dad879d5',
+            '0d095dffd93b48a6b22300a1dad879d6',
         ];
 
         foreach ($deletedIds as $id) {

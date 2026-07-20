@@ -107,7 +107,7 @@ VALUES (
     ':now' - INTERVAL 20 DAY
 ), (
     UNHEX('0d095dffd93b48a6b22300a1dad879d5'),
-    'test@fooOptOut',
+    'barFooOptOut@unit.test',
     '',
     '',
     '',
@@ -115,6 +115,23 @@ VALUES (
     '',
     'optOut',
     '0d095dffd93b48a6b22300a1dad879d5',
+    @salutationId,
+    @languageId,
+    UNHEX('98432def39fc4624b33213a56b8c944d'),
+    NULL,
+    NULL,
+    ':now' - INTERVAL 31 DAY,
+    ':now' - INTERVAL 20 DAY
+), (
+    UNHEX('0d095dffd93b48a6b22300a1dad879d6'),
+    'test@fooOptOut',
+    '',
+    '',
+    '',
+    '',
+    '',
+    'optOut',
+    '0d095dffd93b48a6b22300a1dad879d6',
     @salutationId,
     @languageId,
     UNHEX('98432def39fc4624b33213a56b8c944d'),

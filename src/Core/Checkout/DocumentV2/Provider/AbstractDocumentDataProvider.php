@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Provider;
 
-use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -29,13 +28,9 @@ abstract readonly class AbstractDocumentDataProvider
     abstract public function getKey(): string;
 
     /**
-     * Returns the document types this provider can contribute data for.
-     *
-     * @see DocumentType
-     *
-     * @return list<string>
+     * Whether this provider contributes data for the given document type.
      */
-    abstract public function getDocumentTypes(): array;
+    abstract public function supports(string $documentType): bool;
 
     /**
      * Allows a provider to preload additional order associations before data extraction.

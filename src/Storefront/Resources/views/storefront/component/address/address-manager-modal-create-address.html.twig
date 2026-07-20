@@ -39,10 +39,12 @@
                         {% set accountType = '' %}
                     {% endif %}
 
+                    {# Clear `type` so the deprecated addressType alias does not become the HTML input type. #}
                     {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
                         data: postedAddress,
                         prefix: 'address',
-                        accountType
+                        accountType,
+                        type: null
                     } %}
                 {% endblock %}
 
@@ -51,6 +53,7 @@
                         data: postedAddress,
                         prefix: 'address',
                         showFormCompany: true,
+                        type: null
                     } %}
                 {% endblock %}
 

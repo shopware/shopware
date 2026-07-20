@@ -27,8 +27,8 @@ elasticsearch:
         # outranked by a looser one. Field-level ranking (product_search_config) still
         # multiplies on top of these.
         boost:
-            exact: 2
-            phrase: 4
+            exact: 2.0
+            phrase: 4.0
             fuzzy: 0.4
             prefix: 0.4
             partial: 0.4

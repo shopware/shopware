@@ -209,14 +209,6 @@
             <tag name="shopware.entity_indexer"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\Subscriber\ProductDocumentOrderMailSubscriber">
-            <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
-            <argument type="service" id="mail_template_type.repository"/>
-            <argument type="service" id="logger"/>
-
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
         <service id="Shopware\Core\Content\Product\Stock\OrderStockSubscriber">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Content\Product\Stock\StockStorage"/>

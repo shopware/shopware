@@ -11,7 +11,6 @@ use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -22,7 +21,6 @@ use Symfony\Bundle\FrameworkBundle\Routing\Router;
 /**
  * @internal
  */
-#[Package('framework')]
 class SeoUrlPlaceholderHandlerTest extends TestCase
 {
     use BasicTestDataBehaviour;

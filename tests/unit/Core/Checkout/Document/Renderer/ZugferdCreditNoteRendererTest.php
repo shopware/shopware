@@ -316,15 +316,11 @@ class ZugferdCreditNoteRendererTest extends TestCase
 
         $connection->method('fetchFirstColumn')
             ->willReturnCallback(static function (string $sql, array $params) use ($invoicedCreditIds, $creditNoteCreditIds): array {
-                if (\count($params) === 2) {
-                    return array_map(static fn (string $id) => Uuid::fromHexToBytes($id), $invoicedCreditIds);
-                }
-
-                if (\count($params) === 3) {
+                if (\array_key_exists('creditTechnicalName', $params)) {
                     return array_map(static fn (string $id) => Uuid::fromHexToBytes($id), $creditNoteCreditIds);
                 }
 
-                return [];
+                return array_map(static fn (string $id) => Uuid::fromHexToBytes($id), $invoicedCreditIds);
             });
 
         $eventDispatcher = static::createStub(EventDispatcherInterface::class);

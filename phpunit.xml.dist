@@ -206,6 +206,7 @@
         <testsuite name="core-framework-batch2">
             <directory>tests/integration/Core/Framework/DataAbstractionLayer</directory>
             <directory>tests/integration/Core/Framework/Demodata</directory>
+            <directory>tests/integration/Core/Framework/Feature</directory>
             <directory>tests/integration/Core/Framework/FeatureFlag</directory>
             <directory>tests/integration/Core/Framework/Increment</directory>
             <directory>tests/integration/Core/Framework/Language</directory>

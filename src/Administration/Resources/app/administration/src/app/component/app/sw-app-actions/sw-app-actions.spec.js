@@ -95,7 +95,6 @@ describe('sw-app-actions', () => {
         Shopware.Store.get('shopwareApps').selectedIds = [
             Shopware.Utils.createId(),
         ];
-        Shopware.Store.get('actionButtons').buttons = [];
 
         await router.push({ name: 'index' });
     });
@@ -158,38 +157,6 @@ describe('sw-app-actions', () => {
         await flushPromises();
 
         expect(getActionButtonsPerView).not.toHaveBeenCalled();
-    });
-
-    it('reloads actions only when a newly registered SDK button matches the current view', async () => {
-        await router.push({ name: 'sw.order.detail' });
-        wrapper = await createWrapper(router);
-        await flushPromises();
-
-        const getActionButtonsPerView = wrapper.vm.appActionButtonService.getActionButtonsPerView;
-        getActionButtonsPerView.mockClear();
-
-        Shopware.Store.get('actionButtons').add({
-            entity: 'customer',
-            view: 'list',
-        });
-        await flushPromises();
-
-        expect(getActionButtonsPerView).not.toHaveBeenCalled();
-
-        // An SDK can register several buttons in the same Vue update. A matching button must still refresh actions
-        // even when an unrelated registration follows it in that batch.
-        Shopware.Store.get('actionButtons').add({
-            entity: 'order',
-            view: 'list',
-        });
-        Shopware.Store.get('actionButtons').add({
-            entity: 'customer',
-            view: 'list',
-        });
-        await flushPromises();
-
-        expect(getActionButtonsPerView).toHaveBeenCalledTimes(1);
-        expect(getActionButtonsPerView).toHaveBeenCalledWith('order', 'list');
     });
 
     it('is not rendered if action buttons is empty', async () => {

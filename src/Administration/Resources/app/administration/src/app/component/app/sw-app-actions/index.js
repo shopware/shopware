@@ -107,12 +107,6 @@ export default {
                 return button.entity === this.entity && button.view === this.view;
             });
         },
-
-        // Track registrations separately because filtering the store creates a new array for every store change.
-        // Watching that array would also reload actions for buttons belonging to unrelated views.
-        extensionSdkButtonCount() {
-            return Shopware.Store.get('actionButtons').buttons.length;
-        },
     },
 
     watch: {
@@ -132,24 +126,6 @@ export default {
 
                 this.loadActions();
             },
-        },
-
-        extensionSdkButtonCount(count, previousCount) {
-            // The SDK store only appends buttons. Ignore resets or removals, which do not require a server reload.
-            if (count <= previousCount) {
-                return;
-            }
-
-            // Vue can batch several registrations into one update. Check all additions so a matching button is not
-            // missed when an unrelated button is registered afterwards in the same batch.
-            const addedButtons = Shopware.Store.get('actionButtons').buttons.slice(previousCount, count);
-            const hasButtonForCurrentView = addedButtons.some((button) => {
-                return button.entity === this.entity && button.view === this.view;
-            });
-
-            if (hasButtonForCurrentView) {
-                this.loadActions();
-            }
         },
     },
 

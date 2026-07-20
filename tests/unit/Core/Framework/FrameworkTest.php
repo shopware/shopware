@@ -8,12 +8,14 @@ use Shopware\Core\Framework\Adapter\Cache\StampedeProtectionConfigurator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Feature\FeatureFlagRegistry;
 use Shopware\Core\Framework\Framework;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Symfony\Component\DependencyInjection\Container;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Framework::class)]
 class FrameworkTest extends TestCase
 {

@@ -168,16 +168,19 @@ class DeliveryCalculator
         };
 
         if ($calculation === self::CALCULATION_BY_PRICE && Feature::isActive('SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION')) {
-            $value = $this->convertToDefaultCurrency($value, $context);
+            $currencyFactor = $context->getContext()->getCurrencyFactor();
+
+            if ($start !== null) {
+                $start *= $currencyFactor;
+            }
+
+            if ($end !== null) {
+                $end *= $currencyFactor;
+            }
         }
 
         // $end (optional) exclusive
         return (!$start || FloatComparator::greaterThanOrEquals($value, $start)) && (!$end || FloatComparator::lessThanOrEquals($value, $end));
-    }
-
-    private function convertToDefaultCurrency(float $value, SalesChannelContext $context): float
-    {
-        return $value / $context->getContext()->getCurrencyFactor();
     }
 
     private function calculateShippingCosts(ShippingMethodEntity $shippingMethod, PriceCollection $priceCollection, LineItemCollection $calculatedLineItems, SalesChannelContext $context, ?CalculatedPrice $manualShippingCost = null): CalculatedPrice

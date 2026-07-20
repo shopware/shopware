@@ -278,7 +278,7 @@ class DeliveryCalculatorTest extends TestCase
         static::assertSame($costs, $delivery->getShippingCosts());
     }
 
-    public function testPriceMatrixCartPriceRangeUsesDefaultCurrencyWhenFeatureIsEnabled(): void
+    public function testPriceMatrixCartPriceRangeConvertsRangesToActiveCurrencyWhenFeatureIsEnabled(): void
     {
         Feature::withFeatureEnabled('SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION', function (): void {
             $shippingCosts = $this->calculateShippingCostsForCartPriceRange(52.0);

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Page\Product;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Product\ProductDocumentSubscriber;
@@ -24,13 +25,13 @@ class ProductDocumentSubscriberTest extends TestCase
         ], ProductDocumentSubscriber::getSubscribedEvents());
     }
 
-    public function testAddProductDocuments(): void
+    public function testAddsSortedProductDocumentAssociationToProductPageCriteria(): void
     {
         $criteria = new Criteria();
         $event = new ProductPageCriteriaEvent(
             'product-id',
             $criteria,
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
         );
 
         (new ProductDocumentSubscriber())->addProductDocuments($event);
@@ -43,5 +44,6 @@ class ProductDocumentSubscriberTest extends TestCase
         $sorting = $productDocumentsCriteria->getSorting();
         static::assertCount(1, $sorting);
         static::assertSame('position', $sorting[0]->getField());
+        static::assertSame(FieldSorting::ASCENDING, $sorting[0]->getDirection());
     }
 }

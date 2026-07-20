@@ -6,9 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -20,22 +20,40 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(MediaDefinition::class)]
 class MediaDefinitionTest extends TestCase
 {
-    public function testProductDocumentsAssociation(): void
+    private MediaDefinition $definition;
+
+    protected function setUp(): void
     {
         $registry = new StaticDefinitionInstanceRegistry(
             [
                 MediaDefinition::class,
                 ProductDocumentDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGateway::class),
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class),
         );
 
         $definition = $registry->getByEntityName(MediaDefinition::ENTITY_NAME);
-        $field = $definition->getFields()->get('productDocuments');
+        static::assertInstanceOf(MediaDefinition::class, $definition);
+
+        $this->definition = $definition;
+    }
+
+    public function testProductDocumentsAssociationIsWiredToProductDocumentDefinition(): void
+    {
+        $field = $this->definition->getFields()->get('productDocuments');
 
         static::assertInstanceOf(OneToManyAssociationField::class, $field);
         static::assertSame(ProductDocumentDefinition::class, $field->getReferenceClass());
+        static::assertSame('media_id', $field->getReferenceField());
+        static::assertSame('id', $field->getLocalField());
+    }
+
+    public function testReferencedProductDocumentsRestrictMediaDeletion(): void
+    {
+        $field = $this->definition->getFields()->get('productDocuments');
+
+        static::assertInstanceOf(OneToManyAssociationField::class, $field);
         static::assertTrue($field->is(RestrictDelete::class));
     }
 }

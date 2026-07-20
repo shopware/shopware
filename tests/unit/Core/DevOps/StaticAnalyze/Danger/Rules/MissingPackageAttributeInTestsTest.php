@@ -73,15 +73,15 @@ class MissingPackageAttributeInTestsTest extends TestCase
     {
         $content = <<<'PHP'
             use PHPUnit\Framework\Attributes\CoversClass;
-            use Shopware\Core\Checkout\Cart\CartException;
+            use Shopware\Core\Checkout\Fixture\FixtureException;
 
-            #[CoversClass(CartException::class)]
-            class CartExceptionTest extends TestCase
+            #[CoversClass(FixtureException::class)]
+            class FixtureExceptionTest extends TestCase
             {
             }
             PHP;
 
-        $context = $this->runRule([new StubFile('tests/unit/Core/Checkout/Cart/CartExceptionTest.php', File::STATUS_ADDED, $content)]);
+        $context = $this->runRule([new StubFile('tests/unit/Core/Checkout/Fixture/FixtureExceptionTest.php', File::STATUS_ADDED, $content)]);
 
         static::assertTrue($context->hasFailures());
         static::assertStringContainsString('probably `#[Package(\'checkout\')]`', $context->getFailures()[0]);
@@ -91,13 +91,13 @@ class MissingPackageAttributeInTestsTest extends TestCase
     public function testSuggestsPackageOfInlineFqcnCoveredClass(): void
     {
         $content = <<<'PHP'
-            #[CoversClass(\Shopware\Core\Content\LandingPage\LandingPageException::class)]
-            class LandingPageExceptionTest extends TestCase
+            #[CoversClass(\Shopware\Core\Content\Fixture\InlineException::class)]
+            class InlineExceptionTest extends TestCase
             {
             }
             PHP;
 
-        $context = $this->runRule([new StubFile('tests/unit/Core/Content/LandingPage/LandingPageExceptionTest.php', File::STATUS_ADDED, $content)]);
+        $context = $this->runRule([new StubFile('tests/unit/Core/Content/Fixture/InlineExceptionTest.php', File::STATUS_ADDED, $content)]);
 
         static::assertTrue($context->hasFailures());
         static::assertStringContainsString('probably `#[Package(\'discovery\')]`', $context->getFailures()[0]);
@@ -108,26 +108,26 @@ class MissingPackageAttributeInTestsTest extends TestCase
     {
         $content = <<<'PHP'
             use PHPUnit\Framework\Attributes\CoversClass;
-            use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
+            use Shopware\Core\Content\Fixture\ScopedEntity;
 
-            #[CoversClass(ImportExportProfileEntity::class)]
-            class ImportExportProfileEntityTest extends TestCase
+            #[CoversClass(ScopedEntity::class)]
+            class ScopedEntityTest extends TestCase
             {
             }
             PHP;
 
-        $context = $this->runRule([new StubFile('tests/unit/Core/Content/ImportExport/ImportExportProfileEntityTest.php', File::STATUS_ADDED, $content)]);
+        $context = $this->runRule([new StubFile('tests/unit/Core/Content/Fixture/ScopedEntityTest.php', File::STATUS_ADDED, $content)]);
 
         static::assertTrue($context->hasFailures());
         static::assertStringContainsString('probably `#[Package(\'fundamentals@after-sales\')]`', $context->getFailures()[0]);
     }
 
-    #[TestDox('Without CoversClass the suggestion falls back to the mirrored src directory, walking up missing segments')]
+    #[TestDox('Without CoversClass the suggestion falls back to the mirrored src directory, walking up missing segments and voting for the dominant package')]
     public function testSuggestsPackageOfMirroredSrcDirectory(): void
     {
         $content = "class CartDoesNotExistDirTest extends TestCase\n{\n}";
 
-        $context = $this->runRule([new StubFile('tests/integration/Core/Checkout/Cart/NotARealSubDir/CartDoesNotExistDirTest.php', File::STATUS_ADDED, $content)]);
+        $context = $this->runRule([new StubFile('tests/integration/Core/Checkout/Fixture/NotARealSubDir/CartDoesNotExistDirTest.php', File::STATUS_ADDED, $content)]);
 
         static::assertTrue($context->hasFailures());
         static::assertStringContainsString('probably `#[Package(\'checkout\')]`', $context->getFailures()[0]);
@@ -152,7 +152,7 @@ class MissingPackageAttributeInTestsTest extends TestCase
     {
         $context = new Context(new StubPlatform(new StubPullRequest($files)));
 
-        (new MissingPackageAttributeInTests())($context);
+        (new MissingPackageAttributeInTests(__DIR__ . '/_fixtures'))($context);
 
         return $context;
     }

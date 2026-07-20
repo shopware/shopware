@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Deprecation\BCChange;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * Signals that a parameter of the method will be renamed in the given version.
  *
  * Call sites passing the parameter as a named argument must switch to the announced name before

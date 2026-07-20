@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Deprecation\BCChange;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * Signals that the method will become abstract in the given version.
  *
  * Call sites are not affected — the method stays callable on all concrete instances. Classes

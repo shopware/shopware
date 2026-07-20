@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Deprecation\BCChange;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * Signals that the visibility of the method will be reduced in the given version.
  *
  * Call sites outside the announced visibility scope must stop calling the method before the

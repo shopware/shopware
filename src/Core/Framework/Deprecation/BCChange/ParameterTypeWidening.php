@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Deprecation\BCChange;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * Signals that the type of a parameter will be widened in the given version.
  *
  * Call sites are not affected — every currently accepted value stays accepted. Classes overriding

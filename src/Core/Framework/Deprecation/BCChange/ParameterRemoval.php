@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Deprecation\BCChange;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * Signals that a parameter of the method will be removed in the given version.
  *
  * Call sites passing the parameter must stop doing so before the change happens; the

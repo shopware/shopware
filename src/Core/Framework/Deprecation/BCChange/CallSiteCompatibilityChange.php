@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Deprecation\BCChange;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * BC changes that can require action from code *calling* the annotated symbol.
  *
  * Whether action is actually required depends on how the call site uses the symbol — for example

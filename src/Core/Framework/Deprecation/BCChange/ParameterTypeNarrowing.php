@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Deprecation\BCChange;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * Signals that the type of a parameter will be narrowed in the given version.
  *
  * Call sites passing values that are not covered by the announced type must adjust before the

@@ -5,6 +5,9 @@ namespace Shopware\Core\DevOps\StaticAnalyze\Danger\Rules;
 use Danger\Context;
 use Danger\Struct\File;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
+use Symfony\Component\Finder\Finder;
 
 /**
  * Every test class must carry `#[Package('…')]` so failing CI jobs (especially the
@@ -19,8 +22,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class MissingPackageAttributeInTests
 {
-    public function __construct(private readonly string $projectDir = __DIR__ . '/../../../../../..')
-    {
+    public function __construct(
+        private readonly string $projectDir = __DIR__ . '/../../../../../..',
+        private readonly Filesystem $filesystem = new Filesystem(),
+    ) {
     }
 
     public function __invoke(Context $context): void
@@ -78,11 +83,11 @@ class MissingPackageAttributeInTests
         }
 
         $srcFile = $this->classToSrcFile($coveredClass);
-        if ($srcFile === null || !is_file($srcFile)) {
+        if ($srcFile === null || !$this->filesystem->exists($srcFile)) {
             return null;
         }
 
-        return $this->extractPackage((string) file_get_contents($srcFile));
+        return $this->extractPackage($this->filesystem->readFile($srcFile));
     }
 
     /**
@@ -96,7 +101,7 @@ class MissingPackageAttributeInTests
             return null;
         }
 
-        while ($mirrored !== 'src' && !is_dir($this->projectDir . '/' . $mirrored)) {
+        while ($mirrored !== 'src' && !$this->filesystem->exists($this->projectDir . '/' . $mirrored)) {
             $mirrored = \dirname($mirrored);
         }
 
@@ -104,9 +109,19 @@ class MissingPackageAttributeInTests
             return null;
         }
 
+        try {
+            $srcFiles = (new Finder())
+                ->files()
+                ->in($this->projectDir . '/' . $mirrored)
+                ->name('*.php')
+                ->depth(0);
+        } catch (DirectoryNotFoundException) {
+            return null;
+        }
+
         $votes = [];
-        foreach ((array) glob($this->projectDir . '/' . $mirrored . '/*.php') as $srcFile) {
-            $package = $this->extractPackage((string) file_get_contents((string) $srcFile));
+        foreach ($srcFiles as $srcFile) {
+            $package = $this->extractPackage($srcFile->getContents());
             if ($package !== null) {
                 ++$votes[$package];
             }

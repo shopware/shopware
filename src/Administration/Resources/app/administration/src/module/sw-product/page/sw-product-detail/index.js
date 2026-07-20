@@ -834,8 +834,6 @@ export default {
                         return;
                     }
 
-                    this.ensureProductDocumentAssociation(product);
-
                     if (!product.parentId && (!product.purchasePrices || product.purchasePrices.length === 0)) {
                         if (!this.defaultCurrency?.id) {
                             await this.loadCurrencies();

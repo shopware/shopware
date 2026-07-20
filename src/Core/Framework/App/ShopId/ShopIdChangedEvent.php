@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\ShopId;
 
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -15,5 +16,8 @@ class ShopIdChangedEvent extends Event
         public readonly ShopId $newShopId,
         public readonly ?ShopId $oldShopId
     ) {
+        if ($oldShopId !== null && $oldShopId->id === $newShopId->id) {
+            throw AppException::invalidArgument('ShopIdChangedEvent requires a changed shop id');
+        }
     }
 }

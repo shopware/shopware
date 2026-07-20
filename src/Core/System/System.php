@@ -34,10 +34,11 @@ class System extends Bundle
         $configLocator = new FileLocator(__DIR__ . '/DependencyInjection/');
 
         $loader = new XmlFileLoader($container, $configLocator);
-        $loader->load('sales_channel.xml');
+        $phpLoader = new PhpFileLoader($container, $configLocator);
+        $phpLoader->load('sales_channel.php');
         $loader->load('country.xml');
         $loader->load('currency.xml');
-        $loader->load('custom_entity.xml');
+        $phpLoader->load('custom_entity.php');
         $loader->load('locale.xml');
         $loader->load('snippet.xml');
         $loader->load('salutation.xml');
@@ -47,11 +48,10 @@ class System extends Bundle
         $loader->load('user.xml');
         $loader->load('integration.xml');
         $loader->load('state_machine.xml');
-        $loader->load('configuration.xml');
-        $loader->load('number_range.xml');
+        $phpLoader->load('configuration.php');
+        $phpLoader->load('number_range.php');
         $loader->load('tag.xml');
 
-        $phpLoader = new PhpFileLoader($container, $configLocator);
         $phpLoader->load('consent.php');
         $phpLoader->load('usage_data.php');
 

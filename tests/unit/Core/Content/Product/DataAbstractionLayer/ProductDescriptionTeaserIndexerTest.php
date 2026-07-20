@@ -62,70 +62,45 @@ class ProductDescriptionTeaserIndexerTest extends TestCase
         static::assertNull($this->createIndexer(iteratorFactory: $factory)->iterate(null));
     }
 
-    public function testHandleOnlyUpdatesRowsWhoseTeaserDiffers(): void
+    public function testHandleRebuildsMissingAndStaleTeasers(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
-            // already correct -> must be skipped
-            [
-                'product_id' => 'bytes-a',
-                'product_version_id' => 'bytes-v',
-                'language_id' => 'bytes-l',
-                'description' => '<p>Hello <strong>World</strong></p>',
-                'description_teaser' => 'Hello World',
-            ],
-            // drifted -> must be rewritten with the freshly stripped value
-            [
-                'product_id' => 'bytes-b',
-                'product_version_id' => 'bytes-v',
-                'language_id' => 'bytes-l',
-                'description' => '<p>Foo Bar</p>',
-                'description_teaser' => 'stale',
-            ],
-        ]);
+
+        $selectSql = null;
+        $connection->method('fetchAllAssociative')
+            ->willReturnCallback(function (string $sql) use (&$selectSql): array {
+                $selectSql = $sql;
+
+                // Rows the `description IS NOT NULL AND NOT (description <=> description_teaser)`
+                // pre-filter already lets through (raw description differs from the stored teaser).
+                return [
+                    // missing teaser -> filled
+                    ['product_id' => 'a', 'product_version_id' => 'v', 'language_id' => 'l', 'description' => '<p>Hello <strong>World</strong></p>', 'description_teaser' => null],
+                    // non-null but stale teaser (does not match the current description) -> rewritten
+                    ['product_id' => 'b', 'product_version_id' => 'v', 'language_id' => 'l', 'description' => '<p>Fresh</p>', 'description_teaser' => 'Outdated'],
+                    // stripped teaser is up to date even though the raw HTML differs -> skipped by the builder check
+                    ['product_id' => 'c', 'product_version_id' => 'v', 'language_id' => 'l', 'description' => '<p>Same</p>', 'description_teaser' => 'Same'],
+                ];
+            });
 
         $updates = [];
-        $connection->expects($this->once())
+        $connection->expects($this->exactly(2))
             ->method('executeStatement')
             ->willReturnCallback(function (string $sql, array $params) use (&$updates): int {
-                $updates[] = $params;
+                $updates[$params['productId']] = $params['teaser'];
 
                 return 1;
             });
 
         $this->createIndexer(connection: $connection)->handle(new EntityIndexingMessage([Uuid::randomHex()]));
 
-        static::assertCount(1, $updates);
-        static::assertSame('Foo Bar', $updates[0]['teaser']);
-        static::assertSame('bytes-b', $updates[0]['productId']);
-    }
+        // Reconcile: the DB pre-filters trivially-equal rows, then the teaser is rebuilt from the
+        // current description and only missing or stale rows are rewritten.
+        static::assertNotNull($selectSql);
+        static::assertStringContainsString('description IS NOT NULL', $selectSql);
+        static::assertStringContainsString('NOT (description <=> description_teaser)', $selectSql);
 
-    public function testHandleReconcilesTeaserToNullWhenDescriptionCleared(): void
-    {
-        $connection = $this->createMock(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
-            [
-                'product_id' => 'bytes-a',
-                'product_version_id' => 'bytes-v',
-                'language_id' => 'bytes-l',
-                'description' => null,
-                'description_teaser' => 'orphaned teaser',
-            ],
-        ]);
-
-        $captured = null;
-        $connection->expects($this->once())
-            ->method('executeStatement')
-            ->willReturnCallback(function (string $sql, array $params) use (&$captured): int {
-                $captured = $params;
-
-                return 1;
-            });
-
-        $this->createIndexer(connection: $connection)->handle(new EntityIndexingMessage([Uuid::randomHex()]));
-
-        static::assertNotNull($captured);
-        static::assertNull($captured['teaser']);
+        static::assertSame(['a' => 'Hello World', 'b' => 'Fresh'], $updates);
     }
 
     public function testHandleIgnoresEmptyMessage(): void

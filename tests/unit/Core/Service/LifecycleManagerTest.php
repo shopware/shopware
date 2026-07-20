@@ -61,34 +61,6 @@ class LifecycleManagerTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testInstallWhenEnabled(): void
-    {
-        $expectedServices = ['service1', 'service2'];
-
-        $this->serviceInstaller->expects($this->once())
-            ->method('install')
-            ->with($this->context)
-            ->willReturn($expectedServices);
-
-        $manager = $this->createManager($this->createAppRepository());
-
-        $result = $manager->install($this->context);
-
-        static::assertSame($expectedServices, $result);
-    }
-
-    public function testInstallWhenDisabled(): void
-    {
-        $this->serviceInstaller->expects($this->never())
-            ->method('install');
-
-        $manager = $this->createManager($this->createAppRepository(), enabled: 'false');
-
-        $result = $manager->install($this->context);
-
-        static::assertSame([], $result);
-    }
-
     public function testEnable(): void
     {
         $this->systemConfigService->expects($this->once())
@@ -245,6 +217,35 @@ class LifecycleManagerTest extends TestCase
         $manager = $this->createManager($this->createAppRepository($services));
 
         $manager->sync($this->context);
+    }
+
+    public function testReconcileDelegatesToInstallerAndDoesNotRemoveOrphansWhenEnabled(): void
+    {
+        $expectedServices = ['service1', 'service2'];
+
+        $this->serviceInstaller->expects($this->once())
+            ->method('reconcile')
+            ->with($this->context)
+            ->willReturn($expectedServices);
+
+        $this->serviceLifecycle->expects($this->never())
+            ->method('uninstall');
+        $this->client->expects($this->never())
+            ->method('getAll');
+
+        $manager = $this->createManager($this->createAppRepository());
+
+        static::assertSame($expectedServices, $manager->reconcile($this->context));
+    }
+
+    public function testReconcileDoesNothingWhenServicesDisabled(): void
+    {
+        $this->serviceInstaller->expects($this->never())
+            ->method('reconcile');
+
+        $manager = $this->createManager($this->createAppRepository(), enabled: 'false');
+
+        static::assertSame([], $manager->reconcile($this->context));
     }
 
     /**

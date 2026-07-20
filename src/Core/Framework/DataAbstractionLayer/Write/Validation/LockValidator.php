@@ -139,7 +139,7 @@ class LockValidator implements EventSubscriberInterface
                 return $field->getStorageName();
             });
 
-        if (\count(array_diff($payloadFields, $allowedFields)) > 0) {
+        if (array_diff($payloadFields, $allowedFields) !== []) {
             return false;
         }
 

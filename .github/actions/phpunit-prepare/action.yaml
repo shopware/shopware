@@ -38,19 +38,19 @@ runs:
       if: ${{ inputs.needs-opensearch == 'true' }}
       shell: bash
       run: |
-          # Wait for OpenSearch/Elasticsearch to be alive
-          max_tries=30
-          tries=0
-          until curl -s http://localhost:9200/_cluster/health | grep -q '"status":"green"\|"status":"yellow"'; do
-              if [ $tries -ge $max_tries ]; then
-                  echo "Max tries waiting for OpenSearch/Elasticsearch to be ready exceeded."
-                  exit 1
-              fi
+        # Wait for OpenSearch/Elasticsearch to be alive
+        max_tries=30
+        tries=0
+        until curl -s http://localhost:9200/_cluster/health | grep -q '"status":"green"\|"status":"yellow"'; do
+            if [ $tries -ge $max_tries ]; then
+                echo "Max tries waiting for OpenSearch/Elasticsearch to be ready exceeded."
+                exit 1
+            fi
 
-              echo "Waiting for OpenSearch/Elasticsearch to be ready..."
-              sleep 2
-              tries=$((tries + 1))
-          done
+            echo "Waiting for OpenSearch/Elasticsearch to be ready..."
+            sleep 2
+            tries=$((tries + 1))
+        done
 
     - name: Start Webserver
       shell: bash
@@ -60,7 +60,7 @@ runs:
       if: ${{ inputs.migration-coverage == 'true' }}
       shell: bash
       run: |
-          sed -i -e 's|<directory suffix=".php">src</directory>|<directory suffix=".php">src/Administration/Migration</directory><directory suffix=".php">src/Core/Migration</directory><directory suffix=".php">src/ElasticSearch/Migration</directory><directory suffix=".php">src/Storefront/Migration</directory>|' phpunit.xml.dist
+        sed -i -e 's|<directory suffix=".php">src</directory>|<directory suffix=".php">src/Administration/Migration</directory><directory suffix=".php">src/Core/Migration</directory><directory suffix=".php">src/ElasticSearch/Migration</directory><directory suffix=".php">src/Storefront/Migration</directory>|' phpunit.xml.dist
 
     - name: Install Shopware
       shell: bash

@@ -69,7 +69,7 @@ class ProductReviewSubscriberTest extends TestCase
         $customer = $this->customerRepository->search(
             new Criteria([$this->ids->get('customer')]),
             Context::createDefaultContext()
-        )->first();
+        )->getEntities()->first();
         static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertSame(1, $customer->getReviewCount());
     }
@@ -81,7 +81,7 @@ class ProductReviewSubscriberTest extends TestCase
         $customer = $this->customerRepository->search(
             new Criteria([$this->ids->get('customer')]),
             Context::createDefaultContext()
-        )->first();
+        )->getEntities()->first();
         static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertSame(1, $customer->getReviewCount());
 
@@ -90,7 +90,7 @@ class ProductReviewSubscriberTest extends TestCase
         $customer = $this->customerRepository->search(
             new Criteria([$this->ids->get('customer')]),
             Context::createDefaultContext()
-        )->first();
+        )->getEntities()->first();
         static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertSame(0, $customer->getReviewCount());
     }
@@ -102,7 +102,7 @@ class ProductReviewSubscriberTest extends TestCase
         $customer = $this->customerRepository->search(
             new Criteria([$this->ids->get('customer')]),
             Context::createDefaultContext()
-        )->first();
+        )->getEntities()->first();
         static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertSame(1, $customer->getReviewCount());
 
@@ -116,7 +116,7 @@ class ProductReviewSubscriberTest extends TestCase
         $customer = $this->customerRepository->search(
             new Criteria([$this->ids->get('customer')]),
             Context::createDefaultContext()
-        )->first();
+        )->getEntities()->first();
         static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertSame(1, $customer->getReviewCount());
 
@@ -130,7 +130,7 @@ class ProductReviewSubscriberTest extends TestCase
         $customer = $this->customerRepository->search(
             new Criteria([$this->ids->get('customer')]),
             Context::createDefaultContext()
-        )->first();
+        )->getEntities()->first();
         static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertSame(2, $customer->getReviewCount());
     }

@@ -29,7 +29,7 @@ class InvalidFileNameCharacters
             }
         }
 
-        if (\count($invalidFiles) > 0) {
+        if ($invalidFiles !== []) {
             $context->failure(
                 'The following filenames contain invalid special characters, please use only alphanumeric characters, dots, dashes and underscores:<br/>'
                 . implode('<br>', $invalidFiles)

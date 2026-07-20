@@ -85,6 +85,7 @@ class PdfRendererTest extends TestCase
             orderVersionId: $orderVersionId,
             documentType: $documentType,
             requestedFormats: [DocumentFormat::PDF],
+            deliveryDate: '2026-05-08T09:30:00+00:00',
         );
 
         $document = $this->documentGenerator->generate($request, $this->context);

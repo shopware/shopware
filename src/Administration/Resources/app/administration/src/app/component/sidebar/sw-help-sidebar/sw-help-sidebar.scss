@@ -140,4 +140,39 @@
         transform: translateX(20px);
         opacity: 0;
     }
+
+    &__tooltip-title {
+        font-weight: var(--font-weight-regular);
+    }
+
+    &__tooltip-shortcut-key {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        min-width: var(--scale-size-16);
+        height: var(--scale-size-16);
+        padding: 0 var(--scale-size-4);
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-2xs);
+        font-weight: var(--font-weight-medium);
+        line-height: var(--font-line-height-2xs);
+        white-space: nowrap;
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: var(--border-radius-2xs);
+        background-color: var(--color-background-primary-default);
+        box-shadow: inset 0 -1px 0 var(--color-border-primary-default);
+
+        + .sw-help-sidebar__tooltip-shortcut-key {
+            margin-left: var(--scale-size-2);
+        }
+    }
+
+    &__tooltip-title + &__tooltip-shortcut-key {
+        margin-left: var(--scale-size-8);
+    }
+
+    &__shortcut > &__shortcut-tooltip {
+        z-index: $z-index-help-sidebar + 1;
+    }
 }

@@ -82,7 +82,7 @@ class WasModifiedByUserFieldTest extends TestCase
             $this->entityRepository->create([['id' => $id]], $context);
         });
 
-        $entity = $this->entityRepository->search(new Criteria([$id]), $context)->get($id);
+        $entity = $this->entityRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ArrayEntity::class, $entity);
         static::assertFalse($entity->get('wasModifiedByUser'));
@@ -97,7 +97,7 @@ class WasModifiedByUserFieldTest extends TestCase
             $this->entityRepository->create([['id' => $id]], $context);
         });
 
-        $entity = $this->entityRepository->search(new Criteria([$id]), $context)->get($id);
+        $entity = $this->entityRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ArrayEntity::class, $entity);
         static::assertTrue($entity->get('wasModifiedByUser'));
@@ -112,7 +112,7 @@ class WasModifiedByUserFieldTest extends TestCase
             $this->entityRepository->create([['id' => $id]], $context);
         });
 
-        $entity = $this->entityRepository->search(new Criteria([$id]), $context)->get($id);
+        $entity = $this->entityRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ArrayEntity::class, $entity);
         static::assertTrue($entity->get('wasModifiedByUser'));
@@ -128,7 +128,7 @@ class WasModifiedByUserFieldTest extends TestCase
             $this->entityRepository->create([['id' => $id]], $context);
         });
 
-        $entity = $this->entityRepository->search(new Criteria([$id]), $context)->get($id);
+        $entity = $this->entityRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
         static::assertInstanceOf(ArrayEntity::class, $entity);
         static::assertFalse($entity->get('wasModifiedByUser'));
 
@@ -137,7 +137,7 @@ class WasModifiedByUserFieldTest extends TestCase
             $this->entityRepository->update([['id' => $id, 'name' => 'updated']], $context);
         });
 
-        $entity = $this->entityRepository->search(new Criteria([$id]), $context)->get($id);
+        $entity = $this->entityRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
         static::assertInstanceOf(ArrayEntity::class, $entity);
         static::assertTrue($entity->get('wasModifiedByUser'));
     }
@@ -152,7 +152,7 @@ class WasModifiedByUserFieldTest extends TestCase
             $this->entityRepository->create([['id' => $id]], $context);
         });
 
-        $entity = $this->entityRepository->search(new Criteria([$id]), $context)->get($id);
+        $entity = $this->entityRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
         static::assertInstanceOf(ArrayEntity::class, $entity);
         static::assertFalse($entity->get('wasModifiedByUser'));
 
@@ -161,7 +161,7 @@ class WasModifiedByUserFieldTest extends TestCase
             $this->entityRepository->update([['id' => $id, 'name' => 'updated']], $context);
         });
 
-        $entity = $this->entityRepository->search(new Criteria([$id]), $context)->get($id);
+        $entity = $this->entityRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
         static::assertInstanceOf(ArrayEntity::class, $entity);
         static::assertFalse($entity->get('wasModifiedByUser'));
     }
@@ -176,7 +176,7 @@ class WasModifiedByUserFieldTest extends TestCase
             $this->entityRepository->create([['id' => $id]], $context);
         });
 
-        $entity = $this->entityRepository->search(new Criteria([$id]), $context)->get($id);
+        $entity = $this->entityRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
         static::assertInstanceOf(ArrayEntity::class, $entity);
         static::assertTrue($entity->get('wasModifiedByUser'));
 
@@ -185,9 +185,28 @@ class WasModifiedByUserFieldTest extends TestCase
             $this->entityRepository->update([['id' => $id, 'name' => 'updated']], $context);
         });
 
-        $entity = $this->entityRepository->search(new Criteria([$id]), $context)->get($id);
+        $entity = $this->entityRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
         static::assertInstanceOf(ArrayEntity::class, $entity);
         static::assertTrue($entity->get('wasModifiedByUser'));
+    }
+
+    public function testCloneResetsWasModifiedByUserToFalse(): void
+    {
+        $id = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        // create in user scope => wasModifiedByUser = true
+        $context->scope(Context::USER_SCOPE, function (Context $context) use ($id): void {
+            $this->entityRepository->create([['id' => $id, 'name' => 'original']], $context);
+        });
+
+        $newId = Uuid::randomHex();
+        // must not throw (regression): the field must not be carried into the clone payload
+        $this->entityRepository->clone($id, $context, $newId);
+
+        $clone = $this->entityRepository->search(new Criteria([$newId]), $context)->getEntities()->get($newId);
+        static::assertInstanceOf(ArrayEntity::class, $clone);
+        static::assertFalse($clone->get('wasModifiedByUser'));
     }
 
     public function testUserScopeCannotExplicitlyWriteField(): void

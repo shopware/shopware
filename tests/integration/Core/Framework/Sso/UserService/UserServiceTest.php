@@ -89,7 +89,7 @@ class UserServiceTest extends TestCase
         static::assertSame($userId, Uuid::fromBytesToHex($tokenUserData['user_id']));
 
         // check user is activated
-        $user = $this->getContainer()->get('user.repository')->search(new Criteria([$externalAuthUser->userId]), Context::createDefaultContext())->first();
+        $user = $this->getContainer()->get('user.repository')->search(new Criteria([$externalAuthUser->userId]), Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(UserEntity::class, $user);
         static::assertTrue($user->getActive());
         static::assertSame('given_name', $user->getFirstName());
@@ -172,7 +172,7 @@ class UserServiceTest extends TestCase
         static::assertSame($refreshToken, $externalAuthUser->token->refreshToken);
         static::assertSame($localeEmail, $externalAuthUser->email);
 
-        $user = $this->getContainer()->get('user.repository')->search(new Criteria([$userId]), Context::createDefaultContext())->first();
+        $user = $this->getContainer()->get('user.repository')->search(new Criteria([$userId]), Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(UserEntity::class, $user);
         static::assertSame($tokenEmail, $user->getEmail());
     }

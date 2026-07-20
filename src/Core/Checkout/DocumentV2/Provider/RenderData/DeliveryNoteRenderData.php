@@ -7,9 +7,9 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * Render payload for the delivery note. Delivery note ships HTML + PDF only; the HTML template
- * walks the raw `OrderEntity` and reads delivery-note fields from the inherited `custom` bag
- * (`deliveryNoteNumber`, `deliveryDate`, `deliveryNoteDate`), so no extra typed properties are
- * required beyond {@see AbstractRenderData}.
+ * walks the raw `OrderEntity` and reads delivery-note fields from the `custom` bag
+ * (`deliveryNoteNumber`, `deliveryDate`, `deliveryNoteDate`). Cross-cutting data (config, company,
+ * display, document identity) lives in {@see DocumentMetaRenderData}.
  *
  * @internal
  *
@@ -18,4 +18,14 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('after-sales')]
 final readonly class DeliveryNoteRenderData extends AbstractRenderData
 {
+    /**
+     * @param array<string, mixed> $custom
+     */
+    public function __construct(
+        /**
+         * @deprecated tag:v6.8.0 - feeds the legacy flat `config.custom.*` template contract
+         */
+        public array $custom = [],
+    ) {
+    }
 }

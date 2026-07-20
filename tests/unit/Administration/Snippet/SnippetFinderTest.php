@@ -9,9 +9,13 @@ use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Shopware\Administration\Administration;
+use Shopware\Administration\Snippet\SnippetException;
 use Shopware\Administration\Snippet\SnippetFinder;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
@@ -33,6 +37,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\Storefront;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\TestPlugin;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * @internal
@@ -355,6 +360,112 @@ class SnippetFinderTest extends TestCase
         ], $snippets);
     }
 
+    #[TestDox('An invalid snippet file is skipped and logged instead of breaking the administration')]
+    public function testInvalidSnippetFileIsSkippedAndLogged(): void
+    {
+        $config = new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            ['es-ES'],
+            ['activePlugin'],
+            new LanguageDtoCollection([new LanguageDto('es-ES', 'Español')]),
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            ['de-DE'],
+        );
+        $loader = $this->getTranslationLoader($config);
+        $this->createSnippetFixtures($this->filesystem, $loader);
+
+        $invalidFilePath = Path::join($loader->getLocalePath('es-ES'), 'Platform', 'administration.json');
+        $this->filesystem->write($invalidFilePath, '{');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger
+            ->expects($this->once())
+            ->method('error')
+            ->willReturnCallback(function (string $message) use ($invalidFilePath): void {
+                $this->assertStringContainsString($invalidFilePath, $message);
+            });
+
+        $snippetFinder = $this->getSnippetFinder(
+            kernel: $this->getKernelMock(pluginPaths: ['activePlugin'], activePluginPaths: ['activePlugin']),
+            connection: $this->getConnectionMock([]),
+            translationConfig: $config,
+            logger: $logger,
+        );
+
+        static::assertSame(
+            ['plugin_administration' => 'Plugin admin'],
+            $snippetFinder->findSnippets('es-ES'),
+            'snippets of intact files must survive an invalid file'
+        );
+    }
+
+    #[TestDox('An empty snippet file is skipped without logging an error')]
+    public function testEmptySnippetFileIsSkipped(): void
+    {
+        $config = new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            ['es-ES'],
+            ['activePlugin'],
+            new LanguageDtoCollection([new LanguageDto('es-ES', 'Español')]),
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            ['de-DE'],
+        );
+        $loader = $this->getTranslationLoader($config);
+        $this->createSnippetFixtures($this->filesystem, $loader);
+
+        $emptyFilePath = Path::join($loader->getLocalePath('es-ES'), 'Platform', 'administration.json');
+        $this->filesystem->write($emptyFilePath, '');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger
+            ->expects($this->never())
+            ->method('error');
+
+        $snippetFinder = $this->getSnippetFinder(
+            kernel: $this->getKernelMock(pluginPaths: ['activePlugin'], activePluginPaths: ['activePlugin']),
+            connection: $this->getConnectionMock([]),
+            translationConfig: $config,
+            logger: $logger,
+        );
+
+        static::assertSame(
+            ['plugin_administration' => 'Plugin admin'],
+            $snippetFinder->findSnippets('es-ES'),
+            'snippets of intact files must survive an empty file'
+        );
+    }
+
+    #[TestDox('In debug mode an invalid snippet file throws an exception naming the file')]
+    public function testInvalidSnippetFileThrowsInDebugMode(): void
+    {
+        $config = new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            ['es-ES'],
+            [],
+            new LanguageDtoCollection([new LanguageDto('es-ES', 'Español')]),
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            ['de-DE'],
+        );
+        $loader = $this->getTranslationLoader($config);
+        $this->createSnippetFixtures($this->filesystem, $loader);
+
+        $invalidFilePath = Path::join($loader->getLocalePath('es-ES'), 'Platform', 'administration.json');
+        $this->filesystem->write($invalidFilePath, '{');
+
+        $snippetFinder = $this->getSnippetFinder(
+            connection: $this->getConnectionMock([]),
+            translationConfig: $config,
+            debug: true,
+        );
+
+        $this->expectExceptionObject(SnippetException::invalidSnippetFile($invalidFilePath, new \JsonException('Syntax error')));
+
+        $snippetFinder->findSnippets('es-ES');
+    }
+
     public function testFinderSkipsExcludedLocales(): void
     {
         $config = new TranslationConfig(
@@ -417,6 +528,8 @@ class SnippetFinderTest extends TestCase
         (Kernel&Stub)|null $kernel = null,
         (Connection&Stub)|null $connection = null,
         ?TranslationConfig $translationConfig = null,
+        ?LoggerInterface $logger = null,
+        bool $debug = false,
     ): SnippetFinder {
         $config = $translationConfig ?? new TranslationConfig(
             new Uri('http://localhost:8000'),
@@ -442,6 +555,8 @@ class SnippetFinderTest extends TestCase
             $config,
             $translationLoader,
             $sanitizer,
+            $logger ?? new NullLogger(),
+            $debug,
         );
     }
 

@@ -29,7 +29,7 @@ readonly class PermissionsSubscriber implements EventSubscriberInterface
 
     public function syncConsentRequirement(PermissionsGrantedEvent|PermissionsRevokedEvent $event): void
     {
-        $this->manager->syncRequirement(
+        $this->manager->reevaluateRequirement(
             ServiceConsentRequirement::NAME,
             $event->getContext()
         );

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Provider;
 
-use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
@@ -21,21 +20,14 @@ final readonly class DeliveryNoteDataProvider extends AbstractDocumentDataProvid
 {
     final public const KEY = 'delivery_note';
 
-    public function __construct(
-        private DocumentConfigLoader $documentConfigLoader,
-    ) {
-    }
-
     public function getKey(): string
     {
         return self::KEY;
     }
 
-    public function getDocumentTypes(): array
+    public function supports(string $documentType): bool
     {
-        return [
-            DocumentType::DELIVERY_NOTE->value,
-        ];
+        return $documentType === DocumentType::DELIVERY_NOTE->value;
     }
 
     public function enrichOrderCriteria(Criteria $criteria): void
@@ -67,12 +59,6 @@ final readonly class DeliveryNoteDataProvider extends AbstractDocumentDataProvid
         DocumentGenerationRequest $generationRequest,
         Context $context,
     ): DeliveryNoteRenderData {
-        $bundle = $this->documentConfigLoader->load(
-            $generationRequest->documentType,
-            $order->getSalesChannelId(),
-            $context,
-        );
-
         $documentNumber = $generationRequest->documentNumber;
 
         if ($documentNumber === null) {
@@ -84,18 +70,11 @@ final readonly class DeliveryNoteDataProvider extends AbstractDocumentDataProvid
         }
 
         return new DeliveryNoteRenderData(
-            config: $bundle->config,
-            company: $bundle->company,
-            display: $bundle->display,
-            documentDate: $generationRequest->documentDate,
-            documentNumber: $documentNumber,
-            documentComment: $generationRequest->documentComment,
             custom: [
                 'deliveryNoteNumber' => $documentNumber,
                 'deliveryDate' => $generationRequest->deliveryDate,
                 'deliveryNoteDate' => $generationRequest->documentDate,
             ],
-            legacyConfig: $bundle->legacyConfig,
         );
     }
 }

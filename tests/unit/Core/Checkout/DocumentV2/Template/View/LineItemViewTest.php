@@ -178,7 +178,7 @@ class LineItemViewTest extends TestCase
 
         $order = $this->createOrder(CartPrice::TAX_STATE_NET, [$item]);
 
-        static::expectExceptionObject(DocumentV2Exception::invalidOrderData(
+        $this->expectExceptionObject(DocumentV2Exception::invalidOrderData(
             $order->getId(),
             'lineItem.quantity',
             'Line item "p-1" has non-positive quantity 0.',

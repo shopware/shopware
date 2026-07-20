@@ -49,8 +49,10 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
             $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, Random::getAlphanumericString(32));
         }
 
-        /** @phpstan-ignore shopware.unsafeRequestHasSession (using $skipIfUninitialized = false as session will be started intentionally later; this can take the PHP session lock and is limited to sales channel request context resolution reading session state.) */
-        $session = $request->hasSession() ? $request->getSession() : null;
+        // $skipIfUninitialized = true is intentional: storefront sessions are started before context resolution,
+        // while Store API requests only have a lazy session factory and must remain stateless.
+        $session = $request->hasSession(true) ? $request->getSession() : null;
+        $session = $session?->isStarted() ? $session : null;
 
         // Retrieve context for current request
         $usedContextToken = (string) $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);

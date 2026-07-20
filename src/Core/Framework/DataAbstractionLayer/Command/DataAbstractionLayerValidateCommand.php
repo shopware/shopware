@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Console\OutputFormatTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
@@ -60,7 +59,7 @@ class DataAbstractionLayerValidateCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
 
         if ($input->getOption('json')) {
             Feature::triggerDeprecationOrThrow(

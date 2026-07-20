@@ -188,7 +188,7 @@ EOF;
             ]
         );
 
-        $orderBefore = $orderRepo->search(new Criteria([$ids->get('o-1')]), $context)->first();
+        $orderBefore = $orderRepo->search(new Criteria([$ids->get('o-1')]), $context)->getEntities()->first();
         static::assertInstanceOf(OrderEntity::class, $orderBefore);
         static::assertNull($orderBefore->getUpdatedAt());
 
@@ -200,7 +200,7 @@ EOF;
         $toPlace = $stateCollection->get('toPlace');
         static::assertNotNull($toPlace);
 
-        $orderAfter = $orderRepo->search(new Criteria([$ids->get('o-1')]), $context)->first();
+        $orderAfter = $orderRepo->search(new Criteria([$ids->get('o-1')]), $context)->getEntities()->first();
         static::assertInstanceOf(OrderEntity::class, $orderAfter);
 
         static::assertSame($toPlace->getId(), $orderAfter->getStateId());

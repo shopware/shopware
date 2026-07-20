@@ -1,7 +1,7 @@
-# Fast unit checks for the issue-reproduction action's pure decision logic (assertion/output
-# classifiers, verdict matrix). Path-filtered so it only runs when that action changes — it costs
-# nothing on the pushes that don't touch it. Deliberately does NOT exercise the executors/runners
-# (docker, Playwright, fetch); those are proven by the end-to-end sample runs, not mocked here.
+# Fast checks for the issue-reproduction action: ESLint, node:test unit/integration suites, and the
+# plain-bash script tests. Path-filtered so it only runs when that action changes — it costs nothing
+# on the pushes that don't touch it. Deliberately does NOT exercise the docker/Playwright/live-shop
+# paths; those are proven by the end-to-end sample runs, not mocked here.
 name: reproduce-action-tests
 
 on:
@@ -17,6 +17,10 @@ on:
 permissions:
   contents: read
 
+defaults:
+  run:
+    working-directory: .github/actions/reproduce
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -25,8 +29,14 @@ jobs:
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
         with:
           node-version: '22'
-      - name: Syntax-check every .mjs (cheap lint; no ESLint config covers this tree)
-        run: find .github/actions/reproduce -name '*.mjs' -print0 | xargs -0 -n1 node --check
-      - name: Run unit tests
-        working-directory: .github/actions/reproduce
-        run: node --test $(find . -name '*.test.mjs')
+          cache: npm
+          cache-dependency-path: .github/actions/reproduce/package-lock.json
+      - run: npm ci
+      - name: Syntax-check every .mjs (covers files ESLint ignores, e.g. Playwright boilerplate)
+        run: find . -path ./node_modules -prune -o -name '*.mjs' -print0 | xargs -0 -n1 node --check
+      - name: ESLint
+        run: npm run lint
+      - name: Unit & integration tests
+        run: npm test
+      - name: Bash script tests
+        run: npm run test:bash

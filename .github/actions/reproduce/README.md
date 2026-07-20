@@ -50,6 +50,28 @@ passes when healthy (⇒ `not_reproduced`). The verdict combines the two legs:
 A blocked leg → `blocked`; low confidence, a `blocked_reason`, or an inconclusive leg →
 `needs_human_review`.
 
+## Linting & tests
+
+This action has its own isolated Node toolchain (`package.json` here; `npm ci` installs it):
+
+- `npm run lint` — ESLint (flat config in `eslint.config.mjs`) over the `.mjs` sources.
+- `npm test` — `node:test` unit + integration suites (co-located `*.test.mjs`). Covers the pure
+  trust-critical logic (assertion/output classifiers, verdict matrix, bundle helpers,
+  placeholder/narration handling) and an HTTP-executor integration slice against a local server.
+  `npm run test:coverage` prints a coverage table.
+- `npm run test:bash` — plain-bash tests (`tests/bash/`, no `bats` dependency) for the offline logic
+  in `steps/*.sh`, e.g. version extraction in `resolve-version.sh`.
+
+CI runs all three, path-filtered to this directory, via `.github/workflows/reproduce-action-tests.yml`.
+The docker/Playwright/live-shop executor paths are intentionally proven by the end-to-end sample runs
+rather than mocked here.
+
+**Scope / TODO:** ESLint currently lints only `.mjs`; the Playwright boilerplate (`.ts`, browser
+`.js`) is ignored. **TypeScript linting/checking is a planned follow-up** — wire up
+`typescript-eslint` and drop the `**/*.ts` ignore once that lands. Coverage is strongest on the
+decision logic; the network-heavy modules (`admin-api.mjs`, executor runners) and the remaining
+`steps/*.sh` are the next targets.
+
 ## Changing the workflow
 
 Edit `.github/workflows/reproduce.md` (the gh-aw source), then run

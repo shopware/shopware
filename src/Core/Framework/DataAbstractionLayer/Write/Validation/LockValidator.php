@@ -16,12 +16,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Write\Validation\LockValidatorTest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
+ *
+ * @see LockValidatorTest
  */
 #[Package('framework')]
 class LockValidator implements EventSubscriberInterface
@@ -96,8 +101,11 @@ class LockValidator implements EventSubscriberInterface
                 continue;
             }
 
-            /** @var LockedField $lockedField */
             $lockedField = $definition->getField('locked');
+
+            if (!$lockedField instanceof LockedField) {
+                continue;
+            }
 
             if (!$lockedField->lockTranslation() && $this->isTranslationUpdate($command, $definition, $writeCommands)) {
                 continue;

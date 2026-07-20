@@ -221,8 +221,8 @@ EOF;
         $description = $this->connection->fetchOne('SELECT `description` FROM `_test_lock` WHERE `id` = :id', ['id' => Uuid::fromHexToBytes($data['id'])]);
         $name = $this->connection->fetchOne('SELECT `name` FROM `_test_lock_translation` WHERE `_test_lock_id` = :id', ['id' => Uuid::fromHexToBytes($data['id'])]);
 
-        static::assertEquals('foo', $description);
-        static::assertEquals('ware', $name);
+        static::assertSame('foo', $description);
+        static::assertSame('ware', $name);
 
         $exception = null;
 
@@ -243,7 +243,7 @@ EOF;
             'languageId' => Uuid::fromHexToBytes($this->getDeDeLanguageId()),
         ]);
 
-        static::assertEquals('Ware', $name);
+        static::assertSame('Ware', $name);
 
         \assert($this->testDefinition instanceof TestDefinition);
         $this->testDefinition->lockTranslation();

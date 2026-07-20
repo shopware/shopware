@@ -1,4 +1,4 @@
-# 6.7.13.0
+# 6.7.14.0
 
 ## MCP server no longer uses the `MCP_SERVER` feature flag
 
@@ -7,6 +7,8 @@ The experimental MCP server is now always enabled and the `MCP_SERVER` feature f
 - If you set `MCP_SERVER=1` (or `MCP_SERVER=0`) in your `.env`, remove it. The flag no longer has any effect.
 - The MCP endpoints (`/api/_mcp` and `/store-api/_mcp`) are now reachable whenever `symfony/mcp-bundle` is installed, with no flag to enable or disable them.
 - The MCP classes stay marked `@experimental` until 6.8.0, so the API may still change.
+
+# 6.7.13.0
 
 ## Storefront form validation messages use Shopware snippets
 

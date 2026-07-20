@@ -167,6 +167,33 @@ class McpToolAnalysisCompilerPassTest extends TestCase
         ], $container->getParameter('shopware.mcp.tool_groups'));
     }
 
+    public function testToolWithMissingClassIsSkippedAndWarns(): void
+    {
+        $container = $this->createContainer();
+
+        $def = new Definition('App\\Does\\Not\\Exist\\Tool');
+        $def->addTag('mcp.tool');
+        $container->setDefinition('tool.missing', $def);
+
+        $warnings = [];
+        set_error_handler(static function (int $errno, string $message) use (&$warnings): bool {
+            $warnings[] = $message;
+
+            return true;
+        }, \E_USER_WARNING);
+
+        try {
+            (new McpToolAnalysisCompilerPass())->process($container);
+        } finally {
+            restore_error_handler();
+        }
+
+        static::assertSame([], $container->getParameter('shopware.mcp.tool_groups'));
+        static::assertCount(1, $warnings);
+        static::assertStringContainsString('tool.missing', $warnings[0]);
+        static::assertStringContainsString('cannot be loaded', $warnings[0]);
+    }
+
     public function testSkipsWhenNoMcpServerBuilder(): void
     {
         $container = new ContainerBuilder();

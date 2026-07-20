@@ -21,7 +21,7 @@ VALUES (
     ':createdAt',
     NULL
 ), (
- UNHEX('7912f4de72aa43d792bcebae4eb45c5c'),
+    UNHEX('7912f4de72aa43d792bcebae4eb45c5c'),
     'unit@test.bar',
     'Bar',
     'Foo',
@@ -38,7 +38,7 @@ VALUES (
     ':createdAt' - INTERVAL 24 DAY,
     NULL
 ), (
- UNHEX('ee367309f56445bf88ab944c81907951'),
+    UNHEX('ee367309f56445bf88ab944c81907951'),
     'foo@bar.test',
     'Unit',
     'Test',
@@ -55,7 +55,7 @@ VALUES (
     ':createdAt' - INTERVAL 30 DAY,
     NULL
 ), (
- UNHEX('9420908cc96b42379ff86fa1e5a6f10b'),
+    UNHEX('9420908cc96b42379ff86fa1e5a6f10b'),
     'test@bar.fooBar',
     'Test',
     'Unit',
@@ -72,7 +72,7 @@ VALUES (
     ':createdAt' - INTERVAL 31 DAY,
     NULL
 ), (
- UNHEX('0d095dffd93b48a6b22300a1dad879d3'),
+    UNHEX('0d095dffd93b48a6b22300a1dad879d3'),
     'barFoo@unit.test',
     '',
     '',
@@ -83,6 +83,40 @@ VALUES (
     '0d095dffd93b48a6b22300a1dad879d3',
      @salutationId,
      @languageId,
+    UNHEX('98432def39fc4624b33213a56b8c944d'),
+    NULL,
+    NULL,
+    ':createdAt' - INTERVAL 40 DAY,
+    NULL
+), (
+    UNHEX('0d095dffd93b48a6b22300a1dad879d4'),
+    'barFooOptOut@unit.test',
+    '',
+    '',
+    '',
+    '',
+    '',
+    'optOut',
+    '0d095dffd93b48a6b22300a1dad879d4',
+    @salutationId,
+     @languageId,
+    UNHEX('98432def39fc4624b33213a56b8c944d'),
+    NULL,
+    NULL,
+    ':createdAt' - INTERVAL 20 DAY,
+    NULL
+), (
+    UNHEX('0d095dffd93b48a6b22300a1dad879d5'),
+    'test@fooOptOut',
+    '',
+    '',
+    '',
+    '',
+    '',
+    'optOut',
+    '0d095dffd93b48a6b22300a1dad879d5',
+    @salutationId,
+    @languageId,
     UNHEX('98432def39fc4624b33213a56b8c944d'),
     NULL,
     NULL,

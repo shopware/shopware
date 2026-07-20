@@ -11,7 +11,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -38,13 +38,13 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
         $equalsFilter = array_shift($filters);
 
         static::assertInstanceOf(RangeFilter::class, $dateFilter);
-        static::assertInstanceOf(EqualsFilter::class, $equalsFilter);
+        static::assertInstanceOf(EqualsAnyFilter::class, $equalsFilter);
 
         static::assertSame('createdAt', $dateFilter->getField());
         static::assertNotEmpty($dateFilter->getParameter(RangeFilter::LTE));
 
         static::assertSame('status', $equalsFilter->getField());
-        static::assertSame('notSet', $equalsFilter->getValue());
+        static::assertSame(['notSet', 'optOut'], $equalsFilter->getValue());
     }
 
     public function testRun(): void
@@ -58,13 +58,25 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
         $repository = static::getContainer()->get('newsletter_recipient.repository');
         $result = $repository->searchIds(new Criteria(), Context::createDefaultContext());
 
-        $expectedResult = [
-            '7912f4de72aa43d792bcebae4eb45c5c',
+        $expectedIds = [
             'b4b45f58088d41289490db956ca19af7',
+            '7912f4de72aa43d792bcebae4eb45c5c',
+            'ee367309f56445bf88ab944c81907951',
+            '0d095dffd93b48a6b22300a1dad879d4',
         ];
 
-        foreach ($expectedResult as $id) {
+        foreach ($expectedIds as $id) {
             static::assertContains($id, array_keys($result->getData()), print_r(array_keys($result->getData()), true));
+        }
+
+        $deletedIds = [
+            '9420908cc96b42379ff86fa1e5a6f10b',
+            '0d095dffd93b48a6b22300a1dad879d3',
+            '0d095dffd93b48a6b22300a1dad879d5',
+        ];
+
+        foreach ($deletedIds as $id) {
+            static::assertNotContains($id, array_keys($result->getData()), print_r(array_keys($result->getData()), true));
         }
     }
 

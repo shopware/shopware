@@ -36,7 +36,7 @@
                 @click.stop="onToggleSidebar"
             >
                 <mt-icon
-                    :name="sidebarCollapseIcon"
+                    name="regular-panel-right"
                     size="16px"
                 />
             </button>
@@ -78,6 +78,7 @@
         <button
             v-else-if="isExpanded"
             type="button"
+            class="sw-admin-menu__collapse-button"
             @click.stop="onToggleSidebar"
         >
             <mt-icon

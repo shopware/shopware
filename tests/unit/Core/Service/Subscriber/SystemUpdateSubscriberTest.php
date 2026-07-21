@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\Subscriber\SystemUpdateSubscriber;
@@ -14,6 +15,7 @@ use Shopware\Core\Service\Subscriber\SystemUpdateSubscriber;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SystemUpdateSubscriber::class)]
 class SystemUpdateSubscriberTest extends TestCase
 {

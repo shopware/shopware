@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\Infrastructure\Path\MediaPathPostUpdater;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber\RegisteredIndexerSubscriber;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RegisteredIndexerSubscriber::class)]
 class RegisteredIndexerSubscriberTest extends TestCase
 {

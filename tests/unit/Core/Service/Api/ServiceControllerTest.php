@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Api\Context\ShopApiSource;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\Api\ServiceController;
 use Shopware\Core\Service\LifecycleManager;
@@ -28,6 +29,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ServiceController::class)]
 class ServiceControllerTest extends TestCase
 {

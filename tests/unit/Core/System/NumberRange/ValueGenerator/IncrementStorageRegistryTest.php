@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\NumberRange\ValueGenerator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\NumberRangeException;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageRegistry;
@@ -13,6 +14,7 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(IncrementStorageRegistry::class)]
 class IncrementStorageRegistryTest extends TestCase
 {

@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchAdminResetCommand;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -16,6 +17,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ElasticsearchAdminResetCommand::class)]
 class ElasticsearchAdminResetCommandTest extends TestCase
 {

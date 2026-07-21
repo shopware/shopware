@@ -4,6 +4,12 @@
 
 <details>
 
+## Locale-aware sorting for product property group options
+
+To ensure product property group options are sorted more precisely based on locale code:
+- `/Shopware/Core/Content/Product/AbstractPropertyGroupSorter`: The `sort` method will be removed, use `sortUsingLocaleCode` instead.
+- `/Shopware/Core/Content/Property/PropertyGroupCollection`: The `sortByConfig` method now requires a new parameter `localeCode`.
+
 ## Webhook Messenger transport — explicit receiver configuration required
 
 Webhook delivery now uses a dedicated `webhook` Messenger transport. Add it to your `messenger:consume` receiver list and to `shopware.admin_worker.transports` if you override that key.

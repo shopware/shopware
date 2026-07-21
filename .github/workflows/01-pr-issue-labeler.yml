@@ -116,6 +116,67 @@ jobs:
             const { setStatusInProjects } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
             await setStatusInProjects({github, core, context}, { fromStatus: "Done", toStatus: "in progress" })
 
+  linked-issues-in-progress:
+    runs-on: ubuntu-24.04
+    if: >
+      github.event_name == 'pull_request' &&
+      github.event.action == 'opened' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - id: sts
+        continue-on-error: true
+        uses: shopware/octo-sts-action@main
+        with:
+          scope: shopware
+          identity: ManageProjects
+      - shell: bash
+        run: npm ci --prefix .github/bin/js/
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          github-token: ${{ steps.sts.outputs.token }}
+          script: |
+            const { findIssueWithProjectItems, getProjectInfo, setFieldValue } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
+
+            const res = await github.graphql(`
+              query closingIssues($owner: String!, $repo: String!, $number: Int!) {
+                repository(owner: $owner, name: $repo) {
+                  pullRequest(number: $number) {
+                    closingIssuesReferences(first: 10) {
+                      nodes {
+                        number
+                        repository { nameWithOwner }
+                      }
+                    }
+                  }
+                }
+              }`, { owner: context.repo.owner, repo: context.repo.repo, number: context.payload.pull_request.number })
+
+            const linkedIssues = res.repository.pullRequest.closingIssuesReferences.nodes
+              .filter(issue => issue.repository.nameWithOwner === `${context.repo.owner}/${context.repo.repo}`)
+
+            for (const { number } of linkedIssues) {
+              const issue = await findIssueWithProjectItems({github, core, context}, number)
+              for (const item of issue.projectItems) {
+                if (item.fieldValueByName?.name?.toLowerCase() === 'in progress') {
+                  continue
+                }
+                const projectInfo = await getProjectInfo({github, core, context}, { number: item.project.number })
+                const statusField = projectInfo.fields.find(field => field.name === 'Status')
+                const inProgress = statusField?.options.find(option => option.name.toLowerCase() === 'in progress')
+                if (!inProgress) {
+                  core.info(`No "In progress" status option in project ${item.project.number}, skipping`)
+                  continue
+                }
+                await setFieldValue({github, core, context}, { projectId: projectInfo.node_id, itemId: item.id, fieldId: statusField.id, valueId: inProgress.id })
+                core.info(`Issue #${number}: status set to "In progress" in project ${item.project.number}`)
+              }
+            }
+
   mark-stale-issues:
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'

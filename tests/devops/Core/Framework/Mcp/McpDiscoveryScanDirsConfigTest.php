@@ -4,6 +4,7 @@ namespace Shopware\Tests\DevOps\Core\Framework\Mcp;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Framework;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Storefront;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -20,6 +21,7 @@ use Symfony\Component\Filesystem\Path;
  *
  * @internal
  */
+#[Package('framework')]
 class McpDiscoveryScanDirsConfigTest extends TestCase
 {
     /**

@@ -42,7 +42,7 @@ The experimental MCP server now advertises only its default meta-tools until a c
 Tool execution is still bounded by the configured MCP allowlist. Enabling a toolset only changes which allowlisted tools are advertised for that session.
 ### MCP clients are notified when app capabilities change
 
-The experimental MCP server now queues `notifications/*/list_changed` messages for active MCP sessions when app MCP tools, resources, or prompts change through app install, update, activation, deactivation, or deletion. MCP clients that support list-change notifications can refresh their discovered capabilities after these app lifecycle changes.
+The experimental MCP server now queues `notifications/*/list_changed` messages for active sessions when an app's MCP tools, resources, or prompts change (install, update, activation, deactivation, deletion), so clients can refresh their discovered capabilities.
 ### MCP tools can be discovered on demand
 
 A fresh MCP session advertises only the three server-owned discovery meta-tools in `tools/list`: `shopware-tool-search`, `shopware-toolsets-list`, and `shopware-toolset-enable`. Every other tool is deferred and reachable in two ways: `shopware-tool-search` returns relevant tool definitions inline for a free-text query, and `shopware-toolset-enable` enables a whole toolset for the session (see the toolset section above). Tool visibility is derived solely from the tool's group — the `discovery` group is the always-advertised surface — so a tool opts into the default surface via `#[McpToolGroup('discovery')]`, not a per-tool flag.

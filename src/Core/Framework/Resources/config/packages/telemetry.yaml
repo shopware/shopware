@@ -28,6 +28,26 @@ shopware:
                     description: 'Number of associations loaded'
                     type: 'histogram'
 
+                dal.search.duration:
+                    description: 'Duration of DAL read/search/aggregate operations. The es_aware and backend labels together reveal OpenSearch scaling possibilities: es_aware=yes with backend=sql marks a query eligible for OpenSearch but served by SQL. Each operation is measured once per top-level call (a search does not double-count its internal id-search/aggregate), so operation samples can be compared or summed without overlap.'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        # sub-ms indexed lookups up to multi-hundred-ms complex searches/aggregations
+                        buckets: [0.5, 1, 2, 5, 10, 25, 50, 100, 250, 500]
+                    labels:
+                        # EntityGroupResolver (known: product, category, customer, order, media, content, cms, rule, system, b2b, other)
+                        entity_group:
+                            policy: open
+                        operation:
+                            allowed_values: [search, searchIds, aggregate]
+                        es_aware:
+                            allowed_values: ['yes', 'no']
+                        # elasticsearch when the ES bundle served the result, else sql (bundle inactive or ES fell back to SQL);
+                        # es_aware=no with backend=elasticsearch is impossible
+                        backend:
+                            allowed_values: [sql, elasticsearch]
+
                 database.locks.count:
                     description: 'Number of database locks'
                     enabled: true

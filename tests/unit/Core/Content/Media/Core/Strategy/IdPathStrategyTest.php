@@ -8,10 +8,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 use Shopware\Core\Content\Media\Core\Params\ThumbnailLocationStruct;
 use Shopware\Core\Content\Media\Core\Strategy\IdPathStrategy;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(IdPathStrategy::class)]
 class IdPathStrategyTest extends TestCase
 {

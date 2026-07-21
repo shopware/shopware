@@ -15,12 +15,14 @@ use Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator;
 use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(RemoteThumbnailLoader::class)]
 class RemoteThumbnailLoaderTest extends TestCase
 {

@@ -21,12 +21,25 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Framework\MessageQueue\Telemetry\MessageGroupResolver"/>
+
+        <service id="Shopware\Core\Framework\MessageQueue\Telemetry\WorkerMessageTimingHelper"/>
+
         <service id="Shopware\Core\Framework\MessageQueue\Telemetry\MessageQueueTelemetrySubscriber">
             <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter"/>
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\Service\MessageSizeCalculator"/>
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\Telemetry\MessageGroupResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\Telemetry\WorkerMessageTimingHelper"/>
 
             <tag name="kernel.event_subscriber"/>
             <tag name="shopware.telemetry.subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\MessageQueue\Telemetry\MessengerQueueDepthCollector">
+            <argument type="service" id="messenger.receiver_locator"/>
+            <argument type="service" id="logger"/>
+
+            <tag name="shopware.telemetry.periodic_metric_collector"/>
         </service>
 
         <!--Controller-->

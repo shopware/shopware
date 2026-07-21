@@ -6,6 +6,10 @@
 
 ## Core
 
+### Locale-aware sorting for product property group options
+
+`Shopware\Core\Content\Product\AbstractPropertyGroupSorter::sort()` is deprecated and will be removed with Shopware 6.8. Use the new `sortUsingLocaleCode()` method instead, which sorts property group options using locale-aware (ICU) collation.
+
 ### MCP server no longer requires the `MCP_SERVER` feature flag
 
 The MCP server is now always enabled. The `MCP_SERVER` feature flag has been removed, so the `/api/_mcp` and `/store-api/_mcp` endpoints are available without setting any flag. The MCP classes stay marked `@experimental` until 6.8.0, so the API may still change before then.

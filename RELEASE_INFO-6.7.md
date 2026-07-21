@@ -35,6 +35,23 @@ The existing `reason:*` annotations will be migrated to these attributes in foll
 
 ## Hosting & Configuration
 
+### Configurable last-modified version strategy for theme assets
+
+The `FlysystemLastModifiedVersionStrategy` used for theme assets can now be disabled per-shop in `config/packages/shopware.yaml`.
+When disabled, theme asset URLs use an empty version strategy instead of fetching the last-modified timestamp from the filesystem on every request, eliminating the associated cache lookups.
+
+This is safe to disable whenever the default `SeedingThemePathBuilder` is active, because the seed already rotates on every theme compilation and serves as the cache-invalidation mechanism.
+It is particularly useful for shops with a remote theme filesystem (S3, GCS, or similar) where last-modified lookups involve additional latency.
+
+```yaml
+shopware:
+  filesystem:
+    theme:
+      use_last_modified_version_strategy: false
+```
+
+The option defaults to `true`, preserving the existing behavior for all existing installations.
+
 # 6.7.13.0
 
 ## Storefront
@@ -585,25 +602,6 @@ Added:
 Deprecated -> Replacement:
 
 * `sw_entity_single_select_base_results_list_result_label` -> `sw_product_cross_selling_assignment_select_result_item_inner`
-
-## Hosting & Configuration
-
-### Configurable last-modified version strategy for theme assets
-
-The `FlysystemLastModifiedVersionStrategy` used for theme assets can now be disabled per-shop in `config/packages/shopware.yaml`.
-When disabled, theme asset URLs use an empty version strategy instead of fetching the last-modified timestamp from the filesystem on every request, eliminating the associated cache lookups.
-
-This is safe to disable whenever the default `SeedingThemePathBuilder` is active, because the seed already rotates on every theme compilation and serves as the cache-invalidation mechanism.
-It is particularly useful for shops with a remote theme filesystem (S3, GCS, or similar) where last-modified lookups involve additional latency.
-
-```yaml
-shopware:
-  filesystem:
-    theme:
-      use_last_modified_version_strategy: false
-```
-
-The option defaults to `true`, preserving the existing behavior for all existing installations.
 
 # 6.7.12.0
 

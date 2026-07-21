@@ -18,6 +18,7 @@ Tests should read like executable examples.
 - Keep test helpers smaller than the code they replace.
 - Do not hide assertions or feature-flag toggling behind abstractions when direct assertions are just as readable.
 - Prefer one focused test per distinct exception or behavior over broad data providers when each case has its own meaning.
+- Add `#[Package('…')]` to every test class, using the same package as its covered production domain so CI failures route to the owning team.
 
 ## Assertions And Fixtures
 

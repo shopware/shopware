@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Api\EventListener;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -14,6 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 class SalesChannelAuthenticationListenerTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -4,6 +4,12 @@
 
 <details>
 
+## Locale-aware sorting for product property group options
+
+To ensure product property group options are sorted more precisely based on locale code:
+- `/Shopware/Core/Content/Product/AbstractPropertyGroupSorter`: The `sort` method will be removed, use `sortUsingLocaleCode` instead.
+- `/Shopware/Core/Content/Property/PropertyGroupCollection`: The `sortByConfig` method now requires a new parameter `localeCode`.
+
 ## Webhook Messenger transport — explicit receiver configuration required
 
 Webhook delivery now uses a dedicated `webhook` Messenger transport. Add it to your `messenger:consume` receiver list and to `shopware.admin_worker.transports` if you override that key.
@@ -43,11 +49,6 @@ The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now requi
 The default CMS page ID is now automatically written to the database when a category is saved without a `cmsPageId`.
 
 The runtime-only field `cmsPageIdSwitched` on `CategoryDefinition` was removed without replacement.
-## Locale-aware sorting for for product property group options
-
-To ensure the product property group options is sorted more precisely based on locale code:
-- `/Shopware/Core/Content/Product/AbstractPropertyGroupSorter`: The `sort` method will be removed, use `sortUsingLocaleCode` instead.
-- `/Shopware/Core/Content/Property/PropertyGroupCollection`: The `sortByConfig` method now required new parameter `localCode`.
 
 ## Storefront template config PHP helpers removed
 

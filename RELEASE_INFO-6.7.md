@@ -6,6 +6,10 @@
 
 ## Core
 
+### Locale-aware sorting for product property group options
+
+Introduces significant improvements to the sorting of product property group options, with a focus on locale-aware sorting.
+
 ### MCP server no longer requires the `MCP_SERVER` feature flag
 
 The MCP server is now always enabled. The `MCP_SERVER` feature flag has been removed, so the `/api/_mcp` and `/store-api/_mcp` endpoints are available without setting any flag. The MCP classes stay marked `@experimental` until 6.8.0, so the API may still change before then.
@@ -1840,9 +1844,6 @@ This prevents "invalidation storms" where writing internal config values (e.g. t
 Internal Shopware call sites that write non-storefront config values now pass `silent=true`. The `ConfigSet` CLI command accepts `--silent`, and the Admin API `POST /_action/system-config` and `POST /_action/system-config/batch` accept a `?silent` query parameter.
 
 In v6.8.0.0, `silent` parameter in SystemConfigService methods will default to `true`. Clients should pass value explicitly to prepare for changes.
-### Locale-aware sorting for product property group options
-
-Introduces significant improvements to the sorting of product property group options, with a focus on locale-aware sorting.
 
 ### Scheduled cleanup of expired customer recovery records
 

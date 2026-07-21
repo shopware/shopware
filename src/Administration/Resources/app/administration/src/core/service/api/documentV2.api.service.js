@@ -3,6 +3,7 @@ import { DocumentEvents } from './document.api.service';
 
 /**
  * @sw-package after-sales
+ * @private
  * @class
  * @extends ApiService
  */
@@ -140,10 +141,9 @@ class DocumentV2ApiService extends ApiService {
                 },
             )
             .catch(async (error) => {
-                if (error.response?.data?.errors) {
-                    this.$listener(
-                        this.createDocumentEvent(DocumentEvents.DOCUMENT_FAILED, error.response.data.errors.pop()),
-                    );
+                const errorObject = JSON.parse(await error.response.data.text());
+                if (errorObject.errors) {
+                    this.$listener(this.createDocumentEvent(DocumentEvents.DOCUMENT_FAILED, errorObject.errors.pop()));
                 }
             });
     }

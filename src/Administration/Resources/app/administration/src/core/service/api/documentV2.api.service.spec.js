@@ -219,13 +219,22 @@ describe('documentV2Service', () => {
 
         documentV2ApiService.setListener(listener);
 
-        clientMock.onPost('/_action/order/document-v2/preview').reply(400, {
+        const errorBody = {
             errors: [
                 {
                     code: 'DOCUMENT__UNSUPPORTED_DOCUMENT_FORMAT',
                     detail: 'Unsupported document format.',
                 },
             ],
+        };
+
+        clientMock.onPost('/_action/order/document-v2/preview').reply(() => {
+            return [
+                400,
+                new Blob([JSON.stringify(errorBody)], {
+                    type: 'application/json',
+                }),
+            ];
         });
 
         const response = await documentV2ApiService.previewDocument(

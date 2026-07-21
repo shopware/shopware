@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Notification\AppMcpCapabilityDetector;
 use Shopware\Core\Framework\Mcp\Notification\AppMcpCapabilityLifecycleSubscriber;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppMcpCapabilityLifecycleSubscriber::class)]
 class AppMcpCapabilityLifecycleSubscriberTest extends TestCase
 {

@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
 use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
@@ -18,6 +19,7 @@ use Symfony\Component\Uid\Uuid;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(McpListChangedNotifier::class)]
 #[CoversClass(McpListChangedNotificationSet::class)]
 #[CoversClass(McpSessionRegistry::class)]

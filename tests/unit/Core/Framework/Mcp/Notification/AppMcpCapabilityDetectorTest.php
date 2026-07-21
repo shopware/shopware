@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Mcp\Mcp;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Notification\AppMcpCapabilityDetector;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppMcpCapabilityDetector::class)]
 #[CoversClass(McpListChangedNotificationSet::class)]
 class AppMcpCapabilityDetectorTest extends TestCase

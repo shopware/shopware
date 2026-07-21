@@ -87,7 +87,7 @@ async function createWrapper(props = {}) {
             isLoadingDocument: false,
             isLoadingPreview: false,
             order,
-            value: null,
+            documentType: null,
             ...componentProps,
         },
         global: {

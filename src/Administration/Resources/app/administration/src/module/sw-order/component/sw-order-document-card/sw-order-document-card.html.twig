@@ -377,7 +377,7 @@
     {% block sw_order_document_card_grid_column_document_type_modal %}
     <sw-order-create-document-modal
         v-if="feature.isActive('DOCUMENT_GENERATION_REWORK') && showSelectDocumentTypeModal"
-        v-model:value="currentDocumentType"
+        v-model:document-type="currentDocumentType"
         :order="order"
         :is-loading-document="isLoadingDocument"
         :is-loading-preview="isLoadingPreview"
@@ -389,7 +389,7 @@
     />
     <sw-order-upload-document-modal
         v-else-if="feature.isActive('DOCUMENT_GENERATION_REWORK') && showUploadDocumentModal"
-        v-model:value="currentDocumentType"
+        v-model:document-type="currentDocumentType"
         :order="order"
         :is-loading-document="isLoadingDocument"
         @loading-document="onLoadingDocument"

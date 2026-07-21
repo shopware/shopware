@@ -61,7 +61,7 @@ async function createWrapper(props = {}) {
         props: {
             isLoadingDocument: false,
             order: orderFixture,
-            value: null,
+            documentType: null,
             ...componentProps,
         },
         global: {

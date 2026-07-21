@@ -29,7 +29,7 @@ export default Component.wrapComponentConfig({
         'document-create',
         'loading-document',
         'page-leave',
-        'update:value',
+        'update:documentType',
     ],
 
     mixins: [Mixin.getByName('notification')],
@@ -40,7 +40,7 @@ export default Component.wrapComponentConfig({
             required: true,
         },
 
-        value: {
+        documentType: {
             type: Object,
             required: false,
             default: null,
@@ -57,7 +57,7 @@ export default Component.wrapComponentConfig({
             documentConfig: this.createEmptyDocumentConfig(),
             documentNumberPreview: '',
             documentTypeCollection: null,
-            documentTypeId: this.value?.id ?? null,
+            documentTypeId: this.documentType?.id ?? null,
             documentTypeLoading: false,
             documentTypes: [],
             features: {
@@ -159,7 +159,7 @@ export default Component.wrapComponentConfig({
 
                 const documentType = value ? this.documentTypeCollection.get(value) : null;
 
-                this.$emit('update:value', documentType);
+                this.$emit('update:documentType', documentType);
 
                 await this.onDocumentTypeChange(documentType);
             },

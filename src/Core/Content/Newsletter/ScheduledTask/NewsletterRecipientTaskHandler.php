@@ -71,7 +71,7 @@ final class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
             ),
         ]);
 
-        $optOutRecipientFiler = new AndFilter([
+        $optOutRecipientFilter = new AndFilter([
             new EqualsFilter('status', 'optOut'),
             new RangeFilter(
                 'updatedAt',
@@ -81,7 +81,7 @@ final class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
             ),
         ]);
 
-        $criteria->addFilter(new OrFilter([$notSetRecipientFilter, $optOutRecipientFiler]));
+        $criteria->addFilter(new OrFilter([$notSetRecipientFilter, $optOutRecipientFilter]));
 
         $criteria->setLimit(999);
 

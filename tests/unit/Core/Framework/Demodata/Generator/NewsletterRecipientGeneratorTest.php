@@ -15,15 +15,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataException;
 use Shopware\Core\Framework\Demodata\Generator\NewsletterRecipientGenerator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityWriter;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(NewsletterRecipientGenerator::class)]
 class NewsletterRecipientGeneratorTest extends TestCase
 {
@@ -64,20 +64,30 @@ class NewsletterRecipientGeneratorTest extends TestCase
         $connection->expects($this->once())->method('fetchFirstColumn')->willReturn([$salesChannelId]);
 
         $generator = $this->createMock(Generator::class);
-        $generator->expects($this->exactly(9))->method('format')->willReturnMap([
+        $generator->expects($this->exactly(303))->method('format')->willReturnMap([
             ['safeEmail', [], 'test@example.com'],
             ['firstName', [], 'Jane'],
             ['lastName', [], 'Doe'],
         ]);
 
-        $output = new BufferedOutput();
-        $numberOfItems = 3;
+        $numberOfItems = 101;
+
+        $progressAdvances = [];
+        $console = $this->createMock(SymfonyStyle::class);
+        $console->expects($this->once())->method('progressStart')->with($numberOfItems);
+        $console->expects($this->exactly(2))->method('progressAdvance')
+            ->willReturnCallback(
+                static function (int $step) use (&$progressAdvances): void {
+                    $progressAdvances[] = $step;
+                },
+            );
+        $console->expects($this->once())->method('progressFinish');
 
         $context = new DemodataContext(
             Context::createDefaultContext(),
             $generator,
             __DIR__,
-            new SymfonyStyle(new ArrayInput([]), $output),
+            $console,
             static::createStub(DefinitionInstanceRegistry::class),
         );
 
@@ -90,8 +100,7 @@ class NewsletterRecipientGeneratorTest extends TestCase
             $context,
         );
 
-        $cliOutput = $output->fetch();
-        static::assertStringContainsString('3/3', $cliOutput);
+        static::assertSame([100, 1], $progressAdvances);
 
         $upserts = $entityWriter->upserts;
         static::assertCount($numberOfItems, $upserts);

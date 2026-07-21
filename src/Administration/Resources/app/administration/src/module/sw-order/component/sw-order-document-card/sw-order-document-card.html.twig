@@ -159,7 +159,7 @@
                     <mt-dropdown-menu-portal>
                         <mt-action-menu>
                             <mt-action-menu-group>
-                                {% block sw_order_document_card_grid_action_open %}
+                                {% block sw_order_document_card_grid_action_open_reworked %}
                                 <mt-dropdown-menu-sub>
                                     <mt-action-menu-item
                                         is-sub-trigger
@@ -167,7 +167,7 @@
                                         class="sw-order-document-card__context-button-open-pdf"
                                         data-analytics-id="sw-order-document-card.open-document"
                                     >
-                                        {% block sw_order_document_card_grid_action_open_label %}
+                                        {% block sw_order_document_card_grid_action_open_reworked_label %}
                                         {{ $t('sw-order.documentCard.labelOpenDocument') }}
                                         {% endblock %}
                                     </mt-action-menu-item>
@@ -191,7 +191,7 @@
                                 </mt-dropdown-menu-sub>
                                 {% endblock %}
 
-                                {% block sw_order_document_card_grid_action_download %}
+                                {% block sw_order_document_card_grid_action_download_reworked %}
                                 <mt-dropdown-menu-sub>
                                     <mt-action-menu-item
                                         is-sub-trigger
@@ -199,7 +199,7 @@
                                         class="sw-order-document-card__context-button-download-pdf"
                                         data-analytics-id="sw-order-document-card.download-document"
                                     >
-                                        {% block sw_order_document_card_grid_action_download_label %}
+                                        {% block sw_order_document_card_grid_action_download_reworked_label %}
                                         {{ $t('sw-order.documentCard.labelDownloadPdf') }}
                                         {% endblock %}
                                     </mt-action-menu-item>
@@ -238,40 +238,40 @@
                                 </mt-dropdown-menu-sub>
                                 {% endblock %}
 
-                                {% block sw_order_document_card_grid_action_send %}
+                                {% block sw_order_document_card_grid_action_send_reworked %}
                                 <mt-action-menu-item
                                     :disabled="!acl.can('document.viewer') || !acl.can('api_send_email')"
                                     class="sw-order-document-card__context-button-send"
                                     data-analytics-id="sw-order-document-card.send-document"
                                     @select="onSendDocument(item.id)"
                                 >
-                                    {% block sw_order_document_card_grid_action_send_label %}
+                                    {% block sw_order_document_card_grid_action_send_reworked_label %}
                                     {{ $t('sw-order.documentCard.labelSendDocument') }}
                                     {% endblock %}
                                 </mt-action-menu-item>
                                 {% endblock %}
 
-                                {% block sw_order_document_card_grid_action_mark_sent %}
+                                {% block sw_order_document_card_grid_action_mark_sent_reworked %}
                                 <mt-action-menu-item
                                     :disabled="!acl.can('document.viewer') || item.sent"
                                     class="sw-order-document-card__context-button-mark-sent"
                                     data-analytics-id="sw-order-document-card.mark-document-as-sent"
                                     @select="onMarkDocumentAsSent(item.id)"
                                 >
-                                    {% block sw_order_document_card_grid_action_mark_sent_label %}
+                                    {% block sw_order_document_card_grid_action_mark_sent_reworked_label %}
                                     {{ $t('sw-order.documentCard.labelMarkAsSent') }}
                                     {% endblock %}
                                 </mt-action-menu-item>
                                 {% endblock %}
 
-                                {% block sw_order_document_card_grid_action_mark_unsent %}
+                                {% block sw_order_document_card_grid_action_mark_unsent_reworked %}
                                 <mt-action-menu-item
                                     :disabled="!acl.can('document.viewer') || !item.sent"
                                     class="sw-order-document-card__context-button-mark-unsent"
                                     data-analytics-id="sw-order-document-card.mark-document-as-unsent"
                                     @select="onMarkDocumentAsUnsent(item.id)"
                                 >
-                                    {% block sw_order_document_card_grid_action_mark_unsent_label %}
+                                    {% block sw_order_document_card_grid_action_mark_unsent_reworked_label %}
                                     {{ $t('sw-order.documentCard.labelMarkAsUnsent') }}
                                     {% endblock %}
                                 </mt-action-menu-item>
@@ -279,7 +279,7 @@
                             </mt-action-menu-group>
 
                             <mt-action-menu-group>
-                                {% block sw_order_document_card_grid_action_delete %}
+                                {% block sw_order_document_card_grid_action_delete_reworked %}
                                 <mt-action-menu-item
                                     :disabled="!acl.can('document.deleter')"
                                     variant="critical"
@@ -287,7 +287,7 @@
                                     data-analytics-id="sw-order-document-card.delete-document"
                                     @select="onShowDeleteDocumentModal(item.id)"
                                 >
-                                    {% block sw_order_document_card_grid_action_delete_label %}
+                                    {% block sw_order_document_card_grid_action_delete_reworked_label %}
                                     {{ $t('global.default.delete') }}
                                     {% endblock %}
                                 </mt-action-menu-item>
@@ -335,69 +335,81 @@
                 v-else-if="!attachView"
                 #actions="{ item }"
             >
-                {% block sw_order_document_card_grid_action_open_legacy %}
+                {% block sw_order_document_card_grid_action_open %}
                 <sw-context-menu-item
                     :disabled="!acl.can('document.viewer')"
                     class="sw-order-document-card__context-button-open-pdf"
                     data-analytics-id="sw-order-document-card.open-document"
                     @click="onOpenDocument(item.id, item.deepLinkCode, resolveOpenFileType(item))"
                 >
+                    {% block sw_order_document_card_grid_action_open_label %}
                     {{ $t('sw-order.documentCard.labelOpenDocument') }}
+                    {% endblock %}
                 </sw-context-menu-item>
                 {% endblock %}
 
-                {% block sw_order_document_card_grid_action_download_legacy %}
+                {% block sw_order_document_card_grid_action_download %}
                 <sw-context-menu-item
                     :disabled="!acl.can('document.viewer')"
                     class="sw-order-document-card__context-button-download-pdf"
                     data-analytics-id="sw-order-document-card.download-document"
                     @click="onDownload(item.id, item.deepLinkCode, resolveDownloadFileType(item))"
                 >
+                    {% block sw_order_document_card_grid_action_download_label %}
                     {{ $t('sw-order.documentCard.labelDownloadPdf') }}
+                    {% endblock %}
                 </sw-context-menu-item>
                 {% endblock %}
 
-                {% block sw_order_document_card_grid_action_send_legacy %}
+                {% block sw_order_document_card_grid_action_send %}
                 <sw-context-menu-item
                     :disabled="!acl.can('document.viewer') || !acl.can('api_send_email')"
                     class="sw-order-document-card__context-button-send"
                     data-analytics-id="sw-order-document-card.send-document"
                     @click="onSendDocument(item.id)"
                 >
+                    {% block sw_order_document_card_grid_action_send_label %}
                     {{ $t('sw-order.documentCard.labelSendDocument') }}
+                    {% endblock %}
                 </sw-context-menu-item>
                 {% endblock %}
 
-                {% block sw_order_document_card_grid_action_mark_sent_legacy %}
+                {% block sw_order_document_card_grid_action_mark_sent %}
                 <sw-context-menu-item
                     :disabled="!acl.can('document.viewer') || item.sent"
                     class="sw-order-document-card__context-button-mark-sent"
                     data-analytics-id="sw-order-document-card.mark-document-as-sent"
                     @click="onMarkDocumentAsSent(item.id)"
                 >
+                    {% block sw_order_document_card_grid_action_mark_sent_label %}
                     {{ $t('sw-order.documentCard.labelMarkAsSent') }}
+                    {% endblock %}
                 </sw-context-menu-item>
                 {% endblock %}
 
-                {% block sw_order_document_card_grid_action_mark_unsent_legacy %}
+                {% block sw_order_document_card_grid_action_mark_unsent %}
                 <sw-context-menu-item
                     :disabled="!acl.can('document.viewer') || !item.sent"
                     class="sw-order-document-card__context-button-mark-unsent"
                     data-analytics-id="sw-order-document-card.mark-document-as-unsent"
                     @click="onMarkDocumentAsUnsent(item.id)"
                 >
+                    {% block sw_order_document_card_grid_action_mark_unsent_label %}
                     {{ $t('sw-order.documentCard.labelMarkAsUnsent') }}
+                    {% endblock %}
                 </sw-context-menu-item>
                 {% endblock %}
 
-                {% block sw_order_document_card_grid_action_delete_legacy %}
+                {% block sw_order_document_card_grid_action_delete %}
                 <sw-context-menu-item
                     :disabled="!acl.can('document.deleter')"
                     class="sw-order-document-card__context-button-delete"
                     data-analytics-id="sw-order-document-card.delete-document"
                     @click="$refs.entityListing.showDelete(item.id)"
                 >
+                    {% block sw_order_document_card_grid_action_delete_label %}
                     {{ $t('global.default.delete') }}
+                    {% endblock %}
                 </sw-context-menu-item>
                 {% endblock %}
             </template>

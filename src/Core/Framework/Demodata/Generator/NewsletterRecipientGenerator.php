@@ -44,17 +44,17 @@ class NewsletterRecipientGenerator implements DemodataGeneratorInterface
         }
 
         $writeContext = WriteContext::createFromContext($context->getContext());
+        $faker = $context->getFaker();
+
         $payload = [];
         for ($i = 0; $i < $numberOfItems; ++$i) {
             $id = Uuid::randomHex();
-            $firstName = $context->getFaker()->firstName();
-            $lastName = $context->getFaker()->format('lastName');
 
             $newsletterRecipient = [
                 'id' => $id,
-                'email' => $id . $context->getFaker()->format('safeEmail'),
-                'firstName' => $firstName,
-                'lastName' => $lastName,
+                'email' => $id . $faker->format('safeEmail'),
+                'firstName' => $faker->format('firstName'),
+                'lastName' => $faker->format('lastName'),
                 'status' => NewsletterSubscribeRoute::STATUS_DIRECT,
                 'hash' => Uuid::randomHex(),
                 'salesChannelId' => $salesChannelIds[array_rand($salesChannelIds)],

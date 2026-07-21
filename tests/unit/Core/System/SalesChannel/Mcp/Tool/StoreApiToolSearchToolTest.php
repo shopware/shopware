@@ -6,6 +6,7 @@ use Mcp\Capability\Registry;
 use Mcp\Schema\Tool;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Tool\AbstractToolSearchTool;
 use Shopware\Core\Framework\Mcp\Tool\Search\ToolSearch;
 use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiToolSearchTool;
@@ -13,6 +14,7 @@ use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiToolSearchTool;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(StoreApiToolSearchTool::class)]
 #[CoversClass(AbstractToolSearchTool::class)]
 class StoreApiToolSearchToolTest extends TestCase

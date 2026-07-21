@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool\Search;
 use Mcp\Schema\Tool;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Tool\Search\ToolSearch;
 use Shopware\Core\Framework\Mcp\Tool\Search\ToolSearchResult;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ToolSearch::class)]
 #[CoversClass(ToolSearchResult::class)]
 class ToolSearchTest extends TestCase

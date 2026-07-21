@@ -6,6 +6,7 @@ use Mcp\Capability\Registry;
 use Mcp\Schema\Tool;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlist;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\Tool\AbstractToolSearchTool;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Mcp\Tool\ToolSearchTool;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ToolSearchTool::class)]
 #[CoversClass(AbstractToolSearchTool::class)]
 class ToolSearchToolTest extends TestCase

@@ -432,6 +432,53 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
         expect(description).toBe('translated');
     });
 
+    it('should be able to show generate document description for a single legacy document type without mutating the config', () => {
+        const sequence = {
+            actionName: 'action.generate.document',
+            config: {
+                documentType: 'mail',
+                documentRangerType: 'document_mail',
+            },
+        };
+
+        const description = service.getActionDescriptions(data, sequence, translator);
+
+        expect(description).toBe('translated');
+        expect(sequence.config).toEqual({
+            documentType: 'mail',
+            documentRangerType: 'document_mail',
+        });
+        expect(() => JSON.stringify(sequence)).not.toThrow();
+    });
+
+    it('should be able to show generate document description for the document generation rework config', () => {
+        const sequence = {
+            actionName: 'action.generate.document',
+            config: {
+                documentType: 'mail',
+                fileFormats: [
+                    'pdf',
+                    'zugferd_xml',
+                ],
+            },
+        };
+
+        const description = service.getActionDescriptions(data, sequence, translator);
+
+        expect(description).toBe(
+            'translated <span class="sw-flow-sequence-action__file-formats">' +
+                '(sw-flow.modals.document.fileFormats.pdf, sw-flow.modals.document.fileFormats.zugferdXml)</span>',
+        );
+        expect(sequence.config).toEqual({
+            documentType: 'mail',
+            fileFormats: [
+                'pdf',
+                'zugferd_xml',
+            ],
+        });
+        expect(() => JSON.stringify(sequence)).not.toThrow();
+    });
+
     it('should be able to send mail flow description', () => {
         const sequence = {
             actionName: 'action.mail.send',

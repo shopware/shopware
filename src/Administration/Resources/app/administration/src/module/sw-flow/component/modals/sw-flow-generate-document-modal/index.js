@@ -1,16 +1,10 @@
 import template from './sw-flow-generate-document-modal.html.twig';
+import { translateDocumentFileFormat } from '../../../constant/document-file-format.constant';
 
 const { Component, Store } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
-
-const FILE_FORMAT_TRANSLATION_KEYS = {
-    pdf: 'sw-flow.modals.document.fileFormats.pdf',
-    html: 'sw-flow.modals.document.fileFormats.html',
-    zugferd_xml: 'sw-flow.modals.document.fileFormats.zugferdXml',
-    zugferd_embedded_pdf: 'sw-flow.modals.document.fileFormats.zugferdEmbeddedPdf',
-};
 
 /**
  * @private
@@ -74,7 +68,7 @@ export default {
             return formats.map((format) => {
                 return {
                     value: format,
-                    label: this.translateFileFormat(format),
+                    label: translateDocumentFileFormat(format, this.$t),
                 };
             });
         },
@@ -222,12 +216,6 @@ export default {
             };
 
             this.$emit('process-finish', sequence);
-        },
-
-        translateFileFormat(format) {
-            const translationKey = FILE_FORMAT_TRANSLATION_KEYS[format];
-
-            return translationKey ? this.$t(translationKey) : format;
         },
     },
 };

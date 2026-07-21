@@ -1,4 +1,4 @@
-// <plugin root>/src/Resources/app/administration/src/module/swag-example/index.js
+// <plugin root>/src/Resources/app/administration/src/module/swag-example/index.ts
 
 Shopware.Module.register('swag-example', {
     type: 'plugin',
@@ -11,22 +11,22 @@ Shopware.Module.register('swag-example', {
     routes: {
         list: {
             component: 'swag-example-list',
-            path: 'list'
+            path: 'list',
         },
         detail: {
             component: 'swag-example-detail',
             path: 'detail/:id',
             meta: {
-                parentPath: 'swag.example.list'
-            }
+                parentPath: 'swag.example.list',
+            },
         },
         create: {
             component: 'swag-example-create',
             path: 'create',
             meta: {
-                parentPath: 'swag.example.list'
-            }
-        }
+                parentPath: 'swag.example.list',
+            },
+        },
     },
 
     navigation: [{
@@ -35,6 +35,6 @@ Shopware.Module.register('swag-example', {
         color: '#ff3d58',
         path: 'swag.example.list',
         icon: 'default-shopping-paper-bag-product',
-        position: 100
-    }]
+        position: 100,
+    }],
 });

@@ -152,7 +152,7 @@ class PluginCreateCommandTest extends TestCase
 
         yield 'non-interactive without arguments' => [
             'inputs' => [],
-            'expectedErrorMessage' => 'This command requires interactive mode or the argument must be provided.',
+            'expectedErrorMessage' => 'The "plugin-name" argument is required when running non-interactively',
             'interactive' => false,
         ];
     }

@@ -77,6 +77,7 @@ class PluginCreateCommand extends Command
                 $pluginName = $this->askPascalCaseString(
                     input: $input,
                     questionText: 'Please enter a plugin name (PascalCase)',
+                    argumentName: 'plugin-name',
                     io: $io
                 );
             }
@@ -95,6 +96,7 @@ class PluginCreateCommand extends Command
                 $namespace = $this->askPascalCaseString(
                     input: $input,
                     questionText: 'Please enter a plugin namespace (PascalCase)',
+                    argumentName: 'plugin-namespace',
                     io: $io
                 );
             }
@@ -132,11 +134,11 @@ class PluginCreateCommand extends Command
                 && $configuration->getOption(AdminModuleGenerator::OPTION_NAME) === true
             ) {
                 $io->note([
-                    'An example Administration module was scaffolded (JavaScript).',
+                    'An example Administration module was scaffolded (TypeScript).',
                     'Make it discoverable, then type-check and lint it with the Administration toolchain:',
                     '    bin/console bundle:dump',
                     \sprintf('    composer admin:check-extensions -- --only=%s', $pluginName),
-                    'Rename .js sources to .ts to enable type-checking (see extension-tooling/README.md).',
+                    'It needs no toolchain of its own (see extension-tooling/README.md).',
                 ]);
             }
 
@@ -155,10 +157,15 @@ class PluginCreateCommand extends Command
     private function askPascalCaseString(
         InputInterface $input,
         string $questionText,
+        string $argumentName,
         SymfonyStyle $io
     ): string {
         if (!$input->isInteractive()) {
-            throw PluginException::invalidPluginCreationInputError('This command requires interactive mode or the argument must be provided.');
+            throw PluginException::invalidPluginCreationInputError(\sprintf(
+                'The "%s" argument is required when running non-interactively (-n). '
+                . 'Provide it on the command line, e.g. bin/console plugin:create <plugin-name> <plugin-namespace> -n.',
+                $argumentName
+            ));
         }
 
         $question = new Question($questionText);

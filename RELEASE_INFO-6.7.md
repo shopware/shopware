@@ -6,6 +6,16 @@
 
 ## Core
 
+### `product-export:generate --force` now regenerates scheduler-managed exports
+
+**What changed:** `Shopware\Core\Content\ProductExport\Service\ProductExportFileHandler::isValidFile()` previously treated the existing feed file of a scheduler-managed export (`generateByCronjob`) as valid regardless of the export behavior, so `bin/console product-export:generate --force` (`ExportBehavior::ignoreCache`) silently skipped regeneration for those exports. Forcing generation now always regenerates the file, regardless of the `generateByCronjob` setting.
+
+**Why:** `--force` promises to ignore the cache and force generation, but for scheduler-managed exports it was a no-op, so there was no way to invalidate a feed's cache from the CLI. This aligns the flag with its documented behavior.
+
+**Who needs to care and when:** Anyone who runs `product-export:generate --force` (manually or from automation) against an export that has "Generate via scheduler" enabled. Previously the command exited without regenerating the file; now the file is rewritten on every forced run.
+
+**How to adjust:** No action is required. If you relied on `--force` being ignored for scheduler-managed exports, drop the flag to keep serving the cached/scheduler-generated file. To regenerate a scheduler-managed feed on demand, run the command with `--force`.
+
 ### Locale-aware sorting for product property group options
 
 `Shopware\Core\Content\Product\AbstractPropertyGroupSorter::sort()` is deprecated and will be removed with Shopware 6.8. Use the new `sortUsingLocaleCode()` method instead, which sorts property group options using locale-aware (ICU) collation.

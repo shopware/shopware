@@ -80,8 +80,6 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
 
     public function testStoreApiInitializeResponseInstructionsGuideToolDiscovery(): void
     {
-        Feature::skipTestIfInActive('MCP_SERVER', $this);
-
         $browser = $this->createSalesChannelBrowser();
         $browser->request('POST', '/store-api/_mcp', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
             'jsonrpc' => '2.0',

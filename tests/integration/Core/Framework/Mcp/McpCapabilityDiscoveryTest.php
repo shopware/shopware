@@ -70,8 +70,6 @@ class McpCapabilityDiscoveryTest extends TestCase
 
     public function testInitializeResponseInstructionsGuideToolDiscovery(): void
     {
-        Feature::skipTestIfInActive('MCP_SERVER', $this);
-
         $browser = $this->getBrowser();
         $browser->request(
             'POST',

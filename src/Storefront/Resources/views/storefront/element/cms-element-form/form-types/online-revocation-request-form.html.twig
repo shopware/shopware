@@ -21,7 +21,6 @@
                         required: firstNameFieldRequired,
                         additionalClass: 'col-md-6',
                         label: 'revocationRequest.firstNameLabel',
-                        placeholder: 'revocationRequest.firstNamePlaceholder'
                     } %}
                 {% endblock %}
 
@@ -34,7 +33,6 @@
                         required: lastNameFieldRequired,
                         additionalClass: 'col-md-6',
                         label: 'revocationRequest.lastNameLabel',
-                        placeholder: 'revocationRequest.lastNamePlaceholder'
                     } %}
                 {% endblock %}
             </div>
@@ -49,21 +47,21 @@
                         required: true,
                         additionalClass: 'col-md-12',
                         label: 'revocationRequest.eMailLabel',
-                        placeholder: 'revocationRequest.eMailPlaceholder'
                     } %}
                 {% endblock %}
             </div>
 
-            {% block cms_form_revocation_input_contract_number %}
-                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
-                    with {
-                    fieldName: 'contractNumber',
-                    required: true,
-                    additionalClass: 'col-md-12',
-                    label: 'revocationRequest.contractNumberLabel',
-                    placeholder: 'revocationRequest.contractNumberPlaceholder'
-                } %}
-            {% endblock %}
+            <div class="row g-2">
+                {% block cms_form_revocation_input_contract_number %}
+                    {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
+                        with {
+                        fieldName: 'contractNumber',
+                        required: true,
+                        additionalClass: 'col-md-12',
+                        label: 'revocationRequest.contractNumberLabel',
+                    } %}
+                {% endblock %}
+            </div>
 
             <div class="row g-2">
                 {% block cms_form_revocation_comment_textarea %}
@@ -73,7 +71,6 @@
                         fieldName: 'comment',
                         additionalClass: 'col-12',
                         label: 'revocationRequest.commentLabel',
-                        placeholder: 'revocationRequest.commentPlaceholder'
                     }
                     %}
                 {% endblock %}

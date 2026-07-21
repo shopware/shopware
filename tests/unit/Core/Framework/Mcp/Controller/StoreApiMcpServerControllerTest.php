@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Mcp\Controller\StoreApiMcpServerController;
 use Shopware\Core\Framework\Mcp\Http\McpHttpTransportFactory;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\Mcp\McpException;
+use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
+use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
 use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
@@ -29,6 +31,7 @@ use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * @internal
@@ -193,11 +196,113 @@ class StoreApiMcpServerControllerTest extends TestCase
         static::assertSame(405, $response->getStatusCode());
     }
 
+    public function testHandleReturnsNotFoundWhenServerIsNull(): void
+    {
+        $controller = new StoreApiMcpServerController(
+            null,
+            new McpHttpTransportFactory(
+                static::createStub(HttpMessageFactoryInterface::class),
+                $this->psr17,
+                $this->psr17,
+                static::createStub(HttpFoundationFactoryInterface::class),
+                static::createStub(McpAllowedHostsProvider::class),
+            ),
+            new McpRateLimiter($this->rateLimiter),
+            new McpSessionIdValidator(),
+        );
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $controller->handle(new Request())->getStatusCode());
+    }
+
+    public function testHandleReturnsNotFoundWhenTransportFactoryIsUnavailable(): void
+    {
+        // A transport factory built without the PhpMcp bundle factories reports itself unavailable.
+        $unavailable = new McpHttpTransportFactory(
+            null,
+            null,
+            null,
+            null,
+            static::createStub(McpAllowedHostsProvider::class),
+        );
+
+        $controller = new StoreApiMcpServerController(
+            Server::builder()->build(),
+            $unavailable,
+            new McpRateLimiter($this->rateLimiter),
+            new McpSessionIdValidator(),
+        );
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $controller->handle(new Request())->getStatusCode());
+    }
+
+    public function testFlushesPendingToolsListChangedForActiveSession(): void
+    {
+        $sessionId = Uuid::v4()->toRfc4122();
+
+        $notifier = $this->createMock(McpListChangedNotifier::class);
+        $notifier->expects($this->once())
+            ->method('notifySession')
+            ->with(
+                $sessionId,
+                static::callback(static fn (McpListChangedNotificationSet $set): bool => $set->tools && !$set->resources && !$set->prompts),
+            );
+
+        $controller = $this->buildController(
+            new ServerRequest('POST', '/store-api/_mcp'),
+            new HttpFoundationFactory(),
+            listChangedNotifier: $notifier,
+        );
+
+        $request = Request::create('/store-api/_mcp', 'POST');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createSalesChannelContext());
+        $request->attributes->set(McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE, true);
+        $request->headers->set(PlatformRequest::HEADER_MCP_SESSION_ID, $sessionId);
+
+        $controller->handle($request);
+    }
+
+    public function testDoesNotFlushWhenNoPendingNotification(): void
+    {
+        $notifier = $this->createMock(McpListChangedNotifier::class);
+        $notifier->expects($this->never())->method('notifySession');
+
+        $controller = $this->buildController(
+            new ServerRequest('POST', '/store-api/_mcp'),
+            new HttpFoundationFactory(),
+            listChangedNotifier: $notifier,
+        );
+
+        $request = Request::create('/store-api/_mcp', 'POST');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createSalesChannelContext());
+        $request->headers->set(PlatformRequest::HEADER_MCP_SESSION_ID, Uuid::v4()->toRfc4122());
+
+        $controller->handle($request);
+    }
+
+    public function testDoesNotFlushWhenSessionHeaderMissing(): void
+    {
+        $notifier = $this->createMock(McpListChangedNotifier::class);
+        $notifier->expects($this->never())->method('notifySession');
+
+        $controller = $this->buildController(
+            new ServerRequest('POST', '/store-api/_mcp'),
+            new HttpFoundationFactory(),
+            listChangedNotifier: $notifier,
+        );
+
+        $request = Request::create('/store-api/_mcp', 'POST');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createSalesChannelContext());
+        $request->attributes->set(McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE, true);
+
+        $controller->handle($request);
+    }
+
     private function buildController(
         ServerRequest $psrRequest,
         ?HttpFoundationFactoryInterface $httpFoundationFactory = null,
         ?Server $server = null,
         ?McpSessionRegistry $sessionRegistry = null,
+        ?McpListChangedNotifier $listChangedNotifier = null,
     ): StoreApiMcpServerController {
         $httpMessageFactory = static::createStub(HttpMessageFactoryInterface::class);
         $httpMessageFactory->method('createRequest')->willReturn($psrRequest);
@@ -216,6 +321,7 @@ class StoreApiMcpServerControllerTest extends TestCase
             new McpRateLimiter($this->rateLimiter),
             new McpSessionIdValidator(),
             sessionRegistry: $sessionRegistry,
+            listChangedNotifier: $listChangedNotifier,
         );
     }
 

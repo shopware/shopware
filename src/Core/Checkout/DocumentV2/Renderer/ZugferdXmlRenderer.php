@@ -45,6 +45,7 @@ final readonly class ZugferdXmlRenderer extends AbstractDocumentRenderer
     {
         return [
             DocumentType::INVOICE->value,
+            DocumentType::CANCELLATION_INVOICE->value,
         ];
     }
 

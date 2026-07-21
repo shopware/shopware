@@ -49,7 +49,10 @@ class ZugferdXmlRendererTest extends TestCase
         );
 
         static::assertSame(DocumentFormat::ZUGFERD_XML->value, $renderer->getFormat());
-        static::assertSame([DocumentType::INVOICE->value], $renderer->getDocumentTypes());
+        static::assertSame(
+            [DocumentType::INVOICE->value, DocumentType::CANCELLATION_INVOICE->value],
+            $renderer->getDocumentTypes(),
+        );
     }
 
     public function testRenderToString(): void
@@ -142,6 +145,27 @@ class ZugferdXmlRendererTest extends TestCase
                     DocumentMetaProvider::KEY => $this->createMeta(),
                     DocumentType::CREDIT_NOTE->value => $this->createRenderData(),
                 ],
+            ),
+            new RenderState(),
+            Context::createDefaultContext(),
+        );
+    }
+
+    public function testRejectsDocumentTypeThatIsNotATrustedIdentifier(): void
+    {
+        $finder = $this->createMock(TemplateFinder::class);
+        $finder->expects($this->never())->method('find');
+
+        $renderer = $this->createRenderer($finder, $this->createMock(TwigEnvironment::class));
+
+        $this->expectExceptionObject(DocumentV2Exception::invalidDocumentType('../invoice'));
+
+        $renderer->renderToString(
+            new RenderInput(
+                '../invoice',
+                '12345',
+                $this->createOrder(),
+                [InvoiceDataProvider::KEY => $this->createRenderData()],
             ),
             new RenderState(),
             Context::createDefaultContext(),

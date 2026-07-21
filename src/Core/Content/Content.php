@@ -26,9 +26,10 @@ class Content extends Bundle
         parent::build($container);
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
+        $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('breadcrumb.xml');
         $loader->load('category.xml');
-        $loader->load('cookie.xml');
+        $phpLoader->load('cookie.php');
         $loader->load('media.xml');
         $loader->load('media_path.xml');
         $loader->load('product.xml');
@@ -50,7 +51,6 @@ class Content extends Bundle
         $loader->load('measurement_system.xml');
         $loader->load('shared.xml');
 
-        $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $phpLoader->load('product_export_tracking.php');
 
         if ($container->getParameter('kernel.environment') === 'test') {

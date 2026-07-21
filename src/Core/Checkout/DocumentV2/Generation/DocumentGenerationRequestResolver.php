@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Generation;
 
+use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -22,7 +23,7 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
 {
     public function __construct(
         private DataValidator $dataValidator,
-        private DocumentFormatValidator $documentFormatValidator,
+        private DocumentRendererRegistry $documentRendererRegistry,
     ) {
     }
 
@@ -50,7 +51,7 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
         $this->validate($payload);
 
         $formats = $this->extractFormats($payload);
-        $this->documentFormatValidator->validate($payload['documentType'], $formats);
+        $this->documentRendererRegistry->validateFormats($payload['documentType'], $formats);
 
         yield new DocumentGenerationRequest(
             orderId: $payload['orderId'],

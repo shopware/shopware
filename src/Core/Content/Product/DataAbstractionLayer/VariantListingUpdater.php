@@ -95,7 +95,7 @@ class VariantListingUpdater
 
                 $query->innerJoin('root', 'product_option', $mappingAlias, $mappingAlias . '.product_id IS NOT NULL');
                 $query->innerJoin($mappingAlias, 'property_group_option', $optionAlias, $optionAlias . '.id = ' . $mappingAlias . '.property_group_option_id AND ' . $optionAlias . '.property_group_id = :' . $optionAlias);
-                $query->andWhere($mappingAlias . '.product_id = product.id');
+                $query->andWhere($mappingAlias . '.product_id = product.id AND ' . $mappingAlias . '.product_version_id = :versionId');
 
                 $fields[] = 'LOWER(HEX(' . $optionAlias . '.id))';
 

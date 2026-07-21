@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Checkout\DocumentV2\Generation\DocumentFormatValidator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequestResolver;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
@@ -160,12 +159,10 @@ class DocumentGenerationRequestResolverTest extends TestCase
     ): DocumentGenerationRequestResolver {
         return new DocumentGenerationRequestResolver(
             new DataValidator(Validation::createValidatorBuilder()->getValidator()),
-            new DocumentFormatValidator(
-                $documentRendererRegistry ?? new DocumentRendererRegistry([
-                    new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
-                    new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
-                ]),
-            ),
+            $documentRendererRegistry ?? new DocumentRendererRegistry([
+                new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
+                new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
+            ]),
         );
     }
 

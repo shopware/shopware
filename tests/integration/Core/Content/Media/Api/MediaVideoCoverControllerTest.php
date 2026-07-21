@@ -111,7 +111,7 @@ class MediaVideoCoverControllerTest extends TestCase
 
     private function getMediaEntity(string $id): MediaEntity
     {
-        $entity = $this->mediaRepository->search(new Criteria([$id]), $this->context)->first();
+        $entity = $this->mediaRepository->search(new Criteria([$id]), $this->context)->getEntities()->first();
 
         static::assertNotNull($entity, \sprintf('Media entity "%s" not found', $id));
         static::assertInstanceOf(MediaEntity::class, $entity);

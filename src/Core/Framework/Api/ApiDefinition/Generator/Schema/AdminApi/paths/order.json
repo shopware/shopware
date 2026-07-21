@@ -116,9 +116,9 @@
     },
     "/_action/order/document-v2/available-types": {
       "get": {
-        "tags": ["Document Management"],
+        "tags": ["Document Management", "Experimental"],
         "summary": "List supported document V2 types and formats",
-        "description": "Returns document types and output formats currently implemented by the Document V2 pipeline.",
+        "description": "Returns document types and output formats currently implemented by the Document V2 pipeline. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
         "operationId": "documentV2AvailableTypes",
         "responses": {
           "200": {
@@ -163,9 +163,9 @@
     },
     "/_action/order/document-v2/create": {
       "post": {
-        "tags": ["Document Management"],
+        "tags": ["Document Management", "Experimental"],
         "summary": "Create a document through the Document V2 pipeline",
-        "description": "Creates one document with one or more requested output formats using the Document V2 services. Get supported `documentType` and `formats` values from `/_action/order/document-v2/available-types`. Use the returned `documentId` and one of the returned `formats` to download the created file through `/_action/order/document-v2/{documentId}/download/{format}`.",
+        "description": "Creates one document with one or more requested output formats using the Document V2 services. Get supported `documentType` and `formats` values from `/_action/order/document-v2/available-types`. Use the returned `documentId` and one of the returned `formats` to download the created file through `/_action/order/document-v2/{documentId}/download/{format}`. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
         "operationId": "createDocumentV2",
         "requestBody": {
           "required": true,
@@ -272,9 +272,9 @@
     },
     "/_action/order/document-v2/upload": {
       "post": {
-        "tags": ["Document Management"],
+        "tags": ["Document Management", "Experimental"],
         "summary": "Upload a document through the Document V2 pipeline",
-        "description": "Creates one static Document V2 document from either an existing media file or a raw binary file upload. Use `application/json` when the file already exists as media and pass `mediaId` in the body. Use a binary request body when uploading file bytes directly; in that case pass the document metadata as query parameters. Example binary upload: `POST /_action/order/document-v2/upload?orderId=018f5972f9ea72a0be49f7c39f72a2a0&orderVersionId=0fa91ce3e96a4bc2be4bd9ce752c3425&documentType=invoice&format=pdf&extension=pdf&fileName=invoice-1002` with header `Content-Type: application/pdf` and the PDF bytes as the request body. Get supported `documentType` and `format` values from `/_action/order/document-v2/available-types`.",
+        "description": "Creates one static Document V2 document from either an existing media file or a raw binary file upload. Use `application/json` when the file already exists as media and pass `mediaId` in the body. Use a binary request body when uploading file bytes directly; in that case pass the document metadata as query parameters. Example binary upload: `POST /_action/order/document-v2/upload?orderId=018f5972f9ea72a0be49f7c39f72a2a0&orderVersionId=0fa91ce3e96a4bc2be4bd9ce752c3425&documentType=invoice&format=pdf&extension=pdf&fileName=invoice-1002` with header `Content-Type: application/pdf` and the PDF bytes as the request body. Get supported `documentType` and `format` values from `/_action/order/document-v2/available-types`. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
         "operationId": "uploadDocumentV2",
         "parameters": [
           {
@@ -506,9 +506,9 @@
     },
     "/_action/order/document-v2/{documentId}/download/{format}": {
       "get": {
-        "tags": ["Document Management"],
+        "tags": ["Document Management", "Experimental"],
         "summary": "Download a Document V2 file",
-        "description": "Downloads one persisted format for a Document V2 document.",
+        "description": "Downloads one persisted format for a Document V2 document. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
         "operationId": "downloadDocumentV2",
         "parameters": [
           {
@@ -573,9 +573,9 @@
     },
     "/_action/order/document-v2/{documentId}/download-archive": {
       "get": {
-        "tags": ["Document Management"],
+        "tags": ["Document Management", "Experimental"],
         "summary": "Download all Document V2 files as ZIP",
-        "description": "Downloads all persisted formats for a Document V2 document as one ZIP archive. The archive contains one file per persisted format.",
+        "description": "Downloads all persisted formats for a Document V2 document as one ZIP archive. The archive contains one file per persisted format. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
         "operationId": "downloadDocumentV2Archive",
         "parameters": [
           {
@@ -615,9 +615,9 @@
     },
     "/_action/order/document-v2/preview": {
       "post": {
-        "tags": ["Document Management"],
+        "tags": ["Document Management", "Experimental"],
         "summary": "Preview a document through the Document V2 pipeline",
-        "description": "Renders one requested output format through the Document V2 services without persisting the document. Get supported `documentType` and `format` values from `/_action/order/document-v2/available-types`. The response `Content-Type` depends on the requested format.",
+        "description": "Renders one requested output format through the Document V2 services without persisting the document. Get supported `documentType` and `format` values from `/_action/order/document-v2/available-types`. The response `Content-Type` depends on the requested format. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
         "operationId": "previewDocumentV2",
         "requestBody": {
           "required": true,

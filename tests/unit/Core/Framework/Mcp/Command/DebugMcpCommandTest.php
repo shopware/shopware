@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Command;
 use Mcp\Capability\Registry;
 use Mcp\Schema\Prompt;
 use Mcp\Schema\PromptArgument;
-use Mcp\Schema\Resource;
+use Mcp\Schema\ResourceDefinition;
 use Mcp\Schema\ResourceTemplate;
 use Mcp\Schema\Tool;
 use Mcp\Server;
@@ -29,30 +29,6 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(McpCapabilityCatalog::class)]
 class DebugMcpCommandTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        $_SERVER['MCP_SERVER'] = '1';
-    }
-
-    protected function tearDown(): void
-    {
-        unset($_SERVER['MCP_SERVER']);
-    }
-
-    public function testExecuteReturnsErrorWhenFeatureFlagIsOff(): void
-    {
-        $_SERVER['MCP_SERVER'] = false;
-        try {
-            $tester = new CommandTester($this->makeCommand(new Registry()));
-            $tester->execute([]);
-
-            static::assertSame(1, $tester->getStatusCode());
-            static::assertStringContainsString('MCP bundle is not installed', $tester->getDisplay());
-        } finally {
-            $_SERVER['MCP_SERVER'] = '1';
-        }
-    }
-
     /**
      * @return iterable<string, array{?Builder, ?Registry}>
      */
@@ -107,7 +83,6 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(
             new Tool('my-tool', null, self::inputSchema(), 'Does things', null),
             'Acme\\MyTool',
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -126,7 +101,6 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(
             new Tool('McpHelloWorld-hello', null, self::inputSchema(), 'Says hello', null),
             static function (): string { return 'hello'; },
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -143,7 +117,6 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(
             new Tool('array-tool', null, self::inputSchema(), null, null),
             ['Acme\\MyTool', 'handle'],
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -158,7 +131,6 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(
             new Tool('my-tool', 'My Human-Readable Tool', self::inputSchema(), 'Does things', null),
             'Acme\\MyTool',
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -173,7 +145,6 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(
             new Tool('my-tool', null, self::inputSchema(), 'Does things', null),
             'Acme\\MyTool',
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -188,7 +159,6 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(
             new Tool('my-tool', null, self::inputSchema(), 'Does things for you', null),
             'Acme\\MyTool',
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -216,7 +186,6 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(
             new Tool('search-tool', null, $schema, 'Searches entities', null),
             'Acme\\SearchTool',
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -237,7 +206,6 @@ class DebugMcpCommandTest extends TestCase
             new Prompt('my-prompt', null, 'Explains everything', []),
             'Acme\\MyPrompt',
             [],
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -255,9 +223,8 @@ class DebugMcpCommandTest extends TestCase
     {
         $registry = new Registry();
         $registry->registerResource(
-            new Resource('shopware://test', 'my-resource', 'A helpful resource', null, null, null),
+            new ResourceDefinition('shopware://test', 'my-resource', null, 'A helpful resource', null, null, null),
             'Acme\\MyResource',
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -275,9 +242,8 @@ class DebugMcpCommandTest extends TestCase
     {
         $registry = new Registry();
         $registry->registerResource(
-            new Resource('shopware://entities', 'entities', 'All entity types', null, null, null),
+            new ResourceDefinition('shopware://entities', 'entities', null, 'All entity types', null, null, null),
             'Acme\\EntitiesResource',
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -290,9 +256,9 @@ class DebugMcpCommandTest extends TestCase
     public function testToolsFilterShowsOnlyTools(): void
     {
         $registry = new Registry();
-        $registry->registerTool(new Tool('my-tool', null, self::inputSchema(), 'Tool desc', null), 'Acme\\MyTool', true);
-        $registry->registerPrompt(new Prompt('my-prompt', null, 'Prompt desc', []), 'Acme\\MyPrompt', [], true);
-        $registry->registerResource(new Resource('shopware://test', 'my-resource', 'Resource desc', null, null, null), 'Acme\\MyResource', true);
+        $registry->registerTool(new Tool('my-tool', null, self::inputSchema(), 'Tool desc', null), 'Acme\\MyTool');
+        $registry->registerPrompt(new Prompt('my-prompt', null, 'Prompt desc', []), 'Acme\\MyPrompt', []);
+        $registry->registerResource(new ResourceDefinition('shopware://test', 'my-resource', null, 'Resource desc', null, null, null), 'Acme\\MyResource');
 
         $tester = new CommandTester($this->makeCommand($registry));
         $tester->execute(['--tools' => true]);
@@ -308,9 +274,9 @@ class DebugMcpCommandTest extends TestCase
     public function testPromptsFilterShowsOnlyPrompts(): void
     {
         $registry = new Registry();
-        $registry->registerTool(new Tool('my-tool', null, self::inputSchema(), 'Tool desc', null), 'Acme\\MyTool', true);
-        $registry->registerPrompt(new Prompt('my-prompt', null, 'Prompt desc', []), 'Acme\\MyPrompt', [], true);
-        $registry->registerResource(new Resource('shopware://test', 'my-resource', 'Resource desc', null, null, null), 'Acme\\MyResource', true);
+        $registry->registerTool(new Tool('my-tool', null, self::inputSchema(), 'Tool desc', null), 'Acme\\MyTool');
+        $registry->registerPrompt(new Prompt('my-prompt', null, 'Prompt desc', []), 'Acme\\MyPrompt', []);
+        $registry->registerResource(new ResourceDefinition('shopware://test', 'my-resource', null, 'Resource desc', null, null, null), 'Acme\\MyResource');
 
         $tester = new CommandTester($this->makeCommand($registry));
         $tester->execute(['--prompts' => true]);
@@ -326,9 +292,9 @@ class DebugMcpCommandTest extends TestCase
     public function testResourcesFilterShowsOnlyResources(): void
     {
         $registry = new Registry();
-        $registry->registerTool(new Tool('my-tool', null, self::inputSchema(), 'Tool desc', null), 'Acme\\MyTool', true);
-        $registry->registerPrompt(new Prompt('my-prompt', null, 'Prompt desc', []), 'Acme\\MyPrompt', [], true);
-        $registry->registerResource(new Resource('shopware://test', 'my-resource', 'Resource desc', null, null, null), 'Acme\\MyResource', true);
+        $registry->registerTool(new Tool('my-tool', null, self::inputSchema(), 'Tool desc', null), 'Acme\\MyTool');
+        $registry->registerPrompt(new Prompt('my-prompt', null, 'Prompt desc', []), 'Acme\\MyPrompt', []);
+        $registry->registerResource(new ResourceDefinition('shopware://test', 'my-resource', null, 'Resource desc', null, null, null), 'Acme\\MyResource');
 
         $tester = new CommandTester($this->makeCommand($registry));
         $tester->execute(['--resources' => true]);
@@ -344,8 +310,8 @@ class DebugMcpCommandTest extends TestCase
     public function testIntegrationOptionWithNullAllowlistShowsAllToolsAndNote(): void
     {
         $registry = new Registry();
-        $registry->registerTool(new Tool('tool-a', null, self::inputSchema(), null, null), 'Acme\\ToolA', true);
-        $registry->registerTool(new Tool('tool-b', null, self::inputSchema(), null, null), 'Acme\\ToolB', true);
+        $registry->registerTool(new Tool('tool-a', null, self::inputSchema(), null, null), 'Acme\\ToolA');
+        $registry->registerTool(new Tool('tool-b', null, self::inputSchema(), null, null), 'Acme\\ToolB');
 
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
         $allowlistProvider->method('forAccessKey')->willReturn(new McpAllowlist(tools: null, resources: null, prompts: null));
@@ -363,8 +329,8 @@ class DebugMcpCommandTest extends TestCase
     public function testIntegrationOptionFiltersToAllowedTools(): void
     {
         $registry = new Registry();
-        $registry->registerTool(new Tool('tool-a', null, self::inputSchema(), null, null), 'Acme\\ToolA', true);
-        $registry->registerTool(new Tool('tool-b', null, self::inputSchema(), null, null), 'Acme\\ToolB', true);
+        $registry->registerTool(new Tool('tool-a', null, self::inputSchema(), null, null), 'Acme\\ToolA');
+        $registry->registerTool(new Tool('tool-b', null, self::inputSchema(), null, null), 'Acme\\ToolB');
 
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
         $allowlistProvider->method('forAccessKey')->willReturn(new McpAllowlist(tools: ['tool-a'], resources: null, prompts: null));
@@ -382,7 +348,7 @@ class DebugMcpCommandTest extends TestCase
     public function testIntegrationOptionWithEmptyAllowlistShowsNoTools(): void
     {
         $registry = new Registry();
-        $registry->registerTool(new Tool('tool-a', null, self::inputSchema(), null, null), 'Acme\\ToolA', true);
+        $registry->registerTool(new Tool('tool-a', null, self::inputSchema(), null, null), 'Acme\\ToolA');
 
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
         $allowlistProvider->method('forAccessKey')->willReturn(new McpAllowlist(tools: [], resources: null, prompts: null));
@@ -402,7 +368,6 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(
             new Tool('shopware-entity-delete', null, self::inputSchema(), 'Delete entities', null),
             'Acme\\DeleteTool',
-            true,
         );
 
         $catalog = new McpCapabilityCatalog(
@@ -428,7 +393,6 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(
             new Tool('shopware-entity-search', null, self::inputSchema(), 'Search entities', null),
             'Acme\\SearchTool',
-            true,
         );
 
         $catalog = new McpCapabilityCatalog(
@@ -454,7 +418,6 @@ class DebugMcpCommandTest extends TestCase
             ]),
             'Acme\\MyPrompt',
             [],
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -472,9 +435,8 @@ class DebugMcpCommandTest extends TestCase
     {
         $registry = new Registry();
         $registry->registerResource(
-            new Resource('shopware://json', 'json-resource', 'JSON resource', 'application/json', null, null),
+            new ResourceDefinition('shopware://json', 'json-resource', null, 'JSON resource', 'application/json', null, null),
             'Acme\\JsonResource',
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -489,7 +451,6 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(
             new Tool('shopware-entity-search', null, self::inputSchema(), 'Search entities', null),
             'Acme\\SearchTool',
-            true,
         );
 
         $catalog = new McpCapabilityCatalog(
@@ -512,10 +473,9 @@ class DebugMcpCommandTest extends TestCase
     {
         $registry = new Registry();
         $registry->registerResourceTemplate(
-            new ResourceTemplate('shopware://{entity}/{id}', 'entity-by-id', 'Get entity by ID'),
+            new ResourceTemplate('shopware://{entity}/{id}', 'entity-by-id', null, 'Get entity by ID'),
             'Acme\\EntityByIdTemplate',
             [],
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -550,7 +510,6 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(
             new Tool('schema-tool', null, $schema, 'Does things', null),
             'Acme\\SchemaTool',
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -568,7 +527,6 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(
             new Tool('object-tool', null, self::inputSchema(), null, null),
             [new \stdClass(), 'handle'],
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));

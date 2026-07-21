@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Migration\Command;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\Command\MigrationCommand;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
@@ -15,6 +16,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MigrationCommand::class)]
 class MigrationCommandTest extends TestCase
 {

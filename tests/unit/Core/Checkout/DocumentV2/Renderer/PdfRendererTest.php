@@ -43,6 +43,7 @@ class PdfRendererTest extends TestCase
         static::assertSame([DocumentFormat::HTML->value], $renderer->getDependencies());
         static::assertSame([
             DocumentType::INVOICE->value,
+            DocumentType::CANCELLATION_INVOICE->value,
             DocumentType::DELIVERY_NOTE->value,
         ], $renderer->getDocumentTypes());
     }

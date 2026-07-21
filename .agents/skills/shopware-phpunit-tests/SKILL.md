@@ -29,10 +29,17 @@ Tests should read like executable examples.
 - Keep legacy feature-flag behavior in dedicated tests that are easy to remove when the flag is removed.
 - In unit tests, current major feature flags are active by default. Test legacy/off behavior by disabling the flag with the `#[DisabledFeatures]` attribute; do not use `Feature::fake()` just to activate the current major flag.
 - In integration tests, feature-flag state comes from the job configuration (the default integration job runs with flags off, integration-major with `FEATURE_ALL=major`), and the suite may run multiple times with flags on and off. `#[DisabledFeatures]` has no effect there and the test runner rejects it — a test carrying the attribute fails the run. Skip tests explicitly with `Feature::skipTestIfActive()` or `Feature::skipTestIfInActive()` when the current feature-flag value is not the one the scenario expects.
-- If a class is intentionally covered only by integration tests, mark it with `@codeCoverageIgnore` on its own docblock line and add a separate `@see ShortIntegrationTestClassName` line. Import the integration test class with a `use` statement instead of writing a fully-qualified class name in the annotation.
+- If a class is intentionally covered only by integration tests, mark it with `@codeCoverageIgnore` on its own docblock line and add a separate `@see \Shopware\Tests\Integration\…\DedicatedIntegrationTest` line. Use the fully qualified class name with a leading `\`; do not import a test class solely for the annotation. The referenced class must be a dedicated integration test for that production class; incidental coverage from an unrelated test is not sufficient. Extract or add a focused test class before adding the annotation.
 - Every new class should either have focused unit-test coverage or be explicitly marked with `@codeCoverageIgnore` and an integration-test `@see` when unit coverage does not make sense.
 - Simple struct-style classes with only public properties do not need unit tests; mark them with `@codeCoverageIgnore` instead.
 - Do not add `#[CoversClass]`, `#[CoversFunction]`, or `#[CoversNothing]` to integration tests. Shopware's PHPStan rule allows those attributes only on unit and migration tests.
+
+## Package Attribute
+
+- Give every test class a `#[Package('…')]` attribute (import `Shopware\Core\Framework\Log\Package`) so failing CI jobs — especially the nightlies — can be routed to the owning domain team. A Danger rule fails PRs that add test classes without it.
+- In unit and migration tests, copy the value from the `#[CoversClass]` target's `#[Package]`.
+- Integration tests carry no `#[CoversClass]`; use the dominant `#[Package]` value of the `src/` directory the test path mirrors (e.g. `tests/integration/Core/Checkout/Cart/…` → `src/Core/Checkout/Cart`).
+- When a change moves the covered class to another package, update the test's attribute in the same change so the two stay in sync.
 
 ## Data Providers
 

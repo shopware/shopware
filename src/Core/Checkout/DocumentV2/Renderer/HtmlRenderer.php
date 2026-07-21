@@ -44,6 +44,7 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
     {
         return [
             DocumentType::INVOICE->value,
+            DocumentType::CANCELLATION_INVOICE->value,
             DocumentType::DELIVERY_NOTE->value,
         ];
     }

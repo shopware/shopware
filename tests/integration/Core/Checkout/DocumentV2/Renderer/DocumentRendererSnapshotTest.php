@@ -13,11 +13,15 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentCompanyInfo;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
+use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\CancellationInvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\DeliveryNoteDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\CancellationInvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DeliveryNoteRenderData;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
@@ -125,20 +129,26 @@ class DocumentRendererSnapshotTest extends TestCase
             data: $this->buildRenderData($documentType, $order),
         );
 
+        $htmlResult = $this->htmlRenderer->renderToString($input, new RenderState(), $this->context);
+        static::assertSame(DocumentFormat::HTML->value, $htmlResult->format);
+
         /**
          * @var array<int, array{type: string, actual: string}> $snaps
          */
         $snaps = [
             [
                 'type' => self::TYPE_HTML,
-                'actual' => $this->htmlRenderer->renderToString($input, new RenderState(), $this->context)->content,
+                'actual' => $htmlResult->content,
             ],
         ];
 
         if ($renderXml) {
+            $xmlResult = $this->xmlRenderer->renderToString($input, new RenderState(), $this->context);
+            static::assertSame(DocumentFormat::ZUGFERD_XML->value, $xmlResult->format);
+
             $snaps[] = [
                 'type' => self::TYPE_XML,
-                'actual' => $this->xmlRenderer->renderToString($input, new RenderState(), $this->context)->content,
+                'actual' => $xmlResult->content,
             ];
         }
 
@@ -153,6 +163,11 @@ class DocumentRendererSnapshotTest extends TestCase
         yield 'invoice' => [
             'documentType' => DocumentType::INVOICE,
             'dataProviderClass' => InvoiceDataProvider::class,
+        ];
+
+        yield 'storno' => [
+            'documentType' => DocumentType::CANCELLATION_INVOICE,
+            'dataProviderClass' => CancellationInvoiceDataProvider::class,
         ];
 
         yield 'delivery_note' => [
@@ -306,10 +321,30 @@ class DocumentRendererSnapshotTest extends TestCase
         /** @phpstan-ignore match.unhandled */
         $data += match ($documentType) {
             DocumentType::INVOICE => [InvoiceDataProvider::KEY => $this->buildInvoiceRenderData($order)],
+            DocumentType::CANCELLATION_INVOICE => [CancellationInvoiceDataProvider::KEY => $this->buildCancellationInvoiceRenderData($order)],
             DocumentType::DELIVERY_NOTE => [DeliveryNoteDataProvider::KEY => $this->buildDeliveryNoteRenderData()],
         };
 
         return $data;
+    }
+
+    private function buildCancellationInvoiceRenderData(OrderEntity $order): CancellationInvoiceRenderData
+    {
+        $this->seedDemoBaseConfig('storno');
+        $this->seedReferenceInvoice($order->getId());
+
+        $provider = static::getContainer()->get(CancellationInvoiceDataProvider::class);
+
+        $request = new DocumentGenerationRequest(
+            $order->getId(),
+            $order->getVersionId() ?? Uuid::randomHex(),
+            DocumentType::CANCELLATION_INVOICE,
+            [DocumentFormat::ZUGFERD_XML],
+            self::DOCUMENT_NUMBER,
+            documentDate: self::DOCUMENT_DATE,
+        );
+
+        return $provider->provideRenderingData($order, $request, $this->context);
     }
 
     private function buildDeliveryNoteRenderData(): DeliveryNoteRenderData

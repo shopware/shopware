@@ -70,6 +70,62 @@ describe('extension tooling multi-target coverage (e2e)', () => {
     );
 
     it(
+        'detects a diagnostic in every root of a zero-config multi-root project',
+        async () => {
+            const zeroConfigRoot = createTempProject('sw-tooling-multi-zeroconfig-');
+            const zeroConfigAdmin = createVendorAdmin(zeroConfigRoot, { entitySchema: 'real' });
+            const extensionRoot = path.join(zeroConfigRoot, 'custom/plugins/ZeroSuite');
+
+            try {
+                writeFile(path.join(extensionRoot, 'composer.json'), '{}\n');
+
+                // Both roots carry their own type error; neither may hide behind the other.
+                writeFile(path.join(extensionRoot, 'src/BundleA/Resources/app/administration/src/main.ts'), [
+                    "export const bundleAValue: number = 'not a number';",
+                ]);
+                writeFile(path.join(extensionRoot, 'src/BundleB/Resources/app/administration/src/main.ts'), [
+                    "export const bundleBValue: number = 'also not a number';",
+                ]);
+
+                writePluginsConfig(zeroConfigRoot, [
+                    {
+                        technicalName: 'ZeroSuiteA',
+                        basePath: 'custom/plugins/ZeroSuite/src/BundleA',
+                        administrationPath: 'Resources/app/administration/src',
+                    },
+                    {
+                        technicalName: 'ZeroSuiteB',
+                        basePath: 'custom/plugins/ZeroSuite/src/BundleB',
+                        administrationPath: 'Resources/app/administration/src',
+                    },
+                ]);
+
+                // No shim: the managed per-target programs are the zero-config default.
+                setupExtensionTooling({ projectRoot: zeroConfigRoot, administrationRoot: zeroConfigAdmin });
+
+                const check = await checkExtensions({
+                    projectRoot: zeroConfigRoot,
+                    administrationRoot: zeroConfigAdmin,
+                    only: 'ZeroSuite',
+                });
+                const result = check.results[0];
+
+                expect(result.project.targets).toHaveLength(2);
+                expect(result.tsResolution.mode).toBe('managed');
+                expect(result.commands.typescript).toHaveLength(2);
+                expect(result.typescript.status).toBe('failed');
+                expect(result.typescript.output).toContain('BundleA');
+                expect(result.typescript.output).toContain('BundleB');
+                expect(result.typescript.output).toContain('TS2322');
+                expect(check.exitCode).toBe(1);
+            } finally {
+                cleanupTempProject(zeroConfigRoot);
+            }
+        },
+        CHECK_TIMEOUT,
+    );
+
+    it(
         'runs one shared package config once and rejects it until it covers every target',
         async () => {
             const sharedProjectRoot = createTempProject('sw-tooling-shared-target-');

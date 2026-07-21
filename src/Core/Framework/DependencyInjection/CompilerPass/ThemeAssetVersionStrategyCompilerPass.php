@@ -13,7 +13,7 @@ class ThemeAssetVersionStrategyCompilerPass implements CompilerPassInterface
     {
         if ($container->hasParameter('shopware.filesystem.theme.use_last_modified_version_strategy')
             && !$container->getParameter('shopware.filesystem.theme.use_last_modified_version_strategy')
-            ) {
+        ) {
             $container->removeDefinition('shopware.asset.theme.version_strategy');
             $container->setAlias('shopware.asset.theme.version_strategy', 'assets.empty_version_strategy');
         }

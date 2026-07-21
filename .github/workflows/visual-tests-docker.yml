@@ -28,13 +28,15 @@ jobs:
       - name: Define environment
         shell: bash
         run: |
-          echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
-          echo "MAILER_DSN=smtp://localhost:1025" >> $GITHUB_ENV
-          echo "MAILPIT_BASE_URL=http://localhost:8025" >> $GITHUB_ENV
-          echo "SHOPWARE_HTTP_CACHE_ENABLED=0" >> $GITHUB_ENV
-          echo "SHOPWARE_DISABLE_UPDATE_CHECK=true" >> $GITHUB_ENV
-          echo "BLUE_GREEN_DEPLOYMENT=1" >> $GITHUB_ENV
-          echo "ENABLE_SERVICES=0" >> $GITHUB_ENV
+          {
+            echo "REDIS_URL=redis://localhost:6379"
+            echo "MAILER_DSN=smtp://localhost:1025"
+            echo "MAILPIT_BASE_URL=http://localhost:8025"
+            echo "SHOPWARE_HTTP_CACHE_ENABLED=0"
+            echo "SHOPWARE_DISABLE_UPDATE_CHECK=true"
+            echo "BLUE_GREEN_DEPLOYMENT=1"
+            echo "ENABLE_SERVICES=0"
+          } >> "$GITHUB_ENV"
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
@@ -68,7 +70,7 @@ jobs:
             --ipc=host \
             --init \
             --network=host \
-            --user $(id -u):$(id -g) \
+            --user "$(id -u):$(id -g)" \
             -e APP_URL=http://localhost:8000 \
             -e SHOPWARE_ADMIN_USERNAME=admin \
             -e SHOPWARE_ADMIN_PASSWORD=shopware \
@@ -78,7 +80,7 @@ jobs:
             -v "$GITHUB_WORKSPACE:/app" \
             -w /app/tests/acceptance \
             "mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION}-noble" \
-            npx $ATS_CMD test --project=Visual --workers=1 "$UPDATE_SNAPSHOTS" "$FILTER"
+            npx "$ATS_CMD" test --project=Visual --workers=1 "$UPDATE_SNAPSHOTS" "$FILTER"
       - name: Upload visual test results
         if: always()
         continue-on-error: true
@@ -146,9 +148,11 @@ jobs:
           URL="https://${DOMAIN}/${REPORT_DEST}/index.html"
           echo "${URL}"
 
-          echo "### Playwright HTML Report" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "- ${URL}" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "### Playwright HTML Report"
+            echo ""
+            echo "- ${URL}"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Create token for PR
         if: ${{ inputs.update-snapshots }}
@@ -163,7 +167,7 @@ jobs:
         if: ${{ inputs.update-snapshots }}
         id: diff
         shell: bash
-        run: git diff --exit-code tests/acceptance/tests/ || echo "changed=true" >> $GITHUB_OUTPUT
+        run: git diff --exit-code tests/acceptance/tests/ || echo "changed=true" >> "$GITHUB_OUTPUT"
 
       - name: Create Pull Request
         if: ${{ inputs.update-snapshots && steps.diff.outputs.changed == 'true' && steps.create-pr-token.outputs.token != '' }}

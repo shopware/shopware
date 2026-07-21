@@ -29,7 +29,7 @@ class ExcludeFieldsReaderTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->excludeFields(['description']);
 
-        $product = static::getContainer()->get('product.repository')->search($criteria, $context)->get($id);
+        $product = static::getContainer()->get('product.repository')->search($criteria, $context)->getEntities()->get($id);
 
         // Unlike addFields(), the result is the full, typed ProductEntity (not a PartialEntity).
         static::assertInstanceOf(ProductEntity::class, $product);

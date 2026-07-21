@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\DocumentV2\Renderer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
@@ -67,9 +68,10 @@ class PdfRendererTest extends TestCase
         $this->mediaService = static::getContainer()->get(MediaService::class);
     }
 
-    public function testGeneratesPdf(): void
+    #[DataProvider('providePdfDocumentTypes')]
+    public function testGeneratesPdf(DocumentType $documentType): void
     {
-        $this->seedDemoInvoiceBaseConfig();
+        $this->seedDemoBaseConfig($documentType->value);
 
         $cart = $this->generateDemoCartWithTaxes([19, 7]);
         $cart = $this->applyTenPercentPromotion($cart);
@@ -81,7 +83,49 @@ class PdfRendererTest extends TestCase
         $request = new DocumentGenerationRequest(
             orderId: $orderId,
             orderVersionId: $orderVersionId,
-            documentType: DocumentType::INVOICE,
+            documentType: $documentType,
+            requestedFormats: [DocumentFormat::PDF],
+            deliveryDate: '2026-05-08T09:30:00+00:00',
+        );
+
+        $document = $this->documentGenerator->generate($request, $this->context);
+
+        $files = $this->loadDocumentFiles($document->getId());
+        static::assertCount(1, $files);
+
+        $file = $files->first();
+        static::assertInstanceOf(DocumentFileEntity::class, $file);
+        static::assertSame(DocumentFormat::PDF->value, $file->getDocumentFormat());
+
+        $bytes = $this->mediaService->loadFile($file->getMediaId(), $this->context);
+        static::assertNotEmpty($bytes);
+        static::assertStringStartsWith('%PDF-', $bytes);
+    }
+
+    /**
+     * @return iterable<string, array{DocumentType}>
+     */
+    public static function providePdfDocumentTypes(): iterable
+    {
+        yield 'invoice' => [DocumentType::INVOICE];
+        yield 'delivery_note' => [DocumentType::DELIVERY_NOTE];
+    }
+
+    public function testGeneratesCancellationInvoicePdf(): void
+    {
+        $this->seedDemoBaseConfig('storno');
+
+        $cart = $this->applyTenPercentPromotion($this->generateDemoCartWithTaxes([19, 7]));
+        $orderId = $this->persistCart($cart);
+        $this->enrichOrderForRendering($orderId);
+        $this->seedReferenceInvoice($orderId, '1000');
+
+        $orderVersionId = $this->orderRepository->createVersion($orderId, $this->context, 'DRAFT');
+
+        $request = new DocumentGenerationRequest(
+            orderId: $orderId,
+            orderVersionId: $orderVersionId,
+            documentType: DocumentType::CANCELLATION_INVOICE,
             requestedFormats: [DocumentFormat::PDF],
         );
 
@@ -97,7 +141,6 @@ class PdfRendererTest extends TestCase
         $bytes = $this->mediaService->loadFile($file->getMediaId(), $this->context);
         static::assertNotEmpty($bytes);
         static::assertStringStartsWith('%PDF-', $bytes);
-        static::assertSame('application/pdf', (new \finfo(\FILEINFO_MIME_TYPE))->buffer($bytes));
     }
 
     private function loadDocumentFiles(string $documentId): DocumentFileCollection

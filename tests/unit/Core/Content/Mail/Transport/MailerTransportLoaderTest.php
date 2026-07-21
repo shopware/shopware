@@ -13,6 +13,7 @@ use Shopware\Core\Content\Mail\Transport\MailerTransportLoader;
 use Shopware\Core\Content\Mail\Transport\SmtpOauthAuthenticator;
 use Shopware\Core\Content\Mail\Transport\SmtpOauthTransportFactoryDecorator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Doctrine\TestExceptionFactory;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
@@ -29,6 +30,7 @@ use Symfony\Component\Mailer\Transport\Transports;
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(MailerTransportLoader::class)]
 class MailerTransportLoaderTest extends TestCase
 {

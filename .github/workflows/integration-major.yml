@@ -9,8 +9,8 @@ on:
     types: [opened, synchronize, reopened, labeled]
 
 permissions:
-    contents: read
-    id-token: write
+  contents: read
+  id-token: write
 
 jobs:
   phpunit-major-matrix:
@@ -26,9 +26,11 @@ jobs:
         run: |
           MATRIX=$(php .github/bin/generate-phpunit-matrix.php "" "true")
           jq . <<<"$MATRIX"
-          echo "matrix<<EOF" >> $GITHUB_OUTPUT
-          echo "$MATRIX" >> $GITHUB_OUTPUT
-          echo 'EOF' >> $GITHUB_OUTPUT
+          {
+            echo "matrix<<EOF"
+            echo "$MATRIX"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
 
   phpunit-major:
     name: "${{ matrix.test.testsuite }}${{ matrix.test.path }}"
@@ -84,7 +86,7 @@ jobs:
         with:
           test-path: ${{ matrix.test.path }}
           test-testsuite: ${{ matrix.test.testsuite }}
-        # no codecov-upload step: the major run's signal is the gate, not Test Analytics
+          # no codecov-upload step: the major run's signal is the gate, not Test Analytics
 
   # single required/monitorable status for the whole major matrix
   integration-major-check:

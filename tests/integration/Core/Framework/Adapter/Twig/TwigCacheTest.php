@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuild
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\Stub\Framework\BundleFixture;
@@ -18,6 +19,7 @@ use Twig\Environment;
 /**
  * @internal
  */
+#[Package('framework')]
 #[Group('cache')]
 class TwigCacheTest extends TestCase
 {

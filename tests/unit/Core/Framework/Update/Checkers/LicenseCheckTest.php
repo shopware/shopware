@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Update\Checkers;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Update\Checkers\LicenseCheck;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -11,6 +12,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(LicenseCheck::class)]
 class LicenseCheckTest extends TestCase
 {

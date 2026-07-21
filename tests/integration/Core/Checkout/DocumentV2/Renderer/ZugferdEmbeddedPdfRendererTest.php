@@ -79,7 +79,7 @@ class ZugferdEmbeddedPdfRendererTest extends TestCase
         $this->metaProvider = static::getContainer()->get(DocumentMetaProvider::class);
         $this->orderRepository = static::getContainer()->get('order.repository');
 
-        $this->seedDemoInvoiceBaseConfig();
+        $this->seedDemoBaseConfig(DocumentType::INVOICE->value);
     }
 
     protected function tearDown(): void
@@ -127,6 +127,7 @@ class ZugferdEmbeddedPdfRendererTest extends TestCase
         $result = $this->embeddedRenderer->renderToString($input, $state, $this->context);
 
         static::assertSame(DocumentFormat::ZUGFERD_EMBEDDED_PDF->value, $result->format);
+        static::assertSame('invoice_' . self::DOCUMENT_NUMBER . '_zugferd_embedded_pdf', $result->fileName);
         static::assertSame('pdf', $result->fileExtension);
         static::assertSame('application/pdf', $result->mimeType);
         static::assertStringStartsWith('%PDF-', $result->content);

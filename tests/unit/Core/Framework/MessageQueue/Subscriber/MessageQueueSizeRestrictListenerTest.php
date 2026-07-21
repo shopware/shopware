@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 use Shopware\Core\Framework\MessageQueue\Service\MessageSizeCalculator;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueSizeRestrictListener;
@@ -15,6 +16,7 @@ use Symfony\Component\Messenger\Transport\Sync\SyncTransport;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MessageQueueSizeRestrictListener::class)]
 class MessageQueueSizeRestrictListenerTest extends TestCase
 {

@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Mcp\Controller;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlist;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -16,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Saves the per-integration MCP allowlist (tools, resources, prompts).
  * Requires the `integration_mcp.editor` admin ACL privilege.
@@ -46,10 +45,6 @@ class IntegrationMcpAllowlistController
     )]
     public function save(string $integrationId, Request $request, Context $context): Response
     {
-        if (!Feature::isActive('MCP_SERVER')) {
-            return new Response(null, Response::HTTP_NOT_FOUND);
-        }
-
         $integration = $this->integrationRepository
             ->search(new Criteria([$integrationId]), $context)
             ->getEntities()

@@ -7,6 +7,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Sso\Controller;
 use League\OAuth2\Server\AuthorizationServer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\Config\LoginConfigService;
 use Shopware\Core\Framework\Sso\Controller\SsoController;
 use Shopware\Core\Framework\Sso\LoginResponseService;
@@ -26,6 +27,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SsoController::class)]
 class SsoControllerTest extends TestCase
 {

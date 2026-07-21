@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\MessageQueue\ScheduledTask;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Command\RegisterScheduledTasksCommand;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -11,6 +12,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('framework')]
 class RegisterScheduledTaskTest extends TestCase
 {
     use IntegrationTestBehaviour;

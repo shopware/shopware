@@ -353,7 +353,7 @@
         "watch:storefront": "Enables hot module reloading for the Storefront. Deprecated! Use 'storefront:dev-server' instead."
     },
     "scripts": {
-        "admin:check-extensions": "@npm:admin run extension-tooling:check --",
+        "admin:check-extensions": "@npm:admin:bin npm run extension-tooling:check --",
         "admin:code-mods": "@npm:admin run code-mods --",
         "admin:create:test": "@npm:admin run create-test",
         "admin:generate-blocks-list": "@npm:admin run generate-blocks-list",
@@ -369,8 +369,8 @@
         ],
         "admin:lint:snippets": "@npm:admin run lint:snippets",
         "admin:lint:snippets:all": "@npm:admin run lint:snippets:all",
-        "admin:setup-extension-tooling": "@npm:admin run extension-tooling:setup --",
-        "admin:setup-extension-tooling:check": "@npm:admin run extension-tooling:setup -- --check",
+        "admin:setup-extension-tooling": "@npm:admin:bin npm run extension-tooling:setup --",
+        "admin:setup-extension-tooling:check": "@npm:admin:bin npm run extension-tooling:setup -- --check",
         "admin:unit": [
             "Composer\\Config::disableProcessTimeout",
             "@framework:schema:dump",

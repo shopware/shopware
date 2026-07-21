@@ -198,7 +198,7 @@ or `[commit this]` so you can see the split before writing.
 | `⊘ blocked (entity schema missing)` | Run `composer admin:generate-entity-schema-types`; TypeScript checks refuse to run against the empty-schema stub. |
 | `Duplicate identifier` errors after bridging | Your plugin's own `global.types.ts` re-declares parts of the preset surface — prune the duplicates. |
 | `Cannot find module 'axios'` (or another host package) | The preset drops the old `"*" → node_modules` fallback. Map the package in `tsconfig.aliases.json` (see above). |
-| Three `Script … returned with error code 1` lines after a failing check | Composer prints these for every failing composer script; the check's own summary line above them is the verdict. |
+| Trailing `Script …` lines after a failing check | Composer echoes the script chain on a non-zero exit (the command flattens this to the minimum two lines). The check's own summary line above them is the verdict. |
 
 ## The type surface
 

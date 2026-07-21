@@ -90,7 +90,9 @@ class SeoUrlUpdater
         $languageChains = $this->fetchLanguageChains($context);
 
         $salesChannelIds = array_values(array_unique(array_column($templates, 'salesChannelId')));
-        $salesChannels = $this->salesChannelRepository->search(new Criteria($salesChannelIds), $context)->getEntities();
+        $criteria = new Criteria($salesChannelIds);
+        $criteria->addAssociation('domains');
+        $salesChannels = $this->salesChannelRepository->search($criteria, $context)->getEntities();
 
         foreach ($templates as $config) {
             $template = $config['template'];

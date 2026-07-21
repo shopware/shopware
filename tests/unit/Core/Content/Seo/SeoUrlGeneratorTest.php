@@ -11,6 +11,7 @@ use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\Context;
@@ -24,6 +25,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
@@ -52,6 +55,7 @@ class SeoUrlGeneratorTest extends TestCase
         $this->context = Context::createDefaultContext();
         $this->salesChannel = new SalesChannelEntity();
         $this->salesChannel->setId('sales-channel-id');
+        $this->salesChannel->setTypeId(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
     }
 
     public function testGenerateProducesSeoUrlWithCorrectFields(): void
@@ -101,6 +105,72 @@ class SeoUrlGeneratorTest extends TestCase
         static::assertSame('/base/path-info', $urls[0]->getPathInfo());
         static::assertSame('seo-path', $urls[0]->getSeoPathInfo());
         static::assertSame($this->salesChannel->getId(), $urls[0]->getSalesChannelId());
+    }
+
+    public function testGenerateForHeadlessPrefixesExternalStorefrontDomainUrl(): void
+    {
+        $entity = new ArrayEntity(['id' => 'entity-1']);
+
+        $entityRepository = new StaticEntityRepository([
+            new EntityCollection([$entity]),
+            new EntityCollection(),
+        ], $this->createTestDefinition());
+
+        $parser = $this->createMock(TwigVariableParser::class);
+        $parser->method('parse')->willReturn([]);
+
+        $twig = $this->createTwigEnvironment();
+
+        $router = $this->createMock(RouterInterface::class);
+        $router->method('generate')->willReturn('/store-api/product/entity-1');
+
+        $route = static::createStub(SeoUrlRouteInterface::class);
+        $route->method('prepareCriteria');
+        $route->method('getConfig')->willReturn(new SeoUrlRouteConfig($this->createTestDefinition(), 'store-api.product.detail', 'seo-path', true));
+        $route->method('getMapping')->willReturn(new SeoUrlMapping($entity, ['id' => 'entity-1'], ['name' => 'seo']));
+
+        $generator = $this->createGenerator(
+            [self::TEST_ENTITY_NAME => $entityRepository],
+            $twig,
+            $parser,
+            new NullLogger(),
+            $router,
+            new RequestStack()
+        );
+
+        $urls = iterator_to_array(
+            $generator->generate(['entity-1'], 'seo-path', $route, $this->context, $this->createHeadlessSalesChannel(true)),
+            false
+        );
+
+        // one url per external storefront domain, prefixed with the domain url
+        static::assertCount(1, $urls);
+        static::assertSame('https://headless.example/seo-path', $urls[0]->getSeoPathInfo());
+    }
+
+    public function testGenerateForHeadlessWithoutExternalStorefrontDomainReturnsNothing(): void
+    {
+        $entityRepository = new StaticEntityRepository([], $this->createTestDefinition());
+
+        $parser = $this->createMock(TwigVariableParser::class);
+        $twig = $this->createTwigEnvironment();
+
+        $route = static::createStub(SeoUrlRouteInterface::class);
+        $route->method('prepareCriteria');
+        $route->method('getConfig')->willReturn(new SeoUrlRouteConfig($this->createTestDefinition(), 'store-api.product.detail', 'seo-path', true));
+
+        $generator = $this->createGenerator(
+            [self::TEST_ENTITY_NAME => $entityRepository],
+            $twig,
+            $parser
+        );
+
+        $urls = iterator_to_array(
+            $generator->generate(['entity-1'], 'seo-path', $route, $this->context, $this->createHeadlessSalesChannel(false)),
+            false
+        );
+
+        static::assertCount(0, $urls);
     }
 
     public function testGenerateSkipsEmptySeoPathInfo(): void
@@ -288,6 +358,22 @@ class SeoUrlGeneratorTest extends TestCase
         $route->method('getConfig')->willReturn(new SeoUrlRouteConfig($this->createTestDefinition(), ProductPageSeoUrlRoute::ROUTE_NAME, '{{ missing.value }}', true));
         $urls = iterator_to_array($generator->generate(['entity-1'], '{{ missing.value }}', $route, $this->context, $this->salesChannel), false);
         static::assertCount(0, $urls);
+    }
+
+    private function createHeadlessSalesChannel(bool $externalStorefront): SalesChannelEntity
+    {
+        $domain = new SalesChannelDomainEntity();
+        $domain->setId('domain-1');
+        $domain->setUrl('https://headless.example');
+        $domain->setLanguageId(Defaults::LANGUAGE_SYSTEM);
+        $domain->setIsExternalStorefront($externalStorefront);
+
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId('headless-sales-channel-id');
+        $salesChannel->setTypeId(Defaults::SALES_CHANNEL_TYPE_API);
+        $salesChannel->setDomains(new SalesChannelDomainCollection([$domain]));
+
+        return $salesChannel;
     }
 
     /**

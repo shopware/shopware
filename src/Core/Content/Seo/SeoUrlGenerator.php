@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
@@ -66,6 +67,17 @@ class SeoUrlGenerator
 
         $repository = $this->definitionRegistry->getRepository($config->getDefinition()->getEntityName());
 
+        $domains = [];
+        if ($salesChannel->isHeadless()) {
+            $domains = $salesChannel->getDomains()
+                ?->filter(static fn (SalesChannelDomainEntity $domain): bool => $domain->isExternalStorefront())
+                ->getElements() ?? [];
+
+            if (\count($domains) === 0) {
+                return [];
+            }
+        }
+
         if ($this->loadTwigTemplate($config, $template)) {
             $associations = $this->getAssociations($template, $repository->getDefinition());
             $criteria->addAssociations($associations);
@@ -76,13 +88,14 @@ class SeoUrlGenerator
             $iterator = $context->enableInheritance(static fn (Context $context): RepositoryIterator => new RepositoryIterator($repository, $context, $criteria));
 
             while ($searchResult = $iterator->fetch()) {
-                yield from $this->generateUrls($route, $config, $salesChannel, $searchResult, $this->getTemplateName($template));
+                yield from $this->generateUrls($route, $config, $salesChannel, $searchResult, $this->getTemplateName($template), $domains);
             }
         }
     }
 
     /**
      * @param EntitySearchResult<EntityCollection<covariant Entity>> $searchResult
+     * @param SalesChannelDomainEntity[] $domains
      *
      * @return iterable<SeoUrlEntity>
      */
@@ -92,6 +105,7 @@ class SeoUrlGenerator
         SalesChannelEntity $salesChannel,
         EntitySearchResult $searchResult,
         string $templateName,
+        array $domains,
     ): iterable {
         $request = $this->requestStack->getMainRequest();
 
@@ -125,7 +139,17 @@ class SeoUrlGenerator
             $seoUrl->setSeoPathInfo($seoPathInfo);
             $seoUrl->setSalesChannelId($salesChannel->getId());
 
-            yield $seoUrl;
+            if (!$salesChannel->isHeadless() || preg_match('#^https?://.+#i', trim($seoPathInfo)) === 1) {
+                yield $seoUrl;
+
+                continue;
+            }
+
+            foreach ($domains as $domain) {
+                $seoUrl->setSeoPathInfo(rtrim($domain->getUrl(), '/') . '/' . $seoPathInfo);
+
+                yield clone $seoUrl;
+            }
         }
     }
 

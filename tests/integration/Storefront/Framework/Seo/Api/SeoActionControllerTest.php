@@ -231,9 +231,15 @@ class SeoActionControllerTest extends TestCase
         $salesChannelId = Uuid::randomHex();
         $this->createSalesChannelContext(['id' => $salesChannelId, 'typeId' => Defaults::SALES_CHANNEL_TYPE_API, 'name' => 'test']);
 
+        // SEO URLs are only generated for external storefront domains
+        static::getContainer()->get(Connection::class)->executeStatement(
+            'UPDATE `sales_channel_domain` SET `is_external_storefront` = 1 WHERE `sales_channel_id` = :id',
+            ['id' => Uuid::fromHexToBytes($salesChannelId)]
+        );
+
         $this->createTestProduct($salesChannelId);
 
-        // headless templates must render a full URL
+        // headless templates may render a full URL, which is passed through as-is
         $data = [
             'routeName' => ProductStoreApiUrlRoute::ROUTE_NAME,
             'entityName' => static::getContainer()->get(ProductDefinition::class)->getEntityName(),

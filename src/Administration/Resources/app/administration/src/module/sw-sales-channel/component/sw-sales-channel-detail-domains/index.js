@@ -5,7 +5,7 @@
 import template from './sw-sales-channel-detail-domains.html.twig';
 import './sw-sales-channel-detail-domains.scss';
 
-const { Mixin, Context } = Shopware;
+const { Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 const { ShopwareError } = Shopware.Classes;
 
@@ -59,6 +59,10 @@ export default {
     computed: {
         domainRepository() {
             return this.repositoryFactory.create(this.salesChannel.domains.entity, this.salesChannel.domains.source);
+        },
+
+        salesChannelIsHeadless() {
+            return this.salesChannel?.typeId === Defaults.apiSalesChannelTypeId;
         },
 
         currentDomainModalTitle() {

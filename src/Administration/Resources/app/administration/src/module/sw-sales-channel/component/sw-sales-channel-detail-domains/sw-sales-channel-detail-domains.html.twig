@@ -196,6 +196,16 @@
             :options="hreflangLocalisationOptions"
         />
         {% endblock %}
+
+        {% block sw_sales_channel_detail_domains_is_external_storefront %}
+        <mt-checkbox
+            v-if="salesChannelIsHeadless"
+            class="sw-sales-channel-detail-domains__is-external-storefront"
+            v-model:checked="currentDomain.isExternalStorefront"
+            :label="$t('sw-sales-channel.detail.labelIsExternalStorefront')"
+            :help-text="$t('sw-sales-channel.detail.helpTextIsExternalStorefront')"
+        />
+        {% endblock %}
         {% endblock %}
 
         <template #modal-footer>

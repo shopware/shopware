@@ -96,10 +96,11 @@ class SeoUrlUpdaterTest extends TestCase
         $storefrontSalesChannelOverride['domains'][0]['url'] = 'http://localhost/storefront';
         $this->storefrontSalesChannel = $this->createSalesChannel($storefrontSalesChannelOverride);
 
-        // Create headless sales channel.
+        // Create headless sales channel with an external storefront domain (SEO URLs are only generated for those).
         $headlessSalesChannelOverride = $salesChannelOverride;
         $headlessSalesChannelOverride['typeId'] = Defaults::SALES_CHANNEL_TYPE_API;
         $headlessSalesChannelOverride['domains'][0]['url'] = 'http://localhost/headless';
+        $headlessSalesChannelOverride['domains'][0]['isExternalStorefront'] = true;
         $this->headlessSalesChannel = $this->createSalesChannel($headlessSalesChannelOverride);
     }
 
@@ -205,9 +206,44 @@ class SeoUrlUpdaterTest extends TestCase
         static::assertNotNull($seoUrl);
         static::assertSame($this->headlessSalesChannel['id'], $seoUrl->getSalesChannelId());
         static::assertSame(ProductStoreApiUrlRoute::ROUTE_NAME, $seoUrl->getRouteName());
-        static::assertSame('visible-product', $seoUrl->getSeoPathInfo());
+        // the relative template is prefixed with the external storefront domain url
+        static::assertSame('http://localhost/headless/visible-product', $seoUrl->getSeoPathInfo());
 
         static::assertNull($this->findHeadlessProductSeoUrl($this->ids->get('hidden')));
+    }
+
+    public function testHeadlessSalesChannelWithoutExternalStorefrontDomainGeneratesNoSeoUrls(): void
+    {
+        // flag the domain as a non-external storefront: no SEO URLs must be generated for it
+        static::getContainer()->get(Connection::class)->executeStatement(
+            'UPDATE `sales_channel_domain` SET `is_external_storefront` = 0 WHERE `sales_channel_id` = :id',
+            ['id' => Uuid::fromHexToBytes($this->headlessSalesChannel['id'])]
+        );
+
+        static::getContainer()->get(Connection::class)->insert('seo_url_template', [
+            'id' => Uuid::randomBytes(),
+            'sales_channel_id' => Uuid::fromHexToBytes($this->headlessSalesChannel['id']),
+            'route_name' => ProductStoreApiUrlRoute::ROUTE_NAME,
+            'entity_name' => ProductDefinition::ENTITY_NAME,
+            'template' => '{{ product.translated.name }}',
+            'is_headless' => 1,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $product = (new ProductBuilder($this->ids, 'no-external'))
+            ->price(100)
+            ->name('no-external-product')
+            ->visibility($this->headlessSalesChannel['id'])
+            ->build();
+
+        static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+
+        static::getContainer()->get(SeoUrlUpdater::class)->update(
+            ProductStoreApiUrlRoute::ROUTE_NAME,
+            [$this->ids->get('no-external')]
+        );
+
+        static::assertNull($this->findHeadlessProductSeoUrl($this->ids->get('no-external')));
     }
 
     public function testHeadlessSalesChannelInheritsDefaultTemplate(): void
@@ -257,7 +293,8 @@ class SeoUrlUpdaterTest extends TestCase
 
         $seoUrl = $this->findHeadlessProductSeoUrl($this->ids->get('headless-inherit'));
         static::assertNotNull($seoUrl);
-        static::assertSame('inherited-product', $seoUrl->getSeoPathInfo());
+        // inherited relative template, prefixed with the external storefront domain url
+        static::assertSame('http://localhost/headless/inherited-product', $seoUrl->getSeoPathInfo());
     }
 
     /**

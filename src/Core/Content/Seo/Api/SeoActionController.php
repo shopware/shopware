@@ -21,7 +21,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -355,9 +357,18 @@ class SeoActionController extends AbstractController
      */
     private function resolveSalesChannel(array $seoUrlTemplate, Context $context): ?SalesChannelEntity
     {
-        $criteria = isset($seoUrlTemplate['salesChannelId']) && \is_string($seoUrlTemplate['salesChannelId'])
-            ? (new Criteria([$seoUrlTemplate['salesChannelId']]))->setLimit(1)
-            : (new Criteria())->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT))->setLimit(1);
+        if (isset($seoUrlTemplate['salesChannelId']) && \is_string($seoUrlTemplate['salesChannelId'])) {
+            $criteria = (new Criteria([$seoUrlTemplate['salesChannelId']]))->setLimit(1);
+        } else {
+            $criteria = (new Criteria())
+                ->addFilter(new OrFilter([
+                    new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT),
+                    new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_API),
+                ]))
+                ->setLimit(1);
+        }
+        $criteria->addAssociation('domains');
+        $criteria->addSorting(new FieldSorting('typeId'));
 
         return $this->salesChannelRepository
             ->search($criteria, $context)

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Content\Seo;
 
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\EntitySeoUrlRouteInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
@@ -42,10 +43,16 @@ class ConfiguredSeoUrlRoute implements SeoUrlRouteInterface
         }
 
         // Fallback for config-only routes: expose the entity in the template under its entity name.
+        $serialized = $entity->jsonSerialize();
+
+        if ($entity instanceof CategoryEntity) {
+            $serialized['seoBreadcrumb'] = $entity->getPlainBreadcrumb();
+        }
+
         return new SeoUrlMapping(
             $entity,
             $this->config->getPrimaryKeyParameter($entity->getUniqueIdentifier()),
-            [$this->config->getDefinition()->getEntityName() => $entity->jsonSerialize()]
+            [$this->config->getDefinition()->getEntityName() => $serialized]
         );
     }
 }

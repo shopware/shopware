@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Doctrine\BacktraceDebugDataHolder;
 use Shopware\Core\Profiling\Doctrine\ConnectionProfiler;
 use Shopware\Core\Profiling\Doctrine\ProfilingMiddleware;
@@ -19,6 +20,7 @@ use Symfony\Component\VarDumper\Dumper\CliDumper;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ConnectionProfiler::class)]
 class ConnectionProfilerTest extends TestCase
 {

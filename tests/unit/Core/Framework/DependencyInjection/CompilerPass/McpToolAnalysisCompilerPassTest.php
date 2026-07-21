@@ -175,22 +175,15 @@ class McpToolAnalysisCompilerPassTest extends TestCase
         $def->addTag('mcp.tool');
         $container->setDefinition('tool.missing', $def);
 
-        $warnings = [];
-        set_error_handler(static function (int $errno, string $message) use (&$warnings): bool {
-            $warnings[] = $message;
-
-            return true;
-        }, \E_USER_WARNING);
-
-        try {
-            (new McpToolAnalysisCompilerPass())->process($container);
-        } finally {
-            restore_error_handler();
-        }
+        (new McpToolAnalysisCompilerPass())->process($container);
 
         static::assertSame([], $container->getParameter('shopware.mcp.tool_groups'));
+
+        $warnings = array_values(array_filter(
+            $container->getCompiler()->getLog(),
+            static fn (string $message): bool => str_contains($message, 'tool.missing'),
+        ));
         static::assertCount(1, $warnings);
-        static::assertStringContainsString('tool.missing', $warnings[0]);
         static::assertStringContainsString('cannot be loaded', $warnings[0]);
     }
 

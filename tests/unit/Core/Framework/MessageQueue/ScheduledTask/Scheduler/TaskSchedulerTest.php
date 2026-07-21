@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\MinResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
@@ -32,6 +33,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TaskScheduler::class)]
 class TaskSchedulerTest extends TestCase
 {

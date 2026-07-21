@@ -7,6 +7,7 @@ use Doctrine\DBAL\Result;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 /**
  * @internal
  */
+#[Package('framework')]
 class MigrationCollectionRuntimeTest extends TestCase
 {
     use IntegrationTestBehaviour;

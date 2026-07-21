@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Service\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\App\Command\UninstallAppCommand;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
@@ -13,8 +12,7 @@ use Shopware\Core\Service\ServiceLifecycle;
 use Shopware\Core\Service\ServiceStorage;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\Option;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal
@@ -33,8 +31,7 @@ class UninstallAppCommandDecorator extends UninstallAppCommand
     }
 
     public function __invoke(
-        InputInterface $input,
-        OutputInterface $output,
+        SymfonyStyle $io,
         #[Argument(description: 'The name of the app')]
         string $name,
         #[Option(description: 'Keep user data of the app')]
@@ -43,7 +40,7 @@ class UninstallAppCommandDecorator extends UninstallAppCommand
         bool $skipThemeCompile = false,
     ): int {
         if ($this->lifecycleManager->enabled()) {
-            return parent::__invoke($input, $output, $name, $keepUserData, $skipThemeCompile);
+            return parent::__invoke($io, $name, $keepUserData, $skipThemeCompile);
         }
 
         $context = Context::createCLIContext();
@@ -51,12 +48,12 @@ class UninstallAppCommandDecorator extends UninstallAppCommand
         $service = $this->serviceStorage->findByName($name, $context);
 
         if ($service === null) {
-            return parent::__invoke($input, $output, $name, $keepUserData, $skipThemeCompile);
+            return parent::__invoke($io, $name, $keepUserData, $skipThemeCompile);
         }
 
         $this->serviceLifecycle->uninstall($service->name, $context);
 
-        (new ShopwareStyle($input, $output))->success('App uninstalled successfully.');
+        $io->success('App uninstalled successfully.');
 
         return self::SUCCESS;
     }

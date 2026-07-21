@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Notification;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(McpListChangedNotificationSet::class)]
 class McpListChangedNotificationSetTest extends TestCase
 {

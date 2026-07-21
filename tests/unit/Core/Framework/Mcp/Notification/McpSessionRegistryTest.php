@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Notification;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Psr16Cache;
@@ -13,6 +14,7 @@ use Symfony\Component\Lock\SharedLockInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(McpSessionRegistry::class)]
 class McpSessionRegistryTest extends TestCase
 {

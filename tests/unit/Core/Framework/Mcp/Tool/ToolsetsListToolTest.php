@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
@@ -14,6 +15,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ToolsetsListTool::class)]
 #[CoversClass(McpToolResponse::class)]
 class ToolsetsListToolTest extends TestCase

@@ -21,6 +21,7 @@ use Mcp\Schema\Tool;
 use Mcp\Server\Session\SessionInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlist;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistListRequestHandler;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
@@ -32,6 +33,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(McpAllowlistListRequestHandler::class)]
 class McpAllowlistListRequestHandlerTest extends TestCase
 {

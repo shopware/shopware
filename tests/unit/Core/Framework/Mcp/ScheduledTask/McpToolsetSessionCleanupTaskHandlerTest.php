@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Shopware\Core\Framework\Mcp\ScheduledTask\McpToolsetSessionCleanupTaskHandler;
 use Symfony\Component\Uid\AbstractUid;
@@ -14,6 +15,7 @@ use Symfony\Component\Uid\AbstractUid;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(McpToolsetSessionCleanupTaskHandler::class)]
 class McpToolsetSessionCleanupTaskHandlerTest extends TestCase
 {

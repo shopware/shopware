@@ -8,10 +8,11 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Exception\AppRegistrationException;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory;
 use Shopware\Core\Framework\App\Lifecycle\Registration\PrivateHandshake;
@@ -27,6 +28,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Integration\IntegrationEntity;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 /**
@@ -41,9 +43,9 @@ class AppRegistrationServiceTest extends TestCase
     private MockHandler $mockHandler;
 
     /**
-     * @var EntityRepository<AppCollection>&MockObject
+     * @var EntityRepository<AppCollection>&Stub
      */
-    private EntityRepository&MockObject $appRepositoryMock;
+    private EntityRepository&Stub $appRepositoryMock;
 
     private AppRegistrationService $appRegistrationService;
 
@@ -54,7 +56,7 @@ class AppRegistrationServiceTest extends TestCase
         $this->handshakeFactoryMock = $this->createMock(HandshakeFactory::class);
 
         $this->mockHandler = new MockHandler([]);
-        $this->appRepositoryMock = $this->createMock(EntityRepository::class);
+        $this->appRepositoryMock = static::createStub(EntityRepository::class);
         $this->testApp = $this->createAppEntity();
         $this->appRepositoryMock->method('search')->willReturn(
             new EntitySearchResult(
@@ -67,17 +69,7 @@ class AppRegistrationServiceTest extends TestCase
             )
         );
 
-        $shopIdProviderMock = $this->createMock(ShopIdProvider::class);
-        $shopIdProviderMock->method('getShopId')->willReturn(ShopId::v2('shop-id'));
-
-        $this->appRegistrationService = new AppRegistrationService(
-            $this->handshakeFactoryMock,
-            new Client(['handler' => $this->mockHandler]),
-            $this->appRepositoryMock,
-            'https://shopware.swag',
-            $shopIdProviderMock,
-            '6.5.2.0'
-        );
+        $this->appRegistrationService = $this->createService($this->appRepositoryMock);
     }
 
     public function testDoesNotRegisterAtAppServerIfManifestHasNoSetup(): void
@@ -98,13 +90,14 @@ class AppRegistrationServiceTest extends TestCase
             'http://app.server/register',
             'test',
             'shop-id',
-            $this->createMock(StoreClient::class),
+            static::createStub(StoreClient::class),
             '6.5.2.0',
+            new NativeClock(),
         );
 
         $registrationRequest = $handshake->assembleRequest();
 
-        $handshakeMock = $this->createMock(StoreHandshake::class);
+        $handshakeMock = static::createStub(StoreHandshake::class);
         $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
 
         $this->handshakeFactoryMock->expects($this->once())
@@ -115,8 +108,7 @@ class AppRegistrationServiceTest extends TestCase
             new RequestException('Unknown app', $registrationRequest),
         );
 
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App registration for "test" failed: Unknown app');
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'Unknown app'));
 
         $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -132,11 +124,12 @@ class AppRegistrationServiceTest extends TestCase
             'test',
             'shop-id',
             '6.5.2.0',
+            new NativeClock()
         );
 
         $registrationRequest = $handshake->assembleRequest();
 
-        $handshakeMock = $this->createMock(PrivateHandshake::class);
+        $handshakeMock = static::createStub(PrivateHandshake::class);
         $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
 
         $this->handshakeFactoryMock->expects($this->once())
@@ -154,8 +147,7 @@ class AppRegistrationServiceTest extends TestCase
             ),
         );
 
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App registration for "test" failed: Database error on app server');
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'Database error on app server'));
 
         $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -171,11 +163,12 @@ class AppRegistrationServiceTest extends TestCase
             'test',
             'shop-id',
             '6.5.2.0',
+            new NativeClock()
         );
 
         $registrationRequest = $handshake->assembleRequest();
 
-        $handshakeMock = $this->createMock(PrivateHandshake::class);
+        $handshakeMock = static::createStub(PrivateHandshake::class);
         $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
 
         $this->handshakeFactoryMock->expects($this->once())
@@ -189,8 +182,7 @@ class AppRegistrationServiceTest extends TestCase
             ),
         );
 
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App registration for "test" failed: Database error on app server');
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'Database error on app server'));
 
         $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -206,13 +198,14 @@ class AppRegistrationServiceTest extends TestCase
             'test',
             'shop-id',
             '6.5.2.0',
+            new NativeClock()
         );
 
         $this->testApp->setAppSecret('4pp-s3cr3t');
 
         $registrationRequest = $handshake->assembleRequest();
 
-        $handshakeMock = $this->createMock(PrivateHandshake::class);
+        $handshakeMock = static::createStub(PrivateHandshake::class);
         $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
         $handshakeMock->method('fetchAppProof')->willReturn('proof');
 
@@ -231,8 +224,7 @@ class AppRegistrationServiceTest extends TestCase
             ),
         );
 
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App registration for "test" failed: The new app secret returned from the App must be different from the current one.');
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'The new app secret returned from the App must be different from the current one.'));
 
         $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -248,11 +240,12 @@ class AppRegistrationServiceTest extends TestCase
             'test',
             'shop-id',
             '6.5.2.0',
+            new NativeClock()
         );
 
         $registrationRequest = $handshake->assembleRequest();
 
-        $handshakeMock = $this->createMock(PrivateHandshake::class);
+        $handshakeMock = static::createStub(PrivateHandshake::class);
         $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
         $handshakeMock->method('fetchAppProof')->willReturn('proof');
 
@@ -272,7 +265,18 @@ class AppRegistrationServiceTest extends TestCase
         );
         $this->mockHandler->append(new Response());
 
-        $this->appRepositoryMock->expects($this->once())
+        $appRepositoryMock = $this->createMock(EntityRepository::class);
+        $appRepositoryMock->method('search')->willReturn(
+            new EntitySearchResult(
+                'app',
+                1,
+                new AppCollection([$this->testApp]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+        $appRepositoryMock->expects($this->once())
             ->method('update')
             ->with(
                 [
@@ -281,7 +285,8 @@ class AppRegistrationServiceTest extends TestCase
                 static::isInstanceOf(Context::class)
             );
 
-        $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
+        $appRegistrationService = $this->createService($appRepositoryMock);
+        $appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 
     public function testThrowsAppRegistrationExceptionIfAppServerProvidesInvalidJson(): void
@@ -295,11 +300,12 @@ class AppRegistrationServiceTest extends TestCase
             'test',
             'shop-id',
             '6.5.2.0',
+            new NativeClock()
         );
 
         $registrationRequest = $handshake->assembleRequest();
 
-        $handshakeMock = $this->createMock(PrivateHandshake::class);
+        $handshakeMock = static::createStub(PrivateHandshake::class);
         $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
 
         $this->handshakeFactoryMock->expects($this->once())
@@ -308,8 +314,7 @@ class AppRegistrationServiceTest extends TestCase
 
         $this->mockHandler->append(new Response(body: '{invalid-json: test,}'));
 
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App registration for "test" failed: JSON response could not be decoded');
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'JSON response could not be decoded'));
 
         $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -325,11 +330,12 @@ class AppRegistrationServiceTest extends TestCase
             'test',
             'shop-id',
             '6.5.2.0',
+            new NativeClock()
         );
 
         $registrationRequest = $handshake->assembleRequest();
 
-        $handshakeMock = $this->createMock(PrivateHandshake::class);
+        $handshakeMock = static::createStub(PrivateHandshake::class);
         $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
 
         $this->handshakeFactoryMock->expects($this->once())
@@ -342,8 +348,7 @@ class AppRegistrationServiceTest extends TestCase
             new RequestException('Unknown app', $registrationRequest, new Response(SymfonyResponse::HTTP_INTERNAL_SERVER_ERROR, body: $responseBody)),
         );
 
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App registration for "test" failed: Got status code 500, with response: ' . $responseBody);
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'Got status code 500, with response: ' . $responseBody));
 
         $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -359,11 +364,12 @@ class AppRegistrationServiceTest extends TestCase
             'test',
             'shop-id',
             '6.5.2.0',
+            new NativeClock()
         );
 
         $registrationRequest = $handshake->assembleRequest();
 
-        $handshakeMock = $this->createMock(PrivateHandshake::class);
+        $handshakeMock = static::createStub(PrivateHandshake::class);
         $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
         $handshakeMock->method('fetchAppProof')->willReturn(Uuid::randomHex());
 
@@ -382,8 +388,7 @@ class AppRegistrationServiceTest extends TestCase
             ),
         );
 
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App registration for "test" failed: The app server provided no proof');
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'The app server provided no proof'));
 
         $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -399,11 +404,12 @@ class AppRegistrationServiceTest extends TestCase
             'test',
             'shop-id',
             '6.5.2.0',
+            new NativeClock()
         );
 
         $registrationRequest = $handshake->assembleRequest();
 
-        $handshakeMock = $this->createMock(PrivateHandshake::class);
+        $handshakeMock = static::createStub(PrivateHandshake::class);
         $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
         $handshakeMock->method('fetchAppProof')->willReturn(Uuid::randomHex());
 
@@ -422,10 +428,28 @@ class AppRegistrationServiceTest extends TestCase
             ),
         );
 
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App registration for "test" failed: The app server provided an invalid proof');
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'The app server provided an invalid proof'));
 
         $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
+    }
+
+    /**
+     * @param EntityRepository<AppCollection> $appRepository
+     */
+    private function createService(EntityRepository $appRepository): AppRegistrationService
+    {
+        $shopIdProviderMock = static::createStub(ShopIdProvider::class);
+        $shopIdProviderMock->method('getShopId')->willReturn(ShopId::v2('shop-id'));
+
+        return new AppRegistrationService(
+            $this->handshakeFactoryMock,
+            new Client(['handler' => $this->mockHandler]),
+            $appRepository,
+            'https://shopware.swag',
+            $shopIdProviderMock,
+            '6.5.2.0',
+            new NativeClock(),
+        );
     }
 
     private function createAppEntity(): AppEntity

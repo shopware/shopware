@@ -46,24 +46,7 @@ class StateMachineSateFieldSerializerTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testEncodeEveryStateMachineStateIdAllowedWhenCreatingEntity(): void
-    {
-        $payload = array_merge(
-            $this->createOrderPayload(),
-            [
-                'stateId' => $this->fetchOrderStateId(OrderStates::STATE_COMPLETED),
-            ]
-        );
-
-        $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($payload): void {
-            $this->orderRepository->create([$payload], $context);
-        });
-
-        // Expect no exception was thrown
-        $this->addToAssertionCount(1);
-    }
-
-    public function testEncodeChaingingStateMachineStateIdNotAllowedWhenWrongScope(): void
+    public function testChangingStateMachineStateIdThroughRepositoryIsNotAllowedWhenWrongScope(): void
     {
         $payload = $this->createOrderPayload();
         $this->orderRepository->create([$payload], $this->context);
@@ -83,24 +66,6 @@ class StateMachineSateFieldSerializerTest extends TestCase
                 ],
             ], $context);
         });
-    }
-
-    public function testEncodeChaingingStateMachineStateIdAllowedWhenCorrectScope(): void
-    {
-        $payload = $this->createOrderPayload();
-        $this->orderRepository->create([$payload], $this->context);
-
-        $this->context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($payload): void {
-            $this->orderRepository->update([
-                [
-                    'id' => $payload['id'],
-                    'stateId' => $this->fetchOrderStateId(OrderStates::STATE_COMPLETED),
-                ],
-            ], $context);
-        });
-
-        // Expect no exception was thrown
-        $this->addToAssertionCount(1);
     }
 
     /**

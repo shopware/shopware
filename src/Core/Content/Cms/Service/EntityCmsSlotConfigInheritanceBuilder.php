@@ -34,12 +34,19 @@ readonly class EntityCmsSlotConfigInheritanceBuilder
         $slotConfigs = $this->collectSlotConfigs($translations);
         $languageInheritanceChain = $this->getLanguageInheritanceChain($context);
 
-        $result = [];
+        /**
+         * Merge field-by-field within each slot so that partial slot overrides in the
+         * child language do not drop fields that are still inherited from the parent
+         * language. Later entries in the chain (child) win over earlier ones (parent).
+         */
+        $merged = [];
         foreach ($languageInheritanceChain as $currentLanguageId) {
-            $result[] = $slotConfigs[$currentLanguageId] ?? [];
+            foreach ($slotConfigs[$currentLanguageId] ?? [] as $slotId => $fields) {
+                if ($fields) {
+                    $merged[$slotId] = \array_replace($merged[$slotId] ?? [], $fields);
+                }
+            }
         }
-
-        $merged = \array_merge(...$result);
 
         return $merged !== [] ? $merged : null;
     }
@@ -49,7 +56,7 @@ readonly class EntityCmsSlotConfigInheritanceBuilder
      *
      * @param EntityCollection<TTranslation>|null $translations
      *
-     * @return array<string, array<string, array<string, mixed>>>
+     * @return array<string, array<string, array<string, array<string, mixed>>|null>>
      */
     private function collectSlotConfigs(?EntityCollection $translations): array
     {

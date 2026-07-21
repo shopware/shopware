@@ -26,6 +26,11 @@ class Migration1773317656AddZugferdCreditNoteTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1773317656, (new Migration1773317656AddZugferdCreditNote())->getCreationTimestamp());
+    }
+
     public function testAddZugferdCreditNote(): void
     {
         $technicalNames = [

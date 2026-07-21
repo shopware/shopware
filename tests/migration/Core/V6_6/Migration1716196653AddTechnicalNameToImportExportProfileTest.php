@@ -45,6 +45,11 @@ class Migration1716196653AddTechnicalNameToImportExportProfileTest extends TestC
         $this->connection = self::getContainer()->get(Connection::class);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1716196653, (new Migration1716196653AddTechnicalNameToImportExportProfile())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         if (TableHelper::columnExists($this->connection, 'import_export_profile', 'technical_name')) {

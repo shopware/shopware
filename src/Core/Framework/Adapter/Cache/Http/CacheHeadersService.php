@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Adapter\Cache\Http\Extension\CacheHashRequiredExtens
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -99,10 +100,15 @@ class CacheHeadersService
             HttpCacheCookieEvent::RULE_IDS => $ruleIds,
             HttpCacheCookieEvent::VERSION_ID => $context->getVersionId(),
             HttpCacheCookieEvent::CURRENCY_ID => $context->getCurrencyId(),
-            HttpCacheCookieEvent::LANGUAGE_ID => $context->getLanguageId(),
             HttpCacheCookieEvent::TAX_STATE => $context->getTaxState(),
             HttpCacheCookieEvent::LOGGED_IN_STATE => $context->getCustomer() ? 'logged-in' : 'not-logged-in',
         ];
+
+        // Storefront language is already encoded in the resolved domain URL, while Store API
+        // can serve different languages for the same URL through the sw-language-id header.
+        if ($this->isStoreApi($request)) {
+            $parts[HttpCacheCookieEvent::LANGUAGE_ID] = $context->getLanguageId();
+        }
 
         foreach ($this->cookies as $cookie) {
             if ($request->cookies->has($cookie)) {
@@ -141,5 +147,14 @@ class CacheHeadersService
         }
 
         return false;
+    }
+
+    private function isStoreApi(Request $request): bool
+    {
+        return \in_array(
+            StoreApiRouteScope::ID,
+            $request->attributes->all(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE),
+            true
+        );
     }
 }

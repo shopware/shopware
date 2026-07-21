@@ -28,6 +28,11 @@ class Migration1720603803RemoveDefaultPaymentMethodRuleTest extends TestCase
         $this->ids = new IdsCollection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1720603803, (new Migration1720603803RemoveDefaultPaymentMethodRule())->getCreationTimestamp());
+    }
+
     public function testUpdate(): void
     {
         $this->addTestConditions();

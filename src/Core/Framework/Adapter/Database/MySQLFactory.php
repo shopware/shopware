@@ -78,7 +78,7 @@ class MySQLFactory
             $parameters['driverOptions'][Mysql::ATTR_SSL_KEY] = $sslCertKey;
         }
 
-        if (EnvironmentHelper::getVariable('DATABASE_SSL_DONT_VERIFY_SERVER_CERT')) {
+        if (EnvironmentHelper::getVariable('DATABASE_SSL_DONT_VERIFY_SERVER_CERT') && \defined('\Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT')) {
             $parameters['driverOptions'][Mysql::ATTR_SSL_VERIFY_SERVER_CERT] = false;
         }
 

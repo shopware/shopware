@@ -23,15 +23,12 @@
       "buttonAddOrder": "Add order",
       "textOrders": "Orders",
       "textOrdersTotal": "No orders | One order | {count} orders",
-      "contextMenuView": "View",
-      "contextMenuDelete": "Delete",
       "contextMenuConfirmPayment": "Confirm payment",
       "messageEmpty": "No orders yet",
       "titleSidebarItemRefresh": "Refresh",
       "titleSidebarItemFilter": "Filter",
       "titleSidebarItemFilterAffiliateCode": "Affiliate code",
       "titleSidebarItemFilterCampaignCode": "Campaign code",
-      "buttonDelete": "Delete",
       "textDeleteConfirm": "Do you really want to delete this order ({orderNumber})?",
       "labelManualOrder": "Created by admin",
       "tooltipCustomerComment": "Additional information: {comment}",
@@ -95,8 +92,7 @@
       "labelToggleAutomaticPromotions": "Disable automatically applied promotions",
       "labelPromotions": "Promotions",
       "generalTab": {
-        "labelLineItemsCard": "Items",
-        "labelGeneralInfoCard": "Info"
+        "labelLineItemsCard": "Items"
       },
       "detailsTab": {
         "labelTransactionCard": "Payment",
@@ -199,7 +195,6 @@
     "detailBase": {
       "cardTitleDetails": "Details",
       "cardTitleLineItems": "Items",
-      "cardTitleGeneralInfo": "Info",
       "cardTitlePromotions": "Promotions",
       "columnProductName": "Name",
       "columnQuantity": "Quantity",
@@ -236,7 +231,6 @@
       "buttonAddProduct": "Add product",
       "buttonAddBlankProduct": "Add custom item",
       "buttonAddCredit": "Add credit",
-      "buttonEditAddress": "Edit",
       "tooltipNestedLineItemsButton": "This line item contains sub-items.",
       "labelNoPhoneNumber": "No phone number yet",
       "labelNoEmail": "No emails yet",
@@ -318,13 +312,11 @@
       "emptySearchResults": "No addresses found."
     },
     "leavePageModal": {
-      "headline": "Warning",
       "description": "There are unsaved changes. Are you sure you want to leave this page without saving?",
       "confirmButton": "Leave page",
       "cancelButton": "Stay on page"
     },
     "saveChangesBeforehandModal": {
-      "headline": "Warning",
       "statusDescription": "Before changing the status, your changes need to be saved. Do you want to save the changes now?",
       "confirmButton": "Save changes"
     },
@@ -443,7 +435,6 @@
       "labelCreateDownloadPdf": "Create and download PDF",
       "labelCreateSend": "Create and send",
       "labelCreate": "Create",
-      "labelCancel": "Close",
       "labelPreview": "Preview",
       "labelHighlightedItemsHeader": "Name",
       "labelHighlightedItemsEntry": "Total",
@@ -459,7 +450,6 @@
       "labelRecipient": "Email address",
       "labelContent": "Email content",
       "labelSubject": "Subject",
-      "labelClose": "Close",
       "errorMessage": "Something went wrong while sending the Email."
     },
     "stateModal": {
@@ -506,7 +496,6 @@
         "buttonAddNewCustomer": "Add new customer",
         "placeholderSearchCustomer": "Enter the customer name...",
         "textEmptySearch": "No data for {name}",
-        "contextOpenButton": "Open",
         "columnCustomerName": "Name",
         "columnCustomerNumber": "Customer number",
         "columnSalesChannel": "Sales Channel",
@@ -545,11 +534,21 @@
       "orderDateFilter": {
         "label": "Order date",
         "options": {
-          "lastYear": "Last year",
-          "lastQuarter": "Last quarter",
-          "lastMonth": "Last month",
-          "lastWeek": "Last week",
-          "lastDay": "Last day",
+          "today": "Today",
+          "yesterday": "Yesterday",
+          "currentWeek": "Current week",
+          "lastWeek": "Last 7 days",
+          "lastCalendarWeek": "Previous week",
+          "currentMonth": "Current month",
+          "lastMonth": "Last 30 days",
+          "lastCalendarMonth": "Previous month",
+          "currentQuarter": "Current quarter",
+          "lastQuarter": "Previous quarter",
+          "last3Months": "Last 3 months",
+          "last6Months": "Last 6 months",
+          "last12Months": "Last 12 months",
+          "currentYear": "Current year",
+          "previousYear": "Previous year",
           "custom": "Custom"
         }
       },

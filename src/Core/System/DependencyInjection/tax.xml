@@ -35,5 +35,10 @@
         <service id="Shopware\Core\System\Tax\TaxRuleType\ZipCodeRuleTypeFilter">
             <tag name="tax.rule_type_filter"/>
         </service>
+
+        <service id="Shopware\Core\System\Tax\Api\TaxRateFkResolver">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="shopware.sync.fk_resolver"/>
+        </service>
     </services>
 </container>

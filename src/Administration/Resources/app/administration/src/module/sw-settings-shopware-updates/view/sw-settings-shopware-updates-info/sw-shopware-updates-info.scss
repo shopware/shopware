@@ -6,7 +6,7 @@
     word-break: break-word;
     color: var(--color-text-primary-default);
     font-size: var(--font-size-xs);
-    line-height: var(--line-height-md);
+    line-height: var(--font-line-height-m);
 
     h2 {
         font-size: var(--font-size-m);
@@ -28,7 +28,7 @@
 
     p {
         margin: 0 0 var(--scale-size-12);
-        line-height: var(--line-height-md);
+        line-height: var(--font-line-height-m);
     }
 
     ul,
@@ -82,9 +82,9 @@
 .sw-changelog a[href^="https://github.com/shopware/shopware/compare"] {
     font-family: ui-monospace, SFMono-Regular, menlo, monaco, consolas, monospace;
     font-size: var(--font-size-2xs);
-    color: $color-darkgray-300;
+    color: var(--color-text-secondary-default);
 
     &:visited {
-        color: $color-darkgray-200;
+        color: var(--color-text-secondary-default);
     }
 }

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\SalesChannelRequest;
@@ -32,6 +33,7 @@ use Symfony\Component\Translation\MessageCatalogueInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 class TranslatorTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -391,35 +393,28 @@ class TranslatorTest extends TestCase
     }
 
     /**
-     * @return list<array{string, string, int, string}>
+     * @return iterable<string, array{string, string, int, string}>
      */
-    public static function pluralTranslationProvider(): array
+    public static function pluralTranslationProvider(): iterable
     {
-        return [
-            // Test English plural rules
-            ['There are 0 apples', 'There is one apple|There are %count% apples', 0, 'en-GB'],
-            ['There is one apple', 'There is one apple|There are %count% apples', 1, 'en-GB'],
-            ['There are 2 apples', 'There is one apple|There are %count% apples', 2, 'en-GB'],
-            ['There are 21 apples', 'There is one apple|There are %count% apples', 21, 'en-GB'],
-
-            ['There are 0 apples', 'There is one apple|There are %count% apples', 0, 'en_GB'],
-            ['There is one apple', 'There is one apple|There are %count% apples', 1, 'en_GB'],
-            ['There are 2 apples', 'There is one apple|There are %count% apples', 2, 'en_GB'],
-            ['There are 21 apples', 'There is one apple|There are %count% apples', 21, 'en_GB'],
-
-            // Test Ukrainian plural rules
-            ['0 яблук', '%count% яблуко|%count% яблука|%count% яблук', 0, 'uk-UA'],
-            ['1 яблуко', '%count% яблуко|%count% яблука|%count% яблук', 1, 'uk-UA'],
-            ['2 яблука', '%count% яблуко|%count% яблука|%count% яблук', 2, 'uk-UA'],
-            ['5 яблук', '%count% яблуко|%count% яблука|%count% яблук', 5, 'uk-UA'],
-            ['21 яблуко', '%count% яблуко|%count% яблука|%count% яблук', 21, 'uk-UA'],
-
-            ['0 яблук', '%count% яблуко|%count% яблука|%count% яблук', 0, 'uk_UA'],
-            ['1 яблуко', '%count% яблуко|%count% яблука|%count% яблук', 1, 'uk_UA'],
-            ['2 яблука', '%count% яблуко|%count% яблука|%count% яблук', 2, 'uk_UA'],
-            ['5 яблук', '%count% яблуко|%count% яблука|%count% яблук', 5, 'uk_UA'],
-            ['21 яблуко', '%count% яблуко|%count% яблука|%count% яблук', 21, 'uk_UA'],
-        ];
+        yield 'English hyphenated locale uses plural form for zero apples' => ['There are 0 apples', 'There is one apple|There are %count% apples', 0, 'en-GB'];
+        yield 'English hyphenated locale uses singular form for one apple' => ['There is one apple', 'There is one apple|There are %count% apples', 1, 'en-GB'];
+        yield 'English hyphenated locale uses plural form for two apples' => ['There are 2 apples', 'There is one apple|There are %count% apples', 2, 'en-GB'];
+        yield 'English hyphenated locale uses plural form for twenty one apples' => ['There are 21 apples', 'There is one apple|There are %count% apples', 21, 'en-GB'];
+        yield 'English underscored locale uses plural form for zero apples' => ['There are 0 apples', 'There is one apple|There are %count% apples', 0, 'en_GB'];
+        yield 'English underscored locale uses singular form for one apple' => ['There is one apple', 'There is one apple|There are %count% apples', 1, 'en_GB'];
+        yield 'English underscored locale uses plural form for two apples' => ['There are 2 apples', 'There is one apple|There are %count% apples', 2, 'en_GB'];
+        yield 'English underscored locale uses plural form for twenty one apples' => ['There are 21 apples', 'There is one apple|There are %count% apples', 21, 'en_GB'];
+        yield 'Ukrainian hyphenated locale uses many form for zero apples' => ['0 яблук', '%count% яблуко|%count% яблука|%count% яблук', 0, 'uk-UA'];
+        yield 'Ukrainian hyphenated locale uses singular form for one apple' => ['1 яблуко', '%count% яблуко|%count% яблука|%count% яблук', 1, 'uk-UA'];
+        yield 'Ukrainian hyphenated locale uses few form for two apples' => ['2 яблука', '%count% яблуко|%count% яблука|%count% яблук', 2, 'uk-UA'];
+        yield 'Ukrainian hyphenated locale uses many form for five apples' => ['5 яблук', '%count% яблуко|%count% яблука|%count% яблук', 5, 'uk-UA'];
+        yield 'Ukrainian hyphenated locale uses singular form for twenty one apples' => ['21 яблуко', '%count% яблуко|%count% яблука|%count% яблук', 21, 'uk-UA'];
+        yield 'Ukrainian underscored locale uses many form for zero apples' => ['0 яблук', '%count% яблуко|%count% яблука|%count% яблук', 0, 'uk_UA'];
+        yield 'Ukrainian underscored locale uses singular form for one apple' => ['1 яблуко', '%count% яблуко|%count% яблука|%count% яблук', 1, 'uk_UA'];
+        yield 'Ukrainian underscored locale uses few form for two apples' => ['2 яблука', '%count% яблуко|%count% яблука|%count% яблук', 2, 'uk_UA'];
+        yield 'Ukrainian underscored locale uses many form for five apples' => ['5 яблук', '%count% яблуко|%count% яблука|%count% яблук', 5, 'uk_UA'];
+        yield 'Ukrainian underscored locale uses singular form for twenty one apples' => ['21 яблуко', '%count% яблуко|%count% яблука|%count% яблук', 21, 'uk_UA'];
     }
 
     private function switchDefaultLanguage(): void

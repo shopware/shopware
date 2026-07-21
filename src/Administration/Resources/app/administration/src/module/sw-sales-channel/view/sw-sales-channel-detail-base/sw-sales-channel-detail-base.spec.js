@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package discovery
  */
@@ -20,7 +22,7 @@ responses.addResponse({
 });
 
 async function createWrapper(options = {}) {
-    const { props = {}, provide = {} } = options;
+    const { props = {}, provide = {}, stubs = {} } = options;
 
     return mount(await wrapTestComponent('sw-sales-channel-detail-base', { sync: true }), {
         global: {
@@ -35,7 +37,20 @@ async function createWrapper(options = {}) {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
                 'sw-entity-single-select': true,
-                'sw-sales-channel-defaults-select': true,
+                'sw-single-select': true,
+                'sw-sales-channel-defaults-select': {
+                    props: [
+                        'criteria',
+                        'disabled',
+                        'propertyName',
+                    ],
+                    template: `
+                        <sw-sales-channel-defaults-select-stub
+                            :disabled="disabled"
+                            :property-name="propertyName"
+                        />
+                    `,
+                },
                 'router-link': true,
                 'sw-radio-field': true,
                 'sw-multi-tag-ip-select': true,
@@ -47,11 +62,16 @@ async function createWrapper(options = {}) {
                 'sw-agentic-commerce-tracking-config': true,
                 'sw-category-tree-field': true,
                 'mt-select': true,
-                'sw-custom-field-set-renderer': true,
+                'sw-custom-field-set-renderer': {
+                    name: 'sw-custom-field-set-renderer',
+                    props: ['disabled'],
+                    template: '<div class="sw-custom-field-set-renderer"></div>',
+                },
                 'sw-form-field-renderer': true,
                 'mt-banner': true,
                 'sw-sales-channel-measurement': true,
                 'sw-time-ago': true,
+                ...stubs,
             },
             provide: {
                 salesChannelService: {},
@@ -94,12 +114,144 @@ async function createWrapper(options = {}) {
 }
 
 describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => {
+    beforeAll(() => {
+        Shopware.Service().register('timezoneService', () => ({
+            getTimezoneOptions: () => [
+                {
+                    label: 'UTC',
+                    value: 'UTC',
+                },
+            ],
+        }));
+    });
+
     beforeEach(async () => {
         Shopware.Store.get('session').setCurrentUser({
             id: '8fe88c269c214ea68badf7ebe678ab96',
         });
         global.repositoryFactoryMock.showError = false;
         global.activeAclRoles = [];
+    });
+
+    describe('feed label input', () => {
+        const productComparisonSalesChannel = { typeId: PRODUCT_COMPARISON_TYPE_ID };
+        const FEED_LABEL_SELECTOR = '.sw-sales-channel-detail-base__feed-label';
+
+        beforeEach(() => {
+            global.activeAclRoles = ['sales_channel.editor'];
+        });
+
+        it.each([
+            {
+                case: 'product comparison + google template',
+                salesChannel: productComparisonSalesChannel,
+                templateName: 'google-product-search-de',
+                expected: true,
+            },
+            {
+                case: 'product comparison + non-google template',
+                salesChannel: productComparisonSalesChannel,
+                templateName: 'idealo-de',
+                expected: false,
+            },
+            {
+                case: 'non-product-comparison + google template',
+                salesChannel: { typeId: STOREFRONT_SALES_CHANNEL_TYPE_ID },
+                templateName: 'google-product-search-de',
+                expected: false,
+            },
+            {
+                case: 'product comparison + no template selected',
+                salesChannel: productComparisonSalesChannel,
+                templateName: null,
+                expected: false,
+            },
+        ])('visibility on $case → $expected', async ({ salesChannel, templateName, expected }) => {
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel,
+                    productExport: { feedLabel: null },
+                    templateName,
+                },
+            });
+
+            expect(wrapper.find(FEED_LABEL_SELECTOR).exists()).toBe(expected);
+        });
+
+        it.each([
+            { case: 'null', feedLabel: null },
+            { case: 'empty string', feedLabel: '' },
+        ])('passes empty string to mt-text-field when feedLabel is $case', async ({ feedLabel }) => {
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel: productComparisonSalesChannel,
+                    productExport: { feedLabel },
+                    templateName: 'google-product-search-de',
+                },
+            });
+
+            const field = wrapper.findComponent(FEED_LABEL_SELECTOR);
+            expect(field.props('modelValue')).toBe('');
+        });
+
+        it('writes the typed value back to productExport.feedLabel', async () => {
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel: productComparisonSalesChannel,
+                    productExport: { feedLabel: null },
+                    templateName: 'google-product-search-de',
+                },
+            });
+
+            const input = wrapper.find(`${FEED_LABEL_SELECTOR} input`);
+            await input.setValue('SUMMER-2026');
+
+            expect(wrapper.vm.productExport.feedLabel).toBe('SUMMER-2026');
+        });
+
+        it.each([
+            [
+                'summer224',
+                'SUMMER224',
+            ],
+            [
+                'Summer-2026',
+                'SUMMER-2026',
+            ],
+            [
+                'eu_de',
+                'EU_DE',
+            ],
+        ])('upper-cases letters as the merchant types (%s -> %s)', async (typed, stored) => {
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel: productComparisonSalesChannel,
+                    productExport: { feedLabel: null },
+                    templateName: 'google-product-search-de',
+                },
+            });
+
+            const input = wrapper.find(`${FEED_LABEL_SELECTOR} input`);
+            await input.setValue(typed);
+
+            expect(wrapper.vm.productExport.feedLabel).toBe(stored);
+            expect(input.element.value).toBe(stored);
+        });
+
+        it('writes null back when the input is cleared', async () => {
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel: productComparisonSalesChannel,
+                    productExport: { feedLabel: 'SUMMER-2026' },
+                    templateName: 'google-product-search-de',
+                },
+            });
+
+            const input = wrapper.find(`${FEED_LABEL_SELECTOR} input`);
+            await input.setValue('');
+
+            expect(wrapper.vm.productExport.feedLabel).toBeNull();
+        });
     });
 
     it('should have the select template field disabled', async () => {
@@ -182,6 +334,24 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
+    it('should have the business timezone field disabled', async () => {
+        const wrapper = await createWrapper();
+
+        const field = wrapper.get('.sw-sales-channel-detail__select-business-time-zone');
+
+        expect(field.attributes().disabled).toBe('true');
+    });
+
+    it('should have the business timezone field enabled', async () => {
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
+
+        const field = wrapper.get('.sw-sales-channel-detail__select-business-time-zone');
+
+        expect(field.attributes().disabled).toBeUndefined();
+    });
+
     it('should have the navigation category depth field disabled', async () => {
         const wrapper = await createWrapper();
 
@@ -198,6 +368,21 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         const field = wrapper.get('mt-number-field-stub[label="sw-sales-channel.detail.navigationCategoryDepth"]');
 
         expect(field.attributes().disabled).toBeUndefined();
+    });
+
+    it('should disable the custom field renderer without sales channel edit permissions', async () => {
+        global.activeAclRoles = ['sales_channel.viewer'];
+
+        const wrapper = await createWrapper({
+            props: {
+                salesChannel: {
+                    typeId: STOREFRONT_SALES_CHANNEL_TYPE_ID,
+                },
+                customFieldSets: [{}],
+            },
+        });
+
+        expect(wrapper.getComponent('.sw-custom-field-set-renderer').props('disabled')).toBe(true);
     });
 
     it('should have the service category id field disabled', async () => {
@@ -1001,18 +1186,45 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have currency criteria with sort', async () => {
+    it.each([
+        [
+            'currencies',
+            'name',
+        ],
+        [
+            'shippingMethods',
+            'name',
+        ],
+        [
+            'paymentMethods',
+            'distinguishableName',
+        ],
+        [
+            'countries',
+            'name',
+        ],
+        [
+            'languages',
+            'name',
+        ],
+    ])('should pass alphabetical sort criteria to %s defaults select', async (propertyName, sortField) => {
         const wrapper = await createWrapper();
 
-        const criteria = wrapper.vm.currencyCriteria;
+        const field = wrapper.getComponent(`sw-sales-channel-defaults-select-stub[property-name="${propertyName}"]`);
+        const criteria = field.props('criteria');
 
-        expect(criteria.parse()).toEqual(
-            expect.objectContaining({
-                sort: expect.arrayContaining([
-                    { field: 'name', order: 'ASC', naturalSorting: false },
-                ]),
-            }),
-        );
+        expect(criteria.parse().sort[0]).toEqual({ field: sortField, order: 'ASC', naturalSorting: false });
+    });
+
+    it('should filter language criteria by active languages', async () => {
+        const wrapper = await createWrapper();
+
+        const field = wrapper.getComponent('sw-sales-channel-defaults-select-stub[property-name="languages"]');
+        const criteria = field.props('criteria');
+
+        expect(criteria.parse().filter).toEqual([
+            { type: 'equals', field: 'active', value: true },
+        ]);
     });
 
     it('should return filters from filter registry', async () => {
@@ -1311,6 +1523,50 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(banner.attributes('variant')).toBe('attention');
     });
 
+    it('should open the domain modal for the default unserved language', async () => {
+        const openCreateDomainModal = jest.fn();
+        const scrollIntoView = jest.fn();
+
+        const wrapper = await createWrapper({
+            props: {
+                salesChannel: {
+                    typeId: STOREFRONT_SALES_CHANNEL_TYPE_ID,
+                    languageId: 'language-1',
+                    currencyId: 'currency-1',
+                    languages: [
+                        { id: 'language-1' },
+                        { id: 'language-2' },
+                    ],
+                    domains: [{ languageId: 'language-2' }],
+                },
+            },
+            stubs: {
+                'sw-sales-channel-detail-domains': {
+                    template: '<div class="sw-sales-channel-detail-domains"></div>',
+                    methods: {
+                        onClickOpenCreateDomainModal: openCreateDomainModal,
+                    },
+                    mounted() {
+                        this.$el.scrollIntoView = scrollIntoView;
+                    },
+                },
+            },
+        });
+        await flushPromises();
+
+        wrapper.vm.onClickCreateDomainForUnservedLanguage();
+        await wrapper.vm.$nextTick();
+
+        expect(openCreateDomainModal).toHaveBeenCalledWith({
+            languageId: 'language-1',
+            currencyId: 'currency-1',
+        });
+        expect(scrollIntoView).toHaveBeenCalledWith({
+            behavior: 'smooth',
+            block: 'center',
+        });
+    });
+
     it('should return unservedLanguageVariant "info" if the sales channel language IS served by a domain', async () => {
         const wrapper = await createWrapper();
 
@@ -1356,7 +1612,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(wrapper.vm.resolvedAgenticCommerceExportConfig).toHaveLength(1);
 
         const card = wrapper.get(
-            'div.mt-card[position-identifier="sw-sales-channel-detail-base-agentic-commerce-export-config-open-ai"]',
+            'div.mt-card[position-identifier="sw-sales-channel-detail-base-agentic-commerce-export-config-provider"]',
         );
         expect(card.exists()).toBe(true);
         expect(wrapper.findAll('sw-form-field-renderer-stub')).toHaveLength(1);

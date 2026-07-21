@@ -40,6 +40,7 @@ import VueHelper from './utils/vue-helper.utils';
 import EventBus from './utils/eventBus.utils';
 import genericRuleConditionUtils from './utils/generic-rule-condition.utils';
 import unitConversionUtils from './utils/unit-conversion.utils';
+import { mapInheritanceSlotPropsToMeteorProps } from './utils/meteor-inheritance.utils';
 import { telemetry as MeteorTelemetry } from '@shopware-ag/meteor-admin-sdk';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -179,6 +180,7 @@ export default {
     genericRuleCondition,
     unitConversion,
     extension,
+    mapInheritanceSlotPropsToMeteorProps,
 };
 
 /**

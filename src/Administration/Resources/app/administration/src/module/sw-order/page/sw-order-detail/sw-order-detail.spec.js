@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
 
@@ -99,7 +101,6 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalledWith(
             wrapper.vm.orderId,
             oldVersionContext.versionId,
-            oldVersionContext,
         );
         expect(wrapper.vm.versionContext).toBe(Shopware.Context.api);
         expect(wrapper.vm.hasNewVersionId).toBe(false);
@@ -203,6 +204,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
             'tags',
             'billingAddress',
         ].forEach((association) => expect(criteria.hasAssociation(association)).toBe(true));
+        expect(criteria.getAssociation('orderCustomer').hasAssociation('customer')).toBe(true);
     });
 
     it('should add associations no longer autoload in the orderCriteria', async () => {

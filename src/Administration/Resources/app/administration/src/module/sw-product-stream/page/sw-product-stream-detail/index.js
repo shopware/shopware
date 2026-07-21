@@ -1,7 +1,3 @@
-/*
- * @sw-package inventory
- */
-
 import { computed } from 'vue';
 
 import template from './sw-product-stream-detail.html.twig';
@@ -12,6 +8,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 
 /**
+ * @sw-package inventory
  * @private
  */
 export default {
@@ -65,9 +62,13 @@ export default {
     data() {
         return {
             isLoading: false,
+            isSaving: false,
             customFieldsLoading: false,
             isSaveSuccessful: false,
-            productStream: null,
+            productStream: {
+                name: null,
+                description: null,
+            },
             productStreamFilters: null,
             productStreamFiltersTree: null,
             deletedProductStreamFilters: [],
@@ -98,7 +99,7 @@ export default {
         },
 
         productStreamFiltersRepository() {
-            if (!this.productStream) {
+            if (!this.productStream?.filters?.entity || !this.productStream?.filters?.source) {
                 return null;
             }
 
@@ -144,24 +145,19 @@ export default {
         ...mapPropertyErrors('productStream', ['name']),
 
         showCustomFields() {
-            return this.productStream && this.customFieldSets && this.customFieldSets.length > 0;
+            return !!this.productStream?.id && this.customFieldSets && this.customFieldSets.length > 0;
         },
 
         productStreamIndexingEnabled() {
             return Context.app.productStreamIndexingEnabled ?? true;
         },
 
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed since product states filter is no longer supported.
-         *
-         * @internal
-         */
-        showProductStatesFilterWarning() {
+        deprecatedFiltersInUse() {
             if (!this.productStreamFiltersTree) {
-                return false;
+                return [];
             }
 
-            return this.hasProductStatesFilter(this.productStreamFiltersTree);
+            return this.productStreamConditionService.getDeprecationsInTree(this.productStreamFiltersTree);
         },
     },
 
@@ -313,7 +309,7 @@ export default {
 
         onSave() {
             this.isSaveSuccessful = false;
-            this.isLoading = true;
+            this.isSaving = true;
 
             if (this.productStream.isNew()) {
                 this.productStream.filters = this.productStreamFiltersTree;
@@ -327,7 +323,7 @@ export default {
                     })
                     .catch(() => {
                         this.showErrorNotification();
-                        this.isLoading = false;
+                        this.isSaving = false;
                     });
             }
 
@@ -339,10 +335,10 @@ export default {
                 })
                 .then(() => {
                     this.isSaveSuccessful = true;
-                    this.isLoading = false;
+                    this.isSaving = false;
                 })
                 .catch(() => {
-                    this.isLoading = false;
+                    this.isSaving = false;
                     this.showErrorNotification();
                 });
         },
@@ -454,71 +450,6 @@ export default {
                 showOnDisabledElements,
                 disabled: this.acl.can(role),
             };
-        },
-
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed since product states filter is no longer supported.
-         *
-         * @internal
-         */
-        normalizeFilterCollection(filters) {
-            if (Array.isArray(filters)) {
-                return filters.filter(Boolean);
-            }
-
-            if (typeof filters.toArray === 'function') {
-                return filters.toArray();
-            }
-
-            if (typeof filters.map === 'function') {
-                return filters.map((filter) => filter);
-            }
-
-            if (typeof filters[Symbol.iterator] === 'function') {
-                return [...filters];
-            }
-
-            return [];
-        },
-
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed since product states filter is no longer supported.
-         *
-         * @internal
-         */
-        hasProductStatesFilter(filters) {
-            return this.normalizeFilterCollection(filters).some((condition) => {
-                if (!condition) {
-                    return false;
-                }
-
-                if (this.isDeprecatedProductStatesField(condition.field)) {
-                    return true;
-                }
-
-                if (condition.queries && this.hasProductStatesFilter(condition.queries)) {
-                    return true;
-                }
-
-                if (condition.children && this.hasProductStatesFilter(condition.children)) {
-                    return true;
-                }
-
-                return false;
-            });
-        },
-
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed since product states filter is no longer supported.
-         *
-         * @internal
-         */
-        isDeprecatedProductStatesField(field) {
-            if (!field || typeof field !== 'string') {
-                return false;
-            }
-
-            return field === 'states' || field === 'product.states';
         },
     },
 };

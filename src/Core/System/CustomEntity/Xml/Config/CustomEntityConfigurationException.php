@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @deprecated tag:v6.8.0 - will be removed, use {@see CustomEntityException} instead
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class CustomEntityConfigurationException extends HttpException

@@ -22,6 +22,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -63,7 +64,8 @@ class ProductPricingHookTest extends TestCase
         $salesChannelContext->setRuleIds([$ids->get('rule-A')]);
 
         $products = static::getContainer()->get('sales_channel.product.repository')
-            ->search(new Criteria($ids->getList(['p1', 'p2', 'p3.1'])), $salesChannelContext);
+            ->search(new Criteria($ids->getList(['p1', 'p2', 'p3.1'])), $salesChannelContext)
+            ->getEntities();
 
         $stubs = static::getContainer()->get(ScriptPriceStubs::class);
 
@@ -85,7 +87,7 @@ class ProductPricingHookTest extends TestCase
         $hook = new ProductPricingHookExtension($proxies, $salesChannelContext, $ids);
 
         // allows easy debugging
-        $traces = new ScriptTraces();
+        $traces = new ScriptTraces(new NativeClock());
 
         $loader = $this->createMock(ScriptLoader::class);
         $loader->method('get')->willReturn([

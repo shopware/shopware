@@ -12,9 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
-use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
+use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\ShopwareHttpException;
@@ -50,7 +50,7 @@ class PluginServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->fixturePath = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/';
+        $this->fixturePath = __DIR__ . '/../../../../../tests/integration/Core/Framework/Plugin/_fixtures/';
         require_once $this->fixturePath . 'plugins/SwagTestPlugin/src/SwagTestPlugin.php';
         require_once $this->fixturePath . 'plugins/SwagTestNoDefaultLang/src/SwagTestNoDefaultLang.php';
         $this->pluginRepo = static::getContainer()->get('plugin.repository');
@@ -246,8 +246,7 @@ class PluginServiceTest extends TestCase
     {
         $this->createPlugin($this->pluginRepo, $this->context);
 
-        $this->expectException(PluginNotFoundException::class);
-        $this->expectExceptionMessage('Plugin by name "SwagFoo" not found');
+        $this->expectExceptionObject(PluginException::notFound('SwagFoo'));
         $this->pluginService->getPluginByName('SwagFoo', $this->context);
     }
 
@@ -299,7 +298,7 @@ class PluginServiceTest extends TestCase
         /** @var PluginEntity|null $first */
         $first = $this->pluginRepo
             ->search($criteria, $context)
-            ->first();
+            ->getEntities()->first();
 
         static::assertNotNull($first);
 
@@ -317,7 +316,7 @@ class PluginServiceTest extends TestCase
         /** @var PluginEntity|null $first */
         $first = $this->pluginRepo
             ->search($criteria, $context)
-            ->first();
+            ->getEntities()->first();
 
         static::assertNotNull($first);
 
@@ -379,7 +378,7 @@ class PluginServiceTest extends TestCase
         $criteria->addFilter(new EqualsFilter('code', $iso));
 
         /** @var LocaleEntity|null $locale */
-        $locale = $localeRepository->search($criteria, Context::createDefaultContext())->first();
+        $locale = $localeRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertNotNull($locale, \sprintf('Locale with code %s not found', $iso));
 

@@ -46,8 +46,8 @@ class ServiceExceptionTest extends TestCase
 
     public function testRequestFailed(): void
     {
-        $response = static::createMock(ResponseInterface::class);
-        $response->expects($this->any())->method('getStatusCode')->willReturn(Response::HTTP_NOT_FOUND);
+        $response = static::createStub(ResponseInterface::class);
+        $response->method('getStatusCode')->willReturn(Response::HTTP_NOT_FOUND);
 
         $e = ServiceException::requestFailed($response);
 
@@ -59,7 +59,7 @@ class ServiceExceptionTest extends TestCase
     public function testRequestFailedWithErrors(): void
     {
         $response = static::createMock(ResponseInterface::class);
-        $response->expects($this->any())->method('getStatusCode')->willReturn(Response::HTTP_NOT_FOUND);
+        $response->method('getStatusCode')->willReturn(Response::HTTP_NOT_FOUND);
         $response->expects($this->once())->method('toArray')->with(false)->willReturn(['errors' => ['Error 1', 'Error 2']]);
 
         $e = ServiceException::requestFailed($response);
@@ -123,6 +123,15 @@ class ServiceExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         static::assertSame(ServiceException::SERVICE_TOGGLE_ACTION_NOT_ALLOWED, $e->getErrorCode());
         static::assertSame('Service is not allowed to toggle itself.', $e->getMessage());
+    }
+
+    public function testStateChangeNotPermitted(): void
+    {
+        $e = ServiceException::stateChangeNotPermitted('MyCoolService');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(ServiceException::SERVICE_STATE_CHANGE_NOT_PERMITTED, $e->getErrorCode());
+        static::assertSame('The state of service "MyCoolService" is managed by its requirements and cannot be changed manually.', $e->getMessage());
     }
 
     public function testMissingAppSecretInfo(): void

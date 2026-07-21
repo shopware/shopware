@@ -68,7 +68,7 @@ class UnusedMediaSubscriberTest extends TestCase
             $themeId2 => $themeConfig2,
         ];
 
-        $themeService = $this->createMock(ThemeService::class);
+        $themeService = static::createStub(ThemeService::class);
         $themeService->method('getPlainThemeConfiguration')
             ->willReturnCallback(static function (string $themeId, ...$params) use ($themeConfigMap) {
                 return $themeConfigMap[$themeId];
@@ -116,7 +116,7 @@ class UnusedMediaSubscriberTest extends TestCase
             },
         ]);
 
-        $themeService = $this->createMock(ThemeService::class);
+        $themeService = static::createStub(ThemeService::class);
         $themeService->method('getPlainThemeConfiguration')
             ->willReturn([
                 'fields' => [

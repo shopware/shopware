@@ -24,7 +24,7 @@ describe('src/app/component/sidebar/sw-sidebar-collapse', () => {
         it('has a chevron pointing right', async () => {
             const wrapper = await createWrapper();
 
-            expect(wrapper.findComponent('.mt-icon').vm.name).toBe('regular-chevron-right-xxs');
+            expect(wrapper.findComponent('.mt-icon').vm.name).toBe('regular-chevron-right-xs');
         });
     });
 
@@ -42,7 +42,7 @@ describe('src/app/component/sidebar/sw-sidebar-collapse', () => {
                     expandChevronDirection: direction,
                 });
 
-                expect(wrapper.findComponent('.mt-icon').vm.name).toBe(`regular-chevron-${direction}-xxs`);
+                expect(wrapper.findComponent('.mt-icon').vm.name).toBe(`regular-chevron-${direction}-xs`);
             });
         });
     });

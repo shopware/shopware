@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package inventory
  */
@@ -171,13 +173,22 @@ async function createWrapper() {
                     `,
                 },
                 'sw-entity-listing': {
-                    props: ['items'],
+                    props: [
+                        'items',
+                        'dataSource',
+                    ],
+                    computed: {
+                        listingItems() {
+                            return this.dataSource || this.items || [];
+                        },
+                    },
                     methods: {
                         resetSelection: () => {},
                     },
                     template: `
                         <div class="sw-entity-listing" ref="entityListing">
-                            <template v-for="item in items">
+                            <template v-for="item in listingItems" :key="item.id">
+                                <slot name="column-values" v-bind="{ item }"></slot>
                                 <slot name="actions" v-bind="{ item }"></slot>
                             </template>
                         </div>
@@ -317,6 +328,36 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
         expect(wrapper.vm.properties).toEqual(expect.arrayContaining([]));
         wrapper.vm.getProperties.mockRestore();
+    });
+
+    it('should render property value labels in one wrapping container per property', async () => {
+        global.activeAclRoles = ['product.deleter'];
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.setData({
+            groupIds: [
+                'sizeId',
+                'colorId',
+            ],
+            properties: propertiesMock,
+        });
+
+        const valueContainers = wrapper.findAll('.sw-product-properties-list__column-values').filter((container) => {
+            return container.findAll('sw-label-stub').length > 0;
+        });
+
+        expect(valueContainers).toHaveLength(propertiesMock.length);
+        expect(valueContainers[0].findAll('sw-label-stub')).toHaveLength(propertiesMock[0].options.length);
+        expect(valueContainers[0].find('sw-label-stub').attributes('dismissable')).toBe('true');
+    });
+
+    it('should allow the property value column to wrap', async () => {
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.propertyColumns.find((column) => column.property === 'values').multiLine).toBe(true);
     });
 
     it('should delete property value successful', async () => {
@@ -671,6 +712,21 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         expect(wrapper.vm.showInheritanceSwitcher).toBe(false);
 
         expect(wrapper.find('.sw-inheritance-switch').exists()).toBeFalsy();
+    });
+
+    it('should render card title as mt-card title', async () => {
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const cardElement = wrapper.get('.sw-product-properties__card');
+        const cardTitleWrapper = cardElement.get('.sw-inherit-wrapper__card-title');
+        const cardTitle = cardTitleWrapper.get('h3.mt-card__title');
+
+        expect(cardTitleWrapper.classes()).toContain('sw-inherit-wrapper__card-title');
+        expect(cardTitle.classes()).toEqual(['mt-card__title']);
+        expect(cardTitle.text()).toBe('sw-product.properties.cardTitle');
+        expect(cardTitleWrapper.find('.sw-inheritance-switch').exists()).toBeTruthy();
     });
 
     it('should close properties modal and call a callback', async () => {

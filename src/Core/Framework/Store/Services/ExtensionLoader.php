@@ -10,14 +10,11 @@ use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Privileges\Utils;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
+use Shopware\Core\Framework\Store\Event\ExtensionLoadedEvent;
 use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\Store\Struct\BinaryCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
@@ -30,10 +27,9 @@ use Shopware\Core\Framework\Store\Struct\StoreCollection;
 use Shopware\Core\Framework\Store\Struct\VariantCollection;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
-use Shopware\Storefront\Framework\ThemeInterface;
-use Shopware\Storefront\Theme\ThemeCollection;
 use Symfony\Component\Intl\Languages;
 use Symfony\Component\Intl\Locales;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -43,18 +39,7 @@ class ExtensionLoader
 {
     private const DEFAULT_LOCALE = 'en_GB';
 
-    /**
-     * @var array<string>|null
-     */
-    private ?array $installedThemeNames = null;
-
-    /**
-     * @param ?EntityRepository<ThemeCollection> $themeRepository
-     *
-     * @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966)
-     */
     public function __construct(
-        private readonly ?EntityRepository $themeRepository,
         private readonly AppLoader $appLoader,
         private readonly SourceResolver $sourceResolver,
         private readonly ConfigurationService $configurationService,
@@ -62,6 +47,7 @@ class ExtensionLoader
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
         private readonly InAppPurchase $inAppPurchase,
         private readonly LoggerInterface $logger,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -105,6 +91,13 @@ class ExtensionLoader
         }
 
         $registeredApps = $this->loadFromListingArray($context, $data);
+
+        foreach ($collection as $app) {
+            $extension = $registeredApps->get($app->getName());
+            if ($extension !== null) {
+                $this->eventDispatcher->dispatch(new ExtensionLoadedEvent($app, $extension, $context));
+            }
+        }
 
         // Enrich apps from filesystem
         $localApps = $this->loadLocalAppsCollection($context);
@@ -179,18 +172,6 @@ class ExtensionLoader
 
     private function loadFromPlugin(Context $context, PluginEntity $plugin): ExtensionStruct
     {
-        $isTheme = false;
-
-        /** @phpstan-ignore phpat.restrictNamespacesInCore (Existence of Storefront dependency is checked before usage. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966) */
-        if (interface_exists(ThemeInterface::class) && class_exists($plugin->getBaseClass())) {
-            $implementedInterfaces = class_implements($plugin->getBaseClass());
-
-            if (\is_array($implementedInterfaces)) {
-                /** @phpstan-ignore phpat.restrictNamespacesInCore */
-                $isTheme = \array_key_exists(ThemeInterface::class, $implementedInterfaces);
-            }
-        }
-
         $data = [
             'localId' => $plugin->getId(),
             'description' => $plugin->getTranslation('description'),
@@ -204,7 +185,7 @@ class ExtensionLoader
             'installedAt' => $plugin->getInstalledAt(),
             'active' => $plugin->getActive(),
             'type' => ExtensionStruct::EXTENSION_TYPE_PLUGIN,
-            'isTheme' => $isTheme,
+            'isTheme' => false,
             'configurable' => $this->configurationService->checkConfiguration(\sprintf('%s.config', $plugin->getName()), $context),
             'updatedAt' => $plugin->getUpgradedAt(),
             'allowDisable' => true,
@@ -213,26 +194,11 @@ class ExtensionLoader
             'inAppPurchases' => $this->inAppPurchase->getByExtension($plugin->getName()),
         ];
 
-        return ExtensionStruct::fromArray($this->replaceCollections($data));
-    }
+        $extension = ExtensionStruct::fromArray($this->replaceCollections($data));
 
-    /**
-     * @return array<string>
-     */
-    private function getInstalledThemeNames(Context $context): array
-    {
-        if ($this->installedThemeNames === null && $this->themeRepository instanceof EntityRepository) {
-            $themeNameAggregationName = 'theme_names';
-            $criteria = new Criteria();
-            $criteria->addAggregation(new TermsAggregation($themeNameAggregationName, 'technicalName'));
+        $this->eventDispatcher->dispatch(new ExtensionLoadedEvent($plugin, $extension, $context));
 
-            /** @var TermsResult $themeNameAggregation */
-            $themeNameAggregation = $this->themeRepository->aggregate($criteria, $context)->get($themeNameAggregationName);
-
-            return $this->installedThemeNames = $themeNameAggregation->getKeys();
-        }
-
-        return $this->installedThemeNames ?? [];
+        return $extension;
     }
 
     private function loadLocalAppsCollection(Context $context): ExtensionCollection
@@ -295,8 +261,6 @@ class ExtensionLoader
      */
     private function prepareAppData(Context $context, AppEntity $app): array
     {
-        $installedThemeNames = $this->getInstalledThemeNames($context);
-
         $data = [
             'localId' => $app->getId(),
             'description' => $app->getTranslation('description'),
@@ -313,7 +277,7 @@ class ExtensionLoader
             'active' => $app->isActive(),
             'languages' => [],
             'type' => ExtensionStruct::EXTENSION_TYPE_APP,
-            'isTheme' => \in_array($app->getName(), $installedThemeNames, true),
+            'isTheme' => false,
             'configurable' => $app->isConfigurable(),
             'privacyPolicyExtension' => $app->getPrivacyPolicyExtensions(),
             'updatedAt' => $app->getUpdatedAt(),

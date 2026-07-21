@@ -10,18 +10,20 @@
     },
     "generalTab": {
       "labelSearchBehaviour": "Search behaviour",
-      "textTitleSearchBehaviour": "Predefine your Sales Channels' search behaviour.",
-      "labelSearchAndCondition": "“AND” Search",
-      "textSearchAndConditionExplain": "Search results match with every single element of the entered search term.\nExample: \"Jeans summer\" will find search results that contain both search terms \"jeans\" and \"summer\".",
-      "labelSearchOrCondition": "“OR” Search",
-      "textSearchOrConditionExplain": "Search results match with any element of the entered search term.\nExample: \"Jeans summer\" will find search results that contain either the search term \"jeans\" or the search term \"summer\".",
+      "textTitleSearchBehaviour": "Choose how strictly entered search terms need to match.",
+      "labelSearchAndCondition": "Exact search (AND)",
+      "textSearchAndConditionExplain": "Show only results that match all entered search terms.",
+      "labelSearchOrCondition": "Broad search (OR)",
+      "textSearchOrConditionExplain": "Show results that match any of the entered search terms.",
       "labelMinimalSearchTerm": "Minimal search term length",
       "labelExcludedSearchTerms": "Excluded search terms",
       "textEmptyStateExcludedSearchTerms": "No search terms excluded yet",
+      "textEmptyStateExcludedSearchTermsDescription": "Exclude search terms to stop them from being matched in your Sales Channels' search results.",
       "buttonAddExcludedSearch": "Exclude search term",
       "textPlaceholderTermsFilter": "Search excluded search terms...",
       "buttonAddExcludedSearchTerms" : "Exclude search term",
       "labelExcludedSearchTermsNoResults": "No results found.",
+      "labelExcludedSearchTermsNoResultsDescription": "Try adjusting your search to find what you're looking for.",
       "labelSearchableContent": "Searchable content",
       "textDescriptionSearchableContent": "All searchable content is listed in the table below. To customise search results in your Sales Channels go ahead and either exclude content from being searchable at all or tweak the ranking of each individual element to your liking. Higher ranking elements have an increased \"search value\" and will place higher in the search results.",
       "buttonResetDefault": "Reset to default",
@@ -30,6 +32,7 @@
       "labelGeneralTab": "General",
       "labelCustomFieldsTab": "Custom fields",
       "textEmptyStateSearchableContent": "No searchable content added yet.",
+      "textEmptyStateSearchableContentDescription": "Add searchable content to control what can be found in your Sales Channels' search.",
       "titleExampleModal": "Search ranking example",
       "textColumnSearchTerm": "Excluded search terms",
       "modal": {
@@ -59,11 +62,11 @@
         "columnRankingPoints": "Ranking score",
         "columnContent": "Content",
         "columnSplitKeywords": "Split search terms",
-        "textResetRanking": "Reset ranking",
-        "textRemove": "Remove"
+        "textResetRanking": "Reset ranking"
       },
       "configFields": {
         "name": "Product name",
+        "parentName": "Parent name",
         "description": "Product description",
         "productNumber": "Product number",
         "manufacturerNumber": "Manufacturer number",
@@ -106,7 +109,8 @@
       "linkRebuildSearchIndex": "Rebuild search index",
       "labelName": "Search result",
       "labelScore": "Ranking score",
-      "textNoResult": "No results found. Please try again with another search term."
+      "textNoResult": "No results found.",
+      "textNoResultDescription": "Please try again with another search term."
     },
     "textLeaveConfirm": "You have made changes on this page. If you leave without saving, your changes will be lost."
   },

@@ -227,7 +227,7 @@ class ImportExportTest extends AbstractImportExportTestCase
         $criteria->addAssociation('visibilities');
         $criteria->addAssociation('tax');
         $criteria->addAssociation('categories');
-        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertNotNull($product);
     }
@@ -488,7 +488,7 @@ class ImportExportTest extends AbstractImportExportTestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'alicebluenew'));
         $property = $propertyRepository->search($criteria, $context);
-        static::assertCount(1, $property);
+        static::assertCount(1, $property->getEntities());
     }
 
     public function importPropertyWithDefaultsCsv(): void
@@ -528,7 +528,7 @@ class ImportExportTest extends AbstractImportExportTestCase
         $criteria->addFilter(new EqualsFilter('name', 'MyDefaultNameForProperties'));
         $property = $propertyRepository->search($criteria, $context);
         // import should create 7 properties with default name
-        static::assertCount(7, $property);
+        static::assertCount(7, $property->getEntities());
     }
 
     public function importPropertyWithUserRequiredCsv(): void
@@ -660,7 +660,7 @@ class ImportExportTest extends AbstractImportExportTestCase
         $criteria->addAssociation('configuratorSettings');
         $criteria->addFilter(new EqualsFilter('parentId', null));
 
-        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertInstanceOf(ProductConfiguratorSettingCollection::class, $settings = $product->getConfiguratorSettings());
         static::assertCount(10, $settings);
@@ -726,7 +726,7 @@ class ImportExportTest extends AbstractImportExportTestCase
 
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
 
-        $count = $this->productRepository->search(new Criteria($productIds), $context)->count();
+        $count = $this->productRepository->search(new Criteria($productIds), $context)->getEntities()->count();
         static::assertSame(4, $count);
 
         $name = 'Name has changed';
@@ -742,7 +742,7 @@ class ImportExportTest extends AbstractImportExportTestCase
         $criteria = new Criteria([$productIds[0]]);
         $criteria->addAssociation('categories');
 
-        $product = $this->productRepository->search($criteria, $context)->first();
+        $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertNotSame($name, $product->getName());
@@ -1041,7 +1041,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
 
         $result = $this->productRepository->search(new Criteria(), Context::createDefaultContext());
 
-        static::assertCount(2, $result);
+        static::assertCount(2, $result->getEntities());
         $products = $result->getEntities();
 
         static::assertTrue($products->has('bf44b430d7cd47fcac93310edf4fe4e1'));
@@ -1241,14 +1241,12 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
     }
 
     /**
-     * @return list<array{0: string}>
+     * @return iterable<string, array{0: string}>
      */
-    public static function salesChannelAssignmentCsvProvider(): array
+    public static function salesChannelAssignmentCsvProvider(): iterable
     {
-        return [
-            ['/fixtures/products_with_visibilities.csv'],
-            ['/fixtures/products_with_visibility_names.csv'],
-        ];
+        yield 'sales channel assignments are imported from visibility ids' => ['/fixtures/products_with_visibilities.csv'];
+        yield 'sales channel assignments are imported from visibility names' => ['/fixtures/products_with_visibility_names.csv'];
     }
 
     #[Group('slow')]
@@ -1440,7 +1438,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
     {
         $customerRepository = self::getContainer()->get('customer.repository');
         $customers = $customerRepository->search(new Criteria(), Context::createDefaultContext());
-        static::assertCount(0, $customers);
+        static::assertCount(0, $customers->getEntities());
 
         $context = Context::createDefaultContext();
         $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
@@ -1469,7 +1467,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
 
         $customers = $customerRepository->search(new Criteria(), Context::createDefaultContext());
-        static::assertCount(1, $customers);
+        static::assertCount(1, $customers->getEntities());
         $customer = $customers->getEntities()->first();
         static::assertInstanceOf(CustomerEntity::class, $customer);
 
@@ -1617,6 +1615,63 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
     }
 
+    public function testExportProductsWithDeliveryTimeTranslation(): void
+    {
+        $deliveryTimeId = Uuid::randomHex();
+        $productId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+
+        static::getContainer()->get('delivery_time.repository')->create([
+            [
+                'id' => $deliveryTimeId,
+                'name' => '1-3 working days',
+                'min' => 1,
+                'max' => 3,
+                'unit' => 'day',
+            ],
+        ], $context);
+
+        static::getContainer()->get('product.repository')->create([
+            [
+                'id' => $productId,
+                'name' => 'delivery-time-export-test',
+                'productNumber' => 'delivery-time-export-test',
+                'stock' => 10,
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+                ],
+                'active' => true,
+                'tax' => ['name' => 'delivery-time-tax', 'taxRate' => 19],
+                'deliveryTimeId' => $deliveryTimeId,
+            ],
+        ], $context);
+
+        $profile = $this->cloneDefaultProfile(ProductDefinition::ENTITY_NAME);
+
+        $mappings = $profile->getMapping();
+        static::assertIsArray($mappings);
+
+        array_unshift($mappings, [
+            'key' => 'deliveryTime.translations.DEFAULT.name',
+            'mappedKey' => 'delivery_time',
+            'position' => -1,
+        ]);
+
+        $this->updateProfileMapping($profile->getId(), $mappings);
+
+        $progress = $this->export(Context::createDefaultContext(), ProductDefinition::ENTITY_NAME, new Criteria([$productId]), null, $profile->getId());
+
+        static::assertImportExportSucceeded($progress);
+
+        $csv = $this->getCsvContent($progress->getLogId());
+        $rows = array_map(static fn (string $line) => str_getcsv($line, ';', '"', '\\'), array_filter(explode("\n", trim($csv))));
+
+        static::assertCount(2, $rows);
+        static::assertSame('delivery_time', $rows[0][0]);
+        static::assertSame('1-3 working days', $rows[1][0]);
+    }
+
     public function testImportProductsWithUpdateByMapping(): void
     {
         $this->importCategoryCsv();
@@ -1667,8 +1722,8 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
 
         $products = $this->productRepository->search((new Criteria())->addAssociations(['categories', 'properties']), $context);
 
-        static::assertCount(1, $products);
-        static::assertInstanceOf(ProductEntity::class, $product = $products->first());
+        static::assertCount(1, $products->getEntities());
+        static::assertInstanceOf(ProductEntity::class, $product = $products->getEntities()->first());
         static::assertInstanceOf(CategoryCollection::class, $categories = $product->getCategories());
         static::assertInstanceOf(PropertyGroupOptionCollection::class, $properties = $product->getProperties());
         static::assertCount(3, $categories);
@@ -1687,7 +1742,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         $manufacturerCount = static::getContainer()->get('product_manufacturer.repository')->search(
             (new Criteria())->addFilter(new EqualsFilter('name', 'onlyone')),
             $context
-        )->count();
+        )->getEntities()->count();
 
         static::assertSame(1, $manufacturerCount);
 

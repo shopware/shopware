@@ -36,6 +36,12 @@ final class PlatformRequest
     public const HEADER_MEASUREMENT_LENGTH_UNIT = 'sw-measurement-length-unit';
 
     /**
+     * MCP Streamable HTTP transport headers (Model Context Protocol)
+     */
+    public const HEADER_MCP_SESSION_ID = 'mcp-session-id';
+    public const HEADER_MCP_PROTOCOL_VERSION = 'mcp-protocol-version';
+
+    /**
      * API Expectation headers to check requirements are fulfilled
      */
     public const HEADER_EXPECT_PACKAGES = 'sw-expect-packages';
@@ -101,6 +107,7 @@ final class PlatformRequest
     public const ATTRIBUTE_OAUTH_CLIENT_ID = 'oauth_client_id';
     public const ATTRIBUTE_OAUTH_USER_ID = 'oauth_user_id';
     public const ATTRIBUTE_OAUTH_SCOPES = 'oauth_scopes';
+    public const ATTRIBUTE_OAUTH_PRE_AUTHENTICATED = 'oauth_pre_authenticated';
 
     public const FALLBACK_SESSION_NAME = 'session-';
 

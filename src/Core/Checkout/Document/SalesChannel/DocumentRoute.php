@@ -13,6 +13,9 @@ use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
+use Shopware\Core\Content\Media\Util\PathHelper;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -156,11 +159,17 @@ final class DocumentRoute extends AbstractDocumentRoute
     {
         $response = new Response($content);
 
+        try {
+            $filenameFallback = PathHelper::stripNonAsciiAndControlChars($filename, '_');
+        } catch (IllegalFileNameException) {
+            $filenameFallback = '';
+        }
+
         $disposition = HeaderUtils::makeDisposition(
             $forceDownload ? HeaderUtils::DISPOSITION_ATTACHMENT : HeaderUtils::DISPOSITION_INLINE,
             $filename,
             // only printable ascii
-            preg_replace('/[\x00-\x1F\x7F-\xFF]/', '_', $filename) ?? ''
+            $filenameFallback
         );
 
         $response->headers->set('Content-Type', $contentType);
@@ -218,12 +227,15 @@ final class DocumentRoute extends AbstractDocumentRoute
             throw DocumentException::customerNotLoggedIn();
         }
 
+        $email = RequestParamHelper::get($request, 'email', false);
+        $zipcode = RequestParamHelper::get($request, 'zipcode', false);
+
         // Verify email and zip code with this order
-        if ($request->get('email', false) && $request->get('zipcode', false)) {
+        if ($email && $zipcode) {
             $billingAddress = $order->getBillingAddress();
             if ($billingAddress === null
-                || strtolower($request->get('email')) !== strtolower($orderCustomer->getEmail())
-                || strtoupper($request->get('zipcode')) !== strtoupper($billingAddress->getZipcode() ?: '')) {
+                || strtolower($email) !== strtolower($orderCustomer->getEmail())
+                || strtoupper($zipcode) !== strtoupper($billingAddress->getZipcode() ?: '')) {
                 throw DocumentException::wrongGuestCredentials();
             }
         } else {

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Processing\Reader;
 
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Log\Package;
 
@@ -9,6 +10,9 @@ use Shopware\Core\Framework\Log\Package;
 class CsvReader extends AbstractReader
 {
     private const BOM_UTF8 = "\xEF\xBB\xBF";
+
+    // Use 8 KB chunk when skipping forward on non-seekable streams.
+    private const SEEK_CHUNK_SIZE = 8192;
 
     private int $offset = 0;
 
@@ -43,14 +47,19 @@ class CsvReader extends AbstractReader
 
         $this->setOffset($offset);
 
-        while (!feof($resource)) {
-            // if we start at a non-zero offset, we need to re-parse the header and then continue at offset
-            if ($this->offset > 0 && $this->withHeader && $this->header === []) {
-                $this->readSingleRecord($resource, 0);
-            }
+        if ($this->withHeader && $this->header === []) {
+            $this->initializeHeader($resource);
+        }
 
-            $record = $this->readSingleRecord($resource, $this->offset);
-            $this->setOffset(ftell($resource) ?: 0);
+        $currentOffset = max($this->offset, $this->getCurrentOffset($resource));
+        $this->setOffset($currentOffset);
+        $this->moveToOffset($resource, $currentOffset);
+
+        while (!feof($resource)) {
+            $record = $this->readSingleRecord($resource);
+            $currentOffset = $this->getCurrentOffset($resource);
+
+            $this->setOffset($currentOffset);
 
             if ($record !== null) {
                 yield $record;
@@ -73,35 +82,13 @@ class CsvReader extends AbstractReader
 
     /**
      * @param resource $resource
-     */
-    private function handleBom($resource): void
-    {
-        $offset = ftell($resource);
-        if ($offset !== 0) {
-            return;
-        }
-
-        $bytes = fread($resource, 3);
-
-        if ($bytes === self::BOM_UTF8) {
-            return;
-        }
-
-        $this->seek($resource, $offset);
-    }
-
-    /**
-     * @param resource $resource
      *
      * @return array<mixed>|null
      */
-    private function readSingleRecord($resource, int $offset): ?array
+    private function readSingleRecord($resource): ?array
     {
-        $this->seek($resource, $offset);
-
         while (!feof($resource)) {
-            $this->handleBom($resource);
-            $record = fgetcsv($resource, 0, $this->delimiter, $this->enclosure, $this->escape);
+            $record = $this->readRecord($resource);
             // skip if it's an empty line
             if ($record === false || (\count($record) === 1 && $record[0] === null)) {
                 continue;
@@ -118,6 +105,24 @@ class CsvReader extends AbstractReader
         }
 
         return null;
+    }
+
+    /**
+     * @param resource $resource
+     */
+    private function initializeHeader($resource): void
+    {
+        while (!feof($resource)) {
+            $record = $this->readRecord($resource);
+
+            if ($record === false || (\count($record) === 1 && $record[0] === null)) {
+                continue;
+            }
+
+            $this->header = $record;
+
+            return;
+        }
     }
 
     /**
@@ -149,12 +154,74 @@ class CsvReader extends AbstractReader
     /**
      * @param resource $resource
      */
-    private function seek($resource, int $offset): void
+    private function moveToOffset($resource, int $offset): void
     {
-        $currentOffset = ftell($resource);
-        if ($currentOffset !== $offset) {
-            fseek($resource, $offset);
+        $currentOffset = $this->getCurrentOffset($resource);
+        if ($currentOffset === $offset) {
+            return;
         }
+
+        $metaData = stream_get_meta_data($resource);
+        if ($currentOffset > $offset) {
+            if ($metaData['seekable'] !== true) {
+                throw ImportExportException::processingError('Cannot rewind a non-seekable csv stream.');
+            }
+
+            fseek($resource, $offset);
+
+            return;
+        }
+
+        if ($metaData['seekable'] === true) {
+            fseek($resource, $offset);
+
+            return;
+        }
+
+        $remainingBytes = $offset - $currentOffset;
+        while ($remainingBytes > 0 && !feof($resource)) {
+            $skipSize = min($remainingBytes, self::SEEK_CHUNK_SIZE);
+            $chunk = fread($resource, $skipSize);
+
+            if ($chunk === false || $chunk === '') {
+                break;
+            }
+
+            $remainingBytes -= \strlen($chunk);
+        }
+    }
+
+    /**
+     * @param resource $resource
+     *
+     * @return array<mixed>|false
+     */
+    private function readRecord($resource): array|false
+    {
+        $isStartOfStream = $this->getCurrentOffset($resource) === 0;
+        $record = fgetcsv($resource, 0, $this->delimiter, $this->enclosure, $this->escape);
+
+        if ($record === false || !$isStartOfStream || !isset($record[0]) || !\is_string($record[0])) {
+            return $record;
+        }
+
+        $record[0] = preg_replace('/^' . preg_quote(self::BOM_UTF8, '/') . '/', '', $record[0]) ?? $record[0];
+
+        return $record;
+    }
+
+    /**
+     * @param resource $resource
+     */
+    private function getCurrentOffset($resource): int
+    {
+        $offset = ftell($resource);
+
+        if ($offset === false) {
+            return 0;
+        }
+
+        return $offset;
     }
 
     private function setOffset(int $offset): void

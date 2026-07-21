@@ -1,4 +1,6 @@
 import GoogleReCaptchaV3Plugin from 'src/plugin/captcha/google-re-captcha/google-re-captcha-v3.plugin';
+import FormHandler from 'src/plugin/forms/form-handler.plugin';
+import FormValidation from 'src/helper/form-validation.helper';
 
 describe('GoogleReCaptchaV3Plugin tests', () => {
     let googleReCaptchaV3Plugin = undefined;
@@ -14,9 +16,18 @@ describe('GoogleReCaptchaV3Plugin tests', () => {
 
         mockElement = document.createElement('form');
         inputField = document.createElement('input');
+        inputField.type = 'hidden';
         inputField.className = 'grecaptcha_v3-input';
+        inputField.name = '_grecaptcha_v3';
+        inputField.setAttribute('data-validation', 'grecaptcha,required');
+        inputField.setAttribute('data-validate-hidden', 'true');
 
         mockElement.appendChild(inputField);
+
+        const submitButton = document.createElement('button');
+        submitButton.type = 'submit';
+        mockElement.appendChild(submitButton);
+
         document.body.appendChild(mockElement);
 
         // Add the mock recaptcha script element
@@ -40,6 +51,9 @@ describe('GoogleReCaptchaV3Plugin tests', () => {
             mockRecaptchaScriptElement.parentElement.removeChild(mockRecaptchaScriptElement);
         }
         window.grecaptcha = undefined;
+        window.formValidation = undefined;
+        window.validationMessages = undefined;
+        window.useDefaultCookieConsent = undefined;
     });
 
     test('GoogleReCaptchaV3Plugin exists', () => {
@@ -55,6 +69,7 @@ describe('GoogleReCaptchaV3Plugin tests', () => {
 
         googleReCaptchaV3Plugin.onFormSubmit();
 
+        expect(googleReCaptchaV3Plugin.grecaptchaInput.value).toEqual(GoogleReCaptchaV3Plugin.RECAPTCHA_PENDING_VALUE);
         expect(window.grecaptcha.execute).toHaveBeenCalledWith('test-site-key', { action: 'submit' });
 
         process.nextTick(() => {
@@ -63,5 +78,30 @@ describe('GoogleReCaptchaV3Plugin tests', () => {
             expect(googleReCaptchaV3Plugin._formSubmitting).toBe(false);
             done();
         });
+    });
+
+    test('form handler disables the submit button while reCAPTCHA v3 resolves', () => {
+        window.validationMessages = {
+            required: 'Input should not be empty.',
+            email: 'Invalid email address.',
+            confirmation: 'Confirmation field does not match.',
+            minLength: 'Input is too short.',
+            grecaptcha: 'reCAPTCHA cookies are required.',
+        };
+        window.useDefaultCookieConsent = false;
+        window.formValidation = new FormValidation();
+        window.grecaptcha.execute = jest.fn(() => new Promise(() => {}));
+
+        new FormHandler(mockElement);
+
+        const submitEvent = new Event('submit', { cancelable: true });
+        const submitButton = mockElement.querySelector('button[type=submit]');
+
+        mockElement.dispatchEvent(submitEvent);
+
+        expect(submitEvent.defaultPrevented).toBe(true);
+        expect(inputField.value).toEqual(GoogleReCaptchaV3Plugin.RECAPTCHA_PENDING_VALUE);
+        expect(submitButton.disabled).toBe(true);
+        expect(submitButton.querySelector('.loader')).not.toBeNull();
     });
 });

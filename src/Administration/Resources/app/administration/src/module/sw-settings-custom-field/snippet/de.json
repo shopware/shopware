@@ -16,8 +16,6 @@
         "textDeleteConfirm": "Möchtest Du das Set \"{name}\" wirklich löschen?",
         "buttonAdd": "Set anlegen",
         "columnName": "Label",
-        "contextMenuEdit": "Bearbeiten",
-        "buttonDelete": "Löschen",
         "messageDeleteSuccess": "Das Set \"{name}\" wurde erfolgreich gelöscht.",
         "messageEmpty": "Noch keine Zusatzfelder.",
         "helpTextGlobalSet": "Dieses Set ist global und kann nicht verändert werden."
@@ -26,7 +24,6 @@
         "labelTechnicalName": "Technischer Name",
         "labelPosition": "Position",
         "textHeadline": "Zusatzfeld-Set",
-        "buttonSave": "Speichern",
         "titleCardInformation": "Set-Informationen",
         "labelName": "Set-Name",
         "placeholderName": "Namen eingeben ...",
@@ -34,7 +31,6 @@
         "messageSaveSuccess": "Das Set \"{name}\" wurde erfolgreich gespeichert.",
         "messageCustomFieldsEmpty": "Noch keine Zusatzfelder.",
         "addCustomField": "Neues Zusatzfeld",
-        "buttonApply": "Speichern",
         "labelEntities": "Verwenden für",
         "placeholderEntities": "Verwendung hinzufügen ...",
         "messageNameNotUnique": "Der technische Name existiert bereits.",
@@ -91,7 +87,6 @@
         "labelCustomFieldPosition": "Position",
         "contextMenuCustomFieldResetDelete": "Wiederherstellen",
         "contextMenuCustomFieldView": "Editieren",
-        "contextMenuCustomFieldDelete": "Löschen",
         "titleDeleteAction": "Zusatzfeld löschen | Zusatzfelder löschen",
         "textDeleteActionConfirmation": "Bist Du sicher, dass Du dieses Zusatzfeld löschen möchtest? | Bist Du sicher, dass Du diese {count} Zusatzfelder löschen möchtest?"
       },

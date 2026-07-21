@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -37,14 +38,14 @@ class LanguageSubscriberTest extends TestCase
 
         $subscriber = new LanguageSubscriber(
             $esHelper,
-            $this->createMock(ElasticsearchRegistry::class),
-            $this->createMock(Client::class),
+            static::createStub(ElasticsearchRegistry::class),
+            static::createStub(Client::class),
         );
 
         $event = $this->createMock(EntityWrittenEvent::class);
         $event
             ->expects($this->never())
-            ->method('getWriteResults');
+            ->method('getResults');
 
         $subscriber->onLanguageWritten($event);
     }
@@ -58,14 +59,14 @@ class LanguageSubscriberTest extends TestCase
 
         $subscriber = new LanguageSubscriber(
             $esHelper,
-            $this->createMock(ElasticsearchRegistry::class),
-            $this->createMock(Client::class),
+            static::createStub(ElasticsearchRegistry::class),
+            static::createStub(Client::class),
         );
 
         $event = $this->createMock(EntityWrittenEvent::class);
         $event
             ->expects($this->once())
-            ->method('getWriteResults')->willReturn([$writeResult]);
+            ->method('getResults')->willReturn(new EntityWriteResultCollection([$writeResult]));
 
         $subscriber->onLanguageWritten($event);
     }
@@ -82,13 +83,13 @@ class LanguageSubscriberTest extends TestCase
         $subscriber = new LanguageSubscriber(
             $esHelper,
             $registry,
-            $this->createMock(Client::class),
+            static::createStub(Client::class),
         );
 
         $event = $this->createMock(EntityWrittenEvent::class);
         $event
             ->expects($this->once())
-            ->method('getWriteResults')->willReturn([$writeResult]);
+            ->method('getResults')->willReturn(new EntityWriteResultCollection([$writeResult]));
 
         $subscriber->onLanguageWritten($event);
     }
@@ -105,7 +106,7 @@ class LanguageSubscriberTest extends TestCase
         $esProductDefinition->expects($this->once())->method('getEntityDefinition')->willReturn(new ProductDefinition());
         $registry->expects($this->once())->method('getDefinitions')->willReturn([$esProductDefinition]);
 
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $namespace = $this->createMock(IndicesNamespace::class);
         $namespace->expects($this->once())->method('exists')->with(['index' => 'sw_product'])->willReturn(false);
 
@@ -120,7 +121,7 @@ class LanguageSubscriberTest extends TestCase
         $event = $this->createMock(EntityWrittenEvent::class);
         $event
             ->expects($this->once())
-            ->method('getWriteResults')->willReturn([$writeResult]);
+            ->method('getResults')->willReturn(new EntityWriteResultCollection([$writeResult]));
 
         $subscriber->onLanguageWritten($event);
     }
@@ -132,7 +133,7 @@ class LanguageSubscriberTest extends TestCase
         $esHelper->expects($this->once())->method('getIndexName')->willReturn('sw_product');
 
         $writeResult = new EntityWriteResult(Uuid::randomHex(), [], LanguageDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT);
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $registry = $this->createMock(ElasticsearchRegistry::class);
         $esProductDefinition = $this->createMock(ElasticsearchProductDefinition::class);
         $esProductDefinition->expects($this->once())->method('getEntityDefinition')->willReturn(new ProductDefinition());
@@ -168,7 +169,7 @@ class LanguageSubscriberTest extends TestCase
         $event = $this->createMock(EntityWrittenEvent::class);
         $event
             ->expects($this->once())
-            ->method('getWriteResults')->willReturn([$writeResult]);
+            ->method('getResults')->willReturn(new EntityWriteResultCollection([$writeResult]));
 
         $subscriber->onLanguageWritten($event);
     }

@@ -21,6 +21,7 @@ use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\Demodata\Command\DemodataCommand;
 use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Demodata\Event\DemodataRequestCreatedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
@@ -32,6 +33,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
+#[Package('fundamentals@after-sales')]
 #[CoversClass(DemodataCommand::class)]
 class DemodataCommandTest extends TestCase
 {
@@ -63,7 +65,7 @@ class DemodataCommandTest extends TestCase
     {
         $this->dispatcher = new EventDispatcher();
         $this->command = new DemodataCommand(
-            $this->createMock(DemodataService::class),
+            static::createStub(DemodataService::class),
             $this->dispatcher,
             $this->name() === 'testShowNoticeWhenNotProd' ? 'dev' : 'prod',
             [self::class], // always-present class, avoids dependency on shopware/dev-tools in unit tests
@@ -73,7 +75,7 @@ class DemodataCommandTest extends TestCase
     public function testMissingDependencyReturnsFailure(): void
     {
         $command = new DemodataCommand(
-            $this->createMock(DemodataService::class),
+            static::createStub(DemodataService::class),
             $this->dispatcher,
             'prod',
             ['NonExistent\Class\That\DoesNotExist'], // @phpstan-ignore argument.type (non-existent class is intentional for the test)

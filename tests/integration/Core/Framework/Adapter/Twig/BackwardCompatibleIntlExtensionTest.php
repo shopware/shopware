@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\BackwardCompatibleIntlExtension;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Twig\Environment;
 use Twig\Extra\Intl\IntlExtension;
@@ -15,11 +16,10 @@ use Twig\Loader\ArrayLoader;
  *
  * @deprecated tag:v6.8.0 - Will be removed, because we don't support invalid locales anymore
  */
+#[Package('framework')]
 class BackwardCompatibleIntlExtensionTest extends TestCase
 {
     use KernelTestBehaviour;
-
-    private ?string $locale;
 
     private Environment $twig;
 
@@ -30,11 +30,6 @@ class BackwardCompatibleIntlExtensionTest extends TestCase
         if (Feature::isActive('v6.8.0.0')) {
             static::markTestSkipped('This test is only relevant for versions before v6.8.0');
         }
-
-        // Set locale based on PHP version
-        // PHP 8.4+ throws exceptions for invalid locales, so we use null to fallback to default
-        // PHP < 8.4 allows invalid locales, so we keep 'zzz'
-        $this->locale = \PHP_VERSION_ID >= 80400 ? null : 'zzz';
 
         // Create a fresh Twig environment with IntlExtension and BackwardCompatibleIntlExtension
         $loader = new ArrayLoader();
@@ -52,7 +47,7 @@ class BackwardCompatibleIntlExtensionTest extends TestCase
         $output = $template->render(['value' => 1234567.891]);
 
         // Create expected value using IntlExtension with same settings as template (fraction_digit: 1)
-        $expected = $this->intlExtension->formatNumber(1234567.891, ['fraction_digit' => 1], 'decimal', 'default', $this->locale);
+        $expected = $this->intlExtension->formatNumber(1234567.891, ['fraction_digit' => 1], 'decimal', 'default');
         static::assertSame($expected, $output);
     }
 
@@ -63,7 +58,7 @@ class BackwardCompatibleIntlExtensionTest extends TestCase
         $output = $template->render(['value' => 1234567.891]);
 
         // Create expected value using IntlExtension with same settings as template
-        $expected = $this->intlExtension->formatCurrency(1234567.891, 'USD', [], $this->locale);
+        $expected = $this->intlExtension->formatCurrency(1234567.891, 'USD', []);
         static::assertSame($expected, $output);
     }
 }

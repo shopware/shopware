@@ -6,6 +6,7 @@ import './sw-sales-channel-defaults-select.scss';
 import template from './sw-sales-channel-defaults-select.html.twig';
 
 const { Mixin } = Shopware;
+const { EntityCollection } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -216,7 +217,10 @@ export default {
             this.defaultId = defaultId;
 
             if (!!defaultId && !this.propertyCollection.has(defaultId)) {
-                this.propertyCollection = this.propertyCollection.concat([defaultEntity]);
+                const updatedCollection = EntityCollection.fromCollection(this.propertyCollection);
+                updatedCollection.add(defaultEntity);
+
+                this.propertyCollection = updatedCollection;
             }
         },
 
@@ -225,7 +229,7 @@ export default {
         },
 
         getActiveIconColor(item) {
-            return this.isDisabledItem(item) ? '#d1d9e0' : '#37d046';
+            return this.isDisabledItem(item) ? 'var(--color-icon-secondary-default)' : 'var(--color-icon-positive-default)';
         },
     },
 };

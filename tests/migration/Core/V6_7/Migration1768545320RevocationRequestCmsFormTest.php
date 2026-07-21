@@ -25,6 +25,11 @@ class Migration1768545320RevocationRequestCmsFormTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1768545320, (new Migration1768545320RevocationRequestCmsForm())->getCreationTimestamp());
+    }
+
     public function testUpdate(): void
     {
         $this->deletePageSectionBlockAndSlot();
@@ -40,7 +45,7 @@ class Migration1768545320RevocationRequestCmsFormTest extends TestCase
         static::assertSame('page', $cmsPageResult['type']);
         static::assertArrayHasKey('translations', $cmsPageResult);
         static::assertIsArray($cmsPageResult['translations']);
-        static::assertCount(2, $cmsPageResult['translations']);
+        $this->assertTranslationsForAllLanguages($cmsPageResult['translations']);
 
         $cmsSectionResult = $this->getCmsSection($cmsPageResult['id']);
         static::assertArrayHasKey('id', $cmsSectionResult);
@@ -67,7 +72,34 @@ class Migration1768545320RevocationRequestCmsFormTest extends TestCase
         static::assertSame('content', $cmsSlotResult['slot']);
         static::assertArrayHasKey('translations', $cmsSlotResult);
         static::assertIsArray($cmsSlotResult['translations']);
-        static::assertCount(2, $cmsSlotResult['translations']);
+        $this->assertTranslationsForAllLanguages($cmsSlotResult['translations']);
+    }
+
+    public function testUpdateDoesNotReuseBlockWithSameNameFromDifferentSection(): void
+    {
+        $this->connection->beginTransaction();
+
+        try {
+            $this->deletePageSectionBlockAndSlot();
+
+            $unrelatedBlockByteId = $this->insertUnrelatedCmsBlockWithSameName();
+
+            $migration = new Migration1768545320RevocationRequestCmsForm();
+            $migration->update($this->connection);
+            $migration->update($this->connection);
+
+            $cmsPageResult = $this->getCmsPage();
+            $cmsSectionResult = $this->getCmsSection($cmsPageResult['id']);
+            $cmsBlockResult = $this->getCmsBlock($cmsSectionResult['id']);
+
+            static::assertIsString($cmsBlockResult['id']);
+            static::assertNotSame($unrelatedBlockByteId, $cmsBlockResult['id']);
+
+            $cmsSlotResult = $this->getCmsSlot($cmsBlockResult['id']);
+            static::assertSame($cmsBlockResult['id'], $cmsSlotResult['cms_block_id']);
+        } finally {
+            $this->connection->rollBack();
+        }
     }
 
     public function testUpdateSkipsDuplicateTranslationsWhenGermanUsesSystemLanguage(): void
@@ -100,13 +132,56 @@ class Migration1768545320RevocationRequestCmsFormTest extends TestCase
             $migration->update($this->connection);
 
             $cmsPageResult = $this->getCmsPage();
-            static::assertCount(1, $cmsPageResult['translations']);
+            $this->assertTranslationsForAllLanguages($cmsPageResult['translations']);
 
             $cmsSectionResult = $this->getCmsSection($cmsPageResult['id']);
             $cmsBlockResult = $this->getCmsBlock($cmsSectionResult['id']);
             $cmsSlotResult = $this->getCmsSlot($cmsBlockResult['id']);
 
-            static::assertCount(1, $cmsSlotResult['translations']);
+            $this->assertTranslationsForAllLanguages($cmsSlotResult['translations']);
+        } finally {
+            $this->connection->rollBack();
+        }
+    }
+
+    public function testUpdateUsesLanguageLocalePrefixForRegionalLanguages(): void
+    {
+        $this->connection->beginTransaction();
+
+        try {
+            $this->deletePageSectionBlockAndSlot();
+            $deChLanguageByteId = $this->createLanguage('de-CH');
+            $enUsLanguageByteId = $this->createLanguage('en-US');
+            $frChLanguageByteId = $this->createLanguage('fr-CH', 'de-LI');
+
+            $migration = new Migration1768545320RevocationRequestCmsForm();
+            $migration->update($this->connection);
+            $migration->update($this->connection);
+
+            $cmsPageResult = $this->getCmsPage();
+            $pageTranslations = $cmsPageResult['translations'];
+            static::assertIsArray($pageTranslations);
+            $this->assertTranslationsForAllLanguages($pageTranslations);
+
+            $deChPageTranslation = $this->findTranslationByLanguageId($deChLanguageByteId, $pageTranslations);
+            static::assertSame(Migration1768545320RevocationRequestCmsForm::CMS_PAGE_TRANSLATIONS['de_name'], $deChPageTranslation['name']);
+
+            $enUsPageTranslation = $this->findTranslationByLanguageId($enUsLanguageByteId, $pageTranslations);
+            static::assertSame(Migration1768545320RevocationRequestCmsForm::CMS_PAGE_TRANSLATIONS['en_name'], $enUsPageTranslation['name']);
+
+            $frChPageTranslation = $this->findTranslationByLanguageId($frChLanguageByteId, $pageTranslations);
+            static::assertSame(Migration1768545320RevocationRequestCmsForm::CMS_PAGE_TRANSLATIONS['en_name'], $frChPageTranslation['name']);
+
+            $cmsSectionResult = $this->getCmsSection($cmsPageResult['id']);
+            $cmsBlockResult = $this->getCmsBlock($cmsSectionResult['id']);
+            $cmsSlotResult = $this->getCmsSlot($cmsBlockResult['id']);
+            $slotTranslations = $cmsSlotResult['translations'];
+            static::assertIsArray($slotTranslations);
+            $this->assertTranslationsForAllLanguages($slotTranslations);
+
+            $this->findTranslationByLanguageId($deChLanguageByteId, $slotTranslations);
+            $this->findTranslationByLanguageId($enUsLanguageByteId, $slotTranslations);
+            $this->findTranslationByLanguageId($frChLanguageByteId, $slotTranslations);
         } finally {
             $this->connection->rollBack();
         }
@@ -221,6 +296,10 @@ SQL;
             ['cmsPageId' => $cmsPageByteId]
         )->fetchOne();
 
+        if (!\is_string($cmsSectionByteId)) {
+            return null;
+        }
+
         if (!Uuid::isValid(Uuid::fromBytesToHex($cmsSectionByteId))) {
             return null;
         }
@@ -234,6 +313,10 @@ SQL;
             'SELECT `id` FROM `cms_block` WHERE `name` = :cmsBlockName',
             ['cmsBlockName' => Migration1768545320RevocationRequestCmsForm::CMS_BLOCK_NAME]
         )->fetchOne();
+
+        if (!\is_string($cmsBlockByteId)) {
+            return null;
+        }
 
         if (!Uuid::isValid(Uuid::fromBytesToHex($cmsBlockByteId))) {
             return null;
@@ -275,6 +358,145 @@ SQL;
             ['code' => $localeCode],
             ['id' => $localeByteId]
         );
+    }
+
+    /**
+     * @param array<array<string, mixed>> $translations
+     *
+     * @return array<string, mixed>
+     */
+    private function findTranslationByLanguageId(string $languageByteId, array $translations): array
+    {
+        foreach ($translations as $translation) {
+            if ($translation['language_id'] === $languageByteId) {
+                return $translation;
+            }
+        }
+
+        static::fail('Could not find translation for language ' . Uuid::fromBytesToHex($languageByteId));
+    }
+
+    /**
+     * @param array<array<string, mixed>> $translations
+     */
+    private function assertTranslationsForAllLanguages(array $translations): void
+    {
+        $expectedLanguageIds = $this->getLanguageHexIds();
+        $actualLanguageIds = [];
+
+        foreach ($translations as $translation) {
+            static::assertArrayHasKey('language_id', $translation);
+            static::assertIsString($translation['language_id']);
+
+            $actualLanguageIds[] = Uuid::fromBytesToHex($translation['language_id']);
+        }
+
+        \sort($expectedLanguageIds);
+        \sort($actualLanguageIds);
+
+        static::assertSame($expectedLanguageIds, $actualLanguageIds);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getLanguageHexIds(): array
+    {
+        $languageIds = $this->connection->fetchFirstColumn('SELECT `id` FROM `language`');
+        $languageHexIds = [];
+
+        foreach ($languageIds as $languageId) {
+            static::assertIsString($languageId);
+
+            $languageHexIds[] = Uuid::fromBytesToHex($languageId);
+        }
+
+        return $languageHexIds;
+    }
+
+    private function createLanguage(string $localeCode, ?string $translationCode = null): string
+    {
+        $localeByteId = $this->getOrCreateLocale($localeCode);
+        $translationCodeByteId = $translationCode === null ? $localeByteId : $this->getOrCreateLocale($translationCode);
+        $languageByteId = Uuid::randomBytes();
+
+        $this->connection->insert('language', [
+            'id' => $languageByteId,
+            'name' => $localeCode,
+            'locale_id' => $localeByteId,
+            'translation_code_id' => $translationCodeByteId,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        return $languageByteId;
+    }
+
+    private function getOrCreateLocale(string $localeCode): string
+    {
+        $localeByteId = $this->connection->fetchOne(
+            'SELECT `id` FROM `locale` WHERE `code` = :code LIMIT 1',
+            ['code' => $localeCode]
+        );
+
+        if (\is_string($localeByteId)) {
+            return $localeByteId;
+        }
+
+        $localeByteId = Uuid::randomBytes();
+
+        $this->connection->insert('locale', [
+            'id' => $localeByteId,
+            'code' => $localeCode,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        return $localeByteId;
+    }
+
+    private function insertUnrelatedCmsBlockWithSameName(): string
+    {
+        $versionByteId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+        $cmsPageByteId = Uuid::randomBytes();
+        $cmsSectionByteId = Uuid::randomBytes();
+        $cmsBlockByteId = Uuid::randomBytes();
+        $createdAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+        $this->connection->insert('cms_page', [
+            'id' => $cmsPageByteId,
+            'version_id' => $versionByteId,
+            'type' => 'page',
+            'locked' => 1,
+            'created_at' => $createdAt,
+        ]);
+
+        $this->connection->insert('cms_section', [
+            'id' => $cmsSectionByteId,
+            'version_id' => $versionByteId,
+            'cms_page_id' => $cmsPageByteId,
+            'cms_page_version_id' => $versionByteId,
+            'position' => 0,
+            'type' => 'default',
+            'created_at' => $createdAt,
+        ]);
+
+        $this->connection->insert('cms_block', [
+            'id' => $cmsBlockByteId,
+            'version_id' => $versionByteId,
+            'created_at' => $createdAt,
+            'cms_section_id' => $cmsSectionByteId,
+            'cms_section_version_id' => $versionByteId,
+            'locked' => 1,
+            'position' => 1,
+            'type' => 'form',
+            'name' => Migration1768545320RevocationRequestCmsForm::CMS_BLOCK_NAME,
+            'margin_top' => '20px',
+            'margin_bottom' => '20px',
+            'margin_left' => '20px',
+            'margin_right' => '20px',
+            'background_media_mode' => 'cover',
+        ]);
+
+        return $cmsBlockByteId;
     }
 
     private function deletePageSectionBlockAndSlot(): void

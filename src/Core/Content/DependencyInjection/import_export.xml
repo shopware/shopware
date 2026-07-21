@@ -51,6 +51,7 @@
             <argument type="service" id="Shopware\Core\Content\ImportExport\Service\FileService"/>
             <argument type="service" id="import_export_profile.repository"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\Service\FileService">
@@ -85,6 +86,7 @@
             <argument type="service" id="logger"/>
             <argument>%shopware.filesystem.private_local_download_strategy%</argument>
             <argument>%shopware.filesystem.private_local_path_prefix%</argument>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
 
@@ -245,6 +247,7 @@
 
         <service id="Shopware\Core\Content\ImportExport\Service\DeleteExpiredFilesService">
             <argument type="service" id="import_export_file.repository"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\Command\DeleteExpiredFilesCommand">
@@ -299,6 +302,7 @@
             <argument type="service" id="Shopware\Core\Content\ImportExport\ImportExportFactory"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="shopware.filesystem.private"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
 
             <tag name="console.command"/>
         </service>

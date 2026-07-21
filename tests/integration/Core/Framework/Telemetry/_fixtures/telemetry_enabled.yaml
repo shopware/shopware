@@ -1,0 +1,4 @@
+shopware:
+    telemetry:
+        metrics:
+            enabled: true

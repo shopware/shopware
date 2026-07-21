@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package discovery
  */
@@ -12,6 +14,14 @@ const mockGetSystemConfigValues = jest.fn(() => Promise.resolve({}));
 const defaultSalesChannelResponse = {
     id: '1a2b3c4d',
     typeId: Shopware.Defaults.storefrontSalesChannelTypeId,
+    name: 'Storefront',
+    customerGroupId: 'customer-group-id',
+    currencyId: 'currency-id',
+    languageId: 'language-id',
+    paymentMethodId: 'payment-method-id',
+    shippingMethodId: 'shipping-method-id',
+    countryId: 'country-id',
+    navigationCategoryId: 'navigation-category-id',
     analyticsId: '1a2b3c',
     analytics: {
         id: '1a2b3c',
@@ -74,6 +84,20 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
                 },
                 'router-view': true,
                 'sw-skeleton': true,
+                'mt-banner': {
+                    template: '<div class="mt-banner"><slot /></div>',
+                    props: [
+                        'variant',
+                        'title',
+                    ],
+                },
+                'mt-button': {
+                    template: '<button class="mt-button"><slot /></button>',
+                    props: [
+                        'variant',
+                        'size',
+                    ],
+                },
             },
             provide: {
                 repositoryFactory: {
@@ -111,6 +135,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         mockGet.mockClear();
         mockGetSystemConfig.mockClear();
         mockGetSystemConfigValues.mockClear();
+        Shopware.Store.get('error').resetApiErrors();
     });
 
     it('should disable the save button when privilege does not exist', async () => {
@@ -170,26 +195,45 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(wrapper.vm.salesChannel.analytics.id).toEqual(wrapper.vm.salesChannel.analyticsId);
     });
 
-    it('should have currency criteria with sort', async () => {
-        const wrapper = await createWrapper();
+    it.each([
+        [
+            'paymentMethods',
+            'distinguishableName',
+        ],
+        [
+            'shippingMethods',
+            'name',
+        ],
+        [
+            'countries',
+            'name',
+        ],
+        [
+            'currencies',
+            'name',
+        ],
+        [
+            'languages',
+            'name',
+        ],
+    ])('should load %s association with alphabetical sort', async (associationName, sortField) => {
+        await createWrapper();
 
-        const criteria = wrapper.vm.getLoadSalesChannelCriteria();
+        const criteria = mockGet.mock.calls[0][2];
+        expect(criteria.parse().associations[associationName].sort[0]).toEqual({
+            field: sortField,
+            order: 'ASC',
+            naturalSorting: false,
+        });
+    });
 
-        expect(criteria.parse()).toEqual(
-            expect.objectContaining({
-                associations: expect.objectContaining({
-                    currencies: expect.objectContaining({
-                        sort: expect.arrayContaining([
-                            {
-                                field: 'name',
-                                order: 'ASC',
-                                naturalSorting: false,
-                            },
-                        ]),
-                    }),
-                }),
-            }),
-        );
+    it('should load languages association with active language filter', async () => {
+        await createWrapper();
+
+        const criteria = mockGet.mock.calls[0][2];
+        expect(criteria.parse().associations.languages.filter).toEqual([
+            { type: 'equals', field: 'active', value: true },
+        ]);
     });
 
     it('should provide agentic commerce export config accessor for child views', async () => {
@@ -269,7 +313,26 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         await flushPromises();
 
         expect(wrapper.text()).toContain('sw-sales-channel.detail.tabAnalytics');
+        expect(wrapper.text()).toContain('sw-sales-channel.detail.tabAgenticFiles');
         expect(wrapper.text()).not.toContain('sw-sales-channel.detail.productExport.tabInsights');
+
+        const tabs = wrapper.findAll('.sw-tabs-item');
+        expect(tabs[tabs.length - 1].text()).toContain('sw-sales-channel.detail.tabAgenticFiles');
+    });
+
+    it('shows agentic files tab for headless sales channels', async () => {
+        const wrapper = await createWrapper({
+            routeParams: {
+                id: '1a2b3c4d',
+            },
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.apiSalesChannelTypeId,
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.text()).toContain('sw-sales-channel.detail.tabAgenticFiles');
     });
 
     it('hides the insights tab for product comparison channels', async () => {
@@ -282,6 +345,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         await flushPromises();
 
         expect(wrapper.text()).not.toContain('sw-sales-channel.detail.productExport.tabInsights');
+        expect(wrapper.text()).not.toContain('sw-sales-channel.detail.tabAgenticFiles');
     });
 
     it('returns true for isProductExportChannel on product comparison and agentic channels', async () => {
@@ -326,7 +390,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
         mockGet.mockClear();
 
-        await wrapper.vm.saveOnLanguageChange();
+        await expect(wrapper.vm.saveOnLanguageChange()).resolves.toBe(true);
         await flushPromises();
 
         expect(mockSave).toHaveBeenCalledTimes(1);
@@ -346,7 +410,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(mockGet).toHaveBeenCalledTimes(1);
     });
 
-    it('should handle errors in saveOnLanguageChange without reloading entity data', async () => {
+    it('should reject saveOnLanguageChange without reloading entity data when saving fails', async () => {
         mockSave.mockRejectedValueOnce(new Error('Save failed'));
 
         const wrapper = await createWrapper();
@@ -354,12 +418,31 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
         mockGet.mockClear();
 
-        await wrapper.vm.saveOnLanguageChange();
+        await expect(wrapper.vm.saveOnLanguageChange()).rejects.toBeUndefined();
         await flushPromises();
 
         expect(wrapper.vm.isSaveSuccessful).toBe(false);
         expect(wrapper.vm.isLoading).toBe(false);
         expect(mockGet).not.toHaveBeenCalled();
+    });
+
+    it('should reject saveOnLanguageChange without saving when a required sales channel field is missing', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        mockSave.mockClear();
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.salesChannel.languageId = null;
+
+        await expect(wrapper.vm.saveOnLanguageChange()).rejects.toBeUndefined();
+        await flushPromises();
+
+        expect(mockSave).not.toHaveBeenCalled();
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
+        });
+        expect(Shopware.Store.get('error').api.sales_channel['1a2b3c4d'].languageId).toBeDefined();
+        expect(wrapper.vm.isLoading).toBe(false);
     });
 
     it('should handle errors in onSave without reloading entity data', async () => {
@@ -376,6 +459,68 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(wrapper.vm.isSaveSuccessful).toBe(false);
         expect(wrapper.vm.isLoading).toBe(false);
         expect(mockGet).not.toHaveBeenCalled();
+    });
+
+    it('should show validation errors without saving when a required sales channel field is missing', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        mockSave.mockClear();
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.salesChannel.languageId = null;
+
+        await wrapper.vm.onSave();
+        await flushPromises();
+
+        expect(mockSave).not.toHaveBeenCalled();
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
+        });
+        expect(Shopware.Store.get('error').api.sales_channel['1a2b3c4d'].languageId).toBeDefined();
+        expect(wrapper.vm.isLoading).toBe(false);
+    });
+
+    it('should keep backend validation errors when product comparison local validation fails', async () => {
+        const wrapper = await createWrapper({
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.productComparisonTypeId,
+            },
+        });
+        await flushPromises();
+
+        const errorStore = Shopware.Store.get('error');
+        const resetApiErrorsSpy = jest.spyOn(errorStore, 'resetApiErrors');
+
+        errorStore.addApiError({
+            expression: 'product_export.product-export-id.fileName',
+            error: new Shopware.Classes.ShopwareError({
+                code: 'PRODUCT_EXPORT_FILE_NAME_REQUIRED',
+                detail: 'File name is required',
+            }),
+        });
+
+        wrapper.vm.salesChannel.name = '';
+
+        wrapper.vm.validateRequiredSalesChannelFields();
+
+        expect(resetApiErrorsSpy).not.toHaveBeenCalled();
+        expect(errorStore.api.product_export['product-export-id'].fileName).toBeDefined();
+        expect(errorStore.api.sales_channel['1a2b3c4d'].name).toBeDefined();
+    });
+
+    it('should clear required field errors when missing values are filled', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.salesChannel.languageId = null;
+        wrapper.vm.validateRequiredSalesChannelFields();
+
+        expect(Shopware.Store.get('error').api.sales_channel['1a2b3c4d'].languageId).toBeDefined();
+
+        wrapper.vm.salesChannel.languageId = 'language-id';
+        await wrapper.vm.$nextTick();
+
+        expect(Shopware.Store.get('error').api.sales_channel['1a2b3c4d'].languageId).toBeUndefined();
     });
 
     it('should detect current template on load when product export bodyTemplate matches', async () => {
@@ -578,5 +723,155 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
         expect(mockSave).not.toHaveBeenCalled();
         expect(wrapper.vm.isLoading).toBe(false);
+    });
+
+    describe('deprecation banner for agentic commerce channels', () => {
+        let originalBundles;
+
+        beforeEach(() => {
+            originalBundles = Shopware.Context.app.config.bundles;
+        });
+
+        afterEach(() => {
+            Shopware.Context.app.config.bundles = originalBundles;
+        });
+
+        it('shows the banner for agentic commerce channels when SwagAgenticCommerce is not installed', async () => {
+            Shopware.Context.app.config.bundles = {};
+
+            const wrapper = await createWrapper({
+                salesChannelResponse: {
+                    typeId: Shopware.Defaults.agenticCommerceTypeId,
+                },
+            });
+
+            await flushPromises();
+
+            expect(wrapper.vm.hasSwagAgenticCommercePlugin).toBe(false);
+            expect(wrapper.vm.showAgenticCommerceDeprecationBanner).toBe(true);
+            expect(wrapper.find('.mt-banner').exists()).toBe(true);
+        });
+
+        it('hides the banner when SwagAgenticCommerce plugin is installed', async () => {
+            Shopware.Context.app.config.bundles = { SwagAgenticCommerce: { css: [], js: [] } };
+
+            const wrapper = await createWrapper({
+                salesChannelResponse: {
+                    typeId: Shopware.Defaults.agenticCommerceTypeId,
+                },
+            });
+
+            await flushPromises();
+
+            expect(wrapper.vm.hasSwagAgenticCommercePlugin).toBe(true);
+            expect(wrapper.vm.showAgenticCommerceDeprecationBanner).toBe(false);
+            expect(wrapper.find('.mt-banner').exists()).toBe(false);
+        });
+
+        it('hides the banner for non-agentic sales channel types', async () => {
+            Shopware.Context.app.config.bundles = {};
+
+            const wrapper = await createWrapper({
+                salesChannelResponse: {
+                    typeId: Shopware.Defaults.storefrontSalesChannelTypeId,
+                },
+            });
+
+            await flushPromises();
+
+            expect(wrapper.vm.showAgenticCommerceDeprecationBanner).toBe(false);
+            expect(wrapper.find('.mt-banner').exists()).toBe(false);
+        });
+
+        it('navigates to the extension store landing page when the detail route does not exist', async () => {
+            Shopware.Context.app.config.bundles = {};
+
+            const wrapper = await createWrapper({
+                salesChannelResponse: {
+                    typeId: Shopware.Defaults.agenticCommerceTypeId,
+                },
+            });
+
+            const mockPush = jest.fn().mockResolvedValue(undefined);
+            wrapper.vm.$router = {
+                hasRoute: jest.fn().mockReturnValue(false),
+                push: mockPush,
+            };
+
+            await flushPromises();
+
+            wrapper.vm.onClickInstallAgenticCommercePlugin();
+            await flushPromises();
+
+            expect(mockPush).toHaveBeenCalledWith({ name: 'sw.extension.store.landing-page' });
+        });
+
+        it('navigates to the extension store when the route exists', async () => {
+            Shopware.Context.app.config.bundles = {};
+
+            const wrapper = await createWrapper({
+                salesChannelResponse: {
+                    typeId: Shopware.Defaults.agenticCommerceTypeId,
+                },
+            });
+
+            const mockPush = jest.fn().mockResolvedValue(undefined);
+            wrapper.vm.$router = {
+                hasRoute: jest.fn().mockReturnValue(true),
+                push: mockPush,
+            };
+
+            await flushPromises();
+
+            wrapper.vm.onClickInstallAgenticCommercePlugin();
+            await flushPromises();
+
+            expect(mockPush).toHaveBeenCalledWith({
+                name: 'sw.extension.store.detail',
+                params: { id: '21761' },
+            });
+        });
+    });
+
+    it('should ignore required fields of inactive providers when validating agentic commerce config', async () => {
+        const wrapper = await createWrapper({
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.agenticCommerceTypeId,
+                productExports: {
+                    first: () => ({ provider: 'google' }),
+                },
+            },
+        });
+        await flushPromises();
+
+        await wrapper.setData({
+            agenticCommerceExportConfig: [
+                {
+                    provider: 'open-ai',
+                    elements: [
+                        {
+                            name: 'core.openAiProductExport.returnPolicyUrl',
+                            config: { required: true },
+                        },
+                    ],
+                    values: {},
+                    errors: {},
+                    isLoaded: true,
+                    isLoading: false,
+                },
+                {
+                    provider: 'google',
+                    elements: [],
+                    values: {},
+                    errors: {},
+                    isLoaded: true,
+                    isLoading: false,
+                },
+            ],
+        });
+
+        expect(wrapper.vm.productExport.provider).toBe('google');
+        expect(wrapper.vm.validateAgenticCommerceExportConfig()).toBe(true);
+        expect(wrapper.vm.agenticCommerceExportConfig[0].errors).toEqual({});
     });
 });

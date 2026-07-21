@@ -1,0 +1,7 @@
+{
+  "name": "Theme with invalid bundle reference",
+  "author": "Shopware AG",
+  "style": [
+    "@NonExistentBundle/app/test.scss"
+  ]
+}

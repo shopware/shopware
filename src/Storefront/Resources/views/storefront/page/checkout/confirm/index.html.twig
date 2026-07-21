@@ -4,8 +4,6 @@
     {% sw_include '@Storefront/storefront/layout/header/header-minimal.html.twig' %}
 {% endblock %}
 
-{% block base_navigation %}{% endblock %}
-
 {% set showTaxPrice = config('core.cart.columnTaxInsteadUnitPrice') %}
 {% set showSubtotal = config('core.cart.showSubtotal') %}
 
@@ -28,7 +26,7 @@
 
                     {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                         type: 'danger',
-                        content: snippetName|trans({'%field%': fieldName})|sw_sanitize
+                        content: snippetName|trans(violation.parameters|merge({'%field%': fieldName}))|sw_sanitize
                     } %}
                 {% endfor %}
             {% endblock %}

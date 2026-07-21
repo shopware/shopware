@@ -4,17 +4,17 @@ namespace Shopware\Tests\Integration\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\TableNotFoundException;
-use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\Database\TableHelper;
-use Shopware\Core\Framework\Util\UtilException;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class MigrationStepTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -148,7 +148,10 @@ SQL
 
         $step->doDropTableIfExists($connection, 'test_table');
 
-        $this->expectExceptionObject(UtilException::databaseTableHelperException('columnExists', TableDoesNotExist::new('foo')));
+        // columnExists() returns false for a missing table, the ALTER TABLE of addColumn() then fails
+        static::assertFalse($step->doColumnExists($connection, 'foo', 'test_column'));
+
+        $this->expectException(TableNotFoundException::class);
 
         static::assertTrue($step->doAddColumn($connection, 'foo', 'test_column', 'VARCHAR(255)'));
     }
@@ -238,5 +241,13 @@ class ExampleStep extends MigrationStep
     public function doAddColumn(Connection $connection, string $table, string $column, string $type): bool
     {
         return $this->addColumn($connection, $table, $column, $type);
+    }
+
+    /**
+     * @param non-empty-string $table
+     */
+    public function doColumnExists(Connection $connection, string $table, string $column): bool
+    {
+        return $this->columnExists($connection, $table, $column);
     }
 }

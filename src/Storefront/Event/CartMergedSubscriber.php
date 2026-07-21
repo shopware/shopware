@@ -11,7 +11,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('checkout')]
 class CartMergedSubscriber implements EventSubscriberInterface
 {
     /**

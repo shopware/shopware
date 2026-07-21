@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('discovery')]
+#[Package('inventory')]
 class ProductPageConfiguratorLoader extends ProductConfiguratorLoader
 {
     /**

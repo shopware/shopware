@@ -9,7 +9,7 @@ use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Storefront\Page\Page;
 
-#[Package('discovery')]
+#[Package('checkout')]
 class CheckoutRegisterPage extends Page
 {
     protected CountryCollection $countries;

@@ -16,7 +16,7 @@ use Shopware\Storefront\Page\PageLoadedHook;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('checkout')]
 class AddressListingPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;

@@ -8,10 +8,12 @@ use Shopware\Administration\Framework\Search\CriteriaCollection;
 use Shopware\Administration\Notification\NotificationEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\FrameworkException;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CriteriaCollection::class)]
 class CriteriaCollectionTest extends TestCase
 {

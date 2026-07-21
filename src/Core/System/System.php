@@ -41,13 +41,13 @@ class System extends Bundle
         $phpLoader->load('custom_entity.php');
         $loader->load('locale.xml');
         $loader->load('snippet.xml');
-        $loader->load('salutation.xml');
-        $loader->load('tax.xml');
-        $loader->load('tax_provider.xml');
-        $phpLoader->load('unit.php');
+        $phpLoader->load('salutation.php');
+        $phpLoader->load('tax.php');
+        $phpLoader->load('tax_provider.php');
+        $loader->load('unit.php');
         $loader->load('user.xml');
         $loader->load('integration.xml');
-        $loader->load('state_machine.xml');
+        $phpLoader->load('state_machine.php');
         $phpLoader->load('configuration.php');
         $phpLoader->load('number_range.php');
         $loader->load('tag.xml');

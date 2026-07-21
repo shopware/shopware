@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorResponse;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Framework\Webhook\Hookable\CoreHookableEventDescriber;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
@@ -24,6 +25,7 @@ use Shopware\Core\Framework\Webhook\WebhookException;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(HookableEventCollector::class)]
 class HookableEventCollectorTest extends TestCase
 {

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Maintenance\System\Struct;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
@@ -12,6 +13,7 @@ use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DatabaseConnectionInformation::class)]
 class DatabaseConnectionInformationTest extends TestCase
 {

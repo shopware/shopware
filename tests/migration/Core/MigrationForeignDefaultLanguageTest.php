@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Migration\Core;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
@@ -19,11 +19,15 @@ use Shopware\Tests\Migration\MigrationUntouchedDbTestTrait;
 
 /**
  * @internal
+ *
+ * MigrationCollection would be the natural covers target, but the migration job scopes
+ * the coverage source to the src/*\/Migration directories, so no Framework class is a
+ * valid target here; the replayed migrations must not receive smoke-level attribution either.
  */
 #[Package('framework')]
 #[Group('slow')]
 #[RunTestsInSeparateProcesses]
-#[CoversClass(MigrationCollection::class)]
+#[CoversNothing]
 class MigrationForeignDefaultLanguageTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

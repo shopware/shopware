@@ -92,7 +92,7 @@ class Framework extends Bundle
         $phpLoader->load('plugin.php');
         $loader->load('rule.xml');
         $loader->load('scheduled-task.xml');
-        $loader->load('store.xml');
+        $phpLoader->load('store.php');
         $phpLoader->load('script.php');
         $loader->load('language.xml');
         $loader->load('update.xml');
@@ -112,7 +112,7 @@ class Framework extends Bundle
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $loader->load('services_test.xml');
-            $loader->load('store_test.xml');
+            $phpLoader->load('store_test.php');
             $phpLoader->load('seo_test.php');
             $phpLoader->load('app_test.php');
         }

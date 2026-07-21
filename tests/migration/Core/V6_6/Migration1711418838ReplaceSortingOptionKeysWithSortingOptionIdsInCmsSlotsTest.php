@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_6\Migration1711418838ReplaceSortingOptionKeysWithSortingOptionIdsInCmsSlots;
@@ -14,6 +15,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1711418838ReplaceSortingOptionKeysWithSortingOptionIdsInCmsSlots::class)]
 class Migration1711418838ReplaceSortingOptionKeysWithSortingOptionIdsInCmsSlotsTest extends TestCase
 {

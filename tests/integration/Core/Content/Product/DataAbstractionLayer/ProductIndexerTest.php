@@ -29,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -39,6 +40,7 @@ use Symfony\Component\Messenger\TraceableMessageBus;
 /**
  * @internal
  */
+#[Package('framework')]
 class ProductIndexerTest extends TestCase
 {
     use KernelTestBehaviour;

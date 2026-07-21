@@ -18,6 +18,7 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayload;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -30,6 +31,7 @@ use Symfony\Component\Serializer\Serializer;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppPayloadServiceHelper::class)]
 class AppPayloadServiceHelperTest extends TestCase
 {

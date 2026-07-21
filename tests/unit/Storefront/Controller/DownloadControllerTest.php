@@ -7,6 +7,7 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\DownloadRoute;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\DownloadController;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -19,6 +20,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(DownloadController::class)]
 class DownloadControllerTest extends TestCase
 {

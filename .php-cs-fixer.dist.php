@@ -5,12 +5,8 @@ declare(strict_types=1);
 use PhpCsFixer\Config;
 use PhpCsFixer\Finder;
 use PhpCsFixer\Runner\Parallel\ParallelConfigFactory;
-use PHPUnit\Framework\Attributes\CoversClass;
-use Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Filesystem\Path;
-use Symfony\Component\Routing\Attribute\Route;
 
 return (new Config())
     ->setParallelConfig(ParallelConfigFactory::detect())

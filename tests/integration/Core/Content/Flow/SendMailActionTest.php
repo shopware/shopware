@@ -128,7 +128,7 @@ class SendMailActionTest extends TestCase
 
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('transactions.stateMachineState');
-        $order = $orderRepository->search($criteria, $context->getContext())->first();
+        $order = $orderRepository->search($criteria, $context->getContext())->getEntities()->first();
         static::assertNotNull($order);
         $event = new CheckoutOrderPlacedEvent($context, $order);
 
@@ -181,7 +181,7 @@ class SendMailActionTest extends TestCase
         static::assertIsString($documentIdNewer);
         static::assertIsString($documentIdOlder);
         $criteria = new Criteria(array_filter([$documentIdOlder, $documentIdNewer]));
-        $documents = $documentRepository->search($criteria, $context->getContext());
+        $documents = $documentRepository->search($criteria, $context->getContext())->getEntities();
 
         $newDocument = $documents->get($documentIdNewer);
         static::assertNotNull($newDocument);
@@ -241,7 +241,7 @@ class SendMailActionTest extends TestCase
 
         if ($documentTypeIds !== []) {
             $criteria = new Criteria(array_filter([$documentIdOlder, $documentIdNewer]));
-            $documents = $documentRepository->search($criteria, $context->getContext());
+            $documents = $documentRepository->search($criteria, $context->getContext())->getEntities();
 
             $newDocument = $documents->get($documentIdNewer);
             static::assertNotNull($newDocument);
@@ -453,7 +453,7 @@ class SendMailActionTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('orderCustomer');
 
-        $order = static::getContainer()->get('order.repository')->search($criteria, $context->getContext())->get($orderId);
+        $order = static::getContainer()->get('order.repository')->search($criteria, $context->getContext())->getEntities()->get($orderId);
         static::assertInstanceOf(OrderEntity::class, $order);
         $event = new CheckoutOrderPlacedEvent($context, $order);
 
@@ -610,7 +610,7 @@ class SendMailActionTest extends TestCase
 
         $mailTemplate = static::getContainer()
             ->get('mail_template.repository')
-            ->search(new Criteria(), $salesChannelContext->getContext())
+            ->search(new Criteria(), $salesChannelContext->getContext())->getEntities()
             ->first();
 
         static::getContainer()->get(Connection::class)->executeStatement('UPDATE mail_template_type SET template_data = NULL');
@@ -619,7 +619,7 @@ class SendMailActionTest extends TestCase
         $customerId = $this->createCustomer($salesChannelContext->getContext());
         $customer = static::getContainer()
             ->get('customer.repository')
-            ->search(new Criteria([$customerId]), $salesChannelContext->getContext())
+            ->search(new Criteria([$customerId]), $salesChannelContext->getContext())->getEntities()
             ->first();
 
         static::assertInstanceOf(CustomerEntity::class, $customer);
@@ -667,7 +667,7 @@ class SendMailActionTest extends TestCase
 
         $templateType = static::getContainer()
             ->get('mail_template_type.repository')
-            ->search(new Criteria([$mailTemplate->getMailTemplateTypeId()]), $salesChannelContext->getContext())
+            ->search(new Criteria([$mailTemplate->getMailTemplateTypeId()]), $salesChannelContext->getContext())->getEntities()
             ->first();
 
         static::assertInstanceOf(MailTemplateTypeEntity::class, $templateType);

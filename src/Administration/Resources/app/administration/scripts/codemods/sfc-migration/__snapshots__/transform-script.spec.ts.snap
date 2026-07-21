@@ -95,11 +95,11 @@ const {
 );"
 `;
 
-exports[`scripts/codemods/sfc-migration/transform-script composables-component: rewrites $router, $route, $slots, $nextTick, $t, $tc, and $el to their Composition API equivalents matches the complete converted script snapshot 1`] = `
+exports[`scripts/codemods/sfc-migration/transform-script composables-component: rewrites $router, $route, $slots, $nextTick, $t, and $tc to their Composition API equivalents matches the complete converted script snapshot 1`] = `
 "const props = defineProps({});
 
 import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
-import { ref, computed, nextTick, useSlots, useAttrs, getCurrentInstance } from 'vue';
+import { ref, computed, nextTick, useSlots, useAttrs } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 
@@ -117,7 +117,6 @@ const {
     goBack,
     update,
     getTitle,
-    focusItem,
     getAttrsClass,
 } = createExtendableSetup(
     {
@@ -147,9 +146,6 @@ const {
         const getTitle = () => {
             return t('sw.composables.title');
         };
-        const focusItem = () => {
-            /* TODO: $el */ getCurrentInstance()?.proxy?.$el.querySelector('.item').focus();
-        };
         const getAttrsClass = () => {
             return attrs.class ?? '';
         };
@@ -163,7 +159,6 @@ const {
                 goBack,
                 update,
                 getTitle,
-                focusItem,
                 getAttrsClass,
             },
         };

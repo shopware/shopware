@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  */
 #[McpTool(name: 'shopware-entity-search', title: 'Entity Search', description: 'Search and filter Shopware entities — use this to look up a product by its productNumber or any exact field value, including as the first step in Storefront cart/checkout workflows. For count/sum/average reporting, use shopware-entity-aggregate instead (the _meta.total here is pagination metadata, not a reporting count). Accepts Admin API criteria JSON. Returns {success, data: [...], _meta: {total, page, limit}}. Use shopware-entity-schema first if you need field names.')]
 #[McpToolDependsOn('shopware-entity-schema')]

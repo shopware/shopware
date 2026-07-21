@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  */
 #[McpTool(name: McpToolsetRegistry::LIST_TOOLSETS_TOOL, title: 'List Toolsets', description: 'List MCP toolsets that can be enabled for the current session. Use this first for any task: no domain tools are advertised until you enable their toolset.')]
 #[McpToolGroup('discovery')]

@@ -8,7 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Persists enabled MCP toolsets for the duration of one MCP session.
  * Rows are removed when the MCP session ends (DELETE /api/_mcp) and, for sessions that are

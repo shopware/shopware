@@ -7,7 +7,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Reads runtime metadata for app MCP tools from the database: declared required
  * privileges and the toolset group each tool belongs to.

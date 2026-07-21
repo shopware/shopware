@@ -4,29 +4,29 @@
 
 import template from './sw-manufacturer-list.html.twig';
 import './sw-manufacturer-list.scss';
+import SwMeteorEntityDataTable from 'src/app/component/entity/sw-meteor-entity-data-table/sw-meteor-entity-data-table.vue'; // eslint-disable-line import/extensions
+import { applySearchRankingCriteria } from 'src/app/service/search-ranking-criteria.helper';
 
-const { Mixin, Context } = Shopware;
+const { Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    components: {
+        SwMeteorEntityDataTable,
+    },
 
-    mixins: [
-        Mixin.getByName('listing'),
+    inject: [
+        'acl',
+        'searchRankingService',
     ],
 
     data() {
         return {
-            manufacturers: null,
             isLoading: true,
-            sortBy: 'name',
-            sortDirection: 'ASC',
+            term: this.$route.query.term ?? '',
             total: 0,
             searchConfigEntity: 'product_manufacturer',
         };
@@ -39,34 +39,25 @@ export default {
     },
 
     computed: {
-        manufacturerRepository() {
-            return this.repositoryFactory.create('product_manufacturer');
-        },
-
         manufacturerColumns() {
             return [
                 {
                     property: 'name',
-                    dataIndex: 'name',
-                    allowResize: true,
-                    routerLink: 'sw.manufacturer.detail',
                     label: 'sw-manufacturer.list.columnName',
-                    inlineEdit: 'string',
                     primary: true,
+                    clickable: true,
+                    renderer: 'text',
+                    previewImage: 'mediaId',
                 },
                 {
                     property: 'link',
                     label: 'sw-manufacturer.list.columnLink',
-                    inlineEdit: 'string',
                 },
             ];
         },
 
         manufacturerCriteria() {
-            const manufacturerCriteria = new Criteria(this.page, this.limit);
-
-            manufacturerCriteria.setTerm(this.term);
-            manufacturerCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
+            const manufacturerCriteria = new Criteria();
 
             return manufacturerCriteria;
         },
@@ -81,41 +72,49 @@ export default {
     },
 
     methods: {
-        onChangeLanguage(languageId) {
-            this.getList(languageId);
+        onSearch(value) {
+            this.term = value;
         },
 
-        async getList() {
-            this.isLoading = true;
+        onSearchTermChange(term) {
+            this.term = term;
+        },
 
-            let criteria;
+        async transformManufacturerCriteria(criteria) {
             if (this.adminEsEnable) {
-                criteria = this.manufacturerCriteria;
                 criteria.setTerm(this.term);
             } else {
-                criteria = await this.addQueryScores(this.term, this.manufacturerCriteria);
+                const rankedCriteria = await applySearchRankingCriteria({
+                    criteria,
+                    term: this.term,
+                    searchConfigEntity: this.searchConfigEntity,
+                    searchRankingService: this.searchRankingService,
+                });
+
+                if (!rankedCriteria.searchable) {
+                    return null;
+                }
+
+                criteria = rankedCriteria.criteria;
             }
 
-            if (!this.entitySearchable) {
-                this.isLoading = false;
-                this.total = 0;
-
-                return false;
-            }
-
-            if (this.freshSearchTerm) {
+            if (this.term) {
                 criteria.resetSorting();
             }
 
-            return this.manufacturerRepository.search(criteria).then((searchResult) => {
-                this.manufacturers = searchResult;
-                this.total = searchResult.total;
-                this.isLoading = false;
-            });
+            return criteria;
         },
 
-        updateTotal({ total }) {
+        onTableTotalChange(total) {
             this.total = total;
+        },
+
+        onTableLoadingChange(isLoading) {
+            this.isLoading = isLoading;
+        },
+
+        isValidTerm(term) {
+            return this.searchRankingService.isValidTerm(term);
         },
     },
 };

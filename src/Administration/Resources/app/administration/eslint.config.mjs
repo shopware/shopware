@@ -371,6 +371,20 @@ export default [
             'vue/no-multi-spaces': 'off',
         },
     },
+    {
+        files: ['src/app/component/entity/sw-meteor-entity-data-table/sw-meteor-entity-data-table.vue'],
+        languageOptions: {
+            parser: vueParser,
+            parserOptions: {
+                parser: tseslint.parser,
+                sourceType: 'module',
+            },
+        },
+        rules: {
+            'no-unused-vars': 'off',
+            'vue/component-definition-name-casing': 'off',
+        },
+    },
 
     // Test files
     {

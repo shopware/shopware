@@ -35,7 +35,6 @@ The existing `reason:*` annotations will be migrated to these attributes in foll
 
 Hreflang tags now correctly point to the canonical URL when a product has a defined canonical variant or when opening a parent product URL, the hreflang URL now points to the correct variant product, i.e. for products the `hreflang` URLs now match the canonical URLs.
 
-### Deprecated `AbstractDomainLoader::load()` in favor of `loadDomains()`
 ## App System
 
 ## Hosting & Configuration
@@ -401,9 +400,12 @@ Storefront listing pages now include their page number in the canonical URL when
 
 ### Deprecated `AbstractDomainLoader::load()` in favor of `loadDomains()`
 
-`Shopware\Storefront\Framework\Routing\AbstractDomainLoader::load()` is deprecated and will be removed with Shopware 6.8. Use the new `loadDomains()` method instead, which returns a `Shopware\Storefront\Framework\Routing\Struct\DomainCollection` of `Shopware\Storefront\Framework\Routing\Struct\DomainStruct` objects, keyed by domain URL.
+`Shopware\Storefront\Framework\Routing\AbstractDomainLoader::load()` is deprecated and will be removed with Shopware 6.8.
+Use the new `loadDomains()` method instead, which returns a `Shopware\Storefront\Framework\Routing\Struct\DomainCollection` of `Shopware\Storefront\Framework\Routing\Struct\DomainStruct` objects, keyed by domain URL.
 
-`loadDomains()` is already available: its default implementation builds the collection from `load()` for backward compatibility, but will become abstract with 6.8. If you decorate `AbstractDomainLoader`, implement `loadDomains()` in your decorator. If you consume the result, look up entries via the collection (e.g. `$domains->get($url)`) and access the values as objects (e.g. `$domain->url`) instead of array keys (`$domains[$url]['url']`).
+`loadDomains()` is already available: its default implementation builds the collection from `load()` for backward compatibility, but will become abstract with 6.8.
+If you decorate `AbstractDomainLoader`, implement `loadDomains()` in your decorator.
+If you consume the result, look up entries via the collection (e.g. `$domains->get($url)`) and access the values as objects (e.g. `$domain->url`) instead of array keys (`$domains[$url]['url']`).
 
 ### FormFieldToggle can toggle related submit button labels
 

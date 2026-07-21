@@ -83,6 +83,9 @@ class LicenseSyncSubscriberTest extends TestCase
             BeforeSystemConfigChangedEvent::class => 'syncLicense',
         ];
 
+        $this->clientFactory->expects($this->never())->method('newAuthenticatedFor');
+        $this->serviceRegistryClient->expects($this->never())->method('get');
+
         static::assertSame($expectedEvents, LicenseSyncSubscriber::getSubscribedEvents());
     }
 
@@ -139,7 +142,7 @@ class LicenseSyncSubscriberTest extends TestCase
 
         $serviceAuthedClient = $this->createMock(AuthenticatedServiceClient::class);
 
-        $this->serviceRegistryClient->method('get')->willReturn($serviceEntry);
+        $this->serviceRegistryClient->expects($this->atLeastOnce())->method('get')->willReturn($serviceEntry);
         $this->clientFactory->method('newAuthenticatedFor')->willReturn($serviceAuthedClient);
 
         $this->clientFactory->expects($this->exactly(2))->method('newAuthenticatedFor');
@@ -202,7 +205,7 @@ class LicenseSyncSubscriberTest extends TestCase
 
         $serviceAuthedClient = $this->createMock(AuthenticatedServiceClient::class);
 
-        $this->serviceRegistryClient->method('get')->willReturn($serviceEntry);
+        $this->serviceRegistryClient->expects($this->atLeastOnce())->method('get')->willReturn($serviceEntry);
         $this->clientFactory->method('newAuthenticatedFor')->willReturn($serviceAuthedClient);
 
         $this->clientFactory->expects($this->exactly(2))->method('newAuthenticatedFor');
@@ -326,7 +329,7 @@ class LicenseSyncSubscriberTest extends TestCase
 
         $serviceAuthedClient = $this->createMock(AuthenticatedServiceClient::class);
 
-        $this->serviceRegistryClient->method('get')->willReturn($serviceEntry);
+        $this->serviceRegistryClient->expects($this->atLeastOnce())->method('get')->willReturn($serviceEntry);
         $this->clientFactory->method('newAuthenticatedFor')->willReturn($serviceAuthedClient);
 
         $this->clientFactory->expects($this->exactly(2))->method('newAuthenticatedFor');
@@ -372,7 +375,7 @@ class LicenseSyncSubscriberTest extends TestCase
 
         $serviceAuthedClient = $this->createMock(AuthenticatedServiceClient::class);
 
-        $this->serviceRegistryClient->method('get')->willReturn($serviceEntry);
+        $this->serviceRegistryClient->expects($this->never())->method('get');
 
         $this->clientFactory->expects($this->never())->method('newAuthenticatedFor');
         $serviceAuthedClient->expects($this->never())->method('syncLicense');
@@ -418,7 +421,7 @@ class LicenseSyncSubscriberTest extends TestCase
 
         $serviceAuthedClient = $this->createMock(AuthenticatedServiceClient::class);
 
-        $this->serviceRegistryClient->method('get')->willReturn($serviceEntry);
+        $this->serviceRegistryClient->expects($this->never())->method('get');
 
         $this->clientFactory->expects($this->never())->method('newAuthenticatedFor');
         $serviceAuthedClient->expects($this->never())->method('syncLicense');
@@ -427,6 +430,8 @@ class LicenseSyncSubscriberTest extends TestCase
 
     public function testLicenseIsNotSyncedWhenIntegrationIdDoesNotMatch(): void
     {
+        $this->serviceRegistryClient->expects($this->never())->method('get');
+
         $app = new AppEntity();
         $app->setId(Uuid::randomHex());
         $app->setUniqueIdentifier('app_id');
@@ -437,7 +442,7 @@ class LicenseSyncSubscriberTest extends TestCase
 
         $event = new AppInstalledEvent(
             $app,
-            $this->createMock(Manifest::class),
+            static::createStub(Manifest::class),
             Context::createCLIContext(new AdminApiSource(
                 'user_id',
                 'integration_id',
@@ -460,7 +465,7 @@ class LicenseSyncSubscriberTest extends TestCase
 
         $event = new AppInstalledEvent(
             $app,
-            $this->createMock(Manifest::class),
+            static::createStub(Manifest::class),
             Context::createCLIContext(new AdminApiSource(
                 'user_id',
                 'integration_id',
@@ -517,7 +522,7 @@ class LicenseSyncSubscriberTest extends TestCase
 
         $serviceAuthedClient = $this->createMock(AuthenticatedServiceClient::class);
 
-        $this->serviceRegistryClient->method('get')->willReturn($serviceEntry);
+        $this->serviceRegistryClient->expects($this->atLeastOnce())->method('get')->willReturn($serviceEntry);
 
         $this->clientFactory->expects($this->never())->method('newAuthenticatedFor');
         $serviceAuthedClient->expects($this->never())->method('syncLicense');
@@ -563,7 +568,7 @@ class LicenseSyncSubscriberTest extends TestCase
 
         $serviceAuthedClient = $this->createMock(AuthenticatedServiceClient::class);
 
-        $this->serviceRegistryClient->method('get')->willReturn($serviceEntry);
+        $this->serviceRegistryClient->expects($this->never())->method('get');
 
         $this->clientFactory->expects($this->never())->method('newAuthenticatedFor');
         $serviceAuthedClient->expects($this->never())->method('syncLicense');
@@ -572,6 +577,8 @@ class LicenseSyncSubscriberTest extends TestCase
 
     public function testLicenseIsNotSyncedWithValueIsNotString(): void
     {
+        $this->clientFactory->expects($this->never())->method('newAuthenticatedFor');
+
         $event = new BeforeSystemConfigChangedEvent(
             LicenseSyncSubscriber::CONFIG_STORE_LICENSE_KEY,
             1,
@@ -584,6 +591,8 @@ class LicenseSyncSubscriberTest extends TestCase
 
     public function testLicenseIsNotSyncedWithInvalidConfigChanges(): void
     {
+        $this->clientFactory->expects($this->never())->method('newAuthenticatedFor');
+
         $event = new BeforeSystemConfigChangedEvent(
             'invalid_key',
             'valid_license_key',
@@ -596,6 +605,8 @@ class LicenseSyncSubscriberTest extends TestCase
 
     public function testLicenseIsNotSyncedWithInvalidConfigValue(): void
     {
+        $this->clientFactory->expects($this->never())->method('newAuthenticatedFor');
+
         $event = new BeforeSystemConfigChangedEvent(
             LicenseSyncSubscriber::CONFIG_STORE_LICENSE_KEY,
             null,
@@ -614,7 +625,7 @@ class LicenseSyncSubscriberTest extends TestCase
         $app->setSelfManaged(true);
         $context = Context::createDefaultContext();
 
-        $event = new AppInstalledEvent($app, $this->createMock(Manifest::class), $context);
+        $event = new AppInstalledEvent($app, static::createStub(Manifest::class), $context);
         $providedEvents = [];
         $this->eventDispatcher->addListener(CommercialLicenseProvidedEvent::class, static function (CommercialLicenseProvidedEvent $event) use (&$providedEvents): void {
             $providedEvents[] = $event;
@@ -638,7 +649,7 @@ class LicenseSyncSubscriberTest extends TestCase
 
         $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
 
-        $this->serviceRegistryClient->method('get')->willReturn($serviceEntry);
+        $this->serviceRegistryClient->expects($this->atLeastOnce())->method('get')->willReturn($serviceEntry);
 
         $this->clientFactory->expects($this->once())->method('newAuthenticatedFor');
         $this->subscriber->serviceInstalled($event);
@@ -667,6 +678,8 @@ class LicenseSyncSubscriberTest extends TestCase
 
     public function testLicenseIsProvidedOnAppActivation(): void
     {
+        $this->clientFactory->expects($this->never())->method('newAuthenticatedFor');
+
         $app = new AppEntity();
         $app->setId(Uuid::randomHex());
         $app->setName('app_name');
@@ -709,12 +722,14 @@ class LicenseSyncSubscriberTest extends TestCase
 
     public function testLicenseIsNotSyncedOnAppInstallWithInvalidSecret(): void
     {
+        $this->clientFactory->expects($this->never())->method('newAuthenticatedFor');
+
         $context = Context::createDefaultContext();
         $app = new AppEntity();
         $app->setName('app_name');
         $app->setSelfManaged(true);
 
-        $event = new AppInstalledEvent($app, $this->createMock(Manifest::class), $context);
+        $event = new AppInstalledEvent($app, static::createStub(Manifest::class), $context);
 
         $this->systemConfigService = new StaticSystemConfigService([]);
 
@@ -760,9 +775,9 @@ class LicenseSyncSubscriberTest extends TestCase
         );
 
         $serviceAuthedClient = $this->createMock(AuthenticatedServiceClient::class);
-        $this->serviceRegistryClient->method('get')->willReturn($serviceEntry);
+        $this->serviceRegistryClient->expects($this->atLeastOnce())->method('get')->willReturn($serviceEntry);
 
-        $this->clientFactory->method('newAuthenticatedFor')->willThrowException(new ServiceException(301, 'error', 'error'));
+        $this->clientFactory->expects($this->once())->method('newAuthenticatedFor')->willThrowException(new ServiceException(301, 'error', 'error'));
 
         $serviceAuthedClient->expects($this->never())->method('syncLicense');
         $this->subscriber->syncLicense($event);
@@ -770,6 +785,8 @@ class LicenseSyncSubscriberTest extends TestCase
 
     public function testLicenseIsNotSyncedWhenValueHasNotChanged(): void
     {
+        $this->clientFactory->expects($this->never())->method('newAuthenticatedFor');
+
         // Set up system config with existing value
         $this->systemConfigService = new StaticSystemConfigService([
             LicenseSyncSubscriber::CONFIG_STORE_LICENSE_KEY => 'existing_license_key',

@@ -1,22 +1,4 @@
-.sw-notification-center__context-button {
-    width: var(--scale-size-40);
-    height: var(--scale-size-40);
-    border-radius: var(--border-radius-button);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-
-    &.is--active,
-    &:hover {
-        background: var(--color-interaction-secondary-hover);
-    }
-
-    &:focus-visible {
-        outline: var(--scale-size-2) solid var(--color-border-brand-default);
-        outline-offset: var(--scale-size-2);
-    }
-}
+@import "~scss/variables";
 
 .sw-notification-center__context-button--new-available::after {
     content: "";
@@ -26,39 +8,120 @@
     border-radius: 50%;
     background-color: var(--color-icon-critical-default);
     position: absolute;
-    top: 8px;
-    right: 8px;
+    top: 5px;
+    right: 5px;
 }
 
-.sw-notification-center__context-container {
-    .sw-context-menu__content {
-        padding: 0 !important;
+.sw-notification-center__context-button.is--active {
+    background-color: var(--color-interaction-secondary-hover);
+}
+
+.sw-notification-center__options-button[data-state="open"] {
+    background-color: var(--color-interaction-secondary-hover);
+}
+
+.sw-notification-center__options-menu {
+    z-index: $z-index-context-menu;
+}
+
+.sw-notification-center__content {
+    width: 22.5rem;
+    background-color: var(--color-elevation-surface-default);
+    border: 1px solid var(--color-border-secondary-default);
+    border-radius: var(--border-radius-m);
+    box-shadow: 0 6px 24px -8px var(--color-elevation-shadow-default);
+    overflow: hidden;
+
+    .sw-notification-center__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--color-border-secondary-default);
+        padding: var(--scale-size-18) var(--scale-size-24);
     }
 
-    .sw-notification-center__content {
-        .sw-notification-center__header {
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px solid var(--color-border-secondary-default);
-            padding: var(--scale-size-18) var(--scale-size-24);
-        }
+    .sw-notification-center__title {
+        margin: 0;
+        font-size: var(--font-size-s);
+        line-height: var(--font-line-height-s);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-text-primary-default);
+    }
 
-        .sw-notification-center__title {
-            margin: 0;
+    .sw-notification-center__notification-container {
+        overflow-y: auto;
+        max-height: 37.5rem;
+    }
+
+    .sw-notification-center__empty-state {
+        padding: var(--scale-size-24);
+
+        .mt-empty-state__headline {
+            margin-top: var(--scale-size-16);
             font-size: var(--font-size-s);
             line-height: var(--font-line-height-s);
             font-weight: var(--font-weight-semibold);
-            color: var(--color-text-primary-default);
         }
+    }
 
-        .sw-notification-center__notification-container {
-            overflow-y: auto;
-            max-height: 37.5rem;
-        }
+    .sw-notification-center__empty-state-wrapper {
+        position: relative;
+        user-select: none;
+    }
 
-        .sw-notification-center__empty-text {
-            padding: var(--scale-size-18) var(--scale-size-24);
-            font-size: var(--font-size-xs);
+    .sw-notification-center__empty-state-bell-button {
+        position: absolute;
+        top: var(--scale-size-24);
+        left: 50%;
+        width: var(--scale-size-48);
+        height: var(--scale-size-48);
+        padding: 0;
+        border: 0;
+        border-radius: var(--border-radius-xs);
+        background: transparent;
+        cursor: pointer;
+        transform: translateX(-50%);
+
+        &:focus-visible {
+            outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+            outline-offset: var(--scale-size-2);
         }
+    }
+}
+
+.sw-notification-center__empty-state--ringing .mt-empty-state__icon .mt-icon {
+    animation: sw-notification-center-empty-state-bell 480ms ease-out both;
+    transform-origin: 50% 18%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sw-notification-center__empty-state--ringing .mt-empty-state__icon .mt-icon {
+        animation: none;
+    }
+}
+
+@keyframes sw-notification-center-empty-state-bell {
+    0% {
+        transform: rotate(0deg) scale(0.96);
+    }
+
+    20% {
+        transform: rotate(-7deg) scale(1.03);
+    }
+
+    42% {
+        transform: rotate(6deg);
+    }
+
+    64% {
+        transform: rotate(-3deg);
+    }
+
+    82% {
+        transform: rotate(2deg);
+    }
+
+    100% {
+        transform: rotate(0deg) scale(1);
     }
 }

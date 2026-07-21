@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\EventListener\ExpectationSubscriber;
 use Shopware\Core\Framework\Api\Exception\ExpectationFailedException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
@@ -18,6 +19,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ExpectationSubscriber::class)]
 class ExpectationSubscriberTest extends TestCase
 {
@@ -52,7 +54,7 @@ class ExpectationSubscriberTest extends TestCase
         $request->headers->set(PlatformRequest::HEADER_EXPECT_PACKAGES, 'shopware/core:~6.4');
 
         $event = new ControllerEvent(
-            $this->createMock(Kernel::class),
+            static::createStub(Kernel::class),
             $this->setUp(...),
             $request,
             HttpKernelInterface::MAIN_REQUEST
@@ -70,7 +72,7 @@ class ExpectationSubscriberTest extends TestCase
         $request->headers->set(PlatformRequest::HEADER_EXPECT_PACKAGES, 'shopware/core:~6.3.0.0');
 
         $event = new ControllerEvent(
-            $this->createMock(Kernel::class),
+            static::createStub(Kernel::class),
             $this->setUp(...),
             $request,
             HttpKernelInterface::MAIN_REQUEST
@@ -85,7 +87,7 @@ class ExpectationSubscriberTest extends TestCase
         $request->headers->set(PlatformRequest::HEADER_EXPECT_PACKAGES, 'shopware/core:~6.3.0.0,swag/paypal:*');
 
         $event = new ControllerEvent(
-            $this->createMock(Kernel::class),
+            static::createStub(Kernel::class),
             $this->setUp(...),
             $request,
             HttpKernelInterface::MAIN_REQUEST
@@ -105,7 +107,7 @@ class ExpectationSubscriberTest extends TestCase
         $request->headers->set(PlatformRequest::HEADER_EXPECT_PACKAGES, 'shopware/core:~6.3.0.0,swag/paypal:*');
 
         $event = new ControllerEvent(
-            $this->createMock(Kernel::class),
+            static::createStub(Kernel::class),
             $this->setUp(...),
             $request,
             HttpKernelInterface::MAIN_REQUEST
@@ -122,7 +124,7 @@ class ExpectationSubscriberTest extends TestCase
         $request->headers->set(PlatformRequest::HEADER_EXPECT_PACKAGES, 'shopware/core:~6.3.0.0,swag/paypal:*');
 
         $event = new ControllerEvent(
-            $this->createMock(Kernel::class),
+            static::createStub(Kernel::class),
             $this->setUp(...),
             $request,
             HttpKernelInterface::MAIN_REQUEST

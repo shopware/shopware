@@ -43,8 +43,12 @@ class TemplateDataSubscriber implements EventSubscriberInterface
     public function addHreflang(StorefrontRenderEvent $event): void
     {
         $request = $event->getRequest();
-        $route = $request->attributes->get('_route');
 
+        if ($request->attributes->getBoolean('_esi')) {
+            return;
+        }
+
+        $route = $request->attributes->get('_route');
         if ($route === null) {
             return;
         }

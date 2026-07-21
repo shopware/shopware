@@ -547,7 +547,10 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         const deleteModal = wrapper.find('.sw-product-variants-overview__delete-modal');
         expect(deleteModal.exists()).toBe(true);
 
-        await wrapper.findByText('button', 'sw-product.variations.generatedListDeleteModalButtonDelete').trigger('click');
+        await deleteModal
+            .findAll('button')
+            .find((button) => button.text().trim() === 'global.default.delete')
+            .trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.productRepository.save).toHaveBeenCalledTimes(1);

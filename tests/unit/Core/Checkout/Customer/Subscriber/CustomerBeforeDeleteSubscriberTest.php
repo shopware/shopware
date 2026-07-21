@@ -53,7 +53,7 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
                 'lastName' => 'bar',
             ]);
 
-        $definitionInstanceRegistry = static::createMock(DefinitionInstanceRegistry::class);
+        $definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
 
         $customerDefinition = new CustomerDefinition();
         $customerDefinition->compile($definitionInstanceRegistry);
@@ -82,7 +82,7 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
             new SalesChannelCollection([$salesChannel]),
         ]);
 
-        $salesChannelContextService = static::createMock(SalesChannelContextService::class);
+        $salesChannelContextService = static::createStub(SalesChannelContextService::class);
         $salesChannelContextService->method('get')->willReturn(Generator::generateSalesChannelContext());
 
         $eventDispatcher = new EventDispatcher();
@@ -149,7 +149,7 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
 
     public function testBeforeDeleteWithEmptyCustomerIdsDoesNotDispatch(): void
     {
-        $definitionInstanceRegistry = static::createMock(DefinitionInstanceRegistry::class);
+        $definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $customerDefinition = new CustomerDefinition();
         $customerDefinition->compile($definitionInstanceRegistry);
 
@@ -157,9 +157,9 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
         $customerRepository = new StaticEntityRepository([], $customerDefinition);
         /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([]);
-        $salesChannelContextService = static::createMock(SalesChannelContextService::class);
+        $salesChannelContextService = static::createStub(SalesChannelContextService::class);
         $eventDispatcher = new EventDispatcher();
-        $jsonEntityEncoder = static::createMock(JsonEntityEncoder::class);
+        $jsonEntityEncoder = static::createStub(JsonEntityEncoder::class);
 
         $subscriber = new CustomerBeforeDeleteSubscriber(
             $customerRepository,
@@ -204,7 +204,7 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
                 'lastName' => 'baz',
             ]);
 
-        $definitionInstanceRegistry = static::createMock(DefinitionInstanceRegistry::class);
+        $definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $customerDefinition = new CustomerDefinition();
         $customerDefinition->compile($definitionInstanceRegistry);
 
@@ -230,7 +230,7 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
             new SalesChannelCollection([$salesChannel]),
         ]);
 
-        $salesChannelContextService = static::createMock(SalesChannelContextService::class);
+        $salesChannelContextService = static::createStub(SalesChannelContextService::class);
         $salesChannelContextService->method('get')->willReturn(Generator::generateSalesChannelContext());
         $eventDispatcher = new EventDispatcher();
         $jsonEntityEncoder = new JsonEntityEncoder(new Serializer([new StructNormalizer()], []));
@@ -293,7 +293,7 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
                 'lastName' => 'Lang',
             ]);
 
-        $definitionInstanceRegistry = static::createMock(DefinitionInstanceRegistry::class);
+        $definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $customerDefinition = new CustomerDefinition();
         $customerDefinition->compile($definitionInstanceRegistry);
 
@@ -319,7 +319,7 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
             new SalesChannelCollection([$salesChannel]),
         ]);
 
-        $salesChannelContextService = static::createMock(SalesChannelContextService::class);
+        $salesChannelContextService = static::createStub(SalesChannelContextService::class);
         $salesChannelContextService->method('get')->willReturn(Generator::generateSalesChannelContext());
         $eventDispatcher = new EventDispatcher();
         $jsonEntityEncoder = new JsonEntityEncoder(new Serializer([new StructNormalizer()], []));

@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
@@ -27,6 +28,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
  *
  * @deprecated tag:v6.8.0 - Will be removed
  */
+#[Package('framework')]
 #[CoversClass(BuildBreadcrumbExtension::class)]
 class BuildBreadcrumbExtensionTest extends TestCase
 {
@@ -135,7 +137,7 @@ class BuildBreadcrumbExtensionTest extends TestCase
 
     private function getBuildBreadcrumbExtension(?CategoryBreadcrumbBuilder $categoryBreadcrumbBuilder = null, ?string $categoryId = null): BuildBreadcrumbExtension
     {
-        $categoryBreadcrumbBuilder ??= $this->createMock(CategoryBreadcrumbBuilder::class);
+        $categoryBreadcrumbBuilder ??= static::createStub(CategoryBreadcrumbBuilder::class);
 
         $categories = new CategoryCollection();
         if ($categoryId !== null) {

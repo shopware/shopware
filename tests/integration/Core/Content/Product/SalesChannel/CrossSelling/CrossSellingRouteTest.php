@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductCrossSellingIdsCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\AbstractProductCrossSellingRoute;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -40,6 +42,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[Group('slow')]
 #[Group('store-api')]
 class CrossSellingRouteTest extends TestCase
@@ -125,7 +128,7 @@ class CrossSellingRouteTest extends TestCase
 
         $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->get($productId);
+        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->getEntities()->get($productId);
         static::assertInstanceOf(ProductEntity::class, $product);
         $result = $this->route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
@@ -165,7 +168,7 @@ class CrossSellingRouteTest extends TestCase
 
         $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->get($productId);
+        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->getEntities()->get($productId);
         static::assertInstanceOf(ProductEntity::class, $product);
         $result = $this->route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
@@ -205,7 +208,7 @@ class CrossSellingRouteTest extends TestCase
 
         $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->get($productId);
+        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->getEntities()->get($productId);
         static::assertInstanceOf(ProductEntity::class, $product);
         $result = $this->route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
@@ -245,7 +248,7 @@ class CrossSellingRouteTest extends TestCase
 
         $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->get($productId);
+        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->getEntities()->get($productId);
         static::assertInstanceOf(ProductEntity::class, $product);
         $result = $this->route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
@@ -273,7 +276,7 @@ class CrossSellingRouteTest extends TestCase
 
         $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->get($productId);
+        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->getEntities()->get($productId);
         static::assertInstanceOf(ProductEntity::class, $product);
         $result = $this->route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
@@ -341,7 +344,7 @@ class CrossSellingRouteTest extends TestCase
 
         $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->get($productId);
+        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->getEntities()->get($productId);
         static::assertInstanceOf(ProductEntity::class, $product);
         $result = $this->route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
@@ -432,6 +435,7 @@ class CrossSellingRouteTest extends TestCase
         ]];
         $productData['children'] = [[
             'id' => $variantId,
+            'type' => ProductDefinition::TYPE_PHYSICAL,
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'options' => [
@@ -495,7 +499,7 @@ class CrossSellingRouteTest extends TestCase
         $this->salesChannelContext->getContext()->setConsiderInheritance(true);
         $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->get($productId);
+        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->getEntities()->get($productId);
         static::assertInstanceOf(ProductEntity::class, $product);
         $result = $route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
         static::assertCount(1, $result);
@@ -688,6 +692,7 @@ class CrossSellingRouteTest extends TestCase
 
         $product = [
             'id' => $id ?? Uuid::randomHex(),
+            'type' => ProductDefinition::TYPE_PHYSICAL,
             'productNumber' => Uuid::randomHex(),
             'stock' => $stock,
             'name' => 'Test',
@@ -717,6 +722,7 @@ class CrossSellingRouteTest extends TestCase
             ]];
             $product['children'] = [[
                 'id' => Uuid::randomHex(),
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'options' => [

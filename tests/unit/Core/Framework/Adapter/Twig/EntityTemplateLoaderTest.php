@@ -7,12 +7,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Twig\Error\LoaderError;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EntityTemplateLoader::class)]
 class EntityTemplateLoaderTest extends TestCase
 {
@@ -76,7 +78,7 @@ class EntityTemplateLoaderTest extends TestCase
 
     public function testGetSourceContext(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')
             ->willReturn([
                 [
@@ -97,7 +99,7 @@ class EntityTemplateLoaderTest extends TestCase
 
     public function testGetSourceContextThrowsForMissingTemplate(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')
             ->willReturn([]);
 
@@ -109,7 +111,7 @@ class EntityTemplateLoaderTest extends TestCase
 
     public function testGetCacheKey(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')
             ->willReturn([
                 [
@@ -129,7 +131,7 @@ class EntityTemplateLoaderTest extends TestCase
 
     public function testIsFreshWithNoUpdatedAt(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')
             ->willReturn([
                 [
@@ -148,7 +150,7 @@ class EntityTemplateLoaderTest extends TestCase
 
     public function testIsFreshWithOldUpdatedAt(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')
             ->willReturn([
                 [
@@ -167,7 +169,7 @@ class EntityTemplateLoaderTest extends TestCase
 
     public function testIsFreshWithFutureUpdatedAt(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')
             ->willReturn([
                 [
@@ -194,7 +196,7 @@ class EntityTemplateLoaderTest extends TestCase
 
     public function testTemplateWithoutNamespace(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')
             ->willReturn([
                 [
@@ -213,7 +215,7 @@ class EntityTemplateLoaderTest extends TestCase
 
     public function testNonExistentTemplateReturnsFalse(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')
             ->willReturn([]);
 

@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
+#[\Shopware\Core\Framework\Log\Package('framework')]
 #[CoversClass(AssetPackageService::class)]
 class AssetPackageServiceTest extends TestCase
 {

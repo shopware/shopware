@@ -44,7 +44,7 @@ class DocumentDeleteSubscriberTest extends TestCase
             'documentA11yMediaFileId' => $mediaIdA11y,
         ]);
 
-        $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
 
         $documentDefinition = new DocumentDefinition();
         $documentDefinition->compile($definitionInstanceRegistry);
@@ -110,7 +110,7 @@ class DocumentDeleteSubscriberTest extends TestCase
             'documentType' => $documentType,
         ]);
 
-        $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
 
         $documentDefinition = new DocumentDefinition();
         $documentDefinition->compile($definitionInstanceRegistry);

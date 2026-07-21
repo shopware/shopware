@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\RateLimiter\Policy;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoffLimiter;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -16,6 +17,7 @@ use Symfony\Component\RateLimiter\Storage\StorageInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RateLimiterFactory::class)]
 class RateLimiterFactoryTest extends TestCase
 {
@@ -38,10 +40,10 @@ class RateLimiterFactoryTest extends TestCase
                     ],
                 ],
             ],
-            $this->createMock(StorageInterface::class),
-            $this->createMock(SystemConfigService::class),
+            static::createStub(StorageInterface::class),
+            static::createStub(SystemConfigService::class),
             new MockClock(),
-            $this->createMock(LockFactory::class),
+            static::createStub(LockFactory::class),
         );
 
         static::assertInstanceOf(TimeBackoffLimiter::class, $factory->create('example'));
@@ -57,10 +59,10 @@ class RateLimiterFactoryTest extends TestCase
                 'limit' => 3,
                 'rate' => ['interval' => '60 seconds'],
             ],
-            $this->createMock(StorageInterface::class),
-            $this->createMock(SystemConfigService::class),
+            static::createStub(StorageInterface::class),
+            static::createStub(SystemConfigService::class),
             new MockClock(),
-            $this->createMock(LockFactory::class),
+            static::createStub(LockFactory::class),
         );
 
         static::assertInstanceOf(TokenBucketLimiter::class, $factory->create('example'));
@@ -87,10 +89,10 @@ class RateLimiterFactoryTest extends TestCase
                 'limit' => 3,
                 'rate' => ['interval' => '60 seconds'],
             ],
-            $this->createMock(StorageInterface::class),
-            $this->createMock(SystemConfigService::class),
+            static::createStub(StorageInterface::class),
+            static::createStub(SystemConfigService::class),
             new MockClock(),
-            $this->createMock(LockFactory::class),
+            static::createStub(LockFactory::class),
         );
 
         static::assertInstanceOf(TokenBucketLimiter::class, $factory->create('example'));
@@ -106,10 +108,10 @@ class RateLimiterFactoryTest extends TestCase
                 'limit' => 1,
                 'interval' => '15 seconds',
             ],
-            $this->createMock(StorageInterface::class),
-            $this->createMock(SystemConfigService::class),
+            static::createStub(StorageInterface::class),
+            static::createStub(SystemConfigService::class),
             new MockClock(),
-            $this->createMock(LockFactory::class),
+            static::createStub(LockFactory::class),
         );
         static::assertInstanceOf(SlidingWindowLimiter::class, $factory->create('example_1'));
         static::assertInstanceOf(SlidingWindowLimiter::class, $factory->create('example_2'));

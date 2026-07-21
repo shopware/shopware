@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Api\Controller\CacheController;
 use Shopware\Core\Framework\Api\Event\InvalidateExpiredCacheRequestEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\EventDispatcher\AssertingEventDispatcher;
 use Shopware\Elasticsearch\Framework\Indexing\IndexManager;
 use Symfony\Component\Cache\Adapter\NullAdapter;
@@ -18,6 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CacheController::class)]
 class CacheControllerTest extends TestCase
 {
@@ -29,9 +31,9 @@ class CacheControllerTest extends TestCase
 
         $controller = new CacheController(
             $cacheClearerMock,
-            $this->createMock(CacheInvalidator::class),
+            static::createStub(CacheInvalidator::class),
             new NullAdapter(),
-            $this->createMock(EntityIndexerRegistry::class),
+            static::createStub(EntityIndexerRegistry::class),
             new EventDispatcher()
         );
 
@@ -53,10 +55,10 @@ class CacheControllerTest extends TestCase
         ]);
 
         $controller = new CacheController(
-            $this->createMock(CacheClearer::class),
+            static::createStub(CacheClearer::class),
             $cacheInvalidatorMock,
             new NullAdapter(),
-            $this->createMock(EntityIndexerRegistry::class),
+            static::createStub(EntityIndexerRegistry::class),
             $eventDispatcher,
         );
 

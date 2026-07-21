@@ -20,7 +20,7 @@ jobs="[]"
 page=1
 while true; do
   response=$(gh api "/repos/${REPO}/actions/runs/${RUN_ID}/jobs?per_page=100&page=${page}")
-  jobs=$(jq --argjson new "$(jq '.jobs' <<<"$response")" '. + $new' <<<"$jobs")
+  jobs=$(jq -s '.[0] + .[1].jobs' <(printf '%s\n' "$jobs") <(printf '%s\n' "$response"))
 
   if [ "$(jq '.jobs | length' <<<"$response")" -lt 100 ]; then
     break
@@ -52,6 +52,10 @@ acceptance_jobs=$(jq -r '
   jq -s -r 'sort_by(.sort)[] | "\(.id);\(.name);\(.conclusion)"')
 
 message=""
+# Optional label to distinguish concurrent runs (e.g. the dedicated "Major" nightly).
+if [ -n "${RUN_LABEL:-}" ]; then
+  message="*${RUN_LABEL}*\n"
+fi
 while IFS=';' read -r job_id job_name job_conclusion; do
   [ -z "$job_name" ] && continue
   case "$job_conclusion" in

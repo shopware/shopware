@@ -13,6 +13,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\Administration\Admin;
 use Shopware\Core\Framework\App\Manifest\Xml\Administration\MainModule;
 use Shopware\Core\Framework\App\Manifest\Xml\Administration\Module;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
@@ -20,6 +21,7 @@ use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ModuleLifecycleHandler::class)]
 class ModuleLifecycleHandlerTest extends TestCase
 {
@@ -176,7 +178,7 @@ class ModuleLifecycleHandlerTest extends TestCase
             $app->setAppSecret('s3cr3t');
         }
 
-        $manifest = $this->createMock(Manifest::class);
+        $manifest = static::createStub(Manifest::class);
         $manifest->method('getAdmin')->willReturn($admin);
 
         return new AppPersistContext(

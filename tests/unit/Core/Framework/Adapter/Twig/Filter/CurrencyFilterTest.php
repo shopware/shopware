@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\Filter\CurrencyFilter;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Currency\CurrencyFormatter;
@@ -16,12 +17,13 @@ use Twig\TwigFilter;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CurrencyFilter::class)]
 class CurrencyFilterTest extends TestCase
 {
     public function testGetFilters(): void
     {
-        $filter = new CurrencyFilter($this->createMock(CurrencyFormatter::class));
+        $filter = new CurrencyFilter(static::createStub(CurrencyFormatter::class));
 
         $filters = $filter->getFilters();
 
@@ -114,7 +116,7 @@ class CurrencyFilterTest extends TestCase
 
     public function testReturnsPriceInTestModeWhenContextIsMissing(): void
     {
-        $filter = new CurrencyFilter($this->createMock(CurrencyFormatter::class));
+        $filter = new CurrencyFilter(static::createStub(CurrencyFormatter::class));
 
         static::assertSame(12.34, $filter->formatCurrency([
             'testMode' => true,
@@ -123,7 +125,7 @@ class CurrencyFilterTest extends TestCase
 
     public function testThrowsWhenContextIsMissing(): void
     {
-        $filter = new CurrencyFilter($this->createMock(CurrencyFormatter::class));
+        $filter = new CurrencyFilter(static::createStub(CurrencyFormatter::class));
 
         $this->expectExceptionObject(AdapterException::currencyFilterMissingContext());
 
@@ -132,7 +134,7 @@ class CurrencyFilterTest extends TestCase
 
     public function testReturnsPriceInTestModeWhenCurrencyIsoCodeIsMissing(): void
     {
-        $filter = new CurrencyFilter($this->createMock(CurrencyFormatter::class));
+        $filter = new CurrencyFilter(static::createStub(CurrencyFormatter::class));
 
         static::assertSame(12.34, $filter->formatCurrency([
             'context' => Context::createDefaultContext(),
@@ -142,7 +144,7 @@ class CurrencyFilterTest extends TestCase
 
     public function testThrowsWhenCurrencyIsoCodeIsMissing(): void
     {
-        $filter = new CurrencyFilter($this->createMock(CurrencyFormatter::class));
+        $filter = new CurrencyFilter(static::createStub(CurrencyFormatter::class));
 
         $this->expectExceptionObject(AdapterException::currencyFilterMissingIsoCode());
 

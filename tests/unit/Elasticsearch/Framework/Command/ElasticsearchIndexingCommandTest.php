@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework\Command;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand;
 use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
@@ -16,6 +17,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ElasticsearchIndexingCommand::class)]
 class ElasticsearchIndexingCommandTest extends TestCase
 {
@@ -23,7 +25,7 @@ class ElasticsearchIndexingCommandTest extends TestCase
     {
         $oldIndexer = static::createStub(ElasticsearchIndexer::class);
 
-        $bus = $this->createMock(MessageBusInterface::class);
+        $bus = static::createStub(MessageBusInterface::class);
         $aliasHandler = $this->createMock(CreateAliasTaskHandler::class);
         $aliasHandler->expects($this->never())->method('run');
 
@@ -50,7 +52,7 @@ class ElasticsearchIndexingCommandTest extends TestCase
             null
         );
 
-        $bus = $this->createMock(MessageBusInterface::class);
+        $bus = static::createStub(MessageBusInterface::class);
         $aliasHandler = $this->createMock(CreateAliasTaskHandler::class);
         $aliasHandler->expects($this->once())->method('run');
 
@@ -65,7 +67,7 @@ class ElasticsearchIndexingCommandTest extends TestCase
     {
         $oldIndexer = static::createStub(ElasticsearchIndexer::class);
 
-        $bus = $this->createMock(MessageBusInterface::class);
+        $bus = static::createStub(MessageBusInterface::class);
         $aliasHandler = $this->createMock(CreateAliasTaskHandler::class);
         $aliasHandler->expects($this->never())->method('run');
 
@@ -81,7 +83,7 @@ class ElasticsearchIndexingCommandTest extends TestCase
     {
         $oldIndexer = static::createStub(ElasticsearchIndexer::class);
 
-        $bus = $this->createMock(MessageBusInterface::class);
+        $bus = static::createStub(MessageBusInterface::class);
         $aliasHandler = $this->createMock(CreateAliasTaskHandler::class);
         $aliasHandler->expects($this->never())->method('run');
 

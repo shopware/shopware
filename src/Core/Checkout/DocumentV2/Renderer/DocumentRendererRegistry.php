@@ -17,14 +17,21 @@ final readonly class DocumentRendererRegistry
     private array $renderersByDocumentType;
 
     /**
+     * @var array<string, string>
+     */
+    private array $fileExtensionsByFormat;
+
+    /**
      * @param iterable<AbstractDocumentRenderer> $documentRenderers
      */
     public function __construct(iterable $documentRenderers)
     {
         $renderersByDocumentType = [];
+        $fileExtensionsByFormat = [];
 
         foreach ($documentRenderers as $renderer) {
             $format = $renderer->getFormat();
+            $fileExtensionsByFormat[$format] = $renderer->getFileExtension();
 
             foreach ($renderer->getDocumentTypes() as $documentType) {
                 if (isset($renderersByDocumentType[$documentType][$format])) {
@@ -36,6 +43,7 @@ final readonly class DocumentRendererRegistry
         }
 
         $this->renderersByDocumentType = $renderersByDocumentType;
+        $this->fileExtensionsByFormat = $fileExtensionsByFormat;
     }
 
     /**
@@ -62,5 +70,39 @@ final readonly class DocumentRendererRegistry
     public function mapRenderersByFormat(string $documentType): array
     {
         return $this->renderersByDocumentType[$documentType] ?? [];
+    }
+
+    /**
+     * Returns a map of document types to the list of formats they support.
+     * eg. ['invoice' => ['pdf', 'html'], 'credit_note' => ['pdf']]
+     *
+     * @return array<string, list<string>>
+     */
+    public function getSupportedFormatsByDocumentType(): array
+    {
+        return array_map(function ($renderers) {
+            return array_keys($renderers);
+        }, $this->renderersByDocumentType);
+    }
+
+    public function getFileExtension(string $format): ?string
+    {
+        return $this->fileExtensionsByFormat[$format] ?? null;
+    }
+
+    /**
+     * @param list<string> $formats
+     *
+     * @throws DocumentV2Exception
+     */
+    public function validateFormats(string $documentType, array $formats): void
+    {
+        $supportedFormats = array_keys($this->mapRenderersByFormat($documentType));
+
+        foreach ($formats as $format) {
+            if (!\in_array($format, $supportedFormats, true)) {
+                throw DocumentV2Exception::unsupportedDocumentFormat($format, $documentType);
+            }
+        }
     }
 }

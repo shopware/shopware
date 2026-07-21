@@ -78,6 +78,32 @@ class SalesChannelFileTemplateResolverTest extends TestCase
         static::assertSame('@Ucp/files/agentic/llms.txt.twig', $resolver->getRenderTemplateName($file, $salesChannelId));
     }
 
+    public function testItResolvesCaseVariantsAsOneTemplateChain(): void
+    {
+        $resolver = $this->createResolver([
+            '@Framework/files/agentic/AGENTS.md.twig' => '{% block content %}core{% endblock %}',
+            '@Ucp/files/agentic/agents.md.twig' => '{% block content %}ucp{% endblock %}',
+        ], ['Ucp' => 0, 'Framework' => -1]);
+
+        $file = new SalesChannelFile(
+            'agentic',
+            'AGENTS.md',
+            'files/agentic/AGENTS.md.twig',
+            'text/markdown; charset=utf-8',
+            'files/agentic/AGENTS.md.twig',
+            [],
+            [
+                'files/agentic/AGENTS.md.twig',
+                'files/agentic/agents.md.twig',
+            ],
+        );
+
+        static::assertSame([
+            'Ucp' => '@Ucp/files/agentic/agents.md.twig',
+            'Framework' => '@Framework/files/agentic/AGENTS.md.twig',
+        ], $resolver->resolveTemplateChain($file));
+    }
+
     /**
      * @param array<string, string> $templates
      * @param array<string, int> $hierarchy
@@ -101,7 +127,7 @@ class SalesChannelFileTemplateResolverTest extends TestCase
     ): SalesChannelFileTemplateResolver {
         $loader = new ArrayLoader($templates);
         $twig = new Environment($loader);
-        $scopeDetector = $this->createMock(TemplateScopeDetector::class);
+        $scopeDetector = static::createStub(TemplateScopeDetector::class);
         $scopeDetector->method('getScopes')->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 
         return new SalesChannelFileTemplateResolver(

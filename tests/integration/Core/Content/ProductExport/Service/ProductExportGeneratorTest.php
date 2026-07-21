@@ -30,6 +30,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -44,6 +45,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('inventory')]
 class ProductExportGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -70,7 +72,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $criteria = $this->createProductExportCriteria($productExportId);
 
-        $productExport = $this->repository->search($criteria, $this->context)->first();
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         $exportResult = $this->service->generate($productExport, new ExportBehavior());
@@ -85,7 +87,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $criteria = $this->createProductExportCriteria($productExportId);
 
-        $productExport = $this->repository->search($criteria, $this->context)->first();
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
 
         static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
@@ -161,7 +163,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $criteria = $this->createProductExportCriteria($productExportId);
 
-        $productExport = $this->repository->search($criteria, $this->context)->first();
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         $exportBehavior = new ExportBehavior();
@@ -231,7 +233,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $criteria = $this->createProductExportCriteria($productExportId);
 
-        $productExport = $this->repository->search($criteria, $this->context)->first();
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         $exportResult = $this->service->generate($productExport, new ExportBehavior());
@@ -248,7 +250,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $criteria = $this->createProductExportCriteria($productExportId);
 
-        $productExport = $this->repository->search($criteria, $this->context)->first();
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         $exportResult = $this->service->generate($productExport, new ExportBehavior());
@@ -267,7 +269,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $criteria = $this->createProductExportCriteria($productExportId);
 
-        $productExport = $this->repository->search($criteria, $this->context)->first();
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         $result = $this->service->generate($productExport, new ExportBehavior());
@@ -316,7 +318,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $criteria = $this->createProductExportCriteria($productExportId);
 
-        $productExport = $this->repository->search($criteria, $this->context)->first();
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         $exportResult = $this->service->generate($productExport, new ExportBehavior());
@@ -348,7 +350,7 @@ class ProductExportGeneratorTest extends TestCase
         /** @var EntityRepository<SalesChannelCollection> $repository */
         $repository = static::getContainer()->get('sales_channel.repository');
 
-        $salesChannel = $repository->search(new Criteria(), $this->context)->first();
+        $salesChannel = $repository->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
 
         return $salesChannel->getId();
@@ -359,7 +361,7 @@ class ProductExportGeneratorTest extends TestCase
         /** @var EntityRepository<SalesChannelDomainCollection> $repository */
         $repository = static::getContainer()->get('sales_channel_domain.repository');
 
-        $salesChannelDomain = $repository->search(new Criteria(), $this->context)->first();
+        $salesChannelDomain = $repository->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertInstanceOf(SalesChannelDomainEntity::class, $salesChannelDomain);
 
         return $salesChannelDomain;

@@ -13,9 +13,14 @@ import MockAdapter from 'axios-mock-adapter';
 import EntitySchema from '../../_mocks_/entity-schema.json';
 
 // Add all entities from entity-schema
-Object.entries(EntitySchema).forEach(([entityName, entityInformation]) => {
-    Shopware.EntityDefinition.add(entityName, entityInformation);
-});
+Object.entries(EntitySchema).forEach(
+    ([
+        entityName,
+        entityInformation,
+    ]) => {
+        Shopware.EntityDefinition.add(entityName, entityInformation);
+    },
+);
 
 // This function throws an error if some request has no mocked return value
 function throwMissingImplementationError(config) {
@@ -23,7 +28,8 @@ function throwMissingImplementationError(config) {
         return;
     }
 
-    console.error(colors.yellow(`
+    console.error(
+        colors.yellow(`
 You should to implement mock data for this route: "${config.url}".
 
 ############### Example ###############
@@ -52,7 +58,8 @@ responses.addResponse({
 You can disable this error with this code:
 
 global.repositoryFactoryMock.showError = false;
-`));
+`),
+    );
 }
 
 // This registry contains all customs test responses (with axios-mock-adapter)
@@ -76,8 +83,9 @@ class ResponseRegistry {
     }
 
     getResponse({ url, method }) {
-        return this.registry.find(response => {
-            const isUrlValid = (response.url instanceof RegExp && response.url.match) ? response.url.match(url) : response.url === url;
+        return this.registry.find((response) => {
+            const isUrlValid =
+                response.url instanceof RegExp && response.url.match ? response.url.match(url) : response.url === url;
 
             return isUrlValid && response.method.toUpperCase() === method.toUpperCase();
         });
@@ -107,11 +115,17 @@ function clientMockFactory() {
                 throwMissingImplementationError(config);
             }
 
-            return [customResponse.status, customResponse.response];
+            return [
+                customResponse.status,
+                customResponse.response,
+            ];
         }
 
         throwMissingImplementationError(config);
-        return [500, {}];
+        return [
+            500,
+            {},
+        ];
     };
 
     // Apply the same reply handler to both axios versions
@@ -144,8 +158,11 @@ function clientMockFactory() {
 
                 // For array methods, operate on combined array
                 if (typeof Array.prototype[prop] === 'function') {
-                    return function(...args) {
-                        const combined = [...clientMockV0.history[method], ...clientMockV1.history[method]];
+                    return function (...args) {
+                        const combined = [
+                            ...clientMockV0.history[method],
+                            ...clientMockV1.history[method],
+                        ];
                         return combined[prop](...args);
                     };
                 }
@@ -215,12 +232,6 @@ const changesetGenerator = new ChangesetGenerator();
 const entityFactory = new EntityFactory();
 const errorResolver = new ErrorResolverError();
 
-const repositoryFactory = new RepositoryFactory(
-    hydrator,
-    changesetGenerator,
-    entityFactory,
-    httpClient,
-    errorResolver,
-);
+const repositoryFactory = new RepositoryFactory(hydrator, changesetGenerator, entityFactory, httpClient, errorResolver);
 
 export default repositoryFactory;

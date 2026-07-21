@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  */
 #[McpTool(name: 'shopware-system-config-write', title: 'System Config Write', description: 'Modify or overwrite a Shopware system configuration value — use this whenever the user wants to change, set, or update a config key. Provide the full dotted key (e.g. \'core.basicInformation.shopName\') and the new value. dryRun=true (default) shows a before/after diff without saving; set dryRun=false to persist. Optionally scope to a sales channel.')]
 #[McpToolDependsOn('shopware-system-config-read')]

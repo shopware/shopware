@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\Filte
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,6 +23,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(AggregationListingProcessor::class)]
 class AggregationProcessorTest extends TestCase
 {
@@ -29,10 +31,10 @@ class AggregationProcessorTest extends TestCase
     {
         $processor = new AggregationListingProcessor(
             [$foo = new FooListingFilterHandler()],
-            $this->createMock(EventDispatcherInterface::class)
+            static::createStub(EventDispatcherInterface::class)
         );
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $criteria = new Criteria();
         $processor->prepare(new Request(), $criteria, $context);
@@ -47,10 +49,10 @@ class AggregationProcessorTest extends TestCase
     {
         $processor = new AggregationListingProcessor(
             [$foo = new FooListingFilterHandler()],
-            $this->createMock(EventDispatcherInterface::class)
+            static::createStub(EventDispatcherInterface::class)
         );
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $result = new ProductListingResult('test', 0, new ProductCollection(), null, new Criteria(), Context::createDefaultContext());
 
@@ -63,10 +65,10 @@ class AggregationProcessorTest extends TestCase
     {
         $processor = new AggregationListingProcessor(
             [new FooListingFilterHandler()],
-            $this->createMock(EventDispatcherInterface::class)
+            static::createStub(EventDispatcherInterface::class)
         );
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $criteria = new Criteria();
 
         $processor->prepare(new Request(), $criteria, $context);
@@ -82,13 +84,13 @@ class AggregationProcessorTest extends TestCase
     {
         $processor = new AggregationListingProcessor(
             [new FooListingFilterHandler(), new BarListingFilterHandler()],
-            $this->createMock(EventDispatcherInterface::class)
+            static::createStub(EventDispatcherInterface::class)
         );
 
         $processor->prepare(
             new Request(['reduce-aggregations' => true]),
             $criteria = new Criteria(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertCount(2, $criteria->getAggregations());

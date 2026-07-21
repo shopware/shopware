@@ -114,6 +114,6 @@ class ThemeAppLifecycleHandlerTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', $technicalName));
 
-        return $this->themeRepository->search($criteria, $this->context)->getElements();
+        return $this->themeRepository->search($criteria, $this->context)->getEntities()->getElements();
     }
 }

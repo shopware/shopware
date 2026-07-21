@@ -20,12 +20,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class EntitySearcherTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -8,11 +8,13 @@ export function extractDataProps(optionsObj: ObjectLiteralExpression): ExtractDa
 
     let returnExpr: ObjectLiteralExpression | undefined;
 
+    // Example: `{ data() { return { isLoading: false }; } }`
     if (dataProp.isKind(SyntaxKind.MethodDeclaration)) {
         const body = dataProp.asKindOrThrow(SyntaxKind.MethodDeclaration).getBody();
         returnExpr = getReturnedObjectLiteral(body);
     } else if (dataProp.isKind(SyntaxKind.PropertyAssignment)) {
         const init = dataProp.asKindOrThrow(SyntaxKind.PropertyAssignment).getInitializer();
+        // Examples: `{ data: () => ({ isLoading: false }) }` and `{ data: function () { return {}; } }`
         if (init?.isKind(SyntaxKind.ArrowFunction) || init?.isKind(SyntaxKind.FunctionExpression)) {
             const body = init.isKind(SyntaxKind.ArrowFunction)
                 ? init.asKindOrThrow(SyntaxKind.ArrowFunction).getBody()
@@ -25,6 +27,7 @@ export function extractDataProps(optionsObj: ObjectLiteralExpression): ExtractDa
                     ? inner.asKindOrThrow(SyntaxKind.ObjectLiteralExpression)
                     : undefined;
             } else if (body?.isKind(SyntaxKind.Block)) {
+                // Example: `{ data: () => { return { isLoading: false }; } }`
                 returnExpr = getReturnedObjectLiteral(body.asKindOrThrow(SyntaxKind.Block));
             }
         }
@@ -51,11 +54,13 @@ export function extractDataProps(optionsObj: ObjectLiteralExpression): ExtractDa
             return;
         }
 
+        // Example: `{ data() { return { isLoading }; } }`
         if (p.isKind(SyntaxKind.ShorthandPropertyAssignment)) {
             unsupportedEntries.push(`${p.getName()}: shorthand data entries must be migrated manually`);
             return;
         }
 
+        // Example: `{ data() { return { ...defaults }; } }`
         if (p.isKind(SyntaxKind.SpreadAssignment)) {
             unsupportedEntries.push(`${p.getText()}: spread data entries must be migrated manually`);
             return;

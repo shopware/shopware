@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Profiling;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\Profiling\Profiling;
 use Symfony\Component\DependencyInjection\Container;
@@ -12,6 +13,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\FrozenParameterBag;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Profiling::class)]
 class ProfilingTest extends TestCase
 {

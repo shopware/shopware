@@ -7,6 +7,7 @@ use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -17,6 +18,7 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 /**
  * @internal
  */
+#[Package('inventory')]
 class ProductPageSeoUrlRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -65,7 +67,8 @@ class ProductPageSeoUrlRouteTest extends TestCase
 
         $channels = static::getContainer()
             ->get('sales_channel.repository')
-            ->search(new Criteria([$salesChannelId]), $context);
+            ->search(new Criteria([$salesChannelId]), $context)
+            ->getEntities();
 
         $channel = $channels->get($salesChannelId);
 

@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Listing;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductListingResolvePreviewEvent;
@@ -21,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -36,7 +36,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('inventory')]
 class ProductListingLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;

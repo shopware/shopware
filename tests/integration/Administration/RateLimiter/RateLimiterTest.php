@@ -2,11 +2,11 @@
 
 namespace Shopware\Tests\Integration\Administration\RateLimiter;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('framework')]
 class RateLimiterTest extends TestCase
 {
     use AdminApiTestBehaviour;

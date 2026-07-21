@@ -13,11 +13,13 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\McpToolPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Mcp\Mcp;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(McpLifecycleHandler::class)]
 class McpLifecycleHandlerTest extends TestCase
 {

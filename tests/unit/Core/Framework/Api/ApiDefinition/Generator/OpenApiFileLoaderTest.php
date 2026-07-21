@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApiFileLoader;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(OpenApiFileLoader::class)]
 class OpenApiFileLoaderTest extends TestCase
 {

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\App\ShopIdChangeResolver\MoveShopPermanentlyStrategy
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
@@ -22,6 +23,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 /**
  * @internal
  */
+#[Package('framework')]
 class MoveShopPermanentlyStrategyTest extends TestCase
 {
     use AppSystemTestBehaviour;

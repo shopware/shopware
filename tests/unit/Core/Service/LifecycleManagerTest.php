@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\AllServiceInstaller;
 use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\Permission\PermissionsService;
@@ -29,6 +30,7 @@ use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(LifecycleManager::class)]
 class LifecycleManagerTest extends TestCase
 {
@@ -59,34 +61,6 @@ class LifecycleManagerTest extends TestCase
         $this->serviceConsentRequirement = $this->createMock(ServiceRequirement::class);
         $this->serviceConsentRequirement->method('getGate')->willReturn(Gate::PRIVILEGES);
         $this->context = Context::createDefaultContext();
-    }
-
-    public function testInstallWhenEnabled(): void
-    {
-        $expectedServices = ['service1', 'service2'];
-
-        $this->serviceInstaller->expects($this->once())
-            ->method('install')
-            ->with($this->context)
-            ->willReturn($expectedServices);
-
-        $manager = $this->createManager($this->createAppRepository());
-
-        $result = $manager->install($this->context);
-
-        static::assertSame($expectedServices, $result);
-    }
-
-    public function testInstallWhenDisabled(): void
-    {
-        $this->serviceInstaller->expects($this->never())
-            ->method('install');
-
-        $manager = $this->createManager($this->createAppRepository(), enabled: 'false');
-
-        $result = $manager->install($this->context);
-
-        static::assertSame([], $result);
     }
 
     public function testEnable(): void
@@ -245,6 +219,35 @@ class LifecycleManagerTest extends TestCase
         $manager = $this->createManager($this->createAppRepository($services));
 
         $manager->sync($this->context);
+    }
+
+    public function testReconcileDelegatesToInstallerAndDoesNotRemoveOrphansWhenEnabled(): void
+    {
+        $expectedServices = ['service1', 'service2'];
+
+        $this->serviceInstaller->expects($this->once())
+            ->method('reconcile')
+            ->with($this->context)
+            ->willReturn($expectedServices);
+
+        $this->serviceLifecycle->expects($this->never())
+            ->method('uninstall');
+        $this->client->expects($this->never())
+            ->method('getAll');
+
+        $manager = $this->createManager($this->createAppRepository());
+
+        static::assertSame($expectedServices, $manager->reconcile($this->context));
+    }
+
+    public function testReconcileDoesNothingWhenServicesDisabled(): void
+    {
+        $this->serviceInstaller->expects($this->never())
+            ->method('reconcile');
+
+        $manager = $this->createManager($this->createAppRepository(), enabled: 'false');
+
+        static::assertSame([], $manager->reconcile($this->context));
     }
 
     /**

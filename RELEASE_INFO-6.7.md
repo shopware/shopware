@@ -1,8 +1,16 @@
 # 6.7.14.0 (upcoming)
 
+## Features
+
+## API
+
 ## Core
 
-### New BC-change attributes for planned, non-breaking API changes
+### MCP server no longer requires the `MCP_SERVER` feature flag
+
+The MCP server is now always enabled. The `MCP_SERVER` feature flag has been removed, so the `/api/_mcp` and `/store-api/_mcp` endpoints are available without setting any flag. The MCP classes stay marked `@experimental` until 6.8.0, so the API may still change before then.
+
+### New BC-change attributes for planned, breaking API changes
 
 Shopware previously used `@deprecated tag:vX.Y.Z - reason:*` PHPDoc annotations to document planned backwards-compatibility-affecting changes that are not actual deprecations, such as return type narrowing, new optional parameters, or classes becoming internal or final. In plugin projects these annotations surfaced as `Call to deprecated method` errors in static analysis, although there is no replacement API to migrate to.
 
@@ -15,7 +23,15 @@ Such changes are now documented with dedicated PHP attributes under `Shopware\Co
 
 The existing `reason:*` annotations will be migrated to these attributes in follow-up releases.
 
-# 6.7.13.0 (upcoming)
+## Administration
+
+## Storefront
+
+## App System
+
+## Hosting & Configuration
+
+# 6.7.13.0
 
 ## Storefront
 

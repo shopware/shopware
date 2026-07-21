@@ -8,6 +8,7 @@ type CacheEntry<T = unknown> = {
     key: CacheKey;
     loadedAt: number;
     pending: Promise<T> | null;
+    ttl?: number;
     value?: T;
 };
 
@@ -24,10 +25,14 @@ type InvalidateOptions = {
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class CacheService {
+    private static readonly MAX_ENTRIES = 100;
+
     private entries = new Map<string, CacheEntry>();
 
     async query<T>({ key, fn, ttl, forceReload = false }: QueryOptions<T>): Promise<T> {
         const cacheId = this.serializeKey(key);
+        this.removeExpiredEntries();
+
         const entry = this.entries.get(cacheId) as CacheEntry<T> | undefined;
 
         if (!forceReload && entry?.pending) {
@@ -38,10 +43,15 @@ export default class CacheService {
             return entry.value as T;
         }
 
+        if (!entry) {
+            this.removeOldestEntry();
+        }
+
         const nextEntry: CacheEntry<T> = {
             key,
             loadedAt: entry?.loadedAt ?? 0,
             pending: null,
+            ttl: ttl ?? entry?.ttl,
             value: entry?.value,
         };
 
@@ -113,6 +123,41 @@ export default class CacheService {
         }
 
         return Date.now() - entry.loadedAt < ttl;
+    }
+
+    private removeExpiredEntries(): void {
+        for (const [
+            cacheId,
+            entry,
+        ] of this.entries.entries()) {
+            if (!entry.pending && entry.ttl !== undefined && !this.isFresh(entry, entry.ttl)) {
+                this.entries.delete(cacheId);
+            }
+        }
+    }
+
+    private removeOldestEntry(): void {
+        if (this.entries.size < CacheService.MAX_ENTRIES) {
+            return;
+        }
+
+        let oldestEntryId: string | undefined;
+        let oldestLoadedAt = Infinity;
+
+        for (const [
+            cacheId,
+            entry,
+        ] of this.entries.entries()) {
+            if (!entry.pending && entry.loadedAt < oldestLoadedAt) {
+                oldestEntryId = cacheId;
+                oldestLoadedAt = entry.loadedAt;
+            }
+        }
+
+        // Preserve pending requests; a bounded cache is preferable to retaining every search variant.
+        if (oldestEntryId) {
+            this.entries.delete(oldestEntryId);
+        }
     }
 
     private matchesKey(cacheKey: CacheKey, expectedKey: CacheKey): boolean {

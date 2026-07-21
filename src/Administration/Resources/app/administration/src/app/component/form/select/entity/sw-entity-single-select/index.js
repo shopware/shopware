@@ -455,7 +455,7 @@ export default {
 
         displaySearch(result) {
             if (!this.resultCollection) {
-                this.resultCollection = result;
+                this.resultCollection = EntityCollection.fromCollection(result);
             } else {
                 result.forEach((item) => {
                     // Prevent duplicate entries

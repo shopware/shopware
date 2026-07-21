@@ -201,6 +201,30 @@ describe('components/sw-entity-single-select', () => {
         );
     });
 
+    it('does not mutate a cached search result while adding the reset option', async () => {
+        const result = getCollection();
+        const wrapper = await createEntitySingleSelect({
+            props: {
+                resetOption: 'Reset selection',
+            },
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            search: jest.fn().mockResolvedValue(result),
+                        }),
+                    },
+                },
+            },
+        });
+
+        await wrapper.vm.loadData();
+
+        expect(wrapper.vm.resultCollection).not.toBe(result);
+        expect(wrapper.vm.resultCollection.has(null)).toBe(true);
+        expect(result.has(null)).toBe(false);
+    });
+
     it('should have no reset option when it is not defined', async () => {
         const swEntitySingleSelect = await createEntitySingleSelect({
             props: {

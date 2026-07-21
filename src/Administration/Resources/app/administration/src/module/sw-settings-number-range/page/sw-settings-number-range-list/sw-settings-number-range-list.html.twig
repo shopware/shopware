@@ -95,6 +95,7 @@
                         :allow-view="acl.can('number_ranges.viewer') || undefined"
                         @page-change="onPageChange"
                         @column-sort="onSortColumn"
+                        @inline-edit-save="onInlineEditSave"
                     >
                         {% block sw_number_range_list_grid_columns_name %}
                         <template #column-global="{ item }">

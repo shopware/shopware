@@ -272,6 +272,7 @@ export default {
             return this.currencyRepository
                 .save(this.currency)
                 .then(() => {
+                    this.invalidateCurrencyCaches();
                     this.isSaveSuccessful = true;
                     if (!this.currencyId) {
                         this.$router.push({
@@ -295,6 +296,23 @@ export default {
 
         onCancel() {
             this.$router.push({ name: 'sw.settings.currency.index' });
+        },
+
+        invalidateCurrencyCaches() {
+            const cacheService = Shopware.Service('cacheService');
+
+            cacheService.invalidateCaches({
+                cacheKey: [
+                    'shared-data',
+                    'currencies',
+                ],
+            });
+            cacheService.invalidateCaches({
+                cacheKey: [
+                    'shared-data',
+                    'system-currency',
+                ],
+            });
         },
 
         abortOnLanguageChange() {

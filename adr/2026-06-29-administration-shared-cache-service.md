@@ -152,6 +152,12 @@ const taxes = await taxRepository.search(criteria, Shopware.Context.api, {
 
 Use `forceReload` for a one-off refresh when you already know the exact follow-up read. Use `invalidateCaches(...)` when later callers should also reload.
 
+### Cache Value Ownership And Lifetime
+
+Cached values are shared between callers. Treat a value returned from a cached repository read as read-only. A component that needs to add, remove, or reorder entries must clone the collection first; `sw-entity-single-select`, for example, clones its search result before adding its local reset option. The cache service does not deep-clone entities because that would discard entity collection behavior and make every cached read unnecessarily expensive.
+
+Entries with a TTL are removed when the next cache query observes that they have expired. To keep search criteria with many possible values from accumulating during a long Administration session, the service keeps at most 100 entries and evicts the oldest settled entry before adding another one. Pending requests are retained so concurrent callers continue to receive the same response.
+
 ## Consequences
 
 Administration modules reuse one generic caching behavior for stable shared reads.

@@ -50,6 +50,45 @@ describe('src/app/service/cache.service.ts', () => {
         expect(fn).toHaveBeenCalledTimes(2);
     });
 
+    it('removes expired entries before adding another cache entry', async () => {
+        const expiredFn = jest.fn().mockResolvedValue('expired-value');
+        const freshFn = jest.fn().mockResolvedValue('fresh-value');
+        jest.spyOn(Date, 'now').mockReturnValueOnce(1000).mockReturnValueOnce(1201);
+
+        await cacheService.query({ key: ['expired'], fn: expiredFn, ttl: 100 });
+        await cacheService.query({ key: ['fresh'], fn: freshFn });
+
+        await expect(cacheService.query({ key: ['expired'], fn: expiredFn, ttl: 100 })).resolves.toBe('expired-value');
+        expect(expiredFn).toHaveBeenCalledTimes(2);
+    });
+
+    it('evicts the oldest settled entry when the cache reaches its size limit', async () => {
+        let now = 1000;
+        jest.spyOn(Date, 'now').mockImplementation(() => now++);
+
+        for (let index = 0; index <= 100; index += 1) {
+            await cacheService.query({
+                key: [
+                    'search',
+                    index,
+                ],
+                fn: jest.fn().mockResolvedValue(index),
+            });
+        }
+
+        const oldestFn = jest.fn().mockResolvedValue('reloaded');
+        await expect(
+            cacheService.query({
+                key: [
+                    'search',
+                    0,
+                ],
+                fn: oldestFn,
+            }),
+        ).resolves.toBe('reloaded');
+        expect(oldestFn).toHaveBeenCalledTimes(1);
+    });
+
     it('supports forced reloads', async () => {
         const fn = jest.fn().mockResolvedValueOnce('first').mockResolvedValueOnce('second');
         jest.spyOn(Date, 'now').mockReturnValue(1000);

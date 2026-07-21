@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\ScheduledTask;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\ScheduledTask\McpToolsetSessionCleanupTask;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(McpToolsetSessionCleanupTask::class)]
 class McpToolsetSessionCleanupTaskTest extends TestCase
 {

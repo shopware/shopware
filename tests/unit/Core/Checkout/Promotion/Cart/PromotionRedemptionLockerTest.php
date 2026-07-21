@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Extension\LockExtension;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionRedemptionLocker;
 use Shopware\Core\Checkout\Promotion\PromotionException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\Lock\LockFactory;
@@ -19,6 +20,7 @@ use Symfony\Component\Lock\SharedLockInterface;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(PromotionRedemptionLocker::class)]
 class PromotionRedemptionLockerTest extends TestCase
 {

@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequestResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
+use Shopware\Core\Checkout\DocumentV2\Provider\DeliveryNoteDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
@@ -77,6 +78,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DocumentConfigLoader::class),
             service('validator'),
         ])
+        ->tag('shopware.document_v2.provider');
+
+    $services->set(DeliveryNoteDataProvider::class)
+        ->public()
         ->tag('shopware.document_v2.provider');
 
     $services->set(DocumentDataProviderRegistry::class)

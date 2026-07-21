@@ -50,7 +50,10 @@ class HtmlRendererTest extends TestCase
         );
 
         static::assertSame(DocumentFormat::HTML->value, $renderer->getFormat());
-        static::assertSame([DocumentType::INVOICE->value], $renderer->getDocumentTypes());
+        static::assertSame([
+            DocumentType::INVOICE->value,
+            DocumentType::DELIVERY_NOTE->value,
+        ], $renderer->getDocumentTypes());
     }
 
     public function testRenderToString(): void

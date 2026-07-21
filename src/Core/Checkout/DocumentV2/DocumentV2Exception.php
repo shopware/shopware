@@ -58,6 +58,8 @@ class DocumentV2Exception extends HttpException
 
     public const MISSING_DOCUMENT_NUMBER = 'DOCUMENT_V2__MISSING_DOCUMENT_NUMBER';
 
+    public const MISSING_DELIVERY_DATE = 'DOCUMENT_V2__MISSING_DELIVERY_DATE';
+
     public const MALFORMED_XML = 'DOCUMENT_V2__MALFORMED_XML';
 
     public const INVALID_ORDER_DATA = 'DOCUMENT_V2__INVALID_ORDER_DATA';
@@ -356,6 +358,16 @@ class DocumentV2Exception extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::MISSING_DOCUMENT_NUMBER,
             'Document number is missing for document type "{{ documentType }}".',
+            ['documentType' => $documentType],
+        );
+    }
+
+    public static function missingDeliveryDate(string $documentType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_DELIVERY_DATE,
+            'Delivery date is required for document type "{{ documentType }}".',
             ['documentType' => $documentType],
         );
     }

@@ -40,8 +40,11 @@ class PdfRendererTest extends TestCase
         $renderer = new PdfRenderer(self::DOMPDF_OPTIONS);
 
         static::assertSame(DocumentFormat::PDF->value, $renderer->getFormat());
-        static::assertSame([DocumentType::INVOICE->value], $renderer->getDocumentTypes());
         static::assertSame([DocumentFormat::HTML->value], $renderer->getDependencies());
+        static::assertSame([
+            DocumentType::INVOICE->value,
+            DocumentType::DELIVERY_NOTE->value,
+        ], $renderer->getDocumentTypes());
     }
 
     public function testRenderToString(): void

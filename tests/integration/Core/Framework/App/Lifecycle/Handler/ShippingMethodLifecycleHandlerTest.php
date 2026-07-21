@@ -192,7 +192,7 @@ class ShippingMethodLifecycleHandlerTest extends TestCase
         $criteria->addAssociation('appShippingMethods.shippingMethod');
         $criteria->addFilter(new EqualsFilter('app.name', 'test'));
 
-        $app = $appRepository->search($criteria, Context::createDefaultContext())->first();
+        $app = $appRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(AppEntity::class, $app);
 

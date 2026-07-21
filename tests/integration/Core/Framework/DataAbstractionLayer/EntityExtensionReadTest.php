@@ -169,7 +169,7 @@ class EntityExtensionReadTest extends TestCase
         $criteria = new Criteria([$productId]);
         $criteria->addAssociation('manyToOne');
 
-        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertSame($productId, $product->getId());
@@ -211,7 +211,7 @@ class EntityExtensionReadTest extends TestCase
 
         $manyToOneRepo = static::getContainer()->get('many_to_one_product.repository');
         static::assertInstanceOf(EntityRepository::class, $manyToOneRepo);
-        $manyToOne = $manyToOneRepo->search($criteria, Context::createDefaultContext())->first();
+        $manyToOne = $manyToOneRepo->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(ArrayEntity::class, $manyToOne);
         static::assertCount(1, $manyToOne->get('products'));

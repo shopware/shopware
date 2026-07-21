@@ -204,6 +204,16 @@ describe('scripts/codemods/sfc-migration/transform-template', () => {
         ).toThrow('Twig extends is not supported by the SFC migration codemod.');
     });
 
+    it('throws when parent() is used without a migrated twig block instead of leaving a Vue method call', () => {
+        expect(() =>
+            transformTemplate(`
+<div class="sw-foo">
+    {{ parent() }}
+</div>
+        `),
+        ).toThrow('Twig template is not supported by the SFC migration codemod.');
+    });
+
     it('inserts a guard before v-else continuations across sibling sw-blocks', () => {
         const result = transformTemplate(`
 {% block sw_first %}

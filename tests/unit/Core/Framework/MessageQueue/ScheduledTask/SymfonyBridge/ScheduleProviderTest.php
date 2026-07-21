@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\ScheduledTask\SymfonyB
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\SymfonyBridge\ScheduleProvider;
@@ -17,6 +18,7 @@ use Symfony\Component\Scheduler\Generator\MessageGenerator;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ScheduleProvider::class)]
 class ScheduleProviderTest extends TestCase
 {

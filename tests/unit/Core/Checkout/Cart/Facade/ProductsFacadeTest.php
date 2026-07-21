@@ -13,12 +13,14 @@ use Shopware\Core\Checkout\Cart\Facade\ProductsFacade;
 use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(ProductsFacade::class)]
 class ProductsFacadeTest extends TestCase
 {

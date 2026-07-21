@@ -3,12 +3,15 @@
 namespace Shopware\Core\Checkout\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
+use Shopware\Core\Checkout\DocumentV2\Provider\CancellationInvoiceDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\DeliveryNoteDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
@@ -70,6 +73,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(DocumentConfigLoader::class),
             service('validator'),
+        ])
+        ->tag('shopware.document_v2.provider');
+
+    $services->set(DeliveryNoteDataProvider::class)
+        ->public()
+        ->tag('shopware.document_v2.provider');
+
+    $services->set(CancellationInvoiceDataProvider::class)
+        ->public()
+        ->args([
+            service(InvoiceDataProvider::class),
+            service(ReferenceInvoiceLoader::class),
         ])
         ->tag('shopware.document_v2.provider');
 

@@ -6,11 +6,13 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(IndexerQueuer::class)]
 class IndexerQueuerTest extends TestCase
 {

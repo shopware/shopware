@@ -166,7 +166,7 @@ class SalesChannelTrackingListener implements EventSubscriberInterface
 
     private function trackOrders(EntityWrittenEvent $orderEvent, Context $context, string $referralCode): void
     {
-        $inserts = $this->filterInserts($orderEvent->getWriteResults());
+        $inserts = $orderEvent->getResults()->only(EntityWriteResult::OPERATION_INSERT)->getElements();
 
         if ($inserts === []) {
             return;
@@ -195,7 +195,7 @@ class SalesChannelTrackingListener implements EventSubscriberInterface
 
     private function trackCustomers(EntityWrittenEvent $customerEvent, Context $context, string $referralCode): void
     {
-        $inserts = $this->filterInserts($customerEvent->getWriteResults());
+        $inserts = $customerEvent->getResults()->only(EntityWriteResult::OPERATION_INSERT)->getElements();
 
         if ($inserts === []) {
             return;
@@ -219,19 +219,6 @@ class SalesChannelTrackingListener implements EventSubscriberInterface
                 'salesChannelId' => $referralCode,
             ]);
         }
-    }
-
-    /**
-     * @param list<EntityWriteResult> $results
-     *
-     * @return list<EntityWriteResult>
-     */
-    private function filterInserts(array $results): array
-    {
-        return array_values(array_filter(
-            $results,
-            static fn (EntityWriteResult $r): bool => $r->getOperation() === EntityWriteResult::OPERATION_INSERT,
-        ));
     }
 
     private function isTrackableChannel(string $salesChannelId): bool

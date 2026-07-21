@@ -1118,7 +1118,7 @@ class AppManagerTest extends TestCase
         $criteria = new Criteria([$appId]);
         $criteria->addAssociation('appShippingMethods.shippingMethod');
 
-        $app = $this->appRepository->search($criteria, $this->context)->first();
+        $app = $this->appRepository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(AppEntity::class, $app);
 
         $appShippingMethods = $app->getAppShippingMethods();

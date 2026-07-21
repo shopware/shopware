@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\ConvertGuestRoute;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -27,6 +28,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(ConvertGuestRoute::class)]
 class ConvertGuestRouteTest extends TestCase
 {

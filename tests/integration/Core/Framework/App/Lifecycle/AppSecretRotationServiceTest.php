@@ -97,7 +97,7 @@ class AppSecretRotationServiceTest extends TestCase
 
         // Verify old integration was soft-deleted
         $criteria = new Criteria([$integration->getId()]);
-        $oldIntegration = $this->integrationRepository->search($criteria, $this->context)->first();
+        $oldIntegration = $this->integrationRepository->search($criteria, $this->context)->getEntities()->first();
 
         static::assertInstanceOf(IntegrationEntity::class, $oldIntegration);
         static::assertNotNull($oldIntegration->getDeletedAt());

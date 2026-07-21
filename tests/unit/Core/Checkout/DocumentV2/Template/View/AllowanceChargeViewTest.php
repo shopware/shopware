@@ -41,8 +41,8 @@ class AllowanceChargeViewTest extends TestCase
 
         static::assertCount(1, $views);
         static::assertTrue($views[0]->isCharge);
-        static::assertSame(AllowanceChargeReason::DELIVERY, $views[0]->reasonCode);
-        static::assertSame(AllowanceChargeReason::DELIVERY->defaultLabel(), $views[0]->reason);
+        static::assertSame(AllowanceChargeReason::SHIPPING_AND_HANDLING, $views[0]->reasonCode);
+        static::assertSame(AllowanceChargeReason::SHIPPING_AND_HANDLING->defaultLabel(), $views[0]->reason);
         static::assertSame(10.0, $views[0]->actualAmount);
         static::assertSame(7.0, $views[0]->taxRate);
         static::assertSame(TaxCategory::STANDARD_RATE, $views[0]->taxCategory);
@@ -235,7 +235,7 @@ class AllowanceChargeViewTest extends TestCase
 
         $views = AllowanceChargeView::listFromOrder($order);
 
-        static::assertSame(AllowanceChargeReason::DELIVERY, $views[0]->reasonCode);
+        static::assertSame(AllowanceChargeReason::SHIPPING_AND_HANDLING, $views[0]->reasonCode);
         static::assertSame(AllowanceChargeReason::DISCOUNT, $views[1]->reasonCode);
     }
 

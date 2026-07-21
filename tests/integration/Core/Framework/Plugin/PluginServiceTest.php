@@ -300,7 +300,7 @@ class PluginServiceTest extends TestCase
         /** @var PluginEntity|null $first */
         $first = $this->pluginRepo
             ->search($criteria, $context)
-            ->first();
+            ->getEntities()->first();
 
         static::assertNotNull($first);
 
@@ -318,7 +318,7 @@ class PluginServiceTest extends TestCase
         /** @var PluginEntity|null $first */
         $first = $this->pluginRepo
             ->search($criteria, $context)
-            ->first();
+            ->getEntities()->first();
 
         static::assertNotNull($first);
 
@@ -380,7 +380,7 @@ class PluginServiceTest extends TestCase
         $criteria->addFilter(new EqualsFilter('code', $iso));
 
         /** @var LocaleEntity|null $locale */
-        $locale = $localeRepository->search($criteria, Context::createDefaultContext())->first();
+        $locale = $localeRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertNotNull($locale, \sprintf('Locale with code %s not found', $iso));
 

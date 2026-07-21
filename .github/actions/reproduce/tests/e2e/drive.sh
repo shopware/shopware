@@ -32,6 +32,18 @@ done
 [ "${#SCENARIOS[@]}" -gt 0 ] || { echo "usage: drive.sh [--lockdown] <scenario…>"; exit 2; }
 : "${APP_URL:?APP_URL is required — point at a running shop (or a mock)}"
 
+# Each scenario runs in its own mktemp cwd, but the direct executor resolves SHOP_DIR relative to cwd
+# (and mounts it into the php container). Absolutize it HERE, while cwd is still the caller's dir, so
+# a relative SHOP_DIR=shop doesn't become /tmp/<workspace>/shop once we cd into the scratch dir.
+if [ -n "${SHOP_DIR:-}" ]; then
+  export SHOP_DIR="$(cd "$SHOP_DIR" 2>/dev/null && pwd || echo "$SHOP_DIR")"
+fi
+# The playwright executor resolves `node_modules` relative to cwd to find @playwright/test, but each
+# scenario runs in a scratch cwd. Remember the caller's node_modules (the workspace where the e2e
+# installs Playwright) so run_scenario can symlink it into the scratch dir.
+INVOKE_NODE_MODULES=""
+[ -d "$PWD/node_modules" ] && INVOKE_NODE_MODULES="$PWD/node_modules"
+
 # LIGHT arm for the containerized executors. execute-bundle refuses a direct/playwright verify without
 # REPRO_SANDBOX_ARMED (it fails closed against untrusted agent code). The e2e scenario bundles are
 # checked-in and trusted, so we build/pull the same image and set ARMED, but SKIP the iptables egress
@@ -67,6 +79,8 @@ run_scenario() {
   ( # subshell so cwd + exported arm env stay isolated per scenario
     set -e
     cd "$ws"
+    # Give the playwright executor a node_modules (with @playwright/test) to resolve from this scratch cwd.
+    [ -n "$INVOKE_NODE_MODULES" ] && ln -s "$INVOKE_NODE_MODULES" node_modules
     REPRO_BIN="$REPRO" bash "$HERE/agents/replay.sh" "$sdir"
     $REPRO validate
     executor=$(jq -r '.executor' reproduction-plan.json)

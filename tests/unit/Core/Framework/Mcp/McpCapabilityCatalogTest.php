@@ -8,12 +8,14 @@ use Mcp\Schema\ResourceDefinition;
 use Mcp\Schema\Tool;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(McpCapabilityCatalog::class)]
 class McpCapabilityCatalogTest extends TestCase
 {

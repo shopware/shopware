@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\SalesChannel\File\Rendering;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFile;
@@ -49,7 +48,7 @@ final class SalesChannelFileStoreApiMcpSubscriber implements EventSubscriberInte
             'publisher' => $this->extractPublisher($baseUrl),
         ];
 
-        if (Feature::isActive('MCP_SERVER') && $extension->salesChannel->getTypeId() === Defaults::SALES_CHANNEL_TYPE_API) {
+        if ($extension->salesChannel->getTypeId() === Defaults::SALES_CHANNEL_TYPE_API) {
             $path = $this->urlGenerator->generate(self::STORE_API_MCP_ROUTE, [], UrlGeneratorInterface::ABSOLUTE_PATH);
             $context['storeApiMcpServerUrl'] = rtrim($baseUrl, '/') . $path;
         }

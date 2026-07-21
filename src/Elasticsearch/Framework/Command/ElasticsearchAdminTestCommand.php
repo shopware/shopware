@@ -14,7 +14,6 @@ use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -56,7 +55,7 @@ final class ElasticsearchAdminTestCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->io = new ShopwareStyle($input, $output);
+        $this->io = new SymfonyStyle($input, $output);
 
         $term = $input->getArgument('term');
         $entities = [

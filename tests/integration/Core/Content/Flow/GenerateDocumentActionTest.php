@@ -329,7 +329,7 @@ class GenerateDocumentActionTest extends TestCase
         // read versioned order
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems');
-        $order = $this->orderRepository->search($criteria, $context->createWithVersionId($versionId))->get($orderId);
+        $order = $this->orderRepository->search($criteria, $context->createWithVersionId($versionId))->getEntities()->get($orderId);
 
         static::assertNotEmpty($order);
     }
@@ -412,7 +412,7 @@ class GenerateDocumentActionTest extends TestCase
         ];
 
         $this->orderRepository->upsert([$order], $context);
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->getEntities()->first();
 
         static::assertInstanceOf(OrderEntity::class, $order);
 

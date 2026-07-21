@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\ScheduledTask\Schedule
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
@@ -18,6 +19,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TaskRunner::class)]
 class TaskRunnerTest extends TestCase
 {

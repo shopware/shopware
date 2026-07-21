@@ -33,23 +33,23 @@ class Content extends Bundle
         $loader->load('media.xml');
         $loader->load('media_path.xml');
         $loader->load('product.xml');
-        $loader->load('newsletter_recipient.xml');
+        $phpLoader->load('newsletter_recipient.php');
         $loader->load('rule.xml');
         $loader->load('product_stream.xml');
         $loader->load('product_export.xml');
         $loader->load('property.xml');
         $loader->load('cms.xml');
-        $loader->load('mail.xml');
-        $loader->load('mail_template.xml');
+        $phpLoader->load('mail.php');
+        $phpLoader->load('mail_template.php');
         $loader->load('delivery_time.xml');
         $loader->load('import_export.xml');
         $loader->load('contact_form.xml');
-        $loader->load('revocation_request_form.xml');
+        $phpLoader->load('revocation_request_form.php');
         $loader->load('sitemap.xml');
         $loader->load('landing_page.xml');
-        $loader->load('flow.xml');
+        $phpLoader->load('flow.php');
         $loader->load('measurement_system.xml');
-        $loader->load('shared.xml');
+        $phpLoader->load('shared.php');
 
         $phpLoader->load('product_export_tracking.php');
 

@@ -6,10 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Cms\Xml\Block;
 use Shopware\Core\Framework\App\Cms\Xml\Blocks;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(Blocks::class)]
 class BlocksTest extends TestCase
 {

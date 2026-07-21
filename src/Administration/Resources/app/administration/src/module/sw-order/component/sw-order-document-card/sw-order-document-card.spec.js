@@ -804,7 +804,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             data: {
                 documentId: '1234',
                 deepLinkCode: '12341234',
-                formats: ['html', 'pdf'],
+                formats: [
+                    'html',
+                    'pdf',
+                ],
             },
         });
 
@@ -819,7 +822,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 documentComment: '',
                 documentDate: '2026-07-06T00:00:00.000Z',
                 documentNumber: '1000',
-                requestedFormats: ['html', 'pdf'],
+                requestedFormats: [
+                    'html',
+                    'pdf',
+                ],
             },
             'download',
         );
@@ -829,7 +835,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             '1234',
             'order-version-id',
             'invoice',
-            ['html', 'pdf'],
+            [
+                'html',
+                'pdf',
+            ],
             '1000',
             '2026-07-06T00:00:00.000Z',
             '',

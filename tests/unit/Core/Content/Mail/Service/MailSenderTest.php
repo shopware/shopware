@@ -9,6 +9,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Content\Mail\Message\SendMailMessage;
 use Shopware\Core\Content\Mail\Service\MailSender;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -21,6 +22,7 @@ use Symfony\Component\Mime\Part\TextPart;
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(MailSender::class)]
 class MailSenderTest extends TestCase
 {

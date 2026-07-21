@@ -92,12 +92,12 @@ trait DocumentV2Trait
         ];
     }
 
-    protected function seedDemoInvoiceBaseConfig(): void
+    protected function seedDemoBaseConfig(string $documentType): void
     {
         $config = $this->getDemoInvoiceLegacyConfig();
         $config['companyCountryId'] = $this->loadCompanyCountry()->getId();
 
-        $this->upsertBaseConfig($config, 'invoice');
+        $this->upsertBaseConfig($config, $documentType);
     }
 
     protected function applyTenPercentPromotion(Cart $cart): Cart

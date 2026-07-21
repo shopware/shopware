@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Provides enriched capability data by combining registry tools with dependency
  * and privilege metadata. Used by the capabilities API and the debug CLI command.
@@ -26,7 +26,7 @@ class McpCapabilityCatalog
      * @param array<string, string> $toolGroups tool-name => group
      *
      * $registry is nullable via nullOnInvalid(): null when the MCP bundle is absent.
-     * Once MCP_SERVER is stable (v6.8.0) remove the nullable type and the null guards
+     * Once MCP is stable (v6.8.0) remove the nullable type and the null guards
      * in all public methods.
      */
     public function __construct(

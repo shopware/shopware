@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * First MCP compiler pass: remaps Shopware-specific tags to MCP SDK tags, enforces the
  * configured tool allowlist, and detects duplicate tool name conflicts.

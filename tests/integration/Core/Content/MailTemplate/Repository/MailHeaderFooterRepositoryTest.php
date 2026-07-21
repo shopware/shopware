@@ -122,7 +122,7 @@ class MailHeaderFooterRepositoryTest extends TestCase
 
         foreach ($data as $expect) {
             $id = $expect['id'];
-            $mailHeaderFooter = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
+            $mailHeaderFooter = $this->repository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
             static::assertInstanceOf(MailHeaderFooterEntity::class, $mailHeaderFooter);
             static::assertSame($expect['systemDefault'], $mailHeaderFooter->getSystemDefault());
             static::assertSame($expect['name'], $mailHeaderFooter->getName());

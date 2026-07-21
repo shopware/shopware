@@ -8,6 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingSystemTranslationException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 #[Group('slow')]
 class TranslationTest extends TestCase
 {
@@ -122,7 +124,7 @@ class TranslationTest extends TestCase
     {
         $localeRepo = static::getContainer()->get('locale.repository');
         /** @var LocaleEntity $locale */
-        $locale = $localeRepo->search(new Criteria([$this->getLocaleIdOfSystemLanguage()]), Context::createDefaultContext())->first();
+        $locale = $localeRepo->search(new Criteria([$this->getLocaleIdOfSystemLanguage()]), Context::createDefaultContext())->getEntities()->first();
 
         $this->assertTranslation(
             ['name' => 'system translation'],

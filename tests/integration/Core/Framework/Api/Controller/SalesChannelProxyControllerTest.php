@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Api\EventListener\Acl\CreditOrderLineItemListener;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
@@ -41,6 +42,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 #[Group('slow')]
 class SalesChannelProxyControllerTest extends TestCase
 {
@@ -352,7 +354,7 @@ class SalesChannelProxyControllerTest extends TestCase
         // assert permissions exist in payload
         $payload = $this->contextPersister->load($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN, ''), $salesChannel['id']);
         static::assertArrayHasKey('permissions', $payload);
-        static::assertEqualsCanonicalizing(\array_fill_keys($permissions, true), $payload['permissions']);
+        static::assertEquals(\array_fill_keys($permissions, true), $payload['permissions']);
     }
 
     public function testModifyShippingCostsWithoutChannelId(): void

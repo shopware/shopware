@@ -302,7 +302,7 @@ describe('sw-bulk-edit-save-modal-success', () => {
             ].join('\n'),
         );
         expect(wrapper.vm.getDocumentGenerationResultFileName()).toBe(
-            'sw-bulk-edit.modal.success.failedDocuments.downloadFileName-2026-06-08-10-58.txt',
+            'bulk-edit-document-generation-result-2026-06-08-10-58.txt',
         );
 
         jest.useRealTimers();

@@ -73,7 +73,7 @@ export default {
         iconSize: {
             type: String,
             required: false,
-            default: '16px',
+            default: 'var(--scale-size-14)',
         },
 
         disabled: {
@@ -150,7 +150,15 @@ export default {
         },
     },
 
+    beforeUnmount() {
+        this.beforeUnmountComponent();
+    },
+
     methods: {
+        beforeUnmountComponent() {
+            this.removeClickEventListeners();
+        },
+
         onClickButton() {
             if (this.disabled) {
                 return;
@@ -166,7 +174,25 @@ export default {
         openMenu() {
             this.$emit('on-open-change', true);
             this.showMenu = true;
+
+            if (this.autoCloseOutsideClick) {
+                document.addEventListener('click', this.handleOutsideClickEvent, true);
+            }
+
             document.addEventListener('click', this.handleClickEvent);
+        },
+
+        handleOutsideClickEvent(event) {
+            if (!this.showMenu) {
+                return;
+            }
+
+            const clickedInsideButton = this.$el?.contains(event.target) ?? false;
+            const clickedInsideMenu = event.target instanceof Element && event.target.closest('.sw-context-menu') !== null;
+
+            if (!clickedInsideButton && !clickedInsideMenu) {
+                this.closeMenu();
+            }
         },
 
         handleClickEvent(event) {
@@ -207,6 +233,11 @@ export default {
         closeMenu() {
             this.$emit('on-open-change', false);
             this.showMenu = false;
+            this.removeClickEventListeners();
+        },
+
+        removeClickEventListeners() {
+            document.removeEventListener('click', this.handleOutsideClickEvent, true);
             document.removeEventListener('click', this.handleClickEvent);
         },
     },

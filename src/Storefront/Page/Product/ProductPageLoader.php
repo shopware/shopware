@@ -236,10 +236,12 @@ class ProductPageLoader
         $aggregation = $entityResult->getAggregations()->get('ratingMatrix');
         $matrix = new RatingMatrix($aggregation instanceof TermsResult ? $aggregation->getBuckets() : []);
 
-        $reviewResult = ProductReviewResult::createFrom($entityResult);
-        $reviewResult->setMatrix($matrix);
-        $reviewResult->setProductId($productId);
-        $reviewResult->setTotalReviewsInCurrentLanguage($entityResult->getTotal());
+        $reviewResult = ProductReviewResult::fromSearchResult(
+            $entityResult,
+            $matrix,
+            $productId,
+            $entityResult->getTotal(),
+        );
 
         $page->setStructuredDataReviews($reviewResult);
     }

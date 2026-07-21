@@ -121,7 +121,7 @@ class LineItemCreationDateRuleTest extends TestCase
 
         $scope = new LineItemScope(
             $lineItem,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $this->rule->assign(['lineItemCreationDate' => $ruleDate, 'operator' => $operator]);
@@ -135,7 +135,7 @@ class LineItemCreationDateRuleTest extends TestCase
     {
         $scope = new LineItemScope(
             new LineItem(Uuid::randomHex(), 'product', null, 3),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         // Rule without date
@@ -156,7 +156,7 @@ class LineItemCreationDateRuleTest extends TestCase
     {
         $scope = new LineItemScope(
             new LineItem(Uuid::randomHex(), 'product', null, 3),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $this->rule->assign(['lineItemCreationDate' => 'invalid-date-value-text']);
@@ -171,7 +171,7 @@ class LineItemCreationDateRuleTest extends TestCase
         $this->rule->assign(['lineItemCreationDate' => '2020-02-06 00:00:00', 'operator' => Rule::OPERATOR_EQ]);
 
         $match = $this->rule->match(new CheckoutRuleScope(
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertFalse($match);
@@ -195,7 +195,7 @@ class LineItemCreationDateRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -220,7 +220,7 @@ class LineItemCreationDateRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -248,7 +248,7 @@ class LineItemCreationDateRuleTest extends TestCase
         static::assertFalse(
             $lineItemCreationDateRule->match(new LineItemScope(
                 $lineItem,
-                $this->createMock(SalesChannelContext::class)
+                static::createStub(SalesChannelContext::class)
             ))
         );
     }

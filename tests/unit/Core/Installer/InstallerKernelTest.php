@@ -6,6 +6,7 @@ use Composer\InstalledVersions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Installer;
 use Shopware\Core\Installer\InstallerKernel;
 use Shopware\Core\Test\Stub\Installer\InstallerKernelStub;
@@ -20,6 +21,7 @@ use Symfony\Component\Routing\RouteCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(InstallerKernel::class)]
 class InstallerKernelTest extends TestCase
 {

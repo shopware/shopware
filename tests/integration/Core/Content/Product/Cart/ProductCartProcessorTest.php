@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
@@ -43,6 +44,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('inventory')]
 class ProductCartProcessorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -295,8 +297,9 @@ class ProductCartProcessorTest extends TestCase
         $lineItem = $cart->get($product->getId());
 
         static::assertInstanceOf(LineItem::class, $lineItem);
-        $payload = $lineItem->getPayload();
-        $purchasePrices = json_decode((string) $payload['purchasePrices'], true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('purchasePrices', $lineItem->getPayload());
+
+        $purchasePrices = json_decode((string) $lineItem->getPayloadValue('purchasePrices'), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Defaults::CURRENCY, $purchasePrices['currencyId']);
         static::assertSame(7.5, $purchasePrices['gross']);
         static::assertSame(5, $purchasePrices['net']);

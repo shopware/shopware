@@ -99,7 +99,7 @@ class LanguageRuleTest extends TestCase
     public function testRuleMatching(string $operator, bool $isMatching, string $languageId): void
     {
         $languageIds = ['kyln123', 'kyln456'];
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [$languageId]);
 
         $salesChannelContext->method('getContext')->willReturn($context);
@@ -130,7 +130,7 @@ class LanguageRuleTest extends TestCase
     public function testCallingMatchWithoutValueThrowsException(): void
     {
         $this->expectExceptionObject(LanguageException::unsupportedValue(\gettype(null), LanguageRule::class));
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $scope = new CheckoutRuleScope($salesChannelContext);
         $rule = new LanguageRule(Rule::OPERATOR_EQ, null);
         $rule->match($scope);

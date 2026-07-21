@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Test\Product\SalesChannel\Fixture\ListingTestData;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -23,6 +25,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[Group('slow')]
 class ProductListingTest extends TestCase
 {
@@ -158,8 +161,8 @@ class ProductListingTest extends TestCase
             ->getResult();
 
         static::assertSame(7, $listing->getTotal());
-        static::assertFalse($listing->has($this->productIdWidth100));
-        static::assertTrue($listing->has($this->productIdWidth150));
+        static::assertFalse($listing->getEntities()->has($this->productIdWidth100));
+        static::assertTrue($listing->getEntities()->has($this->productIdWidth150));
     }
 
     public function testListingWithProductStreamAndAdditionalCriteria(): void
@@ -319,6 +322,7 @@ class ProductListingTest extends TestCase
                 'stock' => 10,
                 'name' => $key,
                 'active' => true,
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'price' => [
                     ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => true],
                 ],

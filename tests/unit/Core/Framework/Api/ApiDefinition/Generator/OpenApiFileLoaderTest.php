@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApiFileLoader;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(OpenApiFileLoader::class)]
 class OpenApiFileLoaderTest extends TestCase
 {
@@ -23,7 +25,7 @@ class OpenApiFileLoaderTest extends TestCase
         static::assertArrayHasKey('components', $spec);
         static::assertArrayHasKey('/_action/order_delivery/{orderDeliveryId}/state/{transition}', $spec['paths']);
         static::assertArrayHasKey('schemas', $spec['components']);
-        static::assertCount(2, $spec['components']['schemas']);
+        static::assertCount(3, $spec['components']['schemas']);
     }
 
     public function testEmptyFileLoader(): void

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
@@ -29,6 +30,7 @@ use SwagTestPlugin\SwagTestPlugin;
 /**
  * @internal
  */
+#[Package('framework')]
 #[Group('slow')]
 class PluginServiceTest extends TestCase
 {
@@ -298,7 +300,7 @@ class PluginServiceTest extends TestCase
         /** @var PluginEntity|null $first */
         $first = $this->pluginRepo
             ->search($criteria, $context)
-            ->first();
+            ->getEntities()->first();
 
         static::assertNotNull($first);
 
@@ -316,7 +318,7 @@ class PluginServiceTest extends TestCase
         /** @var PluginEntity|null $first */
         $first = $this->pluginRepo
             ->search($criteria, $context)
-            ->first();
+            ->getEntities()->first();
 
         static::assertNotNull($first);
 
@@ -378,7 +380,7 @@ class PluginServiceTest extends TestCase
         $criteria->addFilter(new EqualsFilter('code', $iso));
 
         /** @var LocaleEntity|null $locale */
-        $locale = $localeRepository->search($criteria, Context::createDefaultContext())->first();
+        $locale = $localeRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertNotNull($locale, \sprintf('Locale with code %s not found', $iso));
 

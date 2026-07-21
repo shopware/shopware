@@ -6,7 +6,6 @@ use Faker\Factory;
 use Faker\Generator;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Demodata\Faker\Commerce;
@@ -39,7 +38,7 @@ class DemodataService
     public function generate(DemodataRequest $request, Context $context, ?SymfonyStyle $console): DemodataContext
     {
         if (!$console) {
-            $console = new ShopwareStyle(new ArgvInput(), new NullOutput());
+            $console = new SymfonyStyle(new ArgvInput(), new NullOutput());
         }
 
         $faker = $this->getFaker();

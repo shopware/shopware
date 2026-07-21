@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppActivationContext;
@@ -26,24 +27,20 @@ use Shopware\Storefront\Theme\ThemeLifecycleService;
 #[CoversClass(ThemeAppLifecycleHandler::class)]
 class ThemeAppLifecycleHandlerTest extends TestCase
 {
-    private StorefrontPluginRegistry&MockObject $registry;
+    private StorefrontPluginRegistry&Stub $registry;
 
-    private AbstractStorefrontPluginConfigurationFactory&MockObject $factory;
+    private AbstractStorefrontPluginConfigurationFactory&Stub $factory;
 
-    private ThemeLifecycleHandler&MockObject $themeLifecycle;
+    private ThemeLifecycleHandler&Stub $themeLifecycle;
 
-    private ThemeLifecycleService&MockObject $themeService;
-
-    private ThemeAppLifecycleHandler $handler;
+    private ThemeLifecycleService&Stub $themeService;
 
     protected function setUp(): void
     {
-        $this->registry = $this->createMock(StorefrontPluginRegistry::class);
-        $this->factory = $this->createMock(AbstractStorefrontPluginConfigurationFactory::class);
-        $this->themeLifecycle = $this->createMock(ThemeLifecycleHandler::class);
-        $this->themeService = $this->createMock(ThemeLifecycleService::class);
-
-        $this->handler = new ThemeAppLifecycleHandler($this->registry, $this->factory, $this->themeLifecycle, $this->themeService);
+        $this->registry = static::createStub(StorefrontPluginRegistry::class);
+        $this->factory = static::createStub(AbstractStorefrontPluginConfigurationFactory::class);
+        $this->themeLifecycle = static::createStub(ThemeLifecycleHandler::class);
+        $this->themeService = static::createStub(ThemeLifecycleService::class);
     }
 
     public function testActivateUsesExistingConfiguration(): void
@@ -52,36 +49,46 @@ class ThemeAppLifecycleHandlerTest extends TestCase
         $configurations = new StorefrontPluginConfigurationCollection([$config]);
         $this->registry->method('getConfigurations')->willReturn($configurations);
 
-        $this->factory->expects($this->never())->method('createFromApp');
-        $this->themeLifecycle->expects($this->once())
+        $factory = $this->createMock(AbstractStorefrontPluginConfigurationFactory::class);
+        $factory->expects($this->never())->method('createFromApp');
+
+        $themeLifecycle = $this->createMock(ThemeLifecycleHandler::class);
+        $themeLifecycle->expects($this->once())
             ->method('handleThemeInstallOrUpdate')
             ->with($config, $configurations, static::isInstanceOf(Context::class));
-        $this->themeLifecycle->expects($this->once())->method('refreshAllActiveThemeImportMaps');
+        $themeLifecycle->expects($this->once())->method('refreshAllActiveThemeImportMaps');
 
-        $this->handler->activate(new AppActivationContext($this->activeApp(), Context::createDefaultContext()));
+        $handler = $this->getHandler(factory: $factory, themeLifecycle: $themeLifecycle);
+        $handler->activate(new AppActivationContext($this->activeApp(), Context::createDefaultContext()));
     }
 
     public function testActivateCreatesConfigurationWhenMissing(): void
     {
         $this->registry->method('getConfigurations')->willReturn(new StorefrontPluginConfigurationCollection());
 
-        $this->factory->expects($this->once())
+        $factory = $this->createMock(AbstractStorefrontPluginConfigurationFactory::class);
+        $factory->expects($this->once())
             ->method('createFromApp')
             ->with('ComponentTestApp', 'custom/apps/ComponentTestApp')
             ->willReturn(new StorefrontPluginConfiguration('ComponentTestApp'));
-        $this->themeLifecycle->expects($this->once())->method('handleThemeInstallOrUpdate');
-        $this->themeLifecycle->expects($this->once())->method('refreshAllActiveThemeImportMaps');
 
-        $this->handler->activate(new AppActivationContext($this->activeApp(), Context::createDefaultContext()));
+        $themeLifecycle = $this->createMock(ThemeLifecycleHandler::class);
+        $themeLifecycle->expects($this->once())->method('handleThemeInstallOrUpdate');
+        $themeLifecycle->expects($this->once())->method('refreshAllActiveThemeImportMaps');
+
+        $handler = $this->getHandler(factory: $factory, themeLifecycle: $themeLifecycle);
+        $handler->activate(new AppActivationContext($this->activeApp(), Context::createDefaultContext()));
     }
 
     public function testActivateSkipsInactiveApp(): void
     {
-        $this->themeLifecycle->expects($this->never())->method('handleThemeInstallOrUpdate');
-        $this->themeLifecycle->expects($this->never())->method('refreshAllActiveThemeImportMaps');
+        $themeLifecycle = $this->createMock(ThemeLifecycleHandler::class);
+        $themeLifecycle->expects($this->never())->method('handleThemeInstallOrUpdate');
+        $themeLifecycle->expects($this->never())->method('refreshAllActiveThemeImportMaps');
 
+        $handler = $this->getHandler(themeLifecycle: $themeLifecycle);
         $app = (new AppEntity())->assign(['name' => 'ComponentTestApp', 'path' => 'p', 'active' => false]);
-        $this->handler->activate(new AppActivationContext($app, Context::createDefaultContext()));
+        $handler->activate(new AppActivationContext($app, Context::createDefaultContext()));
     }
 
     public function testUpdateSetsUpTheme(): void
@@ -89,23 +96,25 @@ class ThemeAppLifecycleHandlerTest extends TestCase
         $config = new StorefrontPluginConfiguration('ComponentTestApp');
         $this->registry->method('getConfigurations')->willReturn(new StorefrontPluginConfigurationCollection([$config]));
 
-        $this->themeLifecycle->expects($this->once())->method('handleThemeInstallOrUpdate');
-        $this->themeLifecycle->expects($this->once())->method('refreshAllActiveThemeImportMaps');
+        $themeLifecycle = $this->createMock(ThemeLifecycleHandler::class);
+        $themeLifecycle->expects($this->once())->method('handleThemeInstallOrUpdate');
+        $themeLifecycle->expects($this->once())->method('refreshAllActiveThemeImportMaps');
 
         $context = new AppPersistContext(
-            $this->createMock(Manifest::class),
+            static::createStub(Manifest::class),
             $this->activeApp(),
             Context::createDefaultContext(),
             new StaticFilesystem(),
             'en-GB',
         );
-        $this->handler->update($context);
+        $this->getHandler(themeLifecycle: $themeLifecycle)->update($context);
     }
 
     public function testDeactivateTearsDownConfigBuiltFromApp(): void
     {
         $builtConfig = new StorefrontPluginConfiguration('ComponentTestApp');
-        $this->factory->expects($this->once())
+        $factory = $this->createMock(AbstractStorefrontPluginConfigurationFactory::class);
+        $factory->expects($this->once())
             ->method('createFromApp')
             ->with('ComponentTestApp', 'custom/apps/ComponentTestApp')
             ->willReturn($builtConfig);
@@ -116,48 +125,75 @@ class ThemeAppLifecycleHandlerTest extends TestCase
             new StorefrontPluginConfiguration('OtherApp'),
         ]));
 
-        $this->themeLifecycle->expects($this->once())
+        $themeLifecycle = $this->createMock(ThemeLifecycleHandler::class);
+        $themeLifecycle->expects($this->once())
             ->method('handleThemeUninstall')
             ->with($builtConfig, static::isInstanceOf(Context::class));
-        $this->themeLifecycle->expects($this->once())
+        $themeLifecycle->expects($this->once())
             ->method('refreshAllActiveThemeImportMaps')
             ->with(
                 static::isInstanceOf(Context::class),
                 static::callback(static fn (StorefrontPluginConfigurationCollection $c): bool => $c->getByTechnicalName('ComponentTestApp') === null && $c->getByTechnicalName('OtherApp') !== null),
             );
 
-        $this->handler->deactivate(new AppActivationContext($this->activeApp(), Context::createDefaultContext()));
+        $handler = $this->getHandler(factory: $factory, themeLifecycle: $themeLifecycle);
+        $handler->deactivate(new AppActivationContext($this->activeApp(), Context::createDefaultContext()));
     }
 
     public function testUninstallRemovesThemeRecord(): void
     {
-        $this->themeLifecycle->expects($this->never())->method('handleThemeUninstall');
-        $this->themeService->expects($this->once())
+        $themeLifecycle = $this->createMock(ThemeLifecycleHandler::class);
+        $themeLifecycle->expects($this->never())->method('handleThemeUninstall');
+
+        $themeService = $this->createMock(ThemeLifecycleService::class);
+        $themeService->expects($this->once())
             ->method('removeTheme')
             ->with('ComponentTestApp', static::isInstanceOf(Context::class));
 
-        $this->handler->uninstall(new AppRemovalContext($this->activeApp(), Context::createDefaultContext()));
+        $handler = $this->getHandler(themeLifecycle: $themeLifecycle, themeService: $themeService);
+        $handler->uninstall(new AppRemovalContext($this->activeApp(), Context::createDefaultContext()));
     }
 
     public function testUninstallKeepsRecordWhenUserDataKept(): void
     {
-        $this->themeService->expects($this->never())->method('removeTheme');
+        $themeService = $this->createMock(ThemeLifecycleService::class);
+        $themeService->expects($this->never())->method('removeTheme');
 
-        $this->handler->uninstall(new AppRemovalContext($this->activeApp(), Context::createDefaultContext(), keepUserData: true));
+        $handler = $this->getHandler(themeService: $themeService);
+        $handler->uninstall(new AppRemovalContext($this->activeApp(), Context::createDefaultContext(), keepUserData: true));
     }
 
     public function testDeleteTearsDownConfigButKeepsRecord(): void
     {
         $this->registry->method('getConfigurations')->willReturn(new StorefrontPluginConfigurationCollection());
-        $this->factory->expects($this->once())
+
+        $factory = $this->createMock(AbstractStorefrontPluginConfigurationFactory::class);
+        $factory->expects($this->once())
             ->method('createFromApp')
             ->willReturn(new StorefrontPluginConfiguration('ComponentTestApp'));
 
-        $this->themeLifecycle->expects($this->once())->method('handleThemeUninstall');
-        $this->themeLifecycle->expects($this->once())->method('refreshAllActiveThemeImportMaps');
-        $this->themeService->expects($this->never())->method('removeTheme');
+        $themeLifecycle = $this->createMock(ThemeLifecycleHandler::class);
+        $themeLifecycle->expects($this->once())->method('handleThemeUninstall');
+        $themeLifecycle->expects($this->once())->method('refreshAllActiveThemeImportMaps');
 
-        $this->handler->delete(new AppRemovalContext($this->activeApp(), Context::createDefaultContext()));
+        $themeService = $this->createMock(ThemeLifecycleService::class);
+        $themeService->expects($this->never())->method('removeTheme');
+
+        $handler = $this->getHandler(factory: $factory, themeLifecycle: $themeLifecycle, themeService: $themeService);
+        $handler->delete(new AppRemovalContext($this->activeApp(), Context::createDefaultContext()));
+    }
+
+    private function getHandler(
+        (AbstractStorefrontPluginConfigurationFactory&MockObject)|null $factory = null,
+        (ThemeLifecycleHandler&MockObject)|null $themeLifecycle = null,
+        (ThemeLifecycleService&MockObject)|null $themeService = null,
+    ): ThemeAppLifecycleHandler {
+        return new ThemeAppLifecycleHandler(
+            $this->registry,
+            $factory ?? $this->factory,
+            $themeLifecycle ?? $this->themeLifecycle,
+            $themeService ?? $this->themeService,
+        );
     }
 
     private function activeApp(): AppEntity

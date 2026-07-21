@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Struct\PluginFromFileSystemStruct;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PluginFromFileSystemStruct::class)]
 class PluginFromFileSystemStructTest extends TestCase
 {

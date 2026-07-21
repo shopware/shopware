@@ -30,7 +30,7 @@ class TimezoneStorerTest extends TestCase
     #[DataProvider('storeDataProvider')]
     public function testStore(FlowEventAware $event, Request $request, array $stored, array $expected): void
     {
-        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack = static::createStub(RequestStack::class);
         $requestStack
             ->method('getCurrentRequest')
             ->willReturn($request);

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
@@ -44,6 +45,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
+use Shopware\Core\System\CustomField\CustomFieldSetPersister;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use SwagTestPlugin\Migration\Migration1536761533TestMigration;
 use SwagTestPlugin\SwagTestPlugin;
@@ -55,6 +57,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
+#[Package('framework')]
 #[Group('slow')]
 class PluginLifecycleServiceTest extends TestCase
 {
@@ -325,6 +328,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(VersionSanitizer::class),
             $this->container->get(DefinitionInstanceRegistry::class),
             new RequestStack(),
+            $this->container->get(CustomFieldSetPersister::class),
             new NativeClock()
         );
 
@@ -483,14 +487,14 @@ class PluginLifecycleServiceTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', 'SwagTestTheme'));
 
-        static::assertCount(1, $themeRepo->search($criteria, $this->context)->getElements());
+        static::assertCount(1, $themeRepo->search($criteria, $this->context)->getEntities()->getElements());
 
         $this->pluginLifecycleService->uninstallPlugin($pluginInstalled, $this->context, $keepUserData);
 
         $pluginUninstalled = $this->getTestPlugin($this->context);
         static::assertNull($pluginUninstalled->getInstalledAt());
         static::assertFalse($pluginUninstalled->getActive());
-        static::assertCount($keepUserData ? 1 : 0, $themeRepo->search($criteria, $this->context)->getElements());
+        static::assertCount($keepUserData ? 1 : 0, $themeRepo->search($criteria, $this->context)->getEntities()->getElements());
     }
 
     /**
@@ -865,6 +869,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(VersionSanitizer::class),
             $this->container->get(DefinitionInstanceRegistry::class),
             new RequestStack(),
+            $this->container->get(CustomFieldSetPersister::class),
             new NativeClock()
         );
     }

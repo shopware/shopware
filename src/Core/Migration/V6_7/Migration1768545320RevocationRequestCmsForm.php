@@ -30,20 +30,26 @@ class Migration1768545320RevocationRequestCmsForm extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $enLanguageByteId = $this->getLanguageIdByLocale($connection, 'en-GB');
-        $deLanguageByteId = $this->getLanguageIdByLocale($connection, 'de-DE');
+        $deLanguageByteIds = $this->getLanguageIdsByLocalePrefix($connection, 'de');
+        $enLanguageByteIds = $this->getLanguageIdsByLocalePrefix($connection, 'de', true);
         $versionByteId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
-        $cmsPageByteId = $this->createCmsPage($connection, $versionByteId, $enLanguageByteId, $deLanguageByteId);
+        $cmsPageByteId = $this->createCmsPage($connection, $versionByteId, $enLanguageByteIds, $deLanguageByteIds);
         $cmsSectionByteId = $this->createCmsSection($connection, $cmsPageByteId, $versionByteId);
         $cmsBlockByteId = $this->createCmsBlock($connection, $cmsSectionByteId, $versionByteId);
-        $this->createCmsSlot($connection, $cmsBlockByteId, $versionByteId, $enLanguageByteId, $deLanguageByteId);
+        $this->createCmsSlot($connection, $cmsBlockByteId, $versionByteId, $enLanguageByteIds, $deLanguageByteIds);
     }
 
-    private function createCmsPage(Connection $connection, string $versionByteId, ?string $enLanguageByteId, ?string $deLanguageByteId): string
+    /**
+     * @param list<string> $enLanguageByteIds
+     * @param list<string> $deLanguageByteIds
+     */
+    private function createCmsPage(Connection $connection, string $versionByteId, array $enLanguageByteIds, array $deLanguageByteIds): string
     {
         $cmsPageByteId = $this->getCmsPageId($connection, $versionByteId);
         if ($cmsPageByteId !== null) {
+            $this->createCmsPageTranslations($connection, $cmsPageByteId, $versionByteId, $enLanguageByteIds, $deLanguageByteIds);
+
             return $cmsPageByteId;
         }
 
@@ -60,33 +66,42 @@ class Migration1768545320RevocationRequestCmsForm extends MigrationStep
             ]
         );
 
-        if ($enLanguageByteId !== null) {
-            $connection->insert(
-                'cms_page_translation',
-                [
-                    'cms_page_id' => $cmsPageByteId,
-                    'cms_page_version_id' => $versionByteId,
-                    'language_id' => $enLanguageByteId,
-                    'name' => self::CMS_PAGE_TRANSLATIONS['en_name'],
-                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                ]
-            );
-        }
-
-        if ($deLanguageByteId !== null && $deLanguageByteId !== $enLanguageByteId) {
-            $connection->insert(
-                'cms_page_translation',
-                [
-                    'cms_page_id' => $cmsPageByteId,
-                    'cms_page_version_id' => $versionByteId,
-                    'language_id' => $deLanguageByteId,
-                    'name' => self::CMS_PAGE_TRANSLATIONS['de_name'],
-                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                ]
-            );
-        }
+        $this->createCmsPageTranslations($connection, $cmsPageByteId, $versionByteId, $enLanguageByteIds, $deLanguageByteIds);
 
         return $cmsPageByteId;
+    }
+
+    /**
+     * @param list<string> $enLanguageByteIds
+     * @param list<string> $deLanguageByteIds
+     */
+    private function createCmsPageTranslations(Connection $connection, string $cmsPageByteId, string $versionByteId, array $enLanguageByteIds, array $deLanguageByteIds): void
+    {
+        foreach ($enLanguageByteIds as $enLanguageByteId) {
+            $this->createCmsPageTranslation($connection, $cmsPageByteId, $versionByteId, $enLanguageByteId, self::CMS_PAGE_TRANSLATIONS['en_name']);
+        }
+
+        foreach ($deLanguageByteIds as $deLanguageByteId) {
+            $this->createCmsPageTranslation($connection, $cmsPageByteId, $versionByteId, $deLanguageByteId, self::CMS_PAGE_TRANSLATIONS['de_name']);
+        }
+    }
+
+    private function createCmsPageTranslation(Connection $connection, string $cmsPageByteId, string $versionByteId, string $languageByteId, string $name): void
+    {
+        if ($this->hasCmsPageTranslation($connection, $cmsPageByteId, $versionByteId, $languageByteId)) {
+            return;
+        }
+
+        $connection->insert(
+            'cms_page_translation',
+            [
+                'cms_page_id' => $cmsPageByteId,
+                'cms_page_version_id' => $versionByteId,
+                'language_id' => $languageByteId,
+                'name' => $name,
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
+        );
     }
 
     private function createCmsSection(Connection $connection, string $cmsPageByteId, string $versionByteId): string
@@ -144,15 +159,21 @@ class Migration1768545320RevocationRequestCmsForm extends MigrationStep
         return $cmsBlockByteId;
     }
 
+    /**
+     * @param list<string> $enLanguageByteIds
+     * @param list<string> $deLanguageByteIds
+     */
     private function createCmsSlot(
         Connection $connection,
         string $cmsBlockByteId,
         string $versionByteId,
-        ?string $enLanguageByteId,
-        ?string $deLanguageByteId
+        array $enLanguageByteIds,
+        array $deLanguageByteIds
     ): void {
         $cmsSlotByteId = $this->getCmsSlotId($connection, $cmsBlockByteId, $versionByteId);
         if ($cmsSlotByteId !== null) {
+            $this->createCmsSlotTranslations($connection, $cmsSlotByteId, $versionByteId, $enLanguageByteIds, $deLanguageByteIds);
+
             return;
         }
         $cmsSlotByteId = Uuid::randomBytes();
@@ -171,39 +192,49 @@ class Migration1768545320RevocationRequestCmsForm extends MigrationStep
             ]
         );
 
-        if ($enLanguageByteId !== null) {
-            $connection->insert(
-                'cms_slot_translation',
-                [
-                    'cms_slot_id' => $cmsSlotByteId,
-                    'cms_slot_version_id' => $versionByteId,
-                    'language_id' => $enLanguageByteId,
-                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                    'config' => json_encode([
-                        'type' => ['source' => 'static', 'value' => self::CMS_SLOT_TYPE],
-                        'mailReceiver' => ['source' => 'static', 'value' => []],
-                        'confirmationText' => ['source' => 'static', 'value' => ''],
-                    ], \JSON_THROW_ON_ERROR),
-                ]
-            );
+        $this->createCmsSlotTranslations($connection, $cmsSlotByteId, $versionByteId, $enLanguageByteIds, $deLanguageByteIds);
+    }
+
+    /**
+     * @param list<string> $enLanguageByteIds
+     * @param list<string> $deLanguageByteIds
+     */
+    private function createCmsSlotTranslations(Connection $connection, string $cmsSlotByteId, string $versionByteId, array $enLanguageByteIds, array $deLanguageByteIds): void
+    {
+        foreach ($enLanguageByteIds as $enLanguageByteId) {
+            $this->createCmsSlotTranslation($connection, $cmsSlotByteId, $versionByteId, $enLanguageByteId);
         }
 
-        if ($deLanguageByteId !== null && $deLanguageByteId !== $enLanguageByteId) {
-            $connection->insert(
-                'cms_slot_translation',
-                [
-                    'cms_slot_id' => $cmsSlotByteId,
-                    'cms_slot_version_id' => $versionByteId,
-                    'language_id' => $deLanguageByteId,
-                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                    'config' => json_encode([
-                        'type' => ['source' => 'static', 'value' => self::CMS_SLOT_TYPE],
-                        'mailReceiver' => ['source' => 'static', 'value' => []],
-                        'confirmationText' => ['source' => 'static', 'value' => ''],
-                    ], \JSON_THROW_ON_ERROR),
-                ]
-            );
+        foreach ($deLanguageByteIds as $deLanguageByteId) {
+            $this->createCmsSlotTranslation($connection, $cmsSlotByteId, $versionByteId, $deLanguageByteId);
         }
+    }
+
+    private function createCmsSlotTranslation(Connection $connection, string $cmsSlotByteId, string $versionByteId, string $languageByteId): void
+    {
+        if ($this->hasCmsSlotTranslation($connection, $cmsSlotByteId, $versionByteId, $languageByteId)) {
+            return;
+        }
+
+        $connection->insert(
+            'cms_slot_translation',
+            [
+                'cms_slot_id' => $cmsSlotByteId,
+                'cms_slot_version_id' => $versionByteId,
+                'language_id' => $languageByteId,
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'config' => $this->createCmsSlotConfig(),
+            ]
+        );
+    }
+
+    private function createCmsSlotConfig(): string
+    {
+        return json_encode([
+            'type' => ['source' => 'static', 'value' => self::CMS_SLOT_TYPE],
+            'mailReceiver' => ['source' => 'static', 'value' => []],
+            'confirmationText' => ['source' => 'static', 'value' => ''],
+        ], \JSON_THROW_ON_ERROR);
     }
 
     private function getCmsPageId(Connection $connection, string $versionByteId): ?string
@@ -214,13 +245,14 @@ FROM `cms_page` AS `page`
 INNER JOIN `cms_page_translation` AS `page_translation` ON `page`.`id` = `page_translation`.`cms_page_id`
     AND `page`.`version_id` = `page_translation`.`cms_page_version_id`
 WHERE `page`.`version_id` = :versionId
-    AND page_translation.name = :name
+    AND (`page_translation`.`name` = :enName OR `page_translation`.`name` = :deName)
 SQL;
 
         $cmsPageByteId = $connection->executeQuery(
             $sql,
             [
-                'name' => self::CMS_PAGE_TRANSLATIONS['en_name'],
+                'deName' => self::CMS_PAGE_TRANSLATIONS['de_name'],
+                'enName' => self::CMS_PAGE_TRANSLATIONS['en_name'],
                 'versionId' => $versionByteId,
             ]
         )->fetchOne();
@@ -284,24 +316,60 @@ SQL;
         return $cmsSlotByteId;
     }
 
-    private function getLanguageIdByLocale(Connection $connection, string $locale): ?string
+    private function hasCmsPageTranslation(Connection $connection, string $cmsPageByteId, string $versionByteId, string $languageByteId): bool
     {
-        $sql = <<<'SQL'
+        return (bool) $connection->fetchOne(
+            'SELECT 1 FROM `cms_page_translation` WHERE `cms_page_id` = :cmsPageId AND `cms_page_version_id` = :versionId AND `language_id` = :languageId',
+            [
+                'cmsPageId' => $cmsPageByteId,
+                'languageId' => $languageByteId,
+                'versionId' => $versionByteId,
+            ]
+        );
+    }
+
+    private function hasCmsSlotTranslation(Connection $connection, string $cmsSlotByteId, string $versionByteId, string $languageByteId): bool
+    {
+        return (bool) $connection->fetchOne(
+            'SELECT 1 FROM `cms_slot_translation` WHERE `cms_slot_id` = :cmsSlotId AND `cms_slot_version_id` = :versionId AND `language_id` = :languageId',
+            [
+                'cmsSlotId' => $cmsSlotByteId,
+                'languageId' => $languageByteId,
+                'versionId' => $versionByteId,
+            ]
+        );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getLanguageIdsByLocalePrefix(Connection $connection, string $localePrefix, bool $invert = false): array
+    {
+        $operator = $invert ? 'NOT LIKE' : 'LIKE';
+
+        $languageIds = $connection->fetchFirstColumn(
+            \sprintf(
+                <<<'SQL'
 SELECT `language`.`id`
 FROM `language`
 INNER JOIN `locale` ON `locale`.`id` = `language`.`locale_id`
-WHERE `locale`.`code` = :code
-SQL;
+WHERE LOWER(`locale`.`code`) %s :localePrefix
+ORDER BY `language`.`created_at` ASC, `language`.`id` ASC
+SQL,
+                $operator
+            ),
+            ['localePrefix' => $localePrefix . '-%']
+        );
 
-        $languageId = $connection->executeQuery($sql, ['code' => $locale])->fetchOne();
-        if (!$languageId && $locale !== 'en-GB') {
-            return null;
+        $languageByteIds = [];
+        foreach ($languageIds as $languageId) {
+            if (!\is_string($languageId)) {
+                continue;
+            }
+
+            $languageByteIds[] = $languageId;
         }
 
-        if (!$languageId) {
-            return Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        }
-
-        return $languageId;
+        return $languageByteIds;
     }
 }

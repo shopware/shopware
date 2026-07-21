@@ -404,12 +404,27 @@ final class ZugferdCreditNoteRenderer extends AbstractDocumentRenderer
                 INNER JOIN order_line_item AS oli ON oli.order_id = d.order_id AND oli.order_version_id = d.order_version_id
             WHERE
                 d.id = :referencedInvoiceId
-                AND oli.type = :creditType;
+                AND oli.type = :creditType
+                AND d.order_version_id != :liveVersionId;
         ';
 
+        /**
+         * Documents with order_version_id = LIVE_VERSION are intentionally excluded here,
+         * because under certain (rare) circumstances, the order_version_id of the invoice document
+         * can be LIVE_VERSION instead of an actual snapshot unique version ID.
+         *
+         * This makes it possible to still generate credit notes for invoice documents that have
+         * been created with a LIVE_VERSION order_version_id.
+         *
+         * It also comes with a drawback: if the invoice already contained a credit item,
+         * the new credit note will include it again. Unfortunately, this is the best we can do
+         * to still support these special cases and is still better than failing the credit note generation,
+         * which might be needed years later for a business case.
+         */
         $binaryIds = $this->connection->fetchFirstColumn($sql, [
             'referencedInvoiceId' => Uuid::fromHexToBytes($referencedInvoiceId),
             'creditType' => LineItem::CREDIT_LINE_ITEM_TYPE,
+            'liveVersionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
         ]);
 
         return array_map(static fn ($id): string => Uuid::fromBytesToHex($id), $binaryIds);

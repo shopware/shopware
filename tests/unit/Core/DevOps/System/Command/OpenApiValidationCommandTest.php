@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\System\Command\OpenApiValidationCommand;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(OpenApiValidationCommand::class)]
 class OpenApiValidationCommandTest extends TestCase
 {
@@ -20,7 +22,7 @@ class OpenApiValidationCommandTest extends TestCase
     {
         $command = new OpenApiValidationCommand(
             new MockHttpClient([new MockResponse('{"messages": [], "schemaValidationMessages": []}', [])]),
-            $this->createMock(DefinitionService::class)
+            static::createStub(DefinitionService::class)
         );
         $tester = new CommandTester($command);
 
@@ -52,7 +54,7 @@ class OpenApiValidationCommandTest extends TestCase
                     'messages' => [],
                 ], \JSON_THROW_ON_ERROR), [])]
             ),
-            $this->createMock(DefinitionService::class)
+            static::createStub(DefinitionService::class)
         );
         $tester = new CommandTester($command);
 
@@ -65,7 +67,7 @@ class OpenApiValidationCommandTest extends TestCase
     {
         $command = new OpenApiValidationCommand(
             new MockHttpClient(),
-            $this->createMock(DefinitionService::class)
+            static::createStub(DefinitionService::class)
         );
         $tester = new CommandTester($command);
 
@@ -81,7 +83,7 @@ class OpenApiValidationCommandTest extends TestCase
                 new MockResponse('{"messages": [], "schemaValidationMessages": []}', []),
                 new MockResponse('{"messages": [], "schemaValidationMessages": []}', []),
             ]),
-            $this->createMock(DefinitionService::class)
+            static::createStub(DefinitionService::class)
         );
         $tester = new CommandTester($command);
 

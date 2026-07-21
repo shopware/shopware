@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\FieldSerialize
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\Constraint;
@@ -33,6 +35,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PasswordFieldSerializer::class)]
 class PasswordFieldSerializerTest extends TestCase
 {
@@ -44,14 +47,14 @@ class PasswordFieldSerializerTest extends TestCase
     protected SystemConfigService $systemConfigService;
 
     /**
-     * @var ValidatorInterface&MockObject
+     * @var ValidatorInterface&Stub
      */
     protected ValidatorInterface $validator;
 
     protected function setUp(): void
     {
-        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
-        $this->validator = $this->createMock(ValidatorInterface::class);
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $this->validator = static::createStub(ValidatorInterface::class);
         $this->systemConfigService = $this->createMock(SystemConfigService::class);
         $this->serializer = new PasswordFieldSerializer($this->validator, $definitionRegistry, $this->systemConfigService);
     }
@@ -138,11 +141,13 @@ class PasswordFieldSerializerTest extends TestCase
             $this->systemConfigService->expects($this->never())->method('getInt');
         }
 
-        $this->validator
+        $validator = $this->createMock(ValidatorInterface::class);
+        $validator
             ->expects($this->exactly(\count($constraints)))->method('validate')
             ->willReturn($constraintViolations);
 
-        $result = $this->serializer->encode($field, $existence, $kv, $params)->current();
+        $serializer = new PasswordFieldSerializer($validator, static::createStub(DefinitionInstanceRegistry::class), $this->systemConfigService);
+        $result = $serializer->encode($field, $existence, $kv, $params)->current();
 
         if ($inputPassword) {
             if (password_get_info($inputPassword)['algo'] !== null) {
@@ -235,7 +240,7 @@ class PasswordFieldSerializerTest extends TestCase
     {
         return new PasswordFieldSerializer(
             Validation::createValidator(),
-            $this->createMock(DefinitionInstanceRegistry::class),
+            static::createStub(DefinitionInstanceRegistry::class),
             $this->systemConfigService
         );
     }

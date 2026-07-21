@@ -37,9 +37,9 @@ class ItemsFacadeTest extends TestCase
     {
         $items = new LineItemCollection();
 
-        $stubs = $this->createMock(ScriptPriceStubs::class);
-        $helper = $this->createMock(CartFacadeHelper::class);
-        $context = $this->createMock(SalesChannelContext::class);
+        $stubs = static::createStub(ScriptPriceStubs::class);
+        $helper = static::createStub(CartFacadeHelper::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $facade = new ItemsFacade($items, $stubs, $helper, $context);
 
@@ -112,9 +112,9 @@ class ItemsFacadeTest extends TestCase
 
     private function item(LineItem $item): ItemFacade
     {
-        $stubs = $this->createMock(ScriptPriceStubs::class);
-        $helper = $this->createMock(CartFacadeHelper::class);
-        $context = $this->createMock(SalesChannelContext::class);
+        $stubs = static::createStub(ScriptPriceStubs::class);
+        $helper = static::createStub(CartFacadeHelper::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         return new ItemFacade($item, $stubs, $helper, $context);
     }

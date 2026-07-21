@@ -728,16 +728,6 @@ class McpServerControllerTest extends TestCase
         static::assertSame(Response::HTTP_NOT_FOUND, $controller->handle(new Request())->getStatusCode());
     }
 
-    private function controllerWithRateLimiter(RateLimiter $rateLimiter): McpServerController
-    {
-        return new McpServerController(
-            Server::builder()->build(),
-            $this->transportFactory(),
-            new McpRateLimiter($rateLimiter),
-            new McpSessionIdValidator(),
-        );
-    }
-
     public function testFlushesPendingToolsListChangedForActiveSession(): void
     {
         $sessionId = Uuid::v4()->toRfc4122();
@@ -795,6 +785,16 @@ class McpServerControllerTest extends TestCase
         $request->attributes->set(McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE, true);
 
         $controller->handle($request);
+    }
+
+    private function controllerWithRateLimiter(RateLimiter $rateLimiter): McpServerController
+    {
+        return new McpServerController(
+            Server::builder()->build(),
+            $this->transportFactory(),
+            new McpRateLimiter($rateLimiter),
+            new McpSessionIdValidator(),
+        );
     }
 
     private function transportFactory(): McpHttpTransportFactory

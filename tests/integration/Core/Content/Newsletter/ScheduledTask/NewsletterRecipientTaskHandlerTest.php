@@ -92,6 +92,8 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
             '0d095dffd93b48a6b22300a1dad879d5',
         ];
 
+        static::assertCount(\count($expectedIds), $result->getData());
+
         foreach ($expectedIds as $id) {
             static::assertContains($id, array_keys($result->getData()), print_r(array_keys($result->getData()), true));
         }

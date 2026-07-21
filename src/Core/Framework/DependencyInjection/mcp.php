@@ -448,8 +448,7 @@ return static function (ContainerConfigurator $container): void {
             service(McpPromptPersister::class),
             service(McpResourcePersister::class),
         ])
-        ->tag('shopware.app_lifecycle.handler', ['priority' => -1300])
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('shopware.app_lifecycle.handler', ['priority' => -1300]);
 
     // DAL definitions
     $services->set(AppMcpToolDefinition::class)

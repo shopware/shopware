@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestContextResolverInterface;
 use Shopware\Core\Framework\Routing\RouteScopeRegistry;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
@@ -23,6 +24,7 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SalesChannelRequestContextResolver::class)]
 class SalesChannelRequestContextResolverTest extends TestCase
 {

@@ -8,6 +8,8 @@ export interface TransformScriptResult {
     blockers: string[];
     /** Names exposed in the `public:` return of createExtendableSetup. */
     publicNames: string[];
+    /** Component name from the registration call (`unknown-component` when non-literal). */
+    componentName: string;
 }
 
 export interface DataProp {
@@ -37,6 +39,8 @@ export interface ComponentRegistration {
     call: CallExpression;
     isExtend: boolean;
     componentName: string;
+    /** false when the first `register`/`extend` argument was not a string literal. */
+    componentNameIsLiteral: boolean;
     optionsObject: ObjectLiteralExpression | undefined;
     parentComponentName: string | null;
 }

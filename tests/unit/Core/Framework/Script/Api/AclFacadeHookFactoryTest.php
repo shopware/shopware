@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Script\Api;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Api\AclFacadeHookFactory;
 use Shopware\Core\Framework\Script\AppContextCreator;
 use Shopware\Core\Framework\Script\Execution\Hook;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Script\Execution\Script;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AclFacadeHookFactory::class)]
 class AclFacadeHookFactoryTest extends TestCase
 {

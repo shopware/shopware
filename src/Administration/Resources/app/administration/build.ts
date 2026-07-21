@@ -65,7 +65,7 @@ async function main() {
             process.stdin.setRawMode(true);
             // eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
             process.stdin.on('data', (key: Buffer | string) => {
-                if (key.toString() === '\u0003') {
+                if (key.toString().includes('\u0003')) {
                     restoreTerminal();
                     process.kill(process.pid, 'SIGINT');
                 }

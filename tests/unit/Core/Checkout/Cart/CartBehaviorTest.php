@@ -8,10 +8,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\CheckoutPermissions;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(CartBehavior::class)]
 class CartBehaviorTest extends TestCase
 {

@@ -9,6 +9,7 @@
     <import resource="../../Cart/SalesChannel/**/*Controller.php" type="attribute" />
     <import resource="../../Customer/SalesChannel/**/*Controller.php" type="attribute" />
     <import resource="../../Document/**/*Controller.php" type="attribute" />
+    <import resource="../../DocumentV2/**/*Controller.php" type="attribute" />
     <import resource="../../Promotion/**/*Controller.php" type="attribute" />
     <import resource="../../Order/Api/**/*Controller.php" type="attribute" />
     <import resource="../../Customer/SalesChannel/**/*Route.php" type="attribute" />

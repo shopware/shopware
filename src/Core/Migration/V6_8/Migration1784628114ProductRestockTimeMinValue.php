@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
+ *
+ * @no-indexer-required: restock_time is not part of any indexer output; it is read live by cart and storefront.
  */
 #[Package('inventory')]
 class Migration1784628114ProductRestockTimeMinValue extends MigrationStep

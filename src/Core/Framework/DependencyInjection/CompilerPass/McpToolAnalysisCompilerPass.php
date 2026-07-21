@@ -143,7 +143,7 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
             $class = $definition->getClass() ?? $serviceId;
 
             if (!class_exists($class)) {
-                $this->warnMissingToolClass($serviceId, $class);
+                $this->warnMissingToolClass($container, $serviceId, $class);
 
                 continue;
             }
@@ -167,17 +167,17 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
     /**
      * A service tagged "mcp.tool" whose class cannot be autoloaded is almost always a development or
      * configuration mistake. We skip it rather than fail the whole container build, but surface it as
-     * a warning so the misconfiguration is not lost silently.
+     * a compiler log message so the misconfiguration is not lost silently.
      */
-    private function warnMissingToolClass(string $serviceId, string $class): void
+    private function warnMissingToolClass(ContainerBuilder $container, string $serviceId, string $class): void
     {
-        trigger_error(
+        $container->log(
+            $this,
             \sprintf(
                 'MCP tool service "%s" is tagged "mcp.tool" but its class "%s" cannot be loaded; skipping it during tool analysis.',
                 $serviceId,
                 $class,
             ),
-            \E_USER_WARNING,
         );
     }
 }

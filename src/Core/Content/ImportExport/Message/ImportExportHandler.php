@@ -18,8 +18,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[AsMessageHandler]
 #[Package('fundamentals@after-sales')]
+#[AsMessageHandler]
 final readonly class ImportExportHandler
 {
     /**

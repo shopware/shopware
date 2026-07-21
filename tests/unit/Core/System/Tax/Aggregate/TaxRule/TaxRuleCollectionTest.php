@@ -12,8 +12,8 @@ use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity;
 /**
  * @internal
  */
-#[CoversClass(TaxRuleCollection::class)]
 #[Package('checkout')]
+#[CoversClass(TaxRuleCollection::class)]
 class TaxRuleCollectionTest extends TestCase
 {
     public function testLatestActivationDate(): void

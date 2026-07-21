@@ -20,8 +20,8 @@ use Symfony\Component\Routing\Attribute\Route;
  * Saves the per-user MCP allowlist (tools, resources, prompts).
  * Requires the `users_and_permissions.editor` admin ACL privilege.
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class UserMcpAllowlistController
 {
     /**

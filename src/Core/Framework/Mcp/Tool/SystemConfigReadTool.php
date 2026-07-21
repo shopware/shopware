@@ -11,9 +11,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @experimental stableVersion:v6.8.0
  */
+#[Package('framework')]
 #[McpTool(name: 'shopware-system-config-read', title: 'System Config Read', description: 'Read Shopware application configuration values in the core.* namespace. Pass a domain prefix (e.g. "core.listing") to get all keys, or a full dotted key to read a single value. For theme appearance settings (colors, logos, fonts), use shopware-theme-config instead. Optionally scope to a sales channel.')]
 #[McpToolRequires('system_config:read')]
-#[Package('framework')]
 class SystemConfigReadTool extends McpToolResponse
 {
     /**

@@ -12,8 +12,8 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 /**
  * @internal
  */
-#[CoversClass(CartExtension::class)]
 #[Package('checkout')]
+#[CoversClass(CartExtension::class)]
 class CartExtensionTest extends TestCase
 {
     /**

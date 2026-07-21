@@ -11,11 +11,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'es:test:analyzer',
     description: 'Test the elasticsearch analyzer',
 )]
-#[Package('framework')]
 class ElasticsearchTestAnalyzerCommand extends Command
 {
     private ?SymfonyStyle $io = null;

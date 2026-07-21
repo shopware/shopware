@@ -14,8 +14,8 @@ use Shopware\Core\Framework\Log\Package;
  * keep the wider parameter type (contravariance). Tooling (e.g. Rector) can add type guards or
  * casts at affected call sites by reading `$newType`.
  */
-#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 #[Package('framework')]
+#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final class ParameterTypeNarrowing implements CallSiteCompatibilityChange
 {
     /**

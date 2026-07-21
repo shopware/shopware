@@ -16,8 +16,8 @@ use Symfony\Component\HttpKernel\KernelInterface;
  *
  * @internal
  */
-#[McpResource(uri: 'shopware://extensions', name: 'shopware-extensions', description: 'Optional MCP capability plugins. Read this when a requested tool is not available to find the right extension and its install command.')]
 #[Package('framework')]
+#[McpResource(uri: 'shopware://extensions', name: 'shopware-extensions', description: 'Optional MCP capability plugins. Read this when a requested tool is not available to find the right extension and its install command.')]
 class ExtensionsResource
 {
     public function __construct(

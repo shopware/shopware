@@ -40,8 +40,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[CoversClass(CheckoutGatewayRoute::class)]
 #[Package('checkout')]
+#[CoversClass(CheckoutGatewayRoute::class)]
 class CheckoutGatewayRouteTest extends TestCase
 {
     public function testDecoratedThrows(): void

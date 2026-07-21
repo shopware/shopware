@@ -18,10 +18,10 @@ use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
  * Dedicated aggregation tool that loads zero entity rows and returns only
  * aggregation results, keeping the response well within the 100 KB limit.
  */
+#[Package('framework')]
 #[McpTool(name: 'shopware-entity-aggregate', title: 'Entity Aggregate', description: 'The correct tool for count, sum, average, and other aggregate questions. Use this — not shopware-entity-search — for any \'how many\', \'total value\', or \'average\' query. Note: entity-search\'s _meta.total is pagination metadata, not a reporting count. Supports: count, avg, sum, min, max, terms, date-histogram. Returns only aggregation results, no entity rows. Pass aggregation definitions as Admin API criteria JSON.')]
 #[McpToolDependsOn('shopware-entity-schema')]
 #[McpToolRequires(entityParam: 'entity', operations: ['read'])]
-#[Package('framework')]
 class EntityAggregateTool extends McpToolResponse
 {
     /**

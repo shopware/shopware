@@ -15,8 +15,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal
  */
-#[AsMessageHandler(handles: CleanupVersionTask::class)]
 #[Package('framework')]
+#[AsMessageHandler(handles: CleanupVersionTask::class)]
 final class CleanupVersionTaskHandler extends ScheduledTaskHandler
 {
     /**

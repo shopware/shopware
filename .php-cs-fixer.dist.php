@@ -5,7 +5,12 @@ declare(strict_types=1);
 use PhpCsFixer\Config;
 use PhpCsFixer\Finder;
 use PhpCsFixer\Runner\Parallel\ParallelConfigFactory;
+use PHPUnit\Framework\Attributes\CoversClass;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey;
+use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Filesystem\Path;
+use Symfony\Component\Routing\Attribute\Route;
 
 return (new Config())
     ->setParallelConfig(ParallelConfigFactory::detect())
@@ -58,6 +63,7 @@ return (new Config())
         'no_superfluous_phpdoc_tags' => ['allow_unused_params' => true, 'allow_mixed' => true],
         'no_useless_else' => true,
         'no_useless_return' => true,
+        'ordered_attributes' => ['order' => [Package::class], 'sort_algorithm' => 'custom'],
         'ordered_class_elements' => true,
         'phpdoc_align' => ['align' => 'left'],
         'phpdoc_annotation_without_dot' => false,

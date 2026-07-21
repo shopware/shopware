@@ -15,10 +15,10 @@ use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 /**
  * @experimental stableVersion:v6.8.0
  */
+#[Package('framework')]
 #[McpTool(name: 'shopware-entity-read', title: 'Entity Read', description: 'Read a single Shopware entity by its UUID. Use when you already have an entity ID. For searching by other fields, use shopware-entity-search instead. Returns {success, data: {id, ...fields}, _meta: {}}. Pass criteria JSON to include associations or select fields.')]
 #[McpToolDependsOn('shopware-entity-schema')]
 #[McpToolRequires(entityParam: 'entity', operations: ['read'])]
-#[Package('framework')]
 class EntityReadTool extends McpToolResponse
 {
     use McpEntityIncludes;

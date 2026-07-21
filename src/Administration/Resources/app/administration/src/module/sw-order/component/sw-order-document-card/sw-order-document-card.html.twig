@@ -106,7 +106,7 @@
             :full-page="false"
             :plain-appearance="true"
             :allow-delete="!attachView"
-            :show-actions="attachView"
+            :show-actions="attachView || !feature.isActive('DOCUMENT_GENERATION_REWORK')"
         >
             {% block sw_order_document_card_grid_column_date %}
             <template #column-createdAt="{ item }">
@@ -140,7 +140,7 @@
 
             {% block sw_order_document_card_grid_actions %}
             <template
-                v-if="!attachView"
+                v-if="feature.isActive('DOCUMENT_GENERATION_REWORK') && !attachView"
                 #column-documentActions="{ item }"
             >
                 <mt-dropdown-menu-root>
@@ -328,6 +328,78 @@
                         </mt-button>
                     </template>
                 </sw-modal>
+            </template>
+
+            {# @deprecated tag:v6.9.0 - Will be removed once DOCUMENT_GENERATION_REWORK becomes the default #}
+            <template
+                v-else-if="!attachView"
+                #actions="{ item }"
+            >
+                {% block sw_order_document_card_grid_action_open_legacy %}
+                <sw-context-menu-item
+                    :disabled="!acl.can('document.viewer')"
+                    class="sw-order-document-card__context-button-open-pdf"
+                    data-analytics-id="sw-order-document-card.open-document"
+                    @click="onOpenDocument(item.id, item.deepLinkCode, resolveOpenFileType(item))"
+                >
+                    {{ $t('sw-order.documentCard.labelOpenDocument') }}
+                </sw-context-menu-item>
+                {% endblock %}
+
+                {% block sw_order_document_card_grid_action_download_legacy %}
+                <sw-context-menu-item
+                    :disabled="!acl.can('document.viewer')"
+                    class="sw-order-document-card__context-button-download-pdf"
+                    data-analytics-id="sw-order-document-card.download-document"
+                    @click="onDownload(item.id, item.deepLinkCode, resolveDownloadFileType(item))"
+                >
+                    {{ $t('sw-order.documentCard.labelDownloadPdf') }}
+                </sw-context-menu-item>
+                {% endblock %}
+
+                {% block sw_order_document_card_grid_action_send_legacy %}
+                <sw-context-menu-item
+                    :disabled="!acl.can('document.viewer') || !acl.can('api_send_email')"
+                    class="sw-order-document-card__context-button-send"
+                    data-analytics-id="sw-order-document-card.send-document"
+                    @click="onSendDocument(item.id)"
+                >
+                    {{ $t('sw-order.documentCard.labelSendDocument') }}
+                </sw-context-menu-item>
+                {% endblock %}
+
+                {% block sw_order_document_card_grid_action_mark_sent_legacy %}
+                <sw-context-menu-item
+                    :disabled="!acl.can('document.viewer') || item.sent"
+                    class="sw-order-document-card__context-button-mark-sent"
+                    data-analytics-id="sw-order-document-card.mark-document-as-sent"
+                    @click="onMarkDocumentAsSent(item.id)"
+                >
+                    {{ $t('sw-order.documentCard.labelMarkAsSent') }}
+                </sw-context-menu-item>
+                {% endblock %}
+
+                {% block sw_order_document_card_grid_action_mark_unsent_legacy %}
+                <sw-context-menu-item
+                    :disabled="!acl.can('document.viewer') || !item.sent"
+                    class="sw-order-document-card__context-button-mark-unsent"
+                    data-analytics-id="sw-order-document-card.mark-document-as-unsent"
+                    @click="onMarkDocumentAsUnsent(item.id)"
+                >
+                    {{ $t('sw-order.documentCard.labelMarkAsUnsent') }}
+                </sw-context-menu-item>
+                {% endblock %}
+
+                {% block sw_order_document_card_grid_action_delete_legacy %}
+                <sw-context-menu-item
+                    :disabled="!acl.can('document.deleter')"
+                    class="sw-order-document-card__context-button-delete"
+                    data-analytics-id="sw-order-document-card.delete-document"
+                    @click="$refs.entityListing.showDelete(item.id)"
+                >
+                    {{ $t('global.default.delete') }}
+                </sw-context-menu-item>
+                {% endblock %}
             </template>
             {% endblock %}
 

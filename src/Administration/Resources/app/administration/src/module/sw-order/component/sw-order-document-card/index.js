@@ -222,7 +222,7 @@ export default {
                 });
             }
 
-            if (!this.attachView) {
+            if (!this.attachView && this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
                 columns.push({
                     property: 'documentActions',
                     dataIndex: 'documentActions',
@@ -676,15 +676,7 @@ export default {
         },
 
         onDownloadAll(document) {
-            if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
-                this.downloadDocumentArchive(document.id);
-
-                return;
-            }
-
-            this.getDocumentActionFormats(document).forEach((format) => {
-                this.onDownload(document.id, document.deepLinkCode, format);
-            });
+            this.downloadDocumentArchive(document.id);
         },
 
         onShowDeleteDocumentModal(id) {

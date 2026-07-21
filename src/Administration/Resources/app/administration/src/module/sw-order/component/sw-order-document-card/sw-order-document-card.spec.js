@@ -618,6 +618,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should render open and download actions for each available format', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
         wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
 
         await wrapper.setData({
@@ -681,6 +682,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should only show the download all action when multiple formats are available', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
         wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
 
         await wrapper.setData({
@@ -694,38 +696,6 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         });
 
         expect(wrapper.find('.sw-order-document-card__context-button-download-all-formats').exists()).toBe(false);
-    });
-
-    it('should download every available format when using the download all action', async () => {
-        wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
-
-        const downloadDocumentSpy = jest.spyOn(wrapper.vm, 'downloadDocument').mockImplementation(() => {});
-
-        await wrapper.setData({
-            documents: getCollection('document', [
-                {
-                    ...documentFixture,
-                    documentFiles: [
-                        {
-                            documentFormat: 'html',
-                        },
-                        {
-                            documentFormat: 'pdf',
-                        },
-                    ],
-                    documentMediaFile: null,
-                    documentA11yMediaFile: null,
-                },
-            ]),
-        });
-
-        await wrapper.find('.sw-order-document-card__context-button-download-all-formats').trigger('click');
-
-        expect(downloadDocumentSpy).toHaveBeenCalledTimes(2);
-        expect(downloadDocumentSpy).toHaveBeenNthCalledWith(1, 'document1', 'abcd', 'pdf');
-        expect(downloadDocumentSpy).toHaveBeenNthCalledWith(2, 'document1', 'abcd', 'html');
-
-        downloadDocumentSpy.mockRestore();
     });
 
     it('should download a V2 archive when using the download all action with the feature flag active', async () => {
@@ -756,6 +726,33 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         expect(getDocumentArchiveV2Mock).toHaveBeenCalledWith('document1');
         dispatchEventSpy.mockRestore();
+    });
+
+    it('should render the legacy context menu actions when the feature flag is inactive', async () => {
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                documentFixture,
+            ]),
+        });
+
+        expect(wrapper.find('.mt-dropdown-menu-root').exists()).toBe(false);
+        expect(wrapper.find('.sw-context-menu-item.sw-order-document-card__context-button-open-pdf').exists()).toBe(true);
+    });
+
+    it('should render the reworked action menu when the feature flag is active', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                documentFixture,
+            ]),
+        });
+
+        expect(wrapper.find('.mt-dropdown-menu-root').exists()).toBe(true);
+        expect(wrapper.find('.sw-context-menu-item.sw-order-document-card__context-button-open-pdf').exists()).toBe(false);
     });
 
     it('should use the V2 create endpoint when the feature flag is active', async () => {

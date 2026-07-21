@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\DTO\Service;
 use Shopware\Core\Service\ServiceStorage;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -16,6 +17,7 @@ use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ServiceStorage::class)]
 class ServiceStorageTest extends TestCase
 {

@@ -7,12 +7,14 @@ use PHPStan\Testing\RuleTestCase;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AclValidPermissionsHelper;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AclValidPermissionsInRouteAttributesRule;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @extends  RuleTestCase<AclValidPermissionsInRouteAttributesRule>
  */
+#[Package('framework')]
 class AclValidPermissionsInRouteAttributesRuleTest extends RuleTestCase
 {
     private static ?AclValidPermissionsInRouteAttributesRule $rule = null;

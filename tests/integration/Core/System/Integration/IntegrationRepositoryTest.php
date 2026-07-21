@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Integration\IntegrationCollection;
@@ -14,6 +15,7 @@ use Shopware\Core\System\Integration\IntegrationCollection;
 /**
  * @internal
  */
+#[Package('fundamentals@framework')]
 class IntegrationRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\Api\AppJWTGenerateRoute;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\Clock\NativeClock;
@@ -16,6 +17,7 @@ use Symfony\Component\Clock\NativeClock;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppJWTGenerateRoute::class)]
 class AppJWTGenerateRouteTest extends TestCase
 {

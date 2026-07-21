@@ -9,6 +9,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\AllServiceInstaller;
 use Shopware\Core\Service\Message\InstallServicesMessage;
 use Shopware\Core\Service\Message\UpdateServiceMessage;
@@ -25,6 +26,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AllServiceInstaller::class)]
 class AllServiceInstallerTest extends TestCase
 {

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel\File\Rendering;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
@@ -18,6 +19,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SalesChannelFileStoreApiMcpSubscriber::class)]
 class SalesChannelFileStoreApiMcpSubscriberTest extends TestCase
 {

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\CustomEntityRegistrar;
 use Shopware\Core\System\CustomEntity\Schema\DynamicEntityDefinition;
 use Shopware\Core\Test\Stub\Doctrine\TestExceptionFactory;
@@ -21,6 +22,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CustomEntityRegistrar::class)]
 class CustomEntityRegistrarTest extends TestCase
 {

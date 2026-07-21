@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Framework\SystemCheck\AdministrationReadinessCheck;
 use Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Category;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
@@ -21,6 +22,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AdministrationReadinessCheck::class)]
 class AdministrationReadinessCheckTest extends TestCase
 {

@@ -2,6 +2,7 @@ name: Label Issues and PRs
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
   issues:
   workflow_dispatch:
   schedule:
@@ -185,7 +186,10 @@ jobs:
 
   assign-framework-project:
     runs-on: ubuntu-24.04
-    if: github.event_name == 'issues' && github.event.action == 'labeled' && github.event.label.name == 'domain/framework'
+    if: >
+      github.event.action == 'labeled' &&
+      github.event.label.name == 'domain/framework' &&
+      (github.event_name == 'issues' || github.event_name == 'pull_request')
     needs: label
     permissions:
       contents: read
@@ -209,7 +213,8 @@ jobs:
           script: |
             const { addProjectItem, getProjectIdByNumber } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
             const projectId = await getProjectIdByNumber(github, Number(process.env.PROJECT_NUMBER))
-            await addProjectItem(github, { projectId, issueId: context.payload.issue.node_id })
+            const contentId = (context.payload.issue ?? context.payload.pull_request).node_id
+            await addProjectItem(github, { projectId, issueId: contentId })
 
   sync-test-plan-sub-issue:
     runs-on: ubuntu-24.04

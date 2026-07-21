@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValida
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
-use Shopware\Tests\Integration\Core\Checkout\Customer\Subscriber\CustomerMetaFieldSubscriberTest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -20,7 +19,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @codeCoverageIgnore
  *
- * @see CustomerMetaFieldSubscriberTest
+ * @see \Shopware\Tests\Integration\Core\Checkout\Customer\Subscriber\CustomerMetaFieldSubscriberTest
  */
 #[Package('checkout')]
 class CustomerMetaFieldSubscriber implements EventSubscriberInterface

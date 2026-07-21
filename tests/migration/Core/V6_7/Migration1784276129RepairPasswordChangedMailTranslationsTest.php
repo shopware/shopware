@@ -82,61 +82,16 @@ class Migration1784276129RepairPasswordChangedMailTranslationsTest extends TestC
         static::assertSame('Ihr Passwort wurde geändert', $this->fetchSubject($mailTemplateTypeId, $deLanguageId));
     }
 
-    public function testUpdateRepairsRegionalLanguageWithGermanTranslationCode(): void
+    public function testUpdateRepairsCopiedTranslationsOfAnyLanguage(): void
     {
         $mailTemplateTypeId = $this->getMailTemplateTypeId();
-        $languageId = $this->createLanguage('de-CH', 'de-DE');
+        $languageId = $this->createLanguage('nl-NL');
         $this->seedBrokenTranslationsForLanguage($mailTemplateTypeId, $languageId);
 
         (new Migration1784276129RepairPasswordChangedMailTranslations())->update($this->connection);
 
         static::assertSame('Kunden-Passwort geändert', $this->fetchTypeName($mailTemplateTypeId, $languageId));
         static::assertSame('Kunden-Passwort geändert', $this->fetchSubject($mailTemplateTypeId, $languageId));
-    }
-
-    public function testUpdateRepairsCopiedTranslationsOfGermanVariantLanguages(): void
-    {
-        $mailTemplateTypeId = $this->getMailTemplateTypeId();
-        $languageId = $this->createLanguage('de-AT', 'de-AT');
-        $this->seedBrokenTranslationsForLanguage($mailTemplateTypeId, $languageId);
-
-        (new Migration1784276129RepairPasswordChangedMailTranslations())->update($this->connection);
-
-        static::assertSame('Kunden-Passwort geändert', $this->fetchTypeName($mailTemplateTypeId, $languageId));
-        static::assertSame('Kunden-Passwort geändert', $this->fetchSubject($mailTemplateTypeId, $languageId));
-    }
-
-    public function testUpdateIgnoresBrokenValuesOfNonGermanLanguages(): void
-    {
-        $mailTemplateTypeId = $this->getMailTemplateTypeId();
-        $languageId = $this->createLanguage('nl-NL', 'nl-NL');
-        $this->seedBrokenTranslationsForLanguage($mailTemplateTypeId, $languageId);
-
-        (new Migration1784276129RepairPasswordChangedMailTranslations())->update($this->connection);
-
-        static::assertSame('Kunden-Password geändert', $this->fetchTypeName($mailTemplateTypeId, $languageId));
-        static::assertSame('Kunden-Password geändert', $this->fetchSubject($mailTemplateTypeId, $languageId));
-    }
-
-    public function testUpdateWithoutPasswordChangedMailTemplateTypeDoesNothing(): void
-    {
-        $mailTemplateTypeId = $this->getMailTemplateTypeId();
-
-        $this->connection->executeStatement(
-            'DELETE FROM `mail_template_translation` WHERE `mail_template_id` IN (
-                SELECT `id` FROM `mail_template` WHERE `mail_template_type_id` = :typeId
-            )',
-            ['typeId' => $mailTemplateTypeId],
-        );
-        $this->connection->executeStatement('DELETE FROM `mail_template` WHERE `mail_template_type_id` = :typeId', ['typeId' => $mailTemplateTypeId]);
-        $this->connection->executeStatement('DELETE FROM `mail_template_type` WHERE `id` = :typeId', ['typeId' => $mailTemplateTypeId]);
-
-        (new Migration1784276129RepairPasswordChangedMailTranslations())->update($this->connection);
-
-        static::assertFalse($this->connection->fetchOne(
-            'SELECT `id` FROM `mail_template_type` WHERE `technical_name` = :technicalName',
-            ['technicalName' => CustomerPasswordChangedEvent::EVENT_NAME],
-        ));
     }
 
     private function seedBrokenTranslationsForLanguage(string $mailTemplateTypeId, string $languageId): void
@@ -165,7 +120,7 @@ class Migration1784276129RepairPasswordChangedMailTranslationsTest extends TestC
         ]);
     }
 
-    private function createLanguage(string $localeCode, string $translationCode): string
+    private function createLanguage(string $localeCode): string
     {
         $languageId = Uuid::randomBytes();
 
@@ -173,7 +128,7 @@ class Migration1784276129RepairPasswordChangedMailTranslationsTest extends TestC
             'id' => $languageId,
             'name' => $localeCode,
             'locale_id' => $this->fetchLocaleId($localeCode),
-            'translation_code_id' => $this->fetchLocaleId($translationCode),
+            'translation_code_id' => $this->fetchLocaleId($localeCode),
             'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 

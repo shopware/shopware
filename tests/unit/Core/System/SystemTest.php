@@ -31,7 +31,7 @@ class SystemTest extends TestCase
         static::assertTrue($container->has('shopware.translation.mock_handler'), 'services_test.php');
 
         // the client must be wired to the mock handler instead of the argument-less
-        // real client from snippet.xml (see issue #18067)
+        // real client from snippet.php (see issue #18067)
         static::assertNotSame([], $container->getDefinition('shopware.translation.client')->getArguments());
     }
 
@@ -41,7 +41,7 @@ class SystemTest extends TestCase
         $container = $this->buildContainer('prod');
 
         static::assertFalse($container->has('shopware.translation.mock_handler'), 'services_test.php');
-        static::assertTrue($container->has('shopware.translation.client'), 'snippet.xml');
+        static::assertTrue($container->has('shopware.translation.client'), 'snippet.php');
         static::assertSame([], $container->getDefinition('shopware.translation.client')->getArguments());
     }
 

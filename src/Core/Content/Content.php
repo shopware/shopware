@@ -28,25 +28,25 @@ class Content extends Bundle
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('breadcrumb.xml');
-        $loader->load('category.xml');
+        $phpLoader->load('category.php');
         $phpLoader->load('cookie.php');
-        $loader->load('media.xml');
-        $loader->load('media_path.xml');
+        $phpLoader->load('media.php');
+        $phpLoader->load('media_path.php');
         $loader->load('product.xml');
         $loader->load('newsletter_recipient.xml');
         $loader->load('rule.xml');
         $loader->load('product_stream.xml');
         $loader->load('product_export.xml');
         $loader->load('property.xml');
-        $loader->load('cms.xml');
+        $phpLoader->load('cms.php');
         $loader->load('mail.xml');
         $loader->load('mail_template.xml');
-        $loader->load('delivery_time.xml');
+        $phpLoader->load('delivery_time.php');
         $loader->load('import_export.xml');
-        $loader->load('contact_form.xml');
+        $phpLoader->load('contact_form.php');
         $loader->load('revocation_request_form.xml');
-        $loader->load('sitemap.xml');
-        $loader->load('landing_page.xml');
+        $phpLoader->load('sitemap.php');
+        $phpLoader->load('landing_page.php');
         $loader->load('flow.xml');
         $loader->load('measurement_system.xml');
         $loader->load('shared.xml');
@@ -54,7 +54,7 @@ class Content extends Bundle
         $phpLoader->load('product_export_tracking.php');
 
         if ($container->getParameter('kernel.environment') === 'test') {
-            $loader->load('media_test.xml');
+            $phpLoader->load('media_test.php');
         }
 
         $container->addCompilerPass(new MailerConfigurationCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);

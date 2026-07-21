@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationException;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Migration\MigrationSource;
@@ -19,6 +20,7 @@ use Shopware\Tests\Unit\Core\Framework\Migration\_fixtures\MigrationRuntime\Test
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MigrationRuntime::class)]
 class MigrationRuntimeTest extends TestCase
 {

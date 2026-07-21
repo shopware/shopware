@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Mcp\AllowList;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Pure allowlist-filtering logic for MCP tool, resource, and prompt calls and list responses.
  * Contains no HTTP or JSON concerns — operates on decoded data structures only.

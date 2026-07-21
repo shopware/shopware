@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\ThemeService;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * This tool lives in the Storefront bundle because it depends on ThemeService,
  * which is a Storefront service. Placing it in Core/Framework would create an

@@ -36,17 +36,9 @@ class CustomFieldSearchableSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $customFieldWrittenEvent = $containerEvent->getEventByEntityName(CustomFieldDefinition::ENTITY_NAME);
-
-        if ($customFieldWrittenEvent === null) {
-            return;
-        }
-
         $customFieldIds = [];
-        foreach ($customFieldWrittenEvent->getWriteResults() as $writeResult) {
-            $payload = $writeResult->getPayload();
-
-            if (!\array_key_exists('includeInSearch', $payload) || $payload['includeInSearch'] !== false) {
+        foreach ($containerEvent->getResults(CustomFieldDefinition::ENTITY_NAME)->withPayloadProperties('includeInSearch') as $writeResult) {
+            if ($writeResult->getProperty('includeInSearch') !== false) {
                 continue;
             }
 

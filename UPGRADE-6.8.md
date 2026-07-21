@@ -4,6 +4,12 @@
 
 <details>
 
+## Locale-aware sorting for product property group options
+
+To ensure product property group options are sorted more precisely based on locale code:
+- `/Shopware/Core/Content/Product/AbstractPropertyGroupSorter`: The `sort` method will be removed, use `sortUsingLocaleCode` instead.
+- `/Shopware/Core/Content/Property/PropertyGroupCollection`: The `sortByConfig` method now requires a new parameter `localeCode`.
+
 ## Webhook Messenger transport — explicit receiver configuration required
 
 Webhook delivery now uses a dedicated `webhook` Messenger transport. Add it to your `messenger:consume` receiver list and to `shopware.admin_worker.transports` if you override that key.
@@ -1803,6 +1809,11 @@ Instead of overwriting any of those blocks inside `@Storefront/storefront/compon
 
 ## Removed address book action template
 The unused template `@/Storefront/Resources/views/storefront/page/account/addressbook/address-actions.html.twig` was removed.
+
+## Removed `type` variable from address manager templates
+
+The deprecated Twig variable `type` in `address-manager-modal-list.html.twig`, `address-manager-modal-create-address.html.twig`, and `address-manager-item.html.twig` was removed.
+Use `addressType` instead.
 
 ## Removal of `ThemeLifecycleHandler::STATE_SKIP_THEME_COMPILATION`
 

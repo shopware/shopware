@@ -31,79 +31,142 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const filenameRulesPatched = {
     ...filenameRules,
     rules: Object.fromEntries(
-        Object.entries(filenameRules.rules).map(([name, rule]) => [
-            name,
-            {
-                ...rule,
-                meta: {
-                    ...rule.meta,
-                    schema: rule.meta?.schema ?? [{ oneOf: [{ type: 'string' }, { type: 'object' }] }],
+        Object.entries(filenameRules.rules).map(
+            ([
+                name,
+                rule,
+            ]) => [
+                name,
+                {
+                    ...rule,
+                    meta: {
+                        ...rule.meta,
+                        schema: rule.meta?.schema ?? [
+                            {
+                                oneOf: [
+                                    { type: 'string' },
+                                    { type: 'object' },
+                                ],
+                            },
+                        ],
+                    },
                 },
-            },
-        ]),
+            ],
+        ),
     ),
 };
 
-const vueParserSetup = pluginVue.configs['flat/recommended'].find(
-    c => c.name === 'vue/base/setup-for-vue',
-);
+const vueParserSetup = pluginVue.configs['flat/recommended'].find((c) => c.name === 'vue/base/setup-for-vue');
 const vueParser = vueParserSetup.languageOptions.parser;
 
 const baseRules = {
     'file-progress/activate': 0,
-    'max-len': ['error', 125, { ignoreRegExpLiterals: true }],
+    'max-len': [
+        'error',
+        125,
+        { ignoreRegExpLiterals: true },
+    ],
     'import/no-useless-path-segments': 0,
-    'import/extensions': ['error', 'ignorePackages', {
-        js: 'never',
-        ts: 'never',
-        tsx: 'never',
-        vue: 'never',
-    }],
-    'no-console': ['error', { allow: ['warn', 'error'] }],
-    'no-warning-comments': ['error', { location: 'anywhere' }],
+    'import/extensions': [
+        'error',
+        'ignorePackages',
+        {
+            js: 'never',
+            ts: 'never',
+            tsx: 'never',
+            vue: 'never',
+        },
+    ],
+    'no-console': [
+        'error',
+        {
+            allow: [
+                'warn',
+                'error',
+            ],
+        },
+    ],
+    'no-warning-comments': [
+        'error',
+        { location: 'anywhere' },
+    ],
     'inclusive-language/use-inclusive-words': 'error',
-    'comma-dangle': ['error', 'always-multiline'],
-    'sw-core-rules/require-position-identifier': ['error', {
-        components: [
-            'sw-button',
-            'sw-card',
-            'sw-tabs',
-            'sw-extension-component-section',
-        ],
-    }],
+    'comma-dangle': [
+        'error',
+        'always-multiline',
+    ],
+    'sw-core-rules/require-position-identifier': [
+        'error',
+        {
+            components: [
+                'sw-button',
+                'sw-card',
+                'sw-tabs',
+                'sw-extension-component-section',
+            ],
+        },
+    ],
     'sw-core-rules/require-package-annotation': ['error'],
     'sw-core-rules/no-tc-translation': 'error',
     'sw-deprecation-rules/private-feature-declarations': 'error',
     'no-restricted-exports': 'off',
-    'filename-rules/match': [2, /^.*(?:\.js|\.ts|\.html|\.html\.twig)$/],
-    'vue/multi-word-component-names': ['error', {
-        ignores: ['index.html'],
-    }],
+    'filename-rules/match': [
+        2,
+        /^.*(?:\.js|\.ts|\.html|\.html\.twig)$/,
+    ],
+    'vue/multi-word-component-names': [
+        'error',
+        {
+            ignores: ['index.html'],
+        },
+    ],
     'func-names': 'off',
     'listeners/no-missing-remove-event-listener': 'error',
     'listeners/matching-remove-event-listener': 'error',
     'listeners/no-inline-function-event-listener': 'error',
 
     // From @shopware-ag/eslint-config-base (airbnb-base overrides)
-    'no-multiple-empty-lines': ['error', { max: 2, maxEOF: 1 }],
+    'no-multiple-empty-lines': [
+        'error',
+        { max: 2, maxEOF: 1 },
+    ],
     'arrow-parens': 0,
     'arrow-body-style': 0,
     'generator-star-spacing': 0,
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
-    indent: ['error', 4, { SwitchCase: 1 }],
-    'no-use-before-define': ['error', { functions: false }],
+    indent: [
+        'error',
+        4,
+        { SwitchCase: 1 },
+    ],
+    'no-use-before-define': [
+        'error',
+        { functions: false },
+    ],
     'no-param-reassign': 0,
-    'linebreak-style': ['error', 'unix'],
+    'linebreak-style': [
+        'error',
+        'unix',
+    ],
     'object-shorthand': 0,
     'no-useless-escape': 0,
     'no-prototype-builtins': 0,
-    'object-curly-newline': ['error', { consistent: true }],
+    'object-curly-newline': [
+        'error',
+        { consistent: true },
+    ],
     'no-underscore-dangle': 0,
-    'prefer-destructuring': ['off', { object: true, array: false }],
+    'prefer-destructuring': [
+        'off',
+        { object: true, array: false },
+    ],
     'operator-linebreak': 0,
     'import/no-cycle': 0,
     'class-methods-use-this': 0,
-    'no-unused-vars': ['error', { vars: 'all', args: 'after-used', ignoreRestSiblings: true, caughtErrors: 'all', caughtErrorsIgnorePattern: '^_' }],
+    'no-unused-vars': [
+        'error',
+        { vars: 'all', args: 'after-used', ignoreRestSiblings: true, caughtErrors: 'all', caughtErrorsIgnorePattern: '^_' },
+    ],
     'vue/prefer-import-from-vue': 'off',
     'vue/one-component-per-file': 'off',
 };
@@ -114,6 +177,9 @@ export default [
         ignores: [
             'build/*.js',
             'config/*.js',
+            'eslint.config.ts',
+            'jest.config.js',
+            'jest.config.ts',
             'test/e2e/**/*',
             'scripts/**/*',
             'test/eslint/error-reference.html.twig',
@@ -126,13 +192,20 @@ export default [
     { ...js.configs.recommended, ignores: ['**/*.json'] },
 
     // Vue plugin setup (global) + parser for .vue files
-    ...pluginVue.configs['flat/recommended'].filter(
-        c => c.name === 'vue/base/setup' || c.name === 'vue/base/setup-for-vue',
-    ).map(c => ({ ...c, ignores: ['**/*.json'] })),
+    ...pluginVue.configs['flat/recommended']
+        .filter((c) => c.name === 'vue/base/setup' || c.name === 'vue/base/setup-for-vue')
+        .map((c) => ({ ...c, ignores: ['**/*.json'] })),
     // Vue rules scoped to JS, Vue, and Twig files only (not TS)
     ...pluginVue.configs['flat/recommended']
-        .filter(c => c.name !== 'vue/base/setup' && c.name !== 'vue/base/setup-for-vue')
-        .map(c => ({ ...c, files: ['**/*.js', '**/*.vue', '**/*.html.twig'] })),
+        .filter((c) => c.name !== 'vue/base/setup' && c.name !== 'vue/base/setup-for-vue')
+        .map((c) => ({
+            ...c,
+            files: [
+                '**/*.js',
+                '**/*.vue',
+                '**/*.html.twig',
+            ],
+        })),
 
     // Base config for all files
     {
@@ -175,7 +248,14 @@ export default [
                 vite: {
                     viteConfig: {
                         resolve: {
-                            extensions: ['.js', '.ts', '.vue', '.json', '.less', '.twig'],
+                            extensions: [
+                                '.js',
+                                '.ts',
+                                '.vue',
+                                '.json',
+                                '.less',
+                                '.twig',
+                            ],
                             alias: [
                                 {
                                     find: 'vue',
@@ -216,46 +296,77 @@ export default [
             'vue/require-prop-types': 'error',
             'vue/require-default-prop': 'error',
             'vue/no-mutating-props': 'error',
-            'vue/component-definition-name-casing': ['error', 'kebab-case'],
-            'vue/no-boolean-default': ['error', 'default-false'],
-            'vue/order-in-components': ['error', {
-                order: [
-                    'el',
-                    'name',
-                    'parent',
-                    'functional',
-                    ['template', 'render'],
-                    'inheritAttrs',
-                    ['provide', 'inject'],
-                    'emits',
-                    'extends',
-                    'mixins',
-                    'model',
-                    ['components', 'directives', 'filters'],
-                    ['props', 'propsData'],
-                    'data',
-                    'metaInfo',
-                    'computed',
-                    'watch',
-                    'LIFECYCLE_HOOKS',
-                    'methods',
-                    ['delimiters', 'comments'],
-                    'renderError',
-                ],
-            }],
+            'vue/component-definition-name-casing': [
+                'error',
+                'kebab-case',
+            ],
+            'vue/no-boolean-default': [
+                'error',
+                'default-false',
+            ],
+            'vue/order-in-components': [
+                'error',
+                {
+                    order: [
+                        'el',
+                        'name',
+                        'parent',
+                        'functional',
+                        [
+                            'template',
+                            'render',
+                        ],
+                        'inheritAttrs',
+                        [
+                            'provide',
+                            'inject',
+                        ],
+                        'emits',
+                        'extends',
+                        'mixins',
+                        'model',
+                        [
+                            'components',
+                            'directives',
+                            'filters',
+                        ],
+                        [
+                            'props',
+                            'propsData',
+                        ],
+                        'data',
+                        'metaInfo',
+                        'computed',
+                        'watch',
+                        'LIFECYCLE_HOOKS',
+                        'methods',
+                        [
+                            'delimiters',
+                            'comments',
+                        ],
+                        'renderError',
+                    ],
+                },
+            ],
             'vue/no-deprecated-destroyed-lifecycle': 'error',
             'vue/no-deprecated-events-api': 'error',
             'vue/require-slots-as-functions': 'error',
             'vue/no-deprecated-props-default-this': 'error',
             'sw-deprecation-rules/no-compat-conditions': ['error'],
-            'sw-deprecation-rules/no-empty-listeners': ['error', 'enableFix'],
+            'sw-deprecation-rules/no-empty-listeners': [
+                'error',
+                'enableFix',
+            ],
             'sw-deprecation-rules/no-vue-options-api': 'off',
         },
     },
 
     // Twig template files: Vue parser + twig-vue processor
     {
-        files: ['src/**/*.html.twig', 'test/eslint/**/*.html.twig'],
+        files: [
+            'src/**/*.html.twig',
+            'test/eslint/**/*.html.twig',
+        ],
         languageOptions: {
             parser: vueParser,
             parserOptions: {
@@ -271,52 +382,83 @@ export default [
         },
         rules: {
             ...Object.fromEntries(
-                Object.entries(vuejsAccessibility.configs['flat/recommended'][1].rules)
-                    .map(([rule]) => [rule, 'warn']),
+                Object.entries(vuejsAccessibility.configs['flat/recommended'][1].rules).map(([rule]) => [
+                    rule,
+                    'warn',
+                ]),
             ),
-            'no-warning-comments': ['error', { location: 'anywhere' }],
-            'vue/component-name-in-template-casing': ['error', 'kebab-case', {
-                registeredComponentsOnly: true,
-                ignores: [],
-            }],
-            'vue/html-indent': ['error', 4, { baseIndent: 0 }],
-            'no-multiple-empty-lines': ['error', { max: 1 }],
+            'no-warning-comments': [
+                'error',
+                { location: 'anywhere' },
+            ],
+            'vue/component-name-in-template-casing': [
+                'error',
+                'kebab-case',
+                {
+                    registeredComponentsOnly: true,
+                    ignores: [],
+                },
+            ],
+            'vue/html-indent': [
+                'error',
+                4,
+                { baseIndent: 0 },
+            ],
+            'no-multiple-empty-lines': [
+                'error',
+                { max: 1 },
+            ],
             'vue/attribute-hyphenation': 'error',
             'vue/multiline-html-element-content-newline': 'off',
-            'vue/html-self-closing': ['error', {
-                html: { void: 'never', normal: 'never', component: 'always' },
-                svg: 'always',
-                math: 'always',
-            }],
-            'vue/no-parsing-error': ['error', { 'nested-comment': false }],
-            'vue/valid-v-slot': ['error', { allowModifiers: true }],
+            'vue/html-self-closing': [
+                'error',
+                {
+                    html: { void: 'never', normal: 'never', component: 'always' },
+                    svg: 'always',
+                    math: 'always',
+                },
+            ],
+            'vue/no-parsing-error': [
+                'error',
+                { 'nested-comment': false },
+            ],
+            'vue/valid-v-slot': [
+                'error',
+                { allowModifiers: true },
+            ],
             'vue/v-slot-style': 'error',
             'vue/attributes-order': 'error',
             'vue/no-deprecated-slot-attribute': ['error'],
             'vue/no-deprecated-slot-scope-attribute': ['error'],
-            'sw-deprecation-rules/no-deprecated-components': ['error', {
-                fix: true,
-                activatedComponents: [
-                    'sw-button',
-                    'sw-colorpicker',
-                    'sw-alert',
-                    'sw-progress-bar',
-                    'sw-button',
-                    'sw-text-field',
-                    'sw-email-field',
-                    'sw-card',
-                    'sw-switch-field',
-                    'sw-textarea-field',
-                    'sw-icon',
-                    'sw-url-field',
-                    'sw-datepicker',
-                    'sw-select-field',
-                    'sw-checkbox-field',
-                    'sw-number-field',
-                    'sw-password-field',
-                ],
-            }],
-            'sw-deprecation-rules/no-deprecated-component-usage': ['error', 'enableFix'],
+            'sw-deprecation-rules/no-deprecated-components': [
+                'error',
+                {
+                    fix: true,
+                    activatedComponents: [
+                        'sw-button',
+                        'sw-colorpicker',
+                        'sw-alert',
+                        'sw-progress-bar',
+                        'sw-button',
+                        'sw-text-field',
+                        'sw-email-field',
+                        'sw-card',
+                        'sw-switch-field',
+                        'sw-textarea-field',
+                        'sw-icon',
+                        'sw-url-field',
+                        'sw-datepicker',
+                        'sw-select-field',
+                        'sw-checkbox-field',
+                        'sw-number-field',
+                        'sw-password-field',
+                    ],
+                },
+            ],
+            'sw-deprecation-rules/no-deprecated-component-usage': [
+                'error',
+                'enableFix',
+            ],
             'vue/no-useless-template-attributes': 'error',
             'vue/no-lone-template': 'error',
 
@@ -406,27 +548,50 @@ export default [
             'jest/require-top-level-describe': 'error',
             'jest/prefer-to-contain': 'error',
             'jest/prefer-to-have-length': 'error',
-            'jest/consistent-test-it': ['error', { fn: 'it', withinDescribe: 'it' }],
-            'jest/valid-expect': ['error', { maxArgs: 2 }],
+            'jest/consistent-test-it': [
+                'error',
+                { fn: 'it', withinDescribe: 'it' },
+            ],
+            'jest/valid-expect': [
+                'error',
+                { maxArgs: 2 },
+            ],
             'jest/no-disabled-tests': 'error',
             'func-names': 'off',
         },
     },
     {
-        files: ['**/*.spec.js', '**/*.spec.ts', '**/*.spec/*.spec.js', '**/*.spec/*.spec.ts'],
+        files: [
+            '**/*.spec.js',
+            '**/*.spec.ts',
+            '**/*.spec/*.spec.js',
+            '**/*.spec/*.spec.ts',
+        ],
         rules: {
-            'sw-test-rules/test-file-max-lines-warning': ['warn', { max: 500 }],
-            'sw-test-rules/test-file-max-lines-error': ['error', { max: 1000 }],
+            'sw-test-rules/test-file-max-lines-warning': [
+                'warn',
+                { max: 500 },
+            ],
+            'sw-test-rules/test-file-max-lines-error': [
+                'error',
+                { max: 1000 },
+            ],
         },
     },
 
     // TypeScript files
-    ...tseslint.configs.recommendedTypeChecked.map(config => ({
+    ...tseslint.configs.recommendedTypeChecked.map((config) => ({
         ...config,
-        files: ['**/*.ts', '**/*.tsx'],
+        files: [
+            '**/*.ts',
+            '**/*.tsx',
+        ],
     })),
     {
-        files: ['**/*.ts', '**/*.tsx'],
+        files: [
+            '**/*.ts',
+            '**/*.tsx',
+        ],
         languageOptions: {
             parserOptions: {
                 tsconfigRootDir: __dirname,
@@ -453,17 +618,28 @@ export default [
             ],
             'no-void': 'off',
             'no-unused-vars': 'off',
-            '@typescript-eslint/no-unused-vars': ['error', { caughtErrors: 'all', caughtErrorsIgnorePattern: '^_' }],
+            '@typescript-eslint/no-unused-vars': [
+                'error',
+                { caughtErrors: 'all', caughtErrorsIgnorePattern: '^_' },
+            ],
             '@typescript-eslint/prefer-promise-reject-errors': 'warn',
             'sw-deprecation-rules/no-compat-conditions': ['error'],
             'sw-core-rules/enforce-async-component-registers': 'error',
-            'sw-deprecation-rules/no-empty-listeners': ['error', 'enableFix'],
+            'sw-deprecation-rules/no-empty-listeners': [
+                'error',
+                'enableFix',
+            ],
             'sw-deprecation-rules/no-vue-options-api': 'off',
         },
     },
     {
         ...prettier,
-        files: ['**/*.js', '**/*.ts', '**/*.tsx', '**/*.vue'],
+        files: [
+            '**/*.js',
+            '**/*.ts',
+            '**/*.tsx',
+            '**/*.vue',
+        ],
     },
 
     // Snippet JSON files: parse as JSON and flag entries that duplicate a global.default translation

@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-// execute-bundle.mjs is not a CLI entrypoint; it exports `executeBundle({ target, out })` and reads
+// execute-bundle.ts is not a CLI entrypoint; it exports `executeBundle({ target, out })` and reads
 // `reproduction-plan.json` from the process cwd. We drive it in a subprocess (a tiny module-eval
 // runner) so each case gets clean module state — the admin-api token / placeholder caches never leak
 // between legs — and so the leg's cwd is an isolated mkdtemp dir exactly like the real pipeline.

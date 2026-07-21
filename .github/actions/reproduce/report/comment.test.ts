@@ -6,9 +6,9 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// comment.mjs is a top-level script: it renders on import from env + an `artifacts/` tree and writes
+// comment.ts is a top-level script: it renders on import from env + an `artifacts/` tree and writes
 // the comment to OUT (default comment.md) + stdout. So drive it exactly like the workflow does —
-// lay out the artifact fixtures, spawn `node comment.mjs`, and assert on the rendered markdown.
+// lay out the artifact fixtures, spawn `node comment.ts`, and assert on the rendered markdown.
 const SCRIPT = path.join(path.dirname(fileURLToPath(import.meta.url)), 'comment.ts');
 const ZWSP = '​';
 
@@ -244,6 +244,51 @@ test('defang: <details>/<summary> tags and ``` fences in the authored test case 
   assert.ok(!injected.split('\n').some((l) => out.includes(`${l}\n`) && l.startsWith('<details>')));
   // The triple-backtick run is broken up with a zero-width space so it can't terminate the fence.
   assert.ok(out.includes(`\`${ZWSP}\`${ZWSP}\``), 'code fence should be defanged with ZWSPs');
+});
+
+test('defang: a leg reporter_output cannot break out of its fence + spoiler', () => {
+  // reporter_output is the agent-authored test's own output (PHPUnit failure block / exception text).
+  const injected = ['```', '</details>', '## Spoofed: safe to close'].join('\n');
+  const tree = layout({
+    plan: { executor: 'direct', layer: 'core', version: '6.6.0.0', confidence: 1 },
+    reported: { status: 'reproduced', version: '6.6.0.0', evidence: { reporter_output: injected, script_lang: 'php' } },
+  });
+  const { status, out } = run({ VERDICT: 'live_bug' }, tree);
+  assert.equal(status, 0);
+  assert.ok(out.includes(`\`${ZWSP}\`${ZWSP}\``), 'reporter fence must be ZWSP-defanged');
+  assert.match(out, /&lt;\/details&gt;/);
+  assert.ok(!out.includes('\n</details>\n## Spoofed'), 'reporter must not close the spoiler and inject markdown');
+});
+
+test('defang: a multi-line HTTP `actual` value cannot break out of the pseudo-code block', () => {
+  const injected = ['line one */', '```', '</details>', '## Spoofed'].join('\n');
+  const tree = layout({
+    plan: { executor: 'http', layer: 'store-api', version: '6.6.0.0', confidence: 1 },
+    reported: {
+      status: 'reproduced',
+      version: '6.6.0.0',
+      evidence: { script: 'curl -s https://shop/store-api/x', script_lang: 'sh' },
+      assertion: { checks: [{ role: 'assert', op: 'equals', subject: 'response.body', expected: 'ok', actual: injected, ok: false, label: 'body' }] },
+    },
+  });
+  const { status, out } = run({ VERDICT: 'live_bug' }, tree);
+  assert.equal(status, 0);
+  assert.ok(out.includes('* /'), 'blockSafe must neutralize the */ block-comment terminator');
+  assert.ok(out.includes(`\`${ZWSP}\`${ZWSP}\``), 'the fence in a multi-line actual must be ZWSP-defanged');
+  assert.match(out, /&lt;\/details&gt;/);
+});
+
+test('defang: workspace-edits.txt (EDITS) cannot break out of its fence + spoiler', () => {
+  const injected = ['shop/src/Core/Foo.php', '```', '</details>', '## Spoofed'].join('\n');
+  const tree = layout({
+    plan: { executor: 'playwright', layer: 'admin-ui', version: '6.6.0.0', confidence: 1 },
+    reported: { status: 'reproduced', version: '6.6.0.0' },
+    extras: { 'workspace-edits.txt': injected },
+  });
+  const { status, out } = run({ VERDICT: 'needs_human_review' }, tree);
+  assert.equal(status, 0);
+  assert.ok(out.includes(`\`${ZWSP}\`${ZWSP}\``), 'EDITS fence must be ZWSP-defanged');
+  assert.match(out, /&lt;\/details&gt;/);
 });
 
 // --- resultChecks(): the jqError line for structured HTTP legs -------------

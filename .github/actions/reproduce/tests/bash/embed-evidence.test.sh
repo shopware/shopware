@@ -122,4 +122,37 @@ assert_contains "$(cat "$d/git-log")" "push" "a push is issued to the remote"
 assert_contains "$(cat "$d/git-log")" "refs/heads/ci/repro-evidence" "push targets the evidence branch"
 assert_eq "$(manifest "$d" '.legs | length')" "1" "manifest still written on the push path"
 
+# --- retry: a non-fast-forward push rejection is retried until it lands ---------------------------
+# Concurrent runs can advance the branch tip between our fetch and push, so a plain push is rejected.
+# The script must re-fetch and retry rather than abort (which would lose this run's evidence). Stub a
+# git whose push fails once (rejection) then succeeds, and assert the script retries and still exits 0.
+d=$(mktemp -d); mkdir -p "$d/bin" "$d/artifacts"
+cat > "$d/bin/git" <<EOF
+#!/bin/sh
+echo "\$*" >> "$d/git-log"
+case "\$*" in
+  *push*)
+    n=\$(cat "$d/push-n" 2>/dev/null || echo 0); n=\$((n + 1)); echo "\$n" > "$d/push-n"
+    [ "\$n" -ge 2 ] && exit 0 || exit 1 ;;   # reject the first push, accept the second
+  *) exit 0 ;;
+esac
+EOF
+chmod +x "$d/bin/git"
+mk_leg "$d" checkout playwright passed png webm
+run_embed "$d" BRANCH=ci/repro-evidence REPO=acme/shop RUN_ID=42 TOKEN=secret EVIDENCE_RETRY_SLEEP=0
+assert_eq "$RC" "0" "a retried push that lands exits 0"
+assert_eq "$(grep -c 'push' "$d/git-log")" "2" "push is attempted twice (retry after the non-ff rejection)"
+assert_contains "$OUT_TEXT" "attempt 1/5" "logs the rejection and the retry"
+assert_contains "$OUT_TEXT" "published evidence for 1 leg(s)" "still publishes after the retry"
+
+# --- retry exhaustion: a branch tip that keeps moving eventually errors, never silently succeeds ---
+d=$(mktemp -d); mkdir -p "$d/bin" "$d/artifacts"
+printf '#!/bin/sh\necho "$*" >> "%s/git-log"\ncase "$*" in *push*) exit 1 ;; *) exit 0 ;; esac\n' "$d" > "$d/bin/git"
+chmod +x "$d/bin/git"
+mk_leg "$d" checkout playwright passed png webm
+run_embed "$d" BRANCH=ci/repro-evidence REPO=acme/shop RUN_ID=42 TOKEN=secret EVIDENCE_RETRY_SLEEP=0
+assert_eq "$RC" "1" "an always-rejected push fails the step (no silent evidence loss)"
+assert_eq "$(grep -c 'push' "$d/git-log")" "5" "all five attempts are made before giving up"
+assert_contains "$OUT_TEXT" "after 5 attempts" "reports exhaustion"
+
 finish

@@ -63,7 +63,7 @@ const SANDBOX = process.env.REPRO_SANDBOX === '1';
  * Host-side (`npx`) by default. When `REPRO_SANDBOX=1` the spec runs inside a Playwright container
  * whose only reachable destination is the shop on the runner host (`host.docker.internal`) — the
  * job applies a `DOCKER-USER` egress DROP so the container has no internet, so a spec that escapes
- * validate.mjs's correctness gates still cannot exfiltrate, abuse the network, or reach the token.
+ * validate.ts's correctness gates still cannot exfiltrate, abuse the network, or reach the token.
  * ONLY the disposable run dir is bind-mounted (not the workspace): the spec therefore cannot read or
  * overwrite the harness scripts under `.github/actions/reproduce/**` — which a later host-side step
  * re-invokes — so a compromised spec cannot reach outside the container. The image's own Playwright +

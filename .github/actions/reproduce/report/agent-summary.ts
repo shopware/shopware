@@ -24,8 +24,8 @@ const cap = (text: string): string => (text.length > MAX
   ? `${text.slice(0, MAX)}\n\n… (truncated — see the agent run for the full log)`
   : text);
 
-// PRIMARY: agent-authored summary. Prefer an explicit path arg's sibling isn't needed — the file
-// lives in the workspace root next to the bundle.
+// PRIMARY: agent-authored summary. It lives at the workspace root next to the bundle, so no path
+// argument is needed; AGENT_SUMMARY_FILE overrides the location when set.
 const authoredPath = process.env.AGENT_SUMMARY_FILE || 'agent-summary.md';
 try {
   const authored = fs.readFileSync(authoredPath, 'utf8').trim();

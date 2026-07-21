@@ -298,7 +298,7 @@ export async function uploadMedia({ mediaId, path, extension, mimeType, fileName
   mediaId: string; path: string; extension: string; mimeType: string; fileName?: string;
 }) {
   // `path` is read straight off the host, so the CALLER must confine it to a regular file inside the
-  // bundle media dir (see seed.mjs) — never pass an unvalidated, fixture-controlled path here.
+  // bundle media dir (see seed.ts) — never pass an unvalidated, fixture-controlled path here.
   const fs = await import('node:fs');
   const query = new URLSearchParams({ extension });
   if (fileName) {

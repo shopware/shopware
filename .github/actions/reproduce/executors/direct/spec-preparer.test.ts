@@ -6,7 +6,7 @@ import path from 'node:path';
 import { prepareDirectSpec } from './spec-preparer.ts';
 import { FILES } from '../../bundle.ts';
 
-// The helper reads cwd-relative paths (the fallback spec name and the `vendor/bin/phpunit`
+// The helper reads cwd-relative paths (the canonical spec name and the `vendor/bin/phpunit`
 // probe) and honours the SHOP_DIR env var, so every test runs inside a throwaway cwd with a
 // clean SHOP_DIR and restores both afterwards.
 function withSandbox<T>(fn: (dir: string) => T): T {
@@ -25,14 +25,7 @@ function withSandbox<T>(fn: (dir: string) => T): T {
   }
 }
 
-test('specPath uses the plan script_path when provided', () => {
-  withSandbox(() => {
-    const r = prepareDirectSpec({ plan: { script_path: 'tests/integration/Repro/ReproTest.php' } });
-    assert.equal(r.specPath, 'tests/integration/Repro/ReproTest.php');
-  });
-});
-
-test('specPath falls back to the canonical bundle test file name', () => {
+test('specPath is always the canonical bundle test file', () => {
   withSandbox(() => {
     const r = prepareDirectSpec({ plan: {} });
     assert.equal(r.specPath, FILES.testPhp);
@@ -40,10 +33,19 @@ test('specPath falls back to the canonical bundle test file name', () => {
   });
 });
 
-test('an empty-string script_path falls back to the default (not a blank path)', () => {
-  withSandbox(() => {
-    const r = prepareDirectSpec({ plan: { script_path: '' } });
-    assert.equal(r.specPath, FILES.testPhp);
+test('an agent-supplied script_path is ignored (pinned to the default, no arbitrary read)', () => {
+  withSandbox((dir) => {
+    // The default file the executor is allowed to read…
+    const authored = '<?php\n// the real, allowed test\n';
+    fs.writeFileSync(path.join(dir, FILES.testPhp), authored);
+    // …and a file the agent tries to redirect the read to (simulating /etc/passwd, an env file, …).
+    const injected = path.join(dir, 'secret.php');
+    fs.writeFileSync(injected, '<?php\n// SECRET must never be read\n');
+
+    const r = prepareDirectSpec({ plan: { script_path: injected } });
+
+    assert.equal(r.specPath, FILES.testPhp, 'specPath must pin to the default, not the injected path');
+    assert.equal(r.spec, authored, 'must read the default file, never the injected path');
   });
 });
 
@@ -71,34 +73,22 @@ test('shop resolves to "shop" when no local phpunit and no SHOP_DIR', () => {
   });
 });
 
-test('spec contains the authored source when the file exists at specPath', () => {
+test('spec contains the authored source when the default file exists', () => {
   withSandbox((dir) => {
-    const rel = 'ReproTest.php';
     const body = '<?php\nnamespace Shopware\\Tests\\Integration\\Repro;\n// authored\n';
-    fs.writeFileSync(path.join(dir, rel), body);
-    const r = prepareDirectSpec({ plan: { script_path: rel } });
+    fs.writeFileSync(path.join(dir, FILES.testPhp), body);
+    const r = prepareDirectSpec({ plan: {} });
     assert.equal(r.spec, body);
-    assert.equal(r.specPath, rel);
+    assert.equal(r.specPath, FILES.testPhp);
   });
 });
 
-test('spec reads through an absolute script_path regardless of cwd', () => {
-  withSandbox((dir) => {
-    const abs = path.join(dir, 'nested', 'AbsRepro.php');
-    fs.mkdirSync(path.dirname(abs), { recursive: true });
-    const body = '<?php\n// absolute placement\n';
-    fs.writeFileSync(abs, body);
-    const r = prepareDirectSpec({ plan: { script_path: abs } });
-    assert.equal(r.specPath, abs);
-    assert.equal(r.spec, body);
-  });
-});
-
-test('spec is empty string when the resolved file is missing (evidence still recorded)', () => {
+test('spec is empty string when the default file is missing (evidence still recorded)', () => {
   withSandbox(() => {
-    const r = prepareDirectSpec({ plan: { script_path: 'does/not/exist/ReproTest.php' } });
+    // Even with an agent script_path pointing at an existing file, nothing is read: the default is absent.
+    const r = prepareDirectSpec({ plan: { script_path: 'does/not/matter.php' } });
     assert.equal(r.spec, '');
-    assert.equal(r.specPath, 'does/not/exist/ReproTest.php');
+    assert.equal(r.specPath, FILES.testPhp);
   });
 });
 

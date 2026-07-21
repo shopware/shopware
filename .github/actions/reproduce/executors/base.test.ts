@@ -202,7 +202,7 @@ test('default classify() throws a name-tagged not-implemented error', () => {
 
 test('a throw inside execute() propagates out of run() (caller turns it into a blocked leg)', async () => {
   // base.run() intentionally does NOT catch: the throw->blocked conversion lives in the caller
-  // (cli/execute-bundle.mjs), so run() must reject and let that wrapper record the blocked leg.
+  // (cli/execute-bundle.ts), so run() must reject and let that wrapper record the blocked leg.
   class ThrowingExecutor extends ReproductionExecutor {
     constructor() {
       super('throwing');

@@ -29,7 +29,11 @@ interface PreparedSpec {
  * without changing the assertion that decides reproduced versus healthy.
  */
 export function preparePlaywrightSpec(context: PrepareContext): PreparedSpec {
-  const specPath = context.plan.script_path || FILES.specTs;
+  // Pin to the default spec file; deliberately ignore plan.script_path. The path is read off the host
+  // FS here (host-side, before the sandbox container) and its bytes become evidence.script, so an
+  // agent-injected path could read an arbitrary file and surface it in the public comment. validate.ts
+  // rejects a non-default path, but advisorily — pinning removes the arbitrary read by construction.
+  const specPath = FILES.specTs;
   if (!fs.existsSync(specPath)) {
     return {
       blockedReason: `generated spec '${specPath}' not found`,

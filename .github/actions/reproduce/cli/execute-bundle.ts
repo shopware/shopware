@@ -2,7 +2,7 @@
  * Dispatches an authored bundle to its executor and writes the leg result.
  *
  * This is the single "run the test and classify" step; reset, seeding, and readiness checks live in
- * `full-run.mjs` so the trusted and preview flows share ordering.
+ * `full-run.ts` so the trusted and preview flows share ordering.
  */
 import { FILES, readJson, writeJson, makeResult, blockedResult } from '../bundle.ts';
 import type { Plan, LegResult } from '../types.ts';
@@ -20,11 +20,11 @@ const EXECUTORS = {
  * Dispatches the authored bundle to its selected executor and writes the leg result.
  *
  * This is the single step that turns a prepared plan into `result.json`; reset, seeding, and
- * readiness checks stay in `full-run.mjs` so both trusted and preview runs share ordering.
+ * readiness checks stay in `full-run.ts` so both trusted and preview runs share ordering.
  */
 export async function executeBundle({ target, out }: { target: string; out: string }) {
   // A malformed plan must become a BLOCKED leg with a reason, not an unhandled rejection that leaves
-  // no result.json (which the verdict step would misread as a missing leg). validate.mjs is advisory
+  // no result.json (which the verdict step would misread as a missing leg). validate.ts is advisory
   // (continue-on-error), so the plan can still be invalid JSON when we reach here.
   let plan: Plan;
   try {
@@ -72,7 +72,7 @@ export async function executeBundle({ target, out }: { target: string; out: stri
     // An agent-authored plan can make classify/prepare throw (e.g. an invalid regex in an http
     // assertion `matches` op or a `symptom_pattern`, neither fully validated). Catch it and write a
     // BLOCKED leg with the reason, so the leg is judged as blocked — never discarded as "incomplete"
-    // for want of a result.json (mirrors full-run.mjs fail() + the trunk YAML fallback).
+    // for want of a result.json (mirrors full-run.ts fail() + the trunk YAML fallback).
     try {
       result = await (await load()).executor.run({ plan, target }) as LegResult;
     } catch (err) {

@@ -5,7 +5,7 @@ import type { MockFetchHandle, RouteFn } from '../../tests/helpers/mock-fetch.ts
 import { schemaCommand, searchCommand, versionCommand } from './inspect.ts';
 
 // inspect's commands are thin wrappers over the Admin API client, so every test runs against a
-// stubbed global fetch (like admin-api.test.mjs). token() caches its bearer at module scope, so an
+// stubbed global fetch (like admin-api.test.ts). token() caches its bearer at module scope, so an
 // OAuth route is always provided; console + process.exit are captured so we can assert on the
 // printed report and the exit codes without ending the test process.
 let mock: MockFetchHandle | undefined;

@@ -95,10 +95,25 @@ const safeProse = (text: unknown, max = 2000): string => {
  * The spec filename is derived from the TRUSTED executor default, never from agent-authored
  * `plan.script_path`: that value is interpolated into a file read in the write-token report job, so
  * an injected `../../../etc/passwd` would read an arbitrary file and publish it to the public issue.
- * validate.mjs pins script_path to this default, but it is continue-on-error and skips the incomplete
+ * validate.ts pins script_path to this default, but it is continue-on-error and skips the incomplete
  * branch, so the renderer must not trust it.
  */
 const specFileName = (plan: CommentPlan): string => (plan.executor === 'direct' ? FILES.testPhp : FILES.specTs);
+
+/**
+ * Reads the authored bundle files (test case + fixtures) from the repro-plan artifact.
+ *
+ * The spec filename comes from the trusted executor default (see {@link specFileName}); fixtures are
+ * defanged so they can be embedded directly. Both are surfaced even for inconclusive/blocked verdicts,
+ * where seeing exactly what was attempted is what a human needs to judge the outcome.
+ */
+function readAuthoredBundle(art: string, plan: CommentPlan): { script: string; fixtures: string } {
+  const specFile = `${art}/repro-plan/${specFileName(plan)}`;
+  const script = fs.existsSync(specFile) ? fs.readFileSync(specFile, 'utf8').trim() : '';
+  const fixturesPath = `${art}/repro-plan/fixtures.json`;
+  const fixtures = fs.existsSync(fixturesPath) ? defang(fs.readFileSync(fixturesPath, 'utf8').trim()) : '';
+  return { script, fixtures };
+}
 
 /**
  * Reads an auxiliary agent artifact for inclusion in the issue comment.
@@ -188,20 +203,17 @@ if (process.env.MODE === 'incomplete') {
   // Still show the authored bundle when one exists (e.g. a blocked run): the test case + fixtures are
   // what a human needs to see what was attempted, even though no verdict was reached.
   const plan = readJson<CommentPlan>(`${art}/repro-plan/reproduction-plan.json`) || ({} as CommentPlan);
-  const specFile = `${art}/repro-plan/${specFileName(plan)}`;
-  const script = fs.existsSync(specFile) ? fs.readFileSync(specFile, 'utf8').trim() : '';
-  const fixturesPath = `${art}/repro-plan/fixtures.json`;
-  const hasFixtures = fs.existsSync(fixturesPath);
+  const { script, fixtures } = readAuthoredBundle(art, plan);
   write(render(tpl, {
     REASON: safeProse(giveup || process.env.REASON || DATA.incomplete_reason_default),
     RUN_URL: process.env.RUN_URL || '',
     AGENT_SUMMARY: safeProse(readExtra('agent-summary.md')),
-    EDITS: edits,
+    EDITS: defang(edits),
     SCENARIO: scenarioBlock(plan),
     TESTCASE: defang(script),
     TESTCASE_LANG: plan.executor === 'direct' ? 'php' : 'ts',
     TESTCASE_TOOL: (DATA.phrases.testcase_tool && DATA.phrases.testcase_tool[plan.executor]) || plan.executor || 'test',
-    FIXTURES: hasFixtures ? defang(fs.readFileSync(fixturesPath, 'utf8').trim()) : '',
+    FIXTURES: fixtures,
   }));
 } else {
   write(renderVerdict());
@@ -241,11 +253,11 @@ function renderVerdict(): string {
   // Source the authored test case from the repro-plan artifact so it shows even when the leg that
   // would carry it blocked before running (a blocked leg records no evidence.script). Fall back to
   // leg evidence for executors with no spec file on disk (http).
-  const specFile = `${art}/repro-plan/${specFileName(plan)}`;
-  const script = (fs.existsSync(specFile) ? fs.readFileSync(specFile, 'utf8').trim() : '') || specLeg?.evidence?.script || '';
-  const fixturesPath = `${art}/repro-plan/fixtures.json`;
-  const hasFixtures = fs.existsSync(fixturesPath);
+  const bundle = readAuthoredBundle(art, plan);
+  const script = bundle.script || specLeg?.evidence?.script || '';
+  const { fixtures } = bundle;
   const agentSummary = safeProse(readExtra('agent-summary.md'));
+  const scenario = scenarioBlock(plan);
 
   const legStatus = (s: string): string => p.status[s] || p.status.null;
   const ctx = {
@@ -262,7 +274,7 @@ function renderVerdict(): string {
     FIX: fix,
     UNSURE: unsure,
     CALLOUT: fill(entry.callout, nhrVars),
-    EDITS: readExtra('workspace-edits.txt'),
+    EDITS: defang(readExtra('workspace-edits.txt')),
     RESULT: resultSection({
       legA,
       legB,
@@ -272,16 +284,16 @@ function renderVerdict(): string {
       explanation: agentExplanation(plan),
       evidence: readJson<EvidenceManifest>('evidence.json'),
     }),
-    SCENARIO: scenarioBlock(plan),
+    SCENARIO: scenario,
     AGENT_SUMMARY: agentSummary,
-    DETAILS_HEADING: scenarioBlock(plan) || agentSummary || script || hasFixtures
+    DETAILS_HEADING: scenario || agentSummary || script || fixtures
       ? '### Reproduction details'
       : '',
     TESTCASE: defang(script),
     TESTCASE_LANG: specLeg?.evidence?.script_lang || 'sh',
     TESTCASE_TOOL: (p.testcase_tool && p.testcase_tool[plan.executor]) || specLeg?.evidence?.script_lang || 'sh',
     ASSERTIONS: script ? assertionList(specLeg?.assertion?.checks) : '', // http: the expectations, beside the curl
-    FIXTURES: hasFixtures ? defang(fs.readFileSync(fixturesPath, 'utf8').trim()) : '',
+    FIXTURES: fixtures,
     RUN_URL: process.env.RUN_URL || '',
   };
   return render(fs.readFileSync(path.join(templates, 'comment.verdict.md'), 'utf8'), ctx);
@@ -452,7 +464,9 @@ function resultChecks(leg: LegResult): string {
       }
       const actual = String(c.actual);
       if (actual.includes('\n')) {
-        lines.push(`${callOf(c)} // ❌`, `/* got:\n${blockSafe(actual)}\n*/`);
+        // blockSafe caps length + neutralizes the `*/` block-comment terminator; defang additionally
+        // neutralizes ``` runs and </details> so an agent-influenced response body can't break the fence.
+        lines.push(`${callOf(c)} // ❌`, `/* got:\n${defang(blockSafe(actual))}\n*/`);
       } else {
         lines.push(`${callOf(c)} // ❌ got ${qval(actual)}`);
       }
@@ -464,8 +478,11 @@ function resultChecks(leg: LegResult): string {
     return lines.join('\n');
   }
   // No structured checks (playwright/direct): show the reporter, except on a plain healthy pass.
+  // The reporter is the agent-authored test's own output (PHPUnit failure block / exception message /
+  // Playwright reporter), so it must be defanged like every other agent-shaped string — otherwise a
+  // reporter line of ``` + </details> closes the fence AND the spoiler and injects top-level markdown.
   const reporter = leg.evidence?.reporter_output;
-  return (leg.status !== 'not_reproduced' && reporter && reporter !== 'null') ? `\`\`\`\n${reporter}\n\`\`\`` : '';
+  return (leg.status !== 'not_reproduced' && reporter && reporter !== 'null') ? `\`\`\`\n${defang(reporter)}\n\`\`\`` : '';
 }
 
 /**

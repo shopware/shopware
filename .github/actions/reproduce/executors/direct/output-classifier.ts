@@ -20,7 +20,7 @@ export function classifyPhpunitOutput(output: string, plan: Partial<Plan>): Phpu
   // Order matters: check the authoritative failure/error signals FIRST, so a captured line that merely
   // starts with "OK" (in a test's own stdout) can't flip a real failure to healthy.
   // A failure/error only counts as REPRODUCED when it matches the plan's symptom marker
-  // (assertion.symptom_pattern, required for direct plans by validate.mjs). Otherwise it's most
+  // (assertion.symptom_pattern, required for direct plans by validate.ts). Otherwise it's most
   // likely a failed setup/precondition assertion — NOT the reported symptom — so it's inconclusive,
   // never a false `reproduced`. The symptom assertion must carry a distinctive token in its
   // failure/exception message that this pattern matches.

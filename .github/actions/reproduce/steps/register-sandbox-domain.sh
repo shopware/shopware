@@ -17,7 +17,7 @@ SHOP_DIR=${SHOP_DIR:-shop}
 : "${SANDBOX_URL:?SANDBOX_URL is required}"
 cd "$SHOP_DIR"
 
-# Same DATABASE_URL parsing as finish-provision.sh / reset.mjs (rawurldecode user/pass).
+# Same DATABASE_URL parsing as finish-provision.sh / reset.ts (rawurldecode user/pass).
 eval "$(php -r '$u=parse_url(getenv("DATABASE_URL")); printf("DBH=%s DBP=%s DBU=%s DBPW=%s DBN=%s", $u["host"]??"127.0.0.1", $u["port"]??3306, rawurldecode($u["user"]??"root"), rawurldecode($u["pass"]??""), ltrim($u["path"]??"/","/"));')"
 my() { mysql -h"$DBH" -P"$DBP" -u"$DBU" ${DBPW:+-p"$DBPW"} "$DBN" "$@"; }
 

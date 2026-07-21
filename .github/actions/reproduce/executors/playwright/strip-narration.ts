@@ -115,7 +115,7 @@ export const hasLeftoverNarration = (stripped: string): boolean =>
 if (import.meta.url === `file://${process.argv[1]}`) {
   const [, , input, output] = process.argv;
   if (!input) {
-    console.error('usage: strip-narration.mjs <input> [output]');
+    console.error('usage: strip-narration.ts <input> [output]');
     process.exit(2);
   }
   const out = stripNarration(fs.readFileSync(input, 'utf8'));

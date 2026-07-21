@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-// full-run.mjs exports fullRun() and has no CLI entry of its own (verify/try drive it). To test the
+// full-run.ts exports fullRun() and has no CLI entry of its own (verify/try drive it). To test the
 // orchestration itself in a real subprocess, we import the source by file URL inside `node -e` and
 // call fullRun() with the cwd + env each case needs. Every path exercised here is reachable offline:
 // setup failures (missing/invalid plan, failed reset, failed seed) block BEFORE any executor touches

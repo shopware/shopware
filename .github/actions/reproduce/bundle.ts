@@ -32,7 +32,7 @@ export const EXECUTORS = ['playwright', 'http', 'direct'];
 export const LAYERS = ['storefront-ui', 'admin-ui', 'store-api', 'admin-api', 'service'];
 
 // Core ids stable across every Shopware install — the only bare 32-hex ids allowed in an HTTP plan
-// (validate.mjs) and as fixture references (seed.mjs). Single source so the two can't drift.
+// (validate.ts) and as fixture references (seed.ts). Single source so the two can't drift.
 export const STABLE_IDS = new Set([
   '2fbb5fe2e29a4d70aa5854ce7ce3e20b', // Defaults::LANGUAGE_SYSTEM
   'b7d2554b0ce847cd82f3ac9bd1c0dfca', // Defaults::LIVE_VERSION

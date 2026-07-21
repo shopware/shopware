@@ -32,6 +32,14 @@
 #        between them, so we add reproduce_on_trunk to reproduce_report's `needs` — otherwise report
 #        races the trunk re-run and downloads a not-yet-uploaded leg.
 #
+#   [P4] Gate the two bundle-consuming jobs on threat detection (reproduce.md only).
+#        gh-aw gives the built-in `safe_outputs` job a `&& needs.detection.result == 'success'` gate
+#        but leaves our custom reproduce_on_trunk (executes the untrusted spec) and reproduce_report
+#        (posts the public comment) ungated, so threat-detection would be advisory-only. Both already
+#        `needs: [..., detection]`, so we append the same gate to each job's `if:` — a flagged bundle
+#        now SKIPS the trunk re-run and the comment instead of executing/publishing. Idempotent via
+#        the negative lookahead; the already-gated safe_outputs line is skipped.
+#
 # Usage: bash .github/actions/reproduce/dev/compile.sh [source.md ...]
 #   No args → compile+patch every source in SOURCES below.
 #   With args → compile+patch only the given source(s). Run from the repo root; needs `gh aw`.
@@ -80,6 +88,15 @@ patch_lock() {
     echo "  [P3] reproduce_report now needs reproduce_on_trunk (report waits for the trunk leg)"
   else
     echo "  [P3] skipped — no reproduce_report job in this lock"
+  fi
+
+  # [P4] Append the threat-detection gate to the two bundle-consuming jobs' `if:` (see header). The
+  # negative lookahead makes it idempotent and skips the already-gated built-in safe_outputs line.
+  if grep -qE "^    if: \(!cancelled\(\)\) && needs\.agent\.result != 'skipped'\$" "$lock"; then
+    perl -0pi -e "s/(    if: \(!cancelled\(\)\) && needs\.agent\.result != 'skipped')(?! && needs\.detection)/\${1} && needs.detection.result == 'success'/g" "$lock"
+    echo "  [P4] threat-detection gate added (reproduce_on_trunk + reproduce_report skip on a flagged bundle)"
+  else
+    echo "  [P4] skipped — no ungated post-agent job if: in this lock"
   fi
 }
 

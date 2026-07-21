@@ -50,7 +50,10 @@ and what makes a reproduction *faithful* are the shared `.github/aw/shared/repro
 ## Flow
 
 1. **Get the bug.** `gh issue view <n>` (read the body + human comments + screenshots), or have the
-   user paste it. Note the **reported version**.
+   user paste it. Note the **reported version**. If your environment lets you name the
+   conversation/session, title it `<3–5 word issue subject> #<number> Reproduction`
+   (e.g. `App Media Action Buttons #123 Reproduction`) so the run is identifiable at a glance without
+   opening it — derive the subject from the issue title, not the bare number.
 
 2. **Version check — always run first and surface the result:** `repro version <reported-version>`.
    It prints the live instance version and warns if it differs. If it warns, tell the user plainly:

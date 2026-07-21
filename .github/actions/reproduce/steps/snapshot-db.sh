@@ -8,7 +8,7 @@ set -euo pipefail
 OUT=${OUT:-repro-clean-db.sql.gz}
 : "${DATABASE_URL:?DATABASE_URL is required}"
 # rawurldecode user/pass so a percent-encoded userinfo (e.g. p%40ss -> p@ss) authenticates — matches
-# reset.mjs, which decodeURIComponent()s the same components.
+# reset.ts, which decodeURIComponent()s the same components.
 eval "$(php -r '$u=parse_url(getenv("DATABASE_URL")); printf("DBH=%s DBP=%s DBU=%s DBPW=%s DBN=%s", $u["host"]??"127.0.0.1", $u["port"]??3306, rawurldecode($u["user"]??"root"), rawurldecode($u["pass"]??""), ltrim($u["path"]??"/","/"));')"
 
 mysqldump --no-tablespaces --single-transaction --skip-lock-tables \

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_6;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_6\Migration1776803396RegisterProductIndexer;
@@ -12,6 +13,7 @@ use Shopware\Core\Migration\V6_6\Migration1776803396RegisterProductIndexer;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1776803396RegisterProductIndexer::class)]
 class Migration1776803396RegisterProductIndexerTest extends TestCase
 {

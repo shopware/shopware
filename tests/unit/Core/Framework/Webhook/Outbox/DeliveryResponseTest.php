@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
 use Shopware\Core\Framework\Webhook\Service\WebhookRequest;
 use Shopware\Core\Framework\Webhook\Service\WebhookResult;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookResult;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DeliveryResponse::class)]
 class DeliveryResponseTest extends TestCase
 {

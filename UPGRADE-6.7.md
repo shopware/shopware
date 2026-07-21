@@ -8,8 +8,6 @@ The experimental MCP server is now always enabled and the `MCP_SERVER` feature f
 - The MCP endpoints (`/api/_mcp` and `/store-api/_mcp`) are now reachable whenever `symfony/mcp-bundle` is installed, with no flag to enable or disable them.
 - The MCP classes stay marked `@experimental` until 6.8.0, so the API may still change.
 
-# 6.7.13.0
-
 ## OpenAPI generator dependency upgraded to swagger-php 6.4
 
 Shopware now requires `zircote/swagger-php` 6.4 to generate OpenAPI 3.2 schemas.
@@ -24,6 +22,9 @@ The common migration path is:
 
 If your extension relies on swagger-php directly, declare an explicit Composer dependency instead of relying on Shopware's transitive dependency.
 For cross-version development tooling, use a constraint that covers the versions you test, for example `^4.9.2 || ^5.0 || ^6.4`.
+
+# 6.7.13.0
+
 ## Storefront form validation messages use Shopware snippets
 
 Storefront form validation messages in `FormController` are now translated using the violation code through Shopware's translator instead of using the already translated Symfony validator message. This affects contact, newsletter, and revocation forms.

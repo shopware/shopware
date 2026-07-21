@@ -97,7 +97,7 @@ class Framework extends Bundle
         $loader->load('language.xml');
         $loader->load('update.xml');
         $loader->load('validation.xml');
-        $loader->load('seo.xml');
+        $phpLoader->load('seo.php');
         $phpLoader->load('webhook.php');
         $loader->load('rate-limiter.xml');
         $loader->load('increment.xml');
@@ -113,7 +113,7 @@ class Framework extends Bundle
         if ($container->getParameter('kernel.environment') === 'test') {
             $loader->load('services_test.xml');
             $loader->load('store_test.xml');
-            $loader->load('seo_test.xml');
+            $phpLoader->load('seo_test.php');
             $phpLoader->load('app_test.php');
         }
         // @codeCoverageIgnoreEnd

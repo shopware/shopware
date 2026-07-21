@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Kernel\HttpKernel;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\CanonicalRedirectService;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Storefront\Framework\StorefrontFrameworkException;
@@ -21,6 +22,7 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(HttpKernel::class)]
 class HttpKernelTest extends TestCase
 {

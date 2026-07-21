@@ -2,9 +2,9 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Routing;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdministrationController;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\PlatformRequest;
@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 class CoreSubscriberTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -48,7 +49,6 @@ class CoreSubscriberTest extends TestCase
         static::assertTrue($response->headers->has('Strict-Transport-Security'));
     }
 
-    #[Group('slow')]
     public function testStorefrontNoCsp(): void
     {
         if (!static::getContainer()->has(ProductController::class)) {

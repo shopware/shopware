@@ -6,11 +6,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(AdminElasticsearchHelper::class)]
 class AdminElasticsearchHelperTest extends TestCase
 {

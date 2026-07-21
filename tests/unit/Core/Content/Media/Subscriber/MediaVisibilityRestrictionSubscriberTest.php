@@ -18,11 +18,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\Count
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryDefinition;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(MediaVisibilityRestrictionSubscriber::class)]
 class MediaVisibilityRestrictionSubscriberTest extends TestCase
 {

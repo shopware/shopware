@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -16,6 +17,7 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EntitySearchResult::class)]
 class EntitySearchResultTest extends TestCase
 {

@@ -8,10 +8,12 @@ use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaType\DocumentType;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\TypeDetector\DocumentTypeDetector;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(DocumentTypeDetector::class)]
 class DocumentTypeDetectorTest extends TestCase
 {

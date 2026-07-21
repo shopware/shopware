@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\System\SystemConfig\AbstractSystemConfigLoader;
@@ -28,6 +29,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SystemConfigService::class)]
 class SystemConfigServiceTest extends TestCase
 {

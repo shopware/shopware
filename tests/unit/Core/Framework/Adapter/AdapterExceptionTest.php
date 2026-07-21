@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\AdapterException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,6 +15,7 @@ use Twig\Node\Expression\AbstractExpression;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(AdapterException::class)]
 class AdapterExceptionTest extends TestCase
 {

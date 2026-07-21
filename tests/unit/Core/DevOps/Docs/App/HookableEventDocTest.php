@@ -13,10 +13,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
 use Shopware\Core\Framework\Event\EventData\EntityCollectionType;
 use Shopware\Core\Framework\Event\EventData\EntityType;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(HookableEventDoc::class)]
 class HookableEventDocTest extends TestCase
 {

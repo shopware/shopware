@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\AgenticCommercePluginHint;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Stub\StubFile;
 use Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Stub\StubPlatform;
 use Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Stub\StubPullRequest;
@@ -14,6 +15,7 @@ use Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Stub\StubPullRequest;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AgenticCommercePluginHint::class)]
 class AgenticCommercePluginHintTest extends TestCase
 {

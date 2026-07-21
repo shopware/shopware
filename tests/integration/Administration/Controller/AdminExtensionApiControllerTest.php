@@ -15,6 +15,7 @@ use Shopware\Core\Framework\App\Hmac\QuerySigner;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,6 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 class AdminExtensionApiControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

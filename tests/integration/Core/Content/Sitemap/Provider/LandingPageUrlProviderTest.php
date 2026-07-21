@@ -157,7 +157,7 @@ class LandingPageUrlProviderTest extends TestCase
         $seuUrlRepository = static::getContainer()->get('seo_url.repository');
 
         /** @var SeoUrlEntity|null $seoUrl */
-        $seoUrl = $seuUrlRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $seoUrl = $seuUrlRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
 
         static::assertNotNull($seoUrl);
 

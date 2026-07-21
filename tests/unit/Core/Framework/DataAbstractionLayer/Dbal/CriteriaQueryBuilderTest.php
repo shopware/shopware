@@ -31,11 +31,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\Doctrine\QueryBuilderDataExtractor;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CriteriaQueryBuilder::class)]
 class CriteriaQueryBuilderTest extends TestCase
 {

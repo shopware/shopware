@@ -10,6 +10,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\System\Command\SystemDumpDatabaseCommand;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
@@ -20,6 +21,7 @@ use Symfony\Component\Process\Process;
  *
  * @phpstan-import-type Params from DriverManager
  */
+#[Package('framework')]
 #[CoversClass(SystemDumpDatabaseCommand::class)]
 class SystemDumpDatabaseCommandTest extends TestCase
 {

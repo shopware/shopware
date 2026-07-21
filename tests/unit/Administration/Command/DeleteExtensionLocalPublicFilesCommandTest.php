@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Command\DeleteExtensionLocalPublicFilesCommand;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
@@ -14,6 +15,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DeleteExtensionLocalPublicFilesCommand::class)]
 class DeleteExtensionLocalPublicFilesCommandTest extends TestCase
 {

@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\System\CustomField\Xml\CustomFieldTypes;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Xml\CustomFieldTypes\PriceField;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PriceField::class)]
 class PriceFieldTest extends TestCase
 {

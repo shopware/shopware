@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Service\MessageHandler;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\Message\UpdateServiceMessage;
 use Shopware\Core\Service\MessageHandler\UpdateServiceHandler;
 use Shopware\Core\Service\ServiceLifecycle;
@@ -11,6 +12,7 @@ use Shopware\Core\Service\ServiceLifecycle;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(UpdateServiceHandler::class)]
 class UpdateServiceHandlerTest extends TestCase
 {

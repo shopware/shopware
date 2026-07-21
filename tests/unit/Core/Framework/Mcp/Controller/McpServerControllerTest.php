@@ -20,6 +20,8 @@ use Shopware\Core\Framework\Mcp\Http\McpHttpTransportFactory;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\Mcp\McpException;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
+use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
+use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
 use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
@@ -31,6 +33,7 @@ use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * @internal
@@ -735,6 +738,65 @@ class McpServerControllerTest extends TestCase
         );
     }
 
+    public function testFlushesPendingToolsListChangedForActiveSession(): void
+    {
+        $sessionId = Uuid::v4()->toRfc4122();
+
+        $notifier = $this->createMock(McpListChangedNotifier::class);
+        $notifier->expects($this->once())
+            ->method('notifySession')
+            ->with(
+                $sessionId,
+                static::callback(static fn (McpListChangedNotificationSet $set): bool => $set->tools && !$set->resources && !$set->prompts),
+            );
+
+        $controller = $this->buildController(
+            new ServerRequest('POST', '/api/_mcp'),
+            new HttpFoundationFactory(),
+            listChangedNotifier: $notifier,
+        );
+
+        $request = Request::create('/api/_mcp', 'POST');
+        $request->attributes->set(McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE, true);
+        $request->headers->set(PlatformRequest::HEADER_MCP_SESSION_ID, $sessionId);
+
+        $controller->handle($request);
+    }
+
+    public function testDoesNotFlushWhenNoPendingNotification(): void
+    {
+        $notifier = $this->createMock(McpListChangedNotifier::class);
+        $notifier->expects($this->never())->method('notifySession');
+
+        $controller = $this->buildController(
+            new ServerRequest('POST', '/api/_mcp'),
+            new HttpFoundationFactory(),
+            listChangedNotifier: $notifier,
+        );
+
+        $request = Request::create('/api/_mcp', 'POST');
+        $request->headers->set(PlatformRequest::HEADER_MCP_SESSION_ID, Uuid::v4()->toRfc4122());
+
+        $controller->handle($request);
+    }
+
+    public function testDoesNotFlushWhenSessionHeaderMissing(): void
+    {
+        $notifier = $this->createMock(McpListChangedNotifier::class);
+        $notifier->expects($this->never())->method('notifySession');
+
+        $controller = $this->buildController(
+            new ServerRequest('POST', '/api/_mcp'),
+            new HttpFoundationFactory(),
+            listChangedNotifier: $notifier,
+        );
+
+        $request = Request::create('/api/_mcp', 'POST');
+        $request->attributes->set(McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE, true);
+
+        $controller->handle($request);
+    }
+
     private function transportFactory(): McpHttpTransportFactory
     {
         $psr17 = new Psr17Factory();
@@ -755,6 +817,7 @@ class McpServerControllerTest extends TestCase
         ?RateLimiter $rateLimiter = null,
         ?Server $server = null,
         ?McpSessionRegistry $sessionRegistry = null,
+        ?McpListChangedNotifier $listChangedNotifier = null,
     ): McpServerController {
         $psr17 = new Psr17Factory();
         $httpMessageFactory = static::createStub(HttpMessageFactoryInterface::class);
@@ -776,6 +839,7 @@ class McpServerControllerTest extends TestCase
             $allowlistProvider,
             allowlistFilter: new McpAllowlistFilter(),
             sessionRegistry: $sessionRegistry,
+            listChangedNotifier: $listChangedNotifier,
         );
     }
 }

@@ -183,6 +183,34 @@ jobs:
             const { syncPriorities } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
             await syncPriorities({github, core, context})
 
+  assign-framework-project:
+    runs-on: ubuntu-24.04
+    if: github.event_name == 'issues' && github.event.action == 'labeled' && github.event.label.name == 'domain/framework'
+    needs: label
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - id: sts
+        continue-on-error: true
+        uses: shopware/octo-sts-action@main
+        with:
+          scope: shopware
+          identity: ManageProjects
+      - shell: bash
+        run: npm ci --prefix .github/bin/js/
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          PROJECT_NUMBER: 27 # Framework Group
+        with:
+          github-token: ${{ steps.sts.outputs.token }}
+          script: |
+            const { addProjectItem, getProjectIdByNumber } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
+            const projectId = await getProjectIdByNumber(github, Number(process.env.PROJECT_NUMBER))
+            await addProjectItem(github, { projectId, issueId: context.payload.issue.node_id })
+
   sync-test-plan-sub-issue:
     runs-on: ubuntu-24.04
     if: >

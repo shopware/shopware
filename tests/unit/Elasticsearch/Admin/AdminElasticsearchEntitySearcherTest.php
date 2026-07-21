@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Doctrine\FakeConnection;
@@ -28,6 +29,7 @@ use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AdminElasticsearchEntitySearcher::class)]
 class AdminElasticsearchEntitySearcherTest extends TestCase
 {

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Framework\Routing\NotFound\AdministrationNotFoundSubscriber;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,6 +19,7 @@ use Twig\Environment;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AdministrationNotFoundSubscriber::class)]
 class AdministrationNotFoundSubscriberTest extends TestCase
 {

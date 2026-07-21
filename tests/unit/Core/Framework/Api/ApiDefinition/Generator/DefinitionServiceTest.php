@@ -6,11 +6,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DefinitionService::class)]
 class DefinitionServiceTest extends TestCase
 {

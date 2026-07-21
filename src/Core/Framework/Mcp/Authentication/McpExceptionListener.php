@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  *
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Converts exceptions thrown on the MCP endpoint into JSON-RPC error responses,
  * so MCP clients receive a parseable error instead of an HTML page.

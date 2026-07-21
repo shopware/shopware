@@ -9,8 +9,8 @@ name: Release gate
 on:
   push:
     branches:
-      - '[0-9]+.[0-9]+.x'          # minor maintenance branches, e.g. 6.5.x, 6.6.x
-      - '[0-9]+.[0-9]+.[0-9]+.x'   # patch lines, e.g. 6.7.11.x, 6.7.12.x
+      - '[0-9]+.[0-9]+.x' # minor maintenance branches, e.g. 6.5.x, 6.6.x
+      - '[0-9]+.[0-9]+.[0-9]+.x' # patch lines, e.g. 6.7.11.x, 6.7.12.x
   workflow_dispatch:
 
 # Coalesce rapid backport merges on the same branch; only the newest run matters.

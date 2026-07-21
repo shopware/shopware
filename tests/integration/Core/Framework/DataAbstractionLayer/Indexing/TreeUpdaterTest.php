@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -26,6 +27,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 class TreeUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;

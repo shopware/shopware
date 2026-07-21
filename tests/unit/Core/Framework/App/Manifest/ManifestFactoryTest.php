@@ -6,12 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ManifestFactory::class)]
 class ManifestFactoryTest extends TestCase
 {

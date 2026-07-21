@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Telemetry\Doctrine;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Doctrine\QueryCounter;
 
 /**
  * @internal
  */
 #[CoversClass(QueryCounter::class)]
+#[Package('framework')]
 class QueryCounterTest extends TestCase
 {
     public function testStartsAtZero(): void

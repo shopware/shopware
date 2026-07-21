@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityGroupResolver;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Telemetry\DomainResolver;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  */
 #[CoversClass(DomainResolver::class)]
+#[Package('framework')]
 class DomainResolverTest extends TestCase
 {
     /**

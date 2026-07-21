@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityGroupResolver;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Telemetry\AreaResolver;
 use Shopware\Core\Framework\Routing\Telemetry\DomainResolver;
 use Shopware\Core\Framework\Routing\Telemetry\HttpRequestMetricSubscriber;
@@ -27,6 +28,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * @internal
  */
 #[CoversClass(HttpRequestMetricSubscriber::class)]
+#[Package('framework')]
 class HttpRequestMetricSubscriberTest extends TestCase
 {
     /**

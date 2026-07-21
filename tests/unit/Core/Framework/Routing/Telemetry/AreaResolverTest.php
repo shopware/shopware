@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Routing\Telemetry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Routing\Telemetry\AreaResolver;
@@ -15,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  */
 #[CoversClass(AreaResolver::class)]
+#[Package('framework')]
 class AreaResolverTest extends TestCase
 {
     /**

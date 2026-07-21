@@ -14,7 +14,7 @@ use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStr
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -57,7 +58,7 @@ class ProductStreamUpdaterTest extends TestCase
             new ProductDefinition(),
             $repo,
             $messageBusMock,
-            $this->createMock(ManyToManyIdFieldUpdater::class),
+            static::createStub(ManyToManyIdFieldUpdater::class),
             $languageRepo,
             false,
         );
@@ -78,11 +79,15 @@ class ProductStreamUpdaterTest extends TestCase
 
     public function testUpdaterWithFilterChange(): void
     {
-        $connectionMock = $this->createMock(Connection::class);
+        $updatedStreamId = Uuid::randomHex();
+        $deletedStreamId = Uuid::randomHex();
+        $connectionMock = static::createStub(Connection::class);
         $messageBusMock = $this->createMock(MessageBusInterface::class);
-        $messageBusMock->expects($this->once())->method('dispatch')->willReturnCallback(static function ($message) {
+        $expectedMessages = [$updatedStreamId, $deletedStreamId];
+        $matcher = $this->exactly(\count($expectedMessages));
+        $messageBusMock->expects($matcher)->method('dispatch')->willReturnCallback(static function ($message) use ($matcher, $expectedMessages) {
             static::assertInstanceOf(ProductStreamMappingIndexingMessage::class, $message);
-            static::assertSame('product-stream-1', $message->getData());
+            static::assertSame($expectedMessages[$matcher->numberOfInvocations() - 1], $message->getData());
             static::assertSame('product_stream_mapping.indexer', $message->getIndexer());
 
             return new Envelope($message);
@@ -99,7 +104,7 @@ class ProductStreamUpdaterTest extends TestCase
             new ProductDefinition(),
             $repo,
             $messageBusMock,
-            $this->createMock(ManyToManyIdFieldUpdater::class),
+            static::createStub(ManyToManyIdFieldUpdater::class),
             $languageRepo,
             true,
         );
@@ -107,13 +112,19 @@ class ProductStreamUpdaterTest extends TestCase
         $containerEvent = new EntityWrittenContainerEvent(
             Context::createCLIContext(),
             new NestedEventCollection([
-                new EntityWrittenEvent(ProductStreamDefinition::ENTITY_NAME, [
-                    new EntityWriteResult('product-stream-1', [], ProductStreamDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE),
-                ], Context::createCLIContext()),
                 new EntityWrittenEvent(ProductStreamFilterDefinition::ENTITY_NAME, [
                     new EntityWriteResult('product-stream-filter-1', [
+                        'productStreamId' => $updatedStreamId,
                         'operator' => 'and',
                     ], ProductStreamFilterDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE),
+                    new EntityWriteResult('product-stream-filter-2', [], ProductStreamFilterDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_DELETE, new EntityExistence(
+                        ProductStreamFilterDefinition::ENTITY_NAME,
+                        ['id' => Uuid::fromHexToBytes(Uuid::randomHex())],
+                        true,
+                        false,
+                        false,
+                        ['product_stream_id' => Uuid::fromHexToBytes($deletedStreamId)]
+                    )),
                 ], Context::createCLIContext()),
             ]),
             []
@@ -124,7 +135,7 @@ class ProductStreamUpdaterTest extends TestCase
 
     public function testUpdaterWithoutFilterChange(): void
     {
-        $connectionMock = $this->createMock(Connection::class);
+        $connectionMock = static::createStub(Connection::class);
 
         $messageBusMock = $this->createMock(MessageBusInterface::class);
         $messageBusMock->expects($this->never())->method('dispatch');
@@ -140,7 +151,7 @@ class ProductStreamUpdaterTest extends TestCase
             new ProductDefinition(),
             $repo,
             $messageBusMock,
-            $this->createMock(ManyToManyIdFieldUpdater::class),
+            static::createStub(ManyToManyIdFieldUpdater::class),
             $languageRepo,
             true,
         );
@@ -188,8 +199,8 @@ class ProductStreamUpdaterTest extends TestCase
             $connection,
             new ProductDefinition(),
             $repository,
-            $this->createMock(MessageBusInterface::class),
-            $this->createMock(ManyToManyIdFieldUpdater::class),
+            static::createStub(MessageBusInterface::class),
+            static::createStub(ManyToManyIdFieldUpdater::class),
             $this->createDefaultLanguageRepo(),
             true,
         );
@@ -249,7 +260,7 @@ class ProductStreamUpdaterTest extends TestCase
             $connection,
             $definition,
             $repository,
-            $this->createMock(MessageBusInterface::class),
+            static::createStub(MessageBusInterface::class),
             $manyToManyFieldUpdater,
             $this->createDefaultLanguageRepo(),
             true,
@@ -316,7 +327,7 @@ class ProductStreamUpdaterTest extends TestCase
             $connection,
             $definition,
             $repository,
-            $this->createMock(MessageBusInterface::class),
+            static::createStub(MessageBusInterface::class),
             $manyToManyFieldUpdater,
             $this->createDefaultLanguageRepo(),
             true,
@@ -364,7 +375,7 @@ class ProductStreamUpdaterTest extends TestCase
             static function (Criteria $actualCriteria, Context $context) use ($criteria): array {
                 static::assertEquals($criteria, $actualCriteria);
 
-                throw new UnmappedFieldException('non-existing-field', new ProductDefinition());
+                throw DataAbstractionLayerException::unmappedField('non-existing-field', new ProductDefinition());
             },
             static fn () => [],
         ], $definition);
@@ -380,13 +391,55 @@ class ProductStreamUpdaterTest extends TestCase
             $connection,
             $definition,
             $repository,
-            $this->createMock(MessageBusInterface::class),
+            static::createStub(MessageBusInterface::class),
             $manyToManyFieldUpdater,
             $this->createDefaultLanguageRepo(),
             true,
         );
 
         $updater->handle($message);
+    }
+
+    public function testUpdateProductsSkipsInvalidFilter(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $apiFilter = json_encode([[
+            'type' => 'equals',
+            'field' => 'active',
+            'value' => '1',
+        ]]);
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([['id' => Uuid::randomBytes(), 'api_filter' => $apiFilter]]);
+
+        // the invalid filter is skipped, so the transaction still runs but inserts nothing
+        $connection
+            ->expects($this->once())
+            ->method('transactional');
+
+        $definition = new ProductDefinition();
+        /** @var StaticEntityRepository<ProductCollection> */
+        $repository = new StaticEntityRepository([
+            static function (): array {
+                throw DataAbstractionLayerException::unmappedField('non-existing-field', new ProductDefinition());
+            },
+        ], $definition);
+
+        $updater = new ProductStreamUpdater(
+            $connection,
+            $definition,
+            $repository,
+            static::createStub(MessageBusInterface::class),
+            static::createStub(ManyToManyIdFieldUpdater::class),
+            $this->createDefaultLanguageRepo(),
+            true,
+        );
+
+        $updater->updateProducts([Uuid::randomHex()], $context);
     }
 
     /**

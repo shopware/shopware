@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package framework
  */
@@ -2433,6 +2435,7 @@ describe('core/factory/async-component.factory.ts', () => {
             {
                 componentName: 'component',
                 innerTemplate: 'Sync override',
+                legacyConditionCases: [],
             },
         ]);
 
@@ -2443,6 +2446,7 @@ describe('core/factory/async-component.factory.ts', () => {
             {
                 componentName: 'component',
                 innerTemplate: 'Sync override',
+                legacyConditionCases: [],
             },
         ]);
 
@@ -2455,10 +2459,12 @@ describe('core/factory/async-component.factory.ts', () => {
             {
                 componentName: 'component',
                 innerTemplate: 'Sync override',
+                legacyConditionCases: [],
             },
             {
                 componentName: 'component',
                 innerTemplate: 'Async override',
+                legacyConditionCases: [],
             },
         ]);
     });

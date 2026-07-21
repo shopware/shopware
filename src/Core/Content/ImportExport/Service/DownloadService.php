@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\ImportExport\Service;
 
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToGenerateTemporaryUrl;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\ImportExportException;
@@ -38,7 +39,8 @@ class DownloadService
         private readonly EntityRepository $fileRepository,
         private readonly LoggerInterface $logger,
         private readonly string $localDownloadStrategy,
-        private readonly string $localPathPrefix = ''
+        private readonly string $localPathPrefix,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -72,7 +74,7 @@ class DownloadService
         try {
             $url = $this->filesystem->temporaryUrl(
                 $entity->getPath(),
-                (new \DateTimeImmutable())->modify(self::EXPIRATION_TIME),
+                $this->clock->now()->modify(self::EXPIRATION_TIME),
                 $this->getTemporaryUrlConfig($entity)
             );
 
@@ -189,7 +191,7 @@ class DownloadService
 
     private function findFile(Context $context, string $fileId): ImportExportFileEntity
     {
-        $entity = $this->fileRepository->search(new Criteria([$fileId]), $context)->get($fileId);
+        $entity = $this->fileRepository->search(new Criteria([$fileId]), $context)->getEntities()->get($fileId);
 
         if (!$entity instanceof ImportExportFileEntity) {
             throw ImportExportException::fileNotFound($fileId);
@@ -204,7 +206,7 @@ class DownloadService
             return false;
         }
 
-        $diff = time() - $entity->getUpdatedAt()->getTimestamp();
+        $diff = $this->clock->now()->getTimestamp() - $entity->getUpdatedAt()->getTimestamp();
 
         return $diff < 300;
     }

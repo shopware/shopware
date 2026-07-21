@@ -15,6 +15,7 @@ export default {
 
     inject: [
         'repositoryFactory',
+        'userConfigService',
         'feature',
     ],
 
@@ -39,6 +40,7 @@ export default {
     data() {
         return {
             productNumberRangeId: null,
+            hideCoverImageDescriptionHint: true,
         };
     },
 
@@ -144,6 +146,23 @@ export default {
     methods: {
         createdComponent() {
             this.loadProductNumberRangeId();
+            this.loadCoverImageDescriptionHintConfig();
+        },
+
+        async loadCoverImageDescriptionHintConfig() {
+            const response = await this.userConfigService.search(['product.hideCoverImageDescriptionHint']);
+
+            this.hideCoverImageDescriptionHint = !!response?.data?.['product.hideCoverImageDescriptionHint']?.value;
+        },
+
+        async onCloseCoverImageDescriptionHint() {
+            this.hideCoverImageDescriptionHint = true;
+
+            await this.userConfigService.upsert({
+                'product.hideCoverImageDescriptionHint': {
+                    value: true,
+                },
+            });
         },
 
         updateIsTitleRequired() {

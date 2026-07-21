@@ -52,6 +52,8 @@ class ProductBuilder
 
     protected ?string $name;
 
+    protected ?string $description = null;
+
     /**
      * @var Manufacturer
      */
@@ -189,7 +191,7 @@ class ProductBuilder
         protected string $productNumber,
         protected int $stock = 1,
         string $taxKey = 't1',
-        private string $type = ProductDefinition::TYPE_PHYSICAL
+        protected string $type = ProductDefinition::TYPE_PHYSICAL,
     ) {
         $this->ids = $ids;
         $this->id = $this->ids->create($productNumber);
@@ -224,6 +226,13 @@ class ProductBuilder
     public function name(?string $name): self
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function description(?string $description): self
+    {
+        $this->description = $description;
 
         return $this;
     }

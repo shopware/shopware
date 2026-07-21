@@ -74,7 +74,7 @@ class AppContextGatewayTest extends TestCase
 
         $appResponse = new AppContextGatewayResponse([['command' => 'context_change-currency', 'payload' => ['iso' => 'EUR']]]);
 
-        $registry = new ContextGatewayCommandRegistry([new ChangeCurrencyCommandHandler($this->createMock(EntityRepository::class))]);
+        $registry = new ContextGatewayCommandRegistry([new ChangeCurrencyCommandHandler(static::createStub(EntityRepository::class))]);
 
         $payloadService = $this->createMock(AppContextGatewayPayloadService::class);
         $payloadService
@@ -111,7 +111,7 @@ class AppContextGatewayTest extends TestCase
             $registry,
             $appRepository,
             $eventDispatcher,
-            $this->createMock(ExceptionLogger::class),
+            static::createStub(ExceptionLogger::class),
         );
 
         $response = $gateway->process($payload);
@@ -153,22 +153,21 @@ class AppContextGatewayTest extends TestCase
         $logger = new ExceptionLogger(
             'test',
             true,
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
         );
 
         $payload = new ContextGatewayPayloadStruct($cart, $context, $data);
 
         $gateway = new AppContextGateway(
-            $this->createMock(AppContextGatewayPayloadService::class),
-            $this->createMock(ContextGatewayCommandExecutor::class),
-            $this->createMock(ContextGatewayCommandRegistry::class),
+            static::createStub(AppContextGatewayPayloadService::class),
+            static::createStub(ContextGatewayCommandExecutor::class),
+            static::createStub(ContextGatewayCommandRegistry::class),
             $appRepository,
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             $logger,
         );
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('Gateway "context" is not configured for app "app_test". Please check the manifest file');
+        $this->expectExceptionObject(AppException::gatewayNotConfigured('app_test', 'context'));
 
         $gateway->process($payload);
     }
@@ -202,22 +201,21 @@ class AppContextGatewayTest extends TestCase
         $logger = new ExceptionLogger(
             'test',
             true,
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
         );
 
         $payload = new ContextGatewayPayloadStruct($cart, $context, $data);
 
         $gateway = new AppContextGateway(
-            $this->createMock(AppContextGatewayPayloadService::class),
-            $this->createMock(ContextGatewayCommandExecutor::class),
-            $this->createMock(ContextGatewayCommandRegistry::class),
+            static::createStub(AppContextGatewayPayloadService::class),
+            static::createStub(ContextGatewayCommandExecutor::class),
+            static::createStub(ContextGatewayCommandRegistry::class),
             $appRepository,
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             $logger,
         );
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('Could not find app with name "app_test"');
+        $this->expectExceptionObject(AppException::appNotFoundByName('app_test'));
 
         $gateway->process($payload);
     }
@@ -257,17 +255,17 @@ class AppContextGatewayTest extends TestCase
         $logger = new ExceptionLogger(
             'test',
             true,
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
         );
 
         $payload = new ContextGatewayPayloadStruct($cart, $context, $data);
 
         $gateway = new AppContextGateway(
             $payloadService,
-            $this->createMock(ContextGatewayCommandExecutor::class),
-            $this->createMock(ContextGatewayCommandRegistry::class),
+            static::createStub(ContextGatewayCommandExecutor::class),
+            static::createStub(ContextGatewayCommandRegistry::class),
             $appRepository,
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             $logger,
         );
 
@@ -314,19 +312,19 @@ class AppContextGatewayTest extends TestCase
         $logger = new ExceptionLogger(
             'test',
             true,
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
         );
 
-        $registry = new ContextGatewayCommandRegistry([new ChangeCurrencyCommandHandler($this->createMock(EntityRepository::class))]);
+        $registry = new ContextGatewayCommandRegistry([new ChangeCurrencyCommandHandler(static::createStub(EntityRepository::class))]);
 
         $payload = new ContextGatewayPayloadStruct($cart, $context, $data);
 
         $gateway = new AppContextGateway(
             $payloadService,
-            $this->createMock(ContextGatewayCommandExecutor::class),
+            static::createStub(ContextGatewayCommandExecutor::class),
             $registry,
             $appRepository,
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             $logger,
         );
 
@@ -376,19 +374,19 @@ class AppContextGatewayTest extends TestCase
         $logger = new ExceptionLogger(
             'test',
             true,
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
         );
 
-        $registry = new ContextGatewayCommandRegistry([new ChangeCurrencyCommandHandler($this->createMock(EntityRepository::class))]);
+        $registry = new ContextGatewayCommandRegistry([new ChangeCurrencyCommandHandler(static::createStub(EntityRepository::class))]);
 
         $payload = new ContextGatewayPayloadStruct($cart, $context, $data);
 
         $gateway = new AppContextGateway(
             $payloadService,
-            $this->createMock(ContextGatewayCommandExecutor::class),
+            static::createStub(ContextGatewayCommandExecutor::class),
             $registry,
             $appRepository,
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             $logger,
         );
 
@@ -438,10 +436,10 @@ class AppContextGatewayTest extends TestCase
         $logger = new ExceptionLogger(
             'test',
             true,
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
         );
 
-        $registry = $this->createMock(ContextGatewayCommandRegistry::class);
+        $registry = static::createStub(ContextGatewayCommandRegistry::class);
         $registry
             ->method('hasAppCommand')
             ->willReturn(true);
@@ -454,10 +452,10 @@ class AppContextGatewayTest extends TestCase
 
         $gateway = new AppContextGateway(
             $payloadService,
-            $this->createMock(ContextGatewayCommandExecutor::class),
+            static::createStub(ContextGatewayCommandExecutor::class),
             $registry,
             $appRepository,
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             $logger,
         );
 
@@ -507,10 +505,10 @@ class AppContextGatewayTest extends TestCase
         $logger = new ExceptionLogger(
             'test',
             true,
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
         );
 
-        $registry = $this->createMock(ContextGatewayCommandRegistry::class);
+        $registry = static::createStub(ContextGatewayCommandRegistry::class);
         $registry
             ->method('hasAppCommand')
             ->willReturn(true);
@@ -523,10 +521,10 @@ class AppContextGatewayTest extends TestCase
 
         $gateway = new AppContextGateway(
             $payloadService,
-            $this->createMock(ContextGatewayCommandExecutor::class),
+            static::createStub(ContextGatewayCommandExecutor::class),
             $registry,
             $appRepository,
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             $logger,
         );
 

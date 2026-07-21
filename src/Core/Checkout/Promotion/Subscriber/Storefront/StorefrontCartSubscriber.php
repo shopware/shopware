@@ -52,11 +52,16 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if (!$mainRequest->hasSession()) {
+        if (!$mainRequest->hasSession(true)) {
             return;
         }
 
-        $mainRequest->getSession()->set(self::SESSION_KEY_PROMOTION_CODES, []);
+        $session = $mainRequest->getSession();
+        if (!$session->isStarted()) {
+            return;
+        }
+
+        $session->set(self::SESSION_KEY_PROMOTION_CODES, []);
     }
 
     /**

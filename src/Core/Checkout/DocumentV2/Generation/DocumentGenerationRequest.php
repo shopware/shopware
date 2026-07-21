@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\Clock\Clock;
 
 /**
  * @internal
@@ -34,8 +34,9 @@ final readonly class DocumentGenerationRequest
         public ?string $documentNumber = null,
         public ?string $documentComment = null,
         ?string $documentDate = null,
+        public ?string $deliveryDate = null,
     ) {
-        $this->documentDate = $documentDate ?? (new NativeClock())->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $this->documentDate = $documentDate ?? Clock::get()->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $this->documentType = $documentType instanceof DocumentType ? $documentType->value : $documentType;
         $this->requestedFormats = array_map(
@@ -54,6 +55,7 @@ final readonly class DocumentGenerationRequest
             $documentNumber,
             $this->documentComment,
             $this->documentDate,
+            $this->deliveryDate,
         );
     }
 }

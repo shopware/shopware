@@ -4,7 +4,7 @@
  */
 import { mount } from '@vue/test-utils';
 import blockOverrideStore from '../../../../store/block-override.store';
-import getBlockDataScope from './get-block-data-scope';
+import createDataScopeFixture from '../sw-block-override.spec/test-utils/create-data-scope-fixture';
 
 async function createWrapper({
     extensions = '',
@@ -18,7 +18,7 @@ async function createWrapper({
         {
             template: `
             <div class="component-root">
-                <sw-block name="test-extension-point" :data="$dataScope()">
+                <sw-block name="test-extension-point" :data="$dataScope">
                     ${defaultContent}
                 </sw-block>
             </div>
@@ -41,9 +41,7 @@ async function createWrapper({
         },
         {
             global: {
-                mocks: {
-                    $dataScope: getBlockDataScope,
-                },
+                plugins: [createDataScopeFixture()],
             },
         },
     );
@@ -409,7 +407,7 @@ describe('sw-block', () => {
             const wrapper = await mount(
                 {
                     template: `
-                        <sw-block :name="blockName" :data="$dataScope()">
+                        <sw-block :name="blockName" :data="$dataScope">
                             <div class="content"></div>
                         </sw-block>
                     `,
@@ -421,7 +419,9 @@ describe('sw-block', () => {
                     },
                 },
                 {
-                    global: { mocks: { $dataScope: getBlockDataScope } },
+                    global: {
+                        plugins: [createDataScopeFixture()],
+                    },
                 },
             );
 
@@ -437,7 +437,7 @@ describe('sw-block', () => {
             await mount(
                 {
                     template: `
-                        <sw-block :name="blockName" :data="$dataScope()">
+                        <sw-block :name="blockName" :data="$dataScope">
                             <div class="content"></div>
                         </sw-block>
                     `,
@@ -449,7 +449,9 @@ describe('sw-block', () => {
                     },
                 },
                 {
-                    global: { mocks: { $dataScope: getBlockDataScope } },
+                    global: {
+                        plugins: [createDataScopeFixture()],
+                    },
                 },
             );
 

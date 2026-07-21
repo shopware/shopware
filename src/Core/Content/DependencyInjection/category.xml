@@ -79,8 +79,6 @@
 
         <service id="Shopware\Core\Content\Category\DataAbstractionLayer\CategoryBreadcrumbUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="category.repository"/>
-            <argument type="service" id="language.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater">
@@ -92,10 +90,11 @@
             <argument type="service" id="category.repository"/>
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver"/>
         </service>
 
         <service id="Shopware\Core\Content\Category\Service\CategoryUrlGenerator">
-            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface" />
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver"/>
         </service>
 
         <service id="Shopware\Core\Content\Category\Validation\EntryPointValidator">
@@ -123,6 +122,11 @@
         <service id="Shopware\Core\Content\Category\Cms\CategoryNavigationCmsElementResolver">
             <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoader"/>
 
+            <tag name="shopware.cms.data_resolver"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Category\Cms\CategoryNameCmsElementResolver">
+            <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
             <tag name="shopware.cms.data_resolver"/>
         </service>
     </services>

@@ -97,8 +97,7 @@ class GenerateMediaTypesCommandTest extends TestCase
 
     public function testExecuteThrowsExceptionOnInvalidBatchSize(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Provided batch size is invalid.');
+        $this->expectExceptionObject(MediaException::invalidBatchSize());
 
         $this->createValidMediaFiles();
 

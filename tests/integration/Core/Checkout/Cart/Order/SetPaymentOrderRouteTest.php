@@ -79,7 +79,7 @@ class SetPaymentOrderRouteTest extends TestCase
 
         $this->setPaymentOrderRoute->setPayment($request, $context);
 
-        $order = $this->orderRepository->search(new Criteria(), $context->getContext())->first();
+        $order = $this->orderRepository->search(new Criteria(), $context->getContext())->getEntities()->first();
         static::assertInstanceOf(OrderEntity::class, $order);
         static::assertNotNull($order->getPrimaryOrderTransactionId());
     }
@@ -121,7 +121,7 @@ class SetPaymentOrderRouteTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAssociations(['primaryOrderTransaction', 'transactions']);
 
-        $order = $this->orderRepository->search($criteria, $context->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $context->getContext())->getEntities()->first();
 
         static::assertInstanceOf(OrderEntity::class, $order);
         static::assertNotNull($order->getPrimaryOrderTransactionId());
@@ -172,7 +172,7 @@ class SetPaymentOrderRouteTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAssociations(['primaryOrderTransaction', 'transactions']);
 
-        $order = $this->orderRepository->search($criteria, $context->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $context->getContext())->getEntities()->first();
 
         static::assertInstanceOf(OrderEntity::class, $order);
         static::assertNotNull($order->getPrimaryOrderTransactionId());
@@ -214,7 +214,7 @@ class SetPaymentOrderRouteTest extends TestCase
             'customerNumber' => 'not',
         ]], Context::createDefaultContext());
 
-        return $this->customerRepository->search(new Criteria([$id1]), Context::createDefaultContext())->first();
+        return $this->customerRepository->search(new Criteria([$id1]), Context::createDefaultContext())->getEntities()->first();
     }
 
     /**

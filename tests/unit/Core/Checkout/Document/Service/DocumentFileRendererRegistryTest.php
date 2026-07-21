@@ -56,8 +56,7 @@ class DocumentFileRendererRegistryTest extends TestCase
 
     public function testThrowException(): void
     {
-        $this->expectException(DocumentException::class);
-        $this->expectExceptionMessage('File extension not supported: xml');
+        $this->expectExceptionObject(DocumentException::unsupportedDocumentFileExtension('xml'));
 
         $registry = new DocumentFileRendererRegistry([]);
 

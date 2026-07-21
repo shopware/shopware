@@ -35,7 +35,7 @@ class ActionButtonResponseFactoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $signer = $this->createMock(QuerySigner::class);
+        $signer = static::createStub(QuerySigner::class);
         $signer->method('signUri')->willReturn(new Uri('http://signed.url'));
 
         $this->actionButtonResponseFactory = new ActionButtonResponseFactory([
@@ -80,8 +80,10 @@ class ActionButtonResponseFactoryTest extends TestCase
 
     public function testFactoryThrowException(): void
     {
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('No factory found for action type "test"');
+        $this->expectExceptionObject(AppException::actionButtonProcessException(
+            $this->action->getActionId(),
+            \sprintf('No factory found for action type "%s"', 'test')
+        ));
 
         $this->actionButtonResponseFactory->createFromResponse(
             $this->action,

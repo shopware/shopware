@@ -31,14 +31,14 @@ class StagingExtensionHandlerTest extends TestCase
         $lifecycle->expects($this->never())->method('deactivate');
 
         $handler = new StagingExtensionHandler(
-            $this->createMock(Kernel::class),
+            static::createStub(Kernel::class),
             $dataProvider,
             $lifecycle,
         );
 
         $handler(new SetupStagingEvent(
             Context::createDefaultContext(),
-            $this->createMock(SymfonyStyle::class),
+            static::createStub(SymfonyStyle::class),
             false,
             [],
             [],
@@ -81,10 +81,10 @@ class StagingExtensionHandlerTest extends TestCase
                 static::isInstanceOf(Context::class)
             );
 
-        $io = $this->createMock(SymfonyStyle::class);
+        $io = static::createStub(SymfonyStyle::class);
 
         $handler = new StagingExtensionHandler(
-            $this->createMock(Kernel::class),
+            static::createStub(Kernel::class),
             $dataProvider,
             $lifecycle,
         );
@@ -119,7 +119,7 @@ class StagingExtensionHandlerTest extends TestCase
             }));
 
         $handler = new StagingExtensionHandler(
-            $this->createMock(Kernel::class),
+            static::createStub(Kernel::class),
             $dataProvider,
             $lifecycle,
         );
@@ -161,7 +161,7 @@ class StagingExtensionHandlerTest extends TestCase
             }));
 
         $handler = new StagingExtensionHandler(
-            $this->createMock(Kernel::class),
+            static::createStub(Kernel::class),
             $dataProvider,
             $lifecycle,
         );

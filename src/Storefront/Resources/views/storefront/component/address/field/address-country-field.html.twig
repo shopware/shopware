@@ -36,7 +36,10 @@
                     {% if country.id == initialCountryId %}selected="selected"{% endif %}
                     data-zipcode-required="{{ country.postalCodeRequired }}"
                     data-vat-id-required="{{ country.vatIdRequired }}"
+                    data-vat-id-pattern="{{ country.vatIdPattern }}"
+                    data-check-vat-id-pattern="{{ country.checkVatIdPattern }}"
                     data-state-required="{{ country.forceStateInRegistration }}"
+                    data-display-state-in-registration="{{ country.displayStateInRegistration }}"
                     {% if not country.shippingAvailable and disableNonShippableCountries %}disabled="disabled"{% endif %}>
 
                 {{ country.translated.name }}

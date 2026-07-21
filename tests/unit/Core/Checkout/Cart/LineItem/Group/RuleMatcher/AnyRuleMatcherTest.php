@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\RuleMatcher;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AnyRuleLineItemMatcher;
 use Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AnyRuleMatcher;
@@ -38,13 +38,13 @@ class AnyRuleMatcherTest extends TestCase
     private const KEY_PACKAGER_COUNT = 'PACKAGER_COUNT';
     private const KEY_SORTER_PRICE_ASC = 'PRICE_ASC';
 
-    private MockObject&SalesChannelContext $context;
+    private Stub&SalesChannelContext $context;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->context = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
+        $this->context = static::createStub(SalesChannelContext::class);
     }
 
     /**

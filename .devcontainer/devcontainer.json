@@ -50,8 +50,15 @@
       "8025": {
         "label": "Mailpit (Mail Testing)",
         "onAutoForward": "silent"
+      },
+      "6006": {
+        "label": "Storybook",
+        "onAutoForward": "silent"
       }
     },
     "shutdownAction": "none",
+    "remoteEnv": {
+      "PATH": "/usr/local/bin:/usr/bin:${containerEnv:PATH}"
+    },
     "remoteUser": "www-data"
   }

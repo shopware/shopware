@@ -148,7 +148,7 @@ class OrderTotalAmountRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id));
         $this->ruleRepository->delete([['id' => $ruleId]], $this->context);
         $this->conditionRepository->delete([['id' => $id]], $this->context);
     }
@@ -199,7 +199,7 @@ class OrderTotalAmountRuleTest extends TestCase
         $result = $customerRepository->search(
             new Criteria([$orderData[0]['orderCustomer']['customer']['id']]),
             $defaultContext
-        );
+        )->getEntities();
 
         static::assertNotNull($result->first());
         static::assertSame(1, $result->first()->getOrderCount());
@@ -219,7 +219,7 @@ class OrderTotalAmountRuleTest extends TestCase
         $result = $customerRepository->search(
             new Criteria([$orderData[0]['orderCustomer']['customer']['id']]),
             $defaultContext
-        );
+        )->getEntities();
 
         static::assertNotNull($result->first());
         static::assertSame(0, $result->first()->getOrderCount());
@@ -262,7 +262,7 @@ class OrderTotalAmountRuleTest extends TestCase
         $result = $customerRepository->search(
             new Criteria([$orderData[0]['orderCustomer']['customer']['id']]),
             $defaultContext
-        );
+        )->getEntities();
 
         static::assertNotNull($result->first());
         static::assertSame(1, $result->first()->getOrderCount());
@@ -276,7 +276,7 @@ class OrderTotalAmountRuleTest extends TestCase
         $result = $customerRepository->search(
             new Criteria([$orderData[0]['orderCustomer']['customer']['id']]),
             $defaultContext
-        );
+        )->getEntities();
 
         static::assertNotNull($result->first());
         static::assertSame(0, $result->first()->getOrderCount());
@@ -306,6 +306,7 @@ class OrderTotalAmountRuleTest extends TestCase
 
         $scope->method('getSalesChannelContext')
             ->willReturn($salesChannelContext);
+        $scope->method('getCustomer')->willReturn($customer);
 
         static::assertSame($isMatching, $rule->match($scope));
     }

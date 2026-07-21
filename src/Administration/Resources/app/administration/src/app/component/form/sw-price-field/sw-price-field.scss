@@ -1,10 +1,3 @@
-@import "~scss/variables";
-
-$sw-price-field-lock-color-default: $color-darkgray-200;
-$sw-price-field-lock-color-locked: $color-shopware-brand-500;
-$sw-price-field-suffix-font-size: 20px;
-$sw-price-field-suffix-font-weight: $font-weight-regular;
-
 .sw-price-field {
     .price-field-grid {
         display: grid;
@@ -17,16 +10,16 @@ $sw-price-field-suffix-font-weight: $font-weight-regular;
         height: 45px;
         background: none;
         border: none;
-        color: $sw-price-field-lock-color-default;
+        color: var(--color-icon-primary-default);
         outline: none;
         cursor: pointer;
 
         &.is--locked {
-            color: $sw-price-field-lock-color-locked;
+            color: var(--color-icon-brand-default);
         }
 
         &.is--disabled {
-            color: $color-gray-700;
+            color: var(--color-icon-primary-disabled);
             cursor: default;
         }
 
@@ -37,8 +30,8 @@ $sw-price-field-suffix-font-weight: $font-weight-regular;
 
     .sw-field {
         .sw-field__addition {
-            font-weight: $sw-price-field-suffix-font-weight;
-            font-size: $sw-price-field-suffix-font-size;
+            font-weight: var(--font-weight-regular);
+            font-size: var(--font-size-l);
         }
     }
 

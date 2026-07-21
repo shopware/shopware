@@ -34,10 +34,10 @@ class CustomFieldsetGeneratorTest extends TestCase
     ): void {
         $configuration = $this->getConfig();
 
-        $input = $this->createMock(InputInterface::class);
+        $input = static::createStub(InputInterface::class);
         $input->method('getOption')->willReturn($getOptionResponse);
 
-        $io = $this->createMock(SymfonyStyle::class);
+        $io = static::createStub(SymfonyStyle::class);
         $io->method('confirm')->willReturn($confirmResponse);
 
         (new CustomFieldsetGenerator())
@@ -106,9 +106,7 @@ class CustomFieldsetGeneratorTest extends TestCase
         yield 'Option true, stubs' => [
             'config' => self::getConfig([CustomFieldsetGenerator::OPTION_NAME => true]),
             'expected' => [
-                'src/Resources/config/services.xml',
-                'src/Service/CustomFieldsInstaller.php',
-                'src/TestPlugin.php',
+                'src/Resources/config/custom-fields.xml',
             ],
         ];
     }

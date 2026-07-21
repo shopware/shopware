@@ -9,7 +9,7 @@
                     "Endpoints supporting Criteria "
                 ],
                 "summary": "Fetch a landing page with the resolved CMS page",
-                "description": "Loads a landing page by its identifier and resolves the CMS page.\n\n**Important notice**\n\nThe criteria passed with this route also affects the listing, if there is one within the cms page.",
+                "description": "Loads a landing page by its identifier and resolves the CMS page.\n\n**Important notice**\n\nThe criteria passed with this route also affects the listing, if there is one within the cms page.\n\n**Available Associations:**\n- `cmsPage` - CMS page layout for the landing page\n- `seoUrls` - SEO-friendly URLs for the landing page across different sales channels",
                 "operationId": "readLandingPage",
                 "parameters": [
                     {
@@ -19,16 +19,6 @@
                         "required": true,
                         "schema": {
                             "type": "string"
-                        }
-                    },
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
                         }
                     },
                     {
@@ -44,6 +34,9 @@
                             ],
                             "default": "1"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -102,7 +95,7 @@
                     "Endpoints supporting Criteria "
                 ],
                 "summary": "Fetch a landing page with the resolved CMS page",
-                "description": "Loads a landing page by its identifier and resolves the CMS page.\n\n**Important notice**\n\nThe criteria passed with this route also affects the listing, if there is one within the cms page.",
+                "description": "Loads a landing page by its identifier and resolves the CMS page.\n\n**Important notice**\n\nThe criteria passed with this route also affects the listing, if there is one within the cms page.\n\n**Available Associations:**\n- `cmsPage` - CMS page layout for the landing page\n- `seoUrls` - SEO-friendly URLs for the landing page across different sales channels",
                 "operationId": "readLandingPageGet",
                 "parameters": [
                     {
@@ -112,17 +105,6 @@
                         "required": true,
                         "schema": {
                             "type": "string"
-                        }
-                    },
-
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
                         }
                     },
                     {

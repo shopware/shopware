@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 
 /**
  * @internal
@@ -18,6 +19,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(DocumentGenerationRequest::class)]
 class DocumentGenerationRequestTest extends TestCase
 {
+    use ClockSensitiveTrait;
+
     public function testWithDocumentNumber(): void
     {
         $request = new DocumentGenerationRequest(
@@ -26,6 +29,7 @@ class DocumentGenerationRequestTest extends TestCase
             DocumentType::INVOICE,
             [DocumentFormat::HTML],
             documentDate: '2026-05-05T12:00:00+00:00',
+            deliveryDate: '2026-05-06T09:30:00+00:00',
         );
 
         static::assertNull($request->documentNumber);
@@ -34,11 +38,12 @@ class DocumentGenerationRequestTest extends TestCase
 
         static::assertSame('12345', $request->documentNumber);
         static::assertSame('2026-05-05T12:00:00+00:00', $request->documentDate);
+        static::assertSame('2026-05-06T09:30:00+00:00', $request->deliveryDate);
     }
 
-    public function testDocumentDateDefaultsToNow(): void
+    public function testDocumentDateDefaultsToClockNow(): void
     {
-        $before = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $clock = self::mockTime('2026-05-18 10:00:00');
 
         $request = new DocumentGenerationRequest(
             Uuid::randomHex(),
@@ -47,10 +52,10 @@ class DocumentGenerationRequestTest extends TestCase
             [DocumentFormat::HTML],
         );
 
-        $after = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-
-        static::assertGreaterThanOrEqual($before, $request->documentDate);
-        static::assertLessThanOrEqual($after, $request->documentDate);
+        static::assertSame(
+            $clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            $request->documentDate
+        );
     }
 
     public function testExplicitDocumentDateIsPreserved(): void

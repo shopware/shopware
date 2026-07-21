@@ -43,7 +43,7 @@ abstract class AbstractProviderTestCase extends TestCase
 
     final public function testDispatchesCriteriaEvent(): void
     {
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
 
         $container = $this->createMock(ContainerInterface::class);
         $container

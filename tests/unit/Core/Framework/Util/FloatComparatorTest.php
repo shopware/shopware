@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Util;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Util\Exception\ComparatorException;
 use Shopware\Core\Framework\Util\FloatComparator;
@@ -14,6 +15,7 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(FloatComparator::class)]
 class FloatComparatorTest extends TestCase
 {
@@ -29,16 +31,14 @@ class FloatComparatorTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testCompareThrowExceptionDeprecated(): void
     {
-        static::expectException(ComparatorException::class);
-        $this->expectExceptionMessage(ComparatorException::operatorNotSupported('empty')->getMessage());
+        $this->expectExceptionObject(ComparatorException::operatorNotSupported('empty'));
 
         FloatComparator::compare(1, 2, 'empty');
     }
 
     public function testCompareThrowException(): void
     {
-        static::expectException(UtilException::class);
-        $this->expectExceptionMessage(UtilException::operatorNotSupported('empty')->getMessage());
+        $this->expectExceptionObject(UtilException::operatorNotSupported('empty'));
 
         FloatComparator::compare(1, 2, 'empty');
     }

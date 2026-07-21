@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Routing;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdministrationController;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\PlatformRequest;
@@ -14,6 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 class CoreSubscriberTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -73,7 +75,7 @@ class CoreSubscriberTest extends TestCase
         }
 
         $browser = $this->getBrowser();
-        $browser->request('GET', $_SERVER['APP_URL'] . '/admin');
+        $browser->request('GET', '/admin');
         $response = $browser->getResponse();
 
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_FRAME_OPTIONS));

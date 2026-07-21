@@ -24,6 +24,7 @@ use Shopware\Core\Content\Media\Upload\PresignedUrlResult;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -267,6 +268,45 @@ class PresignedMediaUploadServiceTest extends TestCase
         static::assertSame(\IMAGETYPE_JPEG, $update['metaData']['type']);
     }
 
+    public function testFinalizeStripsCharsetFromContentTypeBeforePersisting(): void
+    {
+        $context = Context::createDefaultContext();
+        $mediaId = '0189b0a1-0000-0000-0000-00000000abcd';
+        $path = 'media/ab/cd/umlauts.txt';
+
+        $media = $this->buildMedia($mediaId);
+
+        [$repo, $service] = $this->createService([
+            new MediaCollection([$media]),
+            new MediaCollection(),
+        ]);
+
+        $this->mediaPathStrategy->method('generate')->willReturn([$mediaId => $path]);
+
+        // S3 stores the canonical Content-Type incl. charset; the persisted entity mimeType must stay bare.
+        $this->presignedUrlGenerator->expects($this->once())
+            ->method('getFileMetadata')
+            ->with($path)
+            ->willReturn(new FileMetadataResult(
+                size: 42,
+                lastModified: new \DateTimeImmutable(),
+                etag: 'd41d8cd98f00b204e9800998ecf8427e',
+                contentType: 'text/plain; charset=utf-8',
+            ));
+
+        $payload = new PresignedUploadFinalizePayload(
+            fileName: 'umlauts',
+            extension: 'txt',
+            mimeType: 'text/plain',
+            path: $path,
+        );
+
+        $service->finalize($mediaId, $payload, $context);
+
+        static::assertCount(1, $repo->updates);
+        static::assertSame('text/plain', $repo->updates[0][0]['mimeType']);
+    }
+
     public function testFinalizeRollsBackOrphanUploadOnDuplicateFileName(): void
     {
         // Two concurrent prepares for the same filename both pass isFileNameTaken (neither had a
@@ -344,8 +384,7 @@ class PresignedMediaUploadServiceTest extends TestCase
             ->method('deleteFromStorage')
             ->with($path);
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Could not verify uploaded file for media');
+        $this->expectExceptionObject(MediaException::presignedUploadFinalizeFailed($mediaId));
 
         $payload = new PresignedUploadFinalizePayload(
             fileName: 'test-file',
@@ -374,8 +413,7 @@ class PresignedMediaUploadServiceTest extends TestCase
         $this->presignedUrlGenerator->expects($this->never())->method('deleteFromStorage');
         $this->presignedUrlGenerator->expects($this->never())->method('getFileMetadata');
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Could not verify uploaded file for media');
+        $this->expectExceptionObject(MediaException::presignedUploadFinalizeFailed($mediaId));
 
         $payload = new PresignedUploadFinalizePayload(
             fileName: 'test-file',
@@ -405,8 +443,7 @@ class PresignedMediaUploadServiceTest extends TestCase
         $this->presignedUrlGenerator->expects($this->never())->method('deleteFromStorage');
         $this->presignedUrlGenerator->expects($this->never())->method('getFileMetadata');
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('not supported');
+        $this->expectExceptionObject(MediaException::fileExtensionNotSupported($mediaId, 'php'));
 
         $payload = new PresignedUploadFinalizePayload(
             fileName: 'malicious',
@@ -571,11 +608,12 @@ class PresignedMediaUploadServiceTest extends TestCase
             $repo,
             $this->presignedUrlGenerator,
             $this->eventDispatcher,
-            $this->createMock(TypeDetector::class),
+            static::createStub(TypeDetector::class),
             $this->mediaFileCleanup,
             $this->extensionValidator,
             $this->mediaPathStrategy,
             new NullLogger(),
+            new NativeClock()
         );
 
         return [$repo, $service];

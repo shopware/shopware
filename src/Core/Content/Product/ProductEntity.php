@@ -38,6 +38,7 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Unit\UnitEntity;
+use Symfony\Component\Clock\Clock;
 
 #[Package('inventory')]
 class ProductEntity extends Entity implements \Stringable
@@ -139,6 +140,8 @@ class ProductEntity extends Entity implements \Stringable
 
     protected ?string $description = null;
 
+    protected ?string $descriptionTeaser = null;
+
     protected ?string $metaDescription = null;
 
     protected ?string $metaTitle = null;
@@ -184,7 +187,7 @@ class ProductEntity extends Entity implements \Stringable
     protected ?CmsPageEntity $cmsPage = null;
 
     /**
-     * @var array<string, array<string, array<string, string>>>|null
+     * @var array<string, array<string, array<string, mixed>>|null>|null
      */
     protected ?array $slotConfig = null;
 
@@ -577,6 +580,16 @@ class ProductEntity extends Entity implements \Stringable
         $this->description = $description;
     }
 
+    public function getDescriptionTeaser(): ?string
+    {
+        return $this->descriptionTeaser;
+    }
+
+    public function setDescriptionTeaser(?string $descriptionTeaser): void
+    {
+        $this->descriptionTeaser = $descriptionTeaser;
+    }
+
     public function getMetaTitle(): ?string
     {
         return $this->metaTitle;
@@ -680,11 +693,8 @@ class ProductEntity extends Entity implements \Stringable
     public function getDeliveryDate(): DeliveryDate
     {
         return new DeliveryDate(
-            (new \DateTime())
-                ->add(new \DateInterval('P' . 1 . 'D')),
-            (new \DateTime())
-                ->add(new \DateInterval('P' . 1 . 'D'))
-                ->add(new \DateInterval('P' . 1 . 'D'))
+            Clock::get()->now()->add(new \DateInterval('P1D')),
+            Clock::get()->now()->add(new \DateInterval('P2D'))
         );
     }
 
@@ -701,7 +711,7 @@ class ProductEntity extends Entity implements \Stringable
             return true;
         }
 
-        return $this->releaseDate < new \DateTime();
+        return $this->releaseDate < Clock::get()->now();
     }
 
     /**
@@ -783,7 +793,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @return array<string, array<string, array<string, string>>>|null
+     * @return array<string, array<string, array<string, mixed>>|null>|null
      */
     public function getSlotConfig(): ?array
     {
@@ -791,7 +801,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @param array<string, array<string, array<string, string>>> $slotConfig
+     * @param array<string, array<string, array<string, mixed>>|null> $slotConfig
      */
     public function setSlotConfig(array $slotConfig): void
     {

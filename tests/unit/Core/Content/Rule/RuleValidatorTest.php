@@ -74,7 +74,7 @@ class RuleValidatorTest extends TestCase
             Validation::createValidator(),
             new RuleConditionRegistry([new AlwaysValidRule(), new CustomerGroupRule()]),
             $ruleConditionRepository,
-            $this->createMock(EntityRepository::class)
+            static::createStub(EntityRepository::class)
         );
 
         $event = new PreWriteValidationEvent(
@@ -164,8 +164,8 @@ class RuleValidatorTest extends TestCase
     {
         $registry = new StaticDefinitionInstanceRegistry(
             [RuleConditionDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $definition = $registry->get(RuleConditionDefinition::class);

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Content\Mail\Transport\SmtpOauthTokenProvider;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -16,14 +17,15 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(SmtpOauthTokenProvider::class)]
 class SmtpOauthTokenProviderTest extends TestCase
 {
     public function testGetTokenFetchesFromCache(): void
     {
         $cache = $this->createMock(CacheInterface::class);
-        $httpClient = $this->createMock(HttpClientInterface::class);
-        $configService = $this->createMock(SystemConfigService::class);
+        $httpClient = static::createStub(HttpClientInterface::class);
+        $configService = static::createStub(SystemConfigService::class);
 
         $cache->expects($this->once())
             ->method('get')
@@ -41,7 +43,7 @@ class SmtpOauthTokenProviderTest extends TestCase
     {
         $cache = $this->createMock(CacheInterface::class);
         $httpClient = $this->createMock(HttpClientInterface::class);
-        $configService = $this->createMock(SystemConfigService::class);
+        $configService = static::createStub(SystemConfigService::class);
         $cacheItem = $this->createMock(ItemInterface::class);
         $response = $this->createMock(ResponseInterface::class);
 
@@ -101,8 +103,8 @@ class SmtpOauthTokenProviderTest extends TestCase
     {
         $cache = $this->createMock(CacheInterface::class);
         $httpClient = $this->createMock(HttpClientInterface::class);
-        $configService = $this->createMock(SystemConfigService::class);
-        $cacheItem = $this->createMock(ItemInterface::class);
+        $configService = static::createStub(SystemConfigService::class);
+        $cacheItem = static::createStub(ItemInterface::class);
         $response = $this->createMock(ResponseInterface::class);
 
         $cache->expects($this->once())
@@ -135,8 +137,7 @@ class SmtpOauthTokenProviderTest extends TestCase
 
         $provider = new SmtpOauthTokenProvider($httpClient, $cache, $configService);
 
-        $this->expectException(MailException::class);
-        $this->expectExceptionMessage('Failed to fetch oauth token: Error details');
+        $this->expectExceptionObject(MailException::oauthError('Failed to fetch oauth token: Error details'));
 
         $provider->getToken();
     }

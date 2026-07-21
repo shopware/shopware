@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Tool\AbstractToolSearchTool;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * @internal
  */

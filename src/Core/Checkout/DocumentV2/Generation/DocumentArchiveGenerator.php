@@ -43,25 +43,7 @@ final class DocumentArchiveGenerator
         }
 
         try {
-            $hasFiles = false;
-
-            try {
-                foreach ($document->getDocumentFiles() ?? [] as $documentFile) {
-                    $media = $documentFile->getMedia();
-                    $entryName = $this->createEntryName($documentFile, $media, $document->getId());
-                    $content = $this->loadMediaContent($media, $context);
-
-                    if (!$archive->addFromString($entryName, $content)) {
-                        throw DocumentV2Exception::documentArchiveFailed();
-                    }
-
-                    $hasFiles = true;
-                }
-            } finally {
-                $archive->close();
-            }
-
-            if (!$hasFiles) {
+            if (!$this->writeDocumentFiles($archive, $document, $context)) {
                 return null;
             }
 
@@ -73,6 +55,32 @@ final class DocumentArchiveGenerator
             );
         } finally {
             $this->filesystem->remove($tempFile);
+        }
+    }
+
+    /**
+     * @return bool whether any files were written to the archive
+     */
+    private function writeDocumentFiles(\ZipArchive $archive, DocumentEntity $document, Context $context): bool
+    {
+        try {
+            $hasFiles = false;
+
+            foreach ($document->getDocumentFiles() ?? [] as $documentFile) {
+                $media = $documentFile->getMedia();
+                $entryName = $this->createEntryName($documentFile, $media, $document->getId());
+                $content = $this->loadMediaContent($media, $context);
+
+                if (!$archive->addFromString($entryName, $content)) {
+                    throw DocumentV2Exception::documentArchiveFailed();
+                }
+
+                $hasFiles = true;
+            }
+
+            return $hasFiles;
+        } finally {
+            $archive->close();
         }
     }
 

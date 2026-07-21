@@ -136,6 +136,40 @@ class DocumentRendererRegistryTest extends TestCase
         );
     }
 
+    public function testValidateFormatsAllowsSupportedFormats(): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        $registry = new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
+            new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
+        ]);
+
+        $registry->validateFormats(DocumentType::INVOICE->value, [
+            DocumentFormat::HTML->value,
+            DocumentFormat::PDF->value,
+        ]);
+    }
+
+    public function testValidateFormatsRejectsUnsupportedFormats(): void
+    {
+        $registry = new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
+        ]);
+
+        static::expectExceptionObject(
+            DocumentV2Exception::unsupportedDocumentFormat(
+                DocumentFormat::PDF->value,
+                DocumentType::INVOICE->value,
+            )
+        );
+
+        $registry->validateFormats(DocumentType::INVOICE->value, [
+            DocumentFormat::HTML->value,
+            DocumentFormat::PDF->value,
+        ]);
+    }
+
     public function testGetFileExtensionSupportsCustomFormats(): void
     {
         $registry = new DocumentRendererRegistry([

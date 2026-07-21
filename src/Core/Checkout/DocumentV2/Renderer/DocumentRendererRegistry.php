@@ -89,4 +89,20 @@ final readonly class DocumentRendererRegistry
     {
         return $this->fileExtensionsByFormat[$format] ?? null;
     }
+
+    /**
+     * @param list<string> $formats
+     *
+     * @throws DocumentV2Exception
+     */
+    public function validateFormats(string $documentType, array $formats): void
+    {
+        $supportedFormats = array_keys($this->mapRenderersByFormat($documentType));
+
+        foreach ($formats as $format) {
+            if (!\in_array($format, $supportedFormats, true)) {
+                throw DocumentV2Exception::unsupportedDocumentFormat($format, $documentType);
+            }
+        }
+    }
 }

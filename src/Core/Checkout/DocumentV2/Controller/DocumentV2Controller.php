@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentArchiveGenerator;
-use Shopware\Core\Checkout\DocumentV2\Generation\DocumentFormatValidator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequestResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
@@ -54,7 +53,6 @@ final class DocumentV2Controller extends AbstractController
     public function __construct(
         private readonly DocumentGenerator $documentGenerator,
         private readonly DocumentRendererRegistry $documentRendererRegistry,
-        private readonly DocumentFormatValidator $documentFormatValidator,
         private readonly DocumentArchiveGenerator $documentArchiveGenerator,
         private readonly EntityRepository $documentRepository,
         private readonly EntityRepository $documentFileRepository,
@@ -142,7 +140,7 @@ final class DocumentV2Controller extends AbstractController
         $documentType = $this->requirePayloadString($payload, 'documentType');
         $format = $this->requirePayloadString($payload, 'format');
 
-        $this->documentFormatValidator->validate($documentType, [$format]);
+        $this->documentRendererRegistry->validateFormats($documentType, [$format]);
 
         $documentId = Uuid::randomHex();
         $deepLinkCode = Random::getAlphanumericString(32);

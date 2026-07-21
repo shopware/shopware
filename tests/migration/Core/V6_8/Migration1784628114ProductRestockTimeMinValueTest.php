@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_8\Migration1784628114ProductRestockTimeMinValue;
@@ -15,6 +16,7 @@ use Shopware\Core\Migration\V6_8\Migration1784628114ProductRestockTimeMinValue;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(Migration1784628114ProductRestockTimeMinValue::class)]
 class Migration1784628114ProductRestockTimeMinValueTest extends TestCase
 {

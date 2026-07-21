@@ -13,6 +13,7 @@ use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Controller\AuthController as AdminAuthController;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
@@ -42,6 +43,7 @@ use Symfony\Component\RateLimiter\Storage\CacheStorage;
 /**
  * @internal
  */
+#[Package('framework')]
 class RateLimiterTest extends TestCase
 {
     use CustomerTestTrait;

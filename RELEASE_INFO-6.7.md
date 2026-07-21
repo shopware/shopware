@@ -1,5 +1,32 @@
-# 6.7.13.0 (upcoming)
+# 6.7.14.0 (upcoming)
 
+## Features
+
+## API
+
+## Core
+
+### MCP server no longer requires the `MCP_SERVER` feature flag
+
+The MCP server is now always enabled. The `MCP_SERVER` feature flag has been removed, so the `/api/_mcp` and `/store-api/_mcp` endpoints are available without setting any flag. The MCP classes stay marked `@experimental` until 6.8.0, so the API may still change before then.
+
+## Administration
+
+## Storefront
+
+## App System
+
+## Hosting & Configuration
+
+# 6.7.13.0
+
+## Storefront
+
+### Deprecated `type` variable in address manager templates
+
+The Twig variable `type` in the address manager modal templates (`address-manager-modal-list.html.twig`, `address-manager-modal-create-address.html.twig`, and `address-manager-item.html.twig`) is deprecated in favor of `addressType`.
+The old variable remains available during the transition and will be removed with Shopware 6.8.
+Themes and plugins that extend these templates should migrate to `addressType`.
 ## Critical Fixes
 
 ### Store API requests no longer start PHP sessions
@@ -345,6 +372,10 @@ Categories of type "link" are no longer excluded from SEO URL generation in `Nav
 ### robots.txt allows crawling product feed tracking URLs
 
 The default storefront `robots.txt` now emits `Allow: /*referringSalesChannel=` alongside the existing `Disallow: /*?`. Product feed links (the sales-channel tracking feed used by agentic commerce) carry a `referringSalesChannel` query parameter; the blanket `Disallow: /*?` previously stopped Googlebot from crawling those landing pages, which caused Google Merchant Center to disapprove the products. The clean, parameter-free URL is still what gets indexed via the page's `rel=canonical`. Plugins that emit their own tracking parameters can add an equivalent `Allow` directive by subscribing to `RobotsPageLoadedEvent`.
+
+### Paginated storefront URLs now have unique canonical URLs
+
+Storefront listing pages now include their page number in the canonical URL when pagination is used. This ensures that each paginated page has its own canonical URL, allowing search engines to index the pages in the sequence correctly.
 
 ### Deprecated `AbstractDomainLoader::load()` in favor of `loadDomains()`
 

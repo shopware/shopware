@@ -97,7 +97,7 @@ class EventTelemetryFlowTest extends TestCase
         ]);
 
         // search triggers EntitySearchedEvent, event is configured via attribute
-        $userRepository->search($criteria, Context::createDefaultContext())->first();
+        $userRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertEquals(
             Metric::fromConfigured(new ConfiguredMetric('dal.associations.count', 2), $metricConfig, []),
             $this->getEmittedMetricByName('dal.associations.count')

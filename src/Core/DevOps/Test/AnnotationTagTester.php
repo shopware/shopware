@@ -140,21 +140,32 @@ class AnnotationTagTester
 
     private function validateExperimentalVersion(string $propertiesString): void
     {
-        $match = [];
-        preg_match('/([^\s]+):([^\s]*)\s+([^\s]+):([^\s]*)/', $propertiesString, $match, \PREG_UNMATCHED_AS_NULL);
+        $matches = [];
+        preg_match_all('/([^\s:]+):([^\s]*)/', $propertiesString, $matches, \PREG_SET_ORDER);
 
-        if ($match === []) {
+        $properties = [];
+        foreach ($matches as $match) {
+            $properties[$match[1]] = $match[2];
+        }
+
+        if ($properties === []) {
             throw new \InvalidArgumentException('Incorrect format for experimental annotation. Properties `stableVersion` and/or `feature` are not declared.');
         }
-        $properties = [
-            $match[1] => $match[2],
-            $match[3] => $match[4],
-        ];
 
+        $unknownProperties = array_diff(array_keys($properties), ['stableVersion', 'feature']);
+        if ($unknownProperties !== []) {
+            throw new \InvalidArgumentException(\sprintf(
+                'Unknown propert%s %s in experimental annotation. Only `stableVersion` and `feature` are allowed.',
+                \count($unknownProperties) === 1 ? 'y' : 'ies',
+                implode(', ', $unknownProperties)
+            ));
+        }
+
+        // `stableVersion` is required; `feature` is optional (it only applies to flag-gated
+        // experimental code) but must be in ALL_CAPS format when present.
         match (true) {
             !isset($properties['stableVersion']) => throw new \InvalidArgumentException('Could not find property stableVersion in experimental annotation.'),
-            !isset($properties['feature']) => throw new \InvalidArgumentException('Could not find property feature in experimental annotation.'),
-            !preg_match('/^(?:[A-Z]+(_[A-Z]+)*)+$/', $properties['feature']) => throw new \InvalidArgumentException('The value of feature-property can not be empty, contain white spaces and must be in ALL_CAPS format.'),
+            isset($properties['feature']) && !preg_match('/^(?:[A-Z]+(_[A-Z]+)*)+$/', $properties['feature']) => throw new \InvalidArgumentException('The value of feature-property can not be empty, contain white spaces and must be in ALL_CAPS format.'),
             default => $this->validateAgainstPlatformVersion($properties['stableVersion']),
         };
     }

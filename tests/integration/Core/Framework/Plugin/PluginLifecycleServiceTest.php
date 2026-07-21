@@ -483,14 +483,14 @@ class PluginLifecycleServiceTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', 'SwagTestTheme'));
 
-        static::assertCount(1, $themeRepo->search($criteria, $this->context)->getElements());
+        static::assertCount(1, $themeRepo->search($criteria, $this->context)->getEntities()->getElements());
 
         $this->pluginLifecycleService->uninstallPlugin($pluginInstalled, $this->context, $keepUserData);
 
         $pluginUninstalled = $this->getTestPlugin($this->context);
         static::assertNull($pluginUninstalled->getInstalledAt());
         static::assertFalse($pluginUninstalled->getActive());
-        static::assertCount($keepUserData ? 1 : 0, $themeRepo->search($criteria, $this->context)->getElements());
+        static::assertCount($keepUserData ? 1 : 0, $themeRepo->search($criteria, $this->context)->getEntities()->getElements());
     }
 
     /**

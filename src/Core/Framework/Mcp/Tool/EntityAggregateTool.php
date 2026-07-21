@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Dedicated aggregation tool that loads zero entity rows and returns only
  * aggregation results, keeping the response well within the 100 KB limit.

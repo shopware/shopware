@@ -9,6 +9,17 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Telemetry\ScheduledTaskHealthGateway">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Telemetry\ScheduledTaskHealthCollector">
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Telemetry\ScheduledTaskHealthGateway"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
+
+            <tag name="shopware.telemetry.periodic_metric_collector"/>
+        </service>
+
         <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskExecutor">
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="logger"/>

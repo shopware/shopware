@@ -101,15 +101,21 @@ async function resolveLatestConfigUrl(): Promise<string> {
         assets?: Array<{ name: string; browser_download_url: string }>;
     };
 
-    const asset = release.assets?.find((candidate) =>
-        /validator-configuration.*\.zip$/.test(candidate.name),
+    const assets = (release.assets ?? []).filter((candidate) =>
+        /validator-configuration.*\.zip$/i.test(candidate.name),
     );
 
-    if (!asset) {
+    if (assets.length === 0) {
         throw new Error("no configuration zip asset found in the latest release");
     }
 
-    return asset.browser_download_url;
+    if (assets.length > 1) {
+        throw new Error(
+            `expected exactly one configuration zip asset, found ${assets.length}`,
+        );
+    }
+
+    return assets[0].browser_download_url;
 }
 
 function unzip(zip: string, dest: string): void {
@@ -302,6 +308,12 @@ async function main(): Promise<void> {
     }
 
     const results = collectResults(reportDir);
+
+    if (results.length !== staged.length) {
+        throw new Error(
+            `expected one report per document, staged ${staged.length} but found ${results.length}`,
+        );
+    }
 
     for (const result of results) {
         log(`  ${result.compliant ? "PASS" : "FAIL"}  ${result.label}`);

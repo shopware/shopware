@@ -22,8 +22,6 @@ jobs:
     name: ZUGFeRD compliance
     runs-on: ubuntu-24.04
     if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
-    env:
-      SLACK_ZUGFERD_COMPLIANCE_WORKFLOW_URL: ${{ secrets.SLACK_ZUGFERD_COMPLIANCE_WORKFLOW_URL }}
 
     steps:
       - name: Checkout
@@ -55,9 +53,9 @@ jobs:
           if-no-files-found: ignore
 
       - name: Notify Slack
-        if: failure() && github.event_name == 'schedule' && steps.check.outputs.document_count != '' && env.SLACK_ZUGFERD_COMPLIANCE_WORKFLOW_URL != ''
+        if: failure() && github.event_name == 'schedule' && steps.check.outputs.document_count != ''
         env:
-          SLACK_WEBHOOK_URL: ${{ env.SLACK_ZUGFERD_COMPLIANCE_WORKFLOW_URL }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_ZUGFERD_COMPLIANCE_WORKFLOW_URL }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           RUN_ID: ${{ github.run_id }}
           DOCUMENT_COUNT: ${{ steps.check.outputs.document_count }}
@@ -65,6 +63,10 @@ jobs:
           FAILED_DOCUMENTS: ${{ steps.check.outputs.failed_documents }}
         run: |
           set -euo pipefail
+
+          if [[ -z "$SLACK_WEBHOOK_URL" ]]; then
+            exit 0
+          fi
 
           payload=$(
             jq -nc \

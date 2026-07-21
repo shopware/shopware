@@ -67,10 +67,10 @@ class NaturalSortingTest extends TestCase
 
         $options = $this->optionRepository->search($criteria, $context);
         // check all options generated
-        static::assertCount(\count($naturalOrder), $options);
+        static::assertCount(\count($naturalOrder), $options->getEntities());
 
         // extract names to compare them
-        $actual = $options->map(static fn (PropertyGroupOptionEntity $option) => $option->getName());
+        $actual = $options->getEntities()->map(static fn (PropertyGroupOptionEntity $option) => $option->getName());
 
         static::assertSame($rawOrder, array_values($actual));
 
@@ -80,7 +80,7 @@ class NaturalSortingTest extends TestCase
         $criteria->addSorting(new FieldSorting('property_group_option.name', FieldSorting::ASCENDING, true));
 
         $options = $this->optionRepository->search($criteria, $context);
-        $actual = $options->map(static fn (PropertyGroupOptionEntity $option) => $option->getName());
+        $actual = $options->getEntities()->map(static fn (PropertyGroupOptionEntity $option) => $option->getName());
 
         static::assertSame($naturalOrder, array_values($actual));
     }

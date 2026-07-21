@@ -74,7 +74,7 @@ class NotificationRepositoryTest extends TestCase
             return;
         }
 
-        $result = $this->notificationRepository->search(new Criteria([$id]), $this->context);
+        $result = $this->notificationRepository->search(new Criteria([$id]), $this->context)->getEntities();
 
         /** @var NotificationEntity $notification */
         $notification = $result->get($id);

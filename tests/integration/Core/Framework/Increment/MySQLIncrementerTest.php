@@ -5,12 +5,14 @@ namespace Shopware\Tests\Integration\Core\Framework\Increment;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Increment\MySQLIncrementer;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class MySQLIncrementerTest extends TestCase
 {
     use IntegrationTestBehaviour;

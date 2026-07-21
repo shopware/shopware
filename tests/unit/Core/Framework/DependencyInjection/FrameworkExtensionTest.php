@@ -7,12 +7,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\Configuration;
 use Shopware\Core\Framework\DependencyInjection\FrameworkExtension;
 use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(FrameworkExtension::class)]
 #[CoversClass(Configuration::class)]
 class FrameworkExtensionTest extends TestCase

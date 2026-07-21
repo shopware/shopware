@@ -153,6 +153,48 @@ class PluginListCommandTest extends TestCase
         static::assertStringContainsString('Filtering for: ' . $filterValue, trim($commandTester->getDisplay()));
     }
 
+    public function testTruncatesAuthorAndSupportsMissingAuthor(): void
+    {
+        $pluginWithLongAuthor = new PluginEntity();
+        $pluginWithLongAuthor->setUniqueIdentifier('1');
+        $pluginWithLongAuthor->assign([
+            'active' => false,
+            'name' => 'PluginWithLongAuthor',
+            'label' => 'Plugin with long author',
+            'version' => '1.0.0',
+            'author' => str_repeat('a', 41),
+        ]);
+
+        $pluginWithoutAuthor = new PluginEntity();
+        $pluginWithoutAuthor->setUniqueIdentifier('2');
+        $pluginWithoutAuthor->assign([
+            'active' => false,
+            'name' => 'PluginWithoutAuthor',
+            'label' => 'Plugin without author',
+            'version' => '1.0.0',
+        ]);
+
+        $pluginWithLongMultibyteAuthor = new PluginEntity();
+        $pluginWithLongMultibyteAuthor->setUniqueIdentifier('3');
+        $pluginWithLongMultibyteAuthor->assign([
+            'active' => false,
+            'name' => 'PluginWithLongMultibyteAuthor',
+            'label' => 'Plugin with long multibyte author',
+            'version' => '1.0.0',
+            'author' => str_repeat('ä', 41),
+        ]);
+
+        $this->setupEntityCollection([$pluginWithLongAuthor, $pluginWithoutAuthor, $pluginWithLongMultibyteAuthor]);
+        $this->setupComposerPluginLoaderMock([]);
+
+        $commandTester = $this->executeCommand([]);
+
+        static::assertSame(0, $commandTester->getStatusCode());
+        static::assertStringContainsString(str_repeat('a', 37) . '...', $commandTester->getDisplay());
+        static::assertStringContainsString('PluginWithoutAuthor', $commandTester->getDisplay());
+        static::assertStringContainsString(str_repeat('ä', 37) . '...', $commandTester->getDisplay());
+    }
+
     public function testFormatJsonOutput(): void
     {
         $entities = [

@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -46,7 +47,7 @@ class LanguageSubscriberTest extends TestCase
         $event = $this->createMock(EntityWrittenEvent::class);
         $event
             ->expects($this->never())
-            ->method('getWriteResults');
+            ->method('getResults');
 
         $subscriber->onLanguageWritten($event);
     }
@@ -67,7 +68,7 @@ class LanguageSubscriberTest extends TestCase
         $event = $this->createMock(EntityWrittenEvent::class);
         $event
             ->expects($this->once())
-            ->method('getWriteResults')->willReturn([$writeResult]);
+            ->method('getResults')->willReturn(new EntityWriteResultCollection([$writeResult]));
 
         $subscriber->onLanguageWritten($event);
     }
@@ -90,7 +91,7 @@ class LanguageSubscriberTest extends TestCase
         $event = $this->createMock(EntityWrittenEvent::class);
         $event
             ->expects($this->once())
-            ->method('getWriteResults')->willReturn([$writeResult]);
+            ->method('getResults')->willReturn(new EntityWriteResultCollection([$writeResult]));
 
         $subscriber->onLanguageWritten($event);
     }
@@ -122,7 +123,7 @@ class LanguageSubscriberTest extends TestCase
         $event = $this->createMock(EntityWrittenEvent::class);
         $event
             ->expects($this->once())
-            ->method('getWriteResults')->willReturn([$writeResult]);
+            ->method('getResults')->willReturn(new EntityWriteResultCollection([$writeResult]));
 
         $subscriber->onLanguageWritten($event);
     }
@@ -170,7 +171,7 @@ class LanguageSubscriberTest extends TestCase
         $event = $this->createMock(EntityWrittenEvent::class);
         $event
             ->expects($this->once())
-            ->method('getWriteResults')->willReturn([$writeResult]);
+            ->method('getResults')->willReturn(new EntityWriteResultCollection([$writeResult]));
 
         $subscriber->onLanguageWritten($event);
     }

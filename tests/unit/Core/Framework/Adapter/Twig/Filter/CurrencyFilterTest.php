@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\Filter\CurrencyFilter;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Currency\CurrencyFormatter;
@@ -16,6 +17,7 @@ use Twig\TwigFilter;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CurrencyFilter::class)]
 class CurrencyFilterTest extends TestCase
 {

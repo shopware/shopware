@@ -199,7 +199,7 @@ class SystemLanguageChangedSubscriberTest extends TestCase
             ], $this->context);
         }
 
-        $app = $this->appRepository->search(new Criteria([$id]), $this->context)->first();
+        $app = $this->appRepository->search(new Criteria([$id]), $this->context)->getEntities()->first();
         \assert($app instanceof AppEntity);
 
         return $app;

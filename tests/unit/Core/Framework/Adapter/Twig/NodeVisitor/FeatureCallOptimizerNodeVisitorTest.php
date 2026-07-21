@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\FeatureFlagExtension;
 use Shopware\Core\Framework\Adapter\Twig\NodeVisitor\FeatureCallOptimizerNodeVisitor;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
@@ -16,6 +17,7 @@ use Twig\Loader\ArrayLoader;
  *
  * @phpstan-import-type FeatureFlagConfig from Feature
  */
+#[Package('framework')]
 #[CoversClass(FeatureCallOptimizerNodeVisitor::class)]
 #[CoversClass(FeatureFlagExtension::class)]
 class FeatureCallOptimizerNodeVisitorTest extends TestCase

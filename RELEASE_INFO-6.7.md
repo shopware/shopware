@@ -1,5 +1,36 @@
-# 6.7.13.0 (upcoming)
+# 6.7.14.0 (upcoming)
 
+## Features
+
+## API
+
+## Core
+
+### Locale-aware sorting for product property group options
+
+`Shopware\Core\Content\Product\AbstractPropertyGroupSorter::sort()` is deprecated and will be removed with Shopware 6.8. Use the new `sortUsingLocaleCode()` method instead, which sorts property group options using locale-aware (ICU) collation.
+
+### MCP server no longer requires the `MCP_SERVER` feature flag
+
+The MCP server is now always enabled. The `MCP_SERVER` feature flag has been removed, so the `/api/_mcp` and `/store-api/_mcp` endpoints are available without setting any flag. The MCP classes stay marked `@experimental` until 6.8.0, so the API may still change before then.
+
+## Administration
+
+## Storefront
+
+## App System
+
+## Hosting & Configuration
+
+# 6.7.13.0
+
+## Storefront
+
+### Deprecated `type` variable in address manager templates
+
+The Twig variable `type` in the address manager modal templates (`address-manager-modal-list.html.twig`, `address-manager-modal-create-address.html.twig`, and `address-manager-item.html.twig`) is deprecated in favor of `addressType`.
+The old variable remains available during the transition and will be removed with Shopware 6.8.
+Themes and plugins that extend these templates should migrate to `addressType`.
 ## Critical Fixes
 
 ### Store API requests no longer start PHP sessions
@@ -7,6 +38,10 @@
 Store API requests now remain stateless unless application or extension code explicitly starts a session. Previously, several sales channel and Storefront event subscribers could initialize Symfony's lazy session factory during Store API requests, causing unnecessary session storage growth and potentially taking PHP session locks. Storefront session handling, including customer imitation, remains unchanged.
 
 ## Core
+
+### Product `descriptionTeaser` backfill runs once as a post-update indexer
+
+The `product.description_teaser.indexer` that fills `descriptionTeaser` for products predating the column (introduced in 6.7.12) is now a one-time post-update indexer: it runs once through the post-update flow after the update and is no longer executed by `bin/console dal:refresh:index`. It rebuilds each teaser from the current description and rewrites only the rows whose stored value is missing or out of date. Ongoing changes continue to be kept in sync synchronously on write by the product description-teaser subscriber.
 
 ### Agentic file names are matched case-insensitively
 
@@ -342,6 +377,10 @@ Categories of type "link" are no longer excluded from SEO URL generation in `Nav
 
 The default storefront `robots.txt` now emits `Allow: /*referringSalesChannel=` alongside the existing `Disallow: /*?`. Product feed links (the sales-channel tracking feed used by agentic commerce) carry a `referringSalesChannel` query parameter; the blanket `Disallow: /*?` previously stopped Googlebot from crawling those landing pages, which caused Google Merchant Center to disapprove the products. The clean, parameter-free URL is still what gets indexed via the page's `rel=canonical`. Plugins that emit their own tracking parameters can add an equivalent `Allow` directive by subscribing to `RobotsPageLoadedEvent`.
 
+### Paginated storefront URLs now have unique canonical URLs
+
+Storefront listing pages now include their page number in the canonical URL when pagination is used. This ensures that each paginated page has its own canonical URL, allowing search engines to index the pages in the sequence correctly.
+
 ### Deprecated `AbstractDomainLoader::load()` in favor of `loadDomains()`
 
 `Shopware\Storefront\Framework\Routing\AbstractDomainLoader::load()` is deprecated and will be removed with Shopware 6.8. Use the new `loadDomains()` method instead, which returns a `Shopware\Storefront\Framework\Routing\Struct\DomainCollection` of `Shopware\Storefront\Framework\Routing\Struct\DomainStruct` objects, keyed by domain URL.
@@ -669,6 +708,13 @@ Authenticated Administration users now receive the default privileges required b
 The Administration role editor also adds these privileges to newly generated role permission sets.
 
 ## Core
+
+### Filter DAL entity write results with a typed collection
+
+`EntityWrittenEvent::getResults()` now returns an `EntityWriteResultCollection` that keeps each payload associated with its operation and primary key.
+Extension listeners can use `only()` to select write operations, `withPayloadProperties()` to select results containing any of the given payload properties, and `getPrimaryKeys()` to extract the filtered identifiers.
+`EntityWrittenContainerEvent::getResults(string $entityName)` provides the same API for one entity in a container event.
+The existing `getWriteResults()` methods remain unchanged.
 
 ### Rule Builder: new "Quantity per item" condition
 

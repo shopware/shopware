@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Feature\Event\BeforeFeatureFlagToggleEvent;
 use Shopware\Core\Framework\Feature\Event\FeatureFlagToggledEvent;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Feature\FeatureFlagRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -20,6 +21,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  *
  * @phpstan-import-type FeatureFlagConfig from Feature
  */
+#[Package('framework')]
 #[CoversClass(FeatureFlagRegistry::class)]
 class FeatureFlagRegistryTest extends TestCase
 {

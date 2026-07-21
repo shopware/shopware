@@ -47,7 +47,7 @@ async function createWrapper(privileges = []) {
                         },
                         meta: {
                             $module: {
-                                icon: 'solid-content',
+                                icon: 'regular-content',
                             },
                         },
                     },

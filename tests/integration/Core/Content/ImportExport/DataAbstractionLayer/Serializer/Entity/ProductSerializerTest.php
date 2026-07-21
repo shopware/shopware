@@ -347,7 +347,7 @@ class ProductSerializerTest extends TestCase
         $criteria->addAssociation('media.media');
         $criteria->getAssociation('media')->addSorting(new FieldSorting('position', FieldSorting::ASCENDING));
 
-        $product = $productRepository->search($criteria, Context::createDefaultContext())->first();
+        $product = $productRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $product);
 
         return $product;

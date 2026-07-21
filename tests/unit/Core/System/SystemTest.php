@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\CustomEntityRegistrar;
 use Shopware\Core\System\System;
 use Symfony\Component\DependencyInjection\Container;
@@ -13,6 +14,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(System::class)]
 class SystemTest extends TestCase
 {

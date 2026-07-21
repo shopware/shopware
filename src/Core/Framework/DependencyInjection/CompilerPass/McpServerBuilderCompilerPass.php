@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Third MCP compiler pass: registers plugin capabilities with the MCP server builder and
  * wires the discovery cache so file scanning only happens once per container warm-up.
@@ -76,7 +76,7 @@ class McpServerBuilderCompilerPass implements CompilerPassInterface
             $resourceInfo = McpToolAttributeReader::resolveInfo($class, McpResource::class, ['uri', 'name', 'description', 'mimeType']);
 
             if ($resourceInfo !== null) {
-                $builderDef->addMethodCall('addResource', [$class, $resourceInfo['uri'], $resourceInfo['name'], $resourceInfo['description'], $resourceInfo['mimeType']]);
+                $builderDef->addMethodCall('addResource', [$class, $resourceInfo['uri'], $resourceInfo['name'], null, $resourceInfo['description'], $resourceInfo['mimeType']]);
             }
         }
     }

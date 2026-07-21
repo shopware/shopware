@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Script\Execution;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
@@ -10,6 +11,7 @@ use Shopware\Core\Test\AppSystemTestBehaviour;
 /**
  * @internal
  */
+#[Package('framework')]
 class ScriptLoaderTest extends TestCase
 {
     use AppSystemTestBehaviour;

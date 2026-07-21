@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Storefront\Framework\Seo\SeoUrl;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -32,7 +31,6 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
  * @internal
  */
 #[Package('inventory')]
-#[Group('slow')]
 class SeoUrlTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -146,7 +144,7 @@ class SeoUrlTest extends TestCase
         $criteria->addAssociation('seoUrls');
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->first();
+        $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->getEntities()->first();
 
         static::assertInstanceOf(SeoUrlCollection::class, $product->getSeoUrls());
 
@@ -174,7 +172,7 @@ class SeoUrlTest extends TestCase
         $criteria->addAssociation('seoUrls');
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->first();
+        $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->getEntities()->first();
 
         static::assertInstanceOf(SeoUrlCollection::class, $product->getSeoUrls());
 
@@ -425,7 +423,7 @@ class SeoUrlTest extends TestCase
         $criteria->getAssociation('seoUrls')->setLimit(10);
 
         /** @var ProductEntity $product */
-        $product = $productRepo->search($criteria, Context::createDefaultContext())->first();
+        $product = $productRepo->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(SeoUrlCollection::class, $product->getSeoUrls());
     }
@@ -466,7 +464,7 @@ class SeoUrlTest extends TestCase
             ->setLimit(10)
             ->addFilter(new EqualsFilter('isCanonical', null));
 
-        $products = $productRepo->search($criteria, Context::createDefaultContext());
+        $products = $productRepo->search($criteria, Context::createDefaultContext())->getEntities();
         static::assertNotEmpty($products);
 
         /** @var ProductEntity $product */
@@ -581,7 +579,7 @@ class SeoUrlTest extends TestCase
             $criteria->addAssociation('seoUrls');
 
             /** @var CategoryEntity $category */
-            $category = $categoryRepository->search($criteria, $context)->first();
+            $category = $categoryRepository->search($criteria, $context)->getEntities()->first();
             static::assertSame($case['categoryId'], $category->getId());
 
             /** @var SeoUrlCollection $seoUrls */

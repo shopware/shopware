@@ -89,7 +89,7 @@ To add a new skill (interactive or unattended), follow the checklist in [`coding
 
 | File Type              | Check Command                 | Fix Command                                  |
 |------------------------|-------------------------------|----------------------------------------------|
-| **PHP** (.php)         | `composer ecs`                | `composer ecs-fix`                           |
+| **PHP** (.php)         | `composer cs`                 | `composer cs-fix`                            |
 | **PHP** (types)        | `composer phpstan`            | N/A - must fix manually                      |
 | **JS/TS/Vue** (Admin)  | `composer eslint:admin`       | `composer eslint:admin:fix`                  |
 | **JS/TS** (Storefront) | `composer eslint:storefront`  | `composer eslint:storefront:fix`             |
@@ -97,3 +97,6 @@ To add a new skill (interactive or unattended), follow the checklist in [`coding
 | **Twig** (Storefront)  | `composer ludtwig:storefront` | `composer ludtwig:storefront:fix`            |
 | **Snippets**           | `composer translation:lint`   | Manual fix required                          |
 | **Prettier** (Admin)   | `composer format:admin`       | `composer format:admin:fix`                  |
+| **GitHub Actions**     | `composer lint:actions`       | `composer lint:actions:fix`                  |
+
+GitHub Actions linting uses [`actionlint`](https://github.com/rhysd/actionlint) and formatting uses [`yamlfmt`](https://github.com/google/yamlfmt). Install them locally (`brew install actionlint yamlfmt`, or `go install` — see `.github/bin/lint-actions.bash`); the pre-commit hook and `composer lint:actions` skip with an install hint when they are missing, and CI (`.github/workflows/lint-actions.yml`) enforces both.

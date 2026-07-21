@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Definition\FkFieldPrimaryTestDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Definition\MultiFkFieldPrimaryTestDefinition;
@@ -28,6 +29,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
+#[Package('framework')]
 class FkFieldPrimarySearcherTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -92,7 +94,7 @@ class FkFieldPrimarySearcherTest extends TestCase
         /** @var EntityRepository<EntityCollection<Entity>> $fkFieldPrimaryRepository */
         $fkFieldPrimaryRepository = static::getContainer()->get('fk_field_primary.repository');
         /** @var array<string, ArrayEntity> $fkFieldPrimaryTupel */
-        $fkFieldPrimaryTupel = $fkFieldPrimaryRepository->search($criteria, Context::createDefaultContext())->getElements();
+        $fkFieldPrimaryTupel = $fkFieldPrimaryRepository->search($criteria, Context::createDefaultContext())->getEntities()->getElements();
         static::assertArrayHasKey($this->productId, $fkFieldPrimaryTupel);
         static::assertTrue($fkFieldPrimaryTupel[$this->productId]->has('name'));
         static::assertSame('TestPrimary', $fkFieldPrimaryTupel[$this->productId]->get('name'));
@@ -120,8 +122,8 @@ class FkFieldPrimarySearcherTest extends TestCase
         $criteria = new Criteria([['firstId' => $firstId, 'secondId' => $secondId]]);
         $multiFkFieldPrimaryTupel = $multiPrimaryRepository->search($criteria, Context::createDefaultContext());
         $key = $firstId . '-' . $secondId;
-        static::assertArrayHasKey($key, $multiFkFieldPrimaryTupel->getElements());
-        static::assertSame($firstId, $multiFkFieldPrimaryTupel->getElements()[$key]->get('firstId'));
+        static::assertArrayHasKey($key, $multiFkFieldPrimaryTupel->getEntities()->getElements());
+        static::assertSame($firstId, $multiFkFieldPrimaryTupel->getEntities()->getElements()[$key]->get('firstId'));
     }
 
     public function testSearchForTranslation(): void

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -33,6 +34,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('inventory')]
 class ProductLineItemCommandValidatorTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;
@@ -84,7 +86,7 @@ class ProductLineItemCommandValidatorTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
-        $lineItems = $this->lineItemRepository->search($criteria, $context);
+        $lineItems = $this->lineItemRepository->search($criteria, $context)->getEntities();
 
         static::assertCount(1, $lineItems);
         /** @var OrderLineItemEntity $first */
@@ -108,7 +110,7 @@ class ProductLineItemCommandValidatorTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
-        $lineItems = $this->lineItemRepository->search($criteria, $context);
+        $lineItems = $this->lineItemRepository->search($criteria, $context)->getEntities();
 
         static::assertCount(1, $lineItems);
         /** @var OrderLineItemEntity $first */
@@ -123,8 +125,8 @@ class ProductLineItemCommandValidatorTest extends TestCase
             ['id' => $first->getId(), 'quantity' => 10],
         ], $context);
 
-        $lineItems = $this->lineItemRepository->search($criteria, $context);
-        $first = $lineItems->getEntities()->first();
+        $lineItems = $this->lineItemRepository->search($criteria, $context)->getEntities();
+        $first = $lineItems->first();
         static::assertNotNull($first);
         static::assertSame($id, $first->getReferencedId());
         static::assertSame($id, $first->getProductId());
@@ -145,11 +147,11 @@ class ProductLineItemCommandValidatorTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
-        $lineItems = $this->lineItemRepository->search($criteria, $context);
+        $lineItems = $this->lineItemRepository->search($criteria, $context)->getEntities();
 
         static::assertCount(1, $lineItems);
 
-        $first = $lineItems->getEntities()->first();
+        $first = $lineItems->first();
         static::assertNotNull($first);
         static::assertSame($id, $first->getReferencedId());
         static::assertSame($id, $first->getProductId());
@@ -179,10 +181,10 @@ class ProductLineItemCommandValidatorTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
-        $lineItems = $this->lineItemRepository->search($criteria, $context);
+        $lineItems = $this->lineItemRepository->search($criteria, $context)->getEntities();
 
         static::assertCount(1, $lineItems);
-        $first = $lineItems->getEntities()->first();
+        $first = $lineItems->first();
         static::assertNotNull($first);
         static::assertSame($id, $first->getReferencedId());
         static::assertSame($id, $first->getProductId());

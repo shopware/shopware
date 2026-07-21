@@ -4,13 +4,13 @@ namespace Shopware\Core\Framework\Mcp;
 
 use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\Prompt;
-use Mcp\Schema\Resource;
+use Mcp\Schema\ResourceDefinition;
 use Mcp\Schema\Tool;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Provides enriched capability data by combining registry tools with dependency
  * and privilege metadata. Used by the capabilities API and the debug CLI command.
@@ -25,7 +25,7 @@ class McpCapabilityCatalog
      * @param array<string, array{static: list<string>, entityParam: ?string, operations: list<string>}> $toolPrivileges tool-name => privilege info
      *
      * $registry is nullable via nullOnInvalid(): null when the MCP bundle is absent.
-     * Once MCP_SERVER is stable (v6.8.0) remove the nullable type and the null guards
+     * Once MCP is stable (v6.8.0) remove the nullable type and the null guards
      * in all public methods.
      */
     public function __construct(
@@ -113,7 +113,7 @@ class McpCapabilityCatalog
         $resources = [];
 
         foreach ($this->registry->getResources()->references as $resource) {
-            \assert($resource instanceof Resource);
+            \assert($resource instanceof ResourceDefinition);
 
             if ($allowlist !== null && !\in_array($resource->uri, $allowlist, true)) {
                 continue;

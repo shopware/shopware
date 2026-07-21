@@ -7,7 +7,6 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -17,6 +16,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'media:generate-media-types',
@@ -25,7 +25,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('discovery')]
 class GenerateMediaTypesCommand extends Command
 {
-    private ShopwareStyle $io;
+    private SymfonyStyle $io;
 
     private ?int $batchSize = null;
 
@@ -55,7 +55,7 @@ class GenerateMediaTypesCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->io = new ShopwareStyle($input, $output);
+        $this->io = new SymfonyStyle($input, $output);
 
         $context = Context::createCLIContext();
         $this->batchSize = $this->validateBatchSize($input);
@@ -105,7 +105,7 @@ class GenerateMediaTypesCommand extends Command
             foreach ($medias as $media) {
                 $this->detectMediaType($context, $media);
             }
-            $this->io->progressAdvance($result->count());
+            $this->io->progressAdvance($result->getEntities()->count());
             $criteria->setOffset((int) $criteria->getOffset() + (int) $this->batchSize);
         } while ($result->getTotal() > $this->batchSize);
     }

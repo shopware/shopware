@@ -84,7 +84,7 @@ class UnusedMediaPurgerTest extends TestCase
                 $withManufacturer->getId(),
             ]),
             $this->context
-        );
+        )->getEntities();
 
         static::assertNull($result->get($txt->getId()));
         static::assertNull($result->get($png->getId()));
@@ -123,7 +123,7 @@ class UnusedMediaPurgerTest extends TestCase
                 $pdf->getId(),
             ]),
             $this->context
-        );
+        )->getEntities();
 
         static::assertNull($result->get($txt->getId()));
         static::assertNull($result->get($png->getId()));
@@ -165,7 +165,7 @@ class UnusedMediaPurgerTest extends TestCase
         static::assertSame(0, $deleted);
 
         $stillExisting = $this->mediaRepo
-            ->search(new Criteria([$txt->getId()]), $this->context)
+            ->search(new Criteria([$txt->getId()]), $this->context)->getEntities()
             ->get($txt->getId());
         static::assertNotNull($stillExisting);
     }
@@ -241,7 +241,7 @@ class UnusedMediaPurgerTest extends TestCase
                 $unusedMedia->getId(),
             ]),
             $this->context
-        );
+        )->getEntities();
 
         static::assertNotNull($result->get($usedByA11yDocument->getId()));
         static::assertNull($result->get($unusedMedia->getId()));

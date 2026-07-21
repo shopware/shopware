@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Service;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\ShopApiSource;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\ServiceException;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,6 +14,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ServiceException::class)]
 class ServiceExceptionTest extends TestCase
 {
@@ -123,6 +125,15 @@ class ServiceExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         static::assertSame(ServiceException::SERVICE_TOGGLE_ACTION_NOT_ALLOWED, $e->getErrorCode());
         static::assertSame('Service is not allowed to toggle itself.', $e->getMessage());
+    }
+
+    public function testStateChangeNotPermitted(): void
+    {
+        $e = ServiceException::stateChangeNotPermitted('MyCoolService');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(ServiceException::SERVICE_STATE_CHANGE_NOT_PERMITTED, $e->getErrorCode());
+        static::assertSame('The state of service "MyCoolService" is managed by its requirements and cannot be changed manually.', $e->getMessage());
     }
 
     public function testMissingAppSecretInfo(): void

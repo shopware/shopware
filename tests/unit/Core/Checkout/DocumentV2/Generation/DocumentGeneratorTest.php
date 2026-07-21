@@ -140,6 +140,96 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotSame('', $documentFileRepository->creates[0][0]['mediaId']);
     }
 
+    public function testPreview(): void
+    {
+        $orderId = Uuid::randomHex();
+        $orderVersionId = Uuid::randomHex();
+        $salesChannelId = Uuid::randomHex();
+        $documentTypeId = Uuid::randomHex();
+        $orderLanguageId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $generationRequest = new DocumentGenerationRequest(
+            $orderId,
+            $orderVersionId,
+            DocumentType::INVOICE,
+            [DocumentFormat::PDF],
+        );
+
+        $order = new OrderEntity();
+        $order->setId($orderId);
+        $order->setSalesChannelId($salesChannelId);
+        $order->setLanguageId($orderLanguageId);
+
+        /** @var StaticEntityRepository<OrderCollection> $orderRepository */
+        $orderRepository = new StaticEntityRepository([
+            function (
+                Criteria $criteria,
+                Context $searchContext,
+            ) use ($order, $orderId, $orderVersionId): EntitySearchResult {
+                static::assertSame([$orderId], $criteria->getIds());
+                static::assertSame('document-v2-generator::load-order-language', $criteria->getTitle());
+                static::assertSame(['languageId'], $criteria->getFields());
+                static::assertSame($orderVersionId, $searchContext->getVersionId());
+
+                return new EntitySearchResult(
+                    OrderDefinition::ENTITY_NAME,
+                    1,
+                    new OrderCollection([$order]),
+                    null,
+                    $criteria,
+                    $searchContext,
+                );
+            },
+            function (
+                Criteria $criteria,
+                Context $searchContext,
+            ) use ($order, $orderId, $orderVersionId, $orderLanguageId): EntitySearchResult {
+                static::assertSame([$orderId], $criteria->getIds());
+                static::assertSame('document-v2-generator::load-order', $criteria->getTitle());
+                static::assertSame($orderVersionId, $searchContext->getVersionId());
+                static::assertSame($orderLanguageId, $searchContext->getLanguageIdChain()[0]);
+
+                return new EntitySearchResult(
+                    OrderDefinition::ENTITY_NAME,
+                    1,
+                    new OrderCollection([$order]),
+                    null,
+                    $criteria,
+                    $searchContext,
+                );
+            },
+        ], new OrderDefinition());
+
+        $numberRangeValueGenerator = $this->createMock(NumberRangeValueGeneratorInterface::class);
+        $numberRangeValueGenerator
+            ->expects($this->once())
+            ->method('getValue')
+            ->with(
+                DocumentNumberGenerator::NUMBER_RANGE_DOCUMENT_TYPE_PREFIX . DocumentType::INVOICE->value,
+                $context,
+                $salesChannelId,
+                true,
+            )
+            ->willReturn('generated-number');
+
+        [$generator, $documentRepository, $documentFileRepository] = $this->createGenerator(
+            $orderRepository,
+            $numberRangeValueGenerator,
+            $documentTypeId,
+            new DocumentEntity(),
+        );
+
+        $result = $generator->preview($generationRequest, $context);
+
+        static::assertSame('filename.pdf', $result->getName());
+        static::assertSame('content', $result->getContent());
+        static::assertSame(DocumentFormat::PDF->fileExtension(), $result->getFileExtension());
+        static::assertSame(DocumentFormat::PDF->mimeType(), $result->getContentType());
+        static::assertCount(0, $documentRepository->creates);
+        static::assertCount(0, $documentFileRepository->creates);
+    }
+
     #[DataProvider('invalidGenerationRequestProvider')]
     public function testGenerateThrowsExceptionOnInvalidGenerationRequest(
         DocumentGenerationRequest $generationRequest,
@@ -155,7 +245,7 @@ class DocumentGeneratorTest extends TestCase
             new DocumentEntity(),
         );
 
-        static::expectExceptionObject($exception);
+        $this->expectExceptionObject($exception);
 
         $generator->generate($generationRequest, Context::createDefaultContext());
     }

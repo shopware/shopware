@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Installer\Controller\DatabaseImportController;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
@@ -26,6 +27,7 @@ use Twig\Environment;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DatabaseImportController::class)]
 class DatabaseImportControllerTest extends TestCase
 {

@@ -71,7 +71,7 @@ class DocumentV2ControllerTest extends TestCase
         $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($payload['documentTypes'] ?? null);
         static::assertArrayHasKey(DocumentType::INVOICE->value, $payload['documentTypes']);
-        static::assertArrayNotHasKey(DocumentType::DELIVERY_NOTE->value, $payload['documentTypes']);
+        static::assertArrayHasKey(DocumentType::DELIVERY_NOTE->value, $payload['documentTypes']);
         static::assertIsArray($payload['documentTypes'][DocumentType::INVOICE->value] ?? null);
         static::assertIsArray($payload['documentTypes'][DocumentType::INVOICE->value]['formats'] ?? null);
         static::assertEqualsCanonicalizing(
@@ -82,6 +82,14 @@ class DocumentV2ControllerTest extends TestCase
                 DocumentFormat::ZUGFERD_XML->value,
             ],
             array_values($payload['documentTypes'][DocumentType::INVOICE->value]['formats']),
+        );
+        static::assertIsArray($payload['documentTypes'][DocumentType::DELIVERY_NOTE->value]['formats'] ?? null);
+        static::assertEqualsCanonicalizing(
+            [
+                DocumentFormat::HTML->value,
+                DocumentFormat::PDF->value,
+            ],
+            array_values($payload['documentTypes'][DocumentType::DELIVERY_NOTE->value]['formats']),
         );
     }
 

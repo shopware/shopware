@@ -19,6 +19,7 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\TemplateDataSubscriber;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Shopware\Storefront\Page\Product\ProductPage;
 use Shopware\Storefront\Theme\ThemeRuntimeConfig;
 use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
@@ -145,7 +146,7 @@ class TemplateDataSubscriberTest extends TestCase
         $canonicalProductId = 'canonical-product-id';
 
         $request = new Request();
-        $request->attributes->set('_route', 'frontend.detail.page');
+        $request->attributes->set('_route', ProductPageSeoUrlRoute::ROUTE_NAME);
         $request->attributes->set('_route_params', ['productId' => $variantProductId]);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, Generator::generateSalesChannelContext());
 
@@ -178,7 +179,7 @@ class TemplateDataSubscriberTest extends TestCase
         $productId = 'parent-product-id';
 
         $request = new Request();
-        $request->attributes->set('_route', 'frontend.detail.page');
+        $request->attributes->set('_route', ProductPageSeoUrlRoute::ROUTE_NAME);
         $request->attributes->set('_route_params', ['productId' => $productId]);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, Generator::generateSalesChannelContext());
 
@@ -212,7 +213,7 @@ class TemplateDataSubscriberTest extends TestCase
         $variantProductId = 'parent-product-id';
 
         $request = new Request();
-        $request->attributes->set('_route', 'frontend.detail.page');
+        $request->attributes->set('_route', ProductPageSeoUrlRoute::ROUTE_NAME);
         $request->attributes->set('_route_params', ['productId' => $parentProductId]);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, Generator::generateSalesChannelContext());
 

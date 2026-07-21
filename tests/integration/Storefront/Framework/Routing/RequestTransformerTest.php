@@ -19,6 +19,7 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Routing\DomainLoader;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Shopware\Storefront\Test\Framework\Routing\Helper\ExpectedRequest;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -316,7 +317,7 @@ class RequestTransformerTest extends TestCase
                 'language_id' => Uuid::fromHexToBytes($this->deLanguageId),
                 'sales_channel_id' => Uuid::fromHexToBytes($salesChannelId),
                 'foreign_key' => Uuid::randomBytes(),
-                'route_name' => 'frontend.detail.page',
+                'route_name' => ProductPageSeoUrlRoute::ROUTE_NAME,
                 'path_info' => '/detail/87a78cf58f114d5587ae23c140825694',
                 'seo_path_info' => 'Main-product/SWDEMO10001?test=123',
                 'is_canonical' => 1,
@@ -354,7 +355,7 @@ class RequestTransformerTest extends TestCase
                 'language_id' => Uuid::fromHexToBytes($this->deLanguageId),
                 'sales_channel_id' => Uuid::fromHexToBytes($salesChannelId),
                 'foreign_key' => Uuid::randomBytes(),
-                'route_name' => 'frontend.detail.page',
+                'route_name' => ProductPageSeoUrlRoute::ROUTE_NAME,
                 'path_info' => '/detail/87a78cf58f114d5587ae23c140825694',
                 'seo_path_info' => 'Main-product/SWDEMO10001',
                 'is_canonical' => 1,

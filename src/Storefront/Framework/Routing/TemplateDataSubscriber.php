@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Shopware\Storefront\Page\Product\ProductPage;
 use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -56,7 +57,7 @@ class TemplateDataSubscriber implements EventSubscriberInterface
         $routeParams = $request->attributes->get('_route_params', []);
 
         // When we have a product page, we should make sure that the hreflang matches the canonical URL, relevant if we have a dedicated canonical URL or if we are on the parent product page
-        if ($route === 'frontend.detail.page') {
+        if ($route === ProductPageSeoUrlRoute::ROUTE_NAME) {
             $page = $event->getParameter('page');
             if ($page instanceof ProductPage) {
                 $routeParams['productId'] = $page->getProduct()->getCanonicalProductId() ?? $page->getProduct()->getId();

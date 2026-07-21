@@ -120,9 +120,7 @@ jobs:
   linked-issues-status:
     runs-on: ubuntu-24.04
     if: >
-      github.event_name == 'pull_request' &&
-      (github.event.action == 'opened' || github.event.action == 'review_requested') &&
-      github.event.pull_request.head.repo.full_name == github.repository
+      github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'review_requested') && github.event.pull_request.head.repo.full_name == github.repository
     permissions:
       contents: read
       id-token: write
@@ -153,6 +151,7 @@ jobs:
                     closingIssuesReferences(first: 10) {
                       nodes {
                         number
+                        authorAssociation
                         repository { nameWithOwner }
                       }
                     }
@@ -160,8 +159,11 @@ jobs:
                 }
               }`, { owner: context.repo.owner, repo: context.repo.repo, number: context.payload.pull_request.number })
 
+            // externally authored issues are not touched; external PRs never reach this job (fork heads are filtered in the job condition)
+            const internalAssociations = ['MEMBER', 'OWNER', 'COLLABORATOR']
             const linkedIssues = res.repository.pullRequest.closingIssuesReferences.nodes
               .filter(issue => issue.repository.nameWithOwner === `${context.repo.owner}/${context.repo.repo}`)
+              .filter(issue => internalAssociations.includes(issue.authorAssociation))
 
             for (const { number } of linkedIssues) {
               const issue = await findIssueWithProjectItems({github, core, context}, number)

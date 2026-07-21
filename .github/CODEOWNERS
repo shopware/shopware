@@ -24,6 +24,9 @@
 # ctrl-alt-elite
 src/Core/System/UsageData/usage-data-allow-list.json @shopware/st-ctrl-alt-elite
 
+# runtime terror
+tests/integration/Core/Checkout/Document/Renderer/_snapshots/* @shopware/product-cc-after-sales
+tests/integration/Core/Checkout/DocumentV2/Renderer/_snapshots/* @shopware/product-cc-after-sales
 
 # core
 **/composer.json @shopware/product-ct-core

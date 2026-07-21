@@ -132,10 +132,6 @@ class StornoRendererTest extends TestCase
             'displayCompanyAddress' => true,
             'displayReturnAddress' => true,
             'companyName' => 'Example Company',
-            'companyStreet' => 'Example Street 1',
-            'companyZipcode' => '12345',
-            'companyCity' => 'Example City',
-            'companyCountryId' => $this->getValidCountryId(),
             'documentDate' => '2023-11-24T12:00:00+00:00',
         ];
 

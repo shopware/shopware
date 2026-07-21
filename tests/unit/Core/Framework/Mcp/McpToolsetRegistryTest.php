@@ -6,6 +6,7 @@ use Mcp\Capability\Registry;
 use Mcp\Schema\Tool;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(McpToolsetRegistry::class)]
 class McpToolsetRegistryTest extends TestCase
 {

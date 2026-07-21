@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\System\Currency\CurrencyCollection;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  */
 #[McpResource(uri: 'shopware://currencies', name: 'shopware-currencies', description: 'All configured currencies with ISO codes, symbols, and conversion factors.')]
 #[Package('framework')]

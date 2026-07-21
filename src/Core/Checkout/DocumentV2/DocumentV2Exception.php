@@ -48,9 +48,13 @@ class DocumentV2Exception extends HttpException
 
     public const TEMPLATE_CONTEXT_READ_ONLY = 'DOCUMENT_V2__TEMPLATE_CONTEXT_READ_ONLY';
 
+    public const TEMPLATE_CONTEXT_PROPERTY_COLLISION = 'DOCUMENT_V2__TEMPLATE_CONTEXT_PROPERTY_COLLISION';
+
     public const UNSUPPORTED_CONFIG_CAST_TYPE = 'DOCUMENT_V2__UNSUPPORTED_CONFIG_CAST_TYPE';
 
     public const MISSING_DOCUMENT_NUMBER = 'DOCUMENT_V2__MISSING_DOCUMENT_NUMBER';
+
+    public const MISSING_DELIVERY_DATE = 'DOCUMENT_V2__MISSING_DELIVERY_DATE';
 
     public const MALFORMED_XML = 'DOCUMENT_V2__MALFORMED_XML';
 
@@ -245,6 +249,16 @@ class DocumentV2Exception extends HttpException
         );
     }
 
+    public static function templateContextPropertyCollision(string $property): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::TEMPLATE_CONTEXT_PROPERTY_COLLISION,
+            'Type-specific render data cannot override the shared property "{{ property }}".',
+            ['property' => $property],
+        );
+    }
+
     public static function unsupportedConfigCastType(string $type): self
     {
         return new self(
@@ -261,6 +275,16 @@ class DocumentV2Exception extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::MISSING_DOCUMENT_NUMBER,
             'Document number is missing for document type "{{ documentType }}".',
+            ['documentType' => $documentType],
+        );
+    }
+
+    public static function missingDeliveryDate(string $documentType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_DELIVERY_DATE,
+            'Delivery date is required for document type "{{ documentType }}".',
             ['documentType' => $documentType],
         );
     }

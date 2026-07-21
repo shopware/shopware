@@ -4,11 +4,15 @@ namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Renderer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentCompanyInfo;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdEmbeddedPdfRenderer;
-use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
@@ -16,7 +20,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticRenderData;
+use Shopware\Core\System\Country\CountryEntity;
 
 /**
  * @internal
@@ -37,14 +41,14 @@ class ZugferdEmbeddedPdfRendererTest extends TestCase
         );
     }
 
-    public function testThrowsWhenRenderDataMissing(): void
+    public function testThrowsWhenMetaRenderDataMissing(): void
     {
         $renderer = new ZugferdEmbeddedPdfRenderer('version');
 
         $input = new RenderInput(DocumentType::INVOICE->value, '12345', $this->createOrder(), []);
 
         $this->expectExceptionObject(
-            DocumentV2Exception::unknownRenderData(DocumentType::INVOICE->value, AbstractRenderData::class),
+            DocumentV2Exception::unknownRenderData(DocumentMetaProvider::KEY, DocumentMetaRenderData::class),
         );
 
         $renderer->renderToString($input, new RenderState(), Context::createDefaultContext());
@@ -101,7 +105,30 @@ class ZugferdEmbeddedPdfRendererTest extends TestCase
             DocumentType::INVOICE->value,
             '12345',
             $this->createOrder(),
-            [DocumentType::INVOICE->value => new StaticRenderData()],
+            [DocumentMetaProvider::KEY => $this->createMeta()],
+        );
+    }
+
+    private function createMeta(): DocumentMetaRenderData
+    {
+        return new DocumentMetaRenderData(
+            config: new DocumentConfig(
+                pageSize: 'a4',
+                pageOrientation: 'portrait',
+                itemsPerPage: 10,
+                filenamePrefix: 'invoice_',
+            ),
+            company: new DocumentCompanyInfo(
+                'company',
+                'street',
+                '12345',
+                'city',
+                new CountryEntity(),
+            ),
+            display: new DocumentDisplayOptions(),
+            documentDate: 'date',
+            documentNumber: '12345',
+            documentComment: null,
         );
     }
 

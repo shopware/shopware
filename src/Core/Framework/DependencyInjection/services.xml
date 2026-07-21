@@ -309,7 +309,7 @@ frame-ancestors 'none';
         <service id="Shopware\Core\System\Snippet\Api\TranslationController" public="true">
             <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationMetadataStore"/>
-            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationLoader"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationUpdater"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationRemover"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -621,6 +621,7 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Feature\Command\FeatureDumpCommand">
             <argument type="service" id="kernel"/>
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
 
             <tag name="console.command"/>
             <tag name="console.command" command="administration:dump:features"/>

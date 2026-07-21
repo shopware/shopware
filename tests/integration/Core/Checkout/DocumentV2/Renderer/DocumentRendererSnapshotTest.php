@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\DocumentV2\Renderer;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
+use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer as LegacyDeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer as LegacyInvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer as LegacyHtmlRenderer;
@@ -12,10 +13,13 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentCompanyInfo;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
-use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\DeliveryNoteDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DeliveryNoteRenderData;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Renderer\HtmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdXmlRenderer;
@@ -98,7 +102,7 @@ class DocumentRendererSnapshotTest extends TestCase
      * @param class-string<AbstractDocumentDataProvider> $dataProviderClass
      */
     #[DataProvider('provideDocumentTypes')]
-    public function testRender(DocumentType $documentType, string $dataProviderClass): void
+    public function testRender(DocumentType $documentType, string $dataProviderClass, bool $renderXml = true): void
     {
         $dataProvider = static::getContainer()->get($dataProviderClass);
         static::assertInstanceOf(AbstractDocumentDataProvider::class, $dataProvider);
@@ -118,35 +122,43 @@ class DocumentRendererSnapshotTest extends TestCase
             documentType: $documentType->value,
             documentNumber: self::DOCUMENT_NUMBER,
             order: $order,
-            data: [$dataProvider->getKey() => $this->buildRenderData($documentType, $order)],
+            data: $this->buildRenderData($documentType, $order),
         );
 
-        $htmlResult = $this->htmlRenderer->renderToString($input, new RenderState(), $this->context);
-        $xmlResult = $this->xmlRenderer->renderToString($input, new RenderState(), $this->context);
-
-        static::assertSame(DocumentFormat::HTML->value, $htmlResult->format);
-        static::assertSame(DocumentFormat::ZUGFERD_XML->value, $xmlResult->format);
-
-        $this->assertSnapshot($documentType->value, [
+        /**
+         * @var array<int, array{type: string, actual: string}> $snaps
+         */
+        $snaps = [
             [
                 'type' => self::TYPE_HTML,
-                'actual' => $htmlResult->content,
+                'actual' => $this->htmlRenderer->renderToString($input, new RenderState(), $this->context)->content,
             ],
-            [
+        ];
+
+        if ($renderXml) {
+            $snaps[] = [
                 'type' => self::TYPE_XML,
-                'actual' => $xmlResult->content,
-            ],
-        ]);
+                'actual' => $this->xmlRenderer->renderToString($input, new RenderState(), $this->context)->content,
+            ];
+        }
+
+        $this->assertSnapshot($documentType->value, $snaps);
     }
 
     /**
-     * @return iterable<string, array{DocumentType, class-string<AbstractDocumentDataProvider>}>
+     * @return iterable<string, array{documentType: DocumentType, dataProviderClass: class-string<AbstractDocumentDataProvider>, renderXml?: bool}>
      */
     public static function provideDocumentTypes(): iterable
     {
         yield 'invoice' => [
-            DocumentType::INVOICE,
-            InvoiceDataProvider::class,
+            'documentType' => DocumentType::INVOICE,
+            'dataProviderClass' => InvoiceDataProvider::class,
+        ];
+
+        yield 'delivery_note' => [
+            'documentType' => DocumentType::DELIVERY_NOTE,
+            'dataProviderClass' => DeliveryNoteDataProvider::class,
+            'renderXml' => false,
         ];
     }
 
@@ -167,9 +179,7 @@ class DocumentRendererSnapshotTest extends TestCase
             documentType: DocumentType::INVOICE->value,
             documentNumber: self::DOCUMENT_NUMBER,
             order: $order,
-            data: [
-                $dataProvider->getKey() => $this->buildRenderData(DocumentType::INVOICE, $order, itemsPerPage: 1),
-            ],
+            data: $this->buildRenderData(DocumentType::INVOICE, $order, itemsPerPage: 1),
         );
 
         $htmlResult = $this->htmlRenderer->renderToString($input, new RenderState(), $this->context);
@@ -201,10 +211,19 @@ class DocumentRendererSnapshotTest extends TestCase
         $orderId = $this->persistCart($this->generateDemoCartWithTaxes([7]));
         $this->enrichOrderForRendering($orderId);
 
+        $legacyConfig = $this->getDemoInvoiceLegacyConfig();
+
+        if ($documentType === DocumentType::DELIVERY_NOTE) {
+            $legacyConfig['custom'] = [
+                'deliveryDate' => self::DOCUMENT_DATE,
+                'deliveryNoteDate' => self::DOCUMENT_DATE,
+            ];
+        }
+
         $legacyOperation = new DocumentGenerateOperation(
             $orderId,
             LegacyHtmlRenderer::FILE_EXTENSION,
-            $this->getDemoInvoiceLegacyConfig(),
+            $legacyConfig,
         );
 
         $legacyResult = $legacyRenderer->render(
@@ -229,7 +248,7 @@ class DocumentRendererSnapshotTest extends TestCase
             documentType: $documentType->value,
             documentNumber: self::DOCUMENT_NUMBER,
             order: $order,
-            data: [$dataProvider->getKey() => $this->buildRenderData($documentType, $order, true)],
+            data: $this->buildRenderData($documentType, $order, true),
         );
 
         $result = $this->htmlRenderer->renderToString(
@@ -252,60 +271,86 @@ class DocumentRendererSnapshotTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{DocumentType, class-string<AbstractDocumentDataProvider>, class-string<AbstractDocumentRenderer>}>
+     * @return iterable<string, array{documentType:DocumentType, dataProviderClass:class-string<AbstractDocumentDataProvider>, legacyRendererClass:class-string<AbstractDocumentRenderer>}>
      */
     public static function provideLegacyDocumentTypes(): iterable
     {
         yield 'invoice' => [
-            DocumentType::INVOICE,
-            InvoiceDataProvider::class,
-            LegacyInvoiceRenderer::class,
+            'documentType' => DocumentType::INVOICE,
+            'dataProviderClass' => InvoiceDataProvider::class,
+            'legacyRendererClass' => LegacyInvoiceRenderer::class,
+        ];
+
+        yield 'delivery_note' => [
+            'documentType' => DocumentType::DELIVERY_NOTE,
+            'dataProviderClass' => DeliveryNoteDataProvider::class,
+            'legacyRendererClass' => LegacyDeliveryNoteRenderer::class,
         ];
     }
 
+    /**
+     * @return array<string, AbstractRenderData>
+     */
     private function buildRenderData(
         DocumentType $documentType,
         OrderEntity $order,
         bool $withoutCompanyCountry = false,
         ?int $itemsPerPage = null,
-    ): AbstractRenderData {
+    ): array {
         $companyCountry = $withoutCompanyCountry ? new CountryEntity() : $this->companyCountry;
 
+        $data = [
+            DocumentMetaProvider::KEY => $this->buildMeta($companyCountry, $itemsPerPage),
+        ];
+
         /** @phpstan-ignore match.unhandled */
-        return match ($documentType) {
-            DocumentType::INVOICE => $this->buildInvoiceRenderData($companyCountry, $order, $itemsPerPage),
+        $data += match ($documentType) {
+            DocumentType::INVOICE => [InvoiceDataProvider::KEY => $this->buildInvoiceRenderData($order)],
+            DocumentType::DELIVERY_NOTE => [DeliveryNoteDataProvider::KEY => $this->buildDeliveryNoteRenderData()],
         };
+
+        return $data;
+    }
+
+    private function buildDeliveryNoteRenderData(): DeliveryNoteRenderData
+    {
+        $cfg = $this->getDemoInvoiceLegacyConfig();
+
+        return new DeliveryNoteRenderData(
+            custom: [
+                'deliveryNoteNumber' => $cfg['documentNumber'],
+                'deliveryDate' => $cfg['documentDate'],
+                'deliveryNoteDate' => $cfg['documentDate'],
+            ],
+        );
+    }
+
+    private function buildMeta(
+        CountryEntity $companyCountry,
+        ?int $itemsPerPage = null,
+    ): DocumentMetaRenderData {
+        $cfg = $this->getDemoInvoiceLegacyConfig();
+
+        return new DocumentMetaRenderData(
+            config: $this->buildDocumentConfig($itemsPerPage),
+            company: $this->buildDocumentCompanyInfo($companyCountry),
+            display: $this->buildDisplayOptions($cfg),
+            documentDate: $cfg['documentDate'],
+            documentNumber: $cfg['documentNumber'],
+            documentComment: $cfg['documentComment'],
+            legacyConfig: $cfg,
+        );
     }
 
     private function buildInvoiceRenderData(
-        CountryEntity $companyCountry,
         OrderEntity $order,
-        ?int $itemsPerPage = null,
     ): InvoiceRenderData {
         $cfg = $this->getDemoInvoiceLegacyConfig();
-
-        $displayOptions = new DocumentDisplayOptions(
-            displayHeader: $cfg['displayHeader'],
-            displayFooter: $cfg['displayFooter'],
-            displayPageCount: $cfg['displayPageCount'],
-            displayCompanyAddress: $cfg['displayCompanyAddress'],
-            displayReturnAddress: $cfg['displayReturnAddress'],
-            displayLineItems: $cfg['displayLineItems'],
-            displayLineItemPosition: $cfg['displayLineItemPosition'],
-            displayPrices: $cfg['displayPrices'],
-            displayDivergentDeliveryAddress: $cfg['displayDivergentDeliveryAddress'],
-        );
 
         $lineItems = LineItemView::listFromOrder($order);
         $allowanceCharges = AllowanceChargeView::listFromOrder($order);
 
         return new InvoiceRenderData(
-            config: $this->buildDocumentConfig($itemsPerPage),
-            company: $this->buildDocumentCompanyInfo($companyCountry),
-            display: $displayOptions,
-            documentDate: $cfg['documentDate'],
-            documentNumber: $cfg['documentNumber'],
-            documentComment: $cfg['documentComment'],
             typeCode: TypeCode::INVOICE,
             buyerReference: '10000',
             buyer: TradePartyView::buyerFromOrder($order),
@@ -318,7 +363,24 @@ class DocumentRendererSnapshotTest extends TestCase
             paymentDueDate: new \DateTimeImmutable('2026-06-04T00:00:00+00:00'),
             intraCommunityDelivery: false,
             custom: ['invoiceNumber' => $cfg['documentNumber']],
-            legacyConfig: $cfg,
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $cfg
+     */
+    private function buildDisplayOptions(array $cfg): DocumentDisplayOptions
+    {
+        return new DocumentDisplayOptions(
+            displayHeader: $cfg['displayHeader'],
+            displayFooter: $cfg['displayFooter'],
+            displayPageCount: $cfg['displayPageCount'],
+            displayCompanyAddress: $cfg['displayCompanyAddress'],
+            displayReturnAddress: $cfg['displayReturnAddress'],
+            displayLineItems: $cfg['displayLineItems'],
+            displayLineItemPosition: $cfg['displayLineItemPosition'],
+            displayPrices: $cfg['displayPrices'],
+            displayDivergentDeliveryAddress: $cfg['displayDivergentDeliveryAddress'],
         );
     }
 

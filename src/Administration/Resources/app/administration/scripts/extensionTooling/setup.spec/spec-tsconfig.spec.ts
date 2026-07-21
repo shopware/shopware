@@ -44,8 +44,8 @@ describe('scripts/extensionTooling/setup spec leaf tsconfig', () => {
 
     function readSpecLeaf(): { extends: string; files: string[]; include: string[]; exclude?: string[] } {
         const result = setupExtensionTooling({ projectRoot, administrationRoot });
-        const project = result.manifest.projects[0];
-        const raw = fs.readFileSync(path.join(projectRoot, project.specTsconfig), 'utf8');
+        const target = result.manifest.projects[0].targets[0];
+        const raw = fs.readFileSync(path.join(projectRoot, target.specTsconfig), 'utf8');
 
         return JSON.parse(raw.split('\n').slice(1).join('\n')) as {
             extends: string;

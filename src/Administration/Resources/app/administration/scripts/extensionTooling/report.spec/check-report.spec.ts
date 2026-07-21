@@ -23,6 +23,48 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
         expect(output).not.toContain('module-35');
     });
 
+    it('paints success-with-writable-skips yellow and points at --fail-on-skipped', () => {
+        const skipped = extension(
+            project('Custom', {
+                tsconfig: 'custom/plugins/Custom/src/Resources/app/administration/tsconfig.json',
+                eslintConfig: 'custom/plugins/Custom/src/Resources/app/administration/eslint.config.mjs',
+                ts: resolution('unmanaged', { reason: 'not-extending' }),
+                eslint: resolution('unmanaged', { reason: 'factory-not-composed' }),
+            }),
+            { typescript: run('unmanaged'), eslint: run('unmanaged') },
+        );
+        const base = { results: [skipped], fatalDiagnostics: [], warnings: [], baselineUpdates: [] };
+
+        const lenient = renderCheckReport({ ...base, exitCode: 0 });
+
+        expect(lenient).toContain('⚠');
+        expect(lenient).toContain('skipped and NOT checked');
+        expect(lenient).toContain('Pass --fail-on-skipped');
+
+        const strict = renderCheckReport({ ...base, exitCode: 1 }, { failOnSkipped: true });
+
+        expect(strict).toContain('failing because --fail-on-skipped is set');
+        expect(strict).toContain('exit 1');
+    });
+
+    it('does not warn about skips for vendor-only skipped extensions', () => {
+        const vendorSkip = extension(
+            project('VendorPlugin', { vendor: true, ts: resolution('unmanaged'), eslint: resolution('unmanaged') }),
+            { typescript: run('unmanaged'), eslint: run('unmanaged') },
+        );
+
+        const output = renderCheckReport({
+            results: [vendorSkip],
+            fatalDiagnostics: [],
+            warnings: [],
+            baselineUpdates: [],
+            exitCode: 0,
+        });
+
+        expect(output).not.toContain('skipped and NOT checked');
+        expect(output).not.toContain('Pass --fail-on-skipped');
+    });
+
     it('shows why each tool skipped and the one-command bridge for a plugin without a bridge', () => {
         const output = report([
             extension(
@@ -149,7 +191,7 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
 
     it('prints reproduction commands only with --show-commands', () => {
         const result = extension(project('Mine'), {
-            commands: { typescript: 'cd /srv && node vue-tsc.js', eslint: 'cd /srv && node eslint.js' },
+            commands: { typescript: ['cd /srv && node vue-tsc.js'], eslint: ['cd /srv && node eslint.js'] },
         });
 
         expect(
@@ -163,12 +205,101 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
         ).toContain('$ cd /srv && node vue-tsc.js');
     });
 
-    it('qualifies a vacuous TypeScript pass instead of a bare green', () => {
+    it('shows target-to-config routing only in verbose output', () => {
+        const mine = project('Mine');
+        const result = extension(mine, {
+            coverage: [
+                {
+                    target: mine.targets[0],
+                    runtimeConfig: 'var/admin-extension-tooling/projects/mine.json',
+                    specConfig: 'var/admin-extension-tooling/projects/mine-specs.json',
+                    eslintConfig: 'eslint.config.mjs',
+                },
+            ],
+        });
+        const concise = renderCheckReport({
+            results: [result],
+            fatalDiagnostics: [],
+            warnings: [],
+            baselineUpdates: [],
+            exitCode: 0,
+        });
+        const verbose = renderCheckReport(
+            { results: [result], fatalDiagnostics: [], warnings: [], baselineUpdates: [], exitCode: 0 },
+            { verbose: true },
+        );
+
+        expect(concise).not.toContain('target Mine');
+        expect(verbose).toContain('target Mine · custom/plugins/Mine/src');
+        expect(verbose).toContain('runtime: var/admin-extension-tooling/projects/mine.json');
+    });
+
+    it('qualifies a vacuous TypeScript pass and points at the JS-to-TS next step', () => {
         const output = report([extension(project('JsOnly'), { typescript: run('no-files', { durationMs: 0 }) })]);
 
         expect(output).toContain('✔ passed (0 TypeScript files — .js is not type-checked)');
         expect(output).toContain('passed*');
         expect(output).toContain('* no TypeScript files — .js is not type-checked');
+        expect(output).toContain('rename a .js source to .ts');
+    });
+
+    it('renders a triage summary grouping findings by rule/code and by file', () => {
+        const eslintFindings = [
+            { file: 'src/a.ts', rule: 'no-unsafe-call', message: 'm', severity: 'error' as const },
+            { file: 'src/a.ts', rule: 'no-unsafe-call', message: 'm', severity: 'error' as const },
+            { file: 'src/b.ts', rule: 'no-unsafe-member-access', message: 'm', severity: 'error' as const },
+            { file: 'src/c.ts', rule: 'vue/no-lone-template', message: 'm', severity: 'warning' as const },
+        ];
+        const typeScriptFindings = [
+            { file: 'src/a.ts', code: 'TS2322', message: 'm' },
+            { file: 'src/b.ts', code: 'TS7006', message: 'm' },
+        ];
+        const result = extension(project('Big'), {
+            typescript: run('failed', { findings: 2, newFindings: 2, typeScriptFindings }),
+            eslint: run('failed', { findings: 4, newFindings: 3, eslintFindings }),
+        });
+        const output = renderCheckReport(
+            { results: [result], fatalDiagnostics: [], warnings: [], baselineUpdates: [], exitCode: 1 },
+            { summary: true },
+        );
+
+        expect(output).toContain('Summary — Big');
+        expect(output).toContain('runtime TypeScript: 2 finding(s)');
+        expect(output).toContain('ESLint errors: 3 finding(s)');
+        expect(output).toContain('ESLint warnings: 1 finding(s)');
+        expect(output).toContain('no-unsafe-call ×2');
+        expect(output).toContain('by file:');
+    });
+
+    it('with --summary-only suppresses the raw per-finding output but keeps the summary', () => {
+        const result = extension(project('Big'), {
+            eslint: run('failed', {
+                findings: 1,
+                newFindings: 1,
+                output: 'RAW_ESLINT_LINE_XYZ',
+                eslintFindings: [{ file: 'src/a.ts', rule: 'no-unsafe-call', message: 'm', severity: 'error' as const }],
+            }),
+        });
+        const output = renderCheckReport(
+            { results: [result], fatalDiagnostics: [], warnings: [], baselineUpdates: [], exitCode: 1 },
+            { summaryOnly: true },
+        );
+
+        expect(output).not.toContain('RAW_ESLINT_LINE_XYZ');
+        expect(output).toContain('Summary — Big');
+        expect(output).toContain('no-unsafe-call ×1');
+    });
+
+    it('prints the fix → baseline handoff only after --fix when findings remain', () => {
+        const failing = extension(project('Plug'), { eslint: run('failed', { findings: 3, newFindings: 3 }) });
+        const base = { results: [failing], fatalDiagnostics: [], warnings: [], baselineUpdates: [], exitCode: 1 };
+
+        const afterFix = renderCheckReport({ ...base }, { fix: true });
+
+        expect(afterFix).toContain('deprecation codemods');
+        expect(afterFix).toContain('composer admin:check-extensions -- --update-baseline');
+
+        expect(renderCheckReport({ ...base })).not.toContain('Accept the findings that remain as a baseline');
     });
 
     it('renders blocked TypeScript runs with their cause', () => {

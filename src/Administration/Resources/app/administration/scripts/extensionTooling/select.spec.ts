@@ -10,14 +10,21 @@ function project(name: string, overrides: Partial<ExtensionToolingProject> = {})
         name,
         technicalNames: [name],
         basePath: `custom/plugins/${name}`,
-        sourcePaths: [],
         vendor: false,
-        bridgePresent: false,
-        tsconfig: null,
-        eslintConfig: null,
-        ts: { mode: 'managed', verified: true },
-        eslint: { mode: 'managed', verified: true },
-        checkTsconfig: '',
+        targets: [
+            {
+                technicalNames: [name],
+                sourcePath: `custom/plugins/${name}/src`,
+                adminFolder: `custom/plugins/${name}`,
+                bridgePresent: false,
+                tsconfig: null,
+                eslintConfig: null,
+                ts: { mode: 'managed', verified: true },
+                eslint: { mode: 'managed', verified: true },
+                checkTsconfig: '',
+                specTsconfig: '',
+            },
+        ],
         ...overrides,
     };
 }

@@ -112,20 +112,62 @@ describe('scripts/extensionTooling/setup', () => {
                 'SuiteB',
             ],
             vendor: false,
-            ts: { mode: 'managed', verified: true },
-            eslint: { mode: 'managed', verified: true },
         });
-        expect(suite?.sourcePaths).toHaveLength(2);
-        expect(zeroConfig).toMatchObject({ vendor: false, ts: { mode: 'managed' }, eslint: { mode: 'managed' } });
+        expect(suite?.targets).toHaveLength(2);
+        expect(suite?.targets).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ technicalNames: ['SuiteA'], ts: { mode: 'managed', verified: true } }),
+                expect.objectContaining({ technicalNames: ['SuiteB'], ts: { mode: 'managed', verified: true } }),
+            ]),
+        );
+        expect(zeroConfig?.vendor).toBe(false);
+        expect(zeroConfig?.targets[0].ts).toMatchObject({ mode: 'managed' });
+        expect(zeroConfig?.targets[0].eslint).toMatchObject({ mode: 'managed' });
         // The vendor fixture's own configs do not compose the preset — static
         // analysis already classifies them, unverified until a check run.
-        expect(vendorExtension).toMatchObject({
-            vendor: true,
-            ts: { mode: 'unmanaged', reason: 'not-extending', verified: false },
-            eslint: { mode: 'unmanaged', reason: 'factory-not-composed', verified: false },
-            tsconfig: 'vendor/acme/custom-admin/src/Resources/app/administration/tsconfig.json',
+        expect(vendorExtension?.vendor).toBe(true);
+        expect(vendorExtension?.targets[0].ts).toMatchObject({
+            mode: 'unmanaged',
+            reason: 'not-extending',
+            verified: false,
         });
+        expect(vendorExtension?.targets[0].eslint).toMatchObject({
+            mode: 'unmanaged',
+            reason: 'factory-not-composed',
+            verified: false,
+        });
+        expect(vendorExtension?.targets[0].tsconfig).toBe(
+            'vendor/acme/custom-admin/src/Resources/app/administration/tsconfig.json',
+        );
         expect(result.manifest.entitySchemaAvailable).toBe(true);
+    });
+
+    it('canonicalizes duplicate bundle entries that point to the same Administration source root', () => {
+        writeZeroConfigPlugin({ projectRoot, pluginPath: 'custom/plugins/DuplicateRoot' });
+        writePluginsConfig(projectRoot, [
+            {
+                technicalName: 'DuplicateRootA',
+                basePath: 'custom/plugins/DuplicateRoot/src',
+                administrationPath: 'Resources/app/administration/src',
+            },
+            {
+                technicalName: 'DuplicateRootB',
+                basePath: 'custom/plugins/DuplicateRoot/src',
+                administrationPath: 'Resources/app/administration/src',
+            },
+        ]);
+
+        const result = setupExtensionTooling({ projectRoot, administrationRoot });
+
+        expect(result.manifest.projects).toHaveLength(1);
+        expect(result.manifest.projects[0].targets).toEqual([
+            expect.objectContaining({
+                technicalNames: [
+                    'DuplicateRootA',
+                    'DuplicateRootB',
+                ],
+            }),
+        ]);
     });
 
     it('projects root configs that mirror the generated leaf configs', () => {
@@ -134,14 +176,16 @@ describe('scripts/extensionTooling/setup', () => {
         const result = setupExtensionTooling({ projectRoot, administrationRoot });
         const rootTsconfig = fs.readFileSync(path.join(projectRoot, 'tsconfig.json'), 'utf8');
         const references = [...rootTsconfig.matchAll(/"path": "(.+)"/g)].map((match) => match[1]);
-        const managedProjects = result.manifest.projects.filter((project) => project.ts.mode === 'managed');
+        const managedTargets = result.manifest.projects.flatMap((project) =>
+            project.targets.filter((target) => target.ts.mode === 'managed'),
+        );
 
         expect(rootTsconfig).toContain(GENERATED_MARKER);
         // Each managed project contributes its runtime leaf and its spec leaf.
         expect(references).toEqual(
-            managedProjects.flatMap((project) => [
-                `./${project.checkTsconfig}`,
-                `./${project.specTsconfig}`,
+            managedTargets.flatMap((target) => [
+                `./${target.checkTsconfig}`,
+                `./${target.specTsconfig}`,
             ]),
         );
 
@@ -152,19 +196,23 @@ describe('scripts/extensionTooling/setup', () => {
         const rootEslint = fs.readFileSync(path.join(projectRoot, 'eslint.config.mjs'), 'utf8');
 
         for (const project of result.manifest.projects) {
-            for (const sourcePath of project.sourcePaths) {
-                expect(rootEslint).toContain(`${JSON.stringify(sourcePath)},`);
+            for (const target of project.targets) {
+                expect(rootEslint).toContain(`${JSON.stringify(target.sourcePath)},`);
             }
         }
 
         const leafFiles = fs.readdirSync(path.join(projectRoot, 'var/admin-extension-tooling/projects'));
 
-        // One runtime leaf plus one spec leaf per project.
-        expect(leafFiles).toHaveLength(result.manifest.projects.length * 2);
+        // One runtime leaf plus one spec leaf per Administration target.
+        expect(leafFiles).toHaveLength(
+            result.manifest.projects.reduce((total, project) => total + project.targets.length * 2, 0),
+        );
 
         for (const project of result.manifest.projects) {
-            expect(project.specTsconfig).toMatch(/-specs\.json$/);
-            expect(fs.existsSync(path.join(projectRoot, project.specTsconfig))).toBe(true);
+            for (const target of project.targets) {
+                expect(target.specTsconfig).toMatch(/-specs\.json$/);
+                expect(fs.existsSync(path.join(projectRoot, target.specTsconfig))).toBe(true);
+            }
         }
     });
 
@@ -207,7 +255,9 @@ describe('scripts/extensionTooling/setup', () => {
         const result = setupExtensionTooling({ projectRoot, administrationRoot });
         const eslintConfigPath = path.join(projectRoot, 'eslint.config.mjs');
         const rootEslint = fs.readFileSync(eslintConfigPath, 'utf8');
-        const sourcePath = result.manifest.projects.flatMap((project) => project.sourcePaths)[0];
+        const sourcePath = result.manifest.projects.flatMap((project) =>
+            project.targets.map((target) => target.sourcePath),
+        )[0];
 
         expect(sourcePath).toContain("O'Brien");
         expect(rootEslint).toContain(JSON.stringify(sourcePath));
@@ -360,7 +410,9 @@ describe('scripts/extensionTooling/setup', () => {
         const rerun = setupExtensionTooling({ projectRoot, administrationRoot, shim: 'ZeroConfig' });
 
         expect(fs.readFileSync(path.join(adminFolder, 'eslint.config.mjs'), 'utf8')).toContain('// my custom rule');
-        expect(rerun.manifest.projects.find((project) => project.name === 'ZeroConfig')?.bridgePresent).toBe(true);
+        expect(rerun.manifest.projects.find((project) => project.name === 'ZeroConfig')?.targets[0].bridgePresent).toBe(
+            true,
+        );
     });
 
     it('never overwrites an existing plugin config and warns how to add the extends', () => {

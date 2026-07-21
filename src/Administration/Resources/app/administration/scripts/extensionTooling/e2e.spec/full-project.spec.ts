@@ -98,6 +98,9 @@ describe('scripts/extensionTooling e2e', () => {
         writeFile(path.join(projectRoot, 'vendor/acme/vendor-admin/src/Resources/app/administration/src/broken.ts'), [
             "export const brokenVendorValue: number = 'broken';",
         ]);
+        writeFile(path.join(projectRoot, 'vendor/acme/vendor-admin/src/Resources/app/administration/src/broken.js'), [
+            'const unusedVendorValue = 1;',
+        ]);
 
         // JavaScript-only plugin: a TypeScript "pass" would be vacuous.
         writeFile(path.join(projectRoot, 'custom/plugins/JsOnly/composer.json'), '{}\n');
@@ -172,13 +175,14 @@ describe('scripts/extensionTooling e2e', () => {
             'ZeroConfig',
             'vendor-admin',
         ]);
-        expect(byName.ZeroConfig).toMatchObject({
-            ts: { mode: 'managed' },
-            eslint: { mode: 'managed' },
-            vendor: false,
+        expect(byName.ZeroConfig.vendor).toBe(false);
+        expect(byName.ZeroConfig.targets[0].ts).toMatchObject({ mode: 'managed' });
+        expect(byName.ZeroConfig.targets[0].eslint).toMatchObject({ mode: 'managed' });
+        expect(byName.ShimConfig.targets[0]).toMatchObject({
+            ts: { mode: 'bridged' },
+            eslint: { mode: 'bridged' },
         });
-        expect(byName.ShimConfig).toMatchObject({ ts: { mode: 'custom' }, eslint: { mode: 'custom' } });
-        expect(byName.Suite.sourcePaths).toHaveLength(2);
+        expect(byName.Suite.targets).toHaveLength(2);
         expect(byName['vendor-admin'].vendor).toBe(true);
 
         expect(
@@ -193,12 +197,14 @@ describe('scripts/extensionTooling e2e', () => {
         // Root references route every managed project to its runtime and spec leaves.
         const rootTsconfig = fs.readFileSync(path.join(projectRoot, 'tsconfig.json'), 'utf8');
         const references = [...rootTsconfig.matchAll(/"path": "\.\/(.+)"/g)].map((match) => match[1]);
-        const managedLeafs = setupResult.manifest.projects
-            .filter((project) => project.ts.mode === 'managed')
-            .flatMap((project) => [
-                project.checkTsconfig,
-                project.specTsconfig,
-            ]);
+        const managedLeafs = setupResult.manifest.projects.flatMap((project) =>
+            project.targets
+                .filter((target) => target.ts.mode === 'managed')
+                .flatMap((target) => [
+                    target.checkTsconfig,
+                    target.specTsconfig,
+                ]),
+        );
 
         expect(references.sort()).toEqual([...managedLeafs].sort());
 
@@ -226,16 +232,35 @@ describe('scripts/extensionTooling e2e', () => {
             expect(byName.JsOnly.typescriptSpecs.status).toBe('no-files');
             expect(byName.JsOnly.eslint.status).toBe('passed');
             expect(byName.ShimConfig.typescript.status).toBe('passed');
-            expect(byName.ShimConfig.tsResolution.mode).toBe('custom');
-            expect(byName.ShimConfig.eslintResolution.mode).toBe('custom');
+            expect(byName.ShimConfig.tsResolution.mode).toBe('bridged');
+            expect(byName.ShimConfig.eslintResolution.mode).toBe('bridged');
             expect(byName.Suite.typescript.status).toBe('passed');
 
             expect(byName['vendor-admin'].typescript.status).toBe('failed');
             expect(byName['vendor-admin'].typescript.output).toContain('TS2322');
             expect(byName['vendor-admin'].typescript.output).toContain('broken.ts');
+            expect(byName['vendor-admin'].eslint.status).toBe('failed');
+            expect(byName['vendor-admin'].eslint.output).toContain('no-unused-vars');
 
             expect(check.exitCode).toBe(0);
             expect(check.fatalDiagnostics).toEqual([]);
+        },
+        CHECK_TIMEOUT,
+    );
+
+    it(
+        'makes vendor ESLint findings fatal only in strict vendor mode',
+        async () => {
+            const check = await checkExtensions({
+                projectRoot,
+                administrationRoot,
+                only: 'vendor-admin',
+                strictVendor: true,
+            });
+
+            expect(check.results[0].eslint.status).toBe('failed');
+            expect(check.results[0].eslint.output).toContain('no-unused-vars');
+            expect(check.exitCode).toBe(1);
         },
         CHECK_TIMEOUT,
     );

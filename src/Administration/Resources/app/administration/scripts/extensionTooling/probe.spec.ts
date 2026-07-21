@@ -4,18 +4,21 @@
 
 import path from 'path';
 import {
+    ESLINT_LOAD_FAILED_DETAIL,
     analyzeEslintConfigStatically,
     analyzeTsConfigStatically,
+    probeCacheEntryKey,
     probeCacheKey,
     probeInputFiles,
     readProbeCache,
     resolveModesFromCache,
     resolveStaticEslintMode,
     resolveStaticTsMode,
+    selectEslintErrorLine,
     writeProbeCache,
 } from './probe';
 import type { ProbeCacheFile } from './probe';
-import type { ExtensionToolingProject } from './shared';
+import type { AdministrationTarget } from './shared';
 import { cleanupTempProject, createTempProject, writeFile } from './test-helpers';
 
 describe('scripts/extensionTooling/probe', () => {
@@ -94,6 +97,38 @@ describe('scripts/extensionTooling/probe', () => {
         });
     });
 
+    describe('selectEslintErrorLine', () => {
+        it('skips the generic banner and surfaces the real ERR_ line', () => {
+            const output = [
+                'Oops! Something went wrong! :(',
+                '',
+                'ESLint: 9.39.3',
+                '',
+                "Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/…/twigVuePlugin/lib/index.js'",
+                '    imported from /…/SwagPayPal/…/eslint.config.mjs',
+            ].join('\n');
+
+            const detail = selectEslintErrorLine(output);
+
+            expect(detail).toContain('ERR_MODULE_NOT_FOUND');
+            expect(detail).not.toContain('Oops!');
+        });
+
+        it('matches other error classes and indented ERR_ codes', () => {
+            expect(selectEslintErrorLine('Oops! Something went wrong! :(\nTypeError: x is not a function')).toBe(
+                'TypeError: x is not a function',
+            );
+            expect(selectEslintErrorLine("Oops!\n    code: 'ERR_REQUIRE_ESM'")).toContain('ERR_REQUIRE_ESM');
+        });
+
+        it('falls back to a --verbose hint when no error line is recognizable', () => {
+            expect(selectEslintErrorLine('Oops! Something went wrong! :(\n\nESLint couldn’t find a config')).toBe(
+                ESLINT_LOAD_FAILED_DETAIL,
+            );
+            expect(selectEslintErrorLine('')).toBe(ESLINT_LOAD_FAILED_DETAIL);
+        });
+    });
+
     describe('static mode resolution', () => {
         it('treats a missing config as managed and verified', () => {
             expect(resolveStaticTsMode(null)).toEqual({ mode: 'managed', verified: true });
@@ -108,7 +143,7 @@ describe('scripts/extensionTooling/probe', () => {
             writeFile(tsconfigPath('standalone.json'), ['{ "compilerOptions": { "strict": true } }']);
             writeFile(tsconfigPath('broken.json'), ['{ "extends": ']);
 
-            expect(resolveStaticTsMode(tsconfigPath('composing.json'))).toEqual({ mode: 'custom', verified: false });
+            expect(resolveStaticTsMode(tsconfigPath('composing.json'))).toEqual({ mode: 'bridged', verified: false });
             expect(resolveStaticTsMode(tsconfigPath('files-override.json'))).toMatchObject({
                 mode: 'unmanaged',
                 reason: 'files-override',
@@ -151,19 +186,18 @@ describe('scripts/extensionTooling/probe', () => {
     });
 
     describe('probe cache', () => {
-        function fixtureProject(overrides: Partial<ExtensionToolingProject> = {}): ExtensionToolingProject {
+        function fixtureTarget(overrides: Partial<AdministrationTarget> = {}): AdministrationTarget {
             return {
-                name: 'Probe',
                 technicalNames: ['Probe'],
-                basePath: 'custom/plugins/Probe',
-                sourcePaths: ['custom/plugins/Probe/src/Resources/app/administration/src'],
-                vendor: false,
+                sourcePath: 'custom/plugins/Probe/src/Resources/app/administration/src',
+                adminFolder: 'custom/plugins/Probe/src/Resources/app/administration',
                 bridgePresent: false,
                 tsconfig: 'custom/plugins/Probe/src/Resources/app/administration/tsconfig.json',
                 eslintConfig: null,
                 ts: { mode: 'unmanaged', reason: 'not-extending', verified: false },
                 eslint: { mode: 'managed', verified: true },
                 checkTsconfig: '',
+                specTsconfig: '',
                 ...overrides,
             };
         }
@@ -183,10 +217,77 @@ describe('scripts/extensionTooling/probe', () => {
             expect(missingTolerated).toEqual(expect.any(String));
         });
 
+        it('invalidates the cached TypeScript verdict when an indirectly extended config changes', () => {
+            const administrationRoot = path.join(projectRoot, 'admin');
+            const target = fixtureTarget();
+            const cacheKey = probeCacheEntryKey('Probe', target);
+            const adminFolder = path.join(projectRoot, target.adminFolder);
+
+            writeFile(path.join(adminFolder, 'base.json'), ['{ "compilerOptions": { "strict": true } }']);
+            writeFile(path.join(projectRoot, target.tsconfig as string), ['{ "extends": "./base.json" }']);
+
+            const inputs = probeInputFiles(target, projectRoot, administrationRoot);
+
+            expect(inputs.ts).toContain(path.join(adminFolder, 'base.json'));
+
+            const cache: ProbeCacheFile = {
+                version: 2,
+                entries: {
+                    [cacheKey]: { ts: { key: probeCacheKey(inputs.ts), resolution: { mode: 'bridged', verified: true } } },
+                },
+            };
+
+            expect(resolveModesFromCache(target, cacheKey, cache, projectRoot, administrationRoot).ts.verified).toBe(true);
+
+            // Editing the indirectly extended base must drop the cached verdict.
+            writeFile(path.join(adminFolder, 'base.json'), ['{ "compilerOptions": { "strict": false } }']);
+
+            expect(resolveModesFromCache(target, cacheKey, cache, projectRoot, administrationRoot).ts).toEqual(target.ts);
+        });
+
+        it('invalidates the cached ESLint verdict when a locally imported config module changes', () => {
+            const administrationRoot = path.join(projectRoot, 'admin');
+            const target = fixtureTarget({
+                eslintConfig: 'custom/plugins/Probe/src/Resources/app/administration/eslint.config.mjs',
+                eslint: { mode: 'bridged', verified: false },
+            });
+            const cacheKey = probeCacheEntryKey('Probe', target);
+            const adminFolder = path.join(projectRoot, target.adminFolder);
+
+            writeFile(path.join(adminFolder, 'local-rules.mjs'), ['export default [];']);
+            writeFile(path.join(projectRoot, target.eslintConfig as string), [
+                "import local from './local-rules.mjs';",
+                'export default [...local];',
+            ]);
+
+            const inputs = probeInputFiles(target, projectRoot, administrationRoot);
+
+            expect(inputs.eslint).toContain(path.join(adminFolder, 'local-rules.mjs'));
+
+            const cache: ProbeCacheFile = {
+                version: 2,
+                entries: {
+                    [cacheKey]: {
+                        eslint: { key: probeCacheKey(inputs.eslint), resolution: { mode: 'bridged', verified: true } },
+                    },
+                },
+            };
+
+            expect(resolveModesFromCache(target, cacheKey, cache, projectRoot, administrationRoot).eslint.verified).toBe(
+                true,
+            );
+
+            writeFile(path.join(adminFolder, 'local-rules.mjs'), ['export default [{ rules: {} }];']);
+
+            expect(resolveModesFromCache(target, cacheKey, cache, projectRoot, administrationRoot).eslint).toEqual(
+                target.eslint,
+            );
+        });
+
         it('reads back what it wrote and rejects garbage or unknown versions', () => {
             const cache: ProbeCacheFile = {
-                version: 1,
-                entries: { Probe: { ts: { key: 'k', resolution: { mode: 'custom', verified: true } } } },
+                version: 2,
+                entries: { Probe: { ts: { key: 'k', resolution: { mode: 'bridged', verified: true } } } },
             };
 
             writeProbeCache(projectRoot, cache);
@@ -203,15 +304,16 @@ describe('scripts/extensionTooling/probe', () => {
 
         it('adopts a cached verdict only while the content hashes match', () => {
             const administrationRoot = path.join(projectRoot, 'admin');
-            const project = fixtureProject();
+            const target = fixtureTarget();
+            const cacheKey = probeCacheEntryKey('Probe', target);
 
-            writeFile(path.join(projectRoot, project.tsconfig as string), ['{ "compilerOptions": {} }']);
+            writeFile(path.join(projectRoot, target.tsconfig as string), ['{ "compilerOptions": {} }']);
 
-            const inputs = probeInputFiles(project, projectRoot, administrationRoot);
+            const inputs = probeInputFiles(target, projectRoot, administrationRoot);
             const cache: ProbeCacheFile = {
-                version: 1,
+                version: 2,
                 entries: {
-                    Probe: {
+                    [cacheKey]: {
                         ts: {
                             key: probeCacheKey(inputs.ts),
                             resolution: { mode: 'unmanaged', reason: 'surface-not-injected', verified: true },
@@ -220,16 +322,16 @@ describe('scripts/extensionTooling/probe', () => {
                 },
             };
 
-            const adopted = resolveModesFromCache(project, cache, projectRoot, administrationRoot);
+            const adopted = resolveModesFromCache(target, cacheKey, cache, projectRoot, administrationRoot);
 
             expect(adopted.ts).toEqual({ mode: 'unmanaged', reason: 'surface-not-injected', verified: true });
-            expect(adopted.eslint).toEqual(project.eslint);
+            expect(adopted.eslint).toEqual(target.eslint);
 
-            writeFile(path.join(projectRoot, project.tsconfig as string), ['{ "compilerOptions": { "x": 1 } }']);
+            writeFile(path.join(projectRoot, target.tsconfig as string), ['{ "compilerOptions": { "x": 1 } }']);
 
-            const stale = resolveModesFromCache(project, cache, projectRoot, administrationRoot);
+            const stale = resolveModesFromCache(target, cacheKey, cache, projectRoot, administrationRoot);
 
-            expect(stale.ts).toEqual(project.ts);
+            expect(stale.ts).toEqual(target.ts);
         });
     });
 });

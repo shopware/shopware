@@ -5,30 +5,40 @@
  * color on non-TTY stdout (jest), so assertions run against plain text.
  */
 
+import path from 'path';
 import { renderCheckReport } from '../report';
 import type { CheckExtensionsResult, ExtensionCheckResult, ToolRunResult } from '../check';
 import type { SetupExtensionToolingResult } from '../setup';
-import type { ExtensionToolingProject, ModeResolution } from '../shared';
+import { aggregateModeResolution } from '../shared';
+import type { AdministrationTarget, ExtensionToolingProject, ModeResolution } from '../shared';
 
 export function resolution(mode: ModeResolution['mode'], overrides: Partial<ModeResolution> = {}): ModeResolution {
     return { mode, verified: true, ...overrides };
 }
 
-export function project(name: string, overrides: Partial<ExtensionToolingProject> = {}): ExtensionToolingProject {
+type ProjectOverrides = Partial<ExtensionToolingProject> & Partial<AdministrationTarget> & { sourcePaths?: string[] };
+
+export function project(name: string, overrides: ProjectOverrides = {}): ExtensionToolingProject {
+    const sourcePath = overrides.sourcePath ?? overrides.sourcePaths?.[0] ?? `custom/plugins/${name}/src`;
+    const target: AdministrationTarget = {
+        technicalNames: overrides.technicalNames ?? [name],
+        sourcePath,
+        adminFolder: overrides.adminFolder ?? path.posix.dirname(sourcePath),
+        bridgePresent: overrides.bridgePresent ?? false,
+        tsconfig: overrides.tsconfig ?? null,
+        eslintConfig: overrides.eslintConfig ?? null,
+        ts: overrides.ts ?? resolution('managed'),
+        eslint: overrides.eslint ?? resolution('managed'),
+        checkTsconfig: overrides.checkTsconfig ?? '',
+        specTsconfig: overrides.specTsconfig ?? '',
+    };
+
     return {
-        name,
-        technicalNames: [name],
-        basePath: `custom/plugins/${name}`,
-        sourcePaths: [],
-        vendor: false,
-        bridgePresent: false,
-        tsconfig: null,
-        eslintConfig: null,
-        ts: resolution('managed'),
-        eslint: resolution('managed'),
-        checkTsconfig: '',
-        specTsconfig: '',
-        ...overrides,
+        name: overrides.name ?? name,
+        technicalNames: overrides.technicalNames ?? [name],
+        basePath: overrides.basePath ?? `custom/plugins/${name}`,
+        vendor: overrides.vendor ?? false,
+        targets: overrides.targets ?? [target],
     };
 }
 
@@ -42,12 +52,13 @@ export function extension(
 ): ExtensionCheckResult {
     return {
         project: project_,
-        tsResolution: overrides.tsResolution ?? project_.ts,
-        eslintResolution: overrides.eslintResolution ?? project_.eslint,
+        tsResolution: overrides.tsResolution ?? aggregateModeResolution(project_, 'ts'),
+        eslintResolution: overrides.eslintResolution ?? aggregateModeResolution(project_, 'eslint'),
         typescript: overrides.typescript ?? run('passed'),
         typescriptSpecs: overrides.typescriptSpecs ?? run('no-files'),
         eslint: overrides.eslint ?? run('passed'),
         commands: overrides.commands ?? {},
+        coverage: overrides.coverage ?? [],
     };
 }
 
@@ -68,7 +79,7 @@ export function setupResult(
 ): SetupExtensionToolingResult {
     return {
         manifest: {
-            version: 2,
+            version: 3,
             adminRoot: 'src/Administration/Resources/app/administration',
             entitySchemaAvailable: true,
             hostModules: {},

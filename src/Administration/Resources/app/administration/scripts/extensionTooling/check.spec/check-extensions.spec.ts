@@ -4,6 +4,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import { BASELINE_FILE_NAME, writeBaselineFile } from '../baseline';
 import { checkExtensions } from '../check';
 import { setupExtensionTooling } from '../setup';
 import {
@@ -143,7 +144,7 @@ describe('scripts/extensionTooling/check checkExtensions', () => {
         const check = await checkExtensions({ projectRoot, administrationRoot, only: 'Nope' });
 
         expect(check.exitCode).toBe(1);
-        expect(check.fatalDiagnostics.join('\n')).toContain('--only=Nope');
+        expect(check.fatalDiagnostics.join('\n')).toContain('unknown extension(s): Nope');
     });
 
     it('reports every requested name when an array selection matches nothing', async () => {
@@ -159,7 +160,36 @@ describe('scripts/extensionTooling/check checkExtensions', () => {
         });
 
         expect(check.exitCode).toBe(1);
-        expect(check.fatalDiagnostics.join('\n')).toContain('--only=Nope,Nada');
+        expect(check.fatalDiagnostics.join('\n')).toContain('unknown extension(s): Nope, Nada');
+    });
+
+    it('rejects the whole run when --only mixes a valid name with an unknown one', async () => {
+        writeFile(path.join(projectRoot, 'custom/plugins/Known/composer.json'), '{}\n');
+        writeFile(path.join(projectRoot, 'custom/plugins/Known/src/Resources/app/administration/src/main.ts'), [
+            'export {};',
+        ]);
+        writePluginsConfig(projectRoot, [
+            {
+                technicalName: 'Known',
+                basePath: 'custom/plugins/Known/src',
+                administrationPath: 'Resources/app/administration/src',
+            },
+        ]);
+
+        const check = await checkExtensions({
+            projectRoot,
+            administrationRoot,
+            only: [
+                'Known',
+                'Typo',
+            ],
+        });
+
+        // A single typo fails and names the unknown subset; the valid target is
+        // not silently checked-and-passed while the typo goes unnoticed.
+        expect(check.exitCode).toBe(1);
+        expect(check.fatalDiagnostics.join('\n')).toContain('unknown extension(s): Typo');
+        expect(check.results).toEqual([]);
     });
 
     it('filters to multiple extensions from a comma-separated selection', async () => {
@@ -231,6 +261,30 @@ describe('scripts/extensionTooling/check checkExtensions', () => {
         expect(probe.eslint.status).toBe('unmanaged');
         expect(check.exitCode).toBe(0);
 
+        // Same skipped writable extension is a hard failure under --fail-on-skipped.
+        const strict = await checkExtensions({ projectRoot, administrationRoot, failOnSkipped: true });
+
+        expect(strict.results[0].typescript.status).toBe('unmanaged');
+        expect(strict.exitCode).toBe(1);
+
+        writeBaselineFile(projectRoot, probe.project, {
+            version: 1,
+            typescript: [{ file: 'src/main.ts', code: 'TS2322', message: 'existing debt', count: 1 }],
+            typescriptSpecs: [],
+            eslint: [],
+        });
+        const baselinePath = path.join(projectRoot, probe.project.basePath, BASELINE_FILE_NAME);
+        const baselineBefore = fs.readFileSync(baselinePath);
+        const refusedUpdate = await checkExtensions({
+            projectRoot,
+            administrationRoot,
+            updateBaseline: true,
+        });
+
+        expect(refusedUpdate.exitCode).toBe(1);
+        expect(refusedUpdate.fatalDiagnostics.join('\n')).toContain('baseline not updated');
+        expect(fs.readFileSync(baselinePath)).toEqual(baselineBefore);
+
         // The verified verdicts are cached, and a subsequent setup run renders
         // the same state instead of contradicting the check.
         expect(fs.existsSync(path.join(projectRoot, 'var/admin-extension-tooling/probe-cache.json'))).toBe(true);
@@ -238,7 +292,7 @@ describe('scripts/extensionTooling/check checkExtensions', () => {
         const followUpSetup = setupExtensionTooling({ projectRoot, administrationRoot });
         const followUpProject = followUpSetup.manifest.projects[0];
 
-        expect(followUpProject.ts).toMatchObject({ mode: 'unmanaged', verified: true });
-        expect(followUpProject.eslint).toMatchObject({ mode: 'unmanaged', verified: true });
+        expect(followUpProject.targets[0].ts).toMatchObject({ mode: 'unmanaged', verified: true });
+        expect(followUpProject.targets[0].eslint).toMatchObject({ mode: 'unmanaged', verified: true });
     }, 60000);
 });

@@ -39,7 +39,7 @@ describe('scripts/extensionTooling/report describeNextStep', () => {
                 project('Done', {
                     bridgePresent: true,
                     tsconfig: 'custom/plugins/Done/src/Resources/app/administration/tsconfig.json',
-                    ts: resolution('custom'),
+                    ts: resolution('bridged'),
                 }),
             ),
         ).toEqual([]);
@@ -88,7 +88,7 @@ describe('scripts/extensionTooling/report describeToolGuidance', () => {
     });
 
     it('returns null for composing tools and for vendor extensions', () => {
-        expect(describeToolGuidance(unwired(), 'TypeScript', resolution('custom'))).toBeNull();
+        expect(describeToolGuidance(unwired(), 'TypeScript', resolution('bridged'))).toBeNull();
         expect(
             describeToolGuidance(
                 project('Acme', { vendor: true, basePath: 'vendor/acme/admin' }),

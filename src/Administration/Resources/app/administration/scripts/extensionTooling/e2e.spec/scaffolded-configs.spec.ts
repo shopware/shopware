@@ -154,7 +154,7 @@ describe('scripts/extensionTooling e2e — scaffolded committable configs', () =
 
             const fixedCheck = await checkExtensions({ projectRoot, administrationRoot, only: 'FilesOverride' });
 
-            expect(fixedCheck.results[0].tsResolution.mode).toBe('custom');
+            expect(fixedCheck.results[0].tsResolution.mode).toBe('bridged');
             expect(fixedCheck.results[0].typescript.status).toBe('passed');
 
             // Setup and check agree afterwards: the extension renders as bridged.

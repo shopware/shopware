@@ -80,6 +80,40 @@ describe('scripts/extensionTooling/setup runSetupCli', () => {
         }
     });
 
+    it('makes --explain read-only — it writes nothing and exits 0 even when setup is stale', () => {
+        const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+        const treeBefore = listTree(projectRoot);
+
+        const exitCode = runSetupCli([
+            '--explain',
+            `--project-root=${projectRoot}`,
+            `--administration-root=${administrationRoot}`,
+        ]);
+
+        // Read-only: nothing on disk changed, and (unlike --check) drift does not
+        // gate the exit code — a human inspecting the setup gets exit 0.
+        expect(exitCode).toBe(0);
+        expect(listTree(projectRoot)).toEqual(treeBefore);
+        expect(logSpy.mock.calls.join('\n')).toContain('would create');
+        logSpy.mockRestore();
+    });
+
+    it('rejects --root-config without --shim as a usage error and writes nothing', () => {
+        const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+        const treeBefore = listTree(projectRoot);
+
+        const exitCode = runSetupCli([
+            '--root-config=.',
+            `--project-root=${projectRoot}`,
+            `--administration-root=${administrationRoot}`,
+        ]);
+
+        expect(exitCode).toBe(2);
+        expect(listTree(projectRoot)).toEqual(treeBefore);
+        expect(errorSpy.mock.calls.join('\n')).toContain('--root-config only applies together with --shim');
+        errorSpy.mockRestore();
+    });
+
     it('treats a missing PROJECT_ROOT as a usage error with exit 2', () => {
         const previousProjectRoot = process.env.PROJECT_ROOT;
         delete process.env.PROJECT_ROOT;

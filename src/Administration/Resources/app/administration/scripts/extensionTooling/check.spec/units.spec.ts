@@ -106,12 +106,16 @@ describe('scripts/extensionTooling/check units', () => {
     it('counts only files vue-tsc would actually type-check', () => {
         writeFile(path.join(projectRoot, 'plugin/src/main.js'), ['export default {};']);
         writeFile(path.join(projectRoot, 'plugin/src/helper.spec.ts'), ['export {};']);
+        // Ambient declaration files carry no checkable source and are resolved by
+        // TypeScript on its own terms — they must not count as covered source.
+        writeFile(path.join(projectRoot, 'plugin/src/type/types.d.ts'), ['export {};']);
 
         expect(countTypeCheckableFiles(projectRoot, ['plugin/src'])).toBe(0);
 
         writeFile(path.join(projectRoot, 'plugin/src/component.vue'), ['<template><div /></template>']);
         writeFile(path.join(projectRoot, 'plugin/src/typed.ts'), ['export {};']);
 
+        // Still 2: the .d.ts is excluded even though it ends in ".ts".
         expect(countTypeCheckableFiles(projectRoot, ['plugin/src'])).toBe(2);
         expect(countTypeCheckableFiles(projectRoot, ['does/not/exist'])).toBe(0);
     });
@@ -169,6 +173,31 @@ describe('scripts/extensionTooling/check units', () => {
             },
         ]);
         // Both severities are parsed so the total matches the summary counter.
+        expect(findings).toHaveLength(countEslintFindings(output));
+    });
+
+    it('attributes multi-line ESLint messages to the right file and rule', () => {
+        // Rules like @typescript-eslint/unbound-method emit a message with an
+        // embedded newline; ESLint prints the continuation line un-indented,
+        // carrying the rule id at its end.
+        const output = [
+            'custom/plugins/X/src/foo.ts',
+            '  10:5  error  Avoid referencing unbound methods which may cause unintentional scoping.',
+            'If a function does not access this, it can be annotated  @typescript-eslint/unbound-method',
+            '  12:3  error  Unexpected any  @typescript-eslint/no-explicit-any',
+            '',
+            '✖ 2 problems (2 errors, 0 warnings)',
+        ].join('\n');
+
+        const findings = parseEslintFindings(output);
+
+        expect(findings).toHaveLength(2);
+        // The un-indented continuation is not mistaken for a file header: the
+        // second finding keeps the real file, not the message text.
+        expect(findings.every((finding) => finding.file === 'custom/plugins/X/src/foo.ts')).toBe(true);
+        // The rule id printed on the continuation line is attributed to its finding.
+        expect(findings[0].rule).toBe('@typescript-eslint/unbound-method');
+        expect(findings[1].rule).toBe('@typescript-eslint/no-explicit-any');
         expect(findings).toHaveLength(countEslintFindings(output));
     });
 });

@@ -8,7 +8,7 @@
 import fs from 'fs';
 import path from 'path';
 import { setupExtensionTooling } from '../setup';
-import { probeCacheKey, probeInputFiles, readProbeCache, writeProbeCache } from '../probe';
+import { probeCacheEntryKey, probeCacheKey, probeInputFiles, readProbeCache, writeProbeCache } from '../probe';
 import {
     cleanupTempProject,
     createSkeletonAdmin,
@@ -50,33 +50,35 @@ describe('scripts/extensionTooling/setup probe cache integration', () => {
         ]);
 
         const staticRun = setupExtensionTooling({ projectRoot, administrationRoot });
+        const target = staticRun.manifest.projects[0].targets[0];
 
-        expect(staticRun.manifest.projects[0].ts).toMatchObject({
+        expect(target.ts).toMatchObject({
             mode: 'unmanaged',
             reason: 'not-extending',
             verified: false,
         });
 
-        const inputs = probeInputFiles(staticRun.manifest.projects[0], projectRoot, administrationRoot);
+        const inputs = probeInputFiles(target, projectRoot, administrationRoot);
+        const cacheKey = probeCacheEntryKey('Probe', target);
 
         writeProbeCache(projectRoot, {
-            version: 1,
+            version: 2,
             entries: {
-                Probe: {
+                [cacheKey]: {
                     ts: {
                         key: probeCacheKey(inputs.ts),
                         resolution: { mode: 'unmanaged', reason: 'surface-not-injected', verified: true },
                     },
                 },
                 Ghost: {
-                    ts: { key: 'stale', resolution: { mode: 'custom', verified: true } },
+                    ts: { key: 'stale', resolution: { mode: 'bridged', verified: true } },
                 },
             },
         });
 
         const cachedRun = setupExtensionTooling({ projectRoot, administrationRoot });
 
-        expect(cachedRun.manifest.projects[0].ts).toEqual({
+        expect(cachedRun.manifest.projects[0].targets[0].ts).toEqual({
             mode: 'unmanaged',
             reason: 'surface-not-injected',
             verified: true,
@@ -90,6 +92,6 @@ describe('scripts/extensionTooling/setup probe cache integration', () => {
 
         const invalidatedRun = setupExtensionTooling({ projectRoot, administrationRoot });
 
-        expect(invalidatedRun.manifest.projects[0].ts.verified).toBe(false);
+        expect(invalidatedRun.manifest.projects[0].targets[0].ts.verified).toBe(false);
     });
 });

@@ -14,8 +14,8 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
         eslintConfig: 'custom/plugins/SwagPayPal/src/Resources/app/administration/eslint.config.mjs',
     });
     const bridgedPlugin = project('Bridged', {
-        ts: resolution('custom'),
-        eslint: resolution('custom'),
+        ts: resolution('bridged'),
+        eslint: resolution('bridged'),
         bridgePresent: true,
         tsconfig: 'custom/plugins/Bridged/src/Resources/app/administration/tsconfig.json',
         eslintConfig: 'custom/plugins/Bridged/src/Resources/app/administration/eslint.config.mjs',
@@ -28,7 +28,7 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
         eslintConfig: 'custom/plugins/Unwired/src/Resources/app/administration/eslint.config.mjs',
     });
 
-    it('classifies ready / bridged / unwired / custom and shows inline next-steps by default', () => {
+    it('classifies ready / bridged / unwired / needs-bridge and shows inline next-steps by default', () => {
         const output = renderSetupReport(
             setupResult([
                 managed,
@@ -41,7 +41,7 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
         expect(output).toContain('✔ ready');
         expect(output).toContain('● bridged');
         expect(output).toContain('bridge unwired');
-        expect(output).toContain('● custom');
+        expect(output).toContain('● needs bridge');
         expect(output).toContain('Next steps');
         expect(output).toContain('--shim=SwagPayPal');
         expect(output).not.toContain('--shim=Unwired');
@@ -50,8 +50,8 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
 
     it('marks statically classified bridged plugins as unverified until a check ran', () => {
         const staticallyBridged = project('Static', {
-            ts: resolution('custom', { verified: false }),
-            eslint: resolution('custom', { verified: false }),
+            ts: resolution('bridged', { verified: false }),
+            eslint: resolution('bridged', { verified: false }),
             bridgePresent: true,
             tsconfig: 'custom/plugins/Static/src/Resources/app/administration/tsconfig.json',
             eslintConfig: 'custom/plugins/Static/src/Resources/app/administration/eslint.config.mjs',
@@ -83,6 +83,25 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
         expect(output).toContain('✔ Bridge created for Unwired');
         expect(output).toContain('one step left');
         expect(output).not.toContain('✔ Bridged Unwired');
+    });
+
+    it('distinguishes git-ignored bridge files from committable plugin files in dry-run output', () => {
+        const output = renderSetupReport(
+            setupResult([project('Mono')], {
+                changed: true,
+                writes: [
+                    { file: 'custom/plugins/Mono/.shopware-admin/tsconfig.json', state: 'created' },
+                    { file: 'custom/plugins/Mono/.shopware-admin/eslint.mjs', state: 'created' },
+                    { file: 'custom/plugins/Mono/tsconfig.json', state: 'created' },
+                    { file: 'var/admin-extension-tooling/manifest.json', state: 'created' },
+                ],
+            }),
+            { checkOnly: true },
+        );
+
+        expect(output).toContain('would create: custom/plugins/Mono/.shopware-admin/tsconfig.json [git-ignored bridge]');
+        expect(output).toContain('would create: custom/plugins/Mono/tsconfig.json [commit this]');
+        expect(output).toContain('2 git-ignored bridge file(s), 1 committable plugin file(s), 1 host projection(s)');
     });
 
     it('replaces the empty state with discovery guidance instead of a green "up to date"', () => {
@@ -165,5 +184,13 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
 
         expect(renderSetupReport(result)).toContain('IDE setup: run with --explain');
         expect(renderSetupReport(result, { explain: true })).not.toContain('run with --explain');
+    });
+
+    it('explains target-level source and effective config coverage', () => {
+        const output = renderSetupReport(setupResult([managed]), { explain: true });
+
+        expect(output).toContain('FroshTools · custom/plugins/FroshTools/src');
+        expect(output).toContain('runtime: managed');
+        expect(output).toContain('eslint:  managed → generated root config');
     });
 });

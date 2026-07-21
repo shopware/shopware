@@ -10,7 +10,7 @@
   </rsm:ExchangedDocumentContext>
   <rsm:ExchangedDocument>
     <ram:ID>1000</ram:ID>
-    <ram:TypeCode>380</ram:TypeCode>
+    <ram:TypeCode>384</ram:TypeCode>
     <ram:IssueDateTime>
       <udt:DateTimeString format="102">[date]</udt:DateTimeString>
     </ram:IssueDateTime>
@@ -31,7 +31,7 @@
         </ram:NetPriceProductTradePrice>
       </ram:SpecifiedLineTradeAgreement>
       <ram:SpecifiedLineTradeDelivery>
-        <ram:BilledQuantity unitCode="H87">1.00</ram:BilledQuantity>
+        <ram:BilledQuantity unitCode="H87">-1.00</ram:BilledQuantity>
       </ram:SpecifiedLineTradeDelivery>
       <ram:SpecifiedLineTradeSettlement>
         <ram:ApplicableTradeTax>
@@ -40,7 +40,7 @@
           <ram:RateApplicablePercent>19.00</ram:RateApplicablePercent>
         </ram:ApplicableTradeTax>
         <ram:SpecifiedTradeSettlementLineMonetarySummation>
-          <ram:LineTotalAmount>84.03</ram:LineTotalAmount>
+          <ram:LineTotalAmount>-84.03</ram:LineTotalAmount>
         </ram:SpecifiedTradeSettlementLineMonetarySummation>
       </ram:SpecifiedLineTradeSettlement>
     </ram:IncludedSupplyChainTradeLineItem>
@@ -59,7 +59,7 @@
         </ram:NetPriceProductTradePrice>
       </ram:SpecifiedLineTradeAgreement>
       <ram:SpecifiedLineTradeDelivery>
-        <ram:BilledQuantity unitCode="H87">1.00</ram:BilledQuantity>
+        <ram:BilledQuantity unitCode="H87">-1.00</ram:BilledQuantity>
       </ram:SpecifiedLineTradeDelivery>
       <ram:SpecifiedLineTradeSettlement>
         <ram:ApplicableTradeTax>
@@ -68,7 +68,7 @@
           <ram:RateApplicablePercent>7.00</ram:RateApplicablePercent>
         </ram:ApplicableTradeTax>
         <ram:SpecifiedTradeSettlementLineMonetarySummation>
-          <ram:LineTotalAmount>94.39</ram:LineTotalAmount>
+          <ram:LineTotalAmount>-94.39</ram:LineTotalAmount>
         </ram:SpecifiedTradeSettlementLineMonetarySummation>
       </ram:SpecifiedLineTradeSettlement>
     </ram:IncludedSupplyChainTradeLineItem>
@@ -129,16 +129,16 @@
         <ram:Information>Cash on delivery</ram:Information>
       </ram:SpecifiedTradeSettlementPaymentMeans>
       <ram:ApplicableTradeTax>
-        <ram:CalculatedAmount>14.37</ram:CalculatedAmount>
+        <ram:CalculatedAmount>-14.37</ram:CalculatedAmount>
         <ram:TypeCode>VAT</ram:TypeCode>
-        <ram:BasisAmount>75.63</ram:BasisAmount>
+        <ram:BasisAmount>-75.63</ram:BasisAmount>
         <ram:CategoryCode>S</ram:CategoryCode>
         <ram:RateApplicablePercent>19.00</ram:RateApplicablePercent>
       </ram:ApplicableTradeTax>
       <ram:ApplicableTradeTax>
-        <ram:CalculatedAmount>5.95</ram:CalculatedAmount>
+        <ram:CalculatedAmount>-5.95</ram:CalculatedAmount>
         <ram:TypeCode>VAT</ram:TypeCode>
-        <ram:BasisAmount>84.95</ram:BasisAmount>
+        <ram:BasisAmount>-84.95</ram:BasisAmount>
         <ram:CategoryCode>S</ram:CategoryCode>
         <ram:RateApplicablePercent>7.00</ram:RateApplicablePercent>
       </ram:ApplicableTradeTax>
@@ -173,8 +173,8 @@
           <udt:Indicator>false</udt:Indicator>
         </ram:ChargeIndicator>
         <ram:CalculationPercent>10.00</ram:CalculationPercent>
-        <ram:BasisAmount>84.00</ram:BasisAmount>
-        <ram:ActualAmount>8.40</ram:ActualAmount>
+        <ram:BasisAmount>-84.00</ram:BasisAmount>
+        <ram:ActualAmount>-8.40</ram:ActualAmount>
         <ram:ReasonCode>95</ram:ReasonCode>
         <ram:Reason>TENOFF</ram:Reason>
         <ram:CategoryTradeTax>
@@ -188,8 +188,8 @@
           <udt:Indicator>false</udt:Indicator>
         </ram:ChargeIndicator>
         <ram:CalculationPercent>10.00</ram:CalculationPercent>
-        <ram:BasisAmount>94.40</ram:BasisAmount>
-        <ram:ActualAmount>9.44</ram:ActualAmount>
+        <ram:BasisAmount>-94.40</ram:BasisAmount>
+        <ram:ActualAmount>-9.44</ram:ActualAmount>
         <ram:ReasonCode>95</ram:ReasonCode>
         <ram:Reason>TENOFF</ram:Reason>
         <ram:CategoryTradeTax>
@@ -198,22 +198,20 @@
           <ram:RateApplicablePercent>7.00</ram:RateApplicablePercent>
         </ram:CategoryTradeTax>
       </ram:SpecifiedTradeAllowanceCharge>
-      <ram:SpecifiedTradePaymentTerms>
-        <ram:DueDateDateTime>
-          <udt:DateTimeString format="102">[date]</udt:DateTimeString>
-        </ram:DueDateDateTime>
-      </ram:SpecifiedTradePaymentTerms>
       <ram:SpecifiedTradeSettlementHeaderMonetarySummation>
-        <ram:LineTotalAmount>178.42</ram:LineTotalAmount>
+        <ram:LineTotalAmount>-178.42</ram:LineTotalAmount>
         <ram:ChargeTotalAmount>0.00</ram:ChargeTotalAmount>
-        <ram:AllowanceTotalAmount>17.84</ram:AllowanceTotalAmount>
-        <ram:TaxBasisTotalAmount>160.58</ram:TaxBasisTotalAmount>
-        <ram:TaxTotalAmount currencyID="EUR">20.32</ram:TaxTotalAmount>
+        <ram:AllowanceTotalAmount>-17.84</ram:AllowanceTotalAmount>
+        <ram:TaxBasisTotalAmount>-160.58</ram:TaxBasisTotalAmount>
+        <ram:TaxTotalAmount currencyID="EUR">-20.32</ram:TaxTotalAmount>
         <ram:RoundingAmount>0.00</ram:RoundingAmount>
-        <ram:GrandTotalAmount>180.90</ram:GrandTotalAmount>
+        <ram:GrandTotalAmount>-180.90</ram:GrandTotalAmount>
         <ram:TotalPrepaidAmount>0.00</ram:TotalPrepaidAmount>
-        <ram:DuePayableAmount>180.90</ram:DuePayableAmount>
+        <ram:DuePayableAmount>-180.90</ram:DuePayableAmount>
       </ram:SpecifiedTradeSettlementHeaderMonetarySummation>
+      <ram:InvoiceReferencedDocument>
+        <ram:IssuerAssignedID>1000</ram:IssuerAssignedID>
+      </ram:InvoiceReferencedDocument>
     </ram:ApplicableHeaderTradeSettlement>
   </rsm:SupplyChainTradeTransaction>
 </rsm:CrossIndustryInvoice>

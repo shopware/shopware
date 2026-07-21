@@ -92,13 +92,16 @@ export function shopwareAdminExtension(options = {}) {
     // block only adds the jest globals. Otherwise (shim-based config) there is
     // no program for specs, so type-aware linting is disabled and they are
     // parsed standalone — vue-tsc still type-checks them.
-    const specFilesConfig = typedSpecs
-        ? {
+    let specFilesConfig;
+
+    if (typedSpecs) {
+        specFilesConfig = {
             name: 'shopware/admin-extension/spec-files',
             files: scope(specFilePatterns),
             languageOptions: { globals: { ...globals.jest } },
-        }
-        : {
+        };
+    } else {
+        specFilesConfig = {
             ...tseslint.configs.disableTypeChecked,
             name: 'shopware/admin-extension/spec-files',
             files: scope(specFilePatterns),
@@ -107,6 +110,7 @@ export function shopwareAdminExtension(options = {}) {
                 globals: { ...globals.jest },
             },
         };
+    }
 
     const config = [
         {
@@ -115,7 +119,6 @@ export function shopwareAdminExtension(options = {}) {
                 '**/node_modules/**',
                 '**/Resources/public/**',
                 '**/dist/**',
-                '**/vendor/**',
                 ...ignores,
             ],
         },

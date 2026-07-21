@@ -20,10 +20,11 @@ import path from 'path';
 import { discoverProjects, setupExtensionTooling } from './setup';
 import { renderCheckReport } from './report';
 import { promptSelection } from './select';
-import { canonicalizePath, relativePosix } from './shared';
-import type { ExtensionToolingProject, ModeResolution } from './shared';
+import { aggregateModeResolution, canonicalizePath, relativePosix, toPosix } from './shared';
+import type { AdministrationTarget, ExtensionToolingProject, ModeResolution } from './shared';
 import {
     PROCESS_TIMEOUT_MS,
+    probeCacheEntryKey,
     probeCacheKey,
     probeEslintMode,
     probeInputFiles,
@@ -55,6 +56,27 @@ export interface ToolRunResult {
     staleBaseline?: number;
     /** Identities of the new findings, for the report to point at them among the baselined ones. */
     newFindingRefs?: Array<{ file: string; code: string }>;
+    /** Structured diagnostics retained for safe aggregate baselines across multiple programs. */
+    typeScriptFindings?: TypeScriptFinding[];
+    eslintFindings?: EslintFinding[];
+    /** Whether any native counter disagreed with its structured parser. */
+    parseMismatch?: boolean;
+    /**
+     * TypeScript diagnostics whose file lies outside the extension root — they
+     * come from the shared type surface (or a global the extension pulled into
+     * it), are always fatal, and are never recorded in the extension baseline.
+     */
+    surfaceDiagnostics?: number;
+}
+
+export interface AdministrationTargetCoverage {
+    target: AdministrationTarget;
+    /** Effective runtime config; identical canonical paths are executed once. */
+    runtimeConfig: string;
+    /** Dedicated spec config for this target. */
+    specConfig: string;
+    /** Effective ESLint config; identical canonical paths are executed once. */
+    eslintConfig: string;
 }
 
 export interface ExtensionCheckResult {
@@ -66,7 +88,9 @@ export interface ExtensionCheckResult {
     typescriptSpecs: ToolRunResult;
     eslint: ToolRunResult;
     /** Reproduction commands for the tool runs that actually happened. */
-    commands: { typescript?: string; typescriptSpecs?: string; eslint?: string };
+    commands: { typescript?: string[]; typescriptSpecs?: string[]; eslint?: string[] };
+    /** Target/config routing used by this aggregate extension result. */
+    coverage: AdministrationTargetCoverage[];
 }
 
 export interface CheckExtensionsOptions {
@@ -82,6 +106,8 @@ export interface CheckExtensionsOptions {
     explicitOnly?: string[];
     /** Record the current findings as the baseline instead of failing on them. */
     updateBaseline?: boolean;
+    /** Fail (exit 1) when a writable extension's tool run was skipped/blocked, not only on findings. */
+    failOnSkipped?: boolean;
 }
 
 export interface CheckExtensionsResult {
@@ -165,16 +191,21 @@ function readEslintMajorVersion(administrationRoot: string): number {
 /**
  * Counts the files vue-tsc would actually type-check (`checkJs` is off in the
  * preset, so plain `.js` sources are parsed but never checked). Spec files are
- * excluded to mirror the generated tsconfigs. Zero means a TypeScript "pass"
- * would be vacuous — reported as `no-files` instead of a bare green.
+ * excluded to mirror the generated tsconfigs. Ambient declaration files
+ * (`*.d.ts`) are excluded too: they carry no checkable source, and TypeScript
+ * resolves them into the program on its own terms rather than as listed input
+ * files — counting them would make a config that legitimately includes them via
+ * a broad source glob look like it left a discovered file uncovered. Zero means
+ * a TypeScript "pass" would be vacuous — reported as `no-files` instead of a
+ * bare green.
  */
-export function countTypeCheckableFiles(projectRoot: string, sourcePaths: string[]): number {
+export function listTypeCheckableFiles(projectRoot: string, sourcePaths: string[]): string[] {
     const typeCheckableExtensions = [
         '.ts',
         '.tsx',
         '.vue',
     ];
-    let count = 0;
+    const files: string[] = [];
 
     for (const sourcePath of sourcePaths) {
         const queue = [path.resolve(projectRoot, sourcePath)];
@@ -194,15 +225,20 @@ export function countTypeCheckableFiles(projectRoot: string, sourcePaths: string
                 } else if (
                     entry.isFile() &&
                     typeCheckableExtensions.includes(path.extname(entry.name)) &&
-                    !/\.spec\.(ts|tsx|js)$/.test(entry.name)
+                    !/\.spec\.(ts|tsx|js)$/.test(entry.name) &&
+                    !entry.name.endsWith('.d.ts')
                 ) {
-                    count += 1;
+                    files.push(canonicalizePath(entryPath));
                 }
             }
         }
     }
 
-    return count;
+    return files.sort();
+}
+
+export function countTypeCheckableFiles(projectRoot: string, sourcePaths: string[]): number {
+    return listTypeCheckableFiles(projectRoot, sourcePaths).length;
 }
 
 /**
@@ -210,8 +246,8 @@ export function countTypeCheckableFiles(projectRoot: string, sourcePaths: string
  * (`.spec.ts`/`.spec.tsx`; `.spec.js` is parsed but not type-checked, like any
  * `.js`). Zero means the spec program would be vacuous — reported as no-files.
  */
-export function countSpecFiles(projectRoot: string, sourcePaths: string[]): number {
-    let count = 0;
+export function listSpecFiles(projectRoot: string, sourcePaths: string[]): string[] {
+    const files: string[] = [];
 
     for (const sourcePath of sourcePaths) {
         const queue = [path.resolve(projectRoot, sourcePath)];
@@ -229,13 +265,17 @@ export function countSpecFiles(projectRoot: string, sourcePaths: string[]): numb
                 if (entry.isDirectory() && entry.name !== 'node_modules') {
                     queue.push(entryPath);
                 } else if (entry.isFile() && /\.spec\.(ts|tsx)$/.test(entry.name)) {
-                    count += 1;
+                    files.push(canonicalizePath(entryPath));
                 }
             }
         }
     }
 
-    return count;
+    return files.sort();
+}
+
+export function countSpecFiles(projectRoot: string, sourcePaths: string[]): number {
+    return listSpecFiles(projectRoot, sourcePaths).length;
 }
 
 export function countTypeScriptFindings(output: string): number {
@@ -275,6 +315,9 @@ export function parseTypeScriptFindings(output: string): TypeScriptFinding[] {
     return findings;
 }
 
+/** A file-header line in ESLint's stylish output is a path ending in a lintable-file suffix. */
+const ESLINT_FILE_HEADER_PATTERN = /\.(ts|tsx|js|jsx|mjs|cjs|vue|twig|html|json)$/;
+
 /**
  * Structures ESLint's stylish output — a bare file-header line followed by
  * indented `line:col severity message rule` rows (rule id last, separated from
@@ -286,9 +329,12 @@ export function parseTypeScriptFindings(output: string): TypeScriptFinding[] {
 export function parseEslintFindings(output: string): EslintFinding[] {
     const findings: EslintFinding[] = [];
     let currentFile: string | null = null;
+    let lastFinding: EslintFinding | null = null;
 
     for (const line of output.split(/\r?\n/)) {
         if (line.trim() === '') {
+            lastFinding = null;
+
             continue;
         }
 
@@ -296,21 +342,37 @@ export function parseEslintFindings(output: string): EslintFinding[] {
 
         if (row && currentFile) {
             const ruleMatch = row[2].match(/^(.*?)\s{2,}(\S+)$/);
-
-            findings.push({
+            const finding: EslintFinding = {
                 file: currentFile,
                 rule: ruleMatch ? ruleMatch[2] : '',
                 message: (ruleMatch ? ruleMatch[1] : row[2]).trim(),
                 severity: row[1] as 'error' | 'warning',
-            });
+            };
+
+            findings.push(finding);
+            lastFinding = finding;
 
             continue;
         }
 
-        // A non-indented line that is neither a finding row nor the summary is
-        // the file header the rows below it belong to.
-        if (!/^\s/.test(line) && !line.startsWith('✖') && !/^\d+ problems?/.test(line)) {
+        // A file header is a path to a lintable file. ESLint prints multi-line
+        // rule messages (e.g. @typescript-eslint/unbound-method) with their
+        // continuation lines un-indented; requiring a source-file suffix keeps
+        // those from being mistaken for a new file header, which would otherwise
+        // corrupt the file attribution of every finding below them.
+        if (!/^\s/.test(line) && ESLINT_FILE_HEADER_PATTERN.test(line.trim())) {
             currentFile = line.trim();
+            lastFinding = null;
+
+            continue;
+        }
+
+        // The rule id of a multi-line message is printed on its last
+        // (un-indented) continuation line — attribute it to the finding above.
+        const continuationRule = line.match(/\s{2,}(\S+)$/);
+
+        if (lastFinding && continuationRule && continuationRule[1].includes('/')) {
+            lastFinding.rule = continuationRule[1];
         }
     }
 
@@ -394,7 +456,8 @@ async function runTypeScriptProgram(
         };
     }
 
-    const split = diffTypeScript(parseTypeScriptFindings(run.output), baselineEntries, basePath, findings);
+    const parsedFindings = parseTypeScriptFindings(run.output);
+    const split = diffTypeScript(parsedFindings, baselineEntries, basePath, findings);
 
     return {
         command,
@@ -402,7 +465,219 @@ async function runTypeScriptProgram(
             ...applyBaseline(run.status, findings, split, (finding) => ({ file: finding.file, code: finding.code })),
             output: run.output,
             durationMs: run.durationMs,
+            typeScriptFindings: parsedFindings,
+            parseMismatch: split.parseMismatch,
         },
+    };
+}
+
+interface TargetProgramGroup {
+    configPath: string;
+    targets: AdministrationTarget[];
+}
+
+function groupTargetsByConfig(
+    projectRoot: string,
+    targets: AdministrationTarget[],
+    configOf: (target: AdministrationTarget) => string,
+): TargetProgramGroup[] {
+    const groups = new Map<string, TargetProgramGroup>();
+
+    for (const target of targets) {
+        const configPath = path.resolve(projectRoot, configOf(target));
+        const key = canonicalizePath(configPath);
+        const group = groups.get(key) ?? { configPath: key, targets: [] };
+
+        group.targets.push(target);
+        groups.set(key, group);
+    }
+
+    return [...groups.values()].sort((left, right) => left.configPath.localeCompare(right.configPath));
+}
+
+function deduplicateByMaximumMultiplicity<F>(groups: F[][], keyOf: (finding: F) => string): F[] {
+    const representatives = new Map<string, F>();
+    const maximumCounts = new Map<string, number>();
+
+    for (const findings of groups) {
+        const groupCounts = new Map<string, number>();
+
+        for (const finding of findings) {
+            const key = keyOf(finding);
+
+            representatives.set(key, representatives.get(key) ?? finding);
+            groupCounts.set(key, (groupCounts.get(key) ?? 0) + 1);
+        }
+
+        for (const [
+            key,
+            count,
+        ] of groupCounts) {
+            maximumCounts.set(key, Math.max(maximumCounts.get(key) ?? 0, count));
+        }
+    }
+
+    return [...maximumCounts.entries()].flatMap(
+        ([
+            key,
+            count,
+        ]) => Array.from({ length: count }, () => representatives.get(key) as F),
+    );
+}
+
+async function verifyVueTscCoverage(
+    vueTscPath: string,
+    group: TargetProgramGroup,
+    projectRoot: string,
+    expectedFiles: (target: AdministrationTarget) => string[],
+): Promise<{ error?: string; command: string }> {
+    const args = [
+        vueTscPath,
+        '--showConfig',
+        '--project',
+        group.configPath,
+    ];
+    const command = formatCommand(projectRoot, args);
+    const resolved = await runCommand(process.execPath, args, projectRoot);
+
+    if (resolved.status !== 0) {
+        return {
+            error: resolved.output || `vue-tsc --showConfig exited with status ${resolved.status}.`,
+            command,
+        };
+    }
+
+    let files: string[];
+
+    try {
+        const config = JSON.parse(resolved.output) as { files?: string[] };
+
+        files = (config.files ?? []).map((file) => canonicalizePath(path.resolve(path.dirname(group.configPath), file)));
+    } catch {
+        return { error: 'vue-tsc --showConfig returned invalid JSON.', command };
+    }
+
+    const covered = new Set(files);
+    const missing = group.targets.flatMap((target) => expectedFiles(target).filter((file) => !covered.has(file)));
+
+    if (missing.length > 0) {
+        return {
+            error:
+                `${relativePosix(projectRoot, group.configPath)} does not cover ${missing.length} discovered file(s): ` +
+                missing
+                    .slice(0, 3)
+                    .map((file) => relativePosix(projectRoot, file))
+                    .join(', ') +
+                (missing.length > 3 ? ', …' : ''),
+            command,
+        };
+    }
+
+    return { command };
+}
+
+async function runTypeScriptPrograms(
+    vueTscPath: string,
+    groups: TargetProgramGroup[],
+    projectRoot: string,
+    basePath: string,
+    baselineEntries: BaselineTsEntry[],
+    expectedFiles: (target: AdministrationTarget) => string[],
+): Promise<{ result: ToolRunResult; commands: string[] }> {
+    const coverage = await Promise.all(
+        groups.map((group) => verifyVueTscCoverage(vueTscPath, group, projectRoot, expectedFiles)),
+    );
+    const coverageErrors = coverage.flatMap((entry) => (entry.error ? [entry.error] : []));
+
+    if (coverageErrors.length > 0) {
+        return {
+            result: {
+                status: 'tooling-error',
+                output: coverageErrors.join('\n'),
+                durationMs: 0,
+                findings: 0,
+            },
+            commands: coverage.map((entry) => entry.command),
+        };
+    }
+
+    const runs = await Promise.all(
+        groups.map((group) => runTypeScriptProgram(vueTscPath, group.configPath, projectRoot, basePath, [])),
+    );
+    const outputs = runs.map((run) => run.result.output).filter((output) => output.trim() !== '');
+    const parsedGroups = runs.map((run) => run.result.typeScriptFindings ?? []);
+    const findings = deduplicateByMaximumMultiplicity(
+        parsedGroups,
+        (finding) => `${finding.file}\u0000${finding.code}\u0000${finding.message}`,
+    );
+    const parseMismatch = runs.some((run) => run.result.parseMismatch === true);
+    const durationMs = runs.reduce((total, run) => total + run.result.durationMs, 0);
+    const toolingErrors = runs.filter((run) => run.result.status === 'tooling-error');
+
+    if (toolingErrors.length > 0) {
+        return {
+            result: {
+                status: 'tooling-error',
+                output: outputs.join('\n\n'),
+                durationMs,
+                findings: findings.length,
+                typeScriptFindings: findings,
+                parseMismatch,
+            },
+            commands: runs.map((run) => run.command),
+        };
+    }
+
+    // Split findings by origin. A diagnostic whose file lies outside the
+    // extension root comes from the shared Administration type surface (or a
+    // global declaration the extension pulled into it), not the extension's own
+    // code: it is always fatal and never baselineable. In-root findings are the
+    // extension's own debt and go through the baseline as usual — a surface
+    // conflict must not block baselining the legitimate in-root findings.
+    const isInRoot = (finding: TypeScriptFinding): boolean => toPosix(finding.file).startsWith(`${basePath}/`);
+    const surfaceFindings = findings.filter((finding) => !isInRoot(finding));
+    const inRootFindings = findings.filter(isInRoot);
+    const split = diffTypeScript(
+        inRootFindings,
+        baselineEntries,
+        basePath,
+        parseMismatch ? inRootFindings.length + 1 : inRootFindings.length,
+    );
+    const status: ToolStatus =
+        surfaceFindings.length > 0 || split.newFindings.length > 0 || split.parseMismatch ? 'failed' : 'passed';
+    const surfaceHeader =
+        surfaceFindings.length > 0
+            ? `The shared Administration type surface emitted ${surfaceFindings.length} diagnostic(s) outside ` +
+              `${basePath} (${[...new Set(surfaceFindings.map((finding) => finding.file))]
+                  .slice(0, 3)
+                  .join(', ')}${surfaceFindings.length > 3 ? ', …' : ''}). This is a type-surface failure, not ` +
+              'extension debt — it cannot be baselined. A global declaration in the extension may conflict with the ' +
+              'shipped surface; check the named file.'
+            : '';
+
+    return {
+        result: {
+            status,
+            findings: findings.length,
+            newFindings: split.newFindings.length + surfaceFindings.length,
+            baselinedFindings: split.baselinedCount,
+            staleBaseline: split.staleCount,
+            newFindingRefs: [
+                ...surfaceFindings,
+                ...split.newFindings,
+            ].map((finding) => ({ file: finding.file, code: finding.code })),
+            surfaceDiagnostics: surfaceFindings.length,
+            output: [
+                surfaceHeader,
+                outputs.join('\n\n'),
+            ]
+                .filter((part) => part.trim() !== '')
+                .join('\n\n'),
+            durationMs,
+            typeScriptFindings: findings,
+            parseMismatch: split.parseMismatch,
+        },
+        commands: runs.map((run) => run.command),
     };
 }
 
@@ -512,16 +787,22 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
     const selected = normalizeSelection(options.only);
 
     if (selected.length > 0) {
-        projects = projects.filter(
-            (project) => selected.includes(project.name) || project.technicalNames.some((name) => selected.includes(name)),
-        );
+        const matches = (project: ExtensionToolingProject, name: string): boolean =>
+            project.name === name || project.technicalNames.includes(name);
+        // Resolve every requested name independently. A single unknown name
+        // fails the whole run before any tool executes — a renamed/removed
+        // target must never leave CI green while it is silently unchecked.
+        const unmatched = selected.filter((name) => !projects.some((project) => matches(project, name)));
 
-        if (projects.length === 0) {
+        if (unmatched.length > 0) {
             const available = setupResult.manifest.projects.map((project) => project.name).join(', ');
 
             fatalDiagnostics.push(
-                `No extension matches --only=${selected.join(',')}. Discovered: ${available || '(none)'}.`,
+                `--only names unknown extension(s): ${unmatched.join(', ')}. Discovered: ${available || '(none)'}.`,
             );
+            projects = [];
+        } else {
+            projects = projects.filter((project) => selected.some((name) => matches(project, name)));
         }
     }
 
@@ -543,48 +824,78 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
         );
     }
 
-    const modeJobs = projects.map((project) => async () => {
-        const [
-            tsResolution,
-            eslintResolution,
-        ] = await Promise.all([
-            probeTsMode(project, projectRoot, administrationRoot),
-            probeEslintMode(
-                project,
-                projectRoot,
-                administrationRoot,
-                eslintBaseArguments,
-                findFirstSourceFile(projectRoot, project.sourcePaths),
-            ),
-        ]);
+    const modeJobs = projects.flatMap((project) =>
+        project.targets.map((target) => async () => {
+            const [
+                tsResolution,
+                eslintResolution,
+            ] = await Promise.all([
+                probeTsMode(target, projectRoot, administrationRoot),
+                probeEslintMode(
+                    target,
+                    projectRoot,
+                    administrationRoot,
+                    eslintBaseArguments,
+                    findFirstSourceFile(projectRoot, [target.sourcePath]),
+                ),
+            ]);
 
-        return { project, tsResolution, eslintResolution };
+            return { projectName: project.name, target, tsResolution, eslintResolution };
+        }),
+    );
+    const resolvedTargets = await runPool(modeJobs, maxWorkers);
+    const resolvedModes = projects.map((project) => {
+        const targetResolutions = new Map(
+            resolvedTargets
+                .filter((entry) => entry.projectName === project.name)
+                .map((entry) => [
+                    entry.target.sourcePath,
+                    entry,
+                ]),
+        );
+        const resolvedProject: ExtensionToolingProject = {
+            ...project,
+            targets: project.targets.map((target) => {
+                const resolution = targetResolutions.get(target.sourcePath);
+
+                return resolution ? { ...target, ts: resolution.tsResolution, eslint: resolution.eslintResolution } : target;
+            }),
+        };
+
+        return {
+            project: resolvedProject,
+            tsResolution: aggregateModeResolution(resolvedProject, 'ts'),
+            eslintResolution: aggregateModeResolution(resolvedProject, 'eslint'),
+        };
     });
-    const resolvedModes = await runPool(modeJobs, maxWorkers);
 
     // Persist the verified verdicts so subsequent setup runs render the same
     // state. Merge with existing entries (a --only run must not drop other
     // extensions' verdicts); prune extensions that no longer exist.
-    const knownNames = new Set(setupResult.manifest.projects.map((project) => project.name));
+    const knownNames = new Set(
+        setupResult.manifest.projects.flatMap((project) =>
+            project.targets.map((target) => probeCacheEntryKey(project.name, target)),
+        ),
+    );
     const probeCache: ProbeCacheFile = {
-        version: 1,
+        version: 2,
         entries: Object.fromEntries(
             Object.entries(readProbeCache(projectRoot)?.entries ?? {}).filter(([name]) => knownNames.has(name)),
         ),
     };
 
-    for (const { project, tsResolution, eslintResolution } of resolvedModes) {
-        if (!project.tsconfig && !project.eslintConfig) {
+    for (const { projectName, target, tsResolution, eslintResolution } of resolvedTargets) {
+        if (!target.tsconfig && !target.eslintConfig) {
             continue;
         }
 
-        const inputs = probeInputFiles(project, projectRoot, administrationRoot);
+        const inputs = probeInputFiles(target, projectRoot, administrationRoot);
 
-        probeCache.entries[project.name] = {
-            ...(project.tsconfig
+        probeCache.entries[probeCacheEntryKey(projectName, target)] = {
+            ...(target.tsconfig
                 ? { ts: { key: probeCacheKey(inputs.ts), resolution: toCacheableResolution(tsResolution) } }
                 : {}),
-            ...(project.eslintConfig
+            ...(target.eslintConfig
                 ? { eslint: { key: probeCacheKey(inputs.eslint), resolution: toCacheableResolution(eslintResolution) } }
                 : {}),
         };
@@ -599,6 +910,16 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
         const commands: ExtensionCheckResult['commands'] = {};
         // Read once — the runtime and (later) spec runs share one baseline file.
         const baseline = readBaseline(projectRoot, project);
+        const unmanagedTsTargets = project.targets.filter((target) => target.ts.mode === 'unmanaged');
+        const unmanagedEslintTargets = project.targets.filter((target) => target.eslint.mode === 'unmanaged');
+        const runtimeTargets = project.targets.filter(
+            (target) =>
+                target.ts.mode !== 'unmanaged' &&
+                (target.ts.mode === 'bridged' || countTypeCheckableFiles(projectRoot, [target.sourcePath]) > 0),
+        );
+        const specTargets = project.targets.filter(
+            (target) => target.ts.mode !== 'unmanaged' && countSpecFiles(projectRoot, [target.sourcePath]) > 0,
+        );
 
         if (!setupResult.manifest.entitySchemaAvailable) {
             // Running vue-tsc against the empty-schema stub would bury the one
@@ -606,34 +927,36 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
             // the Administration's own files. Refuse instead; the fatal
             // diagnostic names the fix. ESLint still runs.
             typescript = { status: 'blocked', output: '', durationMs: 0, findings: 0 };
-        } else if (tsResolution.mode === 'unmanaged') {
+        } else if (runtimeTargets.length === 0 && unmanagedTsTargets.length > 0) {
             typescript = {
                 status: 'unmanaged',
-                output: relativizeToolOutput(tsResolution.probeOutput ?? '', projectRoot),
+                output: unmanagedTsTargets
+                    .map((target) => relativizeToolOutput(target.ts.probeOutput ?? '', projectRoot))
+                    .filter(Boolean)
+                    .join('\n\n'),
                 durationMs: 0,
                 findings: 0,
             };
-        } else if (tsResolution.mode === 'managed' && countTypeCheckableFiles(projectRoot, project.sourcePaths) === 0) {
-            // A custom tsconfig may pull in files from elsewhere, so the
-            // shortcut only applies to managed (generated) configs.
+        } else if (runtimeTargets.length === 0) {
             typescript = { status: 'no-files', output: '', durationMs: 0, findings: 0 };
         } else if (!fs.existsSync(vueTscPath)) {
             typescript = { status: 'tooling-error', output: 'vue-tsc is not installed.', durationMs: 0, findings: 0 };
         } else {
-            const tsconfigPath = path.resolve(
-                projectRoot,
-                tsResolution.mode === 'custom' && project.tsconfig ? project.tsconfig : project.checkTsconfig,
-            );
-            const program = await runTypeScriptProgram(
+            const program = await runTypeScriptPrograms(
                 vueTscPath,
-                tsconfigPath,
+                groupTargetsByConfig(projectRoot, runtimeTargets, (target) => target.checkTsconfig),
                 projectRoot,
                 project.basePath,
                 baseline?.typescript ?? [],
+                (target) => listTypeCheckableFiles(projectRoot, [target.sourcePath]),
             );
 
             typescript = program.result;
-            commands.typescript = program.command;
+            commands.typescript = program.commands;
+
+            if (unmanagedTsTargets.length > 0 && typescript.status === 'passed') {
+                typescript.status = 'unmanaged';
+            }
         }
 
         // The spec program adds jest types over the same surface and checks only
@@ -641,90 +964,126 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
         // existing and mirrors the runtime program's blocked/unmanaged states.
         if (!setupResult.manifest.entitySchemaAvailable) {
             typescriptSpecs = { status: 'blocked', output: '', durationMs: 0, findings: 0 };
-        } else if (tsResolution.mode === 'unmanaged') {
+        } else if (specTargets.length === 0 && unmanagedTsTargets.length > 0) {
             typescriptSpecs = { status: 'unmanaged', output: '', durationMs: 0, findings: 0 };
-        } else if (countSpecFiles(projectRoot, project.sourcePaths) === 0) {
+        } else if (specTargets.length === 0) {
             typescriptSpecs = { status: 'no-files', output: '', durationMs: 0, findings: 0 };
         } else if (!fs.existsSync(vueTscPath)) {
             typescriptSpecs = { status: 'tooling-error', output: 'vue-tsc is not installed.', durationMs: 0, findings: 0 };
         } else {
-            const program = await runTypeScriptProgram(
+            const program = await runTypeScriptPrograms(
                 vueTscPath,
-                path.resolve(projectRoot, project.specTsconfig),
+                groupTargetsByConfig(projectRoot, specTargets, (target) => target.specTsconfig),
                 projectRoot,
                 project.basePath,
                 baseline?.typescriptSpecs ?? [],
+                (target) => listSpecFiles(projectRoot, [target.sourcePath]),
             );
 
             typescriptSpecs = program.result;
-            commands.typescriptSpecs = program.command;
+            commands.typescriptSpecs = program.commands;
+
+            if (unmanagedTsTargets.length > 0 && typescriptSpecs.status === 'passed') {
+                typescriptSpecs.status = 'unmanaged';
+            }
         }
 
-        if (eslintResolution.mode === 'unmanaged') {
+        const eslintTargets = project.targets.filter(
+            (target) => target.eslint.mode !== 'unmanaged' && findFirstSourceFile(projectRoot, [target.sourcePath]) !== null,
+        );
+
+        if (eslintTargets.length === 0 && unmanagedEslintTargets.length > 0) {
             eslint = {
                 status: 'unmanaged',
-                output: relativizeToolOutput(eslintResolution.probeOutput ?? '', projectRoot),
+                output: unmanagedEslintTargets
+                    .map((target) => relativizeToolOutput(target.eslint.probeOutput ?? '', projectRoot))
+                    .filter(Boolean)
+                    .join('\n\n'),
                 durationMs: 0,
                 findings: 0,
             };
+        } else if (eslintTargets.length === 0) {
+            eslint = { status: 'no-files', output: '', durationMs: 0, findings: 0 };
         } else {
-            const sampleFile = findFirstSourceFile(projectRoot, project.sourcePaths);
+            // Vendor-installed extensions are not ours to rewrite: --fix only
+            // applies to them when named explicitly via --only.
+            const explicitlyNamed =
+                (options.explicitOnly ?? []).includes(project.name) ||
+                project.technicalNames.some((name) => (options.explicitOnly ?? []).includes(name));
+            const applyFix = options.fix === true && (!project.vendor || explicitlyNamed);
 
-            if (!sampleFile) {
-                eslint = { status: 'no-files', output: '', durationMs: 0, findings: 0 };
+            if (options.fix === true && !applyFix) {
+                warnings.push(
+                    `${project.name} is vendor-installed — not yours to rewrite; --fix skipped ` +
+                        `(name it via --only=${project.name} to fix anyway).`,
+                );
+            }
+
+            const eslintGroups = groupTargetsByConfig(
+                projectRoot,
+                eslintTargets,
+                (target) => target.eslintConfig ?? path.join(projectRoot, 'eslint.config.mjs'),
+            );
+            const runs = await Promise.all(
+                eslintGroups.map(async (group) => {
+                    const sourcePaths = [...new Set(group.targets.map((target) => target.sourcePath))];
+                    const eslintArguments = buildEslintArguments(eslintPath, eslintBaseArguments, sourcePaths, applyFix);
+                    const command = formatCommand(projectRoot, eslintArguments);
+                    const run = await runCommand(process.execPath, eslintArguments, projectRoot);
+                    const output = relativizeToolOutput(run.output, projectRoot);
+                    const nativeFindings = countEslintFindings(output);
+                    const parsedFindings = parseEslintFindings(output);
+
+                    return { run, output, nativeFindings, parsedFindings, command };
+                }),
+            );
+            const outputs = runs.map((run) => run.output).filter((output) => output.trim() !== '');
+            const parsedFindings = deduplicateByMaximumMultiplicity(
+                runs.map((run) => run.parsedFindings),
+                (finding) => `${finding.file}\u0000${finding.rule}\u0000${finding.message}\u0000${finding.severity}`,
+            );
+            const parseMismatch = runs.some((run) => run.nativeFindings !== run.parsedFindings.length);
+            const split = diffEslint(
+                parsedFindings,
+                baseline?.eslint ?? [],
+                project.basePath,
+                parseMismatch ? parsedFindings.length + 1 : parsedFindings.length,
+            );
+            const toolingError = runs.find(
+                ({ run, nativeFindings }) => run.timedOut || (run.status !== 0 && nativeFindings === 0),
+            );
+
+            commands.eslint = runs.map((run) => run.command);
+
+            if (toolingError) {
+                eslint = {
+                    status: 'tooling-error',
+                    output: toolingError.run.timedOut
+                        ? `ESLint timed out after ${PROCESS_TIMEOUT_MS / 1000}s.\n${outputs.join('\n\n')}`
+                        : outputs.join('\n\n') || `ESLint exited with status ${toolingError.run.status} and no output.`,
+                    durationMs: runs.reduce((total, run) => total + run.run.durationMs, 0),
+                    findings: parsedFindings.length,
+                    eslintFindings: parsedFindings,
+                    parseMismatch,
+                };
             } else {
-                // Vendor-installed extensions are not ours to rewrite: --fix
-                // only applies to them when named explicitly via --only.
-                const explicitlyNamed =
-                    (options.explicitOnly ?? []).includes(project.name) ||
-                    project.technicalNames.some((name) => (options.explicitOnly ?? []).includes(name));
-                const applyFix = options.fix === true && (!project.vendor || explicitlyNamed);
+                const output = outputs.join('\n\n');
 
-                if (options.fix === true && !applyFix) {
-                    warnings.push(
-                        `${project.name} is vendor-installed — not yours to rewrite; --fix skipped ` +
-                            `(name it via --only=${project.name} to fix anyway).`,
-                    );
-                }
+                eslint = {
+                    ...applyBaseline(
+                        runs.some((run) => run.run.status !== 0) ? 1 : 0,
+                        parsedFindings.length,
+                        split,
+                        (finding) => ({ file: finding.file, code: finding.rule }),
+                    ),
+                    output: applyFix ? output : appendFixHint(output, project.name),
+                    durationMs: runs.reduce((total, run) => total + run.run.durationMs, 0),
+                    eslintFindings: parsedFindings,
+                    parseMismatch: split.parseMismatch,
+                };
 
-                const eslintArguments = buildEslintArguments(eslintPath, eslintBaseArguments, project.sourcePaths, applyFix);
-
-                commands.eslint = formatCommand(projectRoot, eslintArguments);
-
-                const run = await runCommand(process.execPath, eslintArguments, projectRoot);
-                const output = relativizeToolOutput(run.output, projectRoot);
-                const findings = countEslintFindings(output);
-
-                if (run.timedOut) {
-                    eslint = {
-                        status: 'tooling-error',
-                        output: `ESLint timed out after ${PROCESS_TIMEOUT_MS / 1000}s.\n${output}`,
-                        durationMs: run.durationMs,
-                        findings,
-                    };
-                } else if (run.status !== 0 && findings === 0) {
-                    eslint = {
-                        status: 'tooling-error',
-                        output: output || `ESLint exited with status ${run.status} and no output.`,
-                        durationMs: run.durationMs,
-                        findings: 0,
-                    };
-                } else {
-                    const split = diffEslint(
-                        parseEslintFindings(output),
-                        baseline?.eslint ?? [],
-                        project.basePath,
-                        findings,
-                    );
-
-                    eslint = {
-                        ...applyBaseline(run.status, findings, split, (finding) => ({
-                            file: finding.file,
-                            code: finding.rule,
-                        })),
-                        output: applyFix ? output : appendFixHint(output, project.name),
-                        durationMs: run.durationMs,
-                    };
+                if (unmanagedEslintTargets.length > 0 && eslint.status === 'passed') {
+                    eslint.status = 'unmanaged';
                 }
             }
         }
@@ -737,6 +1096,12 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
             typescriptSpecs,
             eslint,
             commands,
+            coverage: project.targets.map((target) => ({
+                target,
+                runtimeConfig: target.checkTsconfig,
+                specConfig: target.specTsconfig,
+                eslintConfig: target.eslintConfig ?? 'eslint.config.mjs',
+            })),
         };
     });
     const results = await runPool(checkJobs, maxWorkers);
@@ -750,19 +1115,84 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
                 continue;
             }
 
-            if (
-                result.typescript.status === 'tooling-error' ||
-                result.typescriptSpecs.status === 'tooling-error' ||
-                result.eslint.status === 'tooling-error'
-            ) {
-                warnings.push(`${result.project.name}: baseline not updated — a tool run errored; fix that first.`);
+            const incompleteStreamNames = new Set<string>();
+
+            if (result.project.targets.some((target) => target.ts.mode === 'unmanaged')) {
+                incompleteStreamNames.add('TypeScript');
+                incompleteStreamNames.add('TS (specs)');
+            }
+
+            if (result.project.targets.some((target) => target.eslint.mode === 'unmanaged')) {
+                incompleteStreamNames.add('ESLint');
+            }
+
+            for (const [
+                name,
+                run,
+            ] of [
+                [
+                    'TypeScript',
+                    result.typescript,
+                ],
+                [
+                    'TS (specs)',
+                    result.typescriptSpecs,
+                ],
+                [
+                    'ESLint',
+                    result.eslint,
+                ],
+            ] as Array<[string, ToolRunResult]>) {
+                if (
+                    [
+                        'unmanaged',
+                        'blocked',
+                        'tooling-error',
+                    ].includes(run.status)
+                ) {
+                    incompleteStreamNames.add(name);
+                }
+            }
+
+            const parserMismatch = [
+                result.typescript,
+                result.typescriptSpecs,
+                result.eslint,
+            ].some((run) => run.parseMismatch === true);
+
+            if (incompleteStreamNames.size > 0 || parserMismatch) {
+                fatalDiagnostics.push(
+                    `${result.project.name}: baseline not updated — ` +
+                        (parserMismatch
+                            ? 'native and structured finding counts disagree.'
+                            : `${[...incompleteStreamNames].join(', ')} did not complete.`),
+                );
 
                 continue;
             }
 
-            const typescriptFindings = parseTypeScriptFindings(result.typescript.output);
-            const typescriptSpecFindings = parseTypeScriptFindings(result.typescriptSpecs.output);
-            const eslintFindings = parseEslintFindings(result.eslint.output);
+            // Surface diagnostics (files outside the extension root) are never
+            // baselineable; record only the extension's own in-root findings and
+            // warn that the surface conflict must be fixed rather than recorded.
+            const inRoot = (finding: TypeScriptFinding): boolean =>
+                toPosix(finding.file).startsWith(`${result.project.basePath}/`);
+            const typescriptFindings = (
+                result.typescript.typeScriptFindings ?? parseTypeScriptFindings(result.typescript.output)
+            ).filter(inRoot);
+            const typescriptSpecFindings = (
+                result.typescriptSpecs.typeScriptFindings ?? parseTypeScriptFindings(result.typescriptSpecs.output)
+            ).filter(inRoot);
+            const eslintFindings = result.eslint.eslintFindings ?? parseEslintFindings(result.eslint.output);
+            const surfaceCount =
+                (result.typescript.surfaceDiagnostics ?? 0) + (result.typescriptSpecs.surfaceDiagnostics ?? 0);
+
+            if (surfaceCount > 0) {
+                warnings.push(
+                    `${result.project.name}: ${surfaceCount} type-surface diagnostic(s) were not baselined — ` +
+                        'they originate outside the extension and must be fixed, not recorded (they keep failing the check).',
+                );
+            }
+
             const recorded =
                 typescriptFindings.length +
                 typescriptSpecFindings.length +
@@ -803,9 +1233,14 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
     let exitCode = fatalDiagnostics.length > 0 ? 1 : 0;
 
     for (const result of results) {
+        // Surface diagnostics (findings outside the extension root) are never
+        // baselineable, so they fail even under --update-baseline.
+        const hasSurfaceDiagnostics =
+            (result.typescript.surfaceDiagnostics ?? 0) > 0 || (result.typescriptSpecs.surfaceDiagnostics ?? 0) > 0;
         // Under --update-baseline the current findings are being accepted, so
         // they are not failures; a broken toolchain still is.
         const hasFailure =
+            hasSurfaceDiagnostics ||
             result.typescript.status === 'tooling-error' ||
             result.typescriptSpecs.status === 'tooling-error' ||
             result.eslint.status === 'tooling-error' ||
@@ -815,6 +1250,21 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
                     result.eslint.status === 'failed'));
 
         if (hasFailure && (!result.project.vendor || options.strictVendor)) {
+            exitCode = 1;
+        }
+
+        // --fail-on-skipped: a writable extension whose config never composed
+        // the preset was not checked. Silent exit 0 there is a false green for
+        // CI; vendor extensions keep their separate --strict-vendor policy.
+        if (
+            options.failOnSkipped &&
+            !result.project.vendor &&
+            [
+                result.typescript,
+                result.typescriptSpecs,
+                result.eslint,
+            ].some((run) => run.status === 'unmanaged' || run.status === 'blocked')
+        ) {
             exitCode = 1;
         }
     }
@@ -841,8 +1291,14 @@ const CHECK_COMMAND: CommandSpec = {
         { name: '--all', description: 'Check every discovered extension (skips the interactive picker).' },
         { name: '--strict-vendor', description: 'Fail on findings in vendor-installed (read-only) extensions.' },
         {
+            name: '--fail-on-skipped',
+            description: 'Fail (exit 1) when a writable extension is skipped/blocked instead of checked (for CI).',
+        },
+        {
             name: '--fix',
-            description: 'Apply ESLint autofixes (vendor extensions only when named via --only).',
+            description:
+                'Apply ESLint autofixes, incl. Shopware deprecation codemods (sw-* → mt-*), not only formatting ' +
+                '(vendor extensions only when named via --only).',
         },
         {
             name: '--update-baseline',
@@ -850,6 +1306,20 @@ const CHECK_COMMAND: CommandSpec = {
         },
         { name: '--show-commands', description: 'Print the underlying vue-tsc/ESLint invocation per extension.' },
         { name: '--verbose', description: 'Also print tool output for passing and skipped extensions.' },
+        {
+            name: '--summary',
+            description: 'Add a triage summary grouping findings by rule/code and by file (additive to native output).',
+        },
+        {
+            name: '--summary-only',
+            description: 'Print only the triage summary, suppressing the raw per-finding output (for very large logs).',
+        },
+        {
+            name: '--summary-top',
+            value: 'required',
+            valueName: '<n>',
+            description: 'How many top rules/codes and files to list per stream in the summary (default 10).',
+        },
         {
             name: '--max-workers',
             value: 'required',
@@ -898,6 +1368,15 @@ export async function runCheckCli(argv: string[]): Promise<number> {
 
     if (maxWorkers !== undefined && (!Number.isInteger(maxWorkers) || maxWorkers < 1)) {
         console.error(`--max-workers must be a positive integer, got "${maxWorkersValue}".\n\n${renderHelp(CHECK_COMMAND)}`);
+
+        return 2;
+    }
+
+    const summaryTopValue = parsed.values['--summary-top'];
+    const summaryTop = summaryTopValue === undefined ? undefined : Number(summaryTopValue);
+
+    if (summaryTop !== undefined && (!Number.isInteger(summaryTop) || summaryTop < 1)) {
+        console.error(`--summary-top must be a positive integer, got "${summaryTopValue}".\n\n${renderHelp(CHECK_COMMAND)}`);
 
         return 2;
     }
@@ -954,12 +1433,18 @@ export async function runCheckCli(argv: string[]): Promise<number> {
         fix: parsed.flags.has('--fix'),
         explicitOnly: only !== undefined ? normalizeSelection(only) : [],
         updateBaseline: parsed.flags.has('--update-baseline'),
+        failOnSkipped: parsed.flags.has('--fail-on-skipped'),
     });
 
     console.log(
         renderCheckReport(check, {
             verbose: parsed.flags.has('--verbose'),
             showCommands: parsed.flags.has('--show-commands'),
+            failOnSkipped: parsed.flags.has('--fail-on-skipped'),
+            fix: parsed.flags.has('--fix'),
+            summary: parsed.flags.has('--summary') || parsed.flags.has('--summary-only'),
+            summaryOnly: parsed.flags.has('--summary-only'),
+            summaryTop,
         }),
     );
 

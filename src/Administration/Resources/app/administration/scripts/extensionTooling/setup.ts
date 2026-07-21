@@ -21,6 +21,7 @@ import {
     SHIM_DIR_NAME,
     STATE_DIR,
     asRelativeSpecifier,
+    canonicalizePath,
     findExtensionRoot,
     findNearestConfig,
     isGeneratedContent,
@@ -37,6 +38,7 @@ import {
 import { CliUsageError, parseCli, renderHelp } from './cli';
 import type { CommandSpec } from './cli';
 import type {
+    AdministrationTarget,
     ExtensionToolingManifest,
     ExtensionToolingProject,
     ManagedFileState,
@@ -44,6 +46,7 @@ import type {
     WriteResult,
 } from './shared';
 import {
+    probeCacheEntryKey,
     readProbeCache,
     resolveModesFromCache,
     resolveStaticEslintMode,
@@ -82,6 +85,13 @@ export interface SetupExtensionToolingOptions {
     pluginsConfigPath?: string;
     /** Technical name, extension name, or "all-custom": generate committed-config shims. */
     shim?: string;
+    /**
+     * Root-config bridge mode for a multi-root extension: the directory
+     * (relative to the extension root) whose package-level config governs every
+     * Administration root. One bridge is generated beside it instead of one per
+     * root. Ignored unless `shim` names a single extension.
+     */
+    rootConfig?: string;
     /** Validate-only mode: report what would change, write nothing. */
     checkOnly?: boolean;
     /** Never touch the project .gitignore (persisted in the manifest). */
@@ -142,7 +152,7 @@ export function discoverProjects(
     interface ProjectGroup {
         extensionRoot: string;
         technicalNames: Set<string>;
-        sourcePaths: Set<string>;
+        targets: Map<string, { sourcePath: string; technicalNames: Set<string> }>;
     }
 
     const groups = new Map<string, ProjectGroup>();
@@ -167,11 +177,20 @@ export function discoverProjects(
         const group = groups.get(extensionRoot) ?? {
             extensionRoot,
             technicalNames: new Set<string>(),
-            sourcePaths: new Set<string>(),
+            targets: new Map<string, { sourcePath: string; technicalNames: Set<string> }>(),
         };
 
         group.technicalNames.add(bundle.technicalName);
-        group.sourcePaths.add(sourcePath);
+        const canonicalSourcePath = canonicalizePath(sourcePath);
+        const target = group.targets.get(canonicalSourcePath) ?? {
+            // Keep paths in the caller's project-root namespace for portable
+            // manifest entries; use the canonical form only as the dedupe key.
+            sourcePath: path.normalize(sourcePath),
+            technicalNames: new Set<string>(),
+        };
+
+        target.technicalNames.add(bundle.technicalName);
+        group.targets.set(canonicalSourcePath, target);
         groups.set(extensionRoot, group);
     }
 
@@ -186,32 +205,47 @@ export function discoverProjects(
             usedNames.set(baseName, nameCount + 1);
 
             const name = nameCount === 0 ? baseName : `${path.basename(path.dirname(group.extensionRoot))}-${baseName}`;
-            const sourcePaths = [...group.sourcePaths].sort();
-            const tsconfig =
-                sourcePaths
-                    .map((source) => findNearestConfig(source, group.extensionRoot, ['tsconfig.json']))
-                    .find((configPath) => configPath !== null) ?? null;
-            const eslintConfig =
-                sourcePaths
-                    .map((source) => findNearestConfig(source, group.extensionRoot, ESLINT_CONFIG_NAMES))
-                    .find((configPath) => configPath !== null) ?? null;
-            const bridgePresent = sourcePaths.some((source) =>
-                fs.existsSync(path.join(path.dirname(source), SHIM_DIR_NAME, 'tsconfig.json')),
-            );
+            const targets: AdministrationTarget[] = [...group.targets.values()]
+                .sort((left, right) => left.sourcePath.localeCompare(right.sourcePath))
+                .map((target) => {
+                    const tsconfig = findNearestConfig(target.sourcePath, group.extensionRoot, ['tsconfig.json']);
+                    const eslintConfig = findNearestConfig(target.sourcePath, group.extensionRoot, ESLINT_CONFIG_NAMES);
+                    // A bridge sits beside the config it serves: the source root
+                    // itself (per-root shim) or the directory of the owned config
+                    // that extends it (root-config shim). Check every candidate so
+                    // a root-config bridge is not mistaken for "no bridge".
+                    const bridgeDirs = new Set<string>([path.dirname(target.sourcePath)]);
+
+                    if (tsconfig) {
+                        bridgeDirs.add(path.dirname(tsconfig));
+                    }
+
+                    if (eslintConfig) {
+                        bridgeDirs.add(path.dirname(eslintConfig));
+                    }
+
+                    return {
+                        technicalNames: [...target.technicalNames].sort(),
+                        sourcePath: relativePosix(projectRoot, target.sourcePath),
+                        adminFolder: relativePosix(projectRoot, path.dirname(target.sourcePath)),
+                        bridgePresent: [...bridgeDirs].some((dir) =>
+                            fs.existsSync(path.join(dir, SHIM_DIR_NAME, 'tsconfig.json')),
+                        ),
+                        tsconfig: tsconfig ? relativePosix(projectRoot, tsconfig) : null,
+                        eslintConfig: eslintConfig ? relativePosix(projectRoot, eslintConfig) : null,
+                        ts: resolveStaticTsMode(tsconfig),
+                        eslint: resolveStaticEslintMode(eslintConfig),
+                        checkTsconfig: '',
+                        specTsconfig: '',
+                    };
+                });
 
             return {
                 name,
                 technicalNames: [...group.technicalNames].sort(),
                 basePath: relativePosix(projectRoot, group.extensionRoot),
-                sourcePaths: sourcePaths.map((source) => relativePosix(projectRoot, source)),
                 vendor: isWithin(group.extensionRoot, vendorRoot),
-                bridgePresent,
-                tsconfig: tsconfig ? relativePosix(projectRoot, tsconfig) : null,
-                eslintConfig: eslintConfig ? relativePosix(projectRoot, eslintConfig) : null,
-                ts: resolveStaticTsMode(tsconfig),
-                eslint: resolveStaticEslintMode(eslintConfig),
-                checkTsconfig: '',
-                specTsconfig: '',
+                targets,
             };
         });
 }
@@ -298,74 +332,78 @@ function createLeafConfigs(context: GeneratorContext, projects: ExtensionTooling
                 `${asRelativeSpecifier(configPath, path.resolve(context.projectRoot, sourcePath))}/**/*.${extension}`,
         );
 
-    const configured = projects.map((project) => {
-        let fileName = `${safeFileName(project.name)}.json`;
-        let suffix = 2;
+    const configured = projects.map((project) => ({
+        ...project,
+        targets: project.targets.map((target) => {
+            const targetName =
+                project.targets.length === 1
+                    ? project.name
+                    : `${project.name}-${target.technicalNames[0] ?? path.basename(target.adminFolder)}`;
+            let fileName = `${safeFileName(targetName)}.json`;
+            let suffix = 2;
 
-        while (usedFileNames.has(fileName)) {
-            fileName = `${safeFileName(project.name)}-${suffix}.json`;
-            suffix += 1;
-        }
+            while (usedFileNames.has(fileName)) {
+                fileName = `${safeFileName(targetName)}-${suffix}.json`;
+                suffix += 1;
+            }
 
-        const specFileName = fileName.replace(/\.json$/, '-specs.json');
+            const specFileName = fileName.replace(/\.json$/, '-specs.json');
 
-        usedFileNames.add(fileName);
-        usedFileNames.add(specFileName);
+            usedFileNames.add(fileName);
+            usedFileNames.add(specFileName);
 
-        const configPath = path.join(projectsDir, fileName);
-        const content = `// ${GENERATED_MARKER}\n${JSON.stringify(
-            {
-                extends: asRelativeSpecifier(configPath, basePreset),
-                files: [asRelativeSpecifier(configPath, adminTypes)],
-                include: project.sourcePaths.flatMap((sourcePath) => sourceGlobs(configPath, sourcePath, SOURCE_EXTENSIONS)),
-                // Exclude patterns resolve relative to this config, so they
-                // carry the same source prefix as the includes.
-                exclude: project.sourcePaths.flatMap((sourcePath) =>
-                    sourceGlobs(configPath, sourcePath, SPEC_FILE_SUFFIXES),
-                ),
-            },
-            null,
-            4,
-        )}\n`;
-
-        record(context, writeStateFile(configPath, content, context.dryRun));
-
-        // Companion program for spec files: the same type surface plus jest
-        // types (spec-types.d.ts), including only the specs the runtime program
-        // excludes. Keeping the jest globals here keeps them out of the runtime
-        // program, so runtime code cannot accidentally use describe/expect.
-        const specConfigPath = path.join(projectsDir, specFileName);
-        const specContent = `// ${GENERATED_MARKER}\n${JSON.stringify(
-            {
-                extends: asRelativeSpecifier(specConfigPath, basePreset),
-                // Point typeRoots at the Administration's own @types so the jest
-                // reference in spec-types.d.ts resolves — a triple-slash
-                // reference is looked up relative to this config, not the .d.ts.
-                compilerOptions: {
-                    typeRoots: [
-                        asRelativeSpecifier(specConfigPath, path.join(context.administrationRoot, 'node_modules', '@types')),
-                    ],
+            const configPath = path.join(projectsDir, fileName);
+            const content = `// ${GENERATED_MARKER}\n${JSON.stringify(
+                {
+                    extends: asRelativeSpecifier(configPath, basePreset),
+                    files: [asRelativeSpecifier(configPath, adminTypes)],
+                    include: sourceGlobs(configPath, target.sourcePath, SOURCE_EXTENSIONS),
+                    // Exclude patterns resolve relative to this config, so they
+                    // carry the same source prefix as the includes.
+                    exclude: sourceGlobs(configPath, target.sourcePath, SPEC_FILE_SUFFIXES),
                 },
-                files: [
-                    asRelativeSpecifier(specConfigPath, adminTypes),
-                    asRelativeSpecifier(specConfigPath, specTypes),
-                ],
-                include: project.sourcePaths.flatMap((sourcePath) =>
-                    sourceGlobs(specConfigPath, sourcePath, SPEC_FILE_SUFFIXES),
-                ),
-            },
-            null,
-            4,
-        )}\n`;
+                null,
+                4,
+            )}\n`;
 
-        record(context, writeStateFile(specConfigPath, specContent, context.dryRun));
+            record(context, writeStateFile(configPath, content, context.dryRun));
 
-        return {
-            ...project,
-            checkTsconfig: project.tsconfig ?? relativePosix(context.projectRoot, configPath),
-            specTsconfig: relativePosix(context.projectRoot, specConfigPath),
-        };
-    });
+            // Companion program for spec files: the same type surface plus jest
+            // types (spec-types.d.ts), including only this target's specs.
+            const specConfigPath = path.join(projectsDir, specFileName);
+            const specContent = `// ${GENERATED_MARKER}\n${JSON.stringify(
+                {
+                    extends: asRelativeSpecifier(specConfigPath, basePreset),
+                    // Point typeRoots at the Administration's own @types so the jest
+                    // reference in spec-types.d.ts resolves — a triple-slash
+                    // reference is looked up relative to this config, not the .d.ts.
+                    compilerOptions: {
+                        typeRoots: [
+                            asRelativeSpecifier(
+                                specConfigPath,
+                                path.join(context.administrationRoot, 'node_modules', '@types'),
+                            ),
+                        ],
+                    },
+                    files: [
+                        asRelativeSpecifier(specConfigPath, adminTypes),
+                        asRelativeSpecifier(specConfigPath, specTypes),
+                    ],
+                    include: sourceGlobs(specConfigPath, target.sourcePath, SPEC_FILE_SUFFIXES),
+                },
+                null,
+                4,
+            )}\n`;
+
+            record(context, writeStateFile(specConfigPath, specContent, context.dryRun));
+
+            return {
+                ...target,
+                checkTsconfig: target.tsconfig ?? relativePosix(context.projectRoot, configPath),
+                specTsconfig: relativePosix(context.projectRoot, specConfigPath),
+            };
+        }),
+    }));
 
     if (fs.existsSync(projectsDir)) {
         for (const existingFile of fs.readdirSync(projectsDir)) {
@@ -387,12 +425,14 @@ function createRootTsconfig(context: GeneratorContext, projects: ExtensionToolin
     // Reference both the runtime and spec leaves so the IDE — and ESLint's
     // project service — can associate every managed source and spec file with a
     // program (this is what enables type-aware linting of managed specs).
-    const references = projects
-        .filter((project) => project.ts.mode === 'managed')
-        .flatMap((project) => [
-            { path: `./${project.checkTsconfig}` },
-            { path: `./${project.specTsconfig}` },
-        ]);
+    const references = projects.flatMap((project) =>
+        project.targets
+            .filter((target) => target.ts.mode === 'managed')
+            .flatMap((target) => [
+                { path: `./${target.checkTsconfig}` },
+                { path: `./${target.specTsconfig}` },
+            ]),
+    );
     const content = `// ${GENERATED_MARKER} — solution-style index routing each extension file to its leaf project.\n${JSON.stringify(
         {
             files: [],
@@ -418,7 +458,7 @@ function createRootTsconfig(context: GeneratorContext, projects: ExtensionToolin
 
 function createRootEslintConfig(context: GeneratorContext, projects: ExtensionToolingProject[]): ManagedFileState {
     const rootEslintPath = path.join(context.projectRoot, 'eslint.config.mjs');
-    const extensionRoots = projects.flatMap((project) => project.sourcePaths);
+    const extensionRoots = [...new Set(projects.flatMap((project) => project.targets.map((target) => target.sourcePath)))];
 
     // Without discovered extensions there is nothing to scope the config to.
     // The factory would then fall back to project-wide globs and lint files
@@ -634,22 +674,49 @@ function ensureGitignoreBlock(
 }
 
 /**
- * TypeScript replaces `paths` wholesale across `extends`, so a plugin that
- * declares its own aliases would erase the preset's host paths. The shim is
- * therefore the single `paths` declarer: it merges the preset's host paths
- * (re-relativized to the shim, machine paths are fine in generated files)
- * with optional plugin aliases from a committed
- * `tsconfig.aliases.json` next to the shim ({ "MyPlugin/*": ["src/*"] },
- * targets relative to the plugin's administration folder).
+ * Aliases contributing to a bridge's merged `paths`. Each source's targets
+ * resolve relative to its own `baseDir`, so a root-config bridge can carry the
+ * aliases declared beside every covered Administration root, not only one.
  */
-function buildShimPaths(context: GeneratorContext, shimDir: string, adminFolder: string): Record<string, string[]> | null {
-    const aliasesPath = path.join(adminFolder, 'tsconfig.aliases.json');
+interface AliasSource {
+    aliasesPath: string;
+    baseDir: string;
+}
 
-    if (!fs.existsSync(aliasesPath)) {
+function dedupeAliasSources(sources: AliasSource[]): AliasSource[] {
+    const seen = new Set<string>();
+
+    return sources.filter((source) => {
+        if (seen.has(source.aliasesPath)) {
+            return false;
+        }
+
+        seen.add(source.aliasesPath);
+
+        return true;
+    });
+}
+
+/**
+ * TypeScript replaces `paths` wholesale across `extends`, so a plugin that
+ * declares its own aliases would erase the preset's host paths. The bridge is
+ * therefore the single `paths` declarer: it merges the preset's host paths
+ * (re-relativized to the bridge, machine paths are fine in generated files)
+ * with plugin aliases from every `tsconfig.aliases.json` beside a covered root
+ * ({ "MyPlugin/*": ["src/*"] }, targets relative to that alias file's directory).
+ */
+function buildShimPaths(
+    context: GeneratorContext,
+    shimDir: string,
+    aliasSources: AliasSource[],
+): Record<string, string[]> | null {
+    const presentSources = aliasSources.filter((source) => fs.existsSync(source.aliasesPath));
+
+    if (presentSources.length === 0) {
         return null;
     }
 
-    const aliases = JSON.parse(fs.readFileSync(aliasesPath, 'utf8')) as Record<string, string[] | string>;
+    const shimTsconfigPath = path.join(shimDir, 'tsconfig.json');
     const presetPath = path.join(context.toolingRoot, 'tsconfig.base.json');
     const preset = JSON.parse(fs.readFileSync(presetPath, 'utf8')) as {
         compilerOptions?: { paths?: Record<string, string[]> };
@@ -662,113 +729,244 @@ function buildShimPaths(context: GeneratorContext, shimDir: string, adminFolder:
         targets,
     ] of Object.entries(preset.compilerOptions?.paths ?? {})) {
         mergedPaths[moduleName] = targets.map((target) =>
-            asRelativeSpecifier(path.join(shimDir, 'tsconfig.json'), path.resolve(presetDir, target)),
+            asRelativeSpecifier(shimTsconfigPath, path.resolve(presetDir, target)),
         );
     }
 
-    for (const [
-        alias,
-        targets,
-    ] of Object.entries(aliases)) {
-        mergedPaths[alias] = (Array.isArray(targets) ? targets : [targets]).map((target) =>
-            asRelativeSpecifier(path.join(shimDir, 'tsconfig.json'), path.resolve(adminFolder, target)),
-        );
+    for (const source of presentSources) {
+        const aliases = JSON.parse(fs.readFileSync(source.aliasesPath, 'utf8')) as Record<string, string[] | string>;
+
+        for (const [
+            alias,
+            targets,
+        ] of Object.entries(aliases)) {
+            mergedPaths[alias] = (Array.isArray(targets) ? targets : [targets]).map((target) =>
+                asRelativeSpecifier(shimTsconfigPath, path.resolve(source.baseDir, target)),
+            );
+        }
     }
 
     return mergedPaths;
 }
 
-function createShims(context: GeneratorContext, projects: ExtensionToolingProject[], shim: string): void {
-    const targets =
+/**
+ * Writes the three git-ignored bridge files into `<bridgeParent>/.shopware-admin/`.
+ * The bridge is the machine-specific hop into the installed Administration; the
+ * eslint bridge derives its own parent directory at runtime, so one bridge serves
+ * whichever config — per-root or a shared package root — sits beside it.
+ */
+function writeBridge(context: GeneratorContext, bridgeParent: string, aliasSources: AliasSource[]): void {
+    const shimDir = path.join(bridgeParent, SHIM_DIR_NAME);
+    const basePreset = path.join(context.administrationRoot, 'extension-tooling', 'tsconfig.base.json');
+    const adminTypes = path.join(context.administrationRoot, 'extension-tooling', 'admin-types.d.ts');
+    const factoryPath = path.join(context.administrationRoot, 'extension-tooling', 'eslint.mjs');
+    const shimTsconfigPath = path.join(shimDir, 'tsconfig.json');
+    const shimEslintPath = path.join(shimDir, 'eslint.mjs');
+    const shimPaths = buildShimPaths(context, shimDir, aliasSources);
+
+    record(context, writeManagedFile(path.join(shimDir, '.gitignore'), `# ${GENERATED_MARKER}\n*\n`, context.dryRun));
+    record(
+        context,
+        writeManagedFile(
+            shimTsconfigPath,
+            `// ${GENERATED_MARKER} — machine-specific path into the installed Administration.\n${JSON.stringify(
+                {
+                    extends: asRelativeSpecifier(shimTsconfigPath, basePreset),
+                    files: [asRelativeSpecifier(shimTsconfigPath, adminTypes)],
+                    ...(shimPaths ? { compilerOptions: { paths: shimPaths } } : {}),
+                },
+                null,
+                4,
+            )}\n`,
+            context.dryRun,
+        ),
+    );
+    record(
+        context,
+        writeManagedFile(
+            shimEslintPath,
+            [
+                `// ${GENERATED_MARKER} — machine-specific path into the installed Administration.`,
+                "import path from 'node:path';",
+                "import { fileURLToPath } from 'node:url';",
+                `import { shopwareAdminExtension } from ${JSON.stringify(asRelativeSpecifier(shimEslintPath, factoryPath))};`,
+                '',
+                'const adminFolder = path.dirname(path.dirname(fileURLToPath(import.meta.url)));',
+                '',
+                `export * from ${JSON.stringify(asRelativeSpecifier(shimEslintPath, factoryPath))};`,
+                '',
+                'export function shopwareAdminExtensionConfig(options = {}) {',
+                '    return shopwareAdminExtension({ tsconfigRootDir: adminFolder, ...options });',
+                '}',
+                '',
+                'export default shopwareAdminExtensionConfig();',
+                '',
+            ].join('\n'),
+            context.dryRun,
+        ),
+    );
+}
+
+type BridgePlan = { kind: 'per-root' } | { kind: 'root-config'; dir: string } | { kind: 'ambiguous'; candidates: string[] };
+
+/**
+ * Decides whether an extension is bridged once beside a package-level config
+ * that already governs several Administration roots, or once per root. An
+ * explicit `--root-config` always wins. Otherwise a single owned config shared
+ * by two or more roots is adopted as the root config; two or more competing
+ * shared configs are ambiguous and require the explicit flag; anything else (a
+ * single root, genuinely independent per-root configs, or zero-config) stays
+ * per-root, so independent layouts keep their existing behavior.
+ */
+function resolveBridgePlan(
+    context: GeneratorContext,
+    project: ExtensionToolingProject,
+    explicitRootConfig?: string,
+): BridgePlan {
+    const extensionRoot = path.resolve(context.projectRoot, project.basePath);
+
+    if (explicitRootConfig !== undefined) {
+        return { kind: 'root-config', dir: path.resolve(extensionRoot, explicitRootConfig) };
+    }
+
+    if (project.targets.length < 2) {
+        return { kind: 'per-root' };
+    }
+
+    const sharedConfigDirs = (configOf: (target: AdministrationTarget) => string | null): string[] => {
+        const counts = new Map<string, number>();
+
+        for (const target of project.targets) {
+            const config = configOf(target);
+
+            if (config) {
+                const dir = path.dirname(path.resolve(context.projectRoot, config));
+
+                counts.set(dir, (counts.get(dir) ?? 0) + 1);
+            }
+        }
+
+        return [...counts.entries()]
+            .filter(
+                ([
+                    ,
+                    count,
+                ]) => count >= 2,
+            )
+            .map(([dir]) => dir);
+    };
+    const candidates = [
+        ...new Set([
+            ...sharedConfigDirs((target) => target.tsconfig),
+            ...sharedConfigDirs((target) => target.eslintConfig),
+        ]),
+    ];
+
+    if (candidates.length === 0) {
+        return { kind: 'per-root' };
+    }
+
+    if (candidates.length === 1) {
+        return { kind: 'root-config', dir: candidates[0] };
+    }
+
+    return { kind: 'ambiguous', candidates };
+}
+
+function createShims(
+    context: GeneratorContext,
+    projects: ExtensionToolingProject[],
+    shim: string,
+    rootConfig?: string,
+): void {
+    const selected =
         shim === 'all-custom'
             ? projects.filter((project) => project.basePath.startsWith('custom/plugins/'))
             : projects.filter((project) => project.name === shim || project.technicalNames.includes(shim));
 
-    if (targets.length === 0) {
+    if (selected.length === 0) {
         const available = projects.map((project) => project.name).join(', ');
 
         throw new Error(`No extension matches --shim=${shim}. Discovered extensions: ${available || '(none)'}.`);
     }
 
-    for (const target of targets) {
-        if (!target.basePath.startsWith('custom/plugins/')) {
+    if (rootConfig !== undefined && shim === 'all-custom') {
+        throw new Error('--root-config cannot be combined with --shim=all-custom; bridge one extension at a time.');
+    }
+
+    for (const project of selected) {
+        if (!project.basePath.startsWith('custom/plugins/')) {
             throw new Error(
-                `Refusing to write a shim into ${target.basePath}: shims are only generated below custom/plugins ` +
+                `Refusing to write a shim into ${project.basePath}: shims are only generated below custom/plugins ` +
                     '(vendor and platform extensions are checked through host-owned configs instead).',
             );
         }
 
-        for (const sourcePath of target.sourcePaths) {
-            const adminFolder = path.dirname(path.resolve(context.projectRoot, sourcePath));
-            const shimDir = path.join(adminFolder, SHIM_DIR_NAME);
-            const basePreset = path.join(context.administrationRoot, 'extension-tooling', 'tsconfig.base.json');
-            const adminTypes = path.join(context.administrationRoot, 'extension-tooling', 'admin-types.d.ts');
-            const factoryPath = path.join(context.administrationRoot, 'extension-tooling', 'eslint.mjs');
-            const shimTsconfigPath = path.join(shimDir, 'tsconfig.json');
-            const shimEslintPath = path.join(shimDir, 'eslint.mjs');
-            const shimPaths = buildShimPaths(context, shimDir, adminFolder);
+        const plan = resolveBridgePlan(context, project, rootConfig);
 
-            record(
-                context,
-                writeManagedFile(path.join(shimDir, '.gitignore'), `# ${GENERATED_MARKER}\n*\n`, context.dryRun),
+        if (plan.kind === 'ambiguous') {
+            const relative = plan.candidates
+                .map((dir) => relativePosix(context.projectRoot, dir))
+                .sort()
+                .join(', ');
+
+            throw new Error(
+                `${project.name} has more than one package-level config governing multiple Administration roots ` +
+                    `(${relative}). Choose one with --root-config=<dir> relative to ${project.basePath}, ` +
+                    'or give each root its own independent config.',
             );
-            record(
-                context,
-                writeManagedFile(
-                    shimTsconfigPath,
-                    `// ${GENERATED_MARKER} — machine-specific path into the installed Administration.\n${JSON.stringify(
-                        {
-                            extends: asRelativeSpecifier(shimTsconfigPath, basePreset),
-                            files: [asRelativeSpecifier(shimTsconfigPath, adminTypes)],
-                            ...(shimPaths ? { compilerOptions: { paths: shimPaths } } : {}),
-                        },
-                        null,
-                        4,
-                    )}\n`,
-                    context.dryRun,
-                ),
+        }
+
+        if (plan.kind === 'root-config') {
+            const coveredAdminFolders = project.targets.map((target) =>
+                path.resolve(context.projectRoot, target.adminFolder),
             );
-            record(
+            const aliasSources = dedupeAliasSources([
+                { aliasesPath: path.join(plan.dir, 'tsconfig.aliases.json'), baseDir: plan.dir },
+                ...coveredAdminFolders.map((folder) => ({
+                    aliasesPath: path.join(folder, 'tsconfig.aliases.json'),
+                    baseDir: folder,
+                })),
+            ]);
+
+            writeBridge(context, plan.dir, aliasSources);
+            scaffoldExtensionConfigs(
                 context,
-                writeManagedFile(
-                    shimEslintPath,
-                    [
-                        `// ${GENERATED_MARKER} — machine-specific path into the installed Administration.`,
-                        "import path from 'node:path';",
-                        "import { fileURLToPath } from 'node:url';",
-                        `import { shopwareAdminExtension } from ${JSON.stringify(asRelativeSpecifier(shimEslintPath, factoryPath))};`,
-                        '',
-                        'const adminFolder = path.dirname(path.dirname(fileURLToPath(import.meta.url)));',
-                        '',
-                        `export * from ${JSON.stringify(asRelativeSpecifier(shimEslintPath, factoryPath))};`,
-                        '',
-                        'export function shopwareAdminExtensionConfig(options = {}) {',
-                        '    return shopwareAdminExtension({ tsconfigRootDir: adminFolder, ...options });',
-                        '}',
-                        '',
-                        'export default shopwareAdminExtensionConfig();',
-                        '',
-                    ].join('\n'),
-                    context.dryRun,
-                ),
+                project.name,
+                plan.dir,
+                project.targets.map((target) => target.sourcePath),
             );
 
-            scaffoldPluginConfigs(context, target.name, adminFolder, sourcePath);
+            continue;
+        }
+
+        for (const target of project.targets) {
+            const adminFolder = path.resolve(context.projectRoot, target.adminFolder);
+
+            writeBridge(context, adminFolder, [
+                { aliasesPath: path.join(adminFolder, 'tsconfig.aliases.json'), baseDir: adminFolder },
+            ]);
+            scaffoldExtensionConfigs(context, project.name, adminFolder, [target.sourcePath]);
         }
     }
 }
 
 /**
  * Scaffolds the plugin's own small, committable tsconfig/eslint that extend the
- * generated `.shopware-admin/` bridge — created only when absent so the developer
- * can see and customize them. An existing config is never overwritten; instead we
- * print the one line to add so it too composes the preset.
+ * generated `.shopware-admin/` bridge in `configDir` — created only when absent
+ * so the developer can see and customize them. In root-config mode one pair
+ * includes every source root; per root, one pair covers a single root. An
+ * existing config is never overwritten; instead we print the one line to add so
+ * it too composes the preset.
  */
-function scaffoldPluginConfigs(context: GeneratorContext, name: string, adminFolder: string, sourcePath: string): void {
-    const sourceRelative = toPosix(path.relative(adminFolder, path.resolve(context.projectRoot, sourcePath)));
-    const include = SOURCE_EXTENSIONS.map((extension) => `${sourceRelative}/**/*.${extension}`);
-    const tsconfigPath = path.join(adminFolder, 'tsconfig.json');
-    const eslintPath = path.join(adminFolder, 'eslint.config.mjs');
+function scaffoldExtensionConfigs(context: GeneratorContext, name: string, configDir: string, sourcePaths: string[]): void {
+    const include = sourcePaths.flatMap((sourcePath) => {
+        const sourceRelative = toPosix(path.relative(configDir, path.resolve(context.projectRoot, sourcePath)));
+
+        return SOURCE_EXTENSIONS.map((extension) => `${sourceRelative}/**/*.${extension}`);
+    });
+    const tsconfigPath = path.join(configDir, 'tsconfig.json');
+    const eslintPath = path.join(configDir, 'eslint.config.mjs');
     const tsconfigContent =
         `// Committed config for ${name}. Extends the generated Shopware bridge in .shopware-admin/\n` +
         '// (git-ignored, holds the machine-specific paths). Safe to edit and commit — keep the "extends".\n' +
@@ -856,7 +1054,7 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
     if (options.shim) {
         // Write the shim before leaf/root configs, then re-discover so the bridged
         // plugin is already recognized as shim-managed within this same run.
-        createShims(context, discovered, options.shim);
+        createShims(context, discovered, options.shim, options.rootConfig);
         discovered = discoverProjects(projectRoot, administrationRoot, pluginsConfigPath);
     }
 
@@ -867,16 +1065,27 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
     if (probeCache) {
         discovered = discovered.map((project) => ({
             ...project,
-            ...resolveModesFromCache(project, probeCache, projectRoot, administrationRoot),
+            targets: project.targets.map((target) => ({
+                ...target,
+                ...resolveModesFromCache(
+                    target,
+                    probeCacheEntryKey(project.name, target),
+                    probeCache,
+                    projectRoot,
+                    administrationRoot,
+                ),
+            })),
         }));
 
-        const knownNames = new Set(discovered.map((project) => project.name));
+        const knownNames = new Set(
+            discovered.flatMap((project) => project.targets.map((target) => probeCacheEntryKey(project.name, target))),
+        );
         const prunedEntries = Object.fromEntries(
             Object.entries(probeCache.entries).filter(([name]) => knownNames.has(name)),
         );
 
         if (!context.dryRun && Object.keys(prunedEntries).length !== Object.keys(probeCache.entries).length) {
-            writeProbeCache(projectRoot, { version: 1, entries: prunedEntries });
+            writeProbeCache(projectRoot, { version: 2, entries: prunedEntries });
         }
     }
 
@@ -901,7 +1110,7 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
     }
 
     const manifest: ExtensionToolingManifest = {
-        version: 2,
+        version: 3,
         adminRoot: adminRelative,
         entitySchemaAvailable,
         hostModules,
@@ -948,7 +1157,10 @@ const SETUP_COMMAND: CommandSpec = {
     description: 'Generate TypeScript/ESLint configs and IDE bootstraps for installed Administration extensions.',
     flags: [
         { name: '--check', description: 'Report what would change, write nothing. Exit 1 on drift.' },
-        { name: '--explain', description: 'Verbose report: discovered extensions, file list, IDE setup.' },
+        {
+            name: '--explain',
+            description: 'Read-only verbose report: discovered extensions, file list, IDE setup (writes nothing).',
+        },
         { name: '--no-gitignore', description: 'Never manage the ignore block in the project .gitignore.' },
         {
             name: '--shim',
@@ -957,6 +1169,14 @@ const SETUP_COMMAND: CommandSpec = {
             description:
                 'Bridge one extension (or "all-custom") with committed configs that extend a generated ' +
                 '.shopware-admin/ bridge.',
+        },
+        {
+            name: '--root-config',
+            value: 'required',
+            valueName: '<dir>',
+            description:
+                'With --shim=<name>: bridge a multi-root extension once beside the package-level config in <dir> ' +
+                '(relative to the extension root) instead of once per root.',
         },
         { name: '--project-root', value: 'required', valueName: '<path>', description: '', internal: true },
         { name: '--administration-root', value: 'required', valueName: '<path>', description: '', internal: true },
@@ -995,9 +1215,20 @@ export function runSetupCli(argv: string[]): number {
         return 2;
     }
 
-    const checkOnly = parsed.flags.has('--check');
+    const checkFlag = parsed.flags.has('--check');
     const explain = parsed.flags.has('--explain');
     const shim = parsed.values['--shim'];
+    const rootConfig = parsed.values['--root-config'];
+    // --explain is a read-only inspection view: it writes nothing (only its
+    // details differ from --check). Unlike --check it does not gate on drift —
+    // a human inspecting the setup should not get a surprise non-zero exit.
+    const readOnly = checkFlag || explain;
+
+    if (rootConfig !== undefined && shim === undefined) {
+        console.error(`--root-config only applies together with --shim=<name>.\n\n${renderHelp(SETUP_COMMAND)}`);
+
+        return 2;
+    }
 
     try {
         const result = setupExtensionTooling({
@@ -1005,22 +1236,23 @@ export function runSetupCli(argv: string[]): number {
             administrationRoot,
             pluginsConfigPath: parsed.values['--plugins-config'],
             shim,
-            checkOnly,
+            rootConfig,
+            checkOnly: readOnly,
             noGitignore: parsed.flags.has('--no-gitignore'),
         });
 
         console.log(
             renderSetupReport(result, {
                 explain,
-                checkOnly,
+                checkOnly: readOnly,
                 shim,
                 // The plain run is where flags are discovered — and where a flag
                 // swallowed by composer (missing "--") would have landed.
-                showFlagHint: !checkOnly && !explain && !shim,
+                showFlagHint: !readOnly && !shim,
             }),
         );
 
-        return checkOnly && result.changed ? 1 : 0;
+        return checkFlag && result.changed ? 1 : 0;
     } catch (error) {
         console.error(error instanceof Error ? error.message : error);
 

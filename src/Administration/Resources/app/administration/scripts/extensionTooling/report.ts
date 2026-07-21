@@ -11,13 +11,56 @@
 import colors from 'picocolors';
 import type { CheckExtensionsResult, ExtensionCheckResult, ToolRunResult } from './check';
 import type { SetupExtensionToolingResult } from './setup';
-import { deriveExtensionState } from './shared';
+import {
+    SHIM_DIR_NAME,
+    aggregateModeResolution,
+    deriveExtensionState,
+    projectHasBridge,
+    projectHasOwnedConfig,
+} from './shared';
 import type { ExtensionToolingProject, ModeResolution } from './shared';
+
+/**
+ * Ownership class of a generated path, so dry-run and shim output can tell
+ * apart the three lifecycles a developer must treat differently:
+ * - `bridge`: git-ignored machine-specific files inside `.shopware-admin/` —
+ *   never committed;
+ * - `committable`: the plugin's own tsconfig/eslint/baseline — commit these;
+ * - `host`: disposable root projections and IDE bootstraps the tool re-derives.
+ */
+type FileClass = 'bridge' | 'committable' | 'host';
+
+function classifyFile(file: string): FileClass {
+    if (file.includes(`/${SHIM_DIR_NAME}/`)) {
+        return 'bridge';
+    }
+
+    const base = file.split('/').pop() ?? '';
+
+    if (
+        file.startsWith('custom/plugins/') &&
+        (base === 'tsconfig.json' || base === 'eslint.config.mjs' || base === '.shopware-admin-baseline.json')
+    ) {
+        return 'committable';
+    }
+
+    return 'host';
+}
 
 interface RenderOptions {
     verbose?: boolean;
     /** Print the underlying tool invocation per extension (reproduction escape hatch). */
     showCommands?: boolean;
+    /** Whether the run enforced --fail-on-skipped (shapes the skip warning wording). */
+    failOnSkipped?: boolean;
+    /** Whether --fix was applied this run (adds the fix → baseline handoff hint). */
+    fix?: boolean;
+    /** Append a triage summary grouping findings by rule/code and by file. */
+    summary?: boolean;
+    /** Suppress the raw per-finding output and show only the triage summary. */
+    summaryOnly?: boolean;
+    /** How many top rules/codes and files to list per stream (default 10). */
+    summaryTop?: number;
 }
 
 export interface ToolGuidance {
@@ -125,11 +168,11 @@ export function describeNextStep(project: ExtensionToolingProject): string[] {
         ] of [
             [
                 'TypeScript',
-                project.ts,
+                aggregateModeResolution(project, 'ts'),
             ],
             [
                 'ESLint',
-                project.eslint,
+                aggregateModeResolution(project, 'eslint'),
             ],
         ] as Array<['TypeScript' | 'ESLint', ModeResolution]>) {
             const guidance = describeToolGuidance(project, tool, resolution);
@@ -233,12 +276,136 @@ function indent(text: string, prefix: string): string {
         .join('\n');
 }
 
+const DEFAULT_SUMMARY_TOP = 10;
+
+/** The `count`-heaviest keys, ties broken alphabetically so the output is deterministic. */
+function topBy<T>(items: T[], keyOf: (item: T) => string, top: number): Array<{ key: string; count: number }> {
+    const counts = new Map<string, number>();
+
+    for (const item of items) {
+        const key = keyOf(item);
+
+        counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+
+    return [...counts.entries()]
+        .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
+        .slice(0, top)
+        .map(
+            ([
+                key,
+                count,
+            ]) => ({ key, count }),
+        );
+}
+
+/** ` — N new · M baselined · K stale`, only for the parts that are non-zero. */
+function baselineCountNote(run: ToolRunResult): string {
+    const baselined = run.baselinedFindings ?? 0;
+    const stale = run.staleBaseline ?? 0;
+
+    if (baselined === 0 && stale === 0) {
+        return '';
+    }
+
+    const parts = [
+        `${run.newFindings ?? run.findings} new`,
+        `${baselined} baselined`,
+    ];
+
+    if (stale > 0) {
+        parts.push(`${stale} stale`);
+    }
+
+    return ` — ${parts.join(' · ')}`;
+}
+
+/**
+ * Triage summary for one extension: each non-empty stream (runtime TypeScript,
+ * spec TypeScript, ESLint errors, ESLint warnings) grouped by rule/code and by
+ * file, top-N each. Turns an 11k-line native log into an actionable "what to fix
+ * first" list without replacing the raw output (unless --summary-only).
+ */
+function renderFindingSummary(result: ExtensionCheckResult, top: number): string[] {
+    const eslint = result.eslint.eslintFindings ?? [];
+    const streams: Array<{
+        label: string;
+        findings: Array<{ file: string }>;
+        kindOf: (finding: never) => string;
+        kindLabel: string;
+        run: ToolRunResult | null;
+    }> = [
+        {
+            label: 'runtime TypeScript',
+            findings: result.typescript.typeScriptFindings ?? [],
+            kindOf: (finding: { code: string }) => finding.code,
+            kindLabel: 'code',
+            run: result.typescript,
+        },
+        {
+            label: 'spec TypeScript',
+            findings: result.typescriptSpecs.typeScriptFindings ?? [],
+            kindOf: (finding: { code: string }) => finding.code,
+            kindLabel: 'code',
+            run: result.typescriptSpecs,
+        },
+        {
+            label: 'ESLint errors',
+            findings: eslint.filter((finding) => finding.severity === 'error'),
+            kindOf: (finding: { rule: string }) => finding.rule || '(no rule)',
+            kindLabel: 'rule',
+            run: result.eslint,
+        },
+        {
+            label: 'ESLint warnings',
+            findings: eslint.filter((finding) => finding.severity === 'warning'),
+            kindOf: (finding: { rule: string }) => finding.rule || '(no rule)',
+            kindLabel: 'rule',
+            run: null,
+        },
+    ];
+    const active = streams.filter((stream) => stream.findings.length > 0);
+
+    if (active.length === 0) {
+        return [];
+    }
+
+    const lines = [`    ${colors.bold(`Summary — ${result.project.name}`)}`];
+
+    for (const stream of active) {
+        const note = stream.run ? baselineCountNote(stream.run) : '';
+
+        lines.push(colors.dim(`      ${stream.label}: ${stream.findings.length} finding(s)${note}`));
+
+        const format = (groups: Array<{ key: string; count: number }>): string =>
+            groups.map((group) => `${group.key} ×${group.count}`).join(', ');
+
+        lines.push(
+            colors.dim(`        by ${stream.kindLabel}: ${format(topBy(stream.findings, stream.kindOf as never, top))}`),
+        );
+        lines.push(colors.dim(`        by file: ${format(topBy(stream.findings, (finding) => finding.file, top))}`));
+    }
+
+    return lines;
+}
+
 function renderExtension(result: ExtensionCheckResult, options: RenderOptions): string[] {
     const verbose = options.verbose === true;
     const location = result.project.vendor ? 'vendor' : result.project.basePath;
     const moduleCount = result.project.technicalNames.length;
     const moduleNote = moduleCount > 1 ? colors.dim(` (${moduleCount} modules)`) : '';
     const lines = [`\n  ${colors.bold(result.project.name)}${moduleNote}  ${colors.dim(location)}`];
+
+    if (verbose) {
+        for (const coverage of result.coverage) {
+            lines.push(
+                colors.dim(`    target ${coverage.target.technicalNames.join(', ')} · ${coverage.target.sourcePath}`),
+                colors.dim(`      runtime: ${coverage.runtimeConfig}`),
+                colors.dim(`      specs:   ${coverage.specConfig}`),
+                colors.dim(`      eslint:  ${coverage.eslintConfig}`),
+            );
+        }
+    }
 
     const tools: Array<{ label: string; tool: 'TypeScript' | 'ESLint'; run: ToolRunResult; resolution: ModeResolution }> = [
         { label: 'TypeScript', tool: 'TypeScript', run: result.typescript, resolution: result.tsResolution },
@@ -271,6 +438,14 @@ function renderExtension(result: ExtensionCheckResult, options: RenderOptions): 
         lines.push(`    ${statusLine(label, run, resolution)}`);
         anyUnmanaged = anyUnmanaged || run.status === 'unmanaged';
 
+        // A vacuous TypeScript pass is not a dead end: point at the one action
+        // that turns it into real coverage instead of leaving green-with-asterisk.
+        if (label === 'TypeScript' && run.status === 'no-files') {
+            lines.push(
+                colors.dim('      → rename a .js source to .ts (and add types) to enable type-checking, then re-run.'),
+            );
+        }
+
         if (run.status === 'unmanaged') {
             const guidance = describeToolGuidance(result.project, tool, resolution);
 
@@ -288,8 +463,11 @@ function renderExtension(result: ExtensionCheckResult, options: RenderOptions): 
 
         lines.push(...baselineNotes(run));
 
+        // --summary-only replaces the raw per-finding dump with the grouped
+        // summary appended below; everything else still prints it.
         const showOutput =
-            run.status === 'failed' || run.status === 'tooling-error' || (verbose && run.status !== 'no-files');
+            !options.summaryOnly &&
+            (run.status === 'failed' || run.status === 'tooling-error' || (verbose && run.status !== 'no-files'));
 
         if (showOutput && run.output.trim() !== '') {
             lines.push(indent(run.output.trim(), '      '));
@@ -311,11 +489,15 @@ function renderExtension(result: ExtensionCheckResult, options: RenderOptions): 
             result.commands.typescript,
             result.commands.typescriptSpecs,
             result.commands.eslint,
-        ]) {
+        ].flatMap((commands) => commands ?? [])) {
             if (command) {
                 lines.push(colors.dim(`      $ ${command}`));
             }
         }
+    }
+
+    if (options.summary || options.summaryOnly) {
+        lines.push(...renderFindingSummary(result, options.summaryTop ?? DEFAULT_SUMMARY_TOP));
     }
 
     return lines;
@@ -437,8 +619,38 @@ export function renderCheckReport(result: CheckExtensionsResult, options: Render
             (extension.eslint.baselinedFindings ?? 0),
         0,
     );
-    const paint = result.exitCode === 0 ? colors.green : colors.red;
-    const glyph = result.exitCode === 0 ? '✔' : '✖';
+    // Tool runs skipped on writable (non-vendor) extensions: the ones a CI gate
+    // must not read as green. Vendor skips are expected and covered separately.
+    const writableSkipped = result.results
+        .filter((extension) => !extension.project.vendor)
+        .reduce(
+            (sum, extension) =>
+                sum +
+                [
+                    extension.typescript,
+                    extension.typescriptSpecs,
+                    extension.eslint,
+                ].filter((run) => run.status === 'unmanaged' || run.status === 'blocked').length,
+            0,
+        );
+
+    if (writableSkipped > 0) {
+        const noun = `${writableSkipped} tool run${writableSkipped === 1 ? '' : 's'} on writable extension(s)`;
+
+        lines.push(
+            colors.yellow(
+                options.failOnSkipped
+                    ? `\n⚠ ${noun} were skipped and NOT checked — failing because --fail-on-skipped is set.`
+                    : `\n⚠ ${noun} were skipped and NOT checked. Pass --fail-on-skipped to fail CI on this.`,
+            ),
+        );
+    }
+
+    // Three summary colors: green (complete success), yellow (success with
+    // writable skips), red (failure).
+    const succeeded = result.exitCode === 0;
+    const paint = succeeded ? (writableSkipped > 0 ? colors.yellow : colors.green) : colors.red;
+    const glyph = succeeded ? (writableSkipped > 0 ? '⚠' : '✔') : '✖';
     const toolsSkippedNote = toolsSkipped > 0 ? ` (${toolsSkipped} tool${toolsSkipped === 1 ? '' : 's'} skipped)` : '';
     const baselinedNote = baselined > 0 ? ` · ${baselined} baselined` : '';
 
@@ -449,6 +661,20 @@ export function renderCheckReport(result: CheckExtensionsResult, options: Render
                 `${extensionsSkipped} extension${extensionsSkipped === 1 ? '' : 's'} skipped · exit ${result.exitCode}`,
         ),
     );
+
+    // The natural "auto-fix what you can, baseline the rest" flow is two steps
+    // (--fix and --update-baseline are mutually exclusive). After a --fix run
+    // that still has findings, name the exact follow-up command.
+    if (options.fix && withFindings > 0) {
+        lines.push(
+            '',
+            colors.dim(
+                '  --fix applied the auto-fixable findings (incl. Shopware sw-* → mt-* deprecation codemods). ' +
+                    'Accept the findings that remain as a baseline:',
+            ),
+            colors.dim('    composer admin:check-extensions -- --update-baseline'),
+        );
+    }
 
     return lines.join('\n');
 }
@@ -548,7 +774,7 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
     if (options.shim) {
         const shim = options.shim;
         const justBridged = projects.filter(
-            (project) => (project.name === shim || project.technicalNames.includes(shim)) && project.bridgePresent,
+            (project) => (project.name === shim || project.technicalNames.includes(shim)) && projectHasBridge(project),
         );
 
         for (const project of justBridged) {
@@ -568,24 +794,39 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
                 );
             }
         }
+
+        const created = result.writes.filter((write) => write.state === 'created');
+        const bridgeCreated = created.filter((write) => classifyFile(write.file) === 'bridge').length;
+        const committableCreated = created.filter((write) => classifyFile(write.file) === 'committable').length;
+
+        if (bridgeCreated > 0 || committableCreated > 0) {
+            lines.push(
+                colors.dim(
+                    `  ${bridgeCreated} git-ignored bridge file(s) in .shopware-admin/ (never commit) · ` +
+                        `${committableCreated} committable plugin config(s) (commit these)`,
+                ),
+            );
+        }
     }
 
     const ready = projects.filter((project) => stateOf.get(project.name) === 'ready');
     const bridged = projects.filter((project) => stateOf.get(project.name) === 'bridged');
     const unwired = projects.filter((project) => stateOf.get(project.name) === 'bridge-unwired');
-    const custom = projects.filter((project) => {
+    const needsBridge = projects.filter((project) => {
         const state = stateOf.get(project.name);
 
         if (state === 'needs-bridge') {
             return true;
         }
 
-        return state === 'vendor' && !project.bridgePresent && (project.tsconfig !== null || project.eslintConfig !== null);
+        return state === 'vendor' && !projectHasBridge(project) && projectHasOwnedConfig(project);
     });
-    const unverifiedBridged = bridged.some(
-        (project) =>
-            (project.tsconfig !== null && !project.ts.verified) ||
-            (project.eslintConfig !== null && !project.eslint.verified),
+    const unverifiedBridged = bridged.some((project) =>
+        project.targets.some(
+            (target) =>
+                (target.tsconfig !== null && !target.ts.verified) ||
+                (target.eslintConfig !== null && !target.eslint.verified),
+        ),
     );
 
     lines.push('');
@@ -612,10 +853,10 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
         );
     }
 
-    if (custom.length > 0) {
+    if (needsBridge.length > 0) {
         lines.push(
-            `  ${colors.yellow('● custom')}   ${custom.map((project) => project.name).join(', ')}  ` +
-                colors.dim('(ships own config)'),
+            `  ${colors.yellow('● needs bridge')}   ${needsBridge.map((project) => project.name).join(', ')}  ` +
+                colors.dim('(ships own config — not composed yet; bridge it to check with the preset)'),
         );
     }
 
@@ -645,12 +886,34 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
     if (options.checkOnly && result.changed) {
         lines.push('', colors.red('  Setup is stale — re-run `composer admin:setup-extension-tooling`:'));
 
-        for (const write of result.writes.filter((entry) => entry.state === 'created' || entry.state === 'updated')) {
-            lines.push(colors.dim(`    would ${write.state === 'created' ? 'create' : 'update'}: ${write.file}`));
+        const classNote: Record<FileClass, string> = {
+            bridge: colors.dim(' [git-ignored bridge]'),
+            committable: colors.cyan(' [commit this]'),
+            host: '',
+        };
+        const pending = result.writes.filter((entry) => entry.state === 'created' || entry.state === 'updated');
+
+        for (const write of pending) {
+            lines.push(
+                colors.dim(`    would ${write.state === 'created' ? 'create' : 'update'}: ${write.file}`) +
+                    classNote[classifyFile(write.file)],
+            );
         }
 
         for (const staleFile of result.staleFiles) {
-            lines.push(colors.dim(`    would delete: ${staleFile}`));
+            lines.push(colors.dim(`    would delete: ${staleFile}`) + classNote[classifyFile(staleFile)]);
+        }
+
+        const bridgeCount = pending.filter((write) => classifyFile(write.file) === 'bridge').length;
+        const committableCount = pending.filter((write) => classifyFile(write.file) === 'committable').length;
+
+        if (bridgeCount > 0 || committableCount > 0) {
+            lines.push(
+                colors.dim(
+                    `    (${bridgeCount} git-ignored bridge file(s), ${committableCount} committable plugin file(s), ` +
+                        `${pending.length - bridgeCount - committableCount} host projection(s))`,
+                ),
+            );
         }
     }
 
@@ -699,11 +962,22 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
 
         for (const project of projects) {
             const moduleCount = project.technicalNames.length;
+            const ts = aggregateModeResolution(project, 'ts');
+            const eslint = aggregateModeResolution(project, 'eslint');
 
             lines.push(
                 `    - ${project.name} · ${moduleCount === 1 ? '1 module' : `${moduleCount} modules`} · ` +
-                    `ts:${project.ts.mode} · eslint:${project.eslint.mode}`,
+                    `ts:${ts.mode} · eslint:${eslint.mode}`,
             );
+
+            for (const target of project.targets) {
+                lines.push(
+                    `        ${target.technicalNames.join(', ')} · ${target.sourcePath}`,
+                    `          runtime: ${target.ts.mode} → ${target.checkTsconfig}`,
+                    `          specs:   ${target.specTsconfig}`,
+                    `          eslint:  ${target.eslint.mode} → ${target.eslintConfig ?? 'generated root config'}`,
+                );
+            }
         }
 
         lines.push(

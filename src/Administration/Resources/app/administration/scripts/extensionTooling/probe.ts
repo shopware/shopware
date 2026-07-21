@@ -19,7 +19,7 @@ import path from 'path';
 import { promisify } from 'util';
 import ts from 'typescript';
 import { SHIM_DIR_NAME, STATE_DIR, writeStateFile } from './shared';
-import type { ExtensionToolingProject, ModeReason, ModeResolution } from './shared';
+import type { AdministrationTarget, ModeReason, ModeResolution } from './shared';
 
 const execFileAsync = promisify(execFile);
 
@@ -234,11 +234,38 @@ export function resolveStaticTsMode(tsconfigPath: string | null): ModeResolution
         };
     }
 
-    return { mode: 'custom', verified: false };
+    return { mode: 'bridged', verified: false };
 }
 
 export const ESLINT_NOT_COMPOSED_DETAIL =
     'the config does not compose the Shopware factory, so the preset rules never apply.';
+
+/** Shown when a config-load failure produced no recognizable error line. */
+export const ESLINT_LOAD_FAILED_DETAIL =
+    'own ESLint config failed to load — run with --verbose for the underlying error (often an ESLint ' +
+    'version or plugin-resolution mismatch).';
+
+/**
+ * Picks the actionable line from failed ESLint output. ESLint prefixes fatal
+ * config-load errors with the generic banner `Oops! Something went wrong! :(`
+ * and a version/usage preamble; surfacing that as the `why:` hides the real
+ * cause behind `--verbose`. Prefer the first line that looks like a real
+ * runtime error (an error class or an `ERR_*` code); fall back to a stable
+ * message that names `--verbose` rather than repeating the banner.
+ */
+export function selectEslintErrorLine(output: string): string {
+    const lines = output
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter((line) => line !== '');
+    const errorLine = lines.find(
+        (line) =>
+            /^(Error|TypeError|ReferenceError|SyntaxError|RangeError|AggregateError|EvalError|URIError)\b/.test(line) ||
+            /\bERR_[A-Z0-9_]+\b/.test(line),
+    );
+
+    return errorLine ?? ESLINT_LOAD_FAILED_DETAIL;
+}
 
 /** Static best-guess for a plugin-owned ESLint config; `verified: false` until a live probe confirms it. */
 export function resolveStaticEslintMode(eslintConfigPath: string | null): ModeResolution {
@@ -255,7 +282,7 @@ export function resolveStaticEslintMode(eslintConfigPath: string | null): ModeRe
         };
     }
 
-    return { mode: 'custom', verified: false };
+    return { mode: 'bridged', verified: false };
 }
 
 /**
@@ -265,16 +292,16 @@ export function resolveStaticEslintMode(eslintConfigPath: string | null): ModeRe
  * extends chain.
  */
 export async function probeTsMode(
-    project: ExtensionToolingProject,
+    target: AdministrationTarget,
     projectRoot: string,
     administrationRoot: string,
 ): Promise<ModeResolution> {
-    if (!project.tsconfig) {
-        return project.ts;
+    if (!target.tsconfig) {
+        return target.ts;
     }
 
     const tscPath = path.join(administrationRoot, 'node_modules', 'typescript', 'bin', 'tsc');
-    const tsconfigPath = path.resolve(projectRoot, project.tsconfig);
+    const tsconfigPath = path.resolve(projectRoot, target.tsconfig);
     const probe = await runCommand(
         process.execPath,
         [
@@ -302,7 +329,7 @@ export async function probeTsMode(
     const composes = probe.output.includes('extension-tooling/admin-types') || probe.output.includes('admin-types.d.ts');
 
     if (composes) {
-        return { mode: 'custom', verified: true };
+        return { mode: 'bridged', verified: true };
     }
 
     const analysis = analyzeTsConfigStatically(tsconfigPath);
@@ -322,18 +349,18 @@ export async function probeTsMode(
  * block names, so the probe checks for the rule instead.)
  */
 export async function probeEslintMode(
-    project: ExtensionToolingProject,
+    target: AdministrationTarget,
     projectRoot: string,
     administrationRoot: string,
     eslintBaseArguments: string[],
     sampleFile: string | null,
 ): Promise<ModeResolution> {
-    if (!project.eslintConfig) {
-        return project.eslint;
+    if (!target.eslintConfig) {
+        return target.eslint;
     }
 
     if (!sampleFile) {
-        return { mode: 'custom', verified: true };
+        return { mode: 'bridged', verified: true };
     }
 
     const eslintPath = path.join(administrationRoot, 'node_modules', 'eslint', 'bin', 'eslint.js');
@@ -349,19 +376,17 @@ export async function probeEslintMode(
     );
 
     if (probe.status !== 0) {
-        const firstErrorLine = probe.output.split('\n').find((line) => line.trim() !== '') ?? 'the config does not resolve.';
-
         return {
             mode: 'unmanaged',
             reason: 'config-error',
-            detail: firstErrorLine,
+            detail: selectEslintErrorLine(probe.output),
             probeOutput: probe.output,
             verified: true,
         };
     }
 
     if (probe.output.includes('plugin-rules/no-src-imports')) {
-        return { mode: 'custom', verified: true };
+        return { mode: 'bridged', verified: true };
     }
 
     return { mode: 'unmanaged', reason: 'factory-not-composed', detail: ESLINT_NOT_COMPOSED_DETAIL, verified: true };
@@ -373,36 +398,118 @@ interface ProbeCacheEntry {
 }
 
 export interface ProbeCacheFile {
-    version: 1;
+    version: 2;
     entries: Record<string, { ts?: ProbeCacheEntry; eslint?: ProbeCacheEntry }>;
+}
+
+export function probeCacheEntryKey(projectName: string, target: AdministrationTarget): string {
+    return `${projectName}::${target.sourcePath}`;
 }
 
 function probeCacheFilePath(projectRoot: string): string {
     return path.join(projectRoot, STATE_DIR, 'probe-cache.json');
 }
 
+/**
+ * Every local config file reachable through a tsconfig's `extends` chain,
+ * including the start file. A cached verdict depends on all of them — an edit
+ * to an indirectly-extended config (e.g. the generated bridge, or a shared
+ * base the plugin extends) must invalidate the cache, not only a direct edit.
+ */
+export function collectLocalTsconfigChain(tsconfigPath: string): string[] {
+    const collected = new Set<string>([tsconfigPath]);
+    let frontier = [tsconfigPath];
+
+    for (let depth = 0; depth < MAX_EXTENDS_DEPTH && frontier.length > 0; depth += 1) {
+        const next: string[] = [];
+
+        for (const configPath of frontier) {
+            const parsed = parseTsconfig(configPath);
+            const extendsValue = parsed.config?.extends;
+
+            for (const specifier of Array.isArray(extendsValue) ? extendsValue : [extendsValue]) {
+                // Only local extends are inputs we can hash; a bare package
+                // specifier is not part of this tool's contract.
+                if (typeof specifier !== 'string' || !specifier.startsWith('.')) {
+                    continue;
+                }
+
+                let resolved = path.resolve(path.dirname(configPath), specifier);
+
+                if (!fs.existsSync(resolved) && fs.existsSync(`${resolved}.json`)) {
+                    resolved = `${resolved}.json`;
+                }
+
+                if (!collected.has(resolved)) {
+                    collected.add(resolved);
+                    next.push(resolved);
+                }
+            }
+        }
+
+        frontier = next;
+    }
+
+    return [...collected];
+}
+
+/**
+ * Local ESLint config modules imported directly by a config (one level). A
+ * cache verdict for a config that composes the bridge through a locally
+ * imported module must invalidate when that module changes. Transitive imports
+ * are not followed — a shallow scan is a conservative approximation, not a full
+ * module graph.
+ */
+export function collectLocalEslintImports(eslintConfigPath: string): string[] {
+    let text: string;
+
+    try {
+        text = fs.readFileSync(eslintConfigPath, 'utf8');
+    } catch {
+        return [];
+    }
+
+    const configDir = path.dirname(eslintConfigPath);
+    const imports = new Set<string>();
+
+    for (const match of text.matchAll(/(?:from|import)\s*['"](\.[^'"]+)['"]/g)) {
+        const resolved = path.resolve(configDir, match[1]);
+
+        if (fs.existsSync(resolved)) {
+            imports.add(resolved);
+        }
+    }
+
+    return [...imports];
+}
+
 /** Every file whose content a probe verdict depends on, per tool. */
 export function probeInputFiles(
-    project: ExtensionToolingProject,
+    target: AdministrationTarget,
     projectRoot: string,
     administrationRoot: string,
 ): { ts: string[]; eslint: string[] } {
-    const adminFolders = project.sourcePaths.map((sourcePath) => path.dirname(path.resolve(projectRoot, sourcePath)));
-    const tsFiles = [
-        ...(project.tsconfig ? [path.resolve(projectRoot, project.tsconfig)] : []),
-        ...adminFolders.flatMap((adminFolder) => [
-            path.join(adminFolder, SHIM_DIR_NAME, 'tsconfig.json'),
-            path.join(adminFolder, 'tsconfig.aliases.json'),
-        ]),
+    const adminFolder = path.resolve(projectRoot, target.adminFolder);
+    const eslintConfig = target.eslintConfig ? path.resolve(projectRoot, target.eslintConfig) : null;
+    const tsFiles = new Set<string>([
+        ...(target.tsconfig ? collectLocalTsconfigChain(path.resolve(projectRoot, target.tsconfig)) : []),
+        path.join(adminFolder, SHIM_DIR_NAME, 'tsconfig.json'),
+        path.join(adminFolder, 'tsconfig.aliases.json'),
         path.join(administrationRoot, 'extension-tooling', 'tsconfig.base.json'),
-    ];
-    const eslintFiles = [
-        ...(project.eslintConfig ? [path.resolve(projectRoot, project.eslintConfig)] : []),
-        ...adminFolders.map((adminFolder) => path.join(adminFolder, SHIM_DIR_NAME, 'eslint.mjs')),
+    ]);
+    const eslintFiles = new Set<string>([
+        ...(eslintConfig
+            ? [
+                  eslintConfig,
+                  ...collectLocalEslintImports(eslintConfig),
+              ]
+            : []),
+        path.join(adminFolder, SHIM_DIR_NAME, 'eslint.mjs'),
         path.join(administrationRoot, 'extension-tooling', 'eslint.mjs'),
-    ];
+    ]);
 
-    return { ts: tsFiles, eslint: eslintFiles };
+    // Sorted so the hash is stable regardless of discovery/insertion order.
+    return { ts: [...tsFiles].sort(), eslint: [...eslintFiles].sort() };
 }
 
 /** Content hash over the given files; missing files hash as empty so adding one changes the key. */
@@ -429,7 +536,7 @@ export function readProbeCache(projectRoot: string): ProbeCacheFile | null {
     try {
         const parsed = JSON.parse(fs.readFileSync(probeCacheFilePath(projectRoot), 'utf8')) as ProbeCacheFile;
 
-        return parsed && parsed.version === 1 && typeof parsed.entries === 'object' ? parsed : null;
+        return parsed && parsed.version === 2 && typeof parsed.entries === 'object' ? parsed : null;
     } catch {
         return null;
     }
@@ -458,28 +565,29 @@ export function toCacheableResolution(resolution: ModeResolution): ModeResolutio
  * otherwise the given (static, unverified) resolutions stand.
  */
 export function resolveModesFromCache(
-    project: ExtensionToolingProject,
+    target: AdministrationTarget,
+    cacheKey: string,
     cache: ProbeCacheFile | null,
     projectRoot: string,
     administrationRoot: string,
 ): { ts: ModeResolution; eslint: ModeResolution } {
     if (!cache) {
-        return { ts: project.ts, eslint: project.eslint };
+        return { ts: target.ts, eslint: target.eslint };
     }
 
-    const entry = cache.entries[project.name];
+    const entry = cache.entries[cacheKey];
 
     if (!entry) {
-        return { ts: project.ts, eslint: project.eslint };
+        return { ts: target.ts, eslint: target.eslint };
     }
 
-    const inputs = probeInputFiles(project, projectRoot, administrationRoot);
+    const inputs = probeInputFiles(target, projectRoot, administrationRoot);
 
     return {
-        ts: project.tsconfig && entry.ts && entry.ts.key === probeCacheKey(inputs.ts) ? entry.ts.resolution : project.ts,
+        ts: target.tsconfig && entry.ts && entry.ts.key === probeCacheKey(inputs.ts) ? entry.ts.resolution : target.ts,
         eslint:
-            project.eslintConfig && entry.eslint && entry.eslint.key === probeCacheKey(inputs.eslint)
+            target.eslintConfig && entry.eslint && entry.eslint.key === probeCacheKey(inputs.eslint)
                 ? entry.eslint.resolution
-                : project.eslint,
+                : target.eslint,
     };
 }

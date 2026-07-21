@@ -9,6 +9,7 @@
 
 import readline from 'node:readline/promises';
 import colors from 'picocolors';
+import { projectHasOwnedConfig } from './shared';
 import type { ExtensionToolingProject } from './shared';
 
 export type Selection = { names: string[] } | 'all' | 'cancel' | { error: string };
@@ -78,7 +79,7 @@ export function parseSelection(input: string, projects: ExtensionToolingProject[
 
 function describe(project: ExtensionToolingProject): string {
     const location = project.vendor ? 'vendor' : project.basePath;
-    const configMode = project.tsconfig !== null || project.eslintConfig !== null ? 'custom config' : 'zero-config';
+    const configMode = projectHasOwnedConfig(project) ? 'custom config' : 'zero-config';
     const moduleCount = project.technicalNames.length;
 
     return `${location} · ${configMode} · ${moduleCount === 1 ? '1 module' : `${moduleCount} modules`}`;

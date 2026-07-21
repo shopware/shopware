@@ -96,6 +96,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber\EntityIndexingSubscriber;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber\RegisteredIndexerSubscriber;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\Telemetry\IndexerMetricsInstrumentor;
 use Shopware\Core\Framework\DataAbstractionLayer\MigrationFileRenderer;
 use Shopware\Core\Framework\DataAbstractionLayer\MigrationQueryGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
@@ -899,8 +900,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             tagged_iterator('shopware.entity_indexer'),
             service('messenger.default_bus'),
             service('event_dispatcher'),
+            service(IndexerMetricsInstrumentor::class),
         ])
         ->tag('messenger.message_handler');
+
+    $services->set(IndexerMetricsInstrumentor::class)
+        ->args([
+            service(Meter::class),
+        ]);
 
     $services->set(EntityIndexingSubscriber::class)
         ->args([

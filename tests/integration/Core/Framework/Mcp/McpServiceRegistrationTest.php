@@ -39,7 +39,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
  * Verifies that all MCP services are registered in the DI container.
  */
 #[Package('framework')]
-class McpFeatureFlagTest extends TestCase
+class McpServiceRegistrationTest extends TestCase
 {
     use KernelTestBehaviour;
 
@@ -81,7 +81,7 @@ class McpFeatureFlagTest extends TestCase
     {
         static::assertTrue(
             static::getContainer()->has($serviceClass),
-            \sprintf('Service "%s" should be registered when MCP_SERVER flag is active.', $serviceClass),
+            \sprintf('Service "%s" should be registered.', $serviceClass),
         );
     }
 }

@@ -25,6 +25,7 @@ class SalesChannelFileConfigurationLoader
 
     public function load(string $fileFamily, string $fileName, string $salesChannelId, Context $context): ?SalesChannelFileEntity
     {
+        // The case-insensitive database collation and unique index guarantee at most one configuration per logical file name.
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('salesChannelId', $salesChannelId))
             ->addFilter(new EqualsFilter('fileFamily', $fileFamily))
@@ -47,7 +48,7 @@ class SalesChannelFileConfigurationLoader
         $configurations = [];
 
         foreach ($entities as $entity) {
-            $configurations[$entity->getFileName()] = $entity;
+            $configurations[mb_strtolower($entity->getFileName())] = $entity;
         }
 
         return $configurations;

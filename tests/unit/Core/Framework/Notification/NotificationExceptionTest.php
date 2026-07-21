@@ -7,11 +7,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Context\SystemSource;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Notification\NotificationException;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(NotificationException::class)]
 class NotificationExceptionTest extends TestCase
 {

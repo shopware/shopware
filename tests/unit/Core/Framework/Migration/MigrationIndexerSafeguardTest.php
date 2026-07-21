@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationIndexerSafeguard;
 
 /**
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\Migration\MigrationIndexerSafeguard;
  *
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MigrationIndexerSafeguard::class)]
 class MigrationIndexerSafeguardTest extends TestCase
 {

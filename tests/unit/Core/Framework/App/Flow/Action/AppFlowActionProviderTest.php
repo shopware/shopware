@@ -13,6 +13,7 @@ use Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderProvider;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -21,6 +22,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppFlowActionProvider::class)]
 class AppFlowActionProviderTest extends TestCase
 {

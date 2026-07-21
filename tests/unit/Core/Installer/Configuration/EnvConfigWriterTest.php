@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Installer\Configuration;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Configuration\EnvConfigWriter;
 use Shopware\Core\Installer\Finish\UniqueIdGenerator;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
@@ -11,6 +12,7 @@ use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EnvConfigWriter::class)]
 class EnvConfigWriterTest extends TestCase
 {

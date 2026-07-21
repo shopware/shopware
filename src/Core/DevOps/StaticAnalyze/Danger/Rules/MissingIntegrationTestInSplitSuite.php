@@ -78,7 +78,7 @@ class MissingIntegrationTestInSplitSuite
             }
         }
 
-        if (\count($missing) > 0) {
+        if ($missing !== []) {
             $context->failure(
                 'Please add the integration test(s) within one of the core-batch testsuite of phpunit.xml.dist: <br/><br/>'
                 . implode('<br/>', array_unique($missing))

@@ -40,6 +40,11 @@ describe('listing-pagination.plugin', () => {
         // Import plugin class async because of feature toggles inside static options
         const { default: ListingPaginationPlugin }  = await import('src/plugin/listing/listing-pagination.plugin');
 
+        const canonicalLink = document.createElement('link');
+        canonicalLink.setAttribute('rel', 'canonical');
+        canonicalLink.setAttribute('href', 'https://example.com/paginated-page');
+        document.head.appendChild(canonicalLink);
+
         document.body.innerHTML = template;
         const element = document.querySelector('[data-listing-pagination]');
 
@@ -78,6 +83,13 @@ describe('listing-pagination.plugin', () => {
         );
     });
 
+    afterEach(() => {
+        const canonicalLink = document.head.querySelector('link[rel="canonical"]');
+        if (canonicalLink) {
+            canonicalLink.remove();
+        }
+    });
+
     test('plugin instance is created', () => {
         expect(typeof listingPaginationPlugin).toBe('object');
     });
@@ -94,6 +106,13 @@ describe('listing-pagination.plugin', () => {
         expect(listingPaginationPlugin.getValues).toHaveReturnedWith({ 'p': '3' });
         expect(getValuesSpy).toHaveBeenCalledTimes(1);
         expect(changeListingSpy).toHaveBeenCalledTimes(1);
+
+        // Ensure the canonical URL is updated
+        const canonicalMetaTag = document.head.querySelector('link[rel="canonical"]');
+        if (canonicalMetaTag?.href) {
+            const canonicalUrl = new URL(canonicalMetaTag.href);
+            expect(canonicalUrl.searchParams.get('p')).toBe('3');
+        }
     });
 
     test('tries to set the focus back to the pagination link when content changes after pagination', async () => {

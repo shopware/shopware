@@ -12,6 +12,7 @@ use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -21,6 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('discovery')]
 class MediaVideoCoverControllerTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -111,7 +113,7 @@ class MediaVideoCoverControllerTest extends TestCase
 
     private function getMediaEntity(string $id): MediaEntity
     {
-        $entity = $this->mediaRepository->search(new Criteria([$id]), $this->context)->first();
+        $entity = $this->mediaRepository->search(new Criteria([$id]), $this->context)->getEntities()->first();
 
         static::assertNotNull($entity, \sprintf('Media entity "%s" not found', $id));
         static::assertInstanceOf(MediaEntity::class, $entity);

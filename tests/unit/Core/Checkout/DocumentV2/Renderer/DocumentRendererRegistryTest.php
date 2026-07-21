@@ -115,6 +115,73 @@ class DocumentRendererRegistryTest extends TestCase
         static::assertCount(1, $registry->mapRenderersByFormat(DocumentType::INVOICE->value));
     }
 
+    public function testGetSupportedFormatsByDocumentTypeIncludesNonCoreDocumentTypes(): void
+    {
+        $registry = new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value, 'partial_cancellation']),
+            new StaticDocumentRenderer(DocumentFormat::PDF, ['partial_cancellation']),
+        ]);
+
+        static::assertSame(
+            [
+                DocumentType::INVOICE->value => [
+                    DocumentFormat::HTML->value,
+                ],
+                'partial_cancellation' => [
+                    DocumentFormat::HTML->value,
+                    DocumentFormat::PDF->value,
+                ],
+            ],
+            $registry->getSupportedFormatsByDocumentType(),
+        );
+    }
+
+    public function testValidateFormatsAllowsSupportedFormats(): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        $registry = new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
+            new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
+        ]);
+
+        $registry->validateFormats(DocumentType::INVOICE->value, [
+            DocumentFormat::HTML->value,
+            DocumentFormat::PDF->value,
+        ]);
+    }
+
+    public function testValidateFormatsRejectsUnsupportedFormats(): void
+    {
+        $registry = new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
+        ]);
+
+        static::expectExceptionObject(
+            DocumentV2Exception::unsupportedDocumentFormat(
+                DocumentFormat::PDF->value,
+                DocumentType::INVOICE->value,
+            )
+        );
+
+        $registry->validateFormats(DocumentType::INVOICE->value, [
+            DocumentFormat::HTML->value,
+            DocumentFormat::PDF->value,
+        ]);
+    }
+
+    public function testGetFileExtensionSupportsCustomFormats(): void
+    {
+        $registry = new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
+            new StaticDocumentRenderer('custom_format', [DocumentType::INVOICE->value], fileExtension: 'custom'),
+        ]);
+
+        static::assertSame(DocumentFormat::PDF->fileExtension(), $registry->getFileExtension(DocumentFormat::PDF->value));
+        static::assertSame('custom', $registry->getFileExtension('custom_format'));
+        static::assertNull($registry->getFileExtension('unknown_format'));
+    }
+
     private static function createRegistry(): DocumentRendererRegistry
     {
         return new DocumentRendererRegistry([

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Service\DTO;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\DTO\Service;
 use Shopware\Core\Service\State;
 use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
@@ -12,6 +13,7 @@ use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Service::class)]
 class ServiceTest extends TestCase
 {

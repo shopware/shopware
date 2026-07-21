@@ -8,6 +8,7 @@
     "test": "node --test $(find . -path ./node_modules -prune -o -name '*.test.ts' -print)",
     "test:coverage": "node --test --experimental-test-coverage $(find . -path ./node_modules -prune -o -name '*.test.ts' -print)",
     "test:bash": "bash tests/bash/run.sh",
+    "test:e2e": "bash tests/e2e/drive.sh",
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."
   },

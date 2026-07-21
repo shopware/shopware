@@ -1,0 +1,7 @@
+{
+  "verdict": "live_bug",
+  "reported": "reproduced",
+  "trunk": "reproduced",
+  "commentIncludes": ["E2E_SYMPTOM_MARKER"],
+  "notes": "Synthetic direct scenario: the test always fails on an assertion whose message carries the symptom marker, so output-classifier reports reproduced on both legs → live_bug. Exercises the direct executor + PHP sandbox arming + phpunit-runner + output-classifier. Requires a provisioned shop + docker (CI / local-real only)."
+}

@@ -14,5 +14,5 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": ["**/*.ts"],
-  "exclude": ["node_modules", "coverage", "executors/playwright/boilerplate"]
+  "exclude": ["node_modules", "coverage", "executors/playwright/boilerplate", "tests/e2e/scenarios"]
 }

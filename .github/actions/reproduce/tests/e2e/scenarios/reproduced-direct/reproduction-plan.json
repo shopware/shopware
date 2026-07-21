@@ -1,0 +1,8 @@
+{
+  "executor": "direct",
+  "layer": "service",
+  "issue": 0,
+  "version": "e2e",
+  "confidence": 1,
+  "assertion": { "symptom_pattern": "E2E_SYMPTOM_MARKER" }
+}

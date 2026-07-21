@@ -13,6 +13,7 @@ export default tseslint.config(
       'node_modules/**',
       'coverage/**',
       'executors/playwright/boilerplate/**',
+      'tests/e2e/scenarios/**',
     ],
   },
   js.configs.recommended,

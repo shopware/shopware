@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\Cart;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -272,7 +271,6 @@ class ProductCartProcessorTest extends TestCase
         static::assertSame('test', $actualProduct->getLabel());
     }
 
-    #[Group('slow')]
     public function testLineItemPropertiesPurchasePrice(): void
     {
         $this->createProduct();
@@ -323,7 +321,6 @@ class ProductCartProcessorTest extends TestCase
      * @param array{type: string, value: mixed, label: string} $expectedFeature
      */
     #[DataProvider('productFeatureProvider')]
-    #[Group('slow')]
     public function testProductFeaturesContainCorrectInformation(array $testedFeature, array $productData, array $expectedFeature): void
     {
         $this->createLanguage(self::TEST_LANGUAGE_ID);
@@ -596,7 +593,6 @@ class ProductCartProcessorTest extends TestCase
     }
 
     #[DataProvider('productDeliverabilityProvider')]
-    #[Group('slow')]
     public function testProcessCartShouldReturnFixedQuantity(int $minPurchase, int $purchaseSteps, int $maxPurchase, int $quantity, int $quantityExpected, ?string $errorKey): void
     {
         $additionalData = [

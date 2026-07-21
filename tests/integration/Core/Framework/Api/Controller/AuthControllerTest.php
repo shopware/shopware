@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 use Doctrine\DBAL\Connection;
 use Lcobucci\JWT\UnencryptedToken;
 use League\OAuth2\Server\Exception\OAuthServerException;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
@@ -29,7 +28,6 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[Package('framework')]
-#[Group('slow')]
 class AuthControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

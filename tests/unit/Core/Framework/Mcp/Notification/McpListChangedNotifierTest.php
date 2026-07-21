@@ -21,8 +21,6 @@ use Symfony\Component\Uid\Uuid;
  */
 #[Package('framework')]
 #[CoversClass(McpListChangedNotifier::class)]
-#[CoversClass(McpListChangedNotificationSet::class)]
-#[CoversClass(McpSessionRegistry::class)]
 class McpListChangedNotifierTest extends TestCase
 {
     public function testQueuesListChangedNotificationsForActiveSessions(): void

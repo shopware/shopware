@@ -12,7 +12,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[Package('framework')]
-#[AsCommand(name: 'bundle:dump', description: 'Dumps the bundle configuration for a plugin', aliases: ['administration:dump:plugins', 'administration:dump:bundles'])]
+#[AsCommand(
+    name: 'bundle:dump',
+    description: 'Dumps the bundle configuration for a plugin',
+    aliases: ['administration:dump:plugins', 'administration:dump:bundles']
+)]
 class BundleDumpCommand extends Command
 {
     /**

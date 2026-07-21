@@ -14,7 +14,11 @@ use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
  * @experimental stableVersion:v6.8.0
  */
 #[Package('framework')]
-#[McpTool(name: 'shopware-entity-delete', title: 'Entity Delete', description: 'Delete Shopware entities by their UUIDs. Always use dryRun=true (default) first to preview cascade effects and dependent entity deletions, then set dryRun=false to execute. Returns {success, data: {deleted, notFound}, _meta: {dryRun}}.')]
+#[McpTool(
+    name: 'shopware-entity-delete',
+    title: 'Entity Delete',
+    description: 'Delete Shopware entities by their UUIDs. Always use dryRun=true (default) first to preview cascade effects and dependent entity deletions, then set dryRun=false to execute. Returns {success, data: {deleted, notFound}, _meta: {dryRun}}.'
+)]
 #[McpToolDependsOn('shopware-entity-search')]
 #[McpToolRequires(entityParam: 'entity', operations: ['delete'])]
 class EntityDeleteTool extends McpToolResponse

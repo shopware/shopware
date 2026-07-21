@@ -12,7 +12,11 @@ use Shopware\Core\Framework\Util\Json;
  * @experimental stableVersion:v6.8.0
  */
 #[Package('framework')]
-#[McpResource(uri: 'shopware://flow-actions', name: 'shopware-flow-actions', description: 'All registered Shopware flow actions (core and app-provided) available in Flow Builder automations.')]
+#[McpResource(
+    uri: 'shopware://flow-actions',
+    name: 'shopware-flow-actions',
+    description: 'All registered Shopware flow actions (core and app-provided) available in Flow Builder automations.'
+)]
 class FlowActionsResource
 {
     /**

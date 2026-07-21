@@ -14,7 +14,11 @@ use Shopware\Core\Framework\Log\Package;
  * with a Shopware shop (criteria format, entity names, tool best practices).
  */
 #[Package('framework')]
-#[McpPrompt(name: 'shopware-context', title: 'Shopware Context', description: 'System prompt providing context about Shopware, its data model, and best practices for AI tool interaction.')]
+#[McpPrompt(
+    name: 'shopware-context',
+    title: 'Shopware Context',
+    description: 'System prompt providing context about Shopware, its data model, and best practices for AI tool interaction.'
+)]
 class ShopwareContextPrompt
 {
     /**

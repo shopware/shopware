@@ -14,7 +14,11 @@ use Shopware\Core\System\Language\LanguageCollection;
  * @experimental stableVersion:v6.8.0
  */
 #[Package('framework')]
-#[McpResource(uri: 'shopware://languages', name: 'shopware-languages', description: 'All configured languages with locale codes.')]
+#[McpResource(
+    uri: 'shopware://languages',
+    name: 'shopware-languages',
+    description: 'All configured languages with locale codes.'
+)]
 class LanguageListResource
 {
     /**

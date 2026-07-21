@@ -309,6 +309,16 @@ trait DocumentTrait
         $documentBaseConfigRepository->upsert([$data], Context::createDefaultContext());
     }
 
+    private function upsertDocumentSellerAddress(string $documentType): void
+    {
+        $this->upsertBaseConfig([
+            'companyStreet' => 'Example Street 1',
+            'companyZipcode' => '12345',
+            'companyCity' => 'Example City',
+            'companyCountryId' => $this->getValidCountryId(),
+        ], $documentType);
+    }
+
     private function orderVersionExists(string $orderId, string $orderVersionId): bool
     {
         return (bool) static::getContainer()->get(Connection::class)->fetchOne('

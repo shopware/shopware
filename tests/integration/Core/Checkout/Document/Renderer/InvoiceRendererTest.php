@@ -112,6 +112,8 @@ class InvoiceRendererTest extends TestCase
             $this->salesChannelContext->getContext()
         );
 
+        $this->upsertDocumentSellerAddress(InvoiceRenderer::TYPE);
+
         $cart = $this->generateDemoCartWithTaxes([7]);
         $orderId = $this->persistCart($cart);
 

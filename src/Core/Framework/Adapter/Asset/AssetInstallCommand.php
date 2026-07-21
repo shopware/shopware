@@ -6,7 +6,6 @@ use League\Flysystem\FilesystemException;
 use League\Flysystem\UnableToCheckExistence;
 use League\Flysystem\UnableToCreateDirectory;
 use League\Flysystem\UnableToDeleteDirectory;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
@@ -16,6 +15,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 #[AsCommand(
@@ -50,7 +50,7 @@ class AssetInstallCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         $io->title('Copying assets');
 
         foreach ($this->kernel->getBundles() as $bundle) {

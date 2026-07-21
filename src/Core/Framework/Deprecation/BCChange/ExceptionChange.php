@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Deprecation\BCChange;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * Signals that the exception types thrown by the method will change in the given version.
  *
  * Callers catching the currently documented exception types must prepare to catch the announced

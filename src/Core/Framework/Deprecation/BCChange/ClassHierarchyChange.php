@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Deprecation\BCChange;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * Signals that the inheritance chain of the class will change in the given version.
  *
  * Classes extending the annotated class, and call sites type-hinting or `instanceof`-checking

@@ -37,7 +37,7 @@ class SsoUserInvitationMailServiceTest extends TestCase
         $localeRepository = static::getContainer()->get('locale.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('code', 'pl-PL'));
-        $locale = $localeRepository->search($criteria, Context::createDefaultContext())->first();
+        $locale = $localeRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(LocaleEntity::class, $locale);
 

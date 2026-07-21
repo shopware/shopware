@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Deprecation\BCChange;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * Signals that a new optional parameter will be added to the method in the given version.
  *
  * Call sites are not affected — the parameter is optional. Classes overriding the method must

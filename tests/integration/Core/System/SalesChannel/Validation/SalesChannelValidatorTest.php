@@ -329,7 +329,7 @@ class SalesChannelValidatorTest extends TestCase
             'id' => $id,
         ]], Context::createDefaultContext());
 
-        $result = $salesChannelRepository->search(new Criteria([$id]), $context);
+        $result = $salesChannelRepository->search(new Criteria([$id]), $context)->getEntities();
         static::assertCount(0, $result);
     }
 

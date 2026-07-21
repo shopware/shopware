@@ -32,6 +32,8 @@ class AnnotationTagTest extends TestCase
         'storefront/vendor',
         // no need to check external js added as assets
         'storefront/dist/assets/js',
+        // compiled administration bundles merge annotations with unrelated minified code
+        'public/administration/assets',
         // we cannot remove the method, because old migrations could still use it
         'Migration/MigrationStep.php',
         // example plugin

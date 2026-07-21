@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Deprecation\BCChange;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * Signals that the return type of the method will be widened in the given version.
  *
  * Call sites must be prepared to handle every value of the announced type before the change

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Lists optional MCP capability plugins that extend the core platform.
  * AI clients should read this resource when a requested tool is not available.

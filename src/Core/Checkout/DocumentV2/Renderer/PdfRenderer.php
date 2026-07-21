@@ -7,8 +7,8 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
-use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
-use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
+use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
@@ -43,6 +43,7 @@ final readonly class PdfRenderer extends AbstractDocumentRenderer
     {
         return [
             DocumentType::INVOICE->value,
+            DocumentType::DELIVERY_NOTE->value,
         ];
     }
 
@@ -57,12 +58,12 @@ final readonly class PdfRenderer extends AbstractDocumentRenderer
     {
         $html = $state->require(DocumentFormat::HTML->value)->content;
 
-        $renderData = $input->requireData(
-            InvoiceDataProvider::KEY,
-            InvoiceRenderData::class,
+        $meta = $input->requireData(
+            DocumentMetaProvider::KEY,
+            DocumentMetaRenderData::class,
         );
 
-        $config = $renderData->config;
+        $config = $meta->config;
 
         $options = new Options($this->dompdfOptions);
         $options->setDefaultMediaType('print');
@@ -74,10 +75,13 @@ final readonly class PdfRenderer extends AbstractDocumentRenderer
 
         $this->injectPageCount($dompdf);
 
+        $content = $dompdf->output();
+        $fileStem = $meta->config->buildFileStem($meta->documentNumber);
+
         return new RenderResult(
             format: self::FORMAT->value,
-            content: $dompdf->output(),
-            fileName: $config->buildFileStem($renderData->documentNumber),
+            content: $content,
+            fileName: $fileStem,
             fileExtension: self::FORMAT->fileExtension(),
             mimeType: self::FORMAT->mimeType(),
         );

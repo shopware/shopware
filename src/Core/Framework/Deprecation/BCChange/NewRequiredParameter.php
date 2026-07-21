@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Deprecation\BCChange;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * Signals that a new required parameter will be added to the method in the given version.
  *
  * Call sites must start passing the parameter before the change happens; PHP accepts the

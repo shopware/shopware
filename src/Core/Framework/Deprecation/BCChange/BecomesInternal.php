@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Deprecation\BCChange;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * Signals that the class or method will be marked `@internal` in the given version.
  *
  * The functionality keeps working, but it leaves the backwards-compatibility promise: any

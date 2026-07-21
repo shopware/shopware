@@ -39,7 +39,7 @@ jobs:
           install-storefront: true
 
       - name: Cache ESLint and Stylelint
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             src/Storefront/Resources/app/storefront/node_modules/.eslintcache
@@ -56,7 +56,7 @@ jobs:
         run: composer storefront:lint:snippets
 
   lint-admin-modules:
-    name: "Storefront admin-modules ESLint"
+    name: "Storefront admin-modules code style"
     needs:
       - markdown-only-changes
     if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
@@ -75,7 +75,7 @@ jobs:
           install-admin: true
 
       - name: Cache ESLint
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             src/Storefront/Resources/app/administration/.eslintcache
@@ -83,6 +83,10 @@ jobs:
 
       - name: Lint
         run: composer eslint:storefront:admin-modules
+
+      - name: Format
+        working-directory: src/Storefront/Resources/app/administration
+        run: npm run format
 
   twig-lint-storefront:
     name: Twig Lint (Storefront)
@@ -99,7 +103,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release download v0.13.0 --repo MalteJanz/ludtwig  --pattern '*unknown-linux-gnu.tar.gz' && tar xf *.tar.gz
+          gh release download v0.13.0 --repo MalteJanz/ludtwig  --pattern '*unknown-linux-gnu.tar.gz' && tar xf ./*.tar.gz
           mv ./ludtwig /usr/local/bin
 
       - name: Run ludtwig linter
@@ -115,7 +119,7 @@ jobs:
           echo "If you want to run this locally install https://github.com/MalteJanz/ludtwig in the version above"
           echo "And then composer run ludtwig:storefront or ludtwig:storefront:fix"
           echo "Alternatively you also can run these in the DevEnv shell"
-          exit $status  # Fail the job if ludtwig . failed
+          exit "$status"  # Fail the job if ludtwig . failed
 
   jest:
     name: "Jest Storefront"
@@ -210,7 +214,7 @@ jobs:
       - name: Install npm
         run: npm install -g npm@11.8.0
       - name: Cache npm packages
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           # ~/.npm is npm's tarball cache; `npm ci` wipes node_modules but reuses this
           # offline (see prefer-offline below), which keeps retries off the network.
@@ -233,8 +237,8 @@ jobs:
             --excludePrivatePackages
 
   storefront-check:
-      if: always()
-      needs:
+    if: always()
+    needs:
       - markdown-only-changes
       - lint
       - lint-admin-modules
@@ -243,8 +247,8 @@ jobs:
       - license-check
       - twig-lint-storefront
 
-      runs-on: Ubuntu-latest
-      steps:
+    runs-on: Ubuntu-latest
+    steps:
       - name: Decide whether the needed jobs succeeded or failed
         uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
         with:

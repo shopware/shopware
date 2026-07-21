@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Messenger\Stamp\SentAtStamp;
 use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -19,6 +20,7 @@ use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MessageQueueStatsSubscriber::class)]
 class MessageQueueStatsSubscriberTest extends TestCase
 {

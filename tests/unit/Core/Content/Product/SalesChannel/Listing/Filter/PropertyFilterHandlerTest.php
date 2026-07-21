@@ -29,7 +29,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Request;
@@ -197,8 +199,8 @@ class PropertyFilterHandlerTest extends TestCase
         $request = new Request();
         $request->setMethod(Request::METHOD_POST);
 
-        $context = static::createStub(SalesChannelContext::class);
-        $context->method('getContext')->willReturn(Context::createDefaultContext());
+        $languageInfo = new LanguageInfo(Generator::LANGUAGE_INFO_NAME, Generator::LANGUAGE_INFO_LOCALE_CODE);
+        $context = Generator::generateSalesChannelContext(languageInfo: $languageInfo);
 
         /** @var StaticEntityRepository<PropertyGroupCollection> $groupRepository */
         $groupRepository = new StaticEntityRepository([

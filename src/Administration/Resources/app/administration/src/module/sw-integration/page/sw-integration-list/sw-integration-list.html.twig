@@ -207,7 +207,7 @@
 
                 {% block sw_integration_list_mcp_modal %}
                 <sw-modal
-                    v-if="feature.isActive('MCP_SERVER') && mcpIntegration"
+                    v-if="mcpIntegration"
                     class="sw-integration-list__mcp-modal"
                     :title="$t('sw-integration.mcp.modalTitle') + ': ' + mcpIntegration.label"
                     @modal-close="onCloseMcpModal"
@@ -321,7 +321,6 @@
 
                         {% block sw_integration_list_grid_inner_slot_columns_actions_edit_mcp %}
                         <sw-context-menu-item
-                            v-if="feature.isActive('MCP_SERVER')"
                             class="sw_integration_list__edit-mcp-action"
                             :disabled="!acl.can('integration_mcp.editor')"
                             @click="onShowMcpModal(item)"

@@ -8,7 +8,7 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Bridges the authenticated HTTP request context into MCP tool invocations.
  * The MCP bundle's HTTP transport processes requests through Shopware's API middleware,

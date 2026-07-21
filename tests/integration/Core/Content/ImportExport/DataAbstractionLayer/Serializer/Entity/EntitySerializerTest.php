@@ -279,7 +279,7 @@ class EntitySerializerTest extends TestCase
         // fetch a product with extension data
         $criteria = new Criteria([$productId]);
         $criteria->addAssociation('testExtension');
-        $exportData = $productRepo->search($criteria, Context::createDefaultContext())->first();
+        $exportData = $productRepo->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         // do the serialization
         /** @var EntityDefinition $productDefinition */

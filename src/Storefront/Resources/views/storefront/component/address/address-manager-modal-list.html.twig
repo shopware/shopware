@@ -1,20 +1,24 @@
 {% sw_extends '@Storefront/storefront/component/address/addresses-base.html.twig' %}
 
 {% if changeShipping %}
-    {% set type = 'shipping' %}
+    {% set addressType = 'shipping' %}
     {% set activeAddressId = context.customer.activeShippingAddress.id %}
     {% set defaultAddressId = context.customer.defaultShippingAddress.id %}
 {% else %}
-    {% set type = 'billing' %}
+    {% set addressType = 'billing' %}
     {% set activeAddressId = context.customer.activeBillingAddress.id %}
     {% set defaultAddressId = context.customer.defaultBillingAddress.id %}
 {% endif %}
+
+{# @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. Support for `type` will be removed. #}
+{% set type = addressType %}
 
 {% block address_base_default_address_item %}
     {% for address in  page.addresses %}
         {% if address.id == activeAddressId %}
             {% sw_include '@Storefront/storefront/component/address/address-manager-item.html.twig' with {
-                type,
+                addressType,
+                type: addressType,
                 activeAddressId,
                 defaultAddressId,
                 address
@@ -26,7 +30,7 @@
 {% block address_base_list_create_address %}
     <button
         class="address-manager-modal-address-form btn-outline-primary btn flex-shrink-0 btn-icon-hover-white"
-        data-address-type="{{ type }}"
+        data-address-type="{{ addressType }}"
     >
         {% sw_icon 'plus' style { size: 'sm', pack: 'solid' } %}
         {{ 'account.addressCreateBtn'|trans|sw_sanitize }}
@@ -36,7 +40,8 @@
 {% block address_base_list_address_item %}
     {% if activeAddressId !== address.id %}
         {% sw_include '@Storefront/storefront/component/address/address-manager-item.html.twig' with {
-            type,
+            addressType,
+            type: addressType,
             activeAddressId,
             defaultAddressId,
             address

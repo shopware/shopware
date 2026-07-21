@@ -18,6 +18,8 @@ test(
         AddProductToCart,
         ChangeProductQuantity,
     }) => {
+        // 6.8 defaults the cart to the tax column; force the unit-price column so we can assert per-quantity unit prices
+        await TestDataService.setSystemConfig({ 'core.cart.columnTaxInsteadUnitPrice': false });
         const product = await TestDataService.createProductWithPriceRange();
         await test.step('Testing price ranges are available on product detail page @product', async () => {
             await ShopCustomer.goesTo(StorefrontProductDetail.url(product));

@@ -9,7 +9,7 @@ test(
         AdminLayoutListing,
         AdminLayoutCreate,
         AdminListingPageLayoutDetail,
-        AdminApiContext,
+        TestDataService,
     }) => {
         test.slow();
         let createdLayoutId: string;
@@ -53,11 +53,8 @@ test(
             const body = await searchResponse.json();
             createdLayoutId = body.data[0].id;
             await ShopAdmin.expects(createdLayoutId).not.toBeNull();
+            TestDataService.addCreatedRecord('cms-page', createdLayoutId);
             await ShopAdmin.expects(AdminListingPageLayoutDetail.settingsButton).toBeVisible();
-        });
-
-        await test.step('Delete the created layout.', async () => {
-            await AdminApiContext.delete(`cms-page/${createdLayoutId}`);
         });
     },
 );

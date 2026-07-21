@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Builds the Host/Origin allowlist for the MCP transport's DnsRebindingProtectionMiddleware.
  *

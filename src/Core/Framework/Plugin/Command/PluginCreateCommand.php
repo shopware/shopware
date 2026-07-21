@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Plugin\Command;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\AdminModuleGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ScaffoldingGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingCollector;
@@ -125,6 +126,19 @@ class PluginCreateCommand extends Command
             $this->scaffoldingWriter->write($stubCollection, $configuration);
 
             $io->success('Plugin created successfully');
+
+            if (
+                $configuration->hasOption(AdminModuleGenerator::OPTION_NAME)
+                && $configuration->getOption(AdminModuleGenerator::OPTION_NAME) === true
+            ) {
+                $io->note([
+                    'An example Administration module was scaffolded (JavaScript).',
+                    'Make it discoverable, then type-check and lint it with the Administration toolchain:',
+                    '    bin/console bundle:dump',
+                    \sprintf('    composer admin:check-extensions -- --only=%s', $pluginName),
+                    'Rename .js sources to .ts to enable type-checking (see extension-tooling/README.md).',
+                ]);
+            }
 
             return self::SUCCESS;
         } catch (\Throwable $exception) {

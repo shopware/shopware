@@ -30,6 +30,7 @@ Shopware.Module.register('swag-example', {
     },
 
     navigation: [{
+        id: 'swag-example',
         label: 'swag-example.general.mainMenuItemGeneral',
         color: '#ff3d58',
         path: 'swag.example.list',

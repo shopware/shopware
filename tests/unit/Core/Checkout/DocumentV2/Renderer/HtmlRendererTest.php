@@ -52,6 +52,7 @@ class HtmlRendererTest extends TestCase
         static::assertSame(DocumentFormat::HTML->value, $renderer->getFormat());
         static::assertSame([
             DocumentType::INVOICE->value,
+            DocumentType::CANCELLATION_INVOICE->value,
             DocumentType::DELIVERY_NOTE->value,
         ], $renderer->getDocumentTypes());
     }
@@ -135,6 +136,27 @@ class HtmlRendererTest extends TestCase
                 '12345',
                 $this->createOrder(),
                 [DocumentMetaProvider::KEY => $this->createMeta()],
+            ),
+            new RenderState(),
+            Context::createDefaultContext(),
+        );
+    }
+
+    public function testRejectsDocumentTypeThatIsNotATrustedIdentifier(): void
+    {
+        $finder = $this->createMock(TemplateFinder::class);
+        $finder->expects($this->never())->method('find');
+
+        $renderer = $this->createRenderer($finder, static::createStub(TwigEnvironment::class));
+
+        $this->expectExceptionObject(DocumentV2Exception::invalidDocumentType('../invoice'));
+
+        $renderer->renderToString(
+            new RenderInput(
+                '../invoice',
+                '12345',
+                $this->createOrder(),
+                [InvoiceDataProvider::KEY => $this->createRenderData()],
             ),
             new RenderState(),
             Context::createDefaultContext(),

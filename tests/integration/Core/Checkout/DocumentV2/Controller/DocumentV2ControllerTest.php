@@ -87,7 +87,7 @@ class DocumentV2ControllerTest extends TestCase
 
     public function testPreviewRendersRequestedFormat(): void
     {
-        $this->seedDemoInvoiceBaseConfig();
+        $this->seedDemoBaseConfig(DocumentType::INVOICE->value);
 
         [$orderId, $orderVersionId] = $this->createDraftOrder();
 
@@ -119,7 +119,7 @@ class DocumentV2ControllerTest extends TestCase
 
     public function testCreateReturnsDocumentReference(): void
     {
-        $this->seedDemoInvoiceBaseConfig();
+        $this->seedDemoBaseConfig(DocumentType::INVOICE->value);
 
         [$orderId, $orderVersionId] = $this->createDraftOrder();
 

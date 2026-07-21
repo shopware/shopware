@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\DalSearchInstrumentor;
 use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityGroupResolver;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfigProvider;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
@@ -21,6 +22,7 @@ use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySea
  * @internal
  */
 #[CoversClass(DalSearchInstrumentor::class)]
+#[Package('framework')]
 class DalSearchInstrumentorTest extends TestCase
 {
     /**

@@ -69,7 +69,6 @@ src/Core/System/UsageData/usage-data-allow-list.json @shopware/st-ctrl-alt-elite
 /src/Core/Framework/Plugin/ @shopware/product-ct-core
 /src/Core/Framework/Resources/config/ @shopware/product-ct-core
 /src/Core/Framework/Routing/ @shopware/product-ct-core
-/src/Core/Framework/Rule/ @shopware/product-ct-core
 /src/Core/Framework/Script/ @shopware/product-ct-core
 /src/Core/Framework/Update/ @shopware/product-ct-core
 /src/Core/Framework/Util/ @shopware/product-ct-core
@@ -90,3 +89,32 @@ phpstan.neon @shopware/product-ct-core
 .bc-exclude.php @shopware/product-ct-core
 deprecation.ignore @shopware/product-ct-core
 /src/Core/Framework/Resources/config/packages/shopware.yaml @shopware/product-ct-core
+
+
+# runtime terror
+/tests/integration/Core/Checkout/Document/Renderer/_snapshots/ @shopware/product-cc-after-sales
+/tests/integration/Core/Checkout/DocumentV2/Renderer/_snapshots/ @shopware/product-cc-after-sales
+/src/Core/Framework/Resources/views/documents/ @shopware/product-cc-after-sales
+/src/Core/Checkout/Document/ @shopware/product-cc-after-sales
+/src/Core/Checkout/DocumentV2/ @shopware/product-cc-after-sales
+/src/Core/Content/Flow/ @shopware/product-cc-after-sales
+/src/Core/Content/MailTemplate/ @shopware/product-cc-after-sales
+/src/Core/Content/Mail/ @shopware/product-cc-after-sales
+/src/Core/Content/Newsletter/ @shopware/product-cc-after-sales
+/src/Core/Content/ImportExport/ @shopware/product-cc-after-sales
+/src/Core/Content/RevocationRequest/ @shopware/product-cc-after-sales
+/src/Core/Content/Shared/MailFlow/ @shopware/product-cc-after-sales
+/src/Core/Content/Product/SalesChannel/Review/ @shopware/product-cc-after-sales
+/src/Core/Framework/Rule/ @shopware/product-cc-after-sales
+/src/Administration/Resources/app/administration/src/module/sw-flow/ @shopware/product-cc-after-sales
+/src/Administration/Resources/app/administration/src/app/component/rule/ @shopware/product-cc-after-sales
+/src/Administration/Resources/app/administration/src/module/sw-mail-template/ @shopware/product-cc-after-sales
+/src/Administration/Resources/app/administration/src/module/sw-newsletter-recipient/ @shopware/product-cc-after-sales
+/src/Administration/Resources/app/administration/src/module/sw-settings-document/ @shopware/product-cc-after-sales
+/src/Administration/Resources/app/administration/src/module/sw-settings-mailer/ @shopware/product-cc-after-sales
+/src/Administration/Resources/app/administration/src/module/sw-settings-newsletter/ @shopware/product-cc-after-sales
+/src/Administration/Resources/app/administration/src/module/sw-review/ @shopware/product-cc-after-sales
+/src/Administration/Resources/app/administration/src/module/sw-dashboard/ @shopware/product-cc-after-sales
+/src/Administration/Resources/app/administration/src/module/sw-import-export/ @shopware/product-cc-after-sales
+/src/Administration/Resources/app/administration/src/module/sw-settings-rule/ @shopware/product-cc-after-sales
+/src/Administration/Resources/app/administration/src/module/sw-first-run-wizard/ @shopware/product-cc-after-sales

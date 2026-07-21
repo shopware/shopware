@@ -953,12 +953,21 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
             '',
             colors.bold('  Details'),
             `    Administration root: ${result.manifest.adminRoot}`,
+            `    Discovered from: ${result.discoverySource.path}${
+                result.discoverySource.updatedAt ? ` (updated ${result.discoverySource.updatedAt})` : ''
+            }`,
             `    Entity schema: ${
                 result.manifest.entitySchemaAvailable
                     ? 'available'
                     : 'stub (run composer admin:generate-entity-schema-types)'
             }`,
         );
+
+        // Setup never runs live probes (the check does), so a verified verdict
+        // here was carried in from the probe cache and an unverified one is fresh
+        // static analysis — surface which, so a reader knows how much to trust it.
+        const verdictSource = (resolution: ModeResolution, hasOwnConfig: boolean): string =>
+            !hasOwnConfig ? '' : resolution.verified ? ' (cached-live)' : ' (static)';
 
         for (const project of projects) {
             const moduleCount = project.technicalNames.length;
@@ -973,9 +982,9 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
             for (const target of project.targets) {
                 lines.push(
                     `        ${target.technicalNames.join(', ')} · ${target.sourcePath}`,
-                    `          runtime: ${target.ts.mode} → ${target.checkTsconfig}`,
+                    `          runtime: ${target.ts.mode}${verdictSource(target.ts, target.tsconfig !== null)} → ${target.checkTsconfig}`,
                     `          specs:   ${target.specTsconfig}`,
-                    `          eslint:  ${target.eslint.mode} → ${target.eslintConfig ?? 'generated root config'}`,
+                    `          eslint:  ${target.eslint.mode}${verdictSource(target.eslint, target.eslintConfig !== null)} → ${target.eslintConfig ?? 'generated root config'}`,
                 );
             }
         }

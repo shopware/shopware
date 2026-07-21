@@ -109,6 +109,8 @@ export interface SetupExtensionToolingResult {
     instructions: string[];
     /** True when anything was (or would be) created, updated, or deleted. */
     changed: boolean;
+    /** The var/plugins.json discovery source and its last-modified time, for `--explain`. */
+    discoverySource: { path: string; updatedAt: string | null };
 }
 
 interface GeneratorContext {
@@ -1149,7 +1151,20 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
         warnings: context.warnings,
         instructions: context.instructions,
         changed,
+        discoverySource: {
+            path: relativePosix(projectRoot, pluginsConfigPath),
+            updatedAt: readMtimeIso(pluginsConfigPath),
+        },
     };
+}
+
+/** ISO mtime of a file, or null if it cannot be read. */
+function readMtimeIso(filePath: string): string | null {
+    try {
+        return fs.statSync(filePath).mtime.toISOString();
+    } catch {
+        return null;
+    }
 }
 
 const SETUP_COMMAND: CommandSpec = {

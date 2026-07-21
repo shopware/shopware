@@ -94,6 +94,7 @@ export function setupResult(
         warnings: [],
         instructions: [],
         changed: false,
+        discoverySource: { path: 'var/plugins.json', updatedAt: null },
         ...overrides,
     };
 }

@@ -187,10 +187,31 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
     });
 
     it('explains target-level source and effective config coverage', () => {
-        const output = renderSetupReport(setupResult([managed]), { explain: true });
+        const output = renderSetupReport(
+            setupResult([managed], { discoverySource: { path: 'var/plugins.json', updatedAt: '2026-07-21T00:00:00.000Z' } }),
+            { explain: true },
+        );
 
         expect(output).toContain('FroshTools · custom/plugins/FroshTools/src');
         expect(output).toContain('runtime: managed');
         expect(output).toContain('eslint:  managed → generated root config');
+        // 3.4: the discovery source + its timestamp.
+        expect(output).toContain('Discovered from: var/plugins.json (updated 2026-07-21T00:00:00.000Z)');
+        // 2.4: a zero-config (no owned config) target has no verdict-source suffix.
+        expect(output).not.toContain('managed (static)');
+        expect(output).not.toContain('managed (cached-live)');
+    });
+
+    it('labels a config verdict static vs cached-live under --explain', () => {
+        // bridgedPlugin: owns a config and is verified -> the verdict came from the probe cache.
+        const cachedLive = renderSetupReport(setupResult([bridgedPlugin]), { explain: true });
+
+        expect(cachedLive).toContain('runtime: bridged (cached-live)');
+        expect(cachedLive).toContain('eslint:  bridged (cached-live)');
+
+        // Static: owns a config but not yet live-probed (unverified).
+        const staticVerdict = renderSetupReport(setupResult([customPlugin]), { explain: true });
+
+        expect(staticVerdict).toContain('(static)');
     });
 });

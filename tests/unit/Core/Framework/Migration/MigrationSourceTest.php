@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Migration\V6_3\Migration1565270366PromotionSetGroupRule;
 use Shopware\Core\Migration\V6_3\Migration1565346846Promotion;
@@ -29,6 +30,7 @@ use Shopware\Core\Migration\V6_3\Migration1571059598ChangeGreatBritainToUnitedKi
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MigrationSource::class)]
 class MigrationSourceTest extends TestCase
 {

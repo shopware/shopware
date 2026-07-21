@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  */
 #[McpResource(uri: 'shopware://sales-channels', name: 'shopware-sales-channels', description: 'All sales channels with their IDs, names, types, and domains.')]
 #[Package('framework')]

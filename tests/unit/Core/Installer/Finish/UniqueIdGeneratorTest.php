@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Core\Installer\Finish;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Finish\UniqueIdGenerator;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(UniqueIdGenerator::class)]
 class UniqueIdGeneratorTest extends TestCase
 {

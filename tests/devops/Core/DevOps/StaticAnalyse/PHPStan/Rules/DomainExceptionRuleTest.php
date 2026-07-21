@@ -7,12 +7,14 @@ use PHPStan\Testing\RuleTestCase;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DomainExceptionRule;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @extends  RuleTestCase<DomainExceptionRule>
  */
+#[Package('framework')]
 class DomainExceptionRuleTest extends RuleTestCase
 {
     #[RunInSeparateProcess]

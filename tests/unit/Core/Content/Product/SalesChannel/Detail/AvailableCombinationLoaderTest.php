@@ -12,6 +12,7 @@ use Shopware\Core\Content\Product\Stock\StockData;
 use Shopware\Core\Content\Product\Stock\StockDataCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -20,6 +21,7 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(AvailableCombinationLoader::class)]
 class AvailableCombinationLoaderTest extends TestCase
 {

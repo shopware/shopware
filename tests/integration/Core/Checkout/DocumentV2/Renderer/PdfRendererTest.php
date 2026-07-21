@@ -111,6 +111,39 @@ class PdfRendererTest extends TestCase
         yield 'delivery_note' => [DocumentType::DELIVERY_NOTE];
     }
 
+    public function testPreviewsPdfWithoutPersistingDocumentFile(): void
+    {
+        $this->seedDemoBaseConfig(DocumentType::INVOICE->value);
+
+        $cart = $this->generateDemoCartWithTaxes([19, 7]);
+        $cart = $this->applyTenPercentPromotion($cart);
+        $orderId = $this->persistCart($cart);
+        $this->enrichOrderForRendering($orderId);
+
+        $orderVersionId = $this->orderRepository->createVersion($orderId, $this->context, 'DRAFT');
+        $documentFileCount = $this->documentFileRepository->search(new Criteria(), $this->context)->getEntities()->count();
+
+        $request = new DocumentGenerationRequest(
+            orderId: $orderId,
+            orderVersionId: $orderVersionId,
+            documentType: DocumentType::INVOICE,
+            requestedFormats: [DocumentFormat::PDF],
+        );
+
+        $preview = $this->documentGenerator->preview($request, $this->context);
+
+        static::assertSame('application/pdf', $preview->getContentType());
+        static::assertSame(DocumentFormat::PDF->fileExtension(), $preview->getFileExtension());
+        static::assertStringEndsWith('.pdf', $preview->getName());
+        static::assertNotEmpty($preview->getContent());
+        static::assertStringStartsWith('%PDF-', $preview->getContent());
+        static::assertSame('application/pdf', (new \finfo(\FILEINFO_MIME_TYPE))->buffer($preview->getContent()));
+        static::assertCount(
+            $documentFileCount,
+            $this->documentFileRepository->search(new Criteria(), $this->context)->getEntities(),
+        );
+    }
+
     public function testGeneratesCancellationInvoicePdf(): void
     {
         $this->seedDemoBaseConfig('storno');

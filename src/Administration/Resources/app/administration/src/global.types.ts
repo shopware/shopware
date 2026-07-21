@@ -253,6 +253,7 @@ declare global {
         customEntityDefinitionService: CustomEntityDefinitionService;
         customFieldDataProviderService: $TSFixMe;
         customSnippetApiService: CustomSnippetApiService;
+        documentV2Service: $TSFixMe;
         entityFactory: $TSFixMe;
         entityHydrator: $TSFixMe;
         entityMappingService: $TSFixMe;
@@ -272,6 +273,7 @@ declare global {
         loginService: LoginService;
         mediaDefaultFolderService: $TSFixMe;
         menuService: $TSFixMe;
+        numberRangeService: $TSFixMe;
         orderStateMachineService: OrderStateMachineApiService;
         privileges: PrivilegesService;
         productStreamConditionService: $TSFixMe;

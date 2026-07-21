@@ -1,3 +1,5 @@
+import type RepositoryType from 'src/core/data/repository.data';
+import type CriteriaType from 'src/core/data/criteria.data';
 import template from './sw-order-upload-document-modal.html.twig';
 import './sw-order-upload-document-modal.scss';
 import { DOCUMENT_TYPES } from '../../order.types';
@@ -11,6 +13,26 @@ import {
 const { Component, Mixin, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
 const { isEmpty } = Utils.types;
+
+interface DocumentConfig {
+    documentComment: string;
+    documentDate: string;
+    documentMediaFileId: string | null;
+    documentNumber: string;
+}
+
+interface DocumentTypeFormats {
+    formats: string[];
+}
+
+function createEmptyDocumentConfig(): DocumentConfig {
+    return {
+        documentComment: '',
+        documentDate: new Date().toISOString(),
+        documentMediaFileId: null,
+        documentNumber: '',
+    };
+}
 
 /**
  * @private
@@ -36,12 +58,12 @@ export default Component.wrapComponentConfig({
 
     props: {
         order: {
-            type: Object,
+            type: Object as PropType<Entity<'order'>>,
             required: true,
         },
 
         documentType: {
-            type: Object,
+            type: Object as PropType<Entity<'document_type'>>,
             required: false,
             default: null,
         },
@@ -52,9 +74,22 @@ export default Component.wrapComponentConfig({
         },
     },
 
-    data() {
+    data(): {
+        documentConfig: DocumentConfig;
+        documentNumberPreview: string;
+        documentTypeCollection: EntityCollection<'document_type'> | null;
+        documentTypeId: string | null;
+        documentTypeLoading: boolean;
+        documentTypes: Entity<'document_type'>[];
+        features: { uploadFileSizeLimit: number };
+        isLoading: boolean;
+        selectedDocumentFile: Entity<'media'> | null;
+        selectedFileFormat: string | null;
+        showMediaModal: boolean;
+        supportedDocumentTypes: Record<string, DocumentTypeFormats>;
+    } {
         return {
-            documentConfig: this.createEmptyDocumentConfig(),
+            documentConfig: createEmptyDocumentConfig(),
             documentNumberPreview: '',
             documentTypeCollection: null,
             documentTypeId: this.documentType?.id ?? null,
@@ -72,32 +107,36 @@ export default Component.wrapComponentConfig({
     },
 
     computed: {
-        currentDocumentType() {
+        currentDocumentType(): Entity<'document_type'> | null {
+            if (!this.documentTypeId) {
+                return null;
+            }
+
             return this.documentTypeCollection?.get(this.documentTypeId) ?? null;
         },
 
-        documentTypeRepository() {
+        documentTypeRepository(): RepositoryType<'document_type'> {
             return this.repositoryFactory.create('document_type');
         },
 
-        documentTypeCriteria() {
+        documentTypeCriteria(): CriteriaType {
             return new Criteria(1, 100).addSorting(Criteria.sort('name', 'ASC'));
         },
 
-        documentTypeOptions() {
+        documentTypeOptions(): { label: string; value: string }[] {
             return this.documentTypes.map((documentType) => {
                 return {
-                    label: documentType.translated.name,
+                    label: documentType.translated?.name ?? '',
                     value: documentType.id,
                 };
             });
         },
 
-        documentFamily() {
+        documentFamily(): string | null {
             return getDocumentFamily(this.currentDocumentType?.technicalName);
         },
 
-        documentNumberErrorMessage() {
+        documentNumberErrorMessage(): { detail: string } | null {
             if (!this.currentDocumentType || this.documentConfig.documentNumber) {
                 return null;
             }
@@ -107,7 +146,7 @@ export default Component.wrapComponentConfig({
             };
         },
 
-        fileFormatOptions() {
+        fileFormatOptions(): { label: string; value: string }[] {
             if (!this.currentDocumentType?.technicalName) {
                 return [];
             }
@@ -115,7 +154,7 @@ export default Component.wrapComponentConfig({
             return this.getFileFormatOptions(this.currentDocumentType.technicalName);
         },
 
-        fileAcceptTypes() {
+        fileAcceptTypes(): string {
             if (this.selectedFileFormat) {
                 return FILE_FORMAT_MIME_TYPES[this.selectedFileFormat] ?? '*/*';
             }
@@ -127,7 +166,7 @@ export default Component.wrapComponentConfig({
             return [...new Set(mimeTypes.filter((mimeType) => mimeType !== ''))].join(',');
         },
 
-        invalidInput() {
+        invalidInput(): boolean {
             return (
                 !this.currentDocumentType ||
                 !this.documentConfig.documentNumber ||
@@ -137,22 +176,22 @@ export default Component.wrapComponentConfig({
             );
         },
 
-        isModalLoading() {
+        isModalLoading(): boolean {
             return this.isLoading || this.documentTypeLoading;
         },
 
-        isStornoDocument() {
+        isStornoDocument(): boolean {
             return this.documentFamily === DOCUMENT_TYPES.CANCELLATION_INVOICE;
         },
 
-        mediaRepository() {
+        mediaRepository(): RepositoryType<'media'> {
             return this.repositoryFactory.create('media');
         },
     },
 
     watch: {
         documentTypeId: {
-            async handler(value) {
+            async handler(value: string | null): Promise<void> {
                 if (!this.documentTypeCollection) {
                     return;
                 }
@@ -165,27 +204,24 @@ export default Component.wrapComponentConfig({
             },
         },
 
-        selectedFileFormat() {
+        selectedFileFormat(): void {
             this.removeCustomDocument();
         },
     },
 
-    created() {
+    created(): void {
         void this.createdComponent();
     },
 
     methods: {
-        createEmptyDocumentConfig() {
-            return {
-                documentComment: '',
-                documentDate: new Date().toISOString(),
-                documentMediaFileId: null,
-                documentNumber: '',
-            };
-        },
-
-        async createdComponent() {
+        async createdComponent(): Promise<void> {
             this.isLoading = true;
+
+            const documentV2Service = this.documentV2Service as {
+                getAvailableTypes: () => Promise<{
+                    data?: { documentTypes?: Record<string, DocumentTypeFormats> };
+                }>;
+            };
 
             try {
                 const [
@@ -193,7 +229,7 @@ export default Component.wrapComponentConfig({
                     supportResponse,
                 ] = await Promise.all([
                     this.documentTypeRepository.search(this.documentTypeCriteria),
-                    this.documentV2Service.getAvailableTypes(),
+                    documentV2Service.getAvailableTypes(),
                 ]);
 
                 this.supportedDocumentTypes = supportResponse.data?.documentTypes ?? {};
@@ -202,8 +238,10 @@ export default Component.wrapComponentConfig({
                     (documentType) => documentType.technicalName in this.supportedDocumentTypes,
                 );
 
-                if (this.documentTypeId) {
-                    const documentType = this.documentTypeCollection.get(this.documentTypeId);
+                const documentTypeId = this.documentTypeId;
+
+                if (documentTypeId) {
+                    const documentType = this.documentTypeCollection.get(documentTypeId);
 
                     if (!documentType || !(documentType.technicalName in this.supportedDocumentTypes)) {
                         this.documentTypeId = null;
@@ -218,7 +256,7 @@ export default Component.wrapComponentConfig({
             }
         },
 
-        getFileFormatOptions(technicalName) {
+        getFileFormatOptions(technicalName: string): { label: string; value: string }[] {
             const formats = this.supportedDocumentTypes[technicalName]?.formats ?? [];
 
             return [...formats]
@@ -231,29 +269,31 @@ export default Component.wrapComponentConfig({
                 });
         },
 
-        getFileFormatPriority(fileFormat) {
+        getFileFormatPriority(fileFormat: string): number {
             const priority = FILE_FORMAT_PRIORITY.indexOf(fileFormat);
 
             return priority === -1 ? Number.MAX_SAFE_INTEGER : priority;
         },
 
-        translateFileFormat(format) {
-            const translationKey = {
-                html: 'sw-order.components.createDocumentModal.fileFormats.html',
-                pdf: 'sw-order.components.createDocumentModal.fileFormats.pdf',
-                zugferd_embedded_pdf: 'sw-order.components.createDocumentModal.fileFormats.zugferdEmbeddedPdf',
-                zugferd_xml: 'sw-order.components.createDocumentModal.fileFormats.zugferdXml',
-            }[format];
+        translateFileFormat(format: string): string {
+            const translationKey = (
+                {
+                    html: 'sw-order.components.createDocumentModal.fileFormats.html',
+                    pdf: 'sw-order.components.createDocumentModal.fileFormats.pdf',
+                    zugferd_embedded_pdf: 'sw-order.components.createDocumentModal.fileFormats.zugferdEmbeddedPdf',
+                    zugferd_xml: 'sw-order.components.createDocumentModal.fileFormats.zugferdXml',
+                } as Record<string, string>
+            )[format];
 
             return translationKey ? this.$t(translationKey) : format;
         },
 
-        async onDocumentTypeChange(documentType) {
+        async onDocumentTypeChange(documentType: Entity<'document_type'> | null): Promise<void> {
             this.selectedFileFormat = null;
             this.selectedDocumentFile = null;
 
             if (!documentType) {
-                this.documentConfig = this.createEmptyDocumentConfig();
+                this.documentConfig = createEmptyDocumentConfig();
                 this.documentNumberPreview = '';
 
                 return;
@@ -262,7 +302,7 @@ export default Component.wrapComponentConfig({
             this.documentTypeLoading = true;
 
             try {
-                const nextDocumentConfig = this.createEmptyDocumentConfig();
+                const nextDocumentConfig = createEmptyDocumentConfig();
                 const documentNumber = await this.reserveDocumentNumber(documentType.technicalName, true);
 
                 nextDocumentConfig.documentNumber = documentNumber;
@@ -273,8 +313,12 @@ export default Component.wrapComponentConfig({
             }
         },
 
-        async reserveDocumentNumber(technicalName, isPreview = false) {
-            const { number } = await this.numberRangeService.reserve(
+        async reserveDocumentNumber(technicalName: string, isPreview = false): Promise<string> {
+            const numberRangeService = this.numberRangeService as {
+                reserve: (type: string, salesChannelId: string, preview: boolean) => Promise<{ number: string }>;
+            };
+
+            const { number } = await numberRangeService.reserve(
                 `document_${getDocumentNumberRangeType(technicalName)}`,
                 this.order.salesChannelId,
                 isPreview,
@@ -283,7 +327,7 @@ export default Component.wrapComponentConfig({
             return number;
         },
 
-        async onUploadDocument(additionalAction = false) {
+        async onUploadDocument(additionalAction = false): Promise<void> {
             this.$emit('loading-document');
 
             if (this.invalidInput || !this.currentDocumentType) {
@@ -314,19 +358,19 @@ export default Component.wrapComponentConfig({
             );
         },
 
-        onCancel() {
+        onCancel(): void {
             this.$emit('page-leave');
         },
 
-        openMediaModal() {
+        openMediaModal(): void {
             this.showMediaModal = true;
         },
 
-        closeMediaModal() {
+        closeMediaModal(): void {
             this.showMediaModal = false;
         },
 
-        onAddMediaFromLibrary(media) {
+        onAddMediaFromLibrary(media: Entity<'media'>[]): void {
             if (isEmpty(media)) {
                 return;
             }
@@ -334,25 +378,32 @@ export default Component.wrapComponentConfig({
             this.validateFile(media[0]);
         },
 
-        successfulUploadFromUrl(res) {
+        successfulUploadFromUrl(res: { targetId: string }): void {
             void this.mediaRepository.get(res.targetId).then((response) => {
-                this.validateFile(response);
+                if (response) {
+                    this.validateFile(response);
+                }
             });
         },
 
-        validateFile(response) {
-            if (this.$refs.fileInput.checkFileSize(response) && this.$refs.fileInput.checkFileType(response)) {
+        validateFile(response: Entity<'media'>): void {
+            const fileInput = this.$refs.fileInput as {
+                checkFileSize: (file: Entity<'media'>) => boolean;
+                checkFileType: (file: Entity<'media'>) => boolean;
+            };
+
+            if (fileInput.checkFileSize(response) && fileInput.checkFileType(response)) {
                 this.selectedDocumentFile = response;
                 this.documentConfig.documentMediaFileId = response.id;
             }
         },
 
-        removeCustomDocument() {
+        removeCustomDocument(): void {
             this.documentConfig.documentMediaFileId = null;
             this.selectedDocumentFile = null;
         },
 
-        onAddDocument(data) {
+        onAddDocument(data: Entity<'media'>[]): void {
             this.selectedDocumentFile = data[0];
             this.documentConfig.documentMediaFileId = null;
         },

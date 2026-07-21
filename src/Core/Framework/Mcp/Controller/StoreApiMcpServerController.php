@@ -9,7 +9,6 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
@@ -23,7 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Store API entry point for the MCP protocol over HTTP.
  * This endpoint uses the normal Store API sales-channel access key and
@@ -44,7 +43,7 @@ class StoreApiMcpServerController
      *
      * The first five params are nullable because they are injected via
      * nullOnInvalid(): when the MCP bundle is absent they resolve to null.
-     * Once MCP_SERVER is stable (v6.8.0) remove the nullable types and the null guards in handle().
+     * Once MCP is stable (v6.8.0) remove the nullable types and the null guards in handle().
      */
     public function __construct(
         private readonly ?Server $server,
@@ -67,8 +66,7 @@ class StoreApiMcpServerController
     )]
     public function handle(Request $request): Response
     {
-        if (!Feature::isActive('MCP_SERVER')
-            || $this->server === null
+        if ($this->server === null
             || $this->httpMessageFactory === null
             || $this->httpFoundationFactory === null
             || $this->responseFactory === null

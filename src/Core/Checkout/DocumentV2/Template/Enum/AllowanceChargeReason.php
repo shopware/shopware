@@ -22,13 +22,13 @@ use Shopware\Core\Framework\Log\Package;
 enum AllowanceChargeReason: string
 {
     case DISCOUNT = '95';
-    case DELIVERY = 'DL';
+    case SHIPPING_AND_HANDLING = 'SAA';
 
     public function defaultLabel(): string
     {
         return match ($this) {
             self::DISCOUNT => 'Discount',
-            self::DELIVERY => 'Delivery',
+            self::SHIPPING_AND_HANDLING => 'Shipping and handling',
         };
     }
 }

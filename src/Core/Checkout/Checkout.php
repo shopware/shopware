@@ -30,16 +30,16 @@ class Checkout extends Bundle
         $locator = new FileLocator(self::DEPENDENCY_LOCATION);
 
         $loader = new XmlFileLoader($container, $locator);
-        $loader->load('cart.xml');
-        $loader->load('customer.xml');
-        $loader->load('document.xml');
-        $loader->load('order.xml');
-        $loader->load('payment.xml');
-        $loader->load('rule.xml');
-        $loader->load('promotion.xml');
-        $loader->load('shipping.xml');
-
         $phpLoader = new PhpFileLoader($container, $locator);
+        $phpLoader->load('cart.php');
+        $phpLoader->load('customer.php');
+        $loader->load('document.xml');
+        $phpLoader->load('order.php');
+        $phpLoader->load('payment.php');
+        $loader->load('rule.xml');
+        $phpLoader->load('promotion.php');
+        $phpLoader->load('shipping.php');
+
         $phpLoader->load('documentV2.php');
     }
 }

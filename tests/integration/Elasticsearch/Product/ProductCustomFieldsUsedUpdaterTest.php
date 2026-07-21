@@ -7,6 +7,7 @@ use OpenSearch\Client;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
@@ -23,6 +24,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
+#[Package('inventory')]
 class ProductCustomFieldsUsedUpdaterTest extends TestCase
 {
     use ElasticsearchTestTestBehaviour;

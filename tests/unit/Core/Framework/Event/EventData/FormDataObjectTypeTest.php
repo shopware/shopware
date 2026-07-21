@@ -6,10 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Event\EventData\FormDataObjectType;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(FormDataObjectType::class)]
 class FormDataObjectTypeTest extends TestCase
 {

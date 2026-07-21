@@ -9,11 +9,13 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\ProductDescriptionTeaserB
 use Shopware\Core\Content\Product\Subscriber\ProductDescriptionTeaserSubscriber;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductDescriptionTeaserSubscriber::class)]
 class ProductDescriptionTeaserSubscriberTest extends TestCase
 {

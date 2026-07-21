@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 use Shopware\Elasticsearch\Admin\AdminSearcher;
 use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
@@ -26,6 +27,7 @@ use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(AdminSearcher::class)]
 class AdminSearcherTest extends TestCase
 {

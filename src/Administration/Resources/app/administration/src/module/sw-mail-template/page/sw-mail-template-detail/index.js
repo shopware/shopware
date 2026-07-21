@@ -699,7 +699,9 @@ export default {
 
         onDeleteMedia(mailTemplateMediaId) {
             const foundItem = this.mailTemplate.media.find(
-                (mailTemplateMedia) => mailTemplateMedia.mediaId === mailTemplateMediaId && mailTemplateMedia.languageId === Shopware.Context.api.languageId
+                (mailTemplateMedia) =>
+                    mailTemplateMedia.mediaId === mailTemplateMediaId &&
+                    mailTemplateMedia.languageId === Shopware.Context.api.languageId,
             );
 
             if (foundItem) {

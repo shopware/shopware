@@ -309,9 +309,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         // Add media
         wrapper.vm.onAddItemToAttachment(mailTemplateMediaMock);
-        expect(wrapper.vm.mailTemplate.media.some(
-            (media) => media.mediaId === mailTemplateMediaMock.id)
-        ).toBeTruthy();
+        expect(wrapper.vm.mailTemplate.media.some((media) => media.mediaId === mailTemplateMediaMock.id)).toBeTruthy();
 
         // Add same media again and expect error
         wrapper.vm.onAddItemToAttachment(mailTemplateMediaMock);
@@ -326,9 +324,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         Shopware.Context.api.languageId = '9886595ca65447d6a812fe9de1096079';
         wrapper.vm.onAddItemToAttachment(mailTemplateMediaMock);
 
-        expect(wrapper.vm.mailTemplate.media.some(
-            (media) => media.mediaId === mailTemplateMediaMock.id)
-        ).toBeTruthy();
+        expect(wrapper.vm.mailTemplate.media.some((media) => media.mediaId === mailTemplateMediaMock.id)).toBeTruthy();
 
         // Add same media again and expect error
         wrapper.vm.onAddItemToAttachment(mailTemplateMediaMock);
@@ -413,7 +409,8 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         });
 
         const hasMediaBeforeTest = wrapper.vm.mailTemplate.media.some(
-            (media) => media.id === 'ad3466455ed794bb9e0f28s8g3701s1z' && media.languageId === Shopware.Context.api.languageId,
+            (media) =>
+                media.id === 'ad3466455ed794bb9e0f28s8g3701s1z' && media.languageId === Shopware.Context.api.languageId,
         );
         expect(hasMediaBeforeTest).toBeTruthy();
 
@@ -421,7 +418,8 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         expect(wrapper.vm.mailTemplate.media).toHaveLength(mediaMock.length - 1);
         const hasMediaAfterTest = wrapper.vm.mailTemplate.media.some(
-            (media) => media.id === 'ad3466455ed794bb9e0f28s8g3701s1z' && media.languageId === Shopware.Context.api.languageId,
+            (media) =>
+                media.id === 'ad3466455ed794bb9e0f28s8g3701s1z' && media.languageId === Shopware.Context.api.languageId,
         );
         expect(hasMediaAfterTest).toBeFalsy();
     });

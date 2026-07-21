@@ -6,11 +6,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityGroupResolver;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(EntityGroupResolver::class)]
+#[Package('framework')]
 class EntityGroupResolverTest extends TestCase
 {
     #[DataProvider('entityProvider')]

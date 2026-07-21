@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\DalSearchInstrumentor;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -24,6 +25,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  * @internal
  */
 #[CoversClass(SalesChannelRepository::class)]
+#[Package('discovery')]
 class SalesChannelRepositoryTest extends TestCase
 {
     public function testSearchIdsIsRoutedThroughTheInstrumentor(): void

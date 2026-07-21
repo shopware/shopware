@@ -6,7 +6,7 @@ use Mcp\Capability\Attribute\McpPrompt;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * This prompt content is intentionally separate from the root AGENTS.md.
  * AGENTS.md provides developer-facing coding guidelines, while this prompt

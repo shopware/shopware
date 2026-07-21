@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\Framework\Update\Subscriber\UpdateSubscriber;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Update\Subscriber\UpdateSubscriber;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(UpdateSubscriber::class)]
 class UpdateSubscriberTest extends TestCase
 {

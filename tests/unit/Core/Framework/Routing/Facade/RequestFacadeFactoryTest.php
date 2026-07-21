@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Routing\Facade;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Facade\RequestFacadeFactory;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RequestFacadeFactory::class)]
 class RequestFacadeFactoryTest extends TestCase
 {

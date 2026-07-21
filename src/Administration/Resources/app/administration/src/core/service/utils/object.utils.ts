@@ -138,11 +138,11 @@ export function getObjectDiff(a: any, b: any): any {
         }
 
         if (type.isObject(nextValue)) {
-            const changes = getObjectDiff(currentValue, nextValue);
-
             if (type.isObject(currentValue) && Object.keys(currentValue).length > Object.keys(nextValue).length) {
                 return { ...acc, [key]: nextValue };
             }
+
+            const changes: unknown = getObjectDiff(currentValue, nextValue);
 
             if (!type.isObject(changes) || Object.keys(changes).length > 0) {
                 return { ...acc, [key]: changes };

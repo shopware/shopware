@@ -24,7 +24,7 @@ class ScriptLoaderTest extends TestCase
         $cache = $this->createCache();
         $loader = new ScriptLoader(
             $this->createConnection(),
-            $this->createMock(ScriptLifecycleHandler::class),
+            static::createStub(ScriptLifecycleHandler::class),
             $cache,
             sys_get_temp_dir(),
             false,
@@ -41,7 +41,7 @@ class ScriptLoaderTest extends TestCase
         $cache = $this->createCache();
         $loader = new ScriptLoader(
             $this->createConnection(),
-            $this->createMock(ScriptLifecycleHandler::class),
+            static::createStub(ScriptLifecycleHandler::class),
             $cache,
             sys_get_temp_dir(),
             false,
@@ -68,7 +68,7 @@ class ScriptLoaderTest extends TestCase
 
         $loader = new ScriptLoader(
             $connection,
-            $this->createMock(ScriptLifecycleHandler::class),
+            static::createStub(ScriptLifecycleHandler::class),
             $cache,
             sys_get_temp_dir(),
             false,

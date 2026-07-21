@@ -8,10 +8,12 @@ use Lcobucci\JWT\Signer\Key\InMemory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\FakeCryptKey;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(FakeCryptKey::class)]
 class FakeCryptKeyTest extends TestCase
 {

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
@@ -40,6 +41,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(StateMachineRegistry::class)]
 #[CoversClass(StateMachineTransitionResult::class)]
 class StateMachineRegistryTest extends TestCase

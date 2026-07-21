@@ -155,7 +155,7 @@ class OrderSerializerTest extends TestCase
             'transactions.shippingMethod',
         ]);
 
-        $order = $this->orderRepository->search($criteria, $this->context)->first();
+        $order = $this->orderRepository->search($criteria, $this->context)->getEntities()->first();
 
         static::assertInstanceOf(OrderEntity::class, $order);
 
@@ -205,13 +205,13 @@ class OrderSerializerTest extends TestCase
      */
     private function getTransactionData(array $orderData): array
     {
-        $paymentMethod = static::getContainer()->get('payment_method.repository')->search(new Criteria(), $this->context)->first();
+        $paymentMethod = static::getContainer()->get('payment_method.repository')->search(new Criteria(), $this->context)->getEntities()->first();
         $paymentMethodId = null;
         if ($paymentMethod instanceof PaymentMethodEntity) {
             $paymentMethodId = $paymentMethod->getId();
         }
 
-        $stateMachineState = static::getContainer()->get('state_machine_state.repository')->search(new Criteria(), $this->context)->first();
+        $stateMachineState = static::getContainer()->get('state_machine_state.repository')->search(new Criteria(), $this->context)->getEntities()->first();
         $stateMachineStateId = null;
         if ($stateMachineState instanceof StateMachineStateEntity) {
             $stateMachineStateId = $stateMachineState->getId();

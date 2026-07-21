@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Core\Service\Requirement;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\Requirement\Gate;
 use Shopware\Core\Service\Requirement\ShopwareAccountRequirement;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ShopwareAccountRequirement::class)]
 class ShopwareAccountRequirementTest extends TestCase
 {

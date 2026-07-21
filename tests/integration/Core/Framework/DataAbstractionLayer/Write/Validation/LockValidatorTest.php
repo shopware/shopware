@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\LockValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Validation\TestDefinition\TestDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 /**
  * @internal
  */
+#[Package('framework')]
 class LockValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;

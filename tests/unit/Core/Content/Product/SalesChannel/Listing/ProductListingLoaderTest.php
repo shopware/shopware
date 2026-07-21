@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -34,6 +35,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductListingLoader::class)]
 class ProductListingLoaderTest extends TestCase
 {

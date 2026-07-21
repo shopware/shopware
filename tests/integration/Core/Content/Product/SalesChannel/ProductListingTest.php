@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -24,6 +25,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[Group('slow')]
 class ProductListingTest extends TestCase
 {
@@ -159,8 +161,8 @@ class ProductListingTest extends TestCase
             ->getResult();
 
         static::assertSame(7, $listing->getTotal());
-        static::assertFalse($listing->has($this->productIdWidth100));
-        static::assertTrue($listing->has($this->productIdWidth150));
+        static::assertFalse($listing->getEntities()->has($this->productIdWidth100));
+        static::assertTrue($listing->getEntities()->has($this->productIdWidth150));
     }
 
     public function testListingWithProductStreamAndAdditionalCriteria(): void

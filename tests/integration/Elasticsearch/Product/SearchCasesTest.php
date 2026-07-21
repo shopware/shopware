@@ -10,6 +10,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
@@ -25,6 +26,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
+#[Package('inventory')]
 class SearchCasesTest extends TestCase
 {
     use CacheTestBehaviour;

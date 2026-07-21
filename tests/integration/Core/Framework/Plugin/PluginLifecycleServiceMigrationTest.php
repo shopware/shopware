@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationSource;
@@ -38,6 +39,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
+#[Package('framework')]
 #[Group('slow')]
 class PluginLifecycleServiceMigrationTest extends TestCase
 {

@@ -5,11 +5,13 @@ namespace Shopware\Tests\Integration\Core\Framework\App\DeletedApps;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class DeletedAppsGatewayTest extends TestCase
 {
     use IntegrationTestBehaviour;

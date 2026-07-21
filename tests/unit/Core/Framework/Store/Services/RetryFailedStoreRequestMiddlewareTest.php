@@ -9,11 +9,13 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\RetryFailedStoreRequestMiddleware;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(RetryFailedStoreRequestMiddleware::class)]
 class RetryFailedStoreRequestMiddlewareTest extends TestCase
 {

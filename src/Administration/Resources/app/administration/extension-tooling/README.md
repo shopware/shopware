@@ -168,6 +168,26 @@ baseline; it cannot be combined with `--fix` (fix first, then record).
 Vendor-installed extensions carry no baseline — their findings are already non-fatal unless
 `--strict-vendor`.
 
+## Generated files — what to commit, what to ignore
+
+Setup and `--shim` produce three kinds of file. Only the **committable** ones belong in the
+plugin repository:
+
+| File | Kind | Commit? | Notes |
+| --- | --- | --- | --- |
+| `var/admin-extension-tooling/**` (leaf tsconfigs, manifest, probe cache) | disposable host state | no | Regenerated every run; git-ignored in a shop. |
+| Project-root `tsconfig.json` / `eslint.config.mjs` / `.vscode/` / `.zed/` | disposable host projections | no | IDE/CLI view of the whole shop; marker-owned, git-ignored (the platform monorepo commits its own, so setup stands down there). |
+| `<plugin>/…/.shopware-admin/` (bridge `tsconfig.json`, `eslint.mjs`, `.gitignore`) | git-ignored bridge | **no** | Machine-specific paths into the installed Administration; self-ignoring (`*`). One per shimmed root, or one beside the package config in root-config mode. |
+| `<plugin>/…/tsconfig.json` + `eslint.config.mjs` (scaffolded when absent) | committable plugin config | **yes** | Small files that just extend/compose the bridge. Edit freely; keep the `extends`/import. |
+| `<plugin>/tsconfig.aliases.json` | committable plugin config | **yes** | Your path aliases; merged into the bridge. |
+| `<plugin>/.shopware-admin-baseline.json` | committable plugin data | **yes** | Findings baseline; travels with the plugin. |
+
+For a **single-root** plugin that's one bridge + one committable `tsconfig.json`/`eslint.config.mjs`
+pair. For a **multi-root** package in root-config mode it's one bridge + one committable config
+pair beside the package config (not one per bundle). `setup … --check` (or the
+`admin:setup-extension-tooling:check` alias) labels each planned file as `[git-ignored bridge]`
+or `[commit this]` so you can see the split before writing.
+
 ## Troubleshooting
 
 | Symptom | Cause → fix |

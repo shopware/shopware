@@ -9,10 +9,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Monolog\ExcludeExceptionHandler;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ExcludeExceptionHandler::class)]
 class ExcludeExceptionHandlerTest extends TestCase
 {

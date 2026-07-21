@@ -34,6 +34,7 @@ final readonly class DocumentGenerationRequest
         public ?string $documentNumber = null,
         public ?string $documentComment = null,
         ?string $documentDate = null,
+        public ?string $deliveryDate = null,
         public ?string $referencedDocumentId = null,
     ) {
         $this->documentDate = $documentDate ?? Clock::get()->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
@@ -55,6 +56,7 @@ final readonly class DocumentGenerationRequest
             $documentNumber,
             $this->documentComment,
             $this->documentDate,
+            $this->deliveryDate,
             $this->referencedDocumentId,
         );
     }

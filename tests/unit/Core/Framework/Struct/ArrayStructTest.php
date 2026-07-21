@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Struct;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ArrayStruct::class)]
 class ArrayStructTest extends TestCase
 {

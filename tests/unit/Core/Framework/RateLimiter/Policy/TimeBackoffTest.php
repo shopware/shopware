@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Core\Framework\RateLimiter\Policy;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoff;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TimeBackoff::class)]
 class TimeBackoffTest extends TestCase
 {

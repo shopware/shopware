@@ -17,6 +17,7 @@ use Symfony\Component\DependencyInjection\Definition;
 /**
  * @internal
  */
+#[\Shopware\Core\Framework\Log\Package('framework')]
 #[CoversClass(AssetBundleRegistrationCompilerPass::class)]
 class AssetBundleRegistrationCompilerPassTest extends TestCase
 {

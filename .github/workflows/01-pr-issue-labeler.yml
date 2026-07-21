@@ -2,6 +2,7 @@ name: Label Issues and PRs
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, review_requested]
   issues:
   workflow_dispatch:
   schedule:
@@ -116,11 +117,11 @@ jobs:
             const { setStatusInProjects } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
             await setStatusInProjects({github, core, context}, { fromStatus: "Done", toStatus: "in progress" })
 
-  linked-issues-in-progress:
+  linked-issues-status:
     runs-on: ubuntu-24.04
     if: >
       github.event_name == 'pull_request' &&
-      github.event.action == 'opened' &&
+      (github.event.action == 'opened' || github.event.action == 'review_requested') &&
       github.event.pull_request.head.repo.full_name == github.repository
     permissions:
       contents: read
@@ -142,6 +143,9 @@ jobs:
           script: |
             const { findIssueWithProjectItems, getProjectInfo, setFieldValue } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
 
+            // opened -> "In progress"; a reviewer request moves the linked issues on to "In Review"
+            const targetStatus = context.payload.action === 'review_requested' ? 'in review' : 'in progress'
+
             const res = await github.graphql(`
               query closingIssues($owner: String!, $repo: String!, $number: Int!) {
                 repository(owner: $owner, name: $repo) {
@@ -162,18 +166,18 @@ jobs:
             for (const { number } of linkedIssues) {
               const issue = await findIssueWithProjectItems({github, core, context}, number)
               for (const item of issue.projectItems) {
-                if (item.fieldValueByName?.name?.toLowerCase() === 'in progress') {
+                if (item.fieldValueByName?.name?.toLowerCase() === targetStatus) {
                   continue
                 }
                 const projectInfo = await getProjectInfo({github, core, context}, { number: item.project.number })
                 const statusField = projectInfo.fields.find(field => field.name === 'Status')
-                const inProgress = statusField?.options.find(option => option.name.toLowerCase() === 'in progress')
-                if (!inProgress) {
-                  core.info(`No "In progress" status option in project ${item.project.number}, skipping`)
+                const targetOption = statusField?.options.find(option => option.name.toLowerCase() === targetStatus)
+                if (!targetOption) {
+                  core.info(`No "${targetStatus}" status option in project ${item.project.number}, skipping`)
                   continue
                 }
-                await setFieldValue({github, core, context}, { projectId: projectInfo.node_id, itemId: item.id, fieldId: statusField.id, valueId: inProgress.id })
-                core.info(`Issue #${number}: status set to "In progress" in project ${item.project.number}`)
+                await setFieldValue({github, core, context}, { projectId: projectInfo.node_id, itemId: item.id, fieldId: statusField.id, valueId: targetOption.id })
+                core.info(`Issue #${number}: status set to "${targetOption.name}" in project ${item.project.number}`)
               }
             }
 

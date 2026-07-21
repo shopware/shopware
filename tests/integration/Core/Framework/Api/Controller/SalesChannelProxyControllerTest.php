@@ -1201,6 +1201,22 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertSame($uuid, $this->getBrowser()->getResponse()->headers->get('sw-version-id'));
     }
 
+    /**
+     * @return iterable<string, array{sendMail: bool, mailExpected: bool}>
+     */
+    public static function sendMailFlagProvider(): iterable
+    {
+        yield 'send order confirmation mail by default option' => [
+            'sendMail' => true,
+            'mailExpected' => true,
+        ];
+
+        yield 'suppress order confirmation mail when disabled' => [
+            'sendMail' => false,
+            'mailExpected' => false,
+        ];
+    }
+
     private function getLangHeaderName(): string
     {
         return 'HTTP_' . mb_strtoupper(str_replace('-', '_', PlatformRequest::HEADER_LANGUAGE_ID));
@@ -1516,22 +1532,6 @@ class SalesChannelProxyControllerTest extends TestCase
                 ],
             ]
         );
-    }
-
-    /**
-     * @return iterable<string, array{sendMail: bool, mailExpected: bool}>
-     */
-    public static function sendMailFlagProvider(): iterable
-    {
-        yield 'send order confirmation mail by default option' => [
-            'sendMail' => true,
-            'mailExpected' => true,
-        ];
-
-        yield 'suppress order confirmation mail when disabled' => [
-            'sendMail' => false,
-            'mailExpected' => false,
-        ];
     }
 
     private function createAdditionalOrderPlacedMailFlow(): string

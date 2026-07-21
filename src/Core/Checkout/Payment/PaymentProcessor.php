@@ -16,7 +16,6 @@ use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenGenerator;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenLifecycle;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -69,7 +68,7 @@ class PaymentProcessor
         ?string $finishUrl = null,
         ?string $errorUrl = null,
     ): ?RedirectResponse {
-        $transaction = $this->getCurrentOrderTransaction($orderId, $salesChannelContext->getContext());
+        $transaction = $this->getCurrentOrderTransaction($orderId, $salesChannelContext);
         if (!$transaction) {
             return null;
         }
@@ -200,29 +199,21 @@ class PaymentProcessor
         }
     }
 
-    private function getCurrentOrderTransaction(string $orderId, Context $context): ?OrderTransactionEntity
+    private function getCurrentOrderTransaction(string $orderId, SalesChannelContext $salesChannelContext): ?OrderTransactionEntity
     {
+        $initialStateId = $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE);
         $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('stateId', $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE)))
             ->addFilter(new EqualsFilter('orderId', $orderId))
-            ->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING))
-            ->setLimit(1);
+            ->addFilter(new EqualsFilter('order.orderCustomer.customerId', $salesChannelContext->getCustomer()?->getId()))
+            ->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
 
-        $transaction = $this->orderTransactionRepository->search($criteria, $context)->getEntities()->first();
+        $transactions = $this->orderTransactionRepository->search($criteria, $salesChannelContext->getContext())->getEntities();
 
-        if (!$transaction) {
-            // check, if there are no transactions at all or just not with non-initial state
-            $criteria->resetFilters();
-            $criteria->addFilter(new EqualsFilter('orderId', $orderId));
-
-            if ($this->orderTransactionRepository->searchIds($criteria, $context)->firstId()) {
-                return null;
-            }
-
+        if ($transactions->count() === 0) {
             throw PaymentException::invalidOrder($orderId);
         }
 
-        return $transaction;
+        return $transactions->filterByProperty('stateId', $initialStateId)->first();
     }
 
     private function getOldToken(OrderTransactionEntity $transaction, ?string $finishUrl, ?string $errorUrl, SalesChannelContext $salesChannelContext): string

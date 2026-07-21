@@ -59,14 +59,12 @@ class SsoUserInvitationMailService
 
         $user = $this->getUserById($apiSource->getUserId(), $context);
         $shopName = $this->systemConfigService->get('core.basicInformation.shopName');
-        $senderMail = $this->systemConfigService->get('core.basicInformation.email');
         $mailTemplate = $this->getMailTemplate($localeId, $context);
 
         $mailData = new DataBag();
         $mailData->set('templateId', $mailTemplate?->getId());
         $mailData->set('recipients', [$recipientEmail => $recipientEmail]);
         $mailData->set('senderName', $shopName);
-        $mailData->set('senderEmail', $user?->getEmail() ?? $senderMail);
         $mailData->set('subject', $mailTemplate?->getTranslation('subject'));
         $mailData->set('contentPlain', $mailTemplate?->getTranslation('contentPlain'));
         $mailData->set('contentHtml', $mailTemplate?->getTranslation('contentHtml'));
@@ -75,12 +73,12 @@ class SsoUserInvitationMailService
         $templateVariables->set('nameOfInviter', $this->createInviterName($user));
         $templateVariables->set('storeName', $shopName);
         $templateVariables->set('invitedEmailAddress', $recipientEmail);
-        $templateVariables->set('signupUrl', $this->createSingUpUrl());
+        $templateVariables->set('signupUrl', $this->createSignUpUrl());
 
         $this->mailService->send($mailData->all(), $context, $templateVariables->all());
     }
 
-    private function createSingUpUrl(): string
+    private function createSignUpUrl(): string
     {
         return $this->appUrl . $this->urlGenerator->generate(self::ADMIN_ROUTE_NAME);
     }
@@ -111,7 +109,7 @@ class SsoUserInvitationMailService
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', 'admin_sso_user_invite'));
 
-        $result = $this->mailTemplateTypeRepository->search($criteria, $newContext)->first();
+        $result = $this->mailTemplateTypeRepository->search($criteria, $newContext)->getEntities()->first();
         if (!$result instanceof MailTemplateTypeEntity) {
             throw SsoException::mailTemplateNotFound();
         }
@@ -127,7 +125,7 @@ class SsoUserInvitationMailService
             )
         );
 
-        return $this->mailTemplateRepository->search($criteria, $newContext)->first();
+        return $this->mailTemplateRepository->search($criteria, $newContext)->getEntities()->first();
     }
 
     private function createInviterName(?UserEntity $user): string
@@ -153,7 +151,7 @@ class SsoUserInvitationMailService
             return null;
         }
 
-        return $this->userRepository->search(new Criteria([$userId]), $context)->first();
+        return $this->userRepository->search(new Criteria([$userId]), $context)->getEntities()->first();
     }
 
     private function getLanguageForLocale(string $localeId, Context $context): ?LanguageEntity
@@ -161,6 +159,6 @@ class SsoUserInvitationMailService
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('localeId', $localeId));
 
-        return $this->languageRepository->search($criteria, $context)->first();
+        return $this->languageRepository->search($criteria, $context)->getEntities()->first();
     }
 }

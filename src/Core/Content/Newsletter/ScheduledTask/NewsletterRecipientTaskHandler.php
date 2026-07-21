@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Newsletter\ScheduledTask;
 
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Framework\Context;
@@ -30,7 +31,8 @@ final class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $scheduledTaskRepository,
         LoggerInterface $logger,
-        private readonly EntityRepository $newsletterRecipientRepository
+        private readonly EntityRepository $newsletterRecipientRepository,
+        private readonly ClockInterface $clock,
     ) {
         parent::__construct($scheduledTaskRepository, $logger);
     }
@@ -55,7 +57,7 @@ final class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
     {
         $criteria = new Criteria();
 
-        $dateTime = (new \DateTime())->add(\DateInterval::createFromDateString('-30 days'));
+        $dateTime = $this->clock->now()->modify('-30 days');
 
         $criteria->addFilter(new RangeFilter(
             'createdAt',

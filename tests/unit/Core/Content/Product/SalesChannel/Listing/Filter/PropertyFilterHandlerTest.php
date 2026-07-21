@@ -29,7 +29,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,7 +46,7 @@ class PropertyFilterHandlerTest extends TestCase
     {
         $request = new Request([], ['property-filter' => false]);
         $request->setMethod(Request::METHOD_POST);
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $connection = $this->createMock(Connection::class);
 
         $connection->expects($this->never())
@@ -61,7 +63,7 @@ class PropertyFilterHandlerTest extends TestCase
     {
         $request = new Request([], ['properties' => '']);
         $request->setMethod(Request::METHOD_POST);
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $connection = $this->createMock(Connection::class);
 
         $connection->expects($this->never())
@@ -98,7 +100,7 @@ class PropertyFilterHandlerTest extends TestCase
 
         $request->setMethod(Request::METHOD_POST);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $connection = $this->createMock(Connection::class);
 
@@ -131,7 +133,7 @@ class PropertyFilterHandlerTest extends TestCase
 
         $request->setMethod(Request::METHOD_POST);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $connection = $this->createMock(Connection::class);
 
@@ -159,7 +161,7 @@ class PropertyFilterHandlerTest extends TestCase
         $request = new Request([], [PropertyListingFilterHandler::PROPERTY_GROUP_IDS_REQUEST_PARAM => ['color', 'size']]);
         $request->setMethod(Request::METHOD_POST);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $connection = $this->createMock(Connection::class);
 
         $connection->expects($this->never())
@@ -197,8 +199,8 @@ class PropertyFilterHandlerTest extends TestCase
         $request = new Request();
         $request->setMethod(Request::METHOD_POST);
 
-        $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getContext')->willReturn(Context::createDefaultContext());
+        $languageInfo = new LanguageInfo(Generator::LANGUAGE_INFO_NAME, Generator::LANGUAGE_INFO_LOCALE_CODE);
+        $context = Generator::generateSalesChannelContext(languageInfo: $languageInfo);
 
         /** @var StaticEntityRepository<PropertyGroupCollection> $groupRepository */
         $groupRepository = new StaticEntityRepository([
@@ -259,7 +261,7 @@ class PropertyFilterHandlerTest extends TestCase
         $handler = new PropertyListingFilterHandler(
             $groupRepository,
             $repository,
-            $this->createMock(Connection::class)
+            static::createStub(Connection::class)
         );
 
         $result = new ProductListingResult(

@@ -30,48 +30,45 @@ class ContextControllerUnitTest extends TestCase
     public function testSwitchLangNoArgument(): void
     {
         $controller = new ContextController(
-            $this->createMock(ContextSwitchRoute::class),
-            $this->createMock(RequestStack::class),
-            $this->createMock(RouterInterface::class)
+            static::createStub(ContextSwitchRoute::class),
+            static::createStub(RequestStack::class),
+            static::createStub(RouterInterface::class)
         );
 
-        $this->expectException(RoutingException::class);
-        $this->expectExceptionMessage('Parameter "languageId" is missing.');
+        $this->expectExceptionObject(RoutingException::missingRequestParameter('languageId'));
 
-        $controller->switchLanguage(new Request(), $this->createMock(SalesChannelContext::class));
+        $controller->switchLanguage(new Request(), static::createStub(SalesChannelContext::class));
     }
 
     public function testSwitchLangNoString(): void
     {
         $controller = new ContextController(
-            $this->createMock(ContextSwitchRoute::class),
-            $this->createMock(RequestStack::class),
-            $this->createMock(RouterInterface::class)
+            static::createStub(ContextSwitchRoute::class),
+            static::createStub(RequestStack::class),
+            static::createStub(RouterInterface::class)
         );
 
-        $this->expectException(RoutingException::class);
-        $this->expectExceptionMessage('The parameter "languageId" is invalid.');
+        $this->expectExceptionObject(RoutingException::invalidRequestParameter('languageId'));
 
         $controller->switchLanguage(
             new Request([], ['languageId' => 1]),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
     }
 
     public function testSwitchLangNoValidUuid(): void
     {
         $controller = new ContextController(
-            $this->createMock(ContextSwitchRoute::class),
-            $this->createMock(RequestStack::class),
-            $this->createMock(RouterInterface::class)
+            static::createStub(ContextSwitchRoute::class),
+            static::createStub(RequestStack::class),
+            static::createStub(RouterInterface::class)
         );
 
-        $this->expectException(RoutingException::class);
-        $this->expectExceptionMessage('The parameter "languageId" is invalid.');
+        $this->expectExceptionObject(RoutingException::invalidRequestParameter('languageId'));
 
         $controller->switchLanguage(
             new Request([], ['languageId' => 'noUuid']),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
     }
 
@@ -83,18 +80,17 @@ class ContextControllerUnitTest extends TestCase
         );
         $controller = new ContextController(
             $contextSwitchRoute,
-            $this->createMock(RequestStack::class),
-            $this->createMock(RouterInterface::class)
+            static::createStub(RequestStack::class),
+            static::createStub(RouterInterface::class)
         );
 
         $notExistingLang = Uuid::randomHex();
 
-        $this->expectException(RoutingException::class);
-        $this->expectExceptionMessage(\sprintf('Could not find language with id "%s"', $notExistingLang));
+        $this->expectExceptionObject(RoutingException::languageNotFound($notExistingLang));
 
         $controller->switchLanguage(
             new Request([], ['languageId' => $notExistingLang]),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
     }
 
@@ -124,7 +120,7 @@ class ContextControllerUnitTest extends TestCase
             $routerMock
         );
 
-        $contextMock = $this->createMock(SalesChannelContext::class);
+        $contextMock = static::createStub(SalesChannelContext::class);
 
         $controller->switchLanguage(
             new Request([], ['languageId' => Defaults::LANGUAGE_SYSTEM, 'redirectTo' => null]),
@@ -160,7 +156,7 @@ class ContextControllerUnitTest extends TestCase
 
         $notExistingRedirectTo = 'frontend.homer.page';
 
-        $contextMock = $this->createMock(SalesChannelContext::class);
+        $contextMock = static::createStub(SalesChannelContext::class);
 
         $controller->switchLanguage(
             new Request([], ['languageId' => Defaults::LANGUAGE_SYSTEM, 'redirectTo' => $notExistingRedirectTo]),
@@ -196,7 +192,7 @@ class ContextControllerUnitTest extends TestCase
 
         $existingRedirectTo = 'frontend.home.page';
 
-        $contextMock = $this->createMock(SalesChannelContext::class);
+        $contextMock = static::createStub(SalesChannelContext::class);
 
         $controller->switchLanguage(
             new Request([], ['languageId' => Defaults::LANGUAGE_SYSTEM, 'redirectTo' => $existingRedirectTo]),

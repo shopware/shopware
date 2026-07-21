@@ -1,6 +1,3 @@
-@import "~scss/variables";
-@import "~scss/mixins";
-
 .sw-field.sw-field--compact-colorpicker {
     margin-bottom: 0;
 
@@ -29,7 +26,7 @@
 
     .sw-colorpicker__previewWrapper {
         position: initial;
-        border: 1px solid $color-gray-300;
+        border: 1px solid var(--color-border-secondary-default);
         border-radius: 2px;
         height: 16px;
         width: 16px;

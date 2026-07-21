@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Cms\ProductSlider;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
@@ -12,7 +13,10 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
+use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
@@ -34,9 +38,10 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
      * @param SalesChannelRepository<ProductCollection> $productRepository
      */
     public function __construct(
-        private readonly ProductStreamBuilderInterface $productStreamBuilder,
+        private readonly ProductStreamBuilderInterface|AbstractProductStreamBuilder $productStreamBuilder,
         private readonly SalesChannelRepository $productRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -55,6 +60,9 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         $products = $config->get('products');
         \assert($products instanceof FieldConfig);
         $criteria = $this->collectByProductStream($resolverContext, $products, $config);
+        if ($criteria === null) {
+            return null;
+        }
 
         $this->eventDispatcher->dispatch(new ProductSliderStreamCriteriaEvent($slot, $criteria, $resolverContext->getSalesChannelContext()));
 
@@ -99,20 +107,43 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         ResolverContext $resolverContext,
         FieldConfig $config,
         FieldConfigCollection $elementConfig
-    ): Criteria {
-        $filters = $this->productStreamBuilder->buildFilters(
-            $config->getStringValue(),
-            $resolverContext->getSalesChannelContext()->getContext()
-        );
-
+    ): ?Criteria {
         $limit = $elementConfig->get('productStreamLimit')?->getIntValue() ?? self::FALLBACK_LIMIT;
 
         $criteria = new Criteria();
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-        $criteria->addFilter(...$filters);
+
+        try {
+            $productStreamBuilder = $this->productStreamBuilder;
+            if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
+                $productStreamBuilder->enrichCriteria(
+                    $criteria,
+                    $config->getStringValue(),
+                    $resolverContext->getSalesChannelContext()->getContext()
+                );
+            } else {
+                $criteria->addFilter(...$productStreamBuilder->buildFilters(
+                    $config->getStringValue(),
+                    $resolverContext->getSalesChannelContext()->getContext()
+                ));
+            }
+        } catch (EntityNotFoundException $exception) {
+            $this->logger->warning(
+                'Product stream configured for CMS product slider could not be found.',
+                [
+                    'productStreamId' => $config->getStringValue(),
+                    'exception' => $exception,
+                ]
+            );
+
+            return null;
+        }
+
         $criteria->setLimit($limit);
 
-        $this->addGrouping($criteria);
+        if (!$this->shouldSkipGrouping($criteria)) {
+            $this->addGrouping($criteria);
+        }
         $sorting = $elementConfig->get('productStreamSorting')?->getStringValue() ?? 'name:' . FieldSorting::ASCENDING;
 
         if ($sorting === 'random') {
@@ -133,6 +164,10 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         SalesChannelContext $context,
         Criteria $originCriteria
     ): ProductCollection {
+        if ($this->shouldSkipGrouping($originCriteria)) {
+            return $streamResult;
+        }
+
         $finalProductIds = $this->collectFinalProductIds($streamResult);
         if ($finalProductIds === []) {
             return new ProductCollection();
@@ -195,5 +230,10 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         foreach ($fields as $field) {
             $criteria->addSorting(new FieldSorting($field, $direction));
         }
+    }
+
+    private function shouldSkipGrouping(Criteria $criteria): bool
+    {
+        return $criteria->hasState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
     }
 }

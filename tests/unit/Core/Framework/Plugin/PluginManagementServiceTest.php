@@ -39,11 +39,11 @@ class PluginManagementServiceTest extends TestCase
 
         $pluginManagementService = new PluginManagementService(
             '',
-            $this->createMock(PluginZipDetector::class),
+            static::createStub(PluginZipDetector::class),
             $extractor,
             $pluginService,
-            $this->createMock(Filesystem::class),
-            $this->createMock(CacheClearer::class),
+            static::createStub(Filesystem::class),
+            static::createStub(CacheClearer::class),
             $client
         );
 
@@ -57,7 +57,7 @@ class PluginManagementServiceTest extends TestCase
     {
         $client = $this->createClient([new Response()]);
 
-        $pluginService = $this->createMock(PluginService::class);
+        $pluginService = static::createStub(PluginService::class);
 
         $pluginZipDetector = $this->createMock(PluginZipDetector::class);
         $pluginZipDetector->expects($this->once())
@@ -79,7 +79,7 @@ class PluginManagementServiceTest extends TestCase
             $pluginZipDetector,
             $extractor,
             $pluginService,
-            $this->createMock(Filesystem::class),
+            static::createStub(Filesystem::class),
             $cacheClearer,
             $client
         );
@@ -93,7 +93,7 @@ class PluginManagementServiceTest extends TestCase
     {
         $client = $this->createClient([new Response()]);
 
-        $pluginService = $this->createMock(PluginService::class);
+        $pluginService = static::createStub(PluginService::class);
 
         $pluginZipDetector = $this->createMock(PluginZipDetector::class);
         $pluginZipDetector->expects($this->once())
@@ -111,8 +111,8 @@ class PluginManagementServiceTest extends TestCase
             $pluginZipDetector,
             $extractor,
             $pluginService,
-            $this->createMock(Filesystem::class),
-            $this->createMock(CacheClearer::class),
+            static::createStub(Filesystem::class),
+            static::createStub(CacheClearer::class),
             $client
         );
 
@@ -131,11 +131,11 @@ class PluginManagementServiceTest extends TestCase
 
         $pluginManagementService = new PluginManagementService(
             '',
-            $this->createMock(PluginZipDetector::class),
-            $this->createMock(ExtensionExtractor::class),
+            static::createStub(PluginZipDetector::class),
+            static::createStub(ExtensionExtractor::class),
             $pluginService,
-            $this->createMock(Filesystem::class),
-            $this->createMock(CacheClearer::class),
+            static::createStub(Filesystem::class),
+            static::createStub(CacheClearer::class),
             $client
         );
 
@@ -152,11 +152,11 @@ class PluginManagementServiceTest extends TestCase
 
         $pluginManagementService = new PluginManagementService(
             '',
-            $this->createMock(PluginZipDetector::class),
-            $this->createMock(ExtensionExtractor::class),
-            $this->createMock(PluginService::class),
+            static::createStub(PluginZipDetector::class),
+            static::createStub(ExtensionExtractor::class),
+            static::createStub(PluginService::class),
             $fs,
-            $this->createMock(CacheClearer::class),
+            static::createStub(CacheClearer::class),
             new Client(['handler' => new MockHandler()])
         );
 
@@ -176,11 +176,11 @@ class PluginManagementServiceTest extends TestCase
 
         $pluginManagementService = new PluginManagementService(
             '',
-            $this->createMock(PluginZipDetector::class),
-            $this->createMock(ExtensionExtractor::class),
-            $this->createMock(PluginService::class),
+            static::createStub(PluginZipDetector::class),
+            static::createStub(ExtensionExtractor::class),
+            static::createStub(PluginService::class),
             $fs,
-            $this->createMock(CacheClearer::class),
+            static::createStub(CacheClearer::class),
             new Client(['handler' => new MockHandler()])
         );
 
@@ -200,11 +200,11 @@ class PluginManagementServiceTest extends TestCase
 
         $pluginManagementService = new PluginManagementService(
             '',
-            $this->createMock(PluginZipDetector::class),
-            $this->createMock(ExtensionExtractor::class),
-            $this->createMock(PluginService::class),
+            static::createStub(PluginZipDetector::class),
+            static::createStub(ExtensionExtractor::class),
+            static::createStub(PluginService::class),
             $fs,
-            $this->createMock(CacheClearer::class),
+            static::createStub(CacheClearer::class),
             new Client(['handler' => new MockHandler()])
         );
 

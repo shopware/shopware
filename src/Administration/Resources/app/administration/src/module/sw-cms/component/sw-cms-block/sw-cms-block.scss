@@ -1,8 +1,6 @@
-@import "~scss/variables";
-
-$sw-cms-block-color-active: $color-shopware-brand-500;
-$sw-cms-block-color-error: $color-crimson-500;
-$sw-cms-block-color-warning: $color-pumpkin-spice-500;
+$sw-cms-block-color-active: var(--color-text-brand-default);
+$sw-cms-block-color-error: var(--color-icon-critical-default);
+$sw-cms-block-color-warning: var(--color-icon-attention-default);
 
 .sw-cms-block {
     position: relative;

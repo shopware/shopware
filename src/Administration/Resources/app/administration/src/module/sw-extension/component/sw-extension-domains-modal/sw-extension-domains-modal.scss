@@ -18,7 +18,7 @@
         padding: var(--scale-size-10) 0;
 
         &:not(:last-child) {
-            border-bottom: 1px solid var(--color-border-primary-default);
+            border-bottom: 1px solid var(--color-border-secondary-default);
         }
     }
 }

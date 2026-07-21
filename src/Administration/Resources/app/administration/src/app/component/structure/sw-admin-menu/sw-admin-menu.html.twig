@@ -101,7 +101,7 @@
             @mouseenter="openUserActions"
         >
 
-            <sw-loader
+            <mt-loader
                 v-if="isUserLoading"
                 size="32px"
             />
@@ -212,6 +212,7 @@
                     :entry="entry"
                     :border-color="flyoutColor"
                     :display-icon="false"
+                    @menu-item-enter="onSubMenuItemEnter"
                 />
             </template>
         </ul>

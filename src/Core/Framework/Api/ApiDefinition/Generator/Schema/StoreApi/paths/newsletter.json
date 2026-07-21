@@ -46,12 +46,17 @@
                         }
                     },
                     "400": {
-                      "$ref": "#/components/responses/400"
+                        "$ref": "#/components/responses/400"
                     }
                 },
                 "security": [
                     {
                         "ApiKey": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }
@@ -133,16 +138,17 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "required": ["success","status"],
+                                    "required": [
+                                        "success",
+                                        "status"
+                                    ],
                                     "properties": {
                                         "success": {
-                                          "description": "Indicates whether the subscribe request was successful.",
-                                          "type": "boolean"
+                                            "description": "Indicates whether the subscribe request was successful.",
+                                            "type": "boolean"
                                         },
                                         "status": {
-                                            "description": "The subscription status.",
-                                            "type": "string",
-                                            "enum": ["notSet", "optIn", "optOut", "direct"]
+                                            "$ref": "#/components/schemas/NewsletterStatus"
                                         }
                                     },
                                     "type": "object"
@@ -157,6 +163,11 @@
                 "security": [
                     {
                         "ApiKey": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }
@@ -206,6 +217,11 @@
                 "security": [
                     {
                         "ApiKey": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }

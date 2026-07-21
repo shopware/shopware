@@ -10,7 +10,7 @@
       "deleteDisabledProductToolTip": "The layout you want to delete is still assigned to at least one product.",
       "deleteDisabledLandingPageToolTip": "The layout you want to delete is still assigned to at least one landing page.",
       "disabledAddingBlocksToolTip": "Adding blocks only works in your default system language.",
-      "privacyNotice": "By selecting continue you confirm that you have read our <a href=\"%privacyUrl%\">data protection information</a> and accepted our <a href=\"%tosUrl%\">general terms and conditions</a>."
+      "privacyNotice": "I have acknowledged the <a href=\"%privacyUrl%\">privacy policy</a> and have read and agree to the <a href=\"%tosUrl%\">general terms and conditions</a>."
     },
     "inherit": {
       "tooltip": "This field does not exist on the base layout and cannot be inherited.",
@@ -88,8 +88,7 @@
       "chooseSectionTitle": "Choose a section type to start with.",
       "chooseSectionHelpText": "Sections divide your working space into areas and help you to be more creative. You may combine different sections and move or delete them at any time.",
       "chooseNameTitle": "How do you want to label your new layout?",
-      "createLayout": "Create layout",
-      "stepBack": "Back"
+      "createLayout": "Create layout"
     },
     "detail": {
       "alert": {
@@ -100,7 +99,6 @@
         "cssClassField": "You can add one or more CSS classes separated by spaces"
       },
       "label": {
-        "buttonSave": "Save",
         "pageName": "Layout name",
         "pageNamePlaceholder": "Enter layout name...",
         "pageEntity": "Custom Entity",
@@ -266,7 +264,7 @@
           },
           "helpText": {
             "ariaLabel": "This text will be read out by screen readers as link text.",
-            "minHeight": "Enter the minimum height with your desired unit. For example: 200px",
+            "minHeight": "Enter the minimum height. A plain number is treated as pixels. For example, \"200\" becomes \"200px\".",
             "fetchPriorityHigh": "Activate this option if the image is the first one on the page. The image will then be assigned the attribute 'fetchpriority=\"high\"', telling the browser to load it with higher priority. This can help improve the Largest Contentful Paint (LCP).",
             "useFetchPriorityOnFirstItem": "When this option is enabled, the first image is loaded with a higher priority. This can improve the speed at which the page is rendered in the browser.",
             "isDecorative": "When this option is enabled, the image information will not be read out by screen readers. This means that the \"alt\" and \"title\" tags will remain empty."
@@ -501,7 +499,7 @@
             "autoPlay": "Play automatically",
             "loop": "Play in a loop",
             "showControls": "Show controls",
-            "controlsColor": "Change controls color",
+            "controlsColor": "Change controls colour",
             "byLine": "Show video creator",
             "showPortrait": "Show picture of the creator",
             "showTitle": "Show video title",
@@ -650,7 +648,10 @@
         }
       },
       "productName": {
-        "label": "Product Name"
+        "label": "Product name"
+      },
+      "categoryName": {
+        "label": "Category name"
       },
       "html": {
         "label": "HTML",
@@ -662,6 +663,9 @@
     },
     "blocks": {
       "commerce": {
+        "categoryHeading": {
+          "label": "Category name"
+        },
         "productHeading": {
           "label": "Product name & manufacturer logo"
         },
@@ -871,10 +875,7 @@
       },
       "cmsListItem": {
         "emptyText": "No layout assigned",
-        "edit": "Edit",
         "rename": "Rename",
-        "delete": "Delete",
-        "duplicate": "Duplicate",
         "view": "View",
         "addPreviewImage": "Add preview image",
         "setAsDefaultProductList": "Set as product listing default",
@@ -888,8 +889,7 @@
           "renameModalTitle": "Rename layout",
           "textRenameConfirm": "Choose a new name for \"{pageName}\":",
           "textDeleteConfirm": "Are you sure you really want to delete the layout \"{pageName}\"?",
-          "buttonRename": "Rename",
-          "buttonDelete": "Delete"
+          "buttonRename": "Rename"
         }
       }
     }

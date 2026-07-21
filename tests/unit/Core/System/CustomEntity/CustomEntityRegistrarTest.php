@@ -74,12 +74,12 @@ class CustomEntityRegistrarTest extends TestCase
 
         $container->set(Connection::class, $connection);
         $container->set(DefinitionInstanceRegistry::class, new DefinitionInstanceRegistry($container, [], []));
-        $container->set(EntityReaderInterface::class, $this->createMock(EntityReaderInterface::class));
-        $container->set(VersionManager::class, $this->createMock(VersionManager::class));
-        $container->set(EntitySearcherInterface::class, $this->createMock(EntitySearcherInterface::class));
-        $container->set(EntityAggregatorInterface::class, $this->createMock(EntityAggregatorInterface::class));
-        $container->set('event_dispatcher', $this->createMock(EventDispatcherInterface::class));
-        $container->set(EntityLoadedEventFactory::class, $this->createMock(EntityLoadedEventFactory::class));
+        $container->set(EntityReaderInterface::class, static::createStub(EntityReaderInterface::class));
+        $container->set(VersionManager::class, static::createStub(VersionManager::class));
+        $container->set(EntitySearcherInterface::class, static::createStub(EntitySearcherInterface::class));
+        $container->set(EntityAggregatorInterface::class, static::createStub(EntityAggregatorInterface::class));
+        $container->set('event_dispatcher', static::createStub(EventDispatcherInterface::class));
+        $container->set(EntityLoadedEventFactory::class, static::createStub(EntityLoadedEventFactory::class));
 
         $registrar = new CustomEntityRegistrar($container);
 
@@ -117,12 +117,12 @@ class CustomEntityRegistrarTest extends TestCase
 
         $container->set(Connection::class, $connection);
         $container->set(DefinitionInstanceRegistry::class, new DefinitionInstanceRegistry($container, [], []));
-        $container->set(EntityReaderInterface::class, $this->createMock(EntityReaderInterface::class));
-        $container->set(VersionManager::class, $this->createMock(VersionManager::class));
-        $container->set(EntitySearcherInterface::class, $this->createMock(EntitySearcherInterface::class));
-        $container->set(EntityAggregatorInterface::class, $this->createMock(EntityAggregatorInterface::class));
-        $container->set('event_dispatcher', $this->createMock(EventDispatcherInterface::class));
-        $container->set(EntityLoadedEventFactory::class, $this->createMock(EntityLoadedEventFactory::class));
+        $container->set(EntityReaderInterface::class, static::createStub(EntityReaderInterface::class));
+        $container->set(VersionManager::class, static::createStub(VersionManager::class));
+        $container->set(EntitySearcherInterface::class, static::createStub(EntitySearcherInterface::class));
+        $container->set(EntityAggregatorInterface::class, static::createStub(EntityAggregatorInterface::class));
+        $container->set('event_dispatcher', static::createStub(EventDispatcherInterface::class));
+        $container->set(EntityLoadedEventFactory::class, static::createStub(EntityLoadedEventFactory::class));
 
         $registrar = new CustomEntityRegistrar($container);
 

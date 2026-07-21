@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1696515133AddCheckoutGatewayUrl;
+use Shopware\Core\Migration\V6_7\Migration1743151679AddContextGatewayUrl;
 
 /**
  * @internal
@@ -18,6 +19,11 @@ use Shopware\Core\Migration\V6_6\Migration1696515133AddCheckoutGatewayUrl;
 class Migration1743151679AddContextGatewayUrlTest extends TestCase
 {
     use KernelTestBehaviour;
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1743151679, (new Migration1743151679AddContextGatewayUrl())->getCreationTimestamp());
+    }
 
     public function testMigration(): void
     {

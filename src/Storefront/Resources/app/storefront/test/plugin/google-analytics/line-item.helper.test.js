@@ -11,6 +11,7 @@ describe('plugin/google-analytics/line-item.helper', () => {
                 <div class="hidden-line-items-information" data-currency="EUR" data-value="199.98">
                     <span class="hidden-line-item"
                         data-id="product-123"
+                        data-sku="product-123"
                         data-name="Test Product"
                         data-quantity="2"
                         data-price="99.99"
@@ -61,12 +62,14 @@ describe('plugin/google-analytics/line-item.helper', () => {
                 <div class="hidden-line-items-information" data-currency="EUR" data-value="150.00">
                     <span class="hidden-line-item"
                         data-id="product-1"
+                        data-sku="product-1"
                         data-name="Product 1"
                         data-quantity="1"
                         data-price="50.00">
                     </span>
                     <span class="hidden-line-item"
                         data-id="product-2"
+                        data-sku="product-2"
                         data-name="Product 2"
                         data-quantity="2"
                         data-price="50.00">
@@ -133,6 +136,7 @@ describe('plugin/google-analytics/line-item.helper', () => {
                 <div class="hidden-line-items-information" data-currency="EUR" data-value="199.98">
                     <span class="hidden-line-item"
                         data-id="product-123"
+                        data-sku="product-123"
                         data-name="Test Product"
                         data-quantity="2"
                         data-price="99.99"
@@ -144,6 +148,7 @@ describe('plugin/google-analytics/line-item.helper', () => {
             const productData = LineItemHelper.getProductData('product-123');
 
             expect(productData).toEqual({
+                id: 'product-123',
                 name: 'Test Product',
                 brand: 'Test Brand',
                 value: '99.99',
@@ -157,6 +162,7 @@ describe('plugin/google-analytics/line-item.helper', () => {
                 <div class="hidden-line-items-information" data-currency="USD" data-value="75.00">
                     <span class="hidden-line-item"
                         data-id="product-456"
+                        data-sku="product-456"
                         data-name="Categorized Product"
                         data-price="25.00"
                         data-brand="Brand"
@@ -169,6 +175,7 @@ describe('plugin/google-analytics/line-item.helper', () => {
             const productData = LineItemHelper.getProductData('product-456');
 
             expect(productData).toEqual({
+                id: 'product-456',
                 name: 'Categorized Product',
                 brand: 'Brand',
                 value: '25.00',
@@ -185,11 +192,13 @@ describe('plugin/google-analytics/line-item.helper', () => {
                 <div class="hidden-line-items-information" data-currency="EUR" data-value="150.00">
                     <span class="hidden-line-item"
                         data-id="product-1"
+                        data-sku="product-1"
                         data-name="First Product"
                         data-price="50.00">
                     </span>
                     <span class="hidden-line-item"
                         data-id="product-2"
+                        data-sku="product-2"
                         data-name="Second Product"
                         data-price="100.00"
                         data-brand="Second Brand">
@@ -200,6 +209,7 @@ describe('plugin/google-analytics/line-item.helper', () => {
             const productData = LineItemHelper.getProductData('product-2');
 
             expect(productData).toEqual({
+                id: 'product-2',
                 name: 'Second Product',
                 brand: 'Second Brand',
                 value: '100.00',

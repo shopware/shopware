@@ -290,6 +290,11 @@ export default class FormValidation {
             return field.checked;
         }
 
+        if (fieldType && fieldType === 'radio') {
+            const radios = field.form.querySelectorAll(`[type="radio"][name="${field.name}"]`);
+            return [...radios].some(radioField => radioField.checked);
+        }
+
         return !!value && value.length && value.length > 0;
     }
 
@@ -303,6 +308,11 @@ export default class FormValidation {
     validateEmail(value) {
         // https://regex101.com/r/bfI8Ea/1
         const emailRegEx = /^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+
+        if (!value || value.length === 0) {
+            return true;
+        }
+
         let emailAddress = value;
 
         if (emailAddress.includes('@')) {

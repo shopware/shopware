@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\Connection;
 use horstoeko\zugferd\codelists\ZugferdInvoiceType;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
@@ -41,6 +42,7 @@ class ZugferdRenderer extends AbstractDocumentRenderer
         protected EventDispatcherInterface $eventDispatcher,
         protected DocumentConfigLoader $documentConfigLoader,
         protected NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -102,7 +104,7 @@ class ZugferdRenderer extends AbstractDocumentRenderer
 
         $number = $config->getDocumentNumber() ?: $this->getNumber($context, $order, $operation);
 
-        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $now = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $config->merge([
             'documentDate' => $operation->getConfig()['documentDate'] ?? $now,

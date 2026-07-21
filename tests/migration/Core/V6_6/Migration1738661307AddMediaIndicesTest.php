@@ -24,6 +24,11 @@ class Migration1738661307AddMediaIndicesTest extends TestCase
         $this->connection = static::getContainer()->get(Connection::class);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1738661307, (new Migration1738661307AddMediaIndices())->getCreationTimestamp());
+    }
+
     public function testTimestamp(): void
     {
         static::assertSame(1738661307, (new Migration1738661307AddMediaIndices())->getCreationTimestamp());

@@ -6,6 +6,7 @@ use Composer\InstalledVersions;
 use Composer\IO\NullIO;
 use Composer\Semver\Comparator;
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
@@ -47,6 +48,9 @@ use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
+use Shopware\Core\System\CustomField\CustomFieldSetPersister;
+use Shopware\Core\System\CustomField\CustomFieldXmlLoader;
+use Shopware\Core\System\CustomField\Xml\CustomFields;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -98,6 +102,8 @@ class PluginLifecycleService
         private readonly VersionSanitizer $versionSanitizer,
         private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly RequestStack $requestStack,
+        private readonly CustomFieldSetPersister $customFieldSetPersister,
+        private readonly ClockInterface $clock,
     ) {
         $this->originalEventDispatcher = $eventDispatcher;
     }
@@ -141,7 +147,7 @@ class PluginLifecycleService
                 $plugin->setVersion($updateVersion);
                 $pluginData['upgradeVersion'] = null;
                 $plugin->setUpgradeVersion(null);
-                $upgradeDate = new \DateTime();
+                $upgradeDate = $this->clock->now();
                 $pluginData['upgradedAt'] = $upgradeDate->format(Defaults::STORAGE_DATE_TIME_FORMAT);
                 $plugin->setUpgradedAt($upgradeDate);
             }
@@ -154,7 +160,9 @@ class PluginLifecycleService
 
             $this->runMigrations($installContext);
 
-            $installDate = new \DateTime();
+            $this->syncPluginCustomFields($pluginBaseClass, $shopwareContext, false);
+
+            $installDate = $this->clock->now();
             $pluginData['installedAt'] = $installDate->format(Defaults::STORAGE_DATE_TIME_FORMAT);
             $plugin->setInstalledAt($installDate);
 
@@ -241,6 +249,7 @@ class PluginLifecycleService
 
         if (!$uninstallContext->keepUserData()) {
             $this->removeCustomEntities($plugin->getId());
+            $this->removePluginCustomFields($pluginBaseClass, $shopwareContext);
         }
 
         if ($pluginBaseClass->executeComposerCommands()) {
@@ -313,8 +322,10 @@ class PluginLifecycleService
 
         $this->runMigrations($updateContext);
 
+        $this->syncPluginCustomFields($pluginBaseClass, $shopwareContext, true);
+
         $updateVersion = $updateContext->getUpdatePluginVersion();
-        $updateDate = new \DateTime();
+        $updateDate = $this->clock->now();
         $this->updatePluginData(
             [
                 'id' => $plugin->getId(),
@@ -400,7 +411,21 @@ class PluginLifecycleService
 
         $this->signalWorkerStopInOldCacheDir();
 
-        $this->eventDispatcher->dispatch(new PluginPostActivateEvent($plugin, $activateContext));
+        try {
+            $this->eventDispatcher->dispatch(new PluginPostActivateEvent($plugin, $activateContext));
+        } catch (\Throwable $exception) {
+            $plugin->setActive(false);
+
+            $this->updatePluginData(
+                [
+                    'id' => $plugin->getId(),
+                    'active' => false,
+                ],
+                $shopwareContext
+            );
+
+            throw $exception;
+        }
 
         return $activateContext;
     }
@@ -541,6 +566,28 @@ class PluginLifecycleService
         $this->pluginService->refreshPlugins($context, new NullIO());
     }
 
+    private function syncPluginCustomFields(Plugin $pluginBaseClass, Context $context, bool $deleteMissingXml): void
+    {
+        $xmlFile = $pluginBaseClass->getPath() . '/Resources/config/custom-fields.xml';
+
+        if (!is_file($xmlFile)) {
+            if ($deleteMissingXml) {
+                $this->customFieldSetPersister->sync(CustomFields::fromArray([]), null, $pluginBaseClass->getName(), $context);
+            }
+
+            return;
+        }
+
+        $customFields = CustomFieldXmlLoader::load($xmlFile);
+
+        $this->customFieldSetPersister->sync($customFields, null, $pluginBaseClass->getName(), $context);
+    }
+
+    private function removePluginCustomFields(Plugin $pluginBaseClass, Context $context): void
+    {
+        $this->customFieldSetPersister->sync(CustomFields::fromArray([]), null, $pluginBaseClass->getName(), $context);
+    }
+
     private function removeCustomEntities(string $pluginId): void
     {
         $this->customEntityPersister->update([], PluginEntity::class, $pluginId);
@@ -615,7 +662,7 @@ class PluginLifecycleService
     {
         // Release session lock before container rebuild (to avoid holding file based session lock during long operation)
         $request = $this->requestStack->getCurrentRequest();
-        if ($request && $request->hasSession() && $request->getSession()->isStarted()) {
+        if ($request && $request->hasSession(true) && $request->getSession()->isStarted()) {
             $request->getSession()->save(); // Releases flock() on session file
         }
 
@@ -688,7 +735,7 @@ class PluginLifecycleService
     private function signalWorkerStopInOldCacheDir(): void
     {
         $cacheItem = $this->restartSignalCachePool->getItem(StopWorkerOnRestartSignalListener::RESTART_REQUESTED_TIMESTAMP_KEY);
-        $cacheItem->set(microtime(true));
+        $cacheItem->set((float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT));
         $this->restartSignalCachePool->save($cacheItem);
     }
 

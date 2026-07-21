@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldCollection;
@@ -22,6 +23,7 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 /**
  * @internal
  */
+#[Package('framework')]
 class CustomFieldServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -40,19 +42,17 @@ class CustomFieldServiceTest extends TestCase
     }
 
     /**
-     * @return list<array{CustomFieldTypes::*, class-string<Field>}>
+     * @return iterable<string, array{CustomFieldTypes::*, class-string<Field>}>
      */
-    public static function attributeFieldTestProvider(): array
+    public static function attributeFieldTestProvider(): iterable
     {
-        return [
-            [CustomFieldTypes::BOOL, BoolField::class],
-            [CustomFieldTypes::DATETIME, DateTimeField::class],
-            [CustomFieldTypes::FLOAT, FloatField::class],
-            [CustomFieldTypes::HTML, LongTextField::class],
-            [CustomFieldTypes::INT, IntField::class],
-            [CustomFieldTypes::JSON, JsonField::class],
-            [CustomFieldTypes::TEXT, LongTextField::class],
-        ];
+        yield 'attribute field test custom field types bool bool field' => [CustomFieldTypes::BOOL, BoolField::class];
+        yield 'attribute field test custom field types datetime date time field' => [CustomFieldTypes::DATETIME, DateTimeField::class];
+        yield 'attribute field test custom field types float float field' => [CustomFieldTypes::FLOAT, FloatField::class];
+        yield 'attribute field test custom field types html long text field' => [CustomFieldTypes::HTML, LongTextField::class];
+        yield 'attribute field test custom field types int int field' => [CustomFieldTypes::INT, IntField::class];
+        yield 'attribute field test custom field types json json field' => [CustomFieldTypes::JSON, JsonField::class];
+        yield 'attribute field test custom field types text long text field' => [CustomFieldTypes::TEXT, LongTextField::class];
     }
 
     /**

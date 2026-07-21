@@ -18,6 +18,7 @@
             <argument type="tagged_iterator" tag="shopware.demodata_generator" />
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <!-- Generators -->
@@ -27,6 +28,7 @@
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="shipping_method.repository"/>
             <argument type="service" id="Shopware\Core\Content\Rule\RuleDefinition"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
 
             <tag name="shopware.demodata_generator" option-name="rules" option-default="25"/>
         </service>

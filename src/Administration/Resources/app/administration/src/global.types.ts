@@ -30,6 +30,7 @@ import type ShopIdChangeService from 'src/core/service/api/shop-id-change.servic
 import type ProductTypeApiService from 'src/app/service/product-type.api.service';
 import type { ComponentInternalInstance, PropType as VuePropType } from 'vue';
 import type { I18n } from 'vue-i18n';
+import type { LegacyConditionCaseOptions } from 'src/app/component/structure/sw-block-override/shim/legacy-condition-context';
 import type {
     Store,
     mapActions as mapVuexActions,
@@ -73,6 +74,8 @@ import type NotificationMixin from './app/mixin/notification.mixin';
 import type ValidationMixin from './app/mixin/validation.mixin';
 import type UserSettingsMixin from './app/mixin/user-settings.mixin';
 import type SwInlineSnippetMixin from './app/mixin/sw-inline-snippet.mixin';
+import type TranslateWithFallbackMixin from './app/mixin/translate-with-fallback.mixin';
+import type NotificationTranslationMixin from './app/mixin/notification-translation.mixin';
 import type SalutationMixin from './app/mixin/salutation.mixin';
 import type RuleContainerMixin from './app/mixin/rule-container.mixin';
 import type RemoveApiErrorMixin from './app/mixin/remove-api-error.mixin';
@@ -84,6 +87,7 @@ import type SwExtensionErrorMixin from './module/sw-extension/mixin/sw-extension
 import type CmsElementMixin from './module/sw-cms/mixin/sw-cms-element.mixin';
 import type CmsStateMixin from './module/sw-cms/mixin/sw-cms-state.mixin';
 import type GenericConditionMixin from './app/mixin/generic-condition.mixin';
+import type RuleBetweenOperatorMixin from './app/mixin/rule-between-operator.mixin';
 import type SwFormFieldMixin from './app/mixin/form-field.mixin';
 import type DiscardDetailPageChangesMixin from './app/mixin/discard-detail-page-changes.mixin';
 import type PrivilegesService from './app/service/privileges.service';
@@ -303,6 +307,8 @@ declare global {
         validation: typeof ValidationMixin;
         'user-settings': typeof UserSettingsMixin;
         'sw-inline-snippet': typeof SwInlineSnippetMixin;
+        'translate-with-fallback': typeof TranslateWithFallbackMixin;
+        'notification-translation': typeof NotificationTranslationMixin;
         salutation: typeof SalutationMixin;
         ruleContainer: typeof RuleContainerMixin;
         'remove-api-error': typeof RemoveApiErrorMixin;
@@ -316,6 +322,7 @@ declare global {
         'generic-condition': typeof GenericConditionMixin;
         'sw-form-field': typeof SwFormFieldMixin;
         'discard-detail-page-changes': typeof DiscardDetailPageChangesMixin;
+        'rule-between-operator': typeof RuleBetweenOperatorMixin;
     }
 
     interface InitContainer extends SubContainer<'init'> {
@@ -519,7 +526,41 @@ interface CustomProperties extends ServiceContainer {
     $te: I18n<{}, {}, {}, string, true>['global']['te'];
     $tc: I18n<{}, {}, {}, string, true>['global']['t'];
     $t: I18n<{}, {}, {}, string, true>['global']['t'];
-    $dataScope: () => ComponentInternalInstance['proxy'];
+    $sanitize: (dirtyHtml: string, config?: Record<string, unknown>) => string;
+    $dataScope: ComponentInternalInstance['proxy'];
+    /**
+     * Starts a generated legacy block condition chain on the current Vue component instance.
+     * Use it only from transformed `v-if` code emitted by the legacy block condition rewrite.
+     *
+     * @example
+     * this.$swLegacyBlockIf('sw_card:0', isVisible, {
+     *     segmentCaseIndex: 0,
+     *     renderOrderSegment: 'defaultSlot',
+     * });
+     */
+    $swLegacyBlockIf: (chainKey: string, expression: unknown, options: LegacyConditionCaseOptions) => boolean;
+    /**
+     * Continues a generated legacy block condition chain on the current Vue component instance.
+     * Use it only from transformed `v-else-if` code emitted by the legacy block condition rewrite.
+     *
+     * @example
+     * this.$swLegacyBlockElseIf('sw_card:0', hasFallback, {
+     *     segmentCaseIndex: 1,
+     *     renderOrderSegment: 'shimExtension',
+     * });
+     */
+    $swLegacyBlockElseIf: (chainKey: string, expression: unknown, options: LegacyConditionCaseOptions) => boolean;
+    /**
+     * Finishes a generated legacy block condition chain on the current Vue component instance.
+     * Use it only from transformed `v-else` code emitted by the legacy block condition rewrite.
+     *
+     * @example
+     * this.$swLegacyBlockElse('sw_card:0', {
+     *     segmentCaseIndex: 2,
+     *     renderOrderSegment: 'nativeExtension',
+     * });
+     */
+    $swLegacyBlockElse: (chainKey: string, options: LegacyConditionCaseOptions) => boolean;
 }
 
 declare module '@vue/runtime-core' {

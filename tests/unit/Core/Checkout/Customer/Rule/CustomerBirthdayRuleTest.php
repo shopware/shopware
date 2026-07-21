@@ -10,13 +10,11 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Rule\CustomerBirthdayRule;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -46,6 +44,7 @@ class CustomerBirthdayRuleTest extends TestCase
     public function testConstraints(): void
     {
         $operators = [
+            Rule::OPERATOR_BETWEEN,
             Rule::OPERATOR_NEQ,
             Rule::OPERATOR_GTE,
             Rule::OPERATOR_LTE,
@@ -62,6 +61,20 @@ class CustomerBirthdayRuleTest extends TestCase
 
         static::assertEquals(new Type(type: 'string'), $constraints['birthday'][1]);
         static::assertEquals(new Choice(choices: $operators), $constraints['operator'][1]);
+    }
+
+    public function testBetweenConstraints(): void
+    {
+        $rule = new CustomerBirthdayRule(
+            operator: Rule::OPERATOR_BETWEEN,
+        );
+
+        $constraints = $rule->getConstraints();
+
+        static::assertEquals(
+            RuleConstraints::dateBetween(),
+            $constraints['birthday'],
+        );
     }
 
     #[DataProvider('getMatchBirthdayValues')]
@@ -99,12 +112,7 @@ class CustomerBirthdayRuleTest extends TestCase
         $scope = $this->createScope($customer);
         $this->rule->assign(['birthday' => null, 'operator' => Rule::OPERATOR_EQ]);
 
-        if (!Feature::isActive('v6.8.0.0')) {
-            $this->expectException(UnsupportedValueException::class);
-        } else {
-            $this->expectException(CustomerException::class);
-        }
-        $this->rule->match($scope);
+        static::assertFalse($this->rule->match($scope));
     }
 
     public function testInvalidDateValueIsFalse(): void
@@ -124,7 +132,7 @@ class CustomerBirthdayRuleTest extends TestCase
     {
         $scope = new LineItemScope(
             new LineItem(Uuid::randomHex(), 'product', null, 3),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $this->rule->assign(['birthday' => '2000-09-05', 'operator' => Rule::OPERATOR_EQ]);
@@ -135,7 +143,7 @@ class CustomerBirthdayRuleTest extends TestCase
 
     public function testInvalidScopeIsFalse(): void
     {
-        $invalidScope = $this->createMock(RuleScope::class);
+        $invalidScope = static::createStub(RuleScope::class);
 
         $this->rule->assign(['birthday' => '2000-09-05', 'operator' => Rule::OPERATOR_EQ]);
 
@@ -148,7 +156,7 @@ class CustomerBirthdayRuleTest extends TestCase
         $configData = $config->getData();
 
         static::assertArrayHasKey('operatorSet', $configData);
-        $operators = RuleConfig::OPERATOR_SET_NUMBER;
+        $operators = RuleConfig::OPERATOR_SET_DATE;
         $operators[] = Rule::OPERATOR_EMPTY;
 
         static::assertSame([
@@ -184,7 +192,7 @@ class CustomerBirthdayRuleTest extends TestCase
 
     public function createScope(CustomerEntity $customer): CheckoutRuleScope
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
         return new CheckoutRuleScope($context);

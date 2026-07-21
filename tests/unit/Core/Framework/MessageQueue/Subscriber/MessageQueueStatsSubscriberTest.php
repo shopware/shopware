@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Messenger\Stamp\SentAtStamp;
 use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -19,6 +20,7 @@ use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MessageQueueStatsSubscriber::class)]
 class MessageQueueStatsSubscriberTest extends TestCase
 {
@@ -43,6 +45,11 @@ class MessageQueueStatsSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
+        $this->gatewayRegistry->expects($this->never())->method('get');
+        $this->incrementer->expects($this->never())->method('increment');
+        $this->incrementer->expects($this->never())->method('decrement');
+        $this->statsService->expects($this->never())->method('registerMessage');
+
         static::assertSame([
             WorkerMessageHandledEvent::class => 'onMessageHandled',
         ], MessageQueueStatsSubscriber::getSubscribedEvents());
@@ -54,6 +61,11 @@ class MessageQueueStatsSubscriberTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetGetSubscribedDeprecated(): void
     {
+        $this->gatewayRegistry->expects($this->never())->method('get');
+        $this->incrementer->expects($this->never())->method('increment');
+        $this->incrementer->expects($this->never())->method('decrement');
+        $this->statsService->expects($this->never())->method('registerMessage');
+
         static::assertSame([
             WorkerMessageHandledEvent::class => 'onMessageHandled',
             WorkerMessageFailedEvent::class => ['onMessageFailed', 99],
@@ -70,6 +82,8 @@ class MessageQueueStatsSubscriberTest extends TestCase
         $envelope = new Envelope(new \stdClass());
         $event = new WorkerMessageFailedEvent($envelope, 'receiver', new \Exception());
 
+        $this->statsService->expects($this->never())->method('registerMessage');
+
         $this->handleCommonExpectations($envelope, false);
 
         $this->subscriber->onMessageFailed($event);
@@ -82,6 +96,9 @@ class MessageQueueStatsSubscriberTest extends TestCase
         ]);
         $event = new WorkerMessageHandledEvent($envelope, 'theReceiver');
 
+        $this->gatewayRegistry->expects($this->never())->method('get');
+        $this->incrementer->expects($this->never())->method('increment');
+        $this->incrementer->expects($this->never())->method('decrement');
         $this->statsService->expects($this->once())
             ->method('registerMessage')
             ->with($envelope);
@@ -98,6 +115,8 @@ class MessageQueueStatsSubscriberTest extends TestCase
         $envelope = new Envelope(new \stdClass());
         $event = new WorkerMessageHandledEvent($envelope, 'theReceiver');
 
+        $this->statsService->expects($this->once())->method('registerMessage');
+
         $this->handleCommonExpectations($envelope, false);
 
         $this->subscriber->onMessageHandled($event);
@@ -111,6 +130,8 @@ class MessageQueueStatsSubscriberTest extends TestCase
     {
         $envelope = new Envelope(new \stdClass());
         $event = new SendMessageToTransportsEvent($envelope, []);
+
+        $this->statsService->expects($this->never())->method('registerMessage');
 
         $this->handleCommonExpectations($envelope, true);
 

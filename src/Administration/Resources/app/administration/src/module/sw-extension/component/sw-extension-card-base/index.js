@@ -3,6 +3,14 @@ import './sw-extension-card-base.scss';
 
 const { Utils, Filter } = Shopware;
 
+const DATE_ONLY_FORMAT = {
+    month: '2-digit',
+    day: '2-digit',
+    year: 'numeric',
+    hour: undefined,
+    minute: undefined,
+};
+
 /**
  * @sw-package checkout
  * @private
@@ -31,6 +39,7 @@ export default {
 
     data() {
         return {
+            DATE_ONLY_FORMAT,
             isLoading: false,
             showUninstallModal: false,
             showRemovalModal: false,
@@ -155,6 +164,19 @@ export default {
             );
         },
 
+        configLink() {
+            if (!this.extension.configurable) {
+                return null;
+            }
+
+            return {
+                name: 'sw.extension.config',
+                params: {
+                    namespace: this.extension.name,
+                },
+            };
+        },
+
         link() {
             if (this.openLink) {
                 return this.openLink;
@@ -169,7 +191,7 @@ export default {
                 };
             }
 
-            return null;
+            return this.configLink;
         },
 
         consentAffirmationModalActionLabel() {

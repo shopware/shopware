@@ -7,8 +7,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 
 /**
  * @internal
@@ -17,6 +19,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(DocumentGenerationRequest::class)]
 class DocumentGenerationRequestTest extends TestCase
 {
+    use ClockSensitiveTrait;
+
     public function testWithDocumentNumber(): void
     {
         $request = new DocumentGenerationRequest(
@@ -24,6 +28,8 @@ class DocumentGenerationRequestTest extends TestCase
             Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::HTML],
+            documentDate: '2026-05-05T12:00:00+00:00',
+            deliveryDate: '2026-05-06T09:30:00+00:00',
         );
 
         static::assertNull($request->documentNumber);
@@ -31,6 +37,38 @@ class DocumentGenerationRequestTest extends TestCase
         $request = $request->withDocumentNumber('12345');
 
         static::assertSame('12345', $request->documentNumber);
+        static::assertSame('2026-05-05T12:00:00+00:00', $request->documentDate);
+        static::assertSame('2026-05-06T09:30:00+00:00', $request->deliveryDate);
+    }
+
+    public function testDocumentDateDefaultsToClockNow(): void
+    {
+        $clock = self::mockTime('2026-05-18 10:00:00');
+
+        $request = new DocumentGenerationRequest(
+            Uuid::randomHex(),
+            Uuid::randomHex(),
+            DocumentType::INVOICE,
+            [DocumentFormat::HTML],
+        );
+
+        static::assertSame(
+            $clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            $request->documentDate
+        );
+    }
+
+    public function testExplicitDocumentDateIsPreserved(): void
+    {
+        $request = new DocumentGenerationRequest(
+            Uuid::randomHex(),
+            Uuid::randomHex(),
+            DocumentType::INVOICE,
+            [DocumentFormat::HTML],
+            documentDate: '2026-05-05T12:00:00+00:00',
+        );
+
+        static::assertSame('2026-05-05T12:00:00+00:00', $request->documentDate);
     }
 
     public function testNormalization(): void

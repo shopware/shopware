@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Feature;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(FeatureException::class)]
 class FeatureExceptionTest extends TestCase
 {

@@ -165,7 +165,29 @@ class LineItemViewTest extends TestCase
         static::assertSame(LineItemView::DEFAULT_BASIS_QUANTITY, $view->basisQuantity);
     }
 
-    public function testListFromOrderThrowsOnNonPositiveQuantity(): void
+    public function testListFromOrderThrowsOnNegativeQuantityByDefault(): void
+    {
+        $item = $this->createLineItemOfType(LineItem::PRODUCT_LINE_ITEM_TYPE, 'Widget', 'p-1');
+        $item->setQuantity(-2);
+        $item->setPrice(new CalculatedPrice(
+            10.0,
+            -20.0,
+            new CalculatedTaxCollection([new CalculatedTax(-3.19, 19.0, -20.0)]),
+            new TaxRuleCollection(),
+        ));
+
+        $order = $this->createOrder(CartPrice::TAX_STATE_NET, [$item]);
+
+        $this->expectExceptionObject(DocumentV2Exception::invalidOrderData(
+            $order->getId(),
+            'lineItem.quantity',
+            'Line item "p-1" has negative quantity.',
+        ));
+
+        LineItemView::listFromOrder($order);
+    }
+
+    public function testListFromOrderThrowsOnZeroQuantityEvenWhenNegativeAllowed(): void
     {
         $item = $this->createLineItemOfType(LineItem::PRODUCT_LINE_ITEM_TYPE, 'Widget', 'p-1');
         $item->setQuantity(0);
@@ -181,10 +203,31 @@ class LineItemViewTest extends TestCase
         $this->expectExceptionObject(DocumentV2Exception::invalidOrderData(
             $order->getId(),
             'lineItem.quantity',
-            'Line item "p-1" has non-positive quantity 0.',
+            'Line item "p-1" has zero quantity.',
         ));
 
-        LineItemView::listFromOrder($order);
+        LineItemView::listFromOrder($order, allowNegative: true);
+    }
+
+    public function testListFromOrderKeepsNetPricePositiveForNegativeQuantityWhenAllowed(): void
+    {
+        $item = $this->createLineItemOfType(LineItem::PRODUCT_LINE_ITEM_TYPE, 'Widget', 'p-1');
+        $item->setQuantity(-2);
+        $item->setPrice(new CalculatedPrice(
+            10.0,
+            -20.0,
+            new CalculatedTaxCollection([new CalculatedTax(-3.19, 19.0, -20.0)]),
+            new TaxRuleCollection(),
+        ));
+
+        $order = $this->createOrder(CartPrice::TAX_STATE_NET, [$item]);
+
+        $views = LineItemView::listFromOrder($order, allowNegative: true);
+
+        static::assertCount(1, $views);
+        static::assertSame(-2.0, $views[0]->quantity);
+        static::assertLessThan(0, $views[0]->lineTotal);
+        static::assertGreaterThan(0, $views[0]->netUnitPrice);
     }
 
     /**

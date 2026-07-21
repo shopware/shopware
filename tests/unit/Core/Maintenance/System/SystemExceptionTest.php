@@ -7,12 +7,14 @@ namespace Shopware\Tests\Unit\Core\Maintenance\System;
 use PHPUnit\Event\Telemetry\System;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\MaintenanceException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(System::class)]
 class SystemExceptionTest extends TestCase
 {

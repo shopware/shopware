@@ -20,7 +20,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductMaxPurchaseCalculator;
 use Shopware\Core\Content\Product\ProductVariationBuilder;
-use Shopware\Core\Content\Product\PropertyGroupSorter;
 use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -35,11 +34,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,6 +50,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductSubscriber::class)]
 class ProductSubscriberTest extends TestCase
 {
@@ -207,7 +210,8 @@ class ProductSubscriberTest extends TestCase
         $productVariationBuilder = $this->createMock(ProductVariationBuilder::class);
         $productVariationBuilder->expects($this->once())->method('build');
 
-        $propertyGroupSorter = new PropertyGroupSorter();
+        $propertyGroupSorter = $this->createMock(AbstractPropertyGroupSorter::class);
+        $propertyGroupSorter->expects($this->once())->method('sortUsingLocaleCode');
 
         $subscriber = new ProductSubscriber(
             $productVariationBuilder,
@@ -230,11 +234,14 @@ class ProductSubscriberTest extends TestCase
             'cheapestPrice' => $cheapestPrice,
         ]);
 
+        $languageInfo = new LanguageInfo('English', 'en-GB');
+        $salesChannelContext = Generator::generateSalesChannelContext(languageInfo: $languageInfo);
+
         /** @var SalesChannelEntityLoadedEvent<ProductEntity|PartialEntity> $event */
         $event = new SalesChannelEntityLoadedEvent(
             static::createStub(ProductDefinition::class),
             [$entity],
-            static::createStub(SalesChannelContext::class)
+            $salesChannelContext
         );
 
         $subscriber->salesChannelLoaded($event);

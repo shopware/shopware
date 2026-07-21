@@ -8,12 +8,14 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class MediaFolderIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -106,7 +108,7 @@ class MediaFolderIndexerTest extends TestCase
         ], $this->context);
 
         /** @var MediaFolderEntity $folder */
-        $folder = $this->mediaFolderRepository->search(new Criteria([$parentId]), $this->context)->first();
+        $folder = $this->mediaFolderRepository->search(new Criteria([$parentId]), $this->context)->getEntities()->first();
 
         static::assertSame(1, $folder->getChildCount());
     }

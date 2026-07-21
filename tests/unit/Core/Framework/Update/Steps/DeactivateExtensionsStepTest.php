@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Update\Steps;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Core\Framework\Update\Services\ExtensionCompatibility;
@@ -15,6 +16,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DeactivateExtensionsStep::class)]
 class DeactivateExtensionsStepTest extends TestCase
 {

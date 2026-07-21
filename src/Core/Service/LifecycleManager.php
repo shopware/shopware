@@ -45,23 +45,26 @@ class LifecycleManager
     ) {
     }
 
+    public function sync(Context $context): void
+    {
+        $this->removeOrphanedServices($this->serviceStorage->findAll($context), $context);
+    }
+
     /**
-     * This method installs all services, only if ENABLE_SERVICES allows installation.
+     * Level-triggered counterpart to the update push (ServiceController::triggerUpdate): installs new
+     * services and converges installed ones to the registry's latest revision, both via the same
+     * idempotent update path. Only runs if ENABLE_SERVICES allows it. No orphan removal — that stays
+     * in sync().
      *
      * @return array<string> The newly installed services
      */
-    public function install(Context $context): array
+    public function reconcile(Context $context): array
     {
         if (!$this->enabled()) {
             return [];
         }
 
-        return $this->serviceInstaller->install($context);
-    }
-
-    public function sync(Context $context): void
-    {
-        $this->removeOrphanedServices($this->serviceStorage->findAll($context), $context);
+        return $this->serviceInstaller->reconcile($context);
     }
 
     public function syncState(string $serviceName, Context $context): void

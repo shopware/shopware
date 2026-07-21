@@ -9,6 +9,8 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
@@ -24,6 +26,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
+#[Package('inventory')]
 class SearchCasesTest extends TestCase
 {
     use CacheTestBehaviour;
@@ -572,19 +575,24 @@ class SearchCasesTest extends TestCase
             'expectedFirst' => 'i3-target',
         ];
 
-        $ids = new IdsCollection();
-        yield 'lowercase glued Channelline reached via .ngram subfield fallback' => [
-            'ids' => $ids,
-            'products' => [
-                self::product($ids, 'i4-target', 'DE-I4-1', 'Channelline Drill Premium'),
-                self::product($ids, 'i4-other', 'DE-I4-2', 'Basic Hammer'),
-            ],
-            'searchFields' => ['name'],
-            'searchScores' => ['name' => 1000],
-            'minScore' => null,
-            'term' => 'Channel Line',
-            'expectedFirst' => 'i4-target',
-        ];
+        // @deprecated tag:v6.8.0 - under the major pre-tokenization search, querying "Channel Line" no
+        // longer matches the lowercase glued term "Channelline" (the case-variation scenario is already
+        // covered by the PascalCase case above). This data set therefore only applies to the legacy mapping.
+        if (!Feature::isActive('v6.8.0.0')) {
+            $ids = new IdsCollection();
+            yield 'lowercase glued Channelline reached via .ngram subfield fallback' => [
+                'ids' => $ids,
+                'products' => [
+                    self::product($ids, 'i4-target', 'DE-I4-1', 'Channelline Drill Premium'),
+                    self::product($ids, 'i4-other', 'DE-I4-2', 'Basic Hammer'),
+                ],
+                'searchFields' => ['name'],
+                'searchScores' => ['name' => 1000],
+                'minScore' => null,
+                'term' => 'Channel Line',
+                'expectedFirst' => 'i4-target',
+            ];
+        }
 
         // Compressed-form decimal+unit query bridges to spaced-form indexed
         // content via sw_decimal_normalize (3,3 → 3.3) and sw_unit_glue

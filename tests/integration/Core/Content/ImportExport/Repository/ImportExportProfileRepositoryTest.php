@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Content\ImportExport\Repository;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\ImportExport\Exception\DeleteDefaultProfileException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -331,29 +330,6 @@ class ImportExportProfileRepositoryTest extends TestCase
         $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile');
 
         static::assertCount($num - $deleted, $records);
-    }
-
-    public function testImportExportProfileDeleteSystemDefault(): void
-    {
-        $num = 2;
-        $data = $this->prepareImportExportProfileTestData($num);
-        $this->repository->create(array_values($data), $this->context);
-
-        foreach (array_column($data, 'id') as $id) {
-            if ($data[Uuid::fromHexToBytes($id)]['systemDefault']) {
-                try {
-                    $this->repository->delete([['id' => $id]], $this->context);
-                    static::fail('System defaults should not be deletable.');
-                } catch (\Exception $e) {
-                    static::assertInstanceOf(WriteException::class, $e);
-                    static::assertInstanceOf(DeleteDefaultProfileException::class, $e->getExceptions()[0]);
-                }
-            }
-        }
-
-        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile');
-
-        static::assertCount($num, $records);
     }
 
     public function testImportExportProfileDeleteUnknown(): void

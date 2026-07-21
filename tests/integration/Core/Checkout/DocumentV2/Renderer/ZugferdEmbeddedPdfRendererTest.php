@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
+use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Renderer\HtmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\PdfRenderer;
@@ -46,6 +47,8 @@ class ZugferdEmbeddedPdfRendererTest extends TestCase
 
     private InvoiceDataProvider $dataProvider;
 
+    private DocumentMetaProvider $metaProvider;
+
     /**
      * @var EntityRepository<OrderCollection>
      */
@@ -73,9 +76,10 @@ class ZugferdEmbeddedPdfRendererTest extends TestCase
         $this->pdfRenderer = static::getContainer()->get(PdfRenderer::class);
         $this->embeddedRenderer = static::getContainer()->get(ZugferdEmbeddedPdfRenderer::class);
         $this->dataProvider = static::getContainer()->get(InvoiceDataProvider::class);
+        $this->metaProvider = static::getContainer()->get(DocumentMetaProvider::class);
         $this->orderRepository = static::getContainer()->get('order.repository');
 
-        $this->seedDemoInvoiceBaseConfig();
+        $this->seedDemoBaseConfig(DocumentType::INVOICE->value);
     }
 
     protected function tearDown(): void
@@ -109,7 +113,10 @@ class ZugferdEmbeddedPdfRendererTest extends TestCase
             documentType: DocumentType::INVOICE->value,
             documentNumber: self::DOCUMENT_NUMBER,
             order: $order,
-            data: [$this->dataProvider->getKey() => $this->dataProvider->provideRenderingData($order, $request, $this->context)],
+            data: [
+                $this->metaProvider->getKey() => $this->metaProvider->provideRenderingData($order, $request, $this->context),
+                $this->dataProvider->getKey() => $this->dataProvider->provideRenderingData($order, $request, $this->context),
+            ],
         );
 
         $state = new RenderState();
@@ -120,6 +127,7 @@ class ZugferdEmbeddedPdfRendererTest extends TestCase
         $result = $this->embeddedRenderer->renderToString($input, $state, $this->context);
 
         static::assertSame(DocumentFormat::ZUGFERD_EMBEDDED_PDF->value, $result->format);
+        static::assertSame('invoice_' . self::DOCUMENT_NUMBER . '_zugferd_embedded_pdf', $result->fileName);
         static::assertSame('pdf', $result->fileExtension);
         static::assertSame('application/pdf', $result->mimeType);
         static::assertStringStartsWith('%PDF-', $result->content);

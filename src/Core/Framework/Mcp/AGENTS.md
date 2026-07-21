@@ -4,7 +4,7 @@
 This module implements a Model Context Protocol (MCP) server for Shopware, enabling AI clients (e.g., Claude Desktop, Cursor) to interact with the Shopware platform through a standardized protocol.
 
 ## Status
-**Experimental** -- gated behind the `MCP_SERVER` feature flag. Use `MCP_SERVER=1` environment variable to enable.
+**Experimental** -- marked `@experimental stableVersion:v6.8.0` (API may change until 6.8.0). Always enabled; there is no feature flag to toggle.
 
 ## MCP capabilities
 
@@ -56,7 +56,7 @@ The Store API endpoint (`/store-api/_mcp`) uses the same progressive disclosure 
 - **Transport**: HTTP via Symfony MCP Bundle (`/api/_mcp`), authenticated through Shopware's Admin API OAuth stack
 - **Context**: `McpContextProvider` bridges the authenticated HTTP request into the MCP tool execution layer
 - **Tools**: Single-responsibility PHP classes with `#[McpTool]` attributes, registered via PHP service definitions (`mcp.php`)
-- **Feature flag**: All services tagged with `shopware.feature` flag `MCP_SERVER` -- removed from the container when disabled
+- **Availability**: always enabled (no feature flag); services are present whenever `symfony/mcp-bundle` is installed
 
 ## Naming convention
 All capability names use hyphen-separated prefixes (`a-zA-Z0-9_-` only, no dots):
@@ -81,18 +81,14 @@ The `McpToolCompilerPass` enforces unique names and throws on conflicts. The `sh
 - `Loader/` -- Extension loaders for app capabilities (`AppMcpToolLoader`, `AppMcpPromptLoader`, `AppMcpResourceLoader`, `AppMcpCapabilityExecutor`, `AbstractAppMcpLoader`)
 - `docs/` -- Documentation: tool reference, examples, security, setup, extensibility, user stories
 
-## Feature flag
+## Availability
 
-`Feature::isActive('MCP_SERVER')` is a **runtime** env-var check, not a compile-time gate. `FeatureFlagCompilerPass` removes services tagged `shopware.feature: { flag: MCP_SERVER }`, but MCP services are NOT tagged that way — they use `nullOnInvalid()` on their injected `mcp.*` dependencies instead.
+The MCP server is **no longer feature-flag gated** — it is always enabled. Classes remain marked `@experimental stableVersion:v6.8.0`, so the API may still change until 6.8.0, but there is no `MCP_SERVER` flag to toggle.
 
-`nullOnInvalid()` injects `null` only when the service does not exist in the container at all (i.e., `symfony/mcp-bundle` absent). Because the bundle is in `require` and registered unconditionally in `config/bundles.php`, MCP services are always present and `nullOnInvalid()` never resolves to `null`.
-
-**Consequence:** `Feature::isActive('MCP_SERVER')` is the only meaningful runtime gate. The `=== null` null-checks in controllers/commands are a safety net for "bundle truly absent", not a feature-flag substitute.
-
-**Do not remove `Feature::isActive('MCP_SERVER')` guards** in isolation. Full unflagging requires a single sweep: `feature.yaml` default, the PHP backend guards, and the Admin UI guard at `sw-integration-list.html.twig:214`.
+The `=== null` null-checks on injected `mcp.*` dependencies in controllers/commands are a safety net for "`symfony/mcp-bundle` truly absent" (they resolve to `null` via `nullOnInvalid()`), **not** a feature-flag substitute. Because the bundle is in `require` and registered unconditionally in `config/bundles.php`, they never resolve to `null` in practice; the guards will be removed once MCP is stable (v6.8.0).
 
 ## Conventions
-- All classes use `@experimental stableVersion:v6.8.0 feature:MCP_SERVER` annotation
+- All classes use `@experimental stableVersion:v6.8.0` annotation
 - All classes use `#[Package('framework')]` attribute
 - Tools return JSON strings; the MCP protocol handles transport encoding
 - Write tools default to `dryRun=true` for safety. Dry-run adds `SKIP_TRIGGER_FLOW` to the context to prevent Flow Builder actions during preview
@@ -126,7 +122,7 @@ Two layers are required: the DI tag **and** the directory must appear in `mcp.ya
 |---|---|---|
 | `bin/console debug:mcp` | Full registry — same source as the HTTP endpoint | Quick manual check during development |
 | `McpCapabilityDiscoveryTest` | HTTP → `tools/list` (full kernel) | CI — authoritative end-to-end check |
-| `McpServiceConfigTest` / `McpFeatureFlagTest` | DI layer only | Fast unit-level guard for tag/registration |
+| `McpServiceRegistrationTest` | DI layer only | Fast integration-level guard that every MCP service is registered in the container |
 
 `bin/console debug:mcp` now uses the same `Registry` as the HTTP endpoint (populated by calling `Builder::build()`), so it shows core tools, plugin tools, and app tools in one view. It is the fastest way to check that a newly registered capability is visible.
 
@@ -134,7 +130,7 @@ Two layers are required: the DI tag **and** the directory must appear in `mcp.ya
 
 ## Extensibility
 - **Plugins**: Tag services with `shopware.mcp.tool` -- the `McpToolCompilerPass` re-tags them as `mcp.tool` AND calls `addTool()` on the MCP server builder so they appear in both `debug:mcp` and the HTTP endpoint. No `scan_dirs` entry is needed. Use `McpToolResponse` for consistent error handling and response formatting.
-- **Third-party Symfony bundles**: Same `shopware.mcp.tool` tag mechanism as plugins -- `McpToolCompilerPass` handles discovery. Gate the service file in the bundle's `build()` method with `Feature::has('MCP_SERVER')`. See `custom/bundles/SwagMcpExampleBundle/` for a worked example.
+- **Third-party Symfony bundles**: Same `shopware.mcp.tool` tag mechanism as plugins -- `McpToolCompilerPass` handles discovery. See `custom/bundles/SwagMcpExampleBundle/` for a worked example.
 - **Apps**: Declare capabilities in `Resources/mcp.xml` -- parsed by `Mcp::createFromXmlFile()` (XXE-safe via `XmlUtils::loadFile()`), persisted by the respective Persister (`McpToolPersister`, `McpPromptPersister`, `McpResourcePersister`), loaded at runtime by the corresponding Loader (`AppMcpToolLoader`, `AppMcpPromptLoader`, `AppMcpResourceLoader`). App tool webhook payloads include `shopId` and `appVersion` in the `source` object. **App tools also support internal dispatch via `/api/script/{path}` -- see the Serverless app tools section below.**
 - **In-tree Shopware bundles** (Storefront, etc.): Tag with **`mcp.tool`** directly (not `shopware.mcp.tool`) and ensure the bundle directory is listed in `mcp.yaml` `scan_dirs`. Using `shopware.mcp.tool` here would cause double-registration (compiler pass + scan_dirs).
 - **Reserved prefix**: The `shopware-` prefix is reserved for core tools. App tools with names starting with `shopware-` are skipped during loading.

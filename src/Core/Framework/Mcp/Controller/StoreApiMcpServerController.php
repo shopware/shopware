@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Mcp\Controller;
 use Mcp\Server;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Http\McpHttpTransportFactory;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
@@ -20,7 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Store API entry point for the MCP protocol over HTTP.
  * This endpoint uses the normal Store API sales-channel access key and
@@ -40,7 +39,7 @@ class StoreApiMcpServerController
      * @internal
      *
      * $server is nullable because it is injected via nullOnInvalid(): when the MCP bundle is absent
-     * it resolves to null (as do the HTTP factories the transport factory wraps). Once MCP_SERVER is
+     * it resolves to null (as do the HTTP factories the transport factory wraps). Once MCP is
      * stable (v6.8.0) remove the nullable type and the null guard in handle().
      */
     public function __construct(
@@ -62,7 +61,7 @@ class StoreApiMcpServerController
     )]
     public function handle(Request $request): Response
     {
-        if (!Feature::isActive('MCP_SERVER') || $this->server === null || !$this->transportFactory->isAvailable()) {
+        if ($this->server === null || !$this->transportFactory->isAvailable()) {
             return new Response(null, Response::HTTP_NOT_FOUND);
         }
 

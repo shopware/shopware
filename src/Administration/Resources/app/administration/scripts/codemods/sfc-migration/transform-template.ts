@@ -20,6 +20,7 @@ const UNSUPPORTED_TEMPLATE_ERROR = 'Twig template is not supported by the SFC mi
 const UNSUPPORTED_EXTENDS_ERROR = 'Twig extends is not supported by the SFC migration codemod.';
 const UNSUPPORTED_EXTENDS_BLOCKER = 'twig extends';
 const UNSUPPORTED_COMMENT_SYNTAX_BLOCKER = 'twig syntax inside comment';
+const UNSUPPORTED_PARENT_BLOCKER = 'twig parent() without block';
 
 export class TemplateTransformError extends Error {
     public constructor(
@@ -72,6 +73,13 @@ export function transformTemplate(twigContent: string): { template: string } {
         throw new TemplateTransformError([UNSUPPORTED_EXTENDS_BLOCKER], UNSUPPORTED_EXTENDS_ERROR);
     }
 
+    if (!hasTwigBlocks && PARENT_LINE_RE.test(twigContent)) {
+        // `parent()` only has meaning inside a block override. Without a
+        // surrounding block it cannot be mapped to <sw-block-parent/> and would
+        // otherwise be emitted as a runtime Vue method call.
+        throw new TemplateTransformError([UNSUPPORTED_PARENT_BLOCKER]);
+    }
+
     let body = twigContent;
 
     // Convert Twig comments to HTML comments regardless of block usage
@@ -113,9 +121,6 @@ export function transformTemplate(twigContent: string): { template: string } {
             throw err;
         }
     }
-    // TODO: Silent ignore: `{{ parent() }}` outside a detected Twig block is
-    // left as a Vue method call, which is syntactically valid but loses Twig
-    // parent-content semantics.
 
     const transformed = `<template>\n${body}\n</template>`;
     return { template: transformed };

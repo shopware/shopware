@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Health;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\BaseCheck;
 use Shopware\Core\Framework\SystemCheck\Check\Category;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\SystemCheck\SystemChecker;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SystemChecker::class)]
 class SystemCheckerTest extends TestCase
 {

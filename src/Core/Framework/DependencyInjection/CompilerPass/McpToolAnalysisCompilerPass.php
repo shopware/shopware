@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Second MCP compiler pass: builds the tool dependency graph and privilege map from
  * #[McpToolDependsOn] and #[McpToolRequires] attributes, storing both as container

@@ -64,10 +64,9 @@ const SANDBOX = process.env.REPRO_SANDBOX === '1';
  * whose only reachable destination is the shop on the runner host (`host.docker.internal`) — the
  * job applies a `DOCKER-USER` egress DROP so the container has no internet, so a spec that escapes
  * validate.ts's correctness gates still cannot exfiltrate, abuse the network, or reach the token.
- * ONLY the disposable run dir is bind-mounted (not the workspace): the spec therefore cannot read or
- * overwrite the harness scripts under `.github/actions/reproduce/**` — which a later host-side step
- * re-invokes — so a compromised spec cannot reach outside the container. The image's own Playwright +
- * browsers are used (no host node_modules), so everything it needs lives in that one mounted dir.
+ * The run dir is bind-mounted (not the workspace), plus the host `node_modules` READ-ONLY (see below):
+ * the spec therefore cannot read or overwrite the harness scripts under `.github/actions/reproduce/**`
+ * — which a later host-side step re-invokes — so a compromised spec cannot reach outside the container.
  */
 function specRunCommand(configPath: string, env: NodeJS.ProcessEnv, mountDir: string): { cmd: string; args: string[] } {
   if (!SANDBOX) {
@@ -79,6 +78,13 @@ function specRunCommand(configPath: string, env: NodeJS.ProcessEnv, mountDir: st
   const passthrough = ['APP_URL', 'PW_STORAGE', 'PW_JSON_REPORT', 'PW_OUTPUT_DIR', 'PW_HTML_REPORT', 'PW_VIDEO', 'PW_VIEWPORT', 'REPRO_VIDEO_SLOWMO']
     .filter((key) => env[key] != null && env[key] !== '')
     .flatMap((key) => ['-e', `${key}=${env[key]}`]);
+  // The Playwright image ships the browsers but NOT the `@playwright/test` package, so `npx playwright
+  // test` in the run dir would reach the npm registry to fetch it — which the egress DROP silently
+  // blackholes, hanging the leg ~2min. Mount the host-installed package READ-ONLY so npx resolves it
+  // locally (never touching the network) and point Playwright at the image's browsers. `:ro` keeps the
+  // containment: the spec still can't write these files or reach anything outside the run dir.
+  const hostModules = path.resolve('node_modules');
+  const modulesMount = fs.existsSync(hostModules) ? ['-v', `${hostModules}:${mountDir}/node_modules:ro`] : [];
   return {
     cmd: 'docker',
     args: [
@@ -86,7 +92,9 @@ function specRunCommand(configPath: string, env: NodeJS.ProcessEnv, mountDir: st
       '--add-host=host.docker.internal:host-gateway',
       '--user', `${process.getuid!()}:${process.getgid!()}`, // outputs land owned by the runner, not root
       '-e', 'HOME=/tmp',
-      '-v', `${mountDir}:${mountDir}`, '-w', mountDir, // ONLY the run dir — never the workspace/harness
+      '-e', 'PLAYWRIGHT_BROWSERS_PATH=/ms-playwright', // use the image's browsers, not a host path
+      '-v', `${mountDir}:${mountDir}`, '-w', mountDir,
+      ...modulesMount,
       ...passthrough,
       image,
       'npx', 'playwright', 'test', '--config', configPath,

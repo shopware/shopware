@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Mcp;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -22,8 +21,6 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
 
     public function testStoreApiMcpAdvertisesReducedMetaToolSet(): void
     {
-        Feature::skipTestIfInActive('MCP_SERVER', $this);
-
         $browser = $this->createSalesChannelBrowser();
         $sessionId = $this->initialize($browser);
 
@@ -42,8 +39,6 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
 
     public function testStoreApiMcpToolSearchCarriesEnableUsageHint(): void
     {
-        Feature::skipTestIfInActive('MCP_SERVER', $this);
-
         $browser = $this->createSalesChannelBrowser();
         $sessionId = $this->initialize($browser);
 
@@ -57,8 +52,6 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
 
     public function testStoreApiMcpToolsetEnableRevealsHiddenToolsAndSignalsListChanged(): void
     {
-        Feature::skipTestIfInActive('MCP_SERVER', $this);
-
         $browser = $this->createSalesChannelBrowser();
         $sessionId = $this->initialize($browser);
 

@@ -8,7 +8,6 @@ use Mcp\Schema\ResourceDefinition;
 use Mcp\Schema\ResourceTemplate;
 use Mcp\Schema\Tool;
 use Mcp\Server\Builder;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
@@ -23,7 +22,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  */
 #[AsCommand(name: 'debug:mcp', description: 'List registered MCP capabilities (tools, prompts, resources)')]
 #[Package('framework')]
@@ -33,7 +32,7 @@ class DebugMcpCommand extends Command
      * @internal
      *
      * $builder and $registry are nullable via nullOnInvalid(): null when the MCP
-     * bundle is absent. Once MCP_SERVER is stable (v6.8.0) remove the nullable
+     * bundle is absent. Once MCP is stable (v6.8.0) remove the nullable
      * types and the null guards in execute().
      */
     public function __construct(
@@ -63,7 +62,7 @@ class DebugMcpCommand extends Command
         $resources = (bool) $input->getOption('resources');
         $io = new SymfonyStyle($input, $output);
 
-        if (!Feature::isActive('MCP_SERVER') || $this->builder === null || $this->registry === null) {
+        if ($this->builder === null || $this->registry === null) {
             $io->error('MCP bundle is not installed.');
 
             return self::FAILURE;

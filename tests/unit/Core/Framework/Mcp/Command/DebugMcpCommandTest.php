@@ -29,30 +29,6 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(McpCapabilityCatalog::class)]
 class DebugMcpCommandTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        $_SERVER['MCP_SERVER'] = '1';
-    }
-
-    protected function tearDown(): void
-    {
-        unset($_SERVER['MCP_SERVER']);
-    }
-
-    public function testExecuteReturnsErrorWhenFeatureFlagIsOff(): void
-    {
-        $_SERVER['MCP_SERVER'] = false;
-        try {
-            $tester = new CommandTester($this->makeCommand(new Registry()));
-            $tester->execute([]);
-
-            static::assertSame(1, $tester->getStatusCode());
-            static::assertStringContainsString('MCP bundle is not installed', $tester->getDisplay());
-        } finally {
-            $_SERVER['MCP_SERVER'] = '1';
-        }
-    }
-
     /**
      * @return iterable<string, array{?Builder, ?Registry}>
      */

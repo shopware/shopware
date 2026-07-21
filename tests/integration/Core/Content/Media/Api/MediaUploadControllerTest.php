@@ -187,7 +187,7 @@ class MediaUploadControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
         $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->get($this->mediaId);
+        $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->getEntities()->get($this->mediaId);
 
         static::assertInstanceOf(MediaEntity::class, $media);
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
@@ -226,7 +226,7 @@ class MediaUploadControllerTest extends TestCase
         );
         $response = $this->getBrowser()->getResponse();
 
-        $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->get($this->mediaId);
+        $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->getEntities()->get($this->mediaId);
 
         static::assertInstanceOf(MediaEntity::class, $media);
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
@@ -291,7 +291,7 @@ class MediaUploadControllerTest extends TestCase
         ];
 
         $this->mediaRepository->create([$data], $context);
-        $media = $this->mediaRepository->search(new Criteria([$id]), $context)->get($id);
+        $media = $this->mediaRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(MediaEntity::class, $media);
         static::assertNotEmpty($media->getPath());
@@ -315,7 +315,7 @@ class MediaUploadControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertSame(204, $response->getStatusCode());
 
-        $updated = $this->mediaRepository->search(new Criteria([$id]), $context)->get($id);
+        $updated = $this->mediaRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(MediaEntity::class, $updated);
         static::assertNotSame($media->getFileName(), $updated->getFileName());
@@ -377,7 +377,7 @@ class MediaUploadControllerTest extends TestCase
 
     private function getMediaEntity(): MediaEntity
     {
-        $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->get($this->mediaId);
+        $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->getEntities()->get($this->mediaId);
         static::assertInstanceOf(MediaEntity::class, $media);
         $response = $this->getBrowser()->getResponse();
 

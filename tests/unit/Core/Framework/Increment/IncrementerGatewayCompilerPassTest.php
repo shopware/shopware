@@ -10,12 +10,14 @@ use Shopware\Core\Framework\Increment\ArrayIncrementer;
 use Shopware\Core\Framework\Increment\IncrementerGatewayCompilerPass;
 use Shopware\Core\Framework\Increment\MySQLIncrementer;
 use Shopware\Core\Framework\Increment\RedisIncrementer;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(IncrementerGatewayCompilerPass::class)]
 class IncrementerGatewayCompilerPassTest extends TestCase
 {

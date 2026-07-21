@@ -11,7 +11,7 @@ use Symfony\Component\HttpKernel\Event\TerminateEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Cleans up cached tool results when an MCP session ends (DELETE /api/_mcp).
  * Runs on kernel.terminate so cleanup happens after the response is sent.

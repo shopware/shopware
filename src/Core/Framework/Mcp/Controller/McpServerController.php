@@ -11,7 +11,6 @@ use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlist;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
@@ -32,7 +31,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Shopware-aware entry point for the MCP protocol over HTTP.
  * Applies Shopware's Admin API authentication and route scoping, then delegates
@@ -84,7 +83,7 @@ class McpServerController
     )]
     public function handle(Request $request): Response
     {
-        if (!Feature::isActive('MCP_SERVER') || $this->server === null || !$this->transportFactory->isAvailable()) {
+        if ($this->server === null || !$this->transportFactory->isAvailable()) {
             return new Response(null, Response::HTTP_NOT_FOUND);
         }
 

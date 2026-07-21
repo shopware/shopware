@@ -176,7 +176,7 @@
             <argument type="service" id="Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 
-            <tag name="shopware.demodata_generator" option-name="newsletter-recipients" option-default="0"/>
+            <tag name="shopware.demodata_generator" option-name="newsletter-recipients" option-default="20"/>
         </service>
     </services>
 </container>

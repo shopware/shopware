@@ -5,6 +5,13 @@ const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 
+const FILE_FORMAT_TRANSLATION_KEYS = {
+    pdf: 'sw-flow.modals.document.fileFormats.pdf',
+    html: 'sw-flow.modals.document.fileFormats.html',
+    zugferd_xml: 'sw-flow.modals.document.fileFormats.zugferdXml',
+    zugferd_embedded_pdf: 'sw-flow.modals.document.fileFormats.zugferdEmbeddedPdf',
+};
+
 /**
  * @private
  * @sw-package after-sales
@@ -14,6 +21,7 @@ export default {
 
     inject: [
         'repositoryFactory',
+        'documentV2Service',
     ],
 
     emits: [
@@ -31,7 +39,12 @@ export default {
     data() {
         return {
             documentTypesSelected: [],
+            documentTypeSelected: null,
+            fileFormatsSelected: [],
+            supportedDocumentTypes: {},
+            isLoadingSupportedDocumentTypes: false,
             fieldError: null,
+            fileFormatsFieldError: null,
         };
     },
 
@@ -47,6 +60,25 @@ export default {
             return criteria;
         },
 
+        isDocumentGenerationReworkActive() {
+            return Shopware.Feature.isActive('DOCUMENT_GENERATION_REWORK');
+        },
+
+        documentTypeOptions() {
+            return this.documentTypes.filter((documentType) => documentType.technicalName in this.supportedDocumentTypes);
+        },
+
+        fileFormatOptions() {
+            const formats = this.supportedDocumentTypes[this.documentTypeSelected]?.formats ?? [];
+
+            return formats.map((format) => {
+                return {
+                    value: format,
+                    label: this.translateFileFormat(format),
+                };
+            });
+        },
+
         ...mapState(() => Store.get('swFlow'), ['documentTypes']),
     },
 
@@ -56,6 +88,12 @@ export default {
                 this.fieldError = null;
             }
         },
+
+        fileFormatsSelected(value) {
+            if (value.length > 0 && this.fileFormatsFieldError) {
+                this.fileFormatsFieldError = null;
+            }
+        },
     },
 
     created() {
@@ -63,7 +101,28 @@ export default {
     },
 
     methods: {
-        createdComponent() {
+        async createdComponent() {
+            if (!this.documentTypes.length) {
+                this.documentTypeRepository.search(this.documentTypeCriteria).then((data) => {
+                    Shopware.Store.get('swFlow').documentTypes = data;
+                });
+            }
+
+            if (!this.isDocumentGenerationReworkActive) {
+                this.initializeLegacyState();
+
+                return;
+            }
+
+            await this.loadSupportedDocumentTypes();
+
+            this.documentTypeSelected =
+                this.sequence?.config?.documentType ?? this.sequence?.config?.documentTypes?.[0]?.documentType ?? null;
+
+            this.fileFormatsSelected = this.sequence?.config?.fileFormats || [];
+        },
+
+        initializeLegacyState() {
             if (this.sequence?.config?.documentType) {
                 this.documentTypesSelected = [this.sequence.config];
             } else {
@@ -73,11 +132,25 @@ export default {
             this.documentTypesSelected = this.documentTypesSelected.map((type) => {
                 return type.documentType;
             });
+        },
 
-            if (!this.documentTypes.length) {
-                this.documentTypeRepository.search(this.documentTypeCriteria).then((data) => {
-                    Shopware.Store.get('swFlow').documentTypes = data;
-                });
+        async loadSupportedDocumentTypes() {
+            this.isLoadingSupportedDocumentTypes = true;
+
+            try {
+                const response = await this.documentV2Service.getAvailableTypes();
+                this.supportedDocumentTypes = response.data?.documentTypes ?? {};
+            } finally {
+                this.isLoadingSupportedDocumentTypes = false;
+            }
+        },
+
+        onDocumentTypeSelectedChange(value) {
+            this.documentTypeSelected = value;
+            this.fileFormatsSelected = [];
+
+            if (this.fieldError) {
+                this.fieldError = null;
             }
         },
 
@@ -86,6 +159,46 @@ export default {
         },
 
         onAddAction() {
+            if (!this.isDocumentGenerationReworkActive) {
+                this.onAddLegacyAction();
+
+                return;
+            }
+
+            let hasError = false;
+
+            if (!this.documentTypeSelected) {
+                this.fieldError = new ShopwareError({
+                    code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                });
+
+                hasError = true;
+            }
+
+            if (!this.fileFormatsSelected.length) {
+                this.fileFormatsFieldError = new ShopwareError({
+                    code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                });
+
+                hasError = true;
+            }
+
+            if (hasError) {
+                return;
+            }
+
+            const sequence = {
+                ...this.sequence,
+                config: {
+                    documentType: this.documentTypeSelected,
+                    fileFormats: [...this.fileFormatsSelected],
+                },
+            };
+
+            this.$emit('process-finish', sequence);
+        },
+
+        onAddLegacyAction() {
             if (!this.documentTypesSelected.length) {
                 this.fieldError = new ShopwareError({
                     code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
@@ -94,10 +207,6 @@ export default {
                 return;
             }
 
-            let sequence = {
-                ...this.sequence,
-            };
-
             const documentTypes = this.documentTypesSelected.map((documentType) => {
                 return {
                     documentType: documentType,
@@ -105,14 +214,20 @@ export default {
                 };
             });
 
-            sequence = {
-                ...sequence,
+            const sequence = {
+                ...this.sequence,
                 config: {
                     documentTypes,
                 },
             };
 
             this.$emit('process-finish', sequence);
+        },
+
+        translateFileFormat(format) {
+            const translationKey = FILE_FORMAT_TRANSLATION_KEYS[format];
+
+            return translationKey ? this.$t(translationKey) : format;
         },
     },
 };

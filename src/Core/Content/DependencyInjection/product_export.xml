@@ -59,6 +59,8 @@
         <service id="Shopware\Core\Content\ProductExport\Command\ProductExportGenerateCommand">
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
             <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExporter"/>
+            <argument type="service" id="product_export.repository"/>
+            <argument type="service" id="logger"/>
             <tag name="console.command"/>
         </service>
 

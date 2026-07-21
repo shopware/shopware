@@ -35,10 +35,10 @@ class System extends Bundle
 
         $loader = new XmlFileLoader($container, $configLocator);
         $phpLoader = new PhpFileLoader($container, $configLocator);
-        $loader->load('sales_channel.xml');
+        $phpLoader->load('sales_channel.php');
         $loader->load('country.xml');
         $loader->load('currency.xml');
-        $loader->load('custom_entity.xml');
+        $phpLoader->load('custom_entity.php');
         $loader->load('locale.xml');
         $loader->load('snippet.xml');
         $phpLoader->load('salutation.php');
@@ -48,8 +48,8 @@ class System extends Bundle
         $loader->load('user.xml');
         $loader->load('integration.xml');
         $phpLoader->load('state_machine.php');
-        $loader->load('configuration.xml');
-        $loader->load('number_range.xml');
+        $phpLoader->load('configuration.php');
+        $phpLoader->load('number_range.php');
         $loader->load('tag.xml');
 
         $phpLoader->load('consent.php');

@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Composer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Composer\Factory;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Factory::class)]
 class FactoryTest extends TestCase
 {

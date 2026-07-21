@@ -23,6 +23,7 @@ use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
@@ -47,6 +48,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(WebhookManager::class)]
 #[DisabledFeatures(['WEBHOOKS_REWORK'])]
 class WebhookManagerTest extends TestCase

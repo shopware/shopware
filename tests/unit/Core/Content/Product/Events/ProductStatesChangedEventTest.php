@@ -8,10 +8,12 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\UpdatedStates;
 use Shopware\Core\Content\Product\Events\ProductStatesChangedEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductStatesChangedEvent::class)]
 class ProductStatesChangedEventTest extends TestCase
 {

@@ -9,6 +9,7 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppDownloader;
 use Shopware\Core\Framework\App\Exception\AppDownloadException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpClient\Chunk\DataChunk;
 use Symfony\Component\HttpClient\Response\ResponseStream;
@@ -18,6 +19,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppDownloader::class)]
 class AppDownloaderTest extends TestCase
 {

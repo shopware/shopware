@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\Loader\PhpFileLoader;
@@ -13,6 +14,7 @@ use Symfony\Component\Routing\RouteCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Bundle::class)]
 class BundleTest extends TestCase
 {

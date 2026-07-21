@@ -22,9 +22,11 @@ readonly class StaticDocumentRenderer extends AbstractDocumentRenderer
      * @param list<string> $dependencies
      */
     public function __construct(
-        private DocumentFormat $format = DocumentFormat::PDF,
+        private DocumentFormat|string $format = DocumentFormat::PDF,
         private array $documentTypes = [DocumentType::INVOICE->value],
         private array $dependencies = [],
+        private ?string $fileExtension = null,
+        private ?string $mimeType = null,
     ) {
     }
 
@@ -35,7 +37,12 @@ readonly class StaticDocumentRenderer extends AbstractDocumentRenderer
 
     public function getFormat(): string
     {
-        return $this->format->value;
+        return $this->format instanceof DocumentFormat ? $this->format->value : $this->format;
+    }
+
+    public function getFileExtension(): string
+    {
+        return $this->fileExtension ?? ($this->format instanceof DocumentFormat ? $this->format->fileExtension() : $this->format);
     }
 
     public function getDependencies(): array
@@ -46,11 +53,11 @@ readonly class StaticDocumentRenderer extends AbstractDocumentRenderer
     public function renderToString(RenderInput $input, RenderState $state, Context $context): RenderResult
     {
         return new RenderResult(
-            $this->format->value,
+            $this->getFormat(),
             'content',
             'filename',
-            $this->format->fileExtension(),
-            $this->format->mimeType(),
+            $this->getFileExtension(),
+            $this->mimeType ?? ($this->format instanceof DocumentFormat ? $this->format->mimeType() : 'application/octet-stream'),
         );
     }
 }

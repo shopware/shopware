@@ -21,16 +21,21 @@ You normally do not reference this folder manually. From the project root:
 
 ```bash
 composer admin:setup-extension-tooling   # generate configs for all installed extensions
+composer admin:setup-extension-tooling:check   # guaranteed-safe dry-run (writes nothing; exit 1 on drift)
 composer admin:check-extensions          # pick extensions to type-check + lint (interactive picker)
 composer admin:check-extensions -- --only=SwagPayPal,MyPlugin   # check specific ones, no prompt
 composer admin:check-extensions -- --all                        # check every extension, no prompt
 composer admin:check-extensions -- --only=MyPlugin --fix        # apply ESLint autofixes
 composer admin:check-extensions -- --only=MyPlugin --update-baseline  # record current findings (see Baseline)
+composer admin:check-extensions -- --all --fail-on-skipped      # CI: fail if any writable extension is not checked
 composer admin:setup-extension-tooling -- --help                # full option reference
 ```
 
 ⚠ Options always need the `--` separator — Composer silently swallows anything before it
-(`composer admin:setup-extension-tooling --check` runs a plain setup, not a dry-run).
+(`composer admin:setup-extension-tooling --check` runs a plain setup, not a dry-run). For a
+dry-run that **cannot** mutate files regardless of the separator, use the dedicated
+`composer admin:setup-extension-tooling:check` alias — prefer it in CI. (`--explain` is also
+read-only.)
 
 In an interactive terminal `admin:check-extensions` opens a numbered picker (accepts
 numbers, ranges, `a` for all, `w` for writable-only). Non-interactive shells (CI, piped)
@@ -38,6 +43,14 @@ check all extensions. `--verbose` additionally prints the underlying tool output
 and skipped extensions; `--show-commands` prints the exact vue-tsc/ESLint invocation per
 extension; `--fix` forwards to ESLint (vendor-installed extensions only when named via
 `--only`).
+
+A writable extension whose own config does not compose the preset is visibly skipped (never
+silently green), and by default the run still exits 0 with a prominent yellow warning so
+incremental adoption stays possible. **In CI, add `--fail-on-skipped`**: it makes any skipped
+or blocked writable extension exit 1, so `exit 0` cannot mean "checked nothing" (vendor
+extensions keep their separate `--strict-vendor` policy). A partially unknown `--only`
+selection (e.g. a renamed extension) fails the whole run and names the unknown entries rather
+than silently checking only the ones that still match.
 
 Setup discovers every installed extension with Administration sources (from
 `var/plugins.json` — refresh it with `bin/console bundle:dump` after installing or
@@ -107,6 +120,32 @@ ESLint's type-aware rules are off there.
 
 Type-checking specs surfaces findings that were previously invisible. Record them once with
 `--update-baseline` (see below) so the check fails only on new ones.
+
+## From JavaScript to TypeScript
+
+A `.js` plugin is linted immediately, but TypeScript checks nothing — `checkJs` is off, so
+`.js` sources are parsed, never type-checked (the check reports this honestly as
+`0 TypeScript files`, not a green pass). To get real type-checking, migrate incrementally —
+one file at a time, no big-bang rewrite:
+
+1. **Rename** a `.js` source to `.ts` (or `.vue` for a component). Nothing else needs to
+   change first — the generated/bridge config already includes `.ts`.
+2. **Re-run** `composer admin:check-extensions -- --only=<name>`. Expect a burst of
+   `TS7006 … implicitly has an 'any' type` on un-annotated parameters (the preset is
+   `strict`, so `noImplicitAny` is on) — this is normal for a fresh conversion.
+3. **Annotate** parameters and return types. Use the global `Shopware` object and
+   `Entity<'...'>` helpers rather than importing Administration internals (the runtime-contract
+   rule forbids `src/*` imports).
+4. **Expect ESLint findings to rise too**: a `.ts` file also gets the type-aware
+   `@typescript-eslint/no-unsafe-*` rules that a `.js` file never triggered. That is coverage,
+   not regression.
+5. **Baseline the rest** if a large file produces too many findings at once (see below), then
+   shrink the baseline over time.
+
+There is no bulk `.js`→`.ts` codemod: an automatic rename-and-annotate would either produce
+uncompilable code or silently hide real type errors, so conversion stays a deliberate,
+per-file, developer-driven step. `--fix` still applies the ESLint autofixes and Shopware
+deprecation codemods on whatever files exist.
 
 ## Baseline
 

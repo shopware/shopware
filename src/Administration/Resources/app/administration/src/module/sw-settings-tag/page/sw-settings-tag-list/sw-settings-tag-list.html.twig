@@ -64,96 +64,99 @@
             {% block sw_settings_tag_list_content_card %}
             <mt-card
                 class="sw-settings-tag-list__content"
+                :class="{ 'is--empty': !isLoading && total <= 0 }"
                 position-identifier="sw-settings-tag-list-content"
             >
                 <template #toolbar>
+                    <template v-if="!hasInitialTagEmptyState">
                     {% block sw_settings_tag_list_grid_toolbar_search %}
-                    <sw-card-filter
-                        ref="swCardFilter"
-                        :placeholder="$t('sw-settings-tag.list.searchPlaceholder')"
-                        @sw-card-filter-term-change="onSearch"
-                    />
+                        <sw-card-filter
+                            ref="swCardFilter"
+                            :placeholder="$t('sw-settings-tag.list.searchPlaceholder')"
+                            @sw-card-filter-term-change="onSearch"
+                        />
                     {% endblock %}
                     {% block sw_settings_tag_list_grid_toolbar_filter %}
-                    <sw-context-button
-                        :menu-width="300"
-                        :auto-close="false"
-                        :auto-close-outside-click="true"
-                        :z-index="1000"
-                        :additional-context-menu-classes="{ 'sw-settings-tag-list__filter': true }"
-                    >
-                        <template #button>
+                        <sw-context-button
+                            :menu-width="300"
+                            :auto-close="false"
+                            :auto-close-outside-click="true"
+                            :z-index="1000"
+                            :additional-context-menu-classes="{ 'sw-settings-tag-list__filter': true }"
+                        >
+                            <template #button>
                             {% block sw_settings_tag_list_grid_toolbar_filter_menu_trigger %}
-                            <mt-button
-                                class="sw-settings-tag-list__filter-menu-trigger"
-                                size="small"
-                                variant="secondary"
-                            >
-                                <mt-icon
-                                    name="regular-filter-s"
-                                    size="16"
-                                />
-                                {{ $t('sw-settings-tag.list.filter') }}
-                            </mt-button>
-                            <i
-                                v-if="filterCount > 0"
-                                class="filter-badge"
-                            >
-                                {{ filterCount }}
-                            </i>
+                                <mt-button
+                                    class="sw-settings-tag-list__filter-menu-trigger"
+                                    size="small"
+                                    variant="secondary"
+                                >
+                                    <mt-icon
+                                        name="regular-filter-s"
+                                        size="16"
+                                    />
+                                    {{ $t('sw-settings-tag.list.filter') }}
+                                </mt-button>
+                                <i
+                                    v-if="filterCount > 0"
+                                    class="filter-badge"
+                                >
+                                    {{ filterCount }}
+                                </i>
                             {% endblock %}
-                        </template>
+                            </template>
 
                         {% block sw_settings_tag_list_grid_toolbar_filter_header %}
-                        <h3>{{ $t('sw-settings-tag.list.filter') }}</h3>
+                            <h3>{{ $t('sw-settings-tag.list.filter') }}</h3>
                         {% endblock %}
 
                         {% block sw_settings_tag_list_grid_toolbar_filter_divider %}
-                        <sw-context-menu-divider />
+                            <sw-context-menu-divider />
                         {% endblock %}
 
                         {% block sw_settings_tag_list_grid_toolbar_filter_duplicate %}
 
-                        <mt-switch
-                            v-model="duplicateFilter"
-                            :label="$t('sw-settings-tag.list.filterDuplicate')"
-                            @update:model-value="onFilter"
-                        />
+                            <mt-switch
+                                v-model="duplicateFilter"
+                                :label="$t('sw-settings-tag.list.filterDuplicate')"
+                                @update:model-value="onFilter"
+                            />
                         {% endblock %}
 
                         {% block sw_settings_tag_list_grid_toolbar_filter_empty %}
 
-                        <mt-switch
-                            v-model="emptyFilter"
-                            :label="$t('sw-settings-tag.list.filterEmpty')"
-                            @update:model-value="onFilter"
-                        />
+                            <mt-switch
+                                v-model="emptyFilter"
+                                :label="$t('sw-settings-tag.list.filterEmpty')"
+                                @update:model-value="onFilter"
+                            />
                         {% endblock %}
 
                         {% block sw_settings_tag_list_grid_toolbar_filter_assignment %}
-                        <sw-multi-select
-                            v-model:value="assignmentFilter"
-                            class="sw-settings-tag-list__filter-assignment-select"
-                            :label="$t('sw-settings-tag.list.filterAssignemnt')"
-                            :placeholder="$t('sw-settings-tag.list.placeholderFilterAssignemnt')"
-                            :options="assignmentFilterOptions"
-                            :disabled="emptyFilter || undefined"
-                            @update:value="onFilter"
-                        />
+                            <sw-multi-select
+                                v-model:value="assignmentFilter"
+                                class="sw-settings-tag-list__filter-assignment-select"
+                                :label="$t('sw-settings-tag.list.filterAssignemnt')"
+                                :placeholder="$t('sw-settings-tag.list.placeholderFilterAssignemnt')"
+                                :options="assignmentFilterOptions"
+                                :disabled="emptyFilter || undefined"
+                                @update:value="onFilter"
+                            />
                         {% endblock %}
 
                         {% block sw_settings_tag_list_grid_toolbar_filter_footer %}
-                        <div class="sw-settings-tag-list__filter-footer">
-                            <a
-                                href="#"
-                                @click.prevent="resetFilters"
-                            >
-                                {{ $t('sw-settings-tag.list.resetFilters') }}
-                            </a>
-                        </div>
+                            <div class="sw-settings-tag-list__filter-footer">
+                                <a
+                                    href="#"
+                                    @click.prevent="resetFilters"
+                                >
+                                    {{ $t('sw-settings-tag.list.resetFilters') }}
+                                </a>
+                            </div>
                         {% endblock %}
-                    </sw-context-button>
+                        </sw-context-button>
                     {% endblock %}
+                    </template>
                 </template>
 
                 <template #grid>
@@ -466,9 +469,36 @@
                     {% block sw_settings_tag_list_empty_state %}
                     <mt-empty-state
                         v-else
-                        :icon="$route.meta.$module.icon"
-                        :headline="$t('sw-settings-tag.list.titleEmptyStateList')"
-                    />
+                        class="sw-settings-tag-list__empty-state"
+                        icon="regular-tag"
+                        :headline="tagEmptyStateHeadline"
+                        :description="tagEmptyStateDescription"
+                        role="status"
+                        aria-live="polite"
+                        aria-atomic="true"
+                    >
+                        <template
+                            v-if="hasInitialTagEmptyState"
+                            #button
+                        >
+                            {% block sw_settings_tag_list_empty_state_button %}
+                            <mt-button
+                                v-tooltip.bottom="{
+                                    message: $t('sw-privileges.tooltip.warning'),
+                                    disabled: acl.can('tag.creator'),
+                                    showOnDisabledElements: true
+                                }"
+                                class="sw-settings-tag-list__empty-state-button-create"
+                                variant="secondary"
+                                :disabled="!acl.can('tag.creator') || undefined"
+                                size="small"
+                                @click="onDetail(null)"
+                            >
+                                {{ $t('sw-settings-tag.list.buttonAddTag') }}
+                            </mt-button>
+                            {% endblock %}
+                        </template>
+                    </mt-empty-state>
                     {% endblock %}
 
                     {% block sw_settings_tag_list_detail_add_modal %}

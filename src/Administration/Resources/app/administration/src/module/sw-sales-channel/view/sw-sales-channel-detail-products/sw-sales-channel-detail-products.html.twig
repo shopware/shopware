@@ -149,15 +149,15 @@
                 </sw-entity-listing>
                 {% endblock %}
 
+                {# @deprecated tag:v6.8.0 - Block `sw_sales_channel_detail_products_card_section_primary_image` will be removed. Use `sw_sales_channel_detail_products_card_section_primary_empty_state` instead. #}
                 {% block sw_sales_channel_detail_products_card_section_primary_empty_state %}
+                {% block sw_sales_channel_detail_products_card_section_primary_image %}{% endblock %}
                 <mt-empty-state
                     v-else
                     icon="solid-products"
                     :headline="$t('sw-sales-channel.detail.products.titleEmptyStateTable')"
+                    :description="$t('sw-sales-channel.detail.products.textEmptyStateTable')"
                 />
-
-                {# @deprecated tag:v6.8.0 - Will be removed, use mt-button icon property of mt-empty-state instead #}
-                {% block sw_sales_channel_detail_products_card_section_primary_image %}{% endblock %}
                 {% endblock %}
             </sw-card-section>
             {% endblock %}
@@ -166,14 +166,17 @@
     </template>
     {% endblock %}
 
+    {# @deprecated tag:v6.8.0 - Blocks `sw_sales_channel_detail_products_empty_state_button` and `sw_sales_channel_detail_products_empty_state_image` will be removed. Use `sw_sales_channel_detail_products_empty_state` instead. #}
     {% block sw_sales_channel_detail_products_empty_state %}
+    {% block sw_sales_channel_detail_products_empty_state_button %}{% endblock %}
+    {% block sw_sales_channel_detail_products_empty_state_image %}{% endblock %}
     <mt-empty-state
         v-if="products.length <= 0 && !searchTerm && !isLoading"
         icon="solid-products"
         :headline="$t('sw-sales-channel.detail.products.titleEmptyState')"
+        :description="$t('sw-sales-channel.detail.products.textEmptyState')"
     >
         <template #button>
-            {% block sw_sales_channel_detail_products_empty_state_button %}
             <mt-button
                 v-tooltip="{
                     message: $t('sw-privileges.tooltip.warning'),
@@ -186,12 +189,8 @@
             >
                 {{ $t('sw-sales-channel.detail.products.buttonAddProducts') }}
             </mt-button>
-            {% endblock %}
         </template>
     </mt-empty-state>
-
-    {# @deprecated tag:v6.8.0 - Will be removed, use mt-button icon property of mt-empty-state instead #}
-    {% block sw_sales_channel_detail_products_empty_state_image %}{% endblock %}
     {% endblock %}
 
     {% block sw_sales_channel_detail_products_assignment_modal %}

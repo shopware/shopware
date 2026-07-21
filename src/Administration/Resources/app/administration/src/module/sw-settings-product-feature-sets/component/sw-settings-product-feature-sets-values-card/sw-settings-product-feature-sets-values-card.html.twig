@@ -8,7 +8,7 @@
 >
 
     <template #grid>
-        <div v-if="!valuesEmpty && !disabled">
+        <div v-if="showValuesGrid">
             {% block sw_product_feature_set_toolbar %}
             <div class="sw-product-feature-set__toolbar">
 
@@ -66,6 +66,7 @@
 
             {% block sw_product_feature_set_card_grid %}
             <sw-data-grid
+                v-if="values.length > 0"
                 :data-source="values"
                 :columns="getColumns()"
                 :show-selection="allowEdit"
@@ -106,39 +107,37 @@
         </div>
     </template>
 
+    {# @deprecated tag:v6.8.0 - Blocks `sw_product_feature_set_card_empty_state_image`, `sw_product_feature_set_card_empty_state_label` and `sw_product_feature_set_card_empty_state_button` will be removed. Use `sw_product_feature_set_card_empty_state` instead. #}
     {% block sw_product_feature_set_card_empty_state %}
-    <template v-if="valuesEmpty || disabled">
+    <template v-if="showValuesEmptyState">
 
-        <div class="sw-settings-product-feature-set-card__empty-state">
-            {% block sw_product_feature_set_card_empty_state_image %}
-            <img
-                :src="assetFilter('administration/administration/static/img/empty-states/settings-empty-state.svg')"
-                alt=""
+        {% block sw_product_feature_set_card_empty_state_image %}{% endblock %}
+        {% block sw_product_feature_set_card_empty_state_label %}{% endblock %}
+        {% block sw_product_feature_set_card_empty_state_button %}{% endblock %}
+        <mt-empty-state
+            class="sw-settings-product-feature-set-card__empty-state"
+            icon="regular-check-square"
+            :headline="valuesEmptyStateHeadline"
+            :description="valuesEmptyStateDescription"
+            :role="term ? 'status' : undefined"
+            :aria-live="term ? 'polite' : undefined"
+            :aria-atomic="term ? 'true' : undefined"
+        >
+            <template
+                v-if="showValuesEmptyStateAction"
+                #button
             >
-            {% endblock %}
-
-            {% block sw_product_feature_set_card_empty_state_label %}
-            <div class="sw-settings-product-feature-set-card__empty-state--label">
-                <p v-if="disabled">
-                    {{ $t('sw-settings-product-feature-sets.valuesCard.createStateDescription') }}
-                </p>
-                <p v-else>
-                    {{ $t('sw-settings-product-feature-sets.valuesCard.emptyStateDescription') }}
-                </p>
-            </div>
-            {% endblock %}
-
-            {% block sw_product_feature_set_card_empty_state_button %}
-            <mt-button
-                size="small"
-                :disabled="disabled || undefined"
-                variant="secondary"
-                @click="showModal = true"
-            >
-                {{ $t('sw-settings-product-feature-sets.valuesCard.labelCreateNew') }}
-            </mt-button>
-            {% endblock %}
-        </div>
+                <mt-button
+                    class="sw-settings-product-feature-set-card__empty-state-button"
+                    ghost
+                    size="small"
+                    variant="secondary"
+                    @click="showModal = true"
+                >
+                    {{ $t('sw-settings-product-feature-sets.valuesCard.labelCreateNew') }}
+                </mt-button>
+            </template>
+        </mt-empty-state>
 
     </template>
     {% endblock %}

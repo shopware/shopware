@@ -31,7 +31,7 @@ async function createWrapper(items, mediaRepositoryFunctions = {}) {
                 },
                 'sw-media-folder-info': true,
                 'sw-media-quickinfo-multiple': true,
-                'sw-empty-state': true,
+                'mt-empty-state': true,
             },
 
             provide: {

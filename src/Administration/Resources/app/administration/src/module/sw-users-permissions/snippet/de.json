@@ -126,6 +126,8 @@
                 "labelRoles": "Rollen",
                 "labelEmail": "E-Mail-Adresse",
                 "status": "Status",
+                "messageEmptyTitle": "Noch keine Benutzer vorhanden",
+                "messageEmptySubline": "Erstelle Benutzer, um den Zugriff auf die Administration zu verwalten.",
                 "titleModalDelete": "Benutzer löschen",
                 "textModalDelete": "Möchtest Du den Benutzer \"{name}\" wirklich löschen?",
                 "notification": {
@@ -172,7 +174,7 @@
                 "textChangePassword": "Mit einem Klick auf 'Ändern' wird das Passwort direkt gespeichert.",
                 "addAccessKey": "Zugangsschlüssel erstellen",
                 "noAccessKeysTitle": "Keine Zugangsschlüssel vorhanden",
-                "noAccessKeysSubline": "Erstelle hier Zugangsschlüssel",
+                "noAccessKeysSubline": "Erstelle Zugangsschlüssel, um diesen Benutzer mit externen Integrationen zu verbinden.",
                 "labelAccessKey": "Zugangsschlüssel",
                 "labelPermissions": "Berechtigungen",
                 "disabledRoleSelectWarning": "Rollen sind nur für Benutzer verfügbar, die keine Administrator-Rechte haben.",

@@ -1,6 +1,8 @@
 .sw-customer-detail-order {
     .mt-card__toolbar {
-        display: grid;
-        grid-template-columns: 1fr auto;
+        .sw-card-filter {
+            flex: 1;
+            min-width: 0;
+        }
     }
 }

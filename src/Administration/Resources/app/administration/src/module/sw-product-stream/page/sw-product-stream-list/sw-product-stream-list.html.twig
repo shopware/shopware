@@ -64,10 +64,26 @@
                 :centered="true"
                 :icon="$route.meta.$module.icon"
                 :headline="isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-product-stream.list.messageEmpty')"
-                :description="isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : $t($route.meta.$module.description)"
+                :description="isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : $t('sw-product-stream.list.messageEmptySubline')"
                 :link-text="isValidTerm(term) ? $t('sw-empty-state.messageNoResultLink') : ''"
                 :link-href="isValidTerm(term) ? $router.resolve({ name: 'sw.profile.index.searchPreferences' }).href : ''"
-            />
+            >
+                <template
+                    v-if="!isValidTerm(term)"
+                    #button
+                >
+                    <mt-button
+                        v-tooltip.bottom="getNoPermissionsTooltip('product_stream.creator')"
+                        class="sw-product-stream-list__empty-state-create-action"
+                        :disabled="!acl.can('product_stream.creator')"
+                        ghost
+                        variant="secondary"
+                        @click="$router.push({ name: 'sw.product.stream.create' })"
+                    >
+                        {{ $t('sw-product-stream.list.buttonAddProductStream') }}
+                    </mt-button>
+                </template>
+            </mt-empty-state>
             {% endblock %}
 
             {% block sw_product_stream_list_grid %}

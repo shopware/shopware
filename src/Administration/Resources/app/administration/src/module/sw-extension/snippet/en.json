@@ -232,7 +232,8 @@
           "cardTitle": "Ratings and reviews",
           "labelMoreReviewsBtn": "Read more reviews",
           "footerHeadline": "Add a review",
-          "labelNoReviews": "This extension hasn't received any ratings or reviews yet."
+          "labelNoReviews": "This extension hasn't received any ratings or reviews yet.",
+          "sublineNoReviews": "Reviews will appear here once customers rate this extension."
         },
         "sw-extension-review-creation-inputs": {
           "title": "Rate extension",
@@ -306,13 +307,15 @@
       "sw-extension-my-extensions-listing": {
         "apps": {
           "noActivePlugins": "No active apps found.",
+          "textNoActivePlugins": "Activate an app to use its features.",
           "titleEmptyState": "No apps installed yet",
-          "textEmptyState": "If you install apps, they will be listed here."
+          "textEmptyState": "Install apps to add features to your shop."
         },
         "themes": {
           "noActivePlugins": "No active themes found.",
+          "textNoActivePlugins": "Activate a theme to change how your storefront looks.",
           "titleEmptyState": "No themes installed yet",
-          "textEmptyState": "If you install themes, they will be listed here."
+          "textEmptyState": "Install themes to change how your storefront looks."
         },
         "btnOpenStore": "Open store",
         "alertExtensionManagement": {

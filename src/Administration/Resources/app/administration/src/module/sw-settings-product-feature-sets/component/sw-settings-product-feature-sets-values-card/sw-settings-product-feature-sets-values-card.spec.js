@@ -57,6 +57,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                             sync: true,
                         }),
                         'sw-button-group': true,
+                        'mt-empty-state': true,
                         'sw-extension-component-section': true,
                         'sw-settings-product-feature-sets-modal': true,
                         'sw-ai-copilot-badge': true,
@@ -261,8 +262,65 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         await flushPromises();
 
         const rootEmpty = wrapper.get(`.${classes.componentRoot}.is--empty`);
+        const emptyState = wrapper.get('.sw-settings-product-feature-set-card__empty-state');
 
-        expect(wrapper.vm).toBeTruthy();
-        expect(rootEmpty.exists()).toBeTruthy();
+        expect(wrapper.vm).toBe(true);
+        expect(rootEmpty.exists()).toBe(true);
+
+        expect(emptyState.attributes('headline')).toBe('sw-settings-product-feature-sets.valuesCard.emptyStateTitle');
+        expect(emptyState.attributes('description')).toBe(
+            'sw-settings-product-feature-sets.valuesCard.emptyStateDescription',
+        );
+        expect(emptyState.attributes('role')).toBeUndefined();
+        expect(wrapper.vm.showValuesEmptyStateAction).toBe(true);
+        expect(wrapper.find(`.${classes.valueList}`).exists()).toBe(false);
+    });
+
+    it('should render a save-first empty state when the feature set is not saved yet', async () => {
+        wrapper.unmount();
+        await flushPromises();
+
+        wrapper = await valuesCard(
+            {},
+            {
+                disabled: true,
+                isLoading: false,
+                productFeatureSet: {
+                    id: '21605c15655f441f9e1275e2a2f2e1d1',
+                    name: '4d4c4b4e-a52a-4756-a93b-2c5345224389',
+                    description: 'c67c181d-f883-4e3d-bce0-97ed913927fe',
+                    features: [],
+                },
+            },
+        );
+        await flushPromises();
+
+        const emptyState = wrapper.get('.sw-settings-product-feature-set-card__empty-state');
+
+        expect(emptyState.attributes('headline')).toBe('sw-settings-product-feature-sets.valuesCard.createStateTitle');
+        expect(emptyState.attributes('description')).toBe(
+            'sw-settings-product-feature-sets.valuesCard.createStateDescription',
+        );
+        expect(wrapper.vm.showValuesEmptyStateAction).toBe(false);
+        expect(wrapper.find('.sw-settings-product-feature-set-card__empty-state-button').exists()).toBeFalsy();
+    });
+
+    it('should render a search empty state when no values match', async () => {
+        await wrapper.setData({
+            term: 'zzz',
+            values: [],
+        });
+        await flushPromises();
+
+        const emptyState = wrapper.get('.sw-settings-product-feature-set-card__empty-state');
+
+        expect(wrapper.find(`.${classes.valueListToolbar}`).exists()).toBe(true);
+        expect(wrapper.find(`.${classes.valueList}`).exists()).toBe(false);
+        expect(emptyState.attributes('headline')).toBe('sw-settings-product-feature-sets.valuesCard.emptySearchTitle');
+        expect(emptyState.attributes('description')).toBe(
+            'sw-settings-product-feature-sets.valuesCard.emptySearchDescription',
+        );
+        expect(wrapper.vm.showValuesEmptyStateAction).toBe(false);
+        expect(wrapper.find('.sw-settings-product-feature-set-card__empty-state-button').exists()).toBe(false);
     });
 });

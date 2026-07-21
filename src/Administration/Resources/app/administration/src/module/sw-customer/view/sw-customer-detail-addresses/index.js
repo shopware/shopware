@@ -40,8 +40,10 @@ export default {
             showDeleteAddressModal: false,
             addressSortProperty: null,
             addressSortDirection: '',
+            term: '',
             currentAddress: null,
             customerAddressCustomFieldSets: null,
+            showEmptyState: false,
         };
     },
 
@@ -152,7 +154,7 @@ export default {
                     align: 'center',
                     iconLabel: 'regular-shopping-cart',
                     iconTooltip: this.$t('sw-customer.detailAddresses.columnDefaultShippingAddress'),
-                    iconSize: '20px',
+                    iconSize: '16px',
                 },
                 {
                     property: 'defaultBillingAddress',
@@ -160,7 +162,7 @@ export default {
                     align: 'center',
                     iconLabel: 'regular-file-text',
                     iconTooltip: this.$t('sw-customer.detailAddresses.columnDefaultBillingAddress'),
-                    iconSize: '20px',
+                    iconSize: '16px',
                 },
                 {
                     property: 'lastName',
@@ -353,6 +355,7 @@ export default {
         },
 
         onChange(term) {
+            this.term = term;
             this.activeCustomer.addresses.criteria.setPage(1);
             this.activeCustomer.addresses.criteria.setTerm(term);
 

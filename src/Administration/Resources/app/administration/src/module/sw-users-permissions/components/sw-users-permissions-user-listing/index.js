@@ -132,6 +132,22 @@ export default {
                 },
             ];
         },
+
+        showListingResults() {
+            return this.user?.length > 0;
+        },
+
+        userEmptyStateTitle() {
+            return this.term
+                ? this.$t('sw-empty-state.messageNoResultTitle')
+                : this.$t('sw-users-permissions.users.user-grid.messageEmptyTitle');
+        },
+
+        userEmptyStateDescription() {
+            return this.term
+                ? this.$t('sw-empty-state.messageNoResultSublineSimple')
+                : this.$t('sw-users-permissions.users.user-grid.messageEmptySubline');
+        },
     },
 
     methods: {

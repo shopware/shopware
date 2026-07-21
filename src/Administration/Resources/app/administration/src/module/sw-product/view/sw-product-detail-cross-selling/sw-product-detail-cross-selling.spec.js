@@ -16,7 +16,21 @@ async function createWrapper() {
             global: {
                 stubs: {
                     'sw-product-cross-selling-form': true,
-                    'sw-empty-state': true,
+                    'mt-card': {
+                        props: [
+                            'title',
+                        ],
+                        template: '<div class="mt-card" :data-title="title"><slot></slot></div>',
+                    },
+                    'mt-empty-state': {
+                        template: '<div class="mt-empty-state"><slot name="button"></slot></div>',
+                    },
+                    'mt-switch': {
+                        props: [
+                            'ariaLabel',
+                        ],
+                        template: '<input class="mt-switch" :aria-label="ariaLabel" type="checkbox">',
+                    },
                     'sw-skeleton': true,
                     'sw-inheritance-switch': true,
 
@@ -102,6 +116,9 @@ describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
 
         expect(wrapper.vm.isChild).toBe(true);
         expect(wrapper.vm.isInherited).toBe(true);
+        expect(wrapper.find('.mt-switch').attributes('aria-label')).toBe('sw-product.crossselling.inheritSwitchLabel');
+        expect(wrapper.find('label.sw-product-detail-cross-selling__inheritance-label').exists()).toBe(false);
+        expect(wrapper.find('span.sw-product-detail-cross-selling__inheritance-label').exists()).toBe(true);
     });
 
     it('should show empty state for main product', async () => {
@@ -116,5 +133,10 @@ describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
 
         expect(wrapper.vm.isChild).toBe(false);
         expect(wrapper.vm.isInherited).toBe(false);
+        expect(wrapper.find('.mt-card').attributes('data-title')).toBe('sw-product.crossselling.cardTitleCrossSelling');
+        expect(wrapper.find('.mt-empty-state').attributes('headline')).toBe('sw-product.crossselling.emptyStateTitle');
+        expect(wrapper.find('.mt-empty-state').attributes('description')).toBe(
+            'sw-product.crossselling.emptyStateDescription',
+        );
     });
 });

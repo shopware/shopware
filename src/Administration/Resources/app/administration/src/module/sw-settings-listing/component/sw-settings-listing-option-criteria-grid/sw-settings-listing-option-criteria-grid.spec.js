@@ -14,7 +14,33 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
         },
     ];
 
-    async function createWrapper() {
+    function createDefaultProductSortingEntity() {
+        return {
+            label: 'Price descending',
+            fields: [
+                {
+                    field: 'product.cheapestPrice',
+                    order: 'desc',
+                    priority: 0,
+                    naturalSorting: 0,
+                },
+                {
+                    field: 'product.stock',
+                    order: 'desc',
+                    priority: 3,
+                    naturalSorting: 0,
+                },
+                {
+                    field: 'product.cheapestPrice',
+                    order: 'asc',
+                    priority: 2,
+                    naturalSorting: 1,
+                },
+            ],
+        };
+    }
+
+    async function createWrapper(productSortingEntity = createDefaultProductSortingEntity()) {
         return mount(
             await wrapTestComponent('sw-settings-listing-option-criteria-grid', {
                 sync: true,
@@ -44,11 +70,9 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                     },
                     stubs: {
                         'mt-card': {
-                            template: '<div><slot></slot></div>',
+                            template: '<div><slot name="toolbar"></slot><slot></slot></div>',
                         },
-                        'sw-empty-state': {
-                            template: '<div class="sw-empty-state"></div>',
-                        },
+                        'mt-empty-state': true,
                         'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                         'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                         'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', {
@@ -88,29 +112,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                     },
                 },
                 props: {
-                    productSortingEntity: {
-                        label: 'Price descending',
-                        fields: [
-                            {
-                                field: 'product.cheapestPrice',
-                                order: 'desc',
-                                priority: 0,
-                                naturalSorting: 0,
-                            },
-                            {
-                                field: 'product.stock',
-                                order: 'desc',
-                                priority: 3,
-                                naturalSorting: 0,
-                            },
-                            {
-                                field: 'product.cheapestPrice',
-                                order: 'asc',
-                                priority: 2,
-                                naturalSorting: 1,
-                            },
-                        ],
-                    },
+                    productSortingEntity,
                 },
             },
         );
@@ -121,6 +123,23 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
     beforeEach(async () => {
         wrapper = await createWrapper();
         await flushPromises();
+    });
+
+    it('should render a sorting criteria empty state', async () => {
+        await wrapper.setProps({
+            productSortingEntity: {
+                label: 'New sorting option',
+                fields: [],
+            },
+        });
+        await flushPromises();
+
+        const emptyState = wrapper.get('.sw-settings-listing-option-criteria-grid__criteria-empty-state');
+
+        expect(wrapper.find('sw-single-select-stub').exists()).toBeTruthy();
+        expect(emptyState.attributes('icon')).toBe('regular-sort');
+        expect(emptyState.attributes('headline')).toBe('sw-settings-listing.base.criteria.emptyStateTitle');
+        expect(emptyState.attributes('description')).toBe('sw-settings-listing.base.criteria.emptyStateSubline');
     });
 
     it('should sort criterias by their position', async () => {

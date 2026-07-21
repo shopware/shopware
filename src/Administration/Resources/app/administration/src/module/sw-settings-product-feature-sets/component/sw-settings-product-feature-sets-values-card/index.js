@@ -71,6 +71,42 @@ export default {
             };
         },
 
+        showValuesGrid() {
+            return !this.disabled && (!this.valuesEmpty || !!this.term);
+        },
+
+        showValuesEmptyState() {
+            return this.disabled || this.values.length === 0;
+        },
+
+        showValuesEmptyStateAction() {
+            return !this.disabled && !this.term && this.allowEdit;
+        },
+
+        valuesEmptyStateHeadline() {
+            if (this.disabled) {
+                return this.$t('sw-settings-product-feature-sets.valuesCard.createStateTitle');
+            }
+
+            if (this.term) {
+                return this.$t('sw-settings-product-feature-sets.valuesCard.emptySearchTitle');
+            }
+
+            return this.$t('sw-settings-product-feature-sets.valuesCard.emptyStateTitle');
+        },
+
+        valuesEmptyStateDescription() {
+            if (this.disabled) {
+                return this.$t('sw-settings-product-feature-sets.valuesCard.createStateDescription');
+            }
+
+            if (this.term) {
+                return this.$t('sw-settings-product-feature-sets.valuesCard.emptySearchDescription');
+            }
+
+            return this.$t('sw-settings-product-feature-sets.valuesCard.emptyStateDescription');
+        },
+
         productFeatureSetCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('product_feature_set.id', this.productFeatureSet.id));
@@ -90,6 +126,9 @@ export default {
             return this.translationService;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
@@ -120,10 +159,16 @@ export default {
         doSearch() {
             if (!this.term) {
                 this.getList();
+                return;
             }
 
-            this.values = this.productFeatureSet.features.filter((item) => {
-                return item.name.match(this.term) || item.type.match(this.term);
+            const term = this.term.toLowerCase();
+
+            this.values = (this.productFeatureSet.features ?? []).filter((item) => {
+                const name = String(item.name ?? '').toLowerCase();
+                const type = String(item.type ?? '').toLowerCase();
+
+                return name.includes(term) || type.includes(term);
             });
         },
 

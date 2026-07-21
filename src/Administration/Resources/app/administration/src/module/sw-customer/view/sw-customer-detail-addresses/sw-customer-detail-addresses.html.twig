@@ -90,7 +90,9 @@
                 :sort-direction="addressSortDirection"
                 :sort-by="addressSortProperty"
                 :is-loading="isLoading"
+                :show-header="!showEmptyState"
                 @column-sort="setAddressSorting"
+                @load-finish="showEmptyState = $event.total === 0"
             >
                 {% block sw_customer_detail_addresses_grid_columns %}
                 {% block sw_customer_detail_addresses_grid_columns_default_shipping_address %}
@@ -233,6 +235,18 @@
                 </template>
                 {% endblock %}
             </sw-one-to-many-grid>
+
+            {% block sw_customer_detail_addresses_empty_state %}
+            <mt-empty-state
+                v-if="showEmptyState"
+                icon="regular-map-marker"
+                :headline="$t('sw-customer.detailAddresses.emptySearchTitle')"
+                :description="$t('sw-empty-state.messageNoResultSublineSimple')"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+            />
+            {% endblock %}
         </template>
         {% endblock %}
     </mt-card>

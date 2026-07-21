@@ -109,10 +109,6 @@ export default {
             return this.$t('global.default.edit');
         },
 
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
-        },
-
         ...mapState(() => Store.get('swFlow'), ['triggerEvents']),
     },
 

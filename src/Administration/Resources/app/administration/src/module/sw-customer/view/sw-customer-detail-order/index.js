@@ -43,10 +43,20 @@ export default {
             return this.repositoryFactory.create('order');
         },
 
+        hasOrders() {
+            return (this.orders?.total ?? 0) > 0;
+        },
+
         emptyTitle() {
             return this.term
                 ? this.$t('sw-customer.detailOrder.emptySearchTitle')
                 : this.$t('sw-customer.detailOrder.emptyTitle');
+        },
+
+        emptyDescription() {
+            return this.term
+                ? this.$t('sw-empty-state.messageNoResultSublineSimple')
+                : this.$t('sw-customer.detailOrder.emptySubline');
         },
 
         currencyFilter() {

@@ -243,24 +243,19 @@
                     </sw-data-grid>
                     {% endblock %}
 
+                    {# @deprecated tag:v6.8.0 - Block `sw_settings_listing_content_card_view_options_card_empty_state_icon` will be removed. Use `sw_settings_listing_content_card_view_options_card_empty_state` instead. #}
                     {% block sw_settings_listing_content_card_view_options_card_empty_state %}
-                    <sw-empty-state
+                    {% block sw_settings_listing_content_card_view_options_card_empty_state_icon %}{% endblock %}
+                    <mt-empty-state
                         v-else
                         class="sw-settings-listing-index__sorting-options-empty-state"
-                        :title="$t('sw-settings-listing.index.productSorting.emptyState.title')"
-                        :subline="$t('sw-settings-listing.index.productSorting.emptyState.subline')"
-                        :absolute="false"
-                    >
-
-                        {% block sw_settings_listing_content_card_view_options_card_empty_state_icon %}
-                        <template #icon>
-                            <img
-                                :src="assetFilter('administration/administration/static/img/empty-states/settings-empty-state.svg')"
-                                :alt="$t('sw-settings-listing.index.productSorting.emptyState.title')"
-                            >
-                        </template>
-                        {% endblock %}
-                    </sw-empty-state>
+                        :headline="productSortingOptionsEmptyStateHeadline"
+                        :description="productSortingOptionsEmptyStateDescription"
+                        icon="regular-sort"
+                        role="status"
+                        aria-live="polite"
+                        aria-atomic="true"
+                    />
                     {% endblock %}
                 </mt-card>
                 {% endblock %}

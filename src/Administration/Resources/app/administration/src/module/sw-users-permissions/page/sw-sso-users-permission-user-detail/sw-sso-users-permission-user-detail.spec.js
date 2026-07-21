@@ -159,7 +159,7 @@ async function createWrapper(user) {
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'sw-select-result': await wrapTestComponent('sw-select-result'),
                     'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
-                    'sw-empty-state': true,
+                    'mt-empty-state': true,
                     'sw-search-bar': true,
                     'sw-help-center-v2': true,
                     'router-link': true,
@@ -360,5 +360,18 @@ describe('module/sw-users-permissions/page/sw-sso-users-permission-user-detail',
         modalAccessKeyField = wrapper.find('.sw-settings-sso-user-create-access-key-modal');
 
         expect(modalAccessKeyField.isVisible()).toBeTruthy();
+    });
+
+    it('should show the integrations empty state without a data grid', async () => {
+        const user = createDefaultUser();
+        user.relationships.accessKeys.data = [];
+
+        const wrapper = await createWrapper(user);
+
+        const emptyState = wrapper.find('mt-empty-state-stub');
+
+        expect(emptyState.exists()).toBeTruthy();
+        expect(emptyState.attributes('centered')).toBeUndefined();
+        expect(wrapper.find('[identifier="user-integrations-grid"]').exists()).toBeFalsy();
     });
 });

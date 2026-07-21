@@ -17,7 +17,13 @@
         "buttonAdd": "Set anlegen",
         "columnName": "Label",
         "messageDeleteSuccess": "Das Set \"{name}\" wurde erfolgreich gelöscht.",
-        "messageEmpty": "Noch keine Zusatzfelder.",
+        "messageEmpty": "Noch keine Zusatzfeld-Sets.",
+        "emptyState": {
+          "title": "Noch keine Zusatzfeld-Sets",
+          "description": "Erstelle ein Set, um Zusatzfelder zu gruppieren und Produkten, Kunden, Bestellungen oder anderen Bereichen zuzuweisen.",
+          "searchTitle": "Keine Zusatzfeld-Sets gefunden",
+          "searchDescription": "Versuche es mit einem anderen Suchbegriff oder lösche den Filter."
+        },
         "helpTextGlobalSet": "Dieses Set ist global und kann nicht verändert werden."
       },
       "detail": {
@@ -25,17 +31,24 @@
         "labelPosition": "Position",
         "textHeadline": "Zusatzfeld-Set",
         "titleCardInformation": "Set-Informationen",
+        "titleCardCustomFields": "Zusatzfelder",
         "labelName": "Set-Name",
         "placeholderName": "Namen eingeben ...",
         "labelCheckboxTranslated": "In allen Administrationssprachen pflegen",
         "messageSaveSuccess": "Das Set \"{name}\" wurde erfolgreich gespeichert.",
         "messageCustomFieldsEmpty": "Noch keine Zusatzfelder.",
+        "emptyCustomFieldsTitle": "Noch keine Zusatzfelder",
+        "emptyCustomFieldsDescription": "Zusatzfelder speichern weitere Details für Produkte, Kunden, Bestellungen und andere Bereiche, denen du dieses Set zuweist.",
+        "emptyCustomFieldsSearchTitle": "Keine Zusatzfelder gefunden",
+        "emptyCustomFieldsSearchDescription": "Versuche es mit einem anderen Suchbegriff oder lösche die Suche.",
         "addCustomField": "Neues Zusatzfeld",
         "labelEntities": "Verwenden für",
         "placeholderEntities": "Verwendung hinzufügen ...",
         "messageNameNotUnique": "Der technische Name existiert bereits.",
         "entityTypeRequired": "Bitte wähle einen Objekttypen.",
-        "emptyStateDescription": "Speichere das Set bevor du Zusatzfelder hinzfügen kannst."
+        "emptyStateDescription": "Speichere das Set bevor du Zusatzfelder hinzfügen kannst.",
+        "createStateTitle": "Speichere zuerst das Set",
+        "createStateDescription": "Nach dem Speichern kannst Du Zusatzfelder hinzufügen und diesem Set zuweisen."
       }
     },
     "customField": {

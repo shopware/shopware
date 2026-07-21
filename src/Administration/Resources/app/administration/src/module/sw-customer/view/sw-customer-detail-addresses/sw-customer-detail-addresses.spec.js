@@ -6,7 +6,18 @@ import { mount } from '@vue/test-utils';
 
 const { ShopwareError } = Shopware.Classes;
 
-async function createWrapper() {
+async function createWrapper(
+    addresses = [
+        {
+            id: '1',
+            lastName: 'Nguyen',
+            firstName: 'Quynh',
+            city: 'Berlin',
+            street: 'Legiendamm',
+            zipcode: '550000',
+        },
+    ],
+) {
     return mount(
         await wrapTestComponent('sw-customer-detail-addresses', {
             sync: true,
@@ -24,14 +35,23 @@ async function createWrapper() {
                     'sw-card-filter': {
                         template: '<div class="sw-card-filter"><slot name="filter"></slot></div>',
                     },
+                    'mt-empty-state': true,
                     'sw-field': true,
                     'sw-modal': {
                         template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
                     },
                     'sw-one-to-many-grid': {
-                        props: ['collection'],
+                        props: [
+                            'collection',
+                            'showHeader',
+                        ],
                         template: `
                     <table>
+                        <thead v-if="showHeader">
+                            <tr>
+                                <th>Header</th>
+                            </tr>
+                        </thead>
                         <tbody>
                             <td v-for="item in collection">
                                 <slot name="column-lastName" v-bind="{ item }"></slot>
@@ -94,16 +114,7 @@ async function createWrapper() {
                 customerEditMode: false,
                 customer: {
                     id: '1',
-                    addresses: [
-                        {
-                            id: '1',
-                            lastName: 'Nguyen',
-                            firstName: 'Quynh',
-                            city: 'Berlin',
-                            street: 'Legiendamm',
-                            zipcode: '550000',
-                        },
-                    ],
+                    addresses,
                 },
             },
         },
@@ -221,5 +232,26 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
 
         expect(wrapper.getComponent('.sw-customer-address-form').props('disabled')).toBe(false);
         expect(wrapper.getComponent('.sw-customer-address-form-options').props('disabled')).toBe(false);
+    });
+
+    it('should show search empty state when no addresses were found', async () => {
+        wrapper = await createWrapper([]);
+
+        await wrapper.setData({
+            term: 'unknown',
+            showEmptyState: true,
+        });
+
+        const emptyState = wrapper.find('mt-empty-state-stub');
+        expect(emptyState.exists()).toBe(true);
+
+        expect(emptyState.attributes('headline')).toBe('sw-customer.detailAddresses.emptySearchTitle');
+        expect(emptyState.attributes('description')).toBe('sw-empty-state.messageNoResultSublineSimple');
+
+        const cardFilter = wrapper.find('.sw-card-filter');
+        expect(cardFilter.exists()).toBe(true);
+
+        const gridHeader = wrapper.find('thead');
+        expect(gridHeader.exists()).toBe(false);
     });
 });

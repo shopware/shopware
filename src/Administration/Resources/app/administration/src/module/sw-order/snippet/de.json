@@ -309,7 +309,8 @@
       "headlineTabCreateAddress": "Adresse erstellen",
       "currentlySelected": "Aktuelle Auswahl",
       "searchAddressToolbarPlaceholder": "Adressen suchen ...",
-      "emptySearchResults": "Keine Adressen gefunden."
+      "emptySearchResults": "Keine Adressen gefunden.",
+      "emptySearchResultsSubline": "Passe deine Suche an."
     },
     "leavePageModal": {
       "description": "Es existieren ungespeicherte Änderungen. Soll die Seite trotzdem verlassen werden?",
@@ -495,7 +496,8 @@
       "customerGrid": {
         "buttonAddNewCustomer": "Kunden anlegen",
         "placeholderSearchCustomer": "Kundennamen eingeben ...",
-        "textEmptySearch": "Keine Daten für {name} vorhanden",
+        "textEmptySearch": "Keine Kunden für \"{name}\" gefunden.",
+        "emptySubline": "Lege einen Kunden an, um zu beginnen.",
         "columnCustomerName": "Name",
         "columnCustomerNumber": "Kundennummer",
         "columnSalesChannel": "Verkaufskanal",

@@ -20,7 +20,13 @@ const flowTemplateRepositorySearchMock = jest.fn((criteria) => {
     return Promise.resolve(new EntityCollection('', '', Context.api, criteria, mockData, 1));
 });
 
-async function createWrapper(privileges = [], props = {}) {
+async function createWrapper(privileges = [], props = {}, customTemplateData = mockData) {
+    flowTemplateRepositorySearchMock.mockImplementation((criteria) => {
+        return Promise.resolve(
+            new EntityCollection('', '', Context.api, criteria, customTemplateData, customTemplateData.length),
+        );
+    });
+
     return mount(await wrapTestComponent('sw-flow-list-flow-templates', { sync: true }), {
         global: {
             stubs: {
@@ -55,6 +61,7 @@ async function createWrapper(privileges = [], props = {}) {
                 'sw-data-grid-settings': true,
                 'sw-data-grid-column-boolean': true,
                 'sw-data-grid-inline-edit': true,
+                'mt-empty-state': true,
                 'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
             provide: {
@@ -194,6 +201,27 @@ describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
                 term: 'test-term',
             }),
         );
+    });
+
+    it('should show search-specific empty state copy', async () => {
+        const wrapper = await createWrapper(
+            [
+                'flow.viewer',
+            ],
+            {
+                searchTerm: 'missing template',
+            },
+            [],
+        );
+        await flushPromises();
+
+        const emptyState = wrapper.find('mt-empty-state-stub');
+
+        expect(emptyState.exists()).toBe(true);
+        expect(emptyState.attributes('centered')).toBeUndefined();
+        expect(emptyState.attributes('headline')).toBe('sw-flow.list.emptyTemplateSearchTitle');
+        expect(emptyState.attributes('description')).toBe('sw-flow.list.emptyTemplateSearchSubTitle');
+        expect(wrapper.find('.sw-data-grid').exists()).toBe(false);
     });
 
     it('should correctly align table columns', async () => {

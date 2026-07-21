@@ -141,6 +141,7 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                     'sw-settings-tax-provider-sorting-modal': true,
                     'sw-checkbox-field': true,
                     'mt-number-field': true,
+                    'mt-empty-state': true,
                 },
             },
         },
@@ -315,7 +316,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
         expect(taxProviderActive.attributes().disabled).toBeDefined();
     });
 
-    it('should render an empty state tax providers', async () => {
+    it('should render a tax provider empty state', async () => {
         const optionalTaxProviders = {
             taxProviders: [],
         };
@@ -328,7 +329,16 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.noTaxProvidersFound).toBeTruthy();
-        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
+
+        const emptyState = wrapper.find('mt-empty-state-stub');
+
+        expect(emptyState.exists()).toBeTruthy();
+        expect(emptyState.attributes('icon')).toBe('regular-globe');
+        expect(emptyState.attributes('headline')).toBe('sw-settings-tax.list.taxProvider.messageEmptyTitle');
+        expect(emptyState.attributes('description')).toBe('sw-settings-tax.list.taxProvider.messageEmptyDescription');
+        expect(emptyState.attributes('role')).toBe('status');
+        expect(emptyState.attributes('aria-live')).toBe('polite');
+        expect(emptyState.attributes('aria-atomic')).toBe('true');
     });
 
     it('should have a tax rate field with a correct "digits" property', async () => {

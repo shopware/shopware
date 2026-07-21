@@ -15,6 +15,14 @@
       "contextMenuDelete": "Tag löschen",
       "messageDeleteSuccess": "Tag \"{name}\" gelöscht.",
       "titleEmptyStateList": "Keine Tags gefunden.",
+      "emptyState": {
+        "title": "Noch keine Tags",
+        "description": "Tags sind Schlagwörter, die Du in der Administration zuweisen kannst. Nutze sie, um Produkte, Bestellungen, Kunden und Medien leichter zu finden und zu filtern.",
+        "searchTitle": "Keine Tags gefunden",
+        "searchDescription": "Versuche es mit einem anderen Suchbegriff oder lösche den Filter.",
+        "filterTitle": "Keine Tags passen zu diesen Filtern",
+        "filterDescription": "Passe die Filter an oder setze sie zurück, um mehr Tags zu sehen."
+      },
       "searchPlaceholder": "Durchsuche Tags ...",
       "filter": "Filter",
       "filterAssignemnt": "Filter nach zugewiesenen Entitäten",

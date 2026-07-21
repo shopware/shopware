@@ -126,6 +126,8 @@
                 "labelRoles": "Roles",
                 "labelEmail": "Email address",
                 "status": "Status",
+                "messageEmptyTitle": "No users yet",
+                "messageEmptySubline": "Create users to manage access to the Administration.",
                 "titleModalDelete": "Delete user",
                 "textModalDelete": "Do you really want to delete the user \"{name}\"?",
                 "notification": {
@@ -172,7 +174,7 @@
                 "textChangePassword": "Pressing the \"change\" button will immediately save the new password!",
                 "addAccessKey": "Create access key",
                 "noAccessKeysTitle": "No access keys available",
-                "noAccessKeysSubline": "Create access keys here",
+                "noAccessKeysSubline": "Create access keys to connect this user with external integrations.",
                 "labelAccessKey": "Access key",
                 "labelPermissions": "Permissions",
                 "disabledRoleSelectWarning": "Roles are only available for users that don't have administrator rights.",

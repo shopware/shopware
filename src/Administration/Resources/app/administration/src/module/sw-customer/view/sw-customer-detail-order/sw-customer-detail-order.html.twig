@@ -7,7 +7,7 @@
     {% block sw_customer_detail_order_card_toolbar %}
     <template #toolbar>
         <sw-card-filter
-            v-if="(orders && orders.total > 0) || term"
+            v-if="hasOrders || this.term"
             :placeholder="$t('sw-customer.detailOrder.searchbarPlaceholder')"
             @sw-card-filter-term-change="onChange"
         >
@@ -36,7 +36,7 @@
     {% block sw_customer_detail_order_card_grid %}
     <template #grid>
         <sw-entity-listing
-            v-if="(orders && orders.total > 0) || term"
+            v-if="hasOrders"
             :columns="orderColumns"
             :repository="orderRepository"
             :data-source="orders"
@@ -88,14 +88,19 @@
     {% endblock %}
 
     {% block sw_customer_detail_order_card_grid_empty_state %}
-    <template v-if="(!orders || orders.total === 0) && !isLoading && !term">
+    <template v-if="!isLoading && !hasOrders">
         <mt-empty-state
             icon="solid-shopping-bag"
             :headline="emptyTitle"
-            :description="$t('sw-customer.detailOrder.emptySubline')"
+            :description="emptyDescription"
         >
-            <template #button>
-                {% block sw_customer_detail_order_card_grid_empty_state_action %}
+            <template
+                v-if="!term"
+                #button
+            >
+                {# @deprecated tag:v6.8.0 - Block will be removed #}
+                {% block sw_customer_detail_order_card_grid_empty_state_action %}{% endblock %}
+
                 <mt-button
                     v-tooltip="{
                         message: $t('sw-privileges.tooltip.warning'),
@@ -109,7 +114,6 @@
                 >
                     {{ $t('sw-customer.detailOrder.buttonCreateOrder') }}
                 </mt-button>
-                {% endblock %}
             </template>
         </mt-empty-state>
     </template>

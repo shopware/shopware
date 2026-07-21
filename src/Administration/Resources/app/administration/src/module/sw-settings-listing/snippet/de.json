@@ -51,8 +51,10 @@
         "addButton": "Option hinzufügen",
         "messageDeleteError": "Beim Löschen der Sortier-Option ist ein Fehler aufgetreten.",
         "emptyState": {
-          "title": "Keine Optionen gefunden",
-          "subline": "Optionen hinzufügen"
+          "title": "Noch keine Sortier-Optionen",
+          "subline": "Erstelle Sortier-Optionen, um die Reihenfolge von Produkten in Listings zu steuern.",
+          "searchTitle": "Keine Sortier-Optionen gefunden",
+          "searchSubline": "Versuche es mit einem anderen Suchbegriff oder lösche den Filter."
         },
         "grid": {
           "header": {
@@ -89,7 +91,8 @@
       "criteria": {
         "title": "Sortier-Kriterien",
         "selectPlaceholder": "Kriterien suchen und hinzufügen ...",
-        "emptyStateSubline": "Diese Sortier-Option hat noch keine Kriterien."
+        "emptyStateTitle": "Noch keine Kriterien hinzugefügt",
+        "emptyStateSubline": "Füge Kriterien hinzu, um festzulegen, wie diese Sortier-Option Produkte ordnet."
       },
       "delete": {
         "modalTitle": "Kriterium löschen",

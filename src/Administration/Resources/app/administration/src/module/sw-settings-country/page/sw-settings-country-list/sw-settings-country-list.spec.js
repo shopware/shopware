@@ -3,7 +3,38 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], total = 1) {
+    const countries =
+        total > 0
+            ? [
+                  {
+                      active: true,
+                      apiAlias: null,
+                      createdAt: '2020-08-12T02:49:39.974+00:00',
+                      customFields: null,
+                      customerAddresses: [],
+                      displayStateInRegistration: false,
+                      forceStateInRegistration: false,
+                      id: '44de136acf314e7184401d36406c1e90',
+                      iso: 'AL',
+                      iso3: 'ALB',
+                      name: 'Albania',
+                      orderAddresses: [],
+                      position: 10,
+                      salesChannelDefaultAssignments: [],
+                      salesChannels: [],
+                      shippingAvailable: true,
+                      states: [],
+                      taxFree: false,
+                      taxRules: [],
+                      translated: {},
+                      translations: [],
+                      updatedAt: '2020-08-16T06:57:40.559+00:00',
+                  },
+              ]
+            : [];
+    countries.total = total;
+
     return mount(
         await wrapTestComponent('sw-settings-country-list', {
             sync: true,
@@ -25,32 +56,7 @@ async function createWrapper(privileges = []) {
                     repositoryFactory: {
                         create: () => ({
                             search: () => {
-                                return Promise.resolve([
-                                    {
-                                        active: true,
-                                        apiAlias: null,
-                                        createdAt: '2020-08-12T02:49:39.974+00:00',
-                                        customFields: null,
-                                        customerAddresses: [],
-                                        displayStateInRegistration: false,
-                                        forceStateInRegistration: false,
-                                        id: '44de136acf314e7184401d36406c1e90',
-                                        iso: 'AL',
-                                        iso3: 'ALB',
-                                        name: 'Albania',
-                                        orderAddresses: [],
-                                        position: 10,
-                                        salesChannelDefaultAssignments: [],
-                                        salesChannels: [],
-                                        shippingAvailable: true,
-                                        states: [],
-                                        taxFree: false,
-                                        taxRules: [],
-                                        translated: {},
-                                        translations: [],
-                                        updatedAt: '2020-08-16T06:57:40.559+00:00',
-                                    },
-                                ]);
+                                return Promise.resolve(countries);
                             },
                         }),
                     },
@@ -96,6 +102,7 @@ async function createWrapper(privileges = []) {
                     </div>
                 `,
                     },
+                    'mt-empty-state': true,
                     'mt-card': {
                         template: `
                     <div class="mt-card">
@@ -231,5 +238,19 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
 
         const deleteSelection = wrapper.find('.sw-settings-country-list-grid');
         expect(deleteSelection.attributes()['show-selection']).toBeTruthy();
+    });
+
+    it('should show an empty state when no countries were found', async () => {
+        const wrapper = await createWrapper([], 0);
+        await flushPromises();
+
+        const emptyState = wrapper.find('mt-empty-state-stub');
+        const entityListing = wrapper.find('.sw-settings-country-list-grid');
+
+        expect(emptyState.exists()).toBeTruthy();
+        expect(emptyState.attributes('icon')).toBe('regular-map');
+        expect(emptyState.attributes('headline')).toBe('sw-empty-state.messageNoResultTitle');
+        expect(emptyState.attributes('description')).toBe('sw-empty-state.messageNoResultSublineSimple');
+        expect(entityListing.exists()).toBeFalsy();
     });
 });

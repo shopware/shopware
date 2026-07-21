@@ -1,5 +1,4 @@
 import template from './sw-mail-template-list.html.twig';
-import './sw-mail-template-list.scss';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -53,6 +52,9 @@ export default {
             return !!this.mailTemplates && this.mailTemplates.length !== 0;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },

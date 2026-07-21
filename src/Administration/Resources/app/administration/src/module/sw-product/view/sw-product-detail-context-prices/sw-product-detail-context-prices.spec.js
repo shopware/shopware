@@ -34,6 +34,7 @@ const createWrapper = async () => {
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-skeleton': true,
                     'sw-select-rule-create': true,
+                    'mt-empty-state': true,
                     'sw-help-text': true,
                     'sw-ai-copilot-badge': true,
                     'router-link': true,

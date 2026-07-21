@@ -38,7 +38,7 @@ export default {
         },
 
         cardTitle() {
-            return this.total ? this.$t('sw-product.reviews.cardTitleReviews') : null;
+            return this.$t('sw-product.reviews.cardTitleReviews');
         },
 
         reviewRepository() {

@@ -47,6 +47,11 @@
         width: 100%;
         height: 100%;
 
+        &.is--empty {
+            align-self: start;
+            height: auto;
+        }
+
         .sw-context-button {
             .filter-badge {
                 position: absolute;
@@ -61,6 +66,18 @@
                 font-style: normal;
                 pointer-events: none;
             }
+        }
+    }
+
+    &__empty-state {
+        align-self: start;
+        height: auto;
+        min-height: 180px;
+        padding: 24px 30px;
+
+        .mt-empty-state__description {
+            max-width: 560px;
+            overflow-wrap: break-word;
         }
     }
 

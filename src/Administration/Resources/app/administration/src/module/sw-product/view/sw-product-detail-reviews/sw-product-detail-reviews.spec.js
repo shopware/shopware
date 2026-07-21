@@ -32,8 +32,11 @@ async function createWrapper(privileges = []) {
             },
             stubs: {
                 'mt-card': {
+                    props: [
+                        'title',
+                    ],
                     template: `
-                    <div class="mt-card">
+                    <div class="mt-card" :data-title="title">
                         <slot name="grid"></slot>
                         <slot></slot>
                     </div>
@@ -60,6 +63,7 @@ async function createWrapper(privileges = []) {
 `,
                 },
                 'sw-skeleton': true,
+                'mt-empty-state': true,
                 'sw-rating-stars': true,
                 'sw-data-grid-column-boolean': true,
                 'sw-pagination': true,
@@ -220,5 +224,20 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
             // eslint-disable-next-line jest/no-conditional-expect
             expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
         }
+    });
+
+    it('should render the Meteor empty state without legacy empty-module styling', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({ dataSource: [], total: 0 });
+
+        const card = wrapper.find('.mt-card');
+        const emptyState = wrapper.find('.sw-product-detail-reviews__empty-state');
+
+        expect(card.attributes('data-title')).toBe('sw-product.reviews.cardTitleReviews');
+        expect(emptyState.exists()).toBe(true);
+        expect(emptyState.attributes('empty-module')).toBeUndefined();
+        expect(emptyState.attributes('headline')).toBe('sw-product.reviewForm.messageEmptyTitle');
+        expect(emptyState.attributes('description')).toBe('sw-product.reviewForm.messageEmptySubline');
     });
 });

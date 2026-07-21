@@ -53,6 +53,15 @@ async function createWrapper(privileges = []) {
                     'sw-button-process': true,
                     'sw-language-switch': true,
                     'sw-card-view': true,
+                    'mt-card': {
+                        template: `
+                        <div class="mt-card">
+                            <slot name="toolbar"></slot>
+                            <slot></slot>
+                        </div>
+                    `,
+                    },
+                    'mt-empty-state': true,
                     'sw-container': true,
                     'sw-text-field': true,
                     'sw-language-info': true,
@@ -96,5 +105,49 @@ describe('module/sw-settings-currency/page/sw-settings-currency-detail', () => {
         const saveButton = wrapper.find('.sw-settings-currency-detail__save-action');
 
         expect(saveButton.attributes().disabled).toBeFalsy();
+    });
+
+    it('should render country rounding empty state with headline, description, and country icon', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            currency: {
+                id: 'currency-id',
+                isNew: () => false,
+            },
+            currencyCountryRoundings: [],
+        });
+
+        const emptyState = wrapper.find('mt-empty-state-stub.sw-settings-currency-detail__currency-country-empty-state');
+
+        expect(emptyState.attributes('icon')).toBe('regular-globe');
+        expect(emptyState.attributes('headline')).toBe('sw-settings-currency.detail.emptyCountryRoundingsTitle');
+        expect(emptyState.attributes('description')).toBe('sw-settings-currency.detail.emptyCountryRoundings');
+        expect(emptyState.attributes('role')).toBe('status');
+        expect(emptyState.attributes('aria-live')).toBe('polite');
+        expect(emptyState.attributes('aria-atomic')).toBe('true');
+    });
+
+    it('should render search-specific country rounding empty state copy', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            currency: {
+                id: 'currency-id',
+                isNew: () => false,
+            },
+            currencyCountryRoundings: [],
+            searchTerm: 'zzz',
+        });
+
+        const emptyState = wrapper.find('mt-empty-state-stub.sw-settings-currency-detail__currency-country-empty-state');
+
+        expect(emptyState.attributes('headline')).toBe('sw-settings-currency.detail.emptyCountryRoundingsSearchTitle');
+        expect(emptyState.attributes('description')).toBe(
+            'sw-settings-currency.detail.emptyCountryRoundingsSearchDescription',
+        );
+        expect(emptyState.attributes('role')).toBe('status');
+        expect(emptyState.attributes('aria-live')).toBe('polite');
+        expect(emptyState.attributes('aria-atomic')).toBe('true');
     });
 });

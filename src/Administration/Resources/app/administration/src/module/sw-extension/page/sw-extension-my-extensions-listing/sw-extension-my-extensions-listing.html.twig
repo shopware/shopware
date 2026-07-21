@@ -51,31 +51,22 @@
             v-if="!extensionListPaginated.length && !filterByActiveState"
             class="sw-extension-my-extensions-listing__empty-state"
         >
-            <img
-                :src="assetFilter('administration/administration/static/img/empty-states/extensions-empty-state.svg')"
-                alt=""
+            <mt-empty-state
+                :headline="listingEmptyStateHeadline"
+                :description="listingEmptyStateDescription"
+                icon="regular-plug"
+                centered
             >
-
-            <h3 v-if="isThemeRoute">
-                {{ $t('sw-extension-store.component.sw-extension-my-extensions-listing.themes.titleEmptyState') }}
-            </h3>
-            <h3 v-else>
-                {{ $t('sw-extension-store.component.sw-extension-my-extensions-listing.apps.titleEmptyState') }}
-            </h3>
-
-            <p v-if="isThemeRoute">
-                {{ $t('sw-extension-store.component.sw-extension-my-extensions-listing.themes.textEmptyState') }}
-            </p>
-            <p v-else>
-                {{ $t('sw-extension-store.component.sw-extension-my-extensions-listing.apps.textEmptyState') }}
-            </p>
-
-            <mt-button
-                variant="secondary"
-                @click="isThemeRoute ? openThemesStore() : openStore()"
-            >
-                {{ $t('sw-extension-store.component.sw-extension-my-extensions-listing.btnOpenStore') }}
-            </mt-button>
+                <template #button>
+                    <mt-button
+                        ghost
+                        variant="secondary"
+                        @click="isThemeRoute ? openThemesStore() : openStore()"
+                    >
+                        {{ $t('sw-extension-store.component.sw-extension-my-extensions-listing.btnOpenStore') }}
+                    </mt-button>
+                </template>
+            </mt-empty-state>
         </sw-meteor-card>
 
         {% endblock %}
@@ -96,17 +87,12 @@
                     v-if="!extensionListPaginated.length && filterByActiveState"
                     class="sw-extension-my-extensions-listing__empty-state"
                 >
-                    <img
-                        :src="assetFilter('administration/administration/static/img/empty-states/extensions-empty-state.svg')"
-                        alt=""
-                    >
-
-                    <h3 v-if="isThemeRoute">
-                        {{ $t('sw-extension-store.component.sw-extension-my-extensions-listing.themes.noActivePlugins') }}
-                    </h3>
-                    <h3 v-else>
-                        {{ $t('sw-extension-store.component.sw-extension-my-extensions-listing.apps.noActivePlugins') }}
-                    </h3>
+                    <mt-empty-state
+                        :headline="pluginsEmptyStateHeadline"
+                        :description="pluginsEmptyStateDescription"
+                        icon="regular-plug"
+                        centered
+                    />
                 </sw-meteor-card>
 
                 <template v-else>

@@ -1,4 +1,9 @@
 .sw-first-run-wizard-welcome {
+    .sw-first-run-wizard__welcome-image {
+        display: block;
+        margin: 0 auto;
+    }
+
     .center {
         display: flex;
         align-items: center;

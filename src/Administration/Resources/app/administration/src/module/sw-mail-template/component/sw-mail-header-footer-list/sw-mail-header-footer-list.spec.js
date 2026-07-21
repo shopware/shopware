@@ -64,7 +64,7 @@ const createWrapper = async (privileges = []) => {
             },
             stubs: {
                 'mt-card': {
-                    template: '<div><slot name="grid"></slot></div>',
+                    template: '<div><slot></slot><slot name="grid"></slot></div>',
                 },
                 'sw-entity-listing': {
                     props: [
@@ -102,7 +102,7 @@ const createWrapper = async (privileges = []) => {
                     },
                 },
                 'sw-context-menu-item': true,
-                'sw-empty-state': true,
+                'mt-empty-state': true,
             },
         },
     });
@@ -248,9 +248,16 @@ describe('modules/sw-mail-template/component/sw-mail-header-footer-list', () => 
         expect(isListingVisible).toBe(false);
     });
 
-    it('should return filters from filter registry', async () => {
+    it('should render the empty state left-aligned inside the card', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
-        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+        wrapper.vm.mailHeaderFooters = [];
+        await flushPromises();
+
+        const emptyState = wrapper.find('mt-empty-state-stub');
+
+        expect(emptyState.exists()).toBeTruthy();
+        expect(emptyState.attributes('centered')).toBeUndefined();
     });
 });

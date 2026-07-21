@@ -13,15 +13,15 @@
         "welcome": {
             "modalTitle": "Welcome",
             "headlineWelcome": "Welcome to the Shopware 6 Administration",
-            "messageWelcome":  "This wizard guides you through the setup and tries to be helpful with the most important settings."
+            "messageWelcome": "Set up the essentials for your store in a few guided steps. You can adjust these settings later."
         },
         "dataImport": {
             "modalTitle": "Getting started with Shopware 6",
-            "headlineDemoData": "Use demo data",
-            "messageDemoData": "Start exploring Shopware 6 by adding a set of demo data. Demo data gives the impression of a fully working shop, but should strictly be used for testing purposes only.",
+            "headlineDemoData": "Explore with demo data",
+            "messageDemoData": "Add demo data to preview a fully configured store and learn how products, categories, and orders work. Use demo data only for testing.",
             "buttonInstallDemoData": "Install demo data",
-            "headlineMigration": "Migrate your shop data",
-            "messageMigration": "The Migration Assistant helps you connect to and transfer data from a previous shop system right into your new Shopware 6 environment.",
+            "headlineMigration": "Migrate your store data",
+            "messageMigration": "Use the Migration Assistant to transfer data from your existing store system into Shopware 6.",
             "buttonInstallMigration": "Install Migration Assistant",
             "loadingMessage": "Installing extension<br>This may take a while..."
         },
@@ -105,9 +105,9 @@
             "modalTitle": "Setup default values"
         },
         "finish": {
-            "headlineAllDone": "All done!",
-            "message": "Your Shopware 6 {edition} is now verified.",
-            "messageNotLicensed": "Your Shopware 6 is now prepared.",
+            "headlineAllDone": "Your store is ready",
+            "message": "Your Shopware 6 {edition} license is verified.\nStart managing your store in the Administration, or use the links below to explore more.",
+            "messageNotLicensed": "The first setup steps are complete.\nStart managing your store in the Administration, or use the links below to explore more.",
             "headlineUsefulLinks": "Useful links",
             "loadingMessage": "Restarting application<br>This may take a while...",
             "documentationLabel": "Documentation",

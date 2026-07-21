@@ -214,8 +214,8 @@
         "confirmTitle": "Delete review",
         "confirmText": "Do you really want to delete this review?"
       },
-      "messageEmptyTitle": "Product not reviewed yet",
-      "messageEmptySubline": "Check out other products' reviews instead.",
+      "messageEmptyTitle": "No reviews yet",
+      "messageEmptySubline": "Reviews submitted for this product will appear here.",
       "emptyStateButton": "Go to reviews"
     },
     "prices": {
@@ -305,7 +305,7 @@
     "advancedPrices": {
       "deletionNotPossibleMessage": "At least one price tier needed. Try deleting the entire pricing rule instead.",
       "newRuleWarning": "In order to create a new pricing rule, select a conditional rule first.",
-      "advancedPricesNotExisting": "No advanced prices have been set yet.",
+      "advancedPricesNotExisting": "Set advanced prices to define rule-based prices for this product.",
       "columnFrom": "Quantity from...",
       "columnTo": "to...",
       "columnType": "Type",
@@ -337,6 +337,7 @@
       "titleEmptyState": "No properties assigned to this product yet.",
       "descriptionEmptyState": "Manage properties here.",
       "titleEmptyStateList": "No properties found.",
+      "descriptionEmptyStateList": "Try a different search term.",
       "columnProperty": "Property",
       "columnValue": "Property value",
       "placeholderSearchAddedProperties": "Search added properties...",
@@ -476,9 +477,10 @@
       "deleteConfirmTitle": "Delete Cross Selling",
       "deleteConfirmText": "Are you sure you want to delete the Cross Selling configuration?",
       "linkOpenStreamPreview": "Open preview",
-      "emptyStateDescription": "There is no Cross Selling configured for this product, yet.",
-      "inheritedEmptyStateDescription": "This product has inherited cross sellings from its parent.",
-      "notInheritedEmptyStateDescription": "You can now use custom Cross Selling configurations for this variant.",
+      "emptyStateTitle": "No cross-selling yet",
+      "emptyStateDescription": "Add cross-selling groups to recommend related products in the storefront.",
+      "inheritedEmptyStateDescription": "This product uses the cross-selling configuration from its parent.",
+      "notInheritedEmptyStateDescription": "Create a custom cross-selling configuration for this variant.",
       "assignEmptyStateTitle": "No products assigned",
       "assignPlaceholder": "Search products...",
       "linkCrossSellingsOfParent": "Show cross sellings of parent product",

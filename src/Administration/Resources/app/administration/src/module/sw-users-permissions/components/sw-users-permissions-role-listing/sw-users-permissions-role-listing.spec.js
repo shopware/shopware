@@ -62,6 +62,7 @@ async function createWrapper(privileges = [], isSso = { isSso: false }, deleteFu
 `,
                     },
                     'sw-context-menu-item': true,
+                    'mt-empty-state': true,
                     'sw-verify-user-modal': true,
                     'router-link': true,
                     'sw-pagination': true,
@@ -222,5 +223,28 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
         await flushPromises();
 
         expect(deleteFunction).toHaveBeenCalled();
+    });
+
+    it('should render the empty state when no roles are available', async () => {
+        await flushPromises();
+
+        const emptyState = wrapper.find('mt-empty-state-stub');
+        const dataGrid = wrapper.find('.sw-data-grid');
+
+        expect(emptyState.exists()).toBeTruthy();
+        expect(emptyState.attributes('headline')).toBe('sw-users-permissions.roles.role-grid.messageEmptyTitle');
+        expect(emptyState.attributes('description')).toBe('sw-users-permissions.roles.role-grid.messageEmptySubline');
+        expect(dataGrid.exists()).toBeFalsy();
+    });
+
+    it('should render the search empty state when no roles match the term', async () => {
+        wrapper.vm.term = 'unknown';
+        await flushPromises();
+
+        const emptyState = wrapper.find('mt-empty-state-stub');
+
+        expect(emptyState.exists()).toBeTruthy();
+        expect(emptyState.attributes('headline')).toBe('sw-empty-state.messageNoResultTitle');
+        expect(emptyState.attributes('description')).toBe('sw-empty-state.messageNoResultSublineSimple');
     });
 });

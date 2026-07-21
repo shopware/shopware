@@ -18,7 +18,7 @@
     },
     "empty-state": {
       "title": "No product units yet",
-      "subline": "Manage product units here."
+      "subline": "Create units such as bottle or pair. You can use them in product specifications and display them in the storefront."
     },
     "notification": {
       "successMessage": "Product unit has been saved.",

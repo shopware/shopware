@@ -6,7 +6,27 @@ import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 
-async function createWrapper(privileges = []) {
+function createCustomerSearchResult(
+    customers = [
+        {
+            id: '1a2b3c',
+            entity: 'customer',
+            customerId: 'd4c3b2a1',
+            productId: 'd4c3b2a1',
+            salesChannelId: 'd4c3b2a1',
+            sourceEntitiy: 'customer',
+            createdById: '123213132',
+        },
+    ],
+) {
+    return {
+        data: customers,
+        length: customers.length,
+        total: customers.length,
+    };
+}
+
+async function createWrapper(privileges = [], searchResult = createCustomerSearchResult()) {
     return mount(await wrapTestComponent('sw-customer-list', { sync: true }), {
         global: {
             mocks: {
@@ -44,24 +64,7 @@ async function createWrapper(privileges = []) {
                             );
                         },
                         search: () => {
-                            return Promise.resolve(
-                                entity === 'customer'
-                                    ? {
-                                          data: [
-                                              {
-                                                  id: '1a2b3c',
-                                                  entity: 'customer',
-                                                  customerId: 'd4c3b2a1',
-                                                  productId: 'd4c3b2a1',
-                                                  salesChannelId: 'd4c3b2a1',
-                                                  sourceEntitiy: 'customer',
-                                                  createdById: '123213132',
-                                              },
-                                          ],
-                                          total: 1,
-                                      }
-                                    : [],
-                            );
+                            return Promise.resolve(entity === 'customer' ? searchResult : []);
                         },
                     }),
                 },
@@ -124,6 +127,7 @@ async function createWrapper(privileges = []) {
                 'sw-sidebar-filter-panel': true,
                 'sw-sidebar': true,
                 'sw-time-ago': true,
+                'mt-empty-state': true,
             },
         },
     });
@@ -292,12 +296,33 @@ describe('module/sw-customer/page/sw-customer-list', () => {
         await wrapper.vm.getList();
 
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
-        expect(wrapper.find('.mt-empty-state')).toBeTruthy();
-        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
-        expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
         expect(wrapper.vm.entitySearchable).toBe(false);
 
+        const emptyState = wrapper.find('mt-empty-state-stub');
+        expect(emptyState.exists()).toBe(true);
+
+        expect(emptyState.attributes('headline')).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('sw-entity-listing-stub').exists()).toBe(false);
+
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
+    });
+
+    it('should show empty state when the customer search returns no results', async () => {
+        const wrapper = await createWrapper([], createCustomerSearchResult([]));
+        await wrapper.setData({
+            term: 'foo',
+        });
+
+        await wrapper.vm.getList();
+        await flushPromises();
+
+        expect(wrapper.vm.entitySearchable).toBe(true);
+
+        const emptyState = wrapper.find('mt-empty-state-stub');
+        expect(emptyState.exists()).toBe(true);
+
+        expect(emptyState.attributes('headline')).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
     });
 
     it('should show the manual customer', async () => {

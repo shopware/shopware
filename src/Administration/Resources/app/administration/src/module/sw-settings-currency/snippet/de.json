@@ -47,8 +47,12 @@
         "totalIntervalColumn": "Summe Intervall",
         "totalNetRoundingColumn": "Summe Nettokunden"
       },
-      "emptyCountryRoundings": "Hinzufügen von Nachkommastellen und Rundungsfaktoren für verschiedene Länder.",
-      "emptyCountryRoundingsNewCurrency": "Pflege die Basisinformationen, speichere die Währung und füge dann Länderspezifische Einstellungen hinzu.",
+      "emptyCountryRoundings": "Füge Länder hinzu, um eigene Nachkommastellen und Rundungsfaktoren für diese Währung festzulegen.",
+      "emptyCountryRoundingsNewCurrency": "Nach dem Speichern kannst Du länderspezifische Rundungseinstellungen hinzufügen.",
+      "emptyCountryRoundingsTitle": "Noch keine länderspezifische Rundung",
+      "emptyCountryRoundingsNewCurrencyTitle": "Speichere zuerst die Währung",
+      "emptyCountryRoundingsSearchTitle": "Keine Länder gefunden",
+      "emptyCountryRoundingsSearchDescription": "Versuche es mit einem anderen Suchbegriff oder leere den Filter.",
       "buttonAddCountry": "Land hinzufügen",
       "taxFreeFrom": "Steuerfrei ab",
       "taxFreeFromHelpText": "Wenn die Gesamtsumme des Warenkorbs größer ist als der Wert in \"Steuerfrei ab\", ist der gesamte Warenkorb steuerfrei. Gilt nur für Warenkörbe in der Währung \"{currencyName}\"."

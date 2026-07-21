@@ -4,7 +4,7 @@
       "mainMenuItemList": "Bewertungen",
       "mainMenuItemGeneral": "Bewertungen",
       "placeholderSearchBar": "Durchsuche alle Bewertungen ...",
-      "descriptionTextModule": "Verwaltung von Bewertungen."
+      "descriptionTextModule": "Prüfe und moderiere Kundenfeedback zu Produkten."
     },
     "list": {
       "textReviewOverview": "Bewertungen",
@@ -17,7 +17,7 @@
       "columnTitle": "Titel",
       "placeholderSearchBar": "Durchsuche alle Bewertungen ...",
       "messageEmpty": "Noch keine Bewertungen",
-      "messageEmptySubline": "Verwalte Bewertungen hier",
+      "messageEmptySubline": "Produktbewertungen aus Deinen Verkaufskanälen erscheinen hier zur Moderation.",
       "titleSidebarItemRefresh": "Aktualisieren"
     },
     "filters": {

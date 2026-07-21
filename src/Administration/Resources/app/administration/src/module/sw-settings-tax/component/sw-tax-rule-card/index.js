@@ -64,6 +64,42 @@ export default {
             };
         },
 
+        showTaxRuleGrid() {
+            return !this.disabled && (!this.taxRulesEmpty || !!this.term);
+        },
+
+        showTaxRuleEmptyState() {
+            return this.disabled || this.taxRules.length === 0;
+        },
+
+        showTaxRuleEmptyStateAction() {
+            return !this.disabled && !this.term;
+        },
+
+        taxRuleEmptyStateHeadline() {
+            if (this.disabled) {
+                return this.$t('sw-settings-tax.taxRuleCard.createStateTitle');
+            }
+
+            if (this.term) {
+                return this.$t('sw-settings-tax.taxRuleCard.emptySearchTitle');
+            }
+
+            return this.$t('sw-settings-tax.taxRuleCard.emptyStateTitle');
+        },
+
+        taxRuleEmptyStateDescription() {
+            if (this.disabled) {
+                return this.$t('sw-settings-tax.taxRuleCard.createStateDescription');
+            }
+
+            if (this.term) {
+                return this.$t('sw-settings-tax.taxRuleCard.emptySearchDescription');
+            }
+
+            return this.$t('sw-settings-tax.taxRuleCard.emptyStateDescription');
+        },
+
         taxRuleCriteria() {
             const criteria = new Criteria(this.page, this.limit);
 
@@ -113,6 +149,9 @@ export default {
             ];
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },

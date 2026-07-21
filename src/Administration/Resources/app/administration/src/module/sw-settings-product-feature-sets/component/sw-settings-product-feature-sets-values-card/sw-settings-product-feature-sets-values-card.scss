@@ -1,27 +1,4 @@
 .sw-settings-product-feature-sets-values-card {
-    &.is--empty {
-        .mt-card__content {
-            min-height: calc(var(--scale-size-224) + var(--scale-size-160) + var(--scale-size-6));
-        }
-    }
-
-    .sw-settings-product-feature-set-card__empty-state {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        height: calc(var(--scale-size-224) + var(--scale-size-160) + var(--scale-size-16));
-    }
-
-    .sw-settings-product-feature-set-card__empty-state--label {
-        margin-top: var(--scale-size-24);
-        margin-bottom: var(--scale-size-24);
-        max-width: calc(var(--scale-size-224) + var(--scale-size-24) + var(--scale-size-22));
-        text-align: center;
-        font-size: var(--font-size-xs);
-        color: var(--color-text-secondary-default);
-    }
-
     .sw-product-feature-set__toolbar {
         padding: var(--scale-size-24) var(--scale-size-32);
         background-color: var(--color-elevation-surface-sunken);

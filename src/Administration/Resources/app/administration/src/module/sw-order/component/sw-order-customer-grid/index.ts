@@ -154,10 +154,21 @@ export default Component.wrapComponentConfig({
             return this.$t('sw-order.initialModal.customerGrid.textEmptySearch', { name: this.term }, 0);
         },
 
+        emptySubline(): string {
+            if (!this.term) {
+                return this.$t('sw-order.initialModal.customerGrid.emptySubline');
+            }
+
+            return this.$t('sw-empty-state.messageNoResultSublineSimple');
+        },
+
         cart(): Cart {
             return Store.get('swOrder').cart;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },

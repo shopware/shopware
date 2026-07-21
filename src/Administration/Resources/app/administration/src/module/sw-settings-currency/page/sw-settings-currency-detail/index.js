@@ -171,12 +171,35 @@ export default {
             return criteria;
         },
 
-        emptyStateText() {
+        emptyStateHeadline() {
+            if (this.searchTerm) {
+                return this.$t('sw-settings-currency.detail.emptyCountryRoundingsSearchTitle');
+            }
+
+            if (this.currency.id && this.currency.isNew()) {
+                return this.$t('sw-settings-currency.detail.emptyCountryRoundingsNewCurrencyTitle');
+            }
+
+            return this.$t('sw-settings-currency.detail.emptyCountryRoundingsTitle');
+        },
+
+        emptyStateDescription() {
+            if (this.searchTerm) {
+                return this.$t('sw-settings-currency.detail.emptyCountryRoundingsSearchDescription');
+            }
+
             if (this.currency.id && this.currency.isNew()) {
                 return this.$t('sw-settings-currency.detail.emptyCountryRoundingsNewCurrency');
             }
 
             return this.$t('sw-settings-currency.detail.emptyCountryRoundings');
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed. Use emptyStateDescription instead.
+         */
+        emptyStateText() {
+            return this.emptyStateDescription;
         },
 
         showCustomFields() {

@@ -18,7 +18,7 @@
     },
     "empty-state": {
       "title": "Noch keine Produkteinheiten vorhanden",
-      "subline": "Verwaltung von Produkteinheiten."
+      "subline": "Lege Einheiten wie Flasche oder Paar an. Du kannst sie in Produktspezifikationen verwenden und in der Storefront anzeigen."
     },
     "notification": {
       "successMessage": "Die Produkteinheit wurde erfolgreich gespeichert.",

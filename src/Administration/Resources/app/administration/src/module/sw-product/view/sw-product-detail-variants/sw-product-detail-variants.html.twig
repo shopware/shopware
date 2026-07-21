@@ -44,7 +44,9 @@
 
         <sw-skeleton v-if="isLoading" />
 
+        {# @deprecated tag:v6.8.0 - Block `sw_product_properties_empty_state_button_property` will be removed. Use `sw_product_detail_variants_sw_card_empty_state` instead. #}
         {% block sw_product_detail_variants_sw_card_empty_state %}
+        {% block sw_product_properties_empty_state_button_property %}{% endblock %}
         <mt-empty-state
             v-if="!isLoading && !propertiesAvailable"
             :icon="$route.meta.$module.icon"
@@ -52,7 +54,6 @@
             :description="$t('sw-product.variations.emptyStatePropertyDescription')"
         >
             <template #button>
-                {% block sw_product_properties_empty_state_button_property %}
                 <mt-button
                     v-tooltip="{
                         message: $t('sw-privileges.tooltip.warning'),
@@ -65,7 +66,6 @@
                 >
                     {{ $t('sw-product.properties.buttonAddProperties') }}
                 </mt-button>
-                {% endblock %}
             </template>
         </mt-empty-state>
         {% endblock %}
@@ -86,7 +86,9 @@
         />
         {% endblock %}
 
+        {# @deprecated tag:v6.8.0 - Block `sw_product_properties_empty_state_button` will be removed. Use `sw_product_detail_variants_sw_card_empty_state_variant` instead. #}
         {% block sw_product_detail_variants_sw_card_empty_state_variant %}
+        {% block sw_product_properties_empty_state_button %}{% endblock %}
         <mt-empty-state
             v-if="!isLoading && propertiesAvailable && variants.length === 0"
             :icon="$route.meta.$module.icon"
@@ -94,7 +96,6 @@
             :description="$t('sw-product.variations.emptyStateDescription')"
         >
             <template #button>
-                {% block sw_product_properties_empty_state_button %}
                 <mt-button
                     v-tooltip="{
                         message: $t('sw-privileges.tooltip.warning'),
@@ -108,7 +109,6 @@
                 >
                     {{ $t('sw-product.variations.emptyStateButton') }}
                 </mt-button>
-                {% endblock %}
             </template>
         </mt-empty-state>
         {% endblock %}

@@ -17,7 +17,13 @@
         "buttonAdd": "Add new set",
         "columnName": "Label",
         "messageDeleteSuccess": "The set \"{name}\" has been deleted.",
-        "messageEmpty": "No custom fields yet.",
+        "messageEmpty": "No custom field sets yet.",
+        "emptyState": {
+          "title": "No custom field sets yet",
+          "description": "Create a set to group custom fields and assign them to products, customers, orders, or other areas.",
+          "searchTitle": "No custom field sets found",
+          "searchDescription": "Try another search term or clear the filter."
+        },
         "helpTextGlobalSet": "This set is global and cannot be edited."
       },
       "detail": {
@@ -25,17 +31,24 @@
         "labelPosition": "Position",
         "textHeadline": "Custom field set",
         "titleCardInformation": "General information",
+        "titleCardCustomFields": "Custom fields",
         "labelName": "Set name",
         "placeholderName": "Enter a name...",
         "labelCheckboxTranslated": "Manage labels in all administration languages",
         "messageSaveSuccess": "The set \"{name}\" has been saved.",
         "messageCustomFieldsEmpty": "No custom fields yet.",
+        "emptyCustomFieldsTitle": "No custom fields yet",
+        "emptyCustomFieldsDescription": "Custom fields store extra details on products, customers, orders, and other areas you assign this set to.",
+        "emptyCustomFieldsSearchTitle": "No custom fields found",
+        "emptyCustomFieldsSearchDescription": "Try another search term or clear the search.",
         "addCustomField": "New custom field",
         "labelEntities": "Assign to",
         "placeholderEntities": "Select modules...",
         "messageNameNotUnique": "That technical name already exists.",
         "entityTypeRequired": "Please select an entity type.",
-        "emptyStateDescription": "Before you can add a custom field you have to save this set."
+        "emptyStateDescription": "Before you can add a custom field you have to save this set.",
+        "createStateTitle": "Save the set first",
+        "createStateDescription": "After saving, you can add custom fields and assign them to this set."
       }
     },
     "customField": {

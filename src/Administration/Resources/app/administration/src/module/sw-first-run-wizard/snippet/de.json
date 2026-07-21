@@ -13,15 +13,15 @@
         "welcome": {
             "modalTitle": "Willkommen",
             "headlineWelcome": "Willkommen in der Shopware 6 Administration",
-            "messageWelcome": "Dieser Einrichtungsassistent begleitet Dich durch die wichtigsten Einstellungen und gibt Dir wertvolle Tipps zur Konfiguration."
+            "messageWelcome": "Richte die wichtigsten Grundlagen für Deinen Store in wenigen geführten Schritten ein. Du kannst diese Einstellungen später anpassen."
         },
         "dataImport": {
             "modalTitle": "Dein Start in Shopware 6",
-            "headlineDemoData": "Demodaten benutzen",
-            "messageDemoData": "Statte Deinen Shop mit Demodaten aus und erkunde Shopware 6. Demodaten sollten ausschließlich zu Testzwecken verwendet werden.",
+            "headlineDemoData": "Mit Demodaten starten",
+            "messageDemoData": "Füge Demodaten hinzu, um einen vollständig eingerichteten Store zu erkunden und Produkte, Kategorien und Bestellungen kennenzulernen. Verwende Demodaten nur zu Testzwecken.",
             "buttonInstallDemoData": "Demodaten installieren",
-            "headlineMigration": "Eigenen Shop migrieren",
-            "messageMigration": "Der Migrations-Assistent hilft Dir, Dein Shopsystem mit Shopware 6 zu verbinden und vorhandene Daten zu übertragen.",
+            "headlineMigration": "Store-Daten migrieren",
+            "messageMigration": "Der Migrations-Assistent hilft Dir, Daten aus Deinem bestehenden Store-System nach Shopware 6 zu übertragen.",
             "buttonInstallMigration": "Migrations-Assistenten installieren",
             "loadingMessage": "Installiere Erweiterung<br>Das könnte eine Weile dauern ..."
         },
@@ -105,9 +105,9 @@
             "modalTitle": "Standardwerte definieren"
         },
         "finish": {
-            "headlineAllDone": "Herzlichen Glückwunsch!",
-            "message": "Deine Shopware 6 {edition} ist jetzt verifiziert.",
-            "messageNotLicensed": "Dein Shopware 6 ist jetzt vorbereitet.",
+            "headlineAllDone": "Dein Store ist bereit",
+            "message": "Deine Shopware 6 {edition}-Lizenz ist verifiziert.\nStarte die Verwaltung Deines Stores in der Administration oder nutze die Links unten, um mehr zu erfahren.",
+            "messageNotLicensed": "Die ersten Einrichtungsschritte sind abgeschlossen.\nStarte die Verwaltung Deines Stores in der Administration oder nutze die Links unten, um mehr zu erfahren.",
             "headlineUsefulLinks": "Nützliche Links",
             "loadingMessage": "Anwendung wird neu gestartet<br>Das könnte einen Moment dauern ...",
             "documentationLabel": "Dokumentation",

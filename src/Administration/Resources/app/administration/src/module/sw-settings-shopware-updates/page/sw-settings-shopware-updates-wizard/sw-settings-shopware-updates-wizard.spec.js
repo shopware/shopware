@@ -150,6 +150,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                         'sw-loader': {
                             template: '<div></div>',
                         },
+                        'mt-empty-state': true,
                         'router-link': {
                             template: '<a></a>',
                         },
@@ -202,6 +203,22 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         const button = wrapper.findByText('button', 'sw-settings-shopware-updates.infos.startUpdate');
 
         expect(button.attributes('disabled')).toBeDefined();
+    });
+
+    it('should show the current version in the up-to-date empty state', async () => {
+        Shopware.Context.app.config.version = '6.7.0.0';
+
+        wrapper.vm.isLoading = false;
+        wrapper.vm.updateInfo = {
+            version: null,
+            changelog: null,
+        };
+        await wrapper.vm.$nextTick();
+
+        const emptyState = wrapper.find('mt-empty-state-stub');
+
+        expect(emptyState.attributes('headline')).toBe('sw-settings-shopware-updates.general.emptyState');
+        expect(emptyState.attributes('description')).toBe('6.7.0.0');
     });
 
     it('should show the correct error message, when theme deactivation fails', async () => {

@@ -177,6 +177,7 @@
       "columnZipCode": "PLZ",
       "columnCity": "Stadt",
       "columnActions": "Aktionen",
+      "emptySearchTitle": "Keine Suchergebnisse",
       "contextMenuDefaultShippingAddress": "Als Standard-Lieferadresse festlegen",
       "contextMenuDefaultBillingAddress": "Als Standard-Rechnungsadresse festlegen"
     },

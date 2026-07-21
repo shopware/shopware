@@ -861,6 +861,7 @@
           "productAssignmentPlaceholder": "Search and assign products...",
           "productAssignmentLabel": "Products",
           "productAssignmentEmptyStateDescription": "No products assigned",
+          "productAssignmentEmptyStateSubline": "Assign products to use this layout.",
           "productStreamAssignmentEmptyStateDescription": "No dynamic product group assigned",
           "columnNameLabel": "Name",
           "columnManufacturerLabel": "Manufacturer"

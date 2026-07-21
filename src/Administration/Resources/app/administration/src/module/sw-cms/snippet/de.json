@@ -861,6 +861,7 @@
           "productAssignmentPlaceholder": "Produkte durchsuchen und zuweisen ...",
           "productAssignmentLabel": "Produkte",
           "productAssignmentEmptyStateDescription": "Keine Produkte zugewiesen",
+          "productAssignmentEmptyStateSubline": "Weise Produkte zu, um dieses Layout zu verwenden.",
           "productStreamAssignmentEmptyStateDescription": "Keine dynamische Produktgruppe zugewiesen",
           "columnNameLabel": "Name",
           "columnManufacturerLabel": "Hersteller"

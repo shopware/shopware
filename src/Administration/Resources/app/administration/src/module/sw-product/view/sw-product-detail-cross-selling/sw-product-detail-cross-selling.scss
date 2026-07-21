@@ -47,7 +47,17 @@
         width: fit-content;
     }
 
-    .sw-empty-state__icon {
-        display: inline-block;
+    &__empty-state-card {
+        .mt-card__content {
+            padding: 0;
+        }
+    }
+
+    &__empty-state {
+        .mt-empty-state__button {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
     }
 }

@@ -29,13 +29,17 @@
       "labelCreateNew": "Add values"
     },
     "valuesCard": {
-      "createStateDescription": "Add values to define essential characteristics that are custom-tailored to your product range.",
+      "createStateTitle": "Save the template first",
+      "createStateDescription": "After saving, you can add values that define essential characteristics for this template.",
       "labelCreateNew": "Add field",
       "cardTitle": "Values",
       "labelValue": "Value",
       "labelType": "Type",
       "labelPosition": "Position",
-      "emptyStateDescription": "Add values to define essential characteristics that are custom-tailored to your product range."
+      "emptyStateTitle": "No values added yet",
+      "emptyStateDescription": "Add values to describe the product details that matter for this feature set.",
+      "emptySearchTitle": "No values found",
+      "emptySearchDescription": "Try another search term or clear the filter."
     },
     "modal": {
       "textPropertyLabel": "Property",

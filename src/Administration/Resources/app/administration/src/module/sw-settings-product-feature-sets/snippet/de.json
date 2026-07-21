@@ -29,13 +29,17 @@
       "labelCreateNew": "Werte hinzufügen"
     },
     "valuesCard": {
-      "createStateDescription": "Füge Werte hinzu, um wesentliche Merkmale zu definieren, die auf Dein Produktsortiment zugeschnitten sind.",
+      "createStateTitle": "Speichere zuerst das Template",
+      "createStateDescription": "Nach dem Speichern kannst Du Werte hinzufügen, die wesentliche Merkmale für dieses Template definieren.",
       "labelCreateNew": "Feld hinzufügen",
       "cardTitle": "Werte",
       "labelValue": "Wert",
       "labelType": "Typ",
       "labelPosition": "Position",
-      "emptyStateDescription": "Füge Werte hinzu, um wesentliche Merkmale zu definieren, die auf Dein Produktsortiment zugeschnitten sind.."
+      "emptyStateTitle": "Noch keine Werte hinzugefügt",
+      "emptyStateDescription": "Füge Werte hinzu, um wichtige Produktdetails für dieses Feature-Set zu beschreiben.",
+      "emptySearchTitle": "Keine Werte gefunden",
+      "emptySearchDescription": "Versuche es mit einem anderen Suchbegriff oder lösche den Filter."
     },
     "modal": {
       "textPropertyLabel": "Eigenschaft",

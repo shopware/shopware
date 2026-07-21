@@ -177,6 +177,7 @@
       "columnZipCode": "Postal code",
       "columnCity": "City",
       "columnActions": "Actions",
+      "emptySearchTitle": "No search result",
       "contextMenuDefaultShippingAddress": "Set as default delivery address",
       "contextMenuDefaultBillingAddress": "Set as default billing address"
     },

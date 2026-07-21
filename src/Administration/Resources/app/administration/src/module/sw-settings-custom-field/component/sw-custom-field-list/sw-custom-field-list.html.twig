@@ -2,6 +2,7 @@
 <mt-card
     class="sw-custom-field-list"
     position-identifier="sw-custom-field-list"
+    :title="$t('sw-settings-custom-field.set.detail.titleCardCustomFields')"
 >
     {% block sw_custom_field_list_toolbar %}
     <div class="sw-custom-field-list__toolbar">
@@ -62,7 +63,7 @@
 
     {% block sw_custom_field_list_grid %}
     <sw-grid
-        v-if="(customFields && customFields.length > 0) || term"
+        v-if="customFields && customFields.length > 0"
         ref="grid"
         class="sw-custom-field-list__grid"
         :items="customFields"
@@ -204,9 +205,14 @@
 
     {% block sw_custom_field_list_empty_state %}
     <mt-empty-state
-        v-else-if="!set.isLoading"
-        :icon="$route.meta.$module.icon"
-        :headline="$t('sw-settings-custom-field.set.detail.messageCustomFieldsEmpty')"
+        v-else-if="!set.isLoading && !isLoading"
+        class="sw-custom-field-list__empty-state"
+        icon="regular-bars-square"
+        :headline="customFieldEmptyStateHeadline"
+        :description="customFieldEmptyStateDescription"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
     />
     {% endblock %}
 

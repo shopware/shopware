@@ -13,6 +13,7 @@
     "sidebar": {
       "labelHeadlineMultiple": "{count} ausgewählte Dateien",
       "labelNoMediaSelected": "Keine Medien ausgewählt",
+      "labelNoMediaSelectedDescription": "Wähle eine Datei oder einen Ordner aus, um Details anzuzeigen.",
       "actions": {
         "copyLink": "Link kopieren",
         "delete": "Löschen",

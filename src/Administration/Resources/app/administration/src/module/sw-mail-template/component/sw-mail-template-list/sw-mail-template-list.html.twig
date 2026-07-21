@@ -3,22 +3,16 @@
     :title="$t('sw-mail-template.list.titleMailTemplateList')"
     position-identifier="sw-mail-template-list"
 >
+    {# @deprecated tag:v6.8.0 - Block `sw_mail_template_list_grid_empty_state_icon` will be removed. Use `sw_mail_template_list_grid_empty_state` instead. #}
     {% block sw_mail_template_list_grid_empty_state %}
-    <sw-empty-state
+    {% block sw_mail_template_list_grid_empty_state_icon %}{% endblock %}
+
+    <mt-empty-state
         v-if="!isLoading && !showListing"
-        :title="$t('sw-mail-template.list.emptyStateTitle')"
-        :subline="$t('sw-mail-template.list.emptyStateSubTitle')"
-        :absolute="false"
-    >
-        {% block sw_mail_template_list_grid_empty_state_icon %}
-        <template #icon>
-            <img
-                :src="assetFilter('/administration/administration/static/img/empty-states/settings-empty-state.svg')"
-                alt=""
-            >
-        </template>
-        {% endblock %}
-    </sw-empty-state>
+        :headline="$t('sw-mail-template.list.emptyStateTitle')"
+        :description="$t('sw-mail-template.list.emptyStateSubTitle')"
+        icon="regular-cog"
+    />
     {% endblock %}
 
     <template #grid>

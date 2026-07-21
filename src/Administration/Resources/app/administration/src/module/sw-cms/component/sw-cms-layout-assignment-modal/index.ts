@@ -143,10 +143,6 @@ export default Shopware.Component.wrapComponentConfig({
             return this.page.type === 'product_detail';
         },
 
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
-        },
-
         categoryRepository() {
             return this.repositoryFactory.create('category');
         },

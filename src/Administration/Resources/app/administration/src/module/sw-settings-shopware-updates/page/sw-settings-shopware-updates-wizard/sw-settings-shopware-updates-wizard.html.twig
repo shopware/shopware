@@ -52,12 +52,15 @@
                 />
             </sw-card-view>
 
+            {% block sw_settings_shopware_updates_wizard_empty_state %}
             <mt-empty-state
                 v-if="!isLoading && !updateInfo.version"
                 :centered="true"
-                :icon="$route.meta.$module.icon"
+                icon="solid-check-circle"
                 :headline="$t('sw-settings-shopware-updates.general.emptyState')"
+                :description="shopwareVersion"
             />
+            {% endblock %}
 
             <sw-modal
                 v-if="updaterIsRunning"

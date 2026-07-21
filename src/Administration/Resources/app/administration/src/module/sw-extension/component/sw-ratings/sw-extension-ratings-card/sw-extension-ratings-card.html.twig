@@ -38,9 +38,15 @@
 
     {% block sw_extension_ratings_card_empty_state %}
     <template v-else>
-        {% block sw_extension_ratings_card_empty_state_content %}
-        {{ $t('sw-extension-store.component.sw-extension-ratings.sw-extension-ratings-card.labelNoReviews') }}
-        {% endblock %}
+        {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_extension_ratings_card_empty_state` instead. #}
+        {% block sw_extension_ratings_card_empty_state_content %}{% endblock %}
+
+        <mt-empty-state
+            icon="regular-star"
+            :headline="$t('sw-extension-store.component.sw-extension-ratings.sw-extension-ratings-card.labelNoReviews')"
+            :description="$t('sw-extension-store.component.sw-extension-ratings.sw-extension-ratings-card.sublineNoReviews')"
+            centered
+        />
     </template>
     {% endblock %}
 

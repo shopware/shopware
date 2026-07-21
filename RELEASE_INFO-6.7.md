@@ -1201,6 +1201,21 @@ Pseudo-locales bypass Symfony Intl validation in `Language::validateLocale` and 
 
 ## Administration
 
+### Administration empty states use Meteor markup consistently
+
+Several Administration empty states now render the Meteor `mt-empty-state` component directly.
+This keeps their visual treatment, spacing, icon handling, and action slot behavior aligned with the Meteor component library.
+
+Some granular Twig fragment blocks around individual empty-state icons, copy, and action slots have been removed in favor of one area-level empty-state block per migrated area.
+Extensions overriding those fragment blocks should migrate to the replacement blocks listed in `UPGRADE-6.8.md`.
+
+### Integration list uses the Meteor data table
+
+The Administration integration list now uses the Meteor data table instead of the legacy entity listing.
+This aligns the list with the current Administration table UX and provides search, permission filters, and page-size controls once a shop has more than 25 integrations.
+
+Extensions that customize integration list row actions or the empty state should check the renamed and removed Twig blocks documented in `UPGRADE-6.8.md`.
+
 ### Block renaming
 
 Due to misleading block names, the following blocks have been deprecated and will be removed in v6.8.0. Use the respective replacements instead:

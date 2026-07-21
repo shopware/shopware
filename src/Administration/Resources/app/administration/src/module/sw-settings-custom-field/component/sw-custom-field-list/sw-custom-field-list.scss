@@ -1,6 +1,17 @@
 .sw-custom-field-list {
-    .sw-empty-state {
+    .mt-empty-state {
         position: static;
+    }
+
+    .sw-custom-field-list__empty-state {
+        align-self: start;
+        min-height: 180px;
+        padding: 24px 35px;
+
+        .mt-empty-state__description {
+            max-width: 560px;
+            overflow-wrap: break-word;
+        }
     }
 
     .media-column .sw-grid__cell-content {

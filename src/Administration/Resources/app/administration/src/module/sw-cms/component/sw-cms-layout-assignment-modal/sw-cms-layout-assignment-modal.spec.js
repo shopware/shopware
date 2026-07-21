@@ -146,17 +146,11 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
                         template: `
                         <div class="sw-cms-product-assignment">
                             <slot name="content"></slot>
-                            <slot
-                                name="empty-state">
-                                <img
-                                    :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                                    alt=""
-                                >
-                                <p>{{ $t('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentEmptyStateDescription') }}</p>
-                            </slot>
+                            <slot name="empty-state"></slot>
                         </div>
                     `,
                     },
+                    'mt-empty-state': true,
                     'sw-inheritance-switch': true,
                     'sw-label': true,
                     transition: false,

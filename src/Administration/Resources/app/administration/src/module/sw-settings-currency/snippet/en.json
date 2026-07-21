@@ -47,8 +47,12 @@
         "totalIntervalColumn": "Grand total interval",
         "totalNetRoundingColumn": "Grand total round net"
       },
-      "emptyCountryRoundings": "Add individual decimals and rounding factors for different countries.",
-      "emptyCountryRoundingsNewCurrency": "Fill in basic information, save the currency - then add values",
+      "emptyCountryRoundings": "Add countries to define individual decimals and rounding factors for this currency.",
+      "emptyCountryRoundingsNewCurrency": "After saving, you can add country-specific rounding settings.",
+      "emptyCountryRoundingsTitle": "No country-specific rounding yet",
+      "emptyCountryRoundingsNewCurrencyTitle": "Save the currency first",
+      "emptyCountryRoundingsSearchTitle": "No countries found",
+      "emptyCountryRoundingsSearchDescription": "Try another search term or clear the filter.",
       "buttonAddCountry": "Add country",
       "taxFreeFrom": "Tax-free from",
       "taxFreeFromHelpText": "If the shopping cart total is higher than the value set in \"Tax-free from\", the whole shopping cart will be tax-free. Applies to  shopping carts payed in \"{currencyName}\", only."

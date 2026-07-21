@@ -107,24 +107,19 @@
     </sw-data-grid>
     {% endblock %}
 
+    {# @deprecated tag:v6.8.0 - Block `sw_settings_listing_option_criteria_card_empty_state_icon` will be removed. Use `sw_settings_listing_option_criteria_card_empty_state` instead. #}
     {% block sw_settings_listing_option_criteria_card_empty_state %}
-    <sw-empty-state
+    {% block sw_settings_listing_option_criteria_card_empty_state_icon %}{% endblock %}
+    <mt-empty-state
         v-else
         class="sw-settings-listing-option-criteria-grid__criteria-empty-state"
-        title=""
-        :subline="$t('sw-settings-listing.base.criteria.emptyStateSubline')"
-    >
-
-        {% block sw_settings_listing_option_criteria_card_empty_state_icon %}
-        <template #icon>
-            <img
-                :src="assetFilter('administration/administration/static/img/empty-states/settings-empty-state.svg')"
-                alt=""
-            >
-        </template>
-        {% endblock %}
-
-    </sw-empty-state>
+        :headline="$t('sw-settings-listing.base.criteria.emptyStateTitle')"
+        :description="$t('sw-settings-listing.base.criteria.emptyStateSubline')"
+        icon="regular-sort"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+    />
     {% endblock %}
 </mt-card>
 {% endblock %}

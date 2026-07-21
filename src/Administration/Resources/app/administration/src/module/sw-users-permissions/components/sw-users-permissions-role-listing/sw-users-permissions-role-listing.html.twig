@@ -5,28 +5,30 @@
     :title="$t('sw-users-permissions.roles.general.cardLabel')"
 >
     {% block sw_users_permissions_role_listing_toolbar %}
-    <div class="sw-users-permissions-role-listing__toolbar">
-        {% block sw_users_permissions_role_listing_toolbar_search_field %}
-        <sw-simple-search-field
-            v-model:value="term"
-            size="small"
-            variant="form"
-            @search-term-change="onSearch"
-        />
-        {% endblock %}
+    <template #toolbar>
+        <div class="sw-users-permissions-role-listing__toolbar">
+            {% block sw_users_permissions_role_listing_toolbar_search_field %}
+            <sw-simple-search-field
+                v-model:value="term"
+                size="small"
+                variant="form"
+                @search-term-change="onSearch"
+            />
+            {% endblock %}
 
-        {% block sw_users_permissions_role_listing_toolbar_add_role_button %}
-        <mt-button
-            size="small"
-            :disabled="!acl.can('users_and_permissions.creator') || undefined"
-            class="sw-users-permissions-role-listing__add-role-button"
-            variant="secondary"
-            @click="$router.push({ name: 'sw.users.permissions.role.detail' })"
-        >
-            {{ $t('sw-users-permissions.roles.general.labelCreateNewRole') }}
-        </mt-button>
-        {% endblock %}
-    </div>
+            {% block sw_users_permissions_role_listing_toolbar_add_role_button %}
+            <mt-button
+                size="small"
+                :disabled="!acl.can('users_and_permissions.creator') || undefined"
+                class="sw-users-permissions-role-listing__add-role-button"
+                variant="secondary"
+                @click="$router.push({ name: 'sw.users.permissions.role.detail' })"
+            >
+                {{ $t('sw-users-permissions.roles.general.labelCreateNewRole') }}
+            </mt-button>
+            {% endblock %}
+        </div>
+    </template>
     {% endblock %}
 
     {% block sw_users_permissions_role_listing_verify_modal %}
@@ -38,116 +40,121 @@
     {% endblock %}
 
     {% block sw_users_permissions_role_listing_grid %}
-    <sw-data-grid
-        v-if="showListingResults || isLoading"
-        :data-source="roles"
-        :columns="rolesColumns"
-        identifier="roles-grid"
-        :show-settings="true"
-        :show-selection="false"
-        :is-loading="isLoading"
-        @column-sort="onSortColumn"
-    >
-        {% block sw_users_permissions_role_listing_grid_actions %}
-        <template #actions="{ item }">
-            {% block sw_users_permissions_role_listing_grid_actions_edit %}
-            <sw-context-menu-item
-                :router-link="{ name: 'sw.users.permissions.role.detail', params: { id: item.id } }"
-                class="sw-users-permissions-role-listing__context-menu-edit"
-                :disabled="!acl.can('users_and_permissions.editor') || undefined"
-            >
-                {{ $t('global.default.edit') }}
-            </sw-context-menu-item>
-            {% endblock %}
-
-            {% block sw_users_permissions_role_listing_grid_actions_delete %}
-            <sw-context-menu-item
-                variant="danger"
-                class="sw-users-permissions-role-listing__context-menu-delete"
-                :disabled="!acl.can('users_and_permissions.deleter') || undefined"
-                @click="onDelete(item)"
-            >
-                {{ $t('global.default.delete') }}
-            </sw-context-menu-item>
-            {% endblock %}
-        </template>
-        {% endblock %}
-
-        {% block sw_users_permissions_role_listing_grid_columns %}
-        <template #column-name="{ item }">
-            {% block sw_users_permissions_role_listing_grid_columns_name %}
-            <mt-link :to="{ name: 'sw.users.permissions.role.detail', params: { id: item.id } }">
-                {{ item.name }}
-            </mt-link>
-            {% endblock %}
-        </template>
-        {% endblock %}
-
-        {% block sw_users_permissions_role_listing_grid_action_modals %}
-        <template #action-modals="{ item }">
-            {% block sw_users_permissions_role_listing_grid_actions_modals_modal %}
-            <sw-modal
-                v-if="isConfirmDeleteModalOpen"
-                :title="$t('sw-users-permissions.roles.role-grid.titleModalDelete')"
-                variant="small"
-                @modal-close="onCloseDeleteModal"
-            >
-                {% block sw_users_permissions_role_listing_grid_actions_modals_modal_delete_text %}
-                <p class="sw-users-permissions-role-listing__confirm-delete-text">
-                    {{ $t('sw-users-permissions.roles.role-grid.textModalDelete', { name: item.name }, 0) }}
-                </p>
+    <template #grid>
+        <sw-data-grid
+            v-if="showListingResults || isLoading"
+            :data-source="roles"
+            :columns="rolesColumns"
+            identifier="roles-grid"
+            :show-settings="true"
+            :show-selection="false"
+            :is-loading="isLoading"
+            @column-sort="onSortColumn"
+        >
+            {% block sw_users_permissions_role_listing_grid_actions %}
+            <template #actions="{ item }">
+                {% block sw_users_permissions_role_listing_grid_actions_edit %}
+                <sw-context-menu-item
+                    :router-link="{ name: 'sw.users.permissions.role.detail', params: { id: item.id } }"
+                    class="sw-users-permissions-role-listing__context-menu-edit"
+                    :disabled="!acl.can('users_and_permissions.editor') || undefined"
+                >
+                    {{ $t('global.default.edit') }}
+                </sw-context-menu-item>
                 {% endblock %}
 
-                {% block sw_users_permissions_role_listing_grid_actions_modals_modal_footer %}
-                <template #modal-footer>
-                    {% block sw_users_permissions_role_listing_grid_actions_modals_modal_close_delete %}
-                    <mt-button
-                        size="small"
-                        variant="secondary"
-                        @click="onCloseDeleteModal"
-                    >
-                        {{ $t('global.default.cancel') }}
-                    </mt-button>
-                    {% endblock %}
-
-                    {% block sw_users_permissions_role_listing_grid_actions_modals_modal_confirm_delete %}
-                    <mt-button
-                        class="sw-users-permissions-role-listing__confirm-delete-button"
-                        variant="critical"
-                        size="small"
-                        @click="onConfirmDelete(item)"
-                    >
-                        {{ $t('global.default.delete') }}
-                    </mt-button>
-                    {% endblock %}
-                </template>
+                {% block sw_users_permissions_role_listing_grid_actions_delete %}
+                <sw-context-menu-item
+                    variant="danger"
+                    class="sw-users-permissions-role-listing__context-menu-delete"
+                    :disabled="!acl.can('users_and_permissions.deleter') || undefined"
+                    @click="onDelete(item)"
+                >
+                    {{ $t('global.default.delete') }}
+                </sw-context-menu-item>
                 {% endblock %}
-            </sw-modal>
+            </template>
             {% endblock %}
-        </template>
+
+            {% block sw_users_permissions_role_listing_grid_columns %}
+            <template #column-name="{ item }">
+                {% block sw_users_permissions_role_listing_grid_columns_name %}
+                <mt-link :to="{ name: 'sw.users.permissions.role.detail', params: { id: item.id } }">
+                    {{ item.name }}
+                </mt-link>
+                {% endblock %}
+            </template>
+            {% endblock %}
+
+            {% block sw_users_permissions_role_listing_grid_action_modals %}
+            <template #action-modals="{ item }">
+                {% block sw_users_permissions_role_listing_grid_actions_modals_modal %}
+                <sw-modal
+                    v-if="isConfirmDeleteModalOpen"
+                    :title="$t('sw-users-permissions.roles.role-grid.titleModalDelete')"
+                    variant="small"
+                    @modal-close="onCloseDeleteModal"
+                >
+                    {% block sw_users_permissions_role_listing_grid_actions_modals_modal_delete_text %}
+                    <p class="sw-users-permissions-role-listing__confirm-delete-text">
+                        {{ $t('sw-users-permissions.roles.role-grid.textModalDelete', { name: item.name }, 0) }}
+                    </p>
+                    {% endblock %}
+
+                    {% block sw_users_permissions_role_listing_grid_actions_modals_modal_footer %}
+                    <template #modal-footer>
+                        {% block sw_users_permissions_role_listing_grid_actions_modals_modal_close_delete %}
+                        <mt-button
+                            size="small"
+                            variant="secondary"
+                            @click="onCloseDeleteModal"
+                        >
+                            {{ $t('global.default.cancel') }}
+                        </mt-button>
+                        {% endblock %}
+
+                        {% block sw_users_permissions_role_listing_grid_actions_modals_modal_confirm_delete %}
+                        <mt-button
+                            class="sw-users-permissions-role-listing__confirm-delete-button"
+                            variant="critical"
+                            size="small"
+                            @click="onConfirmDelete(item)"
+                        >
+                            {{ $t('global.default.delete') }}
+                        </mt-button>
+                        {% endblock %}
+                    </template>
+                    {% endblock %}
+                </sw-modal>
+                {% endblock %}
+            </template>
+            {% endblock %}
+
+            <template #pagination>
+                {% block sw_users_permissions_role_listing_grid_pagination %}
+                <sw-pagination
+                    :page="page"
+                    :limit="limit"
+                    :total="total"
+                    :auto-hide="true"
+                    @page-change="onPageChange"
+                />
+                {% endblock %}
+            </template>
+        </sw-data-grid>
+
+        {% block sw_users_permissions_role_listing_empty_state %}
+        <mt-empty-state
+            v-else
+            :icon="$route.meta.$module.icon"
+            :headline="roleEmptyStateTitle"
+            :description="roleEmptyStateDescription"
+            :role="term ? 'status' : undefined"
+            :aria-live="term ? 'polite' : undefined"
+            :aria-atomic="term ? 'true' : undefined"
+        />
         {% endblock %}
-
-        <template #pagination>
-            {% block sw_users_permissions_role_listing_grid_pagination %}
-            <sw-pagination
-                :page="page"
-                :limit="limit"
-                :total="total"
-                :auto-hide="true"
-                @page-change="onPageChange"
-            />
-            {% endblock %}
-        </template>
-    </sw-data-grid>
-    {% endblock %}
-
-    {% block sw_users_permissions_role_listing_empty_state %}
-    <mt-empty-state
-        v-else
-        :icon="$route.meta.$module.icon"
-        :headline="$t('sw-users-permissions.roles.role-grid.messageEmptyTitle')"
-        :description="$t('sw-users-permissions.roles.role-grid.messageEmptySubline')"
-    />
+    </template>
     {% endblock %}
 </mt-card>
 {% endblock %}

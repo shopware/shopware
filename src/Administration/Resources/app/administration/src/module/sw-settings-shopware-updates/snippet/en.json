@@ -4,7 +4,7 @@
       "menuTitle": "Shopware updates",
       "title": "Shopware update ({version})",
       "emptyTitle": "Shopware updates",
-      "emptyState": "You are running the latest version.",
+      "emptyState": "Shopware is up to date",
       "checkForUpdates": "Check for updates",
       "currentVersion": "Current version:"
     },

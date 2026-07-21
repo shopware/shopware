@@ -30,19 +30,19 @@ function mockCustomFieldData() {
     return _customFields;
 }
 
-function mockCustomFieldRepository() {
+function mockCustomFieldRepository(customFieldItems = customFields) {
     class Repository {
         constructor() {
-            this._customFields = customFields;
+            this._customFields = customFieldItems;
         }
 
         search() {
-            const response = this._customFields;
+            const response = [...this._customFields];
             response.total = this._customFields.length;
 
             response.sort((a, b) => a.config.customFieldPosition - b.config.customFieldPosition);
 
-            return Promise.resolve(this._customFields);
+            return Promise.resolve(response);
         }
 
         save(field) {
@@ -63,8 +63,9 @@ function mockCustomFieldRepository() {
     return new Repository();
 }
 
-async function createWrapper(privileges = [], repo = mockCustomFieldRepository()) {
+async function createWrapper(privileges = [], repo = null) {
     customFields = mockCustomFieldData();
+    repo ??= mockCustomFieldRepository();
 
     return mount(
         await wrapTestComponent('sw-custom-field-list', {
@@ -93,7 +94,11 @@ async function createWrapper(privileges = [], repo = mockCustomFieldRepository()
                     },
                 },
                 stubs: {
-                    'mt-card': true,
+                    'mt-card': {
+                        props: ['title'],
+                        template: '<div class="mt-card" :data-title="title"><slot></slot></div>',
+                    },
+                    'mt-empty-state': true,
                     'sw-simple-search-field': {
                         template: '<div></div>',
                     },
@@ -199,6 +204,39 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-list/sw-
         expect(paginationButtons).toHaveLength(1);
     });
 
+    it('should render a custom fields empty state', async () => {
+        const wrapper = await createWrapper([], mockCustomFieldRepository([]));
+        await flushPromises();
+
+        const emptyState = wrapper.get('.sw-custom-field-list__empty-state');
+
+        expect(emptyState.attributes('headline')).toBe('sw-settings-custom-field.set.detail.emptyCustomFieldsTitle');
+        expect(emptyState.attributes('description')).toBe(
+            'sw-settings-custom-field.set.detail.emptyCustomFieldsDescription',
+        );
+        expect(wrapper.find('.sw-custom-field-list__grid').exists()).toBeFalsy();
+    });
+
+    it('should render a search-specific custom fields empty state', async () => {
+        const wrapper = await createWrapper([], mockCustomFieldRepository([]));
+        await flushPromises();
+
+        await wrapper.setData({
+            term: 'does-not-exist',
+        });
+        await flushPromises();
+
+        const emptyState = wrapper.get('.sw-custom-field-list__empty-state');
+
+        expect(emptyState.attributes('headline')).toBe(
+            'sw-settings-custom-field.set.detail.emptyCustomFieldsSearchTitle',
+        );
+        expect(emptyState.attributes('description')).toBe(
+            'sw-settings-custom-field.set.detail.emptyCustomFieldsSearchDescription',
+        );
+        expect(wrapper.find('.sw-custom-field-list__grid').exists()).toBeFalsy();
+    });
+
     it('should create new custom field', async () => {
         const wrapper = await createWrapper();
 
@@ -211,7 +249,6 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-list/sw-
                 customFieldPosition: 0,
             },
         };
-        await flushPromises();
 
         await wrapper.vm.onSaveCustomField(newCustomField);
         await flushPromises();

@@ -277,8 +277,12 @@
                     <mt-empty-state
                         v-else
                         class="sw-settings-currency-detail__currency-country-empty-state"
-                        :icon="$route.meta.$module.icon"
-                        :headline="emptyStateText"
+                        icon="regular-globe"
+                        :headline="emptyStateHeadline"
+                        :description="emptyStateDescription"
+                        role="status"
+                        aria-live="polite"
+                        aria-atomic="true"
                     />
                     {% endblock %}
                 </mt-card>

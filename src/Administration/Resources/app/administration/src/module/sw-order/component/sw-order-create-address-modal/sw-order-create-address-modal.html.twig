@@ -86,20 +86,20 @@
             </sw-card-filter>
         </template>
         {% endblock %}
+        {# @deprecated tag:v6.8.0 - Block `sw_order_create_address_modal_empty_state_content` will be removed. Use `sw_order_create_address_modal_empty_state` instead. #}
         {% block sw_order_create_address_modal_empty_state %}
         <template #grid>
+            {% block sw_order_create_address_modal_empty_state_content %}{% endblock %}
             <div
                 v-if="!isLoading && !addresses.length"
                 class="sw-order-create-address-modal__card is--empty"
             >
-                <sw-empty-state
-                    :title="$t('sw-order.addressSelection.emptySearchResults')"
-                    :icon="'regular-book-user'"
-                >
-                    {% block sw_order_create_address_modal_empty_state_content %}
-                    <span></span>
-                    {% endblock %}
-                </sw-empty-state>
+                <mt-empty-state
+                    :headline="$t('sw-order.addressSelection.emptySearchResults')"
+                    :description="$t('sw-order.addressSelection.emptySearchResultsSubline')"
+                    icon="regular-book-user"
+                    centered
+                />
             </div>
             <div
                 v-for="(address, index) in addresses"

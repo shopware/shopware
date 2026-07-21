@@ -87,13 +87,15 @@
                 </div>
 
                 <div class="sw-settings-index__empty-state">
+                    {% block sw_settings_index_empty_state %}
                     <mt-empty-state
                         v-if="Object.keys(settingsGroups).length === 0"
                         :description="$t('sw-settings.index.search.noResultsDescription')"
                         :headline="$t('sw-settings.index.search.noResultsHeadline')"
-                        icon="regular-cog"
+                        icon="solid-cog"
                         centered
                     />
+                    {% endblock %}
                 </div>
                 {% endblock %}
             </div>

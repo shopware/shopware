@@ -51,8 +51,10 @@
         "addButton": "Add option",
         "messageDeleteError": "There was an error while deleting the sorting option",
         "emptyState": {
-          "title": "No options found",
-          "subline": "Create options"
+          "title": "No sorting options yet",
+          "subline": "Create sorting options to control the order of products in listings.",
+          "searchTitle": "No sorting options found",
+          "searchSubline": "Try another search term or clear the filter."
         },
         "grid": {
           "header": {
@@ -89,7 +91,8 @@
       "criteria": {
         "title": "Sorting criteria",
         "selectPlaceholder": "Search and add criteria...",
-        "emptyStateSubline": "No criteria defined for this sorting option yet."
+        "emptyStateTitle": "No criteria added yet",
+        "emptyStateSubline": "Add criteria to define how this sorting option orders products."
       },
       "delete": {
         "modalTitle": "Delete criterion",

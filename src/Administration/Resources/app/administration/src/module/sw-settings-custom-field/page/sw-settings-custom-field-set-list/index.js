@@ -75,6 +75,26 @@ export default {
 
             return criteria;
         },
+
+        hasCustomFieldSetSearchTerm() {
+            return typeof this.term === 'string' && this.term.trim().length > 0;
+        },
+
+        customFieldSetEmptyStateHeadline() {
+            if (this.hasCustomFieldSetSearchTerm) {
+                return this.$t('sw-settings-custom-field.set.list.emptyState.searchTitle');
+            }
+
+            return this.$t('sw-settings-custom-field.set.list.emptyState.title');
+        },
+
+        customFieldSetEmptyStateDescription() {
+            if (this.hasCustomFieldSetSearchTerm) {
+                return this.$t('sw-settings-custom-field.set.list.emptyState.searchDescription');
+            }
+
+            return this.$t('sw-settings-custom-field.set.list.emptyState.description');
+        },
     },
 
     methods: {

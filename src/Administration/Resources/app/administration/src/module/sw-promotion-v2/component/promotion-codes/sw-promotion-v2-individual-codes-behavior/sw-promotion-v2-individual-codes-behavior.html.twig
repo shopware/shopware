@@ -190,25 +190,19 @@
         position-identifier="sw-promotion-individual-codes-behavior-empty-state"
     >
 
+        {# @deprecated tag:v6.8.0 - Blocks `sw_promotion_v2_individual_codes_behavior_empty_state_icon` and `sw_promotion_v2_individual_codes_behavior_empty_state_actions` will be removed. Use `sw_promotion_v2_individual_codes_behavior_empty_state` instead. #}
         {% block sw_promotion_v2_individual_codes_behavior_empty_state %}
-        <sw-empty-state
+        {% block sw_promotion_v2_individual_codes_behavior_empty_state_icon %}{% endblock %}
+        {% block sw_promotion_v2_individual_codes_behavior_empty_state_actions %}{% endblock %}
+        <mt-empty-state
             class="sw-promotion-v2-individual-codes-behavior__empty-state"
-            :title="$t('sw-promotion-v2.detail.base.codes.individual.emptyStateTitle')"
-            :absolute="false"
+            :headline="$t('sw-promotion-v2.detail.base.codes.individual.emptyStateTitle')"
+            :description="$t('sw-promotion-v2.detail.base.codes.individual.emptyStateSubline')"
+            icon="solid-megaphone"
+            centered
         >
 
-            {% block sw_promotion_v2_individual_codes_behavior_empty_state_icon %}
-            <template #icon>
-                <img
-                    class="sw-promotion-v2-individual-codes-behavior__empty-state-icon"
-                    :src="assetFilter('/administration/administration/static/img/empty-states/promotion-empty-state.svg')"
-                    :alt="$t('sw-promotion-v2.detail.base.codes.individual.emptyStateTitle')"
-                >
-            </template>
-            {% endblock %}
-
-            {% block sw_promotion_v2_individual_codes_behavior_empty_state_actions %}
-            <template #actions>
+            <template #button>
                 <mt-button
                     class="sw-promotion-v2-individual-codes-behavior__empty-state-generate-action"
                     :disabled="!acl.can('promotion.editor')"
@@ -218,9 +212,8 @@
                     {{ $t('sw-promotion-v2.detail.base.codes.individual.generateButton') }}
                 </mt-button>
             </template>
-            {% endblock %}
 
-        </sw-empty-state>
+        </mt-empty-state>
         {% endblock %}
     </mt-card>
 

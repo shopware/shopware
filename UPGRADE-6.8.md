@@ -960,6 +960,87 @@ If you referenced this constant, build your own field list or switch to `Criteri
 
 <details>
 
+## Administration empty state Twig blocks migrated to Meteor
+
+Several Administration empty states now render the Meteor `mt-empty-state` component directly.
+The previous templates exposed small Twig blocks for individual empty-state fragments, such as the icon, headline, description, or action area.
+Those fragment blocks have been removed because overriding them would either break the Meteor component contract or require legacy wrapper markup.
+
+If your extension overrides one of the removed fragment blocks, override the replacement area-level block instead and provide the complete empty-state markup you need.
+The replacement blocks wrap the full Meteor empty state for the affected area.
+
+| Replacement block | Removed fragment blocks |
+| --- | --- |
+| `sw_customer_detail_order_card_grid_empty_state` | `sw_customer_detail_order_card_grid_empty_state_action` |
+| `sw_extension_ratings_card_empty_state` | `sw_extension_ratings_card_empty_state_content` |
+| `sw_flow_list_empty_state` | `sw_flow_list_empty_state_icon` |
+| `sw_mail_header_footer_list_grid_empty_state` | `sw_mail_header_footer_list_grid_empty_state_icon` |
+| `sw_mail_template_list_grid_empty_state` | `sw_mail_template_list_grid_empty_state_icon` |
+| `sw_order_create_address_modal_empty_state` | `sw_order_create_address_modal_empty_state_content` |
+| `sw_order_customer_grid_empty_state` | `sw_order_customer_grid_empty_state_icon` |
+| `sw_product_detail_cross_selling_empty_state` | `sw_product_detail_cross_selling_empty_state_icon`, `sw_product_detail_cross_selling_empty_state_content`, `sw_product_detail_cross_selling_empty_state_content_child`, `sw_product_detail_cross_selling_empty_state_content_child_inherited`, `sw_product_detail_cross_selling_empty_state_content_child_inherited_link`, `sw_product_detail_cross_selling_empty_state_content_child_not_inherited`, `sw_product_detail_cross_selling_empty_state_content_empty`, `sw_product_detail_cross_selling_empty_state_inherit_switch`, `sw_product_detail_cross_selling_empty_state_actions`, `sw_product_detail_cross_selling_empty_state_actions_add` |
+| `sw_product_detail_prices_price_empty_state` | `sw_product_detail_prices_empty_state_image`, `sw_product_detail_prices_price_empty_state_text`, `sw_product_detail_prices_price_empty_state_text_child`, `sw_product_detail_prices_price_empty_state_text_inherited`, `sw_product_detail_prices_price_empty_state_text_link`, `sw_product_detail_prices_price_empty_state_text_not_inherited`, `sw_product_detail_prices_price_empty_state_text_empty`, `sw_product_detail_prices_price_empty_state__inherit_switch`, `sw_product_detail_prices_price_empty_state_select_rule` |
+| `sw_product_detail_reviews_empty_state` | `sw_product_detail_reviews_empty_state_button` |
+| `sw_product_detail_variants_sw_card_empty_state` | `sw_product_properties_empty_state_button_property` |
+| `sw_product_detail_variants_sw_card_empty_state_variant` | `sw_product_properties_empty_state_button` |
+| `sw_product_properties_empty_state` | `sw_product_properties_empty_state_image`, `sw_product_properties_empty_state_button` |
+| `sw_product_properties_filled_state_body_empty_state` | `sw_product_properties_filled_state_body_empty_state_image` |
+| `sw_promotion_v2_list_empty_state` | `sw_promotion_v2_list_empty_state_actions` |
+| `sw_promotion_v2_individual_codes_behavior_empty_state` | `sw_promotion_v2_individual_codes_behavior_empty_state_icon`, `sw_promotion_v2_individual_codes_behavior_empty_state_actions` |
+| `sw_property_search_empty` | `sw_property_search_empty_image` |
+| `sw_sales_channel_detail_products_card_section_primary_empty_state` | `sw_sales_channel_detail_products_card_section_primary_image` |
+| `sw_sales_channel_detail_products_empty_state` | `sw_sales_channel_detail_products_empty_state_button`, `sw_sales_channel_detail_products_empty_state_image` |
+| `sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty` | `sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty_icon` |
+| `sw_settings_listing_content_card_view_options_card_empty_state` | `sw_settings_listing_content_card_view_options_card_empty_state_icon` |
+| `sw_settings_listing_option_criteria_card_empty_state` | `sw_settings_listing_option_criteria_card_empty_state_icon` |
+| `sw_product_feature_set_card_empty_state` | `sw_product_feature_set_card_empty_state_image`, `sw_product_feature_set_card_empty_state_label`, `sw_product_feature_set_card_empty_state_button` |
+| `sw_settings_search_excluded_search_terms_empty_state` | `sw_settings_search_excluded_search_terms_empty_state_image`, `sw_settings_search_excluded_search_terms_empty_state_action` |
+| `sw_settings_search_searchable_content_customfields_empty_state` | `sw_settings_search_searchable_content_customfields_state_image`, `sw_settings_search_searchable_content_customfields_empty_state_action` |
+| `sw_settings_search_searchable_content_general_empty_state` | `sw_settings_search_searchable_content_general_state_image` |
+| `sw_tax_rule_card_empty_state` | `sw_tax_rule_card_empty_state_image`, `sw_tax_rule_card_empty_state_label`, `sw_tax_rule_card_empty_state_button` |
+
+Before:
+
+```twig
+{% block sw_tax_rule_card_empty_state_button %}
+    <template #button>
+        <mt-button>...</mt-button>
+    </template>
+{% endblock %}
+```
+
+After:
+
+```twig
+{% block sw_tax_rule_card_empty_state %}
+    <mt-empty-state
+        icon="regular-globe"
+        :headline="taxRuleEmptyStateHeadline"
+        :description="taxRuleEmptyStateDescription"
+    >
+        <template #button>
+            <mt-button>...</mt-button>
+        </template>
+    </mt-empty-state>
+{% endblock %}
+```
+
+## Administration integration list migrated to Meteor data table
+
+The Administration integration list now renders the Meteor `mt-data-table` component instead of the legacy `sw-entity-listing`.
+For lists with more than 25 integrations, the table now exposes Meteor search, permission filters, and page-size controls.
+The controls remain visible while search or filters are active, and after selecting a larger page size, so users can clear or change the table state.
+
+If your extension customizes the list row actions, use the existing `sw_integration_list_grid_inner_slot_columns_actions_edit` and `sw_integration_list_grid_inner_slot_columns_actions_delete` blocks.
+
+The delete confirmation modal is now rendered once at list level.
+The following row action modal blocks have been removed:
+
+- `sw_integration_list_grid_inner_slot_delete_modal`
+- `sw_integration_list_grid_inner_slot_delete_modal_confirmtext`
+- `sw_integration_list_grid_inner_slot_delete_modal_footer`
+
+The incorrectly named `sw_product_list_empty_state` block in the integration list has been replaced by `sw_integration_list_empty_state`.
 ### Block removals
 
 Due to inappropriate block names, the following deprecated blocks have been removed. Use the respective replacements instead:

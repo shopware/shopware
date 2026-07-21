@@ -215,6 +215,7 @@
                 :is-loading="isLoading"
             >
                 {% block sw_settings_sso_user_detail_grid_toolbar %}
+                {% block sw_settings_sso_user_detail_grid_header_right %}
                 <template #headerRight>
                     {% block sw_settings_sso_user_detail_grid_add_key %}
                     <mt-button
@@ -230,11 +231,13 @@
                     {% endblock %}
                 </template>
                 {% endblock %}
+                {% endblock %}
 
                 {% block sw_settings_sso_user_detail_key_grid %}
                 <template #grid>
                     {% block sw_settings_sso_user_detail_key_grid_content %}
                     <sw-data-grid
+                        v-if="integrations.length > 0 || isLoading"
                         :is-loading="isLoading"
                         :data-source="integrations"
                         :columns="integrationColumns"
@@ -269,10 +272,10 @@
                     </sw-data-grid>
 
                     <mt-empty-state
-                        v-if="integrations.length === 0"
-                        icon="regular-user"
+                        v-if="integrations.length === 0 && !isLoading"
                         :headline="$t('sw-users-permissions.users.user-detail.noAccessKeysTitle')"
                         :description="$t('sw-users-permissions.users.user-detail.noAccessKeysSubline')"
+                        icon="regular-plug"
                     />
                     {% endblock %}
                 </template>

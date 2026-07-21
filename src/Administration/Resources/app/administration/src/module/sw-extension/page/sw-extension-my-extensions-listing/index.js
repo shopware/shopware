@@ -75,6 +75,30 @@ export default {
             return this.extensionListSearched.length || 0;
         },
 
+        listingEmptyStateHeadline() {
+            return this.isThemeRoute
+                ? this.$t('sw-extension-store.component.sw-extension-my-extensions-listing.themes.titleEmptyState')
+                : this.$t('sw-extension-store.component.sw-extension-my-extensions-listing.apps.titleEmptyState');
+        },
+
+        listingEmptyStateDescription() {
+            return this.isThemeRoute
+                ? this.$t('sw-extension-store.component.sw-extension-my-extensions-listing.themes.textEmptyState')
+                : this.$t('sw-extension-store.component.sw-extension-my-extensions-listing.apps.textEmptyState');
+        },
+
+        pluginsEmptyStateHeadline() {
+            return this.isThemeRoute
+                ? this.$t('sw-extension-store.component.sw-extension-my-extensions-listing.themes.noActivePlugins')
+                : this.$t('sw-extension-store.component.sw-extension-my-extensions-listing.apps.noActivePlugins');
+        },
+
+        pluginsEmptyStateDescription() {
+            return this.isThemeRoute
+                ? this.$t('sw-extension-store.component.sw-extension-my-extensions-listing.themes.textNoActivePlugins')
+                : this.$t('sw-extension-store.component.sw-extension-my-extensions-listing.apps.textNoActivePlugins');
+        },
+
         limit: {
             get() {
                 return Number(this.$route.query.limit) || 25;
@@ -112,10 +136,6 @@ export default {
             }
 
             return 'extension-apps';
-        },
-
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
         },
 
         extensionManagementDisabled() {

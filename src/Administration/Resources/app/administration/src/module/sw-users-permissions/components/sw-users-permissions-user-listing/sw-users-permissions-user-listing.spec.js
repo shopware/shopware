@@ -6,7 +6,35 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import 'src/app/mixin/translate-with-fallback.mixin';
 
-async function createWrapper(privileges = [], isSso = { isSso: false }) {
+function getUsers() {
+    return [
+        {
+            id: '019bff8c86e773e79ec5538c7b1edabc',
+            username: 'maxmuster',
+            firstName: 'Max',
+            lastName: 'Mustermann',
+            email: 'max@mustermann.com',
+            active: false,
+            aclRoles: [
+                { name: 'testRole' },
+            ],
+        },
+        {
+            id: '019bff8c86e773e79ec5538c7b1ed571',
+            username: 'admin',
+            firstName: '',
+            lastName: 'admin',
+            email: 'info@shopware.com',
+            active: true,
+            aclRoles: [
+                { name: 'adminRole' },
+                { name: 'superUser' },
+            ],
+        },
+    ];
+}
+
+async function createWrapper(privileges = [], isSso = { isSso: false }, users = getUsers()) {
     return mount(
         await wrapTestComponent('sw-users-permissions-user-listing', {
             sync: true,
@@ -34,32 +62,8 @@ async function createWrapper(privileges = [], isSso = { isSso: false }) {
                                         'user',
                                         Shopware.Context.api,
                                         new Criteria(1),
-                                        [
-                                            {
-                                                id: '019bff8c86e773e79ec5538c7b1edabc',
-                                                username: 'maxmuster',
-                                                firstName: 'Max',
-                                                lastName: 'Mustermann',
-                                                email: 'max@mustermann.com',
-                                                active: false,
-                                                aclRoles: [
-                                                    { name: 'testRole' },
-                                                ],
-                                            },
-                                            {
-                                                id: '019bff8c86e773e79ec5538c7b1ed571',
-                                                username: 'admin',
-                                                firstName: '',
-                                                lastName: 'admin',
-                                                email: 'info@shopware.com',
-                                                active: true,
-                                                aclRoles: [
-                                                    { name: 'adminRole' },
-                                                    { name: 'superUser' },
-                                                ],
-                                            },
-                                        ],
-                                        1,
+                                        users,
+                                        users.length,
                                     ),
                                 );
                             },
@@ -93,6 +97,7 @@ async function createWrapper(privileges = [], isSso = { isSso: false }) {
                     },
                     'sw-user-sso-invitation-modal': true,
                     'sw-container': true,
+                    'mt-empty-state': true,
                     'sw-simple-search-field': true,
                     'sw-avatar': true,
                     'sw-pagination': true,
@@ -409,5 +414,30 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         expect(routerLinkProp).toBeDefined();
         expect(routerLinkProp.name).toBe('sw.users.permissions.user.sso.detail');
         expect(routerLinkProp.params.id).toBe('019bff8c86e773e79ec5538c7b1edabc');
+    });
+
+    it('should show an empty state when no users are available', async () => {
+        wrapper = await createWrapper([], { isSso: false }, []);
+        await flushPromises();
+
+        const emptyState = wrapper.find('mt-empty-state-stub');
+        const dataGrid = wrapper.find('.sw-data-grid');
+
+        expect(emptyState.exists()).toBeTruthy();
+        expect(emptyState.attributes('headline')).toBe('sw-users-permissions.users.user-grid.messageEmptyTitle');
+        expect(emptyState.attributes('description')).toBe('sw-users-permissions.users.user-grid.messageEmptySubline');
+        expect(dataGrid.exists()).toBeFalsy();
+    });
+
+    it('should show a search empty state when no users match the term', async () => {
+        wrapper = await createWrapper([], { isSso: false }, []);
+        wrapper.vm.term = 'unknown';
+        await flushPromises();
+
+        const emptyState = wrapper.find('mt-empty-state-stub');
+
+        expect(emptyState.exists()).toBeTruthy();
+        expect(emptyState.attributes('headline')).toBe('sw-empty-state.messageNoResultTitle');
+        expect(emptyState.attributes('description')).toBe('sw-empty-state.messageNoResultSublineSimple');
     });
 });

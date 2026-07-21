@@ -19,7 +19,8 @@
         "changePriorityButton": "Priorität ändern",
         "editDetailsLink": "Bearbeiten",
         "labelActive": "Aktiv",
-        "messageEmptyTitle":  "Kein Steueranbieter gefunden",
+        "messageEmptyTitle": "Keine Steueranbieter verfügbar",
+        "messageEmptyDescription": "Steueranbieter aus installierten Erweiterungen erscheinen hier. Sie können feste Steuersätze im Checkout überschreiben.",
         "statusChangedSuccess": {
           "active": "Steueranbieter \"{name}\" ist jetzt aktiv.",
           "inactive": "Steueranbieter \"{name}\" ist jetzt inaktiv."
@@ -58,8 +59,12 @@
       "labelZipCode": "Postleitzahl",
       "labelFromZipCode": "Bis ...",
       "labelToZipCode": "Von ...",
-      "emptyStateDescription": "Füge Steuerraten für verschiedene Länder hinzu.",
-      "createStateDescription": "Speichere zuerst den Steuersatz, um weitere Länder hinzufügen zu können.",
+      "emptyStateTitle": "Noch keine Länder-Steuersätze",
+      "emptyStateDescription": "Füge Länder hinzu, um vom Standard abweichende Steuersätze festzulegen.",
+      "createStateTitle": "Speichere zuerst den Steuersatz",
+      "createStateDescription": "Nach dem Speichern kannst Du länderspezifische Steuersätze hinzufügen.",
+      "emptySearchTitle": "Keine Länder gefunden",
+      "emptySearchDescription": "Versuche es mit einem anderen Suchbegriff oder leere den Filter.",
       "textDeleteConfirm": "Bist Du Dir sicher, dass Du das Land \"{name}\" löschen möchtest?",
       "placeholderStates": "Staaten hinzufügen ...",
       "labelActiveFrom": "Aktiv ab"

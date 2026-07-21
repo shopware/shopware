@@ -77,6 +77,7 @@ async function createWrapper(privileges = []) {
                 `,
                     },
                     'mt-number-field': true,
+                    'mt-empty-state': true,
                     'sw-data-grid': {
                         props: ['dataSource'],
                         template: `
@@ -168,9 +169,19 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
         });
 
         it('should be able to add a new country from empty card', async () => {
-            const addButton = wrapper.find('.sw-settings-tax-rule-card__empty-state--button');
+            expect(wrapper.vm.showTaxRuleEmptyStateAction).toBe(true);
 
-            expect(addButton.attributes().disabled).toBeFalsy();
+            const isCreateDisabled = wrapper.vm.disabled || !wrapper.vm.acl.can('tax.editor');
+            expect(isCreateDisabled).toBe(false);
+        });
+
+        it('should render a country-specific empty state', async () => {
+            const emptyState = wrapper.find('.sw-settings-tax-rule-card__empty-state');
+
+            expect(emptyState.attributes('icon')).toBe('regular-globe');
+            expect(emptyState.attributes('headline')).toBe('sw-settings-tax.taxRuleCard.emptyStateTitle');
+            expect(emptyState.attributes('description')).toBe('sw-settings-tax.taxRuleCard.emptyStateDescription');
+            expect(emptyState.attributes('role')).toBeUndefined();
         });
     });
 
@@ -182,10 +193,51 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
         });
 
         it('should not be able to add a new country from empty card', async () => {
-            const addButton = wrapper.find('.sw-settings-tax-rule-card__empty-state--button');
+            expect(wrapper.vm.showTaxRuleEmptyStateAction).toBe(true);
 
-            expect(addButton.attributes('disabled')).toBeDefined();
+            const isCreateDisabled = wrapper.vm.disabled || !wrapper.vm.acl.can('tax.editor');
+            expect(isCreateDisabled).toBe(true);
         });
+    });
+
+    it('should render a save-first empty state when the tax rate is not saved yet', async () => {
+        const wrapper = await createWrapper([
+            'tax.editor',
+        ]);
+        await wrapper.vm.$nextTick();
+
+        await wrapper.setProps({ disabled: true });
+        await wrapper.setData({ taxRules: [] });
+        await wrapper.vm.$nextTick();
+
+        const emptyState = wrapper.find('.sw-settings-tax-rule-card__empty-state');
+
+        expect(emptyState.attributes('headline')).toBe('sw-settings-tax.taxRuleCard.createStateTitle');
+        expect(emptyState.attributes('description')).toBe('sw-settings-tax.taxRuleCard.createStateDescription');
+        expect(wrapper.vm.showTaxRuleEmptyStateAction).toBe(false);
+        expect(wrapper.find('.sw-settings-tax-rule-card__empty-state--button').exists()).toBeFalsy();
+    });
+
+    it('should render a search empty state when no countries match', async () => {
+        const wrapper = await createWrapper([
+            'tax.editor',
+        ]);
+        await wrapper.vm.$nextTick();
+
+        await wrapper.setData({
+            term: 'zzz',
+            taxRules: [],
+        });
+        await wrapper.vm.$nextTick();
+
+        const emptyState = wrapper.find('.sw-settings-tax-rule-card__empty-state');
+
+        expect(wrapper.find('.sw-card-filter').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-data-grid').exists()).toBeFalsy();
+        expect(emptyState.attributes('headline')).toBe('sw-settings-tax.taxRuleCard.emptySearchTitle');
+        expect(emptyState.attributes('description')).toBe('sw-settings-tax.taxRuleCard.emptySearchDescription');
+        expect(wrapper.vm.showTaxRuleEmptyStateAction).toBe(false);
+        expect(wrapper.find('.sw-settings-tax-rule-card__empty-state--button').exists()).toBeFalsy();
     });
 
     it('should have a tax rate field with a correct "digits" property', async () => {

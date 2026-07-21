@@ -15,6 +15,14 @@
       "contextMenuDelete": "Delete tag",
       "messageDeleteSuccess": "Tag \"{name}\" deleted.",
       "titleEmptyStateList": "No tags found.",
+      "emptyState": {
+        "title": "No tags yet",
+        "description": "Tags are labels you can assign across the Administration. Use them to group products, orders, customers, and media so they are easier to find and filter.",
+        "searchTitle": "No tags found",
+        "searchDescription": "Try another search term or clear the filter.",
+        "filterTitle": "No tags match these filters",
+        "filterDescription": "Adjust or reset the filters to see more tags."
+      },
       "searchPlaceholder": "Search tags...",
       "filter": "Filter",
       "filterAssignemnt": "Filter by assigned entity",

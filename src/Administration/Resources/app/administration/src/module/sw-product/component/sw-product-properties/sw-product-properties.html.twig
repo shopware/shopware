@@ -155,6 +155,7 @@
                         class="sw-product-properties__empty-state has--no-search-result"
                         :icon="$route.meta.$module.icon"
                         :headline="$t('sw-product.properties.titleEmptyStateList')"
+                        :description="$t('sw-product.properties.descriptionEmptyStateList')"
                     >
                         <!-- @deprecated tag:v6.8.0 - block will be removed -->
                         {% block sw_product_properties_filled_state_body_empty_state_image %}
@@ -181,6 +182,7 @@
                 {% block sw_product_properties_empty_state_image %}
                 {% endblock %}
                 <template #button>
+                    {# @deprecated tag:v6.8.0 - Block will be removed without replacement. #}
                     {% block sw_product_properties_empty_state_button %}
                     <mt-button
                         v-tooltip="{

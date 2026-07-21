@@ -28,9 +28,7 @@ async function createWrapper(additionalPromotionData = {}) {
                         template: '<div class="sw-promotion-v2-generate-codes-modal"></div>',
                     },
                     'sw-one-to-many-grid': true,
-                    'sw-empty-state': {
-                        template: '<div class="sw-empty-state"><slot></slot><slot name="actions"></slot></div>',
-                    },
+                    'mt-empty-state': true,
                     'sw-context-menu-item': true,
                     'sw-button-process': {
                         template:
@@ -114,13 +112,15 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-individual-codes-
         let codesModal = wrapper.find('.sw-promotion-v2-generate-codes-modal');
         const addModal = wrapper.find('.sw-promotion-v2-individual-codes-behavior__add-codes-modal');
         const addButton = wrapper.find('.sw-promotion-v2-individual-codes-behavior__add-codes-action');
+        const emptyState = wrapper.find('.sw-promotion-v2-individual-codes-behavior__empty-state');
 
         expect(codesModal.exists()).toBe(false);
         expect(addModal.exists()).toBe(false);
         expect(addButton.exists()).toBe(false);
+        expect(emptyState.exists()).toBe(true);
 
-        const generateButton = wrapper.findByText('button', 'sw-promotion-v2.detail.base.codes.individual.generateButton');
-        await generateButton.trigger('click');
+        await wrapper.vm.onOpenGenerateCodesModal();
+        await flushPromises();
 
         codesModal = wrapper.find('.sw-promotion-v2-generate-codes-modal');
         expect(codesModal.exists()).toBe(true);

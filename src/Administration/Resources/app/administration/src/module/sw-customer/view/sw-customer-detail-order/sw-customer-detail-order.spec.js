@@ -89,4 +89,19 @@ describe('module/sw-customer/view/sw-customer-detail-order.spec.js', () => {
         expect(cardFilter.exists()).toBeTruthy();
         expect(orderList.exists()).toBeTruthy();
     });
+
+    it('should show search empty state when no orders were found', async () => {
+        wrapper.vm.term = 'unknown';
+        wrapper.vm.orders = getOrderCollection([]);
+        wrapper.vm.orders.total = 0;
+        await flushPromises();
+
+        const emptyState = wrapper.find('.mt-empty-state');
+        const cardFilter = wrapper.find('.sw-card-filter');
+        const orderList = wrapper.find('sw-entity-listing-stub');
+
+        expect(emptyState.exists()).toBe(true);
+        expect(cardFilter.exists()).toBe(true);
+        expect(orderList.exists()).toBe(false);
+    });
 });

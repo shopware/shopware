@@ -214,8 +214,8 @@
         "confirmTitle": "Bewertung löschen",
         "confirmText": "Möchten Sie diese Bewertung wirklich löschen?"
       },
-      "messageEmptyTitle": "Produkt noch nicht bewertet",
-      "messageEmptySubline": "Sieh Dir stattdessen die Bewertungen anderer Produkte an.",
+      "messageEmptyTitle": "Noch keine Bewertungen vorhanden",
+      "messageEmptySubline": "Bewertungen zu diesem Produkt werden hier angezeigt.",
       "emptyStateButton": "Zu den Bewertungen"
     },
     "prices": {
@@ -305,7 +305,7 @@
     "advancedPrices": {
       "deletionNotPossibleMessage": "Es muss immer mindestens eine Preisstaffel vorhanden sein. Versuche alternativ, die gesamte Preisregel zu löschen.",
       "newRuleWarning": "Um eine neue Preisregel anzulegen, musst du erst eine Bedingungs-Regel auswählen.",
-      "advancedPricesNotExisting": "Es wurden noch keine erweiterten Preise festgelegt.",
+      "advancedPricesNotExisting": "Lege erweiterte Preise fest, um regelbasierte Preise für dieses Produkt zu definieren.",
       "columnFrom": "Menge von ...",
       "columnTo": "bis ...",
       "columnType": "Typ",
@@ -337,6 +337,7 @@
       "titleEmptyState": "Diesem Produkt sind noch keine Eigenschaften zugewiesen worden.",
       "descriptionEmptyState": "Verwalte Eigenschaften hier.",
       "titleEmptyStateList": "Keine Eigenschaften gefunden.",
+      "descriptionEmptyStateList": "Versuche einen anderen Suchbegriff.",
       "columnProperty": "Eigenschaft",
       "columnValue": "Eigenschaftsausprägung",
       "placeholderSearchAddedProperties": "Hinzugefügte Eigenschaften durchsuchen ...",
@@ -476,9 +477,10 @@
       "deleteConfirmTitle": "Cross Selling löschen",
       "deleteConfirmText": "Möchtest Du die Cross-Selling-Konfiguration wirklich löschen?",
       "linkOpenStreamPreview": "Vorschau öffnen",
-      "emptyStateDescription": "Für dieses Produkt existiert noch keine Cross-Selling-Konfiguration.",
-      "inheritedEmptyStateDescription": "Dieses Produkt hat vererbte Cross Sellings vom Hauptprodukt.",
-      "notInheritedEmptyStateDescription": "Du kannst jetzt benutzerdefinierte Cross-Selling-Konfigurationen für diese Variante verwenden.",
+      "emptyStateTitle": "Noch kein Cross Selling vorhanden",
+      "emptyStateDescription": "Füge Cross-Selling-Gruppen hinzu, um passende Produkte im Storefront zu empfehlen.",
+      "inheritedEmptyStateDescription": "Dieses Produkt nutzt die Cross-Selling-Konfiguration des Hauptprodukts.",
+      "notInheritedEmptyStateDescription": "Erstelle eine eigene Cross-Selling-Konfiguration für diese Variante.",
       "assignEmptyStateTitle": "Noch keine Produkte zugewiesen",
       "assignPlaceholder": "Durchsuche Produkte ...",
       "linkCrossSellingsOfParent": "Zeige die Cross Sellings des Hauptprodukts",

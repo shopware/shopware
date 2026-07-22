@@ -1,4 +1,4 @@
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
 
@@ -11,7 +11,7 @@ import ApiService from '../api.service';
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class ValidationApiService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'validation') {
+    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'validation') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'validationApiService';
     }

@@ -133,6 +133,7 @@ const missingTests = [
     'src/core/factory/directive.factory.ts',
     'src/core/factory/entity-definition.factory.js',
     'src/core/factory/filter.factory.ts',
+    'src/core/factory/http-client.types.ts',
     'src/core/factory/locale.factory.ts',
     'src/core/factory/mixin.factory.ts',
     'src/core/factory/plugin-boot.factory.js',

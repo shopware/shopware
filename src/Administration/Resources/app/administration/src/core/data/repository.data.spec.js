@@ -117,8 +117,8 @@ describe('repository.data.ts', () => {
 
         await repository.search(new Criteria());
 
-        expect(clientMock.v0.history.post).toHaveLength(0);
-        expect(clientMock.v1.history.post).toHaveLength(1);
+        expect(clientMock.history.post).toHaveLength(1);
+        expect(clientMock.history.post[0].useAxiosV1).toBe(true);
     });
 
     it('should allow repositories to opt out of axios v1', async () => {
@@ -137,8 +137,8 @@ describe('repository.data.ts', () => {
 
         await repository.search(new Criteria());
 
-        expect(clientMock.v0.history.post).toHaveLength(1);
-        expect(clientMock.v1.history.post).toHaveLength(0);
+        expect(clientMock.history.post).toHaveLength(1);
+        expect(clientMock.history.post[0].useAxiosV1).toBe(false);
     });
 
     it('should build the correct headers', async () => {

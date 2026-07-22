@@ -2,15 +2,14 @@
  * @sw-package fundamentals@framework
  */
 import MockAdapter from 'axios-mock-adapter';
-import type { AxiosInstance } from 'axios';
 import createHTTPClient from '../../factory/http.factory';
 import createLoginService from '../login.service';
 import ValidationApiService from './validation.api.service';
 
 function createValidationApiService() {
     const context = Shopware.Context?.api || {};
-    const client = createHTTPClient(context) as AxiosInstance;
-    const clientMock = new MockAdapter(client);
+    const client = createHTTPClient(context);
+    const clientMock = new MockAdapter(client as never);
     const loginService = createLoginService(client, context);
 
     const validationApiService = new ValidationApiService(client, loginService);

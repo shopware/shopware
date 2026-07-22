@@ -5,10 +5,33 @@
  */
 
 import axios from 'axios';
+import axiosV1 from 'axios-v1';
 import createHTTPClient from 'src/core/factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
 
 Shopware.Application.view.deleteReactive = () => {};
+
+function createHTTPClientWithSpies() {
+    const axiosV0Create = axios.create.bind(axios);
+    const axiosV1Create = axiosV1.create.bind(axiosV1);
+    let axiosV0;
+    let axiosV1Client;
+
+    const axiosV0CreateSpy = jest.spyOn(axios, 'create').mockImplementationOnce((config) => {
+        axiosV0 = axiosV0Create(config);
+        return axiosV0;
+    });
+    const axiosV1CreateSpy = jest.spyOn(axiosV1, 'create').mockImplementationOnce((config) => {
+        axiosV1Client = axiosV1Create(config);
+        return axiosV1Client;
+    });
+
+    const client = createHTTPClient();
+    axiosV0CreateSpy.mockRestore();
+    axiosV1CreateSpy.mockRestore();
+
+    return { client, axiosV0, axiosV1: axiosV1Client };
+}
 
 describe('core/factory/http.factory.js', () => {
     let httpClient;
@@ -225,24 +248,26 @@ describe('core/factory/http.factory.js', () => {
 
     it('should use axios v0 by default before v6.8', async () => {
         global.activeFeatureFlags = global.activeFeatureFlags.filter((flag) => flag !== 'V6_8_0_0');
-        const client = createHTTPClient();
-        const mockV0 = new MockAdapter(client.axiosV0);
-        const mockV1 = new MockAdapter(client.axiosV1);
-        mockV0.onGet('/test-v0-default').reply(200, { version: 'v0' });
+        const { client, axiosV0, axiosV1: axiosV1Client } = createHTTPClientWithSpies();
+        const axiosV0Request = jest.spyOn(axiosV0, 'request');
+        const axiosV1Request = jest.spyOn(axiosV1Client, 'request');
+        const clientMock = new MockAdapter(client);
+        clientMock.onGet('/test-v0-default').reply(200, { version: 'v0' });
 
         const response = await client.get('/test-v0-default');
 
         expect(response.data).toEqual({ version: 'v0' });
-        expect(mockV0.history.get).toHaveLength(1);
-        expect(mockV1.history.get).toHaveLength(0);
+        expect(axiosV0Request).toHaveBeenCalledTimes(1);
+        expect(axiosV1Request).not.toHaveBeenCalled();
     });
 
     it('should opt in to axios v1 per request before v6.8', async () => {
         global.activeFeatureFlags = global.activeFeatureFlags.filter((flag) => flag !== 'V6_8_0_0');
-        const client = createHTTPClient();
-        const mockV0 = new MockAdapter(client.axiosV0);
-        const mockV1 = new MockAdapter(client.axiosV1);
-        mockV1.onPost('/test-with-flag').reply(200, { success: true });
+        const { client, axiosV0, axiosV1: axiosV1Client } = createHTTPClientWithSpies();
+        const axiosV0Request = jest.spyOn(axiosV0, 'request');
+        const axiosV1Request = jest.spyOn(axiosV1Client, 'request');
+        const clientMock = new MockAdapter(client);
+        clientMock.onPost('/test-with-flag').reply(200, { success: true });
 
         const response = await client.post(
             '/test-with-flag',
@@ -253,8 +278,8 @@ describe('core/factory/http.factory.js', () => {
         );
 
         expect(response.data).toEqual({ success: true });
-        expect(mockV0.history.post).toHaveLength(0);
-        expect(mockV1.history.post).toHaveLength(1);
+        expect(axiosV0Request).not.toHaveBeenCalled();
+        expect(axiosV1Request).toHaveBeenCalledTimes(1);
     });
 
     it('should use axios v1 by default with v6.8', async () => {
@@ -264,16 +289,17 @@ describe('core/factory/http.factory.js', () => {
                 'V6_8_0_0',
             ]),
         ];
-        const client = createHTTPClient();
-        const mockV0 = new MockAdapter(client.axiosV0);
-        const mockV1 = new MockAdapter(client.axiosV1);
-        mockV1.onGet('/test-v1-default').reply(200, { version: 'v1' });
+        const { client, axiosV0, axiosV1: axiosV1Client } = createHTTPClientWithSpies();
+        const axiosV0Request = jest.spyOn(axiosV0, 'request');
+        const axiosV1Request = jest.spyOn(axiosV1Client, 'request');
+        const clientMock = new MockAdapter(client);
+        clientMock.onGet('/test-v1-default').reply(200, { version: 'v1' });
 
         const response = await client.get('/test-v1-default');
 
         expect(response.data).toEqual({ version: 'v1' });
-        expect(mockV0.history.get).toHaveLength(0);
-        expect(mockV1.history.get).toHaveLength(1);
+        expect(axiosV0Request).not.toHaveBeenCalled();
+        expect(axiosV1Request).toHaveBeenCalledTimes(1);
     });
 
     it('should opt out to axios v0 per request with v6.8', async () => {
@@ -283,16 +309,59 @@ describe('core/factory/http.factory.js', () => {
                 'V6_8_0_0',
             ]),
         ];
-        const client = createHTTPClient();
-        const mockV0 = new MockAdapter(client.axiosV0);
-        const mockV1 = new MockAdapter(client.axiosV1);
-        mockV0.onGet('/test-v0-opt-out').reply(200, { version: 'v0' });
+        const { client, axiosV0, axiosV1: axiosV1Client } = createHTTPClientWithSpies();
+        const axiosV0Request = jest.spyOn(axiosV0, 'request');
+        const axiosV1Request = jest.spyOn(axiosV1Client, 'request');
+        const clientMock = new MockAdapter(client);
+        clientMock.onGet('/test-v0-opt-out').reply(200, { version: 'v0' });
 
         const response = await client.get('/test-v0-opt-out', { useAxiosV1: false });
 
         expect(response.data).toEqual({ version: 'v0' });
-        expect(mockV0.history.get).toHaveLength(1);
-        expect(mockV1.history.get).toHaveLength(0);
+        expect(axiosV0Request).toHaveBeenCalledTimes(1);
+        expect(axiosV1Request).not.toHaveBeenCalled();
+    });
+
+    it('should apply public interceptors and defaults to both axios versions', async () => {
+        const client = createHTTPClient();
+        const clientMock = new MockAdapter(client);
+        const requestInterceptor = jest.fn((config) => config);
+        const responseInterceptor = jest.fn((response) => response);
+
+        client.defaults.headers.common['x-shopware-test'] = 'mirrored';
+        const requestInterceptorId = client.interceptors.request.use(requestInterceptor);
+        const responseInterceptorId = client.interceptors.response.use(responseInterceptor);
+        clientMock.onGet('/test-mirrored').reply((config) => {
+            expect(config.headers['x-shopware-test']).toBe('mirrored');
+            return [
+                200,
+                {},
+            ];
+        });
+
+        await client.get('/test-mirrored', { useAxiosV1: false });
+        await client.get('/test-mirrored', { useAxiosV1: true });
+
+        expect(requestInterceptor).toHaveBeenCalledTimes(2);
+        expect(responseInterceptor).toHaveBeenCalledTimes(2);
+        expect(clientMock.history.get).toHaveLength(2);
+
+        client.interceptors.request.eject(requestInterceptorId);
+        client.interceptors.response.eject(responseInterceptorId);
+        await client.get('/test-mirrored', { useAxiosV1: false });
+        await client.get('/test-mirrored', { useAxiosV1: true });
+
+        expect(requestInterceptor).toHaveBeenCalledTimes(2);
+        expect(responseInterceptor).toHaveBeenCalledTimes(2);
+    });
+
+    it('should not expose the underlying axios instances', () => {
+        expect(httpClient).not.toHaveProperty('axiosV0');
+        expect(httpClient).not.toHaveProperty('axiosV1');
+        expect(httpClient).not.toHaveProperty('interceptorsV0');
+        expect(httpClient).not.toHaveProperty('interceptorsV1');
+        expect(httpClient).not.toHaveProperty('defaultsV0');
+        expect(httpClient).not.toHaveProperty('defaultsV1');
     });
 
     it('should have an isCancel method that detects cancellations', () => {

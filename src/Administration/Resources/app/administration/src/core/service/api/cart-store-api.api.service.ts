@@ -4,7 +4,7 @@
 
 import { deepCopyObject } from 'src/core/service/utils/object.utils';
 import utils from 'src/core/service/util.service';
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import ApiService from '../api.service';
 import type { LoginService } from '../login.service';
 import type { LineItem, CalculatedPrice } from '../../../module/sw-order/order.types';
@@ -16,7 +16,7 @@ import { LineItemType, PriceType } from '../../../module/sw-order/order.types';
  * @extends ApiService
  */
 class CartStoreService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'cart') {
+    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'cart') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'cartStoreService';
     }

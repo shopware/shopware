@@ -7,12 +7,11 @@ import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
 import LocaleFactory from 'src/core/factory/locale.factory';
 import MockAdapter from 'axios-mock-adapter';
-import type { AxiosInstance } from 'axios';
 
 function createSnippetApiService() {
     const context = Shopware.Context?.api || {};
-    const client = createHTTPClient(context) as AxiosInstance;
-    const clientMock = new MockAdapter(client);
+    const client = createHTTPClient(context);
+    const clientMock = new MockAdapter(client as never);
     const loginService = createLoginService(client, context);
     const snippetApiService = new SnippetApiService(client, loginService);
     return { snippetApiService, clientMock };

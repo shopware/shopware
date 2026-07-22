@@ -1293,27 +1293,19 @@ if (error.name === 'CanceledError' || error.code === 'ERR_CANCELED') {
 }
 ```
 
-**Version-Specific Interceptors and Defaults:**
+**Interceptors and Defaults:**
 
-During the transition period, the HTTP client provides direct access to both axios versions' interceptors and defaults:
+The Administration HTTP client is a Shopware-owned compatibility facade. Interceptors and defaults registered through its existing public API are mirrored to both internal axios clients:
 
 ```javascript
-// Access interceptors for specific version
-httpClient.interceptorsV0 // Always axios 0.30.2 interceptors
-httpClient.interceptorsV1 // Always axios 1.x interceptors
-httpClient.interceptors   // Current default version (v1 in 6.8+)
+const interceptorId = httpClient.interceptors.request.use(myRequestHandler);
+httpClient.defaults.headers.common['my-header'] = 'value';
 
-// Access defaults for specific version
-httpClient.defaultsV0 // Always axios 0.30.2 defaults
-httpClient.defaultsV1 // Always axios 1.x defaults
-httpClient.defaults   // Current default version (v1 in 6.8+)
-
-// Example: Add interceptor to both versions during transition
-httpClient.interceptorsV0.request.use(myRequestHandler);
-httpClient.interceptorsV1.request.use(myRequestHandler);
+// Removes the interceptor from both internal clients
+httpClient.interceptors.request.eject(interceptorId);
 ```
 
-This allows plugins to configure both axios versions simultaneously during the migration period.
+Extensions do not need to know which axios version handles a request. The underlying axios instances and their version-specific types are no longer part of the public HTTP-client contract.
 
 ### Migration guide
 

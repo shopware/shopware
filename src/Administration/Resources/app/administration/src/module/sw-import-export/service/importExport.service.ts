@@ -2,7 +2,7 @@
  * @sw-package fundamentals@after-sales
  */
 import ApiService from 'src/core/service/api.service';
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { LoginService } from '../../../core/service/login.service';
 
 /**
@@ -11,7 +11,7 @@ import type { LoginService } from '../../../core/service/login.service';
 export default class ImportExportService extends ApiService {
     onProgressStartedListener: Array<() => unknown> = [];
 
-    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'import-export') {
+    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'import-export') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'importExportService';
         this.httpClient = httpClient;

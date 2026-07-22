@@ -137,7 +137,15 @@ error.code             // More standardized codes like 'ERR_BAD_REQUEST'
 
 ### Interceptors
 
-Both versions support interceptors, and the HTTP factory applies the same interceptors to both axios instances. There are no changes needed for custom interceptors.
+The Shopware HTTP facade mirrors interceptors and defaults to both internal clients. Existing extension code continues to use `httpClient.interceptors` and `httpClient.defaults` without importing or selecting an axios instance.
+
+```javascript
+const interceptorId = httpClient.interceptors.request.use(myRequestHandler);
+httpClient.defaults.headers.common['my-header'] = 'value';
+
+// Ejects the interceptor from both internal clients
+httpClient.interceptors.request.eject(interceptorId);
+```
 
 ## Feature Flag: V6_8_0_0
 
@@ -205,7 +213,7 @@ Test your plugin with both axios versions:
 **Solution**: Use the dispatcher's `isCancel()` method which works for both versions
 
 ### Issue: Custom interceptors not working
-**Solution**: The HTTP factory applies interceptors to both clients automatically. If you're adding interceptors after client creation, ensure they're added to the correct instance.
+**Solution**: Register the interceptor through `httpClient.interceptors`. The facade automatically applies and ejects it on both internal clients.
 
 ## Need Help?
 

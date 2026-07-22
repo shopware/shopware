@@ -15,7 +15,7 @@ import { createAxiosV0Adapter, createAxiosV1Adapter } from 'src/core/factory/htt
  * @method createHTTPClient
  * @memberOf module:core/factory/http
  * @param {Context} context Information about the environment
- * @returns {AxiosInstance}
+ * @returns {import('./http-client.types').HttpClient}
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createHTTPClient(context) {
@@ -34,7 +34,7 @@ export const { CancelToken, isCancel, Cancel } = Axios;
  * Creates the HTTP client with the provided context.
  *
  * @param {Context} context Information about the environment
- * @returns {AxiosInstance}
+ * @returns {import('./http-client.types').HttpClient}
  */
 function createClient() {
     const isV68 = Shopware?.Feature?.isActive('V6_8_0_0');
@@ -123,21 +123,92 @@ function createClient() {
     // Keep CancelToken for backward compatibility with axios v0
     dispatcher.CancelToken = CancelToken;
 
-    // Add interceptors property to maintain compatibility
-    dispatcher.interceptors = isV68 ? axiosV1.interceptors : axiosV0.interceptors;
-    dispatcher.interceptorsV0 = axiosV0.interceptors;
-    dispatcher.interceptorsV1 = axiosV1.interceptors;
-
-    // Add defaults property to maintain compatibility
-    dispatcher.defaults = isV68 ? axiosV1.defaults : axiosV0.defaults;
-    dispatcher.defaultsV0 = axiosV0.defaults;
-    dispatcher.defaultsV1 = axiosV1.defaults;
-
-    // Expose underlying axios instances for testing/mocking purposes
-    dispatcher.axiosV0 = axiosV0;
-    dispatcher.axiosV1 = axiosV1;
+    // Keep the public configuration surface independent of the selected axios version.
+    dispatcher.interceptors = {
+        request: createMirroredInterceptorManager(axiosV0.interceptors.request, axiosV1.interceptors.request),
+        response: createMirroredInterceptorManager(axiosV0.interceptors.response, axiosV1.interceptors.response),
+    };
+    dispatcher.defaults = createMirroredDefaults(axiosV0.defaults, axiosV1.defaults, isV68);
 
     return dispatcher;
+}
+
+function createMirroredInterceptorManager(axiosV0Interceptors, axiosV1Interceptors) {
+    const interceptorIds = new Map();
+    let nextId = 0;
+
+    return {
+        use(onFulfilled, onRejected, options) {
+            const id = nextId;
+            nextId += 1;
+
+            interceptorIds.set(id, [
+                axiosV0Interceptors.use(onFulfilled, onRejected, options),
+                axiosV1Interceptors.use(onFulfilled, onRejected, options),
+            ]);
+
+            return id;
+        },
+        eject(id) {
+            const axiosIds = interceptorIds.get(id);
+            if (!axiosIds) {
+                return;
+            }
+
+            axiosV0Interceptors.eject(axiosIds[0]);
+            axiosV1Interceptors.eject(axiosIds[1]);
+            interceptorIds.delete(id);
+        },
+        clear() {
+            axiosV0Interceptors.clear?.();
+            axiosV1Interceptors.clear?.();
+            interceptorIds.clear();
+        },
+    };
+}
+
+function createMirroredDefaults(axiosV0Defaults, axiosV1Defaults, isV68) {
+    const primaryDefaults = isV68 ? axiosV1Defaults : axiosV0Defaults;
+    const secondaryDefaults = isV68 ? axiosV0Defaults : axiosV1Defaults;
+    const originalAdapters = [
+        primaryDefaults.adapter,
+        secondaryDefaults.adapter,
+    ];
+
+    return createMirroredObject(primaryDefaults, secondaryDefaults, originalAdapters);
+}
+
+function createMirroredObject(primary, secondary, originalAdapters = null) {
+    return new Proxy(primary, {
+        get(target, property) {
+            const value = Reflect.get(target, property);
+            const secondaryValue = Reflect.get(secondary, property);
+
+            if (isObject(value) && isObject(secondaryValue)) {
+                return createMirroredObject(value, secondaryValue);
+            }
+
+            return value;
+        },
+        set(target, property, value) {
+            Reflect.set(target, property, value);
+
+            const secondaryValue =
+                property === 'adapter' && originalAdapters && value === originalAdapters[0] ? originalAdapters[1] : value;
+            Reflect.set(secondary, property, secondaryValue);
+
+            return true;
+        },
+        deleteProperty(target, property) {
+            Reflect.deleteProperty(target, property);
+            Reflect.deleteProperty(secondary, property);
+            return true;
+        },
+    });
+}
+
+function isObject(value) {
+    return value !== null && typeof value === 'object';
 }
 
 /**

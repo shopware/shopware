@@ -1,4 +1,4 @@
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
 
@@ -12,7 +12,7 @@ import ApiService from '../api.service';
 export default class UserRecoveryApiService extends ApiService {
     context: unknown;
 
-    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'user') {
+    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'user') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'userRecoveryService';
         this.context = Shopware.Context;

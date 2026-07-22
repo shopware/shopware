@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Script\Api;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\ScriptController;
@@ -18,6 +19,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(StorefrontScriptResponseFactoryFacadeHookFactory::class)]
 class StorefrontScriptResponseFactoryFacadeHookFactoryTest extends TestCase
 {

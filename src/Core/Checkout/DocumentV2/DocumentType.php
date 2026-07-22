@@ -15,5 +15,10 @@ enum DocumentType: string
     case INVOICE = 'invoice';
     case DELIVERY_NOTE = 'delivery_note';
     case CREDIT_NOTE = 'credit_note';
-    case CANCELLATION_INVOICE = 'cancellation_invoice';
+    case CANCELLATION_INVOICE = 'storno';
+
+    public function allowsNegativeLineItems(): bool
+    {
+        return $this === self::CANCELLATION_INVOICE;
+    }
 }

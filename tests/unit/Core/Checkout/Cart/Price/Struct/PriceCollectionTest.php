@@ -14,8 +14,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(PriceCollection::class)]
 #[Package('checkout')]
+#[CoversClass(PriceCollection::class)]
 class PriceCollectionTest extends TestCase
 {
     public function testCollectionIsCountable(): void

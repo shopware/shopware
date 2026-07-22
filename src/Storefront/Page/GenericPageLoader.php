@@ -10,7 +10,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('framework')]
+#[Package('discovery')]
 class GenericPageLoader implements GenericPageLoaderInterface
 {
     /**

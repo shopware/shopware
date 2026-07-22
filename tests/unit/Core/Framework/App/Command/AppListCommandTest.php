@@ -10,12 +10,14 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\App\Command\AppListCommand;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppListCommand::class)]
 class AppListCommandTest extends TestCase
 {

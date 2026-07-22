@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Deprecation\BCChange;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * Signals that a new required parameter will be added to the method in the given version.
  *
  * Call sites must start passing the parameter before the change happens; PHP accepts the
@@ -13,8 +15,8 @@ use Shopware\Core\Framework\Log\Package;
  * required parameter is signature-incompatible with the current declaration) and must use
  * the same argument shim until the change happens.
  */
-#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 #[Package('framework')]
+#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final class NewRequiredParameter implements CallSiteCompatibilityChange, ExtenderCompatibilityChange
 {
     /**

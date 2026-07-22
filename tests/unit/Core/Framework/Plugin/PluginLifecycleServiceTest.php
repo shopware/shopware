@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Plugin;
@@ -64,6 +65,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PluginLifecycleService::class)]
 class PluginLifecycleServiceTest extends TestCase
 {

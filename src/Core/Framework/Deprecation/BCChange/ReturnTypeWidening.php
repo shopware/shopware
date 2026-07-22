@@ -5,14 +5,16 @@ namespace Shopware\Core\Framework\Deprecation\BCChange;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * Signals that the return type of the method will be widened in the given version.
  *
  * Call sites must be prepared to handle every value of the announced type before the change
  * happens — for example a return type that becomes nullable. Classes overriding the method are
  * not affected: their narrower return type stays valid (covariance).
  */
-#[\Attribute(\Attribute::TARGET_METHOD)]
 #[Package('framework')]
+#[\Attribute(\Attribute::TARGET_METHOD)]
 final class ReturnTypeWidening implements CallSiteCompatibilityChange
 {
     public function __construct(

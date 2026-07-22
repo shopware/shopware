@@ -6,12 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Command\DeleteAdminFilesAfterBuildCommand;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DeleteAdminFilesAfterBuildCommand::class)]
 class DeleteAdminFilesAfterBuildCommandTest extends TestCase
 {

@@ -12,8 +12,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 /**
  * @internal
  */
-#[CoversClass(MailTemplateContentBuilder::class)]
 #[Package('after-sales')]
+#[CoversClass(MailTemplateContentBuilder::class)]
 class MailTemplateContentBuilderTest extends TestCase
 {
     public function testBuildReturnsOriginalContentWithoutSalesChannel(): void

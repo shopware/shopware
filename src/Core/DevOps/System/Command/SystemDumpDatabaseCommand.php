@@ -19,11 +19,11 @@ use Symfony\Component\Process\Process;
  * @phpstan-import-type Params from DriverManager
  * @phpstan-import-type OverrideParams from DriverManager
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'system:dump',
     description: 'Dumps the database to a file',
 )]
-#[Package('framework')]
 class SystemDumpDatabaseCommand extends Command
 {
     /**

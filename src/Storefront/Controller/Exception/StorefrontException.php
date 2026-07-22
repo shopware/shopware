@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Twig\Error\Error as TwigError;
 
-#[Package('framework')]
+#[Package('discovery')]
 class StorefrontException extends HttpException
 {
     final public const CAN_NOT_RENDER_VIEW = 'STOREFRONT__CAN_NOT_RENDER_VIEW';

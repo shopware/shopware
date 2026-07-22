@@ -26,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
@@ -41,6 +42,7 @@ use Symfony\Component\Validator\Validation;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PriceDefinitionFieldSerializer::class)]
 class PriceDefinitionFieldSerializerTest extends TestCase
 {

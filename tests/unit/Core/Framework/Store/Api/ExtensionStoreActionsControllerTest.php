@@ -21,8 +21,8 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[CoversClass(ExtensionStoreActionsController::class)]
 #[Package('checkout')]
+#[CoversClass(ExtensionStoreActionsController::class)]
 class ExtensionStoreActionsControllerTest extends TestCase
 {
     public function testRefreshExtensions(): void

@@ -8,10 +8,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Framework\App\ActiveAdminAppLoader;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ActiveAdminAppLoader::class)]
 class ActiveAdminAppLoaderTest extends TestCase
 {

@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @extends Collection<DomainStruct>
  */
-#[Package('framework')]
+#[Package('discovery')]
 class DomainCollection extends Collection
 {
     /**

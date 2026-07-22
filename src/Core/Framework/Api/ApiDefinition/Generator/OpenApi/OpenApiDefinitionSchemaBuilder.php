@@ -78,6 +78,7 @@ class OpenApiDefinitionSchemaBuilder
         $attributes = [];
         $requiredAttributes = [];
         $relationships = [];
+        $relationshipAttributes = [];
 
         $schemaName = $this->snakeCaseToCamelCase($definition->getEntityName());
         $uuid = Uuid::fromStringToHex($schemaName);
@@ -112,12 +113,14 @@ class OpenApiDefinitionSchemaBuilder
 
             if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
                 $relationships[] = $this->createToOneLinkage($field, $exampleDetailPath);
+                $relationshipAttributes[] = $this->createRelationShipProperty($field);
 
                 continue;
             }
 
             if ($field instanceof AssociationField) {
                 $relationships[] = $this->createToManyLinkage($field, $exampleDetailPath);
+                $relationshipAttributes[] = $this->createRelationShipProperty($field);
 
                 continue;
             }
@@ -170,20 +173,27 @@ class OpenApiDefinitionSchemaBuilder
         }
 
         $extensionAttributes = $this->getExtensions($extensions, $exampleDetailPath);
+        $extensionFlatAttributes = [];
 
         if ($extensionAttributes !== []) {
             foreach ($extensions as $extension) {
-                if (!$extension instanceof AssociationField) {
+                if (!isset($extensionAttributes[$extension->getPropertyName()])) {
                     continue;
                 }
 
-                $extensionRelationships[] = $extensionAttributes[$extension->getPropertyName()];
+                if ($extension instanceof AssociationField) {
+                    $extensionRelationships[] = $this->createRelationShipProperty($extension);
+
+                    continue;
+                }
+
+                $extensionFlatAttributes[] = $extensionAttributes[$extension->getPropertyName()];
             }
 
             $attributes[] = new Property([
                 'property' => 'extensions',
                 'type' => 'object',
-                'properties' => $extensionAttributes,
+                'properties' => array_values($extensionAttributes),
             ]);
         }
 
@@ -239,19 +249,19 @@ class OpenApiDefinitionSchemaBuilder
             }
         }
 
-        foreach ($relationships as $relationship) {
-            $attributes[] = $this->getRelationShipProperty($relationship);
+        foreach ($relationshipAttributes as $relationshipAttribute) {
+            $attributes[] = $relationshipAttribute;
         }
 
         if ($extensionRelationships !== []) {
             $extensionRelationshipsProperty = new Property([
                 'property' => 'extensions',
                 'type' => 'object',
-                'properties' => $extensionAttributes,
+                'properties' => $extensionFlatAttributes,
             ]);
 
-            foreach ($extensionRelationships as $property => $relationship) {
-                $extensionRelationshipsProperty->properties[$property] = $this->getRelationShipProperty($relationship);
+            foreach ($extensionRelationships as $relationship) {
+                $extensionRelationshipsProperty->properties[] = $relationship;
             }
 
             $attributes[] = $extensionRelationshipsProperty;
@@ -607,38 +617,27 @@ class OpenApiDefinitionSchemaBuilder
         return $field->getFlag(Deprecated::class) !== null;
     }
 
-    private function getRelationShipEntity(Property $relationship): string
+    private function createRelationShipProperty(AssociationField $field): Property
     {
-        $relationshipData = $relationship->properties['data'];
-        \assert(\is_array($relationshipData));
-        $type = $relationshipData['type'];
-        $entity = '';
+        $entity = $field->getReferenceDefinition()->getEntityName();
 
-        if ($type === 'object') {
-            $entity = $relationshipData['properties']['type']['example'];
-        } elseif ($type === 'array') {
-            $entity = $relationshipData['items']['properties']['type']['example'];
+        if ($field instanceof ManyToManyAssociationField) {
+            $entity = $field->getToManyReferenceDefinition()->getEntityName();
         }
 
-        return $entity;
-    }
-
-    private function getRelationShipProperty(Property $relationship): Property
-    {
-        $entity = $this->getRelationShipEntity($relationship);
         $entityName = $this->snakeCaseToCamelCase($entity);
 
-        $relationshipData = $relationship->properties['data'];
-        \assert(\is_array($relationshipData));
-
         $property = [
-            'property' => $relationship->property,
-            'description' => $relationship->description,
-            // Create a context with OpenAPI 3.1.0 to ensure descriptions work with $ref
-            '_context' => new OpenApiContext(['version' => OpenApi::VERSION_3_1_0]),
+            'property' => $field->getPropertyName(),
+            // Create a context with OpenAPI 3.2.0 to ensure descriptions work with $ref
+            '_context' => new OpenApiContext(['version' => OpenApi::VERSION_3_2_0]),
         ];
 
-        if ($relationshipData['type'] === 'array') {
+        if ($field->getDescription() !== '') {
+            $property['description'] = $field->getDescription();
+        }
+
+        if (!$field instanceof ManyToOneAssociationField && !$field instanceof OneToOneAssociationField) {
             $property['type'] = 'array';
             $property['items'] = new Schema(['ref' => '#/components/schemas/' . $entityName]);
 

@@ -79,7 +79,7 @@ class MediaUploadV2ControllerTest extends TestCase
         static::assertArrayHasKey('id', $responseData);
         $mediaId = $responseData['id'];
 
-        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $context)->first();
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $context)->getEntities()->first();
 
         static::assertNotNull($media);
         static::assertSame('https://localhost:8000/Geschenktüte.jpg', $media->getPath());
@@ -90,7 +90,7 @@ class MediaUploadV2ControllerTest extends TestCase
 
         static::assertSame(2, $thumbnails->getTotal());
 
-        $urls = $thumbnails->map(static fn ($t) => $t->getPath());
+        $urls = $thumbnails->getEntities()->map(static fn ($t) => $t->getPath());
         static::assertContains('https://localhost:8000/Geschenktüte-200.jpg', $urls);
         static::assertContains('https://localhost:8000/Geschenktüte-400.jpg', $urls);
     }

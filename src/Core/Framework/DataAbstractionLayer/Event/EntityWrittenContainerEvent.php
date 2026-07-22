@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResultCollection;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
@@ -34,9 +35,6 @@ class EntityWrittenContainerEvent extends NestedEvent
         return $this->context;
     }
 
-    /**
-     * @return NestedEventCollection<EntityWrittenEvent<IDStructure>>|null
-     */
     #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'NestedEventCollection')]
     public function getEvents(): ?NestedEventCollection
     {
@@ -59,6 +57,30 @@ class EntityWrittenContainerEvent extends NestedEvent
         }
 
         return null;
+    }
+
+    /**
+     * @return EntityWriteResultCollection<IDStructure>
+     */
+    public function getResults(string $entityName): EntityWriteResultCollection
+    {
+        /** @var list<EntityWriteResult<IDStructure>> $writeResults */
+        $writeResults = [];
+
+        foreach ($this->events as $event) {
+            if (!$event instanceof EntityWrittenEvent || $event->getEntityName() !== $entityName) {
+                continue;
+            }
+
+            foreach ($event->getWriteResults() as $writeResult) {
+                $writeResults[] = $writeResult;
+            }
+        }
+
+        /** @var EntityWriteResultCollection<IDStructure> $results */
+        $results = new EntityWriteResultCollection($writeResults);
+
+        return $results;
     }
 
     /**
@@ -124,7 +146,7 @@ class EntityWrittenContainerEvent extends NestedEvent
      */
     public function getPrimaryKeys(string $entity): array
     {
-        return $this->findPrimaryKeys($entity);
+        return $this->getResults($entity)->getPrimaryKeys();
     }
 
     /**
@@ -132,7 +154,9 @@ class EntityWrittenContainerEvent extends NestedEvent
      */
     public function getDeletedPrimaryKeys(string $entity): array
     {
-        return $this->findPrimaryKeys($entity, static fn (EntityWriteResult $result) => $result->getOperation() === EntityWriteResult::OPERATION_DELETE);
+        return $this->getResults($entity)
+            ->only(EntityWriteResult::OPERATION_DELETE)
+            ->getPrimaryKeys();
     }
 
     /**
@@ -179,17 +203,9 @@ class EntityWrittenContainerEvent extends NestedEvent
      */
     public function getPrimaryKeysWithPropertyChange(string $entity, array $properties): array
     {
-        return $this->findPrimaryKeys($entity, static function (EntityWriteResult $result) use ($properties) {
-            $payload = $result->getPayload();
-
-            foreach ($properties as $property) {
-                if (\array_key_exists($property, $payload)) {
-                    return true;
-                }
-            }
-
-            return false;
-        });
+        return $this->getResults($entity)
+            ->withPayloadProperties(...$properties)
+            ->getPrimaryKeys();
     }
 
     public function isCloned(): bool

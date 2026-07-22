@@ -11,11 +11,13 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\MySQLInvalidatorStorage;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class MySQLInvalidatorStorageTest extends TestCase
 {
     use KernelTestBehaviour;

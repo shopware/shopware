@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1776691515SetDefaultCmsPageIdForCategories;
@@ -17,6 +18,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(Migration1776691515SetDefaultCmsPageIdForCategories::class)]
 class Migration1776691515SetDefaultCmsPageIdForCategoriesTest extends TestCase
 {

@@ -22,9 +22,9 @@ use Shopware\Core\Framework\Mcp\Loader\AppMcpPromptLoader;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppMcpPromptLoader::class)]
 #[CoversClass(AbstractAppMcpLoader::class)]
-#[Package('framework')]
 class AppMcpPromptLoaderTest extends TestCase
 {
     private Connection&Stub $connection;

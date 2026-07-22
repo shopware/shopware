@@ -37,8 +37,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[CoversClass(LicenseSyncSubscriber::class)]
 #[Package('framework')]
+#[CoversClass(LicenseSyncSubscriber::class)]
 class LicenseSyncSubscriberTest extends TestCase
 {
     /**

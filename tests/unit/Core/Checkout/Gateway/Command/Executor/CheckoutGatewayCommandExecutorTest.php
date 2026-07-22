@@ -24,8 +24,8 @@ use Shopware\Tests\Unit\Core\Checkout\Gateway\Command\_fixture\StubCheckoutGatew
 /**
  * @internal
  */
-#[CoversClass(CheckoutGatewayCommandExecutor::class)]
 #[Package('checkout')]
+#[CoversClass(CheckoutGatewayCommandExecutor::class)]
 class CheckoutGatewayCommandExecutorTest extends TestCase
 {
     public function testExecute(): void

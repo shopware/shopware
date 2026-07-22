@@ -297,7 +297,7 @@ class PromotionCalculatorTest extends TestCase
             ->setPayloadValue('conditionRuleIds', ['rule-id-1'])
             ->setRequirement(new FalseRule());
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(null);
 
         $cart = new Cart('promotion-test');
@@ -324,7 +324,7 @@ class PromotionCalculatorTest extends TestCase
             ->setPayloadValue('conditionRuleIds', ['rule-id-1', 'rule-id-2'])
             ->setRequirement(new FalseRule());
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(null);
 
         $cart = new Cart('promotion-test');
@@ -374,24 +374,24 @@ class PromotionCalculatorTest extends TestCase
 
     public function testSpecificProductsErrorWhenNoPackagesAndProductRestricted(): void
     {
-        $cartPackager = $this->createMock(DiscountPackager::class);
+        $cartPackager = static::createStub(DiscountPackager::class);
         $cartPackager
             ->method('getMatchingItems')
             ->willReturn(new DiscountPackageCollection([]));
 
         $calculator = new PromotionCalculator(
-            $this->createMock(AmountCalculator::class),
-            $this->createMock(AbsolutePriceCalculator::class),
-            $this->createMock(LineItemGroupBuilder::class),
-            $this->createMock(DiscountCompositionBuilder::class),
-            $this->createMock(PackageFilter::class),
-            $this->createMock(AdvancedPackagePicker::class),
-            $this->createMock(SetGroupScopeFilter::class),
-            $this->createMock(LineItemQuantitySplitter::class),
-            $this->createMock(PercentagePriceCalculator::class),
+            static::createStub(AmountCalculator::class),
+            static::createStub(AbsolutePriceCalculator::class),
+            static::createStub(LineItemGroupBuilder::class),
+            static::createStub(DiscountCompositionBuilder::class),
+            static::createStub(PackageFilter::class),
+            static::createStub(AdvancedPackagePicker::class),
+            static::createStub(SetGroupScopeFilter::class),
+            static::createStub(LineItemQuantitySplitter::class),
+            static::createStub(PercentagePriceCalculator::class),
             $cartPackager,
-            $this->createMock(DiscountPackager::class),
-            $this->createMock(DiscountPackager::class)
+            static::createStub(DiscountPackager::class),
+            static::createStub(DiscountPackager::class)
         );
 
         $discountItem = $this->getDiscountItem('promotion')
@@ -404,7 +404,7 @@ class PromotionCalculatorTest extends TestCase
                 'pickerKey' => null,
             ]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $cart = new Cart('promotion-test');
         $cart->setPrice(new CartPrice(100, 100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS));
 

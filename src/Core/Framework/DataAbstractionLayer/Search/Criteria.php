@@ -119,6 +119,11 @@ class Criteria extends Struct implements \Stringable
     protected array $fields = [];
 
     /**
+     * @var list<string>
+     */
+    protected array $excludedFields = [];
+
+    /**
      * @param array<IDStructure>|null $ids
      */
     public function __construct(?array $ids = null, protected int $nestingLevel = 0)
@@ -511,6 +516,7 @@ class Criteria extends Struct implements \Stringable
 
         $self->associations = $associations;
         $self->fields = $this->fields;
+        $self->excludedFields = $this->excludedFields;
 
         return $self;
     }
@@ -620,6 +626,10 @@ class Criteria extends Struct implements \Stringable
      */
     public function addFields(array $fields): self
     {
+        if ($this->excludedFields !== []) {
+            throw DataAbstractionLayerException::criteriaFieldsAndExcludedFieldsAreMutuallyExclusive();
+        }
+
         $this->fields = array_merge($this->fields, $fields);
 
         return $this;
@@ -631,6 +641,31 @@ class Criteria extends Struct implements \Stringable
     public function getFields(): array
     {
         return $this->fields;
+    }
+
+    /**
+     * Denylist counterpart to {@see addFields()}: loads the full, typed entity but omits the given
+     * storage fields. Cannot be combined with addFields(); required and write-protected fields cannot be excluded.
+     *
+     * @param list<string> $fields
+     */
+    public function excludeFields(array $fields): self
+    {
+        if ($this->fields !== []) {
+            throw DataAbstractionLayerException::criteriaFieldsAndExcludedFieldsAreMutuallyExclusive();
+        }
+
+        $this->excludedFields = array_merge($this->excludedFields, $fields);
+
+        return $this;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getExcludedFields(): array
+    {
+        return $this->excludedFields;
     }
 
     /**

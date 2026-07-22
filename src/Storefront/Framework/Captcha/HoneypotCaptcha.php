@@ -50,7 +50,7 @@ class HoneypotCaptcha extends AbstractCaptcha
             return \count($this->validator->validate($this)) < 1;
         }
 
-        return $request->request->get(self::CAPTCHA_REQUEST_PARAMETER, '') === '';
+        return ($request->request->get(self::CAPTCHA_REQUEST_PARAMETER) ?? '') === '';
     }
 
     /**

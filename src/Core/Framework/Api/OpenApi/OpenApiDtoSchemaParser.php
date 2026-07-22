@@ -1118,6 +1118,10 @@ final class OpenApiDtoSchemaParser
             return $this->defaultValue($schema) !== null;
         }
 
+        if (\array_key_exists('const', $schema)) {
+            return $this->defaultScalarValue($schema['const']) !== null;
+        }
+
         $enum = $schema['enum'] ?? null;
 
         return \is_array($enum) && \count($enum) === 1 && $this->defaultScalarValue($enum[0]) !== null;
@@ -1130,6 +1134,10 @@ final class OpenApiDtoSchemaParser
     {
         if (\array_key_exists('default', $schema)) {
             return $this->defaultScalarValue($schema['default']);
+        }
+
+        if (\array_key_exists('const', $schema)) {
+            return $this->defaultScalarValue($schema['const']);
         }
 
         $enum = $schema['enum'] ?? null;

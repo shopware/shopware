@@ -192,7 +192,7 @@ or `[commit this]` so you can see the split before writing.
 
 | Symptom | Cause → fix |
 | --- | --- |
-| A plugin is missing from the extension list | Discovery reads `var/plugins.json`, which neither `plugin:install` nor `cache:clear` refresh. Run `bin/console bundle:dump`. |
+| A plugin is missing from the extension list | Discovery reads `var/plugins.json`, which neither `plugin:install` nor `cache:clear` refresh. Run `bin/console bundle:dump`. A freshly created plugin must be installed and active before `bundle:dump` lists it: `bin/console plugin:refresh && bin/console plugin:install --activate <Name>`. |
 | `⊘ skipped — own tsconfig does not reach the Shopware type surface` | The printed `why:` names the exact cause: an own `"files"` array replaces the bridge's type-surface injection (remove it), the `extends` chain never reaches the preset (add `"extends": "./.shopware-admin/tsconfig.json"`), or there is no bridge yet (`-- --shim=<name>`). |
 | `⊘ skipped — own config does not compose the Shopware factory` | Compose the bridge: `import shopware from './.shopware-admin/eslint.mjs'; export default [ ...shopware ];` |
 | `⊘ blocked (entity schema missing)` | Run `composer admin:generate-entity-schema-types`; TypeScript checks refuse to run against the empty-schema stub. |

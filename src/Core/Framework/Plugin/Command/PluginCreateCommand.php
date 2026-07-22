@@ -135,7 +135,9 @@ class PluginCreateCommand extends Command
             ) {
                 $io->note([
                     'An example Administration module was scaffolded (TypeScript).',
-                    'Make it discoverable, then type-check and lint it with the Administration toolchain:',
+                    'Install and activate the plugin, then type-check and lint it with the Administration toolchain:',
+                    '    bin/console plugin:refresh',
+                    \sprintf('    bin/console plugin:install --activate %s', $pluginName),
                     '    bin/console bundle:dump',
                     \sprintf('    composer admin:check-extensions -- --only=%s', $pluginName),
                     'It needs no toolchain of its own (see extension-tooling/README.md).',

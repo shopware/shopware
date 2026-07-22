@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Command\PluginCreateCommand;
+use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\AdminModuleGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ScaffoldingGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingCollector;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingWriter;
@@ -217,6 +218,39 @@ class PluginCreateCommandTest extends TestCase
         ]);
 
         $commandTester->assertCommandIsSuccessful();
+    }
+
+    public function testAdminModuleNoteListsInstallStepsBeforeDiscovery(): void
+    {
+        $commandTester = $this->getCommandTester([new AdminModuleGenerator()]);
+
+        $commandTester->execute([
+            'plugin-name' => 'TestPlugin',
+            'plugin-namespace' => 'Test',
+            '--create-admin-module' => true,
+        ]);
+
+        $commandTester->assertCommandIsSuccessful();
+
+        $display = (string) preg_replace('/\s+/', ' ', trim($commandTester->getDisplay(true)));
+
+        // A fresh plugin is not an active bundle: without refresh + install,
+        // bundle:dump omits it and the strict --only validation rejects it.
+        $expectedSequence = [
+            'bin/console plugin:refresh',
+            'bin/console plugin:install --activate TestPlugin',
+            'bin/console bundle:dump',
+            'composer admin:check-extensions -- --only=TestPlugin',
+        ];
+
+        foreach ($expectedSequence as $expectedCommand) {
+            static::assertStringContainsString($expectedCommand, $display);
+        }
+
+        static::assertMatchesRegularExpression(
+            '#' . implode('.+', array_map(static fn (string $command): string => preg_quote($command, '#'), $expectedSequence)) . '#',
+            $display,
+        );
     }
 
     public function testDirectoryExists(): void

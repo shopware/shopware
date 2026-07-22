@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@currents/playwright": "2.1.2",
-    "@shopware-ag/acceptance-test-suite": "12.13.3",
+    "@shopware-ag/acceptance-test-suite": "12.13.4",
     "@shopware/api-client": "1.4.0",
     "lighthouse": "12.6.1",
     "playwright-lighthouse": "4.0.0"
@@ -47,7 +47,7 @@
     "defu": "6.1.5",
     "lodash": "4.18.1",
     "lodash-es": "4.18.1",
-    "axios": "1.18.0",
+    "axios": "1.18.1",
     "ip-address": "10.1.1",
     "picomatch@2": "2.3.2",
     "picomatch@4": "4.0.4",

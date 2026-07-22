@@ -666,7 +666,7 @@ export default {
         },
 
         successfulUpload({ targetId }) {
-            if (this.mailTemplate.media.find((mailTemplateMedia) => mailTemplateMedia.mediaId === targetId)) {
+            if (this._checkIfMediaIsAlreadyUsed(targetId)) {
                 return;
             }
 
@@ -699,8 +699,11 @@ export default {
 
         onDeleteMedia(mailTemplateMediaId) {
             const foundItem = this.mailTemplate.media.find(
-                (mailTemplateMedia) => mailTemplateMedia.mediaId === mailTemplateMediaId,
+                (mailTemplateMedia) =>
+                    mailTemplateMedia.mediaId === mailTemplateMediaId &&
+                    mailTemplateMedia.languageId === Shopware.Context.api.languageId,
             );
+
             if (foundItem) {
                 this.mailTemplate.media.remove(foundItem.id);
                 this.getMailTemplateMedia();

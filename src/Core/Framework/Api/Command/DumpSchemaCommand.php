@@ -15,11 +15,11 @@ use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'framework:schema',
     description: 'Dumps the schema of the given entity',
 )]
-#[Package('framework')]
 class DumpSchemaCommand extends Command
 {
     /**
@@ -60,7 +60,7 @@ class DumpSchemaCommand extends Command
             $output = $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output;
         }
         $formatType = $input->getOption('schema-format');
-        $bundleName = (empty($input->getOption('bundle-name'))) ? '' : $input->getOption('bundle-name');
+        $bundleName = $input->getOption('bundle-name') ?? '';
 
         switch ($formatType) {
             case 'simple':

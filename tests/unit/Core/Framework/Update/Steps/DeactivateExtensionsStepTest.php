@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Update\Steps;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Core\Framework\Update\Services\ExtensionCompatibility;
@@ -15,6 +16,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DeactivateExtensionsStep::class)]
 class DeactivateExtensionsStepTest extends TestCase
 {
@@ -28,9 +30,9 @@ class DeactivateExtensionsStepTest extends TestCase
         $deactivateExtensionsStep = new DeactivateExtensionsStep(
             $version,
             ExtensionCompatibility::PLUGIN_DEACTIVATION_FILTER_ALL,
-            $this->createMock(ExtensionCompatibility::class),
-            $this->createMock(ExtensionLifecycleService::class),
-            $this->createMock(SystemConfigService::class),
+            static::createStub(ExtensionCompatibility::class),
+            static::createStub(ExtensionLifecycleService::class),
+            static::createStub(SystemConfigService::class),
             Context::createDefaultContext()
         );
 
@@ -51,7 +53,7 @@ class DeactivateExtensionsStepTest extends TestCase
         $extension->setName('TestApp');
         $extension->setType(ExtensionStruct::EXTENSION_TYPE_APP);
 
-        $pluginCompatibility = $this->createMock(ExtensionCompatibility::class);
+        $pluginCompatibility = static::createStub(ExtensionCompatibility::class);
         $pluginCompatibility
             ->method('getExtensionsToDeactivate')
             ->willReturn([$extension]);
@@ -96,7 +98,7 @@ class DeactivateExtensionsStepTest extends TestCase
         $extension->setName('TestApp');
         $extension->setType(ExtensionStruct::EXTENSION_TYPE_APP);
 
-        $pluginCompatibility = $this->createMock(ExtensionCompatibility::class);
+        $pluginCompatibility = static::createStub(ExtensionCompatibility::class);
         $pluginCompatibility
             ->method('getExtensionsToDeactivate')
             ->willReturn([$extension, $extension]);

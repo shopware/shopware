@@ -5,12 +5,14 @@ namespace Shopware\Tests\Migration\Core\V6_7;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_7\Migration1761739065IncreaseProductWeightPrecision;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1761739065IncreaseProductWeightPrecision::class)]
 class Migration1761739065IncreaseProductWeightPrecisionTest extends TestCase
 {

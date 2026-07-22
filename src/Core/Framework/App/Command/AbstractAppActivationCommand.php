@@ -2,17 +2,14 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
-use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal only for use by the app-system
@@ -20,11 +17,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('framework')]
 abstract class AbstractAppActivationCommand extends Command
 {
-    /**
-     * @param EntityRepository<AppCollection> $appRepo
-     */
     public function __construct(
-        protected EntityRepository $appRepo,
+        private readonly AppStorage $appStorage,
         private readonly string $action,
     ) {
         parent::__construct();
@@ -34,23 +28,20 @@ abstract class AbstractAppActivationCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         $context = Context::createCLIContext();
 
         $appName = $input->getArgument('name');
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('name', $appName));
+        $app = $this->appStorage->findByName($appName, $context);
 
-        $id = $this->appRepo->searchIds($criteria, $context)->firstId();
-
-        if (!$id) {
+        if (!$app) {
             $io->error("No app found for \"{$appName}\".");
 
             return self::FAILURE;
         }
 
-        $this->runAction($id, $context);
+        $this->runAction($app->getId(), $context);
 
         $io->success(\sprintf('App %sd successfully.', $this->action));
 

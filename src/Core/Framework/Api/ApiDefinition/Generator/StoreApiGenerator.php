@@ -63,13 +63,27 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     public function generate(array $definitions, string $api, string $apiType, ?string $bundleName): array
     {
         $openApi = new OpenApi([
-            'openapi' => '3.1.0',
+            'openapi' => '3.2.0',
         ]);
         $this->openApiBuilder->enrich($openApi, $api);
 
         $forSalesChannel = $api === DefinitionService::STORE_API;
 
         ksort($definitions);
+
+        $schemaPaths = [$this->schemaPath];
+
+        if ($bundleName !== null && $bundleName !== '') {
+            $schemaPaths = array_merge([$this->schemaPath . '/components', $this->schemaPath . '/tags'], $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
+        } else {
+            $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
+        }
+
+        $loader = new OpenApiFileLoader($schemaPaths);
+        $jsonSpec = $loader->loadOpenapiSpecification();
+        $jsonSchemaNames = isset($jsonSpec['components']['schemas']) ? array_keys($jsonSpec['components']['schemas']) : [];
+
+        $overriddenSchemaNames = [];
 
         foreach ($definitions as $definition) {
             if (!$definition instanceof EntityDefinition) {
@@ -84,7 +98,13 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
             $schema = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel, $onlyReference);
 
-            $openApi->components->merge($schema);
+            $overlapping = array_intersect(array_keys($schema), $jsonSchemaNames);
+
+            foreach ($overlapping as $schemaName) {
+                $overriddenSchemaNames[] = $schemaName;
+            }
+
+            $openApi->components->merge(array_values($schema));
         }
 
         $this->addGeneralInformation($openApi);
@@ -93,17 +113,9 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $data = json_decode($openApi->toJson(), true, 512, \JSON_THROW_ON_ERROR);
         $data['paths'] ??= [];
 
-        $schemaPaths = [$this->schemaPath];
+        $this->stripOverriddenPhpSchemas($data, $overriddenSchemaNames);
 
-        if ($bundleName !== null && $bundleName !== '') {
-            $schemaPaths = array_merge([$this->schemaPath . '/components', $this->schemaPath . '/tags'], $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
-        } else {
-            $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
-        }
-
-        $loader = new OpenApiFileLoader($schemaPaths);
-
-        $preFinalSpecs = $this->mergeComponentsSchemaRequiredFieldsRecursive($data, $loader->loadOpenapiSpecification());
+        $preFinalSpecs = $this->mergeComponentsSchemaRequiredFieldsRecursive($data, $jsonSpec);
         /** @var OpenApiSpec $finalSpecs */
         $finalSpecs = array_replace_recursive($data, $preFinalSpecs);
 
@@ -226,6 +238,34 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                     new Parameter(['ref' => '#/components/parameters/contentType']),
                     new Parameter(['ref' => '#/components/parameters/accept']),
                 );
+            }
+        }
+    }
+
+    /**
+     * For schemas that exist in both PHP and JSON, strips the PHP-generated data
+     * down to only plugin extension fields. The JSON schema becomes the source of
+     * truth for the base definition, while plugin extensions are preserved.
+     *
+     * @param array<string, mixed> $data
+     * @param list<string> $schemaNames
+     */
+    private function stripOverriddenPhpSchemas(array &$data, array $schemaNames): void
+    {
+        foreach ($schemaNames as $schemaName) {
+            if (!isset($data['components']['schemas'][$schemaName])) {
+                continue;
+            }
+
+            $extensions = $data['components']['schemas'][$schemaName]['properties']['extensions'] ?? null;
+
+            unset($data['components']['schemas'][$schemaName]);
+
+            if ($extensions !== null) {
+                $data['components']['schemas'][$schemaName] = [
+                    'type' => 'object',
+                    'properties' => ['extensions' => $extensions],
+                ];
             }
         }
     }

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel\File\Discovery;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\TemplatePathIteratorInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFileDiscovery;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
@@ -13,6 +14,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SalesChannelFileDiscovery::class)]
 class SalesChannelFileDiscoveryTest extends TestCase
 {
@@ -21,6 +23,8 @@ class SalesChannelFileDiscoveryTest extends TestCase
         $discovery = new SalesChannelFileDiscovery(
             new SalesChannelFileStaticTemplateIterator([
                 'files/agentic/llms.txt.twig',
+                'files/agentic/AGENTS.md.twig',
+                'files/agentic/agents.md.twig',
                 'files/agentic/custom.agent.twig',
                 'files/seo/robots.txt.twig',
                 'files/agentic/llms.txt.twig',
@@ -32,7 +36,13 @@ class SalesChannelFileDiscoveryTest extends TestCase
 
         $files = $discovery->discover('agentic');
 
-        static::assertSame(['.well-known/ucp.json', 'custom.agent', 'llms.txt', 'standalone.txt'], array_keys($files));
+        static::assertSame(['.well-known/ucp.json', 'agents.md', 'custom.agent', 'llms.txt', 'standalone.txt'], array_keys($files));
+        static::assertSame('AGENTS.md', $files['agents.md']->fileName);
+        static::assertSame('files/agentic/AGENTS.md.twig', $files['agents.md']->templatePath);
+        static::assertSame([
+            'files/agentic/AGENTS.md.twig',
+            'files/agentic/agents.md.twig',
+        ], $files['agents.md']->templatePaths);
         static::assertSame('agentic', $files['llms.txt']->fileFamily);
         static::assertSame('files/agentic/llms.txt.twig', $files['llms.txt']->templatePath);
         static::assertSame('files/agentic/llms.txt.twig', $files['llms.txt']->baseTemplateName);
@@ -40,6 +50,8 @@ class SalesChannelFileDiscoveryTest extends TestCase
         static::assertSame([], $files['llms.txt']->templates);
         static::assertSame('application/json; charset=utf-8', $files['.well-known/ucp.json']->contentType);
         static::assertSame('text/plain; charset=utf-8', $files['custom.agent']->contentType);
+        static::assertEquals($files['agents.md'], $discovery->get('files/agentic/AGENTS.md.twig'));
+        static::assertEquals($files['agents.md'], $discovery->get('files/agentic/agents.md.twig'));
     }
 
     public function testItCanDiscoverAnotherFileFamily(): void

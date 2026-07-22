@@ -49,9 +49,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(AbstractProductSearchQueryBuilder::class)]
 #[CoversClass(ProductSearchQueryBuilder::class)]
-#[Package('inventory')]
 class ProductSearchQueryBuilderTest extends TestCase
 {
     private const SECOND_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20c';
@@ -593,8 +593,8 @@ class ProductSearchQueryBuilderTest extends TestCase
     {
         $builder = new ProductSearchQueryBuilder(
             $this->getDefinition(),
-            $this->createMock(TokenFilter::class),
-            $this->createMock(SearchConfigLoader::class),
+            static::createStub(TokenFilter::class),
+            static::createStub(SearchConfigLoader::class),
             $this->tokenQueryBuilder,
             new ElasticsearchTokenizer(),
         );
@@ -653,8 +653,8 @@ class ProductSearchQueryBuilderTest extends TestCase
                 CategoryDefinition::class,
                 CategoryTranslationDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 
@@ -663,10 +663,10 @@ class ProductSearchQueryBuilderTest extends TestCase
      */
     private function getBuilder(?array $config): ProductSearchQueryBuilder
     {
-        $configLoader = $this->createMock(SearchConfigLoader::class);
+        $configLoader = static::createStub(SearchConfigLoader::class);
         $configLoader->method('load')->willReturn($config ?? []);
 
-        $tokenFilter = $this->createMock(AbstractTokenFilter::class);
+        $tokenFilter = static::createStub(AbstractTokenFilter::class);
         $tokenFilter->method('filter')->willReturnArgument(0);
 
         return new ProductSearchQueryBuilder(

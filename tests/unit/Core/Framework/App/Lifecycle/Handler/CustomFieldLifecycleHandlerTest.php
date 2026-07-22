@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Lifecycle\Handler\CustomFieldLifecycleHandler;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\System\CustomField\CustomFieldSetPersister;
 use Shopware\Core\System\CustomField\Xml\CustomFields;
@@ -17,6 +18,7 @@ use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CustomFieldLifecycleHandler::class)]
 class CustomFieldLifecycleHandlerTest extends TestCase
 {
@@ -79,7 +81,7 @@ class CustomFieldLifecycleHandlerTest extends TestCase
 
     private function createContext(string $appDir): AppPersistContext
     {
-        $manifest = $this->createMock(Manifest::class);
+        $manifest = static::createStub(Manifest::class);
         $manifest->method('getCustomFields')->willReturn(null);
 
         $app = new AppEntity();

@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Flow\Event\Xml;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Flow\Event\Xml\CustomEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CustomEvent::class)]
 class CustomEventTest extends TestCase
 {

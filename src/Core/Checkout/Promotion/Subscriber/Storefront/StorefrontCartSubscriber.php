@@ -52,12 +52,16 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @phpstan-ignore shopware.unsafeRequestHasSession (using $skipIfUninitialized = false as session will be started intentionally later; this can take the PHP session lock and is limited to promotion reset writing storefront session state.) */
-        if (!$mainRequest->hasSession()) {
+        if (!$mainRequest->hasSession(true)) {
             return;
         }
 
-        $mainRequest->getSession()->set(self::SESSION_KEY_PROMOTION_CODES, []);
+        $session = $mainRequest->getSession();
+        if (!$session->isStarted()) {
+            return;
+        }
+
+        $session->set(self::SESSION_KEY_PROMOTION_CODES, []);
     }
 
     /**

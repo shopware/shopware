@@ -27,7 +27,6 @@
                 "online": "Online",
                 "offline": "Offline"
             },
-            "contextMenuEdit": "Edit",
             "productsLabel": "Products",
             "productsCount": "products | product | products"
         },
@@ -36,7 +35,6 @@
             "buttonAddChannel": "Add Sales Channel",
             "titleDetailPrefix": "{name} - details",
             "buttonShowDetails": "Show details",
-            "buttonBack": "Back",
             "titleDescription": "Information",
             "messageAgenticCommerce": "In order to create agentic commerce sales channels, please install the Agentic Commerce extension from the Shopware Store.",
             "messageNoProductStreams": "In order to use product comparisons or agentic commerce sales channels, a dynamic product group has to be created first."
@@ -47,7 +45,6 @@
             "messageActivateWithoutThemeError": "Sales Channel \"{name}\" could not be activated. Active Sales Channels need to have a theme associated.",
             "messageMeasurementUnitsSetError": "Could not load system configuration for product measurements.",
             "activateDisable": "Please assign a theme before activating and saving the Sales Channel.",
-            "buttonSave": "Save",
             "buttonCreateNewApiKeys": "Create new API key",
             "tabBase": "General",
             "tabTheme": "Theme",
@@ -98,7 +95,6 @@
             "buttonDelete": "Delete Sales Channel",
             "deleteModalTitle": "Delete Sales Channel",
             "textConfirmDelete": "Are you sure you want to delete this Sales Channel?",
-            "buttonConfirmDelete": "Delete",
             "textHeadline": "New Sales Channel",
             "placeholderName": "Enter Sales Channel name...",
             "placeholderInputCategories": "Add categories...",
@@ -113,7 +109,6 @@
             "buttonAddDomain": "Add domain",
             "deleteDomainModalTitle": "Delete domain",
             "textConfirmDeleteDomain": "Are you sure you want to delete this domain? The Sales Channel will no longer be accessible by \"{url}\"",
-            "buttonConfirmDeleteDomain": "Delete",
             "customerGroup": "Customer group",
             "favouriteLabel": "Mark Sales Channel as favourite",
             "navigation": "Navigation",
@@ -289,7 +284,6 @@
                 "columnDescription": "Description",
                 "emptyState": "No agentic files found",
                 "messageLoadError": "Could not load agentic files.",
-                "actionEdit": "Edit",
                 "actionEnable": "Enable",
                 "actionDisable": "Disable",
                 "enabledState": {
@@ -328,9 +322,9 @@
                 },
                 "descriptions": {
                     "agentic": {
-                        ".well-known/ai-catalog.json": "A machine-readable catalog for agentic resource discovery. It helps compatible clients find available AI-facing resources for this Sales Channel, such as an enabled Shopware MCP server.",
-                        "llms.txt": "A Markdown index for AI assistants and retrieval tools. It summarizes what this Sales Channel offers and points to the most relevant public pages, so agents can understand the shop without crawling every page. It complements robots.txt and sitemaps, but does not guarantee that every AI service will use it.",
-                        "agents.md": "Context and operating guidance for agent clients. Use it to explain how agents should interact with this Sales Channel, which public resources they should prefer, and which actions need explicit user confirmation, such as checkout or account changes."
+                        "well-known-ai-catalog-json": "A machine-readable catalog for agentic resource discovery. It helps compatible clients find available AI-facing resources for this Sales Channel, such as an enabled Shopware MCP server.",
+                        "llms-txt": "A Markdown index for AI assistants and retrieval tools. It summarizes what this Sales Channel offers and points to the most relevant public pages, so agents can understand the shop without crawling every page. It complements robots.txt and sitemaps, but does not guarantee that every AI service will use it.",
+                        "agents-md": "Context and operating guidance for agent clients. Use it to explain how agents should interact with this Sales Channel, which public resources they should prefer, and which actions need explicit user confirmation, such as checkout or account changes."
                     }
                 }
             },

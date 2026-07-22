@@ -183,7 +183,7 @@
                                         {% endblock %}
 
                                         {% block component_review_list_content %}
-                                            {% for review in reviews %}
+                                            {% for review in reviews.entities %}
                                                 <div class="product-detail-review-list-content">
                                                     {% sw_include '@Storefront/storefront/component/review/review-item.html.twig' %}
                                                 </div>

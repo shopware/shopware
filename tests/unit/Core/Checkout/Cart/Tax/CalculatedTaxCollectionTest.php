@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(CalculatedTaxCollection::class)]
 #[Package('checkout')]
+#[CoversClass(CalculatedTaxCollection::class)]
 class CalculatedTaxCollectionTest extends TestCase
 {
     public function testCollectionIsCountable(): void

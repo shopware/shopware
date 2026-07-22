@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\System\CustomField\Xml\CustomFieldTypes;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Xml\CustomFieldTypes\BoolField;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(BoolField::class)]
 class BoolFieldTest extends TestCase
 {
@@ -33,6 +35,7 @@ class BoolFieldTest extends TestCase
         static::assertSame([], $boolField->getHelpText());
         static::assertSame(1, $boolField->getPosition());
         static::assertFalse($boolField->getRequired());
+        static::assertTrue($boolField->isIncludeInSearch());
     }
 
     public function testToEntityPayload(): void
@@ -46,6 +49,7 @@ class BoolFieldTest extends TestCase
         static::assertEquals([
             'name' => 'test_bool_field',
             'type' => 'bool',
+            'includeInSearch' => true,
             'config' => [
                 'label' => [
                     'en-GB' => 'Test bool field',

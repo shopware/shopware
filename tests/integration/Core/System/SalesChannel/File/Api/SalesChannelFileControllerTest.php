@@ -35,6 +35,16 @@ class SalesChannelFileControllerTest extends TestCase
                     'Framework' => 'merchant override',
                 ],
             ],
+            [
+                'id' => Uuid::randomHex(),
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'fileFamily' => 'agentic',
+                'fileName' => 'agents.md',
+                'enabled' => true,
+                'templateOverrides' => [
+                    'Framework' => 'legacy merchant override',
+                ],
+            ],
         ], Context::createDefaultContext());
 
         $this->getBrowser()->request('GET', '/api/_action/sales-channel-file/agentic/' . TestDefaults::SALES_CHANNEL);
@@ -44,7 +54,9 @@ class SalesChannelFileControllerTest extends TestCase
         $response = $this->decodeResponse();
         $files = array_column($response['data'], null, 'fileName');
 
-        static::assertSame(['.well-known/ai-catalog.json', 'agents.md', 'llms.txt'], array_keys($files));
+        static::assertSame(['.well-known/ai-catalog.json', 'AGENTS.md', 'llms.txt'], array_keys($files));
+        static::assertTrue($files['AGENTS.md']['configuration']['enabled']);
+        static::assertSame(['Framework' => 'legacy merchant override'], $files['AGENTS.md']['configuration']['templateOverrides']);
         static::assertSame('application/json; charset=utf-8', $files['.well-known/ai-catalog.json']['contentType']);
         static::assertSame('agentic', $files['llms.txt']['fileFamily']);
         static::assertSame('text/plain; charset=utf-8', $files['llms.txt']['contentType']);

@@ -9,6 +9,18 @@ interface DragItem {
     index: number;
     linePosition?: number | null;
     snippet: string[];
+    targetIndex?: number;
+}
+
+interface DragPreview {
+    dragIndex: number;
+    targetIndex: number;
+}
+
+interface ExternalDragPreview extends DragPreview {
+    linePosition: number;
+    sourceLinePosition: number;
+    snippet: string[];
 }
 
 const DEFAULT_MIN_LINES = 1 as number;
@@ -91,10 +103,25 @@ export default Component.wrapComponentConfig({
             required: false,
             default: (value: string) => value,
         },
+
+        externalDragPreview: {
+            type: Object as PropType<ExternalDragPreview | null>,
+            required: false,
+            default: null,
+        },
+
+        isSnippetDragging: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data(): {
         defaultConfig: DragConfig<DragItem>;
+        dragPreview: DragPreview | null;
+        dropPreviewData: DragItem | null;
+        isDragging: boolean;
     } {
         return {
             defaultConfig: {
@@ -104,6 +131,9 @@ export default Component.wrapComponentConfig({
                 preventEvent: true,
                 disabled: this.disabled,
             } as DragConfig<DragItem>,
+            dragPreview: null,
+            dropPreviewData: null,
+            isDragging: false,
         };
     },
 
@@ -139,38 +169,118 @@ export default Component.wrapComponentConfig({
         isMinLines(): boolean {
             return this.totalLines <= DEFAULT_MIN_LINES;
         },
+
+        activeDragPreview(): DragPreview | null {
+            if (this.dragPreview) {
+                return this.dragPreview;
+            }
+
+            return this.externalDragPreview?.linePosition === this.linePosition ? this.externalDragPreview : null;
+        },
+
+        isSnippetDragActive(): boolean {
+            return this.isDragging || this.isSnippetDragging;
+        },
+
+        hasDragPreview(): boolean {
+            return !!this.activeDragPreview;
+        },
+
+        dragPreviewSnippet(): string[] | null {
+            if (!this.activeDragPreview) {
+                return null;
+            }
+
+            return this.dragPreview
+                ? (this.value[this.dragPreview.dragIndex] ?? null)
+                : (this.externalDragPreview?.snippet ?? null);
+        },
     },
 
     methods: {
         onDragStart(config: DragConfig<DragItem>, element: HTMLElement, dragElement: HTMLElement): void {
+            this.isDragging = true;
+
             this.$emit('drag-start', { config, element, dragElement });
         },
 
-        onDragEnter(dragData: DragItem, dropData: DragItem) {
+        onDragEnter(dragData: DragItem | null, dropData: DragItem | null) {
             if (!dragData || !dropData) {
                 return;
+            }
+
+            this.dropPreviewData = dropData;
+
+            if (dragData.linePosition === dropData.linePosition && typeof dropData.targetIndex === 'number') {
+                this.dragPreview = {
+                    dragIndex: dragData.index,
+                    targetIndex: dropData.targetIndex,
+                };
+            } else if (dragData.linePosition !== dropData.linePosition) {
+                this.dragPreview = null;
             }
 
             this.$emit('drag-enter', { dragData, dropData });
         },
 
-        onDrop(dragData: DragItem, dropData: DragItem) {
-            if (!dragData || !dropData) {
+        onDrop(dragData: DragItem | null, dropData: DragItem | null) {
+            const dragPreview = this.dragPreview as DragPreview | null;
+            const dropPreviewData = this.dropPreviewData as DragItem | null;
+            const currentDropData =
+                !dropData || (typeof dropData.targetIndex !== 'number' && typeof dropPreviewData?.targetIndex === 'number')
+                    ? dropPreviewData
+                    : dropData;
+
+            this.dragPreview = null;
+            this.dropPreviewData = null;
+            this.isDragging = false;
+
+            if (!dragData || (!currentDropData && !dragPreview)) {
                 return;
             }
 
-            if (dragData.linePosition === dropData.linePosition) {
-                const newValue = Object.assign([], this.value, {
-                    [dragData.index]: this.value[dropData.index],
-                    [dropData.index]: this.value[dragData.index],
-                });
+            if (!currentDropData || dragData.linePosition === currentDropData.linePosition) {
+                const newValue = [...this.value];
+                const [snippet] = newValue.splice(dragData.index, 1);
+                const fallbackTargetIndex =
+                    currentDropData && dragData.index < currentDropData.index
+                        ? currentDropData.index + 1
+                        : (currentDropData?.index ?? dragData.index);
+                const targetIndex = currentDropData?.targetIndex ?? dragPreview?.targetIndex ?? fallbackTargetIndex;
+                const insertIndex = targetIndex > dragData.index ? targetIndex - 1 : targetIndex;
+
+                newValue.splice(insertIndex, 0, snippet);
 
                 this.$emit('update:value', this.linePosition, newValue);
 
                 return;
             }
 
-            this.$emit('drop-end', this.linePosition, { dragData, dropData });
+            this.$emit('drop-end', this.linePosition, { dragData, dropData: currentDropData });
+        },
+
+        shouldShowPlaceholderBefore(index: number): boolean {
+            return !!this.activeDragPreview && this.activeDragPreview.targetIndex === index;
+        },
+
+        shouldShowPlaceholderAfter(index: number): boolean {
+            return (
+                !!this.activeDragPreview &&
+                this.activeDragPreview.targetIndex === this.value.length &&
+                index === this.value.length - 1
+            );
+        },
+
+        shouldShowEmptyPlaceholder(): boolean {
+            return !!this.activeDragPreview && this.value.length === 0 && this.activeDragPreview.targetIndex === 0;
+        },
+
+        isDragPreviewSource(index: number): boolean {
+            return (
+                (!!this.dragPreview && this.dragPreview.dragIndex === index) ||
+                (this.externalDragPreview?.sourceLinePosition === this.linePosition &&
+                    this.externalDragPreview.dragIndex === index)
+            );
         },
 
         isSelectionDisabled(selection: $TSFixMe): boolean {
@@ -203,6 +313,10 @@ export default Component.wrapComponentConfig({
         },
 
         openModal() {
+            if (this.disabled) {
+                return;
+            }
+
             this.$emit('open-snippet-modal', this.linePosition);
         },
     },

@@ -26,8 +26,8 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('inventory')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 class SearchController extends StorefrontController
 {
     /**
@@ -160,7 +160,7 @@ class SearchController extends StorefrontController
             return null;
         }
 
-        $product = $page->getListing()->first();
+        $product = $page->getListing()->getEntities()->first();
         if (!$product instanceof ProductEntity) {
             return null;
         }

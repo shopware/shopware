@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\UserMcpAllowlistController;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserCollection;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(UserMcpAllowlistController::class)]
 class UserMcpAllowlistControllerTest extends TestCase
 {
@@ -38,8 +40,6 @@ class UserMcpAllowlistControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $_SERVER['MCP_SERVER'] = '1';
-
         $this->userId = Uuid::randomHex();
         $this->user = new UserEntity();
         $this->user->setId($this->userId);
@@ -51,28 +51,6 @@ class UserMcpAllowlistControllerTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    protected function tearDown(): void
-    {
-        unset($_SERVER['MCP_SERVER']);
-    }
-
-    public function testSaveReturnsNotFoundWhenFeatureFlagIsOff(): void
-    {
-        $_SERVER['MCP_SERVER'] = false;
-        try {
-            $repository = $this->createMock(EntityRepository::class);
-            $repository->expects($this->never())->method('search');
-            $repository->expects($this->never())->method('update');
-
-            $controller = new UserMcpAllowlistController($repository);
-            $response = $controller->save('some-id', $this->makeRequest(['allowlist' => null]), $this->context);
-
-            static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
-        } finally {
-            $_SERVER['MCP_SERVER'] = '1';
-        }
-    }
-
     public function testSaveStructuredAllowlist(): void
     {
         $allowlist = [
@@ -82,7 +60,7 @@ class UserMcpAllowlistControllerTest extends TestCase
         ];
 
         $savedContext = null;
-        $entityEvent = $this->createMock(EntityWrittenContainerEvent::class);
+        $entityEvent = static::createStub(EntityWrittenContainerEvent::class);
         $this->repository->expects($this->once())
             ->method('update')
             ->willReturnCallback(function (array $data, Context $context) use ($allowlist, $entityEvent, &$savedContext): EntityWrittenContainerEvent {
@@ -151,6 +129,8 @@ class UserMcpAllowlistControllerTest extends TestCase
 
     public function testUserNotFound(): void
     {
+        $this->repository->expects($this->never())->method('update');
+
         $repository = $this->createMock(EntityRepository::class);
         $repository->method('search')->willReturn($this->makeSearchResult([]));
         $repository->expects($this->never())->method('update');

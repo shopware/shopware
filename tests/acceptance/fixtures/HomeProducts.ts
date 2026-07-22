@@ -24,6 +24,10 @@ export const test = base.extend<FixtureTypes & HomeProducts>({
         await CheckVisibilityInHome(product2.name)();
         await CheckVisibilityInHome(product3.name)();
 
-        await use([product1, product2, product3]);
+        await use([
+            product1,
+            product2,
+            product3,
+        ]);
     },
 });

@@ -42,17 +42,17 @@ class UpsertAddressRouteTest extends TestCase
 {
     public function testCustomFields(): void
     {
-        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService = static::createStub(SystemConfigService::class);
         $systemConfigService
             ->method('get')
             ->willReturn('1');
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $address = new CustomerAddressEntity();
         $address->setId(Uuid::randomHex());
         $result->method('getEntities')->willReturn(new CustomerAddressCollection([$address]));
 
-        $salesChannelAddressRepository = $this->createMock(SalesChannelRepository::class);
+        $salesChannelAddressRepository = static::createStub(SalesChannelRepository::class);
         $salesChannelAddressRepository->method('search')->willReturn($result);
 
         $addressRepository = $this->createMock(EntityRepository::class);
@@ -65,7 +65,7 @@ class UpsertAddressRouteTest extends TestCase
                 return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
             });
 
-        $customFieldMapper = new StoreApiCustomFieldMapper($this->createMock(Connection::class), [
+        $customFieldMapper = new StoreApiCustomFieldMapper(static::createStub(Connection::class), [
             CustomerAddressDefinition::ENTITY_NAME => [
                 ['name' => 'mapped', 'type' => 'int'],
             ],
@@ -74,15 +74,15 @@ class UpsertAddressRouteTest extends TestCase
         $upsert = new UpsertAddressRoute(
             $addressRepository,
             $salesChannelAddressRepository,
-            $this->createMock(DataValidator::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(DataValidationFactoryInterface::class),
+            static::createStub(DataValidator::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(DataValidationFactoryInterface::class),
             $systemConfigService,
             $customFieldMapper,
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
         );
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
 
         $customer = new CustomerEntity();
@@ -135,7 +135,7 @@ class UpsertAddressRouteTest extends TestCase
         $address = new CustomerAddressEntity();
         $address->setId(Uuid::randomHex());
 
-        $salesChannelAddressRepository = $this->createMock(SalesChannelRepository::class);
+        $salesChannelAddressRepository = static::createStub(SalesChannelRepository::class);
         $salesChannelAddressRepository->method('search')->willReturn(
             new EntitySearchResult(
                 CustomerAddressDefinition::ENTITY_NAME,
@@ -147,12 +147,12 @@ class UpsertAddressRouteTest extends TestCase
             )
         );
 
-        $addressValidationFactory = $this->createMock(DataValidationFactoryInterface::class);
+        $addressValidationFactory = static::createStub(DataValidationFactoryInterface::class);
         $addressValidationFactory
             ->method('create')
             ->willReturn(new DataValidationDefinition('address.create'));
 
-        $customFieldMapper = new StoreApiCustomFieldMapper($this->createMock(Connection::class), [
+        $customFieldMapper = new StoreApiCustomFieldMapper(static::createStub(Connection::class), [
             CustomerAddressDefinition::ENTITY_NAME => [
                 ['name' => 'note', 'type' => 'text'],
             ],
@@ -161,12 +161,12 @@ class UpsertAddressRouteTest extends TestCase
         $upsert = new UpsertAddressRoute(
             $addressRepository,
             $salesChannelAddressRepository,
-            $this->createMock(DataValidator::class),
+            static::createStub(DataValidator::class),
             new EventDispatcher(),
             $addressValidationFactory,
-            $this->createMock(SystemConfigService::class),
+            static::createStub(SystemConfigService::class),
             $customFieldMapper,
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
         );
 
         $customer = new CustomerEntity();
@@ -202,6 +202,7 @@ class UpsertAddressRouteTest extends TestCase
 
         $addressRepository = $this->createMock(EntityRepository::class);
         $addressRepository
+            ->expects($this->once())
             ->method('upsert')
             ->with(static::callback(static function (array $data) use ($salutationId) {
                 static::assertCount(1, $data);
@@ -234,19 +235,19 @@ class UpsertAddressRouteTest extends TestCase
             Context::createDefaultContext(),
         );
 
-        $salutationRepository = $this->createMock(EntityRepository::class);
+        $salutationRepository = static::createStub(EntityRepository::class);
         $salutationRepository->method('searchIds')->willReturn($idSearchResult);
 
-        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService = static::createStub(SystemConfigService::class);
 
         $upsert = new UpsertAddressRoute(
             $addressRepository,
             $salesChannelAddressRepository,
-            $this->createMock(DataValidator::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(DataValidationFactoryInterface::class),
+            static::createStub(DataValidator::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(DataValidationFactoryInterface::class),
             $systemConfigService,
-            $this->createMock(StoreApiCustomFieldMapper::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
             $salutationRepository
         );
 
@@ -258,6 +259,6 @@ class UpsertAddressRouteTest extends TestCase
             'salutationId' => '',
         ]);
 
-        $upsert->upsert(null, $data, $this->createMock(SalesChannelContext::class), $customer);
+        $upsert->upsert(null, $data, static::createStub(SalesChannelContext::class), $customer);
     }
 }

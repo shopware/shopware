@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\DevOps\Docs\Script;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Log\Package;
@@ -10,17 +9,18 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'docs:generate-trigger-reference',
     description: 'Generate a Markdown table with all business/flow triggers',
 )]
-#[Package('framework')]
 class TriggerReferenceGeneratorCommand extends Command
 {
     private const EVENT_DESCRIPTIONS = __DIR__ . '/../../Resources/templates/trigger-event-description.json';
@@ -35,7 +35,7 @@ class TriggerReferenceGeneratorCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
 
         $io->comment('Generating Markdown reference for business/flow triggers.');
 

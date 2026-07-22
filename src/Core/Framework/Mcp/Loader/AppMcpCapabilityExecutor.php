@@ -16,7 +16,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Executes app MCP capability calls (tools, prompts, resources). For external URLs, uses
  * HMAC-signed HTTP POST to the app's webhook URL. For internal paths (starting with '/'),

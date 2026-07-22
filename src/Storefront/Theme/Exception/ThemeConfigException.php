@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeConfigException extends ShopwareHttpException
 {
     private const MESSAGE = 'There are {{ errorCount }} error(s) while validating the theme config.';

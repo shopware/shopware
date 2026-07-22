@@ -21,7 +21,7 @@ class StoreApiCustomFieldMapperTest extends TestCase
 {
     public function testMappingRemovesNotAllowedFields(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $mapper = new StoreApiCustomFieldMapper($connection, ['customer' => [['name' => 'allowed', 'type' => 'string']]]);
         static::assertSame(['allowed' => 'yes'], $mapper->map('customer', new RequestDataBag(['bla' => 'foo', 'allowed' => 'yes'])));
@@ -29,7 +29,7 @@ class StoreApiCustomFieldMapperTest extends TestCase
 
     public function testMappingDecodesFieldTypes(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $mapper = new StoreApiCustomFieldMapper($connection, ['customer' => [
             ['name' => 'string', 'type' => CustomFieldTypes::TEXT],

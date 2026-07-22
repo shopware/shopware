@@ -24,13 +24,13 @@ class MaintenanceControllerTest extends TestCase
 {
     public function testMaintenanceRedirectToShopWithRedirectTo(): void
     {
-        $maintenanceModeResolver = $this->createMock(MaintenanceModeResolver::class);
+        $maintenanceModeResolver = static::createStub(MaintenanceModeResolver::class);
         $maintenanceModeResolver->method('shouldRedirectToShop')
             ->willReturn(true);
 
         $controller = new MaintenanceController(
-            $this->createMock(SystemConfigService::class),
-            $this->createMock(MaintenancePageLoader::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(MaintenancePageLoader::class),
             $maintenanceModeResolver
         );
 
@@ -50,7 +50,7 @@ class MaintenanceControllerTest extends TestCase
 
         $container = new ContainerBuilder();
         $container->set('router', $router);
-        $container->set('event_dispatcher', $this->createMock(EventDispatcherInterface::class));
+        $container->set('event_dispatcher', static::createStub(EventDispatcherInterface::class));
 
         $controller->setContainer($container);
 

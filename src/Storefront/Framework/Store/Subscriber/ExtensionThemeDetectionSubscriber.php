@@ -24,7 +24,7 @@ use Symfony\Contracts\Service\ResetInterface;
  *
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ExtensionThemeDetectionSubscriber implements EventSubscriberInterface, ResetInterface
 {
     /**

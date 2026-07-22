@@ -23,8 +23,8 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 /**
  * @internal
  */
-#[CoversClass(OrderAddressService::class)]
 #[Package('checkout')]
+#[CoversClass(OrderAddressService::class)]
 class OrderAddressServiceTest extends TestCase
 {
     /**
@@ -34,10 +34,10 @@ class OrderAddressServiceTest extends TestCase
     public function testValidateInvalidMapping(array $mappings): void
     {
         $orderAddressService = new OrderAddressService(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class)
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class)
         );
 
         $this->expectException(OrderException::class);
@@ -103,9 +103,9 @@ class OrderAddressServiceTest extends TestCase
 
         $orderAddressService = new OrderAddressService(
             $orderRepository,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class)
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class)
         );
 
         $this->expectException(OrderException::class);
@@ -139,7 +139,7 @@ class OrderAddressServiceTest extends TestCase
 
         $billingAddressUpsert = null;
         $shippingAddressUpsert = null;
-        $orderAddressRepository = $this->createMock(EntityRepository::class);
+        $orderAddressRepository = static::createStub(EntityRepository::class);
         $orderAddressRepository
             ->method('upsert')
             ->willReturnCallback(function ($upsert) use (&$billingAddressUpsert, &$shippingAddressUpsert): EntityWrittenContainerEvent {
@@ -153,7 +153,7 @@ class OrderAddressServiceTest extends TestCase
                     $shippingAddressUpsert = $upsert[0];
                 }
 
-                return $this->createMock(EntityWrittenContainerEvent::class);
+                return $this->createStub(EntityWrittenContainerEvent::class);
             });
 
         /** @var StaticEntityRepository<CustomerAddressCollection> $customerAddressRepository */

@@ -21,7 +21,7 @@ class TimeRangeRuleTest extends TestCase
 
         $rule->assign(['fromTime' => '00:00', 'toTime' => '12:00']);
 
-        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope = static::createStub(RuleScope::class);
         $ruleScope->method('getCurrentTime')->willReturn(new \DateTimeImmutable('12:00'));
 
         $match = $rule->match($ruleScope);
@@ -35,7 +35,7 @@ class TimeRangeRuleTest extends TestCase
 
         $rule->assign(['fromTime' => '00:00', 'toTime' => '12:00', 'timezone' => 'Europe/Berlin']);
 
-        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope = static::createStub(RuleScope::class);
         $ruleScope->method('getCurrentTime')->willReturn(new \DateTimeImmutable('12:00', new \DateTimeZone('Europe/Berlin')));
 
         $match = $rule->match($ruleScope);
@@ -49,7 +49,7 @@ class TimeRangeRuleTest extends TestCase
 
         $rule->assign(['fromTime' => '00:00', 'toTime' => '12:00']);
 
-        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope = static::createStub(RuleScope::class);
         $ruleScope->method('getCurrentTime')->willReturn(new \DateTimeImmutable('12:01'));
 
         $match = $rule->match($ruleScope);
@@ -63,7 +63,7 @@ class TimeRangeRuleTest extends TestCase
 
         $rule->assign(['fromTime' => '00:00', 'toTime' => '12:00', 'timezone' => 'Europe/Berlin']);
 
-        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope = static::createStub(RuleScope::class);
         $ruleScope->method('getCurrentTime')->willReturn(new \DateTimeImmutable('12:01', new \DateTimeZone('Europe/Berlin')));
 
         $match = $rule->match($ruleScope);
@@ -83,7 +83,7 @@ class TimeRangeRuleTest extends TestCase
 
         $rule->assign(['fromTime' => '00:00', 'toTime' => $toTime, 'timezone' => 'Europe/Berlin']);
 
-        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope = static::createStub(RuleScope::class);
         $ruleScope->method('getCurrentTime')->willReturn($now);
 
         static::assertTrue($rule->match($ruleScope));
@@ -100,7 +100,7 @@ class TimeRangeRuleTest extends TestCase
 
         $rule->assign(['fromTime' => '00:00', 'toTime' => $toTime, 'timezone' => 'Europe/Berlin']);
 
-        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope = static::createStub(RuleScope::class);
         $ruleScope->method('getCurrentTime')->willReturn($now);
 
         static::assertFalse($rule->match($ruleScope));
@@ -112,7 +112,7 @@ class TimeRangeRuleTest extends TestCase
 
         $rule->assign(['fromTime' => '23:00', 'toTime' => '22:00']);
 
-        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope = static::createStub(RuleScope::class);
         $ruleScope->method('getCurrentTime')->willReturn(new \DateTimeImmutable('23:00'));
 
         $match = $rule->match($ruleScope);
@@ -126,7 +126,7 @@ class TimeRangeRuleTest extends TestCase
 
         $rule->assign(['fromTime' => '23:00', 'toTime' => '22:00']);
 
-        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope = static::createStub(RuleScope::class);
         $ruleScope->method('getCurrentTime')->willReturn(new \DateTimeImmutable('22:59'));
 
         $match = $rule->match($ruleScope);
@@ -140,7 +140,7 @@ class TimeRangeRuleTest extends TestCase
 
         $rule->assign(['fromTime' => '23:00', 'toTime' => '22:00']);
 
-        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope = static::createStub(RuleScope::class);
         $ruleScope->method('getCurrentTime')->willReturn(new \DateTimeImmutable('02:46'));
 
         $match = $rule->match($ruleScope);

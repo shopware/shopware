@@ -57,7 +57,7 @@ class OrderTrackingCodeRuleTest extends TestCase
         $match = $rule->match(new FlowRuleScope(
             $order,
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
         static::assertSame($expected, $match);
     }
@@ -109,7 +109,7 @@ class OrderTrackingCodeRuleTest extends TestCase
         $scope = new FlowRuleScope(
             new OrderEntity(),
             new Cart('test'),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $this->rule->assign(['isSet' => true]);
@@ -118,7 +118,7 @@ class OrderTrackingCodeRuleTest extends TestCase
 
     public function testNotExpectedRuleScope(): void
     {
-        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope = static::createStub(RuleScope::class);
 
         $this->rule->assign(['isSet' => true]);
         static::assertFalse($this->rule->match($ruleScope));

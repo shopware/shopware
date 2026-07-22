@@ -36,8 +36,8 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[CoversClass(TaxAdjustment::class)]
 #[Package('checkout')]
+#[CoversClass(TaxAdjustment::class)]
 class TaxAdjustmentTest extends TestCase
 {
     private IdsCollection $ids;
@@ -87,7 +87,7 @@ class TaxAdjustmentTest extends TestCase
 
         $cart->get($this->ids->get('line-item-1'))->setPrice(null);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context
             ->method('getTotalRounding')
             ->willReturn(new CashRoundingConfig(2, 0.01, true));
@@ -122,7 +122,7 @@ class TaxAdjustmentTest extends TestCase
 
         $cart = $this->createCart();
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context
             ->method('getTaxState')
             ->willReturn(CartPrice::TAX_STATE_NET);
@@ -177,7 +177,7 @@ class TaxAdjustmentTest extends TestCase
 
         $cart = $this->createCart();
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context
             ->method('getTaxState')
             ->willReturn(CartPrice::TAX_STATE_GROSS);
@@ -239,7 +239,7 @@ class TaxAdjustmentTest extends TestCase
 
         $cart = $this->createCart();
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context
             ->method('getTaxState')
             ->willReturn(CartPrice::TAX_STATE_NET);
@@ -303,7 +303,7 @@ class TaxAdjustmentTest extends TestCase
 
         $cart = $this->createCart();
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context
             ->method('getTaxState')
             ->willReturn(CartPrice::TAX_STATE_GROSS);
@@ -370,7 +370,7 @@ class TaxAdjustmentTest extends TestCase
             ]
         );
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context
             ->method('getTaxState')
             ->willReturn(CartPrice::TAX_STATE_NET);
@@ -482,7 +482,7 @@ class TaxAdjustmentTest extends TestCase
             ]
         );
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context
             ->method('getTaxState')
             ->willReturn(CartPrice::TAX_STATE_NET);
@@ -604,7 +604,7 @@ class TaxAdjustmentTest extends TestCase
             new TaxCalculator()
         );
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context
             ->method('getTotalRounding')
             ->willReturn(new CashRoundingConfig(2, 0.01, true));

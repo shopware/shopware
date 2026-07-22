@@ -68,7 +68,7 @@ class ThemeCreateCommandTest extends TestCase
 
     public function testCommandFailsWhenDirectoryCannotBeCreated(): void
     {
-        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem = static::createStub(Filesystem::class);
         $filesystem->method('mkdir')->willThrowException(new IOException('Permission denied'));
 
         $commandTester = $this->getCommandTester($filesystem);

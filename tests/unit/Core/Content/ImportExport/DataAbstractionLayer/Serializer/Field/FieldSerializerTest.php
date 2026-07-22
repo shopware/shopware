@@ -76,7 +76,7 @@ class FieldSerializerTest extends TestCase
 
         $field = new OneToManyAssociationField('deliveries', OrderDeliveryDefinition::class, 'order_id');
 
-        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
 
         $orderDeliveryDefinition = new OrderDeliveryDefinition();
         $orderDeliveryDefinition->compile($definitionRegistry);
@@ -107,7 +107,7 @@ class FieldSerializerTest extends TestCase
 
         $field = new OneToManyAssociationField('deliveries', OrderDeliveryDefinition::class, 'order_id');
 
-        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
 
         $orderDeliveryDefinition = new OrderDeliveryDefinition();
         $orderDeliveryDefinition->compile($definitionRegistry);
@@ -131,7 +131,7 @@ class FieldSerializerTest extends TestCase
 
         $field = new OneToManyAssociationField('transactions', OrderTransactionDefinition::class, 'order_id');
 
-        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
 
         $orderTransactionDefinition = new OrderTransactionDefinition();
         $orderTransactionDefinition->compile($definitionRegistry);
@@ -163,7 +163,7 @@ class FieldSerializerTest extends TestCase
 
         $field = new OneToManyAssociationField('transactions', OrderTransactionDefinition::class, 'order_id');
 
-        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
 
         $orderTransactionDefinition = new OrderTransactionDefinition();
         $orderTransactionDefinition->compile($definitionRegistry);
@@ -187,7 +187,7 @@ class FieldSerializerTest extends TestCase
 
         $field = new OneToManyAssociationField('documents', DocumentDefinition::class, 'order_id');
 
-        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
 
         $orderDeliveryDefinition = new OrderDeliveryDefinition();
         $orderDeliveryDefinition->compile($definitionRegistry);

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ShopApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\Event\PermissionsGrantedEvent;
 use Shopware\Core\Service\Event\PermissionsRevokedEvent;
@@ -22,6 +23,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PermissionsService::class)]
 class PermissionsServiceTest extends TestCase
 {
@@ -96,6 +98,10 @@ class PermissionsServiceTest extends TestCase
             ->expects($this->never())
             ->method('dispatch');
 
+        $this->remoteConsentLogger
+            ->expects($this->never())
+            ->method('log');
+
         $this->expectExceptionObject(ServiceException::invalidPermissionsRevisionFormat($invalidRevision));
 
         $this->permissionsService->grant($invalidRevision, $this->context);
@@ -112,6 +118,10 @@ class PermissionsServiceTest extends TestCase
         $this->eventDispatcher
             ->expects($this->never())
             ->method('dispatch');
+
+        $this->remoteConsentLogger
+            ->expects($this->never())
+            ->method('log');
 
         $this->expectExceptionObject(ServiceException::invalidPermissionsRevisionFormat($invalidRevision));
 
@@ -165,6 +175,10 @@ class PermissionsServiceTest extends TestCase
             ->expects($this->never())
             ->method('dispatch');
 
+        $this->remoteConsentLogger
+            ->expects($this->never())
+            ->method('log');
+
         $this->expectExceptionObject(ServiceException::invalidPermissionsContext());
 
         $this->permissionsService->grant('2025-06-13', $context);
@@ -182,6 +196,10 @@ class PermissionsServiceTest extends TestCase
         $this->eventDispatcher
             ->expects($this->never())
             ->method('dispatch');
+
+        $this->remoteConsentLogger
+            ->expects($this->never())
+            ->method('log');
 
         $this->expectExceptionObject(ServiceException::invalidPermissionsContext());
 
@@ -201,6 +219,10 @@ class PermissionsServiceTest extends TestCase
             ->expects($this->never())
             ->method('dispatch');
 
+        $this->remoteConsentLogger
+            ->expects($this->never())
+            ->method('log');
+
         $this->expectExceptionObject(ServiceException::invalidPermissionsContext());
         $this->permissionsService->grant('2025-06-13', $context);
     }
@@ -216,6 +238,11 @@ class PermissionsServiceTest extends TestCase
         $this->eventDispatcher
             ->expects($this->never())
             ->method('dispatch');
+
+        $this->remoteConsentLogger
+            ->expects($this->never())
+            ->method('log');
+
         $this->expectExceptionObject(ServiceException::invalidPermissionsRevisionFormat($revision));
         $this->permissionsService->grant($revision, $this->context);
     }
@@ -296,6 +323,14 @@ class PermissionsServiceTest extends TestCase
             ->with('core.services.permissionsConsent')
             ->willReturn($validConsentJson);
 
+        $this->eventDispatcher
+            ->expects($this->never())
+            ->method('dispatch');
+
+        $this->remoteConsentLogger
+            ->expects($this->never())
+            ->method('log');
+
         $result = $this->permissionsService->areGranted();
 
         static::assertTrue($result);
@@ -308,6 +343,14 @@ class PermissionsServiceTest extends TestCase
             ->method('getString')
             ->with('core.services.permissionsConsent')
             ->willReturn('');
+
+        $this->eventDispatcher
+            ->expects($this->never())
+            ->method('dispatch');
+
+        $this->remoteConsentLogger
+            ->expects($this->never())
+            ->method('log');
 
         $result = $this->permissionsService->areGranted();
 
@@ -323,6 +366,14 @@ class PermissionsServiceTest extends TestCase
             ->method('getString')
             ->with('core.services.permissionsConsent')
             ->willReturn($invalidConsentJson);
+
+        $this->eventDispatcher
+            ->expects($this->never())
+            ->method('dispatch');
+
+        $this->remoteConsentLogger
+            ->expects($this->never())
+            ->method('log');
 
         $result = $this->permissionsService->areGranted();
 
@@ -341,6 +392,14 @@ class PermissionsServiceTest extends TestCase
             ->method('getString')
             ->with('core.services.permissionsConsent')
             ->willReturn($malformedConsentJson);
+
+        $this->eventDispatcher
+            ->expects($this->never())
+            ->method('dispatch');
+
+        $this->remoteConsentLogger
+            ->expects($this->never())
+            ->method('log');
 
         $result = $this->permissionsService->areGranted();
 

@@ -26,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
@@ -41,6 +42,7 @@ use Symfony\Component\Validator\Validation;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PriceDefinitionFieldSerializer::class)]
 class PriceDefinitionFieldSerializerTest extends TestCase
 {
@@ -48,7 +50,7 @@ class PriceDefinitionFieldSerializerTest extends TestCase
 
     protected function setUp(): void
     {
-        $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $this->fieldSerializer = new PriceDefinitionFieldSerializer(
             $definitionInstanceRegistry,
             Validation::createValidator(),
@@ -76,7 +78,7 @@ class PriceDefinitionFieldSerializerTest extends TestCase
             new PriceDefinitionField('test', 'test'),
             new EntityExistence('', [], false, false, false, []),
             new KeyValuePair('test', $definition, true),
-            new WriteParameterBag($this->createMock(CurrencyDefinition::class), $writeContext, '', new WriteCommandQueue())
+            new WriteParameterBag(static::createStub(CurrencyDefinition::class), $writeContext, '', new WriteCommandQueue())
         ));
     }
 
@@ -92,7 +94,7 @@ class PriceDefinitionFieldSerializerTest extends TestCase
             new PriceDefinitionField('test', 'test'),
             new EntityExistence('', [], false, false, false, []),
             new KeyValuePair('test', $definition, true),
-            new WriteParameterBag($this->createMock(CurrencyDefinition::class), $writeContext, '', new WriteCommandQueue())
+            new WriteParameterBag(static::createStub(CurrencyDefinition::class), $writeContext, '', new WriteCommandQueue())
         ));
 
         static::assertArrayHasKey('test', $encoded);
@@ -271,7 +273,7 @@ class PriceDefinitionFieldSerializerTest extends TestCase
             new PriceDefinitionField('test', 'test'),
             new EntityExistence('', [], false, false, false, []),
             new KeyValuePair('test', $definition, true),
-            new WriteParameterBag($this->createMock(CurrencyDefinition::class), WriteContext::createFromContext(Context::createDefaultContext()), '', new WriteCommandQueue())
+            new WriteParameterBag(static::createStub(CurrencyDefinition::class), WriteContext::createFromContext(Context::createDefaultContext()), '', new WriteCommandQueue())
         ));
 
         static::assertArrayHasKey('test', $encoded);
@@ -343,7 +345,7 @@ class PriceDefinitionFieldSerializerTest extends TestCase
             new PriceDefinitionField('test', 'test'),
             new EntityExistence('', [], false, false, false, []),
             new KeyValuePair('test', $definition, true),
-            new WriteParameterBag($this->createMock(CurrencyDefinition::class), $writeContext, '', new WriteCommandQueue())
+            new WriteParameterBag(static::createStub(CurrencyDefinition::class), $writeContext, '', new WriteCommandQueue())
         ));
 
         static::assertArrayHasKey('test', $encoded);

@@ -4,7 +4,7 @@ namespace Shopware\Core\System\Snippet\Command;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataEntry;
-use Shopware\Core\System\Snippet\Service\TranslationMetadataLoader;
+use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
 use Shopware\Core\System\Snippet\SnippetPatterns;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -18,23 +18,23 @@ use Symfony\Component\Intl\Locales;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[AsCommand(
     name: 'translation:list',
     description: 'Lists all locales that are configured for translation:install / translation:update.',
 )]
-#[Package('discovery')]
 class ListTranslationsCommand extends Command
 {
     public function __construct(
         private readonly TranslationConfig $config,
-        private readonly TranslationMetadataLoader $metadataLoader,
+        private readonly TranslationMetadataStore $metadataStore,
     ) {
         parent::__construct();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $installed = $this->metadataLoader->getLocalMetadata();
+        $installed = $this->metadataStore->getLocalMetadata();
 
         $rows = [];
         foreach ($this->config->languages as $language) {

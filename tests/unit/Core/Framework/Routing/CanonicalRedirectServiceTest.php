@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\CanonicalRedirectService;
 use Shopware\Core\Framework\Routing\Extension\CanonicalRedirectExtension;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CanonicalRedirectService::class)]
 class CanonicalRedirectServiceTest extends TestCase
 {
@@ -70,6 +72,70 @@ class CanonicalRedirectServiceTest extends TestCase
 
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('/lorem/ipsum/dolor-sit/amet?foo=bar', $response->getTargetUrl());
+    }
+
+    public function testGetRedirectWithQueryParametersAlreadyInCanonicalUrl(): void
+    {
+        $request = self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => '/lorem/ipsum/dolor-sit/amet?foo=bar']);
+        $request->server->set('QUERY_STRING', 'foo=bar');
+
+        $canonicalRedirectService = new CanonicalRedirectService(
+            $this->getSystemConfigService(true),
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $response = $canonicalRedirectService->getRedirect($request);
+
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('/lorem/ipsum/dolor-sit/amet?foo=bar', $response->getTargetUrl());
+    }
+
+    public function testGetRedirectWithDifferentQueryParametersInCanonicalUrl(): void
+    {
+        $request = self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => '/lorem/ipsum/dolor-sit/amet?foo=bar']);
+        $request->server->set('QUERY_STRING', 'baz=qux');
+
+        $canonicalRedirectService = new CanonicalRedirectService(
+            $this->getSystemConfigService(true),
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $response = $canonicalRedirectService->getRedirect($request);
+
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('/lorem/ipsum/dolor-sit/amet?foo=bar', $response->getTargetUrl());
+    }
+
+    public function testCanonicalWithExistingQueryStringPreservesStoredQuery(): void
+    {
+        $request = self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => '/awesome-product?lang=en']);
+        $request->server->set('QUERY_STRING', 'test=123');
+
+        $canonicalRedirectService = new CanonicalRedirectService(
+            $this->getSystemConfigService(true),
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $response = $canonicalRedirectService->getRedirect($request);
+
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('/awesome-product?lang=en', $response->getTargetUrl());
+    }
+
+    public function testCanonicalWithoutQueryStringAppendsRequestQuery(): void
+    {
+        $request = self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => '/awesome-product']);
+        $request->server->set('QUERY_STRING', 'test=123');
+
+        $canonicalRedirectService = new CanonicalRedirectService(
+            $this->getSystemConfigService(true),
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $response = $canonicalRedirectService->getRedirect($request);
+
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('/awesome-product?test=123', $response->getTargetUrl());
     }
 
     public function testExtensionIsDispatched(): void

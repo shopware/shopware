@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Loads the customer group registration page
  */
-#[Package('framework')]
+#[Package('discovery')]
 abstract class AbstractCustomerGroupRegistrationPageLoader
 {
     abstract public function getDecorated(): AbstractCustomerGroupRegistrationPageLoader;

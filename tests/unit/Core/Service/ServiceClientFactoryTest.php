@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Service;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Uri;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
@@ -14,6 +14,7 @@ use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\ServiceClientFactory;
 use Shopware\Core\Service\ServiceException;
@@ -24,63 +25,63 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ServiceClientFactory::class)]
 class ServiceClientFactoryTest extends TestCase
 {
-    private HttpClientInterface&MockObject $httpClient;
+    private AuthMiddleware&Stub $authMiddleware;
 
-    private HttpClientInterface&MockObject $scopedClient;
-
-    private AuthMiddleware&MockObject $authMiddleware;
-
-    private AppPayloadServiceHelper&MockObject $appPayloadServiceHelper;
+    private AppPayloadServiceHelper&Stub $appPayloadServiceHelper;
 
     protected function setUp(): void
     {
-        $this->scopedClient = $this->createMock(HttpClientInterface::class);
-        $this->httpClient = $this->createMock(HttpClientInterface::class);
-
-        $this->authMiddleware = $this->createMock(AuthMiddleware::class);
-        $this->appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
+        $this->authMiddleware = static::createStub(AuthMiddleware::class);
+        $this->appPayloadServiceHelper = static::createStub(AppPayloadServiceHelper::class);
     }
 
     public function testNewForServiceRegistryEntry(): void
     {
-        $this->httpClient
+        $scopedClient = $this->createMock(HttpClientInterface::class);
+        $scopedClient->expects($this->never())->method('request');
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient
             ->expects($this->once())
             ->method('withOptions')
             ->with([
                 'base_uri' => 'https://mycoolservice.com',
             ])
-            ->willReturn($this->scopedClient);
+            ->willReturn($scopedClient);
 
-        $serviceClientRegistry = static::createMock(ServiceRegistryClient::class);
+        $serviceClientRegistry = static::createStub(ServiceRegistryClient::class);
 
-        $clientFactory = new ServiceClientFactory($this->httpClient, $serviceClientRegistry, '6.6.0.0', $this->authMiddleware, $this->appPayloadServiceHelper);
+        $clientFactory = new ServiceClientFactory($httpClient, $serviceClientRegistry, '6.6.0.0', $this->authMiddleware, $this->appPayloadServiceHelper);
         $client = $clientFactory->newFor(new ServiceEntry('MyCoolService', 'My Cool Service', 'https://mycoolservice.com', '/app-endpoint'));
 
-        static::assertSame($this->scopedClient, $client->client);
+        static::assertSame($scopedClient, $client->client);
     }
 
     public function testFromNameProxiesToServiceRegistryClient(): void
     {
-        $this->httpClient
+        $scopedClient = $this->createMock(HttpClientInterface::class);
+        $scopedClient->expects($this->never())->method('request');
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient
             ->expects($this->once())
             ->method('withOptions')
             ->with([
                 'base_uri' => 'https://mycoolservice.com',
             ])
-            ->willReturn($this->scopedClient);
+            ->willReturn($scopedClient);
         $serviceClientRegistry = static::createMock(ServiceRegistryClient::class);
         $serviceClientRegistry->expects($this->once())
             ->method('get')
             ->with('MyCoolService')
             ->willReturn(new ServiceEntry('MyCoolService', 'My Cool Service', 'https://mycoolservice.com', '/app-endpoint'));
 
-        $clientFactory = new ServiceClientFactory($this->httpClient, $serviceClientRegistry, '6.6.0.0', $this->authMiddleware, $this->appPayloadServiceHelper);
+        $clientFactory = new ServiceClientFactory($httpClient, $serviceClientRegistry, '6.6.0.0', $this->authMiddleware, $this->appPayloadServiceHelper);
         $client = $clientFactory->fromName('MyCoolService');
 
-        static::assertSame($this->scopedClient, $client->client);
+        static::assertSame($scopedClient, $client->client);
     }
 
     public function testCreateAuthenticatedClient(): void
@@ -94,8 +95,8 @@ class ServiceClientFactoryTest extends TestCase
         $app->setName('TestApp');
         $context = Context::createDefaultContext();
 
-        $serviceClientRegistry = static::createMock(ServiceRegistryClient::class);
-        $clientFactory = new ServiceClientFactory($this->httpClient, $serviceClientRegistry, '6.6.0.0', $this->authMiddleware, $this->appPayloadServiceHelper);
+        $serviceClientRegistry = static::createStub(ServiceRegistryClient::class);
+        $clientFactory = new ServiceClientFactory(static::createStub(HttpClientInterface::class), $serviceClientRegistry, '6.6.0.0', $this->authMiddleware, $this->appPayloadServiceHelper);
         $serviceAuthedClient = $clientFactory->newAuthenticatedFor($entry, $app, $context);
         $config = $this->getConfigFromClient($serviceAuthedClient->client);
 
@@ -124,8 +125,8 @@ class ServiceClientFactoryTest extends TestCase
         $context = Context::createDefaultContext();
 
         $this->expectException(ServiceException::class);
-        $serviceClientRegistry = static::createMock(ServiceRegistryClient::class);
-        $clientFactory = new ServiceClientFactory($this->httpClient, $serviceClientRegistry, '6.6.0.0', $this->authMiddleware, $this->appPayloadServiceHelper);
+        $serviceClientRegistry = static::createStub(ServiceRegistryClient::class);
+        $clientFactory = new ServiceClientFactory(static::createStub(HttpClientInterface::class), $serviceClientRegistry, '6.6.0.0', $this->authMiddleware, $this->appPayloadServiceHelper);
         $clientFactory->newAuthenticatedFor($entry, $app, $context);
     }
 
@@ -145,8 +146,8 @@ class ServiceClientFactoryTest extends TestCase
             ->willThrowException(new ShopIdChangeSuggestedException(ShopId::v2('shopid'), new FingerprintComparisonResult([], [], 75)));
 
         $this->expectException(ShopIdChangeSuggestedException::class);
-        $serviceClientRegistry = static::createMock(ServiceRegistryClient::class);
-        $clientFactory = new ServiceClientFactory($this->httpClient, $serviceClientRegistry, '6.6.0.0', $this->authMiddleware, $this->appPayloadServiceHelper);
+        $serviceClientRegistry = static::createStub(ServiceRegistryClient::class);
+        $clientFactory = new ServiceClientFactory(static::createStub(HttpClientInterface::class), $serviceClientRegistry, '6.6.0.0', $this->authMiddleware, $this->appPayloadServiceHelper);
         $clientFactory->newAuthenticatedFor($entry, $app, $context);
     }
 

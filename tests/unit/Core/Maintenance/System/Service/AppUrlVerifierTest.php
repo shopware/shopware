@@ -7,15 +7,17 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppUrlVerifier::class)]
 class AppUrlVerifierTest extends TestCase
 {
@@ -23,13 +25,13 @@ class AppUrlVerifierTest extends TestCase
 
     private Client $client;
 
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
     protected function setUp(): void
     {
         $this->mockHandler = new MockHandler();
         $this->client = new Client(['handler' => $this->mockHandler]);
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
     }
 
     public function testAppUrlReachableReturnsTrueIfAppEnvIsNotProd(): void
@@ -136,22 +138,24 @@ class AppUrlVerifierTest extends TestCase
 
     public function testAppsThatNeedAppUrlReturnFalseWithoutAppsThatRequireRegistration(): void
     {
-        $this->connection->expects($this->once())
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
             ->method('fetchOne')
             ->willReturn('0');
 
-        $verifier = new AppUrlVerifier($this->client, $this->connection, 'prod', false);
+        $verifier = new AppUrlVerifier($this->client, $connection, 'prod', false);
 
         static::assertFalse($verifier->hasAppsThatNeedAppUrl());
     }
 
     public function testAppsThatNeedAppUrlReturnTrueWithAppsThatRequireRegistration(): void
     {
-        $this->connection->expects($this->once())
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
             ->method('fetchOne')
             ->willReturn('1');
 
-        $verifier = new AppUrlVerifier($this->client, $this->connection, 'prod', false);
+        $verifier = new AppUrlVerifier($this->client, $connection, 'prod', false);
 
         static::assertTrue($verifier->hasAppsThatNeedAppUrl());
     }

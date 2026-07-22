@@ -27,13 +27,13 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
-#[CoversClass(Executor::class)]
 #[Package('framework')]
+#[CoversClass(Executor::class)]
 class ExecutorTest extends TestCase
 {
     public function testConnectionProblemsGotConverted(): void
     {
-        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack = static::createStub(RequestStack::class);
         $requestStack
             ->method('getCurrentRequest')
             ->willReturn(new SfRequest());
@@ -46,12 +46,12 @@ class ExecutorTest extends TestCase
 
         $executor = new Executor(
             $guzzleClient,
-            $this->createMock(LoggerInterface::class),
-            $this->createMock(ActionButtonResponseFactory::class),
-            $this->createMock(ShopIdProvider::class),
-            $this->createMock(RouterInterface::class),
+            static::createStub(LoggerInterface::class),
+            static::createStub(ActionButtonResponseFactory::class),
+            static::createStub(ShopIdProvider::class),
+            static::createStub(RouterInterface::class),
             $requestStack,
-            $this->createMock(KernelInterface::class),
+            static::createStub(KernelInterface::class),
             new NativeClock()
         );
 

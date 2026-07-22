@@ -8,11 +8,13 @@ use Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent;
 use Shopware\Core\Content\Seo\SeoException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(SeoUrlUpdateEvent::class)]
 class SeoUrlUpdateEventTest extends TestCase
 {

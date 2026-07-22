@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\Validation;
@@ -28,6 +29,7 @@ use Symfony\Component\Validator\Validation;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(JsonFieldSerializer::class)]
 class JsonFieldSerializerTest extends TestCase
 {
@@ -37,7 +39,7 @@ class JsonFieldSerializerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $this->definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $validator = Validation::createValidator();
         $this->serializer = new JsonFieldSerializer($validator, $this->definitionRegistry);
         $dateSerializer = new DateFieldSerializer($validator, $this->definitionRegistry);

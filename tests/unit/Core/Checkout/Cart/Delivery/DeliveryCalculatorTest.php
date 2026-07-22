@@ -40,8 +40,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(DeliveryCalculator::class)]
 #[Package('checkout')]
+#[CoversClass(DeliveryCalculator::class)]
 class DeliveryCalculatorTest extends TestCase
 {
     private DeliveryTime $deliveryTime;

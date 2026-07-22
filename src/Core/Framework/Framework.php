@@ -77,10 +77,10 @@ class Framework extends Bundle
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
 
+        $phpLoader->load('acl.php');
+        $phpLoader->load('api.php');
         $phpLoader->load('services.php');
-        $loader->load('acl.xml');
         $phpLoader->load('cache.php');
-        $loader->load('api.xml');
         $phpLoader->load('app.php');
         $phpLoader->load('custom-field.php');
         $phpLoader->load('data-abstraction-layer.php');
@@ -91,13 +91,14 @@ class Framework extends Bundle
         $phpLoader->load('message-queue.php');
         $phpLoader->load('plugin.php');
         $loader->load('rule.xml');
+        $phpLoader->load('store.php');
         $phpLoader->load('scheduled-task.php');
-        $loader->load('store.xml');
         $phpLoader->load('script.php');
         $loader->load('language.xml');
+        $phpLoader->load('validation.php');
         $phpLoader->load('update.php');
-        $loader->load('validation.xml');
         $loader->load('seo.xml');
+        $phpLoader->load('rate-limiter.php');
         $phpLoader->load('webhook.php');
         $loader->load('rate-limiter.xml');
         $phpLoader->load('increment.php');
@@ -105,14 +106,14 @@ class Framework extends Bundle
         $phpLoader->load('health.php');
         $phpLoader->load('telemetry.php');
         $phpLoader->load('notification.php');
-        $loader->load('sso.xml');
+        $phpLoader->load('sso.php');
 
         // @codeCoverageIgnoreStart
         $phpLoader->load('mcp.php');
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $phpLoader->load('services_test.php');
-            $loader->load('store_test.xml');
+            $phpLoader->load('store_test.php');
             $loader->load('seo_test.xml');
             $phpLoader->load('app_test.php');
         }

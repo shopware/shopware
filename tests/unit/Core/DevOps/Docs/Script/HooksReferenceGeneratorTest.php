@@ -12,6 +12,7 @@ use Shopware\Core\DevOps\Docs\DocsException;
 use Shopware\Core\DevOps\Docs\Script\HooksReferenceGenerator;
 use Shopware\Core\DevOps\Docs\Script\ScriptReferenceDataCollector;
 use Shopware\Core\DevOps\Docs\Script\ServiceReferenceGenerator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Twig\Environment;
@@ -20,6 +21,7 @@ use Twig\Loader\LoaderInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(HooksReferenceGenerator::class)]
 class HooksReferenceGeneratorTest extends TestCase
 {

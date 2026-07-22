@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Flow\Action\Xml;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Flow\Action\Xml\InputField;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(InputField::class)]
 class InputFieldTest extends TestCase
 {

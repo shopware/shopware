@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\Url\AppUrlVerificationPrinter;
 use Shopware\Core\Framework\App\Url\VerificationState;
 use Shopware\Core\Framework\App\Url\VerificationStatus;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -17,6 +18,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppUrlVerificationPrinter::class)]
 class AppUrlVerificationPrinterTest extends TestCase
 {

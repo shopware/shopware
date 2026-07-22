@@ -10,6 +10,7 @@ use Shopware\Administration\Snippet\AppAdministrationSnippetCollection;
 use Shopware\Administration\Snippet\AppAdministrationSnippetEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\System\Service\SystemLanguageChangeEvent;
 use Shopware\Core\System\Locale\LocaleCollection;
@@ -20,6 +21,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SystemLanguageChangedSubscriber::class)]
 class SystemLanguageChangedSubscriberTest extends TestCase
 {

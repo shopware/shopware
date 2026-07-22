@@ -13,6 +13,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslatio
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationEntity;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
@@ -20,6 +21,7 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[Group('store-api')]
 #[CoversClass(EntityCmsSlotConfigInheritanceBuilder::class)]
 class EntityCmsSlotConfigInheritanceBuilderTest extends TestCase

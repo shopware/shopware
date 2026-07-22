@@ -63,14 +63,10 @@ class RuleValidator implements EventSubscriberInterface
     public function preValidate(PreWriteValidationEvent $event): void
     {
         $writeException = $event->getExceptions();
-        $commands = $event->getCommands();
+        $commands = $event->getCommandsForEntity(RuleConditionDefinition::ENTITY_NAME);
         $updateQueue = [];
 
         foreach ($commands as $command) {
-            if ($command->getEntityName() !== RuleConditionDefinition::ENTITY_NAME) {
-                continue;
-            }
-
             if ($command instanceof DeleteCommand) {
                 continue;
             }

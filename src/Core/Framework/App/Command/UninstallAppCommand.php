@@ -15,11 +15,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal only for use by the app-system
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'app:uninstall',
     description: 'Uninstalls an app',
 )]
-#[Package('framework')]
 class UninstallAppCommand extends Command
 {
     public function __construct(

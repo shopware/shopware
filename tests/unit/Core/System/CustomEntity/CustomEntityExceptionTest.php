@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\System\CustomEntity;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\CustomEntityException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CustomEntityException::class)]
 class CustomEntityExceptionTest extends TestCase
 {

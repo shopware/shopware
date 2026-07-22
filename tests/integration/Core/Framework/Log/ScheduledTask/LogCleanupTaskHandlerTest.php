@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\LogEntryCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Log\ScheduledTask\LogCleanupTask;
 use Shopware\Core\Framework\Log\ScheduledTask\LogCleanupTaskHandler;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
@@ -22,6 +23,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @internal
  */
+#[Package('framework')]
 class LogCleanupTaskHandlerTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

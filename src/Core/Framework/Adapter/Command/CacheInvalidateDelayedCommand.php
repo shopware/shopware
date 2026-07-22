@@ -11,8 +11,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(name: 'cache:clear:delayed', description: 'Invalidates the delayed cache keys/tags')]
 #[Package('framework')]
+#[AsCommand(name: 'cache:clear:delayed', description: 'Invalidates the delayed cache keys/tags')]
 class CacheInvalidateDelayedCommand extends Command
 {
     /**

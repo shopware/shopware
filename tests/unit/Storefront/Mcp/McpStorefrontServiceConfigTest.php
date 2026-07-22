@@ -23,8 +23,8 @@ use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
  *
  * @internal
  */
-#[CoversNothing]
 #[Package('framework')]
+#[CoversNothing]
 class McpStorefrontServiceConfigTest extends TestCase
 {
     private ContainerBuilder $container;

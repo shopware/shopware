@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFa
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\SumResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -30,6 +31,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('framework')]
 class SalesChannelRepositoryFacadeTest extends TestCase
 {
     use AppSystemTestBehaviour;

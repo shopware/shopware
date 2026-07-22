@@ -50,8 +50,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[CoversClass(MailDataSimulator::class)]
 #[Package('after-sales')]
+#[CoversClass(MailDataSimulator::class)]
 class MailDataSimulatorTest extends TestCase
 {
     public function testGenerateFieldDataUsesEmailFieldSimulationForStringSubclass(): void

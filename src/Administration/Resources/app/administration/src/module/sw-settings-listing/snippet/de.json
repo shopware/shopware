@@ -35,7 +35,7 @@
               "available": "Verfügbar"
             },
             "customField": "Zusatzfeld",
-            "_score": "_score"
+            "_score": "Wertung"
           }
         }
       }
@@ -59,6 +59,10 @@
             "name": "Name",
             "criteria": "Kriterien",
             "priority": "Priorität"
+          },
+          "deleteTooltip": {
+            "locked": "Diese Sortier-Option ist gesperrt und kann deshalb nicht gelöscht werden.",
+            "default": "Diese Sortier-Option ist die Standard-Sortierung und kann deshalb nicht gelöscht werden."
           }
         }
       },
@@ -72,6 +76,7 @@
     },
     "base": {
       "smartBarTitle": "Produkt-Sortierung bearbeiten",
+      "lockedInfo": "Diese Sortier-Option ist gesperrt und deshalb können nur Übersetzungsfelder bearbeitet werden.",
       "general": {
         "title": "Allgemein",
         "labelName": "Name",

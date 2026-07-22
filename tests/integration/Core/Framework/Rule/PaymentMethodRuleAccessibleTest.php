@@ -107,7 +107,7 @@ class PaymentMethodRuleAccessibleTest extends TestCase
         $criteria = new Criteria([$rule[0]['id']]);
         $searchResult = $this->ruleRepository->search($criteria, $defaultContext);
 
-        static::assertCount(0, $searchResult);
+        static::assertCount(0, $searchResult->getEntities());
     }
 
     public function testRulesCanBeAccessedFromPaymentMethod(): void

@@ -287,7 +287,7 @@ class ExtensionLifecycleServiceTest extends TestCase
         $removedApp = $this->appRepository->search(
             (new Criteria())->addFilter(new EqualsFilter('name', 'TestAppTheme')),
             $this->context
-        )->first();
+        )->getEntities()->first();
 
         static::assertNull($removedApp);
     }

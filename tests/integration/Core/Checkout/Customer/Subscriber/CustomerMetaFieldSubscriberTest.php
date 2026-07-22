@@ -57,7 +57,7 @@ class CustomerMetaFieldSubscriberTest extends TestCase
         $this->transitionOrder($orderId, StateMachineTransitionActions::ACTION_PROCESS);
         $this->transitionOrder($orderId, StateMachineTransitionActions::ACTION_COMPLETE);
 
-        $customer = $this->customerRepository->search(new Criteria([$customerId]), $this->context)->first();
+        $customer = $this->customerRepository->search(new Criteria([$customerId]), $this->context)->getEntities()->first();
         static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertSame(1, $customer->getOrderCount());
         static::assertSame(10, (int) $customer->getOrderTotalAmount());
@@ -65,7 +65,7 @@ class CustomerMetaFieldSubscriberTest extends TestCase
 
         $this->transitionOrder($orderId, StateMachineTransitionActions::ACTION_REOPEN);
 
-        $customer = $this->customerRepository->search(new Criteria([$customerId]), $this->context)->first();
+        $customer = $this->customerRepository->search(new Criteria([$customerId]), $this->context)->getEntities()->first();
         static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertSame(0, $customer->getOrderCount());
         static::assertSame(0, (int) $customer->getOrderTotalAmount());
@@ -78,7 +78,7 @@ class CustomerMetaFieldSubscriberTest extends TestCase
         $this->transitionOrder($orderId, StateMachineTransitionActions::ACTION_PROCESS);
         $this->transitionOrder($orderId, StateMachineTransitionActions::ACTION_COMPLETE);
 
-        $customer = $this->customerRepository->search(new Criteria([$customerId]), $this->context)->first();
+        $customer = $this->customerRepository->search(new Criteria([$customerId]), $this->context)->getEntities()->first();
         static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertSame(1, $customer->getOrderCount());
         static::assertSame(10, (int) $customer->getOrderTotalAmount());
@@ -86,7 +86,7 @@ class CustomerMetaFieldSubscriberTest extends TestCase
 
         $this->orderRepository->delete([['id' => $orderId]], $this->context);
 
-        $customer = $this->customerRepository->search(new Criteria([$customerId]), $this->context)->first();
+        $customer = $this->customerRepository->search(new Criteria([$customerId]), $this->context)->getEntities()->first();
         static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertSame(0, $customer->getOrderCount());
         static::assertSame(0, (int) $customer->getOrderTotalAmount());

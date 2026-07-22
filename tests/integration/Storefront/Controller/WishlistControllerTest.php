@@ -109,9 +109,11 @@ class WishlistControllerTest extends TestCase
 
         $this->addEventListener(static::getContainer()->get('event_dispatcher'), StorefrontRenderEvent::class, static function (StorefrontRenderEvent $event) use ($productId): void {
             static::assertInstanceOf(EntitySearchResult::class, $result = $event->getParameters()['searchResult']);
-            static::assertCount(1, $result);
-            static::assertInstanceOf(Entity::class, $result->first());
-            static::assertSame($productId, $result->first()->get('id'));
+            $entities = $result->getEntities();
+            static::assertCount(1, $entities);
+            $first = $entities->first();
+            static::assertInstanceOf(Entity::class, $first);
+            static::assertSame($productId, $first->get('id'));
         });
 
         $browser->request('POST', '/wishlist/guest-pagelet', $this->tokenize('frontend.wishlist.guestPage.pagelet', ['productIds' => [$productId]]));

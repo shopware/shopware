@@ -9,6 +9,7 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
@@ -20,6 +21,7 @@ use Shopware\Storefront\Theme\ThemeCollection;
 /**
  * @internal
  */
+#[Package('discovery')]
 class DatabaseConfigLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use PHPUnit\Metadata\Api\DataProvider as DataProviderObject;
 use Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\NumberRange\NumberRangeException;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ErrorResponseFactory::class)]
 class ErrorResponseFactoryTest extends TestCase
 {

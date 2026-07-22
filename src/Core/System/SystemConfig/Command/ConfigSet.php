@@ -11,11 +11,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'system:config:set',
     description: 'Set a config value',
 )]
-#[Package('framework')]
 class ConfigSet extends Command
 {
     /**

@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Routing;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdministrationController;
 use Shopware\Core\Framework\Log\Package;
@@ -50,7 +49,6 @@ class CoreSubscriberTest extends TestCase
         static::assertTrue($response->headers->has('Strict-Transport-Security'));
     }
 
-    #[Group('slow')]
     public function testStorefrontNoCsp(): void
     {
         if (!static::getContainer()->has(ProductController::class)) {

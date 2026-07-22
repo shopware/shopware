@@ -23,9 +23,9 @@ use Shopware\Core\Framework\Mcp\Loader\AppMcpToolLoader;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppMcpToolLoader::class)]
 #[CoversClass(AbstractAppMcpLoader::class)]
-#[Package('framework')]
 class AppMcpToolLoaderTest extends TestCase
 {
     private Connection&Stub $connection;

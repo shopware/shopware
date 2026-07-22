@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(DiscountLineItem::class)]
 #[Package('checkout')]
+#[CoversClass(DiscountLineItem::class)]
 class DiscountLineItemTest extends TestCase
 {
     private DiscountLineItem $discount;

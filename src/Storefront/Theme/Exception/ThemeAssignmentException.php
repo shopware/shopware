@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.8.0 - Exception will be removed
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeAssignmentException extends ShopwareHttpException
 {
     /**

@@ -10,8 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(FlowMailVariables::class)]
 #[Package('after-sales')]
+#[CoversClass(FlowMailVariables::class)]
 class FlowMailVariablesTest extends TestCase
 {
     public function testVariablesAreStillTheSame(): void

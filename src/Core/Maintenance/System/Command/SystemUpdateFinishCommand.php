@@ -25,11 +25,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal should be used over the CLI only
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'system:update:finish',
     description: 'Finishes the update process',
 )]
-#[Package('framework')]
 class SystemUpdateFinishCommand extends Command
 {
     public function __construct(

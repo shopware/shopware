@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Log\Package;
  * extending the declaring class that rely on the inherited implementation must implement the
  * method themselves before the change happens.
  */
-#[\Attribute(\Attribute::TARGET_METHOD)]
 #[Package('framework')]
+#[\Attribute(\Attribute::TARGET_METHOD)]
 final class BecomesAbstract implements ExtenderCompatibilityChange
 {
     public function __construct(

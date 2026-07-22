@@ -8,8 +8,6 @@ https://getbootstrap.com/docs/5.2/components/buttons
 
 .btn {
     --#{$prefix}btn-disabled-color: #{$btn-link-disabled-color};
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 // custom add to cart button, used e.g. in product-box and product detail buybox

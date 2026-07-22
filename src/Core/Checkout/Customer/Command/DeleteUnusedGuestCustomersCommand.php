@@ -11,11 +11,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('checkout')]
 #[AsCommand(
     name: 'customer:delete-unused-guests',
     description: 'Delete unused guest customers',
 )]
-#[Package('checkout')]
 class DeleteUnusedGuestCustomersCommand extends Command
 {
     /**

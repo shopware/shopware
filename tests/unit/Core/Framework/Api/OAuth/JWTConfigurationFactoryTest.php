@@ -6,10 +6,12 @@ use Lcobucci\JWT\Signer\Hmac\Sha256 as Hmac256;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\JWTConfigurationFactory;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(JWTConfigurationFactory::class)]
 class JWTConfigurationFactoryTest extends TestCase
 {

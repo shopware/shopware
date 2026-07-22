@@ -32,8 +32,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[CoversClass(CustomerLanguageSalesChannelSubscriber::class)]
 #[Package('checkout')]
+#[CoversClass(CustomerLanguageSalesChannelSubscriber::class)]
 class CustomerLanguageSalesChannelSubscriberTest extends TestCase
 {
     private StaticDefinitionInstanceRegistry $definitionRegistry;

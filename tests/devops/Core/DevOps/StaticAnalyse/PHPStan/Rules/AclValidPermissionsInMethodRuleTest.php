@@ -7,12 +7,14 @@ use PHPStan\Testing\RuleTestCase;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AclValidPermissionsHelper;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AclValidPermissionsInMethodRule;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @extends  RuleTestCase<AclValidPermissionsInMethodRule>
  */
+#[Package('framework')]
 class AclValidPermissionsInMethodRuleTest extends RuleTestCase
 {
     #[RunInSeparateProcess]

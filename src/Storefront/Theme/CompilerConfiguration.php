@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal - may be changed in the future
  */
-#[Package('framework')]
+#[Package('discovery')]
 class CompilerConfiguration extends AbstractCompilerConfiguration
 {
     /**

@@ -15,11 +15,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal should be used over the CLI only
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'user:create',
     description: 'Creates a new user',
 )]
-#[Package('framework')]
 class UserCreateCommand extends Command
 {
     public function __construct(private readonly UserProvisioner $userProvisioner)

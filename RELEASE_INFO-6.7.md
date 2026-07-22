@@ -12,6 +12,15 @@
 
 The command now logs a warning for each skipped export and continues processing the remaining exports. Use `--force` to generate scheduler-managed exports from the CLI.
 
+### OpenAPI generation uses swagger-php 6.4
+
+Shopware now requires `zircote/swagger-php` 6.4 for OpenAPI 3.2 generation.
+Most extensions are not affected: OpenAPI annotations and attributes continue to be read by swagger-php 6, and extensions that only define `OpenApi\Annotations` or `OpenApi\Attributes` metadata usually do not need code changes.
+
+Extensions or development tools that call swagger-php programmatically should check for removed v4/v5 APIs such as `OpenApi\Generator::scan()` and `OpenApi\Util::finder()`.
+The migration is usually straightforward because the instance API `OpenApi\Generator::generate()` is available in swagger-php 4, 5, and 6.
+See `UPGRADE-6.7.md` for concrete examples.
+
 ### Locale-aware sorting for product property group options
 
 `Shopware\Core\Content\Product\AbstractPropertyGroupSorter::sort()` is deprecated and will be removed with Shopware 6.8. Use the new `sortUsingLocaleCode()` method instead, which sorts property group options using locale-aware (ICU) collation.
@@ -608,6 +617,10 @@ Extensions can add additional templates under `Resources/views/files/agentic/**.
 The Admin API exposes documented action routes for listing, reading details, and previewing sales-channel files under `/api/_action/sales-channel-file/{fileFamily}/{salesChannelId}`.
 
 ## Storefront
+
+### Optional email fields no longer fail validation when empty
+
+The `FormValidation` helper now treats empty values as valid for the email validator. This aligns with standard `<input type="email">` behavior, ensuring optional email fields are no longer marked invalid when left blank. Fields with the required rule remain unaffected.
 
 ### Storefront cache hash no longer varies by language
 

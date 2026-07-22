@@ -12,7 +12,7 @@ use Shopware\Core\System\SalesChannel\StoreApiResponse;
  *
  * @extends StoreApiResponse<ArrayStruct<array{elements: CookieGroupCollection, hash: string, languageId: string}>>
  */
-#[Package('framework')]
+#[Package('discovery')]
 class CookieRouteResponse extends StoreApiResponse
 {
     public function __construct(

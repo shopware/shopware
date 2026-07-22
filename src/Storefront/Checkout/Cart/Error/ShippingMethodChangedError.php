@@ -3,6 +3,8 @@
 namespace Shopware\Storefront\Checkout\Cart\Error;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
@@ -11,12 +13,9 @@ class ShippingMethodChangedError extends Error
 {
     private const KEY = 'shipping-method-changed';
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - The order of parameters will be changed to: $oldShippingMethodId, $oldShippingMethodName, $newShippingMethodId, $newShippingMethodName
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $oldShippingMethodId will be of type string
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $newShippingMethodId will be of type string
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $reason will be of type string
-     */
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'reason', newType: 'string')]
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'newShippingMethodId', newType: 'string')]
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'oldShippingMethodId', newType: 'string')]
     public function __construct(
         protected readonly string $oldShippingMethodName,
         protected readonly string $newShippingMethodName,
@@ -83,9 +82,7 @@ class ShippingMethodChangedError extends Error
         return self::KEY;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $oldShippingMethodId will be of type string
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'string')]
     public function getOldShippingMethodId(): ?string
     {
         return $this->oldShippingMethodId;
@@ -96,9 +93,7 @@ class ShippingMethodChangedError extends Error
         return $this->oldShippingMethodName;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $newShippingMethodId will be of type string
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'string')]
     public function getNewShippingMethodId(): ?string
     {
         return $this->newShippingMethodId;
@@ -109,9 +104,7 @@ class ShippingMethodChangedError extends Error
         return $this->newShippingMethodName;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $reason will be of type string
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'string')]
     public function getReason(): ?string
     {
         return $this->reason;

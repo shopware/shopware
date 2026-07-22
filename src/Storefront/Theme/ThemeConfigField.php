@@ -130,7 +130,8 @@ class ThemeConfigField extends Struct
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Parameter will be natively typed
+     * Will be natively typed in v6.8.0. Note that the `list<string>|string` docblock type is
+     * currently inaccurate: theme.json config values also contain booleans and numbers.
      *
      * @return list<string>|string
      */
@@ -140,7 +141,8 @@ class ThemeConfigField extends Struct
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:parameter-name-change - Parameter will be natively typed
+     * Will be natively typed in v6.8.0. Note that the `list<string>|string` docblock type is
+     * currently inaccurate: theme.json config values also contain booleans and numbers.
      *
      * @param list<string>|string $value
      */

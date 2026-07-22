@@ -294,6 +294,9 @@ class WebhookEventMessageHandlerTest extends TestCase
 
     public function testNonJsonErrorResponse(): void
     {
+        // legacy flag-OFF contract: the rework path is covered by WebhookDispatchEndToEndTest
+        Feature::skipTestIfActive('WEBHOOKS_REWORK', $this);
+
         $webhookId = Uuid::randomHex();
         $appId = Uuid::randomHex();
 
@@ -365,6 +368,9 @@ class WebhookEventMessageHandlerTest extends TestCase
 
     public function testNetworkErrorThrowsWebhookFailed(): void
     {
+        // legacy flag-OFF contract: the rework path is covered by WebhookDispatchEndToEndTest
+        Feature::skipTestIfActive('WEBHOOKS_REWORK', $this);
+
         $webhookId = Uuid::randomHex();
         $appId = Uuid::randomHex();
 
@@ -511,6 +517,9 @@ class WebhookEventMessageHandlerTest extends TestCase
      */
     public function testFailurePathLifecycleResetsToQueued(): void
     {
+        // legacy flag-OFF contract: the rework path is covered by WebhookDispatchEndToEndTest
+        Feature::skipTestIfActive('WEBHOOKS_REWORK', $this);
+
         $webhookId = Uuid::randomHex();
         $appId = Uuid::randomHex();
 
@@ -709,6 +718,9 @@ class WebhookEventMessageHandlerTest extends TestCase
      */
     public function testNetworkErrorLifecycleResetsToQueuedWithoutResponseData(): void
     {
+        // legacy flag-OFF contract: the rework path is covered by WebhookDispatchEndToEndTest
+        Feature::skipTestIfActive('WEBHOOKS_REWORK', $this);
+
         $webhookId = Uuid::randomHex();
         $appId = Uuid::randomHex();
 

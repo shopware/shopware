@@ -20,12 +20,12 @@ use Symfony\Component\Console\Question\Question;
 /**
  * @phpstan-type Snippets array<string, string|array<string, mixed>>
  */
+#[Package('discovery')]
 #[AsCommand(
     name: 'translation:validate',
     description: 'Validates completeness and correct pluralization of snippets',
     aliases: ['snippets:validate'],
 )]
-#[Package('discovery')]
 #[BecomesInternal(version: 'v6.8.0')]
 class ValidateSnippetsCommand extends Command
 {

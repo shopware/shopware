@@ -24,11 +24,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @phpstan-import-type PluginInfo from KernelPluginLoader
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'plugin:list',
     description: 'Lists all plugins',
 )]
-#[Package('framework')]
 class PluginListCommand extends Command
 {
     use OutputFormatTrait;

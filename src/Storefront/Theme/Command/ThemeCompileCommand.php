@@ -15,11 +15,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'theme:compile',
     description: 'Compile the theme',
 )]
-#[Package('framework')]
 class ThemeCompileCommand extends Command
 {
     private SymfonyStyle $io;

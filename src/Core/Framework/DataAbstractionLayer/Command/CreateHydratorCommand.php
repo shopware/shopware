@@ -41,11 +41,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'dal:create:hydrators',
     description: 'Creates the hydrator classes',
 )]
-#[Package('framework')]
 class CreateHydratorCommand extends Command
 {
     private readonly string $dir;

@@ -17,8 +17,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[CoversClass(CustomerSalutationSubscriber::class)]
 #[Package('checkout')]
+#[CoversClass(CustomerSalutationSubscriber::class)]
 class CustomerSalutationSubscriberTest extends TestCase
 {
     private Connection&Stub $connection;

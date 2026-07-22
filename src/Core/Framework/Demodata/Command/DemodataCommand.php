@@ -39,11 +39,11 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('fundamentals@after-sales')]
 #[AsCommand(
     name: 'framework:demodata',
     description: 'Generates demo data',
 )]
-#[Package('fundamentals@after-sales')]
 class DemodataCommand extends Command
 {
     /**

@@ -16,11 +16,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'docs:app-system-events',
     description: 'Dump the app events',
 )]
-#[Package('framework')]
 class DocsAppEventCommand extends Command
 {
     private const EVENT_DOCUMENT_PATH = __DIR__ . '/../../Resources/generated/webhook-events-reference.md';

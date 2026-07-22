@@ -34,8 +34,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 /**
  * @internal
  */
-#[CoversClass(DeliveryTransformer::class)]
 #[Package('checkout')]
+#[CoversClass(DeliveryTransformer::class)]
 class DeliveryTransformerTest extends TestCase
 {
     public function testTransformCollection(): void

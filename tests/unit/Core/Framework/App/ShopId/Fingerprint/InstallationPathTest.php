@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(InstallationPath::class)]
 #[Package('framework')]
+#[CoversClass(InstallationPath::class)]
 class InstallationPathTest extends TestCase
 {
     public function testIdentifier(): void

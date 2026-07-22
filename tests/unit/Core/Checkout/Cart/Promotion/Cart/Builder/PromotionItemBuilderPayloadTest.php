@@ -29,8 +29,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(PromotionItemBuilder::class)]
 #[Package('checkout')]
+#[CoversClass(PromotionItemBuilder::class)]
 class PromotionItemBuilderPayloadTest extends TestCase
 {
     private PromotionEntity $promotion;

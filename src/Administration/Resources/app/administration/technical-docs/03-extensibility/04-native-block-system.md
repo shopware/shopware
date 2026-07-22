@@ -42,25 +42,25 @@ Used inside an override block to render the content from the previous block in t
 
 ### Defining an extension point
 
-In a component template (SFC or `.html.twig`):
+In a component template:
 
 ```html
-<sw-block name="sw_product_detail_summary" :data="$dataScope">
+<sw-block name="sw_product_detail_summary">
     <p>Default summary content</p>
 </sw-block>
 ```
 
 - `name` — unique identifier for this block, scoped globally across the app. Block names follow the same convention as TwigJS blocks: `sw_` prefix + snake_case (e.g., `sw_product_detail_summary`).
-- `:data="$dataScope"` — passes the component's entire data/computed/methods scope to any override that wants it (more on this below)
+- The block's data scope is wired by the Shopware setup transform; `name` (or `extends`) is the only binding an author writes on `<sw-block>`.
 
 ### Complete end-to-end example
 
 The following shows both sides together: the base component that declares the block and a plugin component that overrides it.
 
 ```html
-<!-- ── Base component: sw-product-detail.html.twig ── -->
+<!-- ── Base component: sw-product-detail.vue ── -->
 <div class="sw-product-detail">
-    <sw-block name="sw_product_detail_summary" :data="$dataScope">
+    <sw-block name="sw_product_detail_summary">
         <p>Default summary content</p>
     </sw-block>
 </div>
@@ -161,35 +161,31 @@ When there are multiple overrides and none uses `<sw-block-parent />`, only the 
 
 ---
 
-## Accessing the Component's Data Scope
+## Accessing State Around a Block
 
-Override blocks are rendered outside the component they extend, so they normally have no access to its reactive data. The `data` prop and the slot's default scope solve this.
+Override blocks are rendered outside the component they extend, so they have no implicit access to its reactive state. State flows through the Shopware setup transform instead:
 
-### Passing data
+- The owning component's data scope is wired to every named `<sw-block>` by the transform, which is how `<sw-block-parent />` content keeps rendering with the base component's state.
+- Inside `<sw-block extends>` content, an override references its **own setup bindings** directly — the transform detects the references and exposes them to the block content. Public base state is read through `useSwPreviousState()`:
 
-The component that owns the block passes itself down via `:data="$dataScope"`:
-
-```html
-<!-- In the component being extended -->
-<sw-block name="sw_product_price_display" :data="$dataScope">
-    <span>{{ product.price }}</span>
-</sw-block>
-```
-
-`$dataScope` is a helper that returns the current component's proxy (`getCurrentInstance()?.proxy`), which exposes all `data`, `computed`, and `methods`.
-
-### Consuming data in an override
-
-The override block receives the scope as its default slot argument:
-
-```html
-<sw-block extends="sw_product_price_display" #default="{ product, formatPrice }">
+```vue
+<template>
+<sw-block extends="sw_product_price_display">
     <sw-block-parent />
-    <span class="custom-price">{{ formatPrice(product.price) }}</span>
+    <span class="custom-price">{{ customPrice }}</span>
 </sw-block>
+</template>
+<script setup>
+import { computed } from 'vue';
+
+const previousState = useSwPreviousState();
+const customPrice = computed(() => `${previousState.price.value} €`);
+
+swDefineOverride({});
+</script>
 ```
 
-This is standard Vue scoped slot syntax — `#default="{ ... }"` destructures whatever the `data` prop provided.
+See [`07-native-setup-authoring.md`](./07-native-setup-authoring.md) for the authoring rules.
 
 ---
 
@@ -199,13 +195,13 @@ Blocks can be nested freely. Each block is independently overrideable:
 
 ```html
 <!-- Component template -->
-<sw-block name="sw_product_tabs" :data="$dataScope">
+<sw-block name="sw_product_tabs">
     <div class="tabs">
-        <sw-block name="sw_product_tab_basic" :data="$dataScope">
+        <sw-block name="sw_product_tab_basic">
             <span>Basic Info</span>
         </sw-block>
 
-        <sw-block name="sw_product_tab_advanced" :data="$dataScope">
+        <sw-block name="sw_product_tab_advanced">
             <span>Advanced</span>
         </sw-block>
     </div>
@@ -214,7 +210,7 @@ Blocks can be nested freely. Each block is independently overrideable:
 <!-- Plugin: add a new tab without touching the outer block -->
 <sw-block extends="sw_product_tabs">
     <sw-block-parent />
-    <sw-block name="sw_product_tab_custom" :data="$dataScope">
+    <sw-block name="sw_product_tab_custom">
         <span>Custom Tab</span>
     </sw-block>
 </sw-block>
@@ -359,7 +355,7 @@ export default Shopware.Component.wrapComponentConfig({
 ### Data flow diagram
 
 ```
-Component with <sw-block name="foo" :data="$dataScope">
+Component with <sw-block name="foo"> (data scope wired by the setup transform)
 │
 │  Mount
 │
@@ -406,7 +402,7 @@ This is verified in the test suite — toggling `v-if` on an override component 
 | Template file | `.html.twig` | Any template (SFC, `.html.twig`) |
 | Resolution time | Build-time string merge | Vue reactive runtime |
 | Parent content | `{% parent %}` | `<sw-block-parent />` |
-| Data access | Via `$super`, `this` in JS | Scoped slot `#default="{ ... }"` |
+| Data access | Via `$super`, `this` in JS | Setup bindings (`useSwPreviousState()`, generated block scope) |
 | TypeScript support | None inside templates | Full (slot typing, props) |
 | Performance | Runtime TwigJS compilation | Standard Vue rendering |
 | Debugging | Difficult (string merging) | Standard Vue devtools |

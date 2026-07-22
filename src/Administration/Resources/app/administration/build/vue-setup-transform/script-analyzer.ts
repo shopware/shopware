@@ -214,7 +214,7 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
     assertStaticObjectEntries(publicEntries, runtimeBindingNames, importedBindings, scriptOffset, 'swDefinePublic');
     assertStaticObjectEntries(overrideEntries, runtimeBindingNames, importedBindings, scriptOffset, 'swDefineOverride');
 
-    const importedBindingsAsObjects: RuntimeBinding[] = Array.from(importedBindings).flatMap((name) => {
+    const importedNamedBindings = Array.from(importedBindings).flatMap((name) => {
         const node = imports.find((importNode) => importNode.specifiers.some((specifier) => specifier.local?.name === name));
 
         return node
@@ -222,6 +222,7 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
                   {
                       name,
                       node,
+                      importSource: node.source.value,
                   },
               ]
             : [];
@@ -230,7 +231,7 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
     assertReservedMacroNames(
         [
             ...runtimeBindings,
-            ...importedBindingsAsObjects,
+            ...importedNamedBindings,
         ],
         scriptOffset,
     );

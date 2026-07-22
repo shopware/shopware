@@ -14,7 +14,7 @@ import { ShopwareSetupTransformError } from '../utils/transform-error';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
 import { getNodeRange, isFunctionNode, walk } from './utils';
 import { RESERVED_OVERRIDE_STATE_NAME, SHOPWARE_SETUP_INTERNAL_PREFIX, type ShopwareSetupMacroName } from './macros';
-import { getReservedHelperNames, getTopLevelOnlyWalkChecks, getWrongModeWalkChecks } from './macro-registry';
+import { getReservedHelperNames, getTopLevelOnlyWalkChecks, getVueBuiltinMacroNames, getWrongModeWalkChecks } from './macro-registry';
 
 /**
  * Carries a declared or imported name with the AST node used for diagnostics.
@@ -22,6 +22,7 @@ import { getReservedHelperNames, getTopLevelOnlyWalkChecks, getWrongModeWalkChec
 type NamedBinding = {
     name: string;
     node: BabelNode;
+    importSource?: string;
 };
 
 /**
@@ -111,8 +112,16 @@ function assertNoUnsupportedSyntax(
  */
 function assertReservedMacroNames(bindings: NamedBinding[], scriptOffset: number): void {
     const helpers = getReservedHelperNames();
+    const vueBuiltins = getVueBuiltinMacroNames();
 
     bindings.forEach((binding) => {
+        // Vue macro names may be imported from 'vue' (the call stays a macro and Vue drops the
+        // import again during its own compilation). Any other source is rejected: Vue would still
+        // treat the calls as macros, silently hijacking the imported function.
+        if (binding.importSource === 'vue' && vueBuiltins.has(binding.name)) {
+            return;
+        }
+
         if (helpers.has(binding.name)) {
             throw new ShopwareSetupTransformError(
                 `"${binding.name}" is reserved by the Shopware setup transform and must not be declared or imported.`,

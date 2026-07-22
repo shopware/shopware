@@ -70,10 +70,13 @@ type MacroRule = {
     alias?: boolean;
     /** Hoisted to the generated script root, so arguments must not read setup-local bindings. */
     hoistedArguments?: boolean;
+    /** A Vue compiler macro: importing its name is accepted (from anywhere) and never shadows it. */
+    vueBuiltin?: boolean;
 };
 
 const MACRO_RULES: Record<MacroName, MacroRule> = {
     defineProps: {
+        vueBuiltin: true,
         modes: ['base'],
         wrongModeMessage: 'defineProps() is only supported in base Shopware setup blocks.',
         group: 'props',
@@ -83,6 +86,7 @@ const MACRO_RULES: Record<MacroName, MacroRule> = {
         hoistedArguments: true,
     },
     withDefaults: {
+        vueBuiltin: true,
         modes: ['base'],
         wrongModeMessage: 'withDefaults() is only supported in base Shopware setup blocks.',
         group: 'props',
@@ -92,6 +96,7 @@ const MACRO_RULES: Record<MacroName, MacroRule> = {
         hoistedArguments: true,
     },
     defineEmits: {
+        vueBuiltin: true,
         modes: ['base'],
         wrongModeMessage: 'defineEmits() is only supported in base Shopware setup blocks.',
         duplicateMessage: 'Only one defineEmits() call is allowed in a base Shopware setup block.',
@@ -100,6 +105,7 @@ const MACRO_RULES: Record<MacroName, MacroRule> = {
         hoistedArguments: true,
     },
     defineSlots: {
+        vueBuiltin: true,
         modes: ['base'],
         wrongModeMessage: 'defineSlots() is only supported in base Shopware setup blocks.',
         duplicateMessage: 'Only one defineSlots() call is allowed in a base Shopware setup block.',
@@ -107,17 +113,20 @@ const MACRO_RULES: Record<MacroName, MacroRule> = {
         exposable: true,
     },
     defineExpose: {
+        vueBuiltin: true,
         modes: ['base'],
         wrongModeMessage: 'defineExpose() is only supported in base Shopware setup blocks.',
         duplicateMessage: 'Only one defineExpose() call is allowed in a base Shopware setup block.',
     },
     defineOptions: {
+        vueBuiltin: true,
         modes: ['base'],
         wrongModeMessage: 'defineOptions() is only supported in base Shopware setup blocks.',
         duplicateMessage: 'Only one defineOptions() call is allowed in a base Shopware setup block.',
         hoistedArguments: true,
     },
     defineModel: {
+        vueBuiltin: true,
         modes: [],
         wrongModeMessage: 'Vue macro defineModel() is not supported inside Shopware setup blocks.',
     },
@@ -198,7 +207,9 @@ function getMacroCall(node: unknown): { name: MacroName; call: CallExpression } 
  * Collects the registry macro calls one top-level statement contains.
  *
  * Only the forms Vue compiler-sfc treats as setup macros are collected - bare statements and
- * declaration initializers. Nested calls stay untouched, like native setup.
+ * declaration initializers. Nested calls stay untouched, like native setup. Macros are matched by
+ * name and always win, also like native setup: an import of the same name is accepted but never
+ * shadows the macro.
  */
 function collectMacroCallEntries(statement: Statement): MacroCallEntry[] {
     // e.g. `defineEmits(['save']);` or `swDefinePublic({ count });`
@@ -351,6 +362,11 @@ function getTopLevelOnlyWalkChecks(): { name: MacroName; message: string }[] {
     }));
 }
 
+/** Vue compiler macro names: their imports are accepted, like native setup, and never shadow the macro. */
+function getVueBuiltinMacroNames(): Set<string> {
+    return new Set(MACRO_NAMES.filter((name) => MACRO_RULES[name].vueBuiltin));
+}
+
 /** Names hoisted to the generated script root whose arguments must not read setup locals. */
 function getHoistedArgumentMacroNames(): MacroName[] {
     return MACRO_NAMES.filter((name) => MACRO_RULES[name].hoistedArguments);
@@ -371,5 +387,6 @@ export {
     getRuntimeInputAliasNames,
     getSetupInputMacroNames,
     getTopLevelOnlyWalkChecks,
+    getVueBuiltinMacroNames,
     getWrongModeWalkChecks,
 };

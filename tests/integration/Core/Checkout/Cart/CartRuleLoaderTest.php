@@ -9,6 +9,8 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Checkout\Cart\Event\CartLoadedEvent;
+use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
@@ -17,6 +19,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
@@ -32,6 +35,7 @@ use Shopware\Core\Test\TestDefaults;
 #[Package('checkout')]
 class CartRuleLoaderTest extends TestCase
 {
+    use EventDispatcherBehaviour;
     use IntegrationTestBehaviour;
 
     #[DataProvider('taxConfigProvider')]
@@ -158,13 +162,52 @@ class CartRuleLoaderTest extends TestCase
 
         $cartPersister->delete($loadedCart->getToken(), $context);
 
-        $result = $cartRuleLoader->loadByCart($context, $loadedCart, new CartBehavior());
-
-        static::assertTrue($result->getCart()->has('A'));
+        try {
+            $cartRuleLoader->loadByCart($context, $loadedCart, new CartBehavior());
+            static::fail(CartTokenNotFoundException::class . ' was not thrown');
+        } catch (CartTokenNotFoundException) {
+        }
 
         $count = static::getContainer()->get(Connection::class)->fetchOne(
             'SELECT COUNT(*) FROM cart WHERE token = :token',
             ['token' => $loadedCart->getToken()]
+        );
+
+        static::assertSame('0', (string) $count);
+    }
+
+    public function testLoadByTokenCreatesFreshCartWhenCartIsDeletedDuringRecalculation(): void
+    {
+        $cartRuleLoader = static::getContainer()->get(CartRuleLoader::class);
+        $cartPersister = static::getContainer()->get(CartPersister::class);
+        $connection = static::getContainer()->get(Connection::class);
+
+        $cart = new Cart(Uuid::randomHex());
+        $cart->add(
+            (new LineItem('A', LineItem::CUSTOM_LINE_ITEM_TYPE))
+                ->setPriceDefinition(new QuantityPriceDefinition(10.0, new TaxRuleCollection()))
+                ->setLabel('test')
+        );
+
+        $context = $this->createSalesChannelContext($cart->getToken());
+
+        $cartPersister->save($cart, $context);
+
+        $this->addEventListener(
+            static::getContainer()->get('event_dispatcher'),
+            CartLoadedEvent::class,
+            function () use ($connection, $cart): void {
+                $connection->executeStatement('DELETE FROM cart WHERE token = :token', ['token' => $cart->getToken()]);
+            }
+        );
+
+        $result = $cartRuleLoader->loadByToken($context, $cart->getToken());
+
+        static::assertCount(0, $result->getCart()->getLineItems());
+
+        $count = $connection->fetchOne(
+            'SELECT COUNT(*) FROM cart WHERE token = :token',
+            ['token' => $cart->getToken()]
         );
 
         static::assertSame('0', (string) $count);

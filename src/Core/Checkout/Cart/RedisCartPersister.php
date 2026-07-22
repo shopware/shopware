@@ -91,6 +91,9 @@ class RedisCartPersister extends AbstractCartPersister
         return $cart;
     }
 
+    /**
+     * @throws CartTokenNotFoundException when the persisted cart was deleted concurrently
+     */
     public function save(Cart $cart, SalesChannelContext $context): void
     {
         $shouldPersist = $this->shouldPersist($cart);
@@ -113,6 +116,10 @@ class RedisCartPersister extends AbstractCartPersister
         }
 
         if ($this->redis->set(self::PREFIX . $cart->getToken(), $content, $options) === false) {
+            if ($cart->isPersisted()) {
+                throw CartException::tokenNotFound($cart->getToken());
+            }
+
             return;
         }
 

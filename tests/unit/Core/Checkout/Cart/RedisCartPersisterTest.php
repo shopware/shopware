@@ -91,7 +91,12 @@ class RedisCartPersisterTest extends TestCase
         $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), 90);
         $persister->save($cart, $context);
         $persister->delete($token, $context);
-        $persister->save($cart, $context);
+
+        try {
+            $persister->save($cart, $context);
+            static::fail(CartTokenNotFoundException::class . ' was not thrown');
+        } catch (CartTokenNotFoundException) {
+        }
 
         static::assertFalse($redis->exists(RedisCartPersister::PREFIX . $token));
     }
@@ -120,6 +125,24 @@ class RedisCartPersisterTest extends TestCase
         $persister->save($cart, $context);
 
         static::assertTrue($redis->exists(RedisCartPersister::PREFIX . $token));
+    }
+
+    public function testSaveThrowsWhenPersistedCartWasDeletedConcurrently(): void
+    {
+        $token = Uuid::randomHex();
+        $cart = new Cart($token);
+        $cart->add(new LineItem('test', 'test'));
+        $cart->setPersisted(true);
+
+        $dispatcher = static::createStub(EventDispatcher::class);
+        $redis = new RedisStub();
+        $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
+        $context = static::createStub(SalesChannelContext::class);
+
+        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), 90);
+
+        $this->expectExceptionObject(CartException::tokenNotFound($token));
+        $persister->save($cart, $context);
     }
 
     public function testLoad(): void

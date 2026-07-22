@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCompressor;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\CartSerializationCleaner;
 use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
@@ -124,6 +125,9 @@ class CartPersisterTest extends TestCase
             ->method('prepare')
             ->with(static::stringContains('UPDATE `cart`'))
             ->willReturn($statement);
+        $connection->expects($this->once())
+            ->method('fetchOne')
+            ->willReturn('1');
 
         $eventDispatcher = new CollectingEventDispatcher();
         $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
@@ -134,5 +138,32 @@ class CartPersisterTest extends TestCase
         static::assertTrue($cart->isPersisted());
         static::assertCount(1, $eventDispatcher->getEvents());
         static::assertContainsOnlyInstancesOf(CartVerifyPersistEvent::class, $eventDispatcher->getEvents());
+    }
+
+    public function testSaveThrowsWhenPersistedCartWasDeletedConcurrently(): void
+    {
+        $cart = new Cart('token');
+        $cart->add(new LineItem('line-item', 'test'));
+        $cart->setPersisted(true);
+
+        $statement = $this->createMock(Statement::class);
+        $statement->expects($this->once())
+            ->method('executeStatement')
+            ->willReturn(0);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('prepare')
+            ->with(static::stringContains('UPDATE `cart`'))
+            ->willReturn($statement);
+        $connection->expects($this->once())
+            ->method('fetchOne')
+            ->willReturn(false);
+
+        $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
+        $persister = new CartPersister($connection, new CollectingEventDispatcher(), $cartSerializationCleaner, new CartCompressor(false, 'gzip'), new NativeClock());
+
+        $this->expectExceptionObject(CartException::tokenNotFound('token'));
+        $persister->save($cart, Generator::generateSalesChannelContext());
     }
 }

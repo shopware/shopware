@@ -35,6 +35,12 @@ Such changes are now documented with dedicated PHP attributes under `Shopware\Co
 
 The existing `reason:*` annotations will be migrated to these attributes in follow-up releases.
 
+### Cart save signals concurrently deleted carts
+
+`CartPersister::save()` and `RedisCartPersister::save()` now throw `CartException::tokenNotFound()` (error code `CHECKOUT__CART_TOKEN_NOT_FOUND`, HTTP 404) when they are asked to update an already persisted cart whose storage entry was deleted in the meantime, for example by a concurrent order placement with the same context token. Previously such a save was silently discarded and the stale cart was still returned to the client.
+
+`GET /store-api/checkout/cart` handles this like an unknown cart token and responds with a fresh empty cart. Mutating routes such as adding, updating, or removing line items now respond with the error instead of pretending the write succeeded; API clients should re-fetch the cart in that case. Extensions that call `AbstractCartPersister::save()` directly should be prepared for this exception when the cart may have been deleted concurrently.
+
 ## Administration
 
 ## Storefront

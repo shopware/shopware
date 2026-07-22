@@ -173,7 +173,12 @@ class CartPersisterTest extends TestCase
 
         $persister->save($cart, $context);
         $persister->delete($cart->getToken(), $context);
-        $persister->save($cart, $context);
+
+        try {
+            $persister->save($cart, $context);
+            static::fail(CartTokenNotFoundException::class . ' was not thrown');
+        } catch (CartTokenNotFoundException) {
+        }
 
         $token = static::getContainer()->get(Connection::class)
             ->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $cart->getToken()]);

@@ -48,7 +48,11 @@ class CartLoadRoute extends AbstractCartLoadRoute
             $cart = $this->cartFactory->createNew($token);
         }
 
-        $cart = $this->cartCalculator->calculate($cart, $context);
+        try {
+            $cart = $this->cartCalculator->calculate($cart, $context);
+        } catch (CartTokenNotFoundException) {
+            $cart = $this->cartCalculator->calculate($this->cartFactory->createNew($token), $context);
+        }
 
         if ($taxed) {
             $this->taxProviderProcessor->process($cart, $context);

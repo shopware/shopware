@@ -2,15 +2,20 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\SalesChannel;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartPersister;
+use Shopware\Core\Checkout\Cart\Event\CartLoadedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Cart\Rule\CartAmountRule;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -20,12 +25,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -34,6 +41,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 #[Group('store-api')]
 class CartLoadRouteTest extends TestCase
 {
+    use EventDispatcherBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
@@ -171,6 +179,39 @@ class CartLoadRouteTest extends TestCase
                 1,
             ],
         ];
+    }
+
+    public function testCartDeletedDuringLoadReturnsFreshCart(): void
+    {
+        $cart = new Cart($this->ids->create('token'));
+        $cart->add(
+            (new LineItem('A', LineItem::CUSTOM_LINE_ITEM_TYPE))
+                ->setPriceDefinition(new QuantityPriceDefinition(10.0, new TaxRuleCollection()))
+                ->setLabel('test')
+        );
+
+        $context = $this->salesChannelFactory->create($this->ids->get('token'), $this->ids->get('sales-channel'));
+        $this->cartPersister->save($cart, $context);
+
+        $connection = static::getContainer()->get(Connection::class);
+        $this->addEventListener(
+            static::getContainer()->get('event_dispatcher'),
+            CartLoadedEvent::class,
+            function () use ($connection, $cart): void {
+                $connection->executeStatement('DELETE FROM cart WHERE token = :token', ['token' => $cart->getToken()]);
+            }
+        );
+
+        $response = static::getContainer()->get(CartLoadRoute::class)->load(new Request(), $context);
+
+        static::assertCount(0, $response->getCart()->getLineItems());
+
+        $count = $connection->fetchOne(
+            'SELECT COUNT(*) FROM cart WHERE token = :token',
+            ['token' => $cart->getToken()]
+        );
+
+        static::assertSame('0', (string) $count);
     }
 
     public function testDeferredCartErrors(): void

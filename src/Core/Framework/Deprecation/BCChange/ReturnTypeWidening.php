@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Log\Package;
  * happens — for example a return type that becomes nullable. Classes overriding the method are
  * not affected: their narrower return type stays valid (covariance).
  */
-#[\Attribute(\Attribute::TARGET_METHOD)]
 #[Package('framework')]
+#[\Attribute(\Attribute::TARGET_METHOD)]
 final class ReturnTypeWidening implements CallSiteCompatibilityChange
 {
     public function __construct(

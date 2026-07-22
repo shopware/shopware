@@ -16,8 +16,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 /**
  * @internal
  */
-#[CoversClass(CustomerAccountRecoverRequestEvent::class)]
 #[Package('checkout')]
+#[CoversClass(CustomerAccountRecoverRequestEvent::class)]
 class CustomerAccountRecoverRequestEventTest extends TestCase
 {
     public function testRestoreScalarValuesCorrectly(): void

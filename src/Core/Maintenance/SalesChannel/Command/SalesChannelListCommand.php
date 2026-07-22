@@ -26,11 +26,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal should be used over the CLI only
  */
+#[Package('discovery')]
 #[AsCommand(
     name: 'sales-channel:list',
     description: 'Lists all sales channels',
 )]
-#[Package('discovery')]
 class SalesChannelListCommand extends Command
 {
     use OutputFormatTrait;

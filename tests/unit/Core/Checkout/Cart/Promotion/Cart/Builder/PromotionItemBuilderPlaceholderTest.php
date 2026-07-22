@@ -14,8 +14,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[CoversClass(PromotionItemBuilder::class)]
 #[Package('checkout')]
+#[CoversClass(PromotionItemBuilder::class)]
 class PromotionItemBuilderPlaceholderTest extends TestCase
 {
     /**

@@ -21,11 +21,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal only for use by the app-system
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'app:secret:rotate',
     description: 'Rotate the shared app secret and integration credentials for one or all apps.',
 )]
-#[Package('framework')]
 class RotateAppSecretCommand extends Command
 {
     /**

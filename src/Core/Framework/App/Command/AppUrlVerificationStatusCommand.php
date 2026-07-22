@@ -14,11 +14,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'app:url:status',
     description: 'Check the status of the app URL',
 )]
-#[Package('framework')]
 class AppUrlVerificationStatusCommand extends Command
 {
     public function __construct(

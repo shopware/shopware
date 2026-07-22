@@ -48,9 +48,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(AbstractTokenQueryBuilder::class)]
 #[CoversClass(TokenQueryBuilder::class)]
-#[Package('inventory')]
 class TokenQueryBuilderTest extends TestCase
 {
     private const SECOND_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20c';

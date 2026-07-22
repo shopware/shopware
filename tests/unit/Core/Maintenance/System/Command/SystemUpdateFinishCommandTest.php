@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Maintenance\System\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Update\Api\UpdateController;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
@@ -18,6 +19,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SystemUpdateFinishCommand::class)]
 class SystemUpdateFinishCommandTest extends TestCase
 {

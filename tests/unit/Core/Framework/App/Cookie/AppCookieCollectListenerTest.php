@@ -15,6 +15,7 @@ use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Cookie\AppCookieCollectListener;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -25,6 +26,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @phpstan-import-type Cookie from AppEntity
  */
+#[Package('framework')]
 #[CoversClass(AppCookieCollectListener::class)]
 class AppCookieCollectListenerTest extends TestCase
 {

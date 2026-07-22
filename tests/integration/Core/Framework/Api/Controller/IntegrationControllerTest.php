@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -28,7 +27,6 @@ class IntegrationControllerTest extends TestCase
         $this->resetBrowser();
     }
 
-    #[Group('slow')]
     public function testCreateIntegration(): void
     {
         $client = $this->getBrowser();

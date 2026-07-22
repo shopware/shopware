@@ -376,19 +376,24 @@ export default {
         },
 
         buildSearchQuery(criteria) {
-            if (!this.term) {
+            // Normalize the term: leading/trailing whitespace must not leak into the
+            // query. Otherwise the split below yields empty entries that build a
+            // `contains` filter with an empty value and the API rejects the whole
+            // query with FRAMEWORK__INVALID_FILTER_QUERY.
+            const term = this.term ? this.term.trim() : '';
+            if (!term) {
                 return criteria;
             }
 
-            // Split each word for search
-            const terms = this.term.split(' ');
+            // Split each word for search; empty entries from repeated spaces are dropped.
+            const terms = term.split(' ').filter((word) => word !== '');
 
             // Create query for each single word
-            terms.forEach((term) => {
-                criteria.addQuery(Criteria.equals('product.options.name', term), 3500);
-                criteria.addQuery(Criteria.contains('product.options.name', term), 500);
+            terms.forEach((word) => {
+                criteria.addQuery(Criteria.equals('product.options.name', word), 3500);
+                criteria.addQuery(Criteria.contains('product.options.name', word), 500);
             });
-            criteria.addQuery(Criteria.contains('product.productNumber', this.term), 5000);
+            criteria.addQuery(Criteria.contains('product.productNumber', term), 5000);
 
             // return the input
             return criteria;

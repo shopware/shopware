@@ -6,6 +6,12 @@
 
 ## Core
 
+### `product-export:generate` now warns when scheduler-managed exports are skipped
+
+`bin/console product-export:generate` skips exports configured with `generateByCronjob`. Previously, this happened without any feedback.
+
+The command now logs a warning for each skipped export and continues processing the remaining exports. Use `--force` to generate scheduler-managed exports from the CLI.
+
 ### OpenAPI generation uses swagger-php 6.4
 
 Shopware now requires `zircote/swagger-php` 6.4 for OpenAPI 3.2 generation.
@@ -14,6 +20,7 @@ Most extensions are not affected: OpenAPI annotations and attributes continue to
 Extensions or development tools that call swagger-php programmatically should check for removed v4/v5 APIs such as `OpenApi\Generator::scan()` and `OpenApi\Util::finder()`.
 The migration is usually straightforward because the instance API `OpenApi\Generator::generate()` is available in swagger-php 4, 5, and 6.
 See `UPGRADE-6.7.md` for concrete examples.
+
 ### Locale-aware sorting for product property group options
 
 `Shopware\Core\Content\Product\AbstractPropertyGroupSorter::sort()` is deprecated and will be removed with Shopware 6.8. Use the new `sortUsingLocaleCode()` method instead, which sorts property group options using locale-aware (ICU) collation.

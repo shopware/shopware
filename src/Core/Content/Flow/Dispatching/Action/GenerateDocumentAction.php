@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator as DocumentV2Generator;
 use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Feature;
@@ -130,11 +129,8 @@ class GenerateDocumentAction extends FlowAction implements DelayableAction
             return;
         }
 
-        // @todo: flows only carry the live order id/version today, but DocumentGenerationRequest rejects
-        // Defaults::LIVE_VERSION - generation will fail until this is resolved.
         $generationRequest = new DocumentGenerationRequest(
             $orderId,
-            Defaults::LIVE_VERSION,
             $documentType,
             $fileFormats,
         );

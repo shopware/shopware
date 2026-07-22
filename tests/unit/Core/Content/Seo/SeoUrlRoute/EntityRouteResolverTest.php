@@ -12,11 +12,13 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(EntityRouteResolver::class)]
 class EntityRouteResolverTest extends TestCase
 {

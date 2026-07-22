@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\System\Command\OpenApiValidationCommand;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(OpenApiValidationCommand::class)]
 class OpenApiValidationCommandTest extends TestCase
 {

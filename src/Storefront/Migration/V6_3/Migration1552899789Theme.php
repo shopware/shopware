@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class Migration1552899789Theme extends MigrationStep
 {
     public function getCreationTimestamp(): int

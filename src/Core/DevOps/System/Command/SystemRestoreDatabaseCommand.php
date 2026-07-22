@@ -18,11 +18,11 @@ use Symfony\Component\Process\Process;
  * @phpstan-import-type Params from DriverManager
  * @phpstan-import-type OverrideParams from DriverManager
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'system:restore',
     description: 'Restores the database from a file',
 )]
-#[Package('framework')]
 class SystemRestoreDatabaseCommand extends Command
 {
     /**

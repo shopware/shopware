@@ -31,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -49,6 +50,7 @@ use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\Strin
 /**
  * @internal
  */
+#[Package('framework')]
 class AttributeEntityIntegrationTest extends TestCase
 {
     use BasicTestDataBehaviour;

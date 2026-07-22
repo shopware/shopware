@@ -6,15 +6,19 @@ use Mcp\Capability\Attribute\McpPrompt;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * This prompt content is intentionally separate from the root AGENTS.md.
  * AGENTS.md provides developer-facing coding guidelines, while this prompt
  * provides runtime context for AI clients using the MCP tools to interact
  * with a Shopware shop (criteria format, entity names, tool best practices).
  */
-#[McpPrompt(name: 'shopware-context', title: 'Shopware Context', description: 'System prompt providing context about Shopware, its data model, and best practices for AI tool interaction.')]
 #[Package('framework')]
+#[McpPrompt(
+    name: 'shopware-context',
+    title: 'Shopware Context',
+    description: 'System prompt providing context about Shopware, its data model, and best practices for AI tool interaction.'
+)]
 class ShopwareContextPrompt
 {
     /**

@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 readonly class ThemeScripts
 {
     /**

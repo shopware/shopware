@@ -284,13 +284,7 @@ SQL;
             return false;
         }
 
-        foreach ($translationEvent->getWriteResults() as $result) {
-            if (\array_key_exists('name', $result->getPayload())) {
-                return true;
-            }
-        }
-
-        return false;
+        return $translationEvent->getResults()->withPayloadProperties('name')->count() > 0;
     }
 
     /**

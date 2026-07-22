@@ -9,6 +9,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,6 +20,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[Group('store-api')]
 class ProductListRouteTest extends TestCase
 {
@@ -86,7 +88,6 @@ class ProductListRouteTest extends TestCase
         static::assertContains('Other translation', $names);
     }
 
-    #[Group('slow')]
     public function testListingProductsLimit(): void
     {
         $this->browser->request(

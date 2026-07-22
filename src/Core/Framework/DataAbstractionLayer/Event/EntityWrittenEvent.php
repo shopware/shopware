@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\GenericEvent;
 use Shopware\Core\Framework\Event\NestedEvent;
@@ -162,5 +163,16 @@ class EntityWrittenEvent extends NestedEvent implements GenericEvent
     public function getWriteResults(): array
     {
         return $this->writeResults;
+    }
+
+    /**
+     * @return EntityWriteResultCollection<IDStructure>
+     */
+    public function getResults(): EntityWriteResultCollection
+    {
+        /** @var EntityWriteResultCollection<IDStructure> $results */
+        $results = new EntityWriteResultCollection($this->writeResults);
+
+        return $results;
     }
 }

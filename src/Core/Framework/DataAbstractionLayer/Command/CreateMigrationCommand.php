@@ -21,11 +21,11 @@ use Symfony\Component\HttpKernel\KernelInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'dal:migration:create',
     description: 'Creates migration for entity schema',
 )]
-#[Package('framework')]
 class CreateMigrationCommand extends Command
 {
     /**

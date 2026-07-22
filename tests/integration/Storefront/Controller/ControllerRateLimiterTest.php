@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractImitateCustomerRoute;
@@ -69,7 +68,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  * @internal
  */
 #[Package('discovery')]
-#[Group('slow')]
 class ControllerRateLimiterTest extends TestCase
 {
     use ClockSensitiveTrait;

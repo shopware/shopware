@@ -20,11 +20,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *
  * @phpstan-import-type DomainRewriteRule from SetupStagingEvent
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'system:setup:staging',
     description: 'Installs the Shopware 6 system in staging mode',
 )]
-#[Package('framework')]
 class SystemSetupStagingCommand extends Command
 {
     /**

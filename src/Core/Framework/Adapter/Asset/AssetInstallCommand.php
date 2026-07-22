@@ -18,11 +18,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpKernel\KernelInterface;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'assets:install',
     description: 'Installs bundles web assets under a public web directory',
 )]
-#[Package('framework')]
 class AssetInstallCommand extends Command
 {
     /**

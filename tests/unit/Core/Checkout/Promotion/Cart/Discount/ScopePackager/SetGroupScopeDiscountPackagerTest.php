@@ -19,8 +19,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(SetGroupScopeDiscountPackager::class)]
 #[Package('checkout')]
+#[CoversClass(SetGroupScopeDiscountPackager::class)]
 class SetGroupScopeDiscountPackagerTest extends TestCase
 {
     public function testFormatRuleCollection(): void

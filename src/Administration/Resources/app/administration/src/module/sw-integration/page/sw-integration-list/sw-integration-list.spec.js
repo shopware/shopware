@@ -61,10 +61,6 @@ async function createWrapper(privileges = [], integrations = null, options = {})
                         return privileges.includes(identifier);
                     },
                 },
-
-                feature: {
-                    isActive: (flag) => flag === 'MCP_SERVER',
-                },
             },
 
             stubs: {
@@ -143,7 +139,7 @@ async function createWrapper(privileges = [], integrations = null, options = {})
                 $route: {
                     meta: {
                         $module: {
-                            icon: 'solid-content',
+                            icon: 'regular-content',
                         },
                     },
                 },

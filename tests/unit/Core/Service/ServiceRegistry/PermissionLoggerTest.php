@@ -7,6 +7,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\Message\LogPermissionToRegistryMessage;
 use Shopware\Core\Service\Permission\ConsentState;
 use Shopware\Core\Service\Permission\PermissionsConsent;
@@ -20,6 +21,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PermissionLogger::class)]
 class PermissionLoggerTest extends TestCase
 {
@@ -65,6 +67,10 @@ class PermissionLoggerTest extends TestCase
             }))
             ->willReturn(new Envelope(new \stdClass()));
 
+        $this->client->expects($this->never())->method('saveConsent');
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+        $this->systemConfigService->expects($this->never())->method('getString');
+
         $this->permissionLogger->log($consent, ConsentState::GRANTED);
     }
 
@@ -103,6 +109,8 @@ class PermissionLoggerTest extends TestCase
                     && $request->licenseHost === $licenseHost;
             }));
 
+        $this->messageBus->expects($this->never())->method('dispatch');
+
         $this->permissionLogger->logSync($consent, ConsentState::GRANTED);
     }
 
@@ -127,6 +135,8 @@ class PermissionLoggerTest extends TestCase
             ->expects($this->once())
             ->method('revokeConsent')
             ->with($consent->identifier);
+
+        $this->messageBus->expects($this->never())->method('dispatch');
 
         $this->permissionLogger->logSync($consent, ConsentState::REVOKED);
     }
@@ -165,6 +175,8 @@ class PermissionLoggerTest extends TestCase
                     && $request->licenseHost === '';
             }));
 
+        $this->messageBus->expects($this->never())->method('dispatch');
+
         $this->permissionLogger->logSync($consent, ConsentState::GRANTED);
     }
 
@@ -184,6 +196,10 @@ class PermissionLoggerTest extends TestCase
                 return $message->permissionsConsent === $consent && $message->consentState === ConsentState::REVOKED;
             }))
             ->willReturn(new Envelope(new \stdClass()));
+
+        $this->client->expects($this->never())->method('saveConsent');
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+        $this->systemConfigService->expects($this->never())->method('getString');
 
         $this->permissionLogger->log($consent, ConsentState::REVOKED);
     }

@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Cms\Type;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
@@ -26,6 +26,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -34,16 +35,17 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ProductBoxCmsElementResolver::class)]
 class ProductBoxTypeDataResolverTest extends TestCase
 {
     private ProductBoxCmsElementResolver $productBoxResolver;
 
-    private MockObject&SystemConfigService $systemConfig;
+    private Stub&SystemConfigService $systemConfig;
 
     protected function setUp(): void
     {
-        $this->systemConfig = $this->createMock(SystemConfigService::class);
+        $this->systemConfig = static::createStub(SystemConfigService::class);
         $this->productBoxResolver = new ProductBoxCmsElementResolver($this->systemConfig);
     }
 
@@ -54,7 +56,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
 
     public function testCollectWithEmptyConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
@@ -69,7 +71,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
 
     public function testCollectWithStaticConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('product', FieldConfig::SOURCE_STATIC, 'product123'));
@@ -88,7 +90,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
 
     public function testCollectWithMappedConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('product', FieldConfig::SOURCE_MAPPED, 'entity.relatedProduct'));
@@ -105,7 +107,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
 
     public function testEnrichWithEmptyConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
 
         $slot = new CmsSlotEntity();
@@ -139,7 +141,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId($salesChannelId);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannelId')->willReturn($salesChannelId);
         $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
 
@@ -189,7 +191,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
 
     public function testEnrichWithStaticConfigButNoResult(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
         $result->add('product_id', new EntitySearchResult(
             'product',
@@ -225,7 +227,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
         $product->setId('product123');
         $product->setParent($parent);
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
+        $resolverContext = new EntityResolverContext(static::createStub(SalesChannelContext::class), new Request(), static::createStub(ProductDefinition::class), $product);
         $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
@@ -248,7 +250,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
         $product = new SalesChannelProductEntity();
         $product->setId('product123');
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
+        $resolverContext = new EntityResolverContext(static::createStub(SalesChannelContext::class), new Request(), static::createStub(ProductDefinition::class), $product);
         $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
@@ -266,7 +268,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
 
     public function testCollectWithEmptyProductId(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('product', FieldConfig::SOURCE_STATIC, null));

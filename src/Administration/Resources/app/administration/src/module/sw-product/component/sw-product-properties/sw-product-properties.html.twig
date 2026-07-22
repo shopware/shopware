@@ -76,7 +76,6 @@
                                     showOnDisabledElements: true
                                 }"
                                 class="sw-product-properties__button-add-property"
-                                ghost
                                 size="small"
                                 :disabled="!acl.can('product.editor') || undefined"
                                 variant="secondary"
@@ -110,12 +109,10 @@
                     >
                         <template #column-values="{ item }">
                             {% block sw_product_properties_filled_state_body_filled_state_column_values %}
-                            <div
-                                v-for="option in item.options"
-                                :key="option.id"
-                                class="sw-product-properties-list__column-values"
-                            >
+                            <div class="sw-product-properties-list__column-values">
                                 <sw-label
+                                    v-for="option in item.options"
+                                    :key="option.id"
                                     size="medium"
                                     :dismissable="acl.can('product.deleter')"
                                     @dismiss="onDeletePropertyValue(option)"
@@ -191,7 +188,6 @@
                             disabled: acl.can('product.editor'),
                             showOnDisabledElements: true
                         }"
-                        ghost
                         :disabled="!acl.can('product.editor') || undefined"
                         variant="secondary"
                         @click="turnOnAddPropertiesModal"

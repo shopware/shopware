@@ -12,7 +12,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 /**
  * @phpstan-import-type Domain from AbstractDomainLoader
  */
-#[Package('framework')]
+#[Package('discovery')]
 class CachedDomainLoader extends AbstractDomainLoader
 {
     /**

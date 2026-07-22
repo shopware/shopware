@@ -17,7 +17,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class TemplateDataSubscriber implements EventSubscriberInterface
 {
     public function __construct(
@@ -42,15 +42,19 @@ class TemplateDataSubscriber implements EventSubscriberInterface
     public function addHreflang(StorefrontRenderEvent $event): void
     {
         $request = $event->getRequest();
-        $route = $request->attributes->get('_route');
 
+        if ($request->attributes->getBoolean('_esi')) {
+            return;
+        }
+
+        $route = $request->attributes->get('_route');
         if ($route === null) {
             return;
         }
 
         $routeParams = $request->attributes->get('_route_params', []);
         $salesChannelContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
-        $parameter = new HreflangLoaderParameter($route, $routeParams, $salesChannelContext);
+        $parameter = new HreflangLoaderParameter($route, $routeParams, $salesChannelContext, $route === 'frontend.home.page', $request->getBasePath());
         $event->setParameter('hrefLang', $this->hreflangLoader->load($parameter));
     }
 

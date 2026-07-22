@@ -24,8 +24,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Group('store-api')]
 #[Package('discovery')]
+#[Group('store-api')]
 class LandingPageRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

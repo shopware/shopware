@@ -40,6 +40,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
@@ -53,6 +54,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 class AppManagerTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
@@ -1116,7 +1118,7 @@ class AppManagerTest extends TestCase
         $criteria = new Criteria([$appId]);
         $criteria->addAssociation('appShippingMethods.shippingMethod');
 
-        $app = $this->appRepository->search($criteria, $this->context)->first();
+        $app = $this->appRepository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(AppEntity::class, $app);
 
         $appShippingMethods = $app->getAppShippingMethods();

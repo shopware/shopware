@@ -13,6 +13,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
@@ -22,6 +23,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(MediaHydrator::class)]
 class MediaHydratorTest extends TestCase
 {
@@ -41,8 +43,8 @@ class MediaHydratorTest extends TestCase
                 MediaFolderDefinition::class,
                 MediaTranslationDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $container->set(MediaHydrator::class, $this->hydrator);
@@ -72,6 +74,7 @@ class MediaHydratorTest extends TestCase
                 'test.path' => 'media/foo.jpg',
                 'test.private' => false,
                 'test.metaDataRaw' => json_encode(['foo' => 'bar']),
+                'test.fileHash' => 'hash',
             ],
         ];
 
@@ -97,6 +100,7 @@ class MediaHydratorTest extends TestCase
         static::assertSame($date->format(Defaults::STORAGE_DATE_TIME_FORMAT), $first->getUpdatedAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT));
         static::assertSame('media/foo.jpg', $first->getPath());
         static::assertFalse($first->isPrivate());
+        static::assertSame('hash', $first->getFileHash());
     }
 
     public function testHydrationForTranslation(): void

@@ -51,7 +51,7 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
         align-content: flex-end;
         justify-content: flex-end;
         align-items: center;
-        gap: var(--scale-size-4);
+        gap: var(--scale-size-8);
     }
 
     .sw-page__smart-bar-divider {
@@ -173,33 +173,5 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
 
     .sw-page__side-content {
         border-right: 1px solid $sw-page-separator-color;
-    }
-
-    .sw-page__sidebar-container {
-        width: 40px;
-        height: 40px;
-        border-radius: var(--border-radius-button);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        &:hover {
-            background: var(--color-interaction-secondary-hover);
-        }
-
-        .sw-context-button__button {
-            width: 40px;
-            height: 40px;
-            border-radius: var(--border-radius-button);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            &:hover,
-            &is--active {
-                border: none;
-                background: var(--color-interaction-secondary-hover);
-            }
-        }
     }
 }

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexingMessage;
 use Shopware\Elasticsearch\Framework\Indexing\IndexerOffset;
 use Shopware\Elasticsearch\Framework\Indexing\IndexingDto;
@@ -19,6 +20,7 @@ use Shopware\Elasticsearch\Framework\Indexing\IndexingDto;
  *
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ElasticsearchIndexingMessage::class)]
 class ElasticsearchIndexingMessageTest extends TestCase
 {

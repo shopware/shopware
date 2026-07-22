@@ -18,8 +18,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(ItemFacade::class)]
 #[Package('checkout')]
+#[CoversClass(ItemFacade::class)]
 class ItemFacadeTest extends TestCase
 {
     public function testPublicApiAvailable(): void
@@ -34,9 +34,9 @@ class ItemFacadeTest extends TestCase
         $price = new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection());
         $item->setPrice($price);
 
-        $stubs = $this->createMock(ScriptPriceStubs::class);
-        $helper = $this->createMock(CartFacadeHelper::class);
-        $context = $this->createMock(SalesChannelContext::class);
+        $stubs = static::createStub(ScriptPriceStubs::class);
+        $helper = static::createStub(CartFacadeHelper::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $facade = new ItemFacade($item, $stubs, $helper, $context);
 
@@ -66,9 +66,9 @@ class ItemFacadeTest extends TestCase
         $item->setLabel('label');
         $item->setStackable(true);
 
-        $stubs = $this->createMock(ScriptPriceStubs::class);
-        $helper = $this->createMock(CartFacadeHelper::class);
-        $context = $this->createMock(SalesChannelContext::class);
+        $stubs = static::createStub(ScriptPriceStubs::class);
+        $helper = static::createStub(CartFacadeHelper::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $facade = new ItemFacade($item, $stubs, $helper, $context);
 
@@ -92,9 +92,9 @@ class ItemFacadeTest extends TestCase
         $item->setLabel('label');
         $item->setStackable(false);
 
-        $stubs = $this->createMock(ScriptPriceStubs::class);
-        $helper = $this->createMock(CartFacadeHelper::class);
-        $context = $this->createMock(SalesChannelContext::class);
+        $stubs = static::createStub(ScriptPriceStubs::class);
+        $helper = static::createStub(CartFacadeHelper::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $facade = new ItemFacade($item, $stubs, $helper, $context);
 
@@ -105,9 +105,9 @@ class ItemFacadeTest extends TestCase
     {
         $item = new LineItem('foo', 'type', 'reference', 5);
 
-        $stubs = $this->createMock(ScriptPriceStubs::class);
-        $helper = $this->createMock(CartFacadeHelper::class);
-        $context = $this->createMock(SalesChannelContext::class);
+        $stubs = static::createStub(ScriptPriceStubs::class);
+        $helper = static::createStub(CartFacadeHelper::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $facade = new ItemFacade($item, $stubs, $helper, $context);
 

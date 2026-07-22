@@ -25,7 +25,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class StorybookService
 {
     private const PARAMETER_DENY_LIST = [

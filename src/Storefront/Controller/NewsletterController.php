@@ -22,8 +22,8 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('after-sales')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 class NewsletterController extends StorefrontController
 {
     /**
@@ -48,7 +48,7 @@ class NewsletterController extends StorefrontController
         }
 
         try {
-            $this->newsletterConfirmRoute->confirm($queryDataBag->toRequestDataBag(), $context);
+            $this->newsletterConfirmRoute->confirmWithResponse($queryDataBag->toRequestDataBag(), $context);
         } catch (NewsletterException) {
             $this->addFlash(self::DANGER, $this->trans('newsletter.subscriptionConfirmationFailed'));
 

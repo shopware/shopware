@@ -6,7 +6,7 @@
 Execute all commands directly as shown in AGENTS.md without any prefix.
 
 ### Examples:
-- `composer ecs-fix`
+- `composer cs-fix`
 - `bin/console cache:clear`
 
 **All commands from AGENTS.md can be executed directly without modification.**

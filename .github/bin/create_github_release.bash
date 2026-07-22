@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eu
+set -euo pipefail
 
 if [ -n "${DEBUG:-}" ]; then
     set -x
@@ -31,12 +31,15 @@ print_usage() {
 draft_release_payload() {
   local platform_tag; export platform_tag="${1}"
 
-  jq -nc '{
+  php ./.github/bin/generate-release-notes.php --output-file "${platform_tag}_release_notes.md" "${platform_tag#v}" 1>&2
+
+  jq --rawfile body "${platform_tag}_release_notes.md" -nc '{
     tag_name: env.platform_tag,
     name: "Release \(env.platform_tag)",
     draft: true,
     prerelease: false,
-    generate_release_notes: true
+    generate_release_notes: false,
+    body: $body
   }'
 }
 

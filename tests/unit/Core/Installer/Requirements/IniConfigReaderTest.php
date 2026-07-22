@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Installer\Requirements;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Requirements\IniConfigReader;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(IniConfigReader::class)]
 class IniConfigReaderTest extends TestCase
 {

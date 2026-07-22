@@ -175,9 +175,9 @@ export default {
     },
 
     methods: {
-        createdComponent() {
+        async createdComponent() {
             if (this.acl.can('user_config:read')) {
-                this.loadGridUserSettings();
+                await this.loadGridUserSettings().catch(() => {});
             }
 
             if (this.acl.can('system_config:read')) {

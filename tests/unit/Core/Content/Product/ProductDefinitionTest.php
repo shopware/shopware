@@ -7,12 +7,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductDefinition::class)]
 class ProductDefinitionTest extends TestCase
 {
@@ -22,8 +24,8 @@ class ProductDefinitionTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [ProductDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGateway::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGateway::class)
         );
 
         $definition = $registry->getByEntityName('product');

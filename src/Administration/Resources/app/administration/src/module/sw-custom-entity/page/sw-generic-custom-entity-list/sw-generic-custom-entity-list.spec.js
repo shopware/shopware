@@ -104,7 +104,7 @@ async function createWrapper(query = {}) {
                         },
                         meta: {
                             $module: {
-                                icon: 'solid-content',
+                                icon: 'regular-content',
                             },
                         },
                         query,

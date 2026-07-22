@@ -1,0 +1,39 @@
+<ram:IncludedSupplyChainTradeLineItem>
+    <ram:AssociatedDocumentLineDocument>
+        <ram:LineID>{{ item.lineId }}</ram:LineID>
+    </ram:AssociatedDocumentLineDocument>
+
+    <ram:SpecifiedTradeProduct>
+        {% if item.ean %}
+            <ram:GlobalID schemeID="0088">{{ item.ean }}</ram:GlobalID>
+        {% endif %}
+
+        {% if item.productNumber %}
+            <ram:SellerAssignedID>{{ item.productNumber }}</ram:SellerAssignedID>
+        {% endif %}
+
+        <ram:Name>{{ item.name }}</ram:Name>
+    </ram:SpecifiedTradeProduct>
+
+    <ram:SpecifiedLineTradeAgreement>
+        <ram:NetPriceProductTradePrice>
+            <ram:ChargeAmount>{{ item.netUnitPrice|zugferd_decimal }}</ram:ChargeAmount>
+            <ram:BasisQuantity unitCode="{{ item.unitCode.value }}">{{ item.basisQuantity|zugferd_decimal }}</ram:BasisQuantity>
+        </ram:NetPriceProductTradePrice>
+    </ram:SpecifiedLineTradeAgreement>
+
+    <ram:SpecifiedLineTradeDelivery>
+        <ram:BilledQuantity unitCode="{{ item.unitCode.value }}">{{ item.quantity|zugferd_decimal }}</ram:BilledQuantity>
+    </ram:SpecifiedLineTradeDelivery>
+
+    <ram:SpecifiedLineTradeSettlement>
+        <ram:ApplicableTradeTax>
+            <ram:TypeCode>VAT</ram:TypeCode>
+            <ram:CategoryCode>{{ item.taxCategory.value }}</ram:CategoryCode>
+            <ram:RateApplicablePercent>{{ item.taxRate|zugferd_decimal }}</ram:RateApplicablePercent>
+        </ram:ApplicableTradeTax>
+        <ram:SpecifiedTradeSettlementLineMonetarySummation>
+            <ram:LineTotalAmount>{{ item.lineTotal|zugferd_decimal }}</ram:LineTotalAmount>
+        </ram:SpecifiedTradeSettlementLineMonetarySummation>
+    </ram:SpecifiedLineTradeSettlement>
+</ram:IncludedSupplyChainTradeLineItem>

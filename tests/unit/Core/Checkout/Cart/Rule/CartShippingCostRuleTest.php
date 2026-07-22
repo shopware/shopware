@@ -64,7 +64,7 @@ class CartShippingCostRuleTest extends TestCase
 
         $match = $rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -174,7 +174,7 @@ class CartShippingCostRuleTest extends TestCase
 
     public function testMatchIfDifferentRuleScope(): void
     {
-        $scope = new CheckoutRuleScope($this->createMock(SalesChannelContext::class));
+        $scope = new CheckoutRuleScope(static::createStub(SalesChannelContext::class));
         static::assertFalse($this->rule->match($scope));
     }
 

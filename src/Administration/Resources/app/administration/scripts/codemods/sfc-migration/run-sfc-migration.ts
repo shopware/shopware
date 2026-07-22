@@ -214,10 +214,8 @@ export function normaliseJsContent(jsContent: string, componentName: string): st
 function buildIndexShim(componentName: string): string {
     const vueImportPath = `./${componentName}.vue`;
 
-    // TODO: Silent ignore: delete-originals uses the directory name for the
-    // shim registration. If the original index.js registered a different
-    // literal component name, the generated entrypoint silently registers a
-    // different component.
+    // The shim registers under the directory name; writeMigrationOutput only
+    // reaches here when that matches the originally registered component name.
     return [
         `import component from ${quoteJsString(vueImportPath)};`,
         '',
@@ -280,6 +278,17 @@ function writeMigrationOutput(
         return true;
     }
 
+    // The generated entry point registers under the directory name. When the
+    // original registered a different literal component name, replacing it would
+    // silently re-register the component, so keep the originals for manual review.
+    if (result.componentName !== context.componentName) {
+        report.push(
+            `   ⚠  kept originals because the registered component name '${result.componentName}' differs from directory '${context.componentName}'`,
+        );
+
+        return true;
+    }
+
     replaceOriginalsWithEntryPoint(context.indexPath, context.twigPath, context.componentName);
     stats.deletedOriginals++;
     report.push(`  replaced entrypoint  ${formatReportPath(context.indexPath)}`);
@@ -336,6 +345,7 @@ function reportPartiallyMigrated(
     report.push(
         `~  partially-migrated  [${result.blockers.join(', ')}]  ${getDryRunPrefix(options)}${formatReportPath(context.vuePath)}`,
     );
+    reportWarnings(result.warnings, stats, report);
     if (options.deleteOriginals && !options.dryRun) {
         report.push(
             '   ⚠  kept originals because partial migration requires manual follow-up before replacing the entrypoint',

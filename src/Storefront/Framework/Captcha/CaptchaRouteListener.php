@@ -2,13 +2,13 @@
 
 namespace Shopware\Storefront\Framework\Captcha;
 
-use Psr\Container\ContainerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\ErrorController;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -17,7 +17,7 @@ use Symfony\Component\Validator\ConstraintViolation;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 readonly class CaptchaRouteListener implements EventSubscriberInterface
 {
     /**

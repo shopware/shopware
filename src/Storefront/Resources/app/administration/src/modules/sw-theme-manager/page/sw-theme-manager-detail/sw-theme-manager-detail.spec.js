@@ -33,15 +33,19 @@ describe('sw-theme-manager-detail', () => {
         };
 
         const defaultFolderRepository = {
-            search: jest.fn(() => Promise.resolve({
-                first: () => ({ folder: { id: 'default-folder-id' } }),
-            })),
+            search: jest.fn(() =>
+                Promise.resolve({
+                    first: () => ({ folder: { id: 'default-folder-id' } }),
+                }),
+            ),
         };
 
         const salesChannelRepository = {
-            search: jest.fn(() => Promise.resolve({
-                getIds: () => ['sc-1'],
-            })),
+            search: jest.fn(() =>
+                Promise.resolve({
+                    getIds: () => ['sc-1'],
+                }),
+            ),
         };
 
         const themeService = {
@@ -50,11 +54,13 @@ describe('sw-theme-manager-detail', () => {
             assignTheme: jest.fn(() => Promise.resolve()),
             resetTheme: jest.fn(() => Promise.resolve()),
             getStructuredFields: jest.fn(() => Promise.resolve({ tabs: {}, configInheritance: [] })),
-            getConfiguration: jest.fn(() => Promise.resolve({
-                currentFields: {},
-                fields: {},
-                baseThemeFields: {},
-            })),
+            getConfiguration: jest.fn(() =>
+                Promise.resolve({
+                    currentFields: {},
+                    fields: {},
+                    baseThemeFields: {},
+                }),
+            ),
             ...themeServiceOverrides,
         };
 
@@ -278,13 +284,15 @@ describe('sw-theme-manager-detail', () => {
             'parent',
         );
 
-        expect(bind.config).toEqual(expect.objectContaining({
-            isInheritanceField: true,
-            isInherited: true,
-            inheritanceRemove: removeInheritance,
-            inheritanceRestore: restoreInheritance,
-            inheritedValue: 'parent',
-        }));
+        expect(bind.config).toEqual(
+            expect.objectContaining({
+                isInheritanceField: true,
+                isInherited: true,
+                inheritanceRemove: removeInheritance,
+                inheritanceRestore: restoreInheritance,
+                inheritedValue: 'parent',
+            }),
+        );
     });
 
     it('passes inheritance bindings to boolean theme config fields', async () => {
@@ -297,11 +305,15 @@ describe('sw-theme-manager-detail', () => {
             restoreInheritance: jest.fn(),
         };
 
-        const bind = wrapper.vm.getBind({
-            type: 'switch',
-            label: 'Switch',
-            helpText: 'Switch help',
-        }, inheritance, false);
+        const bind = wrapper.vm.getBind(
+            {
+                type: 'switch',
+                label: 'Switch',
+                helpText: 'Switch help',
+            },
+            inheritance,
+            false,
+        );
 
         expect(bind).toEqual({
             type: 'switch',
@@ -411,7 +423,12 @@ describe('sw-theme-manager-detail', () => {
         const wrapper = await createWrapper({
             themeOverrides: {
                 getOrigin: () => ({
-                    salesChannels: new Map([['sc-1', {}]]),
+                    salesChannels: new Map([
+                        [
+                            'sc-1',
+                            {},
+                        ],
+                    ]),
                 }),
             },
         });
@@ -428,10 +445,12 @@ describe('sw-theme-manager-detail', () => {
         const error = {
             response: {
                 data: {
-                    errors: [{
-                        code: 'THEME__INVALID_SCSS_VAR',
-                        detail: 'Bad var',
-                    }],
+                    errors: [
+                        {
+                            code: 'THEME__INVALID_SCSS_VAR',
+                            detail: 'Bad var',
+                        },
+                    ],
                 },
             },
         };
@@ -446,10 +465,12 @@ describe('sw-theme-manager-detail', () => {
         await wrapper.vm.onValidate();
         await flushPromises();
 
-        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith(expect.objectContaining({
-            title: 'sw-theme-manager.detail.validate.failed',
-            autoClose: false,
-        }));
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith(
+            expect.objectContaining({
+                title: 'sw-theme-manager.detail.validate.failed',
+                autoClose: false,
+            }),
+        );
     });
 
     it('saves theme config via API with reset and validation', async () => {
@@ -462,17 +483,23 @@ describe('sw-theme-manager-detail', () => {
 
         await wrapper.vm.saveThemeConfig();
 
-        expect(themeService.updateTheme).toHaveBeenCalledWith('theme-id', { config: { foo: 'bar' } }, { reset: true, validate: true });
+        expect(themeService.updateTheme).toHaveBeenCalledWith(
+            'theme-id',
+            { config: { foo: 'bar' } },
+            { reset: true, validate: true },
+        );
     });
 
     it('handles compiling error on save', async () => {
         const error = {
             response: {
                 data: {
-                    errors: [{
-                        code: 'THEME__COMPILING_ERROR',
-                        detail: 'Compile error',
-                    }],
+                    errors: [
+                        {
+                            code: 'THEME__COMPILING_ERROR',
+                            detail: 'Compile error',
+                        },
+                    ],
                 },
             },
         };
@@ -484,21 +511,25 @@ describe('sw-theme-manager-detail', () => {
         await wrapper.vm.onSaveTheme();
         await flushPromises();
 
-        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith(expect.objectContaining({
-            title: 'sw-theme-manager.detail.error.themeCompile.title',
-            autoClose: false,
-        }));
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith(
+            expect.objectContaining({
+                title: 'sw-theme-manager.detail.error.themeCompile.title',
+                autoClose: false,
+            }),
+        );
     });
 
     it('handles invalid configuration errors on save', async () => {
         const error = {
             response: {
                 data: {
-                    errors: [{
-                        code: 'THEME__INVALID_SCSS_VAR',
-                        detail: 'Invalid var',
-                        meta: { parameters: { name: 'config-field' } },
-                    }],
+                    errors: [
+                        {
+                            code: 'THEME__INVALID_SCSS_VAR',
+                            detail: 'Invalid var',
+                            meta: { parameters: { name: 'config-field' } },
+                        },
+                    ],
                 },
             },
         };
@@ -510,10 +541,12 @@ describe('sw-theme-manager-detail', () => {
         await wrapper.vm.onSaveTheme();
         await flushPromises();
 
-        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith(expect.objectContaining({
-            title: 'sw-theme-manager.detail.error.invalidConfiguration.title',
-            autoClose: true,
-        }));
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith(
+            expect.objectContaining({
+                title: 'sw-theme-manager.detail.error.invalidConfiguration.title',
+                autoClose: true,
+            }),
+        );
         expect(wrapper.vm.themeConfigErrors['config-field']).toBeDefined();
     });
 

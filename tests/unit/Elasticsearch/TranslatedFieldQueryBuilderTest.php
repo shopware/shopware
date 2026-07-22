@@ -22,15 +22,15 @@ use Shopware\Elasticsearch\TranslatedResolvedField;
 /**
  * @internal
  */
-#[CoversClass(TranslatedFieldQueryBuilder::class)]
 #[Package('inventory')]
+#[CoversClass(TranslatedFieldQueryBuilder::class)]
 class TranslatedFieldQueryBuilderTest extends TestCase
 {
     private const SECOND_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20c';
 
     public function testGetDecorated(): void
     {
-        $inner = $this->createMock(AbstractFieldQueryBuilder::class);
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
         $builder = new TranslatedFieldQueryBuilder($inner, new ArrayKeyValueStorage([]));
 
         static::assertSame($inner, $builder->getDecorated());
@@ -56,7 +56,7 @@ class TranslatedFieldQueryBuilderTest extends TestCase
 
     public function testBuildsLanguageChainForTranslatedField(): void
     {
-        $inner = $this->createMock(AbstractFieldQueryBuilder::class);
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
         $inner->method('build')
             ->willReturnCallback(function (ResolvedField $field, string $token, SearchFieldConfig $config): TermQuery {
                 return new TermQuery($config->getField(), $token, ['boost' => $config->getRanking()]);
@@ -90,7 +90,7 @@ class TranslatedFieldQueryBuilderTest extends TestCase
 
     public function testSingleLanguageReturnsUnwrappedQuery(): void
     {
-        $inner = $this->createMock(AbstractFieldQueryBuilder::class);
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
         $inner->method('build')
             ->willReturnCallback(function (ResolvedField $field, string $token, SearchFieldConfig $config): TermQuery {
                 return new TermQuery($config->getField(), $token, ['boost' => $config->getRanking()]);
@@ -112,7 +112,7 @@ class TranslatedFieldQueryBuilderTest extends TestCase
 
     public function testReturnsNullWhenAllLanguageQueriesReturnNull(): void
     {
-        $inner = $this->createMock(AbstractFieldQueryBuilder::class);
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
         $inner->method('build')->willReturn(null);
 
         $builder = new TranslatedFieldQueryBuilder($inner, new ArrayKeyValueStorage([]));
@@ -132,7 +132,7 @@ class TranslatedFieldQueryBuilderTest extends TestCase
     {
         $capturedConfigs = [];
 
-        $inner = $this->createMock(AbstractFieldQueryBuilder::class);
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
         $inner->method('build')
             ->willReturnCallback(function (ResolvedField $field, string $token, SearchFieldConfig $config) use (&$capturedConfigs): TermQuery {
                 $capturedConfigs[] = $config;
@@ -158,7 +158,7 @@ class TranslatedFieldQueryBuilderTest extends TestCase
     {
         $capturedFields = [];
 
-        $inner = $this->createMock(AbstractFieldQueryBuilder::class);
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
         $inner->method('build')
             ->willReturnCallback(function (ResolvedField $field, string $token, SearchFieldConfig $config) use (&$capturedFields): TermQuery {
                 $capturedFields[] = $field;

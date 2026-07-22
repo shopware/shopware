@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Transport\SmtpOauthAuthenticator;
 use Shopware\Core\Content\Mail\Transport\SmtpOauthTransportFactoryDecorator;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Mailer\Transport\Dsn;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransportFactory;
@@ -13,6 +14,7 @@ use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransportFactory;
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(SmtpOauthTransportFactoryDecorator::class)]
 class SmtpOauthTransportFactoryDecoratorTest extends TestCase
 {
@@ -62,7 +64,7 @@ class SmtpOauthTransportFactoryDecoratorTest extends TestCase
 
         $decorated = new EsmtpTransportFactory();
 
-        $authenticator = $this->createMock(SmtpOauthAuthenticator::class);
+        $authenticator = static::createStub(SmtpOauthAuthenticator::class);
 
         $factory = new SmtpOauthTransportFactoryDecorator($decorated, $authenticator);
 
@@ -75,7 +77,7 @@ class SmtpOauthTransportFactoryDecoratorTest extends TestCase
 
         $decorated = new EsmtpTransportFactory();
 
-        $authenticator = $this->createMock(SmtpOauthAuthenticator::class);
+        $authenticator = static::createStub(SmtpOauthAuthenticator::class);
 
         $factory = new SmtpOauthTransportFactoryDecorator($decorated, $authenticator);
 

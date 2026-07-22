@@ -4,6 +4,12 @@
 
 <details>
 
+## Locale-aware sorting for product property group options
+
+To ensure product property group options are sorted more precisely based on locale code:
+- `/Shopware/Core/Content/Product/AbstractPropertyGroupSorter`: The `sort` method will be removed, use `sortUsingLocaleCode` instead.
+- `/Shopware/Core/Content/Property/PropertyGroupCollection`: The `sortByConfig` method now requires a new parameter `localeCode`.
+
 ## Webhook Messenger transport — explicit receiver configuration required
 
 Webhook delivery now uses a dedicated `webhook` Messenger transport. Add it to your `messenger:consume` receiver list and to `shopware.admin_worker.transports` if you override that key.
@@ -38,6 +44,10 @@ shopware:
 
 The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now require a minimum value of `1`.
 
+## Minimum value constraint added to restockTime field in ProductDefinition
+
+The field `restockTime` of ProductDefinition now requires a minimum value of `0`. Writing a negative value via the API is rejected. Existing negative values are set to `NULL` by a migration, as they previously broke cart calculation for out-of-stock products.
+
 ## Default CMS page ID now persisted for categories
 
 The default CMS page ID is now automatically written to the database when a category is saved without a `cmsPageId`.
@@ -51,10 +61,16 @@ Use `Shopware\Core\System\SystemConfig\SystemConfigService` directly in PHP code
 
 Twig templates can continue using the `config()` helper, which is now provided by the core Twig environment.
 
-## Tax Calculation for percentage discounts / surcharges, e.g. promotions
+## Tax calculation for percentage discounts, surcharges, and split line-item quantities
 
 Taxes of percentage prices are not recalculated anymore, but use the existing tax calculation of the referenced line items.
 This prevents rounding errors when calculating taxes for percentage prices.
+
+The same applies when a line item is split into multiple quantities, for example while distributing a promotion across line items.
+The calculated taxes of the original line item are now distributed proportionally instead of recalculating the taxes for each split quantity.
+This can change cent-level rounding compared to previous versions.
+
+If an extension relies on recalculated taxes for percentage prices or split line items, review the resulting taxes for mixed tax rates, net and gross prices, promotions, and partial quantities.
 
 ## Payment: Removal of Payment Method "Debit Payment"
 
@@ -67,6 +83,61 @@ Otherwise, the payment method will be disabled.
 For user interfaces that display only one delivery & transaction, there is now a new reference in the order for a `primaryOrderDelivery` or `primaryOrderTransaction`.
 If an extension modifies or adds new deliveries or transactions, this should be taken into account.
 To partly comply with old behaviour, primary deliveries are ordered first and primary transactions are ordered last wherever appropriate.
+
+## Flow Builder executions run after the main business process
+
+Flows triggered during an HTTP request, Messenger message, or console command are now buffered and executed after the current unit of work has finished.
+For HTTP requests, buffered flows run during kernel termination; for Messenger and console execution, they run after the message or command has been handled.
+The flows still run in the same process and are not automatically dispatched to a message queue.
+
+This protects the main business process from failures and unexpected state mutations caused by flow actions, and avoids delaying it with expensive actions such as sending mail.
+Keeping execution in the same process, but after the main unit of work, also avoids the unpredictable delay of dispatching every flow through the message queue.
+The motivation, considered alternatives, and consequences are described in the [architecture decision record](adr/2025-01-31-move-flow-execution-after-business-process.md) and the [public RFC discussion](https://github.com/shopware/shopware/discussions/6750).
+
+This changes the ordering of Flow Builder actions relative to synchronous event subscribers and the initiating business operation:
+
+- Code that dispatches a `FlowEventAware` event returns before matching flows have run.
+- For HTTP requests, the response can be sent before flow side effects are completed.
+- Entity data used by flow actions is restored after the main business operation and can therefore reflect the subsequently persisted state instead of the original in-memory entity state.
+- Request-scoped state and an open transaction from the initiating operation must not be assumed to still be available to a custom flow action.
+
+If an operation must happen synchronously as part of the business transaction, implement it in a synchronous event subscriber instead of relying on a Flow Builder action.
+Review integrations that expect mail delivery, state transitions, webhooks, or custom flow actions to have completed when the initiating call returns.
+Tests that dispatch flow-aware events directly must also trigger the corresponding termination phase before asserting flow side effects.
+
+### Replace `BeforeLoadStorableFlowDataEvent`
+
+The deprecated `Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent` and its dynamic event names are removed.
+To modify the criteria used to restore entity data for mail-related flow actions, subscribe to `Shopware\Core\Content\Shared\MailFlow\Event\MailFlowDataCriteriaEvent` instead.
+This replacement lets mail preview, direct mail sending, and mail-related flow actions use the same entity data providers and criteria extension point, keeping extension-added associations consistent across those paths.
+
+The dynamic event name changes as follows:
+
+```diff
+-flow.storer.<entity-name>.criteria.event
++mail-flow.data.<entity-name>.criteria.event
+```
+
+Use the public `$criteria` and `$entityName` properties and the `getContext()` method on `MailFlowDataCriteriaEvent`.
+
+## Cart is deleted immediately after the order is created
+
+During checkout, the persisted cart is now deleted directly after the order has been created and before `CheckoutOrderPlacedCriteriaEvent` and `CheckoutOrderPlacedEvent` are dispatched.
+Subscribers to these events can no longer reload the cart by its context token.
+Deleting it at this point prevents the already-converted cart from remaining available if later order loading or an order-placed subscriber fails after the order was persisted.
+Otherwise, the cart and order lifecycle could become inconsistent.
+
+Read required information from the created order instead.
+Associations needed by `CheckoutOrderPlacedEvent` can be added through `CheckoutOrderPlacedCriteriaEvent`.
+If information exists only in the cart, persist or transfer it during order conversion or before the order is placed instead of loading the cart from an order-placed subscriber.
+
+## Cart errors created during SalesChannelContext construction are deferred
+
+Cart errors that occur while the `SalesChannelContext` is constructed are now persisted with the cart.
+They remain available until the cart is processed by the next cart-related Store API request, so temporary errors are not consumed before a client can display them.
+
+Store API clients should process the errors returned by the next cart response even if the operation that originally caused the error happened while the sales-channel context was created.
+Custom cart persisters and processors must preserve existing cart errors until that subsequent cart processing has taken place.
 
 ## Standardized CLI JSON output flag
 
@@ -176,6 +247,38 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
+## Landing page slot config must not be null
+
+`LandingPageEntity::setSlotConfig()` and `LandingPageTranslationEntity::setSlotConfig()` no longer accept `null` for their `$slotConfig` argument. Pass the slot configuration array when writing a landing page or its translation.
+
+## `EntitySearchResult`, `ProductListingResult` and `ProductReviewResult` no longer extend `EntityCollection`
+
+`EntitySearchResult` no longer extends `EntityCollection`, and `ProductListingResult` / `ProductReviewResult` no longer extend `EntitySearchResult`. All three are standalone result wrappers now. They remain `Struct`, so extensions, states, and JSON serialization keep working.
+
+Changes affecting all three classes:
+
+- Collection methods (`first`, `last`, `filter`, `getElements`, `slice`, `map`, `getIds`, `merge`, …) were removed from the results. Call them on `$result->getEntities()`.
+- The results are no longer iterable or countable: use `foreach ($result->getEntities() as $entity)` instead of `foreach ($result as $entity)`, and `$result->getEntities()->count()` (or `getTotal()` for the overall match count) instead of `count($result)` or `$result->count()`.
+- Twig: iterate `searchResult.entities` instead of `searchResult`, and read `searchResult.entities` instead of `searchResult.elements`.
+- Parameter and return types declared as `EntityCollection` (when expecting a search result) or `EntitySearchResult` (when expecting a `ProductListingResult` / `ProductReviewResult`) no longer match — narrow them to the actual types.
+
+`EntitySearchResult`:
+
+- The wrapper is immutable: `$total`, `$entities`, `$page`, `$limit`, `$criteria`, `$context`, and `$aggregations` are `readonly`; the setters `setPage()`, `setLimit()`, `setEntity()`, and `setCustomFields()` were removed.
+- The entity-name field is gone: `$entity`, `getEntity()`, and `setEntity()` were removed.
+- The constructor signature changed: the `$entity` parameter was removed and the remaining parameters reorder. Code that constructs results manually (test fixtures, custom decorators) must be updated.
+- The protected `createNew()` method was removed together with `filter()` and `slice()`, which were its only internal callers. Subclass overrides of it are no longer called.
+
+`ProductListingResult`:
+
+- Convert from a base search result with `ProductListingResult::fromSearchResult(...)`.
+- The listing state (`$sorting`, `$currentFilters`, `$availableSortings`, `$streamId`, `$page`, `$limit`) stays mutable: listing processors (`AbstractListingProcessor`) modify the result after construction by design, so `addCurrentFilter()`, `setSorting()`, `setAvailableSortings()`, `setStreamId()`, `setPage()`, and `setLimit()` remain available — the latter two were only removed from `EntitySearchResult`.
+
+`ProductReviewResult`:
+
+- Convert from a base search result with `ProductReviewResult::fromSearchResult(...)`.
+- The class is fully immutable: `$matrix`, `$productId`, `$customerReview`, `$totalReviewsInCurrentLanguage`, and `$parentId` are `readonly`; the setters (`setMatrix()`, `setProductId()`, `setCustomerReview()`, `setTotalReviewsInCurrentLanguage()`, `setParentId()`) were removed. Pass the values to `fromSearchResult()` instead.
+
 ## Scheduled task execution moved to `ScheduledTaskExecutor`
 
 The execution orchestration of `Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler::__invoke()` (loading the task, marking it running or failed, and rescheduling it) was moved into the new `Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskExecutor` service.
@@ -230,6 +333,16 @@ shopware:
         compress: true
         compression_method: 'gzip'
 ```
+
+## Removed unused Composer dependencies
+
+Shopware no longer requires the following Composer packages:
+
+- `doctrine/inflector`
+- `symfony/monolog-bridge`
+- `symfony/proxy-manager-bridge`
+
+If your extension uses classes from one of these packages, declare the package explicitly in your extension's `composer.json`.
 
 ## Removed stored `mail_template_type.template_data`
 
@@ -396,13 +509,25 @@ Following helper methods have been removed from the `EntityDefinitionQueryHelper
 - \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::columnIsNullable
 - \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::tableExists
 
-## Thrown exception changed in migration helper traits
+## Behavior change in migration helper traits for missing tables
 
-Instead of `\Doctrine\DBAL\Exception\TableNotFoundException`, a `\Shopware\Core\Framework\Util\UtilException` is now thrown in the following methods:
-- \Shopware\Core\Framework\Migration\AddColumnTrait::addColumn
-- \Shopware\Core\Framework\Migration\ColumnExistsTrait::columnExists
+`\Shopware\Core\Framework\Migration\ColumnExistsTrait::columnExists` no longer throws a `\Doctrine\DBAL\Exception\TableNotFoundException` when the given table does not exist — it returns `false` instead.
+`\Shopware\Core\Framework\Migration\AddColumnTrait::addColumn` still throws a `\Doctrine\DBAL\Exception\TableNotFoundException` for missing tables (from the executed `ALTER TABLE` statement).
 
 ## Cache improvements
+
+### Selected Store API routes now use the HTTP cache
+
+Cacheable GET Store API routes now participate in Shopware's regular HTTP cache and use the same cache policies and `sw-cache-hash` variations as the Storefront.
+This applies to routes marked with the `_httpCache` route attribute, including product, category, navigation, CMS, country, currency, language, salutation, and SEO data routes.
+The change improves response times for headless storefronts while reusing the Storefront's configurable HTTP cache infrastructure instead of reintroducing a separate Store API caching layer.
+
+This is separate from the old Store API route cache that was removed in 6.7.
+The removed configuration listed under [Removed Store-API Route caching configuration](#removed-store-api-route-caching-configuration) still has no replacement; selected Store API responses are now cached by the standard HTTP cache instead.
+
+If an extension adds context-dependent data to a cacheable Store API response, ensure every relevant variation is represented in the HTTP cache key or prevent the response from being cached.
+In particular, review data that depends on the current customer, cart, permissions, custom rules, system configuration, or external state.
+Custom Store API routes are only cached when they explicitly opt in through the `_httpCache` route attribute.
 
 ### Only rules relevant for product prices are considered in the `sw-cache-hash`
 
@@ -608,6 +733,9 @@ Profiles are now identified and displayed only by their technical name.
   - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationCollection`
   - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationDefinition`
   - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationEntity`
+- The `importExportProfileTranslations` association has been removed from `Shopware\Core\System\Language\LanguageDefinition`, and the following methods in `Shopware\Core\System\Language\LanguageEntity` have been removed:
+  - `getImportExportProfileTranslations()`
+  - `setImportExportProfileTranslations()`
 - `createLog()` and `getConfig()` in `Shopware\Core\Content\ImportExport\Service\ImportExportService` now use `$technicalName` instead of `$label` when generating filenames.
 - `generateFilename()` in `Shopware\Core\Content\ImportExport\Service\FileService` now uses `$technicalName` instead of `$label` as profile name.
 
@@ -838,6 +966,23 @@ use `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFac
 
 </details>
 
+## Moved `UnmappedFieldException`
+
+`UnmappedFieldException` was moved out of the DBAL sub-namespace into the DAL exception namespace, and `DataAbstractionLayerException::unmappedField()` now returns it:
+
+* Before: `Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException`
+* After: `Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException`
+
+Update your `use` and `catch` statements accordingly:
+
+```php
+// Before
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
+
+// After
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException;
+```
+
 ## `AbstractTranslationLoader::pluginTranslationExists()` removed
 
 The locale-agnostic method `pluginTranslationExists(Plugin $plugin): bool` has been removed from `Shopware\Core\System\Snippet\Service\AbstractTranslationLoader`.
@@ -888,6 +1033,12 @@ $salesChannel->getMaintenanceIpWhitelist();
 // After
 $salesChannel->getMaintenanceIpAllowlist();
 ```
+
+## Removal of `ProductListingLoader::PARTIAL_LISTING_FIELDS`
+
+The `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader::PARTIAL_LISTING_FIELDS` constant has been removed. Reduced listing loading (`core.listing.partialDataLoading`) no longer allow-lists a fixed set of fields; instead it loads full product entities and drops only the heavy, off-page columns via `Criteria::excludeFields()`.
+
+If you referenced this constant, build your own field list or switch to `Criteria::excludeFields(['description', ...])` to omit specific columns while keeping a full, typed entity.
 
 # Administration
 
@@ -1341,6 +1492,34 @@ The indexing progress notifications in the Administration notification center ha
 
 We've restructured the document settings to make them more intuitive and user-friendly.
 
+### Company information moved from document settings to Basic information
+
+Document company data is now managed globally in the Administration under:
+
+`Settings > Basic information > Company information`
+
+This information is no longer configured per document type in `sw-settings-document-detail`.
+Only document-specific display options such as `Company address`, `Return address`, and `Payment due date` remain in the document settings.
+
+> [!IMPORTANT]
+> Before or immediately after upgrading to 6.8, review and populate the new Company information section in Basic information.
+> Document rendering now uses these global values as the source of truth for company data.
+
+If your extension or customization previously:
+
+- read company fields from document-specific configuration in `document_base_config.config`
+- customized the old company-information UI in `sw-settings-document-detail`
+- assumed company information could differ per document type
+
+you need to migrate that logic to the global Basic information configuration instead.
+
+The new company settings are stored as flat system-config entries under `core.basicInformation.*`, for example:
+
+- `core.basicInformation.companyName`
+- `core.basicInformation.companyStreet`
+- `core.basicInformation.companyCountryId`
+- `core.basicInformation.companyLogoId`
+
 As part of this update, the following administration component parts have been deprecated:
 * `src/module/sw-settings-document/page/sw-settings-document-detail`:
   * computed `expandButtonClass` was deprecated without replacement
@@ -1709,6 +1888,11 @@ Instead of overwriting any of those blocks inside `@Storefront/storefront/compon
 ## Removed address book action template
 The unused template `@/Storefront/Resources/views/storefront/page/account/addressbook/address-actions.html.twig` was removed.
 
+## Removed `type` variable from address manager templates
+
+The deprecated Twig variable `type` in `address-manager-modal-list.html.twig`, `address-manager-modal-create-address.html.twig`, and `address-manager-item.html.twig` was removed.
+Use `addressType` instead.
+
 ## Removal of `ThemeLifecycleHandler::STATE_SKIP_THEME_COMPILATION`
 
 The context-state flag that suppresses theme recompilation during app lifecycle operations is now owned by the Core app-lifecycle contract.
@@ -1855,6 +2039,15 @@ With this change, Cache-Control headers defined by cache policies are sent direc
 - Client-side caching (browser cache) now respects your configured policies.
 - Ensure your cache policies are configured appropriately for client exposure: unlike reverse proxies that use tag-based invalidation, browser caches cannot be invalidated on-demand.
 
+The following extension points that only existed to steer this listener were removed together with it:
+
+- `Shopware\Core\Framework\Adapter\Cache\Http\Event\BeforeCacheControlEvent`
+- `Shopware\Administration\Controller\AdministrationController::CACHE_ID_HEADER` and `::CACHE_ID_ADMINISTRATION`
+
+The `X-Shopware-Cache-Id: administration` response header is therefore no longer emitted for administration responses.
+
+Migration: A listener on `BeforeCacheControlEvent` that called `skipCacheControl()` to protect its own `Cache-Control` headers is no longer needed, because those headers are now sent as-is; remove the listener. If you matched on the `X-Shopware-Cache-Id` response header (for example in a CDN or reverse-proxy rule) to detect administration responses, match on other attributes.
+
 ### Removed HTTP cache reverse proxy configuration options
 
 The following HTTP cache reverse proxy configuration options have been removed as they had no effect anymore:
@@ -1934,6 +2127,7 @@ Use `app:shop-id:change` instead of `app:url-change:resolve`
 ## Removed Store-API Route caching configuration
 
 With 6.7 the Store-API caching layer was removed, therefore the configuration for it is not needed anymore and has been removed.
+In 6.8, selected cacheable Store API GET routes use the standard HTTP cache instead; see [Cache improvements](#cache-improvements).
 Concretely this means the following configuration options are removed:
 - `shopware.cache.invalidation.product_listing_route`
 - `shopware.cache.invalidation.product_detail_route`
@@ -1961,6 +2155,10 @@ The `states` field of the `line_item` and `order_line_item` entity has also been
 Use the `productType` field in the `line_item`.`payload` (or `order_line_item`.`payload`) to indicate the product type of a product line item.
 Also the rule `LineItemProductStatesRule` has been removed. Use `LineItemProductTypeRule` instead.
 
+The `type` field is required as of 6.8. Products and variants created without an explicit `type` default to `physical`.
+Because `type` is immutable, this default cannot be changed afterwards — always send `type` explicitly when creating variants of `digital` products, otherwise they are permanently created as `physical`.
+Converting a variant into a standalone product (writing `parentId: null`) requires sending `type` in the same payload, analogous to the other required fields such as `price` and `taxId`.
+
 ## Customer group registration flow events no longer use a SalesChannelContext
 
 For customer group registration events, the event context is no longer restored via `SalesChannelContextRestorer`.
@@ -1975,3 +2173,11 @@ If your extension relied on a restored `SalesChannelContext` (for example, custo
 - Use `getContext()` from the event for framework context data.
 
 </details>
+
+## Dynamic product group: "display as group"
+
+`product_stream` has a `display_as_group` flag (default `true`). When it is disabled, category listings, product cross-sellings and CMS product sliders keep matching variants as individual variants instead of grouping them.
+
+`\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface` and its `buildFilters()` method have been removed. Use `\Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder::enrichCriteria()` instead, which applies both the stream filters and the grouping state to the passed `Criteria`.
+
+If your extension decorates the `ProductStreamBuilder` service or applies variant grouping manually, `extends AbstractProductStreamBuilder` and respect `\Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader::STATE_SKIP_ADD_GROUPING` on the `Criteria` to keep matching variants ungrouped.

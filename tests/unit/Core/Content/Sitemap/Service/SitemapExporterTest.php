@@ -19,6 +19,7 @@ use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
@@ -31,6 +32,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(SitemapExporter::class)]
 class SitemapExporterTest extends TestCase
 {
@@ -159,10 +161,10 @@ class SitemapExporterTest extends TestCase
             $urlProvider ?? [],
             $cache,
             10,
-            $this->createMock(FilesystemOperator::class),
-            $sitemapHandleFactory ?? $this->createMock(SitemapHandleFactoryInterface::class),
-            $this->createMock(EventDispatcher::class),
-            $cartRuleLoader ?? $this->createMock(CartRuleLoader::class)
+            static::createStub(FilesystemOperator::class),
+            $sitemapHandleFactory ?? static::createStub(SitemapHandleFactoryInterface::class),
+            static::createStub(EventDispatcher::class),
+            $cartRuleLoader ?? static::createStub(CartRuleLoader::class)
         );
     }
 

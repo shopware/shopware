@@ -9,6 +9,7 @@ on:
       - ".github/actions/**"
       - ".github/actionlint.yaml"
       - ".github/bin/lint-actions.bash"
+      - ".github/bin/js/**"
       - ".yamlfmt"
   workflow_dispatch:
 
@@ -47,3 +48,7 @@ jobs:
       # GitHub-hosted ubuntu runners.
       - name: Lint workflows
         run: .github/bin/lint-actions.bash
+
+      # dependency-free unit tests for the automation modules under .github/bin/js
+      - name: Test automation scripts
+        run: cd .github/bin/js && node --test

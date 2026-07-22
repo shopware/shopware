@@ -186,11 +186,7 @@ jobs:
   auto-label-major-php:
     runs-on: ubuntu-24.04
     if: >
-      github.event_name == 'pull_request' &&
-      (github.event.action == 'opened' || github.event.action == 'synchronize') &&
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      !contains(github.event.pull_request.labels.*.name, 'major-php') &&
-      !contains(github.event.pull_request.labels.*.name, 'major-tests')
+      github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'synchronize') && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.event.pull_request.labels.*.name, 'major-php') && !contains(github.event.pull_request.labels.*.name, 'major-tests')
     permissions:
       contents: read
       id-token: write

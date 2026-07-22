@@ -4,16 +4,15 @@ namespace Shopware\Core\Service;
 
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ContextSource;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpClient\Exception\JsonException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
-/**
- * @deprecated tag:v6.8.0 - class will be marked internal - reason:becomes-internal
- */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class ServiceException extends HttpException
 {
     public const NOT_FOUND = 'SERVICE__NOT_FOUND';

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\OAuth\Client;
 
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\Traits\ClientTrait;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
@@ -16,10 +17,8 @@ class ApiClient implements ClientEntityInterface
 
     /**
      * @param non-empty-string $identifier
-     *
-     * @deprecated tag:v6.8.0 - Parameter 'confidential' will be required and not nullable. It will also be moved to position three, before `name`.
-     * @deprecated tag:v6.8.0 - Parameter 'name' will be moved to position four, after `confidential`.
      */
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'confidential', newType: 'bool', description: 'The parameter will also become required.')]
     public function __construct(
         private readonly string $identifier,
         private readonly bool $writeAccess,

@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Filter;
 
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
-/**
- * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal in v6.8.0
- */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class ReplaceRecursiveFilter extends AbstractExtension
 {
     public function getFilters(): array

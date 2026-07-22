@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Routing;
 
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -131,9 +132,7 @@ class RoutingException extends HttpException
         return new InvalidRouteScopeException($routeName);
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return self in the future
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function missingMainRequest(): self|\InvalidArgumentException
     {
         if (!Feature::isActive('v6.8.0.0')) {

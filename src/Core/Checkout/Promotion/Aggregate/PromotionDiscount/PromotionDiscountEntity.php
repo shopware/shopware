@@ -9,6 +9,7 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeWidening;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
@@ -233,7 +234,11 @@ class PromotionDiscountEntity extends Entity
     public function getSorterKey(): string
     {
         // @deprecated tag:v6.8.0 - The fallback to empty string will be removed
-        return $this->sorterKey ?? '';
+        if (!Feature::isActive('v6.8.0.0') && $this->sorterKey === null) {
+            return '';
+        }
+
+        return $this->sorterKey;
     }
 
     public function setSorterKey(?string $sorterKey): void
@@ -245,7 +250,11 @@ class PromotionDiscountEntity extends Entity
     public function getApplierKey(): string
     {
         // @deprecated tag:v6.8.0 - The fallback to empty string will be removed
-        return $this->applierKey ?? '';
+        if (!Feature::isActive('v6.8.0.0') && $this->applierKey === null) {
+            return '';
+        }
+
+        return $this->applierKey;
     }
 
     public function setApplierKey(?string $applierKey): void
@@ -257,7 +266,11 @@ class PromotionDiscountEntity extends Entity
     public function getUsageKey(): string
     {
         // @deprecated tag:v6.8.0 - The fallback to empty string will be removed
-        return $this->usageKey ?? '';
+        if (!Feature::isActive('v6.8.0.0') && $this->usageKey === null) {
+            return '';
+        }
+
+        return $this->usageKey;
     }
 
     public function setUsageKey(?string $usageKey): void

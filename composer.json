@@ -194,7 +194,7 @@
         "twig/intl-extra": "^3.26.0",
         "twig/string-extra": "^3.24.0",
         "twig/twig": "^3.26.0",
-        "zircote/swagger-php": "^4.9.2"
+        "zircote/swagger-php": "^6.4"
     },
     "require-dev": {
         "ext-tokenizer": "*",
@@ -203,7 +203,7 @@
         "doctrine/sql-formatter": "^1.5.4",
         "dominikb/composer-license-checker": "^2.5",
         "ergebnis/phpunit-slow-test-detector": "^2.4",
-        "friendsofphp/php-cs-fixer": "3.95.8",
+        "friendsofphp/php-cs-fixer": "3.95.15",
         "league/flysystem-async-aws-s3": "^3.29.0",
         "league/flysystem-google-cloud-storage": "^3.10.3",
         "opis/json-schema": "^2.3.0",

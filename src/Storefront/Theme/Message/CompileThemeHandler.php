@@ -20,8 +20,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal
  */
-#[AsMessageHandler]
 #[Package('discovery')]
+#[AsMessageHandler]
 final readonly class CompileThemeHandler
 {
     /**

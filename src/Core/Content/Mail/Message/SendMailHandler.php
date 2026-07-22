@@ -14,8 +14,8 @@ use Symfony\Component\Mime\Email;
 /**
  * @internal
  */
-#[AsMessageHandler(handles: SendMailMessage::class)]
 #[Package('after-sales')]
+#[AsMessageHandler(handles: SendMailMessage::class)]
 final readonly class SendMailHandler
 {
     /**

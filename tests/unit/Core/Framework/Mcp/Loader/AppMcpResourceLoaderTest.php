@@ -22,9 +22,9 @@ use Shopware\Core\Framework\Mcp\Loader\AppMcpResourceLoader;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppMcpResourceLoader::class)]
 #[CoversClass(AbstractAppMcpLoader::class)]
-#[Package('framework')]
 class AppMcpResourceLoaderTest extends TestCase
 {
     private Connection&Stub $connection;

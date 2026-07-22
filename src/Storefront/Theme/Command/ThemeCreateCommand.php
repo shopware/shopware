@@ -16,11 +16,11 @@ use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
+#[Package('discovery')]
 #[AsCommand(
     name: 'theme:create',
     description: 'Create a new theme',
 )]
-#[Package('discovery')]
 class ThemeCreateCommand extends Command
 {
     /**

@@ -22,11 +22,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('discovery')]
 #[AsCommand(
     name: 'theme:change',
     description: 'Change the active theme for a sales channel',
 )]
-#[Package('discovery')]
 class ThemeChangeCommand extends Command
 {
     private readonly Context $context;

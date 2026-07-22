@@ -17,11 +17,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'database:migrate',
     description: 'Executes all migrations',
 )]
-#[Package('framework')]
 class MigrationCommand extends Command
 {
     protected SymfonyStyle $io;

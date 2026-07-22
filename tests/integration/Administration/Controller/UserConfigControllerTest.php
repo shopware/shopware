@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Administration\Controller;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
@@ -20,7 +19,6 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[Package('framework')]
-#[Group('slow')]
 class UserConfigControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

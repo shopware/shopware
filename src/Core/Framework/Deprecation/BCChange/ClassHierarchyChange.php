@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Log\Package;
  * against one of its current ancestors, must adjust before the change happens if they rely on a
  * part of the hierarchy that goes away. The required `$description` states what will change.
  */
-#[\Attribute(\Attribute::TARGET_CLASS)]
 #[Package('framework')]
+#[\Attribute(\Attribute::TARGET_CLASS)]
 final class ClassHierarchyChange implements CallSiteCompatibilityChange, ExtenderCompatibilityChange
 {
     public function __construct(

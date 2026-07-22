@@ -19,7 +19,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class TemplateDataSubscriber implements EventSubscriberInterface
 {
     public function __construct(
@@ -65,7 +65,7 @@ class TemplateDataSubscriber implements EventSubscriberInterface
         }
 
         $salesChannelContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
-        $parameter = new HreflangLoaderParameter($route, $routeParams, $salesChannelContext, $route === 'frontend.home.page');
+        $parameter = new HreflangLoaderParameter($route, $routeParams, $salesChannelContext, $route === 'frontend.home.page', $request->getBasePath());
         $event->setParameter('hrefLang', $this->hreflangLoader->load($parameter));
     }
 

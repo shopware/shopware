@@ -12,7 +12,7 @@ use Shopware\Storefront\Page\Robots\Struct\RobotsDirectiveType;
 use Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('framework')]
+#[Package('discovery')]
 class RobotsDirectiveParser
 {
     /**

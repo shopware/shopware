@@ -24,11 +24,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal only for use by the app-system
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'app:install',
     description: 'Installs an app',
 )]
-#[Package('framework')]
 class InstallAppCommand extends Command
 {
     public function __construct(

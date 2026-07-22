@@ -26,8 +26,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 /**
  * @internal
  */
-#[CoversClass(AmountCalculator::class)]
 #[Package('checkout')]
+#[CoversClass(AmountCalculator::class)]
 class AmountCalculatorTest extends TestCase
 {
     #[DataProvider('calculateAmountWithGrossPricesProvider')]

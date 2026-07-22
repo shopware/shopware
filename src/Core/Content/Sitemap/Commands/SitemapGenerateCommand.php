@@ -24,11 +24,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+#[Package('discovery')]
 #[AsCommand(
     name: 'sitemap:generate',
     description: 'Generates sitemap files',
 )]
-#[Package('discovery')]
 class SitemapGenerateCommand extends Command
 {
     /**

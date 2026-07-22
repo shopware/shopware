@@ -15,11 +15,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[AsCommand(
     name: 'translation:update',
     description: 'Updates all installed translations from the translations GitHub repository'
 )]
-#[Package('discovery')]
 class UpdateTranslationCommand extends Command
 {
     public function __construct(

@@ -11,11 +11,11 @@ use Symfony\Component\Console\Attribute\AsCommand;
 /**
  * @internal only for use by the app-system
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'app:deactivate',
     description: 'Deactivates an app',
 )]
-#[Package('framework')]
 class DeactivateAppCommand extends AbstractAppActivationCommand
 {
     private const ACTION = 'deactivate';

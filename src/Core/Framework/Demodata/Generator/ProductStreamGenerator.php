@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('inventory')]
 class ProductStreamGenerator implements DemodataGeneratorInterface
 {
     /**

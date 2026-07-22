@@ -23,11 +23,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+#[Package('discovery')]
 #[AsCommand(
     name: 'media:generate-thumbnails',
     description: 'Generates thumbnails for all media files',
 )]
-#[Package('discovery')]
 class GenerateThumbnailsCommand extends Command
 {
     private SymfonyStyle $io;

@@ -13,8 +13,8 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 /**
  * @internal
  */
-#[CoversClass(PaymentTokenLifecycle::class)]
 #[Package('checkout')]
+#[CoversClass(PaymentTokenLifecycle::class)]
 class PaymentTokenLifecycleTest extends TestCase
 {
     #[DisabledFeatures(['REPEATED_PAYMENT_FINALIZE'])]

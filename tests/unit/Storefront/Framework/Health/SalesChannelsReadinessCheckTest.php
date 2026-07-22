@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Health;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 use Shopware\Storefront\Framework\SystemCheck\SalesChannelsReadinessCheck;
 use Shopware\Storefront\Framework\SystemCheck\Util\AbstractSalesChannelDomainProvider;
@@ -12,6 +13,7 @@ use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(SalesChannelsReadinessCheck::class)]
 class SalesChannelsReadinessCheckTest extends TestCase
 {

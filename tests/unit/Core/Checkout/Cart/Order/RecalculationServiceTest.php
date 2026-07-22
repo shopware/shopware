@@ -51,8 +51,8 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 /**
  * @internal
  */
-#[CoversClass(RecalculationService::class)]
 #[Package('checkout')]
+#[CoversClass(RecalculationService::class)]
 class RecalculationServiceTest extends TestCase
 {
     private SalesChannelContext $salesChannelContext;

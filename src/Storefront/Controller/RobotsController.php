@@ -22,8 +22,8 @@ use Symfony\Component\Routing\Attribute\Route;
  *
  * @see \Shopware\Tests\Integration\Storefront\Controller\RobotsControllerTest
  */
+#[Package('discovery')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID, StorefrontRouteScope::ID], 'auth_required' => false])]
-#[Package('framework')]
 class RobotsController extends StorefrontController
 {
     public function __construct(private readonly RobotsPageLoader $robotsPageLoader)

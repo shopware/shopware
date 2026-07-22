@@ -24,8 +24,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[Group('store-api')]
 #[Package('checkout')]
+#[Group('store-api')]
 class MergeWishlistProductRouteTest extends TestCase
 {
     use CustomerTestTrait;

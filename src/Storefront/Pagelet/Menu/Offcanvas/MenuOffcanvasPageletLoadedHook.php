@@ -16,7 +16,7 @@ use Shopware\Storefront\Page\PageLoadedHook;
  *
  * @final
  */
-#[Package('framework')]
+#[Package('discovery')]
 class MenuOffcanvasPageletLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;

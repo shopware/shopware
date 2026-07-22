@@ -19,7 +19,7 @@ permissions:
   id-token: write
   issues: write
   pull-requests: write
-  checks: read
+  checks: write
   statuses: read
 
 jobs:
@@ -61,7 +61,7 @@ jobs:
           env: NIGHTLY=${{ inputs.nightly }}
 
   commercial:
-    name: Commercial
+    name: Commercial dispatch
     needs:
       - markdown-only-changes
     if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
@@ -73,20 +73,62 @@ jobs:
         with:
           scope: shopware
           identity: ShopwareDownstream
-      - name: Commercial
-        uses: shopware/github-actions/downstream@main
+      - name: Create downstream check
+        id: check
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        if: steps.sts.outputs.token
+        with:
+          script: |
+            const check = await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'Commercial',
+              head_sha: context.sha,
+              status: 'in_progress',
+              details_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              output: {
+                title: 'Commercial downstream',
+                summary: 'Waiting for the Commercial downstream workflow.'
+              }
+            });
+            core.setOutput('id', check.data.id);
+      - id: version
+        uses: shopware/github-actions/shopware-version@main
         if: steps.sts.outputs.token
         env:
-          NEW_LOGIC: 1
+          GH_TOKEN: ${{ steps.sts.outputs.token }}
         with:
+          fallback: trunk
           repo: shopware/SwagCommercial
-          workflow: Downstream
-          ref: .auto
-          timeout: 60m
-          poll_interval: 1m
-          token: ${{ steps.sts.outputs.token }}
-          upstream-token: ${{ github.token }}
-          env: NIGHTLY=${{ inputs.nightly }}\nUPSTREAM_EVENT_NAME=${{ github.event_name }}
+          github-token: ${{ steps.sts.outputs.token }}
+      - name: Dispatch Commercial
+        if: steps.sts.outputs.token
+        env:
+          GH_TOKEN: ${{ steps.sts.outputs.token }}
+          UPSTREAM_TOKEN: ${{ github.token }}
+          CHECK_RUN_ID: ${{ steps.check.outputs.id }}
+          DOWNSTREAM_REF: ${{ steps.version.outputs.shopware-version }}
+        run: |
+          upstream_data=$(jq -nc \
+            --arg id "$GITHUB_RUN_ID" \
+            --arg ref "${GITHUB_HEAD_REF:-$GITHUB_REF}" \
+            --arg base_ref "$GITHUB_BASE_REF" \
+            --arg repo "$GITHUB_REPOSITORY" \
+            --arg github_token "$UPSTREAM_TOKEN" \
+            --arg url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            --argjson check_run_id "$CHECK_RUN_ID" \
+            --arg nightly "${{ inputs.nightly }}" \
+            --arg upstream_event_name "${{ github.event_name }}" \
+            '{upstream: {id: $id, ref: $ref, base_ref: $base_ref, repo: $repo, "github-token": $github_token, url: $url, check_run_id: $check_run_id}, env: "NIGHTLY=\($nightly)\\nUPSTREAM_EVENT_NAME=\($upstream_event_name)"}')
+
+          if ! gh workflow run Downstream --repo shopware/SwagCommercial --ref "$DOWNSTREAM_REF" -f upstream_data="$upstream_data"; then
+            GH_TOKEN="$UPSTREAM_TOKEN" gh api --method PATCH "repos/$GITHUB_REPOSITORY/check-runs/$CHECK_RUN_ID" \
+              -f status=completed \
+              -f conclusion=failure \
+              -f 'output[title]=Commercial downstream' \
+              -f 'output[summary]=Dispatching the Commercial downstream workflow failed.'
+            exit 1
+          fi
 
   mergeability-check:
     name: Downstream Mergeability Check

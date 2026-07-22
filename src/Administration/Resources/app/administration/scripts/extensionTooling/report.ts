@@ -3,9 +3,11 @@
  *
  * Human-readable rendering for `admin:check-extensions`. Pure: takes the silent
  * `CheckExtensionsResult` and returns the full report string. Color is applied
- * via picocolors, which disables itself on non-TTY output, so tests and CI logs
- * receive plain text and per-extension technical names are summarized to a
- * count instead of dumping every bundle.
+ * via picocolors, which decides support once at import time (FORCE_COLOR, a
+ * TTY, or env.CI turn it on; NO_COLOR wins) — CI logs are colored, so the
+ * report specs strip ANSI before semantic assertions and
+ * report.spec/color.spec.ts covers the colored path. Per-extension technical
+ * names are summarized to a count instead of dumping every bundle.
  */
 
 import colors from 'picocolors';

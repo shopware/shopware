@@ -1,16 +1,27 @@
 /**
  * @sw-package framework
  *
- * Shared fixture factories for the report spec suites. picocolors disables
- * color on non-TTY stdout (jest), so assertions run against plain text.
+ * Shared fixture factories for the report spec suites. picocolors enables
+ * color whenever env.CI is set (GitHub Actions), so the render wrappers here
+ * strip ANSI sequences before semantic assertions; color.spec.ts covers the
+ * colored rendering.
  */
 
 import path from 'path';
-import { renderCheckReport } from '../report';
+import { renderCheckReport, renderSetupReport } from '../report';
 import type { CheckExtensionsResult, ExtensionCheckResult, ToolRunResult } from '../check';
 import type { SetupExtensionToolingResult } from '../setup';
 import { aggregateModeResolution } from '../shared';
 import type { AdministrationTarget, ExtensionToolingProject, ModeResolution } from '../shared';
+
+// picocolors only ever emits SGR sequences (ESC[…m), so this narrow pattern
+// is exact for the renderer's output.
+// eslint-disable-next-line no-control-regex
+const ANSI_SGR_PATTERN = /\x1b\[[0-9;]*m/g;
+
+export function stripAnsi(value: string): string {
+    return value.replace(ANSI_SGR_PATTERN, '');
+}
 
 export function resolution(mode: ModeResolution['mode'], overrides: Partial<ModeResolution> = {}): ModeResolution {
     return { mode, verified: true, ...overrides };
@@ -62,12 +73,20 @@ export function extension(
     };
 }
 
+export function checkReport(...args: Parameters<typeof renderCheckReport>): string {
+    return stripAnsi(renderCheckReport(...args));
+}
+
+export function setupReport(...args: Parameters<typeof renderSetupReport>): string {
+    return stripAnsi(renderSetupReport(...args));
+}
+
 export function report(
     results: ExtensionCheckResult[],
     overrides: Partial<CheckExtensionsResult> = {},
     verbose = false,
 ): string {
-    return renderCheckReport(
+    return checkReport(
         { results, fatalDiagnostics: [], warnings: [], baselineUpdates: [], exitCode: 0, ...overrides },
         { verbose },
     );

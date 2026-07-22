@@ -2,8 +2,7 @@
  * @sw-package framework
  */
 
-import { renderSetupReport } from '../report';
-import { project, resolution, setupResult } from './helpers';
+import { project, resolution, setupReport, setupResult } from './helpers';
 
 describe('scripts/extensionTooling/report renderSetupReport', () => {
     const managed = project('FroshTools');
@@ -29,7 +28,7 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
     });
 
     it('classifies ready / bridged / unwired / needs-bridge and shows inline next-steps by default', () => {
-        const output = renderSetupReport(
+        const output = setupReport(
             setupResult([
                 managed,
                 customPlugin,
@@ -57,8 +56,8 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
             eslintConfig: 'custom/plugins/Static/src/Resources/app/administration/eslint.config.mjs',
         });
 
-        expect(renderSetupReport(setupResult([staticallyBridged]))).toContain('unverified');
-        expect(renderSetupReport(setupResult([bridgedPlugin]))).not.toContain('unverified');
+        expect(setupReport(setupResult([staticallyBridged]))).toContain('unverified');
+        expect(setupReport(setupResult([bridgedPlugin]))).not.toContain('unverified');
     });
 
     it('collapses the full IDE instruction block unless --explain is passed', () => {
@@ -66,19 +65,19 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
             instructions: ['PhpStorm (configure once, Settings → Languages & Frameworks): …'],
         });
 
-        expect(renderSetupReport(withInstructions)).not.toContain('Settings → Languages');
-        expect(renderSetupReport(withInstructions, { explain: true })).toContain('Settings → Languages');
+        expect(setupReport(withInstructions)).not.toContain('Settings → Languages');
+        expect(setupReport(withInstructions, { explain: true })).toContain('Settings → Languages');
     });
 
     it('confirms a fresh bridge after --shim only when the configs actually compose it', () => {
-        const output = renderSetupReport(setupResult([bridgedPlugin]), { shim: 'Bridged' });
+        const output = setupReport(setupResult([bridgedPlugin]), { shim: 'Bridged' });
 
         expect(output).toContain('✔ Bridged Bridged');
         expect(output).toContain('.shopware-admin/ bridge');
     });
 
     it('announces one remaining step after --shim when existing configs were left alone', () => {
-        const output = renderSetupReport(setupResult([unwiredPlugin]), { shim: 'Unwired' });
+        const output = setupReport(setupResult([unwiredPlugin]), { shim: 'Unwired' });
 
         expect(output).toContain('✔ Bridge created for Unwired');
         expect(output).toContain('one step left');
@@ -86,7 +85,7 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
     });
 
     it('distinguishes git-ignored bridge files from committable plugin files in dry-run output', () => {
-        const output = renderSetupReport(
+        const output = setupReport(
             setupResult([project('Mono')], {
                 changed: true,
                 writes: [
@@ -105,7 +104,7 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
     });
 
     it('replaces the empty state with discovery guidance instead of a green "up to date"', () => {
-        const output = renderSetupReport(setupResult([]));
+        const output = setupReport(setupResult([]));
 
         expect(output).toContain('no extensions found');
         expect(output).toContain('bin/console bundle:dump');
@@ -119,7 +118,7 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
             eslintConfig: 'src/Storefront/Resources/app/administration/eslint.config.mjs',
             eslint: resolution('unmanaged', { reason: 'factory-not-composed' }),
         });
-        const output = renderSetupReport(
+        const output = setupReport(
             setupResult([
                 managed,
                 storefront,
@@ -131,21 +130,21 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
         expect(output).not.toContain('--shim=Storefront');
         expect(output).not.toContain('<administration>');
 
-        const emptyWithPlatform = renderSetupReport(setupResult([storefront]));
+        const emptyWithPlatform = setupReport(setupResult([storefront]));
 
         expect(emptyWithPlatform).toContain('no extensions found');
         expect(emptyWithPlatform).toContain('Platform bundles like Storefront');
     });
 
     it('reads "Configs up to date" when nothing changed, lists stale writes under --check', () => {
-        expect(renderSetupReport(setupResult([managed]))).toContain('Configs up to date');
+        expect(setupReport(setupResult([managed]))).toContain('Configs up to date');
 
         const stale = setupResult([managed], {
             changed: true,
             writes: [{ file: 'tsconfig.json', state: 'created' }],
         });
 
-        expect(renderSetupReport(stale, { checkOnly: true })).toContain('would create: tsconfig.json');
+        expect(setupReport(stale, { checkOnly: true })).toContain('would create: tsconfig.json');
     });
 
     it('lists changed files by path and defers large batches to --explain', () => {
@@ -157,7 +156,7 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
             ],
             staleFiles: ['var/admin-extension-tooling/projects/gone.json'],
         });
-        const fewOutput = renderSetupReport(few);
+        const fewOutput = setupReport(few);
 
         expect(fewOutput).toContain('generated: var/admin-extension-tooling/projects/mine.json');
         expect(fewOutput).toContain('updated: tsconfig.json');
@@ -170,24 +169,22 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
                 state: 'created' as const,
             })),
         });
-        const manyOutput = renderSetupReport(many);
+        const manyOutput = setupReport(many);
 
         expect(manyOutput).toContain('12 generated, 0 updated (list: --explain)');
         expect(manyOutput).not.toContain('generated: var/admin-extension-tooling/projects/p3.json');
-        expect(renderSetupReport(many, { explain: true })).toContain(
-            'created: var/admin-extension-tooling/projects/p3.json',
-        );
+        expect(setupReport(many, { explain: true })).toContain('created: var/admin-extension-tooling/projects/p3.json');
     });
 
     it('drops the self-referential --explain hint inside --explain output', () => {
         const result = setupResult([managed]);
 
-        expect(renderSetupReport(result)).toContain('IDE setup: run with --explain');
-        expect(renderSetupReport(result, { explain: true })).not.toContain('run with --explain');
+        expect(setupReport(result)).toContain('IDE setup: run with --explain');
+        expect(setupReport(result, { explain: true })).not.toContain('run with --explain');
     });
 
     it('explains target-level source and effective config coverage', () => {
-        const output = renderSetupReport(
+        const output = setupReport(
             setupResult([managed], { discoverySource: { path: 'var/plugins.json', updatedAt: '2026-07-21T00:00:00.000Z' } }),
             { explain: true },
         );
@@ -204,13 +201,13 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
 
     it('labels a config verdict static vs cached-live under --explain', () => {
         // bridgedPlugin: owns a config and is verified -> the verdict came from the probe cache.
-        const cachedLive = renderSetupReport(setupResult([bridgedPlugin]), { explain: true });
+        const cachedLive = setupReport(setupResult([bridgedPlugin]), { explain: true });
 
         expect(cachedLive).toContain('runtime: bridged (cached-live)');
         expect(cachedLive).toContain('eslint:  bridged (cached-live)');
 
         // Static: owns a config but not yet live-probed (unverified).
-        const staticVerdict = renderSetupReport(setupResult([customPlugin]), { explain: true });
+        const staticVerdict = setupReport(setupResult([customPlugin]), { explain: true });
 
         expect(staticVerdict).toContain('(static)');
     });

@@ -9,6 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import { checkExtensions } from '../check';
 import { renderCheckReport, renderSetupReport } from '../report';
+import { stripAnsi } from '../report.spec/helpers';
 import { setupExtensionTooling } from '../setup';
 import { cleanupTempProject, createTempProject, createVendorAdmin, writeFile, writePluginsConfig } from '../test-helpers';
 
@@ -137,7 +138,7 @@ describe('scripts/extensionTooling e2e — scaffolded committable configs', () =
             expect(brokenCheck.results[0].typescript.status).toBe('unmanaged');
             expect(brokenCheck.results[0].tsResolution.reason).toBe('files-override');
 
-            const brokenReport = renderCheckReport(brokenCheck);
+            const brokenReport = stripAnsi(renderCheckReport(brokenCheck));
 
             expect(brokenReport).toContain('why:');
             expect(brokenReport).toContain('"files"');
@@ -159,7 +160,7 @@ describe('scripts/extensionTooling e2e — scaffolded committable configs', () =
 
             // Setup and check agree afterwards: the extension renders as bridged.
             const setupAfter = setupExtensionTooling({ projectRoot, administrationRoot });
-            const setupReport = renderSetupReport(setupAfter);
+            const setupReport = stripAnsi(renderSetupReport(setupAfter));
 
             expect(setupReport).toContain('● bridged');
             expect(setupReport).toContain('FilesOverride');

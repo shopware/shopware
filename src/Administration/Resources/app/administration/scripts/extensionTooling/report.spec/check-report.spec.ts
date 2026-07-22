@@ -2,8 +2,7 @@
  * @sw-package framework
  */
 
-import { renderCheckReport } from '../report';
-import { extension, project, report, resolution, run } from './helpers';
+import { checkReport, extension, project, report, resolution, run } from './helpers';
 
 describe('scripts/extensionTooling/report renderCheckReport', () => {
     it('summarizes many technical names to a count instead of dumping every bundle', () => {
@@ -35,13 +34,13 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
         );
         const base = { results: [skipped], fatalDiagnostics: [], warnings: [], baselineUpdates: [] };
 
-        const lenient = renderCheckReport({ ...base, exitCode: 0 });
+        const lenient = checkReport({ ...base, exitCode: 0 });
 
         expect(lenient).toContain('⚠');
         expect(lenient).toContain('skipped and NOT checked');
         expect(lenient).toContain('Pass --fail-on-skipped');
 
-        const strict = renderCheckReport({ ...base, exitCode: 1 }, { failOnSkipped: true });
+        const strict = checkReport({ ...base, exitCode: 1 }, { failOnSkipped: true });
 
         expect(strict).toContain('failing because --fail-on-skipped is set');
         expect(strict).toContain('exit 1');
@@ -53,7 +52,7 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
             { typescript: run('unmanaged'), eslint: run('unmanaged') },
         );
 
-        const output = renderCheckReport({
+        const output = checkReport({
             results: [vendorSkip],
             fatalDiagnostics: [],
             warnings: [],
@@ -195,10 +194,10 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
         });
 
         expect(
-            renderCheckReport({ results: [result], fatalDiagnostics: [], warnings: [], baselineUpdates: [], exitCode: 0 }),
+            checkReport({ results: [result], fatalDiagnostics: [], warnings: [], baselineUpdates: [], exitCode: 0 }),
         ).not.toContain('$ cd /srv');
         expect(
-            renderCheckReport(
+            checkReport(
                 { results: [result], fatalDiagnostics: [], warnings: [], baselineUpdates: [], exitCode: 0 },
                 { showCommands: true },
             ),
@@ -217,14 +216,14 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
                 },
             ],
         });
-        const concise = renderCheckReport({
+        const concise = checkReport({
             results: [result],
             fatalDiagnostics: [],
             warnings: [],
             baselineUpdates: [],
             exitCode: 0,
         });
-        const verbose = renderCheckReport(
+        const verbose = checkReport(
             { results: [result], fatalDiagnostics: [], warnings: [], baselineUpdates: [], exitCode: 0 },
             { verbose: true },
         );
@@ -258,7 +257,7 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
             typescript: run('failed', { findings: 2, newFindings: 2, typeScriptFindings }),
             eslint: run('failed', { findings: 4, newFindings: 3, eslintFindings }),
         });
-        const output = renderCheckReport(
+        const output = checkReport(
             { results: [result], fatalDiagnostics: [], warnings: [], baselineUpdates: [], exitCode: 1 },
             { summary: true },
         );
@@ -280,7 +279,7 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
                 eslintFindings: [{ file: 'src/a.ts', rule: 'no-unsafe-call', message: 'm', severity: 'error' as const }],
             }),
         });
-        const output = renderCheckReport(
+        const output = checkReport(
             { results: [result], fatalDiagnostics: [], warnings: [], baselineUpdates: [], exitCode: 1 },
             { summaryOnly: true },
         );
@@ -294,12 +293,12 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
         const failing = extension(project('Plug'), { eslint: run('failed', { findings: 3, newFindings: 3 }) });
         const base = { results: [failing], fatalDiagnostics: [], warnings: [], baselineUpdates: [], exitCode: 1 };
 
-        const afterFix = renderCheckReport({ ...base }, { fix: true });
+        const afterFix = checkReport({ ...base }, { fix: true });
 
         expect(afterFix).toContain('deprecation codemods');
         expect(afterFix).toContain('composer admin:check-extensions -- --update-baseline');
 
-        expect(renderCheckReport({ ...base })).not.toContain('Accept the findings that remain as a baseline');
+        expect(checkReport({ ...base })).not.toContain('Accept the findings that remain as a baseline');
     });
 
     it('renders blocked TypeScript runs with their cause', () => {

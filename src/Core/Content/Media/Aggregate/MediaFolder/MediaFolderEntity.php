@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeWidening;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('discovery')]
@@ -84,7 +85,7 @@ class MediaFolderEntity extends Entity
     #[ReturnTypeWidening(version: 'v6.8.0', newType: '?MediaCollection')]
     public function getMedia(): MediaCollection
     {
-        if ($this->media === null) {
+        if (!Feature::isActive('v6.8.0.0') && $this->media === null) {
             $this->media = new MediaCollection();
         }
 

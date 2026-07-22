@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Tax\Aggregate\TaxRule;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeWidening;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity;
@@ -92,7 +93,7 @@ class TaxRuleEntity extends Entity
     #[ReturnTypeWidening(version: 'v6.8.0', newType: '?TaxRuleTypeEntity')]
     public function getType(): TaxRuleTypeEntity
     {
-        if ($this->type === null) {
+        if (!Feature::isActive('v6.8.0.0') && $this->type === null) {
             return new TaxRuleTypeEntity();
         }
 

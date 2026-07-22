@@ -81,7 +81,7 @@ function addPatternNames(pattern: BabelNode | null | undefined, scope: Set<strin
  */
 function collectPatternReferences(
     pattern: BabelNode | null | undefined,
-    templateScope: Set<string>,
+    outerScopes: Set<string>[],
     references: Set<string>,
     patternScope: Set<string> = new Set(),
 ): void {
@@ -95,7 +95,7 @@ function collectPatternReferences(
     }
 
     if (pattern.type === 'RestElement') {
-        collectPatternReferences(pattern.argument, templateScope, references, patternScope);
+        collectPatternReferences(pattern.argument, outerScopes, references, patternScope);
         return;
     }
 
@@ -104,25 +104,25 @@ function collectPatternReferences(
             pattern.right,
             [
                 patternScope,
-                templateScope,
+                ...outerScopes,
             ],
             references,
             pattern,
             'right',
         );
-        collectPatternReferences(pattern.left, templateScope, references, patternScope);
+        collectPatternReferences(pattern.left, outerScopes, references, patternScope);
         return;
     }
 
     if (pattern.type === 'ArrayPattern') {
-        pattern.elements.forEach((element) => collectPatternReferences(element, templateScope, references, patternScope));
+        pattern.elements.forEach((element) => collectPatternReferences(element, outerScopes, references, patternScope));
         return;
     }
 
     if (pattern.type === 'ObjectPattern') {
         pattern.properties.forEach((property) => {
             if (property.type === 'RestElement') {
-                collectPatternReferences(property.argument, templateScope, references, patternScope);
+                collectPatternReferences(property.argument, outerScopes, references, patternScope);
                 return;
             }
 
@@ -131,7 +131,7 @@ function collectPatternReferences(
                     property.key,
                     [
                         patternScope,
-                        templateScope,
+                        ...outerScopes,
                     ],
                     references,
                     property,
@@ -139,7 +139,7 @@ function collectPatternReferences(
                 );
             }
 
-            collectPatternReferences(property.value, templateScope, references, patternScope);
+            collectPatternReferences(property.value, outerScopes, references, patternScope);
         });
     }
 }
@@ -272,7 +272,11 @@ function collectBabelReferences(
         }
 
         const functionScope = new Set<string>();
-        node.params.forEach((parameter) => addPatternNames(parameter, functionScope));
+
+        // Parameter defaults and computed keys are reads, e.g. `({ label = fallbackLabel }) => label`
+        // reads `fallbackLabel` from setup scope. Parameters are scanned left to right so earlier
+        // parameter names shadow reads in later defaults (`(a, { b = a }) => b` reads nothing).
+        node.params.forEach((parameter) => collectPatternReferences(parameter, scopes, references, functionScope));
 
         if (node.type === 'ObjectMethod' && node.computed) {
             collectBabelReferences(node.key, scopes, references, node, 'key');

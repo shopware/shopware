@@ -86,7 +86,7 @@ function collectSlotScopeReferences(slotDirective: DirectiveNode | undefined, te
 
     try {
         const { pattern } = parseBindingPattern(slotDirective.exp.content);
-        collectPatternReferences(pattern, templateScope, references);
+        collectPatternReferences(pattern, [templateScope], references);
     } catch {
         // Invalid or unsupported patterns are handled by Vue's own template parser/compiler.
     }
@@ -141,7 +141,7 @@ function collectForAliasReferences(forDirective: DirectiveNode | undefined, temp
 
         try {
             const { pattern } = parseBindingPattern(expression.content);
-            collectPatternReferences(pattern, templateScope, references);
+            collectPatternReferences(pattern, [templateScope], references);
         } catch {
             // Invalid or unsupported patterns are handled by Vue's own template parser/compiler.
         }

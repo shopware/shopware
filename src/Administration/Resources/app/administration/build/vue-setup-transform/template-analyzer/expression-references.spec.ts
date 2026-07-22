@@ -37,6 +37,18 @@ describe('build/vue-setup-transform/template-analyzer/expression-references', ()
             ['items'],
         ],
         [
+            'callback parameter defaults are reads',
+            'items.map(({ label = fallbackLabel }) => label)',
+            [],
+            ['items', 'fallbackLabel'],
+        ],
+        [
+            'earlier parameters shadow reads in later defaults',
+            '((first, { second = first }) => second)(source)',
+            [],
+            ['source'],
+        ],
+        [
             'static object keys are not reads',
             '({ info: value })',
             [],

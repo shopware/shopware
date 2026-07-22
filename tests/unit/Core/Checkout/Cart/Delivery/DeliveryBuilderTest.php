@@ -29,8 +29,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(DeliveryBuilder::class)]
 #[Package('checkout')]
+#[CoversClass(DeliveryBuilder::class)]
 class DeliveryBuilderTest extends TestCase
 {
     public function testBuildThrowsIfNoShippingMethodCanBeFound(): void

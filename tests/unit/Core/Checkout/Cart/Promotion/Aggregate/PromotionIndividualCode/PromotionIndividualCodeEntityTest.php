@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(PromotionIndividualCodeEntity::class)]
 #[Package('checkout')]
+#[CoversClass(PromotionIndividualCodeEntity::class)]
 class PromotionIndividualCodeEntityTest extends TestCase
 {
     /**

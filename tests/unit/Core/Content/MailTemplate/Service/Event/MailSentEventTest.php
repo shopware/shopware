@@ -15,8 +15,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(MailSentEvent::class)]
 #[Package('after-sales')]
+#[CoversClass(MailSentEvent::class)]
 class MailSentEventTest extends TestCase
 {
     public function testScalarValuesCorrectly(): void

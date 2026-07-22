@@ -14,11 +14,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'database:create-migration',
     description: 'Creates a new migration file',
 )]
-#[Package('framework')]
 class CreateMigrationCommand extends Command
 {
     /**

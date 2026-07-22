@@ -23,8 +23,8 @@ use Symfony\Component\Clock\NativeClock;
 /**
  * @internal
  */
-#[CoversClass(CartPersister::class)]
 #[Package('checkout')]
+#[CoversClass(CartPersister::class)]
 class CartPersisterTest extends TestCase
 {
     public function testDecorated(): void

@@ -22,8 +22,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[CoversClass(LineItemDownloadLoader::class)]
 #[Package('checkout')]
+#[CoversClass(LineItemDownloadLoader::class)]
 class LineItemDownloadLoaderTest extends TestCase
 {
     /**

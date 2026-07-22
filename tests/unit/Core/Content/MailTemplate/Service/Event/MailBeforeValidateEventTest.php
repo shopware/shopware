@@ -16,8 +16,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[CoversClass(MailBeforeValidateEvent::class)]
 #[Package('after-sales')]
+#[CoversClass(MailBeforeValidateEvent::class)]
 class MailBeforeValidateEventTest extends TestCase
 {
     public function testScalarValuesCorrectly(): void

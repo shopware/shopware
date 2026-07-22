@@ -18,11 +18,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'es:index',
     description: 'Index all entities into elasticsearch',
 )]
-#[Package('framework')]
 class ElasticsearchIndexingCommand extends Command
 {
     use ConsoleProgressTrait;

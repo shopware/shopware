@@ -28,7 +28,6 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[Package('framework')]
-#[Group('slow')]
 class ProductRatingAverageIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
 use Composer\IO\NullIO;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -40,7 +39,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * @internal
  */
 #[Package('framework')]
-#[Group('slow')]
 class PluginLifecycleServiceMigrationTest extends TestCase
 {
     use KernelTestBehaviour;

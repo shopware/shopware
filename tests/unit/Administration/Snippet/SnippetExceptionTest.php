@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Administration\Snippet;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\SnippetException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(SnippetException::class)]
 class SnippetExceptionTest extends TestCase
 {

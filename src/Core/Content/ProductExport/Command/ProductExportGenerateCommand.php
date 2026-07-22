@@ -16,11 +16,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[Package('inventory')]
 #[AsCommand(
     name: 'product-export:generate',
     description: 'Generates a product export file',
 )]
-#[Package('inventory')]
 class ProductExportGenerateCommand extends Command
 {
     /**

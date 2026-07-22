@@ -29,7 +29,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
 use Symfony\Component\Finder\Finder;
 
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeCompiler implements ThemeCompilerInterface
 {
     /**

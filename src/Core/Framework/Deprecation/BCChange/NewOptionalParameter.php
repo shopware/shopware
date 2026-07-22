@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Log\Package;
  * add the parameter with the announced name and type to keep a compatible signature once the
  * change happens.
  */
-#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 #[Package('framework')]
+#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final class NewOptionalParameter implements ExtenderCompatibilityChange
 {
     /**

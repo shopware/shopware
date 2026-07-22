@@ -12,11 +12,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'docs:generate-scripts-reference',
     description: 'Generate the script reference',
 )]
-#[Package('framework')]
 class ScriptReferenceGeneratorCommand extends Command
 {
     /**

@@ -29,7 +29,7 @@ Module.register('sw-settings-shipping', {
     title: 'sw-settings-shipping.general.mainMenuItemGeneral',
     description: 'sw-settings-shipping.general.descriptionTextModule',
     color: 'var(--color-icon-secondary-default)',
-    icon: 'solid-cog',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'shipping_method',
 

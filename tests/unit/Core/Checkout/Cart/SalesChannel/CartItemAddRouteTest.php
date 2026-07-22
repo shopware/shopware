@@ -21,8 +21,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[CoversClass(CartItemAddRoute::class)]
 #[Package('checkout')]
+#[CoversClass(CartItemAddRoute::class)]
 class CartItemAddRouteTest extends TestCase
 {
     public function testRateLimitationWithoutIp(): void

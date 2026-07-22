@@ -23,9 +23,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(LineItemPropertyValueRule::class)]
 #[Group('rules')]
-#[Package('checkout')]
 class LineItemPropertyValueRuleTest extends TestCase
 {
     private LineItemPropertyValueRule $rule;

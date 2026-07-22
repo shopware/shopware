@@ -15,8 +15,8 @@ use Shopware\Core\Framework\Log\Package;
  * optional until the change happens so their declaration remains compatible with the current and
  * announced declaration.
  */
-#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 #[Package('framework')]
+#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final class ParameterRemoval implements CallSiteCompatibilityChange, ExtenderCompatibilityChange
 {
     /**

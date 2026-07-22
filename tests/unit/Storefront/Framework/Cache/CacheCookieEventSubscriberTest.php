@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
 use Shopware\Core\Framework\Adapter\Cache\Http\Extension\CacheHashRequiredExtension;
 use Shopware\Core\Framework\Adapter\Session\SessionFactory;
 use Shopware\Core\Framework\Adapter\Session\StatefulFlashBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cache\CacheCookieEventSubscriber;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CacheCookieEventSubscriber::class)]
 class CacheCookieEventSubscriberTest extends TestCase
 {

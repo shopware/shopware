@@ -34,8 +34,8 @@ use Symfony\Component\Routing\Attribute\Route;
  * can access all registered Store API MCP capabilities. Fine-grained access
  * control at the sales-channel level is a deliberate future extension point.
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class StoreApiMcpServerController
 {
     /**

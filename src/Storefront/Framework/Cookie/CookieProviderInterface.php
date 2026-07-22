@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @deprecated tag:v6.8.0 - Will be removed in 6.8.0. Use {@see CookieGroupCollectEvent} instead to introduce cookies.
  */
-#[Package('framework')]
+#[Package('discovery')]
 interface CookieProviderInterface
 {
     /**

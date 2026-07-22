@@ -116,6 +116,14 @@ jobs:
       - name: Run Jest Admin with major features
         run: composer admin:unit:major
 
+      - name: Upload Jest results
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: jest-admin-major-results
+          path: build/artifacts/jest/administration.junit.xml
+          if-no-files-found: error
+
   # single required/monitorable status for the whole major matrix
   integration-major-check:
     # Skip cleanly on unlabeled PRs so they don't get a confusing status; otherwise aggregate the matrix result.

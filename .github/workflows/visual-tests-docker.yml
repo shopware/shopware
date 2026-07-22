@@ -22,29 +22,31 @@ on:
         default: ""
 
 jobs:
-   visual-tests:
+  visual-tests:
     runs-on: ubuntu-24.04
     steps:
       - name: Define environment
         shell: bash
         run: |
-            echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
-            echo "MAILER_DSN=smtp://localhost:1025" >> $GITHUB_ENV
-            echo "MAILPIT_BASE_URL=http://localhost:8025" >> $GITHUB_ENV
-            echo "SHOPWARE_HTTP_CACHE_ENABLED=0" >> $GITHUB_ENV
-            echo "SHOPWARE_DISABLE_UPDATE_CHECK=true" >> $GITHUB_ENV
-            echo "BLUE_GREEN_DEPLOYMENT=1" >> $GITHUB_ENV
-            echo "ENABLE_SERVICES=0" >> $GITHUB_ENV
+          {
+            echo "REDIS_URL=redis://localhost:6379"
+            echo "MAILER_DSN=smtp://localhost:1025"
+            echo "MAILPIT_BASE_URL=http://localhost:8025"
+            echo "SHOPWARE_HTTP_CACHE_ENABLED=0"
+            echo "SHOPWARE_DISABLE_UPDATE_CHECK=true"
+            echo "BLUE_GREEN_DEPLOYMENT=1"
+            echo "ENABLE_SERVICES=0"
+          } >> "$GITHUB_ENV"
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
-            env: prod
-            mysql-version: "builtin"
-            shopware-version: ${{ github.ref }}
-            shopware-repository: ${{ github.repository }}
-            install: true
-            install-admin: true
-            install-storefront: true
+          env: prod
+          mysql-version: "builtin"
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+          install: true
+          install-admin: true
+          install-storefront: true
 
       - name: Install Playwright dependencies
         working-directory: tests/acceptance
@@ -68,7 +70,7 @@ jobs:
             --ipc=host \
             --init \
             --network=host \
-            --user $(id -u):$(id -g) \
+            --user "$(id -u):$(id -g)" \
             -e APP_URL=http://localhost:8000 \
             -e SHOPWARE_ADMIN_USERNAME=admin \
             -e SHOPWARE_ADMIN_PASSWORD=shopware \
@@ -78,7 +80,7 @@ jobs:
             -v "$GITHUB_WORKSPACE:/app" \
             -w /app/tests/acceptance \
             "mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION}-noble" \
-            npx $ATS_CMD test --project=Visual --workers=1 "$UPDATE_SNAPSHOTS" "$FILTER"
+            npx "$ATS_CMD" test --project=Visual --workers=1 "$UPDATE_SNAPSHOTS" "$FILTER"
       - name: Upload visual test results
         if: always()
         continue-on-error: true
@@ -95,12 +97,12 @@ jobs:
         if: ${{ github.repository_owner == 'shopware' }}
         shell: bash
         run: |
-            if [ -z "${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}" ]; then
-              echo "has_role_arn=false" >> "$GITHUB_OUTPUT"
-              echo "Secret PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN is empty or unavailable (likely a fork)." >&2
-            else
-              echo "has_role_arn=true" >> "$GITHUB_OUTPUT"
-            fi
+          if [ -z "${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}" ]; then
+            echo "has_role_arn=false" >> "$GITHUB_OUTPUT"
+            echo "Secret PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN is empty or unavailable (likely a fork)." >&2
+          else
+            echo "has_role_arn=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Configure AWS credentials
         if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && hashFiles('tests/acceptance/playwright-report/*') }}
@@ -115,40 +117,42 @@ jobs:
         if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && hashFiles('tests/acceptance/playwright-report/*') }}
         shell: bash
         run: |
-              set -euo pipefail
-              RANDOM_STR=$(openssl rand -hex 6)
+          set -euo pipefail
+          RANDOM_STR=$(openssl rand -hex 6)
 
-              # build the destination prefix and export it for subsequent steps
-              REPORT_DEST="playwright-reports/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${RANDOM_STR}"
+          # build the destination prefix and export it for subsequent steps
+          REPORT_DEST="playwright-reports/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${RANDOM_STR}"
 
-              aws s3 cp "playwright-report" "s3://shopware-ci-playwright-traces/${REPORT_DEST}/" --recursive
+          aws s3 cp "playwright-report" "s3://shopware-ci-playwright-traces/${REPORT_DEST}/" --recursive
 
-              echo "REPORT_DEST=${REPORT_DEST}" >> "$GITHUB_ENV"
-              echo "Uploaded to s3://shopware-ci-playwright-traces/${REPORT_DEST}/"
+          echo "REPORT_DEST=${REPORT_DEST}" >> "$GITHUB_ENV"
+          echo "Uploaded to s3://shopware-ci-playwright-traces/${REPORT_DEST}/"
 
       - name: Publish S3 Static Website URL
         if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && hashFiles('tests/acceptance/playwright-report/*') }}
         shell: bash
         run: |
-              set -euo pipefail
+          set -euo pipefail
 
-              if [ -z "${REPORT_DEST:-}" ]; then
-                echo "REPORT_DEST not set (upload skipped or failed); skipping publish." >&2
-                exit 0
-              fi
+          if [ -z "${REPORT_DEST:-}" ]; then
+            echo "REPORT_DEST not set (upload skipped or failed); skipping publish." >&2
+            exit 0
+          fi
 
-              if ! aws s3 ls "s3://shopware-ci-playwright-traces/${REPORT_DEST}/index.html" >/dev/null 2>&1; then
-                echo "Index file not found ... skipping publish." >&2
-                exit 0
-              fi
+          if ! aws s3 ls "s3://shopware-ci-playwright-traces/${REPORT_DEST}/index.html" >/dev/null 2>&1; then
+            echo "Index file not found ... skipping publish." >&2
+            exit 0
+          fi
 
-              DOMAIN="${{ vars.PLAYWRIGHT_TRACES_DOMAIN }}"
-              URL="https://${DOMAIN}/${REPORT_DEST}/index.html"
-              echo "${URL}"
+          DOMAIN="${{ vars.PLAYWRIGHT_TRACES_DOMAIN }}"
+          URL="https://${DOMAIN}/${REPORT_DEST}/index.html"
+          echo "${URL}"
 
-              echo "### Playwright HTML Report" >> "$GITHUB_STEP_SUMMARY"
-              echo "" >> "$GITHUB_STEP_SUMMARY"
-              echo "- ${URL}" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "### Playwright HTML Report"
+            echo ""
+            echo "- ${URL}"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Create token for PR
         if: ${{ inputs.update-snapshots }}
@@ -163,7 +167,7 @@ jobs:
         if: ${{ inputs.update-snapshots }}
         id: diff
         shell: bash
-        run: git diff --exit-code tests/acceptance/tests/ || echo "changed=true" >> $GITHUB_OUTPUT
+        run: git diff --exit-code tests/acceptance/tests/ || echo "changed=true" >> "$GITHUB_OUTPUT"
 
       - name: Create Pull Request
         if: ${{ inputs.update-snapshots && steps.diff.outputs.changed == 'true' && steps.create-pr-token.outputs.token != '' }}

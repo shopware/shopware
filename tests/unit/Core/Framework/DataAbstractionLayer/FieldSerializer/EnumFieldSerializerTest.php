@@ -35,8 +35,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  */
-#[CoversClass(EnumFieldSerializer::class)]
 #[Package('framework')]
+#[CoversClass(EnumFieldSerializer::class)]
 #[Group('FieldSerializer')]
 #[Group('DAL')]
 class EnumFieldSerializerTest extends TestCase

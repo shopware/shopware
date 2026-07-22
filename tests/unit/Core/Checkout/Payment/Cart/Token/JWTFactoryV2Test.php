@@ -26,8 +26,8 @@ use Symfony\Component\Clock\NativeClock;
 /**
  * @internal
  */
-#[CoversClass(JWTFactoryV2::class)]
 #[Package('checkout')]
+#[CoversClass(JWTFactoryV2::class)]
 #[DisabledFeatures(['v6.8.0.0'])]
 class JWTFactoryV2Test extends TestCase
 {

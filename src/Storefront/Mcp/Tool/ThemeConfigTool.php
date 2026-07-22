@@ -20,10 +20,13 @@ use Shopware\Storefront\Theme\ThemeService;
  * inverted dependency (Core -> Storefront). The McpToolCompilerPass discovers
  * any service tagged shopware.mcp.tool regardless of bundle.
  */
-#[McpTool(name: 'shopware-theme-config', description: 'Read or update theme appearance settings (colors, logos, fonts) for a sales channel. Use action "get" to read the current theme config. Use action "update" with a config JSON to change values; dryRun=true (default) previews changes. Pass a salesChannelId to scope to a specific channel (see shopware://sales-channels for IDs).')]
+#[Package('discovery')]
+#[McpTool(
+    name: 'shopware-theme-config',
+    description: 'Read or update theme appearance settings (colors, logos, fonts) for a sales channel. Use action "get" to read the current theme config. Use action "update" with a config JSON to change values; dryRun=true (default) previews changes. Pass a salesChannelId to scope to a specific channel (see shopware://sales-channels for IDs).'
+)]
 #[McpToolRequires('theme:read')]
 #[McpToolRequires('theme:update')]
-#[Package('framework')]
 class ThemeConfigTool extends McpToolResponse
 {
     /**

@@ -12,8 +12,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(CartHook::class)]
 #[Package('checkout')]
+#[CoversClass(CartHook::class)]
 class CartHookTest extends TestCase
 {
     public function testNameRespectsCartSource(): void

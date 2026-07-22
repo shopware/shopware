@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Page\Robots\Struct;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Robots\Struct\RobotsDirective;
 use Shopware\Storefront\Page\Robots\Struct\RobotsDirectiveType;
 use Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock;
@@ -11,6 +12,7 @@ use Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(RobotsUserAgentBlock::class)]
 class RobotsUserAgentBlockTest extends TestCase
 {

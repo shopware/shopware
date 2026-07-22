@@ -24,8 +24,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(CustomCartProcessor::class)]
 #[Package('checkout')]
+#[CoversClass(CustomCartProcessor::class)]
 class CustomCartProcessorTest extends TestCase
 {
     public function testCollect(): void

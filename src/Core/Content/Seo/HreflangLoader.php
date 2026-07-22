@@ -38,6 +38,11 @@ class HreflangLoader implements HreflangLoaderInterface
 
         $pathInfo = $this->router->generate($parameter->getRoute(), $parameter->getRouteParameters(), RouterInterface::ABSOLUTE_PATH);
 
+        $basePath = $parameter->getBasePath();
+        if ($basePath !== '' && str_starts_with($pathInfo, $basePath)) {
+            $pathInfo = mb_substr($pathInfo, mb_strlen($basePath));
+        }
+
         $languageToDomainMapping = $this->getLanguageToDomainMapping($domains);
         $seoUrls = $this->fetchSeoUrls($pathInfo, $salesChannelContext->getSalesChannelId(), array_keys($languageToDomainMapping));
 

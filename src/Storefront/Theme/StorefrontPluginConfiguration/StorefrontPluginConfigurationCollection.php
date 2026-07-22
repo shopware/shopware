@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @extends Collection<StorefrontPluginConfiguration>
  */
-#[Package('framework')]
+#[Package('discovery')]
 class StorefrontPluginConfigurationCollection extends Collection
 {
     public function __construct(iterable $elements = [])

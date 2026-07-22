@@ -89,6 +89,7 @@ class CartPersister extends AbstractCartPersister
 
         if (!$event->shouldBePersisted()) {
             $this->delete($cart->getToken(), $context);
+            $cart->setPersisted(false);
 
             return;
         }

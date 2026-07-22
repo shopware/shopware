@@ -198,7 +198,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
         $filter = new ProductAvailableFilter(
             $context->getSalesChannelId(),
-            ProductVisibilityDefinition::VISIBILITY_LINK
+            ProductVisibilityDefinition::VISIBILITY_ALL
         );
 
         if ($ids === []) {

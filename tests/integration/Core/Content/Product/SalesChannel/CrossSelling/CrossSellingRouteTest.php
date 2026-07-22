@@ -322,6 +322,42 @@ class CrossSellingRouteTest extends TestCase
         static::assertSame($expected, $properties);
     }
 
+    public function testLoadForProductWithProductCrossSellingAssignedProductsFiltersHiddenProducts(): void
+    {
+        $productId = Uuid::randomHex();
+        $visibleProduct = $this->getProductData();
+        $hiddenProduct = $this->getProductData();
+        $hiddenProduct['visibilities'] = [
+            ['salesChannelId' => $this->salesChannelContext->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_LINK],
+        ];
+
+        $this->productRepository->create([$visibleProduct, $hiddenProduct], $this->salesChannelContext->getContext());
+
+        $productData = $this->getProductData($productId);
+        $productData['crossSellings'] = [[
+            'name' => 'Test Cross Selling',
+            'sortBy' => ProductCrossSellingDefinition::SORT_BY_PRICE,
+            'sortDirection' => FieldSorting::ASCENDING,
+            'active' => true,
+            'limit' => 3,
+            'type' => 'productList',
+            'assignedProducts' => [
+                ['productId' => $visibleProduct['id'], 'position' => 1],
+                ['productId' => $hiddenProduct['id'], 'position' => 2],
+            ],
+        ]];
+
+        $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
+
+        $result = $this->route->load($productId, new Request(), $this->salesChannelContext, new Criteria())->getResult();
+
+        $element = $result->first();
+        static::assertNotNull($element);
+        static::assertSame([$visibleProduct['id']], array_values(array_unique($element->getProducts()->getIds())));
+        static::assertNotNull($element->getCrossSelling()->getAssignedProducts());
+        static::assertCount(2, $element->getCrossSelling()->getAssignedProducts());
+    }
+
     public function testLoadForProductWithProductCrossSellingAssignedProductsOutOfStock(): void
     {
         // enable hideCloseoutProductsWhenOutOfStock filter

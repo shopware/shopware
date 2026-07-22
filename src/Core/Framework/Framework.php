@@ -100,7 +100,6 @@ class Framework extends Bundle
         $loader->load('seo.xml');
         $phpLoader->load('rate-limiter.php');
         $phpLoader->load('webhook.php');
-        $loader->load('rate-limiter.xml');
         $phpLoader->load('increment.php');
         $phpLoader->load('flag.php');
         $phpLoader->load('health.php');

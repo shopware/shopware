@@ -16,6 +16,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater;
@@ -33,6 +34,7 @@ use Shopware\Core\Framework\Demodata\Generator\FlowGenerator;
 use Shopware\Core\Framework\Demodata\Generator\MailHeaderFooterGenerator;
 use Shopware\Core\Framework\Demodata\Generator\MailTemplateGenerator;
 use Shopware\Core\Framework\Demodata\Generator\MediaGenerator;
+use Shopware\Core\Framework\Demodata\Generator\NewsletterRecipientGenerator;
 use Shopware\Core\Framework\Demodata\Generator\OrderGenerator;
 use Shopware\Core\Framework\Demodata\Generator\ProductGenerator;
 use Shopware\Core\Framework\Demodata\Generator\ProductManufacturerGenerator;
@@ -227,4 +229,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('language.repository'),
         ])
         ->tag('shopware.demodata_generator', ['option-name' => 'users', 'option-default' => 0, 'option_name' => 'users', 'option_default' => 0]);
+
+    $services->set(NewsletterRecipientGenerator::class)
+        ->args([
+            service(EntityWriter::class),
+            service(NewsletterRecipientDefinition::class),
+            service(Connection::class),
+        ])
+        ->tag('shopware.demodata_generator', ['option-name' => 'newsletter-recipients', 'option-default' => 20, 'option_name' => 'newsletter-recipients', 'option_default' => 20]);
 };

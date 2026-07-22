@@ -518,7 +518,7 @@ export function probeCacheKey(filePaths: string[]): string {
 
     for (const filePath of filePaths) {
         hash.update(filePath);
-        hash.update(' ');
+        hash.update('\u0000');
 
         try {
             hash.update(fs.readFileSync(filePath));
@@ -526,7 +526,7 @@ export function probeCacheKey(filePaths: string[]): string {
             // Missing input hashes as empty content.
         }
 
-        hash.update(' ');
+        hash.update('\u0000');
     }
 
     return hash.digest('hex');

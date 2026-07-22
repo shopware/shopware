@@ -236,7 +236,7 @@ class StaticEntityRepository extends EntityRepository
             $primaryKey = \count($primaryKeys) === 1 ? current($primaryKeys) : $primaryKeys;
 
             $writeResults[] = new EntityWriteResult(
-                empty($primaryKey) ? Uuid::randomHex() : $primaryKey,
+                ($primaryKey === '' || $primaryKey === []) ? Uuid::randomHex() : $primaryKey,
                 $payload,
                 $this->getDummyEntityName(),
                 $operation

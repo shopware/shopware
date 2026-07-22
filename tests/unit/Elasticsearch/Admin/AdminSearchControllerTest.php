@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 use Shopware\Elasticsearch\Admin\AdminSearchController;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(AdminSearchController::class)]
 class AdminSearchControllerTest extends TestCase
 {
@@ -27,7 +29,7 @@ class AdminSearchControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->searcher = $this->getMockBuilder(AdminSearcher::class)->disableOriginalConstructor()->getMock();
+        $this->searcher = static::createStub(AdminSearcher::class);
 
         $promotion = new PromotionEntity();
         $promotion->setUniqueIdentifier(Uuid::randomHex());
@@ -44,9 +46,9 @@ class AdminSearchControllerTest extends TestCase
     public function testElasticSearchWithElasticSearchNotEnable(): void
     {
         $controller = new AdminSearchController(
-            $this->getMockBuilder(AdminSearcher::class)->disableOriginalConstructor()->getMock(),
-            $this->createMock(DefinitionInstanceRegistry::class),
-            $this->createMock(JsonEntityEncoder::class),
+            static::createStub(AdminSearcher::class),
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(JsonEntityEncoder::class),
             new AdminElasticsearchHelper(false, false, 'sw-admin', 'test', true, new NullLogger())
         );
 
@@ -61,9 +63,9 @@ class AdminSearchControllerTest extends TestCase
     public function testElasticSearchWithEmptySearchTerm(): void
     {
         $controller = new AdminSearchController(
-            $this->getMockBuilder(AdminSearcher::class)->disableOriginalConstructor()->getMock(),
-            $this->createMock(DefinitionInstanceRegistry::class),
-            $this->createMock(JsonEntityEncoder::class),
+            static::createStub(AdminSearcher::class),
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(JsonEntityEncoder::class),
             new AdminElasticsearchHelper(true, false, 'sw-admin', 'test', true, new NullLogger())
         );
 
@@ -79,8 +81,8 @@ class AdminSearchControllerTest extends TestCase
     {
         $controller = new AdminSearchController(
             $this->searcher,
-            $this->createMock(DefinitionInstanceRegistry::class),
-            $this->createMock(JsonEntityEncoder::class),
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(JsonEntityEncoder::class),
             new AdminElasticsearchHelper(true, false, 'sw-admin', 'test', true, new NullLogger())
         );
 

@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Doctrine\BacktraceDebugDataHolder;
 use Shopware\Core\Profiling\Doctrine\ConnectionProfiler;
 use Shopware\Core\Profiling\Doctrine\ProfilingMiddleware;
@@ -19,6 +20,7 @@ use Symfony\Component\VarDumper\Dumper\CliDumper;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ConnectionProfiler::class)]
 class ConnectionProfilerTest extends TestCase
 {
@@ -218,19 +220,15 @@ class ConnectionProfilerTest extends TestCase
         $config = new Configuration();
         $config->setMiddlewares([new ProfilingMiddleware($debugDataHolder)]);
 
-        $connection = $this->getMockBuilder(Connection::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $connection->expects($this->any())
-            ->method('getDatabasePlatform')
+        $connection = static::createStub(Connection::class);
+        $connection->method('getDatabasePlatform')
             ->willReturn(new MySQLPlatform());
-        $connection->expects($this->any())
-            ->method('getConfiguration')
+        $connection->method('getConfiguration')
             ->willReturn($config);
 
         $collector = new ConnectionProfiler($connection);
         foreach ($queries as $queryData) {
-            $query = $this->createMock(Query::class);
+            $query = static::createStub(Query::class);
             $query->method('getSql')
                 ->willReturn($queryData['sql'] ?? '');
             $query->method('getTypes')

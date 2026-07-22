@@ -73,7 +73,11 @@
     },
     "notification-center": {
       "title": "Mitteilungen",
-      "emptyText": "Nicht viel los hier.",
+      "triggerAriaLabel": "Mitteilungen",
+      "optionsAriaLabel": "Mitteilungsoptionen",
+      "emptyText": "Du bist auf dem neuesten Stand",
+      "emptyDescription": "Neue Mitteilungen erscheinen hier.",
+      "ringBellLabel": "Mitteilungsglocke läuten",
       "deleteModal": {
         "title": "Mitteilungen löschen",
         "textConfirm": "Möchtest Du wirklich alle Mitteilungen löschen?"
@@ -269,9 +273,6 @@
       "nextPage": "Zur nächsten Seite gehen",
       "page": "Gehe zu Seite {page}"
     },
-    "sw-modal": {
-      "labelClose": "Schließen"
-    },
     "sw-text-preview": {
       "showMoreButton": "Mehr zeigen"
     },
@@ -339,6 +340,9 @@
         },
         "coverSaveError": {
           "message": "Cover-Bild konnte nicht gespeichert werden."
+        },
+        "downloadError": {
+          "message": "Fehler beim Herunterladen."
         }
       },
       "labelUploading": "Wird hochgeladen ..."
@@ -575,12 +579,6 @@
       "placeholderSearch": "Suchen ...",
       "labelLoadMore": "Mehr laden"
     },
-    "sw-media-list-selection-item": {
-      "buttonRemove": "Entfernen"
-    },
-    "sw-media-list-selection-item-v2": {
-      "buttonRemove": "Entfernen"
-    },
     "sw-select": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
     },
@@ -705,6 +703,34 @@
         "empty": "Ist leer | Sind leer",
         "between": "Ist zwischen | Sind zwischen"
       },
+      "field": {
+        "amount": "Betrag",
+        "operator": "Operator",
+        "type": "Bedingung",
+        "count": "Anzahl",
+        "quantity": "Menge",
+        "isNet": "Netto / Brutto",
+        "isNumeric": "Vergleichsmodus",
+        "toDate": "Bis",
+        "toTime": "Bis",
+        "useTime": "Zeitmodus",
+        "timezone": "Zeitzone",
+        "categoryIds": "Kategorie",
+        "identifiers": "Auswahl",
+        "zipCodes": "Postleitzahl",
+        "selectedField": "Zusatzfeld",
+        "selectedFieldSet": "Zusatzfeld-Set",
+        "renderedField": "Zusatzfeld",
+        "renderedFieldValue": "Wert",
+        "isAlwaysValid": "Immer gültig"
+      },
+      "cartLineItemWithQuantity": {
+        "id": "Produkt"
+      },
+      "errors": {
+        "prefix": "Ungültiger Wert:",
+        "andMore": "+{count} weitere"
+      },
       "placeholderErrorMessage": "Platzhalter können nicht gespeichert werden.",
       "dataErrorMessage": "Es wurden nicht alle Pflichtfelder befüllt.",
       "condition": {
@@ -770,11 +796,12 @@
         "promotionsInCartCountRule": "Anzahl der Rabatte",
         "lineItemUnitPriceRule": "Positionsstückpreis",
         "lineItemTotalPriceRule": "Positionssumme (Menge × Preis)",
-        "lineItemWithQuantityRule": "Positionsanzahl",
+        "lineItemWithQuantityRule": "Position mit Menge",
+        "lineItemPerItemQuantityRule": "Menge pro Position",
         "orderTagRule": "Bestellung mit Tag",
         "orderTrackingCodeRule": "Sendungsnummer",
-        "orderDeliveryStatusRule": "Lieferstatus (Flow)",
-        "orderCreatedByAdminRule": "Bestellung vom Administrator erstellt (Flow)",
+        "orderDeliveryStatusRule": "Lieferstatus",
+        "orderCreatedByAdminRule": "Bestellung vom Administrator erstellt",
         "adminSalesChannelSourceRule": "In Administration verwendbar",
         "orderTransactionStatusRule": "Zahlungsstatus",
         "orderStatusRule": "Bestellstatus",
@@ -908,6 +935,14 @@
           }
         }
       },
+      "cartLineItemPurchasePrice": {
+        "type": {
+          "options": {
+            "gross": "Brutto",
+            "net": "Netto"
+          }
+        }
+      },
       "promotionCodeOfType": {
         "promotionCodeType": {
           "options": {
@@ -991,7 +1026,6 @@
     "sw-product-image": {
       "context": {
         "buttonAsCover": "Als Cover nutzen",
-        "buttonRemove": "Entfernen",
         "buttonPreviewImage": "Vorschau-Bild"
       }
     },
@@ -1166,7 +1200,6 @@
       "Reduced rate 2": "Stark ermäßigter Satz"
     },
     "sw-bulk-edit-modal": {
-      "bulkEdit": "Mehrfachänderung",
       "startBulkEdit": "Mehrfachänderung starten",
       "bulkEditModalTitle": "Mehrfachänderung - {count} Element ausgewählt | Mehrfachänderung - {count} Elemente ausgewählt"
     },
@@ -1323,8 +1356,7 @@
   },
   "sw-error": {
     "general": {
-      "messagePlaceholder": "Es ist ein Fehler aufgetreten. Die Seite konnte nicht geladen werden.",
-      "textLink": "Zurück"
+      "messagePlaceholder": "Es ist ein Fehler aufgetreten. Die Seite konnte nicht geladen werden."
     }
   },
   "sw-property-search": {
@@ -1363,8 +1395,7 @@
     "ignorePlugin": "Dauerhaft ignorieren",
     "successfullyDeleted": "Erweiterung wurde gelöscht",
     "table": {
-      "plugin": "Erweiterung",
-      "warning": "Warnung"
+      "plugin": "Erweiterung"
     }
   },
   "sw-sales-channel-switch": {
@@ -1438,9 +1469,11 @@
     "title": "Tastenkürzel",
     "iconTooltip": "Drücke die `{key}` Taste für die Tastenkürzel-Übersicht",
     "modalTitle": "Tastenkürzel",
+    "sectionGeneralShortcuts": "Allgemeine Tastenkürzel",
     "sectionAddingItems": "Hinzufügen von Elementen",
     "sectionNavigation": "Navigation",
-    "sectionSpecialShortcuts": "Spezielle Tastenkürzel",
+    "sectionAccessibility": "Barrierefreiheit",
+    "disableShortcuts": "Tastenkürzel deaktivieren",
     "function": "Funktion",
     "keyboardShortcut": "Tastenkürzel",
     "functionAddProduct": "Produkt hinzufügen",
@@ -1459,59 +1492,65 @@
     "keyboardShortcutAddRule": "A R",
     "functionAddSaleschannel": "Verkaufskanal hinzufügen",
     "keyboardShortcutAddSaleschannel": "A S",
-    "functionGoToDashboard": "Gehe zu Dashboard",
+    "functionGoToDashboard": "Dashboard öffnen",
     "keyboardShortcutGoToDashboard": "G H",
-    "functionGoToProducts": "Gehe zu Produkten",
+    "functionGoToProducts": "Produkte öffnen",
     "keyboardShortcutGoToProducts": "G P",
-    "functionGoToCategories": "Gehe zu Kategorien",
+    "functionGoToCategories": "Kategorien öffnen",
     "keyboardShortcutGoToCategories": "G C",
-    "functionGoToDynamicProductGroups": "Gehe zu dynamische Produktgruppen",
+    "functionGoToDynamicProductGroups": "Dynamische Produktgruppen öffnen",
     "keyboardShortcutGoToDynamicProductGroups": "G D",
-    "functionGoToProperties": "Gehe zu Eigenschaften",
+    "functionGoToProperties": "Eigenschaften öffnen",
     "keyboardShortcutGoToProperties": "G P R",
-    "functionGoToManufacturers": "Gehe zu Hersteller",
+    "functionGoToManufacturers": "Hersteller öffnen",
     "keyboardShortcutGoToManufacturers": "G M",
-    "functionGoToOrders": "Gehe zu Bestellungen",
+    "functionGoToOrders": "Bestellungen öffnen",
     "keyboardShortcutGoToOrders": "G O",
-    "functionGoToCustomers": "Gehe zu Kunden",
+    "functionGoToCustomers": "Kunden öffnen",
     "keyboardShortcutGoToCustomers": "G U",
-    "functionGoToShoppingExperience": "Gehe zu Erlebniswelten",
+    "functionGoToShoppingExperience": "Erlebniswelten öffnen",
     "keyboardShortcutGoToShoppingExperience": "G E",
-    "functionGoToMedia": "Gehe zu Medien",
+    "functionGoToMedia": "Medien öffnen",
     "keyboardShortcutGoToMedia": "G M E",
-    "functionGoToPromotion": "Gehe zu Rabatte & Aktionen",
+    "functionGoToPromotion": "Rabatte & Aktionen öffnen",
     "keyboardShortcutGoToPromotion": "G P O",
-    "functionGoToNewsletterRecipients": "Gehe zu Newsletter-Empfänger",
+    "functionGoToNewsletterRecipients": "Newsletter-Empfänger öffnen",
     "keyboardShortcutGoToNewsletterRecipients": "G N",
-    "functionGoToSettingsListing": "Gehe zu Einstellung",
+    "functionGoToSettingsListing": "Einstellungen öffnen",
     "keyboardShortcutGoToSettingsListing": "G S",
-    "functionGoToSnippets": "Gehe zu Textbausteine",
+    "functionGoToSnippets": "Textbausteine öffnen",
     "keyboardShortcutGoToSnippets": "G S N",
-    "functionGoToPayment": "Gehe zu Zahlungsarten",
+    "functionGoToPayment": "Zahlungsarten öffnen",
     "keyboardShortcutGoToPayment": "G S P",
-    "functionGoToShipping": "Gehe zu Versand",
+    "functionGoToShipping": "Versandarten öffnen",
     "keyboardShortcutGoToShipping": "G S S",
-    "functionGoToRuleBuilder": "Gehe zu Rule Builder",
+    "functionGoToRuleBuilder": "Rule Builder öffnen",
     "keyboardShortcutGoToRuleBuilder": "G S R",
-    "functionGoToPlugins": "Gehe zu \"Meine Erweiterungen\"",
+    "functionGoToPlugins": "Meine Erweiterungen öffnen",
     "keyboardShortcutGoToPlugins": "G A",
-    "functionSpecialShortcutFocusSearch": "Fokussiere Suche",
+    "functionAccessibilitySkipToContent": "Navigation überspringen",
+    "keyboardShortcutAccessibilitySkipToContent": "Tab Enter",
+    "functionAccessibilityMoveFocusForward": "Zum nächsten fokussierbaren Element wechseln",
+    "keyboardShortcutAccessibilityMoveFocusForward": "Tab",
+    "functionAccessibilityMoveFocusBackward": "Zum vorherigen fokussierbaren Element wechseln",
+    "keyboardShortcutAccessibilityMoveFocusBackward": "Shift-Tab",
+    "functionAccessibilityCloseDialog": "Dialog schließen",
+    "keyboardShortcutAccessibilityCloseDialog": "Esc",
+    "functionSpecialShortcutFocusSearch": "Suche fokussieren",
     "keyboardShortcutSpecialShortcutFocusSearch": "f",
-    "functionSpecialShortcutShortcutListing": "Tastenkürzel-Übersicht",
+    "functionSpecialShortcutOpenFilters": "Filter öffnen",
+    "keyboardShortcutSpecialShortcutOpenFilters": "O F",
+    "functionSpecialShortcutShortcutListing": "Tastenkürzel",
     "keyboardShortcutSpecialShortcutShortcutListing": "Shift ?",
-    "functionSpecialShortcutSaveDetailViewWindows": "Windows: Speichern in Detailansicht",
+    "functionSpecialShortcutSaveDetailView": "Aktuelle Ansicht speichern",
     "keyboardShortcutSpecialShortcutSaveDetailViewWindows": "alt s",
-    "functionSpecialShortcutSaveDetailViewMac": "Mac: Speichern in Detailansicht",
     "keyboardShortcutSpecialShortcutSaveDetailViewMac": "control s",
-    "functionSpecialShortcutSaveDetailViewLinux": "Linux: Speichern in Detailansicht",
     "keyboardShortcutSpecialShortcutSaveDetailViewLinux": "alt s",
-    "functionSpecialShortcutCancelDetailView": "Abbrechen in Detailansicht",
+    "functionSpecialShortcutCancelDetailView": "Aktuelle Detailansicht abbrechen",
     "keyboardShortcutSpecialShortcutCancelDetailView": "Esc",
-    "functionSpecialShortcutClearCacheWindows": "Windows: Cache löschen",
+    "functionSpecialShortcutClearCache": "Cache leeren",
     "keyboardShortcutSpecialShortcutClearCacheWindows": "alt c",
-    "functionSpecialShortcutClearCacheMac": "Mac: Cache löschen",
     "keyboardShortcutSpecialShortcutClearCacheMac": "control c",
-    "functionSpecialShortcutClearCacheLinux": "Linux: Cache löschen",
     "keyboardShortcutSpecialShortcutClearCacheLinux": "alt c"
   },
   "sw-discard-changes-modal": {
@@ -1610,14 +1649,8 @@
     }
   },
   "sw-wizard": {
-    "backButton": "Zurück",
     "finishButton": "Abschließen",
     "nextButton": "Weiter"
-  },
-  "sw-meteor": {
-    "navigation": {
-      "backButton": "Zurück"
-    }
   },
   "sw-base-filter": {
     "resetButton": "Zurücksetzen"

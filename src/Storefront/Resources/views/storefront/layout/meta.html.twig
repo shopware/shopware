@@ -3,8 +3,8 @@
 {% block layout_head_inner %}
     {% set metaInformation = page.metaInformation %}
     {% set basicConfig = config('core.basicInformation') %}
-    {% set maxLength = config('seo.descriptionMaxLength') %}
-    {% set metaDescription = metaInformation.metaDescription|striptags|trim|u.truncate(maxLength ?? 255, '…') %}
+    {% set maxLength = 255 %}
+    {% set metaDescription = metaInformation.metaDescription|striptags|trim|u.truncate(maxLength, '…') %}
     {% set metaTitle = metaInformation.metaTitle|striptags|trim %}
     {% set metaKeywords = metaInformation.metaKeywords|striptags|trim %}
     {% set metaAuthor = (metaInformation.author != '') ? metaInformation.author : config('core.basicInformation.metaAuthor') %}
@@ -125,7 +125,11 @@
 
         {% block layout_head_canonical %}
             {% if page.metaInformation.canonical %}
-                <link rel="canonical" href="{{ page.metaInformation.canonical }}">
+                {% if app.request.query.get('p') %}
+                    <link rel="canonical" href="{{ page.metaInformation.canonical }}?p={{ app.request.query.get('p') }}" />
+                {% else %}
+                    <link rel="canonical" href="{{ page.metaInformation.canonical }}">
+                {% endif %}
             {% endif %}
         {% endblock %}
 

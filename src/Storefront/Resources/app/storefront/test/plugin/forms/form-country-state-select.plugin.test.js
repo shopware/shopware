@@ -44,7 +44,7 @@ describe('Form country state select plugin', () => {
                     countryId: '31e1ac8809c744c38c4d99bfe9a50aa8',
                     states: [{ id: '0490081418be4255b87731afc953e901', translated: { name: 'Hamburg' }}],
                 }),
-            })
+            }),
         );
 
         window.formValidation = new FormValidation();
@@ -322,7 +322,7 @@ describe('Form country state select plugin', () => {
                     countryId: '31e1ac8809c744c38c4d99bfe9a50aa8',
                     states: [{ id: '0490081418be4255b87731afc953e901', translated: { name: 'Hamburg' }}],
                 }),
-            })
+            }),
         );
 
         const plugin = createPlugin();
@@ -335,6 +335,66 @@ describe('Form country state select plugin', () => {
         plugin.requestStateData('31e1ac8809c744c38c4d99bfe9a50aa8', '0490081418be4255b87731afc953e901', true);
 
         expect(stateLabel.innerHTML.includes('form-required-label')).toBe(true);
+    });
+
+    it('should hide country state select when country disables state display', async () => {
+        template = `
+            <form id="registerForm" action="/register" method="post" data-country-state-select="true">
+                <select class="country-select" data-initial-country-id="DE">
+                    <option selected="selected" value="DE" data-display-state-in-registration="">Germany</option>
+                </select>
+
+                <div class="form-group">
+                    <label class="form-label" for="addressCountryState">State</label>
+                    <select class="country-state-select" id="addressCountryState" data-initial-country-state-id="">
+                        <option data-placeholder-option="true">Select state..</option>
+                    </select>
+                </div>
+            </form>
+        `;
+
+        document.body.innerHTML = template;
+
+        createPlugin();
+        await new Promise(process.nextTick);
+
+        const stateSelect = document.querySelector('.country-state-select');
+
+        expect(stateSelect.parentNode.classList.contains('d-none')).toBe(true);
+        expect(stateSelect.hasAttribute('disabled')).toBe(true);
+        expect(stateSelect.querySelectorAll('option:not([data-placeholder-option])')).toHaveLength(0);
+        expect(stateSelect.hasAttribute('aria-required')).toBe(false);
+    });
+
+    it('should show country state select when state is required even if country disables state display', async () => {
+        template = `
+            <form id="registerForm" action="/register" method="post" data-country-state-select="true">
+                <select class="country-select" data-initial-country-id="DE">
+                    <option selected="selected" value="DE" data-state-required="1" data-display-state-in-registration="">Germany</option>
+                </select>
+
+                <div class="form-group d-none">
+                    <label class="form-label" for="addressCountryState">State</label>
+                    <select class="country-state-select" id="addressCountryState" data-initial-country-state-id="">
+                        <option data-placeholder-option="true">Select state..</option>
+                    </select>
+                </div>
+            </form>
+        `;
+
+        document.body.innerHTML = template;
+
+        createPlugin();
+        await new Promise(process.nextTick);
+
+        const stateSelect = document.querySelector('.country-state-select');
+        const placeholder = stateSelect.querySelector('[data-placeholder-option]');
+
+        expect(stateSelect.parentNode.classList.contains('d-none')).toBe(false);
+        expect(stateSelect.hasAttribute('disabled')).toBe(false);
+        expect(stateSelect.querySelectorAll('option:not([data-placeholder-option])')).toHaveLength(1);
+        expect(stateSelect.hasAttribute('aria-required')).toBe(true);
+        expect(placeholder.hasAttribute('disabled')).toBe(true);
     });
 
     it('should update VAT ID field to required when different shipping address is selected', async () => {
@@ -483,9 +543,9 @@ describe('Form country state select plugin', () => {
 
         await new Promise(process.nextTick);
 
-        expect(updateStateSelectSpy).toHaveBeenCalledWith(expect.anything(), true, expect.anything());
+        expect(updateStateSelectSpy).toHaveBeenCalledWith(expect.anything(), true, expect.anything(), true);
         expect(updateZipcodeFieldsSpy).toHaveBeenCalledWith(expect.anything(), true);
-        expect(updateVatIdFieldSpy).toHaveBeenCalledWith(expect.anything(), true);
+        expect(updateVatIdFieldSpy).toHaveBeenCalledWith(expect.anything(), true, null, false);
 
         updateStateSelectSpy.mockClear();
         updateZipcodeFieldsSpy.mockClear();
@@ -498,14 +558,212 @@ describe('Form country state select plugin', () => {
 
         await new Promise(process.nextTick);
 
-        expect(updateStateSelectSpy).toHaveBeenCalledWith(expect.anything(), false, null);
+        expect(updateStateSelectSpy).toHaveBeenCalledWith(expect.anything(), false, null, true);
         expect(updateZipcodeFieldsSpy).toHaveBeenCalledWith(expect.anything(), false);
-        expect(updateVatIdFieldSpy).toHaveBeenCalledWith(expect.anything(), false);
+        expect(updateVatIdFieldSpy).toHaveBeenCalledWith(expect.anything(), false, null, false);
 
         updateVatIdFieldSpy.mockClear();
 
         plugin._onFormFieldToggleChange({ target: { checked: true } });
 
-        expect(updateVatIdFieldSpy).toHaveBeenCalledWith(expect.anything(), false);
+        expect(updateVatIdFieldSpy).toHaveBeenCalledWith(expect.anything(), false, null, false);
+    });
+
+    it('should set pattern attribute on vatIds field when initial country has checkVatIdPattern enabled', () => {
+        template = `
+            <form id="registerForm" action="/register" method="post">
+
+                <div class="form-group col-md-6">
+                    <label class="form-label" for="vatIds">VAT Reg.No.</label>
+                    <input type="text" name="vatIds[]" id="vatIds" class="form-name">
+                </div>
+
+                <select class="country-select" data-initial-country-id="DE">
+                    <option selected="selected" value="DE" data-vat-id-required="0" data-state-required="0"
+                            data-vat-id-pattern="DE[0-9]{9}" data-check-vat-id-pattern="1">Germany</option>
+                </select>
+                <select class="country-state-select" data-initial-country-state-id="">
+                    <option data-placeholder-option="true">Select state..</option>
+                </select>
+            </form>
+        `;
+
+        document.body.innerHTML = template;
+        createPlugin();
+
+        const vatIdField = document.querySelector('#vatIds');
+        expect(vatIdField.getAttribute('pattern')).toBe('DE[0-9]{9}');
+    });
+
+    it('should not set pattern attribute on vatIds field when initial country has checkVatIdPattern disabled', () => {
+        template = `
+            <form id="registerForm" action="/register" method="post">
+
+                <div class="form-group col-md-6">
+                    <label class="form-label" for="vatIds">VAT Reg.No.</label>
+                    <input type="text" name="vatIds[]" id="vatIds" class="form-name" pattern="OLD[0-9]">
+                </div>
+
+                <select class="country-select" data-initial-country-id="US">
+                    <option selected="selected" value="US" data-vat-id-required="0" data-state-required="0"
+                            data-vat-id-pattern="US[0-9]{9}" data-check-vat-id-pattern="0">USA</option>
+                </select>
+                <select class="country-state-select" data-initial-country-state-id="">
+                    <option data-placeholder-option="true">Select state..</option>
+                </select>
+            </form>
+        `;
+
+        document.body.innerHTML = template;
+        createPlugin();
+
+        const vatIdField = document.querySelector('#vatIds');
+        expect(vatIdField.hasAttribute('pattern')).toBe(false);
+    });
+
+    it('should set pattern attribute when switching to a country with checkVatIdPattern enabled', () => {
+        template = `
+            <form id="registerForm" action="/register" method="post">
+
+                <div class="form-group col-md-6">
+                    <label class="form-label" for="vatIds">VAT Reg.No.</label>
+                    <input type="text" name="vatIds[]" id="vatIds" class="form-name">
+                </div>
+
+                <select class="country-select" data-initial-country-id="">
+                    <option disabled="disabled" value="" selected="selected">Select country...</option>
+                    <option value="DE" data-vat-id-required="0" data-state-required="0" data-zipcode-required="0"
+                            data-vat-id-pattern="DE[0-9]{9}" data-check-vat-id-pattern="1">Germany</option>
+                    <option value="US" data-vat-id-required="0" data-state-required="0" data-zipcode-required="0"
+                            data-vat-id-pattern="US[0-9]{9}" data-check-vat-id-pattern="0">USA</option>
+                </select>
+                <select class="country-state-select" data-initial-country-state-id="">
+                    <option data-placeholder-option="true">Select state..</option>
+                </select>
+            </form>
+        `;
+
+        document.body.innerHTML = template;
+        createPlugin();
+
+        const vatIdField = document.querySelector('#vatIds');
+        const countrySelect = document.querySelector('.country-select');
+
+        expect(vatIdField.hasAttribute('pattern')).toBe(false);
+
+        countrySelect.value = 'DE';
+        countrySelect.dispatchEvent(new Event('change'));
+
+        expect(vatIdField.getAttribute('pattern')).toBe('DE[0-9]{9}');
+
+        countrySelect.value = 'US';
+        countrySelect.dispatchEvent(new Event('change'));
+
+        expect(vatIdField.hasAttribute('pattern')).toBe(false);
+    });
+
+    it('should re-validate existing vatIds value when pattern changes on country switch', () => {
+        template = `
+            <form id="registerForm" action="/register" method="post">
+
+                <div class="form-group col-md-6">
+                    <label class="form-label" for="vatIds">VAT Reg.No.</label>
+                    <input type="text" name="vatIds[]" id="vatIds" class="form-name">
+                </div>
+
+                <select class="country-select" data-initial-country-id="">
+                    <option disabled="disabled" value="" selected="selected">Select country...</option>
+                    <option value="DE" data-vat-id-required="0" data-state-required="0" data-zipcode-required="0"
+                            data-vat-id-pattern="DE[0-9]{9}" data-check-vat-id-pattern="1">Germany</option>
+                    <option value="NL" data-vat-id-required="0" data-state-required="0" data-zipcode-required="0"
+                            data-vat-id-pattern="NL[0-9]{9}B[0-9]{2}" data-check-vat-id-pattern="1">Netherlands</option>
+                </select>
+                <select class="country-state-select" data-initial-country-state-id="">
+                    <option data-placeholder-option="true">Select state..</option>
+                </select>
+            </form>
+        `;
+
+        document.body.innerHTML = template;
+        createPlugin();
+
+        const vatIdField = document.querySelector('#vatIds');
+        const countrySelect = document.querySelector('.country-select');
+        const validateFieldSpy = jest.spyOn(window.formValidation, 'validateField');
+
+        // Select Germany and enter a valid German VAT ID
+        countrySelect.value = 'DE';
+        countrySelect.dispatchEvent(new Event('change'));
+        vatIdField.value = 'DE123456789';
+
+        validateFieldSpy.mockClear();
+
+        // Switch to Netherlands — plugin should re-validate the existing value against the new pattern
+        countrySelect.value = 'NL';
+        countrySelect.dispatchEvent(new Event('change'));
+
+        expect(validateFieldSpy).toHaveBeenCalledWith(vatIdField);
+    });
+
+    it('should not re-validate vatIds when field is empty on country switch', () => {
+        template = `
+            <form id="registerForm" action="/register" method="post">
+
+                <div class="form-group col-md-6">
+                    <label class="form-label" for="vatIds">VAT Reg.No.</label>
+                    <input type="text" name="vatIds[]" id="vatIds" class="form-name">
+                </div>
+
+                <select class="country-select" data-initial-country-id="">
+                    <option disabled="disabled" value="" selected="selected">Select country...</option>
+                    <option value="DE" data-vat-id-required="0" data-state-required="0" data-zipcode-required="0"
+                            data-vat-id-pattern="DE[0-9]{9}" data-check-vat-id-pattern="1">Germany</option>
+                </select>
+                <select class="country-state-select" data-initial-country-state-id="">
+                    <option data-placeholder-option="true">Select state..</option>
+                </select>
+            </form>
+        `;
+
+        document.body.innerHTML = template;
+        createPlugin();
+
+        const validateFieldSpy = jest.spyOn(window.formValidation, 'validateField');
+
+        const countrySelect = document.querySelector('.country-select');
+        countrySelect.value = 'DE';
+        countrySelect.dispatchEvent(new Event('change'));
+
+        expect(validateFieldSpy).not.toHaveBeenCalled();
+    });
+
+    it('should set pattern attribute via form field toggle change when country has checkVatIdPattern enabled', async () => {
+        template = `
+            <form id="registerForm" class="register-shipping" action="/register" method="post">
+
+                <div class="form-group col-md-6">
+                    <label class="form-label" for="vatIds">VAT Reg.No.</label>
+                    <input type="text" name="vatIds[]" id="vatIds" class="form-name">
+                </div>
+
+                <select class="country-select" data-initial-country-id="DE">
+                    <option selected="selected" value="DE" data-vat-id-required="0" data-state-required="0"
+                            data-vat-id-pattern="DE[0-9]{9}" data-check-vat-id-pattern="1">Germany</option>
+                </select>
+                <select class="country-state-select" data-initial-country-state-id="">
+                    <option data-placeholder-option="true">Select state..</option>
+                </select>
+            </form>
+        `;
+
+        document.body.innerHTML = template;
+
+        const plugin = createPlugin();
+        await new Promise(process.nextTick);
+
+        plugin._onFormFieldToggleChange({ target: { checked: true } });
+
+        const vatIdField = document.querySelector('#vatIds');
+        expect(vatIdField.getAttribute('pattern')).toBe('DE[0-9]{9}');
     });
 });

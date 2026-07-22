@@ -7,6 +7,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\Message\RefreshHttpCacheMessage;
 use Shopware\Core\Framework\Adapter\Cache\Message\RefreshHttpCacheMessageHandler;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -17,6 +18,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RefreshHttpCacheMessage::class)]
 class RefreshHttpCacheMessageHandlerTest extends TestCase
 {
@@ -58,7 +60,7 @@ class RefreshHttpCacheMessageHandlerTest extends TestCase
                         && $request->attributes->get('attribute') === 'value'
                         && $request->cookies->get('cookie') === 'value'
                         && $request->server->get('HTTP_HOST') === 'example.com'
-                        && $request->hasSession();
+                        && $request->hasSession(true);
                 }),
                 HttpKernelInterface::MAIN_REQUEST,
                 false
@@ -153,7 +155,7 @@ class RefreshHttpCacheMessageHandlerTest extends TestCase
             ->method('handle')
             ->with(
                 static::callback(static function (Request $request) {
-                    return $request->hasSession()
+                    return $request->hasSession(true)
                         && $request->getSession() instanceof Session;
                 }),
                 HttpKernelInterface::MAIN_REQUEST,

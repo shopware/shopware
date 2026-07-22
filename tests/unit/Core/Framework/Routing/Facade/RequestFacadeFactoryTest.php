@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Routing\Facade;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Facade\RequestFacadeFactory;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RequestFacadeFactory::class)]
 class RequestFacadeFactoryTest extends TestCase
 {
@@ -30,7 +32,7 @@ class RequestFacadeFactoryTest extends TestCase
 
         $script = new Script('foo', 'bar', new \DateTimeImmutable());
 
-        $facade = $factory->factory($this->createMock(Hook::class), $script);
+        $facade = $factory->factory(static::createStub(Hook::class), $script);
 
         static::assertSame('https://example.com/foo/bar', $facade->uri());
     }

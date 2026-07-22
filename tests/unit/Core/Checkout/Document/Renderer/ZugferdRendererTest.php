@@ -37,12 +37,12 @@ class ZugferdRendererTest extends TestCase
     public function testSupports(): void
     {
         $renderer = new ZugferdRenderer(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(Connection::class),
-            $this->createMock(ZugferdBuilder::class),
-            $this->createMock(EventDispatcherInterface::class),
-            new DocumentConfigLoader($this->createMock(EntityRepository::class), $this->createMock(EntityRepository::class)),
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(ZugferdBuilder::class),
+            static::createStub(EventDispatcherInterface::class),
+            new DocumentConfigLoader(static::createStub(EntityRepository::class), static::createStub(EntityRepository::class)),
+            static::createStub(NumberRangeValueGeneratorInterface::class),
             new NativeClock()
         );
 
@@ -91,9 +91,9 @@ class ZugferdRendererTest extends TestCase
             $orderRepositoryMock,
             $connection,
             $builder,
-            $this->createMock(EventDispatcherInterface::class),
-            new DocumentConfigLoader($this->createMock(EntityRepository::class), $this->createMock(EntityRepository::class)),
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            static::createStub(EventDispatcherInterface::class),
+            new DocumentConfigLoader(static::createStub(EntityRepository::class), static::createStub(EntityRepository::class)),
+            static::createStub(NumberRangeValueGeneratorInterface::class),
             new NativeClock()
         );
 

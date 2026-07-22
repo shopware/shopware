@@ -125,6 +125,7 @@ elasticsearch:
         exclude_source: "%env(bool:SHOPWARE_ES_EXCLUDE_SOURCE)%"
     ssl:
         verify_server_cert: true
+    refresh_after_bulk: false
     index_settings:
         number_of_shards: '%env(int-or-null:SHOPWARE_ES_NUMBER_OF_SHARDS)%'
         number_of_replicas: '%env(int-or-null:SHOPWARE_ES_NUMBER_OF_REPLICAS)%'
@@ -180,12 +181,12 @@ elasticsearch:
                 type: custom
                 tokenizer: whitespace
                 filter: ['lowercase']
-            sw_whitespace_word_delimiter_index_analyzer:
+            sw_whitespace_technical_term_index_analyzer:
                 type: custom
                 tokenizer: whitespace
                 char_filter: ['sw_unit_glue']
                 filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'sw_length_min', 'sw_decimal_normalize_token', 'remove_duplicates']
-            sw_whitespace_word_delimiter_search_analyzer:
+            sw_whitespace_technical_term_search_analyzer:
                 type: custom
                 tokenizer: whitespace
                 char_filter: ['sw_unit_glue']
@@ -198,12 +199,12 @@ elasticsearch:
                 type: custom
                 tokenizer: whitespace
                 filter: ['lowercase', 'sw_english_stop_filter']
-            sw_english_word_delimiter_index_analyzer:
+            sw_english_technical_term_index_analyzer:
                 type: custom
                 tokenizer: whitespace
                 char_filter: ['sw_unit_glue']
                 filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'sw_length_min', 'sw_decimal_normalize_token', 'remove_duplicates', 'sw_english_stop_filter']
-            sw_english_word_delimiter_search_analyzer:
+            sw_english_technical_term_search_analyzer:
                 type: custom
                 tokenizer: whitespace
                 char_filter: ['sw_unit_glue']
@@ -212,12 +213,12 @@ elasticsearch:
                 type: custom
                 tokenizer: whitespace
                 filter: ['lowercase', 'sw_german_stop_filter']
-            sw_german_word_delimiter_index_analyzer:
+            sw_german_technical_term_index_analyzer:
                 type: custom
                 tokenizer: whitespace
                 char_filter: ['sw_decimal_normalize', 'sw_unit_glue']
                 filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'sw_length_min', 'sw_decimal_normalize_token', 'remove_duplicates', 'sw_german_stop_filter']
-            sw_german_word_delimiter_search_analyzer:
+            sw_german_technical_term_search_analyzer:
                 type: custom
                 tokenizer: whitespace
                 char_filter: ['sw_decimal_normalize', 'sw_unit_glue']

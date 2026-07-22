@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Struct;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\AssignArrayTrait;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -14,6 +15,7 @@ use Shopware\Tests\Unit\Core\Framework\Struct\Fixture\AssignTestStruct;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AssignArrayTrait::class)]
 class AssignArrayTraitTest extends TestCase
 {

@@ -24,8 +24,8 @@ class ZugferdEmbeddedCreditNoteRendererTest extends TestCase
     public function testSupports(): void
     {
         $renderer = new ZugferdEmbeddedCreditNoteRenderer(
-            $this->createMock(AbstractDocumentRenderer::class),
-            $this->createMock(AbstractDocumentRenderer::class),
+            static::createStub(AbstractDocumentRenderer::class),
+            static::createStub(AbstractDocumentRenderer::class),
             new ZugferdEmbeddedService(),
             'version'
         );
@@ -47,12 +47,12 @@ class ZugferdEmbeddedCreditNoteRendererTest extends TestCase
         $electronicResult = new RendererResult();
         $electronicResult->addSuccess('order1', new RenderedDocument(content: $xml));
 
-        $cancellationInvoiceRenderer = $this->createMock(AbstractDocumentRenderer::class);
+        $cancellationInvoiceRenderer = static::createStub(AbstractDocumentRenderer::class);
         $cancellationInvoiceRenderer
             ->method('render')
             ->willReturn($baseResult);
 
-        $electronicRenderer = $this->createMock(AbstractDocumentRenderer::class);
+        $electronicRenderer = static::createStub(AbstractDocumentRenderer::class);
         $electronicRenderer
             ->method('render')
             ->willReturn($electronicResult);

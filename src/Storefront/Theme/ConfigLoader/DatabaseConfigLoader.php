@@ -189,6 +189,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
             /** @var ThemeEntity $parentTheme */
             $parentTheme = $this->themeRepository
                 ->search($criteria, $context)
+                ->getEntities()
                 ->first();
 
             if (!\is_string($parentTheme->getTechnicalName())) {

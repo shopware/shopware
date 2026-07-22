@@ -4,10 +4,12 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
@@ -25,7 +27,7 @@ class LineItemPurchasePriceRule extends Rule
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
         protected ?float $amount = null,
-        protected bool $isNet = true
+        protected ?string $type = null
     ) {
         parent::__construct();
     }
@@ -53,7 +55,6 @@ class LineItemPurchasePriceRule extends Rule
     {
         $constraints = [
             'operator' => RuleConstraints::numericOperators(),
-            'isNet' => RuleConstraints::bool(),
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {
@@ -61,9 +62,20 @@ class LineItemPurchasePriceRule extends Rule
         }
 
         $constraints['amount'] = RuleConstraints::float();
-        $constraints['isNet'] = RuleConstraints::bool(true);
+        $constraints['type'] = RuleConstraints::choice([
+            CartPrice::TAX_STATE_GROSS,
+            CartPrice::TAX_STATE_NET,
+        ]);
 
         return $constraints;
+    }
+
+    public function getConfig(): RuleConfig
+    {
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, true, true)
+            ->selectField('type', [CartPrice::TAX_STATE_GROSS, CartPrice::TAX_STATE_NET])
+            ->numberField('amount');
     }
 
     /**
@@ -85,8 +97,9 @@ class LineItemPurchasePriceRule extends Rule
         }
 
         $purchasePrice = json_decode($purchasePricePayload, true, 512, \JSON_THROW_ON_ERROR);
+        $isNet = $this->type === CartPrice::TAX_STATE_NET;
 
-        if ($this->isNet && \array_key_exists('net', $purchasePrice)) {
+        if ($isNet && \array_key_exists('net', $purchasePrice)) {
             return $purchasePrice['net'];
         }
 

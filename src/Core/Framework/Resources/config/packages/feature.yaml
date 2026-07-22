@@ -36,11 +36,21 @@ shopware:
         major: true
         toggleable: true
         description: "Execute flows after the main unit of work has concluded. Will become the default for next major 6.8"
+      - name: DOCUMENT_GENERATION_REWORK
+        default: false
+        major: true
+        toggleable: true
+        description: "Experimental! Enable the new document generation implementation and its accompanying UI changes."
       - name: PERFORMANCE_TWEAKS
         default: false
         major: true
         toggleable: true
         description: "Experimental! Contains Performance Tweaks for future changes"
+      - name: TWIG_COMPILE_TIME_OPTIMIZATION
+        default: false
+        major: false
+        toggleable: true
+        description: "Experimental! Optimize static Twig feature flag calls at compile time"
       - name: ENABLE_OPENSEARCH_FOR_ADMIN_API
         default: false
         major: false
@@ -76,11 +86,6 @@ shopware:
         major: false
         toggleable: true
         description: "Enables the Meteor text editor in the administration."
-      - name: MCP_SERVER
-        default: false
-        major: false
-        toggleable: true
-        description: "Experimental! Enable MCP (Model Context Protocol) server for AI tool integration"
       - name: JSON_LD_DATA
         default: false
         major: true

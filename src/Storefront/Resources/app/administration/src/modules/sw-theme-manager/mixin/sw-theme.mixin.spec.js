@@ -4,11 +4,7 @@
 import { mount } from '@vue/test-utils';
 import './sw-theme.mixin';
 
-async function createWrapper({
-    aclCan = true,
-    getList = null,
-    repositoryOverrides = {},
-} = {}) {
+async function createWrapper({ aclCan = true, getList = null, repositoryOverrides = {} } = {}) {
     const themeRepository = {
         delete: jest.fn(() => Promise.resolve()),
         create: jest.fn(() => ({ id: 'new-theme-id' })),
@@ -16,34 +12,37 @@ async function createWrapper({
         ...repositoryOverrides,
     };
 
-    return mount({
-        template: '<div></div>',
-        mixins: [Shopware.Mixin.getByName('theme')],
-        data() {
-            return {
-                isLoading: false,
-                getList,
-            };
-        },
-    }, {
-        global: {
-            provide: {
-                repositoryFactory: {
-                    create: () => themeRepository,
-                },
-                themeService: {},
-                acl: {
-                    can: jest.fn(() => aclCan),
-                },
-            },
-            mocks: {
-                $t: (key) => key,
-                $router: {
-                    push: jest.fn(),
-                },
+    return mount(
+        {
+            template: '<div></div>',
+            mixins: [Shopware.Mixin.getByName('theme')],
+            data() {
+                return {
+                    isLoading: false,
+                    getList,
+                };
             },
         },
-    });
+        {
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => themeRepository,
+                    },
+                    themeService: {},
+                    acl: {
+                        can: jest.fn(() => aclCan),
+                    },
+                },
+                mocks: {
+                    $t: (key) => key,
+                    $router: {
+                        push: jest.fn(),
+                    },
+                },
+            },
+        },
+    );
 }
 
 describe('sw-theme.mixin', () => {
@@ -191,14 +190,17 @@ describe('sw-theme.mixin', () => {
         await wrapper.vm.duplicateTheme(parentTheme, 'New theme');
         await flushPromises();
 
-        expect(wrapper.vm.themeRepository.save).toHaveBeenCalledWith(expect.objectContaining({
-            name: 'New theme',
-            parentThemeId: 'parent-id',
-            author: 'author',
-            description: 'description',
-            previewMediaId: 'media-id',
-            active: true,
-        }), Shopware.Context.api);
+        expect(wrapper.vm.themeRepository.save).toHaveBeenCalledWith(
+            expect.objectContaining({
+                name: 'New theme',
+                parentThemeId: 'parent-id',
+                author: 'author',
+                description: 'description',
+                previewMediaId: 'media-id',
+                active: true,
+            }),
+            Shopware.Context.api,
+        );
         expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
             name: 'sw.theme.manager.detail',
             params: { id: 'new-theme-id' },

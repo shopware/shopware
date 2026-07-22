@@ -16,10 +16,8 @@
             <argument type="service" id="request_stack"/>
             <argument type="service" id="shopware.rate_limiter" />
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="cms_slot.repository" />
-            <argument type="service" id="category.repository" />
             <argument type="service" id="Psr\Clock\ClockInterface"/>
+            <argument type="service" id="Shopware\Core\Content\Cms\Service\CmsFormSlotConfigResolver" />
         </service>
     </services>
 </container>

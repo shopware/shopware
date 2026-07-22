@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -140,10 +141,8 @@ class LoginRouteTest extends TestCase
     public function testValidLoginWithOneInactive(): void
     {
         $email = Uuid::randomHex() . '@example.com';
-        // Inactive user with different password
-        $this->createCustomer($email, null, false);
-        // Active user with correct password
-        $this->createCustomer($email);
+        $customerId = $this->createCustomer($email);
+        $this->cloneCustomerWithDuplicateEmail($customerId, Uuid::randomHex(), false);
 
         $this->browser
             ->request(
@@ -322,7 +321,7 @@ class LoginRouteTest extends TestCase
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'salutationId' => $this->getValidSalutationId(),
-            'customerNumber' => '12345',
+            'customerNumber' => $customerId,
             'boundSalesChannelId' => $boundSalesChannelId,
             'active' => $active,
         ];
@@ -334,5 +333,47 @@ class LoginRouteTest extends TestCase
         $this->customerRepository->create([$customer], Context::createDefaultContext());
 
         return $customerId;
+    }
+
+    private function cloneCustomerWithDuplicateEmail(string $sourceCustomerId, string $customerId, bool $active): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        /** @var list<array{Field: string, Extra: string}> $columns */
+        $columns = $connection->fetchAllAssociative('SHOW COLUMNS FROM `customer`');
+
+        $insertColumns = [];
+        $selectExpressions = [];
+
+        foreach ($columns as $column) {
+            if (str_contains($column['Extra'], 'auto_increment')) {
+                continue;
+            }
+
+            $field = $column['Field'];
+            $insertColumns[] = '`' . $field . '`';
+            $selectExpressions[] = match ($field) {
+                'id' => ':customerId',
+                'active' => ':active',
+                'customer_number' => ':customerNumber',
+                'created_at' => ':createdAt',
+                'updated_at' => 'NULL',
+                default => '`' . $field . '`',
+            };
+        }
+
+        // This test covers login behavior with legacy duplicate customer rows that normal writes now reject.
+        $connection->executeStatement(
+            'INSERT INTO `customer` (' . implode(', ', $insertColumns) . ')
+             SELECT ' . implode(', ', $selectExpressions) . '
+             FROM `customer`
+             WHERE `id` = :sourceCustomerId',
+            [
+                'active' => (int) $active,
+                'createdAt' => '2022-10-22 10:00:00',
+                'customerId' => Uuid::fromHexToBytes($customerId),
+                'customerNumber' => $customerId,
+                'sourceCustomerId' => Uuid::fromHexToBytes($sourceCustomerId),
+            ],
+        );
     }
 }

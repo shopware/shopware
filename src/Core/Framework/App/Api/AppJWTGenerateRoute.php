@@ -105,7 +105,7 @@ LEFT JOIN acl_role ON app.acl_role_id = acl_role.id
 WHERE `app`.name = ? AND
       active = 1', [$name]);
 
-        if (empty($row)) {
+        if ($row === false) {
             throw AppException::notFound($name);
         }
 

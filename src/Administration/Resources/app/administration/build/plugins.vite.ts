@@ -43,7 +43,9 @@ const extensionEntries = loadExtensions();
 const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
     const extensionInfoDebug = debug(`vite:${extension.isPlugin ? 'plugin' : 'app'}:${extension.technicalName}`);
     const configInfoDebug = debug('vite:config');
-    const useSourceMap = !isProd && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1';
+    const useSourceMap =
+        (!isProd && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1') ||
+        (isProd && process.env.GENERATE_SOURCEMAPS === 'true');
 
     const logger = createLogger();
 
@@ -190,10 +192,10 @@ const main = async () => {
             }
         });
 
-        fs.writeFileSync(
-            path.resolve(__dirname, '../../../public/administration/sw-plugin-dev.json'),
-            JSON.stringify(swPluginDevJsonData),
-        );
+        // Write outside of public/administration on purpose: a parallel production
+        // build empties that directory (emptyOutDir), which would delete this file
+        // out from under the running watcher.
+        fs.writeFileSync(path.resolve(__dirname, '../../../sw-plugin-dev.json'), JSON.stringify(swPluginDevJsonData));
 
         // Start dev servers
         for (let i = 0; i < extensionEntries.length; i++) {

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Mcp\McpException;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Serves a large tool result that was stored during the current MCP session.
  * Access is restricted to the session that created the result.

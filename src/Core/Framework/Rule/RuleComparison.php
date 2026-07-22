@@ -3,13 +3,13 @@
 namespace Shopware\Core\Framework\Rule;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
 
-/**
- * @deprecated tag:v6.8.0 - reason:becomes-final
- */
 #[Package('fundamentals@after-sales')]
+#[BecomesFinal(version: 'v6.8.0')]
 class RuleComparison
 {
     public static function numeric(?float $itemValue, ?float $ruleValue, string $operator): bool
@@ -91,17 +91,13 @@ class RuleComparison
         };
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-extension - `$ruleValue` becomes type `\DateTime|string|array`, will replace `dateValue()`
-     */
+    #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'ruleValue', newType: '\DateTime|string|array', description: 'Will replace dateValue().')]
     public static function date(\DateTime $itemValue, \DateTime $ruleValue, string $operator): bool
     {
         return self::compareDate(Defaults::STORAGE_DATE_FORMAT, $itemValue, $ruleValue, $operator);
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-extension - `$ruleValue` becomes type `\DateTime|string|array`, will replace `datetimeValue()`
-     */
+    #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'ruleValue', newType: '\DateTime|string|array', description: 'Will replace datetimeValue().')]
     public static function datetime(\DateTime $itemValue, \DateTime $ruleValue, string $operator): bool
     {
         return self::compareDate(Defaults::STORAGE_DATE_TIME_FORMAT, $itemValue, $ruleValue, $operator);

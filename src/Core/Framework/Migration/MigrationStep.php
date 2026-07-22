@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Database\TableHelper;
@@ -85,10 +86,9 @@ abstract class MigrationStep
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:exception-change - Will throw {@see UtilException} instead of {@see TableNotFoundException}
-     *
      * @param non-empty-string $table
      */
+    #[ExceptionChange(version: 'v6.8.0', newExceptions: [UtilException::class], description: 'Will throw UtilException instead of TableNotFoundException.')]
     protected function indexExists(Connection $connection, string $table, string $index): bool
     {
         if (Feature::isActive('v6.8.0.0')) {

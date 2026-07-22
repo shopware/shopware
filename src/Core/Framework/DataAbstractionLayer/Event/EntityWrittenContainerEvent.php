@@ -35,6 +35,9 @@ class EntityWrittenContainerEvent extends NestedEvent
         return $this->context;
     }
 
+    /**
+     * @return NestedEventCollection<EntityWrittenEvent<IDStructure>>|null
+     */
     #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'NestedEventCollection')]
     public function getEvents(): ?NestedEventCollection
     {

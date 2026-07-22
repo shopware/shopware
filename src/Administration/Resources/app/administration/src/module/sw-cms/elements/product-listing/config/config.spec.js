@@ -1,7 +1,7 @@
 /**
  * @sw-package discovery
  */
-import { reactive } from 'vue';
+import { reactive, toRaw } from 'vue';
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/service/cms.service';
@@ -275,6 +275,20 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
                 priority: 7,
             },
         ]);
+    });
+
+    it('should assign a new object to availableSortings.value (not mutate) to trigger Vue reactivity', async () => {
+        const wrapper = await createWrapper();
+
+        const originalRaw = toRaw(wrapper.vm.element.config.availableSortings.value);
+
+        await wrapper.setData({
+            productSortings: [{ id: 'foo_id', key: 'foo', priority: 2 }],
+        });
+        await wrapper.vm.$nextTick();
+
+        expect(toRaw(wrapper.vm.element.config.availableSortings.value)).not.toBe(originalRaw);
+        expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual({ foo_id: 2 });
     });
 
     it('should transform the product sortings correctly', async () => {

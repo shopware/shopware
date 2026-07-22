@@ -267,25 +267,14 @@ export default {
         },
 
         onUpdateProductSortings() {
-            const path = 'config.availableSortings.value';
+            const currentValue = this.element.config.availableSortings.value;
+            const newValue = {};
 
             this.productSortings.forEach((item) => {
-                if (has(this.element, `${path}.${item.id}`)) {
-                    return;
-                }
-
-                set(this.element, `${path}.${item.id}`, item.priority);
+                newValue[item.id] = has(currentValue, item.id) ? currentValue[item.id] : item.priority;
             });
 
-            Object.keys(this.element.config.availableSortings.value).forEach((id) => {
-                const exists = this.productSortings.find((sorting) => sorting.id === id);
-
-                if (exists) {
-                    return;
-                }
-
-                unset(this.element, `${path}.${id}`);
-            });
+            this.element.config.availableSortings.value = newValue;
         },
 
         async initProductSorting() {

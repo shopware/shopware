@@ -12,6 +12,33 @@
 export const FEATURE_REGISTRY_PATH = 'src/Core/Framework/Resources/config/packages/feature.yaml';
 
 /**
+ * All run conditions beyond the workflow-level `if: github.event_name == 'pull_request'`
+ * live here so they are unit-testable instead of being an untestable YAML expression.
+ *
+ * @param {object} context github-script context
+ * @returns {boolean}
+ */
+export function shouldDetect(context) {
+    if (context.eventName !== 'pull_request') {
+        return false;
+    }
+
+    if (context.payload.action !== 'opened' && context.payload.action !== 'synchronize') {
+        return false;
+    }
+
+    const pullRequest = context.payload.pull_request;
+    // fork PRs cannot mint the app token needed for the label to trigger the matrix
+    if (pullRequest.head.repo.full_name !== `${context.repo.owner}/${context.repo.repo}`) {
+        return false;
+    }
+
+    const labels = (pullRequest.labels ?? []).map((label) => label.name);
+
+    return !labels.includes('major-php') && !labels.includes('major-tests');
+}
+
+/**
  * @param {string} registryYaml
  * @returns {string[]} names of flags registered with `major: true`
  */
@@ -65,6 +92,12 @@ export function hasMajorMarkers(diff, majorFlags) {
  * @returns {Promise<boolean>}
  */
 export async function detectMajorFlagUsage({ github, core, context }) {
+    if (!shouldDetect(context)) {
+        core.info('skipping major-flag detection: event, fork head, or existing label rules it out');
+
+        return false;
+    }
+
     const { data: registry } = await github.rest.repos.getContent({
         owner: context.repo.owner,
         repo: context.repo.repo,

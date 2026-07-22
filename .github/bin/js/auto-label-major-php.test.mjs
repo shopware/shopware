@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { FEATURE_REGISTRY_PATH, hasMajorMarkers, parseMajorFlags } from './auto-label-major-php.mjs';
+import { FEATURE_REGISTRY_PATH, hasMajorMarkers, parseMajorFlags, shouldDetect } from './auto-label-major-php.mjs';
 
 const REGISTRY = `shopware:
     feature:
@@ -55,4 +55,45 @@ test('unrelated changes do not match', () => {
 
 test('empty diff does not match', () => {
     assert.equal(hasMajorMarkers('', parseMajorFlags(REGISTRY)), false);
+});
+
+const baseContext = (overrides = {}) => ({
+    eventName: 'pull_request',
+    repo: { owner: 'shopware', repo: 'shopware' },
+    payload: {
+        action: 'opened',
+        pull_request: {
+            head: { repo: { full_name: 'shopware/shopware' } },
+            labels: [],
+        },
+    },
+    ...overrides,
+});
+
+test('shouldDetect accepts an unlabeled same-repo PR being opened', () => {
+    assert.equal(shouldDetect(baseContext()), true);
+});
+
+test('shouldDetect rejects non-pull_request events', () => {
+    assert.equal(shouldDetect(baseContext({ eventName: 'issues' })), false);
+});
+
+test('shouldDetect rejects other PR actions', async () => {
+    const context = baseContext();
+    context.payload = { ...context.payload, action: 'labeled' };
+    assert.equal(shouldDetect(context), false);
+});
+
+test('shouldDetect rejects fork heads', async () => {
+    const context = baseContext();
+    context.payload.pull_request.head.repo.full_name = 'fork/shopware';
+    assert.equal(shouldDetect(context), false);
+});
+
+test('shouldDetect rejects PRs already labeled major-php or major-tests', async () => {
+    for (const name of ['major-php', 'major-tests']) {
+        const context = baseContext();
+        context.payload.pull_request.labels = [{ name }];
+        assert.equal(shouldDetect(context), false);
+    }
 });

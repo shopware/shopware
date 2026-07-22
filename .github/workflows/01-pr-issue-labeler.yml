@@ -23,9 +23,10 @@ jobs:
       # auto-apply `major-php` when the diff touches major feature flags, so the integration-major
       # matrix runs on the PRs where it matters without running it everywhere. Piggybacks on this
       # job to avoid a runner spin-up of its own; costs one API call per PR event.
+      # all further run conditions (action, fork head, existing labels) live in the
+      # module's `shouldDetect` where they are unit-tested
       - id: detect-major
-        if: >
-          github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'synchronize') && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.event.pull_request.labels.*.name, 'major-php') && !contains(github.event.pull_request.labels.*.name, 'major-tests')
+        if: github.event_name == 'pull_request'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |

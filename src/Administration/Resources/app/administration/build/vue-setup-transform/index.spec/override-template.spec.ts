@@ -45,13 +45,13 @@ describe('build/vue-setup-transform override template forwarding', () => {
             `<sw-block extends="sw_example_component_body" #default="{ __swOverride: { ${privateNamespace}: { info } }, body }">`,
         );
         expect(result).toContain(`return {
-                body,
-                __swOverride: {
-                    ${privateNamespace}: {
-                        info,
-                    },
-                },
-            };`);
+        body,
+        __swOverride: {
+            ${privateNamespace}: {
+                info,
+            },
+        },
+    };`);
         expect(result).not.toContain('unused,');
     });
 

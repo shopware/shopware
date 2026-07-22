@@ -76,7 +76,22 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
         throw withBlockOffset(error, block);
     }
 
+    // A template-less override still needs to render (a comment node is enough): the hidden override
+    // component must mount so its setup registers the override callback, and Vue warns about
+    // components without a template or render function.
+    const registrationTemplateEdits =
+        block.mode === 'override' && !block.template
+            ? [
+                  {
+                      start: 0,
+                      end: 0,
+                      replacement: '<template><!-- Shopware override registration component --></template>\n',
+                  },
+              ]
+            : [];
+
     const transformed = applySourceEdits(source, filename, [
+        ...registrationTemplateEdits,
         ...templateAnalysis.edits,
         {
             start: block.start,

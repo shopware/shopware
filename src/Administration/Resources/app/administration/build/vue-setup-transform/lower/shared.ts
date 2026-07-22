@@ -78,7 +78,7 @@ function buildCallbackBodyChunks(
           }))
         : [];
 
-    return transformRanges(block, analysis, analysis.bodyRemovals, replacements);
+    return transformRanges(block, analysis.bodyRemovals, replacements);
 }
 
 export { type SetupInputNames, buildCallbackBodyChunks, escapeSingleQuoted, formatObjectProperties };

@@ -5,14 +5,16 @@
 /**
  * Lowers override Shopware setup scripts into hidden components that register setup overrides.
  *
- * Override lowering preserves user code inside the generated callback and returns only declared
- * replacements plus template-used private locals, keeping private override state namespaced per file.
+ * The generated block stays a plain `<script setup>` whose body registers the override callback: the
+ * hidden component mounts once at boot (sw-admin renders all registered override components in a
+ * hidden container), which runs the registration and renders the template so `<sw-block extends>`
+ * content is picked up. User code is preserved inside the callback and only declared replacements
+ * plus template-used private locals are returned, namespaced per file.
  */
 
 import { fromSource, generated, indent, type SourceChunk } from '../source-edits/chunks';
 import type { ShopwareSetupScriptAnalysis } from '../script-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
-import { removeSetupAttributeFromScriptBlock } from '../utils/sfc-script-block';
 import { buildCallbackBodyChunks, escapeSingleQuoted } from './shared';
 
 /**
@@ -65,7 +67,7 @@ function buildOverrideScript(block: ShopwareSetupBlock, analysis: ShopwareSetupS
         ...callbackBody,
         generated(`\n\n${buildOverrideReturn(analysis)}`),
     ];
-    const chunks: SourceChunk[] = [generated(`${removeSetupAttributeFromScriptBlock(block.openingTagSource)}\n`)];
+    const chunks: SourceChunk[] = [generated(`${block.openingTagSource}\n`)];
 
     analysis.imports.forEach((importBlock) => {
         chunks.push(fromSource(block, importBlock));
@@ -87,22 +89,12 @@ function buildOverrideScript(block: ShopwareSetupBlock, analysis: ShopwareSetupS
 
     chunks.push(
         generated(
-            [
-                'export default {',
-                '    setup() {',
-                `        Shopware.Component.overrideComponentSetup()('${escapeSingleQuoted(block.componentName)}', (${previousStateName}, ${propsName}, ${contextName}) => {`,
-            ].join('\n'),
+            `Shopware.Component.overrideComponentSetup()('${escapeSingleQuoted(block.componentName)}', (${previousStateName}, ${propsName}, ${contextName}) => {`,
         ),
         generated('\n'),
-        indent(body, 12),
-        generated('\n        });'),
+        indent(body, 4),
+        generated('\n});\n</script>'),
     );
-
-    if (!block.template) {
-        chunks.push(generated('\n\n        return () => null;'));
-    }
-
-    chunks.push(generated('\n    },\n};\n</script>'));
 
     return chunks;
 }

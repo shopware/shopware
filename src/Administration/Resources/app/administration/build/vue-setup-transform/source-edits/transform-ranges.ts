@@ -13,10 +13,7 @@ import { fromSource, generated, trim, type SourceChunk } from './chunks';
 
 type SourceBlock = {
     contentStart: number;
-};
-
-type SourceAnalysis = {
-    source: string;
+    content: string;
 };
 
 type SourceRange = {
@@ -34,7 +31,6 @@ type SourceReplacement = SourceRange & {
  */
 function transformRanges(
     block: SourceBlock,
-    analysis: SourceAnalysis,
     removals: SourceRange[],
     replacements: SourceReplacement[] = [],
 ): SourceChunk[] {
@@ -70,8 +66,8 @@ function transformRanges(
         cursor = range.end;
     });
 
-    if (cursor < analysis.source.length) {
-        chunks.push(fromSource(block, { start: cursor, end: analysis.source.length }));
+    if (cursor < block.content.length) {
+        chunks.push(fromSource(block, { start: cursor, end: block.content.length }));
     }
 
     return [trim(chunks)];

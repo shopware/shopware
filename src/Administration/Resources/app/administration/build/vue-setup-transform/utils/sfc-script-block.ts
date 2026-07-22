@@ -77,13 +77,6 @@ function findScriptStart(source: string, contentStart: number): number {
 }
 
 /**
- * Removes only the boolean or valued `setup` attribute from the parsed script tag.
- */
-function removeSetupAttributeFromScriptBlock(openingTagSource: string): string {
-    return openingTagSource.replace(/\ssetup(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?(?=\s|>)/u, '');
-}
-
-/**
  * Builds the shared block shape consumed by semantic normalization and lowering.
  */
 function toScriptBlock(source: string, descriptorBlock: SFCScriptBlock, type: ScriptBlock['type']): ScriptBlock {
@@ -102,4 +95,4 @@ function toScriptBlock(source: string, descriptorBlock: SFCScriptBlock, type: Sc
     };
 }
 
-export { type ScriptBlock, removeSetupAttributeFromScriptBlock, toScriptBlock };
+export { type ScriptBlock, toScriptBlock };

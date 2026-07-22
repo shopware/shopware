@@ -18,7 +18,7 @@ developers working on the transform itself.
 | `sfc-parser.ts` | Finds the `<script setup>` block via `@vue/compiler-sfc` and normalizes it |
 | `script-analyzer.ts` | Statement classification pass: produces the semantic model for lowering |
 | `script-analyzer/` | Analyzer internals: macros, runtime bindings, setup inputs, validation, hoisted-macro-argument guard, Babel utils |
-| `template-analyzer.ts` | Template pass: data-scope injection (base), reference detection and slot-scope merging (override) |
+| `template-analyzer/` | Template pass: expression/template reference detection, slot-scope merging, data-scope injection |
 | `lower.ts`, `lower/` | Code generation: base and override lowerers plus shared chunk helpers |
 | `source-edits/` | Chunk IR (`generated`/`original`/`trim`/`indent`), range transforms, rendering |
 | `utils/` | Cross-cutting helpers: block normalization, script-tag handling, Babel patterns, errors |

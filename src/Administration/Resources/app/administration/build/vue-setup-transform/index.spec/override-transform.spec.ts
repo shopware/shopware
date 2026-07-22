@@ -32,30 +32,25 @@ describe('build/vue-setup-transform override transforms', () => {
         `;
 
         const expected = stripIndent`
-            <script>
+            <template><!-- Shopware override registration component --></template>
+            <script setup>
             import { computed } from 'vue';
 
-            export default {
-                setup() {
-                    Shopware.Component.overrideComponentSetup()('sw-my-component', (__swSetupPreviousState, __swSetupProps, __swSetupContext) => {
-                        const useSwPreviousState = () => __swSetupPreviousState;
-                        const useSwProps = () => __swSetupProps;
-                        const useSwContext = () => __swSetupContext;
+            Shopware.Component.overrideComponentSetup()('sw-my-component', (__swSetupPreviousState, __swSetupProps, __swSetupContext) => {
+                const useSwPreviousState = () => __swSetupPreviousState;
+                const useSwProps = () => __swSetupProps;
+                const useSwContext = () => __swSetupContext;
 
-                        const previousState = useSwPreviousState();
-                        const props = useSwProps();
-                        const context = useSwContext();
+                const previousState = useSwPreviousState();
+                const props = useSwProps();
+                const context = useSwContext();
 
-                        const doubled = computed(() => previousState.count.value * 2);
+                const doubled = computed(() => previousState.count.value * 2);
 
-                        return {
-                            doubled,
-                        };
-                    });
-
-                    return () => null;
-                },
-            };
+                return {
+                    doubled,
+                };
+            });
             </script>
         `;
 
@@ -92,7 +87,7 @@ describe('build/vue-setup-transform override transforms', () => {
 
         const result = transformOrFail(source, 'component.override.vue').code;
 
-        expect(result).toContain('return {\n                doubled,\n            };');
+        expect(result).toContain('return {\n        doubled,\n    };');
         expect(result).not.toContain('computed,');
     });
 
@@ -112,7 +107,7 @@ describe('build/vue-setup-transform override transforms', () => {
 
         const result = transformOrFail(source, 'typed.override.vue').code;
 
-        expect(result.indexOf('type Props')).toBeLessThan(result.indexOf('export default'));
+        expect(result.indexOf('type Props')).toBeLessThan(result.indexOf('Shopware.Component.overrideComponentSetup()'));
         expect(result).toContain('const props = useSwProps<Props>();');
         expect(result.match(/type Props/g)).toHaveLength(1);
     });
@@ -138,9 +133,7 @@ describe('build/vue-setup-transform override transforms', () => {
 
         const result = transformOrFail(source, 'explicit-payload.override.vue').code;
 
-        expect(result).toContain(
-            'return {\n                body,\n                localHeadline,\n                localFooter,\n            };',
-        );
+        expect(result).toContain('return {\n        body,\n        localHeadline,\n        localFooter,\n    };');
         expect(result).not.toContain('__swOverride');
         expect(result).not.toContain('localInfo,');
     });

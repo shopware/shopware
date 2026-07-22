@@ -30,9 +30,13 @@ class AppCapability
      * Runs the callback only if the app has been granted the capability action, and returns its
      * result (or null when the permission is not granted).
      *
-     * @param callable(): mixed $callback
+     * @template TReturn of mixed
+     *
+     * @param \Closure(): TReturn $callback
+     *
+     * @return TReturn|null the callback's return value, or null when the permission is not granted
      */
-    public function whenGranted(string $appId, string $action, callable $callback): mixed
+    public function whenGranted(string $appId, string $action, \Closure $callback): mixed
     {
         if (!$this->can($appId, $action)) {
             return null;

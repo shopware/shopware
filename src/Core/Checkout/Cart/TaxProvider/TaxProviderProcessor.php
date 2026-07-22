@@ -118,7 +118,7 @@ class TaxProviderProcessor
                     fn () => $this->handleAppRequest($app, $processUrl, $cart, $context)
                 );
 
-                if ($result instanceof TaxProviderResult) {
+                if ($result !== null) {
                     return $result;
                 }
 

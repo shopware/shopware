@@ -137,8 +137,7 @@ final readonly class ProductExportPartialGenerationHandler
         ];
 
         if ($offset === 0) {
-            $nextGenerationAt = new \DateTimeImmutable();
-            $update['nextGenerationAt'] = $nextGenerationAt->modify(\sprintf('+%d seconds', $productExport->getInterval()));
+            $update['nextGenerationAt'] = $this->clock->now()->modify(\sprintf('+%d seconds', $productExport->getInterval()));
         }
 
         $this->productExportRepository->update([$update], $context);

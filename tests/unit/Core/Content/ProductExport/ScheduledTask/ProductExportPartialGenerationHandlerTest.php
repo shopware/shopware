@@ -29,6 +29,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterfac
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -69,7 +70,7 @@ class ProductExportPartialGenerationHandlerTest extends TestCase
     public function testFirstChunkSchedulesNextRunAndFinalizeKeepsGeneratedAtForCache(): void
     {
         $updateCalls = 0;
-        $writeResult = $this->createMock(EntityWrittenContainerEvent::class);
+        $writeResult = static::createStub(EntityWrittenContainerEvent::class);
 
         $this->productExportRepository
             ->expects($this->exactly(2))
@@ -161,7 +162,7 @@ class ProductExportPartialGenerationHandlerTest extends TestCase
 
     public function testFollowUpChunkDoesNotOverwriteSchedulingOrCacheTimestamps(): void
     {
-        $writeResult = $this->createMock(EntityWrittenContainerEvent::class);
+        $writeResult = static::createStub(EntityWrittenContainerEvent::class);
 
         $this->productExportRepository
             ->expects($this->once())
@@ -220,12 +221,12 @@ class ProductExportPartialGenerationHandlerTest extends TestCase
         SalesChannelContextPersister $contextPersister,
         Connection $connection,
     ): ProductExportPartialGenerationHandler {
-        $salesChannelContextFactory = $this->createMock(AbstractSalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::createStub(AbstractSalesChannelContextFactory::class);
         $salesChannelContextFactory
             ->method('create')
             ->willReturn($this->salesChannelContext);
 
-        $languageLocaleProvider = $this->createMock(LanguageLocaleCodeProvider::class);
+        $languageLocaleProvider = static::createStub(LanguageLocaleCodeProvider::class);
         $languageLocaleProvider
             ->method('getLocaleForLanguageId')
             ->willReturn('en-GB');
@@ -242,7 +243,8 @@ class ProductExportPartialGenerationHandlerTest extends TestCase
             $contextPersister,
             $connection,
             50,
-            $languageLocaleProvider
+            $languageLocaleProvider,
+            new MockClock()
         );
     }
 

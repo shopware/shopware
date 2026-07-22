@@ -130,6 +130,33 @@ class OpenApiDtoGeneratorTest extends TestCase
         static::assertStringNotContainsString('#[Assert\Valid]', $request);
     }
 
+    public function testStringConstIsRenderedAsPropertyDefault(): void
+    {
+        $definitions = (new OpenApiDtoSchemaParser())->parse([
+            'openapi' => '3.1.0',
+            'info' => [],
+            'paths' => [],
+            'components' => [
+                'schemas' => [
+                    'Response' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'apiAlias' => [
+                                'type' => 'string',
+                                'const' => 'account_newsletter_recipient',
+                            ],
+                        ],
+                        'required' => ['apiAlias'],
+                    ],
+                ],
+            ],
+        ]);
+
+        $response = $this->renderDefinition($this->definitionByName($definitions, 'Response'));
+
+        static::assertStringContainsString('public string $apiAlias = \'account_newsletter_recipient\',', $response);
+    }
+
     public function testReferencedMapSchemasAreRenderedAsTypedArrays(): void
     {
         $definitions = (new OpenApiDtoSchemaParser())->parse([

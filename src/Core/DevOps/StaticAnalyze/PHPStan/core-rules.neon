@@ -9,7 +9,9 @@ parametersSchema:
     shopwareTaggedServiceContractAdditionalTagContracts: arrayOf(anyOf(string(), listOf(string())), string())
 
 rules:
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\BCChangeAttributeUsageRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\NoBCPlanningDeprecationRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal\InternalClassRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal\InternalMethodRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Migration\AddColumnRule

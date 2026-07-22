@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
  * The AbstractThemePathBuilder handles access to the theme file paths
  * with a seeding mechanism to allow switching the concrete path for the currently active theme.
  */
-#[Package('framework')]
+#[Package('discovery')]
 abstract class AbstractThemePathBuilder
 {
     abstract public function getDecorated(): AbstractThemePathBuilder;

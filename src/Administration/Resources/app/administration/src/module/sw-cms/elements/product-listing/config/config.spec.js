@@ -170,6 +170,16 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     it('should contain content for sorting when defaultSorting is deactivated', async () => {
         const wrapper = await createWrapper();
 
+        await wrapper.setData({
+            productSortings: [
+                {
+                    id: 'foo_id',
+                    key: 'foo',
+                    priority: 2,
+                },
+            ],
+        });
+
         const showSortingSwitchField = wrapper.find(
             'input[aria-label="sw-cms.elements.productListing.config.sorting.labelShowSorting"]',
         );
@@ -187,6 +197,16 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         expect(defaultSortingIdSelect.exists()).toBeTruthy();
         expect(productSortingsSelect.exists()).toBeTruthy();
         expect(cmsElConfigProductListingConfigSortingGrid.exists()).toBeTruthy();
+    });
+
+    it('should hide the sorting grid when no product sortings are selected', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            productSortings: [],
+        });
+
+        expect(wrapper.find('sw-cms-el-config-product-listing-config-sorting-grid-stub').exists()).toBeFalsy();
     });
 
     it('should contain only some content for sorting when defaultSorting is activated', async () => {

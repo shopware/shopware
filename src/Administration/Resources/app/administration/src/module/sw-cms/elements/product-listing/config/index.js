@@ -154,6 +154,10 @@ export default {
             return !this.properties.length < 1;
         },
 
+        showProductSortingsSelection() {
+            return this.productSortings.length > 0;
+        },
+
         gridColumns() {
             return [
                 {

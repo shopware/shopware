@@ -78,9 +78,9 @@ class Framework extends Bundle
         $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
 
         $loader->load('services.xml');
-        $loader->load('acl.xml');
+        $phpLoader->load('acl.php');
         $loader->load('cache.xml');
-        $loader->load('api.xml');
+        $phpLoader->load('api.php');
         $phpLoader->load('app.php');
         $phpLoader->load('custom-field.php');
         $phpLoader->load('data-abstraction-layer.php');
@@ -96,16 +96,16 @@ class Framework extends Bundle
         $phpLoader->load('script.php');
         $phpLoader->load('language.php');
         $loader->load('update.xml');
-        $loader->load('validation.xml');
+        $phpLoader->load('validation.php');
         $loader->load('seo.xml');
+        $phpLoader->load('rate-limiter.php');
         $phpLoader->load('webhook.php');
-        $loader->load('rate-limiter.xml');
         $loader->load('increment.xml');
         $loader->load('flag.xml');
         $loader->load('health.xml');
         $loader->load('telemetry.xml');
         $loader->load('notification.xml');
-        $loader->load('sso.xml');
+        $phpLoader->load('sso.php');
 
         // @codeCoverageIgnoreStart
         $phpLoader->load('mcp.php');

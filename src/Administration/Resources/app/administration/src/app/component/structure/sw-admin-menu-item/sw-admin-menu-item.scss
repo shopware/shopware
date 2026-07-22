@@ -33,8 +33,6 @@ $nesting-line-indent: 36px;
         color: var(--color-text-primary-default);
     }
 
-    // Inset ring so the focus outline is never clipped by the necessary
-    // overflow: hidden on the collapsible / scrolling menu body.
     &:focus-visible {
         outline: var(--scale-size-2) solid var(--color-border-brand-default);
         outline-offset: -2px;
@@ -80,11 +78,6 @@ $nesting-line-indent: 36px;
 }
 
 .sw-admin-menu__sub-navigation-list {
-    // Visibility of the collapsible subtree is owned by <MtCollapsible> / reka-ui,
-    // which drives the height slide-down/slide-up animation and hides the closed
-    // content via its `hidden` attribute. Do not toggle `display` here (or on the
-    // rows) from the `.is--entry-expanded` class: it collapses the content
-    // synchronously on close, so reka-ui skips the exit animation.
     list-style: none;
     margin: 0;
     padding: 0;

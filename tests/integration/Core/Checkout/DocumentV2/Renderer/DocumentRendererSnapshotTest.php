@@ -18,10 +18,12 @@ use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\CancellationInvoiceDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\CreditNoteDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\DeliveryNoteDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\CancellationInvoiceRenderData;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\CreditNoteRenderData;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DeliveryNoteRenderData;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
@@ -111,8 +113,11 @@ class DocumentRendererSnapshotTest extends TestCase
         $dataProvider = static::getContainer()->get($dataProviderClass);
         static::assertInstanceOf(AbstractDocumentDataProvider::class, $dataProvider);
 
-        $cart = $this->generateDemoCartWithTaxes([19, 7]);
-        $cart = $this->applyTenPercentPromotion($cart);
+        $cart = $this->generateDemoCartWithTaxes($documentType === DocumentType::CREDIT_NOTE ? [19] : [19, 7]);
+        $cart = $documentType === DocumentType::CREDIT_NOTE
+            ? $this->applyCreditLineItem($cart)
+            : $this->applyTenPercentPromotion($cart);
+
         $orderId = $this->persistCart($cart);
         $this->enrichOrderForRendering($orderId);
 
@@ -174,6 +179,11 @@ class DocumentRendererSnapshotTest extends TestCase
             'documentType' => DocumentType::DELIVERY_NOTE,
             'dataProviderClass' => DeliveryNoteDataProvider::class,
             'renderXml' => false,
+        ];
+
+        yield 'credit_note' => [
+            'documentType' => DocumentType::CREDIT_NOTE,
+            'dataProviderClass' => CreditNoteDataProvider::class,
         ];
     }
 
@@ -318,10 +328,10 @@ class DocumentRendererSnapshotTest extends TestCase
             DocumentMetaProvider::KEY => $this->buildMeta($companyCountry, $itemsPerPage),
         ];
 
-        /** @phpstan-ignore match.unhandled */
         $data += match ($documentType) {
             DocumentType::INVOICE => [InvoiceDataProvider::KEY => $this->buildInvoiceRenderData($order)],
             DocumentType::CANCELLATION_INVOICE => [CancellationInvoiceDataProvider::KEY => $this->buildCancellationInvoiceRenderData($order)],
+            DocumentType::CREDIT_NOTE => [CreditNoteDataProvider::KEY => $this->buildCreditNoteRenderData($order)],
             DocumentType::DELIVERY_NOTE => [DeliveryNoteDataProvider::KEY => $this->buildDeliveryNoteRenderData()],
         };
 
@@ -339,6 +349,25 @@ class DocumentRendererSnapshotTest extends TestCase
             $order->getId(),
             $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::CANCELLATION_INVOICE,
+            [DocumentFormat::ZUGFERD_XML],
+            self::DOCUMENT_NUMBER,
+            documentDate: self::DOCUMENT_DATE,
+        );
+
+        return $provider->provideRenderingData($order, $request, $this->context);
+    }
+
+    private function buildCreditNoteRenderData(OrderEntity $order): CreditNoteRenderData
+    {
+        $this->seedDemoBaseConfig('credit_note');
+        $this->seedReferenceInvoice($order->getId());
+
+        $provider = static::getContainer()->get(CreditNoteDataProvider::class);
+
+        $request = new DocumentGenerationRequest(
+            $order->getId(),
+            $order->getVersionId() ?? Uuid::randomHex(),
+            DocumentType::CREDIT_NOTE,
             [DocumentFormat::ZUGFERD_XML],
             self::DOCUMENT_NUMBER,
             documentDate: self::DOCUMENT_DATE,

@@ -4,11 +4,12 @@ namespace Shopware\Core\Checkout\DocumentV2\Generation;
 
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
-use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\ReferencesDocument;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
@@ -154,6 +155,11 @@ final readonly class DocumentGenerator
             $languageAwareContext,
         );
 
+        $generationRequest = $this->applyReferencedDocument(
+            $generationRequest,
+            $providerData,
+        );
+
         $renderState = new RenderState();
         $renderInput = new RenderInput(
             documentType: $generationRequest->documentType,
@@ -207,6 +213,29 @@ final readonly class DocumentGenerator
         }
 
         return $data;
+    }
+
+    /**
+     * Persists the document a follow-up document (credit note, cancellation invoice) references,
+     * as resolved by its provider, unless the request already carries an explicit reference.
+     *
+     * @param array<string, AbstractRenderData> $providerData
+     */
+    private function applyReferencedDocument(
+        DocumentGenerationRequest $generationRequest,
+        array $providerData,
+    ): DocumentGenerationRequest {
+        if ($generationRequest->referencedDocumentId !== null) {
+            return $generationRequest;
+        }
+
+        foreach ($providerData as $data) {
+            if ($data instanceof ReferencesDocument && $data->getReferencedDocumentId() !== null) {
+                return $generationRequest->withReferencedDocumentId($data->getReferencedDocumentId());
+            }
+        }
+
+        return $generationRequest;
     }
 
     /**

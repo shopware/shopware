@@ -34,7 +34,11 @@ class ZugferdEmbeddedPdfRendererTest extends TestCase
         $renderer = new ZugferdEmbeddedPdfRenderer('version');
 
         static::assertSame(DocumentFormat::ZUGFERD_EMBEDDED_PDF->value, $renderer->getFormat());
-        static::assertSame([DocumentType::INVOICE->value], $renderer->getDocumentTypes());
+        static::assertSame([
+            DocumentType::INVOICE->value,
+            DocumentType::CANCELLATION_INVOICE->value,
+            DocumentType::CREDIT_NOTE->value,
+        ], $renderer->getDocumentTypes());
         static::assertSame(
             [DocumentFormat::PDF->value, DocumentFormat::ZUGFERD_XML->value],
             $renderer->getDependencies(),

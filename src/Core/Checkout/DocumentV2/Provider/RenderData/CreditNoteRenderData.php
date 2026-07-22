@@ -13,17 +13,17 @@ use Shopware\Core\Checkout\DocumentV2\Template\View\TradePartyView;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Cancellation-invoice ("storno") render data: an inverted invoice that additionally references the
- * original invoice. It mirrors the {@see InvoiceRenderData} field contract so the shared invoice and
- * Zugferd templates render it unchanged; the storno-specific numbers are carried in the legacy
- * `custom` map.
+ * Credit-note render data: an invoice reduced to its (inverted-to-positive) credit line items that
+ * additionally references the original invoice. It mirrors the {@see InvoiceRenderData} field
+ * contract so the shared invoice and Zugferd templates render it unchanged; the credit-note-specific
+ * numbers are carried in the legacy `custom` map.
  *
  * @internal
  *
  * @codeCoverageIgnore
  */
 #[Package('after-sales')]
-final readonly class CancellationInvoiceRenderData extends AbstractRenderData implements ReferencesDocument
+final readonly class CreditNoteRenderData extends AbstractRenderData implements ReferencesDocument
 {
     /**
      * @param list<LineItemView> $lineItems
@@ -53,12 +53,12 @@ final readonly class CancellationInvoiceRenderData extends AbstractRenderData im
 
     public static function fromInvoice(
         InvoiceRenderData $invoice,
-        ?string $stornoNumber,
+        string $creditNoteNumber,
         string $referencedInvoiceId,
         string $referencedInvoiceNumber,
     ): self {
         return new self(
-            typeCode: TypeCode::CANCELLATION_INVOICE,
+            typeCode: TypeCode::CREDIT_NOTE,
             buyerReference: $invoice->buyerReference,
             buyer: $invoice->buyer,
             deliveryDate: $invoice->deliveryDate,
@@ -71,7 +71,7 @@ final readonly class CancellationInvoiceRenderData extends AbstractRenderData im
             intraCommunityDelivery: $invoice->intraCommunityDelivery,
             referencedDocumentId: $referencedInvoiceId,
             custom: [
-                'stornoNumber' => $stornoNumber,
+                'creditNoteNumber' => $creditNoteNumber,
                 'invoiceNumber' => $referencedInvoiceNumber,
             ],
         );

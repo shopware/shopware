@@ -54,6 +54,7 @@ class HtmlRendererTest extends TestCase
             DocumentType::INVOICE->value,
             DocumentType::CANCELLATION_INVOICE->value,
             DocumentType::DELIVERY_NOTE->value,
+            DocumentType::CREDIT_NOTE->value,
         ], $renderer->getDocumentTypes());
     }
 

@@ -12,7 +12,6 @@ use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
-use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
@@ -22,6 +21,7 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentNumberGenerator;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -36,6 +36,7 @@ use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInt
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentDataProvider;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer;
+use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticReferencesDocumentRenderData;
 
 /**
  * @internal
@@ -44,8 +45,12 @@ use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer
 #[CoversClass(DocumentGenerator::class)]
 class DocumentGeneratorTest extends TestCase
 {
-    public function testGenerate(): void
-    {
+    #[DataProvider('referencedDocumentIdProvider')]
+    public function testGenerate(
+        ?string $requestedReferencedDocumentId,
+        string $providedReferencedDocumentId,
+        string $expectedReferencedDocumentId,
+    ): void {
         $orderId = Uuid::randomHex();
         $orderVersionId = Uuid::randomHex();
         $salesChannelId = Uuid::randomHex();
@@ -54,10 +59,11 @@ class DocumentGeneratorTest extends TestCase
         $context = Context::createDefaultContext();
 
         $generationRequest = new DocumentGenerationRequest(
-            $orderId,
-            $orderVersionId,
-            DocumentType::INVOICE,
-            [DocumentFormat::PDF],
+            orderId: $orderId,
+            orderVersionId: $orderVersionId,
+            documentType: DocumentType::INVOICE,
+            requestedFormats: [DocumentFormat::PDF],
+            referencedDocumentId: $requestedReferencedDocumentId,
         );
 
         $order = new OrderEntity();
@@ -124,6 +130,7 @@ class DocumentGeneratorTest extends TestCase
             $numberRangeValueGenerator,
             $documentTypeId,
             $document,
+            $providedReferencedDocumentId,
         );
 
         $result = $generator->generate($generationRequest, $context);
@@ -133,11 +140,38 @@ class DocumentGeneratorTest extends TestCase
         static::assertSame($orderId, $documentRepository->creates[0][0]['orderId']);
         static::assertSame($orderVersionId, $documentRepository->creates[0][0]['orderVersionId']);
         static::assertSame($documentTypeId, $documentRepository->creates[0][0]['documentTypeId']);
+        static::assertSame($expectedReferencedDocumentId, $documentRepository->creates[0][0]['referencedDocumentId']);
         static::assertSame('generated-number', $documentRepository->creates[0][0]['config']['documentNumber']);
         static::assertCount(1, $documentFileRepository->creates);
         static::assertSame(DocumentFormat::PDF->value, $documentFileRepository->creates[0][0]['documentFormat']);
         static::assertIsString($documentFileRepository->creates[0][0]['mediaId']);
         static::assertNotSame('', $documentFileRepository->creates[0][0]['mediaId']);
+    }
+
+    /**
+     * @return iterable<string, array{
+     *     requestedReferencedDocumentId: ?string,
+     *     providedReferencedDocumentId: string,
+     *     expectedReferencedDocumentId: string
+     * }>
+     */
+    public static function referencedDocumentIdProvider(): iterable
+    {
+        $providedReferencedDocumentId = Uuid::randomHex();
+
+        yield 'provider reference is persisted' => [
+            'requestedReferencedDocumentId' => null,
+            'providedReferencedDocumentId' => $providedReferencedDocumentId,
+            'expectedReferencedDocumentId' => $providedReferencedDocumentId,
+        ];
+
+        $requestedReferencedDocumentId = Uuid::randomHex();
+
+        yield 'request reference takes precedence' => [
+            'requestedReferencedDocumentId' => $requestedReferencedDocumentId,
+            'providedReferencedDocumentId' => Uuid::randomHex(),
+            'expectedReferencedDocumentId' => $requestedReferencedDocumentId,
+        ];
     }
 
     public function testPreview(): void
@@ -290,6 +324,7 @@ class DocumentGeneratorTest extends TestCase
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         string $documentTypeId,
         DocumentEntity $document,
+        ?string $providedReferencedDocumentId = null,
     ): array {
         /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
@@ -316,8 +351,15 @@ class DocumentGeneratorTest extends TestCase
             [$documentTypeId],
         ], new DocumentTypeDefinition());
 
+        $renderData = $providedReferencedDocumentId === null
+            ? null
+            : new StaticReferencesDocumentRenderData($providedReferencedDocumentId);
+
         $providerRegistry = new DocumentDataProviderRegistry([
-            new StaticDocumentDataProvider([DocumentType::INVOICE->value]),
+            new StaticDocumentDataProvider(
+                [DocumentType::INVOICE->value],
+                renderData: $renderData,
+            ),
         ]);
 
         $rendererRegistry = new DocumentRendererRegistry([

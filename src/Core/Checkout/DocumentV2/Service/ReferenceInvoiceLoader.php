@@ -1,25 +1,33 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Document\Service;
+namespace Shopware\Core\Checkout\DocumentV2\Service;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
+use Shopware\Core\Checkout\DocumentV2\DocumentType;
+use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @internal - Fetch the $referenceDocumentId if set, otherwise fetch the latest document
+ * @internal
  */
 #[Package('after-sales')]
 final readonly class ReferenceInvoiceLoader
 {
     /**
-     * @internal
+     * Document type technical names that count as a referenceable invoice: the v2 invoice type
+     * (which also matches v1 plain invoices) plus the two v1 ZUGFeRD invoice renderers.
      */
+    private const INVOICE_TECHNICAL_NAMES = [
+        DocumentType::INVOICE->value,
+        ZugferdRenderer::TYPE,
+        ZugferdEmbeddedRenderer::TYPE,
+    ];
+
     public function __construct(private Connection $connection)
     {
     }
@@ -46,7 +54,7 @@ final readonly class ReferenceInvoiceLoader
         $builder->where('`document_type`.`technical_name` IN (:technicalNames)')
             ->andWhere('`document`.`order_id` = :orderId');
 
-        $builder->setParameter('technicalNames', [InvoiceRenderer::TYPE, ZugferdRenderer::TYPE, ZugferdEmbeddedRenderer::TYPE], ArrayParameterType::STRING);
+        $builder->setParameter('technicalNames', self::INVOICE_TECHNICAL_NAMES, ArrayParameterType::STRING);
         $builder->setParameter('orderId', Uuid::fromHexToBytes($orderId));
 
         $builder->orderBy('`document`.`sent`', 'DESC');
@@ -77,5 +85,37 @@ final readonly class ReferenceInvoiceLoader
 
         // Return the first document from the filtered results, or the first document if no filter was applied
         return $results === [] ? $documents[0] : reset($results);
+    }
+
+    /**
+     * Resolves the invoice a document references, throwing when it is missing or has no number.
+     *
+     * @throws DocumentV2Exception
+     *
+     * @return array{id: string, documentNumber: string}
+     */
+    public function resolveReferencedInvoice(string $orderId, ?string $referencedDocumentId): array
+    {
+        $invoice = $this->load($orderId, $referencedDocumentId);
+
+        if ($invoice === []) {
+            throw DocumentV2Exception::referencedInvoiceNotFound($orderId);
+        }
+
+        $number = $invoice['documentNumber'] ?? null;
+
+        if ($number === null || $number === '') {
+            $config = json_decode($invoice['config'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
+            $number = $config['documentNumber'] ?? null;
+        }
+
+        if (!\is_string($number) || $number === '') {
+            throw DocumentV2Exception::referencedInvoiceNumberMissing($orderId);
+        }
+
+        return [
+            'id' => $invoice['id'],
+            'documentNumber' => $number,
+        ];
     }
 }

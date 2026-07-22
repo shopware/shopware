@@ -15,13 +15,13 @@ use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdXmlRenderer;
+use Shopware\Core\Checkout\DocumentV2\Service\XmlFormatter;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\DocumentV2\Template\Enum\TypeCode;
 use Shopware\Core\Checkout\DocumentV2\Template\View\MonetarySummationView;
 use Shopware\Core\Checkout\DocumentV2\Template\View\TradePartyView;
-use Shopware\Core\Checkout\DocumentV2\Xml\XmlFormatter;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
@@ -50,7 +50,11 @@ class ZugferdXmlRendererTest extends TestCase
 
         static::assertSame(DocumentFormat::ZUGFERD_XML->value, $renderer->getFormat());
         static::assertSame(
-            [DocumentType::INVOICE->value, DocumentType::CANCELLATION_INVOICE->value],
+            [
+                DocumentType::INVOICE->value,
+                DocumentType::CANCELLATION_INVOICE->value,
+                DocumentType::CREDIT_NOTE->value,
+            ],
             $renderer->getDocumentTypes(),
         );
     }

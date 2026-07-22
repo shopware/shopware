@@ -47,12 +47,12 @@ final readonly class LineItemView
     /**
      * @return list<self>
      */
-    public static function listFromOrder(OrderEntity $order, bool $allowNegative = false): array
+    public static function listFromOrder(OrderEntity $order, bool $allowNegative = false, bool $allowCredit = false): array
     {
         $isGross = NetAmount::isOrderGross($order);
 
         $items = [];
-        self::appendLineItems($order, $order->getLineItems(), $isGross, '', $items, $allowNegative);
+        self::appendLineItems($order, $order->getLineItems(), $isGross, '', $items, $allowNegative, $allowCredit);
 
         return $items;
     }
@@ -66,11 +66,12 @@ final readonly class LineItemView
         bool $isGross,
         string $parentPosition,
         array &$items,
-        bool $allowNegative = false,
+        bool $allowNegative,
+        bool $allowCredit,
     ): void {
         foreach ($lineItems ?? [] as $lineItem) {
-            self::appendLineItem($order, $lineItem, $isGross, $parentPosition, $items, $allowNegative);
-            self::appendLineItems($order, $lineItem->getChildren(), $isGross, $parentPosition . $lineItem->getPosition() . '-', $items, $allowNegative);
+            self::appendLineItem($order, $lineItem, $isGross, $parentPosition, $items, $allowNegative, $allowCredit);
+            self::appendLineItems($order, $lineItem->getChildren(), $isGross, $parentPosition . $lineItem->getPosition() . '-', $items, $allowNegative, $allowCredit);
         }
     }
 
@@ -83,13 +84,16 @@ final readonly class LineItemView
         bool $isGross,
         string $parentPosition,
         array &$items,
-        bool $allowNegative = false,
+        bool $allowNegative,
+        bool $allowCredit,
     ): void {
-        if (!\in_array(
-            $lineItem->getType(),
-            [LineItem::PRODUCT_LINE_ITEM_TYPE, LineItem::CUSTOM_LINE_ITEM_TYPE],
-            true,
-        )) {
+        $allowedTypes = [LineItem::PRODUCT_LINE_ITEM_TYPE, LineItem::CUSTOM_LINE_ITEM_TYPE];
+
+        if ($allowCredit) {
+            $allowedTypes[] = LineItem::CREDIT_LINE_ITEM_TYPE;
+        }
+
+        if (!\in_array($lineItem->getType(), $allowedTypes, true)) {
             return;
         }
 

@@ -85,6 +85,31 @@ class LineItemViewTest extends TestCase
         static::assertSame('1', $views[0]->lineId);
     }
 
+    public function testListFromOrderIncludesCreditLineItemsWhenAllowedButStillSkipsPromotions(): void
+    {
+        $credit = $this->createLineItemOfType(LineItem::CREDIT_LINE_ITEM_TYPE, 'Voucher', 'credit-1', position: 2);
+        $credit->setPrice(new CalculatedPrice(
+            10.0,
+            10.0,
+            new CalculatedTaxCollection([new CalculatedTax(1.9, 19.0, 10.0)]),
+            new TaxRuleCollection(),
+            1,
+        ));
+
+        $order = $this->createOrder(CartPrice::TAX_STATE_NET, [
+            $this->createProductLineItem('p-1', 'Widget'),
+            $this->createLineItemOfType(LineItem::PROMOTION_LINE_ITEM_TYPE, 'PROMO', position: 3),
+            $credit,
+        ]);
+
+        $views = LineItemView::listFromOrder($order, allowCredit: true);
+
+        $names = array_map(static fn (LineItemView $view): string => $view->name, $views);
+        static::assertContains('Voucher', $names);
+        static::assertContains('Widget', $names);
+        static::assertNotContains('PROMO', $names);
+    }
+
     public function testListFromOrderIncludesCustomLineItems(): void
     {
         $custom = $this->createLineItemOfType(LineItem::CUSTOM_LINE_ITEM_TYPE, 'Custom');

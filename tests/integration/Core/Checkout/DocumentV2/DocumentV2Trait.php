@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Integration\Core\Checkout\DocumentV2;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
@@ -44,6 +46,7 @@ trait DocumentV2Trait
         return [
             'documentNumber' => self::DOCUMENT_NUMBER,
             'documentDate' => self::DOCUMENT_DATE,
+            'paymentDueDate' => '+14 days',
             'documentComment' => 'comment.',
             'displayHeader' => true,
             'displayFooter' => true,
@@ -145,6 +148,18 @@ trait DocumentV2Trait
         return static::getContainer()
             ->get(CartService::class)
             ->add($cart, $promoLineItem, $this->salesChannelContext);
+    }
+
+    protected function applyCreditLineItem(Cart $cart, float $price = -10.0): Cart
+    {
+        $creditId = Uuid::randomHex();
+        $creditLineItem = (new LineItem($creditId, LineItem::CREDIT_LINE_ITEM_TYPE, null, 1))
+            ->setLabel('Credit')
+            ->setPriceDefinition(new AbsolutePriceDefinition($price));
+
+        return static::getContainer()
+            ->get(CartService::class)
+            ->add($cart, $creditLineItem, $this->salesChannelContext);
     }
 
     protected function enrichOrderForRendering(

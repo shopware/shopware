@@ -6,12 +6,12 @@ use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
+use Shopware\Core\Checkout\DocumentV2\Service\XmlFormatter;
 use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer;
-use Shopware\Core\Checkout\DocumentV2\Xml\XmlFormatter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
@@ -51,6 +51,7 @@ final readonly class ZugferdXmlRenderer extends AbstractDocumentRenderer
         return [
             DocumentType::INVOICE->value,
             DocumentType::CANCELLATION_INVOICE->value,
+            DocumentType::CREDIT_NOTE->value,
         ];
     }
 

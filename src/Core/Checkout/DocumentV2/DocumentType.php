@@ -21,4 +21,9 @@ enum DocumentType: string
     {
         return $this === self::CANCELLATION_INVOICE;
     }
+
+    public function allowsCreditLineItems(): bool
+    {
+        return $this === self::CREDIT_NOTE;
+    }
 }

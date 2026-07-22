@@ -53,10 +53,6 @@
             <tag name="kernel.event_subscriber" />
         </service>
 
-        <service id="Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader">
-            <argument type="service" id="Doctrine\DBAL\Connection" />
-        </service>
-
         <service id="Shopware\Core\Checkout\Document\Service\ZugferdEmbeddedService" />
 
         <service id="Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer">
@@ -89,7 +85,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentConfigLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
-            <argument type="service" id="Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader" />
+            <argument type="service" id="Shopware\Core\Checkout\DocumentV2\Service\ReferenceInvoiceLoader" />
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry" />
             <argument type="service" id="validator" />
@@ -103,7 +99,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentConfigLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
-            <argument type="service" id="Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader" />
+            <argument type="service" id="Shopware\Core\Checkout\DocumentV2\Service\ReferenceInvoiceLoader" />
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry" />
             <argument type="service" id="validator" />
@@ -196,7 +192,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentConfigLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
-            <argument type="service" id="Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader" />
+            <argument type="service" id="Shopware\Core\Checkout\DocumentV2\Service\ReferenceInvoiceLoader" />
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder"/>
             <argument type="service" id="Psr\Clock\ClockInterface"/>
@@ -209,7 +205,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentConfigLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
-            <argument type="service" id="Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader" />
+            <argument type="service" id="Shopware\Core\Checkout\DocumentV2\Service\ReferenceInvoiceLoader" />
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder"/>
             <argument type="service" id="Psr\Clock\ClockInterface"/>

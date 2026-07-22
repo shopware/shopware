@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Xml;
+namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Checkout\DocumentV2\Xml\XmlFormatter;
+use Shopware\Core\Checkout\DocumentV2\Service\XmlFormatter;
 use Shopware\Core\Framework\Log\Package;
 
 /**

@@ -84,6 +84,10 @@ class DocumentV2Exception extends HttpException
 
     public const REFERENCED_INVOICE_NUMBER_MISSING = 'DOCUMENT_V2__REFERENCED_INVOICE_NUMBER_MISSING';
 
+    public const NO_CREDIT_ITEMS = 'DOCUMENT_V2__NO_CREDIT_ITEMS';
+
+    public const NO_UNPROCESSED_CREDIT_ITEMS = 'DOCUMENT_V2__NO_UNPROCESSED_CREDIT_ITEMS';
+
     public static function unknownRenderData(string $key, string $expectedClass): self
     {
         return new self(
@@ -371,7 +375,7 @@ class DocumentV2Exception extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::REFERENCED_INVOICE_NOT_FOUND,
-            'Cannot generate cancellation invoice because no invoice document exists for order "{{ orderId }}".',
+            'Cannot generate document because no invoice document exists for order "{{ orderId }}".',
             ['orderId' => $orderId],
         );
     }
@@ -381,7 +385,27 @@ class DocumentV2Exception extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::REFERENCED_INVOICE_NUMBER_MISSING,
-            'Cannot generate cancellation invoice because the referenced invoice for order "{{ orderId }}" has no document number.',
+            'Cannot generate document because the referenced invoice for order "{{ orderId }}" has no document number.',
+            ['orderId' => $orderId],
+        );
+    }
+
+    public static function noCreditItems(string $orderId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::NO_CREDIT_ITEMS,
+            'Cannot generate credit note because order "{{ orderId }}" has no credit line items.',
+            ['orderId' => $orderId],
+        );
+    }
+
+    public static function noUnprocessedCreditItems(string $orderId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::NO_UNPROCESSED_CREDIT_ITEMS,
+            'Cannot generate credit note because order "{{ orderId }}" has no unprocessed credit line items.',
             ['orderId' => $orderId],
         );
     }

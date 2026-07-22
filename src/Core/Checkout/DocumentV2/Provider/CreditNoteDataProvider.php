@@ -5,10 +5,10 @@ namespace Shopware\Core\Checkout\DocumentV2\Provider;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
-use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\CancellationInvoiceRenderData;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\CreditNoteRenderData;
+use Shopware\Core\Checkout\DocumentV2\Service\CreditItemResolver;
 use Shopware\Core\Checkout\DocumentV2\Service\InvoiceRenderDataFactory;
 use Shopware\Core\Checkout\DocumentV2\Service\ReferenceInvoiceLoader;
-use Shopware\Core\Checkout\DocumentV2\Template\Calculation\OrderInverter;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -18,13 +18,14 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('after-sales')]
-final readonly class CancellationInvoiceDataProvider extends AbstractDocumentDataProvider
+final readonly class CreditNoteDataProvider extends AbstractDocumentDataProvider
 {
-    final public const KEY = 'storno';
+    final public const KEY = 'credit_note';
 
     public function __construct(
         private InvoiceRenderDataFactory $invoiceRenderDataFactory,
         private ReferenceInvoiceLoader $referenceInvoiceLoader,
+        private CreditItemResolver $creditItemResolver,
     ) {
     }
 
@@ -35,7 +36,7 @@ final readonly class CancellationInvoiceDataProvider extends AbstractDocumentDat
 
     public function supports(string $documentType): bool
     {
-        return $documentType === DocumentType::CANCELLATION_INVOICE->value;
+        return $documentType === DocumentType::CREDIT_NOTE->value;
     }
 
     public function enrichOrderCriteria(Criteria $criteria): void
@@ -47,7 +48,7 @@ final readonly class CancellationInvoiceDataProvider extends AbstractDocumentDat
         OrderEntity $order,
         DocumentGenerationRequest $generationRequest,
         Context $context,
-    ): CancellationInvoiceRenderData {
+    ): CreditNoteRenderData {
         $documentNumber = $generationRequest->documentNumber;
 
         if ($documentNumber === null) {
@@ -62,7 +63,7 @@ final readonly class CancellationInvoiceDataProvider extends AbstractDocumentDat
             $generationRequest->referencedDocumentId,
         );
 
-        OrderInverter::invert($order);
+        $this->creditItemResolver->apply($order, $referencedInvoiceId);
 
         $invoice = $this->invoiceRenderDataFactory->build(
             $order,
@@ -70,7 +71,7 @@ final readonly class CancellationInvoiceDataProvider extends AbstractDocumentDat
             $context,
         );
 
-        return CancellationInvoiceRenderData::fromInvoice(
+        return CreditNoteRenderData::fromInvoice(
             $invoice,
             $documentNumber,
             $referencedInvoiceId,

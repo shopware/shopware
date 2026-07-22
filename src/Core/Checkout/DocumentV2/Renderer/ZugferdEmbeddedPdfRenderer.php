@@ -47,6 +47,8 @@ final readonly class ZugferdEmbeddedPdfRenderer extends AbstractDocumentRenderer
     {
         return [
             DocumentType::INVOICE->value,
+            DocumentType::CANCELLATION_INVOICE->value,
+            DocumentType::CREDIT_NOTE->value,
         ];
     }
 

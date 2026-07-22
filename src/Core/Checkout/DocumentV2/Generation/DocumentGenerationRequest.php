@@ -60,4 +60,19 @@ final readonly class DocumentGenerationRequest
             $this->referencedDocumentId,
         );
     }
+
+    public function withReferencedDocumentId(string $referencedDocumentId): self
+    {
+        return new self(
+            orderId: $this->orderId,
+            orderVersionId: $this->orderVersionId,
+            documentType: $this->documentType,
+            requestedFormats: $this->requestedFormats,
+            documentNumber: $this->documentNumber,
+            documentComment: $this->documentComment,
+            documentDate: $this->documentDate,
+            deliveryDate: $this->deliveryDate,
+            referencedDocumentId: $referencedDocumentId,
+        );
+    }
 }

@@ -4,65 +4,56 @@
 
 import { collectExpressionReferences } from './expression-references';
 
-describe('build/vue-setup-transform/template-analyzer/expression-references', () => {
-    it.each([
-        [
-            'plain identifier read',
-            'info',
-            [],
-            ['info'],
-        ],
-        [
-            'member access reads the object, not the property',
-            'source.headline',
-            [],
-            ['source'],
-        ],
-        [
-            'optional chain with computed key reads object and key',
-            'source?.[dynamicKey]',
-            [],
-            ['source', 'dynamicKey'],
-        ],
-        [
-            'TS as-cast is transparent',
-            '(maybeInfo as string | undefined)?.toUpperCase()',
-            [],
-            ['maybeInfo'],
-        ],
-        [
-            'callback parameters shadow outer names',
-            'items.map(({ info, label: localLabel }) => info + localLabel).join(",")',
-            [],
-            ['items'],
-        ],
-        [
-            'callback parameter defaults are reads',
-            'items.map(({ label = fallbackLabel }) => label)',
-            [],
-            ['items', 'fallbackLabel'],
-        ],
-        [
-            'earlier parameters shadow reads in later defaults',
-            '((first, { second = first }) => second)(source)',
-            [],
-            ['source'],
-        ],
-        [
-            'static object keys are not reads',
-            '({ info: value })',
-            [],
-            ['value'],
-        ],
-        [
-            'template-scope names are excluded',
-            'info + label',
-            ['info'],
-            ['label'],
-        ],
-    ])('%s', (_name, expression, templateScope, expected) => {
-        const references = collectExpressionReferences(expression, new Set(templateScope as string[]));
+function getReferences(expression: string, templateScope: string[] = []): string[] {
+    return Array.from(collectExpressionReferences(expression, new Set(templateScope))).sort();
+}
 
-        expect(Array.from(references).sort()).toEqual([...(expected as string[])].sort());
+describe('build/vue-setup-transform/template-analyzer/expression-references', () => {
+    it('reads a plain identifier', () => {
+        expect(getReferences('info')).toEqual(['info']);
+    });
+
+    it('reads the object of a member access, not the property', () => {
+        expect(getReferences('source.headline')).toEqual(['source']);
+    });
+
+    it('reads both the object and the key of a computed optional chain', () => {
+        expect(getReferences('source?.[dynamicKey]')).toEqual([
+            'dynamicKey',
+            'source',
+        ]);
+    });
+
+    it('looks through TS as-casts', () => {
+        expect(getReferences('(maybeInfo as string | undefined)?.toUpperCase()')).toEqual(['maybeInfo']);
+    });
+
+    it('lets callback parameters shadow outer names', () => {
+        expect(getReferences('items.map(({ info, label: localLabel }) => info + localLabel).join(",")')).toEqual([
+            'items',
+        ]);
+    });
+
+    it('reads default values inside callback parameters', () => {
+        expect(getReferences('items.map(({ label = fallbackLabel }) => label)')).toEqual([
+            'fallbackLabel',
+            'items',
+        ]);
+    });
+
+    it('lets earlier parameters shadow reads in later defaults', () => {
+        expect(getReferences('((first, { second = first }) => second)(source)')).toEqual(['source']);
+    });
+
+    it('does not read static object keys', () => {
+        expect(getReferences('({ info: value })')).toEqual(['value']);
+    });
+
+    it('excludes template-scope names', () => {
+        expect(
+            getReferences('info + label', [
+                'info',
+            ]),
+        ).toEqual(['label']);
     });
 });

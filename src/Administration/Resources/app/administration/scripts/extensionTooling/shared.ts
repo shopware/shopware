@@ -174,6 +174,46 @@ export function aggregateModeResolution(project: ExtensionToolingProject, tool: 
     return { mode: 'managed', verified: true };
 }
 
+/** A target whose own config kept a tool from covering it, with the resolution that says why. */
+export interface SkippedTarget {
+    /** Administration source root relative to the project root (posix). */
+    sourcePath: string;
+    /** The extension-owned config that caused the skip (project-root-relative posix). */
+    configPath: string;
+    tool: 'TypeScript' | 'ESLint';
+    resolution: ModeResolution;
+}
+
+/**
+ * Every unmanaged target of the project, independent of whether the managed
+ * remainder passed or failed. Runtime and spec TypeScript programs share one
+ * entry — both key on the same target resolution.
+ */
+export function collectSkippedTargets(project: ExtensionToolingProject): SkippedTarget[] {
+    return project.targets.flatMap((target) => [
+        ...(target.ts.mode === 'unmanaged'
+            ? [
+                  {
+                      sourcePath: target.sourcePath,
+                      configPath: target.tsconfig ?? target.sourcePath,
+                      tool: 'TypeScript' as const,
+                      resolution: target.ts,
+                  },
+              ]
+            : []),
+        ...(target.eslint.mode === 'unmanaged'
+            ? [
+                  {
+                      sourcePath: target.sourcePath,
+                      configPath: target.eslintConfig ?? target.sourcePath,
+                      tool: 'ESLint' as const,
+                      resolution: target.eslint,
+                  },
+              ]
+            : []),
+    ]);
+}
+
 export function deriveExtensionState(project: ExtensionToolingProject): DerivedExtensionState {
     if (project.vendor) {
         return 'vendor';

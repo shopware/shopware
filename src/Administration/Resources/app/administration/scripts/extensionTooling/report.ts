@@ -16,11 +16,12 @@ import type { SetupExtensionToolingResult } from './setup';
 import {
     SHIM_DIR_NAME,
     aggregateModeResolution,
+    collectSkippedTargets,
     deriveExtensionState,
     projectHasBridge,
     projectHasOwnedConfig,
 } from './shared';
-import type { ExtensionToolingProject, ModeResolution } from './shared';
+import type { ExtensionToolingProject, ModeResolution, SkippedTarget } from './shared';
 
 /**
  * Ownership class of a generated path, so dry-run and shim output can tell
@@ -136,6 +137,54 @@ export function describeToolGuidance(
             ...BRIDGE_ESLINT_LINES.map((line) => `    ${line}`),
         ],
     };
+}
+
+const MAX_SKIPPED_CONFIGS = 5;
+
+/**
+ * One `skipped:` block per distinct config so a partially covered multi-root
+ * project names exactly the configs that keep targets out of the check — also
+ * when the managed remainder failed, where the tool status alone says nothing
+ * about the skipped targets.
+ */
+function renderSkippedTargetLines(
+    project: ExtensionToolingProject,
+    tool: 'TypeScript' | 'ESLint',
+    entries: SkippedTarget[],
+): string[] {
+    const groups = new Map<string, SkippedTarget[]>();
+
+    for (const entry of entries) {
+        const group = groups.get(entry.configPath) ?? [];
+
+        group.push(entry);
+        groups.set(entry.configPath, group);
+    }
+
+    const sorted = [...groups.entries()].sort(([left], [right]) => left.localeCompare(right));
+    const lines: string[] = [];
+
+    for (const [
+        configPath,
+        group,
+    ] of sorted.slice(0, MAX_SKIPPED_CONFIGS)) {
+        const targetNote = group.length > 1 ? colors.dim(` (${group.length} targets)`) : '';
+
+        lines.push(`      ${colors.yellow(`skipped: ${configPath}`)}${targetNote}`);
+
+        const guidance = describeToolGuidance(project, tool, group[0].resolution);
+
+        if (guidance) {
+            lines.push(colors.dim(`        why: ${guidance.why}`));
+            lines.push(...guidance.fix.map((line, index) => `        ${index === 0 ? 'fix: ' : '     '}${line}`));
+        }
+    }
+
+    if (sorted.length > MAX_SKIPPED_CONFIGS) {
+        lines.push(colors.dim(`      … and ${sorted.length - MAX_SKIPPED_CONFIGS} more skipped config(s)`));
+    }
+
+    return lines;
 }
 
 /**
@@ -434,11 +483,15 @@ function renderExtension(result: ExtensionCheckResult, options: RenderOptions): 
     tools.push({ label: 'ESLint', tool: 'ESLint', run: result.eslint, resolution: result.eslintResolution });
 
     const state = deriveExtensionState(result.project);
+    const skipped = result.skippedTargets ?? collectSkippedTargets(result.project);
     let anyUnmanaged = false;
 
     for (const { label, tool, run, resolution } of tools) {
+        // The runtime TypeScript row already lists the skips the spec row shares.
+        const toolSkips = label === 'TS (specs)' ? [] : skipped.filter((entry) => entry.tool === tool);
+
         lines.push(`    ${statusLine(label, run, resolution)}`);
-        anyUnmanaged = anyUnmanaged || run.status === 'unmanaged';
+        anyUnmanaged = anyUnmanaged || run.status === 'unmanaged' || toolSkips.length > 0;
 
         // A vacuous TypeScript pass is not a dead end: point at the one action
         // that turns it into real coverage instead of leaving green-with-asterisk.
@@ -448,14 +501,11 @@ function renderExtension(result: ExtensionCheckResult, options: RenderOptions): 
             );
         }
 
+        // Rendered independently of the run status and of --summary-only: a
+        // failed managed remainder must not swallow the skip remediation.
+        lines.push(...renderSkippedTargetLines(result.project, tool, toolSkips));
+
         if (run.status === 'unmanaged') {
-            const guidance = describeToolGuidance(result.project, tool, resolution);
-
-            if (guidance) {
-                lines.push(colors.dim(`      why: ${guidance.why}`));
-                lines.push(...guidance.fix.map((line, index) => `      ${index === 0 ? 'fix: ' : '     '}${line}`));
-            }
-
             if (verbose && resolution.probeOutput && resolution.probeOutput.trim() !== '') {
                 lines.push(indent(resolution.probeOutput.trim(), '      '));
             }
@@ -543,12 +593,23 @@ function renderSummary(results: ExtensionCheckResult[]): string[] {
         ].includes(run.status)
             ? '—'
             : summaryCell(run, 'TypeScript');
-    const rows = results.map((result) => [
-        result.project.name,
-        summaryCell(result.typescript, 'TypeScript'),
-        specCell(result.typescriptSpecs),
-        summaryCell(result.eslint, 'ESLint'),
-    ]);
+    const rows = results.map((result) => {
+        const skipped = result.skippedTargets ?? collectSkippedTargets(result.project);
+        // Partial skips get an explicit suffix — a plain "passed"/"N finding(s)"
+        // cell would read as full coverage.
+        const withSkipNote = (tool: 'TypeScript' | 'ESLint', cell: string): string => {
+            const count = skipped.filter((entry) => entry.tool === tool).length;
+
+            return count > 0 && cell !== 'skipped' && cell !== 'blocked' ? `${cell} +${count} skipped` : cell;
+        };
+
+        return [
+            result.project.name,
+            withSkipNote('TypeScript', summaryCell(result.typescript, 'TypeScript')),
+            specCell(result.typescriptSpecs),
+            withSkipNote('ESLint', summaryCell(result.eslint, 'ESLint')),
+        ];
+    });
     const widths = headers.map((header, column) => Math.max(header.length, ...rows.map((row) => row[column].length)));
     const format = (cells: string[]): string =>
         `  ${cells.map((cell, column) => cell.padEnd(widths[column], ' ')).join('   ')}`;

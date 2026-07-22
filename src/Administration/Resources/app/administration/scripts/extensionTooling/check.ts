@@ -20,8 +20,8 @@ import path from 'path';
 import { discoverProjects, setupExtensionTooling } from './setup';
 import { renderCheckReport } from './report';
 import { promptSelection } from './select';
-import { aggregateModeResolution, canonicalizePath, relativePosix, toPosix } from './shared';
-import type { AdministrationTarget, ExtensionToolingProject, ModeResolution } from './shared';
+import { aggregateModeResolution, canonicalizePath, collectSkippedTargets, relativePosix, toPosix } from './shared';
+import type { AdministrationTarget, ExtensionToolingProject, ModeResolution, SkippedTarget } from './shared';
 import {
     PROCESS_TIMEOUT_MS,
     probeCacheEntryKey,
@@ -92,6 +92,8 @@ export interface ExtensionCheckResult {
     commands: { typescript?: string[]; typescriptSpecs?: string[]; eslint?: string[] };
     /** Target/config routing used by this aggregate extension result. */
     coverage: AdministrationTargetCoverage[];
+    /** Targets whose own config kept a tool from covering them, regardless of the run status. */
+    skippedTargets?: SkippedTarget[];
 }
 
 export interface CheckExtensionsOptions {
@@ -946,6 +948,7 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
         const baseline = readBaseline(projectRoot, project);
         const unmanagedTsTargets = project.targets.filter((target) => target.ts.mode === 'unmanaged');
         const unmanagedEslintTargets = project.targets.filter((target) => target.eslint.mode === 'unmanaged');
+        const skippedTargets = collectSkippedTargets(project);
         const runtimeTargets = project.targets.filter(
             (target) =>
                 target.ts.mode !== 'unmanaged' &&
@@ -1139,6 +1142,7 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
                 specConfig: target.specTsconfig,
                 eslintConfig: target.eslintConfig ?? 'eslint.config.mjs',
             })),
+            skippedTargets,
         };
     });
     const results = await runPool(checkJobs, maxWorkers);

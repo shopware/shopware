@@ -157,4 +157,51 @@ describe('scripts/extensionTooling/check orchestration', () => {
             expect(result.eslint.durationMs).toBeLessThan(60000);
         }
     }, 60000);
+
+    it('records skipped targets while the managed subset fails', async () => {
+        writeFile(path.join(projectRoot, 'custom/plugins/Mixed/composer.json'), '{}\n');
+        // BundleA is zero-config and fails through the faked vue-tsc program.
+        writeFile(path.join(projectRoot, 'custom/plugins/Mixed/src/BundleA/Resources/app/administration/src/main.ts'), [
+            'export {};',
+        ]);
+        // BundleB owns a non-composing tsconfig — the real probe resolves it unmanaged.
+        writeFile(path.join(projectRoot, 'custom/plugins/Mixed/src/BundleB/Resources/app/administration/src/main.ts'), [
+            'export {};',
+        ]);
+        writeFile(path.join(projectRoot, 'custom/plugins/Mixed/src/BundleB/Resources/app/administration/tsconfig.json'), [
+            '{',
+            '    "compilerOptions": { "strict": true, "noEmit": true },',
+            '    "include": ["src/**/*.ts"]',
+            '}',
+        ]);
+        writePluginsConfig(projectRoot, [
+            {
+                technicalName: 'MixedA',
+                basePath: 'custom/plugins/Mixed/src/BundleA',
+                administrationPath: 'Resources/app/administration/src',
+            },
+            {
+                technicalName: 'MixedB',
+                basePath: 'custom/plugins/Mixed/src/BundleB',
+                administrationPath: 'Resources/app/administration/src',
+            },
+        ]);
+        installCountingFake({
+            status: 2,
+            output: 'custom/plugins/Mixed/src/BundleA/Resources/app/administration/src/main.ts(1,1): error TS2322: broken',
+        });
+
+        const check = await checkExtensions({ projectRoot, administrationRoot, maxWorkers: 2 });
+        const result = check.results[0];
+
+        expect(result.typescript.status).toBe('failed');
+        expect(result.skippedTargets).toHaveLength(1);
+        expect(result.skippedTargets?.[0]).toMatchObject({
+            tool: 'TypeScript',
+            sourcePath: 'custom/plugins/Mixed/src/BundleB/Resources/app/administration/src',
+            configPath: 'custom/plugins/Mixed/src/BundleB/Resources/app/administration/tsconfig.json',
+            resolution: { mode: 'unmanaged', reason: 'not-extending' },
+        });
+        expect(check.exitCode).toBe(1);
+    }, 60000);
 });

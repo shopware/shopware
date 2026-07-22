@@ -11,7 +11,7 @@ import path from 'path';
 import { renderCheckReport, renderSetupReport } from '../report';
 import type { CheckExtensionsResult, ExtensionCheckResult, ToolRunResult } from '../check';
 import type { SetupExtensionToolingResult } from '../setup';
-import { aggregateModeResolution } from '../shared';
+import { aggregateModeResolution, collectSkippedTargets } from '../shared';
 import type { AdministrationTarget, ExtensionToolingProject, ModeResolution } from '../shared';
 
 // picocolors only ever emits SGR sequences (ESC[…m), so this narrow pattern
@@ -29,9 +29,10 @@ export function resolution(mode: ModeResolution['mode'], overrides: Partial<Mode
 
 type ProjectOverrides = Partial<ExtensionToolingProject> & Partial<AdministrationTarget> & { sourcePaths?: string[] };
 
-export function project(name: string, overrides: ProjectOverrides = {}): ExtensionToolingProject {
-    const sourcePath = overrides.sourcePath ?? overrides.sourcePaths?.[0] ?? `custom/plugins/${name}/src`;
-    const target: AdministrationTarget = {
+export function target(name: string, overrides: Partial<AdministrationTarget> = {}): AdministrationTarget {
+    const sourcePath = overrides.sourcePath ?? `custom/plugins/${name}/src`;
+
+    return {
         technicalNames: overrides.technicalNames ?? [name],
         sourcePath,
         adminFolder: overrides.adminFolder ?? path.posix.dirname(sourcePath),
@@ -43,13 +44,17 @@ export function project(name: string, overrides: ProjectOverrides = {}): Extensi
         checkTsconfig: overrides.checkTsconfig ?? '',
         specTsconfig: overrides.specTsconfig ?? '',
     };
+}
+
+export function project(name: string, overrides: ProjectOverrides = {}): ExtensionToolingProject {
+    const sourcePath = overrides.sourcePath ?? overrides.sourcePaths?.[0] ?? `custom/plugins/${name}/src`;
 
     return {
         name: overrides.name ?? name,
         technicalNames: overrides.technicalNames ?? [name],
         basePath: overrides.basePath ?? `custom/plugins/${name}`,
         vendor: overrides.vendor ?? false,
-        targets: overrides.targets ?? [target],
+        targets: overrides.targets ?? [target(name, { ...overrides, sourcePath })],
     };
 }
 
@@ -70,6 +75,7 @@ export function extension(
         eslint: overrides.eslint ?? run('passed'),
         commands: overrides.commands ?? {},
         coverage: overrides.coverage ?? [],
+        skippedTargets: overrides.skippedTargets ?? collectSkippedTargets(project_),
     };
 }
 

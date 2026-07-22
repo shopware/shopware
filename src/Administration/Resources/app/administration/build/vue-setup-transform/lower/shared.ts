@@ -11,6 +11,7 @@
 
 import { transformRanges } from '../source-edits/transform-ranges';
 import type { ShopwareSetupScriptAnalysis } from '../script-analyzer';
+import type { SetupInputKind } from '../script-analyzer/setup-inputs';
 import type { SourceChunk } from '../source-edits/chunks';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 
@@ -44,6 +45,22 @@ function formatObjectProperties(properties: string[], spaces = 12): string {
 }
 
 /**
+ * Maps one replaced Vue macro call site to the generated callback input that stands in for it.
+ */
+function getSetupInputReplacement(kind: SetupInputKind, names: SetupInputNames): string {
+    switch (kind) {
+        case 'props':
+            return `(${names.props})`;
+        case 'emits':
+            return `(${names.context}.emit)`;
+        case 'expose':
+            return `(${names.context}.expose)`;
+        case 'slots':
+            return `(${names.context}.slots)`;
+    }
+}
+
+/**
  * Applies analyzer-provided source ranges to produce the generated setup callback body.
  *
  * In base mode the Vue setup macros are replaced with callback parameters. In override mode no
@@ -54,22 +71,14 @@ function buildCallbackBodyChunks(
     analysis: ShopwareSetupScriptAnalysis,
     setupInputNames: SetupInputNames | null,
 ): SourceChunk[] {
-    return transformRanges(
-        block,
-        analysis,
-        analysis.bodyRemovals,
-        setupInputNames
-            ? analysis.setupInputReplacements.map((range) => ({
-                  ...range,
-                  replacement: {
-                      props: `(${setupInputNames.props})`,
-                      emits: `(${setupInputNames.context}.emit)`,
-                      expose: `(${setupInputNames.context}.expose)`,
-                      slots: `(${setupInputNames.context}.slots)`,
-                  }[range.kind],
-              }))
-            : [],
-    );
+    const replacements = setupInputNames
+        ? analysis.setupInputReplacements.map((range) => ({
+              ...range,
+              replacement: getSetupInputReplacement(range.kind, setupInputNames),
+          }))
+        : [];
+
+    return transformRanges(block, analysis, analysis.bodyRemovals, replacements);
 }
 
 export { type SetupInputNames, buildCallbackBodyChunks, escapeSingleQuoted, formatObjectProperties };

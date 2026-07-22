@@ -132,6 +132,9 @@ function extractStaticObjectMarker(
 
 /**
  * Detects a compiler-style macro represented by one expression statement.
+ *
+ * Matches exactly `swDefinePublic({ count });` - a bare statement call with no wrappers. Shopware
+ * marker macros are strict statements, unlike Vue macros, which tolerate transparent TS wrappers.
  */
 function isStatementCompilerMacro(statement: Statement, macroName: string): statement is StatementMacroCall {
     return (
@@ -144,6 +147,9 @@ function isStatementCompilerMacro(statement: Statement, macroName: string): stat
 
 /**
  * Returns a top-level Vue compiler macro call through transparent TypeScript wrappers.
+ *
+ * Matches `defineOptions({ inheritAttrs: false });` and wrapped forms such as
+ * `defineOptions({ inheritAttrs: false }) as void;` - Vue treats both as the macro.
  */
 function getStatementCompilerMacroCall(statement: Statement, macroName: string): CallExpression | null {
     if (statement.type !== 'ExpressionStatement') {
@@ -160,7 +166,9 @@ function getStatementCompilerMacroCall(statement: Statement, macroName: string):
 }
 
 /**
- * Detects a compiler macro call expression.
+ * Detects a compiler macro call expression at any AST position, without unwrapping.
+ *
+ * Matches the `defineProps()` node itself, wherever it sits (e.g. nested in `withDefaults(...)`).
  */
 function isCompilerMacroCall(node: BabelNode, name: string): node is CallExpression {
     return node.type === 'CallExpression' && node.callee.type === 'Identifier' && node.callee.name === name;
@@ -205,6 +213,7 @@ function collectTopLevelSetupMacroCall(expression: BabelNode | null | undefined,
  * Collects Vue compiler macro calls only from the direct top-level forms that compiler-sfc recognizes.
  */
 function collectTopLevelSetupMacroCalls(statement: Statement, buckets: SetupMacroBuckets): void {
+    // e.g. `defineEmits(['save']);` - a bare macro statement without an assignment.
     if (statement.type === 'ExpressionStatement') {
         collectTopLevelSetupMacroCall(statement.expression, buckets);
         return;
@@ -214,6 +223,7 @@ function collectTopLevelSetupMacroCalls(statement: Statement, buckets: SetupMacr
         return;
     }
 
+    // e.g. `const emit = defineEmits(['save']);` - the macro call is the declaration initializer.
     statement.declarations.forEach((declaration) => {
         collectTopLevelSetupMacroCall(declaration.init, buckets);
     });

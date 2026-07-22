@@ -37,16 +37,19 @@ type InferredShopwareSetup = {
     componentName: string;
 };
 
+/** `sw-thing.vue?vue&type=script` -> `sw-thing.vue` */
 function stripFilenameQuery(filename: string): string {
     return filename.split(/[?#]/, 1)[0] ?? filename;
 }
 
+/** `src/app/sw-thing.vue` -> `sw-thing.vue` */
 function basename(filename: string): string {
     const parts = stripFilenameQuery(filename).replace(/\\/g, '/').split('/').filter(Boolean);
 
     return parts[parts.length - 1] ?? filename;
 }
 
+/** `src/app/sw-thing/index.vue` -> `sw-thing` */
 function parentDirectoryName(filename: string): string {
     const parts = stripFilenameQuery(filename).replace(/\\/g, '/').split('/').filter(Boolean);
 
@@ -59,6 +62,9 @@ function parentDirectoryName(filename: string): string {
 
 /**
  * Infers Shopware setup mode and component name from the SFC filename.
+ *
+ * - `sw-thing.vue` / `sw-thing/index.vue` -> base component `sw-thing`
+ * - `sw-thing.override.vue` / `sw-thing/index.override.vue` -> override of `sw-thing`
  */
 function inferShopwareSetupFromFilename(filename: string): InferredShopwareSetup {
     const file = basename(filename);

@@ -54,6 +54,9 @@ type AnalyzeSetupInputsResult = {
 
 /**
  * Returns macro calls after filtering `defineProps()` calls nested inside `withDefaults(...)`.
+ *
+ * e.g. `withDefaults(defineProps<Props>(), { count: 1 })` is one props macro, not two - the nested
+ * `defineProps()` range sits inside the `withDefaults()` range and is dropped.
  */
 function getPropsMacroCalls({
     definePropsCalls,

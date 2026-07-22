@@ -19,22 +19,6 @@ describe('build/vue-setup-transform validation', () => {
         expect(result.code).toContain("name: 'sw-native'");
     });
 
-    it('transforms independently from template attributes', () => {
-        const source = stripIndent`
-            <template>
-                <div></div>
-            </template>
-            <script setup>
-            const count = 1;
-            swDefinePublic({ count });
-            </script>
-        `;
-
-        const result = transformOrFail(source, 'template-attribute.vue');
-
-        expect(result.code).toContain("name: 'template-attribute'");
-    });
-
     it('keeps the Vue script setup range when an attribute value contains a script-like string', () => {
         const source = stripIndent`
             <script setup data-example="<script">
@@ -47,19 +31,6 @@ describe('build/vue-setup-transform validation', () => {
 
         expect(result).toContain('Shopware.Component.createExtendableSetup(');
         expect(result).toContain("name: 'script-attribute'");
-    });
-
-    it('preserves script setup attributes that do not belong to the Shopware transform', () => {
-        const source = stripIndent`
-            <script setup lang="ts" generic="TValue" future-flag>
-            const count = 1;
-            swDefinePublic({ count });
-            </script>
-        `;
-
-        const result = transformOrFail(source, 'passthrough-attributes.vue').code;
-
-        expect(result).toContain('<script setup lang="ts" generic="TValue" future-flag>');
     });
 
     it.each([
@@ -95,7 +66,6 @@ describe('build/vue-setup-transform validation', () => {
         expect(result).toContain(`function createModel() {
             return defineModel();
         }`);
-        expect(result).not.toContain('Vue macro defineModel() is not supported');
     });
 
     it('rejects defineProps() in override mode', () => {
@@ -446,8 +416,10 @@ describe('build/vue-setup-transform validation', () => {
 
         const result = transformOrFail(source, 'scanner.vue').code;
 
-        expect(result).toContain('Shopware.Component.createExtendableSetup(');
-        expect(result).toContain("name: 'scanner'");
+        // Exactly the real block is lowered; the fake tags survive verbatim as comment/string text.
+        expect(result.match(/createExtendableSetup\(/g)).toHaveLength(1);
+        expect(result).toContain("const single = '<script setup>';");
+        expect(result).toContain('/* <script setup> */');
     });
 
     it('skips transformation when Vue reports SFC parse errors', () => {

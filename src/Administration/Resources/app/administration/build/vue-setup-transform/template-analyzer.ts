@@ -23,6 +23,7 @@ import type { Node as BabelNode, PatternLike } from '@babel/types';
 import type { ShopwareSetupScriptAnalysis } from './script-analyzer';
 import type { ShopwareSetupBlock } from './utils/shopware-setup-block';
 import { ShopwareSetupTransformError } from './utils/transform-error';
+import { forEachPatternIdentifier, isBabelNodeLike } from './utils/babel-patterns';
 
 type TemplateEdit = {
     start: number;
@@ -75,10 +76,6 @@ type BindingPatternResult = {
     offset: number;
 };
 
-function isBabelNodeLike(value: unknown): value is BabelNode {
-    return Boolean(value && typeof value === 'object' && 'type' in value && typeof value.type === 'string');
-}
-
 const EXPRESSION_PLUGINS: ParserPlugin[] = [
     'typescript',
 ];
@@ -90,6 +87,7 @@ const RESERVED_OVERRIDE_STATE_NAME = '__swOverride';
  */
 function createOverridePrivateNamespace(filename: string, componentName: string): string {
     const normalizedFilename = path.normalize(filename).split(path.sep).join('/');
+    // sha1 (Node builtin) is used for a stable, well-spread suffix only - this is not security hashing.
     const hash = crypto.createHash('sha1').update(`${normalizedFilename}:${componentName}`).digest('hex').slice(0, 5);
     const readableFilename = path
         .basename(normalizedFilename)
@@ -147,42 +145,9 @@ function parseBindingPattern(source: string): BindingPatternResult {
  *
  */
 function addPatternNames(pattern: BabelNode | null | undefined, scope: Set<string>): void {
-    if (!pattern) {
-        return;
-    }
-
-    if (pattern.type === 'Identifier') {
-        scope.add(pattern.name);
-        return;
-    }
-
-    if (pattern.type === 'RestElement') {
-        addPatternNames(pattern.argument, scope);
-        return;
-    }
-
-    if (pattern.type === 'AssignmentPattern') {
-        addPatternNames(pattern.left, scope);
-        return;
-    }
-
-    if (pattern.type === 'ArrayPattern') {
-        pattern.elements.forEach((element) => {
-            addPatternNames(element, scope);
-        });
-        return;
-    }
-
-    if (pattern.type === 'ObjectPattern') {
-        pattern.properties.forEach((property) => {
-            if (property.type === 'RestElement') {
-                addPatternNames(property.argument, scope);
-                return;
-            }
-
-            addPatternNames(property.value, scope);
-        });
-    }
+    forEachPatternIdentifier(pattern, (identifier) => {
+        scope.add(identifier.name);
+    });
 }
 
 /**
@@ -538,6 +503,8 @@ function collectSlotScopeReferences(slotDirective: DirectiveNode | undefined, te
 /**
  * Checks whether a slot binding pattern declares or reads the machine-owned override-private state key.
  *
+ * e.g. `#default="{ __swOverride }"`, `#default="{ nested: { __swOverride } }"`, or
+ * `#default="{ ...__swOverride }"` all collide with the generated private state channel.
  */
 function hasReservedOverrideSlotBinding(pattern: BabelNode | null | undefined): boolean {
     if (!pattern) {
@@ -943,6 +910,8 @@ function createPrivateSlotMapping(namespace: string, localNames: string[]): Slot
 /**
  * Extracts the source property name from an existing object pattern entry.
  *
+ * e.g. `{ body }` and `{ body: alias }` both read slot prop `body`; `{ [key]: alias }` reads a
+ * computed key and returns null.
  */
 function getObjectPatternSourceKey(property: BabelNode | null | undefined): string | null {
     if (!property || property.type !== 'ObjectProperty' || property.computed) {

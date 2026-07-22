@@ -9,7 +9,6 @@
  * private bindings stay available to the component template through the returned data scope.
  */
 
-import { ShopwareSetupTransformError } from '../utils/transform-error';
 import { fromSource, generated, indent, type SourceChunk } from '../source-edits/chunks';
 import type { ShopwareSetupScriptAnalysis } from '../script-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
@@ -17,19 +16,15 @@ import { buildCallbackBodyChunks, escapeSingleQuoted, formatObjectProperties } f
 
 /**
  * Builds the base callback return object split into public and private state.
+ *
+ * Zero runtime bindings are valid: import-only or macro-only `<script setup>` blocks (for example a
+ * component that only imports a child or only calls `defineOptions()`) lower to empty state objects.
  */
 function buildBaseReturn(analysis: ShopwareSetupScriptAnalysis): string {
     const publicLocalNames = new Set(analysis.publicEntries);
     const privateProperties = analysis.runtimeBindings
         .filter((binding) => !publicLocalNames.has(binding.name))
         .map((binding) => binding.name);
-
-    if (analysis.runtimeBindings.length === 0) {
-        throw new ShopwareSetupTransformError(
-            'A base Shopware setup block must declare at least one top-level runtime binding.',
-            0,
-        );
-    }
 
     return [
         'return {',

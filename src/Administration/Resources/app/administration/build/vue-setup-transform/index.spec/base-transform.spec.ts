@@ -76,6 +76,38 @@ describe('build/vue-setup-transform base transforms', () => {
         expect(transformOrFail(source, 'sw-my-component.vue').code).toBe(expected);
     });
 
+    it('supports import-only script setup blocks with empty state', () => {
+        const source = stripIndent`
+            <template><ChildComponent /></template>
+            <script setup>
+            import ChildComponent from './child.vue';
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'import-only.vue').code;
+
+        expect(result).toContain("import ChildComponent from './child.vue';");
+        expect(result).toContain('public: {},');
+        expect(result).toContain('private: {},');
+    });
+
+    it('supports macro-only script setup blocks with empty state', () => {
+        const source = stripIndent`
+            <template><button @click="$emit('save')">save</button></template>
+            <script setup>
+            defineOptions({ inheritAttrs: false });
+            defineEmits(['save']);
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'macro-only.vue').code;
+
+        expect(result).toContain('defineOptions({ inheritAttrs: false });');
+        expect(result).toContain("defineEmits(['save']);");
+        expect(result).toContain('public: {},');
+        expect(result).toContain('private: {},');
+    });
+
     it('adds the generated data scope to base sw-block declarations', () => {
         const source = stripIndent`
             <template>

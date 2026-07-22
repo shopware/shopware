@@ -12,6 +12,7 @@
 import type { ImportDeclaration, Node as BabelNode, Statement, VariableDeclarator } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import { getNodeRange, unwrapTransparentMacroExpression } from './utils';
+import { forEachPatternIdentifier } from '../utils/babel-patterns';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
 
 /**
@@ -70,46 +71,15 @@ function collectRuntimeBindingPattern(
     pattern: BabelNode | null | undefined,
     scriptOffset: number,
 ): void {
-    if (!pattern) {
-        return;
-    }
-
-    if (pattern.type === 'Identifier') {
-        addRuntimeBinding(runtimeBindings, runtimeBindingNames, pattern.name, pattern, scriptOffset);
-        return;
-    }
-
-    if (pattern.type === 'RestElement') {
-        collectRuntimeBindingPattern(runtimeBindings, runtimeBindingNames, pattern.argument, scriptOffset);
-        return;
-    }
-
-    if (pattern.type === 'AssignmentPattern') {
-        collectRuntimeBindingPattern(runtimeBindings, runtimeBindingNames, pattern.left, scriptOffset);
-        return;
-    }
-
-    if (pattern.type === 'ArrayPattern') {
-        pattern.elements.forEach((element) => {
-            collectRuntimeBindingPattern(runtimeBindings, runtimeBindingNames, element, scriptOffset);
-        });
-        return;
-    }
-
-    if (pattern.type === 'ObjectPattern') {
-        pattern.properties.forEach((property) => {
-            if (property.type === 'RestElement') {
-                collectRuntimeBindingPattern(runtimeBindings, runtimeBindingNames, property.argument, scriptOffset);
-                return;
-            }
-
-            collectRuntimeBindingPattern(runtimeBindings, runtimeBindingNames, property.value, scriptOffset);
-        });
-    }
+    forEachPatternIdentifier(pattern, (identifier) => {
+        addRuntimeBinding(runtimeBindings, runtimeBindingNames, identifier.name, identifier, scriptOffset);
+    });
 }
 
 /**
  * Allows setup input helper aliases without returning them as component state.
+ *
+ * e.g. `const context = useSwContext();` - the alias is usable locally but is not setup state.
  */
 function isRuntimeInputAlias(declaration: VariableDeclarator, mode: ShopwareSetupMode): boolean {
     const runtimeInputHelpers =
@@ -171,6 +141,8 @@ function assertSupportedSetupInputDestructure(declaration: VariableDeclarator, s
 
 /**
  * Checks whether a variable declaration reads setup input through a supported helper/macro.
+ *
+ * e.g. `const props = defineProps<Props>();` or `const props = useSwProps();`
  */
 function isSetupInputDeclaration(declaration: VariableDeclarator): boolean {
     const init = unwrapTransparentMacroExpression(declaration.init);

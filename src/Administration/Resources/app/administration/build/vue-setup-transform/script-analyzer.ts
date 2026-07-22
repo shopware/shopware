@@ -10,7 +10,7 @@
  * override-private bindings.
  */
 
-import type { CallExpression, Identifier, ImportDeclaration, Node as BabelNode, Statement } from '@babel/types';
+import type { CallExpression, ImportDeclaration, Statement } from '@babel/types';
 import { ShopwareSetupTransformError } from './utils/transform-error';
 import type { ShopwareSetupMode } from './utils/shopware-setup-block';
 import {
@@ -24,13 +24,14 @@ import {
     WRONG_MODE_SW_DEFINE_OVERRIDE_MESSAGE,
     WRONG_MODE_SW_DEFINE_PUBLIC_MESSAGE,
 } from './script-analyzer/macros';
-import { type SourceRange, getNodeRange, isBabelNodeLike, parseScript } from './script-analyzer/utils';
+import { type SourceRange, getNodeRange, parseScript } from './script-analyzer/utils';
 import { type RuntimeBinding, collectImportBindings, collectRuntimeBinding } from './script-analyzer/runtime-bindings';
 import {
     assertNoUnsupportedSyntax,
     assertReservedMacroNames,
     assertStaticObjectEntries,
 } from './script-analyzer/validation';
+import { assertHoistedMacroArgumentsDoNotUseLocalSetup } from './script-analyzer/hoisted-macro-arguments';
 import {
     analyzeSetupInputs,
     type DefineExposeStatement,
@@ -119,200 +120,12 @@ function getTypeDeclarationRangesAndCode(
  * the callback function body.
  */
 function isHoistableTypeDeclaration(statement: Statement): boolean {
+    // e.g. `interface Props { ... }`, `type Emits = { ... }`, `declare const injected: number;`
     return (
         statement.type === 'TSInterfaceDeclaration' ||
         statement.type === 'TSTypeAliasDeclaration' ||
         Boolean((statement as Statement & { declare?: boolean }).declare)
     );
-}
-
-/**
- * Adds all identifiers declared by a binding pattern to a set.
- */
-function collectBindingPatternNames(pattern: BabelNode | null | undefined, names: Set<string>): void {
-    if (!pattern) {
-        return;
-    }
-
-    if (pattern.type === 'Identifier') {
-        names.add(pattern.name);
-        return;
-    }
-
-    if (pattern.type === 'RestElement') {
-        collectBindingPatternNames(pattern.argument, names);
-        return;
-    }
-
-    if (pattern.type === 'AssignmentPattern') {
-        collectBindingPatternNames(pattern.left, names);
-        return;
-    }
-
-    if (pattern.type === 'ArrayPattern') {
-        pattern.elements.forEach((element) => collectBindingPatternNames(element, names));
-        return;
-    }
-
-    if (pattern.type === 'ObjectPattern') {
-        pattern.properties.forEach((property) => {
-            if (property.type === 'RestElement') {
-                collectBindingPatternNames(property.argument, names);
-                return;
-            }
-
-            collectBindingPatternNames(property.value, names);
-        });
-    }
-}
-
-/**
- * Checks whether an identifier reads a runtime value instead of declaring or naming one.
- */
-function isRuntimeIdentifierReference(node: Identifier, parent: BabelNode | null): boolean {
-    if (!parent) {
-        return true;
-    }
-
-    if (parent.type === 'MemberExpression' || parent.type === 'OptionalMemberExpression') {
-        return parent.property !== node || Boolean(parent.computed);
-    }
-
-    if (parent.type === 'ObjectProperty') {
-        return parent.value === node || Boolean(parent.computed);
-    }
-
-    if (parent.type === 'ObjectMethod') {
-        return parent.key !== node || Boolean(parent.computed);
-    }
-
-    if (
-        parent.type === 'VariableDeclarator' ||
-        parent.type === 'FunctionDeclaration' ||
-        parent.type === 'FunctionExpression' ||
-        parent.type === 'ClassDeclaration' ||
-        parent.type === 'ClassExpression'
-    ) {
-        return parent.id !== node;
-    }
-
-    return true;
-}
-
-function shouldSkipReferenceChild(key: string): boolean {
-    return [
-        'loc',
-        'range',
-        'start',
-        'end',
-        'leadingComments',
-        'trailingComments',
-        'innerComments',
-        'typeAnnotation',
-        'typeParameters',
-        'typeArguments',
-        'returnType',
-    ].includes(key);
-}
-
-/**
- * Finds the first local setup binding read inside a macro argument that is moved to the generated script root.
- */
-function findLocalSetupReference(
-    node: BabelNode | null | undefined,
-    localBindings: Set<string>,
-    shadowedBindings = new Set<string>(),
-    parent: BabelNode | null = null,
-): Identifier | null {
-    if (!node) {
-        return null;
-    }
-
-    if (
-        node.type === 'Identifier' &&
-        localBindings.has(node.name) &&
-        !shadowedBindings.has(node.name) &&
-        isRuntimeIdentifierReference(node, parent)
-    ) {
-        return node;
-    }
-
-    const childShadowedBindings = new Set(shadowedBindings);
-
-    if (
-        node.type === 'FunctionDeclaration' ||
-        node.type === 'FunctionExpression' ||
-        node.type === 'ArrowFunctionExpression' ||
-        node.type === 'ObjectMethod' ||
-        node.type === 'ClassMethod' ||
-        node.type === 'ClassPrivateMethod'
-    ) {
-        node.params.forEach((param) => collectBindingPatternNames(param, childShadowedBindings));
-    }
-
-    for (const [
-        key,
-        value,
-    ] of Object.entries(node as unknown as Record<string, unknown>)) {
-        if (shouldSkipReferenceChild(key)) {
-            continue;
-        }
-
-        if (Array.isArray(value)) {
-            for (const child of value) {
-                if (!isBabelNodeLike(child)) {
-                    continue;
-                }
-
-                const reference = findLocalSetupReference(child, localBindings, childShadowedBindings, node);
-
-                if (reference) {
-                    return reference;
-                }
-            }
-
-            continue;
-        }
-
-        if (isBabelNodeLike(value)) {
-            const reference = findLocalSetupReference(value, localBindings, childShadowedBindings, node);
-
-            if (reference) {
-                return reference;
-            }
-        }
-    }
-
-    return null;
-}
-
-/**
- * Hoisted Vue macros run outside the generated Shopware setup callback.
- * Their runtime arguments must therefore stay independent from setup-local values.
- */
-function assertHoistedMacroArgumentsDoNotUseLocalSetup({
-    scriptOffset,
-    runtimeBindingNames,
-    macroCalls,
-}: {
-    scriptOffset: number;
-    runtimeBindingNames: Set<string>;
-    macroCalls: { name: string; call: CallExpression }[];
-}): void {
-    macroCalls.forEach(({ name, call }) => {
-        call.arguments.forEach((argument) => {
-            const reference = findLocalSetupReference(argument, runtimeBindingNames);
-
-            if (!reference) {
-                return;
-            }
-
-            throw new ShopwareSetupTransformError(
-                `${name}() arguments are hoisted outside the Shopware setup callback and must not reference local setup bindings. Use inline literals or imported constants instead.`,
-                scriptOffset + getNodeRange(reference, scriptOffset).start,
-            );
-        });
-    });
 }
 
 /**

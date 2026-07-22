@@ -12,6 +12,7 @@
 import { parse, type ParserPlugin } from '@babel/parser';
 import type { File as BabelFile, Node as BabelNode } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
+import { isBabelNodeLike } from '../utils/babel-patterns';
 
 type SourceRange = {
     start: number;
@@ -19,10 +20,6 @@ type SourceRange = {
 };
 
 type AstVisitor = (node: BabelNode, ancestors: BabelNode[]) => void;
-
-function isBabelNodeLike(value: unknown): value is BabelNode {
-    return Boolean(value && typeof value === 'object' && 'type' in value && typeof value.type === 'string');
-}
 
 /**
  * Converts Babel source ranges into the transform's compact range shape.

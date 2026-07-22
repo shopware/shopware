@@ -11,10 +11,64 @@ jobs:
   label:
     runs-on: ubuntu-24.04
     if: github.event_name == 'issues' || github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      id-token: write
+      issues: write
+      pull-requests: write
     steps:
       - uses: srvaroa/labeler@bf262763a8a8e191f5847873aecc0f29df84f957 # v1.14.0
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      # auto-apply `major-php` when the diff touches major feature flags, so the integration-major
+      # matrix runs on the PRs where it matters without running it everywhere. Piggybacks on this
+      # job to avoid a runner spin-up of its own; costs one API call per PR event.
+      - id: detect-major
+        if: >
+          github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'synchronize') && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.event.pull_request.labels.*.name, 'major-php') && !contains(github.event.pull_request.labels.*.name, 'major-tests')
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const { data: diff } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              mediaType: { format: 'diff' },
+            })
+
+            // added or removed lines only — deleting a legacy flag branch is a major-behavior change too
+            const changedLines = String(diff).split('\n').filter(line => /^[+-][^+-]/.test(line))
+
+            const markers = [
+              /v6\.8\.0/, // Feature::isActive('v6.8.0.0'), triggerDeprecationOrThrow, "@deprecated tag:v6.8.0"
+              /Feature::(isActive|skipTestIfActive|skipTestIfInActive)\('[A-Z][A-Z_]*'\)/, // named feature flags
+              /Feature::withFeature(Enabled|Disabled)\(/,
+              /DisabledFeatures\(/,
+            ]
+
+            const hit = changedLines.some(line => markers.some(marker => marker.test(line)))
+            core.setOutput('hit', hit ? 'yes' : 'no')
+            core.info(hit ? 'major-flag marker found in the diff' : 'no major-flag markers in the diff')
+      # an app token is required for the added label to trigger integration-major's `labeled` run;
+      # if minting fails we fall back to GITHUB_TOKEN — the label still lands, the matrix starts on the next push
+      - id: sts-major
+        if: steps.detect-major.outputs.hit == 'yes'
+        continue-on-error: true
+        uses: shopware/octo-sts-action@main
+        with:
+          scope: shopware
+          identity: CreatePR
+      - if: steps.detect-major.outputs.hit == 'yes'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          github-token: ${{ steps.sts-major.outputs.token || secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              labels: ['major-php'],
+            })
 
   cleanup-needs-triage:
     runs-on: ubuntu-24.04
@@ -182,61 +236,6 @@ jobs:
           script: |
             const { syncPriorities } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
             await syncPriorities({github, core, context})
-
-  auto-label-major-php:
-    runs-on: ubuntu-24.04
-    if: >
-      github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'synchronize') && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.event.pull_request.labels.*.name, 'major-php') && !contains(github.event.pull_request.labels.*.name, 'major-tests')
-    permissions:
-      contents: read
-      id-token: write
-      issues: write
-      pull-requests: write
-    steps:
-      - id: detect
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
-        with:
-          script: |
-            const { data: diff } = await github.rest.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number,
-              mediaType: { format: 'diff' },
-            })
-
-            // added or removed lines only — deleting a legacy flag branch is a major-behavior change too
-            const changedLines = String(diff).split('\n').filter(line => /^[+-][^+-]/.test(line))
-
-            const markers = [
-              /v6\.8\.0/, // Feature::isActive('v6.8.0.0'), triggerDeprecationOrThrow, "@deprecated tag:v6.8.0"
-              /Feature::(isActive|skipTestIfActive|skipTestIfInActive)\('[A-Z][A-Z_]*'\)/, // named feature flags
-              /Feature::withFeature(Enabled|Disabled)\(/,
-              /DisabledFeatures\(/,
-            ]
-
-            const hit = changedLines.some(line => markers.some(marker => marker.test(line)))
-            core.setOutput('hit', hit ? 'yes' : 'no')
-            core.info(hit ? 'major-flag marker found in the diff' : 'no major-flag markers in the diff')
-      # an app token is required for the added label to trigger integration-major's `labeled` run;
-      # if minting fails we fall back to GITHUB_TOKEN — the label still lands, the matrix starts on the next push
-      - id: sts
-        if: steps.detect.outputs.hit == 'yes'
-        continue-on-error: true
-        uses: shopware/octo-sts-action@main
-        with:
-          scope: shopware
-          identity: CreatePR
-      - if: steps.detect.outputs.hit == 'yes'
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
-        with:
-          github-token: ${{ steps.sts.outputs.token || secrets.GITHUB_TOKEN }}
-          script: |
-            await github.rest.issues.addLabels({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-              labels: ['major-php'],
-            })
 
   sync-test-plan-sub-issue:
     runs-on: ubuntu-24.04

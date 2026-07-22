@@ -6,6 +6,8 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Context\Payload\AppContextGatewayPayloadService;
+use Shopware\Core\Framework\App\Manifest\Xml\Gateway\ContextGateway;
+use Shopware\Core\Framework\App\Privileges\AppCapability;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -38,6 +40,7 @@ class AppContextGateway
         private readonly EntityRepository $appRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ExceptionLogger $logger,
+        private readonly AppCapability $appCapability,
     ) {
     }
 
@@ -49,11 +52,21 @@ class AppContextGateway
         }
         $app = $this->getApp($appName, $payload->getSalesChannelContext()->getContext());
 
-        $contextGatewayUrl = $app->getContextGatewayUrl();
+        // do not push cart/customer data to an app that has not been granted the context gateway
+        // permission; leave the shopper's context untouched instead
+        $response = $this->appCapability->whenGranted(
+            $app->getId(),
+            ContextGateway::PERMISSION,
+            fn (): ContextTokenResponse => $this->dispatchToApp($app, $payload)
+        );
 
-        if (!$contextGatewayUrl) {
-            throw AppException::gatewayNotConfigured($app->getName(), 'context');
-        }
+        return $response ?? new ContextTokenResponse($payload->getSalesChannelContext()->getToken());
+    }
+
+    private function dispatchToApp(AppEntity $app, ContextGatewayPayloadStruct $payload): ContextTokenResponse
+    {
+        $contextGatewayUrl = $app->getContextGatewayUrl();
+        \assert(\is_string($contextGatewayUrl));
 
         $appResponse = $this->payloadService->request($contextGatewayUrl, $payload, $app);
 

@@ -107,6 +107,7 @@ use Shopware\Core\Framework\App\MessageHandler\RotateAppSecretHandler;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler;
 use Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService;
+use Shopware\Core\Framework\App\Privileges\AppCapability;
 use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\App\ScheduledTask\DeleteCascadeAppsHandler;
 use Shopware\Core\Framework\App\ScheduledTask\DeleteCascadeAppsTask;
@@ -431,6 +432,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(ExceptionLogger::class),
             service(ActiveAppsLoader::class),
+            service(AppCapability::class),
         ]);
 
     $services->set(AppContextGateway::class)
@@ -441,6 +443,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('app.repository'),
             service('event_dispatcher'),
             service(ExceptionLogger::class),
+            service(AppCapability::class),
         ]);
 
     $services->set(AppCookieCollectListener::class)
@@ -945,6 +948,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(Connection::class),
             service('event_dispatcher'),
+        ]);
+
+    $services->set(AppCapability::class)
+        ->args([
+            service(Privileges::class),
         ]);
 
     $services->set(AppPrivilegeController::class)

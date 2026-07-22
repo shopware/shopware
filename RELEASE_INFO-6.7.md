@@ -37,6 +37,10 @@ The existing `reason:*` annotations will be migrated to these attributes in foll
 
 ## Administration
 
+### Plugins can use the global Meteor snackbar
+
+Administration plugins can now add and remove snackbars through `Shopware.Service('snackbarService')`. Use `addSnackbar()` with a Meteor snackbar configuration and `removeSnackbar(id)` to dismiss it.
+
 ## Storefront
 
 ## App System

@@ -93,6 +93,7 @@ import type DiscardDetailPageChangesMixin from './app/mixin/discard-detail-page-
 import type PrivilegesService from './app/service/privileges.service';
 import type BusinessEventsApiService from './core/service/api/business-events.api.service';
 import type { FileValidationService } from './app/service/file-validation.service';
+import type SnackbarService from './app/service/snackbar.service';
 import type { DevtoolComponent } from './app/adapter/view/sw-vue-devtools';
 import type { CmsPageStore } from './module/sw-cms/store/cms-page.store';
 import type { TopBarButtonStore } from './app/store/topbar-button.store';
@@ -282,6 +283,7 @@ declare global {
         searchRankingService: $TSFixMe;
         searchTypeService: $TSFixMe;
         shopwareDiscountCampaignService: ShopwareDiscountCampaignService;
+        snackbarService: SnackbarService;
         shortcutService: $TSFixMe;
         snippetService: SnippetApiService;
         stateStyleDataProviderService: StateStyleService;

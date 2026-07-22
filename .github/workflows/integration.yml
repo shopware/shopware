@@ -270,6 +270,11 @@ jobs:
           - "9200:9200"
 
     steps:
+      # the previous major is a historical state whose pinned dependencies may have advisories
+      # published after the fact; those must not block the upgrade scenario. Same guard
+      # acceptance-update applies to old versions.
+      - name: Allow advisory-affected packages in the previous major install
+        run: composer config -g audit.block-insecure false
       - name: Setup previous major version
         uses: shopware/setup-shopware@main
         with:
@@ -351,6 +356,11 @@ jobs:
           - "9200:9200"
 
     steps:
+      # the previous major is a historical state whose pinned dependencies may have advisories
+      # published after the fact; those must not block the upgrade scenario. Same guard
+      # acceptance-update applies to old versions.
+      - name: Allow advisory-affected packages in the previous major install
+        run: composer config -g audit.block-insecure false
       - name: Setup previous major version
         uses: shopware/setup-shopware@main
         with:

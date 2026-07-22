@@ -179,6 +179,12 @@ jobs:
           set -e
           git remote add bc-checker-upstream https://github.com/shopware/platform.git
           git fetch bc-checker-upstream
+      # the comparison baseline installs a historical state (base branch or latest tag) whose
+      # pinned dependencies may have advisories published after the fact; those must not block
+      # the BC comparison. Same guard acceptance-update applies to old versions. Placed after
+      # the current-state install above so that one stays strictly checked.
+      - name: Allow advisory-affected packages in the comparison baseline
+        run: composer config -g audit.block-insecure false
       - name: BC Checker lastest tag
         if: github.event_name != 'pull_request'
         run: composer run bc-check

@@ -40,8 +40,8 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[CoversClass(PromotionCalculator::class)]
 #[Package('checkout')]
+#[CoversClass(PromotionCalculator::class)]
 class PromotionCalculatorTest extends TestCase
 {
     private IdsCollection $ids;

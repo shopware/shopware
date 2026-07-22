@@ -17,11 +17,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal should be used over the CLI only
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'system:update:prepare',
     description: 'Prepares the update process',
 )]
-#[Package('framework')]
 class SystemUpdatePrepareCommand extends Command
 {
     public function __construct(private readonly ContainerInterface $container, private readonly string $shopwareVersion)

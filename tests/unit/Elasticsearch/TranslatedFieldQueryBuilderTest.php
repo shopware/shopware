@@ -22,8 +22,8 @@ use Shopware\Elasticsearch\TranslatedResolvedField;
 /**
  * @internal
  */
-#[CoversClass(TranslatedFieldQueryBuilder::class)]
 #[Package('inventory')]
+#[CoversClass(TranslatedFieldQueryBuilder::class)]
 class TranslatedFieldQueryBuilderTest extends TestCase
 {
     private const SECOND_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20c';

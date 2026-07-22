@@ -25,11 +25,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'theme:dump',
     description: 'Dump the theme configuration',
 )]
-#[Package('framework')]
 class ThemeDumpCommand extends Command
 {
     private readonly Context $context;

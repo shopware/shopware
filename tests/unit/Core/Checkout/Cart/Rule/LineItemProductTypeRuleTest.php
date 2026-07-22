@@ -24,8 +24,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(LineItemProductTypeRule::class)]
 #[Package('fundamentals@after-sales')]
+#[CoversClass(LineItemProductTypeRule::class)]
 class LineItemProductTypeRuleTest extends TestCase
 {
     private LineItemProductTypeRule $rule;

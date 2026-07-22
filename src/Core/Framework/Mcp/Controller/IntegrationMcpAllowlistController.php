@@ -20,8 +20,8 @@ use Symfony\Component\Routing\Attribute\Route;
  * Saves the per-integration MCP allowlist (tools, resources, prompts).
  * Requires the `integration_mcp.editor` admin ACL privilege.
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class IntegrationMcpAllowlistController
 {
     /**

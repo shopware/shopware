@@ -175,7 +175,6 @@
                 "type": "object",
                 "required": [
                   "orderId",
-                  "orderVersionId",
                   "documentType",
                   "formats"
                 ],
@@ -186,7 +185,7 @@
                     "pattern": "^[0-9a-f]{32}$"
                   },
                   "orderVersionId": {
-                    "description": "Version identifier of the order for which the document should be created.",
+                    "description": "Optional version identifier of an existing, non-live order version for which the document should be created. The live version is not allowed. When omitted, a new order version is created automatically.",
                     "type": "string",
                     "pattern": "^[0-9a-f]{32}$"
                   },
@@ -627,7 +626,6 @@
                 "type": "object",
                 "required": [
                   "orderId",
-                  "orderVersionId",
                   "documentType",
                   "format"
                 ],
@@ -638,7 +636,7 @@
                     "pattern": "^[0-9a-f]{32}$"
                   },
                   "orderVersionId": {
-                    "description": "Version identifier of the order for which the document should be previewed.",
+                    "description": "Optional version identifier of an existing, non-live order version for which the document should be previewed. The live version is not allowed. When omitted, a new order version is created automatically.",
                     "type": "string",
                     "pattern": "^[0-9a-f]{32}$"
                   },

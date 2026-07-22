@@ -33,8 +33,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(AddressValidator::class)]
 #[Package('checkout')]
+#[CoversClass(AddressValidator::class)]
 class AddressValidatorTest extends TestCase
 {
     /**

@@ -10,7 +10,7 @@ use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 use Shopware\Storefront\Theme\ThemeScripts;
 use Symfony\Component\Asset\Package as AssetPackage;
 
-#[Package('framework')]
+#[Package('discovery')]
 class TemplateConfigAccessor
 {
     /**

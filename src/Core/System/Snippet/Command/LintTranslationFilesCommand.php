@@ -17,12 +17,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[AsCommand(
     name: 'translation:lint-filenames',
     description: 'Ensures translations have a country-agnostic translation file as a base, to provide country-agnostic language layer support (e.g. de.json for de-DE.json).
     For more information, see our documentation: https://developer.shopware.com/docs/concepts/translations/fallback-language-selection.html#migration-and-linting-via-command',
 )]
-#[Package('discovery')]
 class LintTranslationFilesCommand extends Command
 {
     public function __construct(

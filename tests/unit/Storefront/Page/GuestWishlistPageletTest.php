@@ -13,6 +13,7 @@ use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
 use Shopware\Core\Content\Product\SalesChannel\ProductListRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -28,6 +29,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(GuestWishlistPageletLoader::class)]
 class GuestWishlistPageletTest extends TestCase
 {

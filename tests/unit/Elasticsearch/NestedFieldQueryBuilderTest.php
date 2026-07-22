@@ -17,8 +17,8 @@ use Shopware\Elasticsearch\ResolvedField;
 /**
  * @internal
  */
-#[CoversClass(NestedFieldQueryBuilder::class)]
 #[Package('inventory')]
+#[CoversClass(NestedFieldQueryBuilder::class)]
 class NestedFieldQueryBuilderTest extends TestCase
 {
     public function testGetDecorated(): void

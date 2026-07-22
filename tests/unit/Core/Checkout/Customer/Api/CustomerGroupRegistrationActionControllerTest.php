@@ -30,8 +30,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[CoversClass(CustomerGroupRegistrationActionController::class)]
 #[Package('checkout')]
+#[CoversClass(CustomerGroupRegistrationActionController::class)]
 class CustomerGroupRegistrationActionControllerTest extends TestCase
 {
     private CustomerGroupRegistrationActionController $controllerMock;

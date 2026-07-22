@@ -14,8 +14,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  *
  * @deprecated tag:v6.8.0 - Will be removed as the message was not dispatched anymore, call TaskRegistry synchronously
  */
-#[AsMessageHandler]
 #[Package('framework')]
+#[AsMessageHandler]
 class RegisterScheduledTaskHandler
 {
     /**

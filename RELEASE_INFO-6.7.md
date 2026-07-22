@@ -6,16 +6,19 @@
 
 ## Core
 
+
 ### `product-export:generate --force` now regenerates scheduler-managed exports
 
-**What changed:** `Shopware\Core\Content\ProductExport\Service\ProductExportFileHandler::isValidFile()` previously treated the existing feed file of a scheduler-managed export (`generateByCronjob`) as valid regardless of the export behavior, so `bin/console product-export:generate --force` (`ExportBehavior::ignoreCache`) silently skipped regeneration for those exports. Forcing generation now always regenerates the file, regardless of the `generateByCronjob` setting.
+`--force` promises to ignore the cache and force generation, but for scheduler-managed exports it was a no-op. This aligns the flag with its documented behavior.
 
-**Why:** `--force` promises to ignore the cache and force generation, but for scheduler-managed exports it was a no-op, so there was no way to invalidate a feed's cache from the CLI. This aligns the flag with its documented behavior.
+### OpenAPI generation uses swagger-php 6.4
 
-**Who needs to care and when:** Anyone who runs `product-export:generate --force` (manually or from automation) against an export that has "Generate via scheduler" enabled. Previously the command exited without regenerating the file; now the file is rewritten on every forced run.
+Shopware now requires `zircote/swagger-php` 6.4 for OpenAPI 3.2 generation.
+Most extensions are not affected: OpenAPI annotations and attributes continue to be read by swagger-php 6, and extensions that only define `OpenApi\Annotations` or `OpenApi\Attributes` metadata usually do not need code changes.
 
-**How to adjust:** No action is required. If you relied on `--force` being ignored for scheduler-managed exports, drop the flag to keep serving the cached/scheduler-generated file. To regenerate a scheduler-managed feed on demand, run the command with `--force`.
-
+Extensions or development tools that call swagger-php programmatically should check for removed v4/v5 APIs such as `OpenApi\Generator::scan()` and `OpenApi\Util::finder()`.
+The migration is usually straightforward because the instance API `OpenApi\Generator::generate()` is available in swagger-php 4, 5, and 6.
+See `UPGRADE-6.7.md` for concrete examples.
 ### Locale-aware sorting for product property group options
 
 `Shopware\Core\Content\Product\AbstractPropertyGroupSorter::sort()` is deprecated and will be removed with Shopware 6.8. Use the new `sortUsingLocaleCode()` method instead, which sorts property group options using locale-aware (ICU) collation.
@@ -612,6 +615,10 @@ Extensions can add additional templates under `Resources/views/files/agentic/**.
 The Admin API exposes documented action routes for listing, reading details, and previewing sales-channel files under `/api/_action/sales-channel-file/{fileFamily}/{salesChannelId}`.
 
 ## Storefront
+
+### Optional email fields no longer fail validation when empty
+
+The `FormValidation` helper now treats empty values as valid for the email validator. This aligns with standard `<input type="email">` behavior, ensuring optional email fields are no longer marked invalid when left blank. Fields with the required rule remain unaffected.
 
 ### Storefront cache hash no longer varies by language
 

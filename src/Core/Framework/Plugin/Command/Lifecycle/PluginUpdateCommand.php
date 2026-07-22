@@ -9,11 +9,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'plugin:update',
     description: 'Updates a plugin',
 )]
-#[Package('framework')]
 class PluginUpdateCommand extends AbstractPluginLifecycleCommand
 {
     private const LIFECYCLE_METHOD = 'update';

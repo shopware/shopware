@@ -12,11 +12,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'open-api:generate-dtos',
     description: 'Generates PHP DTO classes from the OpenAPI schema definitions',
 )]
-#[Package('framework')]
 final class OpenApiDtoGenerationCommand extends Command
 {
     public function __construct(

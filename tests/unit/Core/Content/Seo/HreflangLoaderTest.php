@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Seo;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\HreflangLoader;
 use Shopware\Core\Content\Seo\HreflangLoaderParameter;
@@ -20,16 +20,16 @@ use Symfony\Component\Routing\RouterInterface;
 #[CoversClass(HreflangLoader::class)]
 class HreflangLoaderTest extends TestCase
 {
-    private MockObject&RouterInterface $router;
+    private RouterInterface&Stub $router;
 
-    private MockObject&Connection $connection;
+    private Connection&Stub $connection;
 
     private HreflangLoader $loader;
 
     protected function setUp(): void
     {
-        $this->router = $this->createMock(RouterInterface::class);
-        $this->connection = $this->createMock(Connection::class);
+        $this->router = static::createStub(RouterInterface::class);
+        $this->connection = static::createStub(Connection::class);
         $this->loader = new HreflangLoader($this->router, $this->connection);
     }
 

@@ -50,33 +50,39 @@ export default {
             return this.repositoryFactory.create('sales_channel');
         },
 
-        salesChannelIsHeadless() {
-            const currentSalesChannel = this.salesChannels.find((entity) => {
+        currentSalesChannel() {
+            return this.salesChannels.find((entity) => {
                 return entity.id === this.salesChannelId;
             });
+        },
 
-            if (!currentSalesChannel) {
+        salesChannelIsHeadless() {
+            if (!this.currentSalesChannel) {
                 return false;
             }
 
-            return currentSalesChannel.typeId === Defaults.apiSalesChannelTypeId;
+            return this.currentSalesChannel.typeId === Defaults.apiSalesChannelTypeId;
+        },
+
+        headlessSalesChannelHasExternalDomain() {
+            if (!this.salesChannelIsHeadless) {
+                return false;
+            }
+
+            return !!this.currentSalesChannel?.domains?.find((domain) => domain.isExternalStorefront);
         },
 
         salesChannelSupportsSeoUrlTemplates() {
-            const currentSalesChannel = this.salesChannels.find((entity) => {
-                return entity.id === this.salesChannelId;
-            });
-
-            if (!currentSalesChannel) {
+            if (!this.currentSalesChannel) {
                 return true;
             }
 
-            // Product comparison and agentic commerce sales channels do not serve SEO URLs, so maintaining
-            // templates for them has no effect and is not offered.
-            return ![
-                Defaults.productComparisonTypeId,
-                Defaults.agenticCommerceTypeId,
-            ].includes(currentSalesChannel.typeId);
+            const supported = [Defaults.storefrontSalesChannelTypeId, Defaults.apiSalesChannelTypeId];
+            if (!supported.includes(this.currentSalesChannel.typeId)) {
+                return false;
+            }
+
+            return !this.salesChannelIsHeadless || this.headlessSalesChannelHasExternalDomain;
         },
     },
 
@@ -352,7 +358,11 @@ export default {
                 });
         },
         fetchSalesChannels() {
-            this.salesChannelRepository.search(new Criteria(1, 25)).then((response) => {
+            const criteria = new Criteria(1, 25);
+            criteria.addAssociation('domains')
+                .addSorting(Criteria.sort('domains.isExternalStorefront', 'DESC'));
+
+            this.salesChannelRepository.search(criteria).then((response) => {
                 this.salesChannels = response;
             });
         },

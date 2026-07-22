@@ -24,7 +24,11 @@
       "textUrlPreviewNotPossible": "A preview for this template could not be generated.",
       "textUrlNoEntitiesForPreview": "No {entity} available.",
       "textUrlPreviewEmptyTemplate": "The template is empty, SEO URLs for {entity} won't be generated.",
-      "textInfoMessageBoxEmptyProperties": "When using variables, make sure that data is available in all respective fields of the entities (products, landing pages or categories). If variables refer to empty fields, no SEO URLs will be created for the corresponding entity."
+      "headlineInfoMessageBoxEmptyProperties": "Info",
+      "textInfoMessageBoxEmptyProperties": "When using variables, make sure that data is available in all respective fields of the entities (products, landing pages or categories). If variables refer to empty fields, no SEO URLs will be created for the corresponding entity.",
+      "headlineExternalStorefrontRequired": "External storefront domain required",
+      "textExternalStorefrontRequired": "For headless sales channels, SEO URLs are only generated for domains that are marked as an external storefront. Add such a domain to the sales channel to enable SEO URLs.",
+      "linkExternalStorefrontDomain": "Open sales channel settings"
     },
     "routeNames": {
       "frontend-detail-page": "Product detail page",

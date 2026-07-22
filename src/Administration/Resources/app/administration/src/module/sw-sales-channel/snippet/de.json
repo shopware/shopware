@@ -206,8 +206,9 @@
                     "518400": "6 Tage",
                     "604800": "1 Woche"
                 },
-                "storefront": "Storefront-Verkaufskanal",
-                "storefrontDomain": "Storefront-Domain",
+                "storefront": "Verkaufskanal",
+                "storefrontDomain": "Domain",
+                "storefrontDomainHelpText": "Bei Headless-Verkaufskanälen sind hier nur Domains auswählbar, die als externes Storefront markiert sind. Markiere eine Domain in den Domain-Einstellungen des Verkaufskanals als externes Storefront.",
                 "storefrontDomainLanguage": {
                     "label": "Sprache",
                     "help": "Auf Basis der Storefront-Domain automatisch gewählt"

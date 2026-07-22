@@ -12,6 +12,7 @@ const STOREFRONT_TYPE_ID = '8a243080f92e4c719546314b577cf82b';
 const PRODUCT_COMPARISON_TYPE_ID = 'ed535e5722134ac1aa6524f73e26881b';
 const AGENTIC_COMMERCE_TYPE_ID = '5e29f9890c4d4d519a1c7f9d5c24b7c1';
 const HEADLESS_SALES_CHANNEL_ID = 'headless-sales-channel-id';
+const HEADLESS_NO_DOMAIN_SALES_CHANNEL_ID = 'headless-no-domain-sales-channel-id';
 const STOREFRONT_SALES_CHANNEL_ID = 'storefront-sales-channel-id';
 const PRODUCT_COMPARISON_SALES_CHANNEL_ID = 'product-comparison-sales-channel-id';
 const AGENTIC_COMMERCE_SALES_CHANNEL_ID = 'agentic-commerce-sales-channel-id';
@@ -97,10 +98,16 @@ async function createWrapper({ defaultTemplates = ALL_DEFAULTS, salesChannelTemp
 
     const salesChannelRepository = {
         search: jest.fn().mockResolvedValue([
-            { id: STOREFRONT_SALES_CHANNEL_ID, typeId: STOREFRONT_TYPE_ID },
-            { id: HEADLESS_SALES_CHANNEL_ID, typeId: HEADLESS_TYPE_ID },
-            { id: PRODUCT_COMPARISON_SALES_CHANNEL_ID, typeId: PRODUCT_COMPARISON_TYPE_ID },
-            { id: AGENTIC_COMMERCE_SALES_CHANNEL_ID, typeId: AGENTIC_COMMERCE_TYPE_ID },
+            { id: STOREFRONT_SALES_CHANNEL_ID, typeId: STOREFRONT_TYPE_ID, domains: [] },
+            // a headless channel needs a domain flagged as external storefront to support SEO URLs
+            { id: HEADLESS_SALES_CHANNEL_ID, typeId: HEADLESS_TYPE_ID, domains: [{ isExternalStorefront: true }] },
+            {
+                id: HEADLESS_NO_DOMAIN_SALES_CHANNEL_ID,
+                typeId: HEADLESS_TYPE_ID,
+                domains: [{ isExternalStorefront: false }],
+            },
+            { id: PRODUCT_COMPARISON_SALES_CHANNEL_ID, typeId: PRODUCT_COMPARISON_TYPE_ID, domains: [] },
+            { id: AGENTIC_COMMERCE_SALES_CHANNEL_ID, typeId: AGENTIC_COMMERCE_TYPE_ID, domains: [] },
         ]),
     };
 
@@ -108,7 +115,7 @@ async function createWrapper({ defaultTemplates = ALL_DEFAULTS, salesChannelTemp
         global: {
             stubs: {
                 'mt-card': { template: '<div class="mt-card"><slot name="toolbar" /><slot /></div>' },
-                'mt-banner': true,
+                'mt-banner': { template: '<div class="mt-banner"><slot /></div>' },
                 'sw-sales-channel-switch': true,
                 'sw-container': { template: '<div class="sw-container"><slot /></div>' },
                 'sw-inherit-wrapper': true,
@@ -116,6 +123,7 @@ async function createWrapper({ defaultTemplates = ALL_DEFAULTS, salesChannelTemp
                 'sw-single-select': true,
                 'sw-loader': true,
                 'mt-icon': true,
+                'router-link': true,
             },
             provide: {
                 seoUrlTemplateService,
@@ -257,6 +265,21 @@ describe('src/module/sw-settings-seo/component/sw-seo-url-template-card', () => 
             expect(wrapper.text()).toContain('sw-seo-url.textSeoUrlsNotSupported');
         },
     );
+
+    it('should show the external-storefront-required notice for a headless channel without such a domain', async () => {
+        const { wrapper } = await createWrapper();
+
+        await wrapper.vm.onSalesChannelChanged(HEADLESS_NO_DOMAIN_SALES_CHANNEL_ID);
+        await flushPromises();
+
+        expect(wrapper.vm.salesChannelIsHeadless).toBe(true);
+        expect(wrapper.vm.headlessSalesChannelHasExternalDomain).toBe(false);
+
+        // no template fields, the notice (with a link to the sales channel) is shown instead
+        expect(wrapper.findAll('.sw-seo-url-template-card__seo-url')).toHaveLength(0);
+        expect(wrapper.text()).toContain('sw-seo-url-template-card.general.textExternalStorefrontRequired');
+        expect(wrapper.find('.sw-seo-url-template-card__external-storefront-link').exists()).toBe(true);
+    });
 
     it('should provide the inherited default placeholder for a headless template of a concrete channel', async () => {
         const { wrapper } = await createWrapper();

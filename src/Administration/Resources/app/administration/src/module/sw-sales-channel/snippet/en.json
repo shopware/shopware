@@ -206,8 +206,9 @@
                     "518400": "6 days",
                     "604800": "1 week"
                 },
-                "storefront": "Storefront Sales Channel",
-                "storefrontDomain": "Storefront domain",
+                "storefront": "Sales Channel",
+                "storefrontDomain": "Domain",
+                "storefrontDomainHelpText": "For headless sales channels, only domains marked as an external storefront are selectable here. Mark a domain as external storefront in the sales channel's domain settings.",
                 "storefrontDomainLanguage": {
                     "label": "Language",
                     "help": "Automatically selected by Sales Channel domain"

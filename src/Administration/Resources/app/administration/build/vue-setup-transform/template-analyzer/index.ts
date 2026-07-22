@@ -16,26 +16,19 @@ import { NodeTypes, parse as parseTemplate } from '@vue/compiler-dom';
 import type { TemplateChildNode } from '@vue/compiler-core';
 import type { ShopwareSetupScriptAnalysis } from '../script-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
-import { collectExpressionReferences } from './expression-references';
 import {
-    type ElementNode,
     type SlotMapping,
     type TemplateEdit,
-    collectSlotScopeNames,
-    collectSlotScopeReferences,
     collectTemplateReferences,
-    getDefaultSlotDirective,
-    hasSwBlockDataProp,
     isSwBlockExtends,
     isSwBlockName,
 } from './template-references';
 import {
-    assertNoCatchAllSlotScope,
-    assertNoReservedOverrideSlotScope,
+    assertNoAuthoredSwBlockBindings,
+    createGeneratedSlotEdit,
     createPrivateSlotMapping,
-    createSlotMergeEdit,
     findOpeningTagNameEnd,
-} from './slot-scope-merge';
+} from './sw-block-bindings';
 
 /**
  * Carries template source edits plus the private setup bindings that must be returned by an override.
@@ -87,17 +80,14 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
     const privateNamespace = createOverridePrivateNamespace(block.filename, block.componentName);
 
     function visit(node: TemplateChildNode): void {
-        if (isSwBlockExtends(node)) {
-            const slotDirective = getDefaultSlotDirective(node);
-            assertNoReservedOverrideSlotScope(slotDirective);
-            assertNoCatchAllSlotScope(slotDirective);
+        if (node.type === NodeTypes.ELEMENT && node.tag === 'sw-block') {
+            assertNoAuthoredSwBlockBindings(node as Parameters<typeof assertNoAuthoredSwBlockBindings>[0]);
+        }
 
-            const slotScope = collectSlotScopeNames(slotDirective);
-            const references = collectTemplateReferences(node.children, slotScope);
+        if (isSwBlockExtends(node)) {
+            const references = collectTemplateReferences(node.children, new Set());
             const publicMappings: SlotMapping[] = [];
             const privateLocalNames: string[] = [];
-
-            collectSlotScopeReferences(slotDirective, new Set()).forEach((name) => references.add(name));
 
             analysis.runtimeBindings.forEach((binding) => {
                 if (!references.has(binding.name)) {
@@ -136,7 +126,7 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
             ];
 
             if (mappings.length > 0) {
-                edits.push(createSlotMergeEdit(block, node, slotDirective, mappings));
+                edits.push(createGeneratedSlotEdit(block, node, mappings));
             }
         }
 
@@ -171,7 +161,11 @@ function analyzeBaseTemplate(block: ShopwareSetupBlock): TemplateAnalysis {
     const edits: TemplateEdit[] = [];
 
     function visit(node: TemplateChildNode): void {
-        if (isSwBlockName(node) && !hasSwBlockDataProp(node)) {
+        if (node.type === NodeTypes.ELEMENT && node.tag === 'sw-block') {
+            assertNoAuthoredSwBlockBindings(node as Parameters<typeof assertNoAuthoredSwBlockBindings>[0]);
+        }
+
+        if (isSwBlockName(node)) {
             if (!block.template) {
                 return;
             }

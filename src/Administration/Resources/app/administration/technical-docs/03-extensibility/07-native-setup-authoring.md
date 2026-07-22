@@ -92,9 +92,9 @@ Base mode is auto-private by default. Supported top-level local runtime bindings
 
 Macro-derived bindings are treated the same way: `const props = defineProps(...)`, `const emit = defineEmits(...)`, and `const slots = defineSlots(...)` become private state under their declared names, so the template can reference `emit`, `slots`, and `props.<name>` directly. Generated internal bindings use a reserved `__swSetup` prefix, which is why top-level author bindings may not use it.
 
-Base mode also adds `:data="$dataScope"` to every `<sw-block name="...">` that does not already declare `data`, `:data`, or `v-bind:data`. This forwards the generated script setup data scope to block overrides without requiring every base block author to write it manually.
+Base mode also adds `:data="$dataScope"` to every `<sw-block name="...">`. This forwards the generated script setup data scope to block overrides without requiring every base block author to write it manually. The `data` binding and the default slot scope of `<sw-block>` are owned by the transform: authoring `data`, `#default`, or a `v-bind` object on `<sw-block>` is rejected.
 
-Override mode requires `swDefineOverride({...})`. Only bindings listed there replace base state. Override-local bindings are returned under deterministic private aliases only when they are referenced inside `<sw-block extends>` template content, and the transform merges those aliases into the block's default slot scope.
+Override mode requires `swDefineOverride({...})`. Only bindings listed there replace base state. Override-local bindings are returned under deterministic private aliases only when they are referenced inside `<sw-block extends>` template content, and the transform exposes those aliases through the generated default slot scope of the extended block.
 
 Runtime inputs are explicit. Base component props use Vue's native `defineProps(...)` or `withDefaults(defineProps(...), ...)` macros. Override props use a helper because override files cannot declare the base component's props with `defineProps(...)`.
 
@@ -183,8 +183,7 @@ The transform rejects these cases loudly:
 - Top-level `await`
 - Non-top-level, duplicate, spread, renamed/string/computed-key, or non-object-literal `swDefinePublic()` usage
 - Missing, non-top-level, duplicate, spread, renamed/string/computed-key, or non-object-literal `swDefineOverride()` usage in override mode
-- A rest element (`...`) in a `<sw-block extends="...">` default slot scope, because the transform injects override state into that scope and a rest binding would silently stop capturing the injected bindings
-- `__swOverride` as a slot-scope binding on `<sw-block extends="...">`, which is reserved for the generated override-private state channel
+- Authored `#default`, `data`, or `v-bind` bindings on `<sw-block>`, because the transform generates the block's slot scope and data bindings
 - Top-level bindings using the reserved `__swSetup` prefix, which the transform uses for its generated bindings
 - Additional `<script>` blocks next to Shopware setup blocks
 

@@ -434,11 +434,11 @@ describe("Cookie reCAPTCHA Integration tests", () => {
 		);
 	});
 
-	test("integration: cookie bar does not show when reCAPTCHA cookies are accepted", () => {
-		// Mock that reCAPTCHA cookies are accepted
+	test("integration: cookie bar does not show when cookie consent is accepted", () => {
+		// Mock that the user accepted cookie consent. 'cookie-preference' is the
+		// same signal that gates registerGoogleReCaptchaPlugins() in main.js.
 		CookieStorage.getItem.mockImplementation((cookieName) => {
-			if (cookieName === "cookie-preference") return null; // No cookie bar preference set
-			if (cookieName === "_GRECAPTCHA") return "1"; // reCAPTCHA cookies accepted
+			if (cookieName === "cookie-preference") return "1"; // Cookie consent accepted
 			return null;
 		});
 
@@ -560,13 +560,15 @@ describe("Cookie reCAPTCHA Integration tests", () => {
 		);
 	});
 
-	test("integration: shows cookie bar when cookie-preference is set but _GRECAPTCHA cookie is missing", () => {
-		// This simulates the edge case where cookie-preference was set to 1
-		// but the cookie permission plugin wasn't properly initialized,
-		// so _GRECAPTCHA cookie is missing
+	test("integration: shows cookie bar when consent was revoked but a stale _GRECAPTCHA cookie remains (regression #18239)", () => {
+		// Reproduces the reported bug: the user accepted cookies once, then revoked
+		// consent. '_GRECAPTCHA' is a technically-required cookie that is not removed
+		// on revoke, while 'cookie-preference' is. The validator must not trust the
+		// stale '_GRECAPTCHA' cookie, otherwise the form submits without a token and
+		// fails server-side with a 500 (CaptchaException).
 		CookieStorage.getItem.mockImplementation((cookieName) => {
-			if (cookieName === "cookie-preference") return "1"; // Cookie bar preference is set
-			if (cookieName === "_GRECAPTCHA") return null; // But reCAPTCHA cookies are missing
+			if (cookieName === "cookie-preference") return null; // Consent revoked
+			if (cookieName === "_GRECAPTCHA") return "1"; // Stale cookie remains
 			return null;
 		});
 
@@ -595,7 +597,7 @@ describe("Cookie reCAPTCHA Integration tests", () => {
 
 		// Assertions - field should fail both grecaptcha and required validations
 		expect(validationResult).toEqual(["grecaptcha", "required"]);
-		expect(showCookieBarSpy).toHaveBeenCalled(); // Cookie bar should be shown despite cookie-preference being set
+		expect(showCookieBarSpy).toHaveBeenCalled(); // Cookie bar should be shown despite the stale _GRECAPTCHA cookie
 		expect(testCookiePlugin.$emitter.publish).toHaveBeenCalledWith("showCookieBar");
 	});
 });

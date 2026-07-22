@@ -397,6 +397,45 @@ class ProductDetailRouteTest extends TestCase
         $this->assertArray($expected, $response);
     }
 
+    public function testRecursionEncodingWithLayoutAndSortedProperties(): void
+    {
+        // regression test for: #18525
+        $product = (new ProductBuilder($this->ids, 'with-layout-and-properties'))
+            ->price(100)
+            ->property('red', 'color')
+            ->property('blue', 'color')
+            ->visibility($this->ids->get('sales-channel'))
+            ->layout('l1')
+            ->build();
+
+        static::getContainer()->get('product.repository')
+            ->create([$product], Context::createDefaultContext());
+
+        $this->browser->request(
+            'POST',
+            $this->getUrl($this->ids->get('with-layout-and-properties')),
+            [
+                'associations' => [
+                    'properties' => [
+                        'associations' => [
+                            'group' => [],
+                        ],
+                    ],
+                ],
+            ]
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), print_r($response, true));
+
+        $sortedProperties = $response['product']['sortedProperties'] ?? null;
+        static::assertIsArray($sortedProperties);
+        static::assertCount(1, $sortedProperties);
+        static::assertSame('color', $sortedProperties[0]['translated']['name'] ?? null);
+        static::assertCount(2, $sortedProperties[0]['options'] ?? []);
+    }
+
     public function testLoadProductCmsSlotConfigFromParentLanguageOverride(): void
     {
         $context = Context::createDefaultContext();

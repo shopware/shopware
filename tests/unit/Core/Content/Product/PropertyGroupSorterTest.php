@@ -166,7 +166,7 @@ class PropertyGroupSorterTest extends TestCase
      * @param class-string<PropertyGroupOptionEntity|PartialEntity> $entityType
      */
     #[DataProvider('optionEntityTypeProvider')]
-    public function testNormalizedOptionsHaveGroupReference(string $entityType, bool $partialGroups): void
+    public function testNormalizedOptionsKeepGroupIdWithoutBackReference(string $entityType, bool $partialGroups): void
     {
         $groupId = Uuid::randomHex();
         $group = $this->createGroup($groupId, PropertyGroupDefinition::SORTING_TYPE_POSITION, true, $partialGroups);
@@ -188,7 +188,92 @@ class PropertyGroupSorterTest extends TestCase
         $normalizedOption = $groupOptions->first();
         static::assertNotNull($normalizedOption);
         static::assertSame($groupId, $normalizedOption->getGroupId());
-        static::assertSame($sortedGroup, $normalizedOption->getGroup());
+
+        if ($entityType === PropertyGroupOptionEntity::class) {
+            static::assertSame($group, $normalizedOption->getGroup());
+        } else {
+            static::assertNull($normalizedOption->getGroup());
+        }
+    }
+
+    public function testInputOptionsAreNotMutated(): void
+    {
+        $groupId = Uuid::randomHex();
+        $group = $this->createGroup($groupId, PropertyGroupDefinition::SORTING_TYPE_POSITION, true);
+        \assert($group instanceof PropertyGroupEntity);
+
+        $option = $this->createPropertyGroupOption($groupId, 'red', 1, $group);
+
+        $sorter = new PropertyGroupSorter();
+        $result = $sorter->sortUsingLocaleCode($this->createOptionsCollection($option), 'en-GB');
+
+        static::assertSame($group, $option->getGroup());
+
+        $sortedGroup = $result->first();
+        static::assertNotNull($sortedGroup);
+
+        $groupOptions = $sortedGroup->getOptions();
+        static::assertInstanceOf(PropertyGroupOptionCollection::class, $groupOptions);
+
+        $normalizedOption = $groupOptions->first();
+        static::assertNotNull($normalizedOption);
+        static::assertNotSame($option, $normalizedOption);
+    }
+
+    /**
+     * The sorter must not wire options back to the sorted group: such a cycle makes every
+     * deep clone of the result graph recurse infinitely (CloneTrait has no cycle tracking).
+     *
+     * @param class-string<PropertyGroupOptionEntity|PartialEntity> $entityType
+     */
+    #[DataProvider('optionEntityTypeProvider')]
+    public function testResultGraphHasNoCycles(string $entityType, bool $partialGroups): void
+    {
+        $groupId = Uuid::randomHex();
+        $group = $this->createGroup($groupId, PropertyGroupDefinition::SORTING_TYPE_POSITION, true, $partialGroups);
+
+        $options = $this->createOptionsCollection(
+            $this->createOption($entityType, $groupId, 'blue', 2, $group),
+            $this->createOption($entityType, $groupId, 'red', 1, $group),
+        );
+
+        $sorter = new PropertyGroupSorter();
+        $result = $sorter->sortUsingLocaleCode($options, 'en-GB');
+
+        foreach ($result as $sortedGroup) {
+            $groupOptions = $sortedGroup->getOptions();
+            static::assertInstanceOf(PropertyGroupOptionCollection::class, $groupOptions);
+
+            foreach ($groupOptions as $normalizedOption) {
+                static::assertNotSame($sortedGroup, $normalizedOption->getGroup());
+            }
+        }
+    }
+
+    public function testSortingTwiceProducesSameResult(): void
+    {
+        $groupId = Uuid::randomHex();
+        $group = $this->createGroup($groupId, PropertyGroupDefinition::SORTING_TYPE_POSITION, true);
+        \assert($group instanceof PropertyGroupEntity);
+
+        $options = $this->createOptionsCollection(
+            $this->createPropertyGroupOption($groupId, 'blue', 2, $group),
+            $this->createPropertyGroupOption($groupId, 'red', 1, $group),
+        );
+
+        $sorter = new PropertyGroupSorter();
+
+        $firstResult = $sorter->sortUsingLocaleCode($options, 'en-GB');
+        $secondResult = $sorter->sortUsingLocaleCode($options, 'en-GB');
+
+        foreach ([$firstResult, $secondResult] as $result) {
+            $sortedGroup = $result->first();
+            static::assertNotNull($sortedGroup);
+
+            $groupOptions = $sortedGroup->getOptions();
+            static::assertInstanceOf(PropertyGroupOptionCollection::class, $groupOptions);
+            static::assertSame(['red', 'blue'], $this->extractOptionNames($groupOptions));
+        }
     }
 
     private function createGroup(string $id, string $sortingType, bool $visibleOnProductDetailPage, bool $partial = false): Entity

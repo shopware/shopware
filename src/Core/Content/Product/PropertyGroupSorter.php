@@ -57,9 +57,10 @@ class PropertyGroupSorter extends AbstractPropertyGroupSorter
                 $sorted[$groupId] = $group;
             }
 
+            // Never point the option back to the sorted group: the resulting cycle breaks
+            // every deep clone of the graph, as CloneTrait does not track visited objects.
             $normalizedOption = $this->normalizeOption($option);
             $normalizedOption->setGroupId($groupId);
-            $normalizedOption->setGroup($sorted[$groupId]);
 
             \assert($sorted[$groupId]->getOptions() instanceof PropertyGroupOptionCollection);
 
@@ -112,7 +113,8 @@ class PropertyGroupSorter extends AbstractPropertyGroupSorter
     private function normalizeOption(PropertyGroupOptionEntity|PartialEntity $entity): PropertyGroupOptionEntity
     {
         if ($entity instanceof PropertyGroupOptionEntity) {
-            return $entity;
+            // Shallow copy, so the caller's entity is not mutated by the assignments above
+            return PropertyGroupOptionEntity::createFrom($entity);
         }
 
         $normalized = new PropertyGroupOptionEntity();

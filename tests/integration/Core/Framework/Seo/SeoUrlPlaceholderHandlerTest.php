@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
 
 /**
@@ -39,7 +40,7 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
         $router = $this->createMock(Router::class);
         $router->method('generate')
             ->willReturnCallback(static fn ($name, $params) => match ($name) {
-                'frontend.detail.page' => '/detail/' . ($params['productId'] ?? ''),
+                ProductPageSeoUrlRoute::ROUTE_NAME => '/detail/' . ($params['productId'] ?? ''),
                 'frontend.navigation.page' => '/navigation/' . ($params['navigationId'] ?? ''),
                 default => '',
             });
@@ -59,7 +60,7 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
 
         $salesChannelContext = $this->createStorefrontSalesChannelContext(Uuid::randomHex(), 'test storefront');
 
-        $generated = $this->seoUrlPlaceholderHandler->generate('frontend.detail.page', ['productId' => $productId]);
+        $generated = $this->seoUrlPlaceholderHandler->generate(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $productId]);
 
         $content = \sprintf($template, $generated);
         $actual = $this->seoUrlPlaceholderHandler->replace($content, $host, $salesChannelContext);
@@ -77,7 +78,7 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
 
         $salesChannelContext = $this->createStorefrontSalesChannelContext(Uuid::randomHex(), 'test storefront');
 
-        $generated = $this->seoUrlPlaceholderHandler->generate('frontend.detail.page', ['productId' => $productId]);
+        $generated = $this->seoUrlPlaceholderHandler->generate(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $productId]);
 
         $content = \sprintf($template, $generated);
         $actual = $this->seoUrlPlaceholderHandler->replace($content, $host, $salesChannelContext);
@@ -96,8 +97,8 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
 
         $salesChannelContext = $this->createStorefrontSalesChannelContext(Uuid::randomHex(), 'test storefront');
 
-        $generated1 = $this->seoUrlPlaceholderHandler->generate('frontend.detail.page', ['productId' => $productId1]);
-        $generated2 = $this->seoUrlPlaceholderHandler->generate('frontend.detail.page', ['productId' => $productId2]);
+        $generated1 = $this->seoUrlPlaceholderHandler->generate(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $productId1]);
+        $generated2 = $this->seoUrlPlaceholderHandler->generate(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $productId2]);
 
         $content = \sprintf($template, $generated1, $generated2);
         $actual = $this->seoUrlPlaceholderHandler->replace($content, $host, $salesChannelContext);
@@ -116,8 +117,8 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
 
         $salesChannelContext = $this->createStorefrontSalesChannelContext(Uuid::randomHex(), 'test storefront');
 
-        $generated1 = $this->seoUrlPlaceholderHandler->generate('frontend.detail.page', ['productId' => $productId]);
-        $generated2 = $this->seoUrlPlaceholderHandler->generate('frontend.detail.page', ['productId' => $productId]);
+        $generated1 = $this->seoUrlPlaceholderHandler->generate(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $productId]);
+        $generated2 = $this->seoUrlPlaceholderHandler->generate(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $productId]);
 
         $content = \sprintf($template, $generated1, $generated2);
         $actual = $this->seoUrlPlaceholderHandler->replace($content, $host, $salesChannelContext);
@@ -136,7 +137,7 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
 
         $salesChannelContext = $this->createStorefrontSalesChannelContext(Uuid::randomHex(), 'test storefront');
 
-        $generated1 = $this->seoUrlPlaceholderHandler->generate('frontend.detail.page', ['productId' => $productId]);
+        $generated1 = $this->seoUrlPlaceholderHandler->generate(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $productId]);
         $generated2 = $this->seoUrlPlaceholderHandler->generate('frontend.navigation.page', ['navigationId' => $categoryId]);
 
         $content = \sprintf($template, $generated1, $generated2);
@@ -193,7 +194,7 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
         $host = 'http://foo.text:8000/de';
         $template = 'SEO 1: %s and SEO 2: %s';
 
-        $generated1 = $this->seoUrlPlaceholderHandler->generate('frontend.detail.page', ['productId' => $productId]);
+        $generated1 = $this->seoUrlPlaceholderHandler->generate(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $productId]);
         $generated2 = $this->seoUrlPlaceholderHandler->generate('frontend.navigation.page', ['navigationId' => $categoryId]);
 
         $content = \sprintf($template, $generated1, $generated2);

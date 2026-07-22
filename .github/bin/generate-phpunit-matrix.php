@@ -36,7 +36,7 @@ $db = ['mysql:8.0'];
 
 if ($nightly) {
     $php = ['8.2', '8.5'];
-    $db = ['mysql:8.0', 'mariadb:11', 'quay.io/mariadb-foundation/mariadb-devel:verylatest'];
+    $db = ['mysql:8.0', 'mariadb:11', 'mariadb:12.3', 'quay.io/mariadb-foundation/mariadb-devel:verylatest'];
 }
 
 $matrix = [

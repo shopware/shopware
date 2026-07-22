@@ -18,8 +18,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[Group('store-api')]
 #[Package('checkout')]
+#[Group('store-api')]
 class PaymentMethodRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

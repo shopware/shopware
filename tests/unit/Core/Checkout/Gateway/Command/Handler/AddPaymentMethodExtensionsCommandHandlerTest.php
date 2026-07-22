@@ -21,8 +21,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(AddPaymentMethodExtensionsCommandHandler::class)]
 #[Package('checkout')]
+#[CoversClass(AddPaymentMethodExtensionsCommandHandler::class)]
 class AddPaymentMethodExtensionsCommandHandlerTest extends TestCase
 {
     public function testSupportedCommands(): void

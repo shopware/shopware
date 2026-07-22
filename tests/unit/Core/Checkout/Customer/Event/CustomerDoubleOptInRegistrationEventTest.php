@@ -16,8 +16,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(CustomerDoubleOptInRegistrationEvent::class)]
 #[Package('checkout')]
+#[CoversClass(CustomerDoubleOptInRegistrationEvent::class)]
 class CustomerDoubleOptInRegistrationEventTest extends TestCase
 {
     public function testRestoreScalarValuesCorrectly(): void

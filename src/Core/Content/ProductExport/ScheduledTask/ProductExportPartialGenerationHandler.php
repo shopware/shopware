@@ -32,8 +32,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[AsMessageHandler]
 #[Package('inventory')]
+#[AsMessageHandler]
 final readonly class ProductExportPartialGenerationHandler
 {
     /**

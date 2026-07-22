@@ -13,7 +13,7 @@ use Twig\Extension\CoreExtension;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class TwigDateRequestListener
 {
     final public const TIMEZONE_COOKIE = 'timezone';

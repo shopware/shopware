@@ -9,11 +9,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(QueryBuilder::class)]
 class QueryBuilderTest extends TestCase
 {

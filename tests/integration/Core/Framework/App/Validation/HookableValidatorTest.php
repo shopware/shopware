@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\Validation\Error\MissingPermissionError;
 use Shopware\Core\Framework\App\Validation\Error\NotHookableError;
 use Shopware\Core\Framework\App\Validation\HookableValidator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\Event\CommercialLicenseProvidedEvent;
@@ -15,6 +16,7 @@ use Shopware\Core\Service\Event\CommercialLicenseProvidedEvent;
 /**
  * @internal
  */
+#[Package('framework')]
 class HookableValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;

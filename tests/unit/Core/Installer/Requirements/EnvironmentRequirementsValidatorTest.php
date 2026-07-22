@@ -12,6 +12,7 @@ use Composer\Semver\VersionParser;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Requirements\EnvironmentRequirementsValidator;
 use Shopware\Core\Installer\Requirements\Struct\RequirementCheck;
 use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
@@ -20,6 +21,7 @@ use Shopware\Core\Installer\Requirements\Struct\SystemCheck;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EnvironmentRequirementsValidator::class)]
 class EnvironmentRequirementsValidatorTest extends TestCase
 {

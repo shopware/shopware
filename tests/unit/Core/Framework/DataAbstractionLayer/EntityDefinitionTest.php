@@ -10,11 +10,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EntityDefinition::class)]
 class EntityDefinitionTest extends TestCase
 {

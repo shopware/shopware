@@ -86,7 +86,7 @@ const props = withDefaults(defineProps<{ initialCount?: number }>(), {
 
 ## Runtime Lowering
 
-The preprocessor runs before Vue compiles the SFC. Base components are lowered directly through `createExtendableSetup(...)`. Overrides are lowered to import-time `overrideComponentSetup(...)` registration so imported override SFC files register without needing to be mounted.
+The preprocessor runs before Vue compiles the SFC. Base components are lowered directly through `createExtendableSetup(...)`. Overrides stay `<script setup>` components whose body registers an `overrideComponentSetup(...)` callback; each override component is rendered once in a hidden container at boot, which runs the registration and lets `<sw-block extends>` template content register its block overrides. A template-less override receives a generated comment-only template so the hidden component can mount without a missing-render warning.
 
 Base mode is auto-private by default. Supported top-level local runtime bindings become private state unless they are listed in `swDefinePublic({...})`. Public state is the public override API surface. Private state is still normal component/template state; it is only hidden from the top-level public override API and remains available to overrides through `_private`.
 

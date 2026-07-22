@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\SalesChannelRequest;
@@ -21,6 +22,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(SalesChannelDomainUtil::class)]
 class SalesChannelDomainUtilTest extends TestCase
 {

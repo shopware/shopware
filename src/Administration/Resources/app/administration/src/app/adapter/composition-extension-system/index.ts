@@ -169,10 +169,7 @@ const getComponentContext = (): SetupContext => {
 };
 
 /**
- * Requires overrideable public state to match the component API mapping exactly.
- *
- * Extra public keys would be accepted structurally by TypeScript, but runtime overrides rely on the
- * mapping as the stable public contract; private state belongs in the separate `private` result.
+ * This utility type is used to require the the exact shape of a type.
  */
 type Exact<T, Shape> = T extends Shape ? (Exclude<keyof T, keyof Shape> extends never ? T : never) : never;
 

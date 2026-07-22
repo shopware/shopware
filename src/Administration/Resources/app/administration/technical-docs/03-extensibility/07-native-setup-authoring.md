@@ -195,24 +195,3 @@ Malformed or unclosed SFC sections are left to Vue's compiler parser. If `@vue/c
 All parser-sensitive behavior lives in `build/vue-setup-transform`, with smaller helpers grouped in `build/vue-setup-transform/utils`. SFC block detection uses Vue's `@vue/compiler-sfc` parser first and reads `descriptor.scriptSetup`; mode and component name come from the normalized SFC filename. Plain `<script>` blocks are not candidates for transformation.
 
 Vue's SFC parser deliberately treats fake `<script setup>` text inside HTML comments, templates, styles, and script bodies as non-top-level content. Malformed sections fail loudly instead of producing partial transforms.
-
-## Biome and oxlint outlook
-
-Direct Biome support is not included. Biome's Vue support is still partial, so Shopware setup lowering stays behind the shared preprocessor boundary until Biome has a stable SFC extension point.
-
-Direct oxlint support is not included. oxlint has JavaScript plugin support for ESLint-compatible rules, but that path is still documented as alpha. Keeping `valid-shopware-setup` as a focused ESLint-compatible rule and keeping parser logic outside the rule keeps that integration straightforward.
-
-## Proposals
-
-Full macro support could be added by mapping more Vue macros to explicit Shopware equivalents. Props, emits, and slots declaration macros are currently supported for base components by hoisting one declaration each and replacing the original call inside the extendable setup callback. Expose declarations are replaced with the setup context expose function inside the callback. Options declarations are supported by preserving one top-level `defineOptions(...)` call in the generated script setup root.
-
-Reactive props destructure (`const { count = 0 } = defineProps()`) could be supported by mirroring `@vue/compiler-sfc`'s `propsDestructure` transform: fold each destructure default into the hoisted props declaration, rewrite every reference to the destructured binding to `props.<name>` (scope-aware), and stop returning those names as setup state. That would require maintaining a reference-rewrite pass, so it is deliberately left out; the transform rejects destructured props macros instead.
-
-Top-level await could be supported only if the extension runtime becomes async-first for both base setup and override application. Until that runtime contract changes, top-level setup stays synchronous.
-
-## Discussion
-
-Open design questions should be recorded here:
-
-- Should string-literal public keys that are not valid JavaScript identifiers receive a documented template aliasing convention?
-- Which future Volar plugin API version should be treated as the minimum supported editor integration target?

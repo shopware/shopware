@@ -85,6 +85,9 @@ return $config
     /** Somehow triggered in our CI job and might not be valid locally */
     ->ignoreErrorsOnPackage('symfony/polyfill-php83', [ErrorType::UNUSED_DEPENDENCY])
 
+    /** Provides mb_ltrim() on PHP 8.2 and 8.3 */
+    ->ignoreErrorsOnPackage('symfony/polyfill-mbstring', [ErrorType::UNUSED_DEPENDENCY])
+
     /** @deprecated tag:v6.8.0 - Remove these dependencies from the composer.json files */
     ->ignoreErrorsOnPackages([
         'doctrine/inflector',

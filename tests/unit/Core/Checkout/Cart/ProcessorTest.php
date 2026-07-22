@@ -21,8 +21,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(Processor::class)]
 #[Package('checkout')]
+#[CoversClass(Processor::class)]
 class ProcessorTest extends TestCase
 {
     public function testProcessKeepsPersistedStateOfOriginalCart(): void

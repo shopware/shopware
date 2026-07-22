@@ -120,14 +120,16 @@ export function parseCli(argv: string[], spec: CommandSpec): ParsedArgs {
     return { values, flags, help: false };
 }
 
+function optionLabel(flag: FlagSpec): string {
+    return flag.value === 'required' ? `${flag.name}=${flag.valueName ?? '<value>'}` : flag.name;
+}
+
 export function renderHelp(spec: CommandSpec): string {
     const visibleFlags = spec.flags.filter((flag) => !flag.internal);
-    const usageEntries = visibleFlags.map((flag) =>
-        flag.value === 'required' ? `${flag.name}=${flag.valueName ?? '<value>'}` : flag.name,
-    );
+    const usageEntries = visibleFlags.map(optionLabel);
     const optionRows: Array<[string, string]> = [
         ...visibleFlags.map((flag): [string, string] => [
-            flag.value === 'required' ? `${flag.name}=${flag.valueName ?? '<value>'}` : flag.name,
+            optionLabel(flag),
             flag.description,
         ]),
         [

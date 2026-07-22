@@ -12,62 +12,22 @@
  *    verdict depends on), so both commands render the same state.
  */
 
-import { execFile } from 'child_process';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
-import { promisify } from 'util';
 import ts from 'typescript';
+import { PROCESS_TIMEOUT_MS, runCommand } from './probe-command';
+import type { CommandResult } from './probe-command';
 import { SHIM_DIR_NAME, STATE_DIR, writeStateFile } from './shared';
 import type { AdministrationTarget, ModeReason, ModeResolution } from './shared';
 
-const execFileAsync = promisify(execFile);
-
-export const PROCESS_TIMEOUT_MS = 10 * 60 * 1000;
-const MAX_BUFFER = 100 * 1024 * 1024;
+// The child-process runner lives in ./probe-command; these bindings are
+// re-exported so ./probe stays the single import surface callers and specs use.
+export { PROCESS_TIMEOUT_MS, runCommand };
+export type { CommandResult };
 
 /** How deep an `extends` chain is followed before giving up. */
 const MAX_EXTENDS_DEPTH = 10;
-
-export interface CommandResult {
-    status: number;
-    output: string;
-    durationMs: number;
-    timedOut: boolean;
-}
-
-export async function runCommand(command: string, args: string[], cwd: string): Promise<CommandResult> {
-    const startedAt = Date.now();
-
-    try {
-        const { stdout, stderr } = await execFileAsync(command, args, {
-            cwd,
-            timeout: PROCESS_TIMEOUT_MS,
-            maxBuffer: MAX_BUFFER,
-        });
-
-        return {
-            status: 0,
-            output: `${stdout ?? ''}${stderr ? `\n${stderr}` : ''}`.trim(),
-            durationMs: Date.now() - startedAt,
-            timedOut: false,
-        };
-    } catch (error) {
-        const failure = error as NodeJS.ErrnoException & {
-            stdout?: string;
-            stderr?: string;
-            code?: number | string;
-            killed?: boolean;
-        };
-
-        return {
-            status: typeof failure.code === 'number' ? failure.code : 1,
-            output: `${failure.stdout ?? ''}${failure.stderr ? `\n${failure.stderr}` : ''}`.trim() || failure.message,
-            durationMs: Date.now() - startedAt,
-            timedOut: failure.killed === true,
-        };
-    }
-}
 
 export interface StaticConfigAnalysis {
     /** The `extends` chain reaches the shipped preset or a generated bridge. */
@@ -103,6 +63,32 @@ function parseTsconfig(configPath: string): { config?: Record<string, unknown>; 
     return { config: parsed.config as Record<string, unknown> };
 }
 
+/** The `extends` field as a list; a single specifier — or none — normalizes to a one-element array. */
+function extendsSpecifiers(config: Record<string, unknown> | undefined): unknown[] {
+    const value = config?.extends;
+
+    return Array.isArray(value) ? value : [value];
+}
+
+/**
+ * Resolves a local `extends` specifier to an absolute path, applying tsconfig's
+ * implicit `.json` extension. Returns null for bare package specifiers — a
+ * preset reached through node_modules is not this tool's contract.
+ */
+function resolveLocalExtends(fromConfigPath: string, specifier: unknown): string | null {
+    if (typeof specifier !== 'string' || !specifier.startsWith('.')) {
+        return null;
+    }
+
+    const resolved = path.resolve(path.dirname(fromConfigPath), specifier);
+
+    if (!fs.existsSync(resolved) && fs.existsSync(`${resolved}.json`)) {
+        return `${resolved}.json`;
+    }
+
+    return resolved;
+}
+
 export function analyzeTsConfigStatically(tsconfigPath: string): StaticConfigAnalysis {
     const root = parseTsconfig(tsconfigPath);
 
@@ -124,23 +110,10 @@ export function analyzeTsConfigStatically(tsconfigPath: string): StaticConfigAna
         const next: typeof frontier = [];
 
         for (const { configPath, config } of frontier) {
-            const extendsValue = config.extends;
-            const extendsList = Array.isArray(extendsValue) ? extendsValue : [extendsValue];
+            for (const specifier of extendsSpecifiers(config)) {
+                const resolved = resolveLocalExtends(configPath, specifier);
 
-            for (const specifier of extendsList) {
-                // Bare package specifiers are not followed — a preset reached
-                // through node_modules is not this tool's contract anyway.
-                if (typeof specifier !== 'string' || !specifier.startsWith('.')) {
-                    continue;
-                }
-
-                let resolved = path.resolve(path.dirname(configPath), specifier);
-
-                if (!fs.existsSync(resolved) && fs.existsSync(`${resolved}.json`)) {
-                    resolved = `${resolved}.json`;
-                }
-
-                if (visited.has(resolved)) {
+                if (resolved === null || visited.has(resolved)) {
                     continue;
                 }
 
@@ -285,6 +258,19 @@ export function resolveStaticEslintMode(eslintConfigPath: string | null): ModeRe
     return { mode: 'bridged', verified: false };
 }
 
+/** Why a live tsc probe rules a config unmanaged, once its resolved program is known not to inject the surface. */
+function tsUnmanagedReason(analysis: StaticConfigAnalysis): ModeReason {
+    if (analysis.declaresFiles) {
+        return 'files-override';
+    }
+
+    if (!analysis.reachesPreset) {
+        return 'not-extending';
+    }
+
+    return 'surface-not-injected';
+}
+
 /**
  * Live probe: a custom tsconfig composes the Shopware preset when its
  * resolved configuration reaches the shipped type surface (directly or
@@ -333,11 +319,7 @@ export async function probeTsMode(
     }
 
     const analysis = analyzeTsConfigStatically(tsconfigPath);
-    const reason = analysis.declaresFiles
-        ? 'files-override'
-        : !analysis.reachesPreset
-          ? 'not-extending'
-          : 'surface-not-injected';
+    const reason = tsUnmanagedReason(analysis);
 
     return { mode: 'unmanaged', reason, detail: detailForTsReason(reason, analysis), verified: true };
 }
@@ -425,25 +407,16 @@ export function collectLocalTsconfigChain(tsconfigPath: string): string[] {
 
         for (const configPath of frontier) {
             const parsed = parseTsconfig(configPath);
-            const extendsValue = parsed.config?.extends;
 
-            for (const specifier of Array.isArray(extendsValue) ? extendsValue : [extendsValue]) {
-                // Only local extends are inputs we can hash; a bare package
-                // specifier is not part of this tool's contract.
-                if (typeof specifier !== 'string' || !specifier.startsWith('.')) {
+            for (const specifier of extendsSpecifiers(parsed.config)) {
+                const resolved = resolveLocalExtends(configPath, specifier);
+
+                if (resolved === null || collected.has(resolved)) {
                     continue;
                 }
 
-                let resolved = path.resolve(path.dirname(configPath), specifier);
-
-                if (!fs.existsSync(resolved) && fs.existsSync(`${resolved}.json`)) {
-                    resolved = `${resolved}.json`;
-                }
-
-                if (!collected.has(resolved)) {
-                    collected.add(resolved);
-                    next.push(resolved);
-                }
+                collected.add(resolved);
+                next.push(resolved);
             }
         }
 
@@ -491,19 +464,23 @@ export function probeInputFiles(
 ): { ts: string[]; eslint: string[] } {
     const adminFolder = path.resolve(projectRoot, target.adminFolder);
     const eslintConfig = target.eslintConfig ? path.resolve(projectRoot, target.eslintConfig) : null;
+
+    const tsExtendsChain = target.tsconfig ? collectLocalTsconfigChain(path.resolve(projectRoot, target.tsconfig)) : [];
+    const eslintConfigInputs = eslintConfig
+        ? [
+              eslintConfig,
+              ...collectLocalEslintImports(eslintConfig),
+          ]
+        : [];
+
     const tsFiles = new Set<string>([
-        ...(target.tsconfig ? collectLocalTsconfigChain(path.resolve(projectRoot, target.tsconfig)) : []),
+        ...tsExtendsChain,
         path.join(adminFolder, SHIM_DIR_NAME, 'tsconfig.json'),
         path.join(adminFolder, 'tsconfig.aliases.json'),
         path.join(administrationRoot, 'extension-tooling', 'tsconfig.base.json'),
     ]);
     const eslintFiles = new Set<string>([
-        ...(eslintConfig
-            ? [
-                  eslintConfig,
-                  ...collectLocalEslintImports(eslintConfig),
-              ]
-            : []),
+        ...eslintConfigInputs,
         path.join(adminFolder, SHIM_DIR_NAME, 'eslint.mjs'),
         path.join(administrationRoot, 'extension-tooling', 'eslint.mjs'),
     ]);
@@ -560,6 +537,20 @@ export function toCacheableResolution(resolution: ModeResolution): ModeResolutio
     return rest;
 }
 
+/** Adopts a cached entry's verdict when the target still declares that config and the input hashes match. */
+function adoptCachedEntry(
+    hasConfig: boolean,
+    cached: ProbeCacheEntry | undefined,
+    inputFiles: string[],
+    fallback: ModeResolution,
+): ModeResolution {
+    if (hasConfig && cached && cached.key === probeCacheKey(inputFiles)) {
+        return cached.resolution;
+    }
+
+    return fallback;
+}
+
 /**
  * Adopts cached verified verdicts when the content hashes still match;
  * otherwise the given (static, unverified) resolutions stand.
@@ -571,11 +562,7 @@ export function resolveModesFromCache(
     projectRoot: string,
     administrationRoot: string,
 ): { ts: ModeResolution; eslint: ModeResolution } {
-    if (!cache) {
-        return { ts: target.ts, eslint: target.eslint };
-    }
-
-    const entry = cache.entries[cacheKey];
+    const entry = cache?.entries[cacheKey];
 
     if (!entry) {
         return { ts: target.ts, eslint: target.eslint };
@@ -584,10 +571,7 @@ export function resolveModesFromCache(
     const inputs = probeInputFiles(target, projectRoot, administrationRoot);
 
     return {
-        ts: target.tsconfig && entry.ts && entry.ts.key === probeCacheKey(inputs.ts) ? entry.ts.resolution : target.ts,
-        eslint:
-            target.eslintConfig && entry.eslint && entry.eslint.key === probeCacheKey(inputs.eslint)
-                ? entry.eslint.resolution
-                : target.eslint,
+        ts: adoptCachedEntry(Boolean(target.tsconfig), entry.ts, inputs.ts, target.ts),
+        eslint: adoptCachedEntry(Boolean(target.eslintConfig), entry.eslint, inputs.eslint, target.eslint),
     };
 }

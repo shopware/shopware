@@ -155,19 +155,20 @@ export function projectHasOwnedConfig(project: ExtensionToolingProject): boolean
  */
 export function aggregateModeResolution(project: ExtensionToolingProject, tool: 'ts' | 'eslint'): ModeResolution {
     const resolutions = project.targets.map((target) => target[tool]);
+    const allVerified = resolutions.every((resolution) => resolution.verified);
     const firstUnmanaged = resolutions.find((resolution) => resolution.mode === 'unmanaged');
 
     if (firstUnmanaged) {
         return {
             ...firstUnmanaged,
-            verified: resolutions.every((resolution) => resolution.verified),
+            verified: allVerified,
         };
     }
 
     if (resolutions.some((resolution) => resolution.mode === 'bridged')) {
         return {
             mode: 'bridged',
-            verified: resolutions.every((resolution) => resolution.verified),
+            verified: allVerified,
         };
     }
 
@@ -190,28 +191,29 @@ export interface SkippedTarget {
  * entry — both key on the same target resolution.
  */
 export function collectSkippedTargets(project: ExtensionToolingProject): SkippedTarget[] {
-    return project.targets.flatMap((target) => [
-        ...(target.ts.mode === 'unmanaged'
-            ? [
-                  {
-                      sourcePath: target.sourcePath,
-                      configPath: target.tsconfig ?? target.sourcePath,
-                      tool: 'TypeScript' as const,
-                      resolution: target.ts,
-                  },
-              ]
-            : []),
-        ...(target.eslint.mode === 'unmanaged'
-            ? [
-                  {
-                      sourcePath: target.sourcePath,
-                      configPath: target.eslintConfig ?? target.sourcePath,
-                      tool: 'ESLint' as const,
-                      resolution: target.eslint,
-                  },
-              ]
-            : []),
-    ]);
+    const skipped: SkippedTarget[] = [];
+
+    for (const target of project.targets) {
+        if (target.ts.mode === 'unmanaged') {
+            skipped.push({
+                sourcePath: target.sourcePath,
+                configPath: target.tsconfig ?? target.sourcePath,
+                tool: 'TypeScript',
+                resolution: target.ts,
+            });
+        }
+
+        if (target.eslint.mode === 'unmanaged') {
+            skipped.push({
+                sourcePath: target.sourcePath,
+                configPath: target.eslintConfig ?? target.sourcePath,
+                tool: 'ESLint',
+                resolution: target.eslint,
+            });
+        }
+    }
+
+    return skipped;
 }
 
 export function deriveExtensionState(project: ExtensionToolingProject): DerivedExtensionState {
@@ -369,31 +371,29 @@ export interface WriteResult {
  * is not rewritten).
  */
 export function writeManagedFile(filePath: string, content: string, dryRun = false): WriteResult {
-    const file = filePath;
-
     if (fs.existsSync(filePath)) {
         const currentContent = fs.readFileSync(filePath, 'utf8');
 
         if (!isGeneratedContent(currentContent)) {
-            return { file, state: 'conflict' };
+            return { file: filePath, state: 'conflict' };
         }
 
         if (currentContent === content) {
-            return { file, state: 'unchanged' };
+            return { file: filePath, state: 'unchanged' };
         }
 
         if (!dryRun) {
             atomicWrite(filePath, content);
         }
 
-        return { file, state: 'updated' };
+        return { file: filePath, state: 'updated' };
     }
 
     if (!dryRun) {
         atomicWrite(filePath, content);
     }
 
-    return { file, state: 'created' };
+    return { file: filePath, state: 'created' };
 }
 
 /**
@@ -500,4 +500,20 @@ export function writeManagedBlock(filePath: string, blockBody: string[], dryRun 
     }
 
     return { file: filePath, state: 'updated' };
+}
+
+/**
+ * Major version of the Administration's installed ESLint, read from its
+ * package.json. Falls back to 9 when ESLint cannot be resolved.
+ */
+export function readEslintMajorVersion(administrationRoot: string): number {
+    const eslintPackagePath = path.join(administrationRoot, 'node_modules', 'eslint', 'package.json');
+
+    try {
+        const eslintPackage = JSON.parse(fs.readFileSync(eslintPackagePath, 'utf8')) as { version: string };
+
+        return Number(eslintPackage.version.split('.')[0]);
+    } catch {
+        return 9;
+    }
 }

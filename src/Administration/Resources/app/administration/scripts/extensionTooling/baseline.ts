@@ -123,16 +123,18 @@ function toBaselineRelative(file: string, basePath: string): string {
     return posix.startsWith(prefix) ? posix.slice(prefix.length) : posix;
 }
 
-function coreDiff<F>(
+function coreDiff<F, E extends { count: number }>(
     findings: F[],
-    entries: Array<{ count: number }>,
+    entries: E[],
     findingKey: (finding: F) => string,
-    entryKey: (entry: { count: number }) => string,
+    entryKey: (entry: E) => string,
 ): Omit<BaselineSplit<F>, 'parseMismatch'> {
     const remaining = new Map<string, number>();
 
     for (const entry of entries) {
-        remaining.set(entryKey(entry), (remaining.get(entryKey(entry)) ?? 0) + Math.max(0, entry.count));
+        const key = entryKey(entry);
+
+        remaining.set(key, (remaining.get(key) ?? 0) + Math.max(0, entry.count));
     }
 
     const newFindings: F[] = [];
@@ -191,12 +193,7 @@ export function diffTypeScript(
     }
 
     return {
-        ...coreDiff(
-            findings,
-            entries,
-            (finding) => tsFindingKey(finding, basePath),
-            (entry) => tsEntryKey(entry as BaselineTsEntry),
-        ),
+        ...coreDiff(findings, entries, (finding) => tsFindingKey(finding, basePath), tsEntryKey),
         parseMismatch: false,
     };
 }
@@ -219,12 +216,7 @@ export function diffEslint(
     }
 
     return {
-        ...coreDiff(
-            errors,
-            entries,
-            (finding) => eslintFindingKey(finding, basePath),
-            (entry) => eslintEntryKey(entry as BaselineEslintEntry),
-        ),
+        ...coreDiff(errors, entries, (finding) => eslintFindingKey(finding, basePath), eslintEntryKey),
         parseMismatch: false,
     };
 }

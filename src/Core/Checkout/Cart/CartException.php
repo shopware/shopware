@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Content\Flow\Exception\CustomerDeletedException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPriceFieldTypeException;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -451,9 +452,7 @@ class CartException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function unsupportedOperator(string $operator, string $class): self|UnsupportedOperatorException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -606,9 +605,7 @@ class CartException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function invalidPriceFieldTypeException(string $type): self|InvalidPriceFieldTypeException
     {
         if (!Feature::isActive('v6.8.0.0')) {

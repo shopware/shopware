@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeWidening;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
@@ -228,10 +229,7 @@ class PromotionDiscountEntity extends Entity
         return str_replace($prefix, '', $this->scope);
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return `?string` in the future
-     * @deprecated tag:v6.8.0 - reason:behavior-change - The fallback to empty string will be removed
-     */
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?string', description: 'The fallback to empty string will be removed.')]
     public function getSorterKey(): string
     {
         // @deprecated tag:v6.8.0 - The fallback to empty string will be removed
@@ -243,10 +241,7 @@ class PromotionDiscountEntity extends Entity
         $this->sorterKey = $sorterKey;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return `?string` in the future
-     * @deprecated tag:v6.8.0 - reason:behavior-change - The fallback to empty string will be removed
-     */
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?string', description: 'The fallback to empty string will be removed.')]
     public function getApplierKey(): string
     {
         // @deprecated tag:v6.8.0 - The fallback to empty string will be removed
@@ -258,10 +253,7 @@ class PromotionDiscountEntity extends Entity
         $this->applierKey = $applierKey;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return `?string` in the future
-     * @deprecated tag:v6.8.0 - reason:behavior-change - The fallback to empty string will be removed
-     */
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?string', description: 'The fallback to empty string will be removed.')]
     public function getUsageKey(): string
     {
         // @deprecated tag:v6.8.0 - The fallback to empty string will be removed

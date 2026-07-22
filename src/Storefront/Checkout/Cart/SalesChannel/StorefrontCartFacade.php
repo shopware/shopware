@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
@@ -98,14 +99,19 @@ class StorefrontCartFacade
             'paymentMethod' => $contextPaymentMethod,
         ]);
 
-        $newCart = $this->calculator->calculate($originalCart, $updatedContext);
+        try {
+            $newCart = $this->calculator->calculate($originalCart, $updatedContext);
 
-        // Recalculated cart successfully unblocked
-        if (!$this->cartContainsBlockedMethods($newCart->getErrors())) {
-            $this->cartPersister->save($newCart, $updatedContext);
-            $this->updateSalesChannelContext($updatedContext, $originalContext);
+            // Recalculated cart successfully unblocked
+            if (!$this->cartContainsBlockedMethods($newCart->getErrors())) {
+                $this->cartPersister->save($newCart, $updatedContext);
+                $this->updateSalesChannelContext($updatedContext, $originalContext);
 
-            return $newCart;
+                return $newCart;
+            }
+        } catch (CartTokenNotFoundException) {
+            // the cart was deleted concurrently, keep the switch unapplied instead of failing the page
+            return $originalCart;
         }
 
         // Recalculated cart contains one or more blocked shipping/payment method, rollback changes

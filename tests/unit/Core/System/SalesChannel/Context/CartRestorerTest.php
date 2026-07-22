@@ -6,15 +6,21 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\RuleLoaderResult;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestoredEvent;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -220,6 +226,67 @@ class CartRestorerTest extends TestCase
         static::assertSame('newToken', $result->getToken());
     }
 
+    public function testRestoreMergesGuestCartWithCustomerCart(): void
+    {
+        $guestCart = new Cart('guestToken');
+        $guestCart->add((new LineItem('item', 'test'))->setStackable(true));
+
+        $customerCart = new Cart('customerToken');
+        $customerContext = $this->prepareContextRestore($guestCart, $customerCart);
+
+        $this->cartService->method('add')->willReturn($customerCart);
+
+        $cartRuleLoader = $this->createMock(CartRuleLoader::class);
+        $cartRuleLoader->expects($this->once())
+            ->method('loadByToken')
+            ->with($customerContext, 'customerToken')
+            ->willReturn(new RuleLoaderResult(new Cart('customerToken'), new RuleCollection()));
+
+        $cartRestorer = new CartRestorer(
+            $this->salesChannelContextFactory,
+            $this->persister,
+            $this->cartService,
+            $cartRuleLoader,
+            $this->cartPersister,
+            $this->eventDispatcher,
+            $this->requestStack
+        );
+
+        $result = $cartRestorer->restore('myCustomer', Generator::generateSalesChannelContext(token: 'guestToken'));
+
+        static::assertSame($customerContext, $result);
+    }
+
+    public function testRestoreContinuesWithCustomerCartWhenCartWasDeletedConcurrently(): void
+    {
+        $guestCart = new Cart('guestToken');
+        $customerCart = new Cart('customerToken');
+        $customerContext = $this->prepareContextRestore($guestCart, $customerCart);
+
+        $this->cartService->method('recalculate')
+            ->willThrowException(CartException::tokenNotFound('customerToken'));
+
+        $cartRuleLoader = $this->createMock(CartRuleLoader::class);
+        $cartRuleLoader->expects($this->once())
+            ->method('loadByToken')
+            ->with($customerContext, 'customerToken')
+            ->willReturn(new RuleLoaderResult(new Cart('customerToken'), new RuleCollection()));
+
+        $cartRestorer = new CartRestorer(
+            $this->salesChannelContextFactory,
+            $this->persister,
+            $this->cartService,
+            $cartRuleLoader,
+            $this->cartPersister,
+            $this->eventDispatcher,
+            $this->requestStack
+        );
+
+        $result = $cartRestorer->restore('myCustomer', Generator::generateSalesChannelContext(token: 'guestToken'));
+
+        static::assertSame($customerContext, $result);
+    }
+
     public function testRestoreByTokenWithExpiredToken(): void
     {
         $token = 'myToken';
@@ -260,5 +327,22 @@ class CartRestorerTest extends TestCase
         $result = $cartRestorer->restoreByToken($token, 'myCustomer', $salesChannelContext);
         static::assertSame($token, $result->getToken());
         static::assertTrue($eventIsThrown);
+    }
+
+    private function prepareContextRestore(Cart $guestCart, Cart $customerCart): SalesChannelContext
+    {
+        $this->persister->method('load')->willReturn([
+            'token' => 'customerToken',
+            'expired' => false,
+        ]);
+
+        $customerContext = Generator::generateSalesChannelContext(token: 'customerToken');
+        $this->salesChannelContextFactory->method('create')->willReturn($customerContext);
+
+        $this->cartService->method('getCart')->willReturnCallback(
+            static fn (string $token) => $token === 'guestToken' ? $guestCart : $customerCart
+        );
+
+        return $customerContext;
     }
 }

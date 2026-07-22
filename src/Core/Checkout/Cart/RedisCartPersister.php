@@ -115,7 +115,8 @@ class RedisCartPersister extends AbstractCartPersister
             $options[] = self::SET_ONLY_IF_EXISTS;
         }
 
-        if ($this->redis->set(self::PREFIX . $cart->getToken(), $content, $options) === false) {
+        // a failed SET is reported as false by phpredis/Relay and as null by Predis
+        if (!$this->redis->set(self::PREFIX . $cart->getToken(), $content, $options)) {
             if ($cart->isPersisted()) {
                 throw CartException::tokenNotFound($cart->getToken());
             }

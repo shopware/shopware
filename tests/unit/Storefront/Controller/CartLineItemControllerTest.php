@@ -363,6 +363,89 @@ class CartLineItemControllerTest extends TestCase
         $controller->addLineItems($cart, new RequestDataBag($request->request->all()), $request, $context);
     }
 
+    public function testAddLineItemsShowsErrorWhenCartWasDeletedConcurrently(): void
+    {
+        $productId = Uuid::randomHex();
+        $lineItemData = [
+            'id' => $productId,
+            'referencedId' => $productId,
+            'type' => 'product',
+            'stackable' => 1,
+            'removable' => 1,
+            'quantity' => 1,
+        ];
+
+        $request = new Request([], ['lineItems' => [$productId => $lineItemData]]);
+        $cart = new Cart(Uuid::randomHex());
+        $context = static::createStub(SalesChannelContext::class);
+
+        $lineItemRegistry = static::createStub(LineItemFactoryRegistry::class);
+        $lineItemRegistry->method('create')->willReturn(new LineItem($productId, 'product'));
+
+        $cartService = $this->createMock(CartService::class);
+        $cartService->expects($this->once())
+            ->method('add')
+            ->willThrowException(CartException::tokenNotFound($cart->getToken()));
+
+        $session = new Session(new MockArraySessionStorage());
+        $this->translatorCallback($session);
+
+        $controller = $this->getController(cartService: $cartService, lineItemRegistry: $lineItemRegistry);
+        $response = $controller->addLineItems($cart, new RequestDataBag($request->request->all()), $request, $context);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertArrayHasKey('danger', $session->getFlashBag()->peekAll());
+    }
+
+    public function testAddByProductNumberShowsErrorWhenCartWasDeletedConcurrently(): void
+    {
+        $productNumber = Uuid::randomHex();
+        $id = Uuid::randomHex();
+        $request = new Request([], ['number' => $productNumber]);
+        $cart = new Cart(Uuid::randomHex());
+        $context = static::createStub(SalesChannelContext::class);
+        $product = new ProductEntity();
+        $product->setUniqueIdentifier($id);
+        $product->setId($id);
+        $item = new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE);
+
+        $productListRoute = static::createStub(AbstractProductListRoute::class);
+        $productListRoute->method('load')->willReturn(
+            new ProductListResponse(
+                new EntitySearchResult(
+                    ProductDefinition::ENTITY_NAME,
+                    1,
+                    new ProductCollection([$product]),
+                    null,
+                    new Criteria(),
+                    Context::createDefaultContext()
+                )
+            )
+        );
+
+        $productLineItemFactory = static::createStub(ProductLineItemFactory::class);
+        $productLineItemFactory->method('create')->willReturn($item);
+
+        $cartService = $this->createMock(CartService::class);
+        $cartService->method('getCart')->willReturn($cart);
+        $cartService->expects($this->once())
+            ->method('add')
+            ->willThrowException(CartException::tokenNotFound($cart->getToken()));
+
+        $session = new Session(new MockArraySessionStorage());
+        $this->translatorCallback($session);
+
+        $controller = $this->getController(
+            cartService: $cartService,
+            productLineItemFactory: $productLineItemFactory,
+            productListRoute: $productListRoute
+        );
+        $response = $controller->addProductByNumber($request, $context);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertArrayHasKey('danger', $session->getFlashBag()->peekAll());
+    }
+
     public function testAddByProductNumber(): void
     {
         $productNumber = Uuid::randomHex();

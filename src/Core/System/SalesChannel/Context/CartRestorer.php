@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Event\BeforeCartMergeEvent;
 use Shopware\Core\Checkout\Cart\Event\CartMergedEvent;
+use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Log\Package;
@@ -223,10 +224,15 @@ class CartRestorer
         $customerCart = $this->cartService->getCart($customerContext->getToken(), $customerContext);
         $cartsAreIdentical = $token === $customerContext->getToken();
 
-        if ($guestCart->getLineItems()->count() > 0 && !$cartsAreIdentical) {
-            $restoredCart = $this->mergeCart($customerCart, $guestCart, $customerContext);
-        } else {
-            $restoredCart = $this->cartService->recalculate($customerCart, $customerContext);
+        try {
+            if ($guestCart->getLineItems()->count() > 0 && !$cartsAreIdentical) {
+                $restoredCart = $this->mergeCart($customerCart, $guestCart, $customerContext);
+            } else {
+                $restoredCart = $this->cartService->recalculate($customerCart, $customerContext);
+            }
+        } catch (CartTokenNotFoundException) {
+            // the cart was deleted concurrently, continue the login with the cart we already hold
+            $restoredCart = $customerCart;
         }
 
         $restoredCart->addErrors(...array_values($guestCart->getErrors()->getPersistent()->getElements()));

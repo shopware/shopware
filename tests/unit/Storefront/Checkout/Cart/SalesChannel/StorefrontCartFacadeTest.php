@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -329,6 +330,24 @@ class StorefrontCartFacadeTest extends TestCase
         static::assertSame('fallback-shipping-method-name', $salesChannelContext->getShippingMethod()->getName());
         static::assertSame($ruleIds, $salesChannelContext->getRuleIds());
         static::assertSame($areaRuleIds, $salesChannelContext->getAreaRuleIds());
+    }
+
+    public function testGetKeepsOriginalCartWhenCartWasDeletedConcurrently(): void
+    {
+        $cart = $this->getCart();
+        $cart->setErrors($this->getCartErrorCollection(true, true));
+
+        $cartCalculator = static::createStub(CartCalculator::class);
+        $cartCalculator->method('calculate')->willThrowException(CartException::tokenNotFound($cart->getToken()));
+
+        $cartFacade = $this->getStorefrontCartFacade(
+            $cart,
+            $this->callbackShippingMethodSwitcherReturnFallbackMethod(...),
+            $this->callbackPaymentMethodSwitcherReturnFallbackMethod(...),
+            $cartCalculator
+        );
+
+        static::assertSame($cart, $cartFacade->get('', Generator::generateSalesChannelContext()));
     }
 
     public function testGetUnswitchableCart(): void

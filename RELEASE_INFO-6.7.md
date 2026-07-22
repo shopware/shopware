@@ -39,7 +39,9 @@ The existing `reason:*` annotations will be migrated to these attributes in foll
 
 `CartPersister::save()` and `RedisCartPersister::save()` now throw `CartException::tokenNotFound()` (error code `CHECKOUT__CART_TOKEN_NOT_FOUND`, HTTP 404) when they are asked to update an already persisted cart whose storage entry was deleted in the meantime, for example by a concurrent order placement with the same context token. Previously such a save was silently discarded and the stale cart was still returned to the client.
 
-`GET /store-api/checkout/cart` handles this like an unknown cart token and responds with a fresh empty cart. Mutating routes such as adding, updating, or removing line items now respond with the error instead of pretending the write succeeded; API clients should re-fetch the cart in that case. Extensions that call `AbstractCartPersister::save()` directly should be prepared for this exception when the cart may have been deleted concurrently.
+`GET /store-api/checkout/cart` handles this like an unknown cart token and responds with a fresh empty cart. Mutating routes such as adding, updating, or removing line items now respond with the error instead of pretending the write succeeded; API clients should re-fetch the cart in that case.
+
+The Storefront absorbs the exception and degrades gracefully: adding an item shows the existing `error.addToCartError` notice, and the checkout confirm page keeps the cart unchanged instead of switching payment or shipping method. Extensions are affected in two ways: code calling `AbstractCartPersister::save()` should be prepared for the exception when the cart may have been deleted concurrently, and decorators of `AbstractCartPersister` should mirror the new behaviour so callers can rely on it.
 
 ## Administration
 

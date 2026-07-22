@@ -137,7 +137,30 @@ describe('scripts/extensionTooling/report skipped targets', () => {
 
         expect(output).toContain('(2 targets)');
         expect(output.split('skipped: custom/plugins/Suite/src/')).toHaveLength(6);
-        expect(output).toContain('… and 1 more skipped config(s)');
+        expect(output).toContain('… and 1 more skipped config(s) — run with --verbose to list them');
+    });
+
+    it('lists every skipped config under --verbose instead of capping', () => {
+        const manyTargets = project('Suite', {
+            targets: [
+                'A',
+                'B',
+                'C',
+                'D',
+                'E',
+                'F',
+            ].map((feature) => unmanagedTarget(`Feature${feature}`)),
+        });
+        const output = report(
+            [extension(manyTargets, { typescript: run('failed', { findings: 1, output: 'x' }) })],
+            {
+                exitCode: 1,
+            },
+            true,
+        );
+
+        expect(output.split('skipped: custom/plugins/Suite/src/')).toHaveLength(7);
+        expect(output).not.toContain('more skipped config(s)');
     });
 
     it('lists skipped configs without per-tool fixes for vendor extensions', () => {

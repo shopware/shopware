@@ -145,12 +145,14 @@ const MAX_SKIPPED_CONFIGS = 5;
  * One `skipped:` block per distinct config so a partially covered multi-root
  * project names exactly the configs that keep targets out of the check — also
  * when the managed remainder failed, where the tool status alone says nothing
- * about the skipped targets.
+ * about the skipped targets. Concise output caps the list; --verbose renders
+ * every config so no skipped target's remediation is hidden.
  */
 function renderSkippedTargetLines(
     project: ExtensionToolingProject,
     tool: 'TypeScript' | 'ESLint',
     entries: SkippedTarget[],
+    verbose: boolean,
 ): string[] {
     const groups = new Map<string, SkippedTarget[]>();
 
@@ -162,12 +164,13 @@ function renderSkippedTargetLines(
     }
 
     const sorted = [...groups.entries()].sort(([left], [right]) => left.localeCompare(right));
+    const visible = verbose ? sorted : sorted.slice(0, MAX_SKIPPED_CONFIGS);
     const lines: string[] = [];
 
     for (const [
         configPath,
         group,
-    ] of sorted.slice(0, MAX_SKIPPED_CONFIGS)) {
+    ] of visible) {
         const targetNote = group.length > 1 ? colors.dim(` (${group.length} targets)`) : '';
 
         lines.push(`      ${colors.yellow(`skipped: ${configPath}`)}${targetNote}`);
@@ -180,8 +183,12 @@ function renderSkippedTargetLines(
         }
     }
 
-    if (sorted.length > MAX_SKIPPED_CONFIGS) {
-        lines.push(colors.dim(`      … and ${sorted.length - MAX_SKIPPED_CONFIGS} more skipped config(s)`));
+    if (sorted.length > visible.length) {
+        lines.push(
+            colors.dim(
+                `      … and ${sorted.length - visible.length} more skipped config(s) — run with --verbose to list them`,
+            ),
+        );
     }
 
     return lines;
@@ -503,7 +510,7 @@ function renderExtension(result: ExtensionCheckResult, options: RenderOptions): 
 
         // Rendered independently of the run status and of --summary-only: a
         // failed managed remainder must not swallow the skip remediation.
-        lines.push(...renderSkippedTargetLines(result.project, tool, toolSkips));
+        lines.push(...renderSkippedTargetLines(result.project, tool, toolSkips, verbose));
 
         if (run.status === 'unmanaged') {
             if (verbose && resolution.probeOutput && resolution.probeOutput.trim() !== '') {

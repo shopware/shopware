@@ -58,6 +58,16 @@
         }
     }
 
+    // Skip the open animation when the panel was already open and only the
+    // active sidebar changed — the content swaps in place instead.
+    &.is-active.is-switched:not(.is-closing) {
+        animation: none;
+
+        .sw-sidebar-renderer__overlay {
+            animation: none;
+        }
+    }
+
     // Reverse animations played while closing; the element stays mounted until they finish.
     &.is-active.is-closing {
         animation: shrinkSidebar 0.4s cubic-bezier(0.32, 0.72, 0, 1) forwards;

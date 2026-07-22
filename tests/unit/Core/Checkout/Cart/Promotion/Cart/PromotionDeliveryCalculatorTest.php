@@ -347,7 +347,7 @@ class PromotionDeliveryCalculatorTest extends TestCase
         $cart = new Cart('promotion-test');
         $cart->setDeliveries(new DeliveryCollection([$delivery]));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(null);
 
         $this->promotionDeliveryCalculator->calculate(
@@ -382,7 +382,7 @@ class PromotionDeliveryCalculatorTest extends TestCase
         $cart = new Cart('promotion-test');
         $cart->setDeliveries(new DeliveryCollection([$delivery]));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(null);
 
         $this->promotionDeliveryCalculator->calculate(

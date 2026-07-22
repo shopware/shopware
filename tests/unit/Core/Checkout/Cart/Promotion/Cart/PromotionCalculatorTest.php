@@ -352,7 +352,7 @@ class PromotionCalculatorTest extends TestCase
             ->setPayloadValue('conditionRuleIds', ['rule-id-persona'])
             ->setRequirement(new FalseRule());
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
         $cart = new Cart('promotion-test');

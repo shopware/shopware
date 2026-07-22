@@ -538,7 +538,6 @@
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader">
-            <argument type="service" id="product_configurator_setting.repository"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader"/>
             <argument type="service" id="property_group_option.repository"/>
         </service>

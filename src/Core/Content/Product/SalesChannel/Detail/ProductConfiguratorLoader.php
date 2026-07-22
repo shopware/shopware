@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
-use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
@@ -22,11 +21,9 @@ class ProductConfiguratorLoader
     /**
      * @internal
      *
-     * @param EntityRepository<ProductConfiguratorSettingCollection> $configuratorRepository
      * @param EntityRepository<PropertyGroupOptionCollection> $optionRepository
      */
     public function __construct(
-        private readonly EntityRepository $configuratorRepository,
         private readonly AbstractAvailableCombinationLoader $combinationLoader,
         private readonly EntityRepository $optionRepository
     ) {
@@ -44,23 +41,14 @@ class ProductConfiguratorLoader
             return new PropertyGroupCollection();
         }
 
-        $groups = $this->loadSettings($parentId, $context);
-
-        $groups = $this->sortSettings($groups, $product);
-
         $combinations = $this->combinationLoader->loadCombinations(
             $parentId,
             $context,
         );
 
-        // Variants may carry option ids that have no `product_configurator_setting`
-        // row (e.g. the row was deleted directly, or the variant was created via API
-        // without it). Such options are never loaded by loadSettings(), so the option
-        // would silently disappear from the configurator and - in multi-group products
-        // - the stored combination could never be matched, greying out the sibling
-        // options. Surface those options from the actual variant combinations so the
-        // configurator reflects the real, purchasable variants.
-        $this->addOptionsMissingFromConfiguratorSettings($groups, $combinations, $context);
+        $groups = $this->loadSettings($parentId, $combinations, $context);
+
+        $groups = $this->sortSettings($groups, $product);
 
         $current = $this->buildCurrentOptions($product, $groups);
         $emptyGroupIds = [];
@@ -96,38 +84,49 @@ class ProductConfiguratorLoader
     }
 
     /**
-     * Adds options that appear on the product's variants but are missing from the
-     * configurator settings (no `product_configurator_setting` row) to their group,
-     * creating the group when it is missing entirely. This keeps the variant
-     * resolvable instead of disappearing or greying out its siblings.
+     * Loads the configurator groups from the options that actually occur on the
+     * product's variant combinations, enriched with the parent's
+     * `product_configurator_setting` rows (position, media). Loading the options
+     * from the combinations instead of the settings keeps variants whose option
+     * id has no setting row (e.g. the row was deleted directly, or the variant
+     * was created via API without it) selectable: the option would otherwise
+     * silently disappear from the configurator and - in multi-group products -
+     * the stored combination could never be matched, greying out the sibling
+     * options.
+     *
+     * @throws InconsistentCriteriaIdsException
+     *
+     * @return array<string, PropertyGroupEntity>|null
      */
-    private function addOptionsMissingFromConfiguratorSettings(
-        PropertyGroupCollection $groups,
+    private function loadSettings(
+        string $parentId,
         AvailableCombinationResult $combinations,
         SalesChannelContext $context
-    ): void {
-        $knownOptionIds = $groups->getOptionIdMap();
-
-        $missingOptionIds = [];
-        foreach ($combinations->getCombinations() as $optionIds) {
-            foreach ($optionIds as $optionId) {
-                if (!isset($knownOptionIds[$optionId])) {
-                    $missingOptionIds[$optionId] = true;
-                }
+    ): ?array {
+        $optionIds = [];
+        foreach ($combinations->getCombinations() as $combinationOptionIds) {
+            foreach ($combinationOptionIds as $optionId) {
+                $optionIds[$optionId] = true;
             }
         }
 
-        if ($missingOptionIds === []) {
-            return;
+        if ($optionIds === []) {
+            return null;
         }
 
-        $criteria = new Criteria(array_keys($missingOptionIds));
+        $criteria = new Criteria(array_keys($optionIds));
         $criteria->addAssociation('group')
+            ->addAssociation('media');
+        $criteria->getAssociation('productConfiguratorSettings')
+            ->addFilter(new EqualsFilter('productId', $parentId))
             ->addAssociation('media');
 
         $options = $this->optionRepository
             ->search($criteria, $context->getContext())
             ->getEntities();
+
+        $groups = [];
+        $hasSettings = false;
 
         foreach ($options as $option) {
             $group = $option->getGroup();
@@ -135,54 +134,11 @@ class ProductConfiguratorLoader
                 continue;
             }
 
-            $existingGroup = $groups->get($group->getId());
-            if ($existingGroup === null) {
-                $group->setOptions(new PropertyGroupOptionCollection());
-                $groups->add($group);
-                $existingGroup = $group;
-            }
-
-            $groupOptions = $existingGroup->getOptions() ?? new PropertyGroupOptionCollection();
-            if (!$groupOptions->has($option->getId())) {
-                $groupOptions->add($option);
-            }
-            $existingGroup->setOptions($groupOptions);
-        }
-    }
-
-    /**
-     * @throws InconsistentCriteriaIdsException
-     *
-     * @return array<string, PropertyGroupEntity>|null
-     */
-    private function loadSettings(string $parentId, SalesChannelContext $context): ?array
-    {
-        $criteria = (new Criteria())->addFilter(
-            new EqualsFilter('productId', $parentId)
-        );
-
-        $criteria->addAssociation('option.group')
-            ->addAssociation('option.media')
-            ->addAssociation('media');
-
-        $settings = $this->configuratorRepository
-            ->search($criteria, $context->getContext())
-            ->getEntities();
-
-        if ($settings->count() <= 0) {
-            return null;
-        }
-        $groups = [];
-
-        foreach ($settings as $setting) {
-            $option = $setting->getOption();
-            if ($option === null) {
-                continue;
-            }
-
-            $group = $option->getGroup();
-            if ($group === null) {
-                continue;
+            // unique key on (product_id, option_id): at most one setting matches the filter
+            $setting = $option->getProductConfiguratorSettings()?->first();
+            if ($setting !== null) {
+                $option->setConfiguratorSetting($setting);
+                $hasSettings = true;
             }
 
             $groupId = $group->getId();
@@ -193,14 +149,19 @@ class ProductConfiguratorLoader
 
             $groups[$groupId] = $group;
 
-            $options = $group->getOptions();
-            if ($options === null) {
-                $options = new PropertyGroupOptionCollection();
-                $group->setOptions($options);
+            $groupOptions = $group->getOptions();
+            if ($groupOptions === null) {
+                $groupOptions = new PropertyGroupOptionCollection();
+                $group->setOptions($groupOptions);
             }
-            $options->add($option);
+            $groupOptions->add($option);
+        }
 
-            $option->setConfiguratorSetting($setting);
+        // A product without any configurator setting intentionally renders no
+        // configurator on the product detail page, so setting-less options are
+        // only surfaced when at least one option of the product is configured.
+        if (!$hasSettings) {
+            return null;
         }
 
         return $groups;

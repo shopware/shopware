@@ -52,6 +52,21 @@ class DocumentGenerationRequestResolverTest extends TestCase
         static::assertSame('2026-07-13T00:00:00.000+00:00', $result->documentDate);
     }
 
+    public function testResolveBuildsDocumentGenerationRequestWithoutOrderVersionId(): void
+    {
+        $request = $this->createRequest([
+            'orderId' => '018f5972f9ea72a0be49f7c39f72a2a0',
+            'documentType' => DocumentType::INVOICE->value,
+            'formats' => [
+                DocumentFormat::PDF->value,
+            ],
+        ]);
+
+        $result = $this->resolveRequest($request);
+
+        static::assertNull($result->orderVersionId);
+    }
+
     public function testResolveBuildsDocumentGenerationRequestFromPreviewPayload(): void
     {
         $request = $this->createRequest([

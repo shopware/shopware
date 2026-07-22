@@ -137,9 +137,9 @@ class InvoiceDataProviderTest extends TestCase
 
         $request = new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
+            $order->getVersionId() ?? Uuid::randomHex(),
             '12345',
             documentDate: '2026-05-05T12:00:00+00:00',
         );
@@ -161,9 +161,9 @@ class InvoiceDataProviderTest extends TestCase
         $order = self::createOrder();
         $request = new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
+            $order->getVersionId() ?? Uuid::randomHex(),
             '12345',
             documentDate: '2026-05-05T12:00:00+00:00',
         );
@@ -183,9 +183,9 @@ class InvoiceDataProviderTest extends TestCase
         $order = self::createOrder();
         $request = new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
+            $order->getVersionId() ?? Uuid::randomHex(),
             '12345',
             documentDate: 'not-a-date',
         );
@@ -201,9 +201,9 @@ class InvoiceDataProviderTest extends TestCase
         $order = self::createOrder();
         $request = new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
+            $order->getVersionId() ?? Uuid::randomHex(),
             documentNumber: null,
             documentDate: '2026-05-05T12:00:00+00:00',
         );
@@ -226,9 +226,9 @@ class InvoiceDataProviderTest extends TestCase
         );
         $request = new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
+            $order->getVersionId() ?? Uuid::randomHex(),
             '12345',
             documentDate: '2026-05-05T12:00:00+00:00',
         );
@@ -247,9 +247,9 @@ class InvoiceDataProviderTest extends TestCase
         );
         $request = new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
+            $order->getVersionId() ?? Uuid::randomHex(),
             '12345',
             documentDate: '2026-05-05T12:00:00+00:00',
         );

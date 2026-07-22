@@ -135,9 +135,9 @@ class DocumentV2ControllerTest extends TestCase
         $response = $controller->create(
             new DocumentGenerationRequest(
                 $orderId,
-                Uuid::randomHex(),
                 DocumentType::INVOICE,
                 [DocumentFormat::HTML],
+                Uuid::randomHex(),
                 '1000',
             ),
             Context::createDefaultContext(),
@@ -178,9 +178,9 @@ class DocumentV2ControllerTest extends TestCase
         $response = $controller->preview(
             new DocumentGenerationRequest(
                 $orderId,
-                Uuid::randomHex(),
                 DocumentType::INVOICE,
                 [DocumentFormat::HTML],
+                Uuid::randomHex(),
                 '1000',
             ),
             Context::createDefaultContext(),

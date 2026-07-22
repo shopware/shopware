@@ -117,18 +117,26 @@ It has one public method with a signature that could look like this:
  */
 public function generate(
     string $orderId,
-    string $orderVersionId,
     string $docType,
     array $formats,
     Context $context,
+    ?string $orderVersionId = null,
     ?string $docNumber = null,
 ): DocumentEntity
 ```
 
+Update: we initially decided that the caller must create an order version upfront and pass it in,
+with the `DocumentGenerator` rejecting `LIVE_VERSION` outright. We reverted this: `orderVersionId`
+is now optional. Creating the order version is better centralized in the `DocumentGenerator` itself
+rather than duplicated across every call site, and it makes the API more user-friendly - callers
+should not have to create the version themselves before they can generate a document.
+
 The caller is responsible for:
-- Creating an order version to persist the order data in its current state.
-  - Then passing in an existing order version for which documents should be generated.
-  - Passing in `LIVE_VERSION` is not allowed and will throw an exception.
+- Optionally passing in an existing, non-live order version for which documents should be generated.
+  - If omitted, the `DocumentGenerator` creates a new order version itself, the same way the
+    pre-rework document generator did.
+  - Explicitly passing in `LIVE_VERSION` is still not allowed and will throw an exception - callers
+    that already have a version at hand must give the generator a real, non-live one.
 - Passing in a single document type.
   - It is passed as a string by design for extensibility, but you can use the `DocumentType` enum values.
   - The actual implementation will probably use a union type of `DocumentType|string` in all relevant places.

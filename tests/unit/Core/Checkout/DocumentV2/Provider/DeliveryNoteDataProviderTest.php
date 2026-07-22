@@ -103,9 +103,9 @@ class DeliveryNoteDataProviderTest extends TestCase
 
         $request = new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::DELIVERY_NOTE,
             [DocumentFormat::PDF],
+            $order->getVersionId() ?? Uuid::randomHex(),
             '12345',
             documentDate: self::DOCUMENT_DATE,
             deliveryDate: self::DELIVERY_DATE,
@@ -125,9 +125,9 @@ class DeliveryNoteDataProviderTest extends TestCase
 
         $request = new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::DELIVERY_NOTE,
             [DocumentFormat::PDF],
+            $order->getVersionId() ?? Uuid::randomHex(),
             documentNumber: null,
             documentDate: self::DOCUMENT_DATE,
             deliveryDate: self::DELIVERY_DATE,
@@ -147,9 +147,9 @@ class DeliveryNoteDataProviderTest extends TestCase
 
         $request = new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::DELIVERY_NOTE,
             [DocumentFormat::PDF],
+            $order->getVersionId() ?? Uuid::randomHex(),
             '12345',
             documentDate: self::DOCUMENT_DATE,
             deliveryDate: null,

@@ -38,7 +38,7 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
 
         /** @var array{
          *     orderId: string,
-         *     orderVersionId: string,
+         *     orderVersionId?: mixed,
          *     documentType: string,
          *     format?: mixed,
          *     formats?: mixed,
@@ -55,7 +55,7 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
 
         yield new DocumentGenerationRequest(
             orderId: $payload['orderId'],
-            orderVersionId: $payload['orderVersionId'],
+            orderVersionId: $this->extractOptionalString($payload, 'orderVersionId'),
             documentType: $payload['documentType'],
             requestedFormats: $formats,
             documentNumber: $this->extractOptionalString($payload, 'documentNumber'),
@@ -73,7 +73,7 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
 
         $definition
             ->add('orderId', new NotBlank(), new Type('string'), new Uuid())
-            ->add('orderVersionId', new NotBlank(), new Type('string'), new Uuid())
+            ->add('orderVersionId', new Type('string'), new Uuid())
             ->add('documentType', new NotBlank(), new Type('string'))
             ->add('documentNumber', new Type('string'))
             ->add('documentComment', new Type('string'))

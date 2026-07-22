@@ -28,9 +28,9 @@ final readonly class DocumentGenerationRequest
      */
     public function __construct(
         public string $orderId,
-        public string $orderVersionId,
         DocumentType|string $documentType,
         array $requestedFormats,
+        public ?string $orderVersionId = null,
         public ?string $documentNumber = null,
         public ?string $documentComment = null,
         ?string $documentDate = null,
@@ -50,10 +50,25 @@ final readonly class DocumentGenerationRequest
     {
         return new self(
             $this->orderId,
-            $this->orderVersionId,
             $this->documentType,
             $this->requestedFormats,
+            $this->orderVersionId,
             $documentNumber,
+            $this->documentComment,
+            $this->documentDate,
+            $this->deliveryDate,
+            $this->referencedDocumentId,
+        );
+    }
+
+    public function withOrderVersionId(string $orderVersionId): self
+    {
+        return new self(
+            $this->orderId,
+            $this->documentType,
+            $this->requestedFormats,
+            $orderVersionId,
+            $this->documentNumber,
             $this->documentComment,
             $this->documentDate,
             $this->deliveryDate,

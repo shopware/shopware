@@ -27,9 +27,9 @@ class DocumentGenerationRequestTest extends TestCase
 
         $request = new DocumentGenerationRequest(
             Uuid::randomHex(),
-            Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::HTML],
+            Uuid::randomHex(),
             documentDate: '2026-05-05T12:00:00+00:00',
             deliveryDate: '2026-05-06T09:30:00+00:00',
             referencedDocumentId: $referencedDocumentId,
@@ -45,15 +45,32 @@ class DocumentGenerationRequestTest extends TestCase
         static::assertSame($referencedDocumentId, $request->referencedDocumentId);
     }
 
+    public function testWithOrderVersionId(): void
+    {
+        $orderVersionId = Uuid::randomHex();
+
+        $request = new DocumentGenerationRequest(
+            Uuid::randomHex(),
+            DocumentType::INVOICE,
+            [DocumentFormat::HTML],
+        );
+
+        static::assertNull($request->orderVersionId);
+
+        $request = $request->withOrderVersionId($orderVersionId);
+
+        static::assertSame($orderVersionId, $request->orderVersionId);
+    }
+
     public function testDocumentDateDefaultsToClockNow(): void
     {
         $clock = self::mockTime('2026-05-18 10:00:00');
 
         $request = new DocumentGenerationRequest(
             Uuid::randomHex(),
-            Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::HTML],
+            Uuid::randomHex(),
         );
 
         static::assertSame(
@@ -66,9 +83,9 @@ class DocumentGenerationRequestTest extends TestCase
     {
         $request = new DocumentGenerationRequest(
             Uuid::randomHex(),
-            Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::HTML],
+            Uuid::randomHex(),
             documentDate: '2026-05-05T12:00:00+00:00',
         );
 
@@ -79,9 +96,9 @@ class DocumentGenerationRequestTest extends TestCase
     {
         $request = new DocumentGenerationRequest(
             Uuid::randomHex(),
-            Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::HTML],
+            Uuid::randomHex(),
         );
 
         static::assertSame([DocumentFormat::HTML->value], $request->requestedFormats);
@@ -89,9 +106,9 @@ class DocumentGenerationRequestTest extends TestCase
 
         $request = new DocumentGenerationRequest(
             Uuid::randomHex(),
-            Uuid::randomHex(),
             DocumentType::INVOICE->value,
             [DocumentFormat::HTML->value],
+            Uuid::randomHex(),
         );
 
         static::assertSame([DocumentFormat::HTML->value], $request->requestedFormats);

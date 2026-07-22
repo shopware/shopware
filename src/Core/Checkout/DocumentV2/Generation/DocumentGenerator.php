@@ -42,7 +42,8 @@ final readonly class DocumentGenerator
     /**
      * Generates one logical document with one or more persisted document_file artifacts.
      *
-     * The request must contain at least one format and a non-live order version id.
+     * The request must contain at least one format. If no order version id is given, a new
+     * order version is created for the generation; explicitly passing the live version is rejected.
      *
      * For example, if the caller requests only `pdf` and the PDF renderer depends on `html`,
      * both formats are rendered, but only the PDF result is persisted as a document_file.
@@ -110,6 +111,14 @@ final readonly class DocumentGenerator
     ): array {
         $this->validateGenerationRequest($generationRequest);
 
+        $orderVersionId = $generationRequest->orderVersionId ?? $this->orderRepository->createVersion(
+            $generationRequest->orderId,
+            $apiContext,
+            'document',
+        );
+
+        $generationRequest = $generationRequest->withOrderVersionId($orderVersionId);
+
         $requestedFormats = $this->normalizeRequestedFormats($generationRequest->requestedFormats);
 
         $renderPlan = $this->dependencyResolver->resolve(
@@ -129,6 +138,7 @@ final readonly class DocumentGenerator
 
         [$orderVersionContext, $languageAwareContext] = $this->createGenerationContexts(
             $generationRequest,
+            $orderVersionId,
             $apiContext,
         );
 
@@ -216,9 +226,10 @@ final readonly class DocumentGenerator
      */
     private function createGenerationContexts(
         DocumentGenerationRequest $generationRequest,
+        string $orderVersionId,
         Context $apiContext,
     ): array {
-        $orderVersionContext = $apiContext->createWithVersionId($generationRequest->orderVersionId);
+        $orderVersionContext = $apiContext->createWithVersionId($orderVersionId);
         $languageAwareContext = clone $apiContext;
 
         $orderLanguageId = $this->loadOrderLanguageId($generationRequest, $orderVersionContext);

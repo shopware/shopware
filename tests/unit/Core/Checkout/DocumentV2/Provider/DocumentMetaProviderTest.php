@@ -64,9 +64,9 @@ class DocumentMetaProviderTest extends TestCase
 
         $request = new DocumentGenerationRequest(
             $this->createOrder()->getId(),
-            Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
+            Uuid::randomHex(),
             '12345',
             documentComment: 'thanks for your order',
             documentDate: '2026-05-05T12:00:00+00:00',
@@ -89,9 +89,9 @@ class DocumentMetaProviderTest extends TestCase
 
         $request = new DocumentGenerationRequest(
             $this->createOrder()->getId(),
-            Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
+            Uuid::randomHex(),
             documentDate: '2026-05-05T12:00:00+00:00',
         );
 

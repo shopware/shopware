@@ -5,15 +5,15 @@ namespace Shopware\Core\Content\Product\SalesChannel\Review;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @deprecated tag:v6.8.0 reason:class-hierarchy-change - Will no longer extend EntitySearchResult, but will keep extending Struct.
- *
  * @extends EntitySearchResult<ProductReviewCollection>
  */
 #[Package('after-sales')]
+#[ClassHierarchyChange(version: 'v6.8.0', description: 'Will no longer extend EntitySearchResult, but will keep extending Struct.')]
 class ProductReviewResult extends EntitySearchResult
 {
     /**

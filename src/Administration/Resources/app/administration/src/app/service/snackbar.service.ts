@@ -2,6 +2,8 @@ import { type Snackbar, useSnackbar } from '@shopware-ag/meteor-component-librar
 
 /**
  * @sw-package framework
+ *
+ * @private
  */
 export default class SnackbarService {
     addSnackbar(config: Snackbar): Snackbar {

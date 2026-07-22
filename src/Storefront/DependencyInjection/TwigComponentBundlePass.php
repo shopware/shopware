@@ -16,7 +16,7 @@ use Symfony\Component\Filesystem\Path;
  *
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 final class TwigComponentBundlePass implements CompilerPassInterface
 {
     private const COMPONENT_DIRECTORY = 'Resources/views/components';

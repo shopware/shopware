@@ -25,7 +25,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[Package('framework')]
+#[Package('discovery')]
 #[AsCommand(
     name: 'theme:dump',
     description: 'Dump the theme configuration',

@@ -34,7 +34,7 @@ class Content extends Bundle
         $loader->load('media_path.xml');
         $loader->load('product.xml');
         $loader->load('newsletter_recipient.xml');
-        $loader->load('rule.xml');
+        $phpLoader->load('rule.php');
         $loader->load('product_stream.xml');
         $loader->load('product_export.xml');
         $loader->load('property.xml');
@@ -42,7 +42,7 @@ class Content extends Bundle
         $loader->load('mail.xml');
         $loader->load('mail_template.xml');
         $loader->load('delivery_time.xml');
-        $loader->load('import_export.xml');
+        $phpLoader->load('import_export.php');
         $loader->load('contact_form.xml');
         $loader->load('revocation_request_form.xml');
         $loader->load('sitemap.xml');

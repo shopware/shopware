@@ -36,7 +36,7 @@ class Checkout extends Bundle
         $loader->load('document.xml');
         $phpLoader->load('order.php');
         $phpLoader->load('payment.php');
-        $loader->load('rule.xml');
+        $phpLoader->load('rule.php');
         $phpLoader->load('promotion.php');
         $phpLoader->load('shipping.php');
 

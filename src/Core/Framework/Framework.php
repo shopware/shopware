@@ -90,11 +90,11 @@ class Framework extends Bundle
         $loader->load('filesystem.xml');
         $loader->load('message-queue.xml');
         $phpLoader->load('plugin.php');
-        $loader->load('rule.xml');
+        $phpLoader->load('rule.php');
         $loader->load('scheduled-task.xml');
         $phpLoader->load('store.php');
         $phpLoader->load('script.php');
-        $loader->load('language.xml');
+        $phpLoader->load('language.php');
         $loader->load('update.xml');
         $loader->load('validation.xml');
         $loader->load('seo.xml');

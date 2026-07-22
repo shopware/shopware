@@ -267,6 +267,7 @@
         "admin:lint:snippets": "Checks that no admin snippet duplicates a global.default translation in every locale.",
         "admin:lint:snippets:all": "Like admin:lint:snippets but ignores the allow list, listing every duplicate including the allowed ones.",
         "admin:unit": "Launches the jest unit test-suite for the Admin",
+        "admin:unit:major": "Launches the jest unit test-suite for the Admin with all major feature flags enabled",
         "admin:unit:watch": "Launches the interactive jest unit test-suite watcher for the Admin",
         "bc-check": "Checks for backwards compatibility breaks in the current branch",
         "build:js": "Builds Administration & Storefront",
@@ -367,6 +368,13 @@
         "admin:lint:snippets:all": "@npm:admin run lint:snippets:all",
         "admin:unit": [
             "Composer\\Config::disableProcessTimeout",
+            "@framework:schema:dump",
+            "@npm:admin run unit-setup",
+            "@npm:admin run unit"
+        ],
+        "admin:unit:major": [
+            "Composer\\Config::disableProcessTimeout",
+            "@putenv FEATURE_ALL=major",
             "@framework:schema:dump",
             "@npm:admin run unit-setup",
             "@npm:admin run unit"

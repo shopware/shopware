@@ -88,12 +88,41 @@ jobs:
           test-testsuite: ${{ matrix.test.testsuite }}
           # no codecov-upload step: the major run's signal is the gate, not Test Analytics
 
+  jest-admin-major:
+    name: "Jest Admin"
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-tests')
+    runs-on: ubuntu-24.04
+    env:
+      NODE_VERSION: 'lts/*'
+      JEST_MAX_WORKERS: 100%
+
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+
+      - name: Setup Node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: src/Administration/Resources/app/administration/package-lock.json
+
+      - name: Install admin dependencies
+        run: npm --prefix src/Administration/Resources/app/administration ci
+
+      - name: Run Jest Admin with major features
+        run: composer admin:unit:major
+
   # single required/monitorable status for the whole major matrix
   integration-major-check:
     # Skip cleanly on unlabeled PRs so they don't get a confusing status; otherwise aggregate the matrix result.
     if: always() && (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-tests'))
     needs:
       - phpunit-major
+      - jest-admin-major
     runs-on: Ubuntu-latest
     steps:
       - name: Decide whether the needed jobs succeeded or failed

@@ -56,6 +56,8 @@ import findByText from '../_helper_/find-by-text';
 import findByLabel from '../_helper_/find-by-label';
 import findByPlaceholder from '../_helper_/find-by-placeholder';
 
+const defaultFeatureFlags = [...global.activeFeatureFlags];
+
 // initialize the Stores
 import '../../src/module/sw-cms/store/cms-page.store';
 import '../../src/app/store/teaser-popover.store';
@@ -634,7 +636,7 @@ beforeEach(() => {
     warnArgs = null;
     warnTrace = null;
     unhandledRejectionError = null;
-    global.activeFeatureFlags = [];
+    global.activeFeatureFlags = [...defaultFeatureFlags];
 });
 
 // eslint-disable-next-line jest/require-top-level-describe

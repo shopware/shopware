@@ -36,8 +36,8 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[CoversClass(TaxAdjustment::class)]
 #[Package('checkout')]
+#[CoversClass(TaxAdjustment::class)]
 class TaxAdjustmentTest extends TestCase
 {
     private IdsCollection $ids;

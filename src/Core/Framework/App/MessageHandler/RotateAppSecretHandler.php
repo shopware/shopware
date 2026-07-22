@@ -11,8 +11,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal only for use by the app-system
  */
-#[AsMessageHandler]
 #[Package('framework')]
+#[AsMessageHandler]
 final class RotateAppSecretHandler
 {
     public function __construct(

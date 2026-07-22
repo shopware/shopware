@@ -40,8 +40,8 @@ use Symfony\Component\Clock\NativeClock;
 /**
  * @internal
  */
-#[CoversClass(DocumentGenerator::class)]
 #[Package('after-sales')]
+#[CoversClass(DocumentGenerator::class)]
 class DocumentGeneratorTest extends TestCase
 {
     #[DataProvider('readDataProvider')]

@@ -14,11 +14,11 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'sync:composer:version',
     description: 'Syncs the composer version with the shopware version',
 )]
-#[Package('framework')]
 class SyncComposerVersionCommand extends Command
 {
     /**

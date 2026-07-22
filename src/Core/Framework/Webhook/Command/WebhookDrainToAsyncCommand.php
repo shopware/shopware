@@ -34,6 +34,7 @@ use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
  *
  * @see \Shopware\Tests\Integration\Core\Framework\Webhook\Command\WebhookDrainToAsyncCommandTest
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'webhook:drain-to-async',
     description: 'Re-publish leftover webhook deliveries to the async transport after disabling WEBHOOKS_REWORK',
@@ -52,7 +53,6 @@ use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
         expected to deduplicate via <info>X-Shopware-Event-Id</info>.
         HELP,
 )]
-#[Package('framework')]
 final readonly class WebhookDrainToAsyncCommand
 {
     private const BATCH_SIZE = 1000;

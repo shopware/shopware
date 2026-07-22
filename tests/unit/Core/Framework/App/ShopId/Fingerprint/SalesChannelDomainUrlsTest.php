@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(SalesChannelDomainUrls::class)]
 #[Package('framework')]
+#[CoversClass(SalesChannelDomainUrls::class)]
 class SalesChannelDomainUrlsTest extends TestCase
 {
     public function testIdentifier(): void

@@ -14,6 +14,7 @@ import { ShopwareSetupTransformError } from '../utils/transform-error';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
 import { getNodeRange, isFunctionNode, walk } from './utils';
 import { RESERVED_OVERRIDE_STATE_NAME, SHOPWARE_SETUP_INTERNAL_PREFIX, type ShopwareSetupMacroName } from './macros';
+import { getReservedHelperNames, getTopLevelOnlyWalkChecks, getWrongModeWalkChecks } from './macro-registry';
 
 /**
  * Carries a declared or imported name with the AST node used for diagnostics.
@@ -23,30 +24,6 @@ type NamedBinding = {
     node: BabelNode;
 };
 
-const BASE_HELPERS = new Set([
-    'swDefinePublic',
-    'swDefineOverride',
-    'defineEmits',
-    'defineExpose',
-    'defineOptions',
-    'defineSlots',
-    'withDefaults',
-    'useSwContext',
-]);
-
-const OVERRIDE_HELPERS = new Set([
-    'swDefinePublic',
-    'swDefineOverride',
-    'defineEmits',
-    'defineExpose',
-    'defineOptions',
-    'defineSlots',
-    'useSwPreviousState',
-    'withDefaults',
-    'useSwProps',
-    'useSwContext',
-]);
-
 /**
  * Rejects syntax that would require native `<script setup>` semantics we do not emulate.
  * Meaning: Unsupported Vue macros, top-level await, and ES module exports.
@@ -55,43 +32,36 @@ function assertNoUnsupportedSyntax(
     ast: BabelFile,
     mode: ShopwareSetupMode,
     scriptOffset: number,
-    topLevelPublicCalls: Set<CallExpression>,
-    topLevelOverrideCalls: Set<CallExpression>,
-    topLevelUnsupportedMacroCalls: Set<CallExpression>,
+    topLevelMarkerCalls: Map<string, Set<CallExpression>>,
 ): void {
+    const wrongModeChecks = getWrongModeWalkChecks(mode);
+    const topLevelOnlyChecks = getTopLevelOnlyWalkChecks();
+
     walk(ast.program, (node, ancestors) => {
-        // Reject unsupported Vue macros:
-        //  Vue only treats these calls as compiler macros in supported top-level setup positions.
-        //  Nested calls are left untouched like compiler-sfc does.
-        if (node.type === 'CallExpression' && node.callee.type === 'Identifier' && topLevelUnsupportedMacroCalls.has(node)) {
-            throw new ShopwareSetupTransformError(
-                `Vue macro ${node.callee.name}() is not supported inside Shopware setup blocks.`,
-                scriptOffset + getNodeRange(node, scriptOffset).start,
-            );
-        }
+        if (node.type === 'CallExpression' && node.callee.type === 'Identifier') {
+            const calleeName = node.callee.name;
 
-        if (
-            mode === 'base' &&
-            node.type === 'CallExpression' &&
-            node.callee.type === 'Identifier' &&
-            node.callee.name === 'useSwProps'
-        ) {
-            throw new ShopwareSetupTransformError(
-                "useSwProps() is only supported in override Shopware setup blocks. Base components must use Vue's defineProps() macro instead.",
-                scriptOffset + getNodeRange(node, scriptOffset).start,
-            );
-        }
+            // Wrong-mode helpers such as useSwProps() in base mode are rejected in any position,
+            // because there is no runtime input they could alias.
+            const wrongModeCheck = wrongModeChecks.find((check) => check.name === calleeName);
 
-        if (
-            mode === 'base' &&
-            node.type === 'CallExpression' &&
-            node.callee.type === 'Identifier' &&
-            node.callee.name === 'useSwPreviousState'
-        ) {
-            throw new ShopwareSetupTransformError(
-                'useSwPreviousState() is only supported in override Shopware setup blocks.',
-                scriptOffset + getNodeRange(node, scriptOffset).start,
-            );
+            if (wrongModeCheck) {
+                throw new ShopwareSetupTransformError(
+                    wrongModeCheck.message,
+                    scriptOffset + getNodeRange(node, scriptOffset).start,
+                );
+            }
+
+            // Shopware marker macros are only meaningful as top-level statements; a nested call would
+            // otherwise silently stay in the generated callback body.
+            const topLevelOnlyCheck = topLevelOnlyChecks.find((check) => check.name === calleeName);
+
+            if (topLevelOnlyCheck && !topLevelMarkerCalls.get(calleeName)?.has(node)) {
+                throw new ShopwareSetupTransformError(
+                    topLevelOnlyCheck.message,
+                    scriptOffset + getNodeRange(node, scriptOffset).start,
+                );
+            }
         }
 
         // Reject top level await:
@@ -120,32 +90,6 @@ function assertNoUnsupportedSyntax(
             }
         }
 
-        // Ensure swDefinePublic() is only called at top level
-        if (
-            node.type === 'CallExpression' &&
-            node.callee.type === 'Identifier' &&
-            node.callee.name === 'swDefinePublic' &&
-            !topLevelPublicCalls.has(node)
-        ) {
-            throw new ShopwareSetupTransformError(
-                'swDefinePublic() must be called once at the top level of a base Shopware setup block.',
-                scriptOffset + getNodeRange(node, scriptOffset).start,
-            );
-        }
-
-        // Ensure swDefineOverride() is only called at top level
-        if (
-            node.type === 'CallExpression' &&
-            node.callee.type === 'Identifier' &&
-            node.callee.name === 'swDefineOverride' &&
-            !topLevelOverrideCalls.has(node)
-        ) {
-            throw new ShopwareSetupTransformError(
-                'swDefineOverride() must be called once at the top level of an override Shopware setup block.',
-                scriptOffset + getNodeRange(node, scriptOffset).start,
-            );
-        }
-
         // Reject ES module exports:
         //  Same as Vue: native <script setup> rejects runtime ES module exports because setup bindings are exposed
         //  through the generated setup return, not through module exports.
@@ -165,8 +109,8 @@ function assertNoUnsupportedSyntax(
 /**
  * Prevents user bindings from shadowing generated composable-style helper names.
  */
-function assertReservedMacroNames(bindings: NamedBinding[], mode: ShopwareSetupMode, scriptOffset: number): void {
-    const helpers = mode === 'base' ? BASE_HELPERS : OVERRIDE_HELPERS;
+function assertReservedMacroNames(bindings: NamedBinding[], scriptOffset: number): void {
+    const helpers = getReservedHelperNames();
 
     bindings.forEach((binding) => {
         if (helpers.has(binding.name)) {

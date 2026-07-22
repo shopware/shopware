@@ -14,6 +14,18 @@ import { ShopwareSetupTransformError } from '../utils/transform-error';
 import { getNodeRange, unwrapTransparentMacroExpression } from './utils';
 import { forEachPatternIdentifier } from '../utils/babel-patterns';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
+import {
+    getExposableSetupMacroNames,
+    getRuntimeInputAliasNames,
+    getSetupInputMacroNames,
+} from './macro-registry';
+
+const SETUP_INPUT_MACRO_NAMES = getSetupInputMacroNames();
+const EXPOSABLE_SETUP_MACRO_NAMES = getExposableSetupMacroNames();
+const RUNTIME_INPUT_ALIAS_NAMES: Record<ShopwareSetupMode, Set<string>> = {
+    base: getRuntimeInputAliasNames('base'),
+    override: getRuntimeInputAliasNames('override'),
+};
 
 /**
  * Represents one top-level runtime value that can be returned as setup state.
@@ -82,22 +94,11 @@ function collectRuntimeBindingPattern(
  * e.g. `const context = useSwContext();` - the alias is usable locally but is not setup state.
  */
 function isRuntimeInputAlias(declaration: VariableDeclarator, mode: ShopwareSetupMode): boolean {
-    const runtimeInputHelpers =
-        mode === 'base'
-            ? new Set([
-                  'useSwContext',
-              ])
-            : new Set([
-                  'useSwPreviousState',
-                  'useSwProps',
-                  'useSwContext',
-              ]);
-
     return (
         declaration.id.type === 'Identifier' &&
         declaration.init?.type === 'CallExpression' &&
         declaration.init.callee.type === 'Identifier' &&
-        runtimeInputHelpers.has(declaration.init.callee.name)
+        RUNTIME_INPUT_ALIAS_NAMES[mode].has(declaration.init.callee.name)
     );
 }
 
@@ -150,11 +151,7 @@ function isSetupInputDeclaration(declaration: VariableDeclarator): boolean {
     return (
         init?.type === 'CallExpression' &&
         init.callee.type === 'Identifier' &&
-        (init.callee.name === 'defineProps' ||
-            init.callee.name === 'defineEmits' ||
-            init.callee.name === 'defineSlots' ||
-            init.callee.name === 'withDefaults' ||
-            init.callee.name === 'useSwProps')
+        SETUP_INPUT_MACRO_NAMES.has(init.callee.name)
     );
 }
 
@@ -172,10 +169,7 @@ function isExposableSetupMacroDeclaration(declaration: VariableDeclarator): bool
         declaration.id.type === 'Identifier' &&
         init?.type === 'CallExpression' &&
         init.callee.type === 'Identifier' &&
-        (init.callee.name === 'defineProps' ||
-            init.callee.name === 'defineEmits' ||
-            init.callee.name === 'defineSlots' ||
-            init.callee.name === 'withDefaults')
+        EXPOSABLE_SETUP_MACRO_NAMES.has(init.callee.name)
     );
 }
 

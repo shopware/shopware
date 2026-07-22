@@ -11,19 +11,16 @@
  */
 
 import type { CallExpression, ImportDeclaration, Statement } from '@babel/types';
-import { ShopwareSetupTransformError } from './utils/transform-error';
 import type { ShopwareSetupMode } from './utils/shopware-setup-block';
+import { extractStaticObjectMarker } from './script-analyzer/macros';
 import {
-    type SetupMacroBuckets,
-    type StatementMacroCall,
-    collectTopLevelSetupMacroCalls,
-    extractStaticObjectMarker,
-    getStatementCompilerMacroCall,
-    isStatementCompilerMacro,
-    UNSUPPORTED_VUE_MACROS,
-    WRONG_MODE_SW_DEFINE_OVERRIDE_MESSAGE,
-    WRONG_MODE_SW_DEFINE_PUBLIC_MESSAGE,
-} from './script-analyzer/macros';
+    type MacroCallEntry,
+    assertMacroRules,
+    collectMacroCallEntries,
+    getHoistedArgumentMacroNames,
+    getMacroEntries,
+    getMacroEntry,
+} from './script-analyzer/macro-registry';
 import { type SourceRange, getNodeRange, parseScript } from './script-analyzer/utils';
 import { type RuntimeBinding, collectImportBindings, collectRuntimeBinding } from './script-analyzer/runtime-bindings';
 import {
@@ -34,8 +31,6 @@ import {
 import { assertHoistedMacroArgumentsDoNotUseLocalSetup } from './script-analyzer/hoisted-macro-arguments';
 import {
     analyzeSetupInputs,
-    type DefineExposeStatement,
-    type DefineOptionsStatement,
     type SetupInputReplacement,
     type SetupMacroSummary,
 } from './script-analyzer/setup-inputs';
@@ -46,11 +41,6 @@ type AnalyzerOptions = {
     mode: ShopwareSetupMode;
     lang: string | null;
     scriptOffset: number;
-};
-
-type StatementWithCall = {
-    statement: Statement;
-    call: CallExpression;
 };
 
 /**
@@ -129,56 +119,6 @@ function isHoistableTypeDeclaration(statement: Statement): boolean {
 }
 
 /**
- * Validates Shopware exposure macros.
- */
-function validateShopwareMarkers({
-    mode,
-    scriptOffset,
-    publicMarkerStatements,
-    overrideMarkerStatements,
-}: {
-    mode: ShopwareSetupMode;
-    scriptOffset: number;
-    publicMarkerStatements: StatementMacroCall[];
-    overrideMarkerStatements: StatementMacroCall[];
-}): void {
-    if (mode === 'override' && publicMarkerStatements.length > 0) {
-        throw new ShopwareSetupTransformError(
-            WRONG_MODE_SW_DEFINE_PUBLIC_MESSAGE,
-            scriptOffset + getNodeRange(publicMarkerStatements[0], scriptOffset).start,
-        );
-    }
-
-    if (mode === 'base' && overrideMarkerStatements.length > 0) {
-        throw new ShopwareSetupTransformError(
-            WRONG_MODE_SW_DEFINE_OVERRIDE_MESSAGE,
-            scriptOffset + getNodeRange(overrideMarkerStatements[0], scriptOffset).start,
-        );
-    }
-
-    if (publicMarkerStatements.length > 1) {
-        throw new ShopwareSetupTransformError(
-            'Only one swDefinePublic() call is allowed in a base Shopware setup block.',
-            scriptOffset + getNodeRange(publicMarkerStatements[1], scriptOffset).start,
-        );
-    }
-
-    if (overrideMarkerStatements.length > 1) {
-        throw new ShopwareSetupTransformError(
-            'Only one swDefineOverride() call is allowed in an override Shopware setup block.',
-            scriptOffset + getNodeRange(overrideMarkerStatements[1], scriptOffset).start,
-        );
-    }
-
-    if (mode === 'override' && overrideMarkerStatements.length !== 1) {
-        throw new ShopwareSetupTransformError(
-            'swDefineOverride() must be called exactly once at the top level of an override Shopware setup block.',
-            scriptOffset,
-        );
-    }
-}
-
-/**
  * Produces the semantic model used by the lowering step.
  */
 function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): ShopwareSetupScriptAnalysis {
@@ -192,26 +132,11 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
     const runtimeBindings: RuntimeBinding[] = [];
     const runtimeBindingNames = new Set<string>();
     const runtimeInputAliasNames = new Set<string>();
-    const publicMarkerStatements: StatementMacroCall[] = [];
-    const overrideMarkerStatements: StatementMacroCall[] = [];
-    const definePropsCalls: CallExpression[] = [];
-    const defineEmitsCalls: CallExpression[] = [];
-    const defineExposeStatements: (DefineExposeStatement & StatementWithCall)[] = [];
-    const defineSlotsCalls: CallExpression[] = [];
-    const defineOptionsStatements: (DefineOptionsStatement & StatementWithCall)[] = [];
-    const withDefaultsCalls: CallExpression[] = [];
-    const topLevelPublicCalls = new Set<CallExpression>();
-    const topLevelOverrideCalls = new Set<CallExpression>();
-    const topLevelUnsupportedMacroCalls = new Set<CallExpression>();
+    const macroEntries: MacroCallEntry[] = [];
 
     ast.program.body.forEach((statement) => {
-        collectTopLevelSetupMacroCalls(statement, {
-            definePropsCalls,
-            defineEmitsCalls,
-            defineSlotsCalls,
-            withDefaultsCalls,
-            topLevelUnsupportedMacroCalls,
-        } satisfies SetupMacroBuckets);
+        const statementEntries = collectMacroCallEntries(statement);
+        macroEntries.push(...statementEntries);
 
         if (statement.type === 'ImportDeclaration') {
             imports.push(statement);
@@ -224,98 +149,66 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
             return;
         }
 
-        if (isStatementCompilerMacro(statement, 'swDefinePublic')) {
-            publicMarkerStatements.push(statement);
-            topLevelPublicCalls.add(statement.expression);
-            return;
-        }
+        // Marker, expose, and options statements are consumed here: markers and kept-at-root options
+        // are removed from the callback body, expose statements stay but get their call replaced.
+        const statementMacroName = statementEntries.find((entry) => entry.form === 'statement')?.name;
 
-        if (isStatementCompilerMacro(statement, 'swDefineOverride')) {
-            overrideMarkerStatements.push(statement);
-            topLevelOverrideCalls.add(statement.expression);
-            return;
-        }
-
-        const defineOptionsCall = getStatementCompilerMacroCall(statement, 'defineOptions');
-
-        if (defineOptionsCall) {
-            defineOptionsStatements.push({
-                statement,
-                call: defineOptionsCall,
-            });
-            return;
-        }
-
-        const defineExposeCall = getStatementCompilerMacroCall(statement, 'defineExpose');
-
-        if (defineExposeCall) {
-            defineExposeStatements.push({
-                statement,
-                call: defineExposeCall,
-            });
+        if (
+            statementMacroName === 'swDefinePublic' ||
+            statementMacroName === 'swDefineOverride' ||
+            statementMacroName === 'defineOptions' ||
+            statementMacroName === 'defineExpose'
+        ) {
             return;
         }
 
         collectRuntimeBinding(statement, runtimeBindings, runtimeBindingNames, runtimeInputAliasNames, scriptOffset, mode);
     });
 
-    assertNoUnsupportedSyntax(
-        ast,
-        mode,
-        scriptOffset,
-        topLevelPublicCalls,
-        topLevelOverrideCalls,
-        topLevelUnsupportedMacroCalls,
-    );
+    // Deliberately plural: the top-level walk runs before assertMacroRules, so even duplicate marker
+    // statements (rejected right after) must be recognized as top-level calls here.
+    const publicMarkerEntries = getMacroEntries(macroEntries, 'swDefinePublic', 'statement');
+    const overrideMarkerEntries = getMacroEntries(macroEntries, 'swDefineOverride', 'statement');
+    const topLevelMarkerCalls = new Map<string, Set<CallExpression>>([
+        [
+            'swDefinePublic',
+            new Set(publicMarkerEntries.map((entry) => entry.call)),
+        ],
+        [
+            'swDefineOverride',
+            new Set(overrideMarkerEntries.map((entry) => entry.call)),
+        ],
+    ]);
+
+    assertNoUnsupportedSyntax(ast, mode, scriptOffset, topLevelMarkerCalls);
+
+    assertMacroRules(macroEntries, mode, scriptOffset);
 
     assertHoistedMacroArgumentsDoNotUseLocalSetup({
         scriptOffset,
         runtimeBindingNames,
-        macroCalls: [
-            ...definePropsCalls.map((call) => ({
-                name: 'defineProps',
-                call,
+        macroCalls: getHoistedArgumentMacroNames()
+            .flatMap((name) => getMacroEntries(macroEntries, name))
+            // defineOptions() is only hoisted in its statement form; a declaration is normal code.
+            .filter((entry) => entry.name !== 'defineOptions' || entry.form === 'statement')
+            .map((entry) => ({
+                name: entry.name,
+                call: entry.call,
             })),
-            ...withDefaultsCalls.map((call) => ({
-                name: 'withDefaults',
-                call,
-            })),
-            ...defineEmitsCalls.map((call) => ({
-                name: 'defineEmits',
-                call,
-            })),
-            ...defineOptionsStatements.map(({ call }) => ({
-                name: 'defineOptions',
-                call,
-            })),
-        ],
     });
 
     const { setupInputReplacements, propsMacro, emitsMacro, slotsMacro, optionsMacro } = analyzeSetupInputs(script, {
-        mode,
         scriptOffset,
-        definePropsCalls,
-        withDefaultsCalls,
-        defineEmitsCalls,
-        defineExposeStatements,
-        defineSlotsCalls,
-        defineOptionsStatements,
-    });
-
-    validateShopwareMarkers({
-        mode,
-        scriptOffset,
-        publicMarkerStatements,
-        overrideMarkerStatements,
+        entries: macroEntries,
     });
 
     const publicEntries =
-        publicMarkerStatements.length > 0
-            ? extractStaticObjectMarker(publicMarkerStatements[0], scriptOffset, 'swDefinePublic', 'public')
+        publicMarkerEntries.length > 0
+            ? extractStaticObjectMarker(publicMarkerEntries[0].call, scriptOffset, 'swDefinePublic', 'public')
             : [];
     const overrideEntries =
-        overrideMarkerStatements.length > 0
-            ? extractStaticObjectMarker(overrideMarkerStatements[0], scriptOffset, 'swDefineOverride', 'override')
+        overrideMarkerEntries.length > 0
+            ? extractStaticObjectMarker(overrideMarkerEntries[0].call, scriptOffset, 'swDefineOverride', 'override')
             : [];
 
     assertStaticObjectEntries(publicEntries, runtimeBindingNames, importedBindings, scriptOffset, 'swDefinePublic');
@@ -339,16 +232,18 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
             ...runtimeBindings,
             ...importedBindingsAsObjects,
         ],
-        mode,
         scriptOffset,
     );
 
+    // Post-assert there is at most one kept-at-root defineOptions(). The marker arrays stay plural
+    // because they predate the assert (see above); at this point they also hold at most one entry.
+    const keptAtRootEntry = getMacroEntry(macroEntries, 'defineOptions', 'statement');
     const bodyRemovals = [
         ...imports.map((importNode) => getNodeRange(importNode, scriptOffset)),
         ...typeDeclarations.map((declaration) => getNodeRange(declaration, scriptOffset)),
-        ...defineOptionsStatements.map((entry) => getNodeRange(entry.statement, scriptOffset)),
-        ...publicMarkerStatements.map((statement) => getNodeRange(statement, scriptOffset)),
-        ...overrideMarkerStatements.map((statement) => getNodeRange(statement, scriptOffset)),
+        ...(keptAtRootEntry ? [getNodeRange(keptAtRootEntry.statement, scriptOffset)] : []),
+        ...publicMarkerEntries.map((entry) => getNodeRange(entry.statement, scriptOffset)),
+        ...overrideMarkerEntries.map((entry) => getNodeRange(entry.statement, scriptOffset)),
     ];
     return {
         source: script,
@@ -371,4 +266,4 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
     };
 }
 
-export { type ImportBlock, type ShopwareSetupScriptAnalysis, UNSUPPORTED_VUE_MACROS, analyzeShopwareSetupScript };
+export { type ImportBlock, type ShopwareSetupScriptAnalysis, analyzeShopwareSetupScript };

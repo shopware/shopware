@@ -9,43 +9,12 @@
  * public base bindings or override replacement bindings before normal runtime state is collected.
  */
 
-import type { CallExpression, ExpressionStatement, Node as BabelNode, ObjectExpression, Statement } from '@babel/types';
+import type { CallExpression, Node as BabelNode, ObjectExpression } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
-import { getNodeRange, unwrapTransparentMacroExpression } from './utils';
+import { getNodeRange } from './utils';
 
 type ShopwareSetupMacroName = 'swDefinePublic' | 'swDefineOverride';
 type ShopwareSetupEntryType = 'public' | 'override';
-type StatementMacroCall = ExpressionStatement & { expression: CallExpression };
-
-/**
- * Groups top-level Vue setup macro calls found during the first script pass.
- *
- * The buckets intentionally store only forms Vue compiler-sfc would treat as setup macros, so nested
- * calls remain normal runtime calls and later diagnostics match native setup behavior.
- */
-type SetupMacroBuckets = {
-    definePropsCalls: CallExpression[];
-    defineEmitsCalls: CallExpression[];
-    defineSlotsCalls: CallExpression[];
-    withDefaultsCalls: CallExpression[];
-    topLevelUnsupportedMacroCalls: Set<CallExpression>;
-};
-
-const UNSUPPORTED_VUE_MACROS = new Set([
-    'defineModel',
-]);
-
-const WRONG_MODE_SW_DEFINE_PUBLIC_MESSAGE = [
-    'swDefinePublic() is a Shopware setup compile-time macro for base components.',
-    'It declares which setup bindings are public and may be replaced by overrides.',
-    'Override components must use swDefineOverride() to declare replacement bindings instead.',
-].join(' ');
-
-const WRONG_MODE_SW_DEFINE_OVERRIDE_MESSAGE = [
-    'swDefineOverride() is a Shopware setup compile-time macro for override components.',
-    'It declares which base component bindings this override replaces.',
-    'Base components must use swDefinePublic() to expose overrideable setup bindings instead.',
-].join(' ');
 
 const RESERVED_OVERRIDE_STATE_NAME = '__swOverride';
 
@@ -72,15 +41,14 @@ function assertSingleArgument(
 }
 
 /**
- * Extracts the exposed local binding names from the top-level `swDefinePublic()` marker.
+ * Extracts the exposed local binding names from the top-level `swDefinePublic()` marker call.
  */
 function extractStaticObjectMarker(
-    statement: StatementMacroCall,
+    callNode: CallExpression,
     scriptOffset: number,
     macroName: ShopwareSetupMacroName,
     entryType: ShopwareSetupEntryType,
 ): string[] {
-    const callNode = statement.expression;
     const publicObject = assertSingleArgument(callNode, scriptOffset, macroName);
     const seenKeys = new Set<string>();
 
@@ -131,102 +99,12 @@ function extractStaticObjectMarker(
 }
 
 /**
- * Detects a compiler-style macro represented by one expression statement.
- *
- * Matches exactly `swDefinePublic({ count });` - a bare statement call with no wrappers. Shopware
- * marker macros are strict statements, unlike Vue macros, which tolerate transparent TS wrappers.
- */
-function isStatementCompilerMacro(statement: Statement, macroName: string): statement is StatementMacroCall {
-    return (
-        statement.type === 'ExpressionStatement' &&
-        statement.expression.type === 'CallExpression' &&
-        statement.expression.callee.type === 'Identifier' &&
-        statement.expression.callee.name === macroName
-    );
-}
-
-/**
- * Returns a top-level Vue compiler macro call through transparent TypeScript wrappers.
- *
- * Matches `defineOptions({ inheritAttrs: false });` and wrapped forms such as
- * `defineOptions({ inheritAttrs: false }) as void;` - Vue treats both as the macro.
- */
-function getStatementCompilerMacroCall(statement: Statement, macroName: string): CallExpression | null {
-    if (statement.type !== 'ExpressionStatement') {
-        return null;
-    }
-
-    const call = unwrapTransparentMacroExpression(statement.expression);
-
-    if (call?.type === 'CallExpression' && call.callee.type === 'Identifier' && call.callee.name === macroName) {
-        return call;
-    }
-
-    return null;
-}
-
-/**
  * Detects a compiler macro call expression at any AST position, without unwrapping.
  *
  * Matches the `defineProps()` node itself, wherever it sits (e.g. nested in `withDefaults(...)`).
  */
 function isCompilerMacroCall(node: BabelNode, name: string): node is CallExpression {
     return node.type === 'CallExpression' && node.callee.type === 'Identifier' && node.callee.name === name;
-}
-
-/**
- * Adds a direct top-level setup macro call to one of the analyzer buckets.
- */
-function collectTopLevelSetupMacroCall(expression: BabelNode | null | undefined, buckets: SetupMacroBuckets): void {
-    const call = unwrapTransparentMacroExpression(expression);
-
-    if (!call || call.type !== 'CallExpression' || call.callee.type !== 'Identifier') {
-        return;
-    }
-
-    if (call.callee.name === 'defineProps') {
-        buckets.definePropsCalls.push(call);
-        return;
-    }
-
-    if (call.callee.name === 'defineEmits') {
-        buckets.defineEmitsCalls.push(call);
-        return;
-    }
-
-    if (call.callee.name === 'defineSlots') {
-        buckets.defineSlotsCalls.push(call);
-        return;
-    }
-
-    if (call.callee.name === 'withDefaults') {
-        buckets.withDefaultsCalls.push(call);
-        return;
-    }
-
-    if (UNSUPPORTED_VUE_MACROS.has(call.callee.name)) {
-        buckets.topLevelUnsupportedMacroCalls.add(call);
-    }
-}
-
-/**
- * Collects Vue compiler macro calls only from the direct top-level forms that compiler-sfc recognizes.
- */
-function collectTopLevelSetupMacroCalls(statement: Statement, buckets: SetupMacroBuckets): void {
-    // e.g. `defineEmits(['save']);` - a bare macro statement without an assignment.
-    if (statement.type === 'ExpressionStatement') {
-        collectTopLevelSetupMacroCall(statement.expression, buckets);
-        return;
-    }
-
-    if (statement.type !== 'VariableDeclaration') {
-        return;
-    }
-
-    // e.g. `const emit = defineEmits(['save']);` - the macro call is the declaration initializer.
-    statement.declarations.forEach((declaration) => {
-        collectTopLevelSetupMacroCall(declaration.init, buckets);
-    });
 }
 
 /**
@@ -237,19 +115,11 @@ function isWithDefaultsCall(node: BabelNode): node is CallExpression {
 }
 
 export {
-    type SetupMacroBuckets,
     type ShopwareSetupEntryType,
     type ShopwareSetupMacroName,
-    type StatementMacroCall,
     RESERVED_OVERRIDE_STATE_NAME,
     SHOPWARE_SETUP_INTERNAL_PREFIX,
-    UNSUPPORTED_VUE_MACROS,
-    WRONG_MODE_SW_DEFINE_OVERRIDE_MESSAGE,
-    WRONG_MODE_SW_DEFINE_PUBLIC_MESSAGE,
-    collectTopLevelSetupMacroCalls,
     extractStaticObjectMarker,
-    getStatementCompilerMacroCall,
     isCompilerMacroCall,
-    isStatementCompilerMacro,
     isWithDefaultsCall,
 };

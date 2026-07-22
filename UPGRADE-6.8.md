@@ -86,6 +86,10 @@ Flows triggered during an HTTP request, Messenger message, or console command ar
 For HTTP requests, buffered flows run during kernel termination; for Messenger and console execution, they run after the message or command has been handled.
 The flows still run in the same process and are not automatically dispatched to a message queue.
 
+This protects the main business process from failures and unexpected state mutations caused by flow actions, and avoids delaying it with expensive actions such as sending mail.
+Keeping execution in the same process, but after the main unit of work, also avoids the unpredictable delay of dispatching every flow through the message queue.
+The motivation, considered alternatives, and consequences are described in the [architecture decision record](adr/2025-01-31-move-flow-execution-after-business-process.md) and the [public RFC discussion](https://github.com/shopware/shopware/discussions/6750).
+
 This changes the ordering of Flow Builder actions relative to synchronous event subscribers and the initiating business operation:
 
 - Code that dispatches a `FlowEventAware` event returns before matching flows have run.
@@ -101,6 +105,7 @@ Tests that dispatch flow-aware events directly must also trigger the correspondi
 
 The deprecated `Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent` and its dynamic event names are removed.
 To modify the criteria used to restore entity data for mail-related flow actions, subscribe to `Shopware\Core\Content\Shared\MailFlow\Event\MailFlowDataCriteriaEvent` instead.
+This replacement lets mail preview, direct mail sending, and mail-related flow actions use the same entity data providers and criteria extension point, keeping extension-added associations consistent across those paths.
 
 The dynamic event name changes as follows:
 
@@ -115,6 +120,8 @@ Use the public `$criteria` and `$entityName` properties and the `getContext()` m
 
 During checkout, the persisted cart is now deleted directly after the order has been created and before `CheckoutOrderPlacedCriteriaEvent` and `CheckoutOrderPlacedEvent` are dispatched.
 Subscribers to these events can no longer reload the cart by its context token.
+Deleting it at this point prevents the already-converted cart from remaining available if later order loading or an order-placed subscriber fails after the order was persisted.
+Otherwise, the cart and order lifecycle could become inconsistent.
 
 Read required information from the created order instead.
 Associations needed by `CheckoutOrderPlacedEvent` can be added through `CheckoutOrderPlacedCriteriaEvent`.
@@ -509,6 +516,7 @@ Following helper methods have been removed from the `EntityDefinitionQueryHelper
 
 Cacheable GET Store API routes now participate in Shopware's regular HTTP cache and use the same cache policies and `sw-cache-hash` variations as the Storefront.
 This applies to routes marked with the `_httpCache` route attribute, including product, category, navigation, CMS, country, currency, language, salutation, and SEO data routes.
+The change improves response times for headless storefronts while reusing the Storefront's configurable HTTP cache infrastructure instead of reintroducing a separate Store API caching layer.
 
 This is separate from the old Store API route cache that was removed in 6.7.
 The removed configuration listed under [Removed Store-API Route caching configuration](#removed-store-api-route-caching-configuration) still has no replacement; selected Store API responses are now cached by the standard HTTP cache instead.

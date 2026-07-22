@@ -64,7 +64,8 @@ class MediaThumbnailEntity extends Entity
     #[ReturnTypeWidening(version: 'v6.8.0', newType: '?string')]
     public function getUrl(): string
     {
-        if (!Feature::isActive('v6.8.0.0') && $this->url === null) {
+        /** @deprecated tag:v6.8.0 - remove this fallback condition */
+        if ($this->url === null) {
             return '';
         }
 

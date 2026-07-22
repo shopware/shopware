@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Framework\Routing;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -31,7 +32,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(TemplateDataSubscriber::class)]
 class TemplateDataSubscriberTest extends TestCase
 {
-    private HreflangLoaderInterface&Stub $hreflangLoader;
+    private HreflangLoaderInterface&MockObject $hreflangLoader;
 
     private ShopIdProvider&Stub $shopIdProvider;
 
@@ -43,7 +44,7 @@ class TemplateDataSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->hreflangLoader = static::createStub(HreflangLoaderInterface::class);
+        $this->hreflangLoader = static::createMock(HreflangLoaderInterface::class);
         $this->shopIdProvider = static::createStub(ShopIdProvider::class);
         $this->activeAppsLoader = static::createStub(ActiveAppsLoader::class);
         $this->themeRuntimeConfigService = static::createStub(ThemeRuntimeConfigService::class);

@@ -105,6 +105,7 @@ jobs:
         if: steps.sts.outputs.token
         env:
           GH_TOKEN: ${{ steps.sts.outputs.token }}
+          DOWNSTREAM_TOKEN: ${{ steps.sts.outputs.token }}
           UPSTREAM_TOKEN: ${{ github.token }}
           CHECK_RUN_ID: ${{ steps.check.outputs.id }}
           DOWNSTREAM_REF: ${{ steps.version.outputs.shopware-version }}
@@ -114,7 +115,7 @@ jobs:
             --arg ref "${GITHUB_HEAD_REF:-$GITHUB_REF}" \
             --arg base_ref "$GITHUB_BASE_REF" \
             --arg repo "$GITHUB_REPOSITORY" \
-            --arg github_token "$UPSTREAM_TOKEN" \
+            --arg github_token "$DOWNSTREAM_TOKEN" \
             --arg url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
             --argjson check_run_id "$CHECK_RUN_ID" \
             --arg nightly "${{ inputs.nightly }}" \

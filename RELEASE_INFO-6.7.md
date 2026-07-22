@@ -2805,6 +2805,7 @@ The Administration now supports axios 1.x alongside the existing axios 0.30.2 to
 - Opt-in: Add `useAxiosV1: true` to request configuration to use axios 1.x
 - Repository requests use axios 1.x automatically. Pass `{ useAxiosV1: false }` in the repository factory options only as a temporary compatibility fallback.
 - Existing `httpClient.interceptors` and `httpClient.defaults` customizations are mirrored to both internal clients, so extensions do not need version-specific setup.
+- The Shopware HTTP client remains structurally compatible with the previous `AxiosInstance` type and `axios-mock-adapter`, while new code can use Shopware's `HttpClient` contract.
 
 **Future behavior (6.8.0+):**
 - Default: axios 1.x (when `V6_8_0_0` feature flag is active)

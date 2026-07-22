@@ -9,7 +9,7 @@ import ValidationApiService from './validation.api.service';
 function createValidationApiService() {
     const context = Shopware.Context?.api || {};
     const client = createHTTPClient(context);
-    const clientMock = new MockAdapter(client as never);
+    const clientMock = new MockAdapter(client);
     const loginService = createLoginService(client, context);
 
     const validationApiService = new ValidationApiService(client, loginService);

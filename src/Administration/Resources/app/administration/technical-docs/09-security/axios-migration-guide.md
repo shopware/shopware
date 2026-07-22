@@ -139,6 +139,8 @@ error.code             // More standardized codes like 'ERR_BAD_REQUEST'
 
 The Shopware HTTP facade mirrors interceptors and defaults to both internal clients. Existing extension code continues to use `httpClient.interceptors` and `httpClient.defaults` without importing or selecting an axios instance.
 
+Existing TypeScript code that assigns the client to `AxiosInstance`, uses `AxiosRequestConfig.useAxiosV1`, or passes the client to `axios-mock-adapter` remains compatible during the transition. New code should prefer Shopware's `HttpClient` type.
+
 ```javascript
 const interceptorId = httpClient.interceptors.request.use(myRequestHandler);
 httpClient.defaults.headers.common['my-header'] = 'value';

@@ -601,3 +601,21 @@ declare module '@vue/runtime-core' {
         validValues?: any[];
     }
 }
+
+declare module 'axios' {
+    interface AxiosRequestConfig {
+        // adds the shopware API version to the RequestConfig
+        version?: number;
+        // Opt-in flag to use axios v1 instead of v0 for this request
+        useAxiosV1?: boolean;
+    }
+}
+
+declare module 'axios-v1' {
+    interface AxiosRequestConfig {
+        // adds the shopware API version to the RequestConfig
+        version?: number;
+        // Opt-in flag to use axios v1 instead of v0 for this request
+        useAxiosV1?: boolean;
+    }
+}

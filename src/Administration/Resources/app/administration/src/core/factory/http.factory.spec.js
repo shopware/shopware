@@ -322,6 +322,23 @@ describe('core/factory/http.factory.js', () => {
         expect(axiosV1Request).not.toHaveBeenCalled();
     });
 
+    it('should keep the axios form helpers compatible', async () => {
+        const client = createHTTPClient();
+        const clientMock = new MockAdapter(client);
+        clientMock.onPost('/test-form').reply((config) => {
+            expect(config.headers['Content-Type']).toContain('multipart/form-data');
+            return [
+                200,
+                {},
+            ];
+        });
+
+        await client.postForm('/test-form', { name: 'v0' }, { useAxiosV1: false });
+        await client.postForm('/test-form', { name: 'v1' }, { useAxiosV1: true });
+
+        expect(clientMock.history.post).toHaveLength(2);
+    });
+
     it('should apply public interceptors and defaults to both axios versions', async () => {
         const client = createHTTPClient();
         const clientMock = new MockAdapter(client);

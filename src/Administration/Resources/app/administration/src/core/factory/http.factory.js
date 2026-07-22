@@ -110,6 +110,9 @@ function createClient() {
     dispatcher.post = (url, data, config = {}) => dispatcher({ ...config, method: 'post', url, data });
     dispatcher.put = (url, data, config = {}) => dispatcher({ ...config, method: 'put', url, data });
     dispatcher.patch = (url, data, config = {}) => dispatcher({ ...config, method: 'patch', url, data });
+    dispatcher.postForm = (url, data, config = {}) => dispatcher(createFormConfig('post', url, data, config));
+    dispatcher.putForm = (url, data, config = {}) => dispatcher(createFormConfig('put', url, data, config));
+    dispatcher.patchForm = (url, data, config = {}) => dispatcher(createFormConfig('patch', url, data, config));
     dispatcher.getUri = (config = {}) => {
         const shouldUseV1 = config?.useAxiosV1 ?? isV68 ?? false;
         return shouldUseV1 ? axiosV1.getUri(config) : axiosV0.getUri(config);
@@ -131,6 +134,19 @@ function createClient() {
     dispatcher.defaults = createMirroredDefaults(axiosV0.defaults, axiosV1.defaults, isV68);
 
     return dispatcher;
+}
+
+function createFormConfig(method, url, data, config) {
+    return {
+        ...config,
+        method,
+        headers: {
+            ...config.headers,
+            'Content-Type': 'multipart/form-data',
+        },
+        url,
+        data,
+    };
 }
 
 function createMirroredInterceptorManager(axiosV0Interceptors, axiosV1Interceptors) {

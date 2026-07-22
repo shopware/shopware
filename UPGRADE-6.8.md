@@ -1305,7 +1305,7 @@ httpClient.defaults.headers.common['my-header'] = 'value';
 httpClient.interceptors.request.eject(interceptorId);
 ```
 
-Extensions do not need to know which axios version handles a request. The underlying axios instances and their version-specific types are no longer part of the public HTTP-client contract.
+Extensions do not need to know which axios version handles a request. The underlying axios instances and their version-specific types are no longer part of the public HTTP-client contract. During the transition, the facade remains structurally compatible with `AxiosInstance`, `AxiosRequestConfig.useAxiosV1`, and `axios-mock-adapter` to avoid unnecessary source changes.
 
 ### Migration guide
 

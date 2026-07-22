@@ -11,7 +11,7 @@ import MockAdapter from 'axios-mock-adapter';
 function createSnippetApiService() {
     const context = Shopware.Context?.api || {};
     const client = createHTTPClient(context);
-    const clientMock = new MockAdapter(client as never);
+    const clientMock = new MockAdapter(client);
     const loginService = createLoginService(client, context);
     const snippetApiService = new SnippetApiService(client, loginService);
     return { snippetApiService, clientMock };

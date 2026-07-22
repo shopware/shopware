@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 #[CoversClass(AppController::class)]
 class AppControllerTest extends TestCase
 {

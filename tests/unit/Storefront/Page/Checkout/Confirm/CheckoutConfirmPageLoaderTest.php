@@ -42,7 +42,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('checkout')]
 #[CoversClass(CheckoutConfirmPageLoader::class)]
 class CheckoutConfirmPageLoaderTest extends TestCase
 {

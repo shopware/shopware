@@ -21,7 +21,7 @@ use Symfony\Component\Routing\RouteCollection;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 #[CoversClass(Router::class)]
 class RouterTest extends TestCase
 {

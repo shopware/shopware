@@ -46,7 +46,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('inventory')]
 #[CoversClass(ProductPageLoader::class)]
 class ProductPageLoaderTest extends TestCase
 {

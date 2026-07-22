@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 #[CoversClass(VerificationHashController::class)]
 class VerificationHashControllerTest extends TestCase
 {

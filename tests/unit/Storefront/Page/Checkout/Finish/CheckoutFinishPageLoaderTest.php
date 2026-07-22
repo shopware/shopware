@@ -35,7 +35,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('checkout')]
 #[CoversClass(CheckoutFinishPageLoader::class)]
 class CheckoutFinishPageLoaderTest extends TestCase
 {

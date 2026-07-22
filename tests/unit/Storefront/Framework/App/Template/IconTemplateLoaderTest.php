@@ -17,7 +17,7 @@ use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 #[CoversClass(IconTemplateLoader::class)]
 class IconTemplateLoaderTest extends TestCase
 {

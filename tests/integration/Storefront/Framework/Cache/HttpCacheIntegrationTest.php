@@ -28,7 +28,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 #[Group('cache')]
 class HttpCacheIntegrationTest extends TestCase
 {

@@ -29,7 +29,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('checkout')]
 #[CoversClass(OffcanvasCartPageLoader::class)]
 class OffcanvasCartPageLoaderTest extends TestCase
 {

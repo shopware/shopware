@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 #[CoversClass(RequestTransformer::class)]
 class RequestTransformerTest extends TestCase
 {

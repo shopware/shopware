@@ -48,7 +48,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('inventory')]
 #[CoversClass(ProductController::class)]
 class ProductControllerTest extends TestCase
 {

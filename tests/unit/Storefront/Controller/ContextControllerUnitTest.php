@@ -25,7 +25,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 #[CoversClass(ContextController::class)]
 class ContextControllerUnitTest extends TestCase
 {

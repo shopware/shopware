@@ -24,7 +24,7 @@ use Shopware\Storefront\Page\PageLoadedHook;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('checkout')]
 #[CoversClass(CheckoutCartPageLoadedHook::class)]
 #[CoversClass(CheckoutConfirmPageLoadedHook::class)]
 #[CoversClass(CheckoutInfoWidgetLoadedHook::class)]

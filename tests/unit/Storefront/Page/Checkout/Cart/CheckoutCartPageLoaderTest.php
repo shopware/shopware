@@ -37,7 +37,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('checkout')]
 #[CoversClass(CheckoutCartPageLoader::class)]
 class CheckoutCartPageLoaderTest extends TestCase
 {

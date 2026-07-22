@@ -45,6 +45,7 @@ export type ToolStatus = 'passed' | 'failed' | 'unmanaged' | 'no-files' | 'block
 export interface ToolRunResult {
     status: ToolStatus;
     output: string;
+    /** Wall-clock time of this tool's stage, including time queued behind other tool runs of the same check. */
     durationMs: number;
     /** Total findings the tool reported (native count, never baseline-adjusted). */
     findings: number;
@@ -136,6 +137,41 @@ export async function runPool<T>(jobs: Array<() => Promise<T>>, limit: number): 
     await Promise.all(Array.from({ length: Math.max(1, Math.min(limit, jobs.length)) }, () => worker()));
 
     return results;
+}
+
+export type Limiter = <T>(job: () => Promise<T>) => Promise<T>;
+
+/**
+ * Counting semaphore shared across every child-process fan-out of one check
+ * run: at most `capacity` limited jobs execute concurrently, FIFO. The
+ * per-extension pool alone cannot bound a single extension's internal fan-out.
+ */
+export function createLimiter(capacity: number): Limiter {
+    const limit = Math.max(1, capacity);
+    let active = 0;
+    const waiting: Array<() => void> = [];
+
+    return async <T>(job: () => Promise<T>): Promise<T> => {
+        if (active < limit) {
+            active += 1;
+        } else {
+            await new Promise<void>((resolve) => waiting.push(resolve));
+        }
+
+        try {
+            return await job();
+        } finally {
+            // Hand the slot to the next waiter directly — decrementing first
+            // would let a fresh caller and the woken waiter both claim it.
+            const next = waiting.shift();
+
+            if (next) {
+                next();
+            } else {
+                active -= 1;
+            }
+        }
+    };
 }
 
 function findFirstSourceFile(projectRoot: string, sourcePaths: string[]): string | null {
@@ -583,9 +619,11 @@ async function runTypeScriptPrograms(
     basePath: string,
     baselineEntries: BaselineTsEntry[],
     expectedFiles: (target: AdministrationTarget) => string[],
+    limit: Limiter,
 ): Promise<{ result: ToolRunResult; commands: string[] }> {
+    const startedAt = Date.now();
     const coverage = await Promise.all(
-        groups.map((group) => verifyVueTscCoverage(vueTscPath, group, projectRoot, expectedFiles)),
+        groups.map((group) => limit(() => verifyVueTscCoverage(vueTscPath, group, projectRoot, expectedFiles))),
     );
     const coverageErrors = coverage.flatMap((entry) => (entry.error ? [entry.error] : []));
 
@@ -594,7 +632,7 @@ async function runTypeScriptPrograms(
             result: {
                 status: 'tooling-error',
                 output: coverageErrors.join('\n'),
-                durationMs: 0,
+                durationMs: Date.now() - startedAt,
                 findings: 0,
             },
             commands: coverage.map((entry) => entry.command),
@@ -602,7 +640,7 @@ async function runTypeScriptPrograms(
     }
 
     const runs = await Promise.all(
-        groups.map((group) => runTypeScriptProgram(vueTscPath, group.configPath, projectRoot, basePath, [])),
+        groups.map((group) => limit(() => runTypeScriptProgram(vueTscPath, group.configPath, projectRoot, basePath, []))),
     );
     const outputs = runs.map((run) => run.result.output).filter((output) => output.trim() !== '');
     const parsedGroups = runs.map((run) => run.result.typeScriptFindings ?? []);
@@ -611,7 +649,7 @@ async function runTypeScriptPrograms(
         (finding) => `${finding.file}\u0000${finding.code}\u0000${finding.message}`,
     );
     const parseMismatch = runs.some((run) => run.result.parseMismatch === true);
-    const durationMs = runs.reduce((total, run) => total + run.result.durationMs, 0);
+    const durationMs = Date.now() - startedAt;
     const toolingErrors = runs.filter((run) => run.result.status === 'tooling-error');
 
     if (toolingErrors.length > 0) {
@@ -814,6 +852,7 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
               ]
             : [];
     const maxWorkers = options.maxWorkers ?? Math.max(1, Math.min(4, os.cpus().length - 1));
+    const limit = createLimiter(maxWorkers);
     const vueTscPath = path.join(administrationRoot, 'node_modules', 'vue-tsc', 'bin', 'vue-tsc.js');
     const eslintPath = path.join(administrationRoot, 'node_modules', 'eslint', 'bin', 'eslint.js');
 
@@ -826,18 +865,13 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
 
     const modeJobs = projects.flatMap((project) =>
         project.targets.map((target) => async () => {
+            const sampleFile = findFirstSourceFile(projectRoot, [target.sourcePath]);
             const [
                 tsResolution,
                 eslintResolution,
             ] = await Promise.all([
-                probeTsMode(target, projectRoot, administrationRoot),
-                probeEslintMode(
-                    target,
-                    projectRoot,
-                    administrationRoot,
-                    eslintBaseArguments,
-                    findFirstSourceFile(projectRoot, [target.sourcePath]),
-                ),
+                limit(() => probeTsMode(target, projectRoot, administrationRoot)),
+                limit(() => probeEslintMode(target, projectRoot, administrationRoot, eslintBaseArguments, sampleFile)),
             ]);
 
             return { projectName: project.name, target, tsResolution, eslintResolution };
@@ -949,6 +983,7 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
                 project.basePath,
                 baseline?.typescript ?? [],
                 (target) => listTypeCheckableFiles(projectRoot, [target.sourcePath]),
+                limit,
             );
 
             typescript = program.result;
@@ -978,6 +1013,7 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
                 project.basePath,
                 baseline?.typescriptSpecs ?? [],
                 (target) => listSpecFiles(projectRoot, [target.sourcePath]),
+                limit,
             );
 
             typescriptSpecs = program.result;
@@ -1024,12 +1060,13 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
                 eslintTargets,
                 (target) => target.eslintConfig ?? path.join(projectRoot, 'eslint.config.mjs'),
             );
+            const startedAt = Date.now();
             const runs = await Promise.all(
                 eslintGroups.map(async (group) => {
                     const sourcePaths = [...new Set(group.targets.map((target) => target.sourcePath))];
                     const eslintArguments = buildEslintArguments(eslintPath, eslintBaseArguments, sourcePaths, applyFix);
                     const command = formatCommand(projectRoot, eslintArguments);
-                    const run = await runCommand(process.execPath, eslintArguments, projectRoot);
+                    const run = await limit(() => runCommand(process.execPath, eslintArguments, projectRoot));
                     const output = relativizeToolOutput(run.output, projectRoot);
                     const nativeFindings = countEslintFindings(output);
                     const parsedFindings = parseEslintFindings(output);
@@ -1061,7 +1098,7 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
                     output: toolingError.run.timedOut
                         ? `ESLint timed out after ${PROCESS_TIMEOUT_MS / 1000}s.\n${outputs.join('\n\n')}`
                         : outputs.join('\n\n') || `ESLint exited with status ${toolingError.run.status} and no output.`,
-                    durationMs: runs.reduce((total, run) => total + run.run.durationMs, 0),
+                    durationMs: Date.now() - startedAt,
                     findings: parsedFindings.length,
                     eslintFindings: parsedFindings,
                     parseMismatch,
@@ -1077,7 +1114,7 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
                         (finding) => ({ file: finding.file, code: finding.rule }),
                     ),
                     output: applyFix ? output : appendFixHint(output, project.name),
-                    durationMs: runs.reduce((total, run) => total + run.run.durationMs, 0),
+                    durationMs: Date.now() - startedAt,
                     eslintFindings: parsedFindings,
                     parseMismatch: split.parseMismatch,
                 };

@@ -11,6 +11,7 @@ import {
     countEslintFindings,
     countTypeCheckableFiles,
     countTypeScriptFindings,
+    createLimiter,
     parseEslintFindings,
     parseTypeScriptFindings,
     relativizeToolOutput,
@@ -57,6 +58,44 @@ describe('scripts/extensionTooling/check units', () => {
             8,
         ]);
         expect(maxRunning).toBeLessThanOrEqual(3);
+    });
+
+    it('bounds concurrent limited jobs and releases slots when a job rejects', async () => {
+        const limit = createLimiter(2);
+        let running = 0;
+        let maxRunning = 0;
+        const job = (shouldFail: boolean) => async () => {
+            running += 1;
+            maxRunning = Math.max(maxRunning, running);
+            await new Promise((resolve) => {
+                setTimeout(resolve, 10);
+            });
+            running -= 1;
+
+            if (shouldFail) {
+                throw new Error('job failed');
+            }
+
+            return 'done';
+        };
+
+        const settled = await Promise.allSettled([
+            limit(job(false)),
+            limit(job(true)),
+            limit(job(false)),
+            limit(job(false)),
+            limit(job(false)),
+        ]);
+
+        expect(maxRunning).toBe(2);
+        expect(settled.filter((result) => result.status === 'rejected')).toHaveLength(1);
+        expect(settled.filter((result) => result.status === 'fulfilled')).toHaveLength(4);
+    });
+
+    it('floors the limiter capacity at one', async () => {
+        const limit = createLimiter(0);
+
+        await expect(limit(() => Promise.resolve('ran'))).resolves.toBe('ran');
     });
 
     it('threads --fix to ESLint only and appends the toolchain fix hint', () => {

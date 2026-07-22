@@ -22,7 +22,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *
  * @phpstan-import-type CookieGroupArray from CookieProviderInterface
  */
-#[Package('framework')]
+#[Package('discovery')]
 class CookieProvider
 {
     final public const SNIPPET_NAME_COOKIE_GROUP_REQUIRED = 'cookie.groupRequired';

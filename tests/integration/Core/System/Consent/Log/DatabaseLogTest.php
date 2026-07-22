@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\System\Consent\Log;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Consent\ConsentStatus;
 use Shopware\Core\System\Consent\Log\DatabaseLog;
@@ -11,6 +12,7 @@ use Symfony\Component\Clock\NativeClock;
 /**
  * @internal
  */
+#[Package('data-services')]
 class DatabaseLogTest extends TestCase
 {
     use IntegrationTestBehaviour;

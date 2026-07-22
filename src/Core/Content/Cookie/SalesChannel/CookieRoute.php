@@ -20,7 +20,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @experimental stableVersion:v6.8.0 feature:COOKIE_GROUPS_STORE_API
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class CookieRoute extends AbstractCookieRoute
 {

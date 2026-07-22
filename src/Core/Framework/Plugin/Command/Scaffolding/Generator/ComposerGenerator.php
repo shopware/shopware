@@ -45,20 +45,22 @@ class ComposerGenerator implements ScaffoldingGenerator
         $stubCollection->add($this->createComposer($configuration));
     }
 
+    public static function composerPackageName(string $namespace, string $name): string
+    {
+        $converter = new CamelCaseToSnakeCaseNameConverter();
+
+        return str_replace(['_', '\\'], ['-', ''], $converter->normalize($namespace) . '/' . $converter->normalize($name));
+    }
+
     private function createComposer(PluginScaffoldConfiguration $configuration): Stub
     {
-        $snakeCasePluginName = (new CamelCaseToSnakeCaseNameConverter())->normalize($configuration->name);
-        $snakeCaseNamespace = (new CamelCaseToSnakeCaseNameConverter())->normalize($configuration->namespace);
-
-        $composerName = str_replace(['_', '\\'], ['-', ''], $snakeCaseNamespace . '/' . $snakeCasePluginName);
-
         return Stub::template(
             'composer.json',
             self::STUB_DIRECTORY . '/composer.stub',
             [
                 'namespace' => str_replace('\\', '\\\\', $configuration->namespace),
                 'className' => str_replace('\\', '\\\\', $configuration->name),
-                'composerName' => $composerName,
+                'composerName' => self::composerPackageName($configuration->namespace, $configuration->name),
             ]
         );
     }

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Plugin\Command;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\AdminModuleGenerator;
+use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ComposerGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ScaffoldingGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingCollector;
@@ -133,12 +134,26 @@ class PluginCreateCommand extends Command
                 $configuration->hasOption(AdminModuleGenerator::OPTION_NAME)
                 && $configuration->getOption(AdminModuleGenerator::OPTION_NAME) === true
             ) {
+                // A static plugin lives under custom/static-plugins/, which
+                // plugin:refresh does not scan — it must be pulled in through
+                // the Composer path repository before the lifecycle sees it.
+                $discoverySteps = $input->getOption('static')
+                    ? [
+                        \sprintf('    composer require %s', ComposerGenerator::composerPackageName($namespace, $pluginName)),
+                        '    bin/console plugin:refresh',
+                        \sprintf('    bin/console plugin:install --activate %s', $pluginName),
+                        '    bin/console bundle:dump',
+                    ]
+                    : [
+                        '    bin/console plugin:refresh',
+                        \sprintf('    bin/console plugin:install --activate %s', $pluginName),
+                        '    bin/console bundle:dump',
+                    ];
+
                 $io->note([
                     'An example Administration module was scaffolded (TypeScript).',
                     'Install and activate the plugin, then type-check and lint it with the Administration toolchain:',
-                    '    bin/console plugin:refresh',
-                    \sprintf('    bin/console plugin:install --activate %s', $pluginName),
-                    '    bin/console bundle:dump',
+                    ...$discoverySteps,
                     \sprintf('    composer admin:check-extensions -- --only=%s', $pluginName),
                     'It needs no toolchain of its own (see extension-tooling/README.md).',
                 ]);

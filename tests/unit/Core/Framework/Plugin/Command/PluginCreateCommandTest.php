@@ -251,6 +251,41 @@ class PluginCreateCommandTest extends TestCase
             '#' . implode('.+', array_map(static fn (string $command): string => preg_quote($command, '#'), $expectedSequence)) . '#',
             $display,
         );
+
+        // A non-static plugin lives in the scanned custom/plugins folder, so no
+        // Composer install step is needed.
+        static::assertStringNotContainsString('composer require', $display);
+    }
+
+    public function testAdminModuleNoteAddsComposerInstallForStaticPlugins(): void
+    {
+        $commandTester = $this->getCommandTester([new AdminModuleGenerator()]);
+
+        $commandTester->execute([
+            'plugin-name' => 'TestPlugin',
+            'plugin-namespace' => 'Test',
+            '--static' => true,
+            '--create-admin-module' => true,
+        ]);
+
+        $commandTester->assertCommandIsSuccessful();
+
+        $display = (string) preg_replace('/\s+/', ' ', trim($commandTester->getDisplay(true)));
+
+        // A static plugin is only discoverable once required through the
+        // Composer path repository, so that step must come first.
+        $expectedSequence = [
+            'composer require test/test-plugin',
+            'bin/console plugin:refresh',
+            'bin/console plugin:install --activate TestPlugin',
+            'bin/console bundle:dump',
+            'composer admin:check-extensions -- --only=TestPlugin',
+        ];
+
+        static::assertMatchesRegularExpression(
+            '#' . implode('.+', array_map(static fn (string $command): string => preg_quote($command, '#'), $expectedSequence)) . '#',
+            $display,
+        );
     }
 
     public function testDirectoryExists(): void

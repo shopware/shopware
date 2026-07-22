@@ -177,7 +177,7 @@ class SalesChannelDomainEntity extends Entity
         $this->measurementUnits = $measurementUnits;
     }
 
-    public function isExternalStorefront(): bool
+    public function getIsExternalStorefront(): bool
     {
         return $this->isExternalStorefront;
     }

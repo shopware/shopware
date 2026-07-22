@@ -316,7 +316,7 @@ export default {
                     } else {
                         this.setErrorMessagesForEntity(entity);
                     }
-                }, 400);
+                }, 800);
             } else {
                 this.setErrorMessagesForEntity(entity);
             }

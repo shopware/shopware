@@ -70,10 +70,10 @@ class SeoUrlGenerator
         $domains = [];
         if ($salesChannel->isHeadless()) {
             $domains = $salesChannel->getDomains()
-                ?->filter(static fn (SalesChannelDomainEntity $domain): bool => $domain->isExternalStorefront())
+                ?->filter(static fn (SalesChannelDomainEntity $domain): bool => $domain->getIsExternalStorefront())
                 ->getElements() ?? [];
 
-            if (\count($domains) === 0) {
+            if ($domains === []) {
                 return [];
             }
         }

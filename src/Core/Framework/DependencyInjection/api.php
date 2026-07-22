@@ -31,6 +31,8 @@ use Shopware\Core\Framework\Api\Command\CreateIntegrationCommand;
 use Shopware\Core\Framework\Api\Command\DumpClassSchemaCommand;
 use Shopware\Core\Framework\Api\Command\DumpSchemaCommand;
 use Shopware\Core\Framework\Api\Command\StoreApiSchemaMigrationReportCommand;
+use Shopware\Core\Framework\Api\Command\OpenApiDtoGenerationCommand;
+use Shopware\Core\Framework\Api\Command\OpenApiValidationCommand;
 use Shopware\Core\Framework\Api\Context\ContextValueResolver;
 use Shopware\Core\Framework\Api\Controller\AccessKeyController;
 use Shopware\Core\Framework\Api\Controller\ApiController;
@@ -64,6 +66,9 @@ use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
 use Shopware\Core\Framework\Api\OAuth\ScopeRepository;
 use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
 use Shopware\Core\Framework\Api\OAuth\UserRepository;
+use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoClassRenderer;
+use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoGenerator;
+use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoSchemaParser;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterfaceValueResolver;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryRegistry;
 use Shopware\Core\Framework\Api\Response\Type\Api\JsonApiType;
@@ -103,6 +108,8 @@ use Shopware\Core\System\User\UserDefinition;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
@@ -200,6 +207,19 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('console.command');
 
+    $services->set(OpenApiValidationCommand::class)
+        ->args([
+            service(HttpClientInterface::class),
+            service(DefinitionService::class),
+        ])
+        ->tag('console.command');
+
+    $services->set(OpenApiDtoGenerationCommand::class)
+        ->args([
+            service(OpenApiDtoGenerator::class),
+        ])
+        ->tag('console.command');
+
     $services->set(JsonApiDecoder::class)
         ->tag('serializer.encoder');
 
@@ -285,6 +305,21 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(OpenApiDefinitionSchemaBuilder::class),
             tagged_iterator(StoreApiSchemaMigrationScopeProviderInterface::SERVICE_TAG),
+        ]);
+
+    $services->set(OpenApiDtoSchemaParser::class);
+
+    $services->set(OpenApiDtoClassRenderer::class)
+        ->args([
+            service(ClockInterface::class),
+        ]);
+
+    $services->set(OpenApiDtoGenerator::class)
+        ->args([
+            service(OpenApiDtoSchemaParser::class),
+            service(OpenApiDtoClassRenderer::class),
+            service(Filesystem::class),
+            param('kernel.bundles_metadata'),
         ]);
 
     $services->set(EntitySchemaGenerator::class);

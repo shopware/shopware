@@ -13,8 +13,10 @@ Shopware.Application.view.deleteReactive = () => {};
 describe('core/factory/http.factory.js', () => {
     let httpClient;
     let mock;
+    let activeFeatureFlags;
 
     beforeEach(async () => {
+        activeFeatureFlags = [...global.activeFeatureFlags];
         /**
          * axios-client-mock does not work with request interceptors. So we enable our interceptor here
          */
@@ -22,6 +24,10 @@ describe('core/factory/http.factory.js', () => {
         httpClient = createHTTPClient();
         mock = new MockAdapter(httpClient);
         process.env.NODE_ENV = 'test';
+    });
+
+    afterEach(() => {
+        global.activeFeatureFlags = activeFeatureFlags;
     });
 
     it('should create a HTTP client with response interceptors', async () => {
@@ -217,29 +223,76 @@ describe('core/factory/http.factory.js', () => {
         expect(typeof httpClient.request).toBe('function');
     });
 
-    it('should use axios v0 by default (without useAxiosV1 flag)', async () => {
-        mock.onGet('/test-v0-default').reply(200, { version: 'v0' });
+    it('should use axios v0 by default before v6.8', async () => {
+        global.activeFeatureFlags = global.activeFeatureFlags.filter((flag) => flag !== 'V6_8_0_0');
+        const client = createHTTPClient();
+        const mockV0 = new MockAdapter(client.axiosV0);
+        const mockV1 = new MockAdapter(client.axiosV1);
+        mockV0.onGet('/test-v0-default').reply(200, { version: 'v0' });
 
-        const response = await httpClient.get('/test-v0-default');
+        const response = await client.get('/test-v0-default');
 
         expect(response.data).toEqual({ version: 'v0' });
-        expect(mock.history.get).toHaveLength(1);
+        expect(mockV0.history.get).toHaveLength(1);
+        expect(mockV1.history.get).toHaveLength(0);
     });
 
-    it('should support requests with useAxiosV1 flag in config', async () => {
-        // This tests that the useAxiosV1 flag is accepted without errors
-        // Full integration testing of v1 routing requires more complex mock setup
-        mock.onPost('/test-with-flag').reply(200, { success: true });
+    it('should opt in to axios v1 per request before v6.8', async () => {
+        global.activeFeatureFlags = global.activeFeatureFlags.filter((flag) => flag !== 'V6_8_0_0');
+        const client = createHTTPClient();
+        const mockV0 = new MockAdapter(client.axiosV0);
+        const mockV1 = new MockAdapter(client.axiosV1);
+        mockV1.onPost('/test-with-flag').reply(200, { success: true });
 
-        const response = await httpClient.post(
+        const response = await client.post(
             '/test-with-flag',
             { data: 'test' },
             {
-                useAxiosV1: false, // Explicitly use v0 to ensure mock works
+                useAxiosV1: true,
             },
         );
 
         expect(response.data).toEqual({ success: true });
+        expect(mockV0.history.post).toHaveLength(0);
+        expect(mockV1.history.post).toHaveLength(1);
+    });
+
+    it('should use axios v1 by default with v6.8', async () => {
+        global.activeFeatureFlags = [
+            ...new Set([
+                ...global.activeFeatureFlags,
+                'V6_8_0_0',
+            ]),
+        ];
+        const client = createHTTPClient();
+        const mockV0 = new MockAdapter(client.axiosV0);
+        const mockV1 = new MockAdapter(client.axiosV1);
+        mockV1.onGet('/test-v1-default').reply(200, { version: 'v1' });
+
+        const response = await client.get('/test-v1-default');
+
+        expect(response.data).toEqual({ version: 'v1' });
+        expect(mockV0.history.get).toHaveLength(0);
+        expect(mockV1.history.get).toHaveLength(1);
+    });
+
+    it('should opt out to axios v0 per request with v6.8', async () => {
+        global.activeFeatureFlags = [
+            ...new Set([
+                ...global.activeFeatureFlags,
+                'V6_8_0_0',
+            ]),
+        ];
+        const client = createHTTPClient();
+        const mockV0 = new MockAdapter(client.axiosV0);
+        const mockV1 = new MockAdapter(client.axiosV1);
+        mockV0.onGet('/test-v0-opt-out').reply(200, { version: 'v0' });
+
+        const response = await client.get('/test-v0-opt-out', { useAxiosV1: false });
+
+        expect(response.data).toEqual({ version: 'v0' });
+        expect(mockV0.history.get).toHaveLength(1);
+        expect(mockV1.history.get).toHaveLength(0);
     });
 
     it('should have an isCancel method that detects cancellations', () => {

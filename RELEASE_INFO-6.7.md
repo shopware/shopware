@@ -2803,6 +2803,7 @@ The Administration now supports axios 1.x alongside the existing axios 0.30.2 to
 **Current behavior (6.7.x):**
 - Default: axios 0.30.2 (backward compatible)
 - Opt-in: Add `useAxiosV1: true` to request configuration to use axios 1.x
+- Repository requests use axios 1.x automatically. Pass `{ useAxiosV1: false }` in the repository factory options only as a temporary compatibility fallback.
 
 **Future behavior (6.8.0+):**
 - Default: axios 1.x (when `V6_8_0_0` feature flag is active)

@@ -11,6 +11,7 @@ import type EntityFactory from './entity-factory.data';
 import type EntityDefinition from './entity-definition.data';
 
 type options = {
+    useAxiosV1?: boolean;
     [key: string]: unknown;
 };
 
@@ -113,7 +114,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
             url += `?title=${criteria.getTitle()}`;
         }
 
-        return this.httpClient.post(url, criteria.parse(), { headers }).then((response) => {
+        return this.httpClient.post(url, criteria.parse(), this.buildRequestConfig(headers)).then((response) => {
             return response.data as IdSearchResult;
         });
     }
@@ -130,7 +131,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
             url += `?title=${criteria.getTitle()}`;
         }
 
-        return this.httpClient.post(url, criteria.parse(), { headers }).then((response) => {
+        return this.httpClient.post(url, criteria.parse(), this.buildRequestConfig(headers)).then((response) => {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             return this.hydrator.hydrateSearchResult(this.route, this.entityName, response, context, criteria);
         });
@@ -211,22 +212,24 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
             this.errorResolver.resetApiErrors();
         }
 
-        return this.httpClient.post('_action/sync', operations, { headers }).catch((errorResponse: ErrorResponse) => {
-            const errors: Error[] = [];
-            const result = errorResponse?.response?.data?.errors ?? [];
+        return this.httpClient
+            .post('_action/sync', operations, this.buildRequestConfig(headers))
+            .catch((errorResponse: ErrorResponse) => {
+                const errors: Error[] = [];
+                const result = errorResponse?.response?.data?.errors ?? [];
 
-            result.forEach((error) => {
-                if (error?.source?.pointer?.startsWith('/write/')) {
-                    error.source.pointer = error.source.pointer.substring(6);
-                    errors.push(error);
-                }
-            });
+                result.forEach((error) => {
+                    if (error?.source?.pointer?.startsWith('/write/')) {
+                        error.source.pointer = error.source.pointer.substring(6);
+                        errors.push(error);
+                    }
+                });
 
-            this.errorResolver.handleWriteErrors([{ entity, changes }], {
-                errors,
+                this.errorResolver.handleWriteErrors([{ entity, changes }], {
+                    errors,
+                });
+                throw errorResponse;
             });
-            throw errorResponse;
-        });
     }
 
     /**
@@ -238,9 +241,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
         }
 
         return this.httpClient
-            .post(`/_action/clone${this.route}/${entityId}`, behavior, {
-                headers: this.buildHeaders(context),
-            })
+            .post(`/_action/clone${this.route}/${entityId}`, behavior, this.buildRequestConfig(this.buildHeaders(context)))
             .then((response) => {
                 return response.data as unknown;
             });
@@ -331,7 +332,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
                         payload,
                     },
                 },
-                { headers },
+                this.buildRequestConfig(headers),
             )
             .then(({ data }) => {
                 if ((data as { success: boolean }).success === false) {
@@ -409,7 +410,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
     assign(id: string, context = Shopware.Context.api): Promise<AxiosResponse> {
         const headers = this.buildHeaders(context);
 
-        return this.httpClient.post(`${this.route}`, { id }, { headers });
+        return this.httpClient.post(`${this.route}`, { id }, this.buildRequestConfig(headers));
     }
 
     /**
@@ -419,7 +420,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
         const headers = this.buildHeaders(context);
 
         const url = `${this.route}/${id}`;
-        return this.httpClient.delete(url, { headers }).catch((errorResponse: ErrorResponse) => {
+        return this.httpClient.delete(url, this.buildRequestConfig(headers)).catch((errorResponse: ErrorResponse) => {
             const errors = errorResponse?.response?.data?.errors?.map((error) => {
                 return { error, id, entityName: this.entityName };
             });
@@ -483,7 +484,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
                         payload,
                     },
                 },
-                { headers },
+                this.buildRequestConfig(headers),
             )
             .then(({ data }) => {
                 if ((data as { success: boolean }).success === false) {
@@ -551,12 +552,14 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
 
         const url = `_action/version/${this.entityName.replace(/_/g, '-')}/${entityId}`;
 
-        return this.httpClient.post(url, params, { headers }).then((response: AxiosResponse<{ versionId: string }>) => {
-            return {
-                ...context,
-                ...{ versionId: response.data.versionId },
-            };
-        });
+        return this.httpClient
+            .post(url, params, this.buildRequestConfig(headers))
+            .then((response: AxiosResponse<{ versionId: string }>) => {
+                return {
+                    ...context,
+                    ...{ versionId: response.data.versionId },
+                };
+            });
     }
 
     /**
@@ -568,7 +571,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
 
         const url = `_action/version/merge/${this.entityName.replace(/_/g, '-')}/${versionId}`;
 
-        return this.httpClient.post(url, {}, { headers });
+        return this.httpClient.post(url, {}, this.buildRequestConfig(headers));
     }
 
     /**
@@ -579,7 +582,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
 
         const url = `/_action/version/${versionId}/${this.entityName.replace(/_/g, '-')}/${entityId}`;
 
-        return this.httpClient.post(url, {}, { headers });
+        return this.httpClient.post(url, {}, this.buildRequestConfig(headers));
     }
 
     /**
@@ -596,15 +599,17 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
             changes = changes || {};
             Object.assign(changes, { id: entity.id });
 
-            return this.httpClient.post(`${this.route}`, changes, { headers }).catch((errorResponse: ErrorResponse) => {
-                const errors = errorResponse?.response?.data?.errors;
-                if (!errors) {
-                    return;
-                }
+            return this.httpClient
+                .post(`${this.route}`, changes, this.buildRequestConfig(headers))
+                .catch((errorResponse: ErrorResponse) => {
+                    const errors = errorResponse?.response?.data?.errors;
+                    if (!errors) {
+                        return;
+                    }
 
-                this.errorResolver.handleWriteErrors([{ entity, changes }], { errors });
-                throw errorResponse;
-            });
+                    this.errorResolver.handleWriteErrors([{ entity, changes }], { errors });
+                    throw errorResponse;
+                });
         }
 
         if (typeof changes === 'undefined' || changes === null) {
@@ -612,7 +617,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
         }
 
         return this.httpClient
-            .patch(`${this.route}/${entity.id}`, changes, { headers })
+            .patch(`${this.route}/${entity.id}`, changes, this.buildRequestConfig(headers))
             .catch((errorResponse: ErrorResponse) => {
                 const errors = errorResponse?.response?.data?.errors;
                 if (!errors) {
@@ -632,10 +637,12 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
     sendDeletions(queue: DeletionQueue, context = Shopware.Context.api): Promise<AxiosResponse[]> {
         const headers = this.buildHeaders(context);
         const requests = queue.map((deletion) => {
-            return this.httpClient.delete(`${deletion.route}/${deletion.key}`, { headers }).catch((errorResponse) => {
-                this.errorResolver.handleDeleteError(errorResponse);
-                throw errorResponse;
-            });
+            return this.httpClient
+                .delete(`${deletion.route}/${deletion.key}`, this.buildRequestConfig(headers))
+                .catch((errorResponse) => {
+                    this.errorResolver.handleDeleteError(errorResponse);
+                    throw errorResponse;
+                });
         });
 
         return Promise.all(requests);
@@ -718,6 +725,13 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
             'Content-Type': string;
             'sw-api-compatibility': boolean;
             [key: string]: string | number | boolean;
+        };
+    }
+
+    private buildRequestConfig(headers: ReturnType<Repository<EntityName>['buildHeaders']>) {
+        return {
+            headers,
+            useAxiosV1: this.options.useAxiosV1 !== false,
         };
     }
 

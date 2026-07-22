@@ -45,13 +45,16 @@ this.httpClient.get('/api/endpoint', {
 
 ### Repository Usage
 
-When using repositories, the HTTP client is used internally. While repositories don't expose the `useAxiosV1` flag directly in their methods, the underlying HTTP client respects the flag when making requests.
+Repository requests use axios v1 by default before the global switch. This lets Shopware and extensions exercise the most common data-access path early without changing individual repository calls.
 
 ```javascript
-// Repository calls use the default axios v0
+// Repository calls use axios v1 automatically
 const product = await this.productRepository.get(productId, context);
 
-// To use axios v1, you would need to use the HTTP client directly
+// Temporary compatibility fallback for a repository that still requires axios v0
+const legacyProductRepository = Shopware.Service('repositoryFactory').create('product', null, {
+    useAxiosV1: false,
+});
 ```
 
 ### API Services
@@ -217,4 +220,3 @@ If you encounter issues or have questions about the axios migration:
 - [Axios v1 Migration Guide (Official)](https://github.com/axios/axios/blob/v1.x/MIGRATION_GUIDE.md)
 - [CVE-2023-45857 Details](https://nvd.nist.gov/vuln/detail/CVE-2023-45857)
 - [AbortController MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/AbortController)
-

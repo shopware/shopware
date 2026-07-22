@@ -1251,6 +1251,7 @@ This change addresses the security vulnerability CVE-2023-45857 present in older
 **Shopware 6.7.x:**
 - Default: axios 0.30.2
 - Opt-in to v1: `useAxiosV1: true`
+- Repository requests use axios 1.x automatically so the standard data-access path is migrated before the global switch. A repository can temporarily opt out through `{ useAxiosV1: false }` in its factory options.
 
 **Shopware 6.8.0+ (with `V6_8_0_0` feature flag active):**
 - Default: axios 1.x

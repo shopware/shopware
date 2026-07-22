@@ -103,6 +103,44 @@ describe('repository.data.ts', () => {
         expect(clientMock.history.post[3].url).toBe('/search-ids/product?title=ImmaTest');
     });
 
+    it('should use axios v1 for repository requests by default', async () => {
+        responses.addResponse({
+            method: 'POST',
+            url: '/search/product',
+            status: 200,
+            response: {
+                data: [],
+            },
+        });
+
+        const repository = repositoryFactory.create('product');
+
+        await repository.search(new Criteria());
+
+        expect(clientMock.v0.history.post).toHaveLength(0);
+        expect(clientMock.v1.history.post).toHaveLength(1);
+    });
+
+    it('should allow repositories to opt out of axios v1', async () => {
+        responses.addResponse({
+            method: 'POST',
+            url: '/search/product',
+            status: 200,
+            response: {
+                data: [],
+            },
+        });
+
+        const repository = repositoryFactory.create('product', null, {
+            useAxiosV1: false,
+        });
+
+        await repository.search(new Criteria());
+
+        expect(clientMock.v0.history.post).toHaveLength(1);
+        expect(clientMock.v1.history.post).toHaveLength(0);
+    });
+
     it('should build the correct headers', async () => {
         const repositoryData = createRepositoryData('language');
         const actualHeaders = repositoryData.buildHeaders(mockContext());

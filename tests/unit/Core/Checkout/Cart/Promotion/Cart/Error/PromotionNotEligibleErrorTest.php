@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(PromotionNotEligibleError::class)]
 #[Package('checkout')]
+#[CoversClass(PromotionNotEligibleError::class)]
 class PromotionNotEligibleErrorTest extends TestCase
 {
     public function testDefaultConstructor(): void

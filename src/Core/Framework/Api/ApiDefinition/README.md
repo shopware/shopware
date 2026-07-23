@@ -44,6 +44,8 @@ The platform CI runs the check in core scope:
 bin/console framework:store-api:schema-migration-report --scope=core --fail-on-mismatch --pretty -
 ```
 
+The OpenAPI workflow must install and serve Shopware in the `prod` environment. The migration report, generated StoreAPI schema, Redocly lint, and Explore OpenAPI snapshot should all use the public production schema, not test-only fixture definitions.
+
 `--scope=core` checks platform `src/` entity definitions against the core Framework StoreAPI JSON schema directory only. It intentionally ignores extension PHP definitions and extension schema files, so downstream repositories do not inherit core migration debt. Use `--scope=all` only for local investigation when installed extensions should be included in the report. If downstream CI should enforce the migration later, add a dedicated extension scope with extension-owned allowlists instead of reusing the core allowlist.
 
 ### Using `x-parameter-group` for Reusable Parameters

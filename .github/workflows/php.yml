@@ -203,6 +203,7 @@ jobs:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
+          env: prod
           install: true
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}

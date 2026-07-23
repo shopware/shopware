@@ -6,6 +6,10 @@
 
 ## Core
 
+### Polyfill packages are installed as declared dependencies
+
+The `shopware/core` and `shopware/platform` package manifests no longer replace Symfony polyfill packages or `paragonie/random_compat`. Composer now installs the polyfills required by the resolved dependency graph instead of treating them as supplied by Shopware. Extension projects that depend on these packages continue to work; their production dependency tree can gain the required polyfill packages. Projects that guarantee the required native PHP functionality can add relevant packages to their own root `replace` section to avoid installing them and reduce their vendor directory size; they must not replace `symfony/polyfill-mbstring`, which Core requires for `mb_ltrim()` on PHP 8.2 and 8.3.
+
 ### OpenAPI generation uses swagger-php 6.4
 
 Shopware now requires `zircote/swagger-php` 6.4 for OpenAPI 3.2 generation.
@@ -45,13 +49,6 @@ The existing `reason:*` annotations will be migrated to these attributes in foll
 
 # 6.7.13.0
 
-## Storefront
-
-### Deprecated `type` variable in address manager templates
-
-The Twig variable `type` in the address manager modal templates (`address-manager-modal-list.html.twig`, `address-manager-modal-create-address.html.twig`, and `address-manager-item.html.twig`) is deprecated in favor of `addressType`.
-The old variable remains available during the transition and will be removed with Shopware 6.8.
-Themes and plugins that extend these templates should migrate to `addressType`.
 ## Critical Fixes
 
 ### Store API requests no longer start PHP sessions
@@ -385,6 +382,12 @@ public function provideFormData(MailDataSimulatorFormDataEvent $event): void
 - While you still support the deprecated version, catch both classes, since they do not share a common parent.
 
 ## Storefront
+
+### Deprecated `type` variable in address manager templates
+
+The Twig variable `type` in the address manager modal templates (`address-manager-modal-list.html.twig`, `address-manager-modal-create-address.html.twig`, and `address-manager-item.html.twig`) is deprecated in favor of `addressType`.
+The old variable remains available during the transition and will be removed with Shopware 6.8.
+Themes and plugins that extend these templates should migrate to `addressType`.
 
 ### Form validation messages use Storefront snippets
 

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\Command\ThemePrepareIconsCommand;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Exception\RuntimeException;
@@ -13,6 +14,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ThemePrepareIconsCommand::class)]
 class ThemePrepareIconsCommandTest extends TestCase
 {

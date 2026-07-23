@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\RateLimiter\Policy;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Policy\SystemConfigLimiter;
 use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoff;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
@@ -18,6 +19,7 @@ use Symfony\Component\RateLimiter\Storage\CacheStorage;
  *
  * @phpstan-import-type RateLimiterConfig from RateLimiterFactory
  */
+#[Package('framework')]
 #[CoversClass(SystemConfigLimiter::class)]
 class SystemConfigLimiterTest extends TestCase
 {
@@ -146,7 +148,7 @@ class SystemConfigLimiterTest extends TestCase
             $cacheStorage,
             $systemConfig,
             new MockClock(),
-            $this->createMock(LockFactory::class),
+            static::createStub(LockFactory::class),
         );
 
         return $factory->create('example');

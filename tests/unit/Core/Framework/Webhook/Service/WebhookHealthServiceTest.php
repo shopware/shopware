@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
 use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(WebhookHealthService::class)]
 class WebhookHealthServiceTest extends TestCase
 {
@@ -117,7 +119,7 @@ class WebhookHealthServiceTest extends TestCase
     {
         $webhookId = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $relatedWebhooks = $this->createMock(RelatedWebhooks::class);
         $relatedWebhooks->expects($this->once())

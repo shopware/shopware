@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 use Shopware\Elasticsearch\Admin\AdminSearcher;
 use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
@@ -26,6 +27,7 @@ use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(AdminSearcher::class)]
 class AdminSearcherTest extends TestCase
 {
@@ -42,10 +44,10 @@ class AdminSearcherTest extends TestCase
         $this->registry = static::createStub(AdminSearchRegistry::class);
 
         $indexer = new ProductAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
         $this->registry->method('getIndexers')->willReturn(['product' => $indexer]);
@@ -56,9 +58,9 @@ class AdminSearcherTest extends TestCase
             $this->client,
             $this->registry,
             $searchHelper,
-            $this->createMock(DefinitionInstanceRegistry::class),
-            $this->createMock(AbstractElasticsearchSearchHydrator::class),
-            $this->createMock(ElasticsearchHelper::class),
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(AbstractElasticsearchSearchHydrator::class),
+            static::createStub(ElasticsearchHelper::class),
             '5s',
             20,
             'query_then_fetch',
@@ -91,9 +93,9 @@ class AdminSearcherTest extends TestCase
             $this->client,
             $this->registry,
             $searchHelper,
-            $this->createMock(DefinitionInstanceRegistry::class),
-            $this->createMock(AbstractElasticsearchSearchHydrator::class),
-            $this->createMock(ElasticsearchHelper::class),
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(AbstractElasticsearchSearchHydrator::class),
+            static::createStub(ElasticsearchHelper::class),
             '1s',
             5,
             'query_then_fetch',
@@ -108,14 +110,16 @@ class AdminSearcherTest extends TestCase
     {
         $this->registry->method('getIndexer')->willThrowException(ElasticsearchException::indexingError(['Indexer for name test not found']));
 
+        $this->client->expects($this->never())->method('msearch');
+
         $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin', 'test', true, new NullLogger());
         $searcher = new AdminSearcher(
             $this->client,
             $this->registry,
             $searchHelper,
-            $this->createMock(DefinitionInstanceRegistry::class),
-            $this->createMock(AbstractElasticsearchSearchHydrator::class),
-            $this->createMock(ElasticsearchHelper::class),
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(AbstractElasticsearchSearchHydrator::class),
+            static::createStub(ElasticsearchHelper::class),
             '5s',
             20,
             'query_then_fetch',
@@ -179,6 +183,45 @@ class AdminSearcherTest extends TestCase
 
         static::assertNotEmpty($data['product']);
         static::assertSame(1, $data['product']['total']);
+    }
+
+    public function testSearchReturnsEmptyResultWhenClientFailsAndExceptionsAreSuppressed(): void
+    {
+        $this->client
+            ->expects($this->once())
+            ->method('msearch')
+            ->willThrowException(new \RuntimeException('No alive nodes found in your cluster'));
+
+        $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin', 'prod', false, new NullLogger());
+        $searcher = new AdminSearcher(
+            $this->client,
+            $this->registry,
+            $searchHelper,
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(AbstractElasticsearchSearchHydrator::class),
+            static::createStub(ElasticsearchHelper::class),
+            '5s',
+            20,
+            'query_then_fetch',
+        );
+
+        $data = $searcher->search('elasticsearch', ['product'], Context::createDefaultContext());
+
+        static::assertSame([], $data);
+    }
+
+    public function testSearchThrowsWhenClientFailsAndExceptionsAreEnabled(): void
+    {
+        $exception = new \RuntimeException('No alive nodes found in your cluster');
+
+        $this->client
+            ->expects($this->once())
+            ->method('msearch')
+            ->willThrowException($exception);
+
+        $this->expectExceptionObject($exception);
+
+        $this->searcher->search('elasticsearch', ['product'], Context::createDefaultContext());
     }
 
     /**

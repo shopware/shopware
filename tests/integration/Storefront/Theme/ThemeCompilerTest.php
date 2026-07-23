@@ -15,6 +15,7 @@ use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
@@ -50,6 +51,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 class ThemeCompilerTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -69,13 +71,16 @@ class ThemeCompilerTest extends TestCase
         $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
 
         // Avoid filesystem operations
-        $mockFilesystem = $this->createMock(Filesystem::class);
+        $mockThemeFilesystem = $this->createMock(Filesystem::class);
+        $mockTempFilesystem = $this->createMock(Filesystem::class);
+        $mockAssetFilesystem = $this->createMock(Filesystem::class);
 
         $this->mockSalesChannelId = '98432def39fc4624b33213a56b8c944d';
 
         $this->themeCompiler = new ThemeCompiler(
-            $mockFilesystem,
-            $mockFilesystem,
+            $mockThemeFilesystem,
+            $mockTempFilesystem,
+            $mockAssetFilesystem,
             new CopyBatchInputFactory(),
             $themeFileResolver,
             true,
@@ -440,9 +445,11 @@ PHP_EOL;
 
         $fs = new Filesystem(new InMemoryFilesystemAdapter());
         $tmpFs = new Filesystem(new InMemoryFilesystemAdapter());
+        $assetFs = new Filesystem(new InMemoryFilesystemAdapter());
         $compiler = new ThemeCompiler(
             $fs,
             $tmpFs,
+            $assetFs,
             new CopyBatchInputFactory(),
             $resolver,
             true,

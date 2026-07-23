@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Plugin\Command\Lifecycle;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
@@ -10,12 +9,13 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'plugin:uninstall',
     description: 'Uninstall a plugin',
 )]
-#[Package('framework')]
 class PluginUninstallCommand extends AbstractPluginLifecycleCommand
 {
     private const LIFECYCLE_METHOD = 'uninstall';
@@ -33,7 +33,7 @@ class PluginUninstallCommand extends AbstractPluginLifecycleCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         $context = Context::createCLIContext();
         $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input, $context);
 
@@ -61,7 +61,7 @@ class PluginUninstallCommand extends AbstractPluginLifecycleCommand
             $io->success(\sprintf('Uninstalled %d plugins.', $uninstalledPluginCount));
         }
 
-        $this->handleClearCacheOption($input, $io, 'uninstalling');
+        $this->handleClearCache($input, $io, 'uninstalling');
 
         return self::SUCCESS;
     }

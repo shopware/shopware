@@ -100,6 +100,7 @@
                             "labelCodeAmount": "Number of promotion codes",
                             "notComplexEnoughException": "Cannot create the amount of promotions codes requested. Make sure your pattern is sufficiently complex. To ensure that the promotion codes are sufficiently random, no more than 50% of all possible codes will be generated.",
                             "alreadyInUseException": "The chosen code pattern already exists in another promotion. Please provide a different pattern.",
+                            "invalidPatternException": "The code pattern must contain at least one variable (%s or %d).",
                             "unknownErrorCode": "Something went wrong, while generating promotion codes. Please use the developer tools for more information."
                         }
                     }
@@ -216,7 +217,6 @@
                 },
                 "pricesModal": {
                     "advancedPricesHeader": "Advanced prices",
-                    "closeModal": "Close",
                     "labelCurrency": "Currency",
                     "labelPrice": "Value",
                     "linkAdvancedPrices": "Open advanced prices view"
@@ -284,7 +284,6 @@
                     "linkAdvancedPrices": "Open advanced prices view",
                     "pricesModal": {
                         "advancedPricesHeader": "Advanced prices",
-                        "closeModal": "Close",
                         "labelCurrency": "Currency",
                         "labelPrice": "Value"
                     }

@@ -24,6 +24,10 @@ abstract class AbstractAppLifecycle
 
     abstract public function install(Manifest $manifest, AppInstallParameters $parameters, Context $context): void;
 
+    abstract public function activate(string $appId, Context $context): void;
+
+    abstract public function deactivate(string $appId, Context $context): void;
+
     /**
      * @param array{id: string, roleId: string} $app
      */
@@ -32,5 +36,5 @@ abstract class AbstractAppLifecycle
     /**
      * @param array{id: string} $app
      */
-    abstract public function delete(string $appName, array $app, Context $context, bool $keepUserData = false): void;
+    abstract public function uninstall(string $appName, array $app, Context $context, bool $keepUserData = false): void;
 }

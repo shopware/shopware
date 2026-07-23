@@ -38,8 +38,8 @@ use Symfony\Contracts\Cache\CacheInterface;
 /**
  * @internal
  */
-#[CoversClass(CartRuleLoader::class)]
 #[Package('checkout')]
+#[CoversClass(CartRuleLoader::class)]
 class CartRuleLoaderTest extends TestCase
 {
     public function testLoadByTokenCreatesNewCart(): void
@@ -94,13 +94,13 @@ class CartRuleLoaderTest extends TestCase
             $persister,
             $processor,
             new NullLogger(),
-            $this->createMock(CacheInterface::class),
+            static::createStub(CacheInterface::class),
             $ruleLoader,
-            $this->createMock(TaxDetector::class),
-            $this->createMock(Connection::class),
+            static::createStub(TaxDetector::class),
+            static::createStub(Connection::class),
             $factory,
             new ExtensionDispatcher($dispatcher),
-            $this->createMock(AbstractTranslator::class),
+            static::createStub(AbstractTranslator::class),
         );
 
         static::assertSame($calculatedCart, $cartRuleLoader->loadByToken($salesChannelContext, $salesChannelContext->getToken())->getCart());
@@ -172,16 +172,16 @@ class CartRuleLoaderTest extends TestCase
             ->with(static::isInstanceOf(CheckoutCartRuleLoaderExtension::class));
 
         $cartRuleLoader = new CartRuleLoader(
-            $this->createMock(AbstractCartPersister::class),
+            static::createStub(AbstractCartPersister::class),
             $processor,
             new NullLogger(),
-            $this->createMock(CacheInterface::class),
+            static::createStub(CacheInterface::class),
             $ruleLoader,
-            $this->createMock(TaxDetector::class),
-            $this->createMock(Connection::class),
-            $this->createMock(CartFactory::class),
+            static::createStub(TaxDetector::class),
+            static::createStub(Connection::class),
+            static::createStub(CartFactory::class),
             new ExtensionDispatcher($dispatcher),
-            $this->createMock(AbstractTranslator::class),
+            static::createStub(AbstractTranslator::class),
         );
 
         $cart = new Cart('test');
@@ -214,7 +214,7 @@ class CartRuleLoaderTest extends TestCase
             reason: $reason,
         ));
 
-        $processor = $this->createMock(Processor::class);
+        $processor = static::createStub(Processor::class);
         $processor
             ->method('process')
             ->willReturn($processedCart);
@@ -244,15 +244,15 @@ class CartRuleLoaderTest extends TestCase
             });
 
         $cartRuleLoader = new CartRuleLoader(
-            $this->createMock(AbstractCartPersister::class),
+            static::createStub(AbstractCartPersister::class),
             $processor,
             new NullLogger(),
-            $this->createMock(CacheInterface::class),
+            static::createStub(CacheInterface::class),
             $ruleLoader,
-            $this->createMock(TaxDetector::class),
-            $this->createMock(Connection::class),
-            $this->createMock(CartFactory::class),
-            new ExtensionDispatcher($this->createMock(EventDispatcherInterface::class)),
+            static::createStub(TaxDetector::class),
+            static::createStub(Connection::class),
+            static::createStub(CartFactory::class),
+            new ExtensionDispatcher(static::createStub(EventDispatcherInterface::class)),
             $translator,
         );
 

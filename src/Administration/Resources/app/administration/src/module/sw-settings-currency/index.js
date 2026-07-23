@@ -22,7 +22,7 @@ Module.register('sw-settings-currency', {
     title: 'sw-settings-currency.general.mainMenuItemGeneral',
     description: 'Currency section in the settings module',
     color: '#9AA8B5',
-    icon: 'solid-cog',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'currency',
 

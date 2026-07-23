@@ -32,8 +32,8 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class ResetPasswordRoute extends AbstractResetPasswordRoute
 {
     /**
@@ -101,6 +101,10 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
             'legacyPassword' => null,
             'legacyEncoder' => null,
         ];
+
+        if ($customer->getDoubleOptInRegistration() && $customer->getDoubleOptInConfirmDate() === null) {
+            $customerData['doubleOptInConfirmDate'] = $this->clock->now();
+        }
 
         $this->customerRepository->update([$customerData], $context->getContext());
         $this->deleteRecoveryForCustomer($customerRecovery, $context->getContext());

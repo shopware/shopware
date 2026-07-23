@@ -4,11 +4,10 @@ namespace Shopware\Core\Framework\Mcp\Command;
 
 use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\Prompt;
-use Mcp\Schema\Resource;
+use Mcp\Schema\ResourceDefinition;
 use Mcp\Schema\ResourceTemplate;
 use Mcp\Schema\Tool;
 use Mcp\Server\Builder;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
@@ -23,17 +22,17 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  */
-#[AsCommand(name: 'debug:mcp', description: 'List registered MCP capabilities (tools, prompts, resources)')]
 #[Package('framework')]
+#[AsCommand(name: 'debug:mcp', description: 'List registered MCP capabilities (tools, prompts, resources)')]
 class DebugMcpCommand extends Command
 {
     /**
      * @internal
      *
      * $builder and $registry are nullable via nullOnInvalid(): null when the MCP
-     * bundle is absent. Once MCP_SERVER is stable (v6.8.0) remove the nullable
+     * bundle is absent. Once MCP is stable (v6.8.0) remove the nullable
      * types and the null guards in execute().
      */
     public function __construct(
@@ -56,9 +55,14 @@ class DebugMcpCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $name = $input->getArgument('name');
+        $integration = $input->getOption('integration');
+        $tools = (bool) $input->getOption('tools');
+        $prompts = (bool) $input->getOption('prompts');
+        $resources = (bool) $input->getOption('resources');
         $io = new SymfonyStyle($input, $output);
 
-        if (!Feature::isActive('MCP_SERVER') || $this->builder === null || $this->registry === null) {
+        if ($this->builder === null || $this->registry === null) {
             $io->error('MCP bundle is not installed.');
 
             return self::FAILURE;
@@ -66,35 +70,30 @@ class DebugMcpCommand extends Command
 
         $this->builder->build();
 
-        $accessKey = $input->getOption('integration');
         $toolsAllowlist = null;
-        if (\is_string($accessKey) && $accessKey !== '') {
-            $allowlist = $this->allowlistProvider->forAccessKey($accessKey);
-            $toolsAllowlist = $allowlist['tools'];
+        if ($integration !== null && $integration !== '') {
+            $allowlist = $this->allowlistProvider->forAccessKey($integration);
+            $toolsAllowlist = $allowlist->tools;
             if ($toolsAllowlist === null) {
-                $io->note(\sprintf('Integration "%s": no tool restriction (all tools allowed).', $accessKey));
+                $io->note(\sprintf('Integration "%s": no tool restriction (all tools allowed).', $integration));
             } else {
-                $io->note(\sprintf('Integration "%s": %d tool(s) allowed.', $accessKey, \count($toolsAllowlist)));
+                $io->note(\sprintf('Integration "%s": %d tool(s) allowed.', $integration, \count($toolsAllowlist)));
             }
         }
 
-        $name = $input->getArgument('name');
         if ($name !== null) {
             return $this->renderDetail($io, $name);
         }
 
-        $filterTools = (bool) $input->getOption('tools');
-        $filterPrompts = (bool) $input->getOption('prompts');
-        $filterResources = (bool) $input->getOption('resources');
-        $noFilter = !$filterTools && !$filterPrompts && !$filterResources;
+        $noFilter = !$tools && !$prompts && !$resources;
 
-        if ($filterTools || $noFilter) {
+        if ($tools || $noFilter) {
             $this->renderTools($io, $toolsAllowlist);
         }
-        if ($filterPrompts || $noFilter) {
+        if ($prompts || $noFilter) {
             $this->renderPrompts($io);
         }
-        if ($filterResources || $noFilter) {
+        if ($resources || $noFilter) {
             $this->renderResources($io);
             $this->renderResourceTemplates($io);
         }
@@ -131,7 +130,7 @@ class DebugMcpCommand extends Command
         }
 
         foreach ($this->registry->getResources()->references as $resource) {
-            \assert($resource instanceof Resource);
+            \assert($resource instanceof ResourceDefinition);
 
             if (($resource->name ?? $resource->uri) === $name || $resource->uri === $name) {
                 $ref = $this->registry->getResource($resource->uri, false);
@@ -226,7 +225,7 @@ class DebugMcpCommand extends Command
     /**
      * @param \Closure|array{0: object|string, 1: string}|string $handler
      */
-    private function renderResourceDetail(SymfonyStyle $io, Resource $resource, \Closure|array|string $handler): void
+    private function renderResourceDetail(SymfonyStyle $io, ResourceDefinition $resource, \Closure|array|string $handler): void
     {
         $meta = [['Type' => 'resource'], ['URI' => $resource->uri], ['Source' => $this->describeHandler($handler)]];
         if ($resource->mimeType !== null) {
@@ -353,7 +352,7 @@ class DebugMcpCommand extends Command
 
         $rows = [];
         foreach ($page->references as $resource) {
-            \assert($resource instanceof Resource);
+            \assert($resource instanceof ResourceDefinition);
 
             $ref = $this->registry->getResource($resource->uri, false);
             $rows[] = [$resource->name ?? $resource->uri, $this->describeHandler($ref->handler)];

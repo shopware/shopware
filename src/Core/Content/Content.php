@@ -26,17 +26,18 @@ class Content extends Bundle
         parent::build($container);
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
-        $loader->load('breadcrumb.xml');
+        $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
+        $phpLoader->load('breadcrumb.php');
         $loader->load('category.xml');
-        $loader->load('cookie.xml');
+        $phpLoader->load('cookie.php');
         $loader->load('media.xml');
         $loader->load('media_path.xml');
-        $loader->load('product.xml');
+        $phpLoader->load('product.php');
         $loader->load('newsletter_recipient.xml');
         $loader->load('rule.xml');
-        $loader->load('product_stream.xml');
-        $loader->load('product_export.xml');
-        $loader->load('property.xml');
+        $phpLoader->load('product_stream.php');
+        $phpLoader->load('product_export.php');
+        $phpLoader->load('property.php');
         $loader->load('cms.xml');
         $loader->load('mail.xml');
         $loader->load('mail_template.xml');
@@ -47,10 +48,9 @@ class Content extends Bundle
         $loader->load('sitemap.xml');
         $loader->load('landing_page.xml');
         $loader->load('flow.xml');
-        $loader->load('measurement_system.xml');
+        $phpLoader->load('measurement_system.php');
         $loader->load('shared.xml');
 
-        $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $phpLoader->load('product_export_tracking.php');
 
         if ($container->getParameter('kernel.environment') === 'test') {

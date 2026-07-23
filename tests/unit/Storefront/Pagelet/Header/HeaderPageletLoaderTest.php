@@ -12,6 +12,7 @@ use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -30,21 +31,22 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(HeaderPageletLoader::class)]
 class HeaderPageletLoaderTest extends TestCase
 {
     public function testLoad(): void
     {
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
 
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $currencyRoute = $this->createMock(AbstractCurrencyRoute::class);
+        $currencyRoute = static::createStub(AbstractCurrencyRoute::class);
         $currencyRoute->method('load')->willReturn(new CurrencyRouteResponse(new CurrencyCollection([
             (new CurrencyEntity())->assign(['id' => $salesChannelContext->getCurrencyId()]),
         ])));
 
-        $languageRoute = $this->createMock(AbstractLanguageRoute::class);
+        $languageRoute = static::createStub(AbstractLanguageRoute::class);
         $languageRoute->method('load')->willReturn(new LanguageRouteResponse(new EntitySearchResult(
             LanguageDefinition::ENTITY_NAME,
             1,
@@ -56,7 +58,7 @@ class HeaderPageletLoaderTest extends TestCase
             $salesChannelContext->getContext(),
         )));
 
-        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader = static::createStub(NavigationLoaderInterface::class);
         $categoryId1 = Uuid::randomHex();
         $categoryId2 = Uuid::randomHex();
         $category1 = (new CategoryEntity())->assign(['id' => $categoryId1]);

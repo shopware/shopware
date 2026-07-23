@@ -22,8 +22,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(GrossPriceCalculator::class)]
 #[Package('checkout')]
+#[CoversClass(GrossPriceCalculator::class)]
 class GrossPriceCalculatorTest extends TestCase
 {
     #[DataProvider('referencePriceCalculationProvider')]

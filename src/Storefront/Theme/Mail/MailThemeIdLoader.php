@@ -9,9 +9,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  *
- * @codeCoverageIgnore Integration tested with \Shopware\Tests\Integration\Storefront\Theme\Mail\MailThemeIdLoaderTest
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Storefront\Theme\Mail\MailThemeIdLoaderTest
  */
-#[Package('framework')]
+#[Package('discovery')]
 class MailThemeIdLoader
 {
     public function __construct(private readonly Connection $connection)

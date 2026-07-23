@@ -9,11 +9,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(QueryBuilder::class)]
 class QueryBuilderTest extends TestCase
 {
@@ -21,7 +23,7 @@ class QueryBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $driver = $this->createMock(Driver::class);
+        $driver = static::createStub(Driver::class);
         $driver->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
 
         $this->queryBuilder = new QueryBuilder(new Connection([], $driver));

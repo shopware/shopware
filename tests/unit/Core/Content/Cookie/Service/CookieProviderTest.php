@@ -12,6 +12,7 @@ use Shopware\Core\Content\Cookie\Service\CookieProvider;
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
@@ -24,13 +25,14 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(CookieProvider::class)]
 class CookieProviderTest extends TestCase
 {
     public function testGetCookieGroups(): void
     {
         $eventDispatcher = new CollectingEventDispatcher();
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = static::createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnArgument(0);
         $cookieGroups = (new CookieProvider(
             $eventDispatcher,
@@ -85,7 +87,7 @@ class CookieProviderTest extends TestCase
             $event->cookieGroupCollection->add($newGroup);
         });
 
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = static::createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(static fn ($key) => 'Translated: ' . $key);
         $cookieGroups = (new CookieProvider(
             $eventDispatcher,
@@ -118,7 +120,7 @@ class CookieProviderTest extends TestCase
             $event->cookieGroupCollection->add($newGroup);
         });
 
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = static::createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnArgument(0);
 
         $cookieGroups = (new CookieProvider(
@@ -136,7 +138,7 @@ class CookieProviderTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testLegacyCookieConverting(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = static::createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnArgument(0);
         $legacyCookieProvider = new LegacyCookieProviderForTesting(['name' => 'test-session-name-']);
 
@@ -197,7 +199,7 @@ class CookieProviderTest extends TestCase
             'cookie' => 'test-cookie',
         ];
 
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = static::createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnArgument(0);
         $legacyCookieProvider = new LegacyCookieProviderForTesting(['name' => 'test-session-name-']);
         /** @phpstan-ignore argument.type (Left out required array key for testing purpose) */
@@ -219,7 +221,7 @@ class CookieProviderTest extends TestCase
             'snippet_name' => 'test-cookie',
         ];
 
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = static::createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnArgument(0);
         $legacyCookieProvider = new LegacyCookieProviderForTesting(['name' => 'test-session-name-']);
         /** @phpstan-ignore argument.type (Left out required array key for testing purpose) */

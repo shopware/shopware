@@ -13,8 +13,8 @@ use Shopware\Core\Migration\V6_6\Migration1696515133AddCheckoutGatewayUrl;
 /**
  * @internal
  */
-#[CoversClass(Migration1696515133AddCheckoutGatewayUrl::class)]
 #[Package('checkout')]
+#[CoversClass(Migration1696515133AddCheckoutGatewayUrl::class)]
 class Migration1696515133AddCheckoutGatewayUrlTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -21,6 +21,11 @@ class DocumentTypeTranslationDefinition extends EntityTranslationDefinition
         return self::ENTITY_NAME;
     }
 
+    public function getCollectionClass(): string
+    {
+        return DocumentTypeTranslationCollection::class;
+    }
+
     public function getEntityClass(): string
     {
         return DocumentTypeTranslationEntity::class;

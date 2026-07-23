@@ -16,6 +16,7 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -23,6 +24,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductConfiguratorLoader::class)]
 class ProductConfiguratorLoaderTest extends TestCase
 {
@@ -32,7 +34,7 @@ class ProductConfiguratorLoaderTest extends TestCase
         $optionRepository = new StaticEntityRepository([]);
 
         $loader = new ProductConfiguratorLoader(
-            $this->createMock(AbstractAvailableCombinationLoader::class),
+            static::createStub(AbstractAvailableCombinationLoader::class),
             $optionRepository,
         );
 
@@ -86,7 +88,7 @@ class ProductConfiguratorLoaderTest extends TestCase
         $combinationResult->addCombination([$blueOptionId, $sizeSmallId], true);
         $combinationResult->addCombination([$blueOptionId, $sizeMediumId], true);
 
-        $combinationLoader = $this->createMock(AbstractAvailableCombinationLoader::class);
+        $combinationLoader = static::createStub(AbstractAvailableCombinationLoader::class);
         $combinationLoader->method('loadCombinations')->willReturn($combinationResult);
 
         /** @var StaticEntityRepository<PropertyGroupOptionCollection> $optionRepository */
@@ -156,7 +158,7 @@ class ProductConfiguratorLoaderTest extends TestCase
     {
         $context = Generator::generateSalesChannelContext();
 
-        $combinationLoader = $this->createMock(AbstractAvailableCombinationLoader::class);
+        $combinationLoader = static::createStub(AbstractAvailableCombinationLoader::class);
         $combinationLoader->method('loadCombinations')->willReturn(new AvailableCombinationResult());
 
         // Without combinations there is nothing to display, so the option
@@ -192,7 +194,7 @@ class ProductConfiguratorLoaderTest extends TestCase
         $combinationResult = new AvailableCombinationResult();
         $combinationResult->addCombination([$redOptionId, $sizeSmallId], true);
 
-        $combinationLoader = $this->createMock(AbstractAvailableCombinationLoader::class);
+        $combinationLoader = static::createStub(AbstractAvailableCombinationLoader::class);
         $combinationLoader->method('loadCombinations')->willReturn($combinationResult);
 
         // No option of the product carries a configurator setting: variants were
@@ -240,7 +242,7 @@ class ProductConfiguratorLoaderTest extends TestCase
         $combinationResult->addCombination([$redOptionId, $sizeSmallId], true);
         $combinationResult->addCombination([$blueOptionId, $sizeSmallId], true);
 
-        $combinationLoader = $this->createMock(AbstractAvailableCombinationLoader::class);
+        $combinationLoader = static::createStub(AbstractAvailableCombinationLoader::class);
         $combinationLoader->method('loadCombinations')->willReturn($combinationResult);
 
         // The Blue option carries no group association and therefore cannot be
@@ -299,7 +301,7 @@ class ProductConfiguratorLoaderTest extends TestCase
         $combinationResult->addCombination([$blueOptionId, $sizeSmallId], true);
         $combinationResult->addCombination([$blueOptionId, $sizeMediumId], true);
 
-        $combinationLoader = $this->createMock(AbstractAvailableCombinationLoader::class);
+        $combinationLoader = static::createStub(AbstractAvailableCombinationLoader::class);
         $combinationLoader->method('loadCombinations')->willReturn($combinationResult);
 
         // The Color group has no configurator settings at all - only the Size

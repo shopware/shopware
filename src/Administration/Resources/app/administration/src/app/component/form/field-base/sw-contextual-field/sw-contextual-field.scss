@@ -1,10 +1,6 @@
-@import "~scss/variables";
-
-$sw-field-transition: border-color 0.3s ease-out;
-
 .sw-contextual-field {
     input:-webkit-autofill {
-        -webkit-box-shadow: 0 0 0 1000px $color-white inset;
+        -webkit-box-shadow: 0 0 0 1000px var(--color-background-primary-default) inset;
     }
 
     .sw-block-field__block {
@@ -17,14 +13,14 @@ $sw-field-transition: border-color 0.3s ease-out;
         justify-content: center;
         align-items: center;
         min-width: 50px;
-        background: $color-gray-50;
-        border-left: 1px solid $color-gray-300;
+        background: var(--color-background-secondary-default);
+        border-left: 1px solid var(--color-border-secondary-default);
         border-right: none;
         line-height: 22px;
         padding: 12px 15px;
-        font-size: $font-size-xs;
-        color: $color-darkgray-200;
-        transition: $sw-field-transition;
+        font-size: var(--font-size-xs);
+        color: var(--color-text-primary-default);
+        transition: border-color 0.3s ease-out;
 
         .mt-icon {
             width: 16px;
@@ -32,14 +28,14 @@ $sw-field-transition: border-color 0.3s ease-out;
         }
 
         &.is--prefix {
-            border-right: 1px solid $color-gray-300;
+            border-right: 1px solid var(--color-border-secondary-default);
             border-left: none;
         }
     }
 
     &.is--disabled {
         .sw-field__addition {
-            background: $color-gray-100;
+            background: var(--color-background-tertiary-default);
         }
     }
 

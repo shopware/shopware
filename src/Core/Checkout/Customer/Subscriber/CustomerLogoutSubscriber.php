@@ -37,7 +37,8 @@ class CustomerLogoutSubscriber implements EventSubscriberInterface
 
         $mainRequest = $this->requestStack->getMainRequest();
 
-        if (!$mainRequest?->hasSession()) {
+        // Only clear an initialized storefront session. Store API requests use their context token directly.
+        if (!$mainRequest?->hasSession(true)) {
             return;
         }
 

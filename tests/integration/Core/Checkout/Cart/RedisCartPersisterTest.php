@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCompressor;
@@ -20,7 +19,6 @@ use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 /**
  * @internal
  */
-#[Group('redis')]
 #[Package('checkout')]
 class RedisCartPersisterTest extends TestCase
 {

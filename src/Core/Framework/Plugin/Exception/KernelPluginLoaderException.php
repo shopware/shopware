@@ -7,6 +7,8 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
  * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed. Use \Shopware\Core\Framework\Plugin\PluginException::kernelPluginLoaderError instead
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class KernelPluginLoaderException extends ShopwareHttpException

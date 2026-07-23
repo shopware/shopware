@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Service\MessageHandler;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\Message\UpdateServiceMessage;
 use Shopware\Core\Service\MessageHandler\UpdateServiceHandler;
 use Shopware\Core\Service\ServiceLifecycle;
@@ -11,15 +12,16 @@ use Shopware\Core\Service\ServiceLifecycle;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(UpdateServiceHandler::class)]
 class UpdateServiceHandlerTest extends TestCase
 {
     public function testHandlerDelegatesToServiceLifecycle(): void
     {
-        $lifecycle = $this->createMock(ServiceLifecycle::class);
-        $lifecycle->expects($this->once())->method('update')->with('MyCoolService');
+        $serviceLifecycle = $this->createMock(ServiceLifecycle::class);
+        $serviceLifecycle->expects($this->once())->method('update')->with('MyCoolService');
 
-        $handler = new UpdateServiceHandler($lifecycle);
+        $handler = new UpdateServiceHandler($serviceLifecycle);
         $handler->__invoke(new UpdateServiceMessage('MyCoolService'));
     }
 }

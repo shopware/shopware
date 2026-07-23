@@ -30,7 +30,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeService implements ResetInterface
 {
     public const CONFIG_THEME_COMPILE_ASYNC = 'core.storefrontSettings.asyncThemeCompilation';
@@ -442,7 +442,7 @@ class ThemeService implements ResetInterface
                 [
                     'id' => Uuid::randomHex(),
                     'status' => 'info',
-                    'message' => 'The compilation of the changes will be started in the background. You may see the changes with delay (approx. 1 minute). You will receive a notification if the compilation is done.',
+                    'message' => 'sw-theme-manager.detail.asyncCompilation.started',
                     'requiredPrivileges' => [],
                 ],
                 $context

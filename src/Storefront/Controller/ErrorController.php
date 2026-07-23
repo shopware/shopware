@@ -19,7 +19,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ErrorController extends StorefrontController
 {
     /**
@@ -34,6 +34,7 @@ class ErrorController extends StorefrontController
 
     public function error(\Throwable $exception, Request $request, SalesChannelContext $context): Response
     {
+        /** @phpstan-ignore shopware.unsafeRequestHasSession (using $skipIfUninitialized = false as session will be started intentionally later; this can take the PHP session lock and is limited to storefront error rendering reading flash messages.) */
         $session = $request->hasSession() ? $request->getSession() : null;
 
         try {

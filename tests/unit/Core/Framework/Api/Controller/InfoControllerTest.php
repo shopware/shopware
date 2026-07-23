@@ -7,6 +7,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
+use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
@@ -60,7 +61,7 @@ class InfoControllerTest extends TestCase
         $this->eventDispatcher = new EventDispatcher();
 
         $shopId = ShopId::v2('shop-id');
-        $this->shopIdProvider->expects($this->any())->method('getShopId')->willReturn($shopId);
+        $this->shopIdProvider->method('getShopId')->willReturn($shopId);
     }
 
     public function testConfig(): void
@@ -113,9 +114,15 @@ class InfoControllerTest extends TestCase
             || \is_string($settings['firstMigrationDate'])
         );
         static::assertArrayHasKey('private_allowed_extensions', $settings);
-        static::assertFalse($settings['private_allowed_extensions']);
+        static::assertSame(['pdf', 'epub'], $settings['private_allowed_extensions']);
+        static::assertArrayHasKey('private_allowed_mime_types_by_extension', $settings);
+        static::assertIsArray($settings['private_allowed_mime_types_by_extension']);
+        static::assertContains('application/pdf', $settings['private_allowed_mime_types_by_extension']['pdf']);
+        static::assertSame(['application/epub+zip'], $settings['private_allowed_mime_types_by_extension']['epub']);
         static::assertArrayHasKey('enableHtmlSanitizer', $settings);
         static::assertTrue($settings['enableHtmlSanitizer']);
+        static::assertArrayHasKey('minSearchTermLength', $settings);
+        static::assertSame(2, $settings['minSearchTermLength']);
 
         static::assertArrayHasKey('inAppPurchases', $data);
         $inAppPurchases = $data['inAppPurchases'];
@@ -252,7 +259,8 @@ class InfoControllerTest extends TestCase
     {
         $parameterBag = new ParameterBag([
             'shopware.html_sanitizer.enabled' => true,
-            'shopware.filesystem.private_allowed_extensions' => false,
+            'shopware.filesystem.allowed_extensions' => [],
+            'shopware.filesystem.private_allowed_extensions' => ['pdf', 'epub'],
             'shopware.admin_worker.transports' => $adminWorkerTransports,
             'shopware.admin_worker.enable_notification_worker' => true,
             'shopware.admin_worker.enable_queue_stats_worker' => true,
@@ -279,6 +287,7 @@ class InfoControllerTest extends TestCase
             $this->statsService,
             $this->eventDispatcher,
             null,
+            new MediaFileExtensionListProvider($this->eventDispatcher, [], ['pdf', 'epub']),
         );
     }
 }

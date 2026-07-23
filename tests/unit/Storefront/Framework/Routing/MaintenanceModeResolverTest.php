@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Routing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver as CoreMaintenanceModeResolver;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(MaintenanceModeResolver::class)]
 class MaintenanceModeResolverTest extends TestCase
 {
@@ -82,6 +84,22 @@ class MaintenanceModeResolverTest extends TestCase
             (new MaintenanceModeResolver($this->getRequestStack($request), new CoreMaintenanceModeResolver(new EventDispatcher())))->isMaintenanceRequest($request),
             $expected
         );
+    }
+
+    public function testIsMaintenanceRequestFallsBackToDeprecatedAllowlistAttribute(): void
+    {
+        $request = self::getRequest(false, false, false, false, true, true);
+
+        // a consumer still providing only the deprecated request attribute must keep working
+        $request->attributes->remove(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST);
+        $request->attributes->set(
+            SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST,
+            json_encode(['192.168.1.16'], \JSON_THROW_ON_ERROR)
+        );
+
+        $resolver = new MaintenanceModeResolver($this->getRequestStack($request), new CoreMaintenanceModeResolver(new EventDispatcher()));
+
+        static::assertFalse($resolver->isMaintenanceRequest($request));
     }
 
     /**
@@ -247,7 +265,7 @@ class MaintenanceModeResolverTest extends TestCase
 
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST, $isSalesChannelRequest);
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE, $isMaintenanceModeActive);
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST, json_encode($allowedIpAddresses, \JSON_THROW_ON_ERROR));
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST, json_encode($allowedIpAddresses, \JSON_THROW_ON_ERROR));
 
         return $request;
     }

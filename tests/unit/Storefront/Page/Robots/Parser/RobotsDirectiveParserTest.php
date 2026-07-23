@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Page\Robots\Parser;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Robots\Event\RobotsDirectiveParsingEvent;
 use Shopware\Storefront\Page\Robots\Event\RobotsUnknownDirectiveEvent;
 use Shopware\Storefront\Page\Robots\Parser\ParsedRobots;
@@ -18,6 +19,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(RobotsDirectiveParser::class)]
 class RobotsDirectiveParserTest extends TestCase
 {

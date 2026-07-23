@@ -5,12 +5,14 @@ namespace Shopware\Tests\Integration\Core\Framework\Api\ApiDefinition\Generator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Tests\Integration\Core\Framework\Api\ApiDefinition\EntityDefinition\SimpleDefinition;
 
 /**
  * @internal
  */
+#[Package('framework')]
 final class EntitySchemaGeneratorTest extends TestCase
 {
     use KernelTestBehaviour;

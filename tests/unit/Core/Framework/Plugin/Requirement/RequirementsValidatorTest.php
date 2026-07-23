@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
@@ -20,6 +21,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RequirementsValidator::class)]
 class RequirementsValidatorTest extends TestCase
 {
@@ -251,7 +253,7 @@ class RequirementsValidatorTest extends TestCase
         $pluginB = $this->createPlugin($pathB);
         $pluginB->setActive(true);
 
-        $pluginRepo = $this->createMock(EntityRepository::class);
+        $pluginRepo = static::createStub(EntityRepository::class);
         $pluginRepo->method('search')->willReturn(new EntitySearchResult(
             'plugin',
             1,
@@ -277,7 +279,7 @@ class RequirementsValidatorTest extends TestCase
 
     private function createValidator(): RequirementsValidator
     {
-        $pluginRepo = $this->createMock(EntityRepository::class);
+        $pluginRepo = static::createStub(EntityRepository::class);
         $pluginRepo->method('search')->willReturn(new EntitySearchResult(
             'plugin',
             0,

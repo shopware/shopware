@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Snippet\Subscriber;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -11,10 +12,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Integration\Core\System\Snippet\Subscriber\CustomFieldSubscriberTest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
+ *
+ * @see CustomFieldSubscriberTest
  */
 #[Package('discovery')]
 class CustomFieldSubscriber implements EventSubscriberInterface
@@ -24,8 +30,10 @@ class CustomFieldSubscriber implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly ClockInterface $clock,
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -40,22 +48,20 @@ class CustomFieldSubscriber implements EventSubscriberInterface
     {
         $snippets = [];
         $snippetSets = null;
-        foreach ($event->getWriteResults() as $writeResult) {
+        foreach ($event->getResults()->only(EntityWriteResult::OPERATION_INSERT)->withPayloadProperties('config') as $writeResult) {
             if (!isset($writeResult->getPayload()['config']['label']) || empty($writeResult->getPayload()['config']['label'])) {
                 continue;
             }
 
-            if ($writeResult->getOperation() === EntityWriteResult::OPERATION_INSERT) {
-                if ($snippetSets === null) {
-                    $snippetSets = $this->connection->fetchAllAssociative('SELECT id, iso FROM snippet_set');
-                }
-
-                if ($snippetSets === []) {
-                    return;
-                }
-
-                $this->setInsertSnippets($writeResult, $snippetSets, $snippets);
+            if ($snippetSets === null) {
+                $snippetSets = $this->connection->fetchAllAssociative('SELECT id, iso FROM snippet_set');
             }
+
+            if ($snippetSets === []) {
+                return;
+            }
+
+            $this->setInsertSnippets($writeResult, $snippetSets, $snippets);
         }
 
         if ($snippets === []) {
@@ -108,7 +114,7 @@ class CustomFieldSubscriber implements EventSubscriberInterface
                 'custom_fields' => json_encode([
                     self::CUSTOM_FIELD_ID_FIELD => $writeResult->getPrimaryKey(),
                 ], \JSON_THROW_ON_ERROR),
-                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ];
         }
     }

@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Cms;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
@@ -20,6 +20,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -29,16 +30,17 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ProductBoxCmsElementResolver::class)]
 class ProductBoxCmsElementResolverTest extends TestCase
 {
     private ProductBoxCmsElementResolver $boxCmsElementResolver;
 
-    private MockObject&SystemConfigService $systemConfig;
+    private Stub&SystemConfigService $systemConfig;
 
     protected function setUp(): void
     {
-        $this->systemConfig = $this->createMock(SystemConfigService::class);
+        $this->systemConfig = static::createStub(SystemConfigService::class);
 
         $this->boxCmsElementResolver = new ProductBoxCmsElementResolver($this->systemConfig);
     }
@@ -50,7 +52,7 @@ class ProductBoxCmsElementResolverTest extends TestCase
 
     public function testCollectWithEmptyConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
@@ -64,7 +66,7 @@ class ProductBoxCmsElementResolverTest extends TestCase
 
     public function testCollectWithEmptyStaticConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $fieldConfig = new FieldConfigCollection([
             new FieldConfig('products', FieldConfig::SOURCE_STATIC, []),
@@ -82,7 +84,7 @@ class ProductBoxCmsElementResolverTest extends TestCase
 
     public function testCollectWithStaticConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $productId = Uuid::randomHex();
         $fieldConfig = new FieldConfigCollection([
@@ -98,12 +100,17 @@ class ProductBoxCmsElementResolverTest extends TestCase
 
         static::assertNotNull($collection);
         static::assertCount(1, $collection->all());
-        static::assertSame([$productId], $collection->all()[ProductDefinition::class]['product_id']->getIds());
+
+        $criteria = $collection->all()[ProductDefinition::class]['product_id'];
+        static::assertSame([$productId], $criteria->getIds());
+        static::assertTrue($criteria->hasAssociation('manufacturer'));
+        static::assertTrue($criteria->hasAssociation('options'));
+        static::assertTrue($criteria->getAssociation('options')->hasAssociation('group'));
     }
 
     public function testCollectWithMappedConfigButWithoutEntityResolverContext(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $fieldConfig = new FieldConfigCollection([
             new FieldConfig('product', FieldConfig::SOURCE_MAPPED, 'category.products'),
@@ -121,7 +128,7 @@ class ProductBoxCmsElementResolverTest extends TestCase
 
     public function testEnrichWithNoProductConfig(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $resolverContext = new ResolverContext($salesChannelContext, new Request());
         $result = new ElementDataCollection();
         $fieldConfig = new FieldConfigCollection();
@@ -145,12 +152,12 @@ class ProductBoxCmsElementResolverTest extends TestCase
     public function testEnrichWithProductConfigIsMapped(): void
     {
         $productId = Uuid::randomHex();
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $product = new SalesChannelProductEntity();
         $product->setId($productId);
         $product->setUniqueIdentifier('product1');
 
-        $resolverContext = new EntityResolverContext($salesChannelContext, new Request(), $this->createMock(SalesChannelProductDefinition::class), $product);
+        $resolverContext = new EntityResolverContext($salesChannelContext, new Request(), static::createStub(SalesChannelProductDefinition::class), $product);
         $result = new ElementDataCollection();
         $fieldConfig = new FieldConfigCollection([
             new FieldConfig('product', FieldConfig::SOURCE_MAPPED, $productId),
@@ -191,7 +198,7 @@ class ProductBoxCmsElementResolverTest extends TestCase
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId($salesChannelId);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannelId')->willReturn($salesChannelId);
         $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
 

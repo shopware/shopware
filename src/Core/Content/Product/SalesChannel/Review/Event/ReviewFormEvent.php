@@ -10,8 +10,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\EventData\FormDataObjectType;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
-use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\ProductAware;
@@ -53,7 +53,7 @@ final class ReviewFormEvent extends Event implements SalesChannelAware, MailAwar
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add(FlowMailVariables::REVIEW_FORM_DATA, new ObjectType())
+            ->add(FlowMailVariables::REVIEW_FORM_DATA, new FormDataObjectType())
             ->add(ProductAware::PRODUCT, new EntityType(ProductDefinition::class));
     }
 

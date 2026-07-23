@@ -16,8 +16,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 /**
  * @internal
  */
-#[CoversClass(CustomerAccountRecoverRequestEvent::class)]
 #[Package('checkout')]
+#[CoversClass(CustomerAccountRecoverRequestEvent::class)]
 class CustomerAccountRecoverRequestEventTest extends TestCase
 {
     public function testRestoreScalarValuesCorrectly(): void
@@ -25,8 +25,8 @@ class CustomerAccountRecoverRequestEventTest extends TestCase
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setTranslated(['name' => 'my-shop-name']);
 
-        $context = $this->createMock(SalesChannelContext::class);
-        $context->expects($this->any())->method('getSalesChannel')->willReturn($salesChannel);
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getSalesChannel')->willReturn($salesChannel);
 
         $event = new CustomerAccountRecoverRequestEvent(
             $context,

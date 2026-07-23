@@ -24,8 +24,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  *
  * @final
  */
-#[AsMessageHandler]
 #[Package('framework')]
+#[AsMessageHandler]
 class ElasticsearchIndexer
 {
     /**
@@ -41,7 +41,8 @@ class ElasticsearchIndexer
         private readonly LoggerInterface $logger,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly int $indexingBatchSize,
-        private readonly ClockInterface $clock
+        private readonly ClockInterface $clock,
+        private readonly bool $refreshAfterBulk = false,
     ) {
     }
 
@@ -276,6 +277,10 @@ class ElasticsearchIndexer
             'index' => $index,
             'body' => $documents,
         ];
+
+        if ($this->refreshAfterBulk) {
+            $arguments['refresh'] = true;
+        }
 
         $result = $this->client->bulk($arguments);
 

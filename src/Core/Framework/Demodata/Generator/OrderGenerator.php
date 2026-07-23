@@ -27,7 +27,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('checkout')]
 class OrderGenerator implements DemodataGeneratorInterface
 {
     /**
@@ -147,7 +147,7 @@ class OrderGenerator implements DemodataGeneratorInterface
         if ($tags !== []) {
             $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit());
 
-            if (!empty($chosenTags)) {
+            if ($chosenTags !== []) {
                 $tagAssignments = array_map(
                     static fn (string $id) => ['id' => $id],
                     $chosenTags

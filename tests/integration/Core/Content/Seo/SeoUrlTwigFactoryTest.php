@@ -5,12 +5,14 @@ namespace Shopware\Tests\Integration\Core\Content\Seo;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Test\Seo\Twig\LastLetterBigTwigFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Twig\Environment;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 class SeoUrlTwigFactoryTest extends TestCase
 {
     use KernelTestBehaviour;

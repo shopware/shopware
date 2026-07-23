@@ -14,9 +14,6 @@ use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemGoodsTotalRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemGroupRule;
-use Shopware\Core\Checkout\Cart\Rule\LineItemInCategoryRule;
-use Shopware\Core\Checkout\Cart\Rule\LineItemPropertyRule;
-use Shopware\Core\Checkout\Cart\Rule\LineItemPurchasePriceRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemWithQuantityRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemWrapperRule;
@@ -72,9 +69,6 @@ class RuleConditionHasRuleConfigRule implements Rule
         BillingZipCodeRule::class,
         ShippingZipCodeRule::class,
         AlwaysValidRule::class,
-        LineItemPropertyRule::class,
-        LineItemPurchasePriceRule::class,
-        LineItemInCategoryRule::class,
         LineItemCustomFieldRule::class,
         LineItemGoodsTotalRule::class,
         CustomerCustomFieldRule::class,

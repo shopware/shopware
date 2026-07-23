@@ -3,9 +3,10 @@
 namespace Shopware\Tests\Unit\Storefront\Page\Robots;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -25,10 +26,11 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(RobotsPageLoader::class)]
 class RobotsPageLoaderTest extends TestCase
 {
-    private MockObject&EventDispatcherInterface $eventDispatcher;
+    private Stub&EventDispatcherInterface $eventDispatcher;
 
     /**
      * @var StaticEntityRepository<SalesChannelDomainCollection>
@@ -41,7 +43,7 @@ class RobotsPageLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->eventDispatcher = static::createStub(EventDispatcherInterface::class);
         $this->salesChannelDomainRepository = new StaticEntityRepository([]);
         $this->systemConfigService = new StaticSystemConfigService();
 
@@ -174,14 +176,15 @@ class RobotsPageLoaderTest extends TestCase
         $domains = [$domain];
 
         // Expect event to be dispatched twice (once per load call)
-        $this->eventDispatcher->expects($this->exactly(2))
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->exactly(2))
             ->method('dispatch')
             ->with(static::isInstanceOf(RobotsPageLoadedEvent::class));
 
         // Test with empty string robots rules
         $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [
             'core.basicInformation.robotsRules' => '',
-        ]);
+        ], $eventDispatcher);
 
         $page = $this->robotsPageLoader->load($request, $context);
 
@@ -189,7 +192,7 @@ class RobotsPageLoaderTest extends TestCase
         static::assertEquals(['https://example.com/sitemap.xml'], $page->getSitemaps());
 
         // Test with no robots rules configured at all
-        $this->robotsPageLoader = $this->setupLoaderWithDomains($domains);
+        $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [], $eventDispatcher);
 
         $page = $this->robotsPageLoader->load($request, $context);
 
@@ -532,7 +535,7 @@ class RobotsPageLoaderTest extends TestCase
      * @param SalesChannelDomainEntity[] $domains
      * @param array<string, string|array<int, string>> $config
      */
-    private function setupLoaderWithDomains(array $domains, array $config = []): RobotsPageLoader
+    private function setupLoaderWithDomains(array $domains, array $config = [], ?EventDispatcherInterface $eventDispatcher = null): RobotsPageLoader
     {
         $this->salesChannelDomainRepository = new StaticEntityRepository([
             new SalesChannelDomainCollection($domains),
@@ -552,7 +555,7 @@ class RobotsPageLoaderTest extends TestCase
         }
 
         return new RobotsPageLoader(
-            $this->eventDispatcher,
+            $eventDispatcher ?? $this->eventDispatcher,
             $this->salesChannelDomainRepository,
             $this->systemConfigService,
             new RobotsDirectiveParser(new EventDispatcher())
@@ -574,13 +577,25 @@ class RobotsPageLoaderTest extends TestCase
     }
 
     /**
-     * Common setup for tests that need event dispatcher expectations
+     * Common setup for tests that need event dispatcher expectations.
+     *
+     * Rebuilds the loader with a mock dispatcher (kept separate from the
+     * stub property) so the expectation is verified against the instance the
+     * loader actually dispatches through.
      */
     private function setupEventDispatcherExpectation(): void
     {
-        $this->eventDispatcher->expects($this->once())
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(RobotsPageLoadedEvent::class));
+
+        $this->robotsPageLoader = new RobotsPageLoader(
+            $eventDispatcher,
+            $this->salesChannelDomainRepository,
+            $this->systemConfigService,
+            new RobotsDirectiveParser(new EventDispatcher())
+        );
     }
 
     /**

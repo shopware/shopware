@@ -242,53 +242,6 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
         expect(output).toContain('rename a .js source to .ts');
     });
 
-    it('renders a triage summary grouping findings by rule/code and by file', () => {
-        const eslintFindings = [
-            { file: 'src/a.ts', rule: 'no-unsafe-call', message: 'm', severity: 'error' as const },
-            { file: 'src/a.ts', rule: 'no-unsafe-call', message: 'm', severity: 'error' as const },
-            { file: 'src/b.ts', rule: 'no-unsafe-member-access', message: 'm', severity: 'error' as const },
-            { file: 'src/c.ts', rule: 'vue/no-lone-template', message: 'm', severity: 'warning' as const },
-        ];
-        const typeScriptFindings = [
-            { file: 'src/a.ts', code: 'TS2322', message: 'm' },
-            { file: 'src/b.ts', code: 'TS7006', message: 'm' },
-        ];
-        const result = extension(project('Big'), {
-            typescript: run('failed', { findings: 2, newFindings: 2, typeScriptFindings }),
-            eslint: run('failed', { findings: 4, newFindings: 3, eslintFindings }),
-        });
-        const output = checkReport(
-            { results: [result], fatalDiagnostics: [], warnings: [], baselineUpdates: [], exitCode: 1 },
-            { summary: true },
-        );
-
-        expect(output).toContain('Summary — Big');
-        expect(output).toContain('runtime TypeScript: 2 finding(s)');
-        expect(output).toContain('ESLint errors: 3 finding(s)');
-        expect(output).toContain('ESLint warnings: 1 finding(s)');
-        expect(output).toContain('no-unsafe-call ×2');
-        expect(output).toContain('by file:');
-    });
-
-    it('with --summary-only suppresses the raw per-finding output but keeps the summary', () => {
-        const result = extension(project('Big'), {
-            eslint: run('failed', {
-                findings: 1,
-                newFindings: 1,
-                output: 'RAW_ESLINT_LINE_XYZ',
-                eslintFindings: [{ file: 'src/a.ts', rule: 'no-unsafe-call', message: 'm', severity: 'error' as const }],
-            }),
-        });
-        const output = checkReport(
-            { results: [result], fatalDiagnostics: [], warnings: [], baselineUpdates: [], exitCode: 1 },
-            { summaryOnly: true },
-        );
-
-        expect(output).not.toContain('RAW_ESLINT_LINE_XYZ');
-        expect(output).toContain('Summary — Big');
-        expect(output).toContain('no-unsafe-call ×1');
-    });
-
     it('prints the fix → baseline handoff only after --fix when findings remain', () => {
         const failing = extension(project('Plug'), { eslint: run('failed', { findings: 3, newFindings: 3 }) });
         const base = { results: [failing], fatalDiagnostics: [], warnings: [], baselineUpdates: [], exitCode: 1 };

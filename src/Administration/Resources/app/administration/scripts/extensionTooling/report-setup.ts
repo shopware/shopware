@@ -4,26 +4,19 @@
  * Human-readable rendering for `admin:setup-extension-tooling`. Pure: takes the
  * setup result and returns the full report string. Color is applied via
  * picocolors (see report-check.ts for the color-support contract the specs pin).
- * The report classifies each extension by derived state and, unless --explain
- * collapses into a full breakdown, keeps the concise output focused on what a
- * developer must do next.
+ * The report classifies each extension by derived state and keeps the output
+ * focused on what a developer must do next, followed by any IDE / integration
+ * instructions the run produced.
  */
 
 import colors from 'picocolors';
 import { classifyFile, describeNextStep } from './report-guidance';
 import type { FileClass } from './report-guidance';
 import type { SetupExtensionToolingResult } from './setup';
-import {
-    DEFAULT_TOOLING_COMMANDS,
-    aggregateModeResolution,
-    deriveExtensionState,
-    projectHasBridge,
-    projectHasOwnedConfig,
-} from './shared';
-import type { DerivedExtensionState, ExtensionToolingProject, ModeResolution, ToolingCommands } from './shared';
+import { DEFAULT_TOOLING_COMMANDS, deriveExtensionState, projectHasBridge, projectHasOwnedConfig } from './shared';
+import type { DerivedExtensionState, ExtensionToolingProject, ToolingCommands } from './shared';
 
 interface SetupRenderOptions {
-    explain?: boolean;
     checkOnly?: boolean;
     shim?: string;
     /**
@@ -41,7 +34,7 @@ type StateMap = Map<string, DerivedExtensionState>;
 /**
  * "3 generated, 1 updated" answers nothing — up to 8 changes are listed by
  * path so "what did this do to my repo" is answerable from the output; larger
- * batches keep the count and defer the list to --explain.
+ * batches keep the count only.
  */
 function describeFileChanges(result: SetupExtensionToolingResult): string[] {
     const changes = [
@@ -68,7 +61,7 @@ function describeFileChanges(result: SetupExtensionToolingResult): string[] {
                 `${created} generated`,
                 `${updated} updated`,
                 ...(removed > 0 ? [`${removed} removed`] : []),
-            ].join(', ') + ' (list: --explain)',
+            ].join(', '),
         ];
     }
 
@@ -264,7 +257,7 @@ function renderStaleSetup(result: SetupExtensionToolingResult, commands: Tooling
     return lines;
 }
 
-/** The "Next steps" block for extensions that still need a bridge or wiring, capped at five with an --explain overflow. */
+/** The "Next steps" block for extensions that still need a bridge or wiring, capped at five. */
 function renderNextSteps(projects: ExtensionToolingProject[], stateOf: StateMap, commands: ToolingCommands): string[] {
     const needsInclusion = projects.filter((project) =>
         [
@@ -287,77 +280,15 @@ function renderNextSteps(projects: ExtensionToolingProject[], stateOf: StateMap,
     }
 
     if (needsInclusion.length > 5) {
-        lines.push(colors.dim(`  … and ${needsInclusion.length - 5} more — run with --explain`));
+        lines.push(colors.dim(`  … and ${needsInclusion.length - 5} more`));
     }
 
     return lines;
 }
 
-/** Full --explain breakdown: discovery provenance, per-target config routing with verdict source, and managed files. */
-function renderExplainDetails(
-    result: SetupExtensionToolingResult,
-    projects: ExtensionToolingProject[],
-    commands: ToolingCommands,
-): string[] {
-    const lines = [
-        '',
-        colors.bold('  Details'),
-        `    Administration root: ${result.manifest.adminRoot}`,
-        `    Discovered from: ${result.discoverySource.path}${
-            result.discoverySource.updatedAt ? ` (updated ${result.discoverySource.updatedAt})` : ''
-        }`,
-        `    Entity schema: ${
-            result.manifest.entitySchemaAvailable ? 'available' : `stub (run ${commands.generateSchema})`
-        }`,
-    ];
-
-    // Setup never runs live probes (the check does), so a verified verdict
-    // here was carried in from the probe cache and an unverified one is fresh
-    // static analysis — surface which, so a reader knows how much to trust it.
-    const verdictSource = (resolution: ModeResolution, hasOwnConfig: boolean): string => {
-        if (!hasOwnConfig) {
-            return '';
-        }
-
-        return resolution.verified ? ' (cached-live)' : ' (static)';
-    };
-
-    for (const project of projects) {
-        const moduleCount = project.technicalNames.length;
-        const ts = aggregateModeResolution(project, 'ts');
-        const eslint = aggregateModeResolution(project, 'eslint');
-
-        lines.push(
-            `    - ${project.name} · ${moduleCount === 1 ? '1 module' : `${moduleCount} modules`} · ` +
-                `ts:${ts.mode} · eslint:${eslint.mode}`,
-        );
-
-        for (const target of project.targets) {
-            lines.push(
-                `        ${target.technicalNames.join(', ')} · ${target.sourcePath}`,
-                `          runtime: ${target.ts.mode}${verdictSource(target.ts, target.tsconfig !== null)} → ${target.checkTsconfig}`,
-                `          specs:   ${target.specTsconfig}`,
-                `          eslint:  ${target.eslint.mode}${verdictSource(target.eslint, target.eslintConfig !== null)} → ${target.eslintConfig ?? 'generated root config'}`,
-            );
-        }
-    }
-
-    lines.push(
-        '',
-        '    Own path aliases: declare them in tsconfig.aliases.json next to the plugin config,',
-        '    e.g. { "MyPlugin/*": ["src/*"] } — the generated .shopware-admin/ bridge merges them',
-        '    with the preset paths (tsconfig "paths" cannot be extended additively).',
-        '',
-        '    Managed files:',
-        ...result.writes.map((write) => `      ${write.state}: ${write.file}`),
-        ...result.staleFiles.map((file) => `      removed: ${file}`),
-    );
-
-    for (const instruction of result.instructions) {
-        lines.push('', ...instruction.split('\n').map((line) => `    ${line}`));
-    }
-
-    return lines;
+/** IDE (VS Code / Zed / PhpStorm) and integration steps the run produced for user-owned files we never write. */
+function renderInstructions(result: SetupExtensionToolingResult): string[] {
+    return result.instructions.flatMap((instruction) => ['', ...instruction.split('\n').map((line) => `  ${line}`)]);
 }
 
 export function renderSetupReport(result: SetupExtensionToolingResult, options: SetupRenderOptions = {}): string {
@@ -387,11 +318,11 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
     lines.push('', ...describeFileChanges(result).map((line) => `  ${colors.dim(line)}`));
 
     if (result.manifest.rootConfigs.tsconfig === 'conflict') {
-        lines.push(colors.yellow('  ⚠ root tsconfig.json is user-owned — run with --explain to integrate'));
+        lines.push(colors.yellow('  ⚠ root tsconfig.json is user-owned — integration steps below'));
     }
 
     if (result.manifest.rootConfigs.eslintConfig === 'conflict') {
-        lines.push(colors.yellow('  ⚠ root eslint.config.mjs is user-owned — run with --explain to integrate'));
+        lines.push(colors.yellow('  ⚠ root eslint.config.mjs is user-owned — integration steps below'));
     }
 
     for (const warning of result.warnings) {
@@ -403,17 +334,10 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
     }
 
     lines.push(...renderNextSteps(projects, stateOf, commands));
-
-    if (!options.explain) {
-        lines.push('', colors.dim('  IDE setup: run with --explain for VS Code / Zed / PhpStorm config'));
-    }
+    lines.push(...renderInstructions(result));
 
     if (options.showFlagHint) {
-        lines.push(colors.dim(`  Options need "--": ${commands.setup} -- --check | --explain | --shim=<name> | --help`));
-    }
-
-    if (options.explain) {
-        lines.push(...renderExplainDetails(result, projects, commands));
+        lines.push(colors.dim(`  Options need "--": ${commands.setup} -- --check | --shim=<name> | --help`));
     }
 
     return lines.join('\n');

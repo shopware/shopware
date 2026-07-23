@@ -79,8 +79,6 @@ export interface SetupExtensionToolingResult {
     instructions: string[];
     /** True when anything was (or would be) created, updated, or deleted. */
     changed: boolean;
-    /** The var/plugins.json discovery source and its last-modified time, for `--explain`. */
-    discoverySource: { path: string; updatedAt: string | null };
 }
 
 /** Reads the host-module map and warns about any declared module missing from the installed Administration. */
@@ -197,20 +195,7 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
         warnings: context.warnings,
         instructions: context.instructions,
         changed,
-        discoverySource: {
-            path: relativePosix(projectRoot, pluginsConfigPath),
-            updatedAt: readMtimeIso(pluginsConfigPath),
-        },
     };
-}
-
-/** ISO mtime of a file, or null if it cannot be read. */
-function readMtimeIso(filePath: string): string | null {
-    try {
-        return fs.statSync(filePath).mtime.toISOString();
-    } catch {
-        return null;
-    }
 }
 
 const SETUP_COMMAND: CommandSpec = {
@@ -218,10 +203,6 @@ const SETUP_COMMAND: CommandSpec = {
     description: 'Generate TypeScript/ESLint configs and IDE bootstraps for installed Administration extensions.',
     flags: [
         { name: '--check', description: 'Report what would change, write nothing. Exit 1 on drift.' },
-        {
-            name: '--explain',
-            description: 'Read-only verbose report: discovered extensions, file list, IDE setup (writes nothing).',
-        },
         { name: '--no-gitignore', description: 'Never manage the ignore block in the project .gitignore.' },
         {
             name: '--shim',
@@ -294,13 +275,8 @@ export function runSetupCli(argv: string[]): number {
     }
 
     const checkFlag = parsed.flags.has('--check');
-    const explain = parsed.flags.has('--explain');
     const shim = parsed.values['--shim'];
     const rootConfig = parsed.values['--root-config'];
-    // --explain is a read-only inspection view: it writes nothing (only its
-    // details differ from --check). Unlike --check it does not gate on drift —
-    // a human inspecting the setup should not get a surprise non-zero exit.
-    const readOnly = checkFlag || explain;
 
     if (rootConfig !== undefined && shim === undefined) {
         console.error(`--root-config only applies together with --shim=<name>.\n\n${renderHelp(SETUP_COMMAND)}`);
@@ -315,18 +291,17 @@ export function runSetupCli(argv: string[]): number {
             pluginsConfigPath: parsed.values['--plugins-config'],
             shim,
             rootConfig,
-            checkOnly: readOnly,
+            checkOnly: checkFlag,
             noGitignore: parsed.flags.has('--no-gitignore'),
         });
 
         console.log(
             renderSetupReport(result, {
-                explain,
-                checkOnly: readOnly,
+                checkOnly: checkFlag,
                 shim,
                 // The plain run is where flags are discovered — and where a flag
                 // swallowed by composer (missing "--") would have landed.
-                showFlagHint: !readOnly && !shim,
+                showFlagHint: !checkFlag && !shim,
                 commands: resolveToolingCommands(path.resolve(projectRoot), administrationRoot),
             }),
         );

@@ -3,11 +3,10 @@
  *
  * Partial multi-root coverage: some targets run, others are skipped by their
  * own config. The skipped targets' paths and remediation must render no
- * matter whether the managed remainder passed or failed, and must survive
- * --summary-only.
+ * matter whether the managed remainder passed or failed.
  */
 
-import { checkReport, extension, project, report, resolution, run, target } from './helpers';
+import { extension, project, report, resolution, run, target } from './helpers';
 
 const unmanagedTarget = (feature: string, overrides: Parameters<typeof target>[1] = {}) =>
     target(`Suite${feature}`, {
@@ -51,28 +50,6 @@ describe('scripts/extensionTooling/report skipped targets', () => {
         expect(output).toContain('why: the FeatureB extends chain does not reach the preset.');
         expect(output).toContain('fix: add');
         expect(output).toContain('error TS2322');
-    });
-
-    it('keeps skipped-target remediation visible under --summary-only', () => {
-        const output = checkReport(
-            {
-                results: [
-                    extension(partialProject(), {
-                        typescript: run('failed', { findings: 1, newFindings: 1, output: 'RAW_LINE_ABC' }),
-                    }),
-                ],
-                fatalDiagnostics: [],
-                warnings: [],
-                baselineUpdates: [],
-                exitCode: 1,
-            },
-            { summaryOnly: true },
-        );
-
-        expect(output).not.toContain('RAW_LINE_ABC');
-        expect(output).toContain('skipped: custom/plugins/Suite/src/FeatureA/Resources/app/administration/tsconfig.json');
-        expect(output).toContain('why: the FeatureA extends chain does not reach the preset.');
-        expect(output).toContain('+2 skipped');
     });
 
     it('renders one skipped block per TypeScript target even when runtime and spec programs both ran', () => {

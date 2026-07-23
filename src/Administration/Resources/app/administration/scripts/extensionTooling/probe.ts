@@ -156,7 +156,7 @@ export function analyzeEslintConfigStatically(eslintConfigPath: string): { impor
 /** The one sentence rendered under `why:` for a TypeScript verdict. */
 export function detailForTsReason(reason: ModeReason, analysis?: StaticConfigAnalysis): string {
     const aliasesNote = analysis?.declaresPaths
-        ? ' Own path aliases? Declare them in tsconfig.aliases.json next to the config (see --explain).'
+        ? ' Own path aliases? Declare them in tsconfig.aliases.json next to the config.'
         : '';
 
     switch (reason) {

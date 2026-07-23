@@ -60,13 +60,13 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
         expect(setupReport(setupResult([bridgedPlugin]))).not.toContain('unverified');
     });
 
-    it('collapses the full IDE instruction block unless --explain is passed', () => {
+    it('renders the IDE / integration instruction block the run produced', () => {
         const withInstructions = setupResult([managed], {
             instructions: ['PhpStorm (configure once, Settings → Languages & Frameworks): …'],
         });
 
-        expect(setupReport(withInstructions)).not.toContain('Settings → Languages');
-        expect(setupReport(withInstructions, { explain: true })).toContain('Settings → Languages');
+        expect(setupReport(withInstructions)).toContain('Settings → Languages');
+        expect(setupReport(setupResult([managed]))).not.toContain('Settings → Languages');
     });
 
     it('confirms a fresh bridge after --shim only when the configs actually compose it', () => {
@@ -147,7 +147,7 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
         expect(setupReport(stale, { checkOnly: true })).toContain('would create: tsconfig.json');
     });
 
-    it('lists changed files by path and defers large batches to --explain', () => {
+    it('lists changed files by path and keeps only the count for large batches', () => {
         const few = setupResult([managed], {
             changed: true,
             writes: [
@@ -171,44 +171,7 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
         });
         const manyOutput = setupReport(many);
 
-        expect(manyOutput).toContain('12 generated, 0 updated (list: --explain)');
+        expect(manyOutput).toContain('12 generated, 0 updated');
         expect(manyOutput).not.toContain('generated: var/admin-extension-tooling/projects/p3.json');
-        expect(setupReport(many, { explain: true })).toContain('created: var/admin-extension-tooling/projects/p3.json');
-    });
-
-    it('drops the self-referential --explain hint inside --explain output', () => {
-        const result = setupResult([managed]);
-
-        expect(setupReport(result)).toContain('IDE setup: run with --explain');
-        expect(setupReport(result, { explain: true })).not.toContain('run with --explain');
-    });
-
-    it('explains target-level source and effective config coverage', () => {
-        const output = setupReport(
-            setupResult([managed], { discoverySource: { path: 'var/plugins.json', updatedAt: '2026-07-21T00:00:00.000Z' } }),
-            { explain: true },
-        );
-
-        expect(output).toContain('FroshTools · custom/plugins/FroshTools/src');
-        expect(output).toContain('runtime: managed');
-        expect(output).toContain('eslint:  managed → generated root config');
-        // 3.4: the discovery source + its timestamp.
-        expect(output).toContain('Discovered from: var/plugins.json (updated 2026-07-21T00:00:00.000Z)');
-        // 2.4: a zero-config (no owned config) target has no verdict-source suffix.
-        expect(output).not.toContain('managed (static)');
-        expect(output).not.toContain('managed (cached-live)');
-    });
-
-    it('labels a config verdict static vs cached-live under --explain', () => {
-        // bridgedPlugin: owns a config and is verified -> the verdict came from the probe cache.
-        const cachedLive = setupReport(setupResult([bridgedPlugin]), { explain: true });
-
-        expect(cachedLive).toContain('runtime: bridged (cached-live)');
-        expect(cachedLive).toContain('eslint:  bridged (cached-live)');
-
-        // Static: owns a config but not yet live-probed (unverified).
-        const staticVerdict = setupReport(setupResult([customPlugin]), { explain: true });
-
-        expect(staticVerdict).toContain('(static)');
     });
 });

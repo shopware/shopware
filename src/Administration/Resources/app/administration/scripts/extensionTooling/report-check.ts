@@ -13,7 +13,7 @@
 import colors from 'picocolors';
 import type { CheckExtensionsResult, ExtensionCheckResult, ToolRunResult } from './check';
 import { describeNextStep } from './report-guidance';
-import { DEFAULT_SUMMARY_TOP, renderFindingSummary, renderSkippedTargetLines } from './report-summary';
+import { renderSkippedTargetLines } from './report-summary';
 import { collectSkippedTargets, DEFAULT_TOOLING_COMMANDS, deriveExtensionState } from './shared';
 import type { ModeResolution, SkippedTarget, ToolingCommands } from './shared';
 
@@ -25,12 +25,6 @@ interface RenderOptions {
     failOnSkipped?: boolean;
     /** Whether --fix was applied this run (adds the fix → baseline handoff hint). */
     fix?: boolean;
-    /** Append a triage summary grouping findings by rule/code and by file. */
-    summary?: boolean;
-    /** Suppress the raw per-finding output and show only the triage summary. */
-    summaryOnly?: boolean;
-    /** How many top rules/codes and files to list per stream (default 10). */
-    summaryTop?: number;
     /** Layout-aware command invocations for printed next steps (defaults to the composer scripts). */
     commands?: ToolingCommands;
 }
@@ -212,11 +206,8 @@ function renderToolRow(
 
     lines.push(...baselineNotes(run));
 
-    // --summary-only replaces the raw per-finding dump with the grouped
-    // summary appended below; everything else still prints it.
     const showOutput =
-        !options.summaryOnly &&
-        (run.status === 'failed' || run.status === 'tooling-error' || (verbose && run.status !== 'no-files'));
+        run.status === 'failed' || run.status === 'tooling-error' || (verbose && run.status !== 'no-files');
 
     if (showOutput && run.output.trim() !== '') {
         lines.push(indent(run.output.trim(), '      '));
@@ -278,10 +269,6 @@ function renderExtension(result: ExtensionCheckResult, options: RenderOptions): 
 
     if (options.showCommands === true) {
         lines.push(...renderReproductionCommands(result));
-    }
-
-    if (options.summary || options.summaryOnly) {
-        lines.push(...renderFindingSummary(result, options.summaryTop ?? DEFAULT_SUMMARY_TOP));
     }
 
     return lines;

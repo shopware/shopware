@@ -266,20 +266,6 @@ const CHECK_COMMAND: CommandSpec = {
         { name: '--show-commands', description: 'Print the underlying vue-tsc/ESLint invocation per extension.' },
         { name: '--verbose', description: 'Also print tool output for passing and skipped extensions.' },
         {
-            name: '--summary',
-            description: 'Add a triage summary grouping findings by rule/code and by file (additive to native output).',
-        },
-        {
-            name: '--summary-only',
-            description: 'Print only the triage summary, suppressing the raw per-finding output (for very large logs).',
-        },
-        {
-            name: '--summary-top',
-            value: 'required',
-            valueName: '<n>',
-            description: 'How many top rules/codes and files to list per stream in the summary (default 10).',
-        },
-        {
             name: '--max-workers',
             value: 'required',
             valueName: '<n>',
@@ -348,15 +334,6 @@ export async function runCheckCli(argv: string[]): Promise<number> {
         return 2;
     }
 
-    const summaryTopValue = parsed.values['--summary-top'];
-    const summaryTop = summaryTopValue === undefined ? undefined : Number(summaryTopValue);
-
-    if (summaryTop !== undefined && (!Number.isInteger(summaryTop) || summaryTop < 1)) {
-        console.error(`--summary-top must be a positive integer, got "${summaryTopValue}".\n\n${renderHelp(CHECK_COMMAND)}`);
-
-        return 2;
-    }
-
     if (parsed.flags.has('--update-baseline') && parsed.flags.has('--fix')) {
         console.error(
             `--update-baseline and --fix are mutually exclusive — fix first, then record the baseline.\n\n${renderHelp(CHECK_COMMAND)}`,
@@ -418,9 +395,6 @@ export async function runCheckCli(argv: string[]): Promise<number> {
             showCommands: parsed.flags.has('--show-commands'),
             failOnSkipped: parsed.flags.has('--fail-on-skipped'),
             fix: parsed.flags.has('--fix'),
-            summary: parsed.flags.has('--summary') || parsed.flags.has('--summary-only'),
-            summaryOnly: parsed.flags.has('--summary-only'),
-            summaryTop,
             commands: resolveToolingCommands(projectRoot, administrationRoot),
         }),
     );

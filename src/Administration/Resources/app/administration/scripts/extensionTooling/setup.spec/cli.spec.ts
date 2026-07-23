@@ -80,24 +80,6 @@ describe('scripts/extensionTooling/setup runSetupCli', () => {
         }
     });
 
-    it('makes --explain read-only — it writes nothing and exits 0 even when setup is stale', () => {
-        const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-        const treeBefore = listTree(projectRoot);
-
-        const exitCode = runSetupCli([
-            '--explain',
-            `--project-root=${projectRoot}`,
-            `--administration-root=${administrationRoot}`,
-        ]);
-
-        // Read-only: nothing on disk changed, and (unlike --check) drift does not
-        // gate the exit code — a human inspecting the setup gets exit 0.
-        expect(exitCode).toBe(0);
-        expect(listTree(projectRoot)).toEqual(treeBefore);
-        expect(logSpy.mock.calls.join('\n')).toContain('would create');
-        logSpy.mockRestore();
-    });
-
     it('rejects --root-config without --shim as a usage error and writes nothing', () => {
         const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
         const treeBefore = listTree(projectRoot);

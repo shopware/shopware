@@ -21,7 +21,8 @@
 
 import type { CallExpression, Identifier, Node as BabelNode } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
-import { forEachPatternIdentifier, isBabelNodeLike } from '../utils/babel-patterns';
+import { forEachPatternIdentifier } from '../utils/babel-patterns';
+import { childBabelNodes, findInTree } from './ast-traversal';
 import { getNodeRange } from './utils';
 
 /**
@@ -61,15 +62,9 @@ function isRuntimeIdentifierReference(node: Identifier, parent: BabelNode | null
     return true;
 }
 
-function shouldSkipReferenceChild(key: string): boolean {
+/** Type-position fields, skipped by the value-reference walkers (they only care about value positions). */
+function isTypeChildKey(key: string): boolean {
     return [
-        'loc',
-        'range',
-        'start',
-        'end',
-        'leadingComments',
-        'trailingComments',
-        'innerComments',
         'typeAnnotation',
         'typeParameters',
         'typeArguments',
@@ -105,53 +100,23 @@ function getLeftmostEntityIdentifier(entity: BabelNode | null | undefined): Iden
  * next to a `function save()` binding is fine).
  */
 function findLocalSetupTypeReference(node: BabelNode | null | undefined, localBindings: Set<string>): Identifier | null {
-    if (!node) {
+    return findInTree(node, (candidate) => {
+        // e.g. `{ kind: Kind }` where `Kind` is an enum kept inside the callback.
+        if (candidate.type === 'TSTypeReference') {
+            const identifier = getLeftmostEntityIdentifier(candidate.typeName);
+
+            return identifier && localBindings.has(identifier.name) ? identifier : null;
+        }
+
+        // e.g. `typeof localConst` reads a runtime value from type space.
+        if (candidate.type === 'TSTypeQuery') {
+            const identifier = getLeftmostEntityIdentifier(candidate.exprName);
+
+            return identifier && localBindings.has(identifier.name) ? identifier : null;
+        }
+
         return null;
-    }
-
-    // e.g. `{ kind: Kind }` where `Kind` is an enum kept inside the callback.
-    if (node.type === 'TSTypeReference') {
-        const identifier = getLeftmostEntityIdentifier(node.typeName);
-
-        if (identifier && localBindings.has(identifier.name)) {
-            return identifier;
-        }
-    }
-
-    // e.g. `typeof localConst` reads a runtime value from type space.
-    if (node.type === 'TSTypeQuery') {
-        const identifier = getLeftmostEntityIdentifier(node.exprName);
-
-        if (identifier && localBindings.has(identifier.name)) {
-            return identifier;
-        }
-    }
-
-    for (const value of Object.values(node as unknown as Record<string, unknown>)) {
-        if (Array.isArray(value)) {
-            for (const child of value) {
-                if (isBabelNodeLike(child)) {
-                    const reference = findLocalSetupTypeReference(child, localBindings);
-
-                    if (reference) {
-                        return reference;
-                    }
-                }
-            }
-
-            continue;
-        }
-
-        if (isBabelNodeLike(value)) {
-            const reference = findLocalSetupTypeReference(value, localBindings);
-
-            if (reference) {
-                return reference;
-            }
-        }
-    }
-
-    return null;
+    });
 }
 
 /**
@@ -198,27 +163,7 @@ function collectFunctionScopeDeclarations(node: BabelNode | null | undefined, in
         forEachPatternIdentifier(node.param, (identifier) => into.add(identifier.name));
     }
 
-    for (const [
-        key,
-        value,
-    ] of Object.entries(node as unknown as Record<string, unknown>)) {
-        if (shouldSkipReferenceChild(key)) {
-            continue;
-        }
-
-        if (Array.isArray(value)) {
-            value.forEach((child) => {
-                if (isBabelNodeLike(child)) {
-                    collectFunctionScopeDeclarations(child, into, false);
-                }
-            });
-            continue;
-        }
-
-        if (isBabelNodeLike(value)) {
-            collectFunctionScopeDeclarations(value, into, false);
-        }
-    }
+    childBabelNodes(node, isTypeChildKey).forEach((child) => collectFunctionScopeDeclarations(child, into, false));
 }
 
 /**
@@ -259,36 +204,11 @@ function findLocalSetupReference(
         collectFunctionScopeDeclarations(functionNode.body, childShadowedBindings);
     }
 
-    for (const [
-        key,
-        value,
-    ] of Object.entries(node as unknown as Record<string, unknown>)) {
-        if (shouldSkipReferenceChild(key)) {
-            continue;
-        }
+    for (const child of childBabelNodes(node, isTypeChildKey)) {
+        const reference = findLocalSetupReference(child, localBindings, childShadowedBindings, node);
 
-        if (Array.isArray(value)) {
-            for (const child of value) {
-                if (!isBabelNodeLike(child)) {
-                    continue;
-                }
-
-                const reference = findLocalSetupReference(child, localBindings, childShadowedBindings, node);
-
-                if (reference) {
-                    return reference;
-                }
-            }
-
-            continue;
-        }
-
-        if (isBabelNodeLike(value)) {
-            const reference = findLocalSetupReference(value, localBindings, childShadowedBindings, node);
-
-            if (reference) {
-                return reference;
-            }
+        if (reference) {
+            return reference;
         }
     }
 

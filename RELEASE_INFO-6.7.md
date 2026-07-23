@@ -531,6 +531,10 @@ The Composer scripts above exist in a platform (monorepo) checkout. In a Compose
 
 The type surface is the live installed Administration types (`global.types.ts` plus the generated entity schema). The API boundary is expressed through JSDoc annotations (`@deprecated`) enforced via ESLint (`@typescript-eslint/no-deprecated`, `sw-deprecation-rules`); internal plugins may lower `internalApiSeverity` in their own config. Nothing changes for existing flows: no default build, watch, init, or CI pipeline invokes the new commands.
 
+### `plugin:create --create-admin-module` scaffolds a TypeScript module
+
+`bin/console plugin:create <name> <namespace> --create-admin-module` now scaffolds the example Administration module in TypeScript (`ts-module.stub`) instead of JavaScript, so a freshly created plugin type-checks and lints cleanly against the Administration toolchain (`admin:check-extensions`) with no toolchain files of its own. When run non-interactively the command names the specific missing argument (plugin name or namespace) in the error instead of a generic message, and after creating the plugin it prints how to install, activate, and check it — noting that a Composer-managed (`--static`) plugin is checked with read-only vendor semantics.
+
 ### Reworked search behaviour options
 
 The "Search behaviour" card in `Settings > Search` presents the search mode as "Broad search (OR)" and "Exact search (AND)" with short one-line descriptions, replacing the previous "OR"/"AND" labels with example texts. The broad option is now listed first; the stored configuration (`product_search_config.andLogic`) and the template blocks are unchanged. Extensions that override the mode selection (e.g. Advanced Search) can swap the offered options based on their own configuration.

@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Command\PluginCreateCommand;
+use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\AdminModuleGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ScaffoldingGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingCollector;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingWriter;
@@ -152,7 +153,7 @@ class PluginCreateCommandTest extends TestCase
 
         yield 'non-interactive without arguments' => [
             'inputs' => [],
-            'expectedErrorMessage' => 'This command requires interactive mode or the argument must be provided.',
+            'expectedErrorMessage' => 'The "plugin-name" argument is required when running non-interactively',
             'interactive' => false,
         ];
     }
@@ -217,6 +218,85 @@ class PluginCreateCommandTest extends TestCase
         ]);
 
         $commandTester->assertCommandIsSuccessful();
+    }
+
+    public function testAdminModuleNoteListsInstallStepsBeforeDiscovery(): void
+    {
+        $commandTester = $this->getCommandTester([new AdminModuleGenerator()]);
+
+        $commandTester->execute([
+            'plugin-name' => 'TestPlugin',
+            'plugin-namespace' => 'Test',
+            '--create-admin-module' => true,
+        ]);
+
+        $commandTester->assertCommandIsSuccessful();
+
+        $display = (string) preg_replace('/\s+/', ' ', trim($commandTester->getDisplay(true)));
+
+        // A fresh plugin is not an active bundle: without refresh + install,
+        // bundle:dump omits it and the strict --only validation rejects it.
+        $expectedSequence = [
+            'bin/console plugin:refresh',
+            'bin/console plugin:install --activate TestPlugin',
+            'bin/console bundle:dump',
+            'composer admin:check-extensions -- --only=TestPlugin',
+        ];
+
+        foreach ($expectedSequence as $expectedCommand) {
+            static::assertStringContainsString($expectedCommand, $display);
+        }
+
+        static::assertMatchesRegularExpression(
+            '#' . implode('.+', array_map(static fn (string $command): string => preg_quote($command, '#'), $expectedSequence)) . '#',
+            $display,
+        );
+
+        // A non-static plugin lives in the scanned custom/plugins folder, so no
+        // Composer install step is needed.
+        static::assertStringNotContainsString('composer require', $display);
+
+        // custom/plugins gets full first-party tooling — the vendor caveat is
+        // only printed for static plugins.
+        static::assertStringNotContainsString('read-only', $display);
+    }
+
+    public function testAdminModuleNoteAddsComposerInstallForStaticPlugins(): void
+    {
+        $commandTester = $this->getCommandTester([new AdminModuleGenerator()]);
+
+        $commandTester->execute([
+            'plugin-name' => 'TestPlugin',
+            'plugin-namespace' => 'Test',
+            '--static' => true,
+            '--create-admin-module' => true,
+        ]);
+
+        $commandTester->assertCommandIsSuccessful();
+
+        $display = (string) preg_replace('/\s+/', ' ', trim($commandTester->getDisplay(true)));
+
+        // A static plugin is only discoverable once required through the
+        // Composer path repository, so that step must come first.
+        $expectedSequence = [
+            'composer require test/test-plugin',
+            'bin/console plugin:refresh',
+            'bin/console plugin:install --activate TestPlugin',
+            'bin/console bundle:dump',
+            'composer admin:check-extensions -- --only=TestPlugin',
+        ];
+
+        static::assertMatchesRegularExpression(
+            '#' . implode('.+', array_map(static fn (string $command): string => preg_quote($command, '#'), $expectedSequence)) . '#',
+            $display,
+        );
+
+        // A Composer-managed plugin is classified as a read-only vendor
+        // extension, so the note warns about the reduced tooling semantics.
+        // Assert on single tokens — SymfonyStyle wraps the note and inserts `!`
+        // line prefixes, so a multi-word phrase would not stay contiguous.
+        static::assertStringContainsString('read-only', $display);
+        static::assertStringContainsString('--strict-vendor', $display);
     }
 
     public function testDirectoryExists(): void

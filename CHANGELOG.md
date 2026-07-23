@@ -1,6 +1,19 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.21
+*  [#17495 - Enforce afterOrderEnabled when changing an order's payment after checkout](./changelog/release-6-6-10-21/2026-07-09-enforce-after-order-enabled-payment-change.md)
+*  [#17984 - fix: sw-filter-panel race condition (backport: 6.6.x)](https://github.com/shopware/shopware/issues/17984) 
+*  [#18095 - ZUGFeRD correction documents derive delivery handling from document metadata](./changelog/release-6-6-10-21/2026-07-08-zugferd-correction-delivery-handling.md)
+*  [#18152 - fix: zugferd cancellation invoice deliveries (backport #18095)](https://github.com/shopware/shopware/issues/18152)
+*  [#18154 - fix(link-category): Implement redirect behaviour on link categories](https://github.com/shopware/shopware/issues/18154)
+*  [#18191 - fix: enforce afterOrderEnabled when changing an order's payment after checkout (backport: 6.6.x)](https://github.com/shopware/shopware/issues/18191)
+*  [#18319 - Prevent Store API session initialization](./changelog/release-6-6-10-21/2026-07-17-prevent-store-api-session-initialization.md)
+*  [#18359 - fix: changelog release command for 6.6.x](https://github.com/shopware/shopware/issues/18359)
+*  [#18409 - fix(core): prevent Store API session initialization (backport: 6.6.x)](https://github.com/shopware/shopware/issues/18409)
+*  [#18475 - fix: bulk edit handle any document type (backport: 6.6.x)](https://github.com/shopware/shopware/issues/18475)
+*  [#18597 - fix: bump dompdf to 3.1.6 to clear the security advisories blocking CI (backport: 6.6.x)](https://github.com/shopware/shopware/issues/18597)
+
 ## 6.6.10.20
 *  [#17470 - Hide purchase prices from Store API order line item payloads](./changelog/release-6-6-10-20/2026-06-23-hide-purchase-prices-from-order-line-item-payloads.md)
 *  [#17617 - SVG validator accepts more passive extension assets](./changelog/release-6-6-10-20/2026-07-01-svg-validator-accepts-passive-extension-assets.md)

@@ -1,3 +1,7 @@
+# 6.6.10.21
+## Manual ZUGFeRD document builders should set document information before deliveries
+If you build `Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument` instances manually, call `withDocumentInformation()` before `withDelivery()` when you expect correction-specific delivery output. Delivery serialization now derives from the document type set in the document metadata.
+
 # 6.6.10.20
 ## DAL write event listeners run in system scope
 DAL post-write events such as `EntityWrittenContainerEvent` and entity-specific `.written` events are now dispatched in system scope after Admin API and Sync API writes, while preserving the original context source.

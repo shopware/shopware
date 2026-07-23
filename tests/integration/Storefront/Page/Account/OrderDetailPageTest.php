@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Storefront\Page\Account;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  *
  * @deprecated tag:v6.8.0 - will be removed
  */
+#[Package('discovery')]
 class OrderDetailPageTest extends TestCase
 {
     use IntegrationTestBehaviour;

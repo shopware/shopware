@@ -15,7 +15,7 @@ use Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTaskHandler;
  * @see DeleteThemeFilesTask
  * @see DeleteThemeFilesTaskHandler
  */
-#[Package('framework')]
+#[Package('discovery')]
 class DeleteThemeFilesMessage implements AsyncMessageInterface
 {
     public function __construct(

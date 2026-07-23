@@ -13,8 +13,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[AsMessageHandler(handles: SystemHeartbeatTask::class)]
 #[Package('framework')]
+#[AsMessageHandler(handles: SystemHeartbeatTask::class)]
 final class SystemHeartbeatHandler extends ScheduledTaskHandler
 {
     public function __construct(

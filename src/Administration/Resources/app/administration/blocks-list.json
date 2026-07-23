@@ -1869,6 +1869,8 @@
  "sw_discard_changes_modal_discard_changes_modal_cancel",
  "sw_discard_changes_modal_footer",
  "sw_discard_changes_modal_text",
+ "sw_dismissible_notices",
+ "sw_dismissible_notices_notice",
  "sw_document_detail_base_general_input_sales_channel",
  "sw_document_detail_base_general_input_sales_channel_label",
  "sw_document_detail_base_general_input_sales_channel_result_item",

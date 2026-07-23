@@ -57,7 +57,7 @@ class CalculatedTaxCollection extends Collection
             static fn (CalculatedTax $calculatedTax) => $calculatedTax->getTax()
         );
 
-        return FloatComparator::cast(array_sum($amounts));
+        return FloatComparator::sum($amounts);
     }
 
     public function merge(self $taxCollection): self

@@ -6,6 +6,10 @@
 
 ## Core
 
+### Known legacy foreign keys on `product` and `order_line_item` are repaired
+
+A new migration deterministically reconciles two known legacy foreign keys with the definition a fresh installation creates: `fk.product.product_manufacturer` on `product` and `fk.order_line_item.product` on `order_line_item`. Shops that executed older versions of the corresponding migrations can carry these constraints with auto-generated names (e.g. `product_ibfk_1`) or without the `version_id` columns. Both variants break on MySQL 8.4: auto-generated names collide on dump imports because foreign key names are unique per database there, and incomplete-key references cause unrelated `ALTER TABLE` statements on the referenced table to fail (MySQL bug #118151). The repair replaces whatever variant exists with the canonical constraint, preserving the original ON DELETE/ON UPDATE behavior, and skips row re-validation (`foreign_key_checks=0` for the session), so it is fast even on large catalogs. No other constraints are touched; non-standard foreign keys created by extensions still surface through `dal:validate` and the migration runtime's FK-guard warning.
+
 ### Migration runtime auto-recovers from MySQL 8.4 FK-guard failures
 
 `MigrationRuntime` now retries a failing migration once with `restrict_fk_on_non_standard_key=OFF` for the session when the first attempt fails with MySQL error 1553 carrying a blank or `<unknown key name>` index name (MySQL bug #118151), then restores the previous value. The behavior applies to every migration and is a transparent no-op on MariaDB and MySQL versions where the variable does not exist. When the retry path is exercised, a warning is logged with the migration class name so administrators can audit non-standard foreign keys against parent tables in their schema.

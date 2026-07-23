@@ -24,11 +24,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @phpstan-import-type PluginInfo from KernelPluginLoader
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'plugin:list',
     description: 'Lists all plugins',
 )]
-#[Package('framework')]
 class PluginListCommand extends Command
 {
     use OutputFormatTrait;
@@ -124,7 +124,7 @@ class PluginListCommand extends Command
                 $plugin->getComposerName() ?? '',
                 $plugin->getVersion(),
                 $pluginUpgradeable,
-                $plugin->getAuthor(),
+                mb_strimwidth($plugin->getAuthor() ?? '', 0, 40, '...'),
                 $pluginInstalled ? 'Yes' : 'No',
                 $pluginActive ? 'Yes' : 'No',
                 $pluginUpgradeable ? 'Yes' : 'No',

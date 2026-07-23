@@ -39,11 +39,7 @@ class LanguageSubscriber implements EventSubscriberInterface
 
         $context = $event->getContext();
 
-        foreach ($event->getWriteResults() as $writeResult) {
-            if ($writeResult->getOperation() !== EntityWriteResult::OPERATION_INSERT) {
-                continue;
-            }
-
+        foreach ($event->getResults()->only(EntityWriteResult::OPERATION_INSERT) as $writeResult) {
             foreach ($this->registry->getDefinitions() as $definition) {
                 $indexName = $this->elasticsearchHelper->getIndexName($definition->getEntityDefinition());
 

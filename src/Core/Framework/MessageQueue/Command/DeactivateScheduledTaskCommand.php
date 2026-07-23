@@ -13,11 +13,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'scheduled-task:deactivate',
     description: 'Deactivate a scheduled task',
 )]
-#[Package('framework')]
 class DeactivateScheduledTaskCommand extends Command
 {
     private const STATUSES_SUCCESS = [

@@ -249,18 +249,29 @@ export default {
         },
 
         getNumberFromString(value) {
-            let splits = value.split('e').shift();
-            splits = splits.replace(/,/g, '.').split('.');
+            const normalizedValue = value.toString().trim().replace(/\s/g, '');
 
-            if (splits.length === 1) {
-                return parseFloat(splits[0]);
+            if (normalizedValue.toLowerCase().includes('e')) {
+                return Number.parseFloat(normalizedValue.replace(/,/g, '.'));
             }
 
             if (this.numberType === 'int') {
-                return parseInt(splits.join(''), 10);
+                return parseInt(normalizedValue.replace(/[,.]/g, ''), 10);
             }
-            const decimals = splits[splits.length - 1].length;
-            const float = parseFloat(splits.join('.')).toFixed(decimals);
+
+            const commaIndex = normalizedValue.lastIndexOf(',');
+            const dotIndex = normalizedValue.lastIndexOf('.');
+            const decimalSeparatorIndex = Math.max(commaIndex, dotIndex);
+
+            if (decimalSeparatorIndex === -1) {
+                return Number.parseFloat(normalizedValue);
+            }
+
+            const integerPart = normalizedValue.slice(0, decimalSeparatorIndex).replace(/[,.]/g, '');
+            const decimalPart = normalizedValue.slice(decimalSeparatorIndex + 1).replace(/[,.]/g, '');
+            const decimals = decimalPart.length;
+            const float = Number.parseFloat(`${integerPart}.${decimalPart}`).toFixed(decimals);
+
             return decimals > this.digits ? Math.round(float * 10 ** this.digits) / 10 ** this.digits : Number(float);
         },
 

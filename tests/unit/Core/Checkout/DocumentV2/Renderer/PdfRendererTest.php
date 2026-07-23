@@ -43,6 +43,7 @@ class PdfRendererTest extends TestCase
         static::assertSame([DocumentFormat::HTML->value], $renderer->getDependencies());
         static::assertSame([
             DocumentType::INVOICE->value,
+            DocumentType::CANCELLATION_INVOICE->value,
             DocumentType::DELIVERY_NOTE->value,
         ], $renderer->getDocumentTypes());
     }
@@ -66,7 +67,7 @@ class PdfRendererTest extends TestCase
         static::assertSame(DocumentFormat::PDF->value, $result->format);
         static::assertSame('pdf', $result->fileExtension);
         static::assertSame('application/pdf', $result->mimeType);
-        static::assertSame('invoice_12345', $result->fileName);
+        static::assertSame('invoice_12345_pdf', $result->fileName);
         static::assertStringStartsWith('%PDF-', $result->content);
         static::assertSame('application/pdf', (new \finfo(\FILEINFO_MIME_TYPE))->buffer($result->content));
     }

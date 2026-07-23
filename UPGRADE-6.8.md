@@ -4,6 +4,12 @@
 
 <details>
 
+## Locale-aware sorting for product property group options
+
+To ensure product property group options are sorted more precisely based on locale code:
+- `/Shopware/Core/Content/Product/AbstractPropertyGroupSorter`: The `sort` method will be removed, use `sortUsingLocaleCode` instead.
+- `/Shopware/Core/Content/Property/PropertyGroupCollection`: The `sortByConfig` method now requires a new parameter `localeCode`.
+
 ## Webhook Messenger transport — explicit receiver configuration required
 
 Webhook delivery now uses a dedicated `webhook` Messenger transport. Add it to your `messenger:consume` receiver list and to `shopware.admin_worker.transports` if you override that key.
@@ -38,6 +44,10 @@ shopware:
 
 The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now require a minimum value of `1`.
 
+## Minimum value constraint added to restockTime field in ProductDefinition
+
+The field `restockTime` of ProductDefinition now requires a minimum value of `0`. Writing a negative value via the API is rejected. Existing negative values are set to `NULL` by a migration, as they previously broke cart calculation for out-of-stock products.
+
 ## Default CMS page ID now persisted for categories
 
 The default CMS page ID is now automatically written to the database when a category is saved without a `cmsPageId`.
@@ -51,10 +61,16 @@ Use `Shopware\Core\System\SystemConfig\SystemConfigService` directly in PHP code
 
 Twig templates can continue using the `config()` helper, which is now provided by the core Twig environment.
 
-## Tax Calculation for percentage discounts / surcharges, e.g. promotions
+## Tax calculation for percentage discounts, surcharges, and split line-item quantities
 
 Taxes of percentage prices are not recalculated anymore, but use the existing tax calculation of the referenced line items.
 This prevents rounding errors when calculating taxes for percentage prices.
+
+The same applies when a line item is split into multiple quantities, for example while distributing a promotion across line items.
+The calculated taxes of the original line item are now distributed proportionally instead of recalculating the taxes for each split quantity.
+This can change cent-level rounding compared to previous versions.
+
+If an extension relies on recalculated taxes for percentage prices or split line items, review the resulting taxes for mixed tax rates, net and gross prices, promotions, and partial quantities.
 
 ## Payment: Removal of Payment Method "Debit Payment"
 
@@ -67,6 +83,61 @@ Otherwise, the payment method will be disabled.
 For user interfaces that display only one delivery & transaction, there is now a new reference in the order for a `primaryOrderDelivery` or `primaryOrderTransaction`.
 If an extension modifies or adds new deliveries or transactions, this should be taken into account.
 To partly comply with old behaviour, primary deliveries are ordered first and primary transactions are ordered last wherever appropriate.
+
+## Flow Builder executions run after the main business process
+
+Flows triggered during an HTTP request, Messenger message, or console command are now buffered and executed after the current unit of work has finished.
+For HTTP requests, buffered flows run during kernel termination; for Messenger and console execution, they run after the message or command has been handled.
+The flows still run in the same process and are not automatically dispatched to a message queue.
+
+This protects the main business process from failures and unexpected state mutations caused by flow actions, and avoids delaying it with expensive actions such as sending mail.
+Keeping execution in the same process, but after the main unit of work, also avoids the unpredictable delay of dispatching every flow through the message queue.
+The motivation, considered alternatives, and consequences are described in the [architecture decision record](adr/2025-01-31-move-flow-execution-after-business-process.md) and the [public RFC discussion](https://github.com/shopware/shopware/discussions/6750).
+
+This changes the ordering of Flow Builder actions relative to synchronous event subscribers and the initiating business operation:
+
+- Code that dispatches a `FlowEventAware` event returns before matching flows have run.
+- For HTTP requests, the response can be sent before flow side effects are completed.
+- Entity data used by flow actions is restored after the main business operation and can therefore reflect the subsequently persisted state instead of the original in-memory entity state.
+- Request-scoped state and an open transaction from the initiating operation must not be assumed to still be available to a custom flow action.
+
+If an operation must happen synchronously as part of the business transaction, implement it in a synchronous event subscriber instead of relying on a Flow Builder action.
+Review integrations that expect mail delivery, state transitions, webhooks, or custom flow actions to have completed when the initiating call returns.
+Tests that dispatch flow-aware events directly must also trigger the corresponding termination phase before asserting flow side effects.
+
+### Replace `BeforeLoadStorableFlowDataEvent`
+
+The deprecated `Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent` and its dynamic event names are removed.
+To modify the criteria used to restore entity data for mail-related flow actions, subscribe to `Shopware\Core\Content\Shared\MailFlow\Event\MailFlowDataCriteriaEvent` instead.
+This replacement lets mail preview, direct mail sending, and mail-related flow actions use the same entity data providers and criteria extension point, keeping extension-added associations consistent across those paths.
+
+The dynamic event name changes as follows:
+
+```diff
+-flow.storer.<entity-name>.criteria.event
++mail-flow.data.<entity-name>.criteria.event
+```
+
+Use the public `$criteria` and `$entityName` properties and the `getContext()` method on `MailFlowDataCriteriaEvent`.
+
+## Cart is deleted immediately after the order is created
+
+During checkout, the persisted cart is now deleted directly after the order has been created and before `CheckoutOrderPlacedCriteriaEvent` and `CheckoutOrderPlacedEvent` are dispatched.
+Subscribers to these events can no longer reload the cart by its context token.
+Deleting it at this point prevents the already-converted cart from remaining available if later order loading or an order-placed subscriber fails after the order was persisted.
+Otherwise, the cart and order lifecycle could become inconsistent.
+
+Read required information from the created order instead.
+Associations needed by `CheckoutOrderPlacedEvent` can be added through `CheckoutOrderPlacedCriteriaEvent`.
+If information exists only in the cart, persist or transfer it during order conversion or before the order is placed instead of loading the cart from an order-placed subscriber.
+
+## Cart errors created during SalesChannelContext construction are deferred
+
+Cart errors that occur while the `SalesChannelContext` is constructed are now persisted with the cart.
+They remain available until the cart is processed by the next cart-related Store API request, so temporary errors are not consumed before a client can display them.
+
+Store API clients should process the errors returned by the next cart response even if the operation that originally caused the error happened while the sales-channel context was created.
+Custom cart persisters and processors must preserve existing cart errors until that subsequent cart processing has taken place.
 
 ## Standardized CLI JSON output flag
 
@@ -91,6 +162,12 @@ The Agentic Commerce sales channel features — including product export provide
 ## Document rendering no longer falls back to the Storefront browser timezone
 
 When no Sales Channel business timezone is configured, document rendering no longer uses the Storefront browser timezone in Shopware 6.8. Documents now render with Twig's configured default timezone (`UTC` unless changed via `twig.date.timezone`) regardless of how they are generated. Set the Sales Channel business timezone if documents should use a merchant-controlled timezone.
+
+## Shipping price matrix ranges use currency conversion
+
+Price-based shipping method price matrix ranges are now compared in the default currency. When a cart is calculated in a currency with a factor, Shopware converts the cart price back to the default currency before matching the configured `quantityStart` and `quantityEnd` range.
+
+Enable the `SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION` feature flag in 6.7 to preview the behavior before updating to 6.8.
 
 </details>
 
@@ -444,6 +521,19 @@ Following helper methods have been removed from the `EntityDefinitionQueryHelper
 `\Shopware\Core\Framework\Migration\AddColumnTrait::addColumn` still throws a `\Doctrine\DBAL\Exception\TableNotFoundException` for missing tables (from the executed `ALTER TABLE` statement).
 
 ## Cache improvements
+
+### Selected Store API routes now use the HTTP cache
+
+Cacheable GET Store API routes now participate in Shopware's regular HTTP cache and use the same cache policies and `sw-cache-hash` variations as the Storefront.
+This applies to routes marked with the `_httpCache` route attribute, including product, category, navigation, CMS, country, currency, language, salutation, and SEO data routes.
+The change improves response times for headless storefronts while reusing the Storefront's configurable HTTP cache infrastructure instead of reintroducing a separate Store API caching layer.
+
+This is separate from the old Store API route cache that was removed in 6.7.
+The removed configuration listed under [Removed Store-API Route caching configuration](#removed-store-api-route-caching-configuration) still has no replacement; selected Store API responses are now cached by the standard HTTP cache instead.
+
+If an extension adds context-dependent data to a cacheable Store API response, ensure every relevant variation is represented in the HTTP cache key or prevent the response from being cached.
+In particular, review data that depends on the current customer, cart, permissions, custom rules, system configuration, or external state.
+Custom Store API routes are only cached when they explicitly opt in through the `_httpCache` route attribute.
 
 ### Only rules relevant for product prices are considered in the `sw-cache-hash`
 
@@ -2043,6 +2133,7 @@ Use `app:shop-id:change` instead of `app:url-change:resolve`
 ## Removed Store-API Route caching configuration
 
 With 6.7 the Store-API caching layer was removed, therefore the configuration for it is not needed anymore and has been removed.
+In 6.8, selected cacheable Store API GET routes use the standard HTTP cache instead; see [Cache improvements](#cache-improvements).
 Concretely this means the following configuration options are removed:
 - `shopware.cache.invalidation.product_listing_route`
 - `shopware.cache.invalidation.product_detail_route`

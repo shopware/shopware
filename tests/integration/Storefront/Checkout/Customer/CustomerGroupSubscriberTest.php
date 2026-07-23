@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Storefront\Checkout\Customer;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
@@ -86,6 +87,41 @@ class CustomerGroupSubscriberTest extends TestCase
         static::assertSame($id, $url->getForeignKey());
         static::assertSame('frontend.account.customer-group-registration.page', $url->getRouteName());
         static::assertSame('test', $url->getSeoPathInfo());
+    }
+
+    public function testUrlsAreNotDeletedForAllAssignedSalesChannels(): void
+    {
+        $salesChannelIds = [
+            $this->createSalesChannel()['id'],
+            $this->createSalesChannel()['id'],
+        ];
+
+        $id = Uuid::randomHex();
+
+        $this->customerGroupRepository->create([
+            [
+                'id' => $id,
+                'name' => 'Test',
+                'registrationActive' => true,
+                'registrationTitle' => 'test',
+                'registrationSalesChannels' => array_map(
+                    static fn (string $salesChannelId): array => ['id' => $salesChannelId],
+                    $salesChannelIds
+                ),
+            ],
+        ], Context::createDefaultContext());
+
+        $urls = $this->getSeoUrlsById($id);
+
+        static::assertCount(2, $urls);
+        static::assertEqualsCanonicalizing(
+            $salesChannelIds,
+            array_values(array_map(static fn (SeoUrlEntity $url): ?string => $url->getSalesChannelId(), $urls->getElements()))
+        );
+
+        foreach ($urls as $url) {
+            static::assertFalse($url->getIsDeleted());
+        }
     }
 
     public function testUrlsAreForHeadlessSalesChannelAreHanldedCorrectly(): void

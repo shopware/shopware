@@ -4,7 +4,7 @@
 
 import { spawn } from 'child_process';
 import { build } from 'vite';
-import concurrently from 'concurrently';
+import { startDevelopmentProcesses } from './build/vite-plugins/development-process-runner';
 import { exportViteServerMapping } from './build/vite-plugins/utils';
 
 async function runPluginsBuild(): Promise<void> {
@@ -54,27 +54,40 @@ async function main() {
             process.exit(1);
         }
     } else if (mode === 'development') {
+        const wasStdinRaw = process.stdin.isTTY && process.stdin.isRaw;
+        const restoreTerminal = () => {
+            if (process.stdin.isTTY) {
+                process.stdin.setRawMode(wasStdinRaw);
+            }
+        };
+
+        if (process.stdin.isTTY) {
+            process.stdin.setRawMode(true);
+            // eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
+            process.stdin.on('data', (key: Buffer | string) => {
+                if (key.toString().includes('\u0003')) {
+                    restoreTerminal();
+                    process.kill(process.pid, 'SIGINT');
+                }
+            });
+        }
+
         // Run both processes concurrently in development mode
-        const { result } = concurrently([
-            {
-                command: 'ts-node -T build/plugins.vite.ts',
-                name: 'Extensions',
-                prefixColor: 'yellow',
-            },
-            {
-                command: 'vite',
-                name: 'Administration',
-                prefixColor: 'blue',
-            },
-        ]);
+        const { result } = startDevelopmentProcesses();
 
         result.then(
-            () => process.exit(0),
+            () => {
+                restoreTerminal();
+                process.exit(0);
+            },
             (error) => {
+                restoreTerminal();
                 console.error('Development process failed:', error);
                 process.exit(1);
             },
         );
+
+        process.once('exit', restoreTerminal);
     } else {
         console.error('Invalid VITE_MODE. Must be either "production" or "development"');
         process.exit(1);

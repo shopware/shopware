@@ -11,11 +11,11 @@ use Symfony\Component\Console\Attribute\AsCommand;
 /**
  * @internal only for use by the app-system
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'app:activate',
     description: 'Activates an app',
 )]
-#[Package('framework')]
 class ActivateAppCommand extends AbstractAppActivationCommand
 {
     private const ACTION = 'activate';

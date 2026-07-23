@@ -32,7 +32,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class StorefrontSubscriber implements EventSubscriberInterface
 {
     /**

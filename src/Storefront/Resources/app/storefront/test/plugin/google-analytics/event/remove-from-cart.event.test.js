@@ -38,13 +38,13 @@ describe('plugin/google-analytics/events/remove-from-cart.event', () => {
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'remove_from_cart', {
             'currency': 'EUR',
-            'value': '199.98',
+            'value': 199.98,
             'items': [{
-                'id': 'product-123',
-                'name': 'Test Product',
-                'quantity': '2',
-                'price': '99.99',
-                'brand': 'Test Brand',
+                'item_id': 'product-123',
+                'item_name': 'Test Product',
+                'quantity': 2,
+                'price': 99.99,
+                'item_brand': 'Test Brand',
                 'item_category': 'Category 1',
             }],
         });
@@ -64,7 +64,7 @@ describe('plugin/google-analytics/events/remove-from-cart.event', () => {
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'remove_from_cart', {
             'currency': 'EUR',
-            'items': [{ 'id': 'product-123' }],
+            'items': [{ 'item_id': 'product-123' }],
         });
     });
 

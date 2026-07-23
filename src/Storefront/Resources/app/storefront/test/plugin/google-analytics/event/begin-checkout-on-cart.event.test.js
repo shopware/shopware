@@ -41,14 +41,13 @@ describe('plugin/google-analytics/events/begin-checkout-on-cart.event', () => {
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'begin_checkout', {
             'currency': 'EUR',
-            'value': '199.98',
+            'value': 199.98,
             'items': [
                 {
-                    id: 'product-123',
-                    name: 'Test Product',
-                    quantity: '2',
-                    price: '99.99',
-                    brand: null,
+                    item_id: 'product-123',
+                    item_name: 'Test Product',
+                    quantity: 2,
+                    price: 99.99,
                 },
             ],
         });
@@ -65,4 +64,3 @@ describe('plugin/google-analytics/events/begin-checkout-on-cart.event', () => {
         expect(window.gtag).not.toHaveBeenCalled();
     });
 });
-

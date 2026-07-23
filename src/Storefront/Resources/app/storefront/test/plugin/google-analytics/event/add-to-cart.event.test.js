@@ -57,8 +57,8 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
 
     test('fires add_to_cart event when AddToCart plugin emits beforeFormSubmit', () => {
         document.body.innerHTML = `
-            <meta itemprop="priceCurrency" content="EUR">
-            <meta itemprop="price" content="99.99">
+            <meta property="product:price:currency" content="EUR">
+            <meta property="product:price:amount" content="99.99">
         `;
 
         const addToCartInstance = createMockPluginInstance();
@@ -78,12 +78,14 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', expect.objectContaining({
             'currency': 'EUR',
+            'value': 199.98,
             'items': expect.arrayContaining([
                 expect.objectContaining({
-                    'id': 'product-123',
-                    'name': 'Test Product',
-                    'quantity': '2',
-                    'brand': 'Test Brand',
+                    'item_id': 'product-123',
+                    'item_name': 'Test Product',
+                    'quantity': 2,
+                    'price': 99.99,
+                    'item_brand': 'Test Brand',
                 }),
             ]),
         }));
@@ -172,7 +174,7 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         expect(window.gtag).toHaveBeenCalledTimes(2);
         expect(window.gtag).toHaveBeenLastCalledWith('event', 'add_to_cart', expect.objectContaining({
             'items': expect.arrayContaining([
-                expect.objectContaining({ 'id': 'product-new' }),
+                expect.objectContaining({ 'item_id': 'product-new' }),
             ]),
         }));
     });

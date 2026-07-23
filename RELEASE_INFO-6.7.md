@@ -45,9 +45,11 @@ The existing `reason:*` annotations will be migrated to these attributes in foll
 
 ### Google Tag Manager events use the GA4 ecommerce data layer format
 
-Storefront analytics configured with a `GTM-` tracking ID now push GA4 ecommerce events with their parameters under the top-level `ecommerce` key. The previous ecommerce object is cleared before every ecommerce event. Non-ecommerce events such as `login`, `sign_up`, `search`, and `view_search_results` expose their parameters at the top level.
+Storefront analytics now emit GA4-compliant ecommerce payloads. Item properties use the documented `item_id`, `item_name`, and `item_brand` names, numeric ecommerce values are sent as numbers, and unavailable optional properties are omitted. Event values exclude shipping, item prices represent unit prices, and non-product discount line items are not emitted as products.
 
-Google Tag Manager configurations that remap parameters from `eventModel` should remove that workaround and use the standard `ecommerce` data layer variable. Storefront analytics configured with a Google tag ID continue to use `gtag('event', ...)` and are unaffected.
+With a `GTM-` tracking ID, ecommerce events are pushed under the top-level `ecommerce` key and the previous ecommerce object is cleared before every event. Non-ecommerce events such as `login`, `sign_up`, `search`, and `view_search_results` expose their parameters at the top level.
+
+Google Tag Manager configurations that remap parameters from `eventModel` should remove that workaround and use the standard `ecommerce` data layer variable. Configurations that consume the previous `id`, `name`, or `brand` item properties should switch to their `item_*` equivalents. Storefront analytics configured with a Google tag ID continue to use `gtag('event', ...)`, with the same GA4-compliant parameter normalization.
 
 ## App System
 

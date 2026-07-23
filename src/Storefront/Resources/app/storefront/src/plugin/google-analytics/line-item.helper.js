@@ -38,11 +38,11 @@ export default class LineItemHelper
             }
 
             const itemData = {
-                id: itemEl.getAttribute('data-sku') ?? itemEl.getAttribute('data-id'),
-                name: itemEl.getAttribute('data-name'),
+                item_id: itemEl.getAttribute('data-sku') ?? itemEl.getAttribute('data-id'),
+                item_name: itemEl.getAttribute('data-name'),
                 quantity: itemEl.getAttribute('data-quantity'),
                 price: itemEl.getAttribute('data-price'),
-                brand: itemEl.getAttribute('data-brand'),
+                item_brand: itemEl.getAttribute('data-brand'),
             };
 
             lineItems.push({
@@ -95,9 +95,9 @@ export default class LineItemHelper
         }
 
         return {
-            id: lineItem.id,
-            name: lineItem.name,
-            brand: lineItem.brand,
+            id: lineItem.item_id,
+            name: lineItem.item_name,
+            brand: lineItem.item_brand,
             value: lineItem.price,
             currency: additionalProperties.currency,
             categories,

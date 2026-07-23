@@ -42,9 +42,10 @@ export default class ViewItemEvent extends AnalyticsEvent
             'currency': ProductPageHelper.getCurrency(),
             'value': ProductPageHelper.getValue(),
             'items': [{
-                'id': productId,
-                'name': productName,
-                'brand': ProductPageHelper.getBrand(),
+                'item_id': productId,
+                'item_name': productName,
+                'item_brand': ProductPageHelper.getBrand(),
+                'price': ProductPageHelper.getValue(),
                 ...ProductPageHelper.getCategories(),
             }],
         });

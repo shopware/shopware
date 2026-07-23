@@ -38,7 +38,7 @@ describe('plugin/google-analytics/events/add-to-cart-by-number.event', () => {
             'currency': 'EUR',
             'items': [
                 {
-                    'id': 'SW10001',
+                    'item_id': 'SW10001',
                     'quantity': 1,
                 },
             ],

@@ -26,8 +26,10 @@ export default class AnalyticsEvent
      * @param {boolean} options.ecommerce
      */
     pushEvent(name, parameters, { ecommerce = true } = {}) {
+        const eventParameters = ecommerce ? this._normalizeEcommerceParameters(parameters) : parameters;
+
         if (!window.gtagIsTagManager) {
-            gtag('event', name, parameters);
+            gtag('event', name, eventParameters);
             return;
         }
 
@@ -35,7 +37,7 @@ export default class AnalyticsEvent
             window.dataLayer.push({ ecommerce: null });
             window.dataLayer.push({
                 event: name,
-                ecommerce: parameters,
+                ecommerce: eventParameters,
             });
             return;
         }
@@ -44,6 +46,58 @@ export default class AnalyticsEvent
             event: name,
             ...parameters,
         });
+    }
+
+    /**
+     * @param {Object} parameters
+     * @returns {Object}
+     * @private
+     */
+    _normalizeEcommerceParameters(parameters) {
+        return Object.fromEntries(
+            Object.entries(parameters)
+                .filter(([, value]) => value !== undefined && value !== null && value !== '')
+                .map(([key, value]) => {
+                    if (key === 'items') {
+                        return [key, value.map(item => this._normalizeItem(item))];
+                    }
+
+                    if (['value', 'tax', 'shipping'].includes(key)) {
+                        return [key, this._normalizeNumber(value)];
+                    }
+
+                    return [key, value];
+                }),
+        );
+    }
+
+    /**
+     * @param {Object} item
+     * @returns {Object}
+     * @private
+     */
+    _normalizeItem(item) {
+        return Object.fromEntries(
+            Object.entries(item)
+                .filter(([, value]) => value !== undefined && value !== null && value !== '')
+                .map(([key, value]) => {
+                    if (['price', 'quantity', 'discount', 'index'].includes(key)) {
+                        return [key, this._normalizeNumber(value)];
+                    }
+
+                    return [key, value];
+                }),
+        );
+    }
+
+    /**
+     * @param {number|string} value
+     * @returns {number|string}
+     * @private
+     */
+    _normalizeNumber(value) {
+        const number = Number(value);
+        return Number.isNaN(number) ? value : number;
     }
 
     disable() {

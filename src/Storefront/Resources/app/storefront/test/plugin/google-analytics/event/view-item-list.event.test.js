@@ -41,10 +41,10 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'view_item_list', {
             'currency': 'EUR',
-            'value': '2499.98',
+            'value': 2499.98,
             'items': [
-                { id: 'product-1', name: 'Laptop', price: 999.99, item_category: 'Electronics', item_category2: 'Computers' },
-                { id: 'product-2', name: 'Desktop', price: 1499.99, item_category: 'Electronics', item_category2: 'Computers' },
+                { item_id: 'product-1', item_name: 'Laptop', price: 999.99, item_category: 'Electronics', item_category2: 'Computers' },
+                { item_id: 'product-2', item_name: 'Desktop', price: 1499.99, item_category: 'Electronics', item_category2: 'Computers' },
             ],
         });
     });

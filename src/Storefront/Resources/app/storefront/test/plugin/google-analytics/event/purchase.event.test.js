@@ -45,16 +45,15 @@ describe('plugin/google-analytics/events/purchase.event', () => {
         expect(window.gtag).toHaveBeenCalledWith('event', 'purchase', {
             'transaction_id': '10001',
             'currency': 'EUR',
-            'value': '199.98',
-            'tax': '31.93',
-            'shipping': '4.99',
+            'value': 199.98,
+            'tax': 31.93,
+            'shipping': 4.99,
             'items': [
                 {
-                    id: 'product-123',
-                    name: 'Test Product',
-                    quantity: '2',
-                    price: '99.99',
-                    brand: null,
+                    item_id: 'product-123',
+                    item_name: 'Test Product',
+                    quantity: 2,
+                    price: 99.99,
                 },
             ],
         });
@@ -88,4 +87,3 @@ describe('plugin/google-analytics/events/purchase.event', () => {
     });
 
 });
-

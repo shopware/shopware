@@ -38,7 +38,7 @@ export default class AddToCartByNumberEvent extends AnalyticsEvent
             'currency': additionalProperties.currency,
             'items': [
                 {
-                    'id': input.value,
+                    'item_id': input.value,
                     'quantity': 1,
                 },
             ],

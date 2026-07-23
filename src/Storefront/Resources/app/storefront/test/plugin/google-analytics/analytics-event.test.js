@@ -14,9 +14,33 @@ describe('plugin/google-analytics/analytics-event', () => {
     test('pushes an event through gtag for a Google tag', () => {
         const parameters = { method: 'mail' };
 
-        new AnalyticsEvent().pushEvent('login', parameters);
+        new AnalyticsEvent().pushEvent('login', parameters, { ecommerce: false });
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'login', parameters);
+        expect(window.dataLayer).toHaveLength(0);
+    });
+
+    test('normalizes ecommerce parameters for a Google tag', () => {
+        new AnalyticsEvent().pushEvent('view_item', {
+            currency: 'EUR',
+            value: '19.99',
+            items: [{
+                item_id: 'product-1',
+                price: '19.99',
+                quantity: '1',
+                item_brand: null,
+            }],
+        });
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'view_item', {
+            currency: 'EUR',
+            value: 19.99,
+            items: [{
+                item_id: 'product-1',
+                price: 19.99,
+                quantity: 1,
+            }],
+        });
         expect(window.dataLayer).toHaveLength(0);
     });
 
@@ -25,7 +49,12 @@ describe('plugin/google-analytics/analytics-event', () => {
         const parameters = {
             currency: 'EUR',
             value: '19.99',
-            items: [{ id: 'product-1' }],
+            items: [{
+                item_id: 'product-1',
+                price: '19.99',
+                quantity: '1',
+                item_brand: undefined,
+            }],
         };
 
         new AnalyticsEvent().pushEvent('view_item', parameters);
@@ -35,7 +64,15 @@ describe('plugin/google-analytics/analytics-event', () => {
             { ecommerce: null },
             {
                 event: 'view_item',
-                ecommerce: parameters,
+                ecommerce: {
+                    currency: 'EUR',
+                    value: 19.99,
+                    items: [{
+                        item_id: 'product-1',
+                        price: 19.99,
+                        quantity: 1,
+                    }],
+                },
             },
         ]);
     });

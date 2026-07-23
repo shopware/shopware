@@ -42,7 +42,7 @@ export default class RemoveFromCart extends AnalyticsEvent
             // Fallback: send event with just the product ID
             this.pushEvent('remove_from_cart', {
                 'currency': additionalProperties.currency,
-                'items': [{ 'id': productId }],
+                'items': [{ 'item_id': productId }],
             });
             return;
         }
@@ -55,13 +55,13 @@ export default class RemoveFromCart extends AnalyticsEvent
 
         this.pushEvent('remove_from_cart', {
             'currency': additionalProperties.currency,
-            'value': value.toFixed(2),
+            'value': value,
             'items': [{
-                'id': sku ?? productId,
-                'name': hiddenLineItem.getAttribute('data-name'),
+                'item_id': sku ?? productId,
+                'item_name': hiddenLineItem.getAttribute('data-name'),
                 'quantity': quantity,
                 'price': price,
-                'brand': hiddenLineItem.getAttribute('data-brand'),
+                'item_brand': hiddenLineItem.getAttribute('data-brand'),
                 ...categories,
             }],
         });

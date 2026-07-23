@@ -45,15 +45,15 @@ describe('plugin/google-analytics/events/add-shipping-info.event', () => {
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'add_shipping_info', {
             'currency': 'EUR',
-            'value': '199.98',
+            'value': 199.98,
             'shipping_tier': 'Express Shipping',
             'items': [
                 {
-                    id: 'product-123',
-                    name: 'Test Product',
-                    quantity: '2',
-                    price: '99.99',
-                    brand: 'Test Brand',
+                    item_id: 'product-123',
+                    item_name: 'Test Product',
+                    quantity: 2,
+                    price: 99.99,
+                    item_brand: 'Test Brand',
                     item_category: 'Category 1',
                 },
             ],

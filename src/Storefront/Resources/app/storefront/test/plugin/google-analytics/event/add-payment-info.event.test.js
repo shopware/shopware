@@ -45,15 +45,15 @@ describe('plugin/google-analytics/events/add-payment-info.event', () => {
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'add_payment_info', {
             'currency': 'EUR',
-            'value': '199.98',
+            'value': 199.98,
             'payment_type': 'Credit Card',
             'items': [
                 {
-                    id: 'product-123',
-                    name: 'Test Product',
-                    quantity: '2',
-                    price: '99.99',
-                    brand: 'Test Brand',
+                    item_id: 'product-123',
+                    item_name: 'Test Product',
+                    quantity: 2,
+                    price: 99.99,
+                    item_brand: 'Test Brand',
                     item_category: 'Category 1',
                 },
             ],
@@ -93,18 +93,15 @@ describe('plugin/google-analytics/events/add-payment-info.event', () => {
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'add_payment_info', {
             'currency': 'EUR',
-            'value': '49.99',
-            'payment_type': '',
+            'value': 49.99,
             'items': [
                 {
-                    id: 'product-123',
-                    name: 'Test Product',
-                    quantity: '1',
-                    price: '49.99',
-                    brand: null,
+                    item_id: 'product-123',
+                    item_name: 'Test Product',
+                    quantity: 1,
+                    price: 49.99,
                 },
             ],
         });
     });
 });
-

@@ -54,9 +54,9 @@
         padding: 0 30px 12px;
 
         &-text {
-            font-size: $font-size-xs;
-            line-height: $line-height-md;
-            color: darken($color-gray-300, 20%);
+            font-size: var(--font-size-xs);
+            line-height: var(--font-line-height-m);
+            color: var(--color-text-secondary-default);
         }
 
         &.collapsible-text {

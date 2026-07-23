@@ -318,4 +318,53 @@ class FieldQueryBuilderTest extends TestCase
 
         static::assertNull($query);
     }
+
+    public function testNonTextFieldWithPhraseConfigReturnsNull(): void
+    {
+        // A phrase boost is a multi-word proximity signal with no meaning for non-text fields.
+        $builder = new FieldQueryBuilder();
+        $field = new ResolvedField(new IntField('stock', 'stock'));
+        $config = (new SearchFieldConfig('stock', 500, false))->withPhrase();
+
+        static::assertNull($builder->build($field, '5', $config, Context::createDefaultContext()));
+    }
+
+    public function testPhraseConfigWithoutLanguageAnalyzerUsesWhitespaceAnalyzer(): void
+    {
+        $builder = new FieldQueryBuilder(4, false);
+        $field = new ResolvedField(new StringField('name', 'name'));
+        $config = (new SearchFieldConfig('name', 500, false, true, true))->withPhrase();
+
+        $query = $builder->build($field, 'foo bar', $config, Context::createDefaultContext());
+
+        static::assertInstanceOf(MatchPhrasePrefixQuery::class, $query);
+        static::assertSame(
+            'sw_whitespace_analyzer',
+            $query->toArray()['match_phrase_prefix']['name.search']['analyzer'] ?? null,
+        );
+    }
+
+    public function testExplainModeTagsClausesWithMatchType(): void
+    {
+        $builder = new FieldQueryBuilder(4);
+        $field = new ResolvedField(new StringField('name', 'name'));
+        $config = new SearchFieldConfig('name', 500, true, true, true);
+
+        $context = Context::createDefaultContext();
+        $context->addState(Context::ELASTICSEARCH_EXPLAIN_MODE);
+
+        $query = $builder->build($field, 'foobar', $config, $context);
+
+        static::assertNotNull($query);
+        $array = $query->toArray();
+
+        // Each dis_max clause is tagged with a _name payload describing how it matched.
+        $exactName = $array['dis_max']['queries'][0]['match']['name.search']['_name'] ?? null;
+        static::assertNotNull($exactName);
+
+        $payload = json_decode((string) $exactName, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('name', $payload['field']);
+        static::assertSame('foobar', $payload['term']);
+        static::assertSame('exact', $payload['type']);
+    }
 }

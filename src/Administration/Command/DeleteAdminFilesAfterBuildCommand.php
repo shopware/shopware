@@ -13,11 +13,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'administration:delete-files-after-build',
     description: 'Deletes all unnecessary files of the administration after the build process.',
 )]
-#[Package('framework')]
 class DeleteAdminFilesAfterBuildCommand extends Command
 {
     /**

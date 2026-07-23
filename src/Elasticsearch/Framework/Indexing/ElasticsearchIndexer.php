@@ -24,8 +24,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  *
  * @final
  */
-#[AsMessageHandler]
 #[Package('framework')]
+#[AsMessageHandler]
 class ElasticsearchIndexer
 {
     /**

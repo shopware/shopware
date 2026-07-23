@@ -22,11 +22,11 @@ use Symfony\Component\Validator\Validation;
 /**
  * @internal should be used over the CLI only
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'user:change-password',
     description: 'Change the password of a user',
 )]
-#[Package('framework')]
 class UserChangePasswordCommand extends Command
 {
     /**

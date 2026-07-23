@@ -15,11 +15,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'app:list',
     description: 'Lists all apps',
 )]
-#[Package('framework')]
 class AppListCommand extends Command
 {
     use OutputFormatTrait;

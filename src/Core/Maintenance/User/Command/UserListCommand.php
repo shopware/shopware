@@ -24,11 +24,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal should be used over the CLI only
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'user:list',
     description: 'List current users',
 )]
-#[Package('framework')]
 class UserListCommand extends Command
 {
     use OutputFormatTrait;

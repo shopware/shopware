@@ -25,8 +25,8 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[CoversClass(DownloadRoute::class)]
 #[Package('checkout')]
+#[CoversClass(DownloadRoute::class)]
 class DownloadRouteTest extends TestCase
 {
     /**

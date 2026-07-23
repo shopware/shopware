@@ -18,11 +18,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'app:shop-id:check',
     description: 'Check if a shop ID change is suggested',
 )]
-#[Package('framework')]
 class CheckShopIdCommand extends Command
 {
     public function __construct(

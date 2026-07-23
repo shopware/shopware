@@ -23,8 +23,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(CartFacade::class)]
 #[Package('checkout')]
+#[CoversClass(CartFacade::class)]
 class CartFacadeTest extends TestCase
 {
     public function testPublicApiAvailable(): void

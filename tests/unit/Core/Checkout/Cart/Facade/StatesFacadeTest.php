@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(StatesFacade::class)]
 #[Package('checkout')]
+#[CoversClass(StatesFacade::class)]
 class StatesFacadeTest extends TestCase
 {
     public function testPublicApi(): void

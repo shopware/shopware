@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuild
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
@@ -39,6 +40,7 @@ use Twig\Loader\FilesystemLoader;
 /**
  * @internal
  */
+#[Package('discovery')]
 class ThumbnailExtensionTest extends TestCase
 {
     use IntegrationTestBehaviour;

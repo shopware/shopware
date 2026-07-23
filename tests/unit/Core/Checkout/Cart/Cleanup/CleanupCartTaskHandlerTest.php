@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(CleanupCartTaskHandler::class)]
 #[Package('checkout')]
+#[CoversClass(CleanupCartTaskHandler::class)]
 class CleanupCartTaskHandlerTest extends TestCase
 {
     public function testHandle(): void

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use PhpCsFixer\Config;
 use PhpCsFixer\Finder;
 use PhpCsFixer\Runner\Parallel\ParallelConfigFactory;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Path;
 
 return (new Config())
@@ -14,6 +15,7 @@ return (new Config())
         '@Symfony' => true,
         '@Symfony:risky' => true,
 
+        'attribute_empty_parentheses' => ['use_parentheses' => false],
         'blank_line_after_opening_tag' => false,
         'class_attributes_separation' => ['elements' => ['property' => 'one', 'method' => 'one']],
         'concat_space' => ['spacing' => 'one'],
@@ -57,6 +59,7 @@ return (new Config())
         'no_superfluous_phpdoc_tags' => ['allow_unused_params' => true, 'allow_mixed' => true],
         'no_useless_else' => true,
         'no_useless_return' => true,
+        'ordered_attributes' => ['order' => [Package::class], 'sort_algorithm' => 'custom'],
         'ordered_class_elements' => true,
         'phpdoc_align' => ['align' => 'left'],
         'phpdoc_annotation_without_dot' => false,

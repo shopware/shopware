@@ -59,11 +59,17 @@ export default class LineItemHelper
      */
     static getAdditionalProperties() {
         const lineItemsContainer = document.querySelector('.hidden-line-items-information');
+        const value = LineItemHelper.getLineItems().reduce((sum, item) => {
+            const price = Number(item.price);
+            const quantity = Number(item.quantity) || 1;
+
+            return Number.isNaN(price) ? sum : sum + (price * quantity);
+        }, 0);
 
         return {
             currency: lineItemsContainer.getAttribute('data-currency'),
             shipping: lineItemsContainer.getAttribute('data-shipping'),
-            value: lineItemsContainer.getAttribute('data-value'),
+            value,
             tax: lineItemsContainer.getAttribute('data-tax'),
         };
     }

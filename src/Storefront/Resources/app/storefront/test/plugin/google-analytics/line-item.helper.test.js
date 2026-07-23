@@ -86,13 +86,18 @@ describe('plugin/google-analytics/line-item.helper', () => {
     });
 
     describe('getAdditionalProperties', () => {
-        test('returns currency, shipping, value and tax', () => {
+        test('derives value from the emitted line items', () => {
             document.body.innerHTML = `
                 <div class="hidden-line-items-information"
                     data-currency="EUR"
                     data-shipping="4.99"
-                    data-value="104.98"
+                    data-value="94.98"
                     data-tax="16.76">
+                    <span class="hidden-line-item"
+                        data-id="product-1"
+                        data-quantity="2"
+                        data-price="49.99">
+                    </span>
                 </div>
             `;
 
@@ -101,7 +106,7 @@ describe('plugin/google-analytics/line-item.helper', () => {
             expect(props).toEqual({
                 currency: 'EUR',
                 shipping: '4.99',
-                value: '104.98',
+                value: 99.98,
                 tax: '16.76',
             });
         });

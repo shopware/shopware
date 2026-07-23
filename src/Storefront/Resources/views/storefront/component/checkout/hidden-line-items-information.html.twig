@@ -2,7 +2,6 @@
     <div class="d-none hidden-line-items-information"
          data-currency="{{ context.currency.translated.shortName }}"
          data-shipping="{{ cart.shippingCosts.totalPrice }}"
-         data-value="{{ cart.price.positionPrice }}"
          data-tax="{{ cart.price.calculatedTaxes.amount }}"
     >
         {% for lineItem in lineItems %}

@@ -140,7 +140,8 @@ class PromotionDeliveryCalculator
             $type = $item->getPayloadValue('discountType');
             $value = $item->getPayloadValue('value');
 
-            if (!$type || !$value) {
+            // "0" is a valid value (e.g. free shipping); skip only when unset or non-numeric
+            if ($type === null || !is_numeric($value)) {
                 continue;
             }
 

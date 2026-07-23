@@ -255,6 +255,10 @@ class PluginCreateCommandTest extends TestCase
         // A non-static plugin lives in the scanned custom/plugins folder, so no
         // Composer install step is needed.
         static::assertStringNotContainsString('composer require', $display);
+
+        // custom/plugins gets full first-party tooling — the vendor caveat is
+        // only printed for static plugins.
+        static::assertStringNotContainsString('read-only', $display);
     }
 
     public function testAdminModuleNoteAddsComposerInstallForStaticPlugins(): void
@@ -286,6 +290,13 @@ class PluginCreateCommandTest extends TestCase
             '#' . implode('.+', array_map(static fn (string $command): string => preg_quote($command, '#'), $expectedSequence)) . '#',
             $display,
         );
+
+        // A Composer-managed plugin is classified as a read-only vendor
+        // extension, so the note warns about the reduced tooling semantics.
+        // Assert on single tokens — SymfonyStyle wraps the note and inserts `!`
+        // line prefixes, so a multi-word phrase would not stay contiguous.
+        static::assertStringContainsString('read-only', $display);
+        static::assertStringContainsString('--strict-vendor', $display);
     }
 
     public function testDirectoryExists(): void

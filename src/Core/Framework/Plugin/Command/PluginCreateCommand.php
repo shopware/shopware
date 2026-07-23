@@ -150,13 +150,25 @@ class PluginCreateCommand extends Command
                         '    bin/console bundle:dump',
                     ];
 
-                $io->note([
+                $noteLines = [
                     'An example Administration module was scaffolded (TypeScript).',
                     'Install and activate the plugin, then type-check and lint it with the Administration toolchain:',
                     ...$discoverySteps,
                     \sprintf('    composer admin:check-extensions -- --only=%s', $pluginName),
                     'It needs no toolchain of its own (see extension-tooling/README.md).',
-                ]);
+                ];
+
+                if ($input->getOption('static') === true) {
+                    // A Composer-managed plugin resolves through the vendor/ path,
+                    // so the toolchain classifies it as a read-only vendor
+                    // extension: findings are non-fatal and baseline/--shim are
+                    // unavailable. custom/plugins/ gets full first-party tooling.
+                    $noteLines[] = 'As a Composer-managed (static) plugin it is checked with read-only vendor semantics: '
+                        . 'findings are non-fatal and baseline/--shim are unavailable (use --strict-vendor to gate it in '
+                        . 'CI). For full first-party tooling, develop under custom/plugins/ instead.';
+                }
+
+                $io->note($noteLines);
             }
 
             return self::SUCCESS;

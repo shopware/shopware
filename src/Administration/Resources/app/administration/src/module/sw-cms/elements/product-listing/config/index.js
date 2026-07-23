@@ -279,6 +279,15 @@ export default {
                 newValue[item.id] = has(currentValue, item.id) ? currentValue[item.id] : item.priority;
             });
 
+            // add the default sorting to available sortings, so it won't break logic
+            if (this.defaultSorting.id && !this.productSortings.has(this.defaultSorting.id)) {
+                newValue[this.defaultSorting.id] = this.defaultSorting.priority;
+
+                const collection = EntityCollection.fromCollection(this.productSortings);
+                collection.add(this.defaultSorting);
+                this.productSortings = collection;
+            }
+
             this.element.config.availableSortings.value = newValue;
         },
 
@@ -390,7 +399,9 @@ export default {
 
             // add the default sorting to available sortings, so it won't break logic
             if (!this.productSortings.has(defaultSorting.id)) {
-                this.productSortings.add(defaultSorting);
+                const collection = EntityCollection.fromCollection(this.productSortings);
+                collection.add(defaultSorting);
+                this.productSortings = collection;
             }
 
             this.defaultSorting = defaultSorting;

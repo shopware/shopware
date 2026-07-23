@@ -2,13 +2,17 @@
  * @sw-package framework
  */
 
-import { collectExpressionReferences } from './expression-references';
+import { collectExpressionReferences, collectExpressionWriteTargets } from './references';
 
 function getReferences(expression: string, templateScope: string[] = []): string[] {
     return Array.from(collectExpressionReferences(expression, new Set(templateScope))).sort();
 }
 
-describe('build/vue-setup-transform/template-analyzer/expression-references', () => {
+function getWriteTargets(expression: string, templateScope: string[] = []): string[] {
+    return Array.from(collectExpressionWriteTargets(expression, new Set(templateScope))).sort();
+}
+
+describe('build/vue-setup-transform/flow-analysis references', () => {
     it('reads a plain identifier', () => {
         expect(getReferences('info')).toEqual(['info']);
     });
@@ -84,5 +88,39 @@ describe('build/vue-setup-transform/template-analyzer/expression-references', ()
     it('scopes a named function expression and its parameters', () => {
         // `helper` and `value` are locally declared; `factor` is read from setup scope.
         expect(getReferences('[1].map(function helper(value) { return value * factor; })')).toEqual(['factor']);
+    });
+
+    describe('write targets', () => {
+        it('collects an assignment target', () => {
+            expect(getWriteTargets('count = count + 1')).toEqual(['count']);
+        });
+
+        it('collects an update-expression operand', () => {
+            expect(getWriteTargets('count++')).toEqual(['count']);
+        });
+
+        it('collects nothing for a read-only expression', () => {
+            expect(getWriteTargets('count + 1')).toEqual([]);
+        });
+
+        it('collects several targets across statements', () => {
+            expect(getWriteTargets('first = 1; second++')).toEqual([
+                'first',
+                'second',
+            ]);
+        });
+
+        it('excludes template-scope names', () => {
+            expect(
+                getWriteTargets('local = 1', [
+                    'local',
+                ]),
+            ).toEqual([]);
+        });
+
+        it('does not treat a member write as a direct identifier write', () => {
+            // `count.value = 1` writes a property; `count` itself is only read (out of scope here).
+            expect(getWriteTargets('count.value = 1')).toEqual([]);
+        });
     });
 });

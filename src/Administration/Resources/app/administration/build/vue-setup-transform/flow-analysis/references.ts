@@ -8,6 +8,24 @@
  * Given an expression such as `items.map(({ info }) => info + label)`, these helpers report which
  * identifiers read outer (setup) scope - here `items` and `label` - while pattern-local names,
  * shadowed callback parameters, member-access property names, and static object keys are ignored.
+ *
+ * Shared vocabulary used throughout this file:
+ * - **reference**: an identifier that *reads* a value from an outer scope (not one declared locally,
+ *   and not a static key / property name / declaration id).
+ * - **binding pattern**: the left-hand side of a destructure that *declares* names rather than reading
+ *   them - `{ a, b: c }`, `[x, ...rest]`, `a = default`.
+ * - **`templateScope`** (public entry points): names already in scope from the surrounding Vue template
+ *   - v-for aliases, slot-scope props. They are template-local, so they are never reported as
+ *   references.
+ * - **`scopes`** (internal): a stack of name Sets, innermost first, that are in scope at the current
+ *   node. A name present in any of them is declared, so it is not a reference. Entering a
+ *   function/block/catch pushes a new Set of the names it declares.
+ * - **`references` / `targets`** (internal): the *output* Set the walk accumulates into - it is mutated
+ *   in place (an out-parameter), not returned, so a single Set collects across the whole subtree.
+ * - **`parent` / `parentKey`**: the parent AST node and the field name this node sits under on it.
+ *   Together they distinguish a read from a declaration or a name - e.g. the `x` in `obj.x` sits at
+ *   `parentKey === 'property'` of a MemberExpression, so it is not a read. See the `ParentKey` type for
+ *   the field names that mark a non-read position.
  */
 
 import { parse, parseExpression, type ParserPlugin } from '@babel/parser';
@@ -21,13 +39,33 @@ type BindingPatternResult = {
     offset: number;
 };
 
+/**
+ * The field name a node sits under on its parent AST node.
+ *
+ * Only these keys mark a position where an identifier is *not* a read, so they are the ones reference
+ * detection branches on:
+ * - `'property'` — the `x` in `obj.x` (member-access property; a read only when computed, `obj[x]`)
+ * - `'key'`      — the `x` in `{ x: … }` or `x() {}` (object key; a read only when computed, `{ [x]: … }`)
+ * - `'id'`       — the name in `const x` / `function x` / `class x` (a declaration, not a read)
+ * - `'params'`   — a function parameter name
+ *
+ * Every other field name (`'object'`, `'right'`, `'callee'`, `'argument'`, …) is a plain child slot
+ * where an identifier *is* a read. The generic AST walk supplies the raw field name, hence the
+ * `(string & {})` member: it keeps the type assignable from any Babel field name while still giving
+ * autocomplete and documentation for the four meaningful keys.
+ */
+type ParentKey = 'property' | 'key' | 'id' | 'params' | (string & {});
+
 const EXPRESSION_PLUGINS: ParserPlugin[] = [
     'typescript',
 ];
 
 /**
- * Parses template JavaScript snippets as expressions first, then as statements for inline handlers.
+ * Parses one template JS snippet into a Babel node.
  *
+ * Vue bindings are usually expressions (`a + b`), so it tries `parseExpression` first; inline event
+ * handlers can be statements (`count = 1; save()`), so it falls back to parsing a module and returning
+ * the `Program`.
  */
 function parseTemplateExpression(source: string): BabelNode {
     try {
@@ -43,8 +81,11 @@ function parseTemplateExpression(source: string): BabelNode {
 }
 
 /**
- * Parses a v-slot binding expression as a destructuring target.
+ * Parses a v-slot / v-for binding expression (a **binding pattern** such as `#default="{ item, index }"`).
  *
+ * Vue gives the pattern text without a declaration context, so it is wrapped in `const <pattern> =
+ * __slot;` and parsed. Returns the pattern node plus `offset` - where the pattern text starts within
+ * the wrapped source - so callers can translate positions back to the original expression.
  */
 function parseBindingPattern(source: string): BindingPatternResult {
     const prefix = 'const ';
@@ -67,8 +108,10 @@ function parseBindingPattern(source: string): BindingPatternResult {
 }
 
 /**
- * Adds all names declared by one binding pattern to a scope.
+ * Adds every name a **binding pattern** declares into `scope` (mutated in place).
  *
+ * e.g. `{ a, b: c, d = fallback }` declares `a`, `c`, `d`; the default `fallback` and any computed key
+ * are reads, not declarations, so they are not added.
  */
 function addPatternNames(pattern: BabelNode | null | undefined, scope: Set<string>): void {
     forEachPatternIdentifier(pattern, (identifier) => {
@@ -77,8 +120,14 @@ function addPatternNames(pattern: BabelNode | null | undefined, scope: Set<strin
 }
 
 /**
- * Collects outer-scope references used by one binding pattern without treating declarations as reads.
+ * Collects the outer-scope references a **binding pattern** reads, into `references` (out-parameter).
  *
+ * A pattern only reads through its destructuring defaults (`{ a = fallback }` reads `fallback`) and
+ * computed keys (`{ [key]: v }` reads `key`); the names it declares go into `patternScope` and are not
+ * reads. Earlier-declared names shadow later defaults, so `{ a, b: c = a }` reads nothing.
+ *
+ * @param outerScopes enclosing scope stack (see the file header); `patternScope` is layered on top of
+ *   it when evaluating defaults/computed keys, so a name declared earlier in the pattern shadows them.
  */
 function collectPatternReferences(
     pattern: BabelNode | null | undefined,
@@ -146,18 +195,21 @@ function collectPatternReferences(
 }
 
 /**
- * Checks whether a name is declared by the template or JavaScript expression itself.
- *
+ * Whether `name` is declared in any scope on the stack (so it is not an outer reference).
  */
 function isDeclared(name: string, scopes: Set<string>[]): boolean {
     return scopes.some((scope) => scope.has(name));
 }
 
 /**
- * Handles Babel object keys and declaration sites so only value references are collected.
+ * Whether an identifier node is a value **read**, from its position on the parent.
  *
+ * Uses `parent` and the `parentKey` the identifier sits under (see the file header) to exclude the
+ * spots where an identifier is not a read: a member-access property name (`obj.x`), a static object
+ * key (`{ x: 1 }`), a declaration id (`const x` / `function x`), a function parameter, and a
+ * break/continue/label target.
  */
-function isIdentifierReference(node: BabelNode, parent: BabelNode | null, parentKey: string | null): boolean {
+function isIdentifierReference(node: BabelNode, parent: BabelNode | null, parentKey: ParentKey | null): boolean {
     if (node.type !== 'Identifier' || !parent) {
         return node.type === 'Identifier';
     }
@@ -196,15 +248,19 @@ function isIdentifierReference(node: BabelNode, parent: BabelNode | null, parent
 }
 
 /**
- * Visits a Babel expression tree and records identifiers that are read from outer scope.
+ * Walks a Babel expression/statement tree and adds every outer-scope read into `references`.
  *
+ * `references` is the output Set (mutated in place). `scopes` is the scope stack (innermost first):
+ * each function, block, and catch clause pushes a new Set of the names it declares, so an identifier
+ * is a reference only if `isIdentifierReference` says it is a read *and* it is not `isDeclared` in any
+ * scope. `parent`/`parentKey` are threaded so read-vs-declaration can be decided (see the file header).
  */
 function collectBabelReferences(
     node: BabelNode | null | undefined,
     scopes: Set<string>[],
     references: Set<string>,
     parent: BabelNode | null = null,
-    parentKey: string | null = null,
+    parentKey: ParentKey | null = null,
 ): void {
     if (!node || typeof node.type !== 'string') {
         return;
@@ -353,6 +409,9 @@ function collectBabelWriteTargets(node: BabelNode | null | undefined, targets: S
 
 /**
  * Returns the outer-scope identifiers one Vue expression writes to (assignment/update targets).
+ *
+ * @param templateScope names already bound by the surrounding template (v-for aliases, slot props);
+ *   a write to one of those is template-local, so it is filtered out of the result.
  */
 function collectExpressionWriteTargets(expression: string | undefined, templateScope: Set<string>): Set<string> {
     if (!expression || expression.trim() === '') {
@@ -366,8 +425,12 @@ function collectExpressionWriteTargets(expression: string | undefined, templateS
 }
 
 /**
- * Collects runtime references from one Vue expression while honoring aliases from parent template scopes.
+ * Returns the setup-scope identifiers one Vue expression reads.
  *
+ * @param templateScope names already bound by the surrounding template (v-for aliases, slot-scope
+ *   props). They are seeded as the outermost scope, so they count as declared and are excluded from
+ *   the result - only genuine reads of setup state come back. e.g. for `info + label` with
+ *   `templateScope = {info}`, the result is `{label}`.
  */
 function collectExpressionReferences(expression: string | undefined, templateScope: Set<string>): Set<string> {
     const references = new Set<string>();

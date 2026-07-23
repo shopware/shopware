@@ -22,7 +22,7 @@ import {
     collectExpressionWriteTargets,
     collectPatternReferences,
     parseBindingPattern,
-} from './expression-references';
+} from '../flow-analysis';
 
 /**
  * The setup references an override slot reads, plus the ones it writes to (assignment/update targets).

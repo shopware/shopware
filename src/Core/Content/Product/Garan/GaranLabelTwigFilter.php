@@ -35,6 +35,7 @@ class GaranLabelTwigFilter extends AbstractExtension
             new TwigFilter('sw_garan_label_duration', $this->formatDuration(...)),
             new TwigFilter('sw_garan_label', $this->render(...), ['is_safe' => ['html']]),
             new TwigFilter('sw_garan_label_nested', $this->renderNestedLabel(...), ['is_safe' => ['html']]),
+            new TwigFilter('sw_garan_label_data_uri', $this->renderAsDataUri(...)),
         ];
     }
 
@@ -63,6 +64,21 @@ class GaranLabelTwigFilter extends AbstractExtension
         }
 
         return $this->resolver->resolve($product, GaranLabelResolver::LABEL_TYPE_NESTED);
+    }
+
+    /**
+     * Email clients strip or garble inline <svg> markup, so mail templates need the label
+     * embedded as an <img> data URI instead of raw SVG.
+     */
+    public function renderAsDataUri(?string $productId, Context $context): ?string
+    {
+        $svg = $this->render($productId, $context);
+
+        if ($svg === null) {
+            return null;
+        }
+
+        return 'data:image/svg+xml;base64,' . base64_encode($svg);
     }
 
     private function loadProduct(?string $productId, Context $context): ?ProductEntity

@@ -79,10 +79,10 @@
                 </tr>
 
                 {% if nestedItem.productId is defined and nestedItem.productId %}
-                    {% set garanLabelSvg = nestedItem.productId|sw_garan_label(context) %}
-                    {% if garanLabelSvg %}
+                    {% set garanLabelDataUri = nestedItem.productId|sw_garan_label_data_uri(context) %}
+                    {% if garanLabelDataUri %}
                         <tr>
-                            <td colspan="6">{{ garanLabelSvg|raw }}</td>
+                            <td colspan="6"><img src="{{ garanLabelDataUri }}" alt="" /></td>
                         </tr>
                     {% endif %}
                 {% endif %}

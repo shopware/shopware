@@ -13,11 +13,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('discovery')]
 #[AsCommand(
     name: 'media:delete-local-thumbnails',
     description: 'Deletes all physical media thumbnails when remote thumbnails is enabled.',
 )]
-#[Package('discovery')]
 class DeleteThumbnailsCommand extends Command
 {
     /**

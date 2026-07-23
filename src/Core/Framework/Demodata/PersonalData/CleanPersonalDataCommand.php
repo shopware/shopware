@@ -22,11 +22,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'database:clean-personal-data',
     description: 'Cleans personal data from the database',
 )]
-#[Package('framework')]
 class CleanPersonalDataCommand extends Command
 {
     protected const VALID_TYPES = [

@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(CheckoutGatewayRouteResponse::class)]
 #[Package('checkout')]
+#[CoversClass(CheckoutGatewayRouteResponse::class)]
 class CheckoutGatewayRouteResponseTest extends TestCase
 {
     public function testConstruct(): void

@@ -98,5 +98,3 @@ To add a new skill (interactive or unattended), follow the checklist in [`coding
 | **Snippets**           | `composer translation:lint`   | Manual fix required                          |
 | **Prettier** (Admin)   | `composer format:admin`       | `composer format:admin:fix`                  |
 | **GitHub Actions**     | `composer lint:actions`       | `composer lint:actions:fix`                  |
-
-GitHub Actions linting uses [`actionlint`](https://github.com/rhysd/actionlint) and formatting uses [`yamlfmt`](https://github.com/google/yamlfmt). Install them locally (`brew install actionlint yamlfmt`, or `go install` — see `.github/bin/lint-actions.bash`); the pre-commit hook and `composer lint:actions` skip with an install hint when they are missing, and CI (`.github/workflows/lint-actions.yml`) enforces both.

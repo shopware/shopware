@@ -5,6 +5,7 @@ description: >
     to review a PR, references a PR by number ("#16638"), asks for a focused
     security / architecture / code-style / UX / open-source review, or when a PR
     needs automated reviewer feedback.
+disable-model-invocation: true
 license: MIT
 allowed-tools: >
     Task

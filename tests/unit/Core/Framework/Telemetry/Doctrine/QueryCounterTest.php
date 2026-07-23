@@ -10,8 +10,8 @@ use Shopware\Core\Framework\Telemetry\Doctrine\QueryCounter;
 /**
  * @internal
  */
-#[CoversClass(QueryCounter::class)]
 #[Package('framework')]
+#[CoversClass(QueryCounter::class)]
 class QueryCounterTest extends TestCase
 {
     public function testStartsAtZero(): void

@@ -12,8 +12,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[CoversClass(OperationResolver::class)]
 #[Package('framework')]
+#[CoversClass(OperationResolver::class)]
 class OperationResolverTest extends TestCase
 {
     #[DataProvider('routeProvider')]

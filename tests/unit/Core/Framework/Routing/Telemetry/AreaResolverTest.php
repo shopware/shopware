@@ -15,8 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[CoversClass(AreaResolver::class)]
 #[Package('framework')]
+#[CoversClass(AreaResolver::class)]
 class AreaResolverTest extends TestCase
 {
     /**

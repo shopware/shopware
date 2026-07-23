@@ -62,12 +62,12 @@ describe('build/vue-setup-transform sourcemap generated code', () => {
         expectGeneratedTokenUnmapped(result, ':data="$dataScope"');
     });
 
-    it('does not map merged override default slot aliases to user-authored template source', () => {
+    it('does not map generated override default slot scopes to user-authored template source', () => {
         expect.hasAssertions();
 
         const source = stripIndent`
             <template>
-                <sw-block extends="sw_example_card" #default="{ headline }">
+                <sw-block extends="sw_example_card">
                     <p>{{ headline }}</p>
                     <small>{{ info }}</small>
                 </sw-block>
@@ -84,11 +84,12 @@ describe('build/vue-setup-transform sourcemap generated code', () => {
 
         const result = transformOrFail(source, 'template-slot-merge.override.vue');
 
+        // The whole #default scope is transform-generated, so its tokens must stay unmapped.
         expect(result.code).toContain('__swOverride');
         expectGeneratedTokenUnmapped(result, '__swOverride');
     });
 
-    it('does not map generated no-template override fallback render functions', () => {
+    it('does not map the generated no-template override registration template', () => {
         expect.hasAssertions();
 
         const source = `<script setup>
@@ -101,7 +102,9 @@ swDefineOverride({
 
         const result = transformOrFail(source, 'no-template-override.override.vue');
 
-        expectUnmapped(result, 'return () => null;');
+        // A template-less override receives a generated comment-only template so the hidden
+        // registration component can mount; that injected markup has no author source.
+        expectUnmapped(result, '<!-- Shopware override registration component -->');
     });
 
     it('does not map generated runtime bridge code to user-authored source', () => {

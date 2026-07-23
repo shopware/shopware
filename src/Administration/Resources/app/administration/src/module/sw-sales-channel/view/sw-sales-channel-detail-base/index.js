@@ -186,14 +186,13 @@ export default {
 
         storefrontSalesChannelDomainCriteria() {
             const criteria = new Criteria(1, 25);
-            criteria.addAssociation('salesChannel')
-            criteria.addFilter(Criteria.multi('or', [
-                Criteria.not(
-                    'and',
-                    [Criteria.equals('salesChannel.typeId', Defaults.apiSalesChannelTypeId)]
-                ),
-                Criteria.equals('isExternalStorefront', true),
-            ]));
+            criteria.addAssociation('salesChannel');
+            criteria.addFilter(
+                Criteria.multi('or', [
+                    Criteria.not('and', [Criteria.equals('salesChannel.typeId', Defaults.apiSalesChannelTypeId)]),
+                    Criteria.equals('isExternalStorefront', true),
+                ]),
+            );
 
             return criteria.addFilter(Criteria.equals('salesChannelId', this.productExport.storefrontSalesChannelId));
         },

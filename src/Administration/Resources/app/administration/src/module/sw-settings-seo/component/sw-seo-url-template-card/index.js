@@ -77,7 +77,10 @@ export default {
                 return true;
             }
 
-            const supported = [Defaults.storefrontSalesChannelTypeId, Defaults.apiSalesChannelTypeId];
+            const supported = [
+                Defaults.storefrontSalesChannelTypeId,
+                Defaults.apiSalesChannelTypeId,
+            ];
             if (!supported.includes(this.currentSalesChannel.typeId)) {
                 return false;
             }
@@ -359,8 +362,7 @@ export default {
         },
         fetchSalesChannels() {
             const criteria = new Criteria(1, 25);
-            criteria.addAssociation('domains')
-                .addSorting(Criteria.sort('domains.isExternalStorefront', 'DESC'));
+            criteria.addAssociation('domains').addSorting(Criteria.sort('domains.isExternalStorefront', 'DESC'));
 
             this.salesChannelRepository.search(criteria).then((response) => {
                 this.salesChannels = response;

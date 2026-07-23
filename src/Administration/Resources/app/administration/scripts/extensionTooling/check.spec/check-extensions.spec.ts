@@ -6,7 +6,6 @@ import fs from 'fs';
 import path from 'path';
 import { BASELINE_FILE_NAME, writeBaselineFile } from '../baseline';
 import { checkExtensions } from '../check';
-import { setupExtensionTooling } from '../setup';
 import {
     cleanupTempProject,
     createSkeletonAdmin,
@@ -284,15 +283,5 @@ describe('scripts/extensionTooling/check checkExtensions', () => {
         expect(refusedUpdate.exitCode).toBe(1);
         expect(refusedUpdate.fatalDiagnostics.join('\n')).toContain('baseline not updated');
         expect(fs.readFileSync(baselinePath)).toEqual(baselineBefore);
-
-        // The verified verdicts are cached, and a subsequent setup run renders
-        // the same state instead of contradicting the check.
-        expect(fs.existsSync(path.join(projectRoot, 'var/admin-extension-tooling/probe-cache.json'))).toBe(true);
-
-        const followUpSetup = setupExtensionTooling({ projectRoot, administrationRoot });
-        const followUpProject = followUpSetup.manifest.projects[0];
-
-        expect(followUpProject.targets[0].ts).toMatchObject({ mode: 'unmanaged', verified: true });
-        expect(followUpProject.targets[0].eslint).toMatchObject({ mode: 'unmanaged', verified: true });
     }, 60000);
 });

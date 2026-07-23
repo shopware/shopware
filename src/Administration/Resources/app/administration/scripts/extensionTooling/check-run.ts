@@ -10,23 +10,10 @@
 
 import fs from 'fs';
 import path from 'path';
-import type { SetupExtensionToolingResult } from './setup';
 import { aggregateModeResolution, canonicalizePath, collectSkippedTargets, relativePosix, toPosix } from './shared';
 import type { AdministrationTarget, ExtensionToolingProject, ModeResolution, ToolingCommands } from './shared';
 import { DEFAULT_TOOLING_COMMANDS } from './shared';
-import {
-    PROCESS_TIMEOUT_MS,
-    probeCacheEntryKey,
-    probeCacheKey,
-    probeEslintMode,
-    probeInputFiles,
-    probeTsMode,
-    readProbeCache,
-    runCommand,
-    toCacheableResolution,
-    writeProbeCache,
-} from './probe';
-import type { ProbeCacheFile } from './probe';
+import { PROCESS_TIMEOUT_MS, probeEslintMode, probeTsMode, runCommand } from './probe';
 import { baselineFilePath, buildBaseline, diffEslint, readBaseline, writeBaselineFile } from './baseline';
 import type { BaselineEslintEntry, BaselineTsEntry, TypeScriptFinding } from './baseline';
 import {
@@ -161,50 +148,6 @@ export async function probeExtensionModes(context: {
     });
 
     return { resolvedTargets, resolvedModes };
-}
-
-/**
- * Persists the verified verdicts so subsequent setup runs render the same
- * state. Merges with existing entries (a --only run must not drop other
- * extensions' verdicts) and prunes extensions that no longer exist.
- */
-export function persistProbeCache(context: {
-    projectRoot: string;
-    administrationRoot: string;
-    setupResult: SetupExtensionToolingResult;
-    resolvedTargets: ProbedTarget[];
-}): void {
-    const { projectRoot, administrationRoot, setupResult, resolvedTargets } = context;
-    const knownNames = new Set(
-        setupResult.manifest.projects.flatMap((project) =>
-            project.targets.map((target) => probeCacheEntryKey(project.name, target)),
-        ),
-    );
-    const probeCache: ProbeCacheFile = {
-        version: 2,
-        entries: Object.fromEntries(
-            Object.entries(readProbeCache(projectRoot)?.entries ?? {}).filter(([name]) => knownNames.has(name)),
-        ),
-    };
-
-    for (const { projectName, target, tsResolution, eslintResolution } of resolvedTargets) {
-        if (!target.tsconfig && !target.eslintConfig) {
-            continue;
-        }
-
-        const inputs = probeInputFiles(target, projectRoot, administrationRoot);
-
-        probeCache.entries[probeCacheEntryKey(projectName, target)] = {
-            ...(target.tsconfig
-                ? { ts: { key: probeCacheKey(inputs.ts), resolution: toCacheableResolution(tsResolution) } }
-                : {}),
-            ...(target.eslintConfig
-                ? { eslint: { key: probeCacheKey(inputs.eslint), resolution: toCacheableResolution(eslintResolution) } }
-                : {}),
-        };
-    }
-
-    writeProbeCache(projectRoot, probeCache);
 }
 
 /**

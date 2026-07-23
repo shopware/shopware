@@ -23,7 +23,6 @@ import fs from 'fs';
 import path from 'path';
 import { CliUsageError, parseCli, renderHelp } from './cli';
 import type { CommandSpec } from './cli';
-import { probeCacheEntryKey, readProbeCache, resolveModesFromCache, writeProbeCache } from './probe';
 import { renderSetupReport } from './report';
 import {
     STATE_DIR,
@@ -105,43 +104,6 @@ function loadHostModules(context: GeneratorContext): Record<string, string> {
     return hostModules;
 }
 
-/**
- * Adopt verified verdicts from earlier check runs where the config inputs are
- * unchanged, and prune cache entries of extensions that have disappeared.
- */
-function applyProbeCache(context: GeneratorContext, discovered: ExtensionToolingProject[]): ExtensionToolingProject[] {
-    const probeCache = readProbeCache(context.projectRoot);
-
-    if (!probeCache) {
-        return discovered;
-    }
-
-    const withCachedModes = discovered.map((project) => ({
-        ...project,
-        targets: project.targets.map((target) => ({
-            ...target,
-            ...resolveModesFromCache(
-                target,
-                probeCacheEntryKey(project.name, target),
-                probeCache,
-                context.projectRoot,
-                context.administrationRoot,
-            ),
-        })),
-    }));
-
-    const knownNames = new Set(
-        withCachedModes.flatMap((project) => project.targets.map((target) => probeCacheEntryKey(project.name, target))),
-    );
-    const prunedEntries = Object.fromEntries(Object.entries(probeCache.entries).filter(([name]) => knownNames.has(name)));
-
-    if (!context.dryRun && Object.keys(prunedEntries).length !== Object.keys(probeCache.entries).length) {
-        writeProbeCache(context.projectRoot, { version: 2, entries: prunedEntries });
-    }
-
-    return withCachedModes;
-}
-
 export function setupExtensionTooling(options: SetupExtensionToolingOptions): SetupExtensionToolingResult {
     const projectRoot = path.resolve(options.projectRoot);
     const administrationRoot = path.resolve(options.administrationRoot);
@@ -174,8 +136,6 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
         createShims(context, discovered, options.shim, options.rootConfig);
         discovered = discoverProjects(projectRoot, administrationRoot, pluginsConfigPath);
     }
-
-    discovered = applyProbeCache(context, discovered);
 
     const projects = createLeafConfigs(context, discovered);
     const rootTsconfigState = createRootTsconfig(context, projects);

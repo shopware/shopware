@@ -41,7 +41,7 @@ import {
 } from './check-parsing';
 import { createLimiter, runPool } from './check-pipeline';
 import { buildVueTscArguments } from './check-typescript-program';
-import { checkProject, computeExitCode, persistProbeCache, probeExtensionModes, recordProjectBaseline } from './check-run';
+import { checkProject, computeExitCode, probeExtensionModes, recordProjectBaseline } from './check-run';
 import type {
     AdministrationTargetCoverage,
     CheckExtensionsOptions,
@@ -185,7 +185,7 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
         );
     }
 
-    const { resolvedTargets, resolvedModes } = await probeExtensionModes({
+    const { resolvedModes } = await probeExtensionModes({
         projects,
         projectRoot,
         administrationRoot,
@@ -193,8 +193,6 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
         maxWorkers,
         limit,
     });
-
-    persistProbeCache({ projectRoot, administrationRoot, setupResult, resolvedTargets });
 
     const checkJobs = resolvedModes.map(({ project, tsResolution, eslintResolution }) => async () => {
         const { result, warnings: projectWarnings } = await checkProject({

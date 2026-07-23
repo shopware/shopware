@@ -1,24 +1,21 @@
 /**
  * @sw-package framework
  *
- * Mode resolution for extension-owned configs. Three layers:
+ * Mode resolution for extension-owned configs. Two layers:
  *
  * 1. Static analysis — synchronous, no process spawns, safe for setup: parse
- *    the config and walk its `extends` chain / import specifiers.
+ *    the config and walk its `extends` chain / import specifiers. A fast
+ *    best-guess that setup renders.
  * 2. Live probes — asynchronous `tsc --showConfig` / `eslint --print-config`
  *    runs, the authority, executed by the check command.
- * 3. The probe cache — carries verified live verdicts from check runs back
- *    into subsequent setup runs (keyed by content hashes of every input the
- *    verdict depends on), so both commands render the same state.
  */
 
-import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import ts from 'typescript';
 import { PROCESS_TIMEOUT_MS, runCommand } from './probe-command';
 import type { CommandResult } from './probe-command';
-import { SHIM_DIR_NAME, STATE_DIR, writeStateFile } from './shared';
+import { SHIM_DIR_NAME } from './shared';
 import type { AdministrationTarget, ModeReason, ModeResolution } from './shared';
 
 // The child-process runner lives in ./probe-command; these bindings are
@@ -150,7 +147,7 @@ export function analyzeEslintConfigStatically(eslintConfigPath: string): { impor
 
     // Text-scan for the bridge or factory import. Indirect composition (via a
     // second local file) is a false negative here — the live probe corrects it
-    // through the cache on the next check run.
+    // on the next check run.
     return {
         importsFactory: text.includes(`${SHIM_DIR_NAME}/eslint.mjs`) || text.includes('extension-tooling/eslint.mjs'),
     };
@@ -372,206 +369,4 @@ export async function probeEslintMode(
     }
 
     return { mode: 'unmanaged', reason: 'factory-not-composed', detail: ESLINT_NOT_COMPOSED_DETAIL, verified: true };
-}
-
-interface ProbeCacheEntry {
-    key: string;
-    resolution: ModeResolution;
-}
-
-export interface ProbeCacheFile {
-    version: 2;
-    entries: Record<string, { ts?: ProbeCacheEntry; eslint?: ProbeCacheEntry }>;
-}
-
-export function probeCacheEntryKey(projectName: string, target: AdministrationTarget): string {
-    return `${projectName}::${target.sourcePath}`;
-}
-
-function probeCacheFilePath(projectRoot: string): string {
-    return path.join(projectRoot, STATE_DIR, 'probe-cache.json');
-}
-
-/**
- * Every local config file reachable through a tsconfig's `extends` chain,
- * including the start file. A cached verdict depends on all of them — an edit
- * to an indirectly-extended config (e.g. the generated bridge, or a shared
- * base the plugin extends) must invalidate the cache, not only a direct edit.
- */
-export function collectLocalTsconfigChain(tsconfigPath: string): string[] {
-    const collected = new Set<string>([tsconfigPath]);
-    let frontier = [tsconfigPath];
-
-    for (let depth = 0; depth < MAX_EXTENDS_DEPTH && frontier.length > 0; depth += 1) {
-        const next: string[] = [];
-
-        for (const configPath of frontier) {
-            const parsed = parseTsconfig(configPath);
-
-            for (const specifier of extendsSpecifiers(parsed.config)) {
-                const resolved = resolveLocalExtends(configPath, specifier);
-
-                if (resolved === null || collected.has(resolved)) {
-                    continue;
-                }
-
-                collected.add(resolved);
-                next.push(resolved);
-            }
-        }
-
-        frontier = next;
-    }
-
-    return [...collected];
-}
-
-/**
- * Local ESLint config modules imported directly by a config (one level). A
- * cache verdict for a config that composes the bridge through a locally
- * imported module must invalidate when that module changes. Transitive imports
- * are not followed — a shallow scan is a conservative approximation, not a full
- * module graph.
- */
-export function collectLocalEslintImports(eslintConfigPath: string): string[] {
-    let text: string;
-
-    try {
-        text = fs.readFileSync(eslintConfigPath, 'utf8');
-    } catch {
-        return [];
-    }
-
-    const configDir = path.dirname(eslintConfigPath);
-    const imports = new Set<string>();
-
-    for (const match of text.matchAll(/(?:from|import)\s*['"](\.[^'"]+)['"]/g)) {
-        const resolved = path.resolve(configDir, match[1]);
-
-        if (fs.existsSync(resolved)) {
-            imports.add(resolved);
-        }
-    }
-
-    return [...imports];
-}
-
-/** Every file whose content a probe verdict depends on, per tool. */
-export function probeInputFiles(
-    target: AdministrationTarget,
-    projectRoot: string,
-    administrationRoot: string,
-): { ts: string[]; eslint: string[] } {
-    const adminFolder = path.resolve(projectRoot, target.adminFolder);
-    const eslintConfig = target.eslintConfig ? path.resolve(projectRoot, target.eslintConfig) : null;
-
-    const tsExtendsChain = target.tsconfig ? collectLocalTsconfigChain(path.resolve(projectRoot, target.tsconfig)) : [];
-    const eslintConfigInputs = eslintConfig
-        ? [
-              eslintConfig,
-              ...collectLocalEslintImports(eslintConfig),
-          ]
-        : [];
-
-    const tsFiles = new Set<string>([
-        ...tsExtendsChain,
-        path.join(adminFolder, SHIM_DIR_NAME, 'tsconfig.json'),
-        path.join(adminFolder, 'tsconfig.aliases.json'),
-        path.join(administrationRoot, 'extension-tooling', 'tsconfig.base.json'),
-    ]);
-    const eslintFiles = new Set<string>([
-        ...eslintConfigInputs,
-        path.join(adminFolder, SHIM_DIR_NAME, 'eslint.mjs'),
-        path.join(administrationRoot, 'extension-tooling', 'eslint.mjs'),
-    ]);
-
-    // Sorted so the hash is stable regardless of discovery/insertion order.
-    return { ts: [...tsFiles].sort(), eslint: [...eslintFiles].sort() };
-}
-
-/** Content hash over the given files; missing files hash as empty so adding one changes the key. */
-export function probeCacheKey(filePaths: string[]): string {
-    const hash = crypto.createHash('sha256');
-
-    for (const filePath of filePaths) {
-        hash.update(filePath);
-        hash.update('\u0000');
-
-        try {
-            hash.update(fs.readFileSync(filePath));
-        } catch {
-            // Missing input hashes as empty content.
-        }
-
-        hash.update('\u0000');
-    }
-
-    return hash.digest('hex');
-}
-
-export function readProbeCache(projectRoot: string): ProbeCacheFile | null {
-    try {
-        const parsed = JSON.parse(fs.readFileSync(probeCacheFilePath(projectRoot), 'utf8')) as ProbeCacheFile;
-
-        return parsed && parsed.version === 2 && typeof parsed.entries === 'object' ? parsed : null;
-    } catch {
-        return null;
-    }
-}
-
-/**
- * Persists the cache. Deliberately not recorded as a managed write: a cache
- * refresh from a check run must not make the next `setup --check` report
- * drift.
- */
-export function writeProbeCache(projectRoot: string, cache: ProbeCacheFile): void {
-    writeStateFile(probeCacheFilePath(projectRoot), `${JSON.stringify(cache, null, 4)}\n`);
-}
-
-/** A cached resolution without the potentially large raw probe output. */
-export function toCacheableResolution(resolution: ModeResolution): ModeResolution {
-    const { probeOutput, ...rest } = resolution;
-
-    void probeOutput;
-
-    return rest;
-}
-
-/** Adopts a cached entry's verdict when the target still declares that config and the input hashes match. */
-function adoptCachedEntry(
-    hasConfig: boolean,
-    cached: ProbeCacheEntry | undefined,
-    inputFiles: string[],
-    fallback: ModeResolution,
-): ModeResolution {
-    if (hasConfig && cached && cached.key === probeCacheKey(inputFiles)) {
-        return cached.resolution;
-    }
-
-    return fallback;
-}
-
-/**
- * Adopts cached verified verdicts when the content hashes still match;
- * otherwise the given (static, unverified) resolutions stand.
- */
-export function resolveModesFromCache(
-    target: AdministrationTarget,
-    cacheKey: string,
-    cache: ProbeCacheFile | null,
-    projectRoot: string,
-    administrationRoot: string,
-): { ts: ModeResolution; eslint: ModeResolution } {
-    const entry = cache?.entries[cacheKey];
-
-    if (!entry) {
-        return { ts: target.ts, eslint: target.eslint };
-    }
-
-    const inputs = probeInputFiles(target, projectRoot, administrationRoot);
-
-    return {
-        ts: adoptCachedEntry(Boolean(target.tsconfig), entry.ts, inputs.ts, target.ts),
-        eslint: adoptCachedEntry(Boolean(target.eslintConfig), entry.eslint, inputs.eslint, target.eslint),
-    };
 }

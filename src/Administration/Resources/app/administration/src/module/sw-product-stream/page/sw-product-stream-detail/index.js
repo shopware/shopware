@@ -221,6 +221,10 @@ export default {
             this.getProductCustomFields().then(() => {
                 Context.api.languageId = Context.api.systemLanguageId;
                 this.productStream = this.productStreamRepository.create(Context.api);
+
+                // fill empty data to match the backend default (ProductStreamDefinition::getDefaults())
+                this.productStream.displayAsGroup = true;
+
                 this.productStreamFilters = this.productStream.filters;
             });
         },

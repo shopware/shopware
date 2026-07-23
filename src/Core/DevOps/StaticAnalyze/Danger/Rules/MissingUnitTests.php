@@ -150,6 +150,11 @@ class MissingUnitTests
             return true;
         }
 
+        // Routing config files (PHP closures using RoutingConfigurator) need no unit tests.
+        if (preg_match('#/Resources/config/routes(?:_[^/]*)?\.php$#', $file->name) === 1 && str_contains($content, 'RoutingConfigurator')) {
+            return true;
+        }
+
         // process phpunit code coverage exclude lists
         if (\in_array($file->name, $excludedFiles, true)) {
             return true;

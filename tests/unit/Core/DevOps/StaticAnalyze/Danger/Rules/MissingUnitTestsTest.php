@@ -95,6 +95,14 @@ class MissingUnitTestsTest extends TestCase
             'src/Core/Framework/DependencyInjection/services.php',
             "<?php\nreturn static function (ContainerConfigurator \$configurator): void {\n};",
         ];
+        yield 'routing config file' => [
+            'src/Core/Framework/Resources/config/routes.php',
+            "<?php\nreturn static function (RoutingConfigurator \$routes): void {\n};",
+        ];
+        yield 'env-specific routing config file' => [
+            'src/Core/Framework/Resources/config/routes_dev.php',
+            "<?php\nreturn static function (RoutingConfigurator \$routes): void {\n};",
+        ];
         yield 'file inside a coverage-excluded directory' => [
             'src/Core/DevOps/StaticAnalyze/SomeService.php',
             "<?php\nclass SomeService\n{\n}",

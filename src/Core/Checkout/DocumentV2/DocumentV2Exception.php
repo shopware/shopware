@@ -26,7 +26,11 @@ class DocumentV2Exception extends HttpException
 
     public const ORDER_NOT_FOUND = 'DOCUMENT_V2__ORDER_NOT_FOUND';
 
+    public const DOCUMENT_NOT_FOUND = 'DOCUMENT_V2__DOCUMENT_NOT_FOUND';
+
     public const RENDERER_NOT_FOUND = 'DOCUMENT_V2__RENDERER_NOT_FOUND';
+
+    public const UNSUPPORTED_DOCUMENT_FORMAT = 'DOCUMENT_V2__UNSUPPORTED_DOCUMENT_FORMAT';
 
     public const CIRCULAR_DEPENDENCY_CYCLE = 'DOCUMENT_V2__CIRCULAR_DEPENDENCY_CYCLE';
 
@@ -64,7 +68,21 @@ class DocumentV2Exception extends HttpException
 
     public const INVALID_DOCUMENT_TYPE = 'DOCUMENT_V2__INVALID_DOCUMENT_TYPE';
 
+    public const INVALID_REQUEST_PARAMETER = 'DOCUMENT_V2__INVALID_REQUEST_PARAMETER';
+
+    public const DOCUMENT_FORMAT_UNAVAILABLE = 'DOCUMENT_V2__FORMAT_UNAVAILABLE';
+
+    public const DOCUMENT_FILE_EXTENSION_UNAVAILABLE = 'DOCUMENT_V2__FILE_EXTENSION_UNAVAILABLE';
+
+    public const DOCUMENT_ARCHIVE_UNAVAILABLE = 'DOCUMENT_V2__ARCHIVE_UNAVAILABLE';
+
+    public const DOCUMENT_ARCHIVE_FAILED = 'DOCUMENT_V2__ARCHIVE_FAILED';
+
     public const EMBED_FAILED = 'DOCUMENT_V2__EMBED_FAILED';
+
+    public const REFERENCED_INVOICE_NOT_FOUND = 'DOCUMENT_V2__REFERENCED_INVOICE_NOT_FOUND';
+
+    public const REFERENCED_INVOICE_NUMBER_MISSING = 'DOCUMENT_V2__REFERENCED_INVOICE_NUMBER_MISSING';
 
     public static function unknownRenderData(string $key, string $expectedClass): self
     {
@@ -124,12 +142,32 @@ class DocumentV2Exception extends HttpException
         );
     }
 
+    public static function documentNotFound(string $documentId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::DOCUMENT_NOT_FOUND,
+            'Document with id "{{ documentId }}" not found.',
+            ['documentId' => $documentId],
+        );
+    }
+
     public static function rendererNotFound(string $format, string $documentType): self
     {
         return new self(
             Response::HTTP_NOT_FOUND,
             self::RENDERER_NOT_FOUND,
             'Renderer for format "{{ format }}" and document type "{{ documentType }}" not found.',
+            ['format' => $format, 'documentType' => $documentType],
+        );
+    }
+
+    public static function unsupportedDocumentFormat(string $format, string $documentType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::UNSUPPORTED_DOCUMENT_FORMAT,
+            'Unsupported document format "{{ format }}" for document type "{{ documentType }}".',
             ['format' => $format, 'documentType' => $documentType],
         );
     }
@@ -141,6 +179,55 @@ class DocumentV2Exception extends HttpException
             self::INVALID_DOCUMENT_TYPE,
             'Invalid document type "{{ documentType }}". A document type must only contain lowercase letters, digits and underscores.',
             ['documentType' => $documentType],
+        );
+    }
+
+    public static function invalidRequestParameter(string $parameter): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_REQUEST_PARAMETER,
+            'The parameter "{{ parameter }}" is invalid.',
+            ['parameter' => $parameter],
+        );
+    }
+
+    public static function documentFormatUnavailable(string $documentId, string $format): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::DOCUMENT_FORMAT_UNAVAILABLE,
+            'Document with id "{{ documentId }}" has no generated document with format "{{ format }}".',
+            ['documentId' => $documentId, 'format' => $format],
+        );
+    }
+
+    public static function documentFileExtensionUnavailable(string $documentId, string $format): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DOCUMENT_FILE_EXTENSION_UNAVAILABLE,
+            'Document with id "{{ documentId }}" has no file extension for format "{{ format }}".',
+            ['documentId' => $documentId, 'format' => $format],
+        );
+    }
+
+    public static function documentArchiveUnavailable(string $documentId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::DOCUMENT_ARCHIVE_UNAVAILABLE,
+            'Document with id "{{ documentId }}" has no generated files to archive.',
+            ['documentId' => $documentId],
+        );
+    }
+
+    public static function documentArchiveFailed(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DOCUMENT_ARCHIVE_FAILED,
+            'Failed to create document archive.',
         );
     }
 
@@ -276,6 +363,26 @@ class DocumentV2Exception extends HttpException
             self::MISSING_DOCUMENT_NUMBER,
             'Document number is missing for document type "{{ documentType }}".',
             ['documentType' => $documentType],
+        );
+    }
+
+    public static function referencedInvoiceNotFound(string $orderId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::REFERENCED_INVOICE_NOT_FOUND,
+            'Cannot generate cancellation invoice because no invoice document exists for order "{{ orderId }}".',
+            ['orderId' => $orderId],
+        );
+    }
+
+    public static function referencedInvoiceNumberMissing(string $orderId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::REFERENCED_INVOICE_NUMBER_MISSING,
+            'Cannot generate cancellation invoice because the referenced invoice for order "{{ orderId }}" has no document number.',
+            ['orderId' => $orderId],
         );
     }
 

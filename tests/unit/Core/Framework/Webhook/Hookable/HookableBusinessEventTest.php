@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\ArrayBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\CollectionBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\EntityBusinessEvent;
@@ -29,6 +30,7 @@ use Shopware\Core\System\Tax\TaxEntity;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(HookableBusinessEvent::class)]
 class HookableBusinessEventTest extends TestCase
 {

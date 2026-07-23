@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,6 +27,7 @@ use Symfony\Component\Validator\Validation;
 /**
  * @internal
  */
+#[Package('fundamentals@discovery')]
 #[CoversClass(LanguageRule::class)]
 class LanguageRuleTest extends TestCase
 {

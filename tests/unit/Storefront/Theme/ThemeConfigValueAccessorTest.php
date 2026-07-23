@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Theme\AbstractResolvedConfigLoader;
@@ -17,6 +18,7 @@ use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ThemeConfigValueAccessor::class)]
 class ThemeConfigValueAccessorTest extends TestCase
 {

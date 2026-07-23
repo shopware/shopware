@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 use Shopware\Elasticsearch\Admin\AdminSearchController;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(AdminSearchController::class)]
 class AdminSearchControllerTest extends TestCase
 {

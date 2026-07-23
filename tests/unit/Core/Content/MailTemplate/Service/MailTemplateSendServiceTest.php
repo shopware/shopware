@@ -20,8 +20,8 @@ use Symfony\Component\Mime\Email;
 /**
  * @internal
  */
-#[CoversClass(MailTemplateSendService::class)]
 #[Package('after-sales')]
+#[CoversClass(MailTemplateSendService::class)]
 class MailTemplateSendServiceTest extends TestCase
 {
     private AbstractMailService&MockObject $mailService;

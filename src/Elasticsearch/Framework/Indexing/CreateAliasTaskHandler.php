@@ -19,8 +19,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @final
  */
-#[AsMessageHandler(handles: CreateAliasTask::class)]
 #[Package('framework')]
+#[AsMessageHandler(handles: CreateAliasTask::class)]
 class CreateAliasTaskHandler extends ScheduledTaskHandler
 {
     /**

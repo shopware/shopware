@@ -9,7 +9,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeFileResolver
 {
     final public const SCRIPT_FILES = 'script';

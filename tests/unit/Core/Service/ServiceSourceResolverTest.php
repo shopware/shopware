@@ -12,6 +12,7 @@ use Shopware\Core\Framework\App\Exception\AppArchiveValidationFailure;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Source\TemporaryDirectoryFactory;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\AppInfo;
 use Shopware\Core\Service\ServiceException;
@@ -23,6 +24,7 @@ use Symfony\Contracts\HttpClient\ChunkInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ServiceSourceResolver::class)]
 class ServiceSourceResolverTest extends TestCase
 {

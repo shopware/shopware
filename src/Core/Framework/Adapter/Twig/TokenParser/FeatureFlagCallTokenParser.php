@@ -3,14 +3,13 @@
 namespace Shopware\Core\Framework\Adapter\Twig\TokenParser;
 
 use Shopware\Core\Framework\Adapter\Twig\Node\FeatureCallSilentToken;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
-/**
- * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal in v6.8.0
- */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class FeatureFlagCallTokenParser extends AbstractTokenParser
 {
     public function parse(Token $token): FeatureCallSilentToken

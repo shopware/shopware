@@ -129,7 +129,7 @@ async function createWrapper(privileges = [], repo = mockCustomFieldRepository()
                     $route: {
                         meta: {
                             $module: {
-                                icon: 'solid-content',
+                                icon: 'regular-content',
                             },
                         },
                     },

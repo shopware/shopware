@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
 use Composer\IO\NullIO;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -11,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
@@ -29,7 +29,7 @@ use SwagTestPlugin\SwagTestPlugin;
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('framework')]
 class PluginServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

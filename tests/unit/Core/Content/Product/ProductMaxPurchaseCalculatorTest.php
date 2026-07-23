@@ -7,12 +7,14 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductMaxPurchaseCalculator;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductMaxPurchaseCalculator::class)]
 class ProductMaxPurchaseCalculatorTest extends TestCase
 {

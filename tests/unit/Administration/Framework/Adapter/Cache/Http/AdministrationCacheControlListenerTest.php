@@ -9,6 +9,7 @@ use Shopware\Administration\Controller\AdministrationController;
 use Shopware\Administration\Framework\Adapter\Cache\Http\AdministrationCacheControlListener;
 use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Core\Framework\Adapter\Cache\Http\Event\BeforeCacheControlEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @deprecated tag:v6.8.0 - Will be removed together with the AdministrationCacheControlListener.
  */
+#[Package('framework')]
 #[CoversClass(AdministrationCacheControlListener::class)]
 class AdministrationCacheControlListenerTest extends TestCase
 {

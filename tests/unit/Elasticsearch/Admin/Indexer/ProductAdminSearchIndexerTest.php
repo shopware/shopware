@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\ProductAdminSearchIndexer;
@@ -27,6 +28,7 @@ use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductAdminSearchIndexer::class)]
 class ProductAdminSearchIndexerTest extends TestCase
 {

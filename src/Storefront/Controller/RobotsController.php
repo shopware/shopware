@@ -22,7 +22,7 @@ use Symfony\Component\Routing\Attribute\Route;
  *
  * @see \Shopware\Tests\Integration\Storefront\Controller\RobotsControllerTest
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID, StorefrontRouteScope::ID], 'auth_required' => false])]
 class RobotsController extends StorefrontController
 {

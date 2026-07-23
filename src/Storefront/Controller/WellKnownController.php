@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[Route(path: '.well-known/', defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 class WellKnownController extends StorefrontController
 {

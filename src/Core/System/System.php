@@ -44,7 +44,7 @@ class System extends Bundle
         $phpLoader->load('salutation.php');
         $phpLoader->load('tax.php');
         $phpLoader->load('tax_provider.php');
-        $loader->load('unit.xml');
+        $phpLoader->load('unit.php');
         $phpLoader->load('user.php');
         $phpLoader->load('integration.php');
         $phpLoader->load('state_machine.php');

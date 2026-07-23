@@ -15,7 +15,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[Package('framework')]
+#[Package('discovery')]
 #[AsCommand(
     name: 'theme:compile',
     description: 'Compile the theme',

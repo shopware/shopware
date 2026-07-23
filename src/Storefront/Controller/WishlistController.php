@@ -35,7 +35,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Package('framework')]
+#[Package('checkout')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 class WishlistController extends StorefrontController
 {

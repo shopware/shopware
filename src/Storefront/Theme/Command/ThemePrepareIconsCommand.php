@@ -21,7 +21,7 @@ use Symfony\Component\Finder\Finder;
 
 use function Symfony\Component\String\s;
 
-#[Package('framework')]
+#[Package('discovery')]
 #[AsCommand(
     name: 'theme:prepare-icons',
     description: 'Prepare the theme icons',

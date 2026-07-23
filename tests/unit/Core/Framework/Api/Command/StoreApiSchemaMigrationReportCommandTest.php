@@ -4,36 +4,25 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection;
-use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
-use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApiFileLoader;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiSchemaMigrationReport;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiSchemaMigrationReporter;
 use Shopware\Core\Framework\Api\Command\StoreApiSchemaMigrationReportCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
-use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\DefinitionWithAssociations;
-use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\DefinitionWithJsonOverride;
-use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SimpleDefinition;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
  */
 #[Package('framework')]
 #[CoversClass(StoreApiSchemaMigrationReportCommand::class)]
-#[CoversClass(StoreApiSchemaMigrationReporter::class)]
-#[CoversClass(OpenApiFileLoader::class)]
 class StoreApiSchemaMigrationReportCommandTest extends TestCase
 {
     public function testCommandOutputsMigrationReport(): void
     {
         $commandTester = new CommandTester(new StoreApiSchemaMigrationReportCommand(
-            $this->createReporter(),
+            $this->createReporter($this->createReport()),
             $this->createDefinitionRegistry(),
         ));
 
@@ -49,14 +38,14 @@ class StoreApiSchemaMigrationReportCommandTest extends TestCase
         static::assertIsArray($report['jsonOverridesPhpGeneratedWithoutAllowlist']);
         static::assertArrayHasKey('phpGeneratedOnlyWithoutAllowlist', $report);
         static::assertIsArray($report['phpGeneratedOnlyWithoutAllowlist']);
-        static::assertContains('JsonOverrideEntity', $report['jsonOverridesPhpGenerated']);
-        static::assertContains('TestEntityWithAssociations', $report['phpGeneratedOnlyWithoutAllowlist']);
+        static::assertSame(['JsonOverrideEntity'], $report['jsonOverridesPhpGenerated']);
+        static::assertSame(['TestEntityWithAssociations'], $report['phpGeneratedOnlyWithoutAllowlist']);
     }
 
     public function testCommandCanFailOnMigrationMismatches(): void
     {
         $commandTester = new CommandTester(new StoreApiSchemaMigrationReportCommand(
-            $this->createReporter(),
+            $this->createReporter($this->createReport()),
             $this->createDefinitionRegistry(),
         ));
 
@@ -68,7 +57,7 @@ class StoreApiSchemaMigrationReportCommandTest extends TestCase
     public function testCommandFailsForInvalidScope(): void
     {
         $commandTester = new CommandTester(new StoreApiSchemaMigrationReportCommand(
-            $this->createReporter(),
+            $this->createReporter($this->createReport()),
             $this->createDefinitionRegistry(),
         ));
 
@@ -78,38 +67,35 @@ class StoreApiSchemaMigrationReportCommandTest extends TestCase
         static::assertStringContainsString('The scope option must be one of: core, all.', $commandTester->getDisplay());
     }
 
-    private function createReporter(): StoreApiSchemaMigrationReporter
+    private function createReporter(StoreApiSchemaMigrationReport $report): StoreApiSchemaMigrationReporter
     {
-        return new StoreApiSchemaMigrationReporter(
-            new OpenApiDefinitionSchemaBuilder(),
-            [
-                'Framework' => ['path' => __DIR__ . '/../ApiDefinition/Generator/_fixtures'],
-            ],
-            new BundleSchemaPathCollection([]),
-        );
+        $reporter = static::createStub(StoreApiSchemaMigrationReporter::class);
+        $reporter->method('report')->willReturn($report);
+
+        return $reporter;
     }
 
     private function createDefinitionRegistry(): SalesChannelDefinitionInstanceRegistry
     {
         $definitionRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
-        $definitionRegistry->method('getDefinitions')->willReturn($this->createDefinitions());
+        $definitionRegistry->method('getDefinitions')->willReturn([]);
 
         return $definitionRegistry;
     }
 
-    /**
-     * @return array<string, EntityDefinition>
-     */
-    private function createDefinitions(): array
+    private function createReport(): StoreApiSchemaMigrationReport
     {
-        return (new StaticDefinitionInstanceRegistry(
-            [
-                DefinitionWithAssociations::class,
-                DefinitionWithJsonOverride::class,
-                SimpleDefinition::class,
-            ],
-            static::createStub(ValidatorInterface::class),
-            static::createStub(EntityWriteGatewayInterface::class),
-        ))->getDefinitions();
+        return new StoreApiSchemaMigrationReport(
+            jsonOverridesPhpGenerated: ['JsonOverrideEntity'],
+            jsonOverridesPhpGeneratedAllowed: [],
+            jsonOverridesPhpGeneratedWithoutAllowlist: [],
+            phpGeneratedOnly: [],
+            phpGeneratedOnlyAllowed: [],
+            phpGeneratedOnlyWithoutAllowlist: ['TestEntityWithAssociations'],
+            jsonWithoutPhpGenerated: [],
+            allowlistWithoutJsonOverridesPhpGeneratedSchema: [],
+            allowlistWithoutPhpGeneratedOnlySchema: [],
+            allowlistWithoutPhpGeneratedSchema: [],
+        );
     }
 }

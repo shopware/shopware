@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
-use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApiFileLoader;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiSchemaMigrationReporter;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
@@ -24,25 +23,24 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 #[Package('framework')]
 #[CoversClass(StoreApiSchemaMigrationReporter::class)]
-#[CoversClass(OpenApiFileLoader::class)]
 class StoreApiSchemaMigrationReporterTest extends TestCase
 {
     public function testReportGroupsStoreApiSchemaMigrationState(): void
     {
         $report = $this->createReporter()->report($this->createDefinitions());
 
-        static::assertContains('JsonOverrideEntity', $report['jsonOverridesPhpGenerated']);
-        static::assertContains('JsonOverrideEntity', $report['jsonOverridesPhpGeneratedAllowed']);
-        static::assertNotContains('JsonOverrideEntity', $report['jsonOverridesPhpGeneratedWithoutAllowlist']);
-        static::assertContains('Simple', $report['phpGeneratedOnly']);
-        static::assertContains('TestEntityWithAssociations', $report['phpGeneratedOnly']);
-        static::assertContains('Simple', $report['phpGeneratedOnlyAllowed']);
-        static::assertNotContains('Simple', $report['phpGeneratedOnlyWithoutAllowlist']);
-        static::assertContains('TestEntityWithAssociations', $report['phpGeneratedOnlyWithoutAllowlist']);
-        static::assertContains('infoConfigResponse', $report['jsonWithoutPhpGenerated']);
-        static::assertContains('StaleJsonOverrideAllowlistEntry', $report['allowlistWithoutJsonOverridesPhpGeneratedSchema']);
-        static::assertContains('StalePhpGeneratedOnlyAllowlistEntry', $report['allowlistWithoutPhpGeneratedOnlySchema']);
-        static::assertContains('StalePhpGeneratedOnlyAllowlistEntry', $report['allowlistWithoutPhpGeneratedSchema']);
+        static::assertContains('JsonOverrideEntity', $report->jsonOverridesPhpGenerated);
+        static::assertContains('JsonOverrideEntity', $report->jsonOverridesPhpGeneratedAllowed);
+        static::assertNotContains('JsonOverrideEntity', $report->jsonOverridesPhpGeneratedWithoutAllowlist);
+        static::assertContains('Simple', $report->phpGeneratedOnly);
+        static::assertContains('TestEntityWithAssociations', $report->phpGeneratedOnly);
+        static::assertContains('Simple', $report->phpGeneratedOnlyAllowed);
+        static::assertNotContains('Simple', $report->phpGeneratedOnlyWithoutAllowlist);
+        static::assertContains('TestEntityWithAssociations', $report->phpGeneratedOnlyWithoutAllowlist);
+        static::assertContains('infoConfigResponse', $report->jsonWithoutPhpGenerated);
+        static::assertContains('StaleJsonOverrideAllowlistEntry', $report->allowlistWithoutJsonOverridesPhpGeneratedSchema);
+        static::assertContains('StalePhpGeneratedOnlyAllowlistEntry', $report->allowlistWithoutPhpGeneratedOnlySchema);
+        static::assertContains('StalePhpGeneratedOnlyAllowlistEntry', $report->allowlistWithoutPhpGeneratedSchema);
     }
 
     public function testCoreScopeIgnoresExtensionDefinitionsAndSchemaFiles(): void
@@ -51,15 +49,15 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
         $definitions = $this->createDefinitions([ExtensionDefinition::class]);
 
         $coreReport = $reporter->report($definitions, StoreApiSchemaMigrationReporter::SCOPE_CORE);
-        static::assertContains('Simple', $coreReport['phpGeneratedOnly']);
-        static::assertNotContains('Simple', $coreReport['jsonOverridesPhpGenerated']);
-        static::assertNotContains('Extension', $coreReport['phpGeneratedOnly']);
-        static::assertNotContains('Presentation', $coreReport['jsonWithoutPhpGenerated']);
+        static::assertContains('Simple', $coreReport->phpGeneratedOnly);
+        static::assertNotContains('Simple', $coreReport->jsonOverridesPhpGenerated);
+        static::assertNotContains('Extension', $coreReport->phpGeneratedOnly);
+        static::assertNotContains('Presentation', $coreReport->jsonWithoutPhpGenerated);
 
         $allReport = $reporter->report($definitions, StoreApiSchemaMigrationReporter::SCOPE_ALL);
-        static::assertContains('Simple', $allReport['jsonOverridesPhpGenerated']);
-        static::assertContains('Extension', $allReport['phpGeneratedOnly']);
-        static::assertContains('Presentation', $allReport['jsonWithoutPhpGenerated']);
+        static::assertContains('Simple', $allReport->jsonOverridesPhpGenerated);
+        static::assertContains('Extension', $allReport->phpGeneratedOnly);
+        static::assertContains('Presentation', $allReport->jsonWithoutPhpGenerated);
     }
 
     private function createReporter(?BundleSchemaPathCollection $bundleSchemaPathCollection = null): StoreApiSchemaMigrationReporter

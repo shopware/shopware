@@ -9,24 +9,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
+use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
  *
  * @phpstan-import-type OpenApiSpec from DefinitionService
  *
- * @phpstan-type StoreApiSchemaMigrationReport array{
- *     jsonOverridesPhpGenerated: list<string>,
- *     jsonOverridesPhpGeneratedAllowed: list<string>,
- *     jsonOverridesPhpGeneratedWithoutAllowlist: list<string>,
- *     phpGeneratedOnly: list<string>,
- *     phpGeneratedOnlyAllowed: list<string>,
- *     phpGeneratedOnlyWithoutAllowlist: list<string>,
- *     jsonWithoutPhpGenerated: list<string>,
- *     allowlistWithoutJsonOverridesPhpGeneratedSchema: list<string>,
- *     allowlistWithoutPhpGeneratedOnlySchema: list<string>,
- *     allowlistWithoutPhpGeneratedSchema: list<string>
- * }
  * @phpstan-type StoreApiSchemaMigrationAllowlist array{
  *     jsonOverridesPhpGeneratedSchemas: list<string>,
  *     phpGeneratedStoreApiSchemas: list<string>
@@ -56,6 +46,7 @@ class StoreApiSchemaMigrationReporter
         private readonly OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
         array $bundles,
         private readonly BundleSchemaPathCollection $bundleSchemaPathCollection,
+        private readonly Filesystem $filesystem = new Filesystem(),
     ) {
         $this->frameworkPath = realpath($bundles['Framework']['path']) ?: $bundles['Framework']['path'];
         $this->corePath = str_ends_with($this->frameworkPath, '/src/Core/Framework') ? \dirname($this->frameworkPath, 2) : $this->frameworkPath;
@@ -66,10 +57,8 @@ class StoreApiSchemaMigrationReporter
     /**
      * @param array<string, EntityDefinition> $definitions
      * @param self::SCOPE_* $scope
-     *
-     * @return StoreApiSchemaMigrationReport
      */
-    public function report(array $definitions, string $scope = self::SCOPE_CORE): array
+    public function report(array $definitions, string $scope = self::SCOPE_CORE): StoreApiSchemaMigrationReport
     {
         $phpGeneratedSchemaNames = $this->getPhpGeneratedSchemaNames($definitions, $scope);
         $jsonSchemaNames = $this->getJsonSchemaNames($scope);
@@ -78,18 +67,18 @@ class StoreApiSchemaMigrationReporter
         $jsonOverridesPhpGenerated = array_intersect($jsonSchemaNames, $phpGeneratedSchemaNames);
         $phpGeneratedOnly = array_diff($phpGeneratedSchemaNames, $jsonSchemaNames);
 
-        return [
-            'jsonOverridesPhpGenerated' => $this->sortList($jsonOverridesPhpGenerated),
-            'jsonOverridesPhpGeneratedAllowed' => $this->sortList(array_intersect($jsonOverridesPhpGenerated, $allowlist['jsonOverridesPhpGeneratedSchemas'])),
-            'jsonOverridesPhpGeneratedWithoutAllowlist' => $this->sortList(array_diff($jsonOverridesPhpGenerated, $allowlist['jsonOverridesPhpGeneratedSchemas'])),
-            'phpGeneratedOnly' => $this->sortList($phpGeneratedOnly),
-            'phpGeneratedOnlyAllowed' => $this->sortList(array_intersect($phpGeneratedOnly, $allowlist['phpGeneratedStoreApiSchemas'])),
-            'phpGeneratedOnlyWithoutAllowlist' => $this->sortList(array_diff($phpGeneratedOnly, $allowlist['phpGeneratedStoreApiSchemas'])),
-            'jsonWithoutPhpGenerated' => $this->sortList(array_diff($jsonSchemaNames, $phpGeneratedSchemaNames)),
-            'allowlistWithoutJsonOverridesPhpGeneratedSchema' => $this->sortList(array_diff($allowlist['jsonOverridesPhpGeneratedSchemas'], $jsonOverridesPhpGenerated)),
-            'allowlistWithoutPhpGeneratedOnlySchema' => $this->sortList(array_diff($allowlist['phpGeneratedStoreApiSchemas'], $phpGeneratedOnly)),
-            'allowlistWithoutPhpGeneratedSchema' => $this->sortList(array_diff($allowlist['phpGeneratedStoreApiSchemas'], $phpGeneratedSchemaNames)),
-        ];
+        return new StoreApiSchemaMigrationReport(
+            jsonOverridesPhpGenerated: $this->sortList($jsonOverridesPhpGenerated),
+            jsonOverridesPhpGeneratedAllowed: $this->sortList(array_intersect($jsonOverridesPhpGenerated, $allowlist['jsonOverridesPhpGeneratedSchemas'])),
+            jsonOverridesPhpGeneratedWithoutAllowlist: $this->sortList(array_diff($jsonOverridesPhpGenerated, $allowlist['jsonOverridesPhpGeneratedSchemas'])),
+            phpGeneratedOnly: $this->sortList($phpGeneratedOnly),
+            phpGeneratedOnlyAllowed: $this->sortList(array_intersect($phpGeneratedOnly, $allowlist['phpGeneratedStoreApiSchemas'])),
+            phpGeneratedOnlyWithoutAllowlist: $this->sortList(array_diff($phpGeneratedOnly, $allowlist['phpGeneratedStoreApiSchemas'])),
+            jsonWithoutPhpGenerated: $this->sortList(array_diff($jsonSchemaNames, $phpGeneratedSchemaNames)),
+            allowlistWithoutJsonOverridesPhpGeneratedSchema: $this->sortList(array_diff($allowlist['jsonOverridesPhpGeneratedSchemas'], $jsonOverridesPhpGenerated)),
+            allowlistWithoutPhpGeneratedOnlySchema: $this->sortList(array_diff($allowlist['phpGeneratedStoreApiSchemas'], $phpGeneratedOnly)),
+            allowlistWithoutPhpGeneratedSchema: $this->sortList(array_diff($allowlist['phpGeneratedStoreApiSchemas'], $phpGeneratedSchemaNames)),
+        );
     }
 
     /**
@@ -165,15 +154,16 @@ class StoreApiSchemaMigrationReporter
      */
     private function loadAllowlist(): array
     {
-        if (!is_file($this->allowlistPath)) {
+        if (!$this->filesystem->exists($this->allowlistPath)) {
             return [
                 'jsonOverridesPhpGeneratedSchemas' => [],
                 'phpGeneratedStoreApiSchemas' => [],
             ];
         }
 
-        $contents = file_get_contents($this->allowlistPath);
-        if ($contents === false) {
+        try {
+            $contents = $this->filesystem->readFile($this->allowlistPath);
+        } catch (IOExceptionInterface) {
             throw ApiException::schemaDefinitionNotReadable($this->allowlistPath);
         }
 

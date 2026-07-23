@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class Storefront extends Bundle implements ThemeInterface
 {
     /**

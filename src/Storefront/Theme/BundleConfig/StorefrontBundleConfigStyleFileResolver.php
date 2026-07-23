@@ -10,7 +10,7 @@ use Symfony\Component\Filesystem\Path;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 final class StorefrontBundleConfigStyleFileResolver implements BundleConfigStyleFileResolver
 {
     public function __construct(private readonly StorefrontPluginRegistry $registry)

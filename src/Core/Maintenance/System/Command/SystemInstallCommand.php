@@ -23,11 +23,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal should be used over the CLI only
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'system:install',
     description: 'Installs the Shopware 6 system',
 )]
-#[Package('framework')]
 class SystemInstallCommand extends Command
 {
     public function __construct(

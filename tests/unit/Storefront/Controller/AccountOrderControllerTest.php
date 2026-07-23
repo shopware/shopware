@@ -50,8 +50,8 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[CoversClass(AccountOrderController::class)]
 #[Package('checkout')]
+#[CoversClass(AccountOrderController::class)]
 class AccountOrderControllerTest extends TestCase
 {
     private AccountOrderControllerTestClass $controller;

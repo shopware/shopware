@@ -38,8 +38,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[CoversClass(AppCheckoutGateway::class)]
 #[Package('checkout')]
+#[CoversClass(AppCheckoutGateway::class)]
 class AppCheckoutGatewayTest extends TestCase
 {
     public function testProcessWithoutAppsDoesNothing(): void

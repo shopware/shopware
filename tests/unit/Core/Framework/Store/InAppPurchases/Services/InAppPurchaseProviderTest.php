@@ -27,8 +27,8 @@ use Symfony\Component\Clock\NativeClock;
 /**
  * @internal
  */
-#[CoversClass(InAppPurchaseProvider::class)]
 #[Package('checkout')]
+#[CoversClass(InAppPurchaseProvider::class)]
 class InAppPurchaseProviderTest extends TestCase
 {
     private ClientInterface&Stub $client;

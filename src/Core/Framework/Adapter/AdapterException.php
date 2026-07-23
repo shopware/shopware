@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Adapter;
 
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\AdapterFactoryNotFoundException;
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\DuplicateFilesystemFactoryException;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -44,9 +45,7 @@ class AdapterException extends HttpException
     final public const CACHE_CLEARER_LOCKED = 'FRAMEWORK__CACHE_CLEARER_LOCKED';
     final public const INVALID_CACHE_POLICY_CONFIGURATION = 'FRAMEWORK__INVALID_CACHE_POLICY_CONFIGURATION';
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function unsupportedOperator(string $operator, string $class): self|UnsupportedOperatorException
     {
         if (!Feature::isActive('v6.8.0.0')) {

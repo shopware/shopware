@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuild
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -35,6 +36,7 @@ use Twig\Loader\FilesystemLoader;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(IconCacheTwigFilter::class)]
 #[CoversClass(IconExtension::class)]
 class IconCacheTwigFilterTest extends TestCase

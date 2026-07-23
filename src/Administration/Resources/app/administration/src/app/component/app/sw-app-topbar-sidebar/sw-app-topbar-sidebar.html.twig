@@ -1,6 +1,6 @@
 <template v-if="sidebars && sidebars.length === 1">
     <mt-tooltip
-        :content="$tc(sidebars[0].title)"
+        :content="$t(sidebars[0].title)"
         placement="bottom"
         :delay-duration-in-ms="500"
     >
@@ -9,7 +9,7 @@
                 v-bind="tooltipProps"
                 class="sw-app-topbar-sidebar__icon"
                 :class="{ 'sw-app-topbar-sidebar__icon-active': sidebars[0].active }"
-                :aria-label="$tc('sidebar.ariaLabelButtonOpen')"
+                :aria-label="$t('sidebar.ariaLabelButtonOpen')"
                 variant="tertiary"
                 size="default"
                 square
@@ -25,20 +25,37 @@
 </template>
 
 <template v-if="sidebars.length && sidebars.length > 1">
-    <sw-context-button>
-        <template
-            v-for="sidebar in sidebars"
-            :key="sidebar.title"
-        >
-            <sw-context-menu-item
-                @click="setActiveSidebar(sidebar.locationId)"
+    <mt-dropdown-menu-root>
+        <mt-dropdown-menu-trigger as-child>
+            <mt-button
+                class="sw-app-topbar-sidebar__icon"
+                :class="{ 'sw-app-topbar-sidebar__icon-active': hasActiveSidebar }"
+                :aria-label="$t('sidebar.ariaLabelButtonOpen')"
+                variant="tertiary"
+                size="default"
+                square
             >
                 <mt-icon
-                    :name="sidebar.icon"
-                    :size="14"
+                    name="regular-ellipsis-h"
+                    :size="16"
                 />
-                {{ $t(sidebar.title) }}
-            </sw-context-menu-item>
-        </template>
-    </sw-context-button>
+            </mt-button>
+        </mt-dropdown-menu-trigger>
+
+        <mt-dropdown-menu-portal>
+            <mt-action-menu
+                side="bottom"
+                align="end"
+            >
+                <mt-action-menu-item
+                    v-for="sidebar in sidebars"
+                    :key="sidebar.locationId"
+                    :icon="sidebar.icon"
+                    @select="setActiveSidebar(sidebar.locationId)"
+                >
+                    {{ $t(sidebar.title) }}
+                </mt-action-menu-item>
+            </mt-action-menu>
+        </mt-dropdown-menu-portal>
+    </mt-dropdown-menu-root>
 </template>

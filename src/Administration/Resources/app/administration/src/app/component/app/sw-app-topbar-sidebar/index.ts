@@ -13,6 +13,10 @@ export default {
         sidebars() {
             return Shopware.Store.get('sidebar').sidebars;
         },
+
+        hasActiveSidebar() {
+            return Shopware.Store.get('sidebar').sidebars.some((sidebar) => sidebar.active);
+        },
     },
 
     methods: {

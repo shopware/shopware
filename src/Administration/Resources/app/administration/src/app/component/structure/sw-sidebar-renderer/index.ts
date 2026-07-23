@@ -24,6 +24,8 @@ export default Shopware.Component.wrapComponentConfig({
 
         const closingSidebar = computed(() => Shopware.Store.get('sidebar').closingSidebar);
 
+        const switchedWhileOpen = computed(() => Shopware.Store.get('sidebar').switchedWhileOpen);
+
         const activeSidebar = computed(() => {
             return Shopware.Store.get('sidebar').getActiveSidebar;
         });
@@ -115,6 +117,7 @@ export default Shopware.Component.wrapComponentConfig({
             sidebars,
             sidebarDisplayOptions,
             closingSidebar,
+            switchedWhileOpen,
             closeSidebar,
             startSidebarResize,
             collapseSidebar,

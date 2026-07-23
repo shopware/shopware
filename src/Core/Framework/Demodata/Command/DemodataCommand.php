@@ -12,6 +12,7 @@ use Shopware\Core\Content\Flow\FlowDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition;
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -38,11 +39,11 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('fundamentals@after-sales')]
 #[AsCommand(
     name: 'framework:demodata',
     description: 'Generates demo data',
 )]
-#[Package('fundamentals@after-sales')]
 class DemodataCommand extends Command
 {
     /**
@@ -124,6 +125,7 @@ class DemodataCommand extends Command
         $request->add(MailTemplateDefinition::class, $this->getCount($input, 'mail-template'));
         $request->add(MailHeaderFooterDefinition::class, $this->getCount($input, 'mail-header-footer'));
         $request->add(SalesChannelDomainDefinition::class, $this->getCount($input, 'sales-channel-domain'));
+        $request->add(NewsletterRecipientDefinition::class, $this->getCount($input, 'newsletter-recipients'));
 
         $this->eventDispatcher->dispatch(new DemodataRequestCreatedEvent($request, $context, $input));
 

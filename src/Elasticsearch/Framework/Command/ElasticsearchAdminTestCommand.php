@@ -28,11 +28,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[AsCommand(
     name: 'es:admin:test',
     description: 'Allows you to test the admin search index',
 )]
-#[Package('inventory')]
 final class ElasticsearchAdminTestCommand extends Command
 {
     private SymfonyStyle $io;

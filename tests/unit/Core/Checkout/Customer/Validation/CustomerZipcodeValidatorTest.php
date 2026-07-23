@@ -23,8 +23,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  */
-#[CoversClass(CustomerZipCodeValidator::class)]
 #[Package('checkout')]
+#[CoversClass(CustomerZipCodeValidator::class)]
 class CustomerZipcodeValidatorTest extends TestCase
 {
     private CustomerZipCode $constraint;

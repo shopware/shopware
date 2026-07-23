@@ -38,8 +38,8 @@ use Shopware\Core\Test\Stub\Rule\TrueRule;
 /**
  * @internal
  */
-#[CoversClass(PromotionDeliveryCalculator::class)]
 #[Package('checkout')]
+#[CoversClass(PromotionDeliveryCalculator::class)]
 class PromotionDeliveryCalculatorTest extends TestCase
 {
     private const CART_PROMOTION = 'cart-promotion';

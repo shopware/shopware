@@ -17,8 +17,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(ScriptPriceStubs::class)]
 #[Package('checkout')]
+#[CoversClass(ScriptPriceStubs::class)]
 class ScriptPriceStubsTest extends TestCase
 {
     // fake some static id for the iso

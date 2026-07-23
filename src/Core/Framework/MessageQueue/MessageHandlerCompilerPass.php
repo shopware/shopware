@@ -21,7 +21,7 @@ class MessageHandlerCompilerPass implements CompilerPassInterface
 
             $class = $definition->getClass() ?? $id;
 
-            if (empty($class) || !class_exists($class)) {
+            if ($class === '' || !class_exists($class)) {
                 continue;
             }
 

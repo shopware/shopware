@@ -20,7 +20,7 @@ class StaticSourceResolverTest extends TestCase
 {
     public function testCanResolveManifestToType(): void
     {
-        $app = $this->createMock(Manifest::class);
+        $app = static::createStub(Manifest::class);
 
         $resolver = new StaticSourceResolver();
 
@@ -36,7 +36,7 @@ class StaticSourceResolverTest extends TestCase
         ]);
 
         $metadata = Metadata::fromArray(['name' => 'myApp', 'label' => [], 'author' => 'myApp', 'copyright' => 'none', 'license' => 'none', 'version' => '99']);
-        $manifest = $this->createMock(Manifest::class);
+        $manifest = static::createStub(Manifest::class);
         $manifest->method('getMetadata')->willReturn($metadata);
         $app = (new AppEntity())->assign(['name' => 'myApp']);
 
@@ -54,7 +54,7 @@ class StaticSourceResolverTest extends TestCase
         ]);
 
         $metadata = Metadata::fromArray(['name' => 'myApp', 'label' => [], 'author' => 'myApp', 'copyright' => 'none', 'license' => 'none', 'version' => '99']);
-        $manifest = $this->createMock(Manifest::class);
+        $manifest = static::createStub(Manifest::class);
         $manifest->method('getMetadata')->willReturn($metadata);
         $app = (new AppEntity())->assign(['name' => 'myApp']);
 

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerLanguageSalesChannelSubscriber;
@@ -31,28 +32,25 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[CoversClass(CustomerLanguageSalesChannelSubscriber::class)]
 #[Package('checkout')]
+#[CoversClass(CustomerLanguageSalesChannelSubscriber::class)]
 class CustomerLanguageSalesChannelSubscriberTest extends TestCase
 {
     private StaticDefinitionInstanceRegistry $definitionRegistry;
 
     /**
-     * @var MockObject&EntityRepository<EntityCollection<PartialEntity>>
+     * @var Stub&EntityRepository<EntityCollection<PartialEntity>>
      */
-    private MockObject $salesChannelRepository;
-
-    private CustomerLanguageSalesChannelSubscriber $subscriber;
+    private Stub $salesChannelRepository;
 
     protected function setUp(): void
     {
         $this->definitionRegistry = new StaticDefinitionInstanceRegistry(
             [CustomerDefinition::class, TaxDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
-        $this->salesChannelRepository = $this->createMock(EntityRepository::class);
-        $this->subscriber = new CustomerLanguageSalesChannelSubscriber($this->salesChannelRepository);
+        $this->salesChannelRepository = static::createStub(EntityRepository::class);
     }
 
     public function testGetSubscribedEvents(): void
@@ -68,9 +66,10 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         $context = new Context(new SalesChannelApiSource(Uuid::randomHex()));
         $event = new PreWriteValidationEvent(WriteContext::createFromContext($context), []);
 
-        $this->salesChannelRepository->expects($this->never())->method('search');
+        $salesChannelRepository = $this->createMock(EntityRepository::class);
+        $salesChannelRepository->expects($this->never())->method('search');
 
-        $this->subscriber->validate($event);
+        $this->createSubscriber($salesChannelRepository)->validate($event);
     }
 
     public function testValidateSkipsWhenNoCustomerCommands(): void
@@ -78,9 +77,10 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
         $event = new PreWriteValidationEvent(WriteContext::createFromContext($context), []);
 
-        $this->salesChannelRepository->expects($this->never())->method('search');
+        $salesChannelRepository = $this->createMock(EntityRepository::class);
+        $salesChannelRepository->expects($this->never())->method('search');
 
-        $this->subscriber->validate($event);
+        $this->createSubscriber($salesChannelRepository)->validate($event);
     }
 
     public function testValidateSkipsWhenCustomerCommandHasNoLanguageId(): void
@@ -94,15 +94,16 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
                     $customerDef,
                     ['sales_channel_id' => Uuid::randomBytes()],
                     ['id' => Uuid::randomBytes()],
-                    $this->createMock(EntityExistence::class),
+                    static::createStub(EntityExistence::class),
                     '/0/'
                 ),
             ]
         );
 
-        $this->salesChannelRepository->expects($this->never())->method('search');
+        $salesChannelRepository = $this->createMock(EntityRepository::class);
+        $salesChannelRepository->expects($this->never())->method('search');
 
-        $this->subscriber->validate($event);
+        $this->createSubscriber($salesChannelRepository)->validate($event);
     }
 
     public function testValidateSkipsWhenInsertHasNoSalesChannelIdAndNoCustomerId(): void
@@ -117,15 +118,16 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
                     $customerDef,
                     ['language_id' => $languageIdBytes],
                     ['id' => Uuid::randomBytes()],
-                    $this->createMock(EntityExistence::class),
+                    static::createStub(EntityExistence::class),
                     '/0/'
                 ),
             ]
         );
 
-        $this->salesChannelRepository->expects($this->never())->method('search');
+        $salesChannelRepository = $this->createMock(EntityRepository::class);
+        $salesChannelRepository->expects($this->never())->method('search');
 
-        $this->subscriber->validate($event);
+        $this->createSubscriber($salesChannelRepository)->validate($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
     }
@@ -148,7 +150,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
                         'sales_channel_id' => $salesChannelIdBytes,
                     ],
                     ['id' => Uuid::randomBytes()],
-                    $this->createMock(EntityExistence::class),
+                    static::createStub(EntityExistence::class),
                     '/0/'
                 ),
             ]
@@ -160,12 +162,13 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
             'languages' => new EntityCollection([$language]),
         ]);
         $salesChannels = new EntityCollection([$salesChannel]);
-        $this->salesChannelRepository->expects($this->once())
+        $salesChannelRepository = $this->createMock(EntityRepository::class);
+        $salesChannelRepository->expects($this->once())
             ->method('search')
             ->with(static::isInstanceOf(Criteria::class), $context)
             ->willReturn(new EntitySearchResult('sales_channel', 1, $salesChannels, null, new Criteria(), $context));
 
-        $this->subscriber->validate($event);
+        $this->createSubscriber($salesChannelRepository)->validate($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
     }
@@ -188,7 +191,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
                         'sales_channel_id' => $salesChannelIdBytes,
                     ],
                     ['id' => Uuid::randomBytes()],
-                    $this->createMock(EntityExistence::class),
+                    static::createStub(EntityExistence::class),
                     '/0/'
                 ),
             ]
@@ -199,12 +202,13 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
             'languages' => new EntityCollection([]),
         ]);
         $salesChannels = new EntityCollection([$salesChannel]);
-        $this->salesChannelRepository->expects($this->once())
+        $salesChannelRepository = $this->createMock(EntityRepository::class);
+        $salesChannelRepository->expects($this->once())
             ->method('search')
             ->with(static::isInstanceOf(Criteria::class), $context)
             ->willReturn(new EntitySearchResult('sales_channel', 1, $salesChannels, null, new Criteria(), $context));
 
-        $this->subscriber->validate($event);
+        $this->createSubscriber($salesChannelRepository)->validate($event);
 
         static::assertCount(1, $event->getExceptions()->getExceptions());
         $exception = $event->getExceptions()->getExceptions()[0];
@@ -234,18 +238,19 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
                         'sales_channel_id' => $salesChannelIdBytes,
                     ],
                     ['id' => Uuid::randomBytes()],
-                    $this->createMock(EntityExistence::class),
+                    static::createStub(EntityExistence::class),
                     '/0/'
                 ),
             ]
         );
 
-        $this->salesChannelRepository->expects($this->once())
+        $salesChannelRepository = $this->createMock(EntityRepository::class);
+        $salesChannelRepository->expects($this->once())
             ->method('search')
             ->with(static::isInstanceOf(Criteria::class), $context)
             ->willReturn(new EntitySearchResult('sales_channel', 0, new EntityCollection(), null, new Criteria(), $context));
 
-        $this->subscriber->validate($event);
+        $this->createSubscriber($salesChannelRepository)->validate($event);
 
         $exceptions = $event->getExceptions()->getExceptions();
         static::assertCount(1, $exceptions);
@@ -273,7 +278,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
                     $customerDef,
                     ['language_id' => $languageIdBytes],
                     ['id' => $customerIdBytes],
-                    $this->createMock(EntityExistence::class),
+                    static::createStub(EntityExistence::class),
                     '/0/'
                 ),
             ]
@@ -287,12 +292,13 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
             'customers' => new EntityCollection([$customerRef]),
         ]);
         $salesChannels = new EntityCollection([$salesChannel]);
-        $this->salesChannelRepository->expects($this->once())
+        $salesChannelRepository = $this->createMock(EntityRepository::class);
+        $salesChannelRepository->expects($this->once())
             ->method('search')
             ->with(static::isInstanceOf(Criteria::class), $context)
             ->willReturn(new EntitySearchResult('sales_channel', 1, $salesChannels, null, new Criteria(), $context));
 
-        $this->subscriber->validate($event);
+        $this->createSubscriber($salesChannelRepository)->validate($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
     }
@@ -313,7 +319,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
                     $customerDef,
                     ['language_id' => $languageIdBytes],
                     ['id' => $customerIdBytes],
-                    $this->createMock(EntityExistence::class),
+                    static::createStub(EntityExistence::class),
                     '/0/'
                 ),
             ]
@@ -326,12 +332,13 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
             'customers' => new EntityCollection([$customerRef]),
         ]);
         $salesChannels = new EntityCollection([$salesChannel]);
-        $this->salesChannelRepository->expects($this->once())
+        $salesChannelRepository = $this->createMock(EntityRepository::class);
+        $salesChannelRepository->expects($this->once())
             ->method('search')
             ->with(static::isInstanceOf(Criteria::class), $context)
             ->willReturn(new EntitySearchResult('sales_channel', 1, $salesChannels, null, new Criteria(), $context));
 
-        $this->subscriber->validate($event);
+        $this->createSubscriber($salesChannelRepository)->validate($event);
 
         static::assertCount(1, $event->getExceptions()->getExceptions());
         $exception = $event->getExceptions()->getExceptions()[0];
@@ -356,7 +363,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
                     $taxDef,
                     ['name' => 'test', 'tax_rate' => 19.0, 'position' => 1],
                     ['id' => Uuid::randomBytes()],
-                    $this->createMock(EntityExistence::class),
+                    static::createStub(EntityExistence::class),
                     '/0/'
                 ),
                 new InsertCommand(
@@ -366,7 +373,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
                         'sales_channel_id' => Uuid::fromHexToBytes($salesChannelId),
                     ],
                     ['id' => Uuid::randomBytes()],
-                    $this->createMock(EntityExistence::class),
+                    static::createStub(EntityExistence::class),
                     '/1/'
                 ),
             ]
@@ -377,11 +384,12 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
             'id' => $salesChannelId,
             'languages' => new EntityCollection([$language]),
         ]);
-        $this->salesChannelRepository->expects($this->once())
+        $salesChannelRepository = $this->createMock(EntityRepository::class);
+        $salesChannelRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult('sales_channel', 1, new EntityCollection([$salesChannel]), null, new Criteria(), $context));
 
-        $this->subscriber->validate($event);
+        $this->createSubscriber($salesChannelRepository)->validate($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
     }
@@ -408,7 +416,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
                         'sales_channel_id' => Uuid::fromHexToBytes($salesChannelId),
                     ],
                     ['id' => Uuid::randomBytes()],
-                    $this->createMock(EntityExistence::class),
+                    static::createStub(EntityExistence::class),
                     '/1/'
                 ),
             ]
@@ -419,11 +427,12 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
             'id' => $salesChannelId,
             'languages' => new EntityCollection([$language]),
         ]);
-        $this->salesChannelRepository->expects($this->once())
+        $salesChannelRepository = $this->createMock(EntityRepository::class);
+        $salesChannelRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult('sales_channel', 1, new EntityCollection([$salesChannel]), null, new Criteria(), $context));
 
-        $this->subscriber->validate($event);
+        $this->createSubscriber($salesChannelRepository)->validate($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
     }
@@ -443,7 +452,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
                     $customerDef,
                     ['language_id' => $languageIdBytes],
                     ['id' => $customerIdBytes],
-                    $this->createMock(EntityExistence::class),
+                    static::createStub(EntityExistence::class),
                     '/0/'
                 ),
             ]
@@ -455,12 +464,21 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
             'languages' => new EntityCollection([new PartialEntity(['id' => $languageId])]),
             'customers' => new EntityCollection([new PartialEntity(['id' => $otherCustomerId])]),
         ]);
-        $this->salesChannelRepository->expects($this->once())
+        $salesChannelRepository = $this->createMock(EntityRepository::class);
+        $salesChannelRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult('sales_channel', 1, new EntityCollection([$salesChannel]), null, new Criteria(), $context));
 
-        $this->subscriber->validate($event);
+        $this->createSubscriber($salesChannelRepository)->validate($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
+    }
+
+    /**
+     * @param (MockObject&EntityRepository<EntityCollection<PartialEntity>>)|null $salesChannelRepository
+     */
+    private function createSubscriber(?MockObject $salesChannelRepository = null): CustomerLanguageSalesChannelSubscriber
+    {
+        return new CustomerLanguageSalesChannelSubscriber($salesChannelRepository ?? $this->salesChannelRepository);
     }
 }

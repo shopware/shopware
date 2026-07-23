@@ -7,12 +7,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\System\Tax\TaxEntity;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(BusinessEventEncoder::class)]
 class BusinessEventEncoderTest extends TestCase
 {
@@ -38,8 +40,8 @@ class BusinessEventEncoderTest extends TestCase
             'string' => 'test',
         ];
 
-        $entityEncoder = $this->createMock(JsonEntityEncoder::class);
-        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $entityEncoder = static::createStub(JsonEntityEncoder::class);
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $businessEventEncoder = new BusinessEventEncoder($entityEncoder, $definitionRegistry);
 
         $data = $businessEventEncoder->encodeData($data, $stored);

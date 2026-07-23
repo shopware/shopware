@@ -63,7 +63,7 @@ class SlotConfigFieldSerializerTest extends TestCase
         );
 
         $pair = new KeyValuePair('id', $id, false);
-        $data = $this->createMock(WriteParameterBag::class);
+        $data = static::createStub(WriteParameterBag::class);
 
         $field = new SlotConfigField('id', 'id');
         $serializer->encode($field, $existence, $pair, $data)->current();
@@ -80,7 +80,7 @@ class SlotConfigFieldSerializerTest extends TestCase
 
         return new SlotConfigFieldSerializer(
             $validator,
-            $this->createMock(DefinitionInstanceRegistry::class)
+            static::createStub(DefinitionInstanceRegistry::class)
         );
     }
 }

@@ -11,7 +11,7 @@ use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
  *
  * used to compile the themes in the queue
  */
-#[Package('framework')]
+#[Package('discovery')]
 class CompileThemeMessage implements AsyncMessageInterface
 {
     public function __construct(

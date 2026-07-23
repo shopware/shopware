@@ -34,7 +34,6 @@
                             disabled: acl.can('sales_channel.editor'),
                             showOnDisabledElements: true
                         }"
-                        ghost
                         size="small"
                         :disabled="!acl.can('sales_channel.editor')"
                         variant="secondary"
@@ -153,7 +152,7 @@
                 {% block sw_sales_channel_detail_products_card_section_primary_empty_state %}
                 <mt-empty-state
                     v-else
-                    icon="solid-products"
+                    icon="regular-products"
                     :headline="$t('sw-sales-channel.detail.products.titleEmptyStateTable')"
                 />
 
@@ -170,7 +169,7 @@
     {% block sw_sales_channel_detail_products_empty_state %}
     <mt-empty-state
         v-if="products.length <= 0 && !searchTerm && !isLoading"
-        icon="solid-products"
+        icon="regular-products"
         :headline="$t('sw-sales-channel.detail.products.titleEmptyState')"
     >
         <template #button>
@@ -182,7 +181,6 @@
                     showOnDisabledElements: true
                 }"
                 :disabled="!acl.can('sales_channel.editor')"
-                ghost
                 variant="secondary"
                 @click="openAddProductsModal"
             >

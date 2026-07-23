@@ -129,7 +129,7 @@ class SnippetException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::SNIPPET_NO_LOCALES_ARGUMENT_PROVIDED,
-            'The --locales argument must not be empty.'
+            'At least one locale must be provided.'
         );
     }
 

@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Core\Installer\Database;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Database\MigrationCollectionFactory;
 use Shopware\Core\TestBootstrapper;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MigrationCollectionFactory::class)]
 class MigrationCollectionFactoryTest extends TestCase
 {
@@ -18,7 +20,7 @@ class MigrationCollectionFactoryTest extends TestCase
     {
         $factory = new MigrationCollectionFactory((new TestBootstrapper())->getProjectDir());
         $loader = $factory->getMigrationCollectionLoader(
-            $this->createMock(Connection::class)
+            static::createStub(Connection::class)
         );
 
         static::assertArrayHasKey('core', $loader->collectAll());

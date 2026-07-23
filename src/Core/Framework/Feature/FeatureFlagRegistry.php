@@ -46,7 +46,7 @@ class FeatureFlagRegistry
         try {
             $stored = $this->keyValueStorage->get(self::STORAGE_KEY, []);
 
-            if (!empty($stored) && \is_string($stored)) {
+            if (\is_string($stored) && $stored !== '') {
                 $stored = \json_decode($stored, true, 512, \JSON_THROW_ON_ERROR);
             }
 

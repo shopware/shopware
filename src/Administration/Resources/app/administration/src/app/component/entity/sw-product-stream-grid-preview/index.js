@@ -47,6 +47,14 @@ export default {
             type: Boolean,
             default: false,
         },
+        /**
+         * Whether matching variants are grouped, mirroring the product stream's "display as group" setting.
+         */
+        displayAsGroup: {
+            required: false,
+            type: Boolean,
+            default: true,
+        },
     },
 
     data() {
@@ -193,20 +201,20 @@ export default {
             this.criteria.setPage(this.page);
             this.criteria.addAssociation('manufacturer');
             this.criteria.addAssociation('options.group');
-            this.criteria.addGroupField('displayGroup');
-            this.criteria.addFilter(
-                Criteria.not('AND', [
-                    Criteria.equals('displayGroup', null),
-                ]),
-            );
 
             return this.salesChannelRepository
                 .searchIds(this.salesChannelCriteria)
                 .then(({ data }) => {
-                    return this.productStreamPreviewService.preview(data.at(0), this.criteria, [], {
-                        'sw-currency-id': Context.app.systemCurrencyId,
-                        'sw-inheritance': true,
-                    });
+                    return this.productStreamPreviewService.preview(
+                        data.at(0),
+                        this.criteria,
+                        [],
+                        {
+                            'sw-currency-id': Context.app.systemCurrencyId,
+                            'sw-inheritance': true,
+                        },
+                        this.displayAsGroup,
+                    );
                 })
                 .then((result) => {
                     this.products = Object.values(result.elements);

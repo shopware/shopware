@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Api\Controller\HealthCheckController;
 use Shopware\Core\Framework\Api\HealthCheck\Event\HealthCheckEvent;
 use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\SystemChecker;
@@ -21,6 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(HealthCheckController::class)]
 class HealthCheckControllerTest extends TestCase
 {
@@ -168,7 +170,7 @@ class HealthCheckControllerTest extends TestCase
         $this->eventDispatcher = new CollectingEventDispatcher();
         $this->systemChecker = $this->createMock(SystemChecker::class);
 
-        $tokenValidator = $this->createMock(SymfonyBearerTokenValidator::class);
+        $tokenValidator = static::createStub(SymfonyBearerTokenValidator::class);
         $tokenValidator->method('validateAuthorization')->willReturnCallback(
             static function (Request $request) use ($validBearer): void {
                 // simplified mock of original implementation in src/Core/Framework/Api/OAuth/SymfonyBearerTokenValidator.php

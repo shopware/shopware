@@ -10,6 +10,7 @@ use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
+use Shopware\Core\Content\Media\File\FileInfoHelper;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\S3ClientFactory;
 use Shopware\Core\Framework\Log\Package;
@@ -17,15 +18,20 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * @internal
+ *
+ * @phpstan-type S3Target array{client: ?S3Client, bucket: ?string, root: string}
  */
 #[Package('discovery')]
 readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInterface
 {
+    /**
+     * @param S3Target $publicTarget
+     * @param S3Target $privateTarget
+     */
     private function __construct(
         private AbstractMediaPathStrategy $mediaPathStrategy,
-        private ?S3Client $s3Client,
-        private ?string $bucket,
-        private string $root,
+        private array $publicTarget,
+        private array $privateTarget,
         private LoggerInterface $logger,
         private ClockInterface $clock,
         private int $expirationMinutes,
@@ -34,39 +40,23 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
     }
 
     /**
-     * @param array<string, mixed> $filesystemConfig
+     * @param array<string, mixed> $publicFilesystemConfig config of the filesystem used for public media
+     * @param array<string, mixed> $privateFilesystemConfig config of the filesystem used for private media
      */
     public static function create(
         AbstractMediaPathStrategy $mediaPathStrategy,
-        array $filesystemConfig,
+        array $publicFilesystemConfig,
         LoggerInterface $logger,
         ClockInterface $clock,
         ?HttpClientInterface $httpClient = null,
         int $expirationMinutes = 5,
         bool $enabled = true,
+        array $privateFilesystemConfig = [],
     ): self {
-        $nonSupported = new self($mediaPathStrategy, null, null, '', $logger, $clock, $expirationMinutes, $enabled);
-
-        if (!$enabled || ($filesystemConfig['type'] ?? null) !== 'amazon-s3') {
-            return $nonSupported;
-        }
-
-        $s3Config = $filesystemConfig['config'] ?? [];
-        if (!\is_array($s3Config)) {
-            throw MediaException::presignedUploadInvalidConfiguration('Filesystem config must contain an array of S3 options.');
-        }
-
-        try {
-            $result = S3ClientFactory::create($s3Config, $httpClient);
-        } catch (\Throwable $e) {
-            throw MediaException::presignedUploadInvalidConfiguration($e->getMessage(), $e);
-        }
-
         return new self(
             $mediaPathStrategy,
-            $result['client'],
-            $result['bucket'],
-            trim($result['root'], '/'),
+            self::resolveTarget($publicFilesystemConfig, $enabled, $httpClient),
+            self::resolveTarget($privateFilesystemConfig, $enabled, $httpClient),
             $logger,
             $clock,
             $expirationMinutes,
@@ -74,13 +64,15 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
         );
     }
 
-    public function generate(MediaLocationStruct $location, string $mimeType): PresignedUrlResult
+    public function generate(MediaLocationStruct $location, string $mimeType, bool $private): PresignedUrlResult
     {
-        if (!$this->enabled) {
+        if (!$this->isEnabled()) {
             throw MediaException::presignedUploadDisabled();
         }
 
-        if (!$this->isSupported()) {
+        ['client' => $client, 'bucket' => $bucket, 'root' => $root] = $this->target($private);
+
+        if ($client === null || $bucket === null) {
             throw MediaException::presignedUploadNotSupported();
         }
 
@@ -92,24 +84,24 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
             throw MediaException::missingFileExtension();
         }
 
-        if ($this->s3Client === null || $this->bucket === null) {
-            throw MediaException::presignedUploadNotSupported();
-        }
-
         $paths = $this->mediaPathStrategy->generate([$location]);
         $mediaPath = $paths[$location->id] ?? throw MediaException::strategyNotFound($this->mediaPathStrategy->name());
-        $s3Key = $this->ensureRootPrefix($mediaPath);
+        $s3Key = $this->ensureRootPrefix($mediaPath, $root);
 
         $expiresAt = $this->clock->now()->modify(\sprintf('+%d minutes', $this->expirationMinutes));
 
         try {
+            // The presigned ContentType must match the `Content-Type` header the browser sends on the PUT
+            // byte-for-byte, otherwise S3 rejects the upload with `SignatureDoesNotMatch`. The client applies the
+            // same charset canonicalization before sending — see `withCharset()` in
+            // src/Administration/Resources/app/administration/src/core/service/api/media-presigned-upload.api.service.js
             $request = new PutObjectRequest([
-                'Bucket' => $this->bucket,
+                'Bucket' => $bucket,
                 'Key' => $s3Key,
-                'ContentType' => $mimeType,
+                'ContentType' => FileInfoHelper::addCharset($mimeType),
             ]);
 
-            $url = $this->s3Client->presign($request, $expiresAt);
+            $url = $client->presign($request, $expiresAt);
         } catch (\Throwable $e) {
             throw MediaException::presignedUploadFailed($e);
         }
@@ -128,24 +120,28 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
 
     public function isSupported(): bool
     {
-        return $this->enabled && $this->s3Client !== null && $this->bucket !== null;
+        return $this->enabled
+            && $this->isTargetSupported($this->publicTarget)
+            && $this->isTargetSupported($this->privateTarget);
     }
 
-    public function getFileMetadata(string $path): ?FileMetadataResult
+    public function getFileMetadata(string $path, bool $private): ?FileMetadataResult
     {
-        if ($this->s3Client === null || $this->bucket === null) {
+        ['client' => $client, 'bucket' => $bucket, 'root' => $root] = $this->target($private);
+
+        if ($client === null || $bucket === null) {
             return null;
         }
 
         try {
-            $s3Key = $this->ensureRootPrefix($path);
+            $s3Key = $this->ensureRootPrefix($path, $root);
 
             $request = new HeadObjectRequest([
-                'Bucket' => $this->bucket,
+                'Bucket' => $bucket,
                 'Key' => $s3Key,
             ]);
 
-            $result = $this->s3Client->headObject($request);
+            $result = $client->headObject($request);
 
             $etag = $result->getEtag();
             if ($etag !== null) {
@@ -168,21 +164,23 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
         }
     }
 
-    public function deleteFromStorage(string $path): void
+    public function deleteFromStorage(string $path, bool $private): void
     {
-        if ($this->s3Client === null || $this->bucket === null) {
+        ['client' => $client, 'bucket' => $bucket, 'root' => $root] = $this->target($private);
+
+        if ($client === null || $bucket === null) {
             return;
         }
 
         try {
-            $s3Key = $this->ensureRootPrefix($path);
+            $s3Key = $this->ensureRootPrefix($path, $root);
 
             $request = new DeleteObjectRequest([
-                'Bucket' => $this->bucket,
+                'Bucket' => $bucket,
                 'Key' => $s3Key,
             ]);
 
-            $this->s3Client->deleteObject($request)->resolve();
+            $client->deleteObject($request)->resolve();
         } catch (\Throwable $e) {
             $this->logger->warning('Failed to delete orphaned presigned upload at path "{path}": {message}', [
                 'path' => $path,
@@ -192,16 +190,61 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
         }
     }
 
-    private function ensureRootPrefix(string $s3Key): string
+    /**
+     * @param array<string, mixed> $filesystemConfig
+     *
+     * @return S3Target
+     */
+    private static function resolveTarget(array $filesystemConfig, bool $enabled, ?HttpClientInterface $httpClient): array
     {
-        if ($this->root === '') {
+        if (!$enabled || ($filesystemConfig['type'] ?? null) !== 'amazon-s3') {
+            return ['client' => null, 'bucket' => null, 'root' => ''];
+        }
+
+        $s3Config = $filesystemConfig['config'] ?? [];
+        if (!\is_array($s3Config)) {
+            throw MediaException::presignedUploadInvalidConfiguration('Filesystem config must contain an array of S3 options.');
+        }
+
+        try {
+            $result = S3ClientFactory::create($s3Config, $httpClient);
+        } catch (\Throwable $e) {
+            throw MediaException::presignedUploadInvalidConfiguration($e->getMessage(), $e);
+        }
+
+        return [
+            'client' => $result['client'],
+            'bucket' => $result['bucket'],
+            'root' => trim($result['root'], '/'),
+        ];
+    }
+
+    /**
+     * @return S3Target
+     */
+    private function target(bool $private): array
+    {
+        return $private ? $this->privateTarget : $this->publicTarget;
+    }
+
+    /**
+     * @param S3Target $target
+     */
+    private function isTargetSupported(array $target): bool
+    {
+        return $target['client'] !== null && $target['bucket'] !== null;
+    }
+
+    private function ensureRootPrefix(string $s3Key, string $root): string
+    {
+        if ($root === '') {
             return $s3Key;
         }
 
-        if (str_starts_with($s3Key, $this->root . '/')) {
+        if (str_starts_with($s3Key, $root . '/')) {
             return $s3Key;
         }
 
-        return $this->root . '/' . ltrim($s3Key, '/');
+        return $root . '/' . ltrim($s3Key, '/');
     }
 }

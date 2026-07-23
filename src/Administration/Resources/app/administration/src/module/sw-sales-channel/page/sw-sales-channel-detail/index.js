@@ -283,10 +283,8 @@ export default {
                 .then((entity) => {
                     this.salesChannel = entity;
 
-                    // eslint-disable-next-line inclusive-language/use-inclusive-words
-                    if (!this.salesChannel.maintenanceIpWhitelist) {
-                        // eslint-disable-next-line inclusive-language/use-inclusive-words
-                        this.salesChannel.maintenanceIpWhitelist = [];
+                    if (!this.salesChannel.maintenanceIpAllowlist) {
+                        this.salesChannel.maintenanceIpAllowlist = [];
                     }
 
                     this.generateAccessUrl();

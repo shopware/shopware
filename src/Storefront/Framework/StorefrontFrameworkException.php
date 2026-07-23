@@ -9,7 +9,10 @@ use Shopware\Storefront\Framework\Media\Exception\MediaValidatorMissingException
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('framework')]
+/**
+ * @codeCoverageIgnore
+ */
+#[Package('discovery')]
 class StorefrontFrameworkException extends HttpException
 {
     public const APP_TEMPLATE_FILE_NOT_READABLE = 'STOREFRONT__APP_TEMPLATE_NOT_READABLE';

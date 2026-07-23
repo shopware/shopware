@@ -37,6 +37,7 @@ class ZugferdRendererTest extends TestCase
         $this->context = Context::createDefaultContext();
 
         $priceRuleId = Uuid::randomHex();
+        $shippingMethodId = $this->createShippingMethod();
         $shippingAddressId = Uuid::randomHex();
 
         $options = [
@@ -59,6 +60,7 @@ class ZugferdRendererTest extends TestCase
             TestDefaults::SALES_CHANNEL,
             [
                 SalesChannelContextService::CUSTOMER_ID => $this->createCustomer($options, $additionalAddress),
+                SalesChannelContextService::SHIPPING_METHOD_ID => $shippingMethodId,
             ]
         );
         $this->salesChannelContext->setRuleIds([$priceRuleId]);

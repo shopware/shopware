@@ -46,6 +46,13 @@ The Vite dev server:
 - exposes `/theme-scss/all.css` for theme styles in dev
 - serves component style files via `/__sw-comp-css/...`
 
+Environment overrides:
+
+- `STOREFRONT_VITE_PORT` - changes the Vite port (default `5175`)
+- `STOREFRONT_VITE_HOST` - bind host for Vite (default `localhost`)
+- `STOREFRONT_VITE_ORIGIN` - absolute URL used in `storefront_components.dev.json`
+  (useful in Docker/WSL/remote setups, e.g. `http://host.docker.internal:5175`)
+
 When the dev server stops, Shopware falls back to production assets/import map.
 
 ## File map

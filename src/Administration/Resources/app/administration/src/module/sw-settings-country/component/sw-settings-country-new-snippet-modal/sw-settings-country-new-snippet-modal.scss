@@ -4,7 +4,7 @@
     .sw-tree {
         border: none;
         margin-bottom: 20px;
-        max-height: 400px;
+        max-height: 520px;
         overflow-y: auto;
     }
 
@@ -18,23 +18,17 @@
     }
 
     .sw-tree .sw-tree__content .sw-tree-item__element {
-        grid-template-columns: 30px 0 20px auto 150px;
+        grid-template-columns: 30px 0 20px minmax(0, 1fr) 0;
+        font-size: var(--font-size-s);
+        line-height: var(--font-line-height-m);
     }
 
     .sw-tree .sw-tree__content .sw-tree-item__children .sw-tree-item__element {
-        grid-template-columns: 10px 0 20px auto 150px;
+        grid-template-columns: 10px 0 20px minmax(0, 1fr) 0;
     }
 
     .sw-tree-item .sw-tree-item__element {
-        & > .sw-tree-item__actions .mt-button {
-            display: none;
-        }
-
-        &:hover > .sw-tree-item__actions .mt-button {
-            display: block;
-        }
-
-        & > .sw-tree-item__actions .sw-tree-item__context_button {
+        & > .sw-tree-item__actions {
             display: none;
         }
     }
@@ -52,6 +46,18 @@
         .sw-field--checkbox {
             display: none;
         }
+    }
+
+    &__tree-item-button {
+        width: 100%;
+        padding: 0;
+        color: inherit;
+        font: inherit;
+        text-align: left;
+        text-transform: capitalize;
+        cursor: pointer;
+        background: transparent;
+        border: 0;
     }
 
     &__search-field {
@@ -102,6 +108,31 @@
 
     .sw-select .sw-label .sw-label__caption {
         text-align: center;
+    }
+
+    .sw-multi-snippet-select {
+        margin-bottom: 0;
+
+        .sw-block-field__block {
+            min-height: 48px;
+            height: auto;
+        }
+
+        .sw-select-selection-list {
+            display: flex;
+            flex-wrap: wrap;
+            width: calc(100% - 30px);
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            overflow: hidden;
+        }
+
+        .sw-select-selection-list__item-holder {
+            max-width: 220px;
+            margin: 8px 6px 0 0;
+            line-height: 0;
+        }
     }
 
     .sw-tree > ::-webkit-scrollbar {

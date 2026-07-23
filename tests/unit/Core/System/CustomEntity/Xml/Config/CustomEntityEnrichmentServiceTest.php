@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\CustomEntityException;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchemaValidator;
@@ -15,6 +16,7 @@ use Shopware\Core\System\CustomEntity\Xml\Entity;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CustomEntityEnrichmentService::class)]
 class CustomEntityEnrichmentServiceTest extends TestCase
 {

@@ -461,12 +461,10 @@ export default {
 
         maintenanceIpAllowlist: {
             get() {
-                // eslint-disable-next-line inclusive-language/use-inclusive-words
-                return this.salesChannel.maintenanceIpWhitelist ?? [];
+                return this.salesChannel.maintenanceIpAllowlist ?? [];
             },
             set(value) {
-                // eslint-disable-next-line inclusive-language/use-inclusive-words
-                this.salesChannel.maintenanceIpWhitelist = value;
+                this.salesChannel.maintenanceIpAllowlist = value;
             },
         },
 
@@ -534,6 +532,10 @@ export default {
 
         serviceCategoryPlaceholder() {
             return this.salesChannel.serviceCategoryId ? '' : this.$t('sw-category.base.link.categoryPlaceholder');
+        },
+
+        businessTimeZoneOptions() {
+            return Shopware.Service('timezoneService').getTimezoneOptions();
         },
 
         salesChannelFavoritesService() {

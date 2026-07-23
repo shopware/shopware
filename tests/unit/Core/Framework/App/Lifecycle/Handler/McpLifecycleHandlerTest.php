@@ -13,11 +13,13 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\McpToolPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Mcp\Mcp;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(McpLifecycleHandler::class)]
 class McpLifecycleHandlerTest extends TestCase
 {
@@ -26,12 +28,12 @@ class McpLifecycleHandlerTest extends TestCase
 
     public function testPersistWithoutMcpXmlPassesNullToAllPersisters(): void
     {
-        $manifest = $this->createMock(Manifest::class);
+        $manifest = static::createStub(Manifest::class);
         $context = Context::createDefaultContext();
         $app = (new AppEntity())->assign(['id' => self::APP_ID]);
 
         $filesystem = $this->createMock(Filesystem::class);
-        $filesystem->method('has')->with('Resources/mcp.xml')->willReturn(false);
+        $filesystem->method('has')->willReturn(false);
         $filesystem->expects($this->never())->method('path');
 
         $toolPersister = $this->createMock(McpToolPersister::class);
@@ -55,15 +57,15 @@ class McpLifecycleHandlerTest extends TestCase
 
     public function testPersistWithMcpXmlPassesParsedMcpToAllPersisters(): void
     {
-        $manifest = $this->createMock(Manifest::class);
+        $manifest = static::createStub(Manifest::class);
         $context = Context::createDefaultContext();
         $app = (new AppEntity())->assign(['id' => self::APP_ID]);
 
         $fixturePath = __DIR__ . '/../../_fixtures/Resources/mcp.xml';
 
-        $filesystem = $this->createMock(Filesystem::class);
-        $filesystem->method('has')->with('Resources/mcp.xml')->willReturn(true);
-        $filesystem->method('path')->with('Resources/mcp.xml')->willReturn($fixturePath);
+        $filesystem = static::createStub(Filesystem::class);
+        $filesystem->method('has')->willReturn(true);
+        $filesystem->method('path')->willReturn($fixturePath);
 
         $toolPersister = $this->createMock(McpToolPersister::class);
         $promptPersister = $this->createMock(McpPromptPersister::class);
@@ -94,11 +96,11 @@ class McpLifecycleHandlerTest extends TestCase
 
     public function testValidationFailureStopsPersistence(): void
     {
-        $manifest = $this->createMock(Manifest::class);
+        $manifest = static::createStub(Manifest::class);
         $context = Context::createDefaultContext();
         $app = (new AppEntity())->assign(['id' => self::APP_ID]);
 
-        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem = static::createStub(Filesystem::class);
         $filesystem->method('has')->willReturn(false);
 
         $toolPersister = $this->createMock(McpToolPersister::class);

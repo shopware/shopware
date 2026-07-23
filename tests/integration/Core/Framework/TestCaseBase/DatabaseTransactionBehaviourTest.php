@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\TestCaseBase;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 /**
  * @internal
  */
+#[Package('framework')]
 class DatabaseTransactionBehaviourTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

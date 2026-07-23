@@ -7,7 +7,7 @@ tags: [ai, agentic, sales-channel, storefront, administration, twig]
 
 ## Context
 
-Merchants need a way to expose agentic public files such as `llms.txt`, `agents.md`, and metadata below `.well-known/` for each sales channel. These files should be generated from Shopware context, be customizable by merchants, and be extensible by core, plugins, apps, and themes.
+Merchants need a way to expose agentic public files such as `llms.txt`, `AGENTS.md`, and metadata below `.well-known/` for each sales channel. These files should be generated from Shopware context, be customizable by merchants, and be extensible by core, plugins, apps, and themes.
 
 The feature should reuse Shopware's established Twig extension model. Core should be able to ship base templates, and extensions should be able to overwrite or extend those templates through normal Twig behavior. We should not introduce an explicit provider interface because the existence of a template in a known location is enough to declare the file.
 
@@ -30,7 +30,8 @@ The relative path below `files/agentic` becomes the public path after removing t
 | Template path | Public path |
 |---|---|
 | `Resources/views/files/agentic/llms.txt.twig` | `/llms.txt` |
-| `Resources/views/files/agentic/agents.md.twig` | `/agents.md` |
+| `Resources/views/files/agentic/AGENTS.md.twig` | `/AGENTS.md` |
+| `Resources/views/files/agentic/.well-known/ai-catalog.json.twig` | `/.well-known/ai-catalog.json` |
 | `Resources/views/files/agentic/.well-known/ucp.json.twig` | `/.well-known/ucp.json` |
 
 Subfolders are supported explicitly. Dot-prefixed folders such as `.well-known` are valid public path segments, so template discovery must include dot files and dot directories.
@@ -46,11 +47,17 @@ The catalogue step uses an explicit filtered template-iterator lookup for the `f
 
 The content type is derived from the public file extension.
 
+File-name lookup is case-insensitive. Templates whose paths differ only by case contribute to the same public file, which keeps legacy lowercase templates and persisted configuration compatible with the canonical uppercase `AGENTS.md` core template.
+
 Merchant overrides are applied through an internal high-priority Twig loader that participates in the normal Twig loader chain. The loader does not read the database and does not infer state from the current request. Instead, the sales-channel file renderer activates the already loaded override templates for the duration of a single render. This keeps the existing Twig environment, extension set, inheritance behavior, and security configuration intact while allowing Administration previews to render unsaved override content.
 
 The Administration adds an "Agentic files" tab to Storefront and Headless sales channel detail pages. The tab shows a list of discovered files. Selecting a file opens a detail page with rendered preview, enablement, public URL, detected content type, and a list of Twig namespaces that can be overridden individually. The UI stores only merchant overrides and does not copy shipped templates into the database.
 
 The detail page offers two customization levels. Merchants can add simple append-only text through Custom Notes when the template chain exposes `user_provided_content`. Advanced users can open an individual content source and edit the override for that source directly. This keeps the common customization path non-technical while still making full source overrides available when needed.
+
+Core also ships an Agentic Resource Discovery manifest at `files/agentic/.well-known/ai-catalog.json.twig`. It publishes a generated `ai-catalog.json` document; the dynamic ARD registry API is out of scope. When the MCP feature is active for a headless sales channel, the catalog includes the sales-channel-scoped Store API MCP server as an `application/mcp-server+json` entry with its built-in capability names.
+
+Some templates need sales-channel-file-specific render data such as the public base URL, publisher host, or Store API MCP endpoint. This data is passed through a small associative `salesChannelFileContext` template variable. The existing `salesChannelFile` object stays unchanged because it is already exposed as the file metadata object in Twig.
 
 ## Template Examples
 
@@ -200,7 +207,7 @@ The detail route accepts `fileName` as a query parameter because public file pat
 
 ### Public File HTTP API
 
-- Eligible agentic files are served on sales channel domains by their derived public path, for example `/llms.txt`, `/agents.md`, or `/.well-known/ucp.json`.
+- Eligible agentic files are served on sales channel domains by their derived public path, for example `/llms.txt`, `/AGENTS.md`, or `/.well-known/ucp.json`.
 - Existing explicit routes keep precedence because the file serving runs only as an unresolved 404 fallback.
 - Only `GET` and `HEAD` requests are eligible.
 - Disabled files, files without a matching `sales_channel_file` row, invalid paths, and undiscovered files behave like normal 404s.
@@ -208,11 +215,13 @@ The detail route accepts `fileName` as a query parameter because public file pat
 
 ### Designed Extension Point
 
-Public file template files are the only designed extension point for this feature. Core, plugins, apps, and themes can ship templates below `Resources/views/files/<file-family>/**/*.twig` and use normal Shopware Twig inheritance through Twig namespaces.
+Public file template files are the designed extension point for template content. Core, plugins, apps, and themes can ship templates below `Resources/views/files/<file-family>/**/*.twig` and use normal Shopware Twig inheritance through Twig namespaces.
 
-The initial extension point is the `agentic` file family with the built-in file paths `files/agentic/llms.txt.twig` and `files/agentic/agents.md.twig`. Subfolders below the file family are supported, including dot-prefixed folders such as `.well-known`.
+The initial extension point is the `agentic` file family with the built-in file paths `files/agentic/llms.txt.twig`, `files/agentic/AGENTS.md.twig`, and `files/agentic/.well-known/ai-catalog.json.twig`. Subfolders below the file family are supported, including dot-prefixed folders such as `.well-known`.
 
 The exact default text shipped by core is not part of the BC promise and may evolve. Core-owned structure blocks in public file templates may exist to keep templates readable, but extensions should prefer the explicit built-in extension blocks `agentic_llms_extensions` and `agentic_agents_extensions` for additive content. Templates can expose `user_provided_content` when they want the Administration to offer a simple "Custom Notes" field that appends merchant-provided text.
+
+Additional Twig parameters can be added through `SalesChannelFileRenderParametersExtension::onPost()`. Subscribers receive the concrete file, sales channel context, and loaded sales channel, so costly data can be added only for the files that need it.
 
 Administration components, services, and Administration Twig templates for this feature are private implementation. They are not designed extension points, are not part of the BC promise, and intentionally do not expose Administration Twig blocks for extension.
 

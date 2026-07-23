@@ -41,7 +41,7 @@ class EntityGenerator implements ScaffoldingGenerator
     ): void {
         $entities = $input->getOption(self::OPTION_NAME);
 
-        if (!empty($entities)) {
+        if (\is_string($entities) && $entities !== '') {
             $this->processEntities($config, $entities);
 
             return;
@@ -61,7 +61,7 @@ class EntityGenerator implements ScaffoldingGenerator
         StubCollection $stubCollection
     ): void {
         if (!$configuration->hasOption(self::OPTION_NAME)
-            || empty($configuration->getOption(self::OPTION_NAME))
+            || $configuration->getOption(self::OPTION_NAME) === []
             || !\is_array($configuration->getOption(self::OPTION_NAME))
         ) {
             return;

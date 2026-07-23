@@ -10,12 +10,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailSizeCalculator;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @phpstan-import-type ImageSize from ThumbnailService
  */
+#[Package('discovery')]
 #[CoversClass(ThumbnailSizeCalculator::class)]
 class ThumbnailSizeCalculatorTest extends TestCase
 {

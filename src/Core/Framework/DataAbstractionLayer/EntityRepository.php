@@ -102,7 +102,7 @@ class EntityRepository
 
         $affected = $this->versionManager->update($this->definition, $data, WriteContext::createFromContext($context));
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
-        $context->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($event));
+        $context->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($event), [Context::SYSTEM_SCOPE_DAL_WRITE_EVENT]);
 
         return $event;
     }
@@ -116,7 +116,7 @@ class EntityRepository
 
         $affected = $this->versionManager->upsert($this->definition, $data, WriteContext::createFromContext($context));
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
-        $context->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($event));
+        $context->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($event), [Context::SYSTEM_SCOPE_DAL_WRITE_EVENT]);
 
         return $event;
     }
@@ -130,7 +130,7 @@ class EntityRepository
 
         $affected = $this->versionManager->insert($this->definition, $data, WriteContext::createFromContext($context));
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
-        $context->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($event));
+        $context->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($event), [Context::SYSTEM_SCOPE_DAL_WRITE_EVENT]);
 
         return $event;
     }
@@ -153,7 +153,7 @@ class EntityRepository
             }
         }
 
-        $context->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($event));
+        $context->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($event), [Context::SYSTEM_SCOPE_DAL_WRITE_EVENT]);
 
         return $event;
     }
@@ -198,7 +198,7 @@ class EntityRepository
         );
 
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, [], true);
-        $context->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($event));
+        $context->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($event), [Context::SYSTEM_SCOPE_DAL_WRITE_EVENT]);
 
         return $event;
     }

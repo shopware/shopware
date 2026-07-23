@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Maintenance\Staging\Command;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\Staging\Command\SystemSetupStagingCommand;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -16,14 +17,15 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SystemSetupStagingCommand::class)]
 class SystemSetupStagingCommandTest extends TestCase
 {
     public function testCancelPrompt(): void
     {
         $command = new SystemSetupStagingCommand(
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(SystemConfigService::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SystemConfigService::class),
             true,
             [],
             [],
@@ -108,8 +110,8 @@ class SystemSetupStagingCommandTest extends TestCase
     public function testRunNoInteractionWithoutForce(): void
     {
         $command = new SystemSetupStagingCommand(
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(SystemConfigService::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SystemConfigService::class),
             true,
             [],
             [],

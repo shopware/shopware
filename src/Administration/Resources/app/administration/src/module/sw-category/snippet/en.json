@@ -7,7 +7,6 @@
       "headlineCategories": "Categories",
       "placeholderSearchBar": "Search categories...",
       "buttonCreate": "Create category",
-      "buttonSafeCategory": "Save",
       "descriptionLabel": "Description",
       "messageSaveSuccess": "Category \"{name}\" has been saved.",
       "useAsLogo": "Use as display image",

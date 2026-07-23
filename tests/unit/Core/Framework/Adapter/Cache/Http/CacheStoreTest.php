@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CacheKey;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
@@ -26,6 +27,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CacheStore::class)]
 class CacheStoreTest extends TestCase
 {
@@ -47,12 +49,12 @@ class CacheStoreTest extends TestCase
 
         $store = new CacheStore(
             $cache,
-            $this->createMock(CacheStateValidator::class),
+            static::createStub(CacheStateValidator::class),
             new EventDispatcher(),
             new HttpCacheKeyGenerator('test', new EventDispatcher(), []),
-            $this->createMock(MaintenanceModeResolver::class),
+            static::createStub(MaintenanceModeResolver::class),
             [],
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             false,
             new CollectingMessageBus(),
             $clock
@@ -84,9 +86,9 @@ class CacheStoreTest extends TestCase
             $stateValidator,
             new EventDispatcher(),
             new HttpCacheKeyGenerator('test', new EventDispatcher(), []),
-            $this->createMock(MaintenanceModeResolver::class),
+            static::createStub(MaintenanceModeResolver::class),
             [],
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             false,
             new CollectingMessageBus(),
             new NativeClock()
@@ -111,12 +113,12 @@ class CacheStoreTest extends TestCase
 
         $store = new CacheStore(
             $cache,
-            $this->createMock(CacheStateValidator::class),
+            static::createStub(CacheStateValidator::class),
             new EventDispatcher(),
             $keyGenerator,
-            $this->createMock(MaintenanceModeResolver::class),
+            static::createStub(MaintenanceModeResolver::class),
             [],
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             false,
             new CollectingMessageBus(),
             new NativeClock()
@@ -350,7 +352,7 @@ class CacheStoreTest extends TestCase
             $keyGenerator,
             $maintenanceResolver,
             [],
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             true,
             $bus,
             new NativeClock()
@@ -400,7 +402,7 @@ class CacheStoreTest extends TestCase
             $keyGenerator,
             $maintenanceResolver,
             [],
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             true,
             $bus,
             new NativeClock()
@@ -453,7 +455,7 @@ class CacheStoreTest extends TestCase
             $keyGenerator,
             $maintenanceResolver,
             [],
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             true,
             $bus,
             new NativeClock()
@@ -505,7 +507,7 @@ class CacheStoreTest extends TestCase
             $keyGenerator,
             $maintenanceResolver,
             [],
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             true,
             $bus,
             new NativeClock()
@@ -550,7 +552,7 @@ class CacheStoreTest extends TestCase
             $keyGenerator,
             $maintenanceResolver,
             [],
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             true,
             $bus,
             new NativeClock()

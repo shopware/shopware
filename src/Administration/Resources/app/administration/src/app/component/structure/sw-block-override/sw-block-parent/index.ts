@@ -1,4 +1,4 @@
-import { h, inject, shallowRef, watch } from 'vue';
+import { computed, h, inject } from 'vue';
 import parentsInjectionKey from '../sw-block/parents-injection-key';
 
 /**
@@ -14,14 +14,17 @@ import parentsInjectionKey from '../sw-block/parents-injection-key';
  */
 export default Shopware.Component.wrapComponentConfig({
     setup() {
-        const providedParents = inject(parentsInjectionKey, null);
-        const parent = shallowRef(providedParents?.value.pop());
+        const parents = inject(parentsInjectionKey, null);
+        const initialParents = parents?.value;
+        const initialParent = initialParents?.pop();
+        const parentIndex = initialParents ? initialParents.length : -1;
+        // Reserve the stack slot once, then read the current VNode at that slot after reactive parent updates.
+        const parent = computed(() => {
+            if (parentIndex < 0 || !parents || parents.value === initialParents) {
+                return initialParent;
+            }
 
-        // The sw-block component replaces the parent stack array on each render.
-        // This watcher is intentionally not deep, so consuming one entry with pop()
-        // does not schedule itself again.
-        watch(providedParents ?? shallowRef([]), (parents) => {
-            parent.value = parents.pop();
+            return parents.value[parentIndex];
         });
 
         return {

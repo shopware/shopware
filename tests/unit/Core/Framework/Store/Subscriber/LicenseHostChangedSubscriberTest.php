@@ -31,7 +31,7 @@ class LicenseHostChangedSubscriberTest extends TestCase
         ]);
         $subscriber = new LicenseHostChangedSubscriber(
             $config,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
         );
 
         $event = new BeforeSystemConfigChangedEvent('random.config.key', null, null);
@@ -48,7 +48,7 @@ class LicenseHostChangedSubscriberTest extends TestCase
         ]);
         $subscriber = new LicenseHostChangedSubscriber(
             $config,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
         );
 
         $event = new BeforeSystemConfigChangedEvent('core.store.licenseHost', 'host', null);

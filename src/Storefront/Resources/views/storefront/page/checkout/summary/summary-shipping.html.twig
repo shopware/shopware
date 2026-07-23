@@ -14,7 +14,7 @@
                         &minus;
                     {% endif %}
 
-                    {{ deliveryPrice|abs|currency }}
+                    {{ deliveryPrice|abs|currency(isoCode) }}
                 </dd>
             {% endblock %}
         {% endblock %}

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Api\ApiDefinition\Generator;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannel\StoreApiInfoController;
 use Symfony\Component\HttpFoundation\Request;
@@ -10,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('framework')]
 class OpenApi3Test extends TestCase
 {
     use KernelTestBehaviour;

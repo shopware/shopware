@@ -37,6 +37,7 @@ async function createWrapper(options = {}) {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
                 'sw-entity-single-select': true,
+                'sw-single-select': true,
                 'sw-sales-channel-defaults-select': {
                     props: [
                         'criteria',
@@ -113,6 +114,17 @@ async function createWrapper(options = {}) {
 }
 
 describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => {
+    beforeAll(() => {
+        Shopware.Service().register('timezoneService', () => ({
+            getTimezoneOptions: () => [
+                {
+                    label: 'UTC',
+                    value: 'UTC',
+                },
+            ],
+        }));
+    });
+
     beforeEach(async () => {
         Shopware.Store.get('session').setCurrentUser({
             id: '8fe88c269c214ea68badf7ebe678ab96',
@@ -318,6 +330,24 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         const wrapper = await createWrapper();
 
         const field = wrapper.get('.sw-sales-channel-detail__select-navigation-category-id');
+
+        expect(field.attributes().disabled).toBeUndefined();
+    });
+
+    it('should have the business timezone field disabled', async () => {
+        const wrapper = await createWrapper();
+
+        const field = wrapper.get('.sw-sales-channel-detail__select-business-time-zone');
+
+        expect(field.attributes().disabled).toBe('true');
+    });
+
+    it('should have the business timezone field enabled', async () => {
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
+
+        const field = wrapper.get('.sw-sales-channel-detail__select-business-time-zone');
 
         expect(field.attributes().disabled).toBeUndefined();
     });

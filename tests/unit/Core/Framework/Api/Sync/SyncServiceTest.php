@@ -31,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
 use Shopware\Core\Framework\Event\NestedEventDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -40,6 +41,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SyncService::class)]
 class SyncServiceTest extends TestCase
 {
@@ -63,15 +65,15 @@ class SyncServiceTest extends TestCase
 
         $service = new SyncService(
             $writer,
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             new StaticDefinitionInstanceRegistry(
                 [ProductDefinition::class],
-                $this->createMock(ValidatorInterface::class),
-                $this->createMock(EntityWriteGatewayInterface::class),
+                static::createStub(ValidatorInterface::class),
+                static::createStub(EntityWriteGatewayInterface::class),
             ),
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(RequestCriteriaBuilder::class),
-            $this->createMock(SyncFkResolver::class)
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(RequestCriteriaBuilder::class),
+            static::createStub(SyncFkResolver::class)
         );
 
         $upsert = new SyncOperation('foo', 'product', SyncOperation::ACTION_UPSERT, [
@@ -120,8 +122,8 @@ class SyncServiceTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [ProductCategoryDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $searcher = $this->createMock(EntitySearcher::class);
@@ -131,18 +133,18 @@ class SyncServiceTest extends TestCase
             ->with($registry->get(ProductCategoryDefinition::class), $criteria);
 
         $service = new SyncService(
-            $this->createMock(EntityWriter::class),
+            static::createStub(EntityWriter::class),
             new EventDispatcher(),
             $registry,
             $searcher,
             new RequestCriteriaBuilder(
                 new AggregationParser(),
-                $this->createMock(ApiCriteriaValidator::class),
+                static::createStub(ApiCriteriaValidator::class),
                 new CriteriaArrayConverter(new AggregationParser()),
                 new CompressedCriteriaDecoder(),
                 100
             ),
-            $this->createMock(SyncFkResolver::class)
+            static::createStub(SyncFkResolver::class)
         );
 
         $service->sync($operations, Context::createCLIContext(), new SyncBehavior());
@@ -170,6 +172,7 @@ class SyncServiceTest extends TestCase
             $eventSource = $event->getContext()->getSource();
 
             static::assertSame(Context::SYSTEM_SCOPE, $event->getContext()->getScope());
+            static::assertTrue($event->getContext()->hasState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT));
             static::assertInstanceOf(AdminApiSource::class, $eventSource);
             static::assertSame($source->getUserId(), $eventSource->getUserId());
         });
@@ -180,6 +183,7 @@ class SyncServiceTest extends TestCase
             $eventSource = $event->getContext()->getSource();
 
             static::assertSame(Context::SYSTEM_SCOPE, $event->getContext()->getScope());
+            static::assertTrue($event->getContext()->hasState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT));
             static::assertInstanceOf(AdminApiSource::class, $eventSource);
             static::assertSame($source->getUserId(), $eventSource->getUserId());
         });
@@ -189,12 +193,12 @@ class SyncServiceTest extends TestCase
             $eventDispatcher,
             new StaticDefinitionInstanceRegistry(
                 [ProductDefinition::class],
-                $this->createMock(ValidatorInterface::class),
-                $this->createMock(EntityWriteGatewayInterface::class),
+                static::createStub(ValidatorInterface::class),
+                static::createStub(EntityWriteGatewayInterface::class),
             ),
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(RequestCriteriaBuilder::class),
-            $this->createMock(SyncFkResolver::class)
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(RequestCriteriaBuilder::class),
+            static::createStub(SyncFkResolver::class)
         );
 
         $service->sync(
@@ -206,6 +210,7 @@ class SyncServiceTest extends TestCase
         static::assertTrue($containerListenerWasCalled);
         static::assertTrue($nestedListenerWasCalled);
         static::assertSame(Context::USER_SCOPE, $context->getScope());
+        static::assertFalse($context->hasState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT));
     }
 
     public function testWildcardDeleteForMappingEntities(): void
@@ -265,15 +270,15 @@ class SyncServiceTest extends TestCase
 
         $service = new SyncService(
             $writer,
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             new StaticDefinitionInstanceRegistry(
                 [ProductCategoryDefinition::class],
-                $this->createMock(ValidatorInterface::class),
-                $this->createMock(EntityWriteGatewayInterface::class),
+                static::createStub(ValidatorInterface::class),
+                static::createStub(EntityWriteGatewayInterface::class),
             ),
             $searcher,
             $criteriaBuilder,
-            $this->createMock(SyncFkResolver::class)
+            static::createStub(SyncFkResolver::class)
         );
 
         $delete = new SyncOperation(

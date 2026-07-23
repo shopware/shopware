@@ -280,6 +280,68 @@ const shimSlots: Slot[] =
 
 Shim slots are not registered in the global `blockContext` so that multiple simultaneous instances of `<sw-block name="foo">` each maintain their own isolated shim slots and cannot double-render each other's content.
 
+### 6. Conditional Chain Shim for `v-if` / `v-else`
+
+Vue normally expects a `v-if`, `v-else-if`, and `v-else` chain to be compiled as one adjacent sequence. The legacy Twig adapter has to bridge across that boundary: the first case can live in a native `<sw-block name="...">`, while the continuation case can live in a legacy Twig override that is reconstructed later as an independent ShimContent component.
+
+Example before the adapter rewrites it:
+
+```html
+<sw-block name="demo_block">
+    <div v-if="showCore">Core case</div>
+</sw-block>
+```
+
+```js
+Shopware.Component.override('sw-demo', {
+    template: `
+{% block demo_block %}
+    {% parent %}
+    <div v-else>Legacy fallback</div>
+{% endblock %}
+`,
+});
+```
+
+If Vue saw this directly, the `v-else` in the shim would no longer be adjacent to the original `v-if`. The adapter therefore rewrites both sides to ordinary `v-if` expressions backed by shared legacy helper state:
+
+```html
+<div v-if="$swLegacyBlockIf('demo_block', showCore, { segmentCaseIndex: 0, isStartingCondition: true, renderOrderSegment: 'defaultSlot' })">Core case</div>
+<div v-if="$swLegacyBlockElse('demo_block', { segmentCaseIndex: 0, isStartingCondition: false, renderOrderSegment: 'shimExtension' })">Legacy fallback</div>
+```
+
+The helpers keep a reactive condition chain per host component and block name. This chain stores case results in three render-order segments that match the way `<sw-block>` evaluates default content, shimmed Twig extensions, and native extensions:
+
+1. `defaultSlotCases`
+2. `shimExtensionCases`
+3. `nativeExtensionCases`
+
+Each generated helper call passes a `renderOrderSegment` and a `segmentCaseIndex`. The `segmentCaseIndex` is only local to that segment, so the runtime does not need to map shim-local cases into one shared absolute index range.
+
+- Default slot cases use the `defaultSlot` segment.
+- Twig shim cases use the `shimExtension` segment.
+- Native extension cases use the `nativeExtension` segment.
+- Only indexed Twig shim entries use `legacyConditionCases` with `caseStartIndex` and `caseCount`. Entries without a rewritten conditional chain keep this list empty. Default slot and native extension cases do not reserve ranges; their generated helper calls write directly to their segment via `segmentCaseIndex`.
+- The reservation indexes are local to `shimExtensionCases`, so multiple Twig overrides of the same chain reserve different positions in that segment.
+
+The reconstructed shim template contains generated helper calls such as `$swLegacyBlockElse('demo_block', { segmentCaseIndex: 0, isStartingCondition: false, renderOrderSegment: 'shimExtension' })`. Plugin templates do not need any additional syntax; the segment metadata is generated while the Twig block is indexed.
+
+Default and native extension slots are invoked synchronously when `<sw-block>` calls their slot functions. Shim slots are different: before the generated shim component renders, `createShimSlot()` reserves the generated case range in the reactive chain. A pending shim slot is stored as `undefined`, which means: "this case exists, but the shim has not evaluated it yet."
+
+That reservation is what keeps later cases correct. A later native fallback must not render while an earlier shim case is still pending. During evaluation, `$swLegacyBlockElseIf` and `$swLegacyBlockElse` scan all earlier positions. If any earlier case is `true` or still `undefined`, the current case does not render.
+
+For a chain with a default `v-if`, a Twig shim `v-else-if`, and a later native fallback, the segmented chain looks like this:
+
+| Step | Source                           | Stored position              | Stored value                                      |
+| ---- | -------------------------------- | ---------------------------- | ------------------------------------------------- |
+| 1    | Default `v-if`                   | `defaultSlotCases[0]`        | `false`                                           |
+| 2    | Twig shim reservation            | `shimExtensionCases[0]`      | `undefined`                                       |
+| 3    | Later native fallback evaluates  | `nativeExtensionCases[0]`    | `false` because the shim case is still pending    |
+| 4    | Twig shim `v-else-if` evaluates  | `shimExtensionCases[0]`      | `true`                                            |
+| 5    | Later native fallback re-renders | `nativeExtensionCases[0]`    | `false` because the shim case matched             |
+
+Shim-backed chains are marked as persistent, because the shim may evaluate in a later render tick than the native block that started the chain. Non-persistent chains are cleaned up after the current tick. The owning shim component clears the persistent chain state in `beforeUnmount`, so the state does not outlive the shim tree.
+
 ---
 
 ## File Overview

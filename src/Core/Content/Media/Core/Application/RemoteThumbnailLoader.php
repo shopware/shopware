@@ -75,7 +75,7 @@ class RemoteThumbnailLoader implements ResetInterface
             $mediaFolderId = $mediaEntity->get('mediaFolderId');
             $thumbnailSizes = $mediaThumbnailSizes[$mediaFolderId] ?? [];
 
-            if (empty($thumbnailSizes)) {
+            if ($thumbnailSizes === []) {
                 $mediaEntity->assign(['thumbnails' => new MediaThumbnailCollection()]);
 
                 continue;
@@ -125,7 +125,7 @@ class RemoteThumbnailLoader implements ResetInterface
         $mapped = [];
 
         foreach ($entities as $entity) {
-            if (!$entity->has('path') || empty($entity->get('path'))) {
+            if (!$entity->has('path') || (string) $entity->get('path') === '') {
                 continue;
             }
             // don't generate private urls

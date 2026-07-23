@@ -15,6 +15,7 @@ use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFact
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
+use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -35,9 +36,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class ProductListingLoader
 {
     /**
-     * Field set loaded in listings when `core.listing.partialDataLoading` is enabled. Covers the
-     * data required by the default storefront product boxes. Nested association fields (e.g.
-     * `prices.ruleId`) must be listed explicitly — a bare association name only loads primary keys.
+     * Criteria state that suppresses the variant grouping (`displayGroup` field grouping) otherwise
+     * applied to product listings. Set by {@see AbstractProductStreamBuilder::enrichCriteria()}
+     * when a product stream is configured to not display its variants as a group.
+     */
+    final public const STATE_SKIP_ADD_GROUPING = 'skipAddGrouping';
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Reduced listing loading now uses Criteria::excludeFields()
+     *             to drop heavy columns instead of allow-listing fields.
      *
      * @var list<string>
      */
@@ -90,6 +97,18 @@ class ProductListingLoader
     ];
 
     /**
+     * Heavy, off-page columns dropped from listings via {@see Criteria::excludeFields()} when
+     * `core.listing.partialDataLoading` is enabled.
+     *
+     * @var list<string>
+     */
+    final public const PARTIAL_LISTING_EXCLUDED_FIELDS = [
+        'description',
+        'keywords',
+        'customSearchKeywords',
+    ];
+
+    /**
      * @internal
      *
      * @param SalesChannelRepository<ProductCollection> $productRepository
@@ -124,10 +143,10 @@ class ProductListingLoader
     {
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
-        $partialDataLoading = $this->systemConfigService->get('core.listing.partialDataLoading', $context->getSalesChannelId());
+        $partialDataLoading = $this->systemConfigService->getBool('core.listing.partialDataLoading', $context->getSalesChannelId());
 
-        if ($criteria->getFields() === [] && (bool) $partialDataLoading) {
-            $criteria->addFields(self::PARTIAL_LISTING_FIELDS);
+        if ($criteria->getFields() === [] && $criteria->getExcludedFields() === [] && $partialDataLoading) {
+            $criteria->excludeFields(self::PARTIAL_LISTING_EXCLUDED_FIELDS);
         }
 
         $clone = clone $criteria;
@@ -142,7 +161,7 @@ class ProductListingLoader
 
         $ids = $idResult->getIds();
         // no products found, no need to continue
-        if (empty($ids)) {
+        if ($ids === []) {
             $result = new EntitySearchResult(
                 ProductDefinition::ENTITY_NAME,
                 0,
@@ -313,11 +332,11 @@ class ProductListingLoader
             }
 
             // current id was mapped to another variant
-            if (!$productSearchResult->has($mapping[$id])) {
+            if (!$productSearchResult->getEntities()->has($mapping[$id])) {
                 continue;
             }
 
-            $product = $productSearchResult->get($mapping[$id]);
+            $product = $productSearchResult->getEntities()->get($mapping[$id]);
 
             // get access to the data of the search result
             $product->addExtension('search', new ArrayEntity($ids->getDataOfId($id)));
@@ -326,11 +345,15 @@ class ProductListingLoader
 
     private function resolveIds(Criteria $criteria, SalesChannelContext $context): IdSearchResult
     {
-        $this->addGrouping($criteria);
+        $displayAsGroup = !$this->shouldSkipGrouping($criteria);
+
+        if ($displayAsGroup) {
+            $this->addGrouping($criteria);
+        }
 
         $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
 
-        if ($isSearchRoute && $this->systemConfigService->getBool(
+        if ($displayAsGroup && $isSearchRoute && $this->systemConfigService->getBool(
             'core.listing.findBestVariant',
             $context->getSalesChannelId()
         )) {
@@ -361,10 +384,9 @@ class ProductListingLoader
     private function resolvePreviews(array $keys, Criteria $criteria, SalesChannelContext $context): array
     {
         $mapping = array_combine($keys, $keys);
-
         $hasOptionFilter = $this->hasOptionFilter($criteria);
 
-        $shouldLoadPreviews = $this->shouldLoadPreviews($hasOptionFilter, $criteria, $context);
+        $shouldLoadPreviews = !$this->shouldSkipGrouping($criteria) && $this->shouldLoadPreviews($hasOptionFilter, $criteria, $context);
 
         if ($shouldLoadPreviews) {
             $mapping = $this->extensions->publish(
@@ -411,5 +433,10 @@ class ProductListingLoader
         $read->addAssociation('options.group');
 
         return $this->productRepository->search($read, $context);
+    }
+
+    private function shouldSkipGrouping(Criteria $criteria): bool
+    {
+        return $criteria->hasState(self::STATE_SKIP_ADD_GROUPING);
     }
 }

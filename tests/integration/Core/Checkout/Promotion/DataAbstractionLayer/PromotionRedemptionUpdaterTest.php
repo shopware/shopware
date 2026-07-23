@@ -89,7 +89,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
         /** @var OrderEntity|null $order */
         $order = static::getContainer()
             ->get('order.repository')
-            ->search($criteria, $this->salesChannelContext->getContext())
+            ->search($criteria, $this->salesChannelContext->getContext())->getEntities()
             ->first();
 
         static::assertNotNull($order);
@@ -117,7 +117,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
         /** @var OrderEntity|null $order */
         $order = static::getContainer()
             ->get('order.repository')
-            ->search($criteria, Context::createDefaultContext())
+            ->search($criteria, Context::createDefaultContext())->getEntities()
             ->first();
 
         static::assertNotNull($order);
@@ -240,7 +240,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
         $promotionRepository = static::getContainer()->get('promotion.repository');
 
-        $promotionA = $promotionRepository->search(new Criteria([$this->ids->get('voucherA')]), Context::createDefaultContext())->first();
+        $promotionA = $promotionRepository->search(new Criteria([$this->ids->get('voucherA')]), Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(PromotionEntity::class, $promotionA);
         static::assertIsArray($promotionA->getOrdersPerCustomerCount());
@@ -254,7 +254,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
             ->get('order_line_item.repository')
             ->delete([['id' => $this->ids->get('voucherA')]], Context::createDefaultContext());
 
-        $promotionALater = $promotionRepository->search(new Criteria([$this->ids->get('voucherA')]), Context::createDefaultContext())->first();
+        $promotionALater = $promotionRepository->search(new Criteria([$this->ids->get('voucherA')]), Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(PromotionEntity::class, $promotionALater);
         static::assertIsArray($promotionALater->getOrdersPerCustomerCount());
@@ -267,7 +267,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
             ->get('order_line_item.repository')
             ->delete([['id' => $secondOrderLineItemId]], Context::createDefaultContext());
 
-        $promotionAEvenLater = $promotionRepository->search(new Criteria([$this->ids->get('voucherA')]), Context::createDefaultContext())->first();
+        $promotionAEvenLater = $promotionRepository->search(new Criteria([$this->ids->get('voucherA')]), Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(PromotionEntity::class, $promotionAEvenLater);
         static::assertSame(0, $promotionAEvenLater->getOrderCount());

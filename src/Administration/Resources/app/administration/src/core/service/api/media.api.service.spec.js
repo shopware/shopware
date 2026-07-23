@@ -331,9 +331,9 @@ describe('storeService', () => {
         expect(result).toBeUndefined();
     });
 
-    it('uses default maxConcurrentUploads of 10', () => {
+    it('uses default maxConcurrentUploads of 5', () => {
         const mediaApiService = getMediaApiService();
-        expect(mediaApiService.maxConcurrentUploads).toBe(10);
+        expect(mediaApiService.maxConcurrentUploads).toBe(5);
     });
 
     it('assigns video cover via API route', async () => {
@@ -349,6 +349,49 @@ describe('storeService', () => {
             JSON.stringify({ coverMediaId: 'cover-id' }),
             expect.objectContaining({
                 headers: expect.objectContaining({ Authorization: expect.any(String) }),
+            }),
+        );
+    });
+
+    it('downloads media as blob via API route', async () => {
+        const mediaApiService = getMediaApiService();
+        const mediaBlob = new Blob(['media-content']);
+        const httpClientGetSpy = jest.spyOn(mediaApiService.httpClient, 'get').mockResolvedValue({
+            data: mediaBlob,
+        });
+
+        const response = await mediaApiService.downloadMedia('media-id');
+
+        expect(response).toBe(mediaBlob);
+        expect(httpClientGetSpy).toHaveBeenCalledWith(
+            '/_action/media/media-id/download',
+            expect.objectContaining({
+                responseType: 'blob',
+                headers: expect.objectContaining({
+                    Authorization: expect.any(String),
+                    'Content-Type': 'application/json',
+                }),
+            }),
+        );
+    });
+
+    it('prepares media download via API route', async () => {
+        const mediaApiService = getMediaApiService();
+        const responsePayload = { type: 'external', url: 'https://cdn.example.test/download' };
+        const httpClientGetSpy = jest.spyOn(mediaApiService.httpClient, 'get').mockResolvedValue({
+            data: responsePayload,
+        });
+
+        const response = await mediaApiService.prepareDownloadMedia('media-id');
+
+        expect(response).toBe(responsePayload);
+        expect(httpClientGetSpy).toHaveBeenCalledWith(
+            '/_action/media/media-id/download/prepare',
+            expect.objectContaining({
+                headers: expect.objectContaining({
+                    Authorization: expect.any(String),
+                    'Content-Type': 'application/json',
+                }),
             }),
         );
     });

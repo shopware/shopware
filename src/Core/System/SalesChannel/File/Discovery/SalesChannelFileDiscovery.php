@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\System\SalesChannel\File\Discovery;
 
-use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TemplatePathIteratorInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
+use Shopware\Core\System\SalesChannel\File\SalesChannelFileCacheInvalidator;
 use Symfony\Component\Mime\MimeTypes;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
-use Twig\Error\LoaderError;
 
 /**
  * @internal
@@ -19,7 +18,6 @@ class SalesChannelFileDiscovery
 {
     public function __construct(
         private readonly TemplatePathIteratorInterface $templateIterator,
-        private readonly TemplateFinder $templateFinder,
         private readonly CacheInterface $cache,
     ) {
     }
@@ -29,13 +27,11 @@ class SalesChannelFileDiscovery
      */
     public function discover(string $fileFamily = SalesChannelFile::DEFAULT_FILE_FAMILY): array
     {
-        // This catalogue is checked for every unresolved 404 before any sales_channel_file
-        // row is loaded. Cache it across requests so unrelated missing URLs do not repeatedly
-        // walk registered Twig templates; shipped-template changes are deployed with a cache clear.
         return $this->cache->get(
             'sales-channel-file-discovery-' . Hasher::hash($fileFamily),
             function (ItemInterface $item) use ($fileFamily): array {
                 $item->expiresAfter(null);
+                $item->tag(SalesChannelFileCacheInvalidator::buildDiscoveryCacheTag());
 
                 return $this->discoverUncached($fileFamily);
             }
@@ -54,7 +50,7 @@ class SalesChannelFileDiscovery
             return null;
         }
 
-        return $this->discover($fileFamily)[$fileName] ?? null;
+        return $this->discover($fileFamily)[mb_strtolower($fileName)] ?? null;
     }
 
     /**
@@ -63,20 +59,19 @@ class SalesChannelFileDiscovery
     private function discoverUncached(string $fileFamily): array
     {
         $files = [];
-        foreach ($this->catalogueRegisteredFiles($fileFamily) as $fileName => $templatePath) {
-            $templates = $this->resolveTemplateChainForFile($templatePath);
+        foreach ($this->catalogueRegisteredFiles($fileFamily) as $normalizedFileName => $templatePaths) {
+            $templatePath = $templatePaths[0];
+            $fileName = $this->extractFileName($fileFamily, $templatePath);
+            \assert($fileName !== null);
 
-            if ($templates === []) {
-                continue;
-            }
-
-            $files[$fileName] = new SalesChannelFile(
+            $files[$normalizedFileName] = new SalesChannelFile(
                 $fileFamily,
                 $fileName,
                 $templatePath,
                 $this->resolveContentType($fileName),
                 $templatePath,
-                $templates,
+                [],
+                $templatePaths,
             );
         }
 
@@ -84,7 +79,7 @@ class SalesChannelFileDiscovery
     }
 
     /**
-     * @return array<string, string>
+     * @return array<string, list<string>>
      */
     private function catalogueRegisteredFiles(string $fileFamily): array
     {
@@ -98,59 +93,17 @@ class SalesChannelFileDiscovery
             }
 
             $fileName = mb_substr($templatePath, mb_strlen($templatePathPrefix), -mb_strlen(SalesChannelFile::TEMPLATE_SUFFIX));
-            $paths[$fileName] = $templatePath;
+            $paths[mb_strtolower($fileName)][$templatePath] = $templatePath;
         }
 
         ksort($paths);
 
+        foreach ($paths as $normalizedFileName => $templatePaths) {
+            ksort($templatePaths, \SORT_STRING);
+            $paths[$normalizedFileName] = array_values($templatePaths);
+        }
+
         return $paths;
-    }
-
-    /**
-     * @return array<string, string> Twig namespace mapped to resolved template name
-     */
-    private function resolveTemplateChainForFile(string $templatePath): array
-    {
-        $templates = [];
-        $seen = [];
-        $source = null;
-
-        while (true) {
-            try {
-                $templateName = $this->templateFinder->find($templatePath, false, $source);
-            } catch (LoaderError) {
-                break;
-            }
-
-            if (isset($seen[$templateName])) {
-                break;
-            }
-
-            $twigNamespace = $this->extractTwigNamespace($templateName);
-            if ($twigNamespace === null) {
-                break;
-            }
-
-            $templates[$twigNamespace] = $templateName;
-            $seen[$templateName] = true;
-            $source = $templateName;
-        }
-
-        return $templates;
-    }
-
-    private function extractTwigNamespace(string $templateName): ?string
-    {
-        if (!str_starts_with($templateName, '@')) {
-            return null;
-        }
-
-        $position = mb_strpos($templateName, '/');
-        if ($position === false) {
-            return null;
-        }
-
-        return mb_substr($templateName, 1, $position - 1);
     }
 
     private function extractFileFamily(string $templatePath): ?string

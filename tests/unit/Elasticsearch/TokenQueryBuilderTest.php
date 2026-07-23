@@ -48,9 +48,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(AbstractTokenQueryBuilder::class)]
 #[CoversClass(TokenQueryBuilder::class)]
-#[Package('inventory')]
 class TokenQueryBuilderTest extends TestCase
 {
     private const SECOND_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20c';
@@ -643,8 +643,8 @@ class TokenQueryBuilderTest extends TestCase
     {
         $builder = new ProductSearchQueryBuilder(
             $this->getDefinition(),
-            $this->createMock(TokenFilter::class),
-            $this->createMock(SearchConfigLoader::class),
+            static::createStub(TokenFilter::class),
+            static::createStub(SearchConfigLoader::class),
             $this->tokenQueryBuilder,
             new ElasticsearchTokenizer(),
         );
@@ -803,8 +803,8 @@ class TokenQueryBuilderTest extends TestCase
                 CategoryDefinition::class,
                 CategoryTranslationDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 

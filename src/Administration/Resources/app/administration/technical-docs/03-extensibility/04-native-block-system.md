@@ -451,6 +451,16 @@ From the ADR (`2024-09-26-native-block-system.md`):
 </sw-block>
 ```
 
+**`v-if` / `v-else` directly on `<sw-block-parent />`** — prohibited. `<sw-block-parent />` must not be part of a Vue conditional chain. It must always render unconditionally inside an extending block, otherwise local `v-else` branches can break the parent chain resolution:
+
+```html
+<!-- ❌ Conditional sw-block-parent breaks the parent chain -->
+<sw-block extends="sw_product_detail_summary">
+    <sw-block-parent v-if="showParent" />
+    <div v-else>Local fallback</div>
+</sw-block>
+```
+
 **`<sw-block extends>` inside `v-for`** — prohibited. Each iteration independently calls `addBlock()`, registering a separate override entry per list item and causing the override content to be rendered multiple times:
 
 ```html

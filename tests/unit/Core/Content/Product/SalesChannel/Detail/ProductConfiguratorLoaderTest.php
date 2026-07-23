@@ -11,18 +11,20 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductConfiguratorLoader::class)]
 class ProductConfiguratorLoaderTest extends TestCase
 {
     public function testSortSettingsOrdersRemainingGroupsByPositionWhenConfigIsPartial(): void
     {
         $loader = new ProductConfiguratorLoader(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(AbstractAvailableCombinationLoader::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(AbstractAvailableCombinationLoader::class),
         );
 
         $product = new SalesChannelProductEntity();

@@ -140,6 +140,10 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
                 property: 'email',
                 label: 'sw-users-permissions.users.user-grid.labelEmail',
             },
+            {
+                property: 'status',
+                label: 'sw-users-permissions.users.user-grid.status',
+            },
         ];
 
         expectedColumns.forEach((column) => {
@@ -188,6 +192,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
                 firstName: 'Max',
                 lastName: 'Mustermann',
                 email: 'max@mustermann.com',
+                active: false,
                 aclRoles: ['testRole'],
             },
             {
@@ -195,6 +200,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
                 firstName: '',
                 lastName: 'admin',
                 email: 'info@shopware.com',
+                active: true,
                 aclRoles: [
                     'adminRole',
                     'superUser',
@@ -221,6 +227,13 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
 
             const email = wrapper.findByText('div.sw-data-grid__cell-content', user.email);
             expect(email.exists()).toBe(true);
+
+            const activeText = user.active ? 'active' : 'inactive';
+            const statusLabel = wrapper.findByText(
+                '.sw-user-sso-status-label',
+                `sw-users-permissions.sso.user-listing.status-label.${activeText}`,
+            );
+            expect(statusLabel.exists()).toBe(true);
         });
     });
 

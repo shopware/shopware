@@ -35,7 +35,7 @@ class GoogleProductExportProviderTest extends TestCase
     {
         $provider = new GoogleProductExportProvider(
             $this->createSalesChannelRepository(),
-            $this->createMock(SystemConfigService::class)
+            static::createStub(SystemConfigService::class)
         );
 
         static::assertSame('google', $provider->getTechnicalName());

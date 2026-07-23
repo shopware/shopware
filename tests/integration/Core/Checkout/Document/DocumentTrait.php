@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Document;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\After;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
@@ -12,6 +13,7 @@ use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseCon
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollection;
 use Shopware\Core\Checkout\Document\DocumentIdCollection;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -37,6 +39,12 @@ trait DocumentTrait
 {
     use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
+
+    #[After]
+    public function resetDocumentConfigLoader(): void
+    {
+        static::getContainer()->get(DocumentConfigLoader::class)->reset();
+    }
 
     private function persistCart(Cart $cart): string
     {

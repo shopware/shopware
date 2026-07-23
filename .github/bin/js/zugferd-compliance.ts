@@ -130,13 +130,16 @@ function unzip(zip: string, dest: string): void {
 
 async function downloadConfiguration(
     workDir: string,
-): Promise<{ name: string; scenarios: string; repository: string }> {
+): Promise<{ name: string; sha256: string; scenarios: string; repository: string }> {
     log("Resolving latest validator configuration ...");
     const configUrl = await resolveLatestConfigUrl();
     log(`Using configuration: ${configUrl}`);
 
     const configZip = join(workDir, "config.zip");
     await downloadToFile(configUrl, configZip);
+
+    const configSha256 = sha256(configZip);
+    log(`Configuration sha256: ${configSha256}`);
 
     const configDir = join(workDir, "config");
     mkdirSync(configDir, { recursive: true });
@@ -153,6 +156,7 @@ async function downloadConfiguration(
 
     return {
         name: basename(configUrl),
+        sha256: configSha256,
         scenarios,
         repository: dirname(scenarios),
     };
@@ -228,7 +232,11 @@ function collectResults(reportDir: string): DocumentResult[] {
         .sort((first, second) => first.label.localeCompare(second.label));
 }
 
-function buildSummary(configName: string, results: DocumentResult[]): string {
+function buildSummary(
+    configName: string,
+    configSha256: string,
+    results: DocumentResult[],
+): string {
     const failedCount = results.filter((result) => !result.compliant).length;
     const heading =
         failedCount === 0
@@ -246,6 +254,8 @@ function buildSummary(configName: string, results: DocumentResult[]): string {
         "## ZUGFeRD compliance",
         "",
         `${heading} — KoSIT ${KOSIT_VALIDATOR_VERSION}, config \`${configName}\`.`,
+        "",
+        `Config sha256: \`${configSha256}\``,
         "",
         "| Document | Result |",
         "| --- | --- |",
@@ -323,7 +333,9 @@ async function main(): Promise<void> {
 
     const failed = results.filter((result) => !result.compliant);
 
-    writeStepSummary(buildSummary(config.name, results));
+    writeStepSummary(buildSummary(config.name, config.sha256, results));
+    setStepOutput("config_name", config.name);
+    setStepOutput("config_sha256", config.sha256);
     setStepOutput("document_count", String(staged.length));
     setStepOutput("failed_count", String(failed.length));
     setStepOutput(

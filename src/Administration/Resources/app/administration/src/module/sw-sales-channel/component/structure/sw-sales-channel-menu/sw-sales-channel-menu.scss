@@ -1,15 +1,6 @@
 .sw-sales-channel-menu {
     .sw-sales-channel-menu-domain-link {
-        width: var(--scale-size-24, 24px);
-        height: var(--scale-size-24, 24px);
         flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: none;
-        border: none;
-        outline: none;
-        cursor: inherit;
         opacity: 1;
         transition:
             opacity 0.2s ease-in-out,

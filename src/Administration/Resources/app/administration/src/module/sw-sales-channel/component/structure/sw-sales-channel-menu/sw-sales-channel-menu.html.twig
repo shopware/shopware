@@ -20,16 +20,20 @@
         {% block sw_sales_channel_menu_headline_context_button %}
         <mt-dropdown-menu-root class="sw-admin-menu__headline-context-menu">
             <mt-dropdown-menu-trigger as-child>
-                <button
-                    type="button"
+                <mt-button
                     class="sw-admin-menu__headline-action"
-                    :aria-label="$tc('sw-sales-channel.general.manageSalesChannels')"
+                    variant="tertiary"
+                    size="x-small"
+                    square
+                    :aria-label="$t('sw-sales-channel.general.manageSalesChannels')"
                 >
-                    <mt-icon
-                        name="solid-ellipsis-h-s"
-                        size="14px"
-                    />
-                </button>
+                    <template #iconFront>
+                        <mt-icon
+                            name="solid-ellipsis-h-s"
+                            size="14px"
+                        />
+                    </template>
+                </mt-button>
             </mt-dropdown-menu-trigger>
 
             <mt-dropdown-menu-portal>
@@ -53,6 +57,7 @@
                     {% block sw_sales_channel_menu_headline_action %}
                     <mt-action-menu-item
                         v-if="canCreateSalesChannels"
+                        class="sw-admin-menu__headline-context-menu-add-sales-channel"
                         icon="regular-plus-circle"
                         @click="openSalesChannelModal"
                     >
@@ -84,18 +89,23 @@
             >
                 <template #additional-text>
                     {% block sw_sales_channel_menu_navigation_item_additional_text %}
-                    <button
+                    <mt-button
                         v-if="entry.domainLink && entry.active"
                         class="sw-sales-channel-menu-domain-link"
-                        :title="$tc('sw-sales-channel.general.tooltipOpenStorefront')"
+                        variant="tertiary"
+                        size="x-small"
+                        square
+                        :title="$t('sw-sales-channel.general.tooltipOpenStorefront')"
                         @click.prevent="openStorefrontLink(entry.domainLink)"
                     >
-                        <mt-icon
-                            class="sw-sales-channel-menu-domain-link__icon"
-                            name="regular-eye"
-                            size="16px"
-                        />
-                    </button>
+                        <template #iconFront>
+                            <mt-icon
+                                class="sw-sales-channel-menu-domain-link__icon"
+                                name="regular-eye"
+                                size="16px"
+                            />
+                        </template>
+                    </mt-button>
                     {% endblock %}
                 </template>
             </sw-admin-menu-item>

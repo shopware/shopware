@@ -176,6 +176,21 @@ async function createWrapper(salesChannels = []) {
                 'sw-internal-link': true,
                 'sw-sales-channel-modal': true,
                 'router-link': true,
+                'mt-dropdown-menu-root': {
+                    template: '<div class="mt-dropdown-menu-root"><slot /></div>',
+                },
+                'mt-dropdown-menu-trigger': {
+                    template: '<div class="mt-dropdown-menu-trigger"><slot /></div>',
+                },
+                'mt-dropdown-menu-portal': {
+                    template: '<div class="mt-dropdown-menu-portal"><slot /></div>',
+                },
+                'mt-action-menu': {
+                    template: '<div class="mt-action-menu"><slot /></div>',
+                },
+                'mt-action-menu-item': {
+                    template: '<button class="mt-action-menu-item" @click="$emit(\'click\')"><slot /></button>',
+                },
             },
             provide: {
                 domainLinkService: {
@@ -228,7 +243,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
         const wrapper = await createWrapper();
 
-        const buttonCreateSalesChannel = wrapper.find('.sw-admin-menu__headline-action');
+        const buttonCreateSalesChannel = wrapper.find('.sw-admin-menu__headline-context-menu-add-sales-channel');
         expect(buttonCreateSalesChannel.exists()).toBeTruthy();
     });
 
@@ -237,7 +252,9 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
         const wrapper = await createWrapper();
 
-        const buttonCreateSalesChannel = wrapper.find('.sw-admin-menu__headline-action');
+        expect(wrapper.find('.sw-admin-menu__headline-action').exists()).toBeTruthy();
+
+        const buttonCreateSalesChannel = wrapper.find('.sw-admin-menu__headline-context-menu-add-sales-channel');
         expect(buttonCreateSalesChannel.exists()).toBeFalsy();
     });
 

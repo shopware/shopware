@@ -45,8 +45,10 @@ export default function viteOverridePlugin(options: Options): Plugin {
                     // Ensure proper path separators
                     const importPath = relativePath.split(path.sep).join('/');
 
-                    // Get component name from file name and prefix with _ to avoid name conflicts
-                    const componentName = `_${path.basename(file, '.override.vue').replace(/[-_/\\:*?"<>|]/g, '')}`;
+                    // Derive the import identifier from the whole relative path, not just the basename:
+                    // several overrides of the same component share a basename (e.g.
+                    // first/sw-thing.override.vue and second/sw-thing.override.vue) and must not collide.
+                    const componentName = `_${importPath.replace(/\.override\.vue$/, '').replace(/[^A-Za-z0-9$]/g, '_')}`;
                     componentNames.push(`${componentName}`);
 
                     return `import ${componentName} from './${importPath}';`;

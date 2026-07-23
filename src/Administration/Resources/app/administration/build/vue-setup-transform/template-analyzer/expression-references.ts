@@ -13,7 +13,8 @@
 import { parse, parseExpression, type ParserPlugin } from '@babel/parser';
 import type { Node as BabelNode, PatternLike } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
-import { forEachPatternIdentifier, isBabelNodeLike } from '../utils/babel-patterns';
+import { forEachPatternIdentifier } from '../utils/babel-patterns';
+import { childBabelEntries, childBabelNodes, isTypeKey } from '../utils/ast-traversal';
 
 type BindingPatternResult = {
     pattern: PatternLike;
@@ -150,24 +151,6 @@ function collectPatternReferences(
  */
 function isDeclared(name: string, scopes: Set<string>[]): boolean {
     return scopes.some((scope) => scope.has(name));
-}
-
-/**
- * Filters AST fields that do not contain runtime JavaScript references.
- *
- */
-function shouldSkipBabelKey(key: string): boolean {
-    return [
-        'loc',
-        'range',
-        'leadingComments',
-        'trailingComments',
-        'innerComments',
-        'typeAnnotation',
-        'typeParameters',
-        'returnType',
-        'typeArguments',
-    ].includes(key);
 }
 
 /**
@@ -340,28 +323,8 @@ function collectBabelReferences(
         return;
     }
 
-    Object.entries(node as unknown as Record<string, unknown>).forEach(
-        ([
-            key,
-            value,
-        ]) => {
-            if (shouldSkipBabelKey(key)) {
-                return;
-            }
-
-            if (Array.isArray(value)) {
-                value.forEach((child) => {
-                    if (isBabelNodeLike(child)) {
-                        collectBabelReferences(child, scopes, references, node, key);
-                    }
-                });
-                return;
-            }
-
-            if (isBabelNodeLike(value)) {
-                collectBabelReferences(value, scopes, references, node, key);
-            }
-        },
+    childBabelEntries(node, isTypeKey).forEach(({ node: child, key }) =>
+        collectBabelReferences(child, scopes, references, node, key),
     );
 }
 
@@ -385,20 +348,7 @@ function collectBabelWriteTargets(node: BabelNode | null | undefined, targets: S
         targets.add(node.argument.name);
     }
 
-    Object.values(node as unknown as Record<string, unknown>).forEach((value) => {
-        if (Array.isArray(value)) {
-            value.forEach((child) => {
-                if (isBabelNodeLike(child)) {
-                    collectBabelWriteTargets(child, targets);
-                }
-            });
-            return;
-        }
-
-        if (isBabelNodeLike(value)) {
-            collectBabelWriteTargets(value, targets);
-        }
-    });
+    childBabelNodes(node).forEach((child) => collectBabelWriteTargets(child, targets));
 }
 
 /**

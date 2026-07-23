@@ -56,4 +56,33 @@ describe('build/vue-setup-transform/template-analyzer/expression-references', ()
             ]),
         ).toEqual(['label']);
     });
+
+    it('handles inline-handler statements, scoping local declarations', () => {
+        // Not a single expression, so it parses as statements: `doubled` is declared locally and does
+        // not read from setup, while `count` and `emit` do.
+        expect(getReferences('const doubled = count * 2; emit(doubled)')).toEqual([
+            'count',
+            'emit',
+        ]);
+    });
+
+    it('scopes block-statement declarations', () => {
+        expect(getReferences('if (visible) { const local = count; log(local) }')).toEqual([
+            'count',
+            'log',
+            'visible',
+        ]);
+    });
+
+    it('scopes catch-clause parameters', () => {
+        expect(getReferences('try { risky() } catch (error) { report(error) }')).toEqual([
+            'report',
+            'risky',
+        ]);
+    });
+
+    it('scopes a named function expression and its parameters', () => {
+        // `helper` and `value` are locally declared; `factor` is read from setup scope.
+        expect(getReferences('[1].map(function helper(value) { return value * factor; })')).toEqual(['factor']);
+    });
 });

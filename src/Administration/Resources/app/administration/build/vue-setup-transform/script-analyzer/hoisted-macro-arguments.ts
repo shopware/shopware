@@ -22,7 +22,7 @@
 import type { CallExpression, Identifier, Node as BabelNode } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import { forEachPatternIdentifier } from '../utils/babel-patterns';
-import { childBabelNodes, findInTree } from './ast-traversal';
+import { childBabelNodes, findInTree, isTypeKey } from '../utils/ast-traversal';
 import { getNodeRange } from './utils';
 
 /**
@@ -60,16 +60,6 @@ function isRuntimeIdentifierReference(node: Identifier, parent: BabelNode | null
     }
 
     return true;
-}
-
-/** Type-position fields, skipped by the value-reference walkers (they only care about value positions). */
-function isTypeChildKey(key: string): boolean {
-    return [
-        'typeAnnotation',
-        'typeParameters',
-        'typeArguments',
-        'returnType',
-    ].includes(key);
 }
 
 /**
@@ -163,7 +153,7 @@ function collectFunctionScopeDeclarations(node: BabelNode | null | undefined, in
         forEachPatternIdentifier(node.param, (identifier) => into.add(identifier.name));
     }
 
-    childBabelNodes(node, isTypeChildKey).forEach((child) => collectFunctionScopeDeclarations(child, into, false));
+    childBabelNodes(node, isTypeKey).forEach((child) => collectFunctionScopeDeclarations(child, into, false));
 }
 
 /**
@@ -204,7 +194,7 @@ function findLocalSetupReference(
         collectFunctionScopeDeclarations(functionNode.body, childShadowedBindings);
     }
 
-    for (const child of childBabelNodes(node, isTypeChildKey)) {
+    for (const child of childBabelNodes(node, isTypeKey)) {
         const reference = findLocalSetupReference(child, localBindings, childShadowedBindings, node);
 
         if (reference) {

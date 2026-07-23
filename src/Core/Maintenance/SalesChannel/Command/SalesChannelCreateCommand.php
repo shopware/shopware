@@ -19,11 +19,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal should be used over the CLI only
  */
+#[Package('discovery')]
 #[AsCommand(
     name: 'sales-channel:create',
     description: 'Creates a new sales channel',
 )]
-#[Package('discovery')]
 class SalesChannelCreateCommand extends Command
 {
     public function __construct(

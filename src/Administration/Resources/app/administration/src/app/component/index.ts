@@ -11,6 +11,10 @@ export default () => {
     );
     Shopware.Component.register('sw-wizard', () => import('src/app/component/wizard/sw-wizard/index'));
     Shopware.Component.register('sw-vnode-renderer', () => import('src/app/component/utils/sw-vnode-renderer/index'));
+    Shopware.Component.register(
+        'sw-dismissible-notices',
+        () => import('src/app/component/utils/sw-dismissible-notices/index'),
+    );
     Shopware.Component.register('sw-verify-user-modal', () => import('src/app/component/utils/sw-verify-user-modal/index'));
     Shopware.Component.register('sw-upload-listener', () => import('src/app/component/utils/sw-upload-listener/index'));
     Shopware.Component.register('sw-time-ago', () => import('src/app/component/utils/sw-time-ago/index'));

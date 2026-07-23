@@ -18,8 +18,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[AsMessageHandler(handles: ProductExportGenerateTask::class)]
 #[Package('inventory')]
+#[AsMessageHandler(handles: ProductExportGenerateTask::class)]
 final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 {
     /**

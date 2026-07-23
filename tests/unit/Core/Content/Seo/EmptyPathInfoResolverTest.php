@@ -9,12 +9,14 @@ use Shopware\Core\Content\Seo\EmptyPathInfoResolver;
 use Shopware\Core\Content\Seo\ResolvedSeoUrl;
 use Shopware\Core\Content\Seo\SeoUrlRequestContext;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(EmptyPathInfoResolver::class)]
 class EmptyPathInfoResolverTest extends TestCase
 {

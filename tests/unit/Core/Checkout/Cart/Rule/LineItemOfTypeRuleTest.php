@@ -23,8 +23,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(LineItemOfTypeRule::class)]
 #[Package('checkout')]
+#[CoversClass(LineItemOfTypeRule::class)]
 class LineItemOfTypeRuleTest extends TestCase
 {
     public function testGetName(): void

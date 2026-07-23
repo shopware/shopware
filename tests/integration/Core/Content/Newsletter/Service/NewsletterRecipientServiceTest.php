@@ -276,7 +276,7 @@ class NewsletterRecipientServiceTest extends TestCase
 
         $recipientSql = file_get_contents(__DIR__ . '/../fixtures/recipient.sql');
         static::assertIsString($recipientSql);
-        $recipientSql = str_replace(':createdAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT), $recipientSql);
+        $recipientSql = str_replace(':now', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT), $recipientSql);
         static::getContainer()->get(Connection::class)->executeStatement($recipientSql);
     }
 }

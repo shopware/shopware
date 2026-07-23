@@ -18,7 +18,7 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                         },
                         meta: {
                             $module: {
-                                icon: 'solid-content',
+                                icon: 'regular-content',
                             },
                         },
                     },

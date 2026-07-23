@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Service;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use setasign\Fpdi\FpdiException;
 use setasign\Fpdi\Tfpdf\Fpdi;
@@ -38,7 +37,6 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  */
 #[Package('after-sales')]
-#[Group('slow')]
 class DocumentMergerTest extends TestCase
 {
     use DocumentTrait;

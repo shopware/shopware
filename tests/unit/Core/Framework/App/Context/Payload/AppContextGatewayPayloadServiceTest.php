@@ -26,8 +26,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(AppContextGatewayPayloadService::class)]
 #[Package('framework')]
+#[CoversClass(AppContextGatewayPayloadService::class)]
 class AppContextGatewayPayloadServiceTest extends TestCase
 {
     public function testRequest(): void

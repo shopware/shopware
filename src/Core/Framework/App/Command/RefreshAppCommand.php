@@ -23,8 +23,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal only for use by the app-system
  */
-#[AsCommand(name: 'app:refresh', description: 'Refreshes an app', aliases: ['app:update'])]
 #[Package('framework')]
+#[AsCommand(name: 'app:refresh', description: 'Refreshes an app', aliases: ['app:update'])]
 class RefreshAppCommand extends Command
 {
     public function __construct(

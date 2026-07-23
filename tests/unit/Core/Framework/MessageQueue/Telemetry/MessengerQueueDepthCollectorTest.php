@@ -16,8 +16,8 @@ use Symfony\Component\Messenger\Transport\Receiver\ReceiverInterface;
 /**
  * @internal
  */
-#[CoversClass(MessengerQueueDepthCollector::class)]
 #[Package('framework')]
+#[CoversClass(MessengerQueueDepthCollector::class)]
 class MessengerQueueDepthCollectorTest extends TestCase
 {
     public function testEmitsDepthPerCountableTransport(): void

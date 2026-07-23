@@ -26,8 +26,8 @@ use Symfony\Component\Mailer\Messenger\SendEmailMessage;
 /**
  * @internal
  */
-#[CoversClass(MessageGroupResolver::class)]
 #[Package('framework')]
+#[CoversClass(MessageGroupResolver::class)]
 class MessageGroupResolverTest extends TestCase
 {
     /**

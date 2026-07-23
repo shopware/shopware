@@ -10,8 +10,8 @@ use Shopware\Core\Framework\MessageQueue\Telemetry\WorkerMessageTimingHelper;
 /**
  * @internal
  */
-#[CoversClass(WorkerMessageTimingHelper::class)]
 #[Package('framework')]
+#[CoversClass(WorkerMessageTimingHelper::class)]
 class WorkerMessageTimingHelperTest extends TestCase
 {
     public function testElapsedMsReturnsElapsedMillisecondsAfterStart(): void

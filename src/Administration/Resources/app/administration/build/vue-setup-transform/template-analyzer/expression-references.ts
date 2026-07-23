@@ -366,6 +366,56 @@ function collectBabelReferences(
 }
 
 /**
+ * Collects identifiers written by one expression: assignment targets and update (`x++`) operands.
+ *
+ * Only direct identifier targets are collected (`count = 1`, `count++`) - the case where a template
+ * write to a forwarded override binding silently no-ops. Member writes (`count.value = 1`) and nested
+ * shadowing are out of scope; template-local names are filtered by the caller's scope.
+ */
+function collectBabelWriteTargets(node: BabelNode | null | undefined, targets: Set<string>): void {
+    if (!node || typeof node.type !== 'string') {
+        return;
+    }
+
+    if (node.type === 'AssignmentExpression' && node.left.type === 'Identifier') {
+        targets.add(node.left.name);
+    }
+
+    if (node.type === 'UpdateExpression' && node.argument.type === 'Identifier') {
+        targets.add(node.argument.name);
+    }
+
+    Object.values(node as unknown as Record<string, unknown>).forEach((value) => {
+        if (Array.isArray(value)) {
+            value.forEach((child) => {
+                if (isBabelNodeLike(child)) {
+                    collectBabelWriteTargets(child, targets);
+                }
+            });
+            return;
+        }
+
+        if (isBabelNodeLike(value)) {
+            collectBabelWriteTargets(value, targets);
+        }
+    });
+}
+
+/**
+ * Returns the outer-scope identifiers one Vue expression writes to (assignment/update targets).
+ */
+function collectExpressionWriteTargets(expression: string | undefined, templateScope: Set<string>): Set<string> {
+    if (!expression || expression.trim() === '') {
+        return new Set<string>();
+    }
+
+    const targets = new Set<string>();
+    collectBabelWriteTargets(parseTemplateExpression(expression), targets);
+
+    return new Set([...targets].filter((name) => !templateScope.has(name)));
+}
+
+/**
  * Collects runtime references from one Vue expression while honoring aliases from parent template scopes.
  *
  */
@@ -387,4 +437,10 @@ function collectExpressionReferences(expression: string | undefined, templateSco
     return references;
 }
 
-export { addPatternNames, collectExpressionReferences, collectPatternReferences, parseBindingPattern };
+export {
+    addPatternNames,
+    collectExpressionReferences,
+    collectExpressionWriteTargets,
+    collectPatternReferences,
+    parseBindingPattern,
+};

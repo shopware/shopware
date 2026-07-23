@@ -25,6 +25,7 @@ import {
     isSwBlockName,
 } from './template-references';
 import {
+    assertNoWritesToForwardedBindings,
     assertOverrideTemplateTopLevel,
     assertSwBlockAttributes,
     createGeneratedSlotEdit,
@@ -108,7 +109,17 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
                 extendedBlockNames.push(extendedName);
             }
 
-            const references = collectTemplateReferences(node.children, new Set());
+            const { references, writeTargets } = collectTemplateReferences(node.children, new Set());
+
+            // Forwarded bindings are read-only in the slot; reject template writes to them.
+            assertNoWritesToForwardedBindings(
+                writeTargets,
+                new Set([
+                    ...analysis.runtimeBindingNames,
+                    ...analysis.runtimeInputAliasNames,
+                ]),
+            );
+
             const publicMappings: SlotMapping[] = [];
             const privateLocalNames: string[] = [];
 

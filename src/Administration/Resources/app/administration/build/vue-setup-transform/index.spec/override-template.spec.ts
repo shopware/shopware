@@ -312,6 +312,50 @@ describe('build/vue-setup-transform override template forwarding', () => {
         expect(result.ownedBlockNames).toEqual([]);
     });
 
+    it('rejects writing to a forwarded binding from sw-block extends content', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body">
+                <button @click="count = count + 1">inc</button>
+            </sw-block>
+            </template>
+            <script setup>
+            import { ref } from 'vue';
+
+            const count = ref(0);
+
+            swDefineOverride({ count });
+            </script>
+        `;
+
+        // The forwarded `count` arrives ref-unwrapped as a slot-scope local, so the assignment silently
+        // no-ops (the identical line works in a base component). Reject it loudly.
+        expect(() => transformOrFail(source, 'forwarded-write.override.vue')).toThrow(
+            'Cannot assign to "count" inside <sw-block extends> content',
+        );
+    });
+
+    it('rejects an update expression (count++) on a forwarded binding', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body">
+                <button @click="count++">inc</button>
+            </sw-block>
+            </template>
+            <script setup>
+            import { ref } from 'vue';
+
+            const count = ref(0);
+
+            swDefineOverride({ count });
+            </script>
+        `;
+
+        expect(() => transformOrFail(source, 'forwarded-update.override.vue')).toThrow(
+            'Cannot assign to "count" inside <sw-block extends> content',
+        );
+    });
+
     it('rejects a bound :extends on sw-block (only a static extends is allowed)', () => {
         const source = stripIndent`
             <template>

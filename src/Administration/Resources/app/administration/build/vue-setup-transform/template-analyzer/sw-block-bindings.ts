@@ -97,6 +97,29 @@ function assertSwBlockAttributes(node: ElementNode, mode: ShopwareSetupMode): vo
 }
 
 /**
+ * Rejects writing to a forwarded override binding from `<sw-block extends>` content.
+ *
+ * A forwarded binding arrives in the block's slot scope ref-unwrapped, as a slot-scope local, so a
+ * template write (`@click="count = count + 1"`, `count++`) assigns to that local and silently no-ops -
+ * the identical line works in a base component, which makes it a nasty trap. Reject it and point the
+ * author at mutating the value from a method in the override setup instead.
+ */
+function assertNoWritesToForwardedBindings(writeTargets: Set<string>, forwardableNames: Set<string>): void {
+    writeTargets.forEach((name) => {
+        if (!forwardableNames.has(name)) {
+            return;
+        }
+
+        throw new ShopwareSetupTransformError(
+            `Cannot assign to "${name}" inside <sw-block extends> content: forwarded override bindings are read-only ` +
+                'there (the write targets a slot-scope local and has no effect). Mutate the value from a method defined ' +
+                'in the override setup and call that instead.',
+            0,
+        );
+    });
+}
+
+/**
  * Rejects any top-level override template content that is not a `<sw-block extends>` block.
  *
  * An override `.vue` file fundamentally represents "the extension points of a component": it only
@@ -207,6 +230,7 @@ function createGeneratedSlotEdit(block: ShopwareSetupBlock, node: ElementNode, m
 }
 
 export {
+    assertNoWritesToForwardedBindings,
     assertOverrideTemplateTopLevel,
     assertSwBlockAttributes,
     createGeneratedSlotEdit,

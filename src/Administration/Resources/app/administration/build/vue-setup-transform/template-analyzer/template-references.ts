@@ -19,9 +19,18 @@ import type {
 import {
     addPatternNames,
     collectExpressionReferences,
+    collectExpressionWriteTargets,
     collectPatternReferences,
     parseBindingPattern,
 } from './expression-references';
+
+/**
+ * The setup references an override slot reads, plus the ones it writes to (assignment/update targets).
+ */
+type TemplateReferences = {
+    references: Set<string>;
+    writeTargets: Set<string>;
+};
 
 type TemplateEdit = {
     start: number;
@@ -229,8 +238,9 @@ function collectDirectiveReferences(directive: DirectiveNode, templateScope: Set
  * Collects references from descendants of a sw-block override slot.
  *
  */
-function collectTemplateReferences(children: TemplateChildNode[], initialScope: Set<string>): Set<string> {
+function collectTemplateReferences(children: TemplateChildNode[], initialScope: Set<string>): TemplateReferences {
     const references = new Set<string>();
+    const writeTargets = new Set<string>();
 
     function visit(node: TemplateChildNode, scope: Set<string>): void {
         if (node.type === NodeTypes.INTERPOLATION) {
@@ -263,6 +273,11 @@ function collectTemplateReferences(children: TemplateChildNode[], initialScope: 
 
             collectDirectiveReferences(directive, childScope).forEach((name) => references.add(name));
 
+            // Assignment/update targets in a directive expression (e.g. `@click="count = count + 1"`).
+            if (directive.exp?.content) {
+                collectExpressionWriteTargets(directive.exp.content, childScope).forEach((name) => writeTargets.add(name));
+            }
+
             // Any slot directive - default, named (#item), or dynamic (#[name]) - is handled the same:
             // its binding-pattern references (destructuring defaults, computed keys) are forwarded, or
             // they resolve against the hidden override component and silently break; and its scope names
@@ -282,7 +297,10 @@ function collectTemplateReferences(children: TemplateChildNode[], initialScope: 
 
     children.forEach((child) => visit(child, new Set<string>(initialScope)));
 
-    return references;
+    return {
+        references,
+        writeTargets,
+    };
 }
 
 /**
@@ -357,6 +375,7 @@ export {
     type ElementNode,
     type SlotMapping,
     type TemplateEdit,
+    type TemplateReferences,
     collectSlotScopeNames,
     collectSlotScopeReferences,
     collectTemplateReferences,

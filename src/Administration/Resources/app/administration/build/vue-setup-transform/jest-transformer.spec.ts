@@ -25,7 +25,6 @@ describe('test/transformer/shopwareSetupVueTransformer integration', () => {
             const emit = defineEmits<{
                 save: [value: number],
             }>();
-            const label = props.label;
             const count = ref(1);
 
             swDefinePublic({

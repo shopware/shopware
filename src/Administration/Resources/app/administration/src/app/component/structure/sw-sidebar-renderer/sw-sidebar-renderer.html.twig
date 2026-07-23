@@ -17,6 +17,7 @@
         :class="{
             'is-active': activeSidebar && activeSidebar.locationId === sidebar.locationId,
             'is-closing': closingSidebar === sidebar.locationId,
+            'is-switched': switchedWhileOpen,
             'is-resizing': sidebarDisplayOptions.isResizing,
             'is-overlay': activeSidebar && activeSidebar.resizable && sidebarDisplayOptions.isOverlayMode,
         }"
@@ -51,7 +52,7 @@
                     <mt-button
                         v-if="sidebarDisplayOptions.isOverlayMode && sidebarDisplayOptions.isCollapsable"
                         class="sw-sidebar-renderer__button-collapse"
-                        :aria-label="$tc('sidebar.ariaLabelButtonCollapse')"
+                        :aria-label="$t('sidebar.ariaLabelButtonCollapse')"
                         variant="tertiary"
                         size="default"
                         square
@@ -65,7 +66,7 @@
 
                     <mt-button
                         class="sw-sidebar-renderer__button-close"
-                        :aria-label="$tc('sidebar.ariaLabelButtonClose')"
+                        :aria-label="$t('sidebar.ariaLabelButtonClose')"
                         variant="tertiary"
                         size="default"
                         square

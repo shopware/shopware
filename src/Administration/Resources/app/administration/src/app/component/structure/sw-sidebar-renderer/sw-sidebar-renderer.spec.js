@@ -113,6 +113,50 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
         jest.useRealTimers();
     });
 
+    it('should swap the content in place when switching between open sidebars', async () => {
+        const wrapper = await createWrapper();
+        const store = Shopware.Store.get('sidebar');
+
+        await ui.sidebar.add({
+            icon: 'regular-star',
+            title: 'First sidebar',
+            locationId: 'first-sidebar',
+        });
+        await ui.sidebar.add({
+            icon: 'regular-file',
+            title: 'Second sidebar',
+            locationId: 'second-sidebar',
+        });
+
+        // Opening from a closed panel plays the open animation.
+        store.setActiveSidebar('first-sidebar');
+        await wrapper.vm.$nextTick();
+
+        expect(store.switchedWhileOpen).toBe(false);
+        expect(wrapper.find('.sw-sidebar-renderer.is-active').classes()).not.toContain('is-switched');
+
+        // Switching while open swaps the content without replaying the animation.
+        store.setActiveSidebar('second-sidebar');
+        await wrapper.vm.$nextTick();
+
+        expect(store.switchedWhileOpen).toBe(true);
+        expect(wrapper.find('.sw-sidebar-renderer.is-active').classes()).toContain('is-switched');
+
+        // Re-selecting the already-active sidebar keeps the panel as-is.
+        store.setActiveSidebar('second-sidebar');
+        await wrapper.vm.$nextTick();
+
+        expect(store.switchedWhileOpen).toBe(true);
+        expect(wrapper.find('.sw-sidebar-renderer.is-active').classes()).toContain('is-switched');
+
+        // Reopening after a full close animates again.
+        store.closeSidebar('second-sidebar');
+        store.setActiveSidebar('first-sidebar');
+        await wrapper.vm.$nextTick();
+
+        expect(store.switchedWhileOpen).toBe(false);
+    });
+
     describe('resize functionality', () => {
         const PAGE_WIDTH = 2600;
         const MAIN_CONTENT_MIN_SIZE = 1300;

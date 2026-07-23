@@ -48,11 +48,20 @@
 
     &.is-active {
         display: block;
-
         animation: expandSidebar 0.4s cubic-bezier(0.32, 0.72, 0, 1);
 
         .sw-sidebar-renderer__overlay {
             animation: slideInFromRight 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+        }
+    }
+
+    // Skip the open animation when the panel was already open and only the
+    // active sidebar changed — the content swaps in place instead.
+    &.is-active.is-switched:not(.is-closing) {
+        animation: none;
+
+        .sw-sidebar-renderer__overlay {
+            animation: none;
         }
     }
 
@@ -152,7 +161,7 @@
         gap: 16px;
         flex-shrink: 0;
         align-self: stretch;
-        border-bottom: 1px solid var(--color-border-primary-default);
+        border-bottom: 1px solid var(--color-border-secondary-default);
         background: var(--color-elevation-surface-raised);
         position: relative;
 

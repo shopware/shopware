@@ -13,8 +13,14 @@ import colors from 'picocolors';
 import { classifyFile, describeNextStep } from './report-guidance';
 import type { FileClass } from './report-guidance';
 import type { SetupExtensionToolingResult } from './setup';
-import { aggregateModeResolution, deriveExtensionState, projectHasBridge, projectHasOwnedConfig } from './shared';
-import type { DerivedExtensionState, ExtensionToolingProject, ModeResolution } from './shared';
+import {
+    DEFAULT_TOOLING_COMMANDS,
+    aggregateModeResolution,
+    deriveExtensionState,
+    projectHasBridge,
+    projectHasOwnedConfig,
+} from './shared';
+import type { DerivedExtensionState, ExtensionToolingProject, ModeResolution, ToolingCommands } from './shared';
 
 interface SetupRenderOptions {
     explain?: boolean;
@@ -26,6 +32,8 @@ interface SetupRenderOptions {
      * swallowed flag that silently turned into a default run.
      */
     showFlagHint?: boolean;
+    /** Layout-aware command invocations for printed next steps (defaults to the composer scripts). */
+    commands?: ToolingCommands;
 }
 
 type StateMap = Map<string, DerivedExtensionState>;
@@ -100,7 +108,12 @@ function renderNoExtensionsFound(result: SetupExtensionToolingResult, platform: 
 }
 
 /** The `--shim=<name>` confirmation: what the bridge did for the named project(s) and the file-ownership tally. */
-function renderShimConfirmation(result: SetupExtensionToolingResult, shim: string, stateOf: StateMap): string[] {
+function renderShimConfirmation(
+    result: SetupExtensionToolingResult,
+    shim: string,
+    stateOf: StateMap,
+    commands: ToolingCommands,
+): string[] {
     const { projects } = result.manifest;
     const lines: string[] = [];
     const justBridged = projects.filter(
@@ -118,7 +131,7 @@ function renderShimConfirmation(result: SetupExtensionToolingResult, shim: strin
             lines.push(
                 '',
                 colors.green(`✔ Bridge created for ${project.name} at .shopware-admin/ — one step left:`),
-                ...describeNextStep(project)
+                ...describeNextStep(project, commands)
                     .slice(1)
                     .map((line) => `  ${line}`),
             );
@@ -146,6 +159,7 @@ function renderStateSummary(
     projects: ExtensionToolingProject[],
     stateOf: StateMap,
     platform: ExtensionToolingProject[],
+    commands: ToolingCommands,
 ): string[] {
     const ready = projects.filter((project) => stateOf.get(project.name) === 'ready');
     const bridged = projects.filter((project) => stateOf.get(project.name) === 'bridged');
@@ -178,7 +192,7 @@ function renderStateSummary(
             `  ${colors.cyan('● bridged')}  ${bridged.map((project) => project.name).join(', ')}  ` +
                 colors.dim(
                     `(own configs compose the Shopware preset${
-                        unverifiedBridged ? ' — unverified, run composer admin:check-extensions' : ''
+                        unverifiedBridged ? ` — unverified, run ${commands.check}` : ''
                     })`,
                 ),
         );
@@ -211,10 +225,10 @@ function renderStateSummary(
 }
 
 /** The `--check` dry-run listing of pending writes/deletes, each tagged with its ownership class. */
-function renderStaleSetup(result: SetupExtensionToolingResult): string[] {
+function renderStaleSetup(result: SetupExtensionToolingResult, commands: ToolingCommands): string[] {
     const lines = [
         '',
-        colors.red('  Setup is stale — re-run `composer admin:setup-extension-tooling`:'),
+        colors.red(`  Setup is stale — re-run \`${commands.setup}\`:`),
     ];
 
     const classNote: Record<FileClass, string> = {
@@ -251,7 +265,7 @@ function renderStaleSetup(result: SetupExtensionToolingResult): string[] {
 }
 
 /** The "Next steps" block for extensions that still need a bridge or wiring, capped at five with an --explain overflow. */
-function renderNextSteps(projects: ExtensionToolingProject[], stateOf: StateMap): string[] {
+function renderNextSteps(projects: ExtensionToolingProject[], stateOf: StateMap, commands: ToolingCommands): string[] {
     const needsInclusion = projects.filter((project) =>
         [
             'needs-bridge',
@@ -269,7 +283,7 @@ function renderNextSteps(projects: ExtensionToolingProject[], stateOf: StateMap)
     ];
 
     for (const project of needsInclusion.slice(0, 5)) {
-        lines.push(`  ${colors.bold(project.name)}`, ...describeNextStep(project).map((step) => `    ${step}`));
+        lines.push(`  ${colors.bold(project.name)}`, ...describeNextStep(project, commands).map((step) => `    ${step}`));
     }
 
     if (needsInclusion.length > 5) {
@@ -280,7 +294,11 @@ function renderNextSteps(projects: ExtensionToolingProject[], stateOf: StateMap)
 }
 
 /** Full --explain breakdown: discovery provenance, per-target config routing with verdict source, and managed files. */
-function renderExplainDetails(result: SetupExtensionToolingResult, projects: ExtensionToolingProject[]): string[] {
+function renderExplainDetails(
+    result: SetupExtensionToolingResult,
+    projects: ExtensionToolingProject[],
+    commands: ToolingCommands,
+): string[] {
     const lines = [
         '',
         colors.bold('  Details'),
@@ -289,7 +307,7 @@ function renderExplainDetails(result: SetupExtensionToolingResult, projects: Ext
             result.discoverySource.updatedAt ? ` (updated ${result.discoverySource.updatedAt})` : ''
         }`,
         `    Entity schema: ${
-            result.manifest.entitySchemaAvailable ? 'available' : 'stub (run composer admin:generate-entity-schema-types)'
+            result.manifest.entitySchemaAvailable ? 'available' : `stub (run ${commands.generateSchema})`
         }`,
     ];
 
@@ -344,6 +362,7 @@ function renderExplainDetails(result: SetupExtensionToolingResult, projects: Ext
 
 export function renderSetupReport(result: SetupExtensionToolingResult, options: SetupRenderOptions = {}): string {
     const { projects } = result.manifest;
+    const commands = options.commands ?? DEFAULT_TOOLING_COMMANDS;
     const stateOf: StateMap = new Map(
         projects.map((project) => [
             project.name,
@@ -360,10 +379,10 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
     const lines = [colors.bold(`Administration extension tooling — ${ownExtensions.length} extension(s)`)];
 
     if (options.shim) {
-        lines.push(...renderShimConfirmation(result, options.shim, stateOf));
+        lines.push(...renderShimConfirmation(result, options.shim, stateOf, commands));
     }
 
-    lines.push(...renderStateSummary(projects, stateOf, platform));
+    lines.push(...renderStateSummary(projects, stateOf, platform, commands));
 
     lines.push('', ...describeFileChanges(result).map((line) => `  ${colors.dim(line)}`));
 
@@ -380,25 +399,21 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
     }
 
     if (options.checkOnly && result.changed) {
-        lines.push(...renderStaleSetup(result));
+        lines.push(...renderStaleSetup(result, commands));
     }
 
-    lines.push(...renderNextSteps(projects, stateOf));
+    lines.push(...renderNextSteps(projects, stateOf, commands));
 
     if (!options.explain) {
         lines.push('', colors.dim('  IDE setup: run with --explain for VS Code / Zed / PhpStorm config'));
     }
 
     if (options.showFlagHint) {
-        lines.push(
-            colors.dim(
-                '  Options need "--": composer admin:setup-extension-tooling -- --check | --explain | --shim=<name> | --help',
-            ),
-        );
+        lines.push(colors.dim(`  Options need "--": ${commands.setup} -- --check | --explain | --shim=<name> | --help`));
     }
 
     if (options.explain) {
-        lines.push(...renderExplainDetails(result, projects));
+        lines.push(...renderExplainDetails(result, projects, commands));
     }
 
     return lines.join('\n');

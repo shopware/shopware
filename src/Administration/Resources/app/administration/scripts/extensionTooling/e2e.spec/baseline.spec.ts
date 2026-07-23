@@ -34,7 +34,7 @@ describe('extension tooling findings baseline (e2e)', () => {
                 administrationPath: 'Resources/app/administration/src',
             },
         ]);
-    });
+    }, 180000);
 
     afterAll(() => {
         cleanupTempProject(projectRoot);

@@ -154,7 +154,7 @@ describe('scripts/extensionTooling e2e', () => {
         ]);
 
         setupResult = setupExtensionTooling({ projectRoot, administrationRoot, shim: 'ShimConfig' });
-    });
+    }, CHECK_TIMEOUT);
 
     afterAll(() => {
         cleanupTempProject(projectRoot);
@@ -320,7 +320,9 @@ describe('scripts/extensionTooling e2e', () => {
                 const check = await checkExtensions({ projectRoot, administrationRoot, only: 'ZeroConfig' });
 
                 expect(check.exitCode).toBe(1);
-                expect(check.fatalDiagnostics.join('\n')).toContain('composer admin:generate-entity-schema-types');
+                expect(check.fatalDiagnostics.join('\n')).toContain(
+                    'bin/console administration:generate-entity-schema-types',
+                );
                 // The stub still guards IDEs against a silent degradation to
                 // `any`; the check refuses to run vue-tsc instead of burying
                 // the cause under cascade findings.

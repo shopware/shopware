@@ -25,7 +25,14 @@ import { CliUsageError, parseCli, renderHelp } from './cli';
 import type { CommandSpec } from './cli';
 import { probeCacheEntryKey, readProbeCache, resolveModesFromCache, writeProbeCache } from './probe';
 import { renderSetupReport } from './report';
-import { STATE_DIR, readEslintMajorVersion, readPreviousManifest, relativePosix, writeStateFile } from './shared';
+import {
+    STATE_DIR,
+    readEslintMajorVersion,
+    readPreviousManifest,
+    relativePosix,
+    resolveToolingCommands,
+    writeStateFile,
+} from './shared';
 import type { ExtensionToolingManifest, ExtensionToolingProject, WriteResult } from './shared';
 import { record, toManifestState } from './setup-context';
 import type { GeneratorContext } from './setup-context';
@@ -144,6 +151,7 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
         administrationRoot,
         toolingRoot: path.join(administrationRoot, 'extension-tooling'),
         dryRun: options.checkOnly === true,
+        commands: resolveToolingCommands(projectRoot, administrationRoot),
         writes: [],
         staleFiles: [],
         warnings: [],
@@ -185,7 +193,7 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
     if (!entitySchemaAvailable) {
         context.warnings.push(
             'Entity schema types are not available — entity names cannot be type-checked. ' +
-                'Run `composer admin:generate-entity-schema-types`.',
+                `Run \`${context.commands.generateSchema}\`.`,
         );
     }
 
@@ -271,9 +279,26 @@ const SETUP_COMMAND: CommandSpec = {
                 'With --shim=<name>: bridge a multi-root extension once beside the package-level config in <dir> ' +
                 '(relative to the extension root) instead of once per root.',
         },
-        { name: '--project-root', value: 'required', valueName: '<path>', description: '', internal: true },
-        { name: '--administration-root', value: 'required', valueName: '<path>', description: '', internal: true },
-        { name: '--plugins-config', value: 'required', valueName: '<path>', description: '', internal: true },
+        {
+            name: '--project-root',
+            value: 'required',
+            valueName: '<path>',
+            description:
+                'Shop root to set up (defaults to the PROJECT_ROOT env). Set this when running from a ' +
+                'Composer/Flex install where the Administration lives under vendor/.',
+        },
+        {
+            name: '--administration-root',
+            value: 'required',
+            valueName: '<path>',
+            description: 'Administration app root (defaults to the installed one running this script).',
+        },
+        {
+            name: '--plugins-config',
+            value: 'required',
+            valueName: '<path>',
+            description: 'Path to the bundle dump (defaults to var/plugins.json under the project root).',
+        },
     ],
 };
 
@@ -342,6 +367,7 @@ export function runSetupCli(argv: string[]): number {
                 // The plain run is where flags are discovered — and where a flag
                 // swallowed by composer (missing "--") would have landed.
                 showFlagHint: !readOnly && !shim,
+                commands: resolveToolingCommands(path.resolve(projectRoot), administrationRoot),
             }),
         );
 

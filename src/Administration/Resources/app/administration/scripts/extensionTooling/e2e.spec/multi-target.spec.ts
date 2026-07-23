@@ -43,7 +43,7 @@ describe('extension tooling multi-target coverage (e2e)', () => {
         ]);
 
         setupExtensionTooling({ projectRoot, administrationRoot, shim: 'Suite' });
-    });
+    }, CHECK_TIMEOUT);
 
     afterAll(() => {
         cleanupTempProject(projectRoot);

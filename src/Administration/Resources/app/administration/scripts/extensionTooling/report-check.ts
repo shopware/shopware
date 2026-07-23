@@ -14,8 +14,8 @@ import colors from 'picocolors';
 import type { CheckExtensionsResult, ExtensionCheckResult, ToolRunResult } from './check';
 import { describeNextStep } from './report-guidance';
 import { DEFAULT_SUMMARY_TOP, renderFindingSummary, renderSkippedTargetLines } from './report-summary';
-import { collectSkippedTargets, deriveExtensionState } from './shared';
-import type { ModeResolution, SkippedTarget } from './shared';
+import { collectSkippedTargets, DEFAULT_TOOLING_COMMANDS, deriveExtensionState } from './shared';
+import type { ModeResolution, SkippedTarget, ToolingCommands } from './shared';
 
 interface RenderOptions {
     verbose?: boolean;
@@ -31,6 +31,8 @@ interface RenderOptions {
     summaryOnly?: boolean;
     /** How many top rules/codes and files to list per stream (default 10). */
     summaryTop?: number;
+    /** Layout-aware command invocations for printed next steps (defaults to the composer scripts). */
+    commands?: ToolingCommands;
 }
 
 function seconds(run: ToolRunResult): string {
@@ -224,11 +226,11 @@ function renderToolRow(
 }
 
 /** The trailing note for an extension left partially unchecked — its remaining setup step, or why it can't have one. */
-function renderUnmanagedNote(result: ExtensionCheckResult): string[] {
+function renderUnmanagedNote(result: ExtensionCheckResult, commands: ToolingCommands): string[] {
     const state = deriveExtensionState(result.project);
 
     if (state === 'needs-bridge' || state === 'vendor') {
-        return describeNextStep(result.project).map((step) => colors.dim(`      ${step}`));
+        return describeNextStep(result.project, commands).map((step) => colors.dim(`      ${step}`));
     }
 
     if (state === 'platform') {
@@ -271,7 +273,7 @@ function renderExtension(result: ExtensionCheckResult, options: RenderOptions): 
     }
 
     if (anyUnmanaged) {
-        lines.push(...renderUnmanagedNote(result));
+        lines.push(...renderUnmanagedNote(result, options.commands ?? DEFAULT_TOOLING_COMMANDS));
     }
 
     if (options.showCommands === true) {
@@ -488,13 +490,15 @@ export function renderCheckReport(result: CheckExtensionsResult, options: Render
     // (--fix and --update-baseline are mutually exclusive). After a --fix run
     // that still has findings, name the exact follow-up command.
     if (options.fix && withFindings > 0) {
+        const commands = options.commands ?? DEFAULT_TOOLING_COMMANDS;
+
         lines.push(
             '',
             colors.dim(
                 '  --fix applied the auto-fixable findings (incl. Shopware sw-* → mt-* deprecation codemods). ' +
                     'Accept the findings that remain as a baseline:',
             ),
-            colors.dim('    composer admin:check-extensions -- --update-baseline'),
+            colors.dim(`    ${commands.check} -- --update-baseline`),
         );
     }
 

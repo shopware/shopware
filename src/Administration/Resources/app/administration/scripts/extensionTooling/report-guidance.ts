@@ -7,8 +7,8 @@
  * so both report renderers can share it without pulling in picocolors.
  */
 
-import { SHIM_DIR_NAME, aggregateModeResolution, deriveExtensionState } from './shared';
-import type { ExtensionToolingProject, ModeResolution } from './shared';
+import { DEFAULT_TOOLING_COMMANDS, SHIM_DIR_NAME, aggregateModeResolution, deriveExtensionState } from './shared';
+import type { ExtensionToolingProject, ModeResolution, ToolingCommands } from './shared';
 
 /**
  * Ownership class of a generated path, so dry-run and shim output can tell
@@ -48,8 +48,8 @@ const BRIDGE_ESLINT_LINES = [
     'export default [ ...shopware /* , your rules */ ];',
 ];
 
-function shimCommand(project: ExtensionToolingProject): string {
-    return `composer admin:setup-extension-tooling -- --shim=${project.name}`;
+function shimCommand(project: ExtensionToolingProject, commands: ToolingCommands): string {
+    return `${commands.setup} -- --shim=${project.name}`;
 }
 
 /**
@@ -114,7 +114,10 @@ export function describeToolGuidance(
  * The extension's single missing step for the setup report — empty when
  * nothing is missing.
  */
-export function describeNextStep(project: ExtensionToolingProject): string[] {
+export function describeNextStep(
+    project: ExtensionToolingProject,
+    commands: ToolingCommands = DEFAULT_TOOLING_COMMANDS,
+): string[] {
     const state = deriveExtensionState(project);
 
     if (state === 'vendor') {
@@ -127,7 +130,7 @@ export function describeNextStep(project: ExtensionToolingProject): string[] {
     if (state === 'needs-bridge') {
         return [
             "It isn't checked with the Shopware preset yet. Bridge it with one command:",
-            `    ${shimCommand(project)}`,
+            `    ${shimCommand(project, commands)}`,
             'That generates a git-ignored .shopware-admin/ bridge plus small committed',
             'tsconfig/eslint that extend it (existing configs are never overwritten).',
         ];

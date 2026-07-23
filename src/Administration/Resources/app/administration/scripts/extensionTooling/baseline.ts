@@ -12,8 +12,8 @@
 
 import fs from 'fs';
 import path from 'path';
-import { GENERATED_MARKER, toPosix, writeManagedFile } from './shared';
-import type { WriteResult } from './shared';
+import { DEFAULT_TOOLING_COMMANDS, GENERATED_MARKER, toPosix, writeManagedFile } from './shared';
+import type { ToolingCommands, WriteResult } from './shared';
 
 export const BASELINE_FILE_NAME = '.shopware-admin-baseline.json';
 
@@ -294,10 +294,10 @@ export function buildBaseline(
  * recognizes the file as tool-owned — a human-written baseline lacking the
  * marker is then protected as a conflict instead of being overwritten.
  */
-export function serializeBaseline(baseline: FindingsBaseline): string {
+export function serializeBaseline(baseline: FindingsBaseline, commands: ToolingCommands = DEFAULT_TOOLING_COMMANDS): string {
     return `${JSON.stringify(
         {
-            '//': `${GENERATED_MARKER} — recorded findings; refresh with composer admin:check-extensions -- --update-baseline`,
+            '//': `${GENERATED_MARKER} — recorded findings; refresh with ${commands.check} -- --update-baseline`,
             ...baseline,
         },
         null,
@@ -311,6 +311,7 @@ export function writeBaselineFile(
     project: BaselineProject,
     baseline: FindingsBaseline,
     dryRun = false,
+    commands: ToolingCommands = DEFAULT_TOOLING_COMMANDS,
 ): WriteResult | null {
     const file = baselineFilePath(projectRoot, project);
 
@@ -318,5 +319,5 @@ export function writeBaselineFile(
         return null;
     }
 
-    return writeManagedFile(file, serializeBaseline(baseline), dryRun);
+    return writeManagedFile(file, serializeBaseline(baseline, commands), dryRun);
 }

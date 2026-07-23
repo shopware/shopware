@@ -12,7 +12,8 @@ import fs from 'fs';
 import path from 'path';
 import type { SetupExtensionToolingResult } from './setup';
 import { aggregateModeResolution, canonicalizePath, collectSkippedTargets, relativePosix, toPosix } from './shared';
-import type { AdministrationTarget, ExtensionToolingProject, ModeResolution } from './shared';
+import type { AdministrationTarget, ExtensionToolingProject, ModeResolution, ToolingCommands } from './shared';
+import { DEFAULT_TOOLING_COMMANDS } from './shared';
 import {
     PROCESS_TIMEOUT_MS,
     probeCacheEntryKey,
@@ -80,12 +81,16 @@ export function buildEslintArguments(
  * ESLint's native "potentially fixable with the `--fix` option" hint is a
  * dead-end inside this toolchain — append the actual command that applies it.
  */
-export function appendFixHint(output: string, extensionName: string): string {
+export function appendFixHint(
+    output: string,
+    extensionName: string,
+    commands: ToolingCommands = DEFAULT_TOOLING_COMMANDS,
+): string {
     if (!output.includes('potentially fixable with the `--fix` option')) {
         return output;
     }
 
-    return `${output}\n  → auto-fixable: composer admin:check-extensions -- --only=${extensionName} --fix`;
+    return `${output}\n  → auto-fixable: ${commands.check} -- --only=${extensionName} --fix`;
 }
 
 interface ProbedTarget {
@@ -287,8 +292,19 @@ async function runEslintStream(context: {
     basePath: string;
     options: CheckExtensionsOptions;
     limit: Limiter;
+    toolingCommands: ToolingCommands;
 }): Promise<{ result: ToolRunResult; commands?: string[]; warnings: string[] }> {
-    const { project, projectRoot, eslintPath, eslintBaseArguments, baselineEntries, basePath, options, limit } = context;
+    const {
+        project,
+        projectRoot,
+        eslintPath,
+        eslintBaseArguments,
+        baselineEntries,
+        basePath,
+        options,
+        limit,
+        toolingCommands,
+    } = context;
     const unmanagedTargets = project.targets.filter((target) => target.eslint.mode === 'unmanaged');
     const eslintTargets = project.targets.filter(
         (target) => target.eslint.mode !== 'unmanaged' && findFirstSourceFile(projectRoot, [target.sourcePath]) !== null,
@@ -383,7 +399,7 @@ async function runEslintStream(context: {
             file: finding.file,
             code: finding.rule,
         })),
-        output: applyFix ? output : appendFixHint(output, project.name),
+        output: applyFix ? output : appendFixHint(output, project.name, toolingCommands),
         durationMs: Date.now() - startedAt,
         eslintFindings: parsedFindings,
         parseMismatch: split.parseMismatch,
@@ -408,6 +424,7 @@ export async function checkProject(context: {
     entitySchemaAvailable: boolean;
     options: CheckExtensionsOptions;
     limit: Limiter;
+    commands: ToolingCommands;
 }): Promise<{ result: ExtensionCheckResult; warnings: string[] }> {
     const {
         project,
@@ -420,6 +437,7 @@ export async function checkProject(context: {
         entitySchemaAvailable,
         options,
         limit,
+        commands: toolingCommands,
     } = context;
     const commands: ExtensionCheckResult['commands'] = {};
     // Read once — the runtime and (later) spec runs share one baseline file.
@@ -489,6 +507,7 @@ export async function checkProject(context: {
         basePath: project.basePath,
         options,
         limit,
+        toolingCommands,
     });
     const eslint = eslintRun.result;
 
@@ -526,6 +545,7 @@ export async function checkProject(context: {
 export function recordProjectBaseline(
     result: ExtensionCheckResult,
     projectRoot: string,
+    commands: ToolingCommands = DEFAULT_TOOLING_COMMANDS,
 ): { baselineUpdates: string[]; fatalDiagnostics: string[]; warnings: string[] } {
     if (!baselineFilePath(projectRoot, result.project)) {
         return { baselineUpdates: [], fatalDiagnostics: [], warnings: [] };
@@ -633,6 +653,8 @@ export function recordProjectBaseline(
             { typescript: typescriptFindings, typescriptSpecs: typescriptSpecFindings, eslint: eslintFindings },
             result.project.basePath,
         ),
+        false,
+        commands,
     );
 
     if (write?.state === 'conflict') {

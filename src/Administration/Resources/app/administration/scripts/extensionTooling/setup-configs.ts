@@ -59,7 +59,7 @@ export function ensureEntitySchema(context: GeneratorContext): boolean {
         '   The installation-specific entity schema has not been generated yet, so',
         '   `EntitySchema.Entities` is empty and every entity name fails the type',
         '   check instead of silently degrading to `any`.',
-        '   Generate the real file with: composer admin:generate-entity-schema-types */',
+        `   Generate the real file with: ${context.commands.generateSchema} */`,
         'declare namespace EntitySchema {',
         '    interface Entities {}',
         '}',
@@ -69,7 +69,7 @@ export function ensureEntitySchema(context: GeneratorContext): boolean {
     record(context, writeManagedFile(entitySchemaPath, stubContent, context.dryRun));
     context.warnings.push(
         'The generated entity schema types are missing; a stub with an empty entity list was created. ' +
-            'Run `composer admin:generate-entity-schema-types` to get installation-specific entity types.',
+            `Run \`${context.commands.generateSchema}\` to get installation-specific entity types.`,
     );
 
     return false;
@@ -207,7 +207,7 @@ export function createRootTsconfig(context: GeneratorContext, projects: Extensio
             [
                 `${rootTsconfigPath} exists and is not managed by this tool. To integrate, add these references:`,
                 ...references.map((reference) => `    { "path": "${reference.path}" }`),
-                'or remove the file and re-run `composer admin:setup-extension-tooling`.',
+                `or remove the file and re-run \`${context.commands.setup}\`.`,
             ].join('\n'),
         );
     }

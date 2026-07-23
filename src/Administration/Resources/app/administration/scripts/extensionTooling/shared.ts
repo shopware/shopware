@@ -251,6 +251,43 @@ export function relativePosix(from: string, to: string): string {
 }
 
 /**
+ * How a reader invokes the extension-tooling commands, adapted to the install
+ * layout so printed next-step guidance is copy-pasteable in their environment.
+ * A platform (monorepo) checkout wires the `composer admin:*` scripts; a
+ * Composer/Flex install (Administration under `vendor/`) has no such scripts and
+ * drives the tooling through the `bin/console administration:*` commands.
+ */
+export interface ToolingCommands {
+    /** e.g. `composer admin:check-extensions` or `bin/console administration:check-extensions`. */
+    check: string;
+    /** e.g. `composer admin:setup-extension-tooling` or `bin/console administration:setup-extension-tooling`. */
+    setup: string;
+    /** e.g. `composer admin:generate-entity-schema-types` or `bin/console administration:generate-entity-schema-types`. */
+    generateSchema: string;
+}
+
+/** The platform-checkout invocations — the safe default when the layout is unknown (e.g. in unit fixtures). */
+export const DEFAULT_TOOLING_COMMANDS: ToolingCommands = {
+    check: 'composer admin:check-extensions',
+    setup: 'composer admin:setup-extension-tooling',
+    generateSchema: 'composer admin:generate-entity-schema-types',
+};
+
+const CONSOLE_TOOLING_COMMANDS: ToolingCommands = {
+    check: 'bin/console administration:check-extensions',
+    setup: 'bin/console administration:setup-extension-tooling',
+    generateSchema: 'bin/console administration:generate-entity-schema-types',
+};
+
+export function resolveToolingCommands(projectRoot: string, administrationRoot: string): ToolingCommands {
+    // The Administration living under vendor/ is the Composer/Flex install signal
+    // — the composer scripts exist only in a platform checkout.
+    return relativePosix(projectRoot, administrationRoot).startsWith('vendor/')
+        ? CONSOLE_TOOLING_COMMANDS
+        : DEFAULT_TOOLING_COMMANDS;
+}
+
+/**
  * Relative path suitable as an ESM import specifier or tsconfig "extends"
  * value (always starts with "./" or "../").
  */

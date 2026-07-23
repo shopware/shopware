@@ -142,6 +142,40 @@ describe('scripts/extensionTooling/setup', () => {
         expect(result.manifest.entitySchemaAvailable).toBe(true);
     });
 
+    it('ignores extension sources resolved outside the project root', () => {
+        // A tampered var/plugins.json can carry an absolute or `../`-traversing
+        // basePath. The source physically exists (so the existence check passes)
+        // but lives outside the project — it must not be discovered, walked, or
+        // handed to the tools.
+        const outsideRoot = createTempProject('sw-tooling-outside-');
+
+        try {
+            writeFile(path.join(outsideRoot, 'evil/Resources/app/administration/src/main.ts'), ['export {};']);
+            writeZeroConfigPlugin({ projectRoot, pluginPath: 'custom/plugins/Inside' });
+            writePluginsConfig(projectRoot, [
+                {
+                    technicalName: 'Inside',
+                    basePath: 'custom/plugins/Inside/src',
+                    administrationPath: 'Resources/app/administration/src',
+                },
+                {
+                    technicalName: 'Outside',
+                    basePath: path.join(outsideRoot, 'evil'),
+                    administrationPath: 'Resources/app/administration/src',
+                },
+            ]);
+
+            const result = setupExtensionTooling({ projectRoot, administrationRoot });
+            const names = result.manifest.projects.map((project) => project.name);
+
+            expect(names).toContain('Inside');
+            expect(names).not.toContain('evil');
+            expect(result.manifest.projects).toHaveLength(1);
+        } finally {
+            cleanupTempProject(outsideRoot);
+        }
+    });
+
     it('canonicalizes duplicate bundle entries that point to the same Administration source root', () => {
         writeZeroConfigPlugin({ projectRoot, pluginPath: 'custom/plugins/DuplicateRoot' });
         writePluginsConfig(projectRoot, [
@@ -337,7 +371,8 @@ describe('scripts/extensionTooling/setup', () => {
         expect(result.manifest.entitySchemaAvailable).toBe(false);
         expect(stub).toContain(GENERATED_MARKER);
         expect(stub).toContain('interface Entities {}');
-        expect(result.warnings.join('\n')).toContain('admin:generate-entity-schema-types');
+        // The vendor-layout fixture (admin under vendor/) resolves to the bin/console form.
+        expect(result.warnings.join('\n')).toContain('bin/console administration:generate-entity-schema-types');
 
         // The real generated schema is never treated as a stub.
         writeFile(path.join(administrationRoot, 'src', 'entity-schema-definition.d.ts'), syntheticEntitySchema);

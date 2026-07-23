@@ -204,4 +204,28 @@ describe('scripts/extensionTooling/check orchestration', () => {
         });
         expect(check.exitCode).toBe(1);
     }, 60000);
+
+    it('reports a crashed vue-tsc as a tooling error even when it prints noise', async () => {
+        writeZeroConfigSuite('Solo', ['BundleA']);
+        writePluginsConfig(projectRoot, [
+            {
+                technicalName: 'SoloBundleA',
+                basePath: 'custom/plugins/Solo/src/BundleA',
+                administrationPath: 'Resources/app/administration/src',
+            },
+        ]);
+        // Non-zero exit with output that carries no `error TS…` diagnostic — a
+        // crash (heap OOM, panic), not a clean run. It must never read `passed`.
+        installCountingFake({
+            status: 1,
+            output: 'FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory',
+        });
+
+        const check = await checkExtensions({ projectRoot, administrationRoot });
+        const result = check.results[0];
+
+        expect(result.typescript.status).toBe('tooling-error');
+        expect(result.typescript.output).toContain('heap out of memory');
+        expect(check.exitCode).toBe(1);
+    }, 60000);
 });

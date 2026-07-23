@@ -78,4 +78,18 @@ describe('scripts/extensionTooling/check runCheckCli', () => {
         expect(logSpy.mock.calls.join('\n')).toContain('composer admin:check-extensions -- [options]');
         logSpy.mockRestore();
     });
+
+    it('documents the layout flags so a Composer/Flex install can point at its shop root', async () => {
+        const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+        await runCheckCli(['--help']);
+        const help = logSpy.mock.calls.join('\n');
+
+        // These were internal (hidden) plumbing; a standard-install developer
+        // needs them discoverable to run the tooling against a vendor/ layout.
+        expect(help).toContain('--project-root');
+        expect(help).toContain('--administration-root');
+        expect(help).toContain('--plugins-config');
+        logSpy.mockRestore();
+    });
 });

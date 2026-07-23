@@ -57,7 +57,17 @@ export function discoverProjects(
             : path.resolve(projectRoot, bundle.basePath);
         const sourcePath = path.resolve(bundleBasePath, administrationPath);
 
-        if (!fs.existsSync(sourcePath) || sourcePath === administrationSourcePath) {
+        // var/plugins.json is only semi-trusted (it mirrors installed plugin
+        // composer data). An absolute or `../`-traversing basePath must not let
+        // the checker read, type-check, lint, or print files outside the
+        // project — clamp discovery to the project root. Canonicalize both
+        // sides so a symlinked project root (e.g. macOS /var → /private/var)
+        // does not reject legitimate in-project targets.
+        if (
+            !fs.existsSync(sourcePath) ||
+            sourcePath === administrationSourcePath ||
+            !isWithin(canonicalizePath(sourcePath), canonicalizePath(projectRoot))
+        ) {
             continue;
         }
 

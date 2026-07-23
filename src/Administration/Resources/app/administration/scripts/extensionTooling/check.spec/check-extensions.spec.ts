@@ -102,7 +102,7 @@ describe('scripts/extensionTooling/check checkExtensions', () => {
         const check = await checkExtensions({ projectRoot, administrationRoot });
 
         expect(check.exitCode).toBe(1);
-        expect(check.fatalDiagnostics.join('\n')).toContain('composer admin:generate-entity-schema-types');
+        expect(check.fatalDiagnostics.join('\n')).toContain('bin/console administration:generate-entity-schema-types');
     });
 
     it('blocks TypeScript runs entirely while the entity schema is missing', async () => {

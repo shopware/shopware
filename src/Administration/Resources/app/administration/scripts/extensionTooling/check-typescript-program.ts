@@ -58,12 +58,22 @@ async function runTypeScriptProgram(
         };
     }
 
-    if (run.status !== 0 && findings === 0 && run.output.trim() === '') {
+    // A non-zero exit that produced no parseable diagnostic is a crashed tool,
+    // not a clean run — whether or not it printed noise (a panic, an OOM
+    // stack trace). Treating only the empty-output case as an error let a
+    // crash-with-output run fall through to the baseline and report `passed`.
+    // Mirrors the ESLint stream's predicate in check-run.ts.
+    if (run.status !== 0 && findings === 0) {
+        const detail = run.output.trim();
+
         return {
             command,
             result: {
                 status: 'tooling-error',
-                output: `vue-tsc exited with status ${run.status} and no output.`,
+                output:
+                    detail === ''
+                        ? `vue-tsc exited with status ${run.status} and no output.`
+                        : `vue-tsc exited with status ${run.status} without a parseable diagnostic:\n${detail}`,
                 durationMs: run.durationMs,
                 findings: 0,
             },

@@ -21,5 +21,8 @@ import '../src/html-shim';
 // Global `ServiceContainer` augmentations that live outside the module graph
 // reachable from `global.types.ts`. The Administration's own program compiles
 // all of `src/**/*`, so these are implicitly present there; extension programs
-// only see them through an explicit import.
+// only see them through an explicit import. `type-surface.spec.ts` guards this
+// list against new augmentations drifting out of the surface.
 import '../src/module/sw-flow/service';
+import '../src/module/sw-extension/service';
+import '../src/module/sw-settings-services/service';

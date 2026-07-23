@@ -10,13 +10,15 @@
 
 import path from 'path';
 import { relativePosix } from './shared';
-import type { ManagedFileState, ManifestFileState, WriteResult } from './shared';
+import type { ManagedFileState, ManifestFileState, ToolingCommands, WriteResult } from './shared';
 
 export interface GeneratorContext {
     projectRoot: string;
     administrationRoot: string;
     toolingRoot: string;
     dryRun: boolean;
+    /** Layout-aware invocations used in generated-file comments and printed guidance. */
+    commands: ToolingCommands;
     writes: WriteResult[];
     staleFiles: string[];
     warnings: string[];

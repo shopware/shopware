@@ -25,8 +25,8 @@ import { discoverProjects, setupExtensionTooling } from './setup';
 import type { SetupExtensionToolingResult } from './setup';
 import { renderCheckReport } from './report';
 import { promptSelection } from './select';
-import { readEslintMajorVersion, relativePosix } from './shared';
-import type { ExtensionToolingProject } from './shared';
+import { readEslintMajorVersion, relativePosix, resolveToolingCommands } from './shared';
+import type { ExtensionToolingProject, ToolingCommands } from './shared';
 import { CliUsageError, parseCli, renderHelp } from './cli';
 import type { CommandSpec } from './cli';
 import {
@@ -86,28 +86,27 @@ export function normalizeSelection(only: string | string[] | undefined): string[
 }
 
 /** The fatal, run-blocking diagnostics that setup itself surfaces (missing schema, user-owned root configs). */
-function collectSetupDiagnostics(setupResult: SetupExtensionToolingResult): string[] {
+function collectSetupDiagnostics(setupResult: SetupExtensionToolingResult, commands: ToolingCommands): string[] {
     const diagnostics: string[] = [];
 
     if (!setupResult.manifest.entitySchemaAvailable) {
         diagnostics.push(
             'Entity schema types are missing — entity names cannot be type-checked against this installation, ' +
-                'so TypeScript checks were not run. Fix: composer admin:generate-entity-schema-types',
+                `so TypeScript checks were not run. Fix: ${commands.generateSchema}`,
         );
     }
 
     if (setupResult.manifest.rootConfigs.tsconfig === 'conflict') {
         diagnostics.push(
             'The root tsconfig.json is user-owned and does not come from this tool — the IDE view and this check ' +
-                'may diverge. Fix: integrate the printed references or remove the file and re-run ' +
-                'composer admin:setup-extension-tooling',
+                `may diverge. Fix: integrate the printed references or remove the file and re-run ${commands.setup}`,
         );
     }
 
     if (setupResult.manifest.rootConfigs.eslintConfig === 'conflict') {
         diagnostics.push(
             'The root eslint.config.mjs is user-owned and does not come from this tool. Fix: compose the shared ' +
-                'factory as printed, or remove the file and re-run composer admin:setup-extension-tooling',
+                `factory as printed, or remove the file and re-run ${commands.setup}`,
         );
     }
 
@@ -145,12 +144,13 @@ function filterSelectedProjects(
 export async function checkExtensions(options: CheckExtensionsOptions): Promise<CheckExtensionsResult> {
     const projectRoot = path.resolve(options.projectRoot);
     const administrationRoot = path.resolve(options.administrationRoot);
+    const commands = resolveToolingCommands(projectRoot, administrationRoot);
     const setupResult = setupExtensionTooling({
         projectRoot,
         administrationRoot,
         pluginsConfigPath: options.pluginsConfigPath,
     });
-    const fatalDiagnostics = collectSetupDiagnostics(setupResult);
+    const fatalDiagnostics = collectSetupDiagnostics(setupResult, commands);
     const warnings: string[] = [...setupResult.warnings];
     const selection = filterSelectedProjects(setupResult.manifest.projects, normalizeSelection(options.only));
     const projects = selection.projects;
@@ -172,9 +172,16 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
     const eslintPath = path.join(administrationRoot, 'node_modules', 'eslint', 'bin', 'eslint.js');
 
     if (projects.length > 0 && !fs.existsSync(vueTscPath)) {
+        const administrationRelative = relativePosix(projectRoot, administrationRoot);
+        // In a Composer/Flex install the Administration lives under vendor/ and
+        // its node_modules are not shipped — the monorepo `composer init:js`
+        // does not apply there, so point the developer at `npm ci` instead.
+        const fix = administrationRelative.startsWith('vendor/')
+            ? `Fix: run "npm ci" in ${administrationRelative}`
+            : 'Fix: composer init:js';
+
         fatalDiagnostics.push(
-            `vue-tsc is not installed in the Administration (${relativePosix(projectRoot, vueTscPath)}). ` +
-                'Fix: composer init:js',
+            `vue-tsc is not installed in the Administration (${relativePosix(projectRoot, vueTscPath)}). ${fix}`,
         );
     }
 
@@ -201,6 +208,7 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
             entitySchemaAvailable: setupResult.manifest.entitySchemaAvailable,
             options,
             limit,
+            commands,
         });
 
         warnings.push(...projectWarnings);
@@ -214,7 +222,7 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
     // TypeScript surface ran, so it is skipped while the schema is missing.
     if (options.updateBaseline && setupResult.manifest.entitySchemaAvailable) {
         for (const result of results) {
-            const recorded = recordProjectBaseline(result, projectRoot);
+            const recorded = recordProjectBaseline(result, projectRoot, commands);
 
             fatalDiagnostics.push(...recorded.fatalDiagnostics);
             warnings.push(...recorded.warnings);
@@ -279,9 +287,26 @@ const CHECK_COMMAND: CommandSpec = {
             valueName: '<n>',
             description: 'Bound the number of parallel tool runs.',
         },
-        { name: '--project-root', value: 'required', valueName: '<path>', description: '', internal: true },
-        { name: '--administration-root', value: 'required', valueName: '<path>', description: '', internal: true },
-        { name: '--plugins-config', value: 'required', valueName: '<path>', description: '', internal: true },
+        {
+            name: '--project-root',
+            value: 'required',
+            valueName: '<path>',
+            description:
+                'Shop root to check (defaults to the PROJECT_ROOT env). Set this when running from a ' +
+                'Composer/Flex install where the Administration lives under vendor/.',
+        },
+        {
+            name: '--administration-root',
+            value: 'required',
+            valueName: '<path>',
+            description: 'Administration app root (defaults to the installed one running this script).',
+        },
+        {
+            name: '--plugins-config',
+            value: 'required',
+            valueName: '<path>',
+            description: 'Path to the bundle dump (defaults to var/plugins.json under the project root).',
+        },
     ],
 };
 
@@ -398,6 +423,7 @@ export async function runCheckCli(argv: string[]): Promise<number> {
             summary: parsed.flags.has('--summary') || parsed.flags.has('--summary-only'),
             summaryOnly: parsed.flags.has('--summary-only'),
             summaryTop,
+            commands: resolveToolingCommands(projectRoot, administrationRoot),
         }),
     );
 

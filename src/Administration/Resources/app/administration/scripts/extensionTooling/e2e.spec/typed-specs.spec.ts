@@ -43,7 +43,7 @@ describe('extension tooling typed spec files (e2e)', () => {
                 administrationPath: 'Resources/app/administration/src',
             },
         ]);
-    });
+    }, CHECK_TIMEOUT);
 
     afterAll(() => {
         cleanupTempProject(projectRoot);

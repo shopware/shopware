@@ -37,7 +37,7 @@ describe('scripts/extensionTooling e2e — scaffolded committable configs', () =
                 administrationPath: 'Resources/app/administration/src',
             },
         ]);
-    });
+    }, CHECK_TIMEOUT);
 
     afterAll(() => {
         cleanupTempProject(projectRoot);
@@ -87,7 +87,7 @@ describe('scripts/extensionTooling e2e — scaffolded committable configs', () =
 
                 expect(before.results[0].eslint.status).toBe('failed');
                 expect(before.results[0].eslint.output).toContain(
-                    'auto-fixable: composer admin:check-extensions -- --only=FreshPlugin --fix',
+                    'auto-fixable: bin/console administration:check-extensions -- --only=FreshPlugin --fix',
                 );
 
                 const fixed = await checkExtensions({ projectRoot, administrationRoot, only: 'FreshPlugin', fix: true });

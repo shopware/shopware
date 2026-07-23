@@ -14,13 +14,13 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  * @internal
  */
 #[Package('discovery')]
-class Migration1783000100AddIsExternalStorefrontToSalesChannelDomain extends MigrationStep
+class Migration1784801509AddIsExternalStorefrontToSalesChannelDomain extends MigrationStep
 {
     use AddColumnTrait;
 
     public function getCreationTimestamp(): int
     {
-        return 1783000100;
+        return 1784801509;
     }
 
     public function update(Connection $connection): void

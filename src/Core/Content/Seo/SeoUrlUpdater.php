@@ -144,7 +144,7 @@ class SeoUrlUpdater
                AND sales_channel.active = 1';
 
         $query .= $isHeadless
-            ? ' AND sales_channel.type_id = :apiTypeId'
+            ? ' AND sales_channel.type_id = :apiTypeId AND domains.is_external_storefront = 1'
             : ' AND sales_channel.type_id != :apiTypeId';
         $parameters = ['apiTypeId' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_API)];
 

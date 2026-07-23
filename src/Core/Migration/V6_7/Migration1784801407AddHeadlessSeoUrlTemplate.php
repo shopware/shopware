@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal
  */
 #[Package('inventory')]
-class Migration1783000000AddHeadlessSeoUrlTemplate extends MigrationStep
+class Migration1784801407AddHeadlessSeoUrlTemplate extends MigrationStep
 {
     use AddColumnTrait;
 
@@ -47,7 +47,7 @@ class Migration1783000000AddHeadlessSeoUrlTemplate extends MigrationStep
 
     public function getCreationTimestamp(): int
     {
-        return 1783000000;
+        return 1784801407;
     }
 
     public function update(Connection $connection): void

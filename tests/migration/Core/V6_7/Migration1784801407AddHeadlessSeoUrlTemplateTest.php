@@ -8,14 +8,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\Database\TableHelper;
-use Shopware\Core\Migration\V6_7\Migration1783000000AddHeadlessSeoUrlTemplate;
+use Shopware\Core\Migration\V6_7\Migration1784801407AddHeadlessSeoUrlTemplate;
 
 /**
  * @internal
  */
 #[Package('inventory')]
-#[CoversClass(Migration1783000000AddHeadlessSeoUrlTemplate::class)]
-class Migration1783000000AddHeadlessSeoUrlTemplateTest extends TestCase
+#[CoversClass(Migration1784801407AddHeadlessSeoUrlTemplate::class)]
+class Migration1784801407AddHeadlessSeoUrlTemplateTest extends TestCase
 {
     use KernelTestBehaviour;
 
@@ -28,7 +28,7 @@ class Migration1783000000AddHeadlessSeoUrlTemplateTest extends TestCase
 
     public function testGetCreationTimestamp(): void
     {
-        static::assertSame(1783000000, (new Migration1783000000AddHeadlessSeoUrlTemplate())->getCreationTimestamp());
+        static::assertSame(1784801407, (new Migration1784801407AddHeadlessSeoUrlTemplate())->getCreationTimestamp());
     }
 
     public function testMigrate(): void
@@ -62,7 +62,7 @@ class Migration1783000000AddHeadlessSeoUrlTemplateTest extends TestCase
 
     private function migrate(): void
     {
-        (new Migration1783000000AddHeadlessSeoUrlTemplate())->update($this->connection);
+        (new Migration1784801407AddHeadlessSeoUrlTemplate())->update($this->connection);
     }
 
     private function rollback(): void

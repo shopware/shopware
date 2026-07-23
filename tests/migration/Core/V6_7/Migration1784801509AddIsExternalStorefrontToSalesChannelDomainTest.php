@@ -8,14 +8,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\Database\TableHelper;
-use Shopware\Core\Migration\V6_7\Migration1783000100AddIsExternalStorefrontToSalesChannelDomain;
+use Shopware\Core\Migration\V6_7\Migration1784801509AddIsExternalStorefrontToSalesChannelDomain;
 
 /**
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(Migration1783000100AddIsExternalStorefrontToSalesChannelDomain::class)]
-class Migration1783000100AddIsExternalStorefrontToSalesChannelDomainTest extends TestCase
+#[CoversClass(Migration1784801509AddIsExternalStorefrontToSalesChannelDomain::class)]
+class Migration1784801509AddIsExternalStorefrontToSalesChannelDomainTest extends TestCase
 {
     use KernelTestBehaviour;
 
@@ -29,8 +29,8 @@ class Migration1783000100AddIsExternalStorefrontToSalesChannelDomainTest extends
     public function testGetCreationTimestamp(): void
     {
         static::assertSame(
-            1783000100,
-            (new Migration1783000100AddIsExternalStorefrontToSalesChannelDomain())->getCreationTimestamp()
+            1784801509,
+            (new Migration1784801509AddIsExternalStorefrontToSalesChannelDomain())->getCreationTimestamp()
         );
     }
 
@@ -51,7 +51,7 @@ class Migration1783000100AddIsExternalStorefrontToSalesChannelDomainTest extends
 
     private function migrate(): void
     {
-        (new Migration1783000100AddIsExternalStorefrontToSalesChannelDomain())->update($this->connection);
+        (new Migration1784801509AddIsExternalStorefrontToSalesChannelDomain())->update($this->connection);
     }
 
     private function rollback(): void

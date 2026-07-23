@@ -69,6 +69,19 @@ class CalculatedTaxCollectionTest extends TestCase
         static::assertSame(13.2, $collection->getAmount());
     }
 
+    public function testTaxAmountSnapsFloatingPointResidualToZero(): void
+    {
+        // taxes that cancel out must not leave a residual; distinct rates keep all entries
+        $collection = new CalculatedTaxCollection([
+            new CalculatedTax(169, 19, 169),
+            new CalculatedTax(-208.9, 7, -208.9),
+            new CalculatedTax(39.9, 5, 39.9),
+            new CalculatedTax(0, 1, 0),
+        ]);
+
+        static::assertSame(0.0, $collection->getAmount());
+    }
+
     public function testIncrementFunctionAddsNewCalculatedTaxIfNotExist(): void
     {
         $collection = new CalculatedTaxCollection([

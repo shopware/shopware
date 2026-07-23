@@ -14,6 +14,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollectio
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -609,9 +610,7 @@ class CustomerEntity extends Entity implements \Stringable
         return $this->activeBillingAddress ?? $this->defaultBillingAddress;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change $activeBillingAddress will accept null values
-     */
+    #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'activeBillingAddress', newType: '?CustomerAddressEntity')]
     public function setActiveBillingAddress(/* ? */ CustomerAddressEntity $activeBillingAddress): void
     {
         $this->activeBillingAddress = $activeBillingAddress;
@@ -622,9 +621,7 @@ class CustomerEntity extends Entity implements \Stringable
         return $this->activeShippingAddress ?? $this->defaultShippingAddress;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change $activeShippingAddress will accept null values
-     */
+    #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'activeShippingAddress', newType: '?CustomerAddressEntity')]
     public function setActiveShippingAddress(/* ? */ CustomerAddressEntity $activeShippingAddress): void
     {
         $this->activeShippingAddress = $activeShippingAddress;

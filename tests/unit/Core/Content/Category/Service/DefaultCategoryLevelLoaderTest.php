@@ -18,8 +18,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 /**
  * @internal
  */
-#[CoversClass(DefaultCategoryLevelLoader::class)]
 #[Package('discovery')]
+#[CoversClass(DefaultCategoryLevelLoader::class)]
 class DefaultCategoryLevelLoaderTest extends TestCase
 {
     private DefaultCategoryLevelLoader $categoryLevelLoader;

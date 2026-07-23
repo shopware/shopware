@@ -43,8 +43,8 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @internal
  */
-#[CoversClass(AuthController::class)]
 #[Package('checkout')]
+#[CoversClass(AuthController::class)]
 class AuthControllerTest extends TestCase
 {
     private AuthControllerTestClass $controller;

@@ -18,8 +18,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(TaxDetector::class)]
 #[Package('checkout')]
+#[CoversClass(TaxDetector::class)]
 class TaxDetectorTest extends TestCase
 {
     public function testIsCompanyTaxFreeWithEuCountryAndValidVatIdMatchingPattern(): void

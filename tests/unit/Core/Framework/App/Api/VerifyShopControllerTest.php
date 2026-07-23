@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Api\DTO\VerifyShop;
 use Shopware\Core\Framework\App\Api\VerifyShopController;
 use Shopware\Core\Framework\App\Url\AppUrlVerifier;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,6 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(VerifyShopController::class)]
 class VerifyShopControllerTest extends TestCase
 {

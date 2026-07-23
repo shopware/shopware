@@ -109,7 +109,7 @@ class TestTaskHandler extends ScheduledTaskHandler
  *
  * @final
  */
-#[AsMessageHandler()]
+#[AsMessageHandler]
 class TestTask2Handler extends ScheduledTaskHandler
 {
     public bool $called = false;

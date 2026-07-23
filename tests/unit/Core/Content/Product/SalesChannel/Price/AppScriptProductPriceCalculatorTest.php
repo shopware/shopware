@@ -8,12 +8,14 @@ use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
 use Shopware\Core\Content\Product\SalesChannel\Price\AppScriptProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(AppScriptProductPriceCalculator::class)]
 class AppScriptProductPriceCalculatorTest extends TestCase
 {

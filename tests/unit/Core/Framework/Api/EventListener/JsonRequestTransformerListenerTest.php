@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\EventListener;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\EventListener\JsonRequestTransformerListener;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(JsonRequestTransformerListener::class)]
 class JsonRequestTransformerListenerTest extends TestCase
 {

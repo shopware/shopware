@@ -1,11 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Migration\Core;
+namespace Shopware\Tests\DevOps\Core\Migration;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
@@ -13,7 +11,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(MigrationCollection::class)]
 class MigrationNameAndTimestampTest extends TestCase
 {
     use KernelTestBehaviour;

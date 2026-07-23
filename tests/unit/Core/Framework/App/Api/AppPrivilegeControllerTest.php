@@ -13,11 +13,13 @@ use Shopware\Core\Framework\App\Api\AppPrivilegeController;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppPrivilegeController::class)]
 class AppPrivilegeControllerTest extends TestCase
 {

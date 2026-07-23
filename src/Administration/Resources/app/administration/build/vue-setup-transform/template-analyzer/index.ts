@@ -73,6 +73,24 @@ function createOverridePrivateNamespace(filename: string, componentName: string)
 }
 
 /**
+ * Visits every element node in a template subtree, pre-order, recursing into children.
+ *
+ * Both analyzers share this walk; each supplies only its per-element work (the sw-block guard plus its
+ * mode-specific data-scope / forwarding handling).
+ */
+function forEachTemplateElement(nodes: TemplateChildNode[], visit: (element: ElementNode) => void): void {
+    nodes.forEach((node) => {
+        if (node.type !== NodeTypes.ELEMENT) {
+            return;
+        }
+
+        const element = node as ElementNode;
+        visit(element);
+        forEachTemplateElement(element.children, visit);
+    });
+}
+
+/**
  * Creates the template edits and private return bindings required by override SFCs.
  *
  */
@@ -98,19 +116,19 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
     const overrideLocalNames = new Set<string>(analysis.overrideEntries);
     const privateNamespace = createOverridePrivateNamespace(block.filename, block.componentName);
 
-    function visit(node: TemplateChildNode): void {
-        if (node.type === NodeTypes.ELEMENT && node.tag === 'sw-block') {
-            assertSwBlockAttributes(node as ElementNode, 'override');
+    forEachTemplateElement(ast.children, (element) => {
+        if (element.tag === 'sw-block') {
+            assertSwBlockAttributes(element, 'override');
         }
 
-        if (isSwBlockExtends(node)) {
-            const extendedName = getStaticSwBlockExtends(node);
+        if (isSwBlockExtends(element)) {
+            const extendedName = getStaticSwBlockExtends(element);
 
             if (extendedName !== null) {
                 extendedBlockNames.push(extendedName);
             }
 
-            const { references, writeTargets } = collectTemplateReferences(node.children, new Set());
+            const { references, writeTargets } = collectTemplateReferences(element.children, new Set());
 
             // Forwarded bindings are read-only in the slot; reject template writes to them.
             assertNoWritesToForwardedBindings(
@@ -161,16 +179,10 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
             ];
 
             if (mappings.length > 0) {
-                edits.push(createGeneratedSlotEdit(block, node, mappings));
+                edits.push(createGeneratedSlotEdit(block, element, mappings));
             }
         }
-
-        if (node.type === NodeTypes.ELEMENT) {
-            node.children.forEach(visit);
-        }
-    }
-
-    ast.children.forEach(visit);
+    });
 
     return {
         edits,
@@ -196,41 +208,32 @@ function analyzeBaseTemplate(block: ShopwareSetupBlock): TemplateAnalysis {
         };
     }
 
-    const ast = parseTemplate(block.template.content);
+    const template = block.template;
+    const ast = parseTemplate(template.content);
     const edits: TemplateEdit[] = [];
     const ownedBlockNames: string[] = [];
 
-    function visit(node: TemplateChildNode): void {
-        if (node.type === NodeTypes.ELEMENT && node.tag === 'sw-block') {
-            assertSwBlockAttributes(node as ElementNode, 'base');
+    forEachTemplateElement(ast.children, (element) => {
+        if (element.tag === 'sw-block') {
+            assertSwBlockAttributes(element, 'base');
         }
 
-        if (isSwBlockName(node)) {
-            if (!block.template) {
-                return;
-            }
-
-            const blockName = getStaticSwBlockName(node);
+        if (isSwBlockName(element)) {
+            const blockName = getStaticSwBlockName(element);
 
             if (blockName !== null) {
                 ownedBlockNames.push(blockName);
             }
 
-            const insertionPoint = findOpeningTagNameEnd(block.template.content, node.loc.start.offset);
+            const insertionPoint = findOpeningTagNameEnd(template.content, element.loc.start.offset);
 
             edits.push({
-                start: block.template.contentStart + insertionPoint,
-                end: block.template.contentStart + insertionPoint,
+                start: template.contentStart + insertionPoint,
+                end: template.contentStart + insertionPoint,
                 replacement: ' :data="$dataScope"',
             });
         }
-
-        if (node.type === NodeTypes.ELEMENT) {
-            node.children.forEach(visit);
-        }
-    }
-
-    ast.children.forEach(visit);
+    });
 
     return {
         edits,

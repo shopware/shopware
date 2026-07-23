@@ -79,7 +79,7 @@
                 </tr>
 
                 {% if nestedItem.productId is defined and nestedItem.productId %}
-                    {% set garanLabelDataUri = nestedItem.productId|sw_garan_label_data_uri(context) %}
+                    {% set garanLabelDataUri = nestedItem.productId|sw_garan_label_nested_uri(context) %}
                     {% if garanLabelDataUri %}
                         <tr>
                             <td colspan="6"><img src="{{ garanLabelDataUri }}" alt="" /></td>

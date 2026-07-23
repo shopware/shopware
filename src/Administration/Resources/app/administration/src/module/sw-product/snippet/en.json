@@ -127,6 +127,7 @@
       "labelManufacturerNumber": "Manufacturer product number",
       "labelGuaranteeDescription": "This label represents a commercial guarantee of durability expressed in years. The guarantee is offered by the producer at no additional costs, covering the entire good and with a duration of more than two years.",
       "labelGuaranteeMonths": "Producer guarantee duration in months",
+      "helpTextGuaranteeMonths": "Minimum value is 30, steps of 6.",
       "labelGuaranteeConfirmed": "Show label in Storefront",
       "helpTextGuaranteeConfirmed": "The guarantee label is only displayed if a valid guarantee duration, a manufacturer and the manufacturer product number is set.",
       "labelStock": "Stock",

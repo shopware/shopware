@@ -36,6 +36,7 @@ class GaranLabelTwigFilter extends AbstractExtension
             new TwigFilter('sw_garan_label', $this->render(...), ['is_safe' => ['html']]),
             new TwigFilter('sw_garan_label_nested', $this->renderNestedLabel(...), ['is_safe' => ['html']]),
             new TwigFilter('sw_garan_label_data_uri', $this->renderAsDataUri(...)),
+            new TwigFilter('sw_garan_label_nested_uri', $this->renderNestedAsDataUri(...)),
         ];
     }
 
@@ -73,6 +74,17 @@ class GaranLabelTwigFilter extends AbstractExtension
     public function renderAsDataUri(?string $productId, Context $context): ?string
     {
         $svg = $this->render($productId, $context);
+
+        if ($svg === null) {
+            return null;
+        }
+
+        return 'data:image/svg+xml;base64,' . base64_encode($svg);
+    }
+
+    public function renderNestedAsDataUri(?string $productId, Context $context): ?string
+    {
+        $svg = $this->renderNestedLabel($productId, $context);
 
         if ($svg === null) {
             return null;

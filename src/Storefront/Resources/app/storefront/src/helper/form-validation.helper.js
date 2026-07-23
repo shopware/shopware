@@ -418,19 +418,25 @@ export default class FormValidation {
     }
 
     /**
-     * Validates that the user has accepted cookies before trying to use reCAPTCHA.
-     * Must use the same signal as `registerGoogleReCaptchaPlugins()` in main.js, which only
-     * registers the reCAPTCHA plugin (and thus generates a token) once 'cookie-preference' is
-     * accepted. The technically-required '_GRECAPTCHA' cookie is not a reliable signal here: it
-     * is not removed when consent is revoked, so trusting it would let the form submit with an
-     * empty token and fail server-side with a 500 (CaptchaException).
-     * Dispatches a custom event to show the cookie bar if validation fails.
+     * Guards the reCAPTCHA field so a form can never be submitted without a token.
+     * Fails for two independent reasons, with different UX:
+     *  1. Cookie consent is missing. The reCAPTCHA plugin is only registered once
+     *     'cookie-preference' is accepted (see `registerGoogleReCaptchaPlugins()` in main.js),
+     *     so without consent no token can ever be generated. Show the cookie bar to guide the user.
+     *  2. Consent is given but reCAPTCHA has not produced a token yet (async / plugin not
+     *     initialized). Block the submit, but do not show the cookie bar (consent already exists).
      *
-     * @param {string} _value - The field value (unused for cookie validation)
+     * The token check uses the field's own value, which is the actual token that would be
+     * submitted, rather than the '_GRECAPTCHA' cookie. That cookie is Google-owned, is not
+     * removed when consent is revoked (root cause of #18239) and can be blocked by browser
+     * privacy settings, so it is not a reliable signal. An empty value is exactly the empty-token
+     * case that fails server-side with a 500 (CaptchaException).
+     *
+     * @param {string} value - The field value, i.e. the reCAPTCHA token
      * @param {HTMLElement} field
      * @returns {boolean}
      */
-    validateGrecaptcha(_value, field) {
+    validateGrecaptcha(value, field) {
         if (!(field instanceof HTMLElement)) {
             console.error('[FormValidation]: Missing or invalid required parameter "field".');
             return true;
@@ -442,14 +448,16 @@ export default class FormValidation {
             return true;
         }
 
-        const cookiesAccepted = CookieStorageHelper.getItem('cookie-preference') === '1';
+        const consentGiven = CookieStorageHelper.getItem('cookie-preference') === '1';
 
-        if (!cookiesAccepted) {
+        if (!consentGiven) {
             const showCookieBarEvent = new CustomEvent('showCookieBar');
             document.dispatchEvent(showCookieBarEvent);
+
+            return false;
         }
 
-        return cookiesAccepted;
+        return value.length > 0;
     }
 
     /**

@@ -153,15 +153,17 @@ class CmsRouteTest extends TestCase
      */
     private function getSearchResult(?CmsPageEntity $cmsPage = null): EntitySearchResult
     {
+        $collection = new CmsPageCollection();
+        if ($cmsPage !== null) {
+            $cmsPage->setUniqueIdentifier('cms-page');
+            $collection->add($cmsPage);
+        }
+
         $searchResult = static::createStub(EntitySearchResult::class);
 
         $searchResult
-            ->method('has')
-            ->willReturn((bool) $cmsPage);
-
-        $searchResult
-            ->method('first')
-            ->willReturn($cmsPage);
+            ->method('getEntities')
+            ->willReturn($collection);
 
         return $searchResult;
     }

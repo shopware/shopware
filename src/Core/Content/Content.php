@@ -49,7 +49,7 @@ class Content extends Bundle
         $loader->load('landing_page.xml');
         $loader->load('flow.xml');
         $phpLoader->load('measurement_system.php');
-        $loader->load('legal_guarantee_notice.xml');
+        $phpLoader->load('legal_guarantee_notice.php');
         $loader->load('shared.xml');
 
         $phpLoader->load('product_export_tracking.php');

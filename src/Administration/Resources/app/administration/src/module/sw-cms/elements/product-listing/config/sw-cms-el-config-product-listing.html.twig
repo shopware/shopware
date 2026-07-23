@@ -124,7 +124,7 @@
                             entity="product_sorting"
                             label-property="label"
                             show-clearable-button
-                            :value="defaultSorting.id"
+                            v-model:value="defaultSortingId"
                             :help-text="$t('sw-cms.elements.productListing.config.sorting.helpTextDefaultSorting')"
                             :criteria="allProductSortingsCriteria"
                             :placeholder="$t('sw-cms.elements.productListing.config.sorting.placeholderDefaultProductSorting')"

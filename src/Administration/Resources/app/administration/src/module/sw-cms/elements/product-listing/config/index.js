@@ -26,6 +26,7 @@ export default {
         return {
             productSortings: new EntityCollection('/product-sorting', 'product_sorting', Shopware.Context.api),
             defaultSorting: {},
+            defaultSortingId: null,
             filters: [],
             filterPropertiesTerm: '',
             properties: [],
@@ -341,6 +342,7 @@ export default {
 
                 this.productSortingRepository.search(criteria).then((response) => {
                     this.defaultSorting = response.first() || {};
+                    this.defaultSortingId = this.defaultSorting.id ?? null;
                 });
             }
         },

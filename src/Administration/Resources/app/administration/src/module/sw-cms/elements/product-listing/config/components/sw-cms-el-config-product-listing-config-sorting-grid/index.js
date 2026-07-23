@@ -1,7 +1,7 @@
 import template from './sw-cms-el-config-product-listing-config-sorting-grid.html.twig';
 import './sw-cms-el-config-product-listing-config-sorting-grid.scss';
 
-const { Criteria } = Shopware.Data;
+const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
  * @private
@@ -12,14 +12,14 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    emits: ['sorting-delete'],
+    emits: ['sorting-delete', 'update:modelValue'],
 
     mixins: [
         'sw-inline-snippet',
     ],
 
     props: {
-        productSortings: {
+        modelValue: {
             type: Array,
             required: true,
         },
@@ -43,6 +43,10 @@ export default {
     },
 
     computed: {
+        productSortings() {
+            return this.modelValue;
+        },
+
         visibleProductSortings() {
             return this.productSortings.slice((this.page - 1) * this.limit, (this.page - 1) * this.limit + this.limit);
         },
@@ -146,8 +150,10 @@ export default {
         },
 
         onDelete(productSorting) {
-            this.productSortings.remove(productSorting.id);
+            const collection = EntityCollection.fromCollection(this.productSortings);
+            collection.remove(productSorting.id);
 
+            this.$emit('update:modelValue', collection);
             this.$emit('sorting-delete', productSorting.id);
         },
 

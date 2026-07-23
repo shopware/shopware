@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @codeCoverageIgnore
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeCompileException extends ShopwareHttpException
 {
     public function __construct(

@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -154,7 +155,7 @@ class SeoUrlWriteValidatorTest extends TestCase
             [
                 'seo_path_info' => $seoPathInfo,
                 'path_info' => '/detail/' . Uuid::randomHex(),
-                'route_name' => 'frontend.detail.page',
+                'route_name' => ProductPageSeoUrlRoute::ROUTE_NAME,
                 'foreign_key' => Uuid::randomBytes(),
                 'language_id' => Uuid::randomBytes(),
             ],

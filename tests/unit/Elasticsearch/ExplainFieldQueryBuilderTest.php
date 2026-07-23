@@ -17,8 +17,8 @@ use Shopware\Elasticsearch\ResolvedField;
 /**
  * @internal
  */
-#[CoversClass(ExplainFieldQueryBuilder::class)]
 #[Package('inventory')]
+#[CoversClass(ExplainFieldQueryBuilder::class)]
 class ExplainFieldQueryBuilderTest extends TestCase
 {
     public function testGetDecorated(): void

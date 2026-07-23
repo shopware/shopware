@@ -27,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -37,6 +38,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  *
  * @see MultiJoinFilterLimitationTest for edge cases and limitations of multi join filters
  */
+#[Package('framework')]
 class JoinFilterTest extends TestCase
 {
     use KernelTestBehaviour;

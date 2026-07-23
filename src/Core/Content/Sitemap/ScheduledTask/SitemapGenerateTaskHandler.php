@@ -24,8 +24,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[AsMessageHandler(handles: SitemapGenerateTask::class)]
 #[Package('discovery')]
+#[AsMessageHandler(handles: SitemapGenerateTask::class)]
 final class SitemapGenerateTaskHandler extends ScheduledTaskHandler
 {
     /**

@@ -10,7 +10,7 @@ use Twig\Node\Expression\ConstantExpression;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
-#[Package('framework')]
+#[Package('discovery')]
 final class IconTokenParser extends AbstractTokenParser
 {
     public function parse(Token $token): SwInclude

@@ -272,12 +272,13 @@ If you need to temporarily suppress a specific constraint name while migrating, 
 ### Plugin activation rolls back when post-activation fails
 
 Plugin activation now restores the plugin's `active` flag when a post-activation subscriber fails. Previously, a failure after the active flag was persisted, for example during storefront theme refresh, could leave the plugin marked active even though activation failed.
+
 ### Product export pagination changed to keyset; `getTotal()` deprecated
 
 The product export now paginates products by an `autoIncrement` keyset cursor instead of `LIMIT`/`OFFSET`, and no longer computes an exact product count per batch. This removes the `getTotalCount()` timeout on large catalogs and makes per-batch cost independent of how far the export has progressed. When a subscriber sorts the product criteria via `ProductExportProductCriteriaEvent`, the export falls back to deterministic, resumable offset pagination for that order.
 
 - `Shopware\Core\Content\ProductExport\Struct\ProductExportResult::getTotal()` and its `$total` constructor argument are deprecated and will be removed in 6.8. The export no longer computes a grand total; use `hasNextBatch()` to drive pagination and `getOffset()` for the resume position.
-- `ExportBehavior::offset()`, `ProductExportPartialGeneration::getOffset()` and `ProductExportResult::getOffset()` keep the historical `offset` name; the value is now an opaque resume position — an `autoIncrement` keyset cursor for unsorted exports, or a row offset for sorted ones.
+- `ProductExportPartialGeneration::getOffset()` and `ProductExportResult::getOffset()` keep the historical `offset` name; the value is now an opaque resume position — an `autoIncrement` keyset cursor for unsorted exports, or a row offset for sorted ones.
 - The product export read buffer size is now configurable via `shopware.product_export.read_buffer_size` (products read and rendered per batch). The default was raised from 100 to **500**, which lowers per-batch overhead (fewer messages, context rebuilds and template parses) at the cost of higher per-batch memory/runtime. Lower it if a batch approaches the message time or memory limit.
 
 ### `SalesChannelRepositoryIterator` supports autoIncrement keyset pagination

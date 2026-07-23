@@ -317,7 +317,7 @@ class AllServiceInstallerTest extends TestCase
             });
 
         $logger->expects($this->once())
-            ->method('error')
+            ->method('debug')
             ->with(\sprintf('Cannot install service "BrokenService" because of error: "%s"', $exception->getMessage()));
 
         $eventDispatcher->expects($this->once())->method('dispatch');

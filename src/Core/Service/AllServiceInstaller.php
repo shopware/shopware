@@ -58,10 +58,9 @@ class AllServiceInstaller
             try {
                 $result = $this->serviceLifecycle->install($service, $context);
             } catch (\Throwable $e) {
-                // isolate failures so a single broken service cannot block the installation of the remaining ones
-                $this->logger->error(\sprintf('Cannot install service "%s" because of error: "%s"', $service->name, $e->getMessage()));
+                $this->logger->debug(\sprintf('Cannot install service "%s" because of error: "%s"', $service->name, $e->getMessage()));
 
-                continue;
+                $result = false;
             }
 
             if ($result) {

@@ -13,12 +13,14 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Twig\Environment;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(GaranLabelTwigFilter::class)]
 class GaranLabelTwigFilterTest extends TestCase
 {

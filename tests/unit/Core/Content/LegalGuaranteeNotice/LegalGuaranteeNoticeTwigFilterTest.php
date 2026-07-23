@@ -6,11 +6,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\LegalGuaranteeNotice\LegalGuaranteeNoticeRenderer;
 use Shopware\Core\Content\LegalGuaranteeNotice\LegalGuaranteeNoticeTwigFilter;
+use Shopware\Core\Framework\Log\Package;
 use Twig\TwigFilter;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(LegalGuaranteeNoticeTwigFilter::class)]
 class LegalGuaranteeNoticeTwigFilterTest extends TestCase
 {

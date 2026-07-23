@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Garan\GaranLabelRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
@@ -18,6 +19,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(GaranLabelRoute::class)]
 class GaranLabelRouteTest extends TestCase
 {

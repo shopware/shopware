@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Garan;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\Garan\GaranLabelRouteResponse;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(GaranLabelRouteResponse::class)]
 class GaranLabelRouteResponseTest extends TestCase
 {

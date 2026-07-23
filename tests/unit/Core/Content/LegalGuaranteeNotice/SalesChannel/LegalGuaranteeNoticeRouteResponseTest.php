@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Content\LegalGuaranteeNotice\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\LegalGuaranteeNotice\SalesChannel\LegalGuaranteeNoticeRouteResponse;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(LegalGuaranteeNoticeRouteResponse::class)]
 class LegalGuaranteeNoticeRouteResponseTest extends TestCase
 {

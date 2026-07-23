@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\LegalGuaranteeNotice\LegalGuaranteeNoticeRenderer;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
@@ -13,6 +14,7 @@ use Twig\Loader\ArrayLoader;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(LegalGuaranteeNoticeRenderer::class)]
 class LegalGuaranteeNoticeRendererTest extends TestCase
 {

@@ -9,11 +9,13 @@ use Shopware\Core\Content\Product\Garan\GaranLabelDurationFormatter;
 use Shopware\Core\Content\Product\Garan\GaranLabelRenderer;
 use Shopware\Core\Content\Product\Garan\GaranLabelResolver;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\Log\Package;
 use Twig\Environment;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(GaranLabelResolver::class)]
 class GaranLabelResolverTest extends TestCase
 {

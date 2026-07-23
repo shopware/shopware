@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Garan;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Garan\GaranLabelRenderer;
+use Shopware\Core\Framework\Log\Package;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(GaranLabelRenderer::class)]
 class GaranLabelRendererTest extends TestCase
 {

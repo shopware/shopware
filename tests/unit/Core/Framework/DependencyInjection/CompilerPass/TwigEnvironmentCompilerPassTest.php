@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigEnvironmentCompilerPass;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Twig\Environment;
@@ -13,6 +14,7 @@ use Twig\Environment;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TwigEnvironmentCompilerPass::class)]
 class TwigEnvironmentCompilerPassTest extends TestCase
 {

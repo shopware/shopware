@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Routing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteEventSubscriber;
@@ -14,6 +15,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(StorefrontRouteEventSubscriber::class)]
 class StorefrontRouteEventSubscriberTest extends TestCase
 {
@@ -33,11 +35,11 @@ class StorefrontRouteEventSubscriberTest extends TestCase
         $request->attributes->set('_route', 'frontend.home.page');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['storefront']);
 
-        $event = $this->createMock(StorefrontRenderEvent::class);
+        $event = static::createStub(StorefrontRenderEvent::class);
         $event->method('getRequest')->willReturn($request);
 
         $dispatchedNames = [];
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher = static::createStub(EventDispatcherInterface::class);
         $dispatcher->method('dispatch')
             ->willReturnCallback(static function (object $evt, ?string $name = null) use (&$dispatchedNames): object {
                 $dispatchedNames[] = $name;

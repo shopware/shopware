@@ -16,6 +16,7 @@ use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFact
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -35,8 +36,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('inventory')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 {
     /**
@@ -48,7 +49,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
     public function __construct(
         private readonly EntityRepository $crossSellingRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly AbstractProductStreamBuilder $productStreamBuilder,
+        private readonly ProductStreamBuilderInterface|AbstractProductStreamBuilder $productStreamBuilder,
         private readonly SalesChannelRepository $productRepository,
         private readonly SystemConfigService $systemConfigService,
         private readonly ProductListingLoader $listingLoader,
@@ -149,7 +150,12 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
             EntityCacheKeyGenerator::buildStreamTag($productStreamId)
         );
 
-        $this->productStreamBuilder->enrichCriteria($criteria, $productStreamId, $context->getContext());
+        $productStreamBuilder = $this->productStreamBuilder;
+        if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
+            $productStreamBuilder->enrichCriteria($criteria, $productStreamId, $context->getContext());
+        } else {
+            $criteria->addFilter(...$productStreamBuilder->buildFilters($productStreamId, $context->getContext()));
+        }
 
         $criteria
             ->addFilter(new NotEqualsFilter('product.id', $crossSelling->getProductId()))

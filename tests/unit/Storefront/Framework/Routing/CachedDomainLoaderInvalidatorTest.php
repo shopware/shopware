@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Storefront\Framework\Routing\CachedDomainLoader;
 use Shopware\Storefront\Framework\Routing\CachedDomainLoaderInvalidator;
@@ -17,6 +18,7 @@ use Shopware\Tests\Unit\Storefront\Theme\MockedCacheInvalidator;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(CachedDomainLoaderInvalidator::class)]
 class CachedDomainLoaderInvalidatorTest extends TestCase
 {
@@ -46,7 +48,10 @@ class CachedDomainLoaderInvalidatorTest extends TestCase
 
         $invalidationSubscriber->invalidate($event);
 
-        static::assertSame([CachedDomainLoader::CACHE_KEY], $mockedInvalidator->getForceInvalidatedTags());
+        static::assertSame(
+            [CachedDomainLoader::CACHE_KEY, CachedDomainLoader::DOMAIN_COLLECTION_CACHE_KEY],
+            $mockedInvalidator->getForceInvalidatedTags()
+        );
     }
 
     public function testInvalidateIsNotCalledForNonSalesChannelWrites(): void

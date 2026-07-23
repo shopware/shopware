@@ -8,12 +8,14 @@ use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
 use Shopware\Core\Content\Product\SalesChannel\Price\AppScriptProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(AppScriptProductPriceCalculator::class)]
 class AppScriptProductPriceCalculatorTest extends TestCase
 {
@@ -35,8 +37,8 @@ class AppScriptProductPriceCalculatorTest extends TestCase
         $decorated = $this->createMock(ProductPriceCalculator::class);
         $decorated->expects($this->once())->method('calculate')->with($products);
 
-        $calculator = new AppScriptProductPriceCalculator($decorated, $executor, $this->createMock(ScriptPriceStubs::class));
+        $calculator = new AppScriptProductPriceCalculator($decorated, $executor, static::createStub(ScriptPriceStubs::class));
 
-        $calculator->calculate($products, $this->createMock(SalesChannelContext::class));
+        $calculator->calculate($products, static::createStub(SalesChannelContext::class));
     }
 }

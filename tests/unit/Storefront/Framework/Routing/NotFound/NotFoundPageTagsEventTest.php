@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Routing\NotFound;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Routing\NotFound\NotFoundPageTagsEvent;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,13 +13,14 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(NotFoundPageTagsEvent::class)]
 class NotFoundPageTagsEventTest extends TestCase
 {
     public function testEvent(): void
     {
         $request = new Request();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getContext')->willReturn(Context::createDefaultContext());
 
         $event = new NotFoundPageTagsEvent(['test'], $request, $context);

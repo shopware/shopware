@@ -18,6 +18,7 @@ final readonly class SalesChannelFile
 
     /**
      * @param array<string, string> $templates Twig namespace mapped to resolved template name
+     * @param list<string> $templatePaths Case variants of the registered template path, canonical path first
      */
     public function __construct(
         public string $fileFamily,
@@ -26,6 +27,7 @@ final readonly class SalesChannelFile
         public string $contentType,
         public string $baseTemplateName,
         public array $templates,
+        public array $templatePaths = [],
     ) {
     }
 }

@@ -1,4 +1,48 @@
-# 6.7.12.0
+# 6.7.14.0
+
+## MCP server no longer uses the `MCP_SERVER` feature flag
+
+The experimental MCP server is now always enabled and the `MCP_SERVER` feature flag has been removed.
+
+- If you set `MCP_SERVER=1` (or `MCP_SERVER=0`) in your `.env`, remove it. The flag no longer has any effect.
+- The MCP endpoints (`/api/_mcp` and `/store-api/_mcp`) are now reachable whenever `symfony/mcp-bundle` is installed, with no flag to enable or disable them.
+- The MCP classes stay marked `@experimental` until 6.8.0, so the API may still change.
+
+## OpenAPI generator dependency upgraded to swagger-php 6.4
+
+Shopware now requires `zircote/swagger-php` 6.4 to generate OpenAPI 3.2 schemas.
+Extensions that only provide OpenAPI metadata through `OpenApi\Annotations` or `OpenApi\Attributes` are expected to keep working, but extension build tools or tests that use swagger-php's programmatic API may need small changes.
+
+The common migration path is:
+
+* Replace `OpenApi\Generator::scan($sources, ['logger' => $logger])` with `(new OpenApi\Generator($logger))->generate($sources)`.
+* Replace `OpenApi\Util::finder($directory)` with the directory path itself when passing sources to `Generator::generate()`, or use swagger-php 6's `SourceFinder` if you only target v6.
+* If custom processors need to support both old and new swagger-php versions, use `method_exists($generator, 'getProcessorPipeline')`: use `getProcessorPipeline()` / `setProcessorPipeline()` for v5/v6 and fall back to `getProcessors()` / `setProcessors()` for v4.
+* Prefer `OpenApi\Generator::isDefault($value)` over direct comparisons with `Generator::UNDEFINED` when code should keep working across versions.
+
+If your extension relies on swagger-php directly, declare an explicit Composer dependency instead of relying on Shopware's transitive dependency.
+For cross-version development tooling, use a constraint that covers the versions you test, for example `^4.9.2 || ^5.0 || ^6.4`.
+
+# 6.7.13.0
+
+## Storefront form validation messages use Shopware snippets
+
+Storefront form validation messages in `FormController` are now translated using the violation code through Shopware's translator instead of using the already translated Symfony validator message. This affects contact, newsletter, and revocation forms.
+
+If a plugin provides custom constraints used by these forms, add matching translations to `Resources/snippet/storefront.<locale>.json` below the `error` key. For example, the violation code `VIOLATION::MY_CUSTOM_ERROR` requires the snippet key `error.VIOLATION::MY_CUSTOM_ERROR`.
+
+## `LineItemPurchasePriceRule` uses a `type` field instead of `isNet`
+
+The rule condition `cartLineItemPurchasePrice` (`Shopware\Core\Checkout\Cart\Rule\LineItemPurchasePriceRule`) now stores the price type in a `type` field (`CartPrice::TAX_STATE_GROSS` = `gross` / `CartPrice::TAX_STATE_NET` = `net`) instead of the previous `isNet` boolean. The constructor argument changed from `bool $isNet` to `?string $type`.
+A migration (`Migration1781508123UpdateLineItemPurchasePriceRuleConditions`) rewrites existing `rule_condition` payloads automatically (`isNet: true` → `type: 'net'`, `isNet: false` → `type: 'gross'`).
+
+## Deprecation of rule builder line item condition components
+
+The following Administration rule builder condition components are deprecated and will be removed in v6.8.0. The affected conditions (`cartLineItemInCategory`, `cartLineItemPurchasePrice`) are now rendered generically via `sw-condition-generic`:
+
+* `sw-condition-line-item-in-category`
+* `sw-condition-line-item-purchase-price`
+* `sw-condition-is-net-select`
 
 ## `sw-product-stream-filter` now reuses `sw-condition-base` styling
 
@@ -6,9 +50,26 @@ The product-stream filter row now reuses the `sw-condition-base` layout instead 
 
 The twig blocks `sw_product_stream_filter` and `sw_product_stream_filter_container` are deprecated and will be removed in v6.8.0. Use `sw_condition_base` / `sw_condition_base_content` instead.
 
+## Deprecation of search settings twig blocks
+
+The following blocks in `src/Administration/Resources/app/administration/src/module/sw-settings-search/component/` have been deprecated and will be removed in v6.8.0:
+
+- `sw_settings_search_excluded_search_terms_empty_state_image` (`sw-settings-search-excluded-search-terms/sw-settings-search-excluded-search-terms.html.twig`)
+- `sw_settings_search_view_live_search_search_icon_wrapper` (`sw-settings-search-live-search/sw-settings-search-live-search.html.twig`)
+- `sw_settings_search_view_live_search_search_icon` (`sw-settings-search-live-search/sw-settings-search-live-search.html.twig`)
+- `sw_settings_search_search_index_warning_top` (`sw-settings-search-search-index/sw-settings-search-search-index.html.twig`)
+- `sw_settings_search_search_index_rebuild_progress_text` (`sw-settings-search-search-index/sw-settings-search-search-index.html.twig`)
+- `sw_settings_search_searchable_content_customfields_state_image` (`sw-settings-search-searchable-content-customfields/sw-settings-search-searchable-content-customfields.html.twig`)
+- `sw_settings_search_searchable_content_general_state_image` (`sw-settings-search-searchable-content-general/sw-settings-search-searchable-content-general.html.twig`)
+- `sw_settings_search_searchable_show_example` (`sw-settings-search-searchable-content/sw-settings-search-searchable-content.html.twig`)
+- `sw_settings_search_searchable_show_example_link_element` (`sw-settings-search-searchable-content/sw-settings-search-searchable-content.html.twig`)
+
+# 6.7.12.0
+
 ## Deprecation of `sw_integration_list_introduction` twig block
 
 The block `sw_integration_list_introduction` in `src/Administration/Resources/app/administration/src/module/sw-integration/page/sw-integration-list/sw-integration-list.html.twig` has been deprecated and will be removed in v6.8.0.
+
 ## Deprecation of `processSuccess` and `resetButtons` in `sw-settings-cache-index`
 
 The data property `processSuccess` and the method `resetButtons()` on the `sw-settings-cache-index` page component (`src/Administration/Resources/app/administration/src/module/sw-settings-cache/page/sw-settings-cache-index/index.js`) have been deprecated and will be removed in v6.8.0.

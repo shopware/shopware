@@ -21,8 +21,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[CoversClass(CartItemAddRoute::class)]
 #[Package('checkout')]
+#[CoversClass(CartItemAddRoute::class)]
 class CartItemAddRouteTest extends TestCase
 {
     public function testRateLimitationWithoutIp(): void
@@ -38,7 +38,7 @@ class CartItemAddRouteTest extends TestCase
         $cartItemAddRoute->add(
             $this->createRequest($item, null),
             new Cart('test'),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             null
         );
     }
@@ -56,7 +56,7 @@ class CartItemAddRouteTest extends TestCase
         $cartItemAddRoute->add(
             $this->createRequest($item),
             new Cart(Uuid::randomHex()),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             null
         );
     }
@@ -75,7 +75,7 @@ class CartItemAddRouteTest extends TestCase
         $cartItemAddRoute->add(
             $this->createRequest($item),
             new Cart(Uuid::randomHex()),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             null
         );
     }
@@ -99,7 +99,7 @@ class CartItemAddRouteTest extends TestCase
         $cartItemAddRoute->add(
             $this->createRequest($item, null),
             new Cart(Uuid::randomHex()),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             null
         );
     }
@@ -124,14 +124,14 @@ class CartItemAddRouteTest extends TestCase
             );
 
         if ($cartLocker === null) {
-            $cartLocker = $this->createMock(CartLocker::class);
+            $cartLocker = static::createStub(CartLocker::class);
             $cartLocker->method('locked')->willReturnCallback(static fn (SalesChannelContext $context, \Closure $closure) => $closure());
         }
 
         return new CartItemAddRoute(
-            $this->createMock(CartCalculator::class),
-            $this->createMock(AbstractCartPersister::class),
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(CartCalculator::class),
+            static::createStub(AbstractCartPersister::class),
+            static::createStub(EventDispatcherInterface::class),
             $lineItemFactory,
             $rateLimiter,
             $cartLocker

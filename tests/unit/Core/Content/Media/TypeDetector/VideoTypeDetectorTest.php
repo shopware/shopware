@@ -8,10 +8,12 @@ use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\VideoType;
 use Shopware\Core\Content\Media\TypeDetector\VideoTypeDetector;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(VideoTypeDetector::class)]
 class VideoTypeDetectorTest extends TestCase
 {

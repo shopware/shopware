@@ -14,11 +14,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[AsCommand(
     name: 'media:update-path',
     description: 'Iterates over the media and updates the path column.',
 )]
-#[Package('discovery')]
 class UpdatePathCommand extends Command
 {
     /**

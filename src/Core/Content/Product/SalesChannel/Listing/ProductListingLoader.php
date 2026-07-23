@@ -36,9 +36,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class ProductListingLoader
 {
     /**
-     * Field set loaded in listings when `core.listing.partialDataLoading` is enabled. Covers the
-     * data required by the default storefront product boxes. Nested association fields (e.g.
-     * `prices.ruleId`) must be listed explicitly — a bare association name only loads primary keys.
+     * Criteria state that suppresses the variant grouping (`displayGroup` field grouping) otherwise
+     * applied to product listings. Set by {@see AbstractProductStreamBuilder::enrichCriteria()}
+     * when a product stream is configured to not display its variants as a group.
+     */
+    final public const STATE_SKIP_ADD_GROUPING = 'skipAddGrouping';
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Reduced listing loading now uses Criteria::excludeFields()
+     *             to drop heavy columns instead of allow-listing fields.
      *
      * @var list<string>
      */
@@ -91,6 +97,18 @@ class ProductListingLoader
     ];
 
     /**
+     * Heavy, off-page columns dropped from listings via {@see Criteria::excludeFields()} when
+     * `core.listing.partialDataLoading` is enabled.
+     *
+     * @var list<string>
+     */
+    final public const PARTIAL_LISTING_EXCLUDED_FIELDS = [
+        'description',
+        'keywords',
+        'customSearchKeywords',
+    ];
+
+    /**
      * @internal
      *
      * @param SalesChannelRepository<ProductCollection> $productRepository
@@ -125,10 +143,10 @@ class ProductListingLoader
     {
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
-        $partialDataLoading = $this->systemConfigService->get('core.listing.partialDataLoading', $context->getSalesChannelId());
+        $partialDataLoading = $this->systemConfigService->getBool('core.listing.partialDataLoading', $context->getSalesChannelId());
 
-        if ($criteria->getFields() === [] && (bool) $partialDataLoading) {
-            $criteria->addFields(self::PARTIAL_LISTING_FIELDS);
+        if ($criteria->getFields() === [] && $criteria->getExcludedFields() === [] && $partialDataLoading) {
+            $criteria->excludeFields(self::PARTIAL_LISTING_EXCLUDED_FIELDS);
         }
 
         $clone = clone $criteria;
@@ -143,7 +161,7 @@ class ProductListingLoader
 
         $ids = $idResult->getIds();
         // no products found, no need to continue
-        if (empty($ids)) {
+        if ($ids === []) {
             $result = new EntitySearchResult(
                 ProductDefinition::ENTITY_NAME,
                 0,
@@ -314,11 +332,11 @@ class ProductListingLoader
             }
 
             // current id was mapped to another variant
-            if (!$productSearchResult->has($mapping[$id])) {
+            if (!$productSearchResult->getEntities()->has($mapping[$id])) {
                 continue;
             }
 
-            $product = $productSearchResult->get($mapping[$id]);
+            $product = $productSearchResult->getEntities()->get($mapping[$id]);
 
             // get access to the data of the search result
             $product->addExtension('search', new ArrayEntity($ids->getDataOfId($id)));
@@ -327,7 +345,7 @@ class ProductListingLoader
 
     private function resolveIds(Criteria $criteria, SalesChannelContext $context): IdSearchResult
     {
-        $displayAsGroup = $this->isDisplayAsGroupEnabled($criteria);
+        $displayAsGroup = !$this->shouldSkipGrouping($criteria);
 
         if ($displayAsGroup) {
             $this->addGrouping($criteria);
@@ -368,7 +386,7 @@ class ProductListingLoader
         $mapping = array_combine($keys, $keys);
         $hasOptionFilter = $this->hasOptionFilter($criteria);
 
-        $shouldLoadPreviews = $this->isDisplayAsGroupEnabled($criteria) && $this->shouldLoadPreviews($hasOptionFilter, $criteria, $context);
+        $shouldLoadPreviews = !$this->shouldSkipGrouping($criteria) && $this->shouldLoadPreviews($hasOptionFilter, $criteria, $context);
 
         if ($shouldLoadPreviews) {
             $mapping = $this->extensions->publish(
@@ -417,8 +435,8 @@ class ProductListingLoader
         return $this->productRepository->search($read, $context);
     }
 
-    private function isDisplayAsGroupEnabled(Criteria $criteria): bool
+    private function shouldSkipGrouping(Criteria $criteria): bool
     {
-        return !$criteria->hasState(AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED);
+        return $criteria->hasState(self::STATE_SKIP_ADD_GROUPING);
     }
 }

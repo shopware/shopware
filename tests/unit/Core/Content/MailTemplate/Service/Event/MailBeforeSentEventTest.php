@@ -18,8 +18,8 @@ use Symfony\Component\Mime\Email;
 /**
  * @internal
  */
-#[CoversClass(MailBeforeSentEvent::class)]
 #[Package('after-sales')]
+#[CoversClass(MailBeforeSentEvent::class)]
 class MailBeforeSentEventTest extends TestCase
 {
     public function testScalarValuesCorrectly(): void

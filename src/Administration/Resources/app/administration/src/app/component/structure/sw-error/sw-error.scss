@@ -1,16 +1,13 @@
 @import "~scss/variables";
 
-$sw-error-background-stack: $color-gray-100;
 $sw-error-radius-stack: $border-radius-default;
-$sw-error-color: $color-darkgray-200;
-$sw-error-font-size-large: $font-size-m;
 
 .sw-error {
     display: grid;
     height: 100%;
     align-items: center;
     justify-items: center;
-    color: $sw-error-color;
+    color: var(--color-text-primary-default);
 
     .sw-error__container {
         display: grid;
@@ -37,7 +34,7 @@ $sw-error-font-size-large: $font-size-m;
 
     .sw-error__message {
         margin-bottom: 20px;
-        font-size: $sw-error-font-size-large;
+        font-size: var(--font-size-m);
     }
 
     .sw-error__stack {
@@ -48,8 +45,8 @@ $sw-error-font-size-large: $font-size-m;
         max-width: 450px;
         padding: 20px;
         overflow: auto;
-        background: $sw-error-background-stack;
-        border: 1px solid darken($sw-error-background-stack, 30%);
+        background: var(--color-background-secondary-default);
+        border: 1px solid var(--color-border-secondary-default);
         border-radius: $sw-error-radius-stack;
     }
 

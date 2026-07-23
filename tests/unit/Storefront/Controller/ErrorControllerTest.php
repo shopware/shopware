@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\ErrorController;
@@ -20,6 +21,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ErrorController::class)]
 class ErrorControllerTest extends TestCase
 {
@@ -35,9 +37,9 @@ class ErrorControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->errorTemplateResolver = $this->createMock(ErrorTemplateResolver::class);
-        $this->systemConfigService = $this->createMock(SystemConfigService::class);
-        $this->errorPageLoader = $this->createMock(ErrorPageLoaderInterface::class);
+        $this->errorTemplateResolver = static::createStub(ErrorTemplateResolver::class);
+        $this->systemConfigService = static::createStub(SystemConfigService::class);
+        $this->errorPageLoader = static::createStub(ErrorPageLoaderInterface::class);
 
         $this->controller = new ErrorControllerTestClass(
             $this->errorTemplateResolver,

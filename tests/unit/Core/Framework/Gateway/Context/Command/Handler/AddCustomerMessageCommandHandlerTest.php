@@ -13,8 +13,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(AddCustomerMessageCommandHandler::class)]
 #[Package('framework')]
+#[CoversClass(AddCustomerMessageCommandHandler::class)]
 class AddCustomerMessageCommandHandlerTest extends TestCase
 {
     public function testAddCustomerMessage(): void

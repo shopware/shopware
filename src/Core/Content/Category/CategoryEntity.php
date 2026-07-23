@@ -78,7 +78,7 @@ class CategoryEntity extends Entity
     protected ?ProductStreamEntity $productStream = null;
 
     /**
-     * @var array<mixed>|null
+     * @var array<string, array<string, array<string, mixed>>|null>|null
      */
     protected ?array $slotConfig = null;
 
@@ -363,7 +363,7 @@ class CategoryEntity extends Entity
     }
 
     /**
-     * @return array<mixed>|null
+     * @return array<string, array<string, array<string, mixed>>|null>|null
      */
     public function getSlotConfig(): ?array
     {
@@ -371,7 +371,7 @@ class CategoryEntity extends Entity
     }
 
     /**
-     * @param array<mixed> $slotConfig
+     * @param array<string, array<string, array<string, mixed>>|null> $slotConfig
      */
     public function setSlotConfig(array $slotConfig): void
     {

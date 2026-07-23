@@ -24,8 +24,8 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID], PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_maintain']])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID], PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_maintain']])]
 class ExtensionStoreActionsController extends AbstractController
 {
     public function __construct(

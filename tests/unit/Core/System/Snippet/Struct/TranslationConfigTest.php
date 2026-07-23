@@ -10,6 +10,7 @@ use Shopware\Core\System\Snippet\DataTransfer\Language\Language;
 use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMapping;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
+use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\TestPlugin;
 
@@ -85,5 +86,48 @@ class TranslationConfigTest extends TestCase
 
         $mappedName = $config->getMappedPluginName($pluginWithMapping);
         static::assertSame('MappedPluginWithMapping', $mappedName);
+    }
+
+    public function testAssertLocalesAreConfiguredAcceptsKnownLocales(): void
+    {
+        $config = $this->getConfig(['en-GB', 'de-DE']);
+
+        $config->assertLocalesAreConfigured(['de-DE']);
+
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testAssertLocalesAreConfiguredThrowsWhenEmpty(): void
+    {
+        $config = $this->getConfig(['en-GB', 'de-DE']);
+
+        $this->expectExceptionObject(SnippetException::noLocalesArgumentProvided());
+
+        $config->assertLocalesAreConfigured([]);
+    }
+
+    public function testAssertLocalesAreConfiguredThrowsForUnknownLocales(): void
+    {
+        $config = $this->getConfig(['en-GB', 'de-DE']);
+
+        $this->expectExceptionObject(SnippetException::invalidLocalesProvided('fr-FR, es-ES', 'en-GB, de-DE'));
+
+        $config->assertLocalesAreConfigured(['de-DE', 'fr-FR', 'es-ES']);
+    }
+
+    /**
+     * @param list<string> $locales
+     */
+    private function getConfig(array $locales): TranslationConfig
+    {
+        return new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            $locales,
+            [],
+            new LanguageCollection(),
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            [],
+        );
     }
 }

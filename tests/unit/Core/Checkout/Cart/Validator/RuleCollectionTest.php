@@ -14,8 +14,8 @@ use Shopware\Core\Test\Stub\Rule\TrueRule;
 /**
  * @internal
  */
-#[CoversClass(RuleCollection::class)]
 #[Package('checkout')]
+#[CoversClass(RuleCollection::class)]
 class RuleCollectionTest extends TestCase
 {
     public function testMetaCollecting(): void

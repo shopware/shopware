@@ -48,7 +48,7 @@
                 variant="primary"
                 @click.prevent="onSave"
             >
-                {{ $t('sw-product-stream.detail.buttonSave') }}
+                {{ $t('global.default.save') }}
             </sw-button-process>
             {% endblock %}
 
@@ -137,6 +137,7 @@
 
                 {% block sw_product_basic_form_display_as_group_field %}
                 <mt-switch
+                    v-if="productStream"
                     v-model="productStream.displayAsGroup"
                     v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
                     class="sw-product-stream-detail__display-as-group"
@@ -239,6 +240,7 @@
                 v-if="showModalPreview"
                 ref="modalPreview"
                 :filters="productStreamFiltersTree"
+                :display-as-group="productStream.displayAsGroup"
                 @modal-close="closeModalPreview"
             />
             {% endblock %}

@@ -46,8 +46,8 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 class AccountOrderController extends StorefrontController
 {
     /**
@@ -210,7 +210,7 @@ class AccountOrderController extends StorefrontController
     public function editOrder(string $orderId, Request $request, SalesChannelContext $context): Response
     {
         try {
-            $order = $this->orderRoute->load($request, $context, new Criteria([$orderId]))->getOrders()->first();
+            $order = $this->orderRoute->load($request, $context, new Criteria([$orderId]))->getOrders()->getEntities()->first();
         } catch (InvalidUuidException) {
             $order = null;
         }
@@ -313,7 +313,7 @@ class AccountOrderController extends StorefrontController
 
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('transactions.stateMachineState');
-        $order = $this->orderRoute->load($request, $context, $criteria)->getOrders()->first();
+        $order = $this->orderRoute->load($request, $context, $criteria)->getOrders()->getEntities()->first();
 
         if ($order === null) {
             throw OrderException::orderNotFound($orderId);

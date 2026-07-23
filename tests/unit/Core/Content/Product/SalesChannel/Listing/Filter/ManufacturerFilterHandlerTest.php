@@ -8,12 +8,14 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ManufacturerListingFilterHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ManufacturerListingFilterHandler::class)]
 class ManufacturerFilterHandlerTest extends TestCase
 {
@@ -29,7 +31,7 @@ class ManufacturerFilterHandlerTest extends TestCase
         $request = new Request();
         $request->request->set('manufacturer-filter', false);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $filter = $this->handler->create($request, $context);
 
@@ -43,7 +45,7 @@ class ManufacturerFilterHandlerTest extends TestCase
         $request = new Request();
         $request->query->set('manufacturer', \implode('|', $manufacturerIds));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $filter = $this->handler->create($request, $context);
 
@@ -71,7 +73,7 @@ class ManufacturerFilterHandlerTest extends TestCase
         $request->request->set('manufacturer-filter', true);
         $request->request->set('manufacturer', '');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $filter = $this->handler->create($request, $context);
 

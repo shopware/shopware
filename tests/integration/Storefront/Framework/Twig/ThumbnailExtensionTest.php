@@ -16,7 +16,9 @@ use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuild
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
@@ -38,6 +40,7 @@ use Twig\Loader\FilesystemLoader;
 /**
  * @internal
  */
+#[Package('discovery')]
 class ThumbnailExtensionTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -160,6 +163,8 @@ class ThumbnailExtensionTest extends TestCase
             'layout' => $layout,
             'media' => $this->createExampleMediaWithThumbnails([280, 400, 800, 1920]),
             'context' => Generator::generateSalesChannelContext(),
+            // with v6.8.0.0 breakpoint defaults are only resolved for theme-bound renders
+            'themeId' => Uuid::randomHex(),
         ]);
 
         $sizes = self::getSizesAttribute($result);
@@ -321,6 +326,7 @@ class ThumbnailExtensionTest extends TestCase
             ),
             static::createStub(ThemeScripts::class),
             'test',
+            [],
         );
 
         $twig->addExtension(new NodeExtension($templateFinder, $scopeDetector));

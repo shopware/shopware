@@ -14,12 +14,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(MeasurementUnitsFieldSerializer::class)]
 class MeasurementUnitsFieldSerializerTest extends TestCase
 {
@@ -31,12 +33,12 @@ class MeasurementUnitsFieldSerializerTest extends TestCase
 
     protected function setUp(): void
     {
-        $validator = $this->createMock(ValidatorInterface::class);
-        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $validator = static::createStub(ValidatorInterface::class);
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
 
         $this->serializer = new MeasurementUnitsFieldSerializer($validator, $definitionRegistry);
-        $this->existence = $this->createMock(EntityExistence::class);
-        $this->parameters = $this->createMock(WriteParameterBag::class);
+        $this->existence = static::createStub(EntityExistence::class);
+        $this->parameters = static::createStub(WriteParameterBag::class);
     }
 
     /**
@@ -91,7 +93,7 @@ class MeasurementUnitsFieldSerializerTest extends TestCase
     #[DataProvider('encodeProvider')]
     public function testEncode(Field $field, mixed $input, ?string $expected): void
     {
-        $field->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $field->compile(static::createStub(DefinitionInstanceRegistry::class));
 
         $kvPair = new KeyValuePair('data', $input, true);
         $actual = $this->serializer->encode($field, $this->existence, $kvPair, $this->parameters)->current();
@@ -156,7 +158,7 @@ class MeasurementUnitsFieldSerializerTest extends TestCase
     public function testDecode(?string $input, MeasurementUnits $expected): void
     {
         $field = new MeasurementUnitsField('data', 'data');
-        $field->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $field->compile(static::createStub(DefinitionInstanceRegistry::class));
         $actual = $this->serializer->decode($field, $input);
 
         static::assertEquals($expected, $actual);
@@ -167,7 +169,7 @@ class MeasurementUnitsFieldSerializerTest extends TestCase
     public function testDecodeWithInvalidJsonReturnsDefault(): void
     {
         $field = new MeasurementUnitsField('data', 'data');
-        $field->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $field->compile(static::createStub(DefinitionInstanceRegistry::class));
 
         $actual = $this->serializer->decode($field, 'invalid json');
 
@@ -178,7 +180,7 @@ class MeasurementUnitsFieldSerializerTest extends TestCase
     public function testDecodeWithNonArrayValueReturnsDefault(): void
     {
         $field = new MeasurementUnitsField('data', 'data');
-        $field->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $field->compile(static::createStub(DefinitionInstanceRegistry::class));
 
         $actual = $this->serializer->decode($field, Json::encode('string value'));
 
@@ -191,7 +193,7 @@ class MeasurementUnitsFieldSerializerTest extends TestCase
         $invalidField = new JsonField('data', 'data');
         $kvPair = new KeyValuePair('data', null, true);
 
-        $invalidField->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $invalidField->compile(static::createStub(DefinitionInstanceRegistry::class));
 
         $result = $this->serializer->encode($invalidField, $this->existence, $kvPair, $this->parameters)->current();
 
@@ -209,7 +211,7 @@ class MeasurementUnitsFieldSerializerTest extends TestCase
     public function testEncodePreservesNullWhenArrayIsProvided(): void
     {
         $field = new MeasurementUnitsField('data', 'data');
-        $field->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $field->compile(static::createStub(DefinitionInstanceRegistry::class));
 
         $arrayData = [
             'system' => 'metric',
@@ -226,7 +228,7 @@ class MeasurementUnitsFieldSerializerTest extends TestCase
     public function testEncodeWithComplexMeasurementUnitsObject(): void
     {
         $field = new MeasurementUnitsField('data', 'data');
-        $field->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $field->compile(static::createStub(DefinitionInstanceRegistry::class));
 
         $measurementUnits = new MeasurementUnits('test_system', [
             'length' => 'test_length',
@@ -252,7 +254,7 @@ class MeasurementUnitsFieldSerializerTest extends TestCase
     public function testEncodeThenDecodePreservesData(): void
     {
         $field = new MeasurementUnitsField('data', 'data');
-        $field->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $field->compile(static::createStub(DefinitionInstanceRegistry::class));
 
         $originalData = new MeasurementUnits('imperial', [
             'length' => 'ft',
@@ -273,7 +275,7 @@ class MeasurementUnitsFieldSerializerTest extends TestCase
     public function testDecodeUnitsMergeDefaults(): void
     {
         $field = new MeasurementUnitsField('data', 'data');
-        $field->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $field->compile(static::createStub(DefinitionInstanceRegistry::class));
 
         $partialJson = Json::encode([
             'system' => 'custom',

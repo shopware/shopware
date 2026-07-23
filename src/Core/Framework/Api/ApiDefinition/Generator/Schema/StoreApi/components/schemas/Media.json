@@ -1,14 +1,53 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": [],
     "components": {
         "schemas": {
             "Media": {
-                "type": "object",
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "apiAlias",
+                    "fileExtension",
+                    "fileName",
+                    "hasFile",
+                    "path",
+                    "private",
+                    "url",
+                    "id"
+                ],
                 "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "mimeType": {
+                        "description": "A string sent along with a file indicating the type of the file. For example: image/jpeg.",
+                        "type": "string"
+                    },
+                    "fileExtension": {
+                        "description": "Type of file indication. For example: jpeg, png.",
+                        "type": "string"
+                    },
+                    "uploadedAt": {
+                        "description": "Date and time at which media was added.",
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "fileName": {
+                        "description": "Name of the media file uploaded.",
+                        "type": "string"
+                    },
+                    "fileSize": {
+                        "description": "Size of the file media file uploaded.",
+                        "type": "integer",
+                        "format": "int64",
+                        "readOnly": true
+                    },
                     "metaData": {
                         "type": "object",
+                        "readOnly": true,
                         "properties": {
                             "height": {
                                 "type": "integer",
@@ -20,32 +59,59 @@
                             }
                         }
                     },
-                    "apiAlias": {
-                        "type": "string",
-                        "enum": ["media"]
+                    "config": {
+                        "type": "object"
+                    },
+                    "alt": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
                     },
                     "url": {
+                        "description": "Runtime field, cannot be used as part of the criteria.",
                         "type": "string"
                     },
                     "path": {
                         "type": "string"
                     },
                     "hasFile": {
+                        "description": "Runtime field, cannot be used as part of the criteria.",
                         "type": "boolean"
                     },
                     "private": {
+                        "description": "When `true`, the media display is kept private.",
                         "type": "boolean"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "translated": {
+                        "type": "object"
+                    },
+                    "thumbnails": {
+                        "description": "Generated thumbnail images in various sizes",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MediaThumbnail"
+                        }
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "const": "media"
                     }
                 },
-                "required": [
-                    "apiAlias",
-                    "fileExtension",
-                    "fileName",
-                    "hasFile",
-                    "path",
-                    "private",
-                    "url"
-                ]
+                "type": "object"
             }
         }
     }

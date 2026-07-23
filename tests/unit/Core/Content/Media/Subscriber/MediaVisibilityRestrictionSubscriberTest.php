@@ -18,11 +18,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\Count
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryDefinition;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(MediaVisibilityRestrictionSubscriber::class)]
 class MediaVisibilityRestrictionSubscriberTest extends TestCase
 {
@@ -62,6 +64,56 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
         $subscriber->securePrivateMediaAggregation($aggregatingEvent);
 
         static::assertSame($countAggregation, array_first($criteria->getAggregations()));
+    }
+
+    public function testDalWriteEventSystemContextGetsModified(): void
+    {
+        $subscriber = $this->createSubscriber();
+        $context = Context::createCLIContext();
+        $context->addState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT);
+
+        $searchedEvent = new EntitySearchedEvent(
+            new Criteria(),
+            new MediaDefinition(),
+            $context
+        );
+        $subscriber->securePrivateFolders($searchedEvent);
+
+        static::assertCount(1, $searchedEvent->getCriteria()->getFilters());
+
+        $criteria = new Criteria();
+        $criteria->addAggregation(new CountAggregation('media-count', 'id'));
+        $aggregatingEvent = new BeforeEntityAggregationEvent(
+            $criteria,
+            new MediaDefinition(),
+            $context
+        );
+        $subscriber->securePrivateMediaAggregation($aggregatingEvent);
+
+        static::assertInstanceOf(FilterAggregation::class, $criteria->getAggregation('Sanitized media-count'));
+    }
+
+    public function testExplicitSystemScopeStillAllowsPrivateMediaDuringDalWriteEvent(): void
+    {
+        $subscriber = $this->createSubscriber();
+        $context = Context::createCLIContext();
+
+        $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($subscriber): void {
+            $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($subscriber): void {
+                $searchedEvent = new EntitySearchedEvent(
+                    new Criteria(),
+                    new MediaDefinition(),
+                    $context
+                );
+                $subscriber->securePrivateFolders($searchedEvent);
+
+                static::assertCount(0, $searchedEvent->getCriteria()->getFilters());
+            });
+
+            static::assertTrue($context->hasState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT));
+        }, [Context::SYSTEM_SCOPE_DAL_WRITE_EVENT]);
+
+        static::assertFalse($context->hasState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT));
     }
 
     public function testSecurePrivateFlagIgnoresNonMediaEntities(): void
@@ -267,7 +319,7 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
 
     private function createSubscriber(string $productDownloadMediaFolderId = self::PRODUCT_DOWNLOAD_MEDIA_FOLDER_ID): MediaVisibilityRestrictionSubscriber
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection
             ->method('fetchOne')
             ->willReturn($productDownloadMediaFolderId);

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\RateLimiter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\RateLimiter\RateLimiterException;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
@@ -14,6 +15,7 @@ use Symfony\Component\RateLimiter\Storage\InMemoryStorage;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RateLimiter::class)]
 class RateLimiterTest extends TestCase
 {
@@ -31,8 +33,8 @@ class RateLimiterTest extends TestCase
 
         $limiter = new FixedWindowLimiter('test', 1, new \DateInterval('PT1M'), new InMemoryStorage());
 
-        $factory = $this->createMock(RateLimiterFactory::class);
-        $factory->method('create')->with('some-key')->willReturn($limiter);
+        $factory = static::createStub(RateLimiterFactory::class);
+        $factory->method('create')->willReturn($limiter);
 
         $rateLimiter = new RateLimiter();
         $rateLimiter->registerLimiterFactory('some-route', $factory);

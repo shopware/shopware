@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTaskHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Clock\NativeClock;
@@ -17,6 +18,7 @@ use Symfony\Component\Clock\NativeClock;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductExportGenerateTaskHandler::class)]
 class ProductExportGenerateTaskHandlerTest extends TestCase
 {
@@ -49,8 +51,8 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         $messageBusMock = new CollectingMessageBus();
 
         $productExportGenerateTaskHandler = new ProductExportGenerateTaskHandler(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(LoggerInterface::class),
             $connection,
             $messageBusMock,
             new NativeClock(),

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Storefront\Theme\Subscriber;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
@@ -27,6 +28,7 @@ use SwagTestPlugin\SwagTestPlugin;
 /**
  * @internal
  */
+#[Package('discovery')]
 class PluginLifecycleSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;

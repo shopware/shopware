@@ -25,7 +25,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - shell: bash
         run: npm ci --prefix .github/bin/js/
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
@@ -60,14 +60,14 @@ jobs:
       - name: Check if user is in custom list
         id: customUserCheck
         run: |
-          CUSTOM_USERS_ARRAY=(${CUSTOM_USERS//,/ })
+          read -ra CUSTOM_USERS_ARRAY <<< "${CUSTOM_USERS//,/ }"
           for user in "${CUSTOM_USERS_ARRAY[@]}"; do
             if [[ "$user" == "${{ github.actor }}" ]]; then
-              echo "is_custom_user=true" >> $GITHUB_OUTPUT
+              echo "is_custom_user=true" >> "$GITHUB_OUTPUT"
               exit 0
             fi
           done
-          echo "is_custom_user=false" >> $GITHUB_OUTPUT
+          echo "is_custom_user=false" >> "$GITHUB_OUTPUT"
       - name: debug
         if: runner.debug
         run: |
@@ -100,7 +100,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - id: sts
         continue-on-error: true
         uses: shopware/octo-sts-action@main
@@ -125,7 +125,7 @@ jobs:
       issues: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - shell: bash
         run: npm ci --prefix .github/bin/js/
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
@@ -147,7 +147,7 @@ jobs:
       issues: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - shell: bash
         run: npm ci --prefix .github/bin/js/
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
@@ -167,7 +167,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - id: sts
         continue-on-error: true
         uses: shopware/octo-sts-action@main
@@ -186,8 +186,7 @@ jobs:
   sync-test-plan-sub-issue:
     runs-on: ubuntu-24.04
     if: >
-      github.event_name == 'issues' &&
-      (
+      github.event_name == 'issues' && (
         (github.event.action == 'labeled' && github.event.label.name == 'testing/test-plan') ||
         (github.event.action == 'unlabeled' && github.event.label.name == 'testing/test-plan') ||
         github.event.action == 'reopened'
@@ -197,7 +196,7 @@ jobs:
       issues: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - shell: bash
         run: npm ci --prefix .github/bin/js/
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9

@@ -21,6 +21,7 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoAddCacheTagEventRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoUpdatesInExecuteQueryRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoUnsafeRequestHasSessionRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoConstraintViolationGetMessageRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoLegacySqlHashFunctionRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PublicServiceDecoratorRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoRouteOverrideInDecoratorsRule
@@ -29,6 +30,7 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\DataProviderRowArityRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\MockingSimpleObjectsNotAllowedRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoAnyInvocationMatcherRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoCreateMockWithoutExpectationsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoAssertEqualsOnClosureRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoAssertsOnObjectsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoDependsWithDataProviderRule
@@ -36,6 +38,9 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoMockBuilderConstructorBypassRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\PHPUnitClassAttributesOverAnnotationsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\PHPUnitMethodAttributesOverAnnotationsRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoNativeTimeFunctionRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoNativeTimeClassRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnoreEvaluationRule
 
     # rules from https://github.com/symplify/phpstan-rules
     # domain

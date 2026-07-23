@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Console\OutputFormatTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
@@ -16,11 +15,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'dal:validate',
     description: 'Validates the DAL definitions',
 )]
-#[Package('framework')]
 class DataAbstractionLayerValidateCommand extends Command
 {
     use OutputFormatTrait;
@@ -50,11 +49,17 @@ class DataAbstractionLayerValidateCommand extends Command
             InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
             'Only output errors for these PHP namespaces (comma-separated or repeatable)'
         );
+        $this->addOption(
+            'tolerate-foreign-key',
+            null,
+            InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
+            'Foreign key constraint name that is tolerated to reference a non-standard key (repeatable)'
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
 
         if ($input->getOption('json')) {
             Feature::triggerDeprecationOrThrow(
@@ -75,10 +80,10 @@ class DataAbstractionLayerValidateCommand extends Command
             $io->title('Data Abstraction Layer Validation');
         }
 
-        $errors = $this->validator->validate();
+        $errors = $this->validator->validate($input->getOption('tolerate-foreign-key'));
 
         // Filter errors by namespaces if provided
-        if (!empty($namespaces)) {
+        if ($namespaces !== []) {
             $errors = array_filter(
                 $errors,
                 static function ($_, $class) use ($namespaces) {

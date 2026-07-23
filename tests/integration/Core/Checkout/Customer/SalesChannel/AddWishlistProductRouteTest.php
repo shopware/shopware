@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\Event\WishlistProductAddedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Util\Random;
@@ -21,8 +22,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[Group('store-api')]
 #[Package('checkout')]
+#[Group('store-api')]
 class AddWishlistProductRouteTest extends TestCase
 {
     use CustomerTestTrait;
@@ -159,6 +160,15 @@ class AddWishlistProductRouteTest extends TestCase
             );
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $errors = $response['errors'][0];
+
+        if (Feature::isActive('v6.8.0.0')) {
+            static::assertSame(400, $this->browser->getResponse()->getStatusCode());
+            static::assertSame('CONTENT__MISSING_REQUEST_PARAMETER_CODE', $errors['code']);
+            static::assertSame('Product for id ' . $productId . ' not found.', $errors['detail']);
+
+            return;
+        }
+
         static::assertSame(404, $this->browser->getResponse()->getStatusCode());
         static::assertSame('CONTENT__PRODUCT_NOT_FOUND', $errors['code']);
         static::assertSame('Not Found', $errors['title']);

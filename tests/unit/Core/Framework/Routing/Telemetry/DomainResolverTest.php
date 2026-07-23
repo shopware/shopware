@@ -13,8 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[CoversClass(DomainResolver::class)]
 #[Package('framework')]
+#[CoversClass(DomainResolver::class)]
 class DomainResolverTest extends TestCase
 {
     /**

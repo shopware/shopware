@@ -17,8 +17,8 @@ use Shopware\Core\Framework\Telemetry\Doctrine\QueryCountStatement;
 /**
  * @internal
  */
-#[CoversClass(QueryCountMiddleware::class)]
 #[Package('framework')]
+#[CoversClass(QueryCountMiddleware::class)]
 class QueryCountMiddlewareTest extends TestCase
 {
     public function testWrapReturnsADriverExposingTheSharedCounter(): void

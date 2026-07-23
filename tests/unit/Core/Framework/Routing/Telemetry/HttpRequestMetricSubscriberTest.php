@@ -27,8 +27,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
-#[CoversClass(HttpRequestMetricSubscriber::class)]
 #[Package('framework')]
+#[CoversClass(HttpRequestMetricSubscriber::class)]
 class HttpRequestMetricSubscriberTest extends TestCase
 {
     /**

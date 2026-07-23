@@ -460,6 +460,36 @@ describe("Cookie reCAPTCHA Integration tests", () => {
 		expect(showCookieBarSpy).not.toHaveBeenCalled(); // Cookie bar should not be shown
 	});
 
+	test("integration: fails without showing the cookie bar when consent is accepted but no token was generated yet", () => {
+		// Consent is accepted, so the reCAPTCHA plugin is registered, but it has not produced a
+		// token yet. The form must not submit with an empty token, but the cookie bar stays
+		// hidden because consent already exists.
+		CookieStorage.getItem.mockImplementation((cookieName) => {
+			if (cookieName === "cookie-preference") return "1"; // Cookie consent accepted
+			return null;
+		});
+
+		// Setup spies
+		const showCookieBarSpy = jest.spyOn(
+			cookiePermissionPlugin,
+			"_showCookieBar",
+		);
+
+		// Get the grecaptcha field and leave it empty (no token generated yet)
+		const grecaptchaField = document.getElementById("grecaptcha-v3");
+		grecaptchaField.value = "";
+
+		// Validate the field - this should fail on the empty token
+		const validationResult = formValidation.validateField(grecaptchaField);
+
+		// Assertions - field fails, but no cookie bar since consent already exists
+		expect(validationResult).toEqual(["grecaptcha", "required"]);
+		expect(showCookieBarSpy).not.toHaveBeenCalled();
+		expect(cookiePermissionPlugin.$emitter.publish).not.toHaveBeenCalledWith(
+			"showCookieBar",
+		);
+	});
+
 	test("integration: form validation with multiple fields including grecaptcha", () => {
 		// Setup spies
 		const showCookieBarSpy = jest.spyOn(

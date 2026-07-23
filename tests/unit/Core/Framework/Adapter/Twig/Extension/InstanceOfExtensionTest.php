@@ -28,6 +28,7 @@ class InstanceOfExtensionTest extends TestCase
 
         $this->expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: Passing a non-object as $var is deprecated.'));
 
+        // @phpstan-ignore argument.type (intentional legacy call)
         $extension->isInstanceOf('not-an-object', \stdClass::class);
     }
 
@@ -37,6 +38,7 @@ class InstanceOfExtensionTest extends TestCase
 
         $this->expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: Passing a non-string as $class is deprecated.'));
 
+        // @phpstan-ignore argument.type (intentional legacy call)
         $extension->isInstanceOf(new \stdClass(), new \stdClass());
     }
 }

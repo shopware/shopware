@@ -12,7 +12,7 @@
 import { createExtendableSetup, overrideComponentSetup, _overridesMap } from 'src/app/adapter/composition-extension-system';
 import { mount } from '@vue/test-utils';
 import type { EmitFn } from 'vue';
-import { ref, computed, reactive, defineComponent } from 'vue';
+import { ref, computed, reactive, defineComponent, watch, nextTick } from 'vue';
 import type { SetupContext, Slot } from '@vue/runtime-core';
 import ExampleExtendableScriptSetupComponent from './_mocks_/example-extendable-script-setup-component.vue';
 
@@ -3381,6 +3381,61 @@ describe('src/app/adapter/composition-extension-system', () => {
      * If you need to run these tests remove the alias in "moduleNameMapper"
      * inside the jest config and remove global Vue registrations.
      */
+    describe('Effect disposal:', () => {
+        it('disposes watchers created by late-registered overrides when the component unmounts', async () => {
+            const externalSource = ref(0);
+            const watcherCalls = jest.fn();
+
+            const originalComponent = defineComponent({
+                template: '<div>Count: {{ count }}</div>',
+                setup: (props, context) =>
+                    createExtendableSetup(
+                        {
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        },
+                        () => {
+                            const count = ref(1);
+
+                            return {
+                                public: {
+                                    count,
+                                },
+                            };
+                        },
+                    ),
+            });
+
+            const wrapper = mount(originalComponent);
+
+            // Late registration: the override applies inside the overrides watcher, outside any
+            // active effect scope. The watcher it creates must still be tied to the component.
+            overrideComponentSetup()('originalComponent', () => {
+                watch(externalSource, watcherCalls);
+
+                return {
+                    count: ref(5),
+                };
+            });
+
+            await flushPromises();
+            expect(wrapper.text()).toBe('Count: 5');
+
+            externalSource.value += 1;
+            await nextTick();
+            expect(watcherCalls).toHaveBeenCalledTimes(1);
+
+            wrapper.unmount();
+
+            externalSource.value += 1;
+            await nextTick();
+
+            // Without scope handling the override's watcher would survive the unmount and fire again.
+            expect(watcherCalls).toHaveBeenCalledTimes(1);
+        });
+    });
+
     // eslint-disable-next-line jest/no-disabled-tests
     describe.skip('Script Setup usage', () => {
         it('should be able to override refs in script setup', async () => {

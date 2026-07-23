@@ -2,6 +2,7 @@ import type { ComputedRef, Reactive, Ref, ToRefs } from 'vue';
 import {
     computed,
     getCurrentInstance as vueGetCurrentInstance,
+    getCurrentScope,
     isReactive,
     isReadonly,
     isRef,
@@ -397,8 +398,21 @@ export function createExtendableSetup<
         });
     };
 
-    // Watch for changes in the overrides array and reapply overrides when changed
-    watch(overrides, applyOverrides, { deep: true, immediate: true });
+    // Watch for changes in the overrides array and reapply overrides when changed.
+    //
+    // Late-registered overrides (async Options API shim conversions, plugins registering after the
+    // component mounted) run inside this watcher's callback, where no effect scope is active. Any
+    // watcher or computed an override creates there would never be collected and would keep running
+    // after the component unmounts. Re-entering the owning component's scope makes Vue collect those
+    // effects and dispose them on unmount, exactly like effects from the synchronous first
+    // application. Once the component is unmounted this watcher is stopped with the same scope, so
+    // no application can happen against a dead scope.
+    const ownerScope = getCurrentScope();
+
+    watch(overrides, ownerScope ? () => ownerScope.run(applyOverrides) : applyOverrides, {
+        deep: true,
+        immediate: true,
+    });
 
     return toRefs(reactiveWrappedState);
 }

@@ -4,8 +4,6 @@ import './sw-cms-el-config-product-listing.scss';
 const { Mixin } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
-const { has } = Shopware.Utils.object;
-
 /**
  * @private
  * @sw-package discovery
@@ -272,11 +270,10 @@ export default {
         },
 
         onUpdateProductSortings() {
-            const currentValue = this.element.config.availableSortings.value;
             const newValue = {};
 
             this.productSortings.forEach((item) => {
-                newValue[item.id] = has(currentValue, item.id) ? currentValue[item.id] : item.priority;
+                newValue[item.id] = item.priority;
             });
 
             // add the default sorting to available sortings, so it won't break logic

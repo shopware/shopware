@@ -12,7 +12,10 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    emits: ['sorting-delete', 'update:modelValue'],
+    emits: [
+        'sorting-delete',
+        'update:modelValue',
+    ],
 
     mixins: [
         'sw-inline-snippet',

@@ -56,8 +56,7 @@ composer admin:setup-extension-tooling -- --help                # full option re
 ⚠ Options always need the `--` separator — Composer silently swallows anything before it
 (`composer admin:setup-extension-tooling --check` runs a plain setup, not a dry-run). For a
 dry-run that **cannot** mutate files regardless of the separator, use the dedicated
-`composer admin:setup-extension-tooling:check` alias — prefer it in CI. (`--explain` is also
-read-only.)
+`composer admin:setup-extension-tooling:check` alias — prefer it in CI.
 
 In an interactive terminal `admin:check-extensions` opens a numbered picker (accepts
 numbers, ranges, `a` for all, `w` for writable-only). Non-interactive shells (CI, piped)

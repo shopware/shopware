@@ -208,9 +208,6 @@ jobs:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
 
-      - name: Check Store API schema migration report
-        run: bin/console framework:store-api:schema-migration-report --scope=core --fail-on-mismatch --pretty -
-
       - name: Cache npm packages
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -248,6 +245,9 @@ jobs:
         with:
           schema-file: "./api-types/storeApiSchema.json"
           project: "shopware/store-api"
+
+      - name: Check Store API schema migration report
+        run: bin/console framework:store-api:schema-migration-report --scope=core --fail-on-mismatch --pretty -
 
       - name: Generate StoreAPI schema
         run: |

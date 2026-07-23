@@ -197,6 +197,8 @@
                             v-model="productSortings"
                             :default-sorting="defaultSorting"
                             :disabled="isInherited"
+                            @inline-edit-save="onSortingPrioritySave"
+                            @inline-edit-cancel="onSortingPriorityCancel"
                         />
                         {% endblock %}
                     </template>

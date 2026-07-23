@@ -240,11 +240,8 @@ export default {
     },
 
     watch: {
-        productSortings: {
-            deep: true,
-            handler() {
-                this.onUpdateProductSortings();
-            },
+        productSortings() {
+            this.onUpdateProductSortings();
         },
         defaultSorting() {
             if (Object.keys(this.defaultSorting).length === 0) {
@@ -286,6 +283,14 @@ export default {
             }
 
             this.element.config.availableSortings.value = newValue;
+        },
+
+        onSortingPrioritySave() {
+            this.onUpdateProductSortings();
+        },
+
+        onSortingPriorityCancel(productSorting) {
+            productSorting.priority = this.productSortingsConfigValue[productSorting.id];
         },
 
         async initProductSorting() {

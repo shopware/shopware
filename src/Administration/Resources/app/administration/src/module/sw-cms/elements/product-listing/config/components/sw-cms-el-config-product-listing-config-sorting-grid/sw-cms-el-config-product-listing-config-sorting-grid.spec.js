@@ -59,6 +59,8 @@ async function createWrapper(productSortings = [], defaultSorting = {}) {
                     props: ['dataSource'],
                     template: `
                         <div>
+                          <button class="inline-edit-save" @click="$emit('inline-edit-save', dataSource[0])"></button>
+                          <button class="inline-edit-cancel" @click="$emit('inline-edit-cancel', dataSource[0])"></button>
                           <template v-for="item in dataSource">
                               <slot name="actions" v-bind="{ item: item }"></slot>
                               <slot name="column-fields" v-bind="{ item: item }"></slot>
@@ -172,6 +174,19 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
         await wrapper.vm.$forceUpdate();
 
         expect(wrapper.vm.productSortings.get('bar').priority).toBe(7);
+    });
+
+    it('should forward inline edit events', async () => {
+        const productSortings = new EntityCollection('', '', {}, {}, [
+            { id: 'foo', locked: false, priority: 5 },
+        ]);
+        const wrapper = await createWrapper(productSortings);
+
+        await wrapper.find('.inline-edit-save').trigger('click');
+        await wrapper.find('.inline-edit-cancel').trigger('click');
+
+        expect(wrapper.emitted('inline-edit-save')).toEqual([[productSortings.first()]]);
+        expect(wrapper.emitted('inline-edit-cancel')).toEqual([[productSortings.first()]]);
     });
 
     it('should display criteria properly', async () => {

@@ -129,12 +129,38 @@ describe('src/module/sw-cms/elements/product-listing/config - sorting', () => {
         const productSorting = { id: 'foo_id', priority: 2 };
 
         wrapper.vm.productSortings = new EntityCollection('', '', {}, {}, [productSorting]);
-        wrapper.vm.element.config.availableSortings.value = { foo_id: 2 };
+        await wrapper.vm.$nextTick();
 
         productSorting.priority = 10;
-        wrapper.vm.onUpdateProductSortings();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual({ foo_id: 2 });
+
+        wrapper
+            .findComponent('sw-cms-el-config-product-listing-config-sorting-grid-stub')
+            .vm.$emit('inline-edit-save', productSorting);
+        await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual({ foo_id: 10 });
+    });
+
+    it('should restore the product sorting priority when inline editing is cancelled', async () => {
+        const wrapper = await createWrapper();
+        const productSorting = { id: 'foo_id', priority: 2 };
+
+        wrapper.vm.productSortings = new EntityCollection('', '', {}, {}, [productSorting]);
+        await wrapper.vm.$nextTick();
+
+        productSorting.priority = 10;
+        await wrapper.vm.$nextTick();
+
+        wrapper
+            .findComponent('sw-cms-el-config-product-listing-config-sorting-grid-stub')
+            .vm.$emit('inline-edit-cancel', productSorting);
+        await wrapper.vm.$nextTick();
+
+        expect(productSorting.priority).toBe(2);
+        expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual({ foo_id: 2 });
     });
 
     it('should retain the default sorting when updating product sortings', async () => {
@@ -169,6 +195,23 @@ describe('src/module/sw-cms/elements/product-listing/config - sorting', () => {
 
         expect(wrapper.vm.defaultSorting).toStrictEqual({});
         expect(wrapper.vm.defaultSortingId).toBeNull();
+    });
+
+    it('should clear the default sorting through the select', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.defaultSorting = { id: 'default_sorting' };
+        wrapper.vm.defaultSortingId = 'default_sorting';
+        await wrapper.vm.$nextTick();
+
+        const defaultSortingSelect = wrapper.findComponent('sw-entity-single-select-stub');
+        defaultSortingSelect.vm.$emit('update:value', null);
+        defaultSortingSelect.vm.$emit('option-select', 'productSorting', null);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.defaultSorting).toStrictEqual({});
+        expect(wrapper.vm.defaultSortingId).toBeNull();
+        expect(wrapper.vm.element.config.defaultSorting.value).toBe('');
     });
 
     it('should update the product sortings priority with the values from the config', async () => {

@@ -15,6 +15,8 @@ export default {
     emits: [
         'sorting-delete',
         'update:modelValue',
+        'inline-edit-save',
+        'inline-edit-cancel',
     ],
 
     mixins: [
@@ -158,6 +160,14 @@ export default {
 
             this.$emit('update:modelValue', collection);
             this.$emit('sorting-delete', productSorting.id);
+        },
+
+        onInlineEditSave(productSorting) {
+            this.$emit('inline-edit-save', productSorting);
+        },
+
+        onInlineEditCancel(productSorting) {
+            this.$emit('inline-edit-cancel', productSorting);
         },
 
         isDefaultSorting(productSorting) {

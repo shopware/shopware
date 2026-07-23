@@ -66,10 +66,26 @@ class ConfigurationTest extends TestCase
         $children = $node->getChildNodeDefinitions();
         static::assertInstanceOf(ScalarNodeDefinition::class, $children['repository_url']);
         static::assertInstanceOf(ScalarNodeDefinition::class, $children['metadata_url']);
-        static::assertInstanceOf(VariableNodeDefinition::class, $children['plugins']);
-        static::assertInstanceOf(VariableNodeDefinition::class, $children['excluded_locales']);
-        static::assertInstanceOf(VariableNodeDefinition::class, $children['plugin_mapping']);
-        static::assertInstanceOf(VariableNodeDefinition::class, $children['languages']);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $children['plugins']);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $children['excluded_locales']);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $children['plugin_mapping']);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $children['languages']);
+    }
+
+    public function testTranslationConfigRejectsInvalidListType(): void
+    {
+        $configuration = new Configuration();
+
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('Invalid type for path "shopware.translation.languages". Expected "array", but got "string"');
+
+        (new Processor())->processConfiguration($configuration, [
+            [
+                'translation' => [
+                    'languages' => 'foo',
+                ],
+            ],
+        ]);
     }
 
     public function testTranslationConfigDefaultsToNull(): void

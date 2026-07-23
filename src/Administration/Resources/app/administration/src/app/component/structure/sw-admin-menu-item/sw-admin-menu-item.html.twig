@@ -32,7 +32,7 @@
                 {% block sw_admin_menu_item_text_linked %}
                 <span
                     class="sw-admin-menu__navigation-link-label"
-                    :class="collapsibleText ? 'collapsible-text' : ''"
+                    :class="collapsibleText ? 'collapsible-text hide-on-collapse' : ''"
                     :title="getEntryLabel"
                 >
                     {{ getEntryLabel }}
@@ -46,7 +46,7 @@
                     <mt-icon
                         :name="expandIcon"
                         size="8"
-                        class="sw-admin-menu__navigation-link-expand-icon collapsible-text"
+                        class="sw-admin-menu__navigation-link-expand-icon collapsible-text hide-on-collapse"
                     />
                 </span>
                 {% endblock %}
@@ -72,7 +72,7 @@
             {% block sw_admin_menu_item_navigation_text_fold %}
             <span
                 class="sw-admin-menu__navigation-link-label"
-                :class="collapsibleText ? 'collapsible-text' : ''"
+                :class="collapsibleText ? 'collapsible-text hide-on-collapse' : ''"
                 :title="getEntryLabel"
             >
                 {{ getEntryLabel }}
@@ -89,7 +89,7 @@
                 <mt-icon
                     :name="expandIcon"
                     size="8"
-                    class="sw-admin-menu__navigation-link-expand-icon collapsible-text"
+                    class="sw-admin-menu__navigation-link-expand-icon collapsible-text hide-on-collapse"
                 />
             </span>
             {% endblock %}
@@ -144,7 +144,7 @@
 
             <span
                 class="sw-admin-menu__navigation-link-label"
-                :class="collapsibleText ? 'collapsible-text' : ''"
+                :class="collapsibleText ? 'collapsible-text hide-on-collapse' : ''"
                 :title="getEntryLabel"
             >
                 {{ getEntryLabel }}
@@ -157,7 +157,7 @@
             v-else-if="entry.link"
             :href="entry.link"
             :target="entry.target"
-            :title="$tc(entry.label)"
+            :title="$t(entry.label)"
             class="sw-admin-menu__navigation-link"
         >
             <mt-icon
@@ -169,7 +169,7 @@
 
             <span
                 class="sw-admin-menu__navigation-link-label"
-                :class="collapsibleText ? 'collapsible-text' : ''"
+                :class="collapsibleText ? 'collapsible-text hide-on-collapse' : ''"
                 :title="getEntryLabel"
             >
                 {{ getEntryLabel }}
@@ -192,7 +192,7 @@
 
             <span
                 class="sw-admin-menu__navigation-link-label"
-                :class="collapsibleText ? 'collapsible-text' : ''"
+                :class="collapsibleText ? 'collapsible-text hide-on-collapse' : ''"
                 :title="getEntryLabel"
             >
                 {{ getEntryLabel }}

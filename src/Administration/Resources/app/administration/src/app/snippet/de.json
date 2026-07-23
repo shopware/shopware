@@ -1492,6 +1492,8 @@
     "keyboardShortcutAddRule": "A R",
     "functionAddSaleschannel": "Verkaufskanal hinzufügen",
     "keyboardShortcutAddSaleschannel": "A S",
+    "functionToggleMainMenu": "Hauptnavigation öffnen / schließen",
+    "keyboardShortcutToggleMainMenu": "M",
     "functionGoToDashboard": "Dashboard öffnen",
     "keyboardShortcutGoToDashboard": "G H",
     "functionGoToProducts": "Produkte öffnen",

@@ -30,7 +30,31 @@ export default function createShortcutService(shortcutFactory, keystrokeDelay = 
         stopEventListener,
         isShortcutsDisabled,
         setShortcutsDisabled,
+        isPendingCombinationKey,
     };
+
+    /**
+     * Returns true when the given key would complete a currently buffered
+     * navigation key sequence (e.g. "M" while "G" is buffered completes "GM").
+     * Lets single-key component shortcuts skip firing in the middle of a
+     * registered sequence.
+     */
+    function isPendingCombinationKey(key) {
+        if (shortcutsDisabled || state.buffer.length === 0) {
+            return false;
+        }
+
+        if (Date.now() - state.lastKeyTime > keystrokeDelay) {
+            return false;
+        }
+
+        const combination = [
+            ...state.buffer,
+            key.toUpperCase(),
+        ].join('');
+
+        return Boolean(shortcutFactory.getPathByCombination(combination));
+    }
 
     function startEventListener() {
         if (shortcutsDisabled) {

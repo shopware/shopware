@@ -53,6 +53,10 @@ async function createWrapper(options = {}) {
                 },
                 'mt-link': true,
                 'mt-icon': true,
+                'mt-floating-ui': {
+                    template: '<div class="mt-floating-ui"><slot v-if="isOpened" /></div>',
+                    props: ['isOpened'],
+                },
             },
             provide: {
                 menuService,
@@ -72,6 +76,9 @@ async function createWrapper(options = {}) {
                     can: (privilege) => {
                         return privilege !== 'shouldReturnFalse';
                     },
+                },
+                shortcutService: {
+                    isPendingCombinationKey: () => false,
                 },
                 customEntityDefinitionService: {
                     getMenuEntries: () => {
@@ -132,6 +139,82 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         await flushPromises();
     });
 
+    it('should fall back to "Shopware" when no shop name is configured', async () => {
+        await flushPromises();
+
+        expect(wrapper.find('.sw-admin-menu__shop-name').text()).toBe('Shopware');
+    });
+
+    it('should fall back to "Shopware" when the shop name cannot be loaded', async () => {
+        wrapper.vm.shopName = '';
+        wrapper.vm.systemConfigApiService.getValues = () => Promise.reject(new Error('forbidden'));
+
+        wrapper.vm.loadShopName();
+        await flushPromises();
+
+        expect(wrapper.vm.shopName).toBe('Shopware');
+    });
+
+    it('should keep the branch with the active child open when another branch is opened', async () => {
+        const branches = wrapper.vm.mainMenuEntries.filter((entry) => (entry.children?.length ?? 0) > 0);
+        expect(branches.length).toBeGreaterThanOrEqual(2);
+
+        const [
+            activeBranch,
+            otherBranch,
+        ] = branches;
+
+        wrapper.vm.$route.name = activeBranch.children[0].path;
+        Shopware.Store.get('adminMenu').clearExpandedMenuEntries();
+
+        wrapper.vm.onMenuBranchToggle({ entry: activeBranch, open: true });
+        wrapper.vm.onMenuBranchToggle({ entry: otherBranch, open: true });
+
+        expect(wrapper.vm.isNavigationEntryExpanded(activeBranch)).toBe(true);
+        expect(wrapper.vm.isNavigationEntryExpanded(otherBranch)).toBe(true);
+    });
+
+    it('should close a branch without an active child when another branch is opened', async () => {
+        const branches = wrapper.vm.mainMenuEntries.filter((entry) => (entry.children?.length ?? 0) > 0);
+
+        const [
+            branchA,
+            branchB,
+        ] = branches;
+
+        wrapper.vm.$route.name = undefined;
+        Shopware.Store.get('adminMenu').clearExpandedMenuEntries();
+
+        wrapper.vm.onMenuBranchToggle({ entry: branchA, open: true });
+        wrapper.vm.onMenuBranchToggle({ entry: branchB, open: true });
+
+        expect(wrapper.vm.isNavigationEntryExpanded(branchA)).toBe(false);
+        expect(wrapper.vm.isNavigationEntryExpanded(branchB)).toBe(true);
+    });
+
+    it('should close the previous branch when the active item moves to another branch', async () => {
+        const branches = wrapper.vm.mainMenuEntries.filter((entry) => (entry.children?.length ?? 0) > 0);
+
+        const [
+            branchA,
+            branchB,
+        ] = branches;
+
+        Shopware.Store.get('adminMenu').clearExpandedMenuEntries();
+        wrapper.vm.activeBranchKey = null;
+
+        wrapper.vm.$route.name = branchA.children[0].path;
+        wrapper.vm.expandAncestorBranchesForCurrentRoute();
+
+        expect(wrapper.vm.isNavigationEntryExpanded(branchA)).toBe(true);
+
+        wrapper.vm.$route.name = branchB.children[0].path;
+        wrapper.vm.expandAncestorBranchesForCurrentRoute();
+
+        expect(wrapper.vm.isNavigationEntryExpanded(branchA)).toBe(false);
+        expect(wrapper.vm.isNavigationEntryExpanded(branchB)).toBe(true);
+    });
+
     it('should show the snippet for the admin title', async () => {
         Shopware.Store.get('session').setCurrentUser({
             admin: true,
@@ -188,67 +271,33 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         expect(userTitle.text()).toBe('Copyreader');
     });
 
-    it('should be able to check if a mouse position is in a polygon', async () => {
-        const polygon = [
-            [
-                0,
-                287,
-            ],
-            [
-                0,
-                335,
-            ],
-            [
-                300,
-                431,
-            ],
-            [
-                300,
-                287,
-            ],
-        ];
+    it('should toggle the sidebar via the "s" shortcut', async () => {
+        expect(wrapper.vm.$options.shortcuts.s).toBe('onToggleSidebarShortcut');
 
-        const insideMousePosition = {
-            x: 10,
-            y: 300,
-        };
-        expect(wrapper.vm.isPositionInPolygon(insideMousePosition.x, insideMousePosition.y, polygon)).toBe(true);
+        const isExpandedBefore = wrapper.vm.isExpanded;
 
-        const outsideMousePosition = {
-            x: 1,
-            y: 1,
-        };
-        expect(wrapper.vm.isPositionInPolygon(outsideMousePosition.x, outsideMousePosition.y, polygon)).toBe(false);
+        wrapper.vm.onToggleSidebarShortcut();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.isExpanded).toBe(!isExpandedBefore);
+
+        wrapper.vm.onToggleSidebarShortcut();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.isExpanded).toBe(isExpandedBefore);
     });
 
-    it('should get polygon from menu item', async () => {
-        const element = document.createElement('div');
-        const entry = {
-            children: [
-                {
-                    name: 'foo',
-                },
-            ],
-        };
+    it('should not toggle the sidebar via the "s" shortcut while a navigation sequence is pending', async () => {
+        wrapper.vm.shortcutService.isPendingCombinationKey = () => true;
 
-        expect(wrapper.vm.getPolygonFromMenuItem(element, entry)).toStrictEqual([
-            [
-                0,
-                0,
-            ],
-            [
-                0,
-                0,
-            ],
-            [
-                0,
-                0,
-            ],
-            [
-                0,
-                0,
-            ],
-        ]);
+        const isExpandedBefore = wrapper.vm.isExpanded;
+
+        wrapper.vm.onToggleSidebarShortcut();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.isExpanded).toBe(isExpandedBefore);
+
+        wrapper.vm.shortcutService.isPendingCombinationKey = () => false;
     });
 
     it('should render correct admin menu entries', async () => {
@@ -355,29 +404,21 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     });
 
     it('should not show icons in flyout menu items', async () => {
-        const app = document.createElement('div');
-        app.id = 'app';
-        document.body.appendChild(app);
-        const component = document.createElement('div');
-        component.id = 'component';
-        app.appendChild(component);
+        wrapper = await createWrapper();
+        await flushPromises();
 
-        wrapper = await createWrapper({
-            attachTo: '#component',
-        });
+        // Flyouts only open while the sidebar is collapsed.
+        Shopware.Store.get('adminMenu').collapseSidebar();
         await flushPromises();
 
         const target = wrapper.find('.navigation-list-item__has-children');
-
-        target.element.getBoundingClientRect = jest.fn(() => ({ top: 100 }));
-        app.getBoundingClientRect = jest.fn(() => ({ top: 20 }));
-
         await target.trigger('mouseenter');
         await flushPromises();
 
-        const flyoutItem = wrapper.findComponent(
-            '.sw-admin-menu_flyout-holder .navigation-list-item__sw-second-level-first',
-        );
-        expect(flyoutItem.findAll('.mt-icon')).toHaveLength(0);
+        expect(wrapper.vm.flyoutEntries.length).toBeGreaterThan(0);
+
+        const flyoutItem = wrapper.find('.sw-admin-menu_flyout-holder .sw-admin-menu__navigation-link');
+        expect(flyoutItem.exists()).toBe(true);
+        expect(flyoutItem.element.querySelectorAll('mt-icon-stub, .mt-icon')).toHaveLength(0);
     });
 });

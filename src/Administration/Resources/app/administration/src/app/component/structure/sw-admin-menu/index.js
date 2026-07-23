@@ -14,6 +14,7 @@ export default {
     template,
 
     inject: [
+        'acl',
         'menuService',
         'loginService',
         'userService',
@@ -21,11 +22,16 @@ export default {
         'feature',
         'customEntityDefinitionService',
         'systemConfigApiService',
+        'shortcutService',
     ],
 
     mixins: [
         Mixin.getByName('notification'),
     ],
+
+    shortcuts: {
+        s: 'onToggleSidebarShortcut',
+    },
 
     data() {
         return {
@@ -44,6 +50,8 @@ export default {
             shopName: '',
             isTogglingSidebar: false,
             toggleSidebarTimeout: null,
+            // Key of the top-level branch owning the currently active route.
+            activeBranchKey: null,
         };
     },
 
@@ -251,9 +259,15 @@ The admin menu only supports up to three levels of nesting.`,
         },
 
         loadShopName() {
-            this.systemConfigApiService.getValues('core.basicInformation').then((values) => {
-                this.shopName = values['core.basicInformation.shopName'] ?? '';
-            });
+            this.systemConfigApiService
+                .getValues('core.basicInformation')
+                .then((values) => {
+                    this.shopName = values['core.basicInformation.shopName'] || 'Shopware';
+                })
+                .catch(() => {
+                    // Users without system config read permission still get the fallback.
+                    this.shopName = 'Shopware';
+                });
         },
 
         beforeUnmountedComponent() {
@@ -327,6 +341,20 @@ The admin menu only supports up to three levels of nesting.`,
             this.toggleSidebar();
         },
 
+        onToggleSidebarShortcut() {
+            // "S" also ends navigation sequences like "GS" and "AS" — skip the
+            // toggle when the keypress completes one of those.
+            if (this.shortcutService?.isPendingCombinationKey?.('S')) {
+                return;
+            }
+
+            if (this.isMobileViewport) {
+                return;
+            }
+
+            this.onToggleSidebar();
+        },
+
         suppressLogoHoverDuringToggle() {
             this.isTogglingSidebar = true;
 
@@ -334,11 +362,12 @@ The admin menu only supports up to three levels of nesting.`,
                 clearTimeout(this.toggleSidebarTimeout);
             }
 
-            // 300ms matches the 0.3s panel width transition.
+            // 400ms matches the 0.4s panel width transition and the delayed
+            // fade-in of hide-on-collapse elements (0.1s delay + 0.3s duration).
             this.toggleSidebarTimeout = setTimeout(() => {
                 this.isTogglingSidebar = false;
                 this.toggleSidebarTimeout = null;
-            }, 300);
+            }, 400);
         },
 
         toggleSidebar() {
@@ -391,8 +420,32 @@ The admin menu only supports up to three levels of nesting.`,
                 return;
             }
 
-            this.adminMenuStore.clearExpandedMenuEntries();
+            this.collapseInactiveBranches(entry);
             this.adminMenuStore.expandMenuEntry(entry);
+        },
+
+        /**
+         * Accordion behaviour with one exception: a branch owning the currently
+         * active route stays open until it is closed manually or the active item
+         * moves to another branch.
+         */
+        collapseInactiveBranches(exceptEntry = null) {
+            const exceptKey = exceptEntry ? (exceptEntry.id ?? exceptEntry.path) : null;
+            const activeNames = getActiveRouteNames(this.$route, this.$router);
+
+            this.adminMenuStore.expandedEntries
+                .filter((expanded) => {
+                    const key = expanded.id ?? expanded.path;
+
+                    if (key === exceptKey) {
+                        return false;
+                    }
+
+                    const menuEntry = this.mainMenuEntries.find((entry) => (entry.id ?? entry.path) === key);
+
+                    return !menuEntry || !isEntryOnActiveRoute(menuEntry, this.$route, activeNames);
+                })
+                .forEach((expanded) => this.adminMenuStore.collapseMenuEntry(expanded));
         },
 
         onMenuItemHover(entry, eventTarget) {
@@ -534,16 +587,25 @@ The admin menu only supports up to three levels of nesting.`,
             // route chain (+ parentPath bridge), so it works for any routing — including path-less
             // parents (e.g. "Extensions") and detail/create sub-pages.
             const activeNames = getActiveRouteNames(this.$route, this.$router);
+            const owner = this.mainMenuEntries.find(
+                (entry) => (entry.children?.length ?? 0) > 0 && isEntryOnActiveRoute(entry, this.$route, activeNames),
+            );
+            const ownerKey = owner ? (owner.id ?? owner.path) : null;
 
-            this.mainMenuEntries.forEach((entry) => {
-                if (
-                    (entry.children?.length ?? 0) > 0 &&
-                    isEntryOnActiveRoute(entry, this.$route, activeNames) &&
-                    !this.isNavigationEntryExpanded(entry)
-                ) {
-                    this.adminMenuStore.expandMenuEntry(entry);
-                }
-            });
+            // Same owning branch as before (e.g. tab navigation inside a module) —
+            // keep the current expansion state so a manual close is not overridden.
+            if (ownerKey === this.activeBranchKey) {
+                return;
+            }
+
+            // The active item moved to another branch: branches only stay open while
+            // they own the active item, so collapse the previous ones.
+            this.collapseInactiveBranches(owner);
+            this.activeBranchKey = ownerKey;
+
+            if (owner && !this.isNavigationEntryExpanded(owner)) {
+                this.adminMenuStore.expandMenuEntry(owner);
+            }
         },
 
         isNavigationEntryExpanded(entry) {

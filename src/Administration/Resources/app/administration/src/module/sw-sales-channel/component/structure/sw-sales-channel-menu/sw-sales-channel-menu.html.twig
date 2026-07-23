@@ -10,7 +10,7 @@
     {% block sw_sales_channel_menu_headline %}
     <div class="sw-admin-menu__headline">
         {% block sw_sales_channel_menu_headline_text %}
-        <div class="collapsible-text sw-admin-menu__headline_text">
+        <div class="collapsible-text sw-admin-menu__headline_text hide-on-collapse">
             <router-link
                 :to="{ name: 'sw.sales.channel.list' }"
             >{{ $tc('sw-sales-channel.general.titleMenuItems') }}</router-link>
@@ -100,7 +100,7 @@
                     >
                         <template #iconFront>
                             <mt-icon
-                                class="sw-sales-channel-menu-domain-link__icon"
+                                class="sw-sales-channel-menu-domain-link__icon hide-on-collapse"
                                 name="regular-eye"
                                 size="16px"
                             />

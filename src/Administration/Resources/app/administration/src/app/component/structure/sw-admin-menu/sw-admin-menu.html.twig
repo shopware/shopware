@@ -22,12 +22,14 @@
 
         {% block sw_admin_menu_header_logo %}
         <div class="sw-admin-menu__header-logo-wrapper">
-            <mt-icon
-                class="sw-admin-menu__header-logo"
-                name="solid-shopware"
-                size="26px"
-                :aria-label="$t('global.sw-admin-menu.textProjectName')"
-            />
+            <div class="sw-admin-menu__header-logo-box">
+                <!-- Sized via CSS: 24px on mobile, 26px on desktop. -->
+                <mt-icon
+                    class="sw-admin-menu__header-logo"
+                    name="solid-shopware"
+                    :aria-label="$t('global.sw-admin-menu.textProjectName')"
+                />
+            </div>
 
             <button
                 v-if="!isExpanded"
@@ -44,21 +46,29 @@
         {% endblock %}
 
         {% block sw_admin_menu_header_version %}
-        <div class="collapsible-text sw-admin-menu__version">
-            {% block sw_admin_menu_header_title %}
-            <div class="sw-admin-menu__title">
-                {{ $tc('global.sw-admin-menu.textProjectName') }}
-                {% block sw_admin_menu_header_title_status %}{% endblock %}
-            </div>
-            {% endblock %}
-
+        <div class="collapsible-text hide-on-collapse sw-admin-menu__version">
             {% block sw_admin_menu_header_shop_name %}
-            <div
+            <mt-text
+                as="div"
                 class="sw-admin-menu__shop-name"
+                size="s"
+                weight="semibold"
                 :title="shopName"
             >
                 {{ shopName }}
-            </div>
+            </mt-text>
+            {% endblock %}
+
+            {% block sw_admin_menu_header_title %}
+            <mt-text
+                as="div"
+                class="sw-admin-menu__title"
+                size="2xs"
+                color="color-text-secondary-default"
+            >
+                Administration
+                {% block sw_admin_menu_header_title_status %}{% endblock %}
+            </mt-text>
             {% endblock %}
         </div>
         {% endblock %}
@@ -76,7 +86,7 @@
             />
         </button>
         <mt-button
-            v-else-if="isExpanded"
+            v-else
             class="sw-admin-menu__collapse-button"
             variant="tertiary"
             size="default"
@@ -86,6 +96,7 @@
         >
             <template #iconFront>
                 <mt-icon
+                    class="hide-on-collapse"
                     :name="sidebarCollapseIcon"
                     size="16px"
                 />
@@ -180,23 +191,37 @@
                     {% endblock %}
 
                     {% block sw_admin_menu_user_actions_custom_fields %}
-                    <div class="sw-admin-menu__user-custom-fields collapsible-text">
-                        <div class="sw-admin-menu__user-name">
+                    <div class="sw-admin-menu__user-custom-fields collapsible-text hide-on-collapse">
+                        <mt-text
+                            as="div"
+                            class="sw-admin-menu__user-name"
+                            size="xs"
+                            weight="semibold"
+                        >
                             {{ userName }}
-                        </div>
-                        <div class="sw-admin-menu__user-type">
+                        </mt-text>
+                        <mt-text
+                            as="div"
+                            class="sw-admin-menu__user-type"
+                            size="2xs"
+                            color="color-text-secondary-default"
+                        >
                             {{ userTitle }}
-                        </div>
+                        </mt-text>
                     </div>
                     {% endblock %}
 
                     {% block sw_admin_menu_user_actions_toggle_icon %}
                     <div class="sw-admin-menu__user-actions-toggle-icon-wrapper">
                         <mt-icon
-                            name="regular-chevron-up-xxs"
+                            class="hide-on-collapse"
+                            name="regular-chevron-up-xs"
+                            size="8"
                         />
                         <mt-icon
-                            name="regular-chevron-down-xxs"
+                            class="hide-on-collapse"
+                            name="regular-chevron-down-xs"
+                            size="8"
                         />
                     </div>
                     {% endblock %}
@@ -220,10 +245,15 @@
                     {% endblock %}
                     {% block sw_admin_menu_user_actions_version %}
                     <mt-action-menu-group>
-                        <div class="sw-admin-menu__version-footer">
+                        <mt-text
+                            as="div"
+                            class="sw-admin-menu__version-footer"
+                            size="2xs"
+                            color="color-text-secondary-default"
+                        >
                             Version:
                             <sw-version />
-                        </div>
+                        </mt-text>
                     </mt-action-menu-group>
                     {% endblock %}
                 </mt-action-menu>
@@ -251,12 +281,15 @@
             @mouseleave="onFlyoutMouseLeave"
             @focusout="onFlyoutMouseLeave"
         >
-            <span
+            <mt-text
                 v-if="flyoutTitle"
+                as="span"
                 class="sw-admin-menu__flyout-title"
+                size="xs"
+                color="color-text-secondary-default"
             >
                 {{ flyoutTitle }}
-            </span>
+            </mt-text>
 
             <ul class="sw-admin-menu_flyout-holder">
                 <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->

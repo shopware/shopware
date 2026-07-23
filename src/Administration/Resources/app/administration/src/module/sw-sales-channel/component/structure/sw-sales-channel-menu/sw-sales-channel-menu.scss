@@ -1,14 +1,12 @@
 .sw-sales-channel-menu {
     .sw-sales-channel-menu-domain-link {
         flex-shrink: 0;
-        opacity: 1;
-        transition:
-            opacity 0.2s ease-in-out,
-            display 0.2s allow-discrete;
+        overflow: hidden;
 
-        @starting-style {
-            opacity: 0;
-        }
+        // Collapse via width instead of `display: none` so the element never
+        // leaves the flex layout mid-animation (which caused a visible jump).
+        // The fade lives on the inner icon (hide-on-collapse).
+        transition: width 0.3s cubic-bezier(0.32, 0.72, 0, 1);
 
         .sw-sales-channel-menu-domain-link__icon {
             color: var(--color-icon-primary-default);
@@ -22,6 +20,11 @@
     .sw-admin-menu__headline {
         overflow: hidden;
 
+        .sw-admin-menu__headline_text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
         .sw-admin-menu__headline_text a {
             color: var(--color-text-secondary-default);
             font-family: var(--font-family-body);
@@ -31,7 +34,8 @@
             text-decoration: none;
         }
 
-        .sw-admin-menu__headline_text a:hover {
+        .sw-admin-menu__headline_text a:hover,
+        .sw-admin-menu__headline_text a:focus-visible {
             text-decoration: underline;
             color: var(--color-text-primary-default);
         }
@@ -75,13 +79,16 @@
     }
 }
 
+// No justify-content change here: switching to `center` when collapsed made the
+// text jump, since justify-content is not animatable. The text keeps its left
+// position, shrinks via flex, and fades via hide-on-collapse; the action button
+// fills the collapsed headline width on its own.
 .sw-admin-menu.is--collapsed .sw-sales-channel-menu .sw-admin-menu__headline {
     padding: 0;
-    justify-content: center;
 
-    .sw-admin-menu__headline_text {
-        padding-left: var(--scale-size-10, 10px);
-    }
+    // The headline text stays in layout at width 0, so the gap must collapse
+    // with it — otherwise it offsets the action button.
+    gap: 0;
 }
 
 .is--collapsed .sw-sales-channel-menu {
@@ -94,8 +101,7 @@
     }
 
     .sw-sales-channel-menu-domain-link {
-        opacity: 0;
-        display: none;
+        width: 0;
         pointer-events: none;
     }
 

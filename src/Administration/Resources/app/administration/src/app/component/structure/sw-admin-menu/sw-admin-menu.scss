@@ -1,4 +1,4 @@
-@import '~scss/mixins';
+@import "~scss/mixins";
 
 .sw-admin-menu__backdrop {
     position: fixed;
@@ -8,14 +8,13 @@
     cursor: pointer;
 }
 
+// Typography comes from mt-text — layout is ours.
 .sw-admin-menu__version-footer {
     overflow: hidden;
     display: flex;
     align-items: center;
     gap: var(--scale-size-4);
     margin: var(--scale-size-8);
-    color: var(--color-text-secondary-default);
-    font-size: var(--font-size-2xs);
 }
 
 .sw-admin-menu__version-footer .sw-version {
@@ -33,14 +32,25 @@
 }
 
 .sw-admin-menu {
+    // Shared motion tokens for the collapse/expand animation.
+    --sw-admin-menu-bezier: cubic-bezier(0.32, 0.72, 0, 1);
+    --sw-admin-menu-duration: 0.5s; // root width/padding/gap
+    --sw-admin-menu-duration-inner: 0.3s; // inner layout following the collapse
+    --sw-admin-menu-fade-in-duration: 0.4s;
+    --sw-admin-menu-fade-in-delay: 0.05s;
+    --sw-admin-menu-fade-out-duration: 0.05s;
+
     background: var(--color-elevation-surface-sunken);
-    width: 52px;
+    width: 60px;
     height: 100%;
     display: flex;
     flex-direction: column;
     gap: var(--scale-size-16);
-    padding: var(--scale-size-16) var(--scale-size-8);
-    transition: width 0.3s cubic-bezier(0.84, -0.02, 0.23, 1);
+    padding: var(--scale-size-16) var(--scale-size-12) var(--scale-size-8) var(--scale-size-12);
+    transition:
+        width var(--sw-admin-menu-duration) var(--sw-admin-menu-bezier),
+        padding var(--sw-admin-menu-duration) var(--sw-admin-menu-bezier),
+        gap var(--sw-admin-menu-duration) var(--sw-admin-menu-bezier);
 
     @media screen and (max-width: 500px) {
         width: 280px;
@@ -50,7 +60,7 @@
         bottom: 0;
         height: 100%;
         z-index: 750;
-        transition: left 0.3s ease-in-out;
+        transition: left var(--sw-admin-menu-duration-inner) ease-in-out;
 
         &.is--off-canvas-shown {
             left: 0;
@@ -65,12 +75,31 @@
         pointer-events: none;
     }
 
-    .sw-admin-menu__navigation-link-expand-icon-box {
-        transition: opacity 0.1s ease-out;
+    // Elements that fade out when the sidebar collapses. Closing hides them
+    // quickly; opening waits until the width animation nearly finished
+    // before fading them back in. Elements that additionally animate layout
+    // (width/max-width) must keep that transition on a parent element —
+    // `transition` does not merge across rules.
+    .hide-on-collapse {
+        opacity: 1;
+        transition:
+            opacity var(--sw-admin-menu-fade-in-duration) ease-in-out var(--sw-admin-menu-fade-in-delay),
+            visibility var(--sw-admin-menu-fade-in-duration) ease-in-out var(--sw-admin-menu-fade-in-delay);
+    }
+
+    &.is--collapsed .hide-on-collapse {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition:
+            opacity var(--sw-admin-menu-fade-out-duration) ease-out,
+            visibility var(--sw-admin-menu-fade-out-duration) ease-out;
     }
 
     &.is--expanded {
-        width: 272px;
+        width: 300px;
+        gap: var(--scale-size-20);
+        padding: var(--scale-size-24) var(--scale-size-12) var(--scale-size-8) var(--scale-size-12);
 
         .navigation-list-item__level-1 > .sw-admin-menu__navigation-link.router-link-active {
             background: var(--color-background-brand-default);
@@ -85,11 +114,13 @@
         }
     }
 
+    // Typography comes from mt-text — truncation and alignment are ours.
     .sw-admin-menu__user-name,
     .sw-admin-menu__user-type {
         @include truncate;
 
         max-width: 200px;
+        text-align: left;
     }
 
     .sw-admin-menu__header {
@@ -99,67 +130,94 @@
         justify-content: space-between;
         gap: var(--scale-size-12);
         position: relative;
-        transition: margin 0.3s ease-in-out;
+        padding-left: var(--scale-size-8);
+        transition: padding var(--sw-admin-menu-duration) var(--sw-admin-menu-bezier);
     }
 
+    // Static positioning shell — keeps its layout size so the crossfade below
+    // never shifts the header layout.
     .sw-admin-menu__header-logo-wrapper {
-        width: var(--scale-size-36);
-        height: var(--scale-size-36);
-        background: var(--color-icon-brand-default);
-        border-radius: var(--border-radius-m);
+        width: var(--scale-size-40);
+        height: var(--scale-size-40);
+        flex-shrink: 0;
+        position: relative;
+        transition:
+            width var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier),
+            height var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier);
+    }
+
+    // The visible brand box (background + logo). Crossfades with the expand
+    // button on hover in the collapsed state.
+    .sw-admin-menu__header-logo-box {
+        position: absolute;
+        inset: 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        flex-shrink: 0;
-        position: relative;
+        background: var(--color-icon-brand-default);
+        border-radius: var(--border-radius-m);
+        transition:
+            opacity 0.12s var(--sw-admin-menu-bezier),
+            transform 0.25s var(--sw-admin-menu-bezier),
+            filter 0.25s var(--sw-admin-menu-bezier);
     }
 
     .sw-admin-menu__header-logo {
         width: var(--scale-size-26);
         height: var(--scale-size-26);
         color: var(--color-icon-static-default, #fff);
-        transition: opacity 0.4s ease-in-out;
+        transition:
+            width var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier),
+            height var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier);
+
+        // The icon kit sizes the inner svg via an id selector — scale it to the
+        // wrapper like mt-icon's own custom-size mode does (hence !important).
+        > svg {
+            width: 100% !important;
+            height: 100% !important;
+        }
     }
 
     .sw-admin-menu__version {
         flex: 1 1 auto;
+        gap: 0;
+        margin-top: calc(-1 * var(--scale-size-1));
         min-width: 0;
         overflow: hidden;
-        max-height: 100%;
         display: flex;
         flex-direction: column;
         justify-content: center;
     }
 
+    // Typography comes from mt-text — only the truncation is ours.
+    .sw-admin-menu__shop-name,
     .sw-admin-menu__title {
         min-width: 0;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        color: var(--color-text-primary-default);
-        font-family: var(--font-family-body, Inter);
-        font-size: var(--font-size-xs, 14px);
-        font-style: normal;
-        font-weight: var(--font-weight-semibold);
-        line-height: var(--font-line-height-2xs);
-    }
-
-    .sw-admin-menu__shop-name {
-        min-width: 0;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        color: var(--color-text-secondary-default);
-        font-size: var(--font-size-xs);
-        font-family: var(--font-family-body, Inter);
-        font-size: var(--font-size-2xs, 12px);
-        font-style: normal;
-        font-weight: var(--font-weight-regular);
-        line-height: var(--font-line-height-2xs);
+        line-height: 1.4;
     }
 
     .sw-admin-menu__collapse-button {
         flex-shrink: 0;
+        overflow: hidden;
+        opacity: 0;
+
+        // Shrink out of the header layout while collapsing; the icon inside
+        // fades via hide-on-collapse. Visibility flips at the end of the shrink
+        // and removes the button from the tab order while collapsed.
+        transition:
+            width 0.25s var(--sw-admin-menu-bezier),
+            opacity 0.15s var(--sw-admin-menu-bezier),
+            visibility 0.25s var(--sw-admin-menu-bezier);
+    }
+
+    // Only reveal the collapse button while hovering the sidebar (mirroring the
+    // expand button on the logo) or when it receives keyboard focus.
+    &:hover .sw-admin-menu__collapse-button,
+    .sw-admin-menu__collapse-button:focus-visible {
+        opacity: 1;
     }
 
     .sw-admin-menu__off-canvas-close {
@@ -181,17 +239,40 @@
         }
     }
 
+    // Crossfades with the logo on hover in the collapsed state: scale + blur mask
+    // the overlap of the two glyphs so it reads as one morphing element.
     .sw-admin-menu__header-logo-expand-button {
         position: absolute;
         inset: 0;
-        display: none;
+        display: flex;
         align-items: center;
         justify-content: center;
         border-radius: var(--border-radius-m);
-        background: #fff;
+        background: var(--color-interaction-secondary-default);
         border: 1px solid var(--color-border-primary-default);
         color: var(--color-icon-primary-default);
         cursor: pointer;
+
+        // Hidden via opacity only — `visibility: hidden` would make the button
+        // unfocusable, but keyboard users must be able to tab to it to reveal it.
+        opacity: 0;
+        transform: scale(1.15);
+        filter: blur(2px);
+
+        &:hover {
+            background: var(--color-interaction-secondary-hover);
+        }
+
+        &:active {
+            background: var(--color-interaction-secondary-pressed);
+        }
+
+        // Opacity resolves faster than the transform so the scale motion is
+        // actually visible while the element is already opaque.
+        transition:
+            opacity 0.12s var(--sw-admin-menu-bezier),
+            transform 0.25s var(--sw-admin-menu-bezier),
+            filter 0.25s var(--sw-admin-menu-bezier);
     }
 
     .sw-admin-menu__body-container {
@@ -221,27 +302,36 @@
         height: var(--scale-size-36);
         padding: var(--scale-size-0) var(--scale-size-6) var(--scale-size-0) var(--scale-size-10);
         align-items: center;
+        justify-content: space-between;
         gap: var(--scale-size-10);
         flex: 1 0 0;
         font-weight: var(--font-weight-semibold);
         font-size: var(--font-size-xs);
         line-height: var(--font-line-height-xs);
+
+        // The headline text stays in layout when collapsed, so the padding/gap
+        // changes have to animate in sync with the sidebar width transition.
+        transition:
+            padding var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier),
+            gap var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier);
     }
 
     .sw-admin-menu__headline_text {
+        width: auto;
         pointer-events: auto;
-        opacity: 1;
-        transition:
-            opacity 0.2s ease-in-out,
-            display 0.2s allow-discrete;
-
-        @starting-style {
-            opacity: 0;
-        }
+        overflow: hidden;
     }
 
     .sw-admin-menu__headline-action {
         flex-shrink: 0;
+        transition:
+            width var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier),
+            height var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier);
+
+        // Keep the pressed look while the action menu is open (reka-ui sets data-state on the trigger).
+        &[data-state="open"] {
+            background: var(--color-interaction-secondary-pressed);
+        }
     }
 
     .sw-admin-menu__headline-context-menu {
@@ -315,8 +405,8 @@
         border: none;
         border-radius: var(--border-radius-s);
         transition:
-            padding 0.3s ease-in-out,
-            gap 0.3s ease-in-out;
+            padding var(--sw-admin-menu-duration-inner) ease-in-out,
+            gap var(--sw-admin-menu-duration-inner) ease-in-out;
 
         &:hover {
             background: var(--color-interaction-secondary-hover);
@@ -344,26 +434,26 @@
             align-items: center;
             justify-content: center;
             gap: var(--scale-size-6);
-            opacity: 1;
-            transition:
-                opacity 0.2s ease-in-out,
-                display 0.2s allow-discrete;
+            overflow: hidden;
 
-            @starting-style {
-                opacity: 0;
+            .mt-icon {
+                color: var(--color-icon-primary-default);
             }
+
+            // Collapse via width instead of `display: none` (see .sw-admin-menu__headline_text).
+            // The fade lives on the inner icons (hide-on-collapse).
+            transition: width var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier);
         }
     }
 
     .sw-admin-menu__avatar {
-        width: var(--scale-size-32);
-        height: var(--scale-size-32);
+        width: var(--scale-size-36);
+        height: var(--scale-size-36);
         display: flex;
         align-items: center;
         justify-content: center;
-        opacity: 0.5;
         flex-shrink: 0;
-        transition: transform 0.3s cubic-bezier(0.84, -0.02, 0.23, 1);
+        transition: transform var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier);
     }
 
     .sw-admin-menu__user-custom-fields {
@@ -374,38 +464,29 @@
         position: relative;
     }
 
-    .sw-admin-menu__user-name {
-        text-align: left;
-        color: var(--color-text-primary-default);
-        font-size: var(--font-size-2xs);
-        font-weight: var(--font-weight-semibold);
-        line-height: var(--font-line-height-2xs);
-    }
-
-    .sw-admin-menu__user-type {
-        text-align: left;
-        color: var(--color-text-secondary-default);
-        font-size: var(--font-size-2xs);
-        line-height: var(--font-line-height-2xs);
-        font-weight: var(--font-weight-regular);
-    }
-
     &.is--collapsed {
         .sw-admin-menu__navigation {
             margin-bottom: 0;
         }
 
-        .sw-admin-menu__headline_text {
-            opacity: 0;
-            display: none;
-        }
-
         .sw-admin-menu__headline-action {
             width: var(--scale-size-36);
             height: var(--scale-size-36);
+            border-radius: var(--border-radius-s);
+        }
+
+        .sw-admin-menu__collapse-button {
+            width: 0;
+            min-width: 0;
+            padding: 0;
+            border: 0;
+            visibility: hidden;
         }
 
         .sw-admin-menu__user-actions-toggle {
+            padding-left: 0;
+            padding-right: 0;
+
             &:hover:not(.is--active) {
                 background: transparent;
             }
@@ -416,13 +497,8 @@
             }
         }
 
-        .sw-admin-menu__avatar {
-            transform: translateX(calc((52px - var(--scale-size-32)) / 2 - var(--scale-size-8) * 2));
-        }
-
         .sw-admin-menu__user-actions-toggle-icon-wrapper {
-            opacity: 0;
-            display: none;
+            width: 0;
         }
 
         .sw-admin-menu__navigation-link {
@@ -430,13 +506,13 @@
             height: var(--scale-size-36);
         }
 
-        .sw-admin-menu__navigation-link-expand-icon-box {
-            opacity: 0;
-        }
-
-        .sw-admin-menu__header {
-            padding: 0;
-            margin: 0;
+        // The off-canvas menu always renders expanded — never apply the
+        // collapsed header reset on mobile so the padding is kept.
+        @media screen and (min-width: 501px) {
+            .sw-admin-menu__header {
+                padding: 0;
+                margin: 0;
+            }
         }
 
         .sw-admin-menu__header-logo-wrapper {
@@ -445,27 +521,33 @@
         }
 
         .sw-admin-menu__header-logo {
-            width: var(--scale-size-26);
-            height: var(--scale-size-26);
+            width: var(--scale-size-24);
+            height: var(--scale-size-24);
         }
 
-        &:hover {
-            .sw-admin-menu__header-logo {
-                opacity: 0;
-            }
+        &:hover .sw-admin-menu__header-logo-box,
+        &:has(.sw-admin-menu__header-logo-expand-button:focus-visible) .sw-admin-menu__header-logo-box {
+            opacity: 0;
+            transform: scale(0.85);
+            filter: blur(2px);
+        }
 
-            .sw-admin-menu__header-logo-expand-button {
-                display: flex;
-            }
+        &:hover .sw-admin-menu__header-logo-expand-button,
+        .sw-admin-menu__header-logo-expand-button:focus-visible {
+            opacity: 1;
+            transform: scale(1);
+            filter: blur(0);
         }
 
         &.is--toggling:hover {
-            .sw-admin-menu__header-logo {
+            .sw-admin-menu__header-logo-box {
                 opacity: 1;
+                transform: none;
+                filter: none;
             }
 
             .sw-admin-menu__header-logo-expand-button {
-                display: none;
+                opacity: 0;
             }
         }
 
@@ -480,9 +562,12 @@
 @media (prefers-reduced-motion: reduce) {
     .sw-admin-menu,
     .sw-admin-menu .collapsible-text,
+    .sw-admin-menu .hide-on-collapse,
     .sw-admin-menu .sw-admin-menu__header,
     .sw-admin-menu .sw-admin-menu__headline-context-menu,
     .sw-admin-menu .sw-admin-menu__header-logo,
+    .sw-admin-menu .sw-admin-menu__header-logo-box,
+    .sw-admin-menu .sw-admin-menu__header-logo-expand-button,
     .sw-admin-menu .sw-admin-menu__user-actions-toggle,
     .sw-admin-menu .sw-admin-menu__user-actions-toggle-icon-wrapper,
     .sw-admin-menu .sw-admin-menu__navigation-link-expand-icon-box {
@@ -503,7 +588,7 @@
     border: 1px solid var(--color-border-secondary-default, #e2e3e9);
     background: var(--color-elevation-surface-raised);
     box-shadow: 0 6px 12px -8px rgba(16, 16, 19, 4%);
-    transform: translateY(calc(-1 * (var(--scale-size-36) + var(--scale-size-6))));
+    transform: translateY(calc(-1 * (var(--scale-size-36) + var(--scale-size-6) + 1px)));
     transform-origin: left center;
     animation: sw-admin-menu-flyout-in 0.1s ease;
 
@@ -536,6 +621,7 @@
     }
 }
 
+// Typography comes from mt-text — layout and truncation are ours.
 .sw-admin-menu__flyout-title {
     height: var(--scale-size-36);
     padding: var(--scale-size-0) var(--scale-size-6) var(--scale-size-0) var(--scale-size-10);
@@ -544,9 +630,5 @@
     gap: var(--scale-size-10);
     white-space: nowrap;
     overflow: hidden;
-    color: var(--color-text-secondary-default);
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-regular);
-    line-height: var(--font-line-height-xs);
     text-overflow: ellipsis;
 }

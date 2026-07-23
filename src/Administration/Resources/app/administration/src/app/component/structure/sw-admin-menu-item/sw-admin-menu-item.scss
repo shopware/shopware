@@ -5,6 +5,12 @@ $nesting-line-indent: 36px;
 
 .sw-admin-menu__navigation-list-item {
     border-radius: var(--border-radius-s, 6px);
+
+    .mt-collapsible-content[data-state="open"],
+    .mt-collapsible-content[data-state="closed"] {
+        animation-duration: 0.3s;
+        animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+    }
 }
 
 .sw-admin-menu__navigation-link {
@@ -47,7 +53,7 @@ $nesting-line-indent: 36px;
 
         flex-grow: 1;
         text-align: left;
-        min-width: max-content;
+        min-width: 0;
     }
 }
 
@@ -64,7 +70,7 @@ $nesting-line-indent: 36px;
 
 .sw-admin-menu__navigation-link-expand-icon {
     flex-shrink: 0;
-    color: var(--color-text-primary-default);
+    color: var(--color-icon-primary-default);
 }
 
 .sw-admin-menu__navigation-link-expand-icon-box {
@@ -155,7 +161,7 @@ $nesting-line-indent: 36px;
 .navigation-list-item--nested.is--child-active > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link::after {
     opacity: 1;
     background: var(--color-border-primary-default);
-    outline-color: var(--color-elevation-surface-default);
+    outline-color: var(--color-elevation-surface-sunken);
 }
 
 .navigation-list-item--nested.is--child-active > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link:hover::after {
@@ -220,5 +226,33 @@ $nesting-line-indent: 36px;
 
     .sw-admin-menu__navigation-list-item {
         background: none;
+    }
+}
+
+// The nesting tree lines and item indicators (pseudo elements) follow the same
+// timing as .hide-on-collapse: hidden almost instantly when collapsing, fading
+// back in delayed while the sidebar opens. The transition is scoped to the
+// toggle window (.is--toggling) so the hover/active indicator keeps reacting
+// instantly during normal interaction. Flyouts render detached from
+// .sw-admin-menu and stay unaffected.
+.sw-admin-menu.is--toggling .navigation-list-item--nested {
+    > .sw-admin-menu__sub-navigation-list::before,
+    > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link::before,
+    > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link::after {
+        transition:
+            opacity 0.3s ease-in-out 0.1s,
+            visibility 0.3s ease-in-out 0.1s;
+    }
+}
+
+.sw-admin-menu.is--collapsed .navigation-list-item--nested {
+    > .sw-admin-menu__sub-navigation-list::before,
+    > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link::before,
+    > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link::after {
+        opacity: 0;
+        visibility: hidden;
+        transition:
+            opacity 0.05s ease-out,
+            visibility 0.05s ease-out;
     }
 }

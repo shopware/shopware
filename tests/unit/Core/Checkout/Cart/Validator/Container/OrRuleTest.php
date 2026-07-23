@@ -14,8 +14,8 @@ use Shopware\Core\Test\Stub\Rule\TrueRule;
 /**
  * @internal
  */
-#[CoversClass(OrRule::class)]
 #[Package('checkout')]
+#[CoversClass(OrRule::class)]
 class OrRuleTest extends TestCase
 {
     public function testTrue(): void

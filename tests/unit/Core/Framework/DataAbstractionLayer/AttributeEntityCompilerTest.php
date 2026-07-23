@@ -60,6 +60,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TimeZoneField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntity;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityCollection;
@@ -70,6 +71,7 @@ use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\Strin
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AttributeEntityCompiler::class)]
 class AttributeEntityCompilerTest extends TestCase
 {

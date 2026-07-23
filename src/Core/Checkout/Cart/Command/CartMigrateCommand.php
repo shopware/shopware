@@ -26,11 +26,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @phpstan-import-type RedisTypeHint from RedisConnectionFactory
  */
+#[Package('checkout')]
 #[AsCommand(
     name: 'cart:migrate',
     description: 'Migrate carts from redis to database',
 )]
-#[Package('checkout')]
 class CartMigrateCommand extends Command
 {
     use ConsoleProgressTrait;

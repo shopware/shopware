@@ -17,6 +17,10 @@ jobs:
       issues: write
       pull-requests: write
     steps:
+      # sparse checkout of the automation scripts only — keeps the per-PR-event cost minimal
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          sparse-checkout: .github/bin/js
       - uses: srvaroa/labeler@bf262763a8a8e191f5847873aecc0f29df84f957 # v1.14.0
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"

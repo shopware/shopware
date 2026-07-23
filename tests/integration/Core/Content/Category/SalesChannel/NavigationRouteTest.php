@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
@@ -332,7 +333,7 @@ class NavigationRouteTest extends TestCase
         static::assertTrue($found, 'Product SEO URL not found in response');
 
         $this->createSeoUrl(
-            'frontend.detail.page',
+            ProductPageSeoUrlRoute::ROUTE_NAME,
             '/detail/' . $productId,
             'custom-product-url',
             $productId

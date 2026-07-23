@@ -10,6 +10,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -23,6 +24,7 @@ use Shopware\Storefront\Framework\SystemCheck\ProductListingReadinessCheck;
 /**
  * @internal
  */
+#[Package('discovery')]
 class ProductListingReadinessCheckTest extends TestCase
 {
     use CacheTestBehaviour;

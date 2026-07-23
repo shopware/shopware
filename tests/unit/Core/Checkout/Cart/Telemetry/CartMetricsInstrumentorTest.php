@@ -20,8 +20,8 @@ use Shopware\Core\System\SalesChannel\Telemetry\SalesChannelTypeResolver;
 /**
  * @internal
  */
-#[CoversClass(CartMetricsInstrumentor::class)]
 #[Package('checkout')]
+#[CoversClass(CartMetricsInstrumentor::class)]
 class CartMetricsInstrumentorTest extends TestCase
 {
     /**

@@ -202,6 +202,10 @@
           "title": "Invalid configuration",
           "message": "The configuration is faulty. The theme cannot be saved."
         }
+      },
+      "asyncCompilation": {
+        "started": "The changes are being compiled in the background. They will be visible in about 1 minute. You will receive a notification once the compilation is complete.",
+        "completed": "The theme compilation has been completed."
       }
     },
     "themeModal": {

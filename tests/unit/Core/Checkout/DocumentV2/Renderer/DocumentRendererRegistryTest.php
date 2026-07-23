@@ -25,7 +25,7 @@ class DocumentRendererRegistryTest extends TestCase
         $registry = self::createRegistry();
 
         if ($throw) {
-            static::expectExceptionObject(DocumentV2Exception::rendererNotFound($format->value, $type->value));
+            $this->expectExceptionObject(DocumentV2Exception::rendererNotFound($format->value, $type->value));
         }
 
         $renderer = $registry->getRenderer($format->value, $type->value);
@@ -85,7 +85,7 @@ class DocumentRendererRegistryTest extends TestCase
 
     public function testGetRendererThrowsOnDuplicateRendererRegistration(): void
     {
-        static::expectExceptionObject(
+        $this->expectExceptionObject(
             DocumentV2Exception::duplicateRenderer(DocumentFormat::HTML->value, DocumentType::INVOICE->value)
         );
 
@@ -97,7 +97,7 @@ class DocumentRendererRegistryTest extends TestCase
 
     public function testMapRenderersByFormatThrowsOnDuplicateRendererRegistration(): void
     {
-        static::expectExceptionObject(
+        $this->expectExceptionObject(
             DocumentV2Exception::duplicateRenderer(DocumentFormat::HTML->value, DocumentType::INVOICE->value)
         );
 
@@ -113,6 +113,73 @@ class DocumentRendererRegistryTest extends TestCase
 
         static::assertCount(1, $registry->mapRenderersByFormat(DocumentType::INVOICE->value));
         static::assertCount(1, $registry->mapRenderersByFormat(DocumentType::INVOICE->value));
+    }
+
+    public function testGetSupportedFormatsByDocumentTypeIncludesNonCoreDocumentTypes(): void
+    {
+        $registry = new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value, 'partial_cancellation']),
+            new StaticDocumentRenderer(DocumentFormat::PDF, ['partial_cancellation']),
+        ]);
+
+        static::assertSame(
+            [
+                DocumentType::INVOICE->value => [
+                    DocumentFormat::HTML->value,
+                ],
+                'partial_cancellation' => [
+                    DocumentFormat::HTML->value,
+                    DocumentFormat::PDF->value,
+                ],
+            ],
+            $registry->getSupportedFormatsByDocumentType(),
+        );
+    }
+
+    public function testValidateFormatsAllowsSupportedFormats(): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        $registry = new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
+            new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
+        ]);
+
+        $registry->validateFormats(DocumentType::INVOICE->value, [
+            DocumentFormat::HTML->value,
+            DocumentFormat::PDF->value,
+        ]);
+    }
+
+    public function testValidateFormatsRejectsUnsupportedFormats(): void
+    {
+        $registry = new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
+        ]);
+
+        static::expectExceptionObject(
+            DocumentV2Exception::unsupportedDocumentFormat(
+                DocumentFormat::PDF->value,
+                DocumentType::INVOICE->value,
+            )
+        );
+
+        $registry->validateFormats(DocumentType::INVOICE->value, [
+            DocumentFormat::HTML->value,
+            DocumentFormat::PDF->value,
+        ]);
+    }
+
+    public function testGetFileExtensionSupportsCustomFormats(): void
+    {
+        $registry = new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
+            new StaticDocumentRenderer('custom_format', [DocumentType::INVOICE->value], fileExtension: 'custom'),
+        ]);
+
+        static::assertSame(DocumentFormat::PDF->fileExtension(), $registry->getFileExtension(DocumentFormat::PDF->value));
+        static::assertSame('custom', $registry->getFileExtension('custom_format'));
+        static::assertNull($registry->getFileExtension('unknown_format'));
     }
 
     private static function createRegistry(): DocumentRendererRegistry

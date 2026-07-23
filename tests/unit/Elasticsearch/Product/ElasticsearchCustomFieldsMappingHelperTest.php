@@ -8,6 +8,7 @@ use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
@@ -18,6 +19,7 @@ use Shopware\Elasticsearch\Product\ElasticsearchProductException;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ElasticsearchCustomFieldsMappingHelper::class)]
 class ElasticsearchCustomFieldsMappingHelperTest extends TestCase
 {

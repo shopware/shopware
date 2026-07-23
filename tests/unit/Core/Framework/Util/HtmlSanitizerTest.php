@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Test\Stub\Framework\Util\NullRawDefinitionHtmlPurifierConfig;
 use Shopware\Core\Test\Stub\Framework\Util\StaticHtmlPurifierConfigProvider;
@@ -13,6 +14,7 @@ use Shopware\Core\Test\Stub\Framework\Util\StaticHtmlPurifierConfigProvider;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(HtmlSanitizer::class)]
 class HtmlSanitizerTest extends TestCase
 {

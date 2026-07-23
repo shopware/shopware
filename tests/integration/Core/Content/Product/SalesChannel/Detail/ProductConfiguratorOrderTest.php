@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,6 +27,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('inventory')]
 class ProductConfiguratorOrderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -141,7 +143,7 @@ class ProductConfiguratorOrderTest extends TestCase
 
         $criteria = new Criteria([$variantId]);
         /** @var SalesChannelProductEntity $salesChannelProduct */
-        $salesChannelProduct = $this->salesChannelProductRepository->search($criteria, $this->context)->first();
+        $salesChannelProduct = $this->salesChannelProductRepository->search($criteria, $this->context)->getEntities()->first();
 
         static::assertInstanceOf(SalesChannelProductEntity::class, $salesChannelProduct);
 
@@ -268,7 +270,7 @@ class ProductConfiguratorOrderTest extends TestCase
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('product.parentId', $productId));
         /** @var SalesChannelProductEntity $salesChannelProduct */
-        $salesChannelProduct = $this->salesChannelProductRepository->search($criteria, $this->context)->first();
+        $salesChannelProduct = $this->salesChannelProductRepository->search($criteria, $this->context)->getEntities()->first();
 
         // get ordered PropertyGroupCollection
         $groups = $this->loader->load($salesChannelProduct, $this->context);

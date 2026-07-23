@@ -5,17 +5,18 @@ on:
   merge_group:
   workflow_dispatch:
     inputs:
-      nightly:
+      profile:
+        description: "Run profile: '' (PR), 'nightly' or 'release' (patch release gate)"
         default: ""
   workflow_call:
     inputs:
-      nightly:
+      profile:
         type: string
         default: ""
 
 permissions:
-    contents: read
-    id-token: write
+  contents: read
+  id-token: write
 
 jobs:
   markdown-only-changes:
@@ -40,11 +41,13 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - id: generate-matrix
         run: |
-          MATRIX=$(php .github/bin/generate-phpunit-matrix.php "${{ inputs.nightly }}")
-          echo $MATRIX
-          echo "matrix<<EOF" >> $GITHUB_OUTPUT
-          echo "$MATRIX" >> $GITHUB_OUTPUT
-          echo 'EOF' >> $GITHUB_OUTPUT
+          MATRIX=$(php .github/bin/generate-phpunit-matrix.php "${{ inputs.profile }}")
+          echo "$MATRIX"
+          {
+            echo "matrix<<EOF"
+            echo "$MATRIX"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
 
   phpunit:
     name: "${{ matrix.php}} ${{ matrix.test.testsuite }}${{ matrix.test.path }} ${{ matrix.db }} ${{ matrix.opensearch != 'opensearchproject/opensearch:3' && matrix.opensearch || '' }}"
@@ -89,14 +92,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-      - uses: ./.github/actions/phpunit-run
+      - name: Setup and install Shopware
+        uses: ./.github/actions/phpunit-prepare
         with:
           php-version: ${{ matrix.php }}
+          needs-opensearch: ${{ contains(matrix.test.path, 'Elasticsearch') }}
+      - name: Run PHPUnit
+        uses: ./.github/actions/phpunit-run
+        with:
           test-path: ${{ matrix.test.path }}
           test-testsuite: ${{ matrix.test.testsuite }}
-          needs-opensearch: ${{ contains(matrix.test.path, 'Elasticsearch') }}
+      - name: Upload test results to Codecov
+        uses: ./.github/actions/phpunit-upload
+        # !cancelled(): junit test results must upload even when the run failed
+        if: ${{ !cancelled() }}
+        with:
           codecov-token: ${{ secrets.CODECOV_TOKEN }}
-
 
   win-checkout:
     runs-on: windows-latest
@@ -148,10 +159,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ "javascript" ]
+        language: ["javascript"]
     permissions:
-        contents: read
-        security-events: write
+      contents: read
+      security-events: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -159,16 +170,16 @@ jobs:
           fetch-depth: 2
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
+        uses: github/codeql-action/init@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4.37.0
 
         with:
           languages: ${{ matrix.language }}
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
+        uses: github/codeql-action/autobuild@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4.37.0
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
+        uses: github/codeql-action/analyze@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4.37.0
 
   blue-green-67-68:
     name: "PHP blue green 6.7 -> 6.8 -> 6.7"
@@ -208,27 +219,27 @@ jobs:
         run: symfony server:start -d
 
       - name: Install Shopware in previous major version on test DB
-        if: inputs.nightly == 'true'
+        if: inputs.profile == 'nightly'
         run: composer init:testdb
 
       - name: Run next major migrations on test DB
-        if: inputs.nightly == 'true'
+        if: inputs.profile == 'nightly'
         run: DATABASE_URL="mysql://root@127.0.0.1:3306/shopware_test" bin/console database:migrate --all core.V6_8
 
       - name: Run integration tests
-        if: inputs.nightly == 'true'
+        if: inputs.profile == 'nightly'
         run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure
 
       - name: Install Shopware in previous major version
-        if: inputs.nightly != 'true'
+        if: inputs.profile != 'nightly'
         run: bin/console system:install --basic-setup --create-database --skip-assets-install
 
       - name: Run next major migrations
-        if: inputs.nightly != 'true'
+        if: inputs.profile != 'nightly'
         run: bin/console database:migrate --all core.V6_8
 
       - name: Run blue-green check
-        if: inputs.nightly != 'true'
+        if: inputs.profile != 'nightly'
         run: php .github/bin/blue-green-check.php
 
   blue-green-66-67:
@@ -299,89 +310,89 @@ jobs:
           bin/console system:generate-jwt-secret
 
       - name: Refresh theme in previous major version
-        if: inputs.nightly == 'true'
+        if: inputs.profile == 'nightly'
         env:
           DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
         run: bin/console theme:refresh
 
       - name: Run integration tests in previous major version
-        if: inputs.nightly == 'true'
+        if: inputs.profile == 'nightly'
         run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure
 
       - name: Run blue-green check
-        if: inputs.nightly != 'true'
+        if: inputs.profile != 'nightly'
         env:
           DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
         run: php .github/bin/blue-green-check.php
 
   update-66-67:
-      name: "PHP update 6.6 -> 6.7"
-      runs-on: ubuntu-24.04
-      if: inputs.nightly == 'true'
-      env:
-          APP_ENV: test
-          APP_URL: http://localhost:8000
-          APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
-          OPENSEARCH_URL: 127.0.0.1:9200
-          ADMIN_OPENSEARCH_URL: 127.0.0.1:9200
-          BLUE_GREEN_DEPLOYMENT: 1
-          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
-          PREVIOUS_MAJOR_VERSION_BRANCH: "6.6.x"
-          DO_NOT_TRACK: 1
+    name: "PHP update 6.6 -> 6.7"
+    runs-on: ubuntu-24.04
+    if: inputs.profile == 'nightly' || inputs.profile == 'release'
+    env:
+      APP_ENV: test
+      APP_URL: http://localhost:8000
+      APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
+      OPENSEARCH_URL: 127.0.0.1:9200
+      ADMIN_OPENSEARCH_URL: 127.0.0.1:9200
+      BLUE_GREEN_DEPLOYMENT: 1
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+      PREVIOUS_MAJOR_VERSION_BRANCH: "6.6.x"
+      DO_NOT_TRACK: 1
 
-      services:
-          elasticsearch:
-              image: "opensearchproject/opensearch:3"
-              env:
-                  discovery.type: single-node
-                  plugins.security.disabled: "true"
-                  OPENSEARCH_INITIAL_ADMIN_PASSWORD: "yourStrongPassword123!"
-              ports:
-                  - "9200:9200"
+    services:
+      elasticsearch:
+        image: "opensearchproject/opensearch:3"
+        env:
+          discovery.type: single-node
+          plugins.security.disabled: "true"
+          OPENSEARCH_INITIAL_ADMIN_PASSWORD: "yourStrongPassword123!"
+        ports:
+          - "9200:9200"
 
-      steps:
-          - name: Setup previous major version
-            uses: shopware/setup-shopware@main
-            with:
-                install: "false"
-                shopware-version: ${{ env.PREVIOUS_MAJOR_VERSION_BRANCH }}
-                shopware-repository: ${{ github.repository }}
+    steps:
+      - name: Setup previous major version
+        uses: shopware/setup-shopware@main
+        with:
+          install: "false"
+          shopware-version: ${{ env.PREVIOUS_MAJOR_VERSION_BRANCH }}
+          shopware-repository: ${{ github.repository }}
 
-          - name: Start Webserver
-            run: symfony server:start -d
+      - name: Start Webserver
+        run: symfony server:start -d
 
-          - name: Install Shopware in previous major version on test DB
-            run: composer init:testdb
+      - name: Install Shopware in previous major version on test DB
+        run: composer init:testdb
 
-          - name: Checkout current major version
-            uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-            with:
-                ref: ${{ github.ref }}
+      - name: Checkout current major version
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.ref }}
 
-          - name: Update to current major version
-            env:
-                COMPOSER_ROOT_VERSION: "6.7.9999999-dev"
-                DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
-            run: |
-                rm -rf vendor-bin
-                rm -rf vendor
-                composer update -o
-                bin/console system:update:finish
+      - name: Update to current major version
+        env:
+          COMPOSER_ROOT_VERSION: "6.7.9999999-dev"
+          DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
+        run: |
+          rm -rf vendor-bin
+          rm -rf vendor
+          composer update -o
+          bin/console system:update:finish
 
-          - name: Refresh theme
-            env:
-                DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
-            run: bin/console theme:refresh
+      - name: Refresh theme
+        env:
+          DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
+        run: bin/console theme:refresh
 
-          # Drain indexers queued by 6.6→6.7 migrations before integration tests run,
-          # otherwise stale indexes cause flakes.
-          - name: Refresh DAL index
-            env:
-                DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
-            run: bin/console dal:refresh:index
+      # Drain indexers queued by 6.6→6.7 migrations before integration tests run,
+      # otherwise stale indexes cause flakes.
+      - name: Refresh DAL index
+        env:
+          DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
+        run: bin/console dal:refresh:index
 
-          - name: Run integration tests
-            run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure
+      - name: Run integration tests
+        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure
 
   # this allows us to specify just one required job/check
   # this is not practical with matrix jobs directly, because you've to specify all permutations

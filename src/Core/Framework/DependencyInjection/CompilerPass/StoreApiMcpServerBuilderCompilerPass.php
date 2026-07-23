@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\Reference;
 /**
  * @internal
  *
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  */
 #[Package('framework')]
 class StoreApiMcpServerBuilderCompilerPass implements CompilerPassInterface
@@ -68,7 +68,7 @@ class StoreApiMcpServerBuilderCompilerPass implements CompilerPassInterface
             $info = McpToolAttributeReader::resolveInfo($class, McpResource::class, ['uri', 'name', 'description', 'mimeType']);
 
             if ($info !== null) {
-                $builderDef->addMethodCall('addResource', [$class, $info['uri'], $info['name'], $info['description'], $info['mimeType']]);
+                $builderDef->addMethodCall('addResource', [$class, $info['uri'], $info['name'], null, $info['description'], $info['mimeType']]);
             }
         }
     }

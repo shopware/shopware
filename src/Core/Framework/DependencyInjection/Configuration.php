@@ -707,6 +707,14 @@ class Configuration implements ConfigurationInterface
                         $config['compression_method'] = $config['cache_compression_method'];
                     }
 
+                    // backward compatibility
+                    if (!isset($config['cache_compression']) && isset($config['compress'])) {
+                        $config['cache_compression'] = $config['compress'];
+                    }
+                    if (!isset($config['cache_compression_method']) && isset($config['compression_method'])) {
+                        $config['cache_compression_method'] = $config['compression_method'];
+                    }
+
                     return $config;
                 })
             ->end()
@@ -1277,12 +1285,10 @@ class Configuration implements ConfigurationInterface
             ->end()
             ->validate()
             ->ifFalse(
-                static fn (array $v) => \count(
-                    array_filter(
-                        array_keys($v),
-                        static fn (string $key) => $key !== 'default' && !Uuid::isValid($key)
-                    )
-                ) === 0
+                static fn (array $v) => array_filter(
+                    array_keys($v),
+                    static fn (string $key) => $key !== 'default' && !Uuid::isValid($key)
+                ) === []
             )
             ->thenInvalid('Key must be "default" or a valid UUID')
             ->end();

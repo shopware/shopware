@@ -14,7 +14,7 @@ use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStr
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -26,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -36,6 +37,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ProductStreamUpdater::class)]
 class ProductStreamUpdaterTest extends TestCase
 {
@@ -375,7 +377,7 @@ class ProductStreamUpdaterTest extends TestCase
             static function (Criteria $actualCriteria, Context $context) use ($criteria): array {
                 static::assertEquals($criteria, $actualCriteria);
 
-                throw new UnmappedFieldException('non-existing-field', new ProductDefinition());
+                throw DataAbstractionLayerException::unmappedField('non-existing-field', new ProductDefinition());
             },
             static fn () => [],
         ], $definition);
@@ -398,6 +400,48 @@ class ProductStreamUpdaterTest extends TestCase
         );
 
         $updater->handle($message);
+    }
+
+    public function testUpdateProductsSkipsInvalidFilter(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $apiFilter = json_encode([[
+            'type' => 'equals',
+            'field' => 'active',
+            'value' => '1',
+        ]]);
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([['id' => Uuid::randomBytes(), 'api_filter' => $apiFilter]]);
+
+        // the invalid filter is skipped, so the transaction still runs but inserts nothing
+        $connection
+            ->expects($this->once())
+            ->method('transactional');
+
+        $definition = new ProductDefinition();
+        /** @var StaticEntityRepository<ProductCollection> */
+        $repository = new StaticEntityRepository([
+            static function (): array {
+                throw DataAbstractionLayerException::unmappedField('non-existing-field', new ProductDefinition());
+            },
+        ], $definition);
+
+        $updater = new ProductStreamUpdater(
+            $connection,
+            $definition,
+            $repository,
+            static::createStub(MessageBusInterface::class),
+            static::createStub(ManyToManyIdFieldUpdater::class),
+            $this->createDefaultLanguageRepo(),
+            true,
+        );
+
+        $updater->updateProducts([Uuid::randomHex()], $context);
     }
 
     /**

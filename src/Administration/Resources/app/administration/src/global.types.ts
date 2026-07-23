@@ -75,6 +75,7 @@ import type ValidationMixin from './app/mixin/validation.mixin';
 import type UserSettingsMixin from './app/mixin/user-settings.mixin';
 import type SwInlineSnippetMixin from './app/mixin/sw-inline-snippet.mixin';
 import type TranslateWithFallbackMixin from './app/mixin/translate-with-fallback.mixin';
+import type NotificationTranslationMixin from './app/mixin/notification-translation.mixin';
 import type SalutationMixin from './app/mixin/salutation.mixin';
 import type RuleContainerMixin from './app/mixin/rule-container.mixin';
 import type RemoveApiErrorMixin from './app/mixin/remove-api-error.mixin';
@@ -307,6 +308,7 @@ declare global {
         'user-settings': typeof UserSettingsMixin;
         'sw-inline-snippet': typeof SwInlineSnippetMixin;
         'translate-with-fallback': typeof TranslateWithFallbackMixin;
+        'notification-translation': typeof NotificationTranslationMixin;
         salutation: typeof SalutationMixin;
         ruleContainer: typeof RuleContainerMixin;
         'remove-api-error': typeof RemoveApiErrorMixin;
@@ -524,6 +526,7 @@ interface CustomProperties extends ServiceContainer {
     $te: I18n<{}, {}, {}, string, true>['global']['te'];
     $tc: I18n<{}, {}, {}, string, true>['global']['t'];
     $t: I18n<{}, {}, {}, string, true>['global']['t'];
+    $sanitize: (dirtyHtml: string, config?: Record<string, unknown>) => string;
     $dataScope: ComponentInternalInstance['proxy'];
     /**
      * Starts a generated legacy block condition chain on the current Vue component instance.

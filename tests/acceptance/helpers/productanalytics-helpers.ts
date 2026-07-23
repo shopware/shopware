@@ -63,7 +63,10 @@ const JSON_HEADERS = {
     'Content-Type': 'application/json',
 };
 
-const CONSENT_NAMES: ConsentName[] = ['backend_data', 'product_analytics'];
+const CONSENT_NAMES: ConsentName[] = [
+    'backend_data',
+    'product_analytics',
+];
 
 export function parseCapturedRequests(captured: CapturedRequest[]): ProductAnalyticsRequestPayload[] {
     const requests: ProductAnalyticsRequestPayload[] = [];
@@ -116,9 +119,7 @@ export function setupProductAnalyticsInterceptor() {
     };
 }
 
-export function setupConsentInterceptor(
-    statusOverrides: ConsentStatusOverride = {}
-) {
+export function setupConsentInterceptor(statusOverrides: ConsentStatusOverride = {}) {
     const consentStatuses: Record<ConsentName, ConsentStatus> = {
         backend_data: statusOverrides.backend_data ?? 'unset',
         product_analytics: statusOverrides.product_analytics ?? 'unset',
@@ -184,7 +185,6 @@ export function setupConsentInterceptor(
 }
 
 export async function removeSymfonyToolbar(page: Page): Promise<void> {
-
     await page.addStyleTag({
         content: `
                 .sf-toolbar {
@@ -268,15 +268,16 @@ export async function waitForEventCount(
     options?: {
         timeout?: number;
         intervals?: number[];
-    }
+    },
 ) {
     await expect
-        .poll(
-            () => getEvents().length,
-            {
-                timeout: options?.timeout ?? 10_000,
-                intervals: options?.intervals ?? [1000, 2000, 3000],
-            }
-        )
+        .poll(() => getEvents().length, {
+            timeout: options?.timeout ?? 10_000,
+            intervals: options?.intervals ?? [
+                1000,
+                2000,
+                3000,
+            ],
+        })
         .toBe(expectedCount);
 }

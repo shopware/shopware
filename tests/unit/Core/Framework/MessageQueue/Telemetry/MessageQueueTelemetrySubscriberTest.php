@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\Telemetry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Service\MessageSizeCalculator;
 use Shopware\Core\Framework\MessageQueue\Telemetry\MessageQueueTelemetrySubscriber;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
@@ -16,6 +17,7 @@ use Symfony\Component\Messenger\Stamp\SerializedMessageStamp;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MessageQueueTelemetrySubscriber::class)]
 class MessageQueueTelemetrySubscriberTest extends TestCase
 {

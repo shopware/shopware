@@ -100,6 +100,29 @@ return [
         // Twig added this method in 3.27 via https://github.com/twigphp/Twig/pull/4816
         preg_quote('REMOVED: Method Twig\TokenParser\AbstractTokenParser#isAlwaysAllowedInSandbox() was removed', '/'),
 
+        // swagger-php 6.4 is required for OpenAPI 3.2 generation. The reported
+        // BC changes are in the third-party OpenApi\Analysis API. Extensions
+        // that only define OpenAPI annotations/attributes continue to work; code
+        // using swagger-php programmatically has a documented migration path in
+        // RELEASE_INFO-6.7.md / UPGRADE-6.7.md.
+        preg_quote('REMOVED: Method OpenApi\Analysis#getSchemaForSource() was removed', '/'),
+        preg_quote('REMOVED: Method OpenApi\Analysis#getContext() was removed', '/'),
+        preg_quote('REMOVED: Method OpenApi\Analysis#process() was removed', '/'),
+        preg_quote('CHANGED: Type of property OpenApi\Analysis#$annotations changed from having no type to SplObjectStorage', '/'),
+        preg_quote('CHANGED: Type of property OpenApi\Analysis#$classes changed from having no type to array', '/'),
+        preg_quote('CHANGED: Type of property OpenApi\Analysis#$interfaces changed from having no type to array', '/'),
+        preg_quote('CHANGED: Type of property OpenApi\Analysis#$traits changed from having no type to array', '/'),
+        preg_quote('CHANGED: Type of property OpenApi\Analysis#$enums changed from having no type to array', '/'),
+        preg_quote('CHANGED: Type of property OpenApi\Analysis#$openapi changed from having no type to OpenApi\Annotations\OpenApi|null', '/'),
+        preg_quote('CHANGED: Type of property OpenApi\Analysis#$context changed from having no type to OpenApi\Context|null', '/'),
+        preg_quote('CHANGED: The parameter $annotation of OpenApi\Analysis#addAnnotation() changed from object', '/'),
+        preg_quote('CHANGED: The parameter $class of OpenApi\Analysis#getSuperClasses() changed from string to string|null', '/'),
+        preg_quote('CHANGED: The parameter $class of OpenApi\Analysis#getInterfacesOfClass() changed from string to string|null', '/'),
+        preg_quote('CHANGED: The parameter $source of OpenApi\Analysis#getTraitsOfClass() changed from string to string|null', '/'),
+        preg_quote('ADDED: Parameter sourceClass was added to Method getAnnotationForSource() of class OpenApi\Analysis', '/'),
+        preg_quote('CHANGED: Parameter 1 of OpenApi\Analysis#getAnnotationForSource() changed name from class to sourceClass', '/'),
+        preg_quote('CHANGED: The return type of OpenApi\Analysis#split() changed from no type to stdClass', '/'),
+
         // MailDataSimulatorFieldEvent no longer exposes Faker in the runtime simulate feature
         preg_quote('REMOVED: Property Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent#$faker was removed', '/'),
         preg_quote('REMOVED: Parameter faker was removed from Method Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent::__construct()', '/'),
@@ -134,5 +157,18 @@ return [
 
         // EntitySearchResult::merge() takes EntityCollection (not self) so it accepts any collection, not just other search results.
         'CHANGED: The parameter \$collection of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection#merge\(\) changed from self to (?:a non-contravariant )?Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection',
+
+        // Translated CustomerGroupEntity properties are now nullable like the translation entity (fixes #16461).
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#$registrationTitle changed from string to string|null', '/'),
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#$registrationIntroduction changed from string to string|null', '/'),
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#$registrationOnlyCompanyRegistration changed from bool to bool|null', '/'),
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#$registrationSeoMetaDescription changed from string to string|null', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#getRegistrationTitle() changed from string', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#getRegistrationIntroduction() changed from string', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#getRegistrationOnlyCompanyRegistration() changed from bool', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#getRegistrationSeoMetaDescription() changed from string', '/'),
+
+        // parent method has no type. not really a break
+        preg_quote('CHANGED: The return type of Shopware\Core\Framework\Migration\Command\RefreshMigrationCommand#configure() changed from void to ', '/'),
     ],
 ];

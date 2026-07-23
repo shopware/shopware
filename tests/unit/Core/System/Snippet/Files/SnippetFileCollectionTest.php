@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\Snippet\Files;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\MockSnippetFile;
@@ -11,6 +12,7 @@ use Shopware\Tests\Unit\Core\System\Snippet\Mock\MockSnippetFile;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(SnippetFileCollection::class)]
 class SnippetFileCollectionTest extends TestCase
 {

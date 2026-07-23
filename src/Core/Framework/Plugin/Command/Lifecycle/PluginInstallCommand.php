@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Plugin\Command\Lifecycle;
 use Composer\Package\PackageInterface;
 use Composer\Util\PackageSorter;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -19,13 +18,14 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Path;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'plugin:install',
     description: 'Installs a plugin',
 )]
-#[Package('framework')]
 class PluginInstallCommand extends AbstractPluginLifecycleCommand
 {
     private const LIFECYCLE_METHOD = 'install';
@@ -58,7 +58,7 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         $context = Context::createCLIContext();
         $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input, $context);
 
@@ -112,7 +112,7 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
         }
 
         if ($activatePlugins) {
-            $this->handleClearCacheOption($input, $io, 'activating');
+            $this->handleClearCache($input, $io, 'activating');
         }
 
         return self::SUCCESS;

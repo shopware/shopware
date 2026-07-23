@@ -37,9 +37,7 @@ export default {
         },
 
         title() {
-            return this.$t('sw-extension.my-extensions.bulk.uninstallModal.title', this.count, {
-                count: this.count,
-            });
+            return this.$t('sw-extension.my-extensions.bulk.uninstallModal.title', { count: this.count }, this.count);
         },
     },
 

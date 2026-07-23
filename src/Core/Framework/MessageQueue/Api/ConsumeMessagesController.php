@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,7 +20,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnMemoryLimitListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
-use Symfony\Component\Messenger\EventListener\StopWorkerOnTimeLimitListener;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Transport\Receiver\ReceiverInterface;
 use Symfony\Component\Messenger\Worker;
@@ -43,7 +43,8 @@ class ConsumeMessagesController extends AbstractController
         private readonly string $defaultTransportName,
         private readonly string $memoryLimit,
         private readonly int $pollInterval,
-        private readonly LockFactory $lockFactory
+        private readonly LockFactory $lockFactory,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -66,7 +67,6 @@ class ConsumeMessagesController extends AbstractController
 
         $workerDispatcher = new EventDispatcher();
         $listener = new CountHandledMessagesListener();
-        $workerDispatcher->addSubscriber(new StopWorkerOnTimeLimitListener($this->pollInterval));
         $workerDispatcher->addSubscriber($listener);
         $workerDispatcher->addSubscriber($this->statsSubscriber);
         $workerDispatcher->addSubscriber($this->stopWorkerOnRestartSignalListener);
@@ -78,9 +78,11 @@ class ConsumeMessagesController extends AbstractController
             ));
         }
 
-        $worker = new Worker([$this->defaultTransportName => $receiver], $this->bus, $workerDispatcher);
+        $worker = new Worker([$this->defaultTransportName => $receiver], $this->bus, $workerDispatcher, clock: $this->clock);
 
-        $worker->run();
+        // the time_limit option is measured against the injected clock, unlike
+        // StopWorkerOnTimeLimitListener, which reads native time and cannot be controlled in tests
+        $worker->run(['time_limit' => $this->pollInterval]);
 
         $consumerLock->release();
 

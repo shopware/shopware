@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\Api;
 
+use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Increment\AbstractIncrementer;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\MessageQueue\Subscriber\EarlyReturnMessagesListener;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber;
 use Symfony\Component\Cache\Adapter\NullAdapter;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,7 +44,8 @@ class ConsumeMessagesControllerTest extends TestCase
             'async',
             '128M',
             20,
-            static::createStub(LockFactory::class)
+            static::createStub(LockFactory::class),
+            new MockClock()
         );
 
         $this->expectExceptionObject(MessageQueueException::validReceiverNameNotProvided());
@@ -71,7 +74,8 @@ class ConsumeMessagesControllerTest extends TestCase
             'async',
             '128M',
             20,
-            $lockFactory
+            $lockFactory,
+            new MockClock()
         );
 
         $this->expectExceptionObject(MessageQueueException::workerIsLocked('async'));
@@ -90,7 +94,11 @@ class ConsumeMessagesControllerTest extends TestCase
 
             public function get(): iterable
             {
-                ++$this->getCalls;
+                // with a mock clock a busy-polling worker never reaches the time limit; fail
+                // loudly instead of looping forever
+                if (++$this->getCalls > 100) {
+                    Assert::fail('Busy polling detected: the worker polled the receiver over 100 times within one poll interval.');
+                }
 
                 if ($this->messageSent) {
                     return [];
@@ -126,6 +134,9 @@ class ConsumeMessagesControllerTest extends TestCase
             ->method('dispatch')
             ->willReturnCallback(static fn (Envelope $envelope): Envelope => $envelope);
 
+        $clock = new MockClock();
+        $pollStart = $clock->now();
+
         $controller = new ConsumeMessagesController(
             new ServiceLocator(['async' => static fn (): ReceiverInterface => $receiver]),
             $bus,
@@ -135,7 +146,8 @@ class ConsumeMessagesControllerTest extends TestCase
             'async',
             '-1',
             1,
-            $lockFactory
+            $lockFactory,
+            $clock
         );
 
         $request = new Request();
@@ -145,6 +157,8 @@ class ConsumeMessagesControllerTest extends TestCase
 
         static::assertSame('{"handledMessages":1}', $response->getContent());
         static::assertLessThan(100, $receiver->getCalls);
+        // the worker slept through the full poll interval instead of returning early
+        static::assertEqualsWithDelta(1.0, (float) $clock->now()->format('U.u') - (float) $pollStart->format('U.u'), 0.01);
     }
 
     private function createMessageQueueStatsSubscriber(): MessageQueueStatsSubscriber

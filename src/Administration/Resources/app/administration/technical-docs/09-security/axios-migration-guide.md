@@ -196,6 +196,8 @@ Avoid spreading this override across an extension. A widespread opt-out hides mi
 
 Axios 0.x, the `useAxiosV1` switch, and structural `AxiosInstance` compatibility are transitional. Their removal will be announced through the release information and the applicable major upgrade guide. No specific removal release is promised by this guide.
 
+The architectural rationale for keeping both transports behind a Shopware-owned boundary is documented in [Keep Administration HTTP transports behind a compatibility facade](../../../../../../../adr/2026-07-23-administration-http-client-compatibility-facade.md).
+
 ## Troubleshooting
 
 ### Cancellation is not detected

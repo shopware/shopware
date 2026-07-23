@@ -1,0 +1,19 @@
+{% block sw_dismissible_notices %}
+<div
+    v-if="visibleNotices.length > 0"
+    class="sw-dismissible-notices"
+>
+    {% block sw_dismissible_notices_notice %}
+    <mt-banner
+        v-for="notice in visibleNotices"
+        :key="notice.key"
+        class="sw-dismissible-notices__notice"
+        :variant="variant"
+        closable
+        @close="onDismiss(notice.key)"
+    >
+        <p v-html="$sanitize($t(notice.key))"></p>
+    </mt-banner>
+    {% endblock %}
+</div>
+{% endblock %}

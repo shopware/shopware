@@ -121,11 +121,11 @@
                 >
                     <template #default="{ isInherited }">
                         <sw-entity-single-select
+                            v-model:value="defaultSortingId"
                             class="sw-cms-element-config-product-listing__sorting-default-select"
                             entity="product_sorting"
                             label-property="label"
                             show-clearable-button
-                            v-model:value="defaultSortingId"
                             :help-text="$t('sw-cms.elements.productListing.config.sorting.helpTextDefaultSorting')"
                             :criteria="allProductSortingsCriteria"
                             :placeholder="$t('sw-cms.elements.productListing.config.sorting.placeholderDefaultProductSorting')"

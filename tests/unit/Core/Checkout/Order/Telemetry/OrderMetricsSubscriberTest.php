@@ -24,8 +24,8 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[CoversClass(OrderMetricsSubscriber::class)]
 #[Package('checkout')]
+#[CoversClass(OrderMetricsSubscriber::class)]
 class OrderMetricsSubscriberTest extends TestCase
 {
     /**

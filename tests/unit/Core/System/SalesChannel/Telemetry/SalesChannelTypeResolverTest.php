@@ -12,8 +12,8 @@ use Shopware\Core\System\SalesChannel\Telemetry\SalesChannelTypeResolver;
 /**
  * @internal
  */
-#[CoversClass(SalesChannelTypeResolver::class)]
 #[Package('checkout')]
+#[CoversClass(SalesChannelTypeResolver::class)]
 class SalesChannelTypeResolverTest extends TestCase
 {
     #[DataProvider('typeProvider')]

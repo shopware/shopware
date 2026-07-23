@@ -38,7 +38,7 @@ class MigrationRuntime
             $migration = new $migration();
 
             try {
-                $migration->update($this->connection);
+                $this->runMigrationWithFkGuardRetry($migration);
             } catch (\Exception $e) {
                 $this->logError($migration, $e->getMessage());
 
@@ -176,6 +176,85 @@ class MigrationRuntime
              WHERE `class` = :class',
             ['class' => $migrationStep::class]
         );
+    }
+
+    /**
+     * Runs a migration's `update()` and, if it fails with MySQL bug #118151
+     * (`Cannot drop index ...: needed in a foreign key constraint` — fired by
+     * `restrict_fk_on_non_standard_key=ON` on MySQL 8.4+ when a child table
+     * holds a non-standard FK against the parent being altered), retries once
+     * with the guard relaxed for the current session. The migration body must
+     * be idempotent — Shopware migration convention already requires this
+     * (`columnExists`/`indexExists` guards, `dropIfExists` helpers).
+     *
+     * @see https://bugs.mysql.com/bug.php?id=118151
+     */
+    private function runMigrationWithFkGuardRetry(MigrationStep $migration): void
+    {
+        try {
+            $migration->update($this->connection);
+
+            return;
+        } catch (\Throwable $e) {
+            if (!$this->looksLikeNonStandardFkGuardBug($e)) {
+                throw $e;
+            }
+        }
+
+        $this->logger->warning(\sprintf(
+            'Migration "%s" hit MySQL bug #118151 (restrict_fk_on_non_standard_key refused '
+            . 'ALTER on a parent table with a non-standard child FK); retrying once with the '
+            . 'guard relaxed for this session. Audit non-standard FKs against this table to '
+            . 'remove the workaround need.',
+            $migration::class
+        ));
+
+        $previousGuard = $this->disableNonStandardFkGuard();
+        try {
+            $migration->update($this->connection);
+        } finally {
+            $this->restoreNonStandardFkGuard($previousGuard);
+        }
+    }
+
+    private function looksLikeNonStandardFkGuardBug(\Throwable $e): bool
+    {
+        // Error 1553 with a blank or placeholder index name is the bug signature;
+        // a real index name means the DDL legitimately drops an FK-backing index
+        // and must keep failing.
+        return \preg_match(
+            '/1553 Cannot drop index \'(?:<unknown key name>)?\': needed in a foreign key constraint/i',
+            $e->getMessage()
+        ) === 1;
+    }
+
+    /**
+     * @return int|null previous value of the guard, or null if the variable
+     *                  is unsupported (MariaDB / MySQL <8.4)
+     */
+    private function disableNonStandardFkGuard(): ?int
+    {
+        try {
+            $previous = (int) $this->connection->fetchOne('SELECT @@SESSION.restrict_fk_on_non_standard_key');
+        } catch (\Throwable) {
+            return null;
+        }
+
+        $this->connection->executeStatement('SET SESSION restrict_fk_on_non_standard_key = OFF');
+
+        return $previous;
+    }
+
+    private function restoreNonStandardFkGuard(?int $previous): void
+    {
+        if ($previous === null) {
+            return;
+        }
+
+        $this->connection->executeStatement(\sprintf(
+            'SET SESSION restrict_fk_on_non_standard_key = %d',
+            $previous
+        ));
     }
 
     private function enrichException(\Exception $e): void

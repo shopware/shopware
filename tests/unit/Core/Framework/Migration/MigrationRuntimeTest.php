@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Tests\Unit\Core\Framework\Migration\_fixtures\MigrationRuntime\Migration1000000001Successful;
 use Shopware\Tests\Unit\Core\Framework\Migration\_fixtures\MigrationRuntime\Migration1000000002Failing;
 use Shopware\Tests\Unit\Core\Framework\Migration\_fixtures\MigrationRuntime\Migration1000000003FkFailing;
+use Shopware\Tests\Unit\Core\Framework\Migration\_fixtures\MigrationRuntime\Migration1000000004FkGuardFailingOnce;
+use Shopware\Tests\Unit\Core\Framework\Migration\_fixtures\MigrationRuntime\Migration1000000005FkGuardAlwaysFailing;
 use Shopware\Tests\Unit\Core\Framework\Migration\_fixtures\MigrationRuntime\TestableMigrationRuntime;
 
 /**
@@ -24,6 +26,12 @@ use Shopware\Tests\Unit\Core\Framework\Migration\_fixtures\MigrationRuntime\Test
 #[CoversClass(MigrationRuntime::class)]
 class MigrationRuntimeTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        Migration1000000004FkGuardFailingOnce::$updateCalls = 0;
+        Migration1000000005FkGuardAlwaysFailing::$updateCalls = 0;
+    }
+
     #[TestDox('migrate executes the steps in order and marks each as executed')]
     public function testMigrateExecutesAndMarksSteps(): void
     {
@@ -150,6 +158,109 @@ class MigrationRuntimeTest extends TestCase
         $this->expectExceptionMessageMatches('/check the table `child_table` for entries that do not match the entries in table `parent_table`/');
 
         iterator_to_array($runtime->migrate($this->createSource()));
+    }
+
+    #[TestDox('the MySQL 8.4 FK-guard error triggers exactly one retry with the guard relaxed and restored')]
+    public function testMigrateRetriesOnceWhenFkGuardBugIsHit(): void
+    {
+        $statements = [];
+        $connection = $this->createMock(Connection::class);
+        $connection->method('executeStatement')
+            ->willReturnCallback(static function (string $sql) use (&$statements): int {
+                $statements[] = $sql;
+
+                return 1;
+            });
+        $connection->expects($this->once())
+            ->method('fetchOne')
+            ->with('SELECT @@SESSION.restrict_fk_on_non_standard_key')
+            ->willReturn(1);
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('warning')
+            ->with(static::stringContains('118151'));
+
+        $runtime = new TestableMigrationRuntime($connection, $logger);
+        $runtime->executableMigrations = [Migration1000000004FkGuardFailingOnce::class];
+
+        $executed = iterator_to_array($runtime->migrate($this->createSource()));
+
+        static::assertSame([Migration1000000004FkGuardFailingOnce::class], $executed);
+        static::assertSame(2, Migration1000000004FkGuardFailingOnce::$updateCalls, 'update() should run twice: initial attempt + retry');
+        static::assertContains('SET SESSION restrict_fk_on_non_standard_key = OFF', $statements);
+        static::assertContains('SET SESSION restrict_fk_on_non_standard_key = 1', $statements);
+    }
+
+    #[TestDox('a retry that fails again propagates the FK-guard error after restoring the guard')]
+    public function testMigrateRetryFailurePropagates(): void
+    {
+        $statements = [];
+        $connection = static::createStub(Connection::class);
+        $connection->method('executeStatement')
+            ->willReturnCallback(static function (string $sql) use (&$statements): int {
+                $statements[] = $sql;
+
+                return 1;
+            });
+        $connection->method('fetchOne')->willReturn(1);
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('warning');
+        $logger->expects($this->once())->method('error');
+
+        $runtime = new TestableMigrationRuntime($connection, $logger);
+        $runtime->executableMigrations = [Migration1000000005FkGuardAlwaysFailing::class];
+
+        try {
+            iterator_to_array($runtime->migrate($this->createSource()));
+            static::fail('expected the FK-guard error to be rethrown after the failed retry');
+        } catch (\RuntimeException $e) {
+            static::assertSame(Migration1000000005FkGuardAlwaysFailing::ERROR_MESSAGE, $e->getMessage());
+        }
+
+        static::assertSame(2, Migration1000000005FkGuardAlwaysFailing::$updateCalls, 'update() should run twice before the second failure propagates');
+        static::assertContains('SET SESSION restrict_fk_on_non_standard_key = 1', $statements, 'the guard must be restored even when the retry fails');
+    }
+
+    #[TestDox('unrelated migration errors are not retried and never touch the FK guard')]
+    public function testMigrateDoesNotRetryUnrelatedErrors(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchOne');
+
+        $runtime = new TestableMigrationRuntime($connection, new NullLogger());
+        $runtime->executableMigrations = [Migration1000000002Failing::class];
+
+        $this->expectExceptionObject(new \RuntimeException(Migration1000000002Failing::ERROR_MESSAGE));
+
+        iterator_to_array($runtime->migrate($this->createSource()));
+    }
+
+    #[TestDox('the retry works without toggling the guard when the session variable is unsupported')]
+    public function testMigrateRetriesWithoutGuardToggleWhenVariableUnsupported(): void
+    {
+        $statements = [];
+        $connection = static::createStub(Connection::class);
+        $connection->method('executeStatement')
+            ->willReturnCallback(static function (string $sql) use (&$statements): int {
+                $statements[] = $sql;
+
+                return 1;
+            });
+        $connection->method('fetchOne')
+            ->willThrowException(new \RuntimeException('Unknown system variable \'restrict_fk_on_non_standard_key\''));
+
+        $runtime = new TestableMigrationRuntime($connection, new NullLogger());
+        $runtime->executableMigrations = [Migration1000000004FkGuardFailingOnce::class];
+
+        $executed = iterator_to_array($runtime->migrate($this->createSource()));
+
+        static::assertSame([Migration1000000004FkGuardFailingOnce::class], $executed);
+        static::assertSame(2, Migration1000000004FkGuardFailingOnce::$updateCalls);
+        foreach ($statements as $statement) {
+            static::assertStringNotContainsString('restrict_fk_on_non_standard_key', $statement);
+        }
     }
 
     private function createSource(): MigrationSource

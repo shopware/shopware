@@ -6,6 +6,10 @@
 
 ## Core
 
+### Migration runtime auto-recovers from MySQL 8.4 FK-guard failures
+
+`MigrationRuntime` now retries a failing migration once with `restrict_fk_on_non_standard_key=OFF` for the session when the first attempt fails with MySQL error 1553 carrying a blank or `<unknown key name>` index name (MySQL bug #118151), then restores the previous value. The behavior applies to every migration and is a transparent no-op on MariaDB and MySQL versions where the variable does not exist. When the retry path is exercised, a warning is logged with the migration class name so administrators can audit non-standard foreign keys against parent tables in their schema.
+
 ### Polyfill packages are installed as declared dependencies
 
 The `shopware/core` and `shopware/platform` package manifests no longer replace Symfony polyfill packages or `paragonie/random_compat`. Composer now installs the polyfills required by the resolved dependency graph instead of treating them as supplied by Shopware. Extension projects that depend on these packages continue to work; their production dependency tree can gain the required polyfill packages. Projects that guarantee the required native PHP functionality can add relevant packages to their own root `replace` section to avoid installing them and reduce their vendor directory size; they must not replace `symfony/polyfill-mbstring`, which Core requires for `mb_ltrim()` on PHP 8.2 and 8.3.

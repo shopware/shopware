@@ -19,8 +19,8 @@ use Symfony\Component\Messenger\Event\WorkerMessageReceivedEvent;
 /**
  * @internal
  */
-#[CoversClass(MessageQueueTelemetrySubscriber::class)]
 #[Package('framework')]
+#[CoversClass(MessageQueueTelemetrySubscriber::class)]
 class MessageQueueTelemetrySubscriberTest extends TestCase
 {
     /**

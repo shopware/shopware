@@ -24,8 +24,8 @@ use Symfony\Component\Uid\Uuid;
  * abandoned one is reclaimed after it expires. created_at is deliberately not used as a delete
  * criterion, because an active session can outlive any fixed age.
  */
-#[AsMessageHandler(handles: McpToolsetSessionCleanupTask::class)]
 #[Package('framework')]
+#[AsMessageHandler(handles: McpToolsetSessionCleanupTask::class)]
 final class McpToolsetSessionCleanupTaskHandler extends ScheduledTaskHandler
 {
     /**

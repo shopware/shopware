@@ -324,6 +324,7 @@ export default {
                             params: { id: this.productStream.id },
                         });
                         this.isSaveSuccessful = true;
+                        this.isSaving = false;
                     })
                     .catch(() => {
                         this.showErrorNotification();

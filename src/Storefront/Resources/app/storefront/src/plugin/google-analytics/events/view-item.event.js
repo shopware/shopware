@@ -38,7 +38,7 @@ export default class ViewItemEvent extends AnalyticsEvent
             return;
         }
 
-        gtag('event', 'view_item', {
+        this.pushEvent('view_item', {
             'currency': ProductPageHelper.getCurrency(),
             'value': ProductPageHelper.getValue(),
             'items': [{

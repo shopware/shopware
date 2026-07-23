@@ -40,7 +40,7 @@ export default class RemoveFromCart extends AnalyticsEvent
         const hiddenLineItem = document.querySelector(`.hidden-line-item[data-id="${productId}"]`);
         if (!hiddenLineItem) {
             // Fallback: send event with just the product ID
-            gtag('event', 'remove_from_cart', {
+            this.pushEvent('remove_from_cart', {
                 'currency': additionalProperties.currency,
                 'items': [{ 'id': productId }],
             });
@@ -53,7 +53,7 @@ export default class RemoveFromCart extends AnalyticsEvent
         const sku = hiddenLineItem.getAttribute('data-sku');
         const value = (parseFloat(price) || 0) * (parseInt(quantity, 10) || 1);
 
-        gtag('event', 'remove_from_cart', {
+        this.pushEvent('remove_from_cart', {
             'currency': additionalProperties.currency,
             'value': value.toFixed(2),
             'items': [{

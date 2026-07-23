@@ -32,7 +32,7 @@ export default class PurchaseEvent extends AnalyticsEvent
             return;
         }
 
-        gtag('event', 'purchase', {
+        this.pushEvent('purchase', {
             'transaction_id': orderNumber,
             'items': LineItemHelper.getLineItems(),
             ...LineItemHelper.getAdditionalProperties(),

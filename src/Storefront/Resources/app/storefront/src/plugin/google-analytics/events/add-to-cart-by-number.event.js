@@ -34,7 +34,7 @@ export default class AddToCartByNumberEvent extends AnalyticsEvent
         const input = event.currentTarget.querySelector('.form-control');
         const additionalProperties = LineItemHelper.getAdditionalProperties();
 
-        gtag('event', 'add_to_cart', {
+        this.pushEvent('add_to_cart', {
             'currency': additionalProperties.currency,
             'items': [
                 {

@@ -91,7 +91,7 @@ export default class RemoveFromWishlistEvent extends AnalyticsEvent
             categories = lineItemData.categories || {};
         }
 
-        gtag('event', 'remove_from_wishlist', {
+        this.pushEvent('remove_from_wishlist', {
             'currency': productData.currency,
             'value': productData.value,
             'items': [{

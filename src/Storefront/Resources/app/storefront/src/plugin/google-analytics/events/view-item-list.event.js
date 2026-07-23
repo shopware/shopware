@@ -49,7 +49,7 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
         // Calculate total value of all visible items
         const value = items.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
 
-        gtag('event', 'view_item_list', {
+        this.pushEvent('view_item_list', {
             'currency': ProductPageHelper.getCurrency(),
             'value': value.toFixed(2),
             'items': items,

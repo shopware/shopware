@@ -32,7 +32,7 @@ export default class AddPaymentInfoEvent extends AnalyticsEvent
         const paymentType = this._getPaymentType();
         const additionalProperties = LineItemHelper.getAdditionalProperties();
 
-        gtag('event', 'add_payment_info', {
+        this.pushEvent('add_payment_info', {
             'currency': additionalProperties.currency,
             'value': additionalProperties.value,
             'payment_type': paymentType,

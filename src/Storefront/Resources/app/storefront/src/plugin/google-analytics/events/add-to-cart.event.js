@@ -48,7 +48,7 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
         // Get product data - uses detail page meta tags or falls back to product card data
         const productData = ProductPageHelper.getProductData(productId, formElement);
 
-        gtag('event', 'add_to_cart', {
+        this.pushEvent('add_to_cart', {
             'currency': productData.currency || ProductPageHelper.getCurrency(),
             'value': productData.value,
             'items': [{

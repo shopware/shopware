@@ -41,7 +41,7 @@ export default class AddToWishlistEvent extends EventAwareAnalyticsEvent
             }
         }
 
-        gtag('event', 'add_to_wishlist', {
+        this.pushEvent('add_to_wishlist', {
             'currency': productData.currency,
             'value': productData.value,
             'items': [{

@@ -19,6 +19,33 @@ export default class AnalyticsEvent
         console.warn('[Google Analytics Plugin] Method \'execute\' was not overridden by `' + this.constructor.name + '`.');
     }
 
+    /**
+     * @param {string} name
+     * @param {Object} parameters
+     * @param {Object} options
+     * @param {boolean} options.ecommerce
+     */
+    pushEvent(name, parameters, { ecommerce = true } = {}) {
+        if (!window.gtagIsTagManager) {
+            gtag('event', name, parameters);
+            return;
+        }
+
+        if (ecommerce) {
+            window.dataLayer.push({ ecommerce: null });
+            window.dataLayer.push({
+                event: name,
+                ecommerce: parameters,
+            });
+            return;
+        }
+
+        window.dataLayer.push({
+            event: name,
+            ...parameters,
+        });
+    }
+
     disable() {
         this.active = false;
     }

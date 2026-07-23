@@ -11,9 +11,9 @@ use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
  *
  * @internal
  */
+#[Package('framework')]
 #[McpTool(name: self::NAME, title: 'Tool Search', description: 'Search the allowed Shopware MCP tool catalogue by free-text query and return the most relevant tool definitions inline. Use this when a needed tool is not visible in tools/list.')]
 #[McpToolGroup('discovery')]
-#[Package('framework')]
 class ToolSearchTool extends AbstractToolSearchTool
 {
     /**

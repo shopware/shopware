@@ -7,8 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @experimental stableVersion:v6.8.0
  */
-#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
 #[Package('framework')]
+#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
 final readonly class McpToolGroup
 {
     public function __construct(public string $group)

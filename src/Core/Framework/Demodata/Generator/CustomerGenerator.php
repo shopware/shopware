@@ -23,7 +23,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('checkout')]
 class CustomerGenerator implements DemodataGeneratorInterface
 {
     /**

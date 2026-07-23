@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\SystemCheck\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
@@ -13,12 +12,13 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal
  */
-#[AsCommand(name: 'system:check', description: 'Check the shopware application system health')]
 #[Package('framework')]
+#[AsCommand(name: 'system:check', description: 'Check the shopware application system health')]
 class SystemCheckCommand extends Command
 {
     private const OUTPUT_FORMATS = ['table', 'json'];
@@ -93,7 +93,7 @@ class SystemCheckCommand extends Command
      */
     private function printOutput(InputInterface $input, OutputInterface $output, bool $verbose, array $result, string $format): void
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         $headers = ['Name', 'Healthy', 'Status', 'Message', 'Extra'];
 
         $isJsonOutput = $format === 'json';

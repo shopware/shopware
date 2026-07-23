@@ -57,7 +57,7 @@ class SeoActionControllerTest extends TestCase
     public function testValidateInvalidTwigSyntax(): void
     {
         $template = new SeoUrlTemplateEntity();
-        $template->setRouteName('frontend.detail.page');
+        $template->setRouteName(ProductPageSeoUrlRoute::ROUTE_NAME);
         $template->setTemplate('{{ product.name }');
         $template->setEntityName(static::getContainer()->get(ProductDefinition::class)->getEntityName());
         $template->setSalesChannelId(TestDefaults::SALES_CHANNEL);
@@ -75,7 +75,7 @@ class SeoActionControllerTest extends TestCase
     public function testValidateInvalidDataUsage(): void
     {
         $template = new SeoUrlTemplateEntity();
-        $template->setRouteName('frontend.detail.page');
+        $template->setRouteName(ProductPageSeoUrlRoute::ROUTE_NAME);
         $template->setTemplate('{{ product.undefinedProperty }}');
         $template->setEntityName(static::getContainer()->get(ProductDefinition::class)->getEntityName());
         $template->setSalesChannelId(TestDefaults::SALES_CHANNEL);
@@ -97,7 +97,7 @@ class SeoActionControllerTest extends TestCase
 
         $this->createTestProduct($salesChannelId);
         $template = new SeoUrlTemplateEntity();
-        $template->setRouteName('frontend.detail.page');
+        $template->setRouteName(ProductPageSeoUrlRoute::ROUTE_NAME);
         $template->setTemplate('{{ product.name }}');
         $template->setEntityName(ProductDefinition::ENTITY_NAME);
         $template->setSalesChannelId($salesChannelId);
@@ -356,7 +356,7 @@ class SeoActionControllerTest extends TestCase
             'pathInfo' => '/detail/' . $id,
             'salesChannelId' => $salesChannelId,
             'isModified' => true,
-            'routeName' => 'frontend.detail.page',
+            'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
         ];
 
         // modify canonical
@@ -400,7 +400,7 @@ class SeoActionControllerTest extends TestCase
         ]);
 
         $data = [
-            'routeName' => 'frontend.detail.page',
+            'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
             'entityName' => static::getContainer()->get(ProductDefinition::class)->getEntityName(),
             'template' => '{{ product.name }}',
             'salesChannelId' => $salesChannelId,

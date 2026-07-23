@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ElasticsearchRegistry::class)]
 class ElasticsearchRegistryTest extends TestCase
 {

@@ -123,7 +123,7 @@ Module.register('sw-product', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#57D9A3',
-    icon: 'solid-products',
+    icon: 'regular-products',
     favicon: 'icon-module-products.png',
     entity: 'product',
 

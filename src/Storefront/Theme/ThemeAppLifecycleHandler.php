@@ -15,7 +15,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeAppLifecycleHandler extends AbstractLifecycleHandler
 {
     public function __construct(

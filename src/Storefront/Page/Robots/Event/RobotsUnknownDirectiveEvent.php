@@ -18,7 +18,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  *
  *  Simple DTO with no business logic
  */
-#[Package('framework')]
+#[Package('discovery')]
 class RobotsUnknownDirectiveEvent extends Event implements ShopwareEvent
 {
     /**

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Snippet\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\SnippetFixer;
 use Shopware\Core\System\Snippet\SnippetValidator;
@@ -15,6 +14,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal in v6.8.0
@@ -22,12 +22,12 @@ use Symfony\Component\Console\Question\Question;
  *
  * @phpstan-type Snippets array<string, string|array<string, mixed>>
  */
+#[Package('discovery')]
 #[AsCommand(
     name: 'translation:validate',
     description: 'Validates completeness and correct pluralization of snippets',
     aliases: ['snippets:validate'],
 )]
-#[Package('discovery')]
 class ValidateSnippetsCommand extends Command
 {
     /**
@@ -55,7 +55,7 @@ class ValidateSnippetsCommand extends Command
         $invalidPluralization = $invalidSnippetsStruct->invalidPluralization;
         $hasInvalidPluralization = $invalidPluralization->count() > 0;
 
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
 
         if (!$hasMissingSnippets && !$hasInvalidPluralization) {
             $io->success('Snippets are valid!');
@@ -114,7 +114,7 @@ class ValidateSnippetsCommand extends Command
     }
 
     private function renderPluralizationErrors(
-        ShopwareStyle $io,
+        SymfonyStyle $io,
         OutputInterface $output,
         InvalidPluralizationCollection $invalidPluralization
     ): void {

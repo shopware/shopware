@@ -12,7 +12,7 @@ use Shopware\Storefront\Framework\Twig\TemplateConfigAccessor;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
-#[Package('framework')]
+#[Package('discovery')]
 class ConfigExtension extends AbstractExtension
 {
     /**

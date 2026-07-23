@@ -6,12 +6,14 @@ use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\CoversAttributeRule;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @extends RuleTestCase<CoversAttributeRule>
  */
+#[Package('framework')]
 class CoversAttributeRuleTest extends RuleTestCase
 {
     public function testAllowsConfiguredUnitTestNamespace(): void

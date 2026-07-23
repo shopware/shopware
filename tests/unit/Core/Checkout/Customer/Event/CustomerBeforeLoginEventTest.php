@@ -14,8 +14,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(CustomerBeforeLoginEvent::class)]
 #[Package('checkout')]
+#[CoversClass(CustomerBeforeLoginEvent::class)]
 class CustomerBeforeLoginEventTest extends TestCase
 {
     public function testRestoreScalarValuesCorrectly(): void

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @codeCoverageIgnore - Enum is tested indirectly through RobotsDirective and parser tests
  */
-#[Package('framework')]
+#[Package('discovery')]
 enum RobotsDirectiveType: string
 {
     case ALLOW = 'Allow';

@@ -6,12 +6,14 @@ use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @extends RuleTestCase<DeprecatedMethodsThrowDeprecationRule>
  */
+#[Package('framework')]
 class DeprecatedMethodsThrowDeprecationRuleTest extends RuleTestCase
 {
     #[RunInSeparateProcess]

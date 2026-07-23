@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class CategoryGenerator implements DemodataGeneratorInterface
 {
     /**

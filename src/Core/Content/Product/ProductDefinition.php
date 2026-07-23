@@ -127,6 +127,16 @@ class ProductDefinition extends EntityDefinition
         ];
     }
 
+    /**
+     * @return array{type: 'physical'}
+     */
+    public function getChildDefaults(): array
+    {
+        return [
+            'type' => self::TYPE_PHYSICAL,
+        ];
+    }
+
     public function since(): ?string
     {
         return '6.0.0.0';
@@ -161,7 +171,8 @@ class ProductDefinition extends EntityDefinition
 
             (new PriceField('price', 'price'))->addFlags(new Inherited(), new Required(), new ApiCriteriaAware())->setDescription('Price of the product.'),
             (new NumberRangeField('product_number', 'productNumber'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING, false), new Required())->setDescription('Unique number assigned to individual products. Define rules for automatic assignment of every product creation as per your number range.'),
-            (new IntField('restock_time', 'restockTime'))->addFlags(new ApiAware(), new Inherited())->setDescription('The restock time in days indicates how long it will take until a sold out item is back in stock.'),
+            // @deprecated tag:v6.8.0 - minValue: 0 will be applied unconditionally
+            (new IntField('restock_time', 'restockTime', minValue: Feature::isActive('v6.8.0.0') ? 0 : null))->addFlags(new ApiAware(), new Inherited())->setDescription('The restock time in days indicates how long it will take until a sold out item is back in stock.'),
             new AutoIncrementField(),
             (new BoolField('active', 'active'))->addFlags(new ApiAware(), new Inherited())->setDescription('When boolean value is `true`, the products are available for selection in the storefront for purchase.'),
             (new BoolField('available', 'available'))->addFlags(new ApiAware(), new WriteProtected())->setDescription('Indicates weather the product is available or not.'),
@@ -206,7 +217,7 @@ class ProductDefinition extends EntityDefinition
             (new TranslatedField('name', true))->addFlags(new ApiAware(), new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new TranslatedField('keywords'))->addFlags(new ApiAware(), new Inherited()),
             (new TranslatedField('description'))->addFlags(new ApiAware(), new Inherited()),
-            (new TranslatedField('descriptionTeaser'))->addFlags(new ApiAware(), new Inherited())->setDescription('Read-only excerpt of the description, computed by the database.'),
+            (new TranslatedField('descriptionTeaser'))->addFlags(new ApiAware(), new Inherited())->setDescription('Read-only, HTML-stripped excerpt of the description, derived on write.'),
             (new TranslatedField('metaTitle'))->addFlags(new ApiAware(), new Inherited()),
             (new TranslatedField('packUnit'))->addFlags(new ApiAware(), new Inherited()),
             (new TranslatedField('packUnitPlural'))->addFlags(new ApiAware(), new Inherited()),

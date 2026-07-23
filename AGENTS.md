@@ -97,3 +97,4 @@ To add a new skill (interactive or unattended), follow the checklist in [`coding
 | **Twig** (Storefront)  | `composer ludtwig:storefront` | `composer ludtwig:storefront:fix`            |
 | **Snippets**           | `composer translation:lint`   | Manual fix required                          |
 | **Prettier** (Admin)   | `composer format:admin`       | `composer format:admin:fix`                  |
+| **GitHub Actions**     | `composer lint:actions`       | `composer lint:actions:fix`                  |

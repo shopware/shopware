@@ -449,20 +449,17 @@ class CreditNoteRendererTest extends TestCase
         ]);
 
         /*
-        fetchFirstColumn has to return different results based on the number of parameters
-            getCreditIdsOnInvoiceDocument (2 params) > creditItems already part of the invoice
-            getPreviouslyCreditedIdsForInvoice (3 params) > credit items already part of other credit notes
+        fetchFirstColumn has to return different results based on the parameter shape:
+            getCreditIdsOnInvoiceDocument > credit items already part of the invoice
+            getPreviouslyCreditedIdsForInvoice > credit items already part of other credit notes
         */
         $connection->method('fetchFirstColumn')
             ->willReturnCallback(static function ($sql, $params) use ($invoiceCreditIds, $creditNoteCreditIds) {
-                if (\count($params) === 2) {
-                    return array_map(static fn ($hexIds) => Uuid::fromHexToBytes($hexIds), $invoiceCreditIds);
-                }
-                if (\count($params) === 3) {
+                if (\array_key_exists('creditTechnicalName', $params)) {
                     return array_map(static fn ($hexIds) => Uuid::fromHexToBytes($hexIds), $creditNoteCreditIds);
                 }
 
-                return [];
+                return array_map(static fn ($hexIds) => Uuid::fromHexToBytes($hexIds), $invoiceCreditIds);
             });
 
         return new CreditNoteRenderer(

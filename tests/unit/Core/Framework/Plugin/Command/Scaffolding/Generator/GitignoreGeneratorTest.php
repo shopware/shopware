@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command\Scaffolding\Generato
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\GitignoreGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Stub;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(GitignoreGenerator::class)]
 class GitignoreGeneratorTest extends TestCase
 {

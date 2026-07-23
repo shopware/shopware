@@ -31,8 +31,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[CoversClass(RegisterConfirmRoute::class)]
 #[Package('checkout')]
+#[CoversClass(RegisterConfirmRoute::class)]
 class RegisterConfirmRouteTest extends TestCase
 {
     protected SalesChannelContext&Stub $context;

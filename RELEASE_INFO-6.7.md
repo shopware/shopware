@@ -6,6 +6,31 @@
 
 ## Core
 
+### Built-in translation system configurable via `shopware.translation`
+
+The built-in translation system's configuration (previously only editable by decorating `AbstractTranslationConfigLoader`) can now be overridden through the standard Symfony configuration in `config/packages`. Add a `shopware.translation` section to override individual options; any option left unset falls back to the shipped defaults in `translation.yaml`:
+
+```yaml
+# config/packages/translation.yaml
+shopware:
+    translation:
+        repository_url: 'https://example.com/translations'
+        metadata_url: 'https://example.com/crowdin-metadata.json'
+        plugins:
+            - 'MyPlugin'
+        excluded_locales:
+            - 'de-DE'
+            - 'en-GB'
+        plugin_mapping:
+            - plugin: 'MyPlugin'
+              name: 'MySnippetName'
+        languages:
+            - name: 'Deutsch'
+              locale: 'de-DE'
+```
+
+List options (`plugins`, `excluded_locales`, `plugin_mapping`, `languages`) replace the shipped default entirely rather than merging; provide the full list you want. Setting a list to `[]` clears the shipped default. Decorating `AbstractTranslationConfigLoader` continues to work; a decorator that fully replaces `load()` bypasses these config overrides.
+
 ### Polyfill packages are installed as declared dependencies
 
 The `shopware/core` and `shopware/platform` package manifests no longer replace Symfony polyfill packages or `paragonie/random_compat`. Composer now installs the polyfills required by the resolved dependency graph instead of treating them as supplied by Shopware. Extension projects that depend on these packages continue to work; their production dependency tree can gain the required polyfill packages. Projects that guarantee the required native PHP functionality can add relevant packages to their own root `replace` section to avoid installing them and reduce their vendor directory size; they must not replace `symfony/polyfill-mbstring`, which Core requires for `mb_ltrim()` on PHP 8.2 and 8.3.

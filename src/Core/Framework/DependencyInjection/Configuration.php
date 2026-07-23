@@ -63,6 +63,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createProductTypesSection())
                 ->append($this->createMcpSection())
                 ->append($this->createWebhookSection())
+                ->append($this->createTranslationSection())
             ->end();
 
         return $treeBuilder;
@@ -1670,6 +1671,27 @@ class Configuration implements ConfigurationInterface
                     ->values(WebhookFailureStrategy::values())
                     ->defaultValue(WebhookFailureStrategy::DisableOnThreshold->value)
                 ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createTranslationSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('translation');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->info('Overrides for the built-in translation system. Options left unset fall back to the shipped defaults in translation.yaml.')
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->scalarNode('repository_url')->defaultNull()->end()
+                ->scalarNode('metadata_url')->defaultNull()->end()
+                // list overrides default to null so an unset option (keep the shipped default) can be told apart from an explicit empty list (clear the shipped default)
+                ->variableNode('plugins')->defaultNull()->end()
+                ->variableNode('excluded_locales')->defaultNull()->end()
+                ->variableNode('plugin_mapping')->defaultNull()->end()
+                ->variableNode('languages')->defaultNull()->end()
             ->end();
 
         return $rootNode;

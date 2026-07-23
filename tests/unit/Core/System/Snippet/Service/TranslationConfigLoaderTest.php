@@ -123,4 +123,89 @@ class TranslationConfigLoaderTest extends TestCase
         static::expectException(DecorationPatternException::class);
         $this->translationConfigLoader->getDecorated();
     }
+
+    public function testOverrideRepositoryUrl(): void
+    {
+        $loader = new TestableTranslationConfigLoader(new Filesystem(), ['repository_url' => 'https://example.com/repo']);
+
+        static::assertSame('https://example.com/repo', $loader->load()->repositoryUrl->__toString());
+    }
+
+    public function testOverrideMetadataUrl(): void
+    {
+        $loader = new TestableTranslationConfigLoader(new Filesystem(), ['metadata_url' => 'https://example.com/metadata.json']);
+
+        static::assertSame('https://example.com/metadata.json', $loader->load()->metadataUrl->__toString());
+    }
+
+    public function testOverridePluginsReplacesList(): void
+    {
+        $loader = new TestableTranslationConfigLoader(new Filesystem(), ['plugins' => ['MyCustomPlugin']]);
+
+        static::assertSame(['MyCustomPlugin'], $loader->load()->plugins);
+    }
+
+    public function testOverrideLanguagesReplacesList(): void
+    {
+        $loader = new TestableTranslationConfigLoader(new Filesystem(), [
+            'languages' => [['name' => 'Italiano', 'locale' => 'it-IT']],
+        ]);
+
+        $config = $loader->load();
+
+        static::assertSame(['it-IT'], $config->locales);
+        $language = $config->languages->get('it-IT');
+        static::assertInstanceOf(Language::class, $language);
+        static::assertSame('Italiano', $language->name);
+        static::assertNull($config->languages->get('en-GB'));
+    }
+
+    public function testOverrideExcludedLocalesCanBeCleared(): void
+    {
+        $loader = new TestableTranslationConfigLoader(new Filesystem(), ['excluded_locales' => []]);
+
+        static::assertSame([], $loader->load()->excludedLocales);
+    }
+
+    public function testOverridePluginMappingReplacesList(): void
+    {
+        $loader = new TestableTranslationConfigLoader(new Filesystem(), [
+            'plugin_mapping' => [['plugin' => 'FooPlugin', 'name' => 'BarSnippet']],
+        ]);
+
+        $config = $loader->load();
+
+        $mapping = $config->pluginMapping->get('FooPlugin');
+        static::assertInstanceOf(PluginMapping::class, $mapping);
+        static::assertSame('BarSnippet', $mapping->snippetName);
+        static::assertNull($config->pluginMapping->get('SwagPublisher'));
+    }
+
+    public function testNullOverridesFallBackToConfigFile(): void
+    {
+        $loader = new TestableTranslationConfigLoader(new Filesystem(), [
+            'repository_url' => null,
+            'metadata_url' => null,
+            'plugins' => null,
+            'excluded_locales' => null,
+            'plugin_mapping' => null,
+            'languages' => null,
+        ]);
+
+        $config = $loader->load();
+
+        static::assertSame(
+            'https://raw.githubusercontent.com/shopware/translations/main/translations',
+            $config->repositoryUrl->__toString()
+        );
+        static::assertSame(['it-IT'], $config->excludedLocales);
+    }
+
+    public function testOverriddenInvalidUrlIsStillValidated(): void
+    {
+        $loader = new TestableTranslationConfigLoader(new Filesystem(), ['repository_url' => 'invalid_url']);
+
+        $this->expectExceptionObject(SnippetException::invalidRepositoryUrl('invalid_url', new \Exception('"repository-url" must contain a schema and a host.')));
+        $loader->load();
+    }
 }

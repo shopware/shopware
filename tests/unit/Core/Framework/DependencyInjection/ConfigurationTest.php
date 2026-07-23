@@ -50,6 +50,67 @@ class ConfigurationTest extends TestCase
         static::assertInstanceOf(BooleanNodeDefinition::class, $node);
     }
 
+    public function testTranslationConfigTreeNode(): void
+    {
+        $configuration = new Configuration();
+
+        $rootNode = $configuration->getConfigTreeBuilder()->getRootNode();
+
+        static::assertInstanceOf(ArrayNodeDefinition::class, $rootNode);
+        $nodes = $rootNode->getChildNodeDefinitions();
+
+        static::assertArrayHasKey('translation', $nodes);
+        $node = $nodes['translation'];
+        static::assertInstanceOf(ArrayNodeDefinition::class, $node);
+
+        $children = $node->getChildNodeDefinitions();
+        static::assertInstanceOf(ScalarNodeDefinition::class, $children['repository_url']);
+        static::assertInstanceOf(ScalarNodeDefinition::class, $children['metadata_url']);
+        static::assertInstanceOf(VariableNodeDefinition::class, $children['plugins']);
+        static::assertInstanceOf(VariableNodeDefinition::class, $children['excluded_locales']);
+        static::assertInstanceOf(VariableNodeDefinition::class, $children['plugin_mapping']);
+        static::assertInstanceOf(VariableNodeDefinition::class, $children['languages']);
+    }
+
+    public function testTranslationConfigDefaultsToNull(): void
+    {
+        $configuration = new Configuration();
+
+        $config = (new Processor())->processConfiguration($configuration, []);
+
+        static::assertSame([
+            'repository_url' => null,
+            'metadata_url' => null,
+            'plugins' => null,
+            'excluded_locales' => null,
+            'plugin_mapping' => null,
+            'languages' => null,
+        ], $config['translation']);
+    }
+
+    public function testTranslationConfigListOverrideReplacesPreviousValue(): void
+    {
+        $configuration = new Configuration();
+
+        $config = (new Processor())->processConfiguration($configuration, [
+            [
+                'translation' => [
+                    'plugins' => ['PluginA', 'PluginB'],
+                    'excluded_locales' => ['de-DE'],
+                ],
+            ],
+            [
+                'translation' => [
+                    'plugins' => ['PluginC'],
+                    'excluded_locales' => [],
+                ],
+            ],
+        ]);
+
+        static::assertSame(['PluginC'], $config['translation']['plugins']);
+        static::assertSame([], $config['translation']['excluded_locales']);
+    }
+
     public function testFeatureConfigTreeNode(): void
     {
         $configuration = new Configuration();

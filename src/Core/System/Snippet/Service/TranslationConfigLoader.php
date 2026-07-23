@@ -27,8 +27,24 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
 
     private const METADATA_URL = 'metadata-url';
 
+    /**
+     * Maps the snake_case keys of the `shopware.translation` config section to the dash-separated keys used in translation.yaml.
+     */
+    private const OVERRIDE_KEY_MAP = [
+        'repository_url' => self::REPOSITORY_URL,
+        'metadata_url' => self::METADATA_URL,
+        'plugins' => 'plugins',
+        'excluded_locales' => 'excluded-locales',
+        'plugin_mapping' => 'plugin-mapping',
+        'languages' => 'languages',
+    ];
+
+    /**
+     * @param array<string, mixed> $translationConfig `shopware.translation` config section; keys left null fall back to translation.yaml
+     */
     public function __construct(
         private readonly Filesystem $configReader,
+        private readonly array $translationConfig = [],
     ) {
     }
 
@@ -39,7 +55,7 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
 
     public function load(): TranslationConfig
     {
-        $config = $this->parseConfig();
+        $config = $this->applyConfigOverrides($this->parseConfig());
 
         $repositoryUrl = $this->getUrlFromConfigByType(self::REPOSITORY_URL, $config);
         $metadataUrl = $this->getUrlFromConfigByType(self::METADATA_URL, $config);
@@ -80,6 +96,22 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
     protected function getConfigFilename(): string
     {
         return 'translation.yaml';
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     *
+     * @return array<string, mixed>
+     */
+    private function applyConfigOverrides(array $config): array
+    {
+        foreach (self::OVERRIDE_KEY_MAP as $overrideKey => $configKey) {
+            if (($this->translationConfig[$overrideKey] ?? null) !== null) {
+                $config[$configKey] = $this->translationConfig[$overrideKey];
+            }
+        }
+
+        return $config;
     }
 
     /**

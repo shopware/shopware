@@ -136,8 +136,8 @@ class MonetarySummationViewTest extends TestCase
             actualAmount: $amount,
             basisAmount: null,
             calculationPercent: null,
-            reasonCode: AllowanceChargeReason::DELIVERY,
-            reason: AllowanceChargeReason::DELIVERY->defaultLabel(),
+            reasonCode: AllowanceChargeReason::SHIPPING_AND_HANDLING,
+            reason: AllowanceChargeReason::SHIPPING_AND_HANDLING->defaultLabel(),
             taxCategory: TaxCategory::STANDARD_RATE,
             taxRate: 19.0,
         );

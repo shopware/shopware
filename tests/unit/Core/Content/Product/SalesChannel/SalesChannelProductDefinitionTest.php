@@ -6,11 +6,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(SalesChannelProductDefinition::class)]
 class SalesChannelProductDefinitionTest extends TestCase
 {

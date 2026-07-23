@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Maintenance\System\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Command\SystemSetupCommand;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Console\Application;
@@ -15,6 +16,7 @@ use Symfony\Component\Dotenv\Dotenv;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SystemSetupCommand::class)]
 class SystemSetupCommandTest extends TestCase
 {

@@ -607,18 +607,13 @@
     "labelActionSelect": "Aktion",
     "labelMail": "E-Mail-Adresse",
     "labelFirstName": "Vorname",
-    "labelLastName": "Nachname",
-    "placeholderMail": "E-Mail-Adresse eingeben ...",
-    "placeholderFirstName": "Max",
-    "placeholderLastName": "Mustermann"
+    "labelLastName": "Nachname"
   },
   "contact": {
     "headline": "Kontaktformular",
     "info": "Wir freuen uns auf Ihre Kontaktaufnahme.",
     "subjectLabel": "Betreff",
-    "subjectPlaceholder": "Betreff eingeben ...",
     "commentLabel": "Kommentar",
-    "commentPlaceholder": "Kommentar eingeben ...",
     "privacyNoticeText": "Ich habe die <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" data-prev-url=\"%prevUrl%\">Datenschutzbestimmungen</a> zur Kenntnis genommen und erkenne diese an.",
     "privacyNoticeTextModal": "Ich habe die %privacyModalTagOpen%Datenschutzbestimmungen%privacyModalTagClose% zur Kenntnis genommen und erkenne diese an.",
     "privacyNoticeTextPage": "Ich habe die <a href=\"%privacyUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen und erkenne diese an.",
@@ -628,15 +623,10 @@
   "revocationRequest": {
     "headline": "Widerruf",
     "firstNameLabel": "Vorname",
-    "firstNamePlaceholder": "Vornamen eingeben ...",
     "lastNameLabel": "Nachname",
-    "lastNamePlaceholder": "Nachnamen eingeben ...",
     "eMailLabel": "E-Mail-Adresse",
-    "eMailPlaceholder": "E-Mail-Adresse eingeben ...",
     "contractNumberLabel": "Vertragsnummer (Bestellnummer, Abonnementnummer, ...)",
-    "contractNumberPlaceholder": "Vertragsnummer eingeben ...",
     "commentLabel": "Kommentar",
-    "commentPlaceholder": "Kommentar eingeben ...",
     "privacyNoticeTextModal": "Unsere Datenschutzhinweise finden Sie %privacyModalTagOpen%hier%privacyModalTagClose%.",
     "formSubmit": "Widerruf bestätigen",
     "success": "Wir haben Ihren Widerrufsantrag erhalten und werden ihn schnellstmöglich bearbeiten."

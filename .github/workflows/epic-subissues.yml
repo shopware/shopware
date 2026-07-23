@@ -42,4 +42,30 @@ jobs:
       - name: Create issue for each markdown file and attach as subissue to newly created epic
         env:
           EPIC_NUM: ${{ github.event.issue.number }}
-        run: "for file in $FILELIST; do\n  # set title to file name and remove file extension \n  TITLE=${file%%.md}\n  # replace hyphens with spaces\n  TITLE=${TITLE//-/ }\n  #remove directory name\n  if [[ \"$TITLE\" == \"Design/\"* ]]; then\n    TITLE=\"${TITLE#Design/}\"\n  elif [[ \"$TITLE\" == \"Testing/\"* ]]; then\n    TITLE=\"${TITLE#Testing/}\"\n  fi\n    #magic___^_^___line\n  # create subissue and get subissue number\n  SUBISSUE=$(gh issue create --title \"$TITLE\" --body-file \".github/ISSUE_TEMPLATE/Epic/${file}\")\n  SUBISSUE_NUM=$(gh issue view \"$SUBISSUE\" --json number --jq '.number')\n    #magic___^_^___line\n  # get subissue database id\n  # source: https://jessehouwing.net/create-github-issue-hierarchy-using-the-api/\n  SUBISSUE_ID=$(gh api \"/repos/$REPO/issues/$SUBISSUE_NUM\" --jq .id)\n    #magic___^_^___line\n  # add subissue to epic\n  gh api -X POST \"/repos/$REPO/issues/$EPIC_NUM/sub_issues\" -F \"sub_issue_id=$SUBISSUE_ID\"\n    #magic___^_^___line\n  # set subissue type\n  gh api -X PATCH \"/repos/$REPO/issues/$SUBISSUE_NUM\" --field type=\"Task\"\ndone\n"
+        run: |
+          for file in $FILELIST; do
+            # set title to file name and remove file extension
+            TITLE=${file%%.md}
+            # replace hyphens with spaces
+            TITLE=${TITLE//-/ }
+            #remove directory name
+            if [[ "$TITLE" == "Design/"* ]]; then
+              TITLE="${TITLE#Design/}"
+            elif [[ "$TITLE" == "Testing/"* ]]; then
+              TITLE="${TITLE#Testing/}"
+            fi
+
+            # create subissue and get subissue number
+            SUBISSUE=$(gh issue create --title "$TITLE" --body-file ".github/ISSUE_TEMPLATE/Epic/${file}")
+            SUBISSUE_NUM=$(gh issue view "$SUBISSUE" --json number --jq '.number')
+
+            # get subissue database id
+            # source: https://jessehouwing.net/create-github-issue-hierarchy-using-the-api/
+            SUBISSUE_ID=$(gh api "/repos/$REPO/issues/$SUBISSUE_NUM" --jq .id)
+
+            # add subissue to epic
+            gh api -X POST "/repos/$REPO/issues/$EPIC_NUM/sub_issues" -F "sub_issue_id=$SUBISSUE_ID"
+
+            # set subissue type
+            gh api -X PATCH "/repos/$REPO/issues/$SUBISSUE_NUM" --field type="Task"
+          done

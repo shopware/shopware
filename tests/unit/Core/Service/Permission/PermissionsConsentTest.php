@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Service\Permission;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\Permission\PermissionsConsent;
 use Shopware\Core\Service\ServiceException;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PermissionsConsent::class)]
 class PermissionsConsentTest extends TestCase
 {

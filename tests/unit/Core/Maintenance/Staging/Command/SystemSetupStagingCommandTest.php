@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Maintenance\Staging\Command;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\Staging\Command\SystemSetupStagingCommand;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -16,6 +17,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SystemSetupStagingCommand::class)]
 class SystemSetupStagingCommandTest extends TestCase
 {

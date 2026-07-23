@@ -23,9 +23,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(LineItemVariantValueRule::class)]
 #[Group('rules')]
-#[Package('checkout')]
 class LineItemVariantValueRuleTest extends TestCase
 {
     private LineItemVariantValueRule $rule;

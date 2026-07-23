@@ -19,8 +19,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[CoversClass(SalesChannelCustomerAddressDefinition::class)]
 #[Package('checkout')]
+#[CoversClass(SalesChannelCustomerAddressDefinition::class)]
 class SalesChannelCustomerAddressDefinitionTest extends TestCase
 {
     public function testProcessCriteria(): void

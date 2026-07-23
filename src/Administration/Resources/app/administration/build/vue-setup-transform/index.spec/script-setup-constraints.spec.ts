@@ -8,7 +8,7 @@
  * `declare` hoisting.
  */
 
-import { stripIndent, transformOrFail, transformShopwareSetupSfc } from './helpers';
+import { expectVueCompilerScriptToCompile, stripIndent, transformOrFail, transformShopwareSetupSfc } from './helpers';
 
 describe('build/vue-setup-transform script setup constraints', () => {
     it('rejects top-level await', () => {
@@ -114,5 +114,125 @@ describe('build/vue-setup-transform script setup constraints', () => {
         expect(result.indexOf('declare const injected')).toBeLessThan(result.indexOf('createExtendableSetup('));
         expect(result).toContain('const count = injected + 1;');
         expect(result).not.toMatch(/\n\s*injected,/);
+    });
+
+    it('accepts type-only exports like Vue and hoists them to the script root', () => {
+        const source = stripIndent`
+            <script setup lang="ts">
+            export type PublicCount = number;
+            export interface PublicShape {
+                count: number;
+            }
+            const count = 1;
+            swDefinePublic({ count });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'type-only-export.vue').code;
+
+        expect(result).toContain('export type PublicCount = number;');
+        expect(result).toContain('export interface PublicShape {');
+        expect(result.indexOf('export interface PublicShape')).toBeLessThan(
+            result.indexOf('Shopware.Component.createExtendableSetup('),
+        );
+        expectVueCompilerScriptToCompile(result, 'type-only-export.vue');
+    });
+
+    it('accepts exports inside an ambient module augmentation', () => {
+        const source = stripIndent`
+            <script setup lang="ts">
+            declare module 'vue' {
+                export interface ComponentCustomProperties {
+                    $foo: string;
+                }
+            }
+            const count = 1;
+            swDefinePublic({ count });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'ambient-module-export.vue').code;
+
+        expect(result).toContain("declare module 'vue' {");
+        expect(result.indexOf("declare module 'vue'")).toBeLessThan(
+            result.indexOf('Shopware.Component.createExtendableSetup('),
+        );
+    });
+
+    it('still rejects a value-carrying named export', () => {
+        const source = stripIndent`
+            <script setup lang="ts">
+            export const count = 1;
+            swDefinePublic({ count });
+            </script>
+        `;
+
+        expect(() => transformShopwareSetupSfc(source, 'value-export.vue')).toThrow(
+            '<script setup> cannot contain ES module exports.',
+        );
+    });
+
+    it('rejects a top-level binding named Shopware that would shadow the runtime global', () => {
+        const source = stripIndent`
+            <script setup>
+            const Shopware = { custom: true };
+            const count = Shopware.custom;
+            swDefinePublic({ count });
+            </script>
+        `;
+
+        expect(() => transformShopwareSetupSfc(source, 'reserved-shopware.vue')).toThrow(
+            '"Shopware" is reserved by the Shopware setup transform',
+        );
+    });
+
+    it('rejects an unsupported script lang', () => {
+        const source = stripIndent`
+            <script setup lang="coffee">
+            count = 1
+            </script>
+        `;
+
+        expect(() => transformShopwareSetupSfc(source, 'coffee.vue')).toThrow(
+            'Unsupported <script setup lang="coffee"> in a Shopware setup block.',
+        );
+    });
+
+    it('accepts a tsx script lang', () => {
+        const source = stripIndent`
+            <script setup lang="tsx">
+            const count = 1;
+            swDefinePublic({ count });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'tsx-lang.vue').code;
+
+        expect(result).toContain('Shopware.Component.createExtendableSetup(');
+    });
+
+    it('reports transform errors at the offending author source offset', () => {
+        const source = stripIndent`
+            <template><div /></template>
+            <script setup>
+            const value = await loadValue();
+            swDefinePublic({});
+            </script>
+        `;
+
+        let thrown: unknown;
+
+        try {
+            transformShopwareSetupSfc(source, 'offset.vue');
+        } catch (error) {
+            thrown = error;
+        }
+
+        const error = thrown as { name: string; index: number };
+
+        // The absolute SFC offset must land on the offending `await`, not at 0 (block-relative) or the
+        // block start - this is the contract index.ts's withBlockOffset() exists to preserve.
+        expect(error.name).toBe('ShopwareSetupTransformError');
+        expect(source.slice(error.index, error.index + 'await'.length)).toBe('await');
     });
 });

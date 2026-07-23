@@ -2,10 +2,10 @@
  * @sw-package framework
  */
 
-import { stripIndent, transformOrFail, transformShopwareSetupSfc } from './helpers';
+import { expectVueCompilerScriptToCompile, stripIndent, transformOrFail, transformShopwareSetupSfc } from './helpers';
 
 describe('build/vue-setup-transform base defineExpose macro', () => {
-    it('replaces defineExpose() with setup context expose inside the extendable setup callback', () => {
+    it('re-emits defineExpose() as a real macro at the script-setup footer', () => {
         const source = stripIndent`
             <script setup>
             function focus() {
@@ -26,14 +26,20 @@ describe('build/vue-setup-transform base defineExpose macro', () => {
 
         const result = transformOrFail(source, 'base-expose.vue').code;
 
-        expect(result).toContain('(__swSetupContext.expose)({');
-        expect(result).toContain('focus,');
-        expect(result).not.toContain('defineExpose');
-        expect(result.indexOf('function focus()')).toBeLessThan(result.indexOf('(__swSetupContext.expose)'));
+        // No runtime context.expose hack, and defineExpose is a real macro emitted after the
+        // createExtendableSetup destructure - so the exposed binding is in scope and Vue wires expose
+        // exactly once (no "expose() called more than once" dev warning).
+        expect(result).not.toContain('__swSetupContext.expose');
+        expect(result).toContain('defineExpose({');
+        expect(result.indexOf('createExtendableSetup(')).toBeLessThan(result.indexOf('defineExpose({'));
+        expect(result.indexOf('defineExpose({')).toBeLessThan(result.indexOf('</script>'));
+        // `focus` stays private setup state, so the footer defineExpose can reference the destructured binding.
         expect(result).toContain('private: {\n                focus,\n            }');
+        expect(result.match(/defineExpose/g)).toHaveLength(1);
+        expectVueCompilerScriptToCompile(result, 'base-expose.vue');
     });
 
-    it('supports bare defineExpose() calls', () => {
+    it('re-emits a bare defineExpose() call at the footer', () => {
         const source = stripIndent`
             <script setup>
             defineExpose();
@@ -48,11 +54,13 @@ describe('build/vue-setup-transform base defineExpose macro', () => {
 
         const result = transformOrFail(source, 'base-bare-expose.vue').code;
 
-        expect(result).toContain('(__swSetupContext.expose)();');
-        expect(result).not.toContain('defineExpose');
+        expect(result).not.toContain('__swSetupContext.expose');
+        expect(result).toContain('defineExpose();');
+        expect(result.indexOf('createExtendableSetup(')).toBeLessThan(result.indexOf('defineExpose();'));
+        expectVueCompilerScriptToCompile(result, 'base-bare-expose.vue');
     });
 
-    it('supports defineExpose() wrapped in a TypeScript as expression', () => {
+    it('re-emits defineExpose() written with a TypeScript as-expression', () => {
         const source = stripIndent`
             <script setup lang="ts">
             function focus() {
@@ -73,10 +81,12 @@ describe('build/vue-setup-transform base defineExpose macro', () => {
 
         const result = transformOrFail(source, 'base-expose-as.vue').code;
 
-        expect(result).toContain(`(__swSetupContext.expose)({
-            focus,
-        }) as void;`);
-        expect(result).not.toContain('defineExpose');
+        // The footer re-emits the defineExpose() call itself; the surrounding `as void` assertion is
+        // dropped (defineExpose returns void anyway).
+        expect(result).not.toContain('__swSetupContext.expose');
+        expect(result).toContain('defineExpose({');
+        expect(result.match(/defineExpose/g)).toHaveLength(1);
+        expectVueCompilerScriptToCompile(result, 'base-expose-as.vue');
     });
 
     it('rejects duplicate declarations', () => {
@@ -107,9 +117,11 @@ describe('build/vue-setup-transform base defineExpose macro', () => {
 
         const result = transformOrFail(source, 'nested-expose.vue').code;
 
+        // A nested defineExpose() is not a top-level macro, so it stays untouched inside the callback
+        // body and no footer macro is emitted for it.
         expect(result).toContain(`if (true) {
             defineExpose({});
         }`);
-        expect(result).not.toContain('(__swSetupContext.expose)');
+        expect(result).not.toContain('__swSetupContext.expose');
     });
 });

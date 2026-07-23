@@ -24,10 +24,7 @@ function isBabelNodeLike(value: unknown): value is BabelNode {
  * Default values and computed keys are reads, not declarations, so they are deliberately skipped:
  * `const { label = fallback, [key]: value } = source` declares `label` and `value` only.
  */
-function forEachPatternIdentifier(
-    pattern: BabelNode | null | undefined,
-    visit: (identifier: Identifier) => void,
-): void {
+function forEachPatternIdentifier(pattern: BabelNode | null | undefined, visit: (identifier: Identifier) => void): void {
     // e.g. array holes: `const [, second] = pair` has a null first element.
     if (!pattern) {
         return;

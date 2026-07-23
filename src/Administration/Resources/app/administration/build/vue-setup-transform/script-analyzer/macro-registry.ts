@@ -151,9 +151,9 @@ const MACRO_RULES: Record<MacroName, MacroRule> = {
         requiredInModes: [
             'override',
         ],
-        requiredMessage: 'swDefineOverride() must be called exactly once at the top level of an override Shopware setup block.',
-        topLevelOnlyMessage:
-            'swDefineOverride() must be called once at the top level of an override Shopware setup block.',
+        requiredMessage:
+            'swDefineOverride() must be called exactly once at the top level of an override Shopware setup block.',
+        topLevelOnlyMessage: 'swDefineOverride() must be called once at the top level of an override Shopware setup block.',
     },
     useSwContext: {
         modes: [

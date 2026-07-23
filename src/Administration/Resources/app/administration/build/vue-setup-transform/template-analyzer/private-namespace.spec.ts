@@ -16,5 +16,4 @@ describe('build/vue-setup-transform/template-analyzer private namespace', () => 
             createOverridePrivateNamespace('src/b/sw-thing.override.vue', 'sw-thing'),
         );
     });
-
 });

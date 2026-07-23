@@ -42,7 +42,12 @@ function normalizeReplacement(replacement: string | SourceChunk[]): SourceChunk[
  * This step does not generate a sourcemap; it behaves like a plain string replacement and returns
  * `map: null`.
  */
-function applySourceEdits(source: string, _filename: string, edits: SourceEdit[]): AppliedSourceEdits {
+function applySourceEdits(
+    source: string,
+    _filename: string,
+    edits: SourceEdit[],
+    protectedRanges: readonly (readonly [number, number])[] = [],
+): AppliedSourceEdits {
     let cursor = 0;
     const chunks: FlatSourceChunk[] = [];
 
@@ -58,7 +63,7 @@ function applySourceEdits(source: string, _filename: string, edits: SourceEdit[]
                 start: cursor,
                 end: edit.start,
             });
-            chunks.push(...toFlatChunks(normalizeReplacement(edit.replacement), source));
+            chunks.push(...toFlatChunks(normalizeReplacement(edit.replacement), source, 0, protectedRanges));
 
             cursor = edit.end;
         });
@@ -70,7 +75,7 @@ function applySourceEdits(source: string, _filename: string, edits: SourceEdit[]
     });
 
     return {
-        code: render(chunks, source),
+        code: render(chunks, source, 0, protectedRanges),
         map: null,
     };
 }

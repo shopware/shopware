@@ -76,9 +76,31 @@ function renderTrim(chunks: FlatSourceChunk[], source: string, sourceOffset: num
 }
 
 /**
+ * Whether an absolute source position falls inside a protected range (e.g. a template literal).
+ *
+ * The opening line of the literal starts before the range (the `const x = ` part), so it is not
+ * matched and stays indented; only continuation lines, whose start sits strictly inside the range, are
+ * matched and left un-indented so the literal's runtime contents are preserved verbatim.
+ */
+function isInsideProtectedRange(position: number, protectedRanges: readonly (readonly [number, number])[]): boolean {
+    return protectedRanges.some(
+        ([
+            start,
+            end,
+        ]) => start < position && position < end,
+    );
+}
+
+/**
  * Adds indentation without turning copied original lines into generated code.
  */
-function renderIndent(chunks: FlatSourceChunk[], source: string, sourceOffset: number, spaces: number): FlatSourceChunk[] {
+function renderIndent(
+    chunks: FlatSourceChunk[],
+    source: string,
+    sourceOffset: number,
+    spaces: number,
+    protectedRanges: readonly (readonly [number, number])[],
+): FlatSourceChunk[] {
     const indentation = ' '.repeat(spaces);
     const result: FlatSourceChunk[] = [];
     let atLineStart = true;
@@ -89,10 +111,16 @@ function renderIndent(chunks: FlatSourceChunk[], source: string, sourceOffset: n
 
         code.split('\n').forEach((part, index, parts) => {
             if (part.length > 0) {
-                if (atLineStart) {
+                // A continuation line inside a protected range (a multi-line template literal) keeps its
+                // original column: indenting it would rewrite the runtime string contents.
+                const lineStartIsProtected =
+                    chunk.type === 'original' && isInsideProtectedRange(chunk.start + offset, protectedRanges);
+
+                if (atLineStart && !lineStartIsProtected) {
                     result.push(generated(indentation));
-                    atLineStart = false;
                 }
+
+                atLineStart = false;
 
                 if (chunk.type === 'generated') {
                     result.push(generated(part));
@@ -129,28 +157,41 @@ function renderIndent(chunks: FlatSourceChunk[], source: string, sourceOffset: n
 
 /**
  * Expands wrapper chunks into flat generated/original chunks once source text is available.
+ *
+ * `protectedRanges` are absolute source ranges (template literals) whose interior lines must not be
+ * re-indented; they are only consumed by the indent expansion.
  */
-function toFlatChunks(chunks: SourceChunk[], source: string, sourceOffset = 0): FlatSourceChunk[] {
+function toFlatChunks(
+    chunks: SourceChunk[],
+    source: string,
+    sourceOffset = 0,
+    protectedRanges: readonly (readonly [number, number])[] = [],
+): FlatSourceChunk[] {
     return chunks.flatMap((chunk) => {
         if (chunk.type === 'generated' || chunk.type === 'original') {
             return [chunk];
         }
 
-        const flatChunks = toFlatChunks(chunk.chunks, source, sourceOffset);
+        const flatChunks = toFlatChunks(chunk.chunks, source, sourceOffset, protectedRanges);
 
         if (chunk.type === 'trim') {
             return renderTrim(flatChunks, source, sourceOffset);
         }
 
-        return renderIndent(flatChunks, source, sourceOffset, chunk.spaces);
+        return renderIndent(flatChunks, source, sourceOffset, chunk.spaces, protectedRanges);
     });
 }
 
 /**
  * Renders chunks for string-based assertions and generated wrapper assembly.
  */
-function render(chunks: SourceChunk[], source: string, sourceOffset = 0): string {
-    return toFlatChunks(chunks, source, sourceOffset)
+function render(
+    chunks: SourceChunk[],
+    source: string,
+    sourceOffset = 0,
+    protectedRanges: readonly (readonly [number, number])[] = [],
+): string {
+    return toFlatChunks(chunks, source, sourceOffset, protectedRanges)
         .map((chunk) => getChunkText(chunk, source, sourceOffset))
         .join('');
 }

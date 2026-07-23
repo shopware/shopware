@@ -12,6 +12,7 @@
 
 import type { CallExpression, ImportDeclaration, Statement } from '@babel/types';
 import type { ShopwareSetupMode } from './utils/shopware-setup-block';
+import { ShopwareSetupTransformError } from './utils/transform-error';
 import { extractStaticObjectMarker } from './script-analyzer/macros';
 import {
     type MacroCallEntry,
@@ -21,19 +22,23 @@ import {
     getMacroEntries,
     getMacroEntry,
 } from './script-analyzer/macro-registry';
-import { type SourceRange, getNodeRange, parseScript } from './script-analyzer/utils';
+import { type SourceRange, getNodeRange, parseScript, walk } from './script-analyzer/utils';
 import { type RuntimeBinding, collectImportBindings, collectRuntimeBinding } from './script-analyzer/runtime-bindings';
 import {
+    assertNoRuntimeBindingPropCollision,
     assertNoUnsupportedSyntax,
     assertReservedMacroNames,
     assertStaticObjectEntries,
 } from './script-analyzer/validation';
 import { assertHoistedMacroArgumentsDoNotUseLocalSetup } from './script-analyzer/hoisted-macro-arguments';
-import {
-    analyzeSetupInputs,
-    type SetupInputReplacement,
-    type SetupMacroSummary,
-} from './script-analyzer/setup-inputs';
+import { analyzeSetupInputs, type SetupInputReplacement, type SetupMacroSummary } from './script-analyzer/setup-inputs';
+
+const SUPPORTED_SCRIPT_LANGS = new Set([
+    'js',
+    'jsx',
+    'ts',
+    'tsx',
+]);
 
 type ImportBlock = SourceRange & { code: string };
 type TypeDeclarationBlock = SourceRange & { code: string };
@@ -56,6 +61,9 @@ type ShopwareSetupScriptAnalysis = {
     typeDeclarations: TypeDeclarationBlock[];
     bodyRemovals: SourceRange[];
     setupInputReplacements: SetupInputReplacement[];
+    // Absolute source ranges of template literals, so the renderer can skip re-indenting their interior
+    // lines (indenting would rewrite the runtime string contents).
+    templateLiteralRanges: [number, number][];
     runtimeBindings: RuntimeBinding[];
     runtimeBindingNames: Set<string>;
     runtimeInputAliasNames: Set<string>;
@@ -66,6 +74,7 @@ type ShopwareSetupScriptAnalysis = {
     emitsMacro: SetupMacroSummary | null;
     slotsMacro: SetupMacroSummary | null;
     optionsMacro: SetupMacroSummary | null;
+    exposeMacro: SetupMacroSummary | null;
     overridePrivateBindings: Set<string>;
     overridePrivateNamespace: string | null;
 };
@@ -111,11 +120,26 @@ function getTypeDeclarationRangesAndCode(
  */
 function isHoistableTypeDeclaration(statement: Statement): boolean {
     // e.g. `interface Props { ... }`, `type Emits = { ... }`, `declare const injected: number;`
-    return (
+    if (
         statement.type === 'TSInterfaceDeclaration' ||
         statement.type === 'TSTypeAliasDeclaration' ||
         Boolean((statement as Statement & { declare?: boolean }).declare)
-    );
+    ) {
+        return true;
+    }
+
+    // Type-only exports (`export type X`, `export interface X`, `export type { A }`) produce no runtime
+    // output. Like Vue, they are hoisted whole to the generated script root, where an export is legal -
+    // leaving them in the setup callback body would be a syntax error.
+    if (statement.type === 'ExportNamedDeclaration') {
+        return (
+            statement.exportKind === 'type' ||
+            statement.declaration?.type === 'TSInterfaceDeclaration' ||
+            statement.declaration?.type === 'TSTypeAliasDeclaration'
+        );
+    }
+
+    return false;
 }
 
 /**
@@ -125,7 +149,32 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
     const lang = options.lang ?? 'js';
     const mode = options.mode;
     const scriptOffset = options.scriptOffset;
+
+    // The transform only understands the Babel-parseable script languages Vue uses. Anything else
+    // (e.g. `lang="coffee"`) would otherwise be mis-parsed as plain JS or fail with an opaque Babel
+    // error, so reject it up front, matching the fail-loudly philosophy.
+    if (!SUPPORTED_SCRIPT_LANGS.has(lang)) {
+        throw new ShopwareSetupTransformError(
+            `Unsupported <script setup lang="${lang}"> in a Shopware setup block. Supported languages are js, jsx, ts, and tsx.`,
+            scriptOffset,
+        );
+    }
+
     const ast = parseScript(script, lang, scriptOffset);
+
+    // Collect template-literal ranges (absolute) up front so the renderer can leave their interior
+    // lines un-indented.
+    const templateLiteralRanges: [number, number][] = [];
+    walk(ast.program, (node) => {
+        if (node.type === 'TemplateLiteral') {
+            const range = getNodeRange(node, scriptOffset);
+            templateLiteralRanges.push([
+                scriptOffset + range.start,
+                scriptOffset + range.end,
+            ]);
+        }
+    });
+
     const imports: ImportDeclaration[] = [];
     const typeDeclarations: Statement[] = [];
     const importedBindings = new Set<string>();
@@ -186,7 +235,12 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
 
     assertHoistedMacroArgumentsDoNotUseLocalSetup({
         scriptOffset,
-        runtimeBindingNames,
+        // Runtime input aliases (`const ctx = useSwContext()`) also live inside the setup callback, so
+        // a hoisted macro argument referencing one is just as unreachable as a plain runtime binding.
+        localSetupNames: new Set([
+            ...runtimeBindingNames,
+            ...runtimeInputAliasNames,
+        ]),
         macroCalls: getHoistedArgumentMacroNames()
             .flatMap((name) => getMacroEntries(macroEntries, name))
             // defineOptions() is only hoisted in its statement form; a declaration is normal code.
@@ -197,10 +251,13 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
             })),
     });
 
-    const { setupInputReplacements, propsMacro, emitsMacro, slotsMacro, optionsMacro } = analyzeSetupInputs(script, {
-        scriptOffset,
-        entries: macroEntries,
-    });
+    const { setupInputReplacements, declaredPropNames, propsMacro, emitsMacro, slotsMacro, optionsMacro, exposeMacro } =
+        analyzeSetupInputs(script, {
+            scriptOffset,
+            entries: macroEntries,
+        });
+
+    assertNoRuntimeBindingPropCollision(declaredPropNames, runtimeBindings, scriptOffset);
 
     const publicEntries =
         publicMarkerEntries.length > 0
@@ -239,10 +296,14 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
     // Post-assert there is at most one kept-at-root defineOptions(). The marker arrays stay plural
     // because they predate the assert (see above); at this point they also hold at most one entry.
     const keptAtRootEntry = getMacroEntry(macroEntries, 'defineOptions', 'statement');
+    // defineExpose is removed from the callback body and re-emitted as a real macro at the script-setup
+    // footer (see setup-inputs exposeMacro / base lowering).
+    const exposeStatementEntry = getMacroEntry(macroEntries, 'defineExpose', 'statement');
     const bodyRemovals = [
         ...imports.map((importNode) => getNodeRange(importNode, scriptOffset)),
         ...typeDeclarations.map((declaration) => getNodeRange(declaration, scriptOffset)),
         ...(keptAtRootEntry ? [getNodeRange(keptAtRootEntry.statement, scriptOffset)] : []),
+        ...(exposeStatementEntry ? [getNodeRange(exposeStatementEntry.statement, scriptOffset)] : []),
         ...publicMarkerEntries.map((entry) => getNodeRange(entry.statement, scriptOffset)),
         ...overrideMarkerEntries.map((entry) => getNodeRange(entry.statement, scriptOffset)),
     ];
@@ -252,6 +313,7 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
         typeDeclarations: getTypeDeclarationRangesAndCode(script, typeDeclarations, scriptOffset),
         bodyRemovals,
         setupInputReplacements,
+        templateLiteralRanges,
         runtimeBindings,
         runtimeBindingNames,
         runtimeInputAliasNames,
@@ -262,6 +324,7 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
         emitsMacro,
         slotsMacro,
         optionsMacro,
+        exposeMacro,
         overridePrivateBindings: new Set(),
         overridePrivateNamespace: null,
     };

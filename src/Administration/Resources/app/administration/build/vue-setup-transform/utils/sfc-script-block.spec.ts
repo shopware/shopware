@@ -30,5 +30,4 @@ describe('build/vue-setup-transform/utils/sfc-script-block', () => {
         expect(block.content).toBe('\nconst count = 1;\n');
         expect(block.openingTagSource).toBe('<script setup lang="ts" generic="T">');
     });
-
 });

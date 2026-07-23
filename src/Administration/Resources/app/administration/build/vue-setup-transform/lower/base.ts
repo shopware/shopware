@@ -112,7 +112,16 @@ function buildBaseScript(block: ShopwareSetupBlock, analysis: ShopwareSetupScrip
         ),
         generated('\n'),
         indent(body, 8),
-        generated('\n    },\n);\n</script>'),
+        generated('\n    },\n);\n'),
+        // Re-emit the author's defineExpose() as a real macro here, after the destructure, so the
+        // exposed bindings are in scope and Vue wires expose exactly once (no double-expose warning).
+        ...(analysis.exposeMacro
+            ? [
+                  fromSource(block, analysis.exposeMacro.ranges[0]),
+                  generated(';\n'),
+              ]
+            : []),
+        generated('</script>'),
     );
 
     return chunks;

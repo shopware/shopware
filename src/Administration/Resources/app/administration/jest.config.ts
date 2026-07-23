@@ -105,6 +105,7 @@ const config: Config = {
         '!build/vite-plugins/**/*.spec.ts',
         'build/vue-setup-transform/**/*.ts',
         '!build/vue-setup-transform/**/*.spec.ts',
+        '!build/vue-setup-transform/**/index.spec/**',
     ],
 
     coverageReporters: [

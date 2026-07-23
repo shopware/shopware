@@ -84,9 +84,7 @@ describe('build/vue-setup-transform override template pattern references', () =>
         // The `@[eventName]`, `:title` and `track` references sit on <Child> itself, outside that
         // scope, so they still resolve to the override's setup bindings and are forwarded through
         // the sw-block rather than being shadowed by the same-element alias.
-        expect(result).toContain(
-            `#default="{ __swOverride: { ${privateNamespace}: { eventName, title, track } } }"`,
-        );
+        expect(result).toContain(`#default="{ __swOverride: { ${privateNamespace}: { eventName, title, track } } }"`);
     });
 
     it('does not expose setup state for v-for defaults that reference earlier object aliases', () => {

@@ -96,6 +96,23 @@ describe('build/vue-setup-transform base defineEmits macro', () => {
         expect(result).toContain('(__swSetupContext.emit);');
     });
 
+    it('prefixes a semicolon before a statement-initial macro replacement to defeat ASI', () => {
+        const source = stripIndent`
+            <script setup>
+            const width = window.outerWidth
+            defineEmits(['save'])
+            const count = width
+            swDefinePublic({ count })
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'base-emits-asi.vue').code;
+
+        // Without the leading `;`, ASI would parse `window.outerWidth\n(__swSetupContext.emit)` as a call
+        // on the previous line. Declaration initializers (`const emit = defineEmits(...)`) stay unprefixed.
+        expect(result).toContain(';(__swSetupContext.emit)');
+    });
+
     it('supports runtime array emit declarations', () => {
         const source = stripIndent`
             <script setup>
@@ -147,6 +164,23 @@ describe('build/vue-setup-transform base defineEmits macro', () => {
         expect(result).toContain('defineEmits<{ save: [] }>();');
         expect(result).toContain("const emit = (__swSetupContext.emit) as ((event: 'save') => void);");
         expect(result.match(/defineEmits/g)).toHaveLength(1);
+    });
+
+    it('rejects hoisted arguments that reference a runtime input alias', () => {
+        const source = stripIndent`
+            <script setup>
+            const ctx = useSwContext();
+            const emit = defineEmits(ctx.emits);
+            const count = 1;
+            swDefinePublic({ count });
+            </script>
+        `;
+
+        // `ctx` aliases useSwContext() and lives inside the setup callback, so a hoisted defineEmits()
+        // argument reading it would resolve an unreachable name at the script root.
+        expect(() => transformShopwareSetupSfc(source, 'base-emits-alias-arg.vue')).toThrow(
+            'defineEmits() arguments are hoisted outside the Shopware setup callback and must not reference local setup bindings.',
+        );
     });
 
     it('rejects duplicate declarations', () => {

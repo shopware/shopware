@@ -14,11 +14,7 @@ import { ShopwareSetupTransformError } from '../utils/transform-error';
 import { getNodeRange, unwrapTransparentMacroExpression } from './utils';
 import { forEachPatternIdentifier } from '../utils/babel-patterns';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
-import {
-    getExposableSetupMacroNames,
-    getRuntimeInputAliasNames,
-    getSetupInputMacroNames,
-} from './macro-registry';
+import { getExposableSetupMacroNames, getRuntimeInputAliasNames, getSetupInputMacroNames } from './macro-registry';
 
 const SETUP_INPUT_MACRO_NAMES = getSetupInputMacroNames();
 const EXPOSABLE_SETUP_MACRO_NAMES = getExposableSetupMacroNames();
@@ -149,9 +145,7 @@ function isSetupInputDeclaration(declaration: VariableDeclarator): boolean {
     const init = unwrapTransparentMacroExpression(declaration.init);
 
     return (
-        init?.type === 'CallExpression' &&
-        init.callee.type === 'Identifier' &&
-        SETUP_INPUT_MACRO_NAMES.has(init.callee.name)
+        init?.type === 'CallExpression' && init.callee.type === 'Identifier' && SETUP_INPUT_MACRO_NAMES.has(init.callee.name)
     );
 }
 
@@ -198,11 +192,7 @@ function collectRuntimeBinding(
                     return;
                 }
 
-                if (
-                    mode === 'base' &&
-                    isExposableSetupMacroDeclaration(declaration) &&
-                    declaration.id.type === 'Identifier'
-                ) {
+                if (mode === 'base' && isExposableSetupMacroDeclaration(declaration)) {
                     addRuntimeBinding(
                         runtimeBindings,
                         runtimeBindingNames,
@@ -210,6 +200,12 @@ function collectRuntimeBinding(
                         declaration.id,
                         scriptOffset,
                     );
+                } else if (isRuntimeInputAlias(declaration, mode)) {
+                    // e.g. override `const props = useSwProps()`: useSwProps is both a setup input and a
+                    // runtime input alias, so it is not returned as state, but its name is recorded so an
+                    // override template referencing it is forwarded to the generated <sw-block extends>
+                    // slot scope like useSwPreviousState()/useSwContext().
+                    runtimeInputAliasNames.add(declaration.id.name);
                 }
 
                 return;

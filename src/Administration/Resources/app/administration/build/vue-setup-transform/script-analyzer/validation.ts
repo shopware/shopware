@@ -14,7 +14,13 @@ import { ShopwareSetupTransformError } from '../utils/transform-error';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
 import { getNodeRange, isFunctionNode, walk } from './utils';
 import { RESERVED_OVERRIDE_STATE_NAME, SHOPWARE_SETUP_INTERNAL_PREFIX, type ShopwareSetupMacroName } from './macros';
-import { getReservedHelperNames, getTopLevelOnlyWalkChecks, getVueBuiltinMacroNames, getWrongModeWalkChecks } from './macro-registry';
+import {
+    getReservedHelperNames,
+    getTopLevelOnlyWalkChecks,
+    getVueBuiltinMacroNames,
+    getWrongModeWalkChecks,
+} from './macro-registry';
+import type { RuntimeBinding } from './runtime-bindings';
 
 /**
  * Carries a declared or imported name with the AST node used for diagnostics.
@@ -24,6 +30,12 @@ type NamedBinding = {
     node: BabelNode;
     importSource?: string;
 };
+
+/**
+ * The global object the generated setup reads its runtime bridge from
+ * (`Shopware.Component.createExtendableSetup(...)`); a user binding of this name would shadow it.
+ */
+const RESERVED_RUNTIME_GLOBAL_NAME = 'Shopware';
 
 /**
  * Rejects syntax that would require native `<script setup>` semantics we do not emulate.
@@ -94,11 +106,27 @@ function assertNoUnsupportedSyntax(
         // Reject ES module exports:
         //  Same as Vue: native <script setup> rejects runtime ES module exports because setup bindings are exposed
         //  through the generated setup return, not through module exports.
-        if (
-            node.type === 'ExportNamedDeclaration' ||
-            node.type === 'ExportAllDeclaration' ||
-            node.type === 'ExportDefaultDeclaration'
-        ) {
+        //  Two forms Vue still accepts stay accepted here:
+        //   - type-only exports (`export type X`, `export interface X`): no runtime output, hoisted whole.
+        //   - exports inside an ambient module augmentation (`declare module 'vue' { export interface ... }`):
+        //     Vue only inspects top-level nodes; the whole `declare module` is hoisted, so its nested
+        //     exports never reach the generated callback body.
+        if (node.type === 'ExportNamedDeclaration') {
+            const isTypeOnlyExport =
+                node.exportKind === 'type' ||
+                node.declaration?.type === 'TSInterfaceDeclaration' ||
+                node.declaration?.type === 'TSTypeAliasDeclaration';
+            const isInsideAmbientModule = ancestors.some((ancestor) => ancestor.type === 'TSModuleDeclaration');
+
+            if (!isTypeOnlyExport && !isInsideAmbientModule) {
+                throw new ShopwareSetupTransformError(
+                    '<script setup> cannot contain ES module exports.',
+                    scriptOffset + getNodeRange(node, scriptOffset).start,
+                );
+            }
+        }
+
+        if (node.type === 'ExportAllDeclaration' || node.type === 'ExportDefaultDeclaration') {
             throw new ShopwareSetupTransformError(
                 '<script setup> cannot contain ES module exports.',
                 scriptOffset + getNodeRange(node, scriptOffset).start,
@@ -142,6 +170,16 @@ function assertReservedMacroNames(bindings: NamedBinding[], scriptOffset: number
                 scriptOffset + getNodeRange(binding.node, scriptOffset).start,
             );
         }
+
+        // The generated setup destructures its state from `Shopware.Component.createExtendableSetup(...)`,
+        // so a top-level binding named `Shopware` would land on the destructure's left-hand side and
+        // shadow the global it reads from on the right-hand side (a temporal-dead-zone crash at runtime).
+        if (binding.name === RESERVED_RUNTIME_GLOBAL_NAME) {
+            throw new ShopwareSetupTransformError(
+                `"${RESERVED_RUNTIME_GLOBAL_NAME}" is reserved by the Shopware setup transform, which generates code that reads the global "${RESERVED_RUNTIME_GLOBAL_NAME}" object. Rename your binding.`,
+                scriptOffset + getNodeRange(binding.node, scriptOffset).start,
+            );
+        }
     });
 }
 
@@ -172,4 +210,40 @@ function assertStaticObjectEntries(
     });
 }
 
-export { type NamedBinding, assertNoUnsupportedSyntax, assertReservedMacroNames, assertStaticObjectEntries };
+/**
+ * Rejects a setup binding that shares a declared prop's name.
+ *
+ * Native `<script setup>` allows this (the template resolves to the setup binding), but the extendable
+ * setup runtime strips declared prop keys from returned state, so the binding would be deleted and the
+ * template read `undefined`. Reject it at compile time, consistent with the fail-loudly philosophy. The
+ * declared prop itself stays available to the template as a reactive prop; authors read it through the
+ * props object (`props.<name>`) and rename the local binding.
+ */
+function assertNoRuntimeBindingPropCollision(
+    declaredPropNames: string[],
+    runtimeBindings: RuntimeBinding[],
+    scriptOffset: number,
+): void {
+    const propNames = new Set(declaredPropNames);
+
+    runtimeBindings.forEach((binding) => {
+        if (!propNames.has(binding.name)) {
+            return;
+        }
+
+        throw new ShopwareSetupTransformError(
+            `Setup binding "${binding.name}" has the same name as a declared prop. The extendable setup runtime removes ` +
+                `declared prop keys from returned state, so this binding would be deleted and its template reference would ` +
+                `read undefined. Rename the binding and read the prop through the props object (props.${binding.name}).`,
+            scriptOffset + getNodeRange(binding.node, scriptOffset).start,
+        );
+    });
+}
+
+export {
+    type NamedBinding,
+    assertNoRuntimeBindingPropCollision,
+    assertNoUnsupportedSyntax,
+    assertReservedMacroNames,
+    assertStaticObjectEntries,
+};

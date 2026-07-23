@@ -2,7 +2,11 @@
  * @sw-package framework
  */
 
-import { transformShopwareSetupSfc } from '../index';
+// Import the TypeScript entry explicitly: a bare '../index' resolves to the CJS jiti bridge
+// (index.js) under Jest, which loads the real module outside Jest's transform pipeline and leaves
+// every transform source reported as 0% covered. The '.ts' specifier keeps coverage attribution
+// on the actual source.
+import { transformShopwareSetupSfc } from '../index.ts';
 import { parse, compileScript } from '@vue/compiler-sfc';
 
 type TransformResult = NonNullable<ReturnType<typeof transformShopwareSetupSfc>>;
@@ -62,10 +66,4 @@ function getPrivateNamespace(result: string): string | undefined {
     );
 }
 
-export {
-    expectVueCompilerScriptToCompile,
-    getPrivateNamespace,
-    stripIndent,
-    transformOrFail,
-    transformShopwareSetupSfc,
-};
+export { expectVueCompilerScriptToCompile, getPrivateNamespace, stripIndent, transformOrFail, transformShopwareSetupSfc };

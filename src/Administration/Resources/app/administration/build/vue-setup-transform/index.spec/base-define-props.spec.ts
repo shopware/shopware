@@ -108,6 +108,33 @@ describe('build/vue-setup-transform base defineProps macro', () => {
         expect(result).toContain('const count = props.initialCount ?? defaultCount;');
     });
 
+    it('allows a macro-argument body-local binding that shadows a top-level setup binding', () => {
+        const source = stripIndent`
+            <script setup lang="ts">
+            const count = 1;
+            const props = defineProps({
+                initial: {
+                    default: () => {
+                        const count = 2;
+                        return count;
+                    },
+                },
+            });
+            const total = props.initial + count;
+
+            swDefinePublic({
+                total,
+            });
+            </script>
+        `;
+
+        // The inner `const count` shadows the top-level `count` for the whole factory body, so reading
+        // it back is self-contained and hoist-safe - it must not be flagged as a local-setup reference.
+        const result = transformOrFail(source, 'base-props-body-local-shadow.vue').code;
+
+        expect(result).toContain('const count = 2;');
+    });
+
     it('rejects destructured defineProps() because reactive props destructure is not lowered', () => {
         // Since Vue 3.5 it allows to define default prop values through destructuring defineProps(...).
         // To keep the reactivity intact the Vue compiler will then rewrite all references to make them reactive again.
@@ -351,4 +378,50 @@ describe('build/vue-setup-transform base defineProps macro', () => {
         expect(result).not.toContain('(__swSetupProps)');
     });
 
+    it('rejects a setup binding that shares a declared prop name (object form)', () => {
+        const source = stripIndent`
+            <script setup>
+            const props = defineProps({ title: String });
+            const title = props.title;
+            swDefinePublic({ title });
+            </script>
+        `;
+
+        // Native Vue allows this, but the extendable setup runtime strips declared prop keys from
+        // returned state, so the binding would be deleted and the template read undefined.
+        expect(() => transformShopwareSetupSfc(source, 'base-prop-name-collision.vue')).toThrow(
+            'Setup binding "title" has the same name as a declared prop.',
+        );
+    });
+
+    it('rejects a setup binding that shares a declared prop name (type-literal form)', () => {
+        const source = stripIndent`
+            <script setup lang="ts">
+            const props = defineProps<{ title?: string }>();
+            const title = 'local';
+            swDefinePublic({ title });
+            </script>
+        `;
+
+        expect(() => transformShopwareSetupSfc(source, 'base-prop-name-collision-type.vue')).toThrow(
+            'Setup binding "title" has the same name as a declared prop.',
+        );
+    });
+
+    it('rejects a hoisted props type that references a runtime binding kept inside the callback', () => {
+        const source = stripIndent`
+            <script setup lang="ts">
+            enum Kind { A, B }
+            const props = defineProps<{ kind: Kind }>();
+            const kindLabel = props.kind;
+            swDefinePublic({ kindLabel });
+            </script>
+        `;
+
+        // `enum Kind` is a runtime binding that stays inside the setup callback, so the hoisted
+        // defineProps<{ kind: Kind }>() would resolve an unreachable name at the script root.
+        expect(() => transformShopwareSetupSfc(source, 'base-props-type-enum.vue')).toThrow(
+            'defineProps() arguments are hoisted outside the Shopware setup callback and must not reference local setup bindings.',
+        );
+    });
 });

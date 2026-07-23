@@ -15,8 +15,13 @@ import type {
     DirectiveNode as CoreDirectiveNode,
     ElementNode as CoreElementNode,
     TemplateChildNode,
-} from '@vue/compiler-core';
-import { addPatternNames, collectExpressionReferences, collectPatternReferences, parseBindingPattern } from './expression-references';
+} from '@vue/compiler-dom';
+import {
+    addPatternNames,
+    collectExpressionReferences,
+    collectPatternReferences,
+    parseBindingPattern,
+} from './expression-references';
 
 type TemplateEdit = {
     start: number;
@@ -258,7 +263,12 @@ function collectTemplateReferences(children: TemplateChildNode[], initialScope: 
 
             collectDirectiveReferences(directive, childScope).forEach((name) => references.add(name));
 
-            if (isDefaultSlotDirective(directive)) {
+            // Any slot directive - default, named (#item), or dynamic (#[name]) - is handled the same:
+            // its binding-pattern references (destructuring defaults, computed keys) are forwarded, or
+            // they resolve against the hidden override component and silently break; and its scope names
+            // shadow the slot content, so a `#item="{ info }"` with a setup binding `info` does not
+            // over-forward the shadowed `info`.
+            if (directive.name === 'slot') {
                 collectSlotScopeReferences(directive, childScope).forEach((name) => references.add(name));
                 collectSlotScopeNames(directive).forEach((name) => slotScopeNames.add(name));
             }
@@ -316,19 +326,16 @@ function isSwBlockName(node: TemplateChildNode): node is ElementNode {
 }
 
 /**
- * Checks whether a sw-block already declares its data scope.
+ * Returns the static `name` of a base `<sw-block name="...">`, or null for a dynamic/bound name.
  *
  */
-function hasSwBlockDataProp(node: ElementNode): boolean {
-    return node.props.some((prop) => {
-        if (prop.type === NodeTypes.ATTRIBUTE) {
-            return prop.name === 'data';
-        }
+function getStaticSwBlockName(node: ElementNode): string | null {
+    const nameAttribute = node.props.find(
+        (prop): prop is Extract<ElementNode['props'][number], { type: NodeTypes.ATTRIBUTE }> =>
+            prop.type === NodeTypes.ATTRIBUTE && prop.name === 'name',
+    );
 
-        const directive = prop as DirectiveNode;
-
-        return directive.name === 'bind' && directive.arg?.isStatic && directive.arg.content === 'data';
-    });
+    return nameAttribute?.value?.content ?? null;
 }
 
 export {
@@ -340,7 +347,7 @@ export {
     collectSlotScopeReferences,
     collectTemplateReferences,
     getDefaultSlotDirective,
-    hasSwBlockDataProp,
+    getStaticSwBlockName,
     isSwBlockExtends,
     isSwBlockName,
 };

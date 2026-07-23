@@ -5,7 +5,7 @@ import { proxyRefs, reactive, toRef, toRefs } from 'vue';
 /**
  * @sw-package framework
  * @private
- * 
+ *
  * Keeps script-setup override-local state available to component templates and block slots.
  *
  * The composition extension system stores override-file-owned `__swOverride` data outside Vue's public instance

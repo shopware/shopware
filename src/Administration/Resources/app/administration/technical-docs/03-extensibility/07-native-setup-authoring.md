@@ -96,6 +96,8 @@ Base mode also adds `:data="$dataScope"` to every `<sw-block name="...">`. This 
 
 Override mode requires `swDefineOverride({...})`. Only bindings listed there replace base state. Override-local bindings are returned under deterministic private aliases only when they are referenced inside `<sw-block extends>` template content, and the transform exposes those aliases through the generated default slot scope of the extended block.
 
+Override template bindings are read-only. Inside `<sw-block extends>` content, forwarded setup bindings arrive through the generated slot scope, so a template that writes to one — `@click="count = count + 1"` or `v-model="count"` — assigns to the slot-scope local, not to the override's own reactive state, and the write does not take effect (the same template line does work in a base component). Mutate override state from a handler defined in the override setup and expose that handler instead.
+
 Runtime inputs are explicit. Base component props use Vue's native `defineProps(...)` or `withDefaults(defineProps(...), ...)` macros. Override props use a helper because override files cannot declare the base component's props with `defineProps(...)`.
 
 - Base: `defineProps(...)`, `withDefaults(defineProps(...), ...)`, `useSwContext()`

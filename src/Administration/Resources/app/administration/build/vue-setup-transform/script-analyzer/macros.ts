@@ -120,6 +120,5 @@ export {
     RESERVED_OVERRIDE_STATE_NAME,
     SHOPWARE_SETUP_INTERNAL_PREFIX,
     extractStaticObjectMarker,
-    isCompilerMacroCall,
     isWithDefaultsCall,
 };

@@ -24,6 +24,9 @@ type ShopwareSetupTransformResult = {
     mode: 'base' | 'override';
     componentName: string;
     filename: string;
+    // Static names of the base `<sw-block name="...">` blocks this component owns (empty for overrides).
+    // Emitted for a later branch to build a cross-file block-ownership registry.
+    ownedBlockNames: string[];
 };
 
 /**
@@ -53,6 +56,7 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
         edits: [],
         privateBindings: new Set<string>(),
         privateNamespace: null,
+        ownedBlockNames: [],
     };
 
     try {
@@ -90,15 +94,20 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
               ]
             : [];
 
-    const transformed = applySourceEdits(source, filename, [
-        ...registrationTemplateEdits,
-        ...templateAnalysis.edits,
-        {
-            start: block.start,
-            end: block.end,
-            replacement: replacement.chunks,
-        },
-    ]);
+    const transformed = applySourceEdits(
+        source,
+        filename,
+        [
+            ...registrationTemplateEdits,
+            ...templateAnalysis.edits,
+            {
+                start: block.start,
+                end: block.end,
+                replacement: replacement.chunks,
+            },
+        ],
+        analysis.templateLiteralRanges,
+    );
 
     return {
         code: transformed.code,
@@ -109,6 +118,7 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
         // the loader/compilation layer; this transform stays a pure per-file step.
         componentName: block.componentName,
         filename,
+        ownedBlockNames: templateAnalysis.ownedBlockNames,
     };
 }
 

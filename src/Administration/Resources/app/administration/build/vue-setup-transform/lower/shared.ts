@@ -53,8 +53,6 @@ function getSetupInputReplacement(kind: SetupInputKind, names: SetupInputNames):
             return `(${names.props})`;
         case 'emits':
             return `(${names.context}.emit)`;
-        case 'expose':
-            return `(${names.context}.expose)`;
         case 'slots':
             return `(${names.context}.slots)`;
     }
@@ -74,7 +72,10 @@ function buildCallbackBodyChunks(
     const replacements = setupInputNames
         ? analysis.setupInputReplacements.map((range) => ({
               ...range,
-              replacement: getSetupInputReplacement(range.kind, setupInputNames),
+              // A statement-initial replacement (`(__swSetupProps)`, `(__swSetupContext.expose)`, ...)
+              // gets a leading `;` so automatic-semicolon insertion cannot glue it onto the previous
+              // line in semicolon-less author code (`window.foo\n(__swSetupContext.expose)(...)`).
+              replacement: (range.statementInitial ? ';' : '') + getSetupInputReplacement(range.kind, setupInputNames),
           }))
         : [];
 

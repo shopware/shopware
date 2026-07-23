@@ -12,19 +12,22 @@
 
 import crypto from 'crypto';
 import path from 'path';
-import { NodeTypes, parse as parseTemplate } from '@vue/compiler-dom';
-import type { TemplateChildNode } from '@vue/compiler-core';
+import { NodeTypes, parse as parseTemplate, type TemplateChildNode } from '@vue/compiler-dom';
 import type { ShopwareSetupScriptAnalysis } from '../script-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 import {
     type SlotMapping,
     type TemplateEdit,
     collectTemplateReferences,
+    getStaticSwBlockName,
     isSwBlockExtends,
     isSwBlockName,
 } from './template-references';
 import {
     assertNoAuthoredSwBlockBindings,
+    assertNoSwBlockExtendsElementDirectives,
+    assertOverrideTemplateTopLevel,
+    assertSwBlockModeIdentity,
     createGeneratedSlotEdit,
     createPrivateSlotMapping,
     findOpeningTagNameEnd,
@@ -40,6 +43,10 @@ type TemplateAnalysis = {
     edits: TemplateEdit[];
     privateBindings: Set<string>;
     privateNamespace: string | null;
+    // Static names of the base `<sw-block name="...">` blocks this component owns. Emitted so a later
+    // branch can build a block-ownership registry (block name <-> owning component) and reject, at
+    // compile time, overrides that extend a block whose owner cannot provide the override-local scope.
+    ownedBlockNames: string[];
 };
 
 /**
@@ -70,10 +77,15 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
             edits: [],
             privateBindings: new Set<string>(),
             privateNamespace: null,
+            ownedBlockNames: [],
         };
     }
 
     const ast = parseTemplate(block.template.content);
+
+    // An override template may only carry <sw-block extends> blocks at its top level.
+    assertOverrideTemplateTopLevel(ast.children);
+
     const edits: TemplateEdit[] = [];
     const privateBindings = new Set<string>();
     const overrideLocalNames = new Set<string>(analysis.overrideEntries);
@@ -81,10 +93,16 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
 
     function visit(node: TemplateChildNode): void {
         if (node.type === NodeTypes.ELEMENT && node.tag === 'sw-block') {
-            assertNoAuthoredSwBlockBindings(node as Parameters<typeof assertNoAuthoredSwBlockBindings>[0]);
+            const element = node as Parameters<typeof assertNoAuthoredSwBlockBindings>[0];
+
+            // No base-style <sw-block name> anywhere in an override (top level or nested).
+            assertSwBlockModeIdentity(element, 'override');
+            assertNoAuthoredSwBlockBindings(element);
         }
 
         if (isSwBlockExtends(node)) {
+            assertNoSwBlockExtendsElementDirectives(node);
+
             const references = collectTemplateReferences(node.children, new Set());
             const publicMappings: SlotMapping[] = [];
             const privateLocalNames: string[] = [];
@@ -141,6 +159,7 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
         edits,
         privateBindings,
         privateNamespace,
+        ownedBlockNames: [],
     };
 }
 
@@ -154,20 +173,32 @@ function analyzeBaseTemplate(block: ShopwareSetupBlock): TemplateAnalysis {
             edits: [],
             privateBindings: new Set<string>(),
             privateNamespace: null,
+            ownedBlockNames: [],
         };
     }
 
     const ast = parseTemplate(block.template.content);
     const edits: TemplateEdit[] = [];
+    const ownedBlockNames: string[] = [];
 
     function visit(node: TemplateChildNode): void {
         if (node.type === NodeTypes.ELEMENT && node.tag === 'sw-block') {
-            assertNoAuthoredSwBlockBindings(node as Parameters<typeof assertNoAuthoredSwBlockBindings>[0]);
+            const element = node as Parameters<typeof assertNoAuthoredSwBlockBindings>[0];
+
+            // No override-style <sw-block extends> anywhere in a base component.
+            assertSwBlockModeIdentity(element, 'base');
+            assertNoAuthoredSwBlockBindings(element);
         }
 
         if (isSwBlockName(node)) {
             if (!block.template) {
                 return;
+            }
+
+            const blockName = getStaticSwBlockName(node);
+
+            if (blockName !== null) {
+                ownedBlockNames.push(blockName);
             }
 
             const insertionPoint = findOpeningTagNameEnd(block.template.content, node.loc.start.offset);
@@ -190,6 +221,7 @@ function analyzeBaseTemplate(block: ShopwareSetupBlock): TemplateAnalysis {
         edits,
         privateBindings: new Set<string>(),
         privateNamespace: null,
+        ownedBlockNames,
     };
 }
 

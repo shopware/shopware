@@ -210,11 +210,11 @@ Blocks can be nested freely. Each block is independently overrideable:
 <!-- Plugin: add a new tab without touching the outer block -->
 <sw-block extends="sw_product_tabs">
     <sw-block-parent />
-    <sw-block name="sw_product_tab_custom">
-        <span>Custom Tab</span>
-    </sw-block>
+    <span>Custom Tab</span>
 </sw-block>
 ```
+
+New named blocks are declared by the base components that own them; override files use `extends` to contribute into existing blocks.
 
 ---
 
@@ -399,7 +399,7 @@ This is verified in the test suite — toggling `v-if` on an override component 
 
 | Aspect | TwigJS `{% block %}` | Native `<sw-block>` |
 |--------|----------------------|---------------------|
-| Template file | `.html.twig` | Any template (SFC, `.html.twig`) |
+| Template file | `.html.twig` | Vue SFC `<template>` |
 | Resolution time | Build-time string merge | Vue reactive runtime |
 | Parent content | `{% parent %}` | `<sw-block-parent />` |
 | Data access | Via `$super`, `this` in JS | Setup bindings (`useSwPreviousState()`, generated block scope) |
@@ -456,6 +456,8 @@ From the ADR (`2024-09-26-native-block-system.md`):
     <div v-else>Local fallback</div>
 </sw-block>
 ```
+
+**Override-local state needs a native-setup host** — an override's `<sw-block extends>` content can read the override's own setup bindings (the transform forwards them through the block's generated data scope). That forwarding only works when the component actually rendering the block is itself a native-setup (Composition API) component. If the block is rendered by an Options API component, the block data scope has no override-local (`__swOverride`) channel, so override-local bindings are not available there. Read shared base state through `useSwPreviousState()` instead, which does not depend on this channel.
 
 **`<sw-block extends>` inside `v-for`** — prohibited. Each iteration independently calls `addBlock()`, registering a separate override entry per list item and causing the override content to be rendered multiple times:
 

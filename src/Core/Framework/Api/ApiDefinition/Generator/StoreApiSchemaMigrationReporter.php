@@ -75,14 +75,14 @@ class StoreApiSchemaMigrationReporter
         $jsonSchemaNames = $this->getJsonSchemaNames($scope);
         $allowlist = $this->loadAllowlist();
 
-        $jsonOverridesPhpGenerated = $this->sortList(array_intersect($jsonSchemaNames, $phpGeneratedSchemaNames));
-        $phpGeneratedOnly = $this->sortList(array_diff($phpGeneratedSchemaNames, $jsonSchemaNames));
+        $jsonOverridesPhpGenerated = array_intersect($jsonSchemaNames, $phpGeneratedSchemaNames);
+        $phpGeneratedOnly = array_diff($phpGeneratedSchemaNames, $jsonSchemaNames);
 
         return [
-            'jsonOverridesPhpGenerated' => $jsonOverridesPhpGenerated,
+            'jsonOverridesPhpGenerated' => $this->sortList($jsonOverridesPhpGenerated),
             'jsonOverridesPhpGeneratedAllowed' => $this->sortList(array_intersect($jsonOverridesPhpGenerated, $allowlist['jsonOverridesPhpGeneratedSchemas'])),
             'jsonOverridesPhpGeneratedWithoutAllowlist' => $this->sortList(array_diff($jsonOverridesPhpGenerated, $allowlist['jsonOverridesPhpGeneratedSchemas'])),
-            'phpGeneratedOnly' => $phpGeneratedOnly,
+            'phpGeneratedOnly' => $this->sortList($phpGeneratedOnly),
             'phpGeneratedOnlyAllowed' => $this->sortList(array_intersect($phpGeneratedOnly, $allowlist['phpGeneratedStoreApiSchemas'])),
             'phpGeneratedOnlyWithoutAllowlist' => $this->sortList(array_diff($phpGeneratedOnly, $allowlist['phpGeneratedStoreApiSchemas'])),
             'jsonWithoutPhpGenerated' => $this->sortList(array_diff($jsonSchemaNames, $phpGeneratedSchemaNames)),
@@ -241,16 +241,8 @@ class StoreApiSchemaMigrationReporter
 
     private function shouldIncludeReferenceOnly(EntityDefinition $definition): bool
     {
-        $class = new \ReflectionClass($definition);
-        if ($class->isSubclassOf(MappingEntityDefinition::class)) {
-            return true;
-        }
-
-        if (!is_subclass_of($definition, SalesChannelDefinitionInterface::class)) {
-            return true;
-        }
-
-        return false;
+        return $definition instanceof MappingEntityDefinition
+            || !$definition instanceof SalesChannelDefinitionInterface;
     }
 
     private function getResourceUri(EntityDefinition $definition, string $rootPath = '/'): string

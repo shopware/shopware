@@ -6,7 +6,7 @@ import { type Snackbar, useSnackbar } from '@shopware-ag/meteor-component-librar
  * @private
  */
 export default class SnackbarService {
-    addSnackbar(config: Snackbar): Snackbar {
+    addSnackbar(config: Omit<Snackbar, 'id'>): Snackbar {
         return useSnackbar().addSnackbar(config);
     }
 

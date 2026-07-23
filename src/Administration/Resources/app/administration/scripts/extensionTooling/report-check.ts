@@ -206,8 +206,7 @@ function renderToolRow(
 
     lines.push(...baselineNotes(run));
 
-    const showOutput =
-        run.status === 'failed' || run.status === 'tooling-error' || (verbose && run.status !== 'no-files');
+    const showOutput = run.status === 'failed' || run.status === 'tooling-error' || (verbose && run.status !== 'no-files');
 
     if (showOutput && run.output.trim() !== '') {
         lines.push(indent(run.output.trim(), '      '));

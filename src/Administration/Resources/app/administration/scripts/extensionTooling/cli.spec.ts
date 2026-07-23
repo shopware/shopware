@@ -35,7 +35,9 @@ describe('scripts/extensionTooling/cli', () => {
 
         it('rejects unknown flags with a usage error pointing at --help', () => {
             expect(() => parseCli(['--chekc'], COMMAND)).toThrow(CliUsageError);
-            expect(() => parseCli(['--chekc'], COMMAND)).toThrow('Unknown option --chekc. See --help for the available options.');
+            expect(() => parseCli(['--chekc'], COMMAND)).toThrow(
+                'Unknown option --chekc. See --help for the available options.',
+            );
         });
 
         it('rejects value flags without a value', () => {

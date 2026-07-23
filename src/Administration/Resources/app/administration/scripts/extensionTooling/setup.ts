@@ -32,7 +32,7 @@ import {
     resolveToolingCommands,
     writeStateFile,
 } from './shared';
-import type { ExtensionToolingManifest, ExtensionToolingProject, WriteResult } from './shared';
+import type { ExtensionToolingManifest, WriteResult } from './shared';
 import { record, toManifestState } from './setup-context';
 import type { GeneratorContext } from './setup-context';
 import { discoverProjects } from './setup-discovery';

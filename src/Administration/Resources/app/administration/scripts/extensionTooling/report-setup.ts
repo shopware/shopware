@@ -288,7 +288,10 @@ function renderNextSteps(projects: ExtensionToolingProject[], stateOf: StateMap,
 
 /** IDE (VS Code / Zed / PhpStorm) and integration steps the run produced for user-owned files we never write. */
 function renderInstructions(result: SetupExtensionToolingResult): string[] {
-    return result.instructions.flatMap((instruction) => ['', ...instruction.split('\n').map((line) => `  ${line}`)]);
+    return result.instructions.flatMap((instruction) => [
+        '',
+        ...instruction.split('\n').map((line) => `  ${line}`),
+    ]);
 }
 
 export function renderSetupReport(result: SetupExtensionToolingResult, options: SetupRenderOptions = {}): string {

@@ -23,6 +23,8 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 #[CoversClass(Feature::class)]
 class FeatureTest extends TestCase
 {
+    // demo marker for shopware/shopware#18586: a changed line quoting a major flag,
+    // e.g. Feature::isActive('v6.8.0.0'), must auto-apply the major-php label
     use EnvTestBehaviour;
 
     /**

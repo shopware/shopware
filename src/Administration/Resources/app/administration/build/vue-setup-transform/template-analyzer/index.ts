@@ -16,6 +16,7 @@ import { NodeTypes, parse as parseTemplate, type TemplateChildNode } from '@vue/
 import type { ShopwareSetupScriptAnalysis } from '../script-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 import {
+    type ElementNode,
     type SlotMapping,
     type TemplateEdit,
     collectTemplateReferences,
@@ -99,7 +100,7 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
 
     function visit(node: TemplateChildNode): void {
         if (node.type === NodeTypes.ELEMENT && node.tag === 'sw-block') {
-            assertSwBlockAttributes(node as Parameters<typeof assertSwBlockAttributes>[0], 'override');
+            assertSwBlockAttributes(node as ElementNode, 'override');
         }
 
         if (isSwBlockExtends(node)) {
@@ -201,7 +202,7 @@ function analyzeBaseTemplate(block: ShopwareSetupBlock): TemplateAnalysis {
 
     function visit(node: TemplateChildNode): void {
         if (node.type === NodeTypes.ELEMENT && node.tag === 'sw-block') {
-            assertSwBlockAttributes(node as Parameters<typeof assertSwBlockAttributes>[0], 'base');
+            assertSwBlockAttributes(node as ElementNode, 'base');
         }
 
         if (isSwBlockName(node)) {

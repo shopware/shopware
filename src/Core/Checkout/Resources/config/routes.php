@@ -15,7 +15,6 @@ return static function (RoutingConfigurator $routes): void {
     $routes->import('../../Payment/SalesChannel/**/*Route.php', 'attribute');
     $routes->import('../../Shipping/SalesChannel/**/*Route.php', 'attribute');
     $routes->import('../../Customer/Api/**/*Controller.php', 'attribute');
-    $routes->import('../../Customer/SalesChannel/**/*Route.php', 'attribute');
     $routes->import('../../Order/SalesChannel/**/*Route.php', 'attribute');
     $routes->import('../../Cart/SalesChannel/**/*Route.php', 'attribute');
     $routes->import('../../Document/SalesChannel/**/*Route.php', 'attribute');

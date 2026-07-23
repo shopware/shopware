@@ -23,9 +23,11 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuild
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiSchemaMigrationReporter;
 use Shopware\Core\Framework\Api\Command\CreateIntegrationCommand;
 use Shopware\Core\Framework\Api\Command\DumpClassSchemaCommand;
 use Shopware\Core\Framework\Api\Command\DumpSchemaCommand;
+use Shopware\Core\Framework\Api\Command\StoreApiSchemaMigrationReportCommand;
 use Shopware\Core\Framework\Api\Context\ContextValueResolver;
 use Shopware\Core\Framework\Api\Controller\AccessKeyController;
 use Shopware\Core\Framework\Api\Controller\ApiController;
@@ -188,6 +190,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('console.command');
 
+    $services->set(StoreApiSchemaMigrationReportCommand::class)
+        ->args([
+            service(StoreApiSchemaMigrationReporter::class),
+            service(SalesChannelDefinitionInstanceRegistry::class),
+        ])
+        ->tag('console.command');
+
     $services->set(JsonApiDecoder::class)
         ->tag('serializer.encoder');
 
@@ -255,6 +264,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(StoreApiGenerator::class)
         ->args([
             service(OpenApiSchemaBuilder::class),
+            service(OpenApiDefinitionSchemaBuilder::class),
+            param('kernel.bundles_metadata'),
+            service(BundleSchemaPathCollection::class),
+        ]);
+
+    $services->set(StoreApiSchemaMigrationReporter::class)
+        ->args([
             service(OpenApiDefinitionSchemaBuilder::class),
             param('kernel.bundles_metadata'),
             service(BundleSchemaPathCollection::class),

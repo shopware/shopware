@@ -1,0 +1,10 @@
+{
+    "jsonOverridesPhpGeneratedSchemas": [
+        "JsonOverrideEntity",
+        "StaleJsonOverrideAllowlistEntry"
+    ],
+    "phpGeneratedStoreApiSchemas": [
+        "Simple",
+        "StalePhpGeneratedOnlyAllowlistEntry"
+    ]
+}

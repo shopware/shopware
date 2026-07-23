@@ -62,20 +62,43 @@ export function parseMajorFlags(registryYaml) {
 }
 
 /**
+ * Tooling and workflow code quotes flag names without changing major behavior,
+ * so changes under .github/ never count as a hit.
+ */
+export const EXCLUDED_PATH_PREFIX = '.github/';
+
+/**
+ * @param {string} diff unified diff of the PR
+ * @returns {Array<{path: string, section: string}>}
+ */
+function splitDiffByFile(diff) {
+    return diff
+        .split(/^diff --git /m)
+        .slice(1)
+        .map((section) => {
+            const path = section.match(/^a\/\S+ b\/(\S+)/);
+
+            return { path: path ? path[1] : '', section };
+        });
+}
+
+/**
  * @param {string} diff unified diff of the PR
  * @param {string[]} majorFlags
  * @returns {boolean}
  */
 export function hasMajorMarkers(diff, majorFlags) {
+    const files = splitDiffByFile(diff).filter(({ path }) => !path.startsWith(EXCLUDED_PATH_PREFIX));
+
+    if (files.some(({ path }) => path === FEATURE_REGISTRY_PATH)) {
+        return true;
+    }
+
     // added or removed lines only — deleting a legacy flag branch is a major-behavior change too
-    const changedLines = diff.split('\n').filter((line) => /^[+-][^+-]/.test(line));
+    const changedLines = files.flatMap(({ section }) => section.split('\n').filter((line) => /^[+-][^+-]/.test(line)));
 
     if (changedLines.length === 0) {
         return false;
-    }
-
-    if (diff.includes(FEATURE_REGISTRY_PATH)) {
-        return true;
     }
 
     const escaped = majorFlags.map((flag) => flag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));

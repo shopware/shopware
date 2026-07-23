@@ -2,6 +2,14 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { FEATURE_REGISTRY_PATH, hasMajorMarkers, parseMajorFlags, shouldDetect } from './auto-label-major-php.mjs';
 
+
+const diffFor = (path, hunk) => `diff --git a/${path} b/${path}
+index 0000000..1111111 100644
+--- a/${path}
++++ b/${path}
+@@ -1,1 +1,1 @@
+${hunk}`;
+
 const REGISTRY = `shopware:
     feature:
         flags:
@@ -24,37 +32,52 @@ test('parseMajorFlags returns only major flags', () => {
 });
 
 test('quoted major flag in an added line matches', () => {
-    const diff = "+        if (Feature::isActive('v6.8.0.0')) {\n";
+    const diff = diffFor('src/Core/Content/Cms/SalesChannel/CmsRoute.php', "+        if (Feature::isActive('v6.8.0.0')) {");
     assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), true);
 });
 
 test('quoted major flag in a removed line matches', () => {
-    const diff = "-        Feature::withFeatureDisabled('WEBHOOKS_REWORK', fn () => null);\n";
+    const diff = diffFor('src/Core/Framework/Webhook/Service/WebhookManager.php', "-        Feature::withFeatureDisabled('WEBHOOKS_REWORK', fn () => null);");
     assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), true);
 });
 
 test('deprecation tag annotation matches', () => {
-    const diff = '+     * @deprecated tag:v6.9.0 - Will be removed\n';
+    const diff = diffFor('src/Core/Framework/Feature.php', '+     * @deprecated tag:v6.9.0 - Will be removed');
     assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), true);
 });
 
 test('registry file edits match regardless of line content', () => {
-    const diff = `--- a/${FEATURE_REGISTRY_PATH}\n+++ b/${FEATURE_REGISTRY_PATH}\n+            - name: NEW_FLAG\n`;
+    const diff = diffFor(FEATURE_REGISTRY_PATH, '+            - name: NEW_FLAG');
     assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), true);
 });
 
 test('non-major flag usage does not match', () => {
-    const diff = "+        if (Feature::isActive('TELEMETRY_METRICS')) {\n";
+    const diff = diffFor('src/Core/Telemetry/Telemetry.php', "+        if (Feature::isActive('TELEMETRY_METRICS')) {");
     assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), false);
 });
 
 test('unrelated changes do not match', () => {
-    const diff = "+        \\$cmsPage = \\$this->cmsPageLoader->load(\\$request, \\$criteria, \\$context)->getEntities()->first();\n";
+    const diff = diffFor('src/Core/Content/Cms/SalesChannel/CmsRoute.php', '+        $cmsPage = $this->cmsPageLoader->load($request, $criteria, $context)->getEntities()->first();');
     assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), false);
 });
 
 test('empty diff does not match', () => {
     assert.equal(hasMajorMarkers('', parseMajorFlags(REGISTRY)), false);
+});
+
+test('flag usage in .github tooling does not match', () => {
+    const diff = diffFor('.github/bin/js/auto-label-major-php.test.mjs', "+    const diff = \"Feature::isActive('v6.8.0.0')\";");
+    assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), false);
+});
+
+test('registry path mentioned inside a .github file does not match', () => {
+    const diff = diffFor('.github/bin/js/auto-label-major-php.mjs', `+export const FEATURE_REGISTRY_PATH = '${FEATURE_REGISTRY_PATH}';`);
+    assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), false);
+});
+
+test('mixed diff matches through the non-excluded file only', () => {
+    const diff = diffFor('.github/workflows/php.yml', "+  # v6.8.0.0 gate") + '\n' + diffFor('src/Core/CustomCartProcessor.php', "+        if (Feature::isActive('v6.8.0.0')) {");
+    assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), true);
 });
 
 const baseContext = (overrides = {}) => ({

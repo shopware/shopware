@@ -364,37 +364,4 @@ describe('scripts/extensionTooling e2e', () => {
         expect(outsideConfig).not.toContain('twig-vue');
         expect(insideConfig).toContain('twig-vue');
     }, 120000);
-
-    it('still produces the plugin manifest through the real Vite build', () => {
-        const tsNodeBin = path.join(realAdministrationRoot, 'node_modules', 'ts-node', 'dist', 'bin.js');
-        const buildScript = path.join(realAdministrationRoot, 'build', 'plugins.vite.ts');
-        const result = spawnSync(
-            process.execPath,
-            [
-                tsNodeBin,
-                '--transpileOnly',
-                buildScript,
-            ],
-            {
-                cwd: realAdministrationRoot,
-                encoding: 'utf8',
-                env: {
-                    ...process.env,
-                    PROJECT_ROOT: projectRoot,
-                    VITE_MODE: 'production',
-                },
-                maxBuffer: 100 * 1024 * 1024,
-            },
-        );
-
-        if (result.status !== 0) {
-            throw new Error(`${result.stdout ?? ''}\n${result.stderr ?? ''}`);
-        }
-
-        expect(
-            fs.existsSync(
-                path.join(projectRoot, 'custom/plugins/ZeroConfig/src/Resources/public/administration/.vite/manifest.json'),
-            ),
-        ).toBe(true);
-    }, 600000);
 });

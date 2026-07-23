@@ -39,8 +39,8 @@ use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 /**
  * @internal
  */
-#[CoversNothing]
 #[Package('framework')]
+#[CoversNothing]
 class McpServiceConfigTest extends TestCase
 {
     private ContainerBuilder $container;

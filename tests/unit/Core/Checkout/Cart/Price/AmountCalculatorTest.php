@@ -26,14 +26,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 /**
  * @internal
  */
-#[CoversClass(AmountCalculator::class)]
 #[Package('checkout')]
+#[CoversClass(AmountCalculator::class)]
 class AmountCalculatorTest extends TestCase
 {
     #[DataProvider('calculateAmountWithGrossPricesProvider')]
     public function testCalculateAmountWithGrossPrices(CartPrice $expected, PriceCollection $prices, string $calculationType): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannel')->willReturn(new SalesChannelEntity());
 
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
@@ -55,7 +55,7 @@ class AmountCalculatorTest extends TestCase
     #[DataProvider('calculateAmountWithNetPricesProvider')]
     public function testCalculateAmountWithNetPrices(CartPrice $expected, PriceCollection $prices, string $calculationType): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannel')->willReturn(new SalesChannelEntity());
 
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
@@ -77,7 +77,7 @@ class AmountCalculatorTest extends TestCase
     #[DataProvider('calculateAmountForNetDeliveriesProvider')]
     public function testCalculateAmountForNetDeliveries(CartPrice $expected, PriceCollection $prices): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getSalesChannel')->willReturn(new SalesChannelEntity());
         $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_FREE);
 
@@ -560,7 +560,7 @@ class AmountCalculatorTest extends TestCase
     #[DataProvider('cashRoundingProvider')]
     public function testCashRounding(CashRoundingConfig $item, CashRoundingConfig $total, PriceCollection $prices, CartPrice $expected): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getItemRounding')->willReturn($item);
         $context->method('getTotalRounding')->willReturn($total);
         $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);

@@ -3,9 +3,9 @@
 namespace Shopware\Core\Framework\Plugin\Command;
 
 use Composer\IO\ConsoleIO;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -15,12 +15,13 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'plugin:refresh',
     description: 'Refreshes the plugin list',
 )]
-#[Package('framework')]
 class PluginRefreshCommand extends Command
 {
     /**
@@ -44,7 +45,7 @@ class PluginRefreshCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         $io->title('Shopware Plugin Service');
         $context = Context::createCLIContext();
 
@@ -66,15 +67,16 @@ class PluginRefreshCommand extends Command
             }
         }
 
-        $skipPluginList = $input->getOption('skipPluginList');
-        if ($skipPluginList) {
+        if ($input->getOption('skipPluginList')) {
             return self::SUCCESS;
         }
 
         $listInput = new StringInput('plugin:list');
 
-        /** @var Application $application */
         $application = $this->getApplication();
+        if (!$application instanceof Application) {
+            throw PluginException::consoleApplicationNotFound();
+        }
         $application->doRun($listInput, $output);
 
         return self::SUCCESS;

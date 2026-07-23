@@ -13,8 +13,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(CategoryLevelLoaderCacheKeyEvent::class)]
 #[Package('discovery')]
+#[CoversClass(CategoryLevelLoaderCacheKeyEvent::class)]
 class CategoryLevelLoaderCacheKeyEventTest extends TestCase
 {
     public function testEvent(): void

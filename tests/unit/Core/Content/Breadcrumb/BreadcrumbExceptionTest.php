@@ -7,11 +7,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Breadcrumb\BreadcrumbException;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(BreadcrumbException::class)]
 class BreadcrumbExceptionTest extends TestCase
 {

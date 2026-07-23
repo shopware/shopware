@@ -23,9 +23,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(LineItemPropertyValueRule::class)]
 #[Group('rules')]
-#[Package('checkout')]
 class LineItemPropertyValueRuleTest extends TestCase
 {
     private LineItemPropertyValueRule $rule;
@@ -65,7 +65,7 @@ class LineItemPropertyValueRuleTest extends TestCase
         $cart = new Cart(Uuid::randomHex());
         $cart->setLineItems($lineItems);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $scope = new CartRuleScope($cart, $context);
 
         $this->rule->assign(['identifiers' => $identifiers, 'operator' => $operator]);
@@ -86,7 +86,7 @@ class LineItemPropertyValueRuleTest extends TestCase
         $lineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, null, 1);
         $lineItem->setPayloadValue('propertyIds', $itemPropertyIds);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $scope = new LineItemScope($lineItem, $context);
 
         $this->rule->assign(['identifiers' => $identifiers, 'operator' => $operator]);
@@ -99,7 +99,7 @@ class LineItemPropertyValueRuleTest extends TestCase
 
     public function testInvalidScopeIsFalse(): void
     {
-        $invalidScope = new CheckoutRuleScope($this->createMock(SalesChannelContext::class));
+        $invalidScope = new CheckoutRuleScope(static::createStub(SalesChannelContext::class));
         $this->rule->assign(['identifiers' => [Uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
         static::assertFalse($this->rule->match($invalidScope));
     }
@@ -108,7 +108,7 @@ class LineItemPropertyValueRuleTest extends TestCase
     {
         $lineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, null, 1);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $scope = new LineItemScope($lineItem, $context);
 
         $this->rule->assign(['identifiers' => [Uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);

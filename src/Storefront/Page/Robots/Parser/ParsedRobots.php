@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Robots\Struct\RobotsDirective;
 use Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock;
 
-#[Package('framework')]
+#[Package('discovery')]
 class ParsedRobots
 {
     /**

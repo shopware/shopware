@@ -15,12 +15,14 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Validation\Requirements\PublicAccess;
 use Shopware\Core\Framework\App\Validation\Requirements\SecureUrlValidator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PublicAccess::class)]
 class PublicAccessTest extends TestCase
 {
@@ -192,7 +194,7 @@ class PublicAccessTest extends TestCase
 
     private function createManifestMock(string $appName = 'test-app'): Manifest
     {
-        $manifest = $this->createMock(Manifest::class);
+        $manifest = static::createStub(Manifest::class);
         $metadata = Metadata::fromArray([
             'name' => $appName,
             'label' => [],

@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Sitemap\SalesChannel\SitemapFileRoute;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Examples\GetSitemapFileExample;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -15,12 +16,13 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(SitemapFileRoute::class)]
 class SitemapFileRouteTest extends TestCase
 {
     public function testExtension(): void
     {
-        $fileSystem = $this->createMock(FilesystemOperator::class);
+        $fileSystem = static::createStub(FilesystemOperator::class);
 
         $dispatcher = new EventDispatcher();
         $dispatcher->addSubscriber(new GetSitemapFileExample());
@@ -30,7 +32,7 @@ class SitemapFileRouteTest extends TestCase
         $route = new SitemapFileRoute($fileSystem, $extensionDispatcher);
 
         $request = new Request();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $filePath = 'test.xml.gz';
 
         $response = $route->getSitemapFile($request, $context, $filePath);

@@ -20,17 +20,11 @@ final readonly class DocumentConfig
         public ?string $filenamePrefix = null,
         public ?string $filenameSuffix = null,
         public ?MediaEntity $logo = null,
-        public bool $displayHeader = false,
-        public bool $displayFooter = false,
-        public bool $displayPageCount = false,
-        public bool $displayCompanyAddress = false,
-        public bool $displayReturnAddress = false,
-        public bool $displayCustomerVatId = false,
     ) {
     }
 
-    public function buildFileStem(string $documentNumber): string
+    public function buildFileStem(string $documentNumber, string $format): string
     {
-        return ($this->filenamePrefix ?? '') . $documentNumber . ($this->filenameSuffix ?? '');
+        return ($this->filenamePrefix ?? '') . $documentNumber . '_' . $format . ($this->filenameSuffix ?? '');
     }
 }

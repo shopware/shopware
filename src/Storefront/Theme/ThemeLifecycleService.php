@@ -29,7 +29,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 /**
  * @deprecated tag:v6.8.0 - reason:becomes-final
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeLifecycleService
 {
     /**

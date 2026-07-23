@@ -25,13 +25,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+#[Package('checkout')]
 #[Route(
     defaults: [
         PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
         PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED => true,
     ]
 )]
-#[Package('checkout')]
 class ChangeLanguageRoute extends AbstractChangeLanguageRoute
 {
     /**

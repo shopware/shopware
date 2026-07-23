@@ -14,8 +14,8 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegistrationSettingsRoute
 {
     /**
@@ -48,7 +48,7 @@ class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegist
             throw CustomerException::customerGroupRegistrationConfigurationNotFound($customerGroupId);
         }
 
-        $customerGroup = $result->first();
+        $customerGroup = $result->getEntities()->first();
         \assert($customerGroup !== null);
 
         return new CustomerGroupRegistrationSettingsRouteResponse($customerGroup);

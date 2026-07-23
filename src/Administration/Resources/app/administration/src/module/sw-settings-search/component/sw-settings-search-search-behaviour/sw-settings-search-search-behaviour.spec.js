@@ -66,11 +66,11 @@ describe('module/sw-settings-search/component/sw-settings-search-search-behaviou
             'product_search_config.viewer',
         ]);
         await flushPromises();
-        const andBehaviourElement = wrapper.find('.sw-settings-search__search-behaviour-condition').findAll('input').at(0);
-        expect(andBehaviourElement.attributes().disabled).toBeDefined();
-
-        const orBehaviourElement = wrapper.find('.sw-settings-search__search-behaviour-condition').findAll('input').at(1);
+        const orBehaviourElement = wrapper.find('.sw-settings-search__search-behaviour-condition').findAll('input').at(0);
         expect(orBehaviourElement.attributes().disabled).toBeDefined();
+
+        const andBehaviourElement = wrapper.find('.sw-settings-search__search-behaviour-condition').findAll('input').at(1);
+        expect(andBehaviourElement.attributes().disabled).toBeDefined();
 
         const minSearchLengthElement = wrapper.findByLabel('sw-settings-search.generalTab.labelMinimalSearchTerm');
         expect(minSearchLengthElement.attributes().disabled).toBeDefined();
@@ -78,6 +78,26 @@ describe('module/sw-settings-search/component/sw-settings-search-search-behaviou
         await orBehaviourElement.trigger('click');
         expect(orBehaviourElement.element.checked).toBeFalsy();
         expect(wrapper.vm.searchBehaviourConfigs.andLogic).toBe(true);
+    });
+
+    it('should offer the broad search (OR) option before the exact search (AND) option', async () => {
+        const wrapper = await createWrapper([
+            'product_search_config.viewer',
+        ]);
+        await flushPromises();
+
+        expect(wrapper.vm.conditionsOptions).toEqual([
+            expect.objectContaining({
+                value: false,
+                name: 'sw-settings-search.generalTab.labelSearchOrCondition',
+                description: 'sw-settings-search.generalTab.textSearchOrConditionExplain',
+            }),
+            expect.objectContaining({
+                value: true,
+                name: 'sw-settings-search.generalTab.labelSearchAndCondition',
+                description: 'sw-settings-search.generalTab.textSearchAndConditionExplain',
+            }),
+        ]);
     });
 
     it('should be able to change minimal search term length between limit value', async () => {

@@ -29,6 +29,7 @@ final readonly class DocumentNumberGenerator
         DocumentGenerationRequest $generationRequest,
         OrderEntity $order,
         Context $context,
+        bool $preview = false,
     ): string {
         $type = self::NUMBER_RANGE_DOCUMENT_TYPE_PREFIX . $generationRequest->documentType;
 
@@ -36,6 +37,7 @@ final readonly class DocumentNumberGenerator
             type: $type,
             context: $context,
             salesChannelId: $order->getSalesChannelId(),
+            preview: $preview,
         );
     }
 }

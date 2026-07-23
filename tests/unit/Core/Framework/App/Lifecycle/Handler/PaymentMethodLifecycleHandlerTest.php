@@ -14,6 +14,7 @@ use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Lifecycle\Handler\PaymentMethodLifecycleHandler;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -22,6 +23,7 @@ use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PaymentMethodLifecycleHandler::class)]
 class PaymentMethodLifecycleHandlerTest extends TestCase
 {
@@ -44,7 +46,7 @@ class PaymentMethodLifecycleHandlerTest extends TestCase
         $this->persister = new PaymentMethodLifecycleHandler(
             $this->paymentMethodRepository,
             $this->mediaRepository,
-            $this->createMock(MediaService::class),
+            static::createStub(MediaService::class),
         );
     }
 

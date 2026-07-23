@@ -54,6 +54,7 @@
         <service id="Shopware\Core\Content\Media\Message\GenerateThumbnailsHandler">
             <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailService"/>
             <argument type="service" id="media.repository"/>
+            <argument type="service" id="logger"/>
             <argument>%shopware.media.remote_thumbnails.enable%</argument>
 
             <tag name="messenger.message_handler"/>
@@ -187,6 +188,15 @@
             </call>
         </service>
 
+        <service id="Shopware\Core\Content\Media\Api\MediaDownloadController" public="true">
+            <argument type="service" id="media.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Media\File\DownloadResponseGenerator"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Shopware\Core\Content\Media\Api\MediaFolderController" public="true">
             <argument type="service" id="Shopware\Core\Content\Media\MediaFolderService"/>
             <call method="setContainer">
@@ -285,6 +295,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailSizeCalculator"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\Processor\ThumbnailProcessorInterface"/>
+            <argument type="service" id="logger"/>
             <argument>%shopware.media.remote_thumbnails.enable%</argument>
         </service>
 
@@ -329,6 +340,7 @@
             <argument type="service" id="shopware.filesystem.s3.client" on-invalid="null"/>
             <argument>%shopware.media.presigned_upload.expiration_minutes%</argument>
             <argument>%shopware.media.presigned_upload.enabled%</argument>
+            <argument>%shopware.filesystem.private%</argument>
         </service>
 
         <service id="Shopware\Core\Content\Media\Upload\PresignedUrlGeneratorInterface"
@@ -342,10 +354,14 @@
             <argument>%shopware.media.remote_thumbnails.enable%</argument>
         </service>
 
-        <service id="Shopware\Core\Content\Media\Upload\MediaFileExtensionValidator">
+        <service id="Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider">
             <argument type="service" id="event_dispatcher"/>
             <argument>%shopware.filesystem.allowed_extensions%</argument>
             <argument>%shopware.filesystem.private_allowed_extensions%</argument>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Upload\MediaFileExtensionValidator">
+            <argument type="service" id="Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Upload\PresignedMediaUploadService">

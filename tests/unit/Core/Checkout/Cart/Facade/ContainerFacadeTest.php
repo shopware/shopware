@@ -24,10 +24,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(ContainerFacade::class)]
 #[CoversClass(DiscountTrait::class)]
 #[CoversClass(SurchargeTrait::class)]
-#[Package('checkout')]
 class ContainerFacadeTest extends TestCase
 {
     public function testPublicApiAvailable(): void
@@ -174,9 +174,9 @@ class ContainerFacadeTest extends TestCase
     {
         $container = new LineItem('container', 'container', 'container');
 
-        $stubs = $this->createMock(ScriptPriceStubs::class);
-        $helper = $this->createMock(CartFacadeHelper::class);
-        $context = $this->createMock(SalesChannelContext::class);
+        $stubs = static::createStub(ScriptPriceStubs::class);
+        $helper = static::createStub(CartFacadeHelper::class);
+        $context = static::createStub(SalesChannelContext::class);
         $facade = new ContainerFacade($container, $stubs, $helper, $context);
 
         $facade->add(

@@ -33,8 +33,6 @@ $nesting-line-indent: 36px;
         color: var(--color-text-primary-default);
     }
 
-    // Inset ring so the focus outline is never clipped by the necessary
-    // overflow: hidden on the collapsible / scrolling menu body.
     &:focus-visible {
         outline: var(--scale-size-2) solid var(--color-border-brand-default);
         outline-offset: -2px;
@@ -67,18 +65,6 @@ $nesting-line-indent: 36px;
 .sw-admin-menu__navigation-link-expand-icon {
     flex-shrink: 0;
     color: var(--color-text-primary-default);
-    transition: transform 0.15s ease-out;
-}
-
-// Chevron points down when collapsed: nudge it down on hover.
-.sw-admin-menu__navigation-link:hover .sw-admin-menu__navigation-link-expand-icon {
-    transform: translateY(2px);
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .sw-admin-menu__navigation-link-expand-icon {
-        transition: none;
-    }
 }
 
 .sw-admin-menu__navigation-link-expand-icon-box {
@@ -92,11 +78,6 @@ $nesting-line-indent: 36px;
 }
 
 .sw-admin-menu__sub-navigation-list {
-    // Visibility of the collapsible subtree is owned by <MtCollapsible> / reka-ui,
-    // which drives the height slide-down/slide-up animation and hides the closed
-    // content via its `hidden` attribute. Do not toggle `display` here (or on the
-    // rows) from the `.is--entry-expanded` class: it collapses the content
-    // synchronously on close, so reka-ui skips the exit animation.
     list-style: none;
     margin: 0;
     padding: 0;
@@ -235,15 +216,6 @@ $nesting-line-indent: 36px;
 
     & > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link.router-link-active .collapsible-text {
         color: var(--color-icon-brand-default);
-    }
-
-    // Chevron points up when expanded: lift it slightly, more so on hover.
-    & > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link .sw-admin-menu__navigation-link-expand-icon {
-        transform: translateY(-1px);
-    }
-
-    & > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link:hover .sw-admin-menu__navigation-link-expand-icon {
-        transform: translateY(-2px);
     }
 
     .sw-admin-menu__navigation-list-item {

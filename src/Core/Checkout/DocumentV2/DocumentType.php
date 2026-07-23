@@ -15,15 +15,10 @@ enum DocumentType: string
     case INVOICE = 'invoice';
     case DELIVERY_NOTE = 'delivery_note';
     case CREDIT_NOTE = 'credit_note';
-    case CANCELLATION_INVOICE = 'cancellation_invoice';
+    case CANCELLATION_INVOICE = 'storno';
 
-    public function templatePath(): string
+    public function allowsNegativeLineItems(): bool
     {
-        return match ($this) {
-            self::INVOICE => '@Framework/documents/invoice.html.twig',
-            self::DELIVERY_NOTE => '@Framework/documents/delivery_note.html.twig',
-            self::CREDIT_NOTE => '@Framework/documents/credit_note.html.twig',
-            self::CANCELLATION_INVOICE => '@Framework/documents/storno.html.twig',
-        };
+        return $this === self::CANCELLATION_INVOICE;
     }
 }

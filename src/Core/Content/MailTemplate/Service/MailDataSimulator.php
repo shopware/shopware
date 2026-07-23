@@ -10,8 +10,10 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Cms\DataAbstractionLayer\Field\SlotConfigField;
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFormDataEvent;
 use Shopware\Core\Content\MeasurementSystem\Field\MeasurementUnitsField;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\MailFlowDataProviderInterface;
@@ -84,6 +86,7 @@ use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EntityCollectionType;
 use Shopware\Core\Framework\Event\EventData\EntityType;
+use Shopware\Core\Framework\Event\EventData\FormDataObjectType;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\MailAware;
@@ -161,7 +164,7 @@ class MailDataSimulator
                 continue;
             }
 
-            $templateData[$name] = $this->generateEventDataTypeData($type, $entityCache, $context);
+            $templateData[$name] = $this->generateEventDataTypeData($type, $entityCache, $context, $name, $flowEvent);
         }
 
         return $templateData;
@@ -171,7 +174,7 @@ class MailDataSimulator
      * @param array<string,mixed> $dataType
      * @param array<string, Entity> $entityCache
      */
-    private function generateEventDataTypeData(array $dataType, array &$entityCache, Context $context): mixed
+    private function generateEventDataTypeData(array $dataType, array &$entityCache, Context $context, ?string $name = null, ?string $flowEventName = null): mixed
     {
         if ($dataType['type'] === ArrayType::TYPE) {
             return [];
@@ -191,9 +194,20 @@ class MailDataSimulator
         }
 
         if ($dataType['type'] === ObjectType::TYPE) {
+            $objectData = $dataType['data'] ?? null;
+            if (($dataType[FormDataObjectType::MARKER] ?? false) === true && $name !== null && $flowEventName !== null) {
+                $event = new MailDataSimulatorFormDataEvent($name, $flowEventName, $context, $this->getKnownFormData($name));
+                $this->eventDispatcher->dispatch($event);
+
+                $formData = $event->getData();
+                if ($formData !== null) {
+                    return $formData;
+                }
+            }
+
             return array_map(function ($value) use ($entityCache, $context) {
                 return $this->generateEventDataTypeData($value, $entityCache, $context);
-            }, $dataType['data'] ?? []);
+            }, $objectData ?? []);
         }
 
         if (\in_array($dataType['type'], ScalarValueType::VALID_TYPES, true)) {
@@ -599,6 +613,40 @@ class MailDataSimulator
         }
 
         return null;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function getKnownFormData(string $name): ?array
+    {
+        return match ($name) {
+            FlowMailVariables::CONTACT_FORM_DATA => [
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'email' => 'max.mustermann@example.com',
+                'phone' => '+49123456789',
+                'subject' => 'Lorem ipsum dolor',
+                'comment' => 'Lorem ipsum dolor sit amet.',
+            ],
+            FlowMailVariables::REVIEW_FORM_DATA => [
+                'name' => 'Max',
+                'lastName' => 'Mustermann',
+                'email' => 'max.mustermann@example.com',
+                'points' => 5,
+                'title' => 'Lorem ipsum dolor',
+                'content' => 'Lorem ipsum dolor sit amet.',
+            ],
+            FlowMailVariables::REVOCATION_REQUEST_FORM_DATA => [
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'email' => 'max.mustermann@example.com',
+                'contractNumber' => '10000',
+                'comment' => 'Lorem ipsum dolor sit amet.',
+                'submitTime' => $this->clock->now(),
+            ],
+            default => null,
+        };
     }
 
     private function ensureEntityIdentifier(Entity $entity): void

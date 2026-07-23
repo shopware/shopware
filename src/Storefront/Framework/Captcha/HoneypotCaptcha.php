@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraints\Blank;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Package('framework')]
+#[Package('discovery')]
 class HoneypotCaptcha extends AbstractCaptcha
 {
     final public const CAPTCHA_NAME = 'honeypot';
@@ -50,7 +50,7 @@ class HoneypotCaptcha extends AbstractCaptcha
             return \count($this->validator->validate($this)) < 1;
         }
 
-        return $request->request->get(self::CAPTCHA_REQUEST_PARAMETER, '') === '';
+        return ($request->request->get(self::CAPTCHA_REQUEST_PARAMETER) ?? '') === '';
     }
 
     /**

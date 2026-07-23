@@ -10,7 +10,6 @@
     }
 }
 
-// Fade the backdrop on open, close and the resize threshold.
 .sw-sidebar-renderer-backdrop-enter-active,
 .sw-sidebar-renderer-backdrop-leave-active {
     transition: opacity 0.3s ease-in-out;
@@ -49,8 +48,6 @@
 
     &.is-active {
         display: block;
-
-        // Animate the column width so the content resizes in sync with the slide-in.
         animation: expandSidebar 0.4s cubic-bezier(0.32, 0.72, 0, 1);
 
         .sw-sidebar-renderer__overlay {
@@ -68,7 +65,6 @@
         }
     }
 
-    // Reverse animations played while closing; the element stays mounted until they finish.
     &.is-active.is-closing {
         animation: shrinkSidebar 0.4s cubic-bezier(0.32, 0.72, 0, 1) forwards;
 

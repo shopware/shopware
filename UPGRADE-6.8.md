@@ -163,6 +163,12 @@ The Agentic Commerce sales channel features — including product export provide
 
 When no Sales Channel business timezone is configured, document rendering no longer uses the Storefront browser timezone in Shopware 6.8. Documents now render with Twig's configured default timezone (`UTC` unless changed via `twig.date.timezone`) regardless of how they are generated. Set the Sales Channel business timezone if documents should use a merchant-controlled timezone.
 
+## Shipping price matrix ranges use currency conversion
+
+Price-based shipping method price matrix ranges are now compared in the default currency. When a cart is calculated in a currency with a factor, Shopware converts the cart price back to the default currency before matching the configured `quantityStart` and `quantityEnd` range.
+
+Enable the `SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION` feature flag in 6.7 to preview the behavior before updating to 6.8.
+
 </details>
 
 # API
@@ -744,6 +750,20 @@ Profiles are now identified and displayed only by their technical name.
 * You must explicitly pass a boolean value to the `confidential` parameter  of `\Shopware\Core\Framework\Api\OAuth\Client\ApiClient`.
 * You must pass the `confidential` parameter as the third parameter of the constructor.
 * You must pass the `name` parameter as the fourth parameter of the constructor.
+
+## OAuth concrete classes are internal
+
+The following concrete OAuth classes are internal. Do not type-hint, instantiate, or extend them; rely on the corresponding League OAuth interface instead:
+
+* `\Shopware\Core\Framework\Api\OAuth\AccessTokenRepository` → `\League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface`
+* `\Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository` → `\League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface`
+* `\Shopware\Core\Framework\Api\OAuth\ScopeRepository` → `\League\OAuth2\Server\Repositories\ScopeRepositoryInterface`
+* `\Shopware\Core\Framework\Api\OAuth\UserRepository` → `\League\OAuth2\Server\Repositories\UserRepositoryInterface`
+* `\Shopware\Core\Framework\Api\OAuth\ClientRepository` → `\League\OAuth2\Server\Repositories\ClientRepositoryInterface`
+* `\Shopware\Core\Framework\Api\OAuth\Client\ApiClient` → `\League\OAuth2\Server\Entities\ClientEntityInterface`
+* `\Shopware\Core\Framework\Api\OAuth\AccessToken` → `\League\OAuth2\Server\Entities\AccessTokenEntityInterface`
+* `\Shopware\Core\Framework\Api\OAuth\RefreshToken` → `\League\OAuth2\Server\Entities\RefreshTokenEntityInterface`
+* `\Shopware\Core\Framework\Api\OAuth\User\User` → `\League\OAuth2\Server\Entities\UserEntityInterface`
 
 ## Removed unused `ImportExport` exceptions
 

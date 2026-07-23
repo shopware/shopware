@@ -22,7 +22,7 @@ class SnippetFixer
     {
     }
 
-    #[NewRequiredParameter(version: 'v6.8.0', parameterName: 'invalidPluralization', parameterType: 'InvalidPluralizationCollection')]
+    #[NewRequiredParameter(version: 'v6.8.0', parameterName: 'invalidPluralization', parameterType: InvalidPluralizationCollection::class)]
     public function fix(MissingSnippetCollection $missingSnippetCollection /* , InvalidPluralizationCollection $invalidPluralization */): void
     {
         /** @var InvalidPluralizationCollection $invalidPluralization */

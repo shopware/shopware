@@ -33,7 +33,7 @@ final class ReviewFormEvent extends Event implements SalesChannelAware, MailAwar
      */
     private readonly array $reviewFormData;
 
-    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'product', newType: 'ProductEntity', description: 'The parameter loses its null default and becomes required.')]
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'product', newType: ProductEntity::class, description: 'The parameter loses its null default and becomes required.')]
     public function __construct(
         private readonly Context $context,
         private readonly string $salesChannelId,
@@ -99,7 +99,7 @@ final class ReviewFormEvent extends Event implements SalesChannelAware, MailAwar
     }
 
     // @phpstan-ignore-next-line shopware.bcChangeAttribute (The constructor still permits a missing product, so the return type cannot be narrowed yet.)
-    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'ProductEntity', description: 'The return value becomes non-nullable once constructing the event without a product is removed.')]
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: ProductEntity::class, description: 'The return value becomes non-nullable once constructing the event without a product is removed.')]
     public function getProduct(): ?ProductEntity
     {
         return $this->product;

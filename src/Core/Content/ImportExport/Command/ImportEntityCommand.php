@@ -30,11 +30,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+#[Package('fundamentals@after-sales')]
 #[AsCommand(
     name: 'import:entity',
     description: 'Import entities from a csv file',
 )]
-#[Package('fundamentals@after-sales')]
 class ImportEntityCommand extends Command
 {
     private const DEFAULT_CHUNK_SIZE = 300;

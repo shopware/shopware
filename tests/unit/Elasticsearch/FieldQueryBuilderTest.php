@@ -24,8 +24,8 @@ use Shopware\Elasticsearch\ResolvedField;
 /**
  * @internal
  */
-#[CoversClass(FieldQueryBuilder::class)]
 #[Package('inventory')]
+#[CoversClass(FieldQueryBuilder::class)]
 class FieldQueryBuilderTest extends TestCase
 {
     public function testGetDecoratedThrowsException(): void

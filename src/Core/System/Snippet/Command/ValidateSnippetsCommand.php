@@ -22,12 +22,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *
  * @phpstan-type Snippets array<string, string|array<string, mixed>>
  */
+#[Package('discovery')]
 #[AsCommand(
     name: 'translation:validate',
     description: 'Validates completeness and correct pluralization of snippets',
     aliases: ['snippets:validate'],
 )]
-#[Package('discovery')]
 class ValidateSnippetsCommand extends Command
 {
     /**

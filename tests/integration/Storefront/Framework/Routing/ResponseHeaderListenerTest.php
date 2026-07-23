@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Storefront\Framework\Routing;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -13,6 +14,7 @@ use Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber;
 /**
  * @internal
  */
+#[Package('discovery')]
 class ResponseHeaderListenerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

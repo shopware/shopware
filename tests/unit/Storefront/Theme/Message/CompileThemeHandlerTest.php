@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -22,6 +23,7 @@ use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(CompileThemeHandler::class)]
 class CompileThemeHandlerTest extends TestCase
 {

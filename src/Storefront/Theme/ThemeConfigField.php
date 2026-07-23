@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeWidening;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -142,8 +143,16 @@ class ThemeConfigField extends Struct
     /**
      * @param array<mixed>|bool|float|int|string $value
      */
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'value', newType: 'array|bool|float|int|string')]
     public function setValue($value): void
     {
+        if (!\is_array($value) && !\is_bool($value) && !\is_float($value) && !\is_int($value) && !\is_string($value)) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'Passing a value that is neither an array, boolean, float, integer, nor string is deprecated and will not be allowed in v6.8.0.0.'
+            );
+        }
+
         $this->value = $value;
     }
 

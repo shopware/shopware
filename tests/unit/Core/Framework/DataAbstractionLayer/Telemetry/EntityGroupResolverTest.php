@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(EntityGroupResolver::class)]
 #[Package('framework')]
+#[CoversClass(EntityGroupResolver::class)]
 class EntityGroupResolverTest extends TestCase
 {
     #[DataProvider('entityProvider')]

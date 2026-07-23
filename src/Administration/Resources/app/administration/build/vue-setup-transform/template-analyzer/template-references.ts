@@ -326,16 +326,30 @@ function isSwBlockName(node: TemplateChildNode): node is ElementNode {
 }
 
 /**
- * Returns the static `name` of a base `<sw-block name="...">`, or null for a dynamic/bound name.
+ * Returns the static value of a `<sw-block>` identity attribute (`name` or `extends`), or null.
  *
  */
-function getStaticSwBlockName(node: ElementNode): string | null {
-    const nameAttribute = node.props.find(
+function getStaticSwBlockAttribute(node: ElementNode, attribute: 'name' | 'extends'): string | null {
+    const identityAttribute = node.props.find(
         (prop): prop is Extract<ElementNode['props'][number], { type: NodeTypes.ATTRIBUTE }> =>
-            prop.type === NodeTypes.ATTRIBUTE && prop.name === 'name',
+            prop.type === NodeTypes.ATTRIBUTE && prop.name === attribute,
     );
 
-    return nameAttribute?.value?.content ?? null;
+    return identityAttribute?.value?.content ?? null;
+}
+
+/**
+ * Returns the static `name` of a base `<sw-block name="...">`, or null.
+ */
+function getStaticSwBlockName(node: ElementNode): string | null {
+    return getStaticSwBlockAttribute(node, 'name');
+}
+
+/**
+ * Returns the static `extends` of an override `<sw-block extends="...">`, or null.
+ */
+function getStaticSwBlockExtends(node: ElementNode): string | null {
+    return getStaticSwBlockAttribute(node, 'extends');
 }
 
 export {
@@ -347,6 +361,7 @@ export {
     collectSlotScopeReferences,
     collectTemplateReferences,
     getDefaultSlotDirective,
+    getStaticSwBlockExtends,
     getStaticSwBlockName,
     isSwBlockExtends,
     isSwBlockName,

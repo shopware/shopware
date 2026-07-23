@@ -301,8 +301,28 @@ describe('build/vue-setup-transform base transforms', () => {
             </script>
         `;
 
-        expect(() => transformShopwareSetupSfc(source, 'sw-authored-v-bind.vue')).toThrow(
-            'v-bind objects are not supported on <sw-block>, because they could carry the generated data or slot bindings.',
+        expect(() => transformShopwareSetupSfc(source, 'sw-authored-v-bind.vue')).toThrow('"v-bind" is not supported');
+    });
+
+    it('rejects non-identity attributes on base sw-block declarations', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block name="sw_example_component_body" class="highlight">
+                <p>{{ body }}</p>
+            </sw-block>
+            </template>
+            <script setup>
+            const body = 'Body';
+
+            swDefinePublic({
+                body,
+            });
+            </script>
+        `;
+
+        // sw-block renders as a fragment, so class has no host element; only a static name is allowed.
+        expect(() => transformShopwareSetupSfc(source, 'sw-authored-class.vue')).toThrow(
+            'Only a static "name" attribute is allowed on <sw-block>; "class" is not supported.',
         );
     });
 });

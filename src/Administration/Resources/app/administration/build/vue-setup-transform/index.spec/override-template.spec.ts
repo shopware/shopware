@@ -168,11 +168,7 @@ describe('build/vue-setup-transform override template forwarding', () => {
     it('ignores template identifiers that are not override-local setup references', () => {
         const source = stripIndent`
             <template>
-            <sw-block
-                extends="sw_example_component_body"
-                class="info"
-                data-label="track"
-            >
+            <sw-block extends="sw_example_component_body">
                 plain info text
                 <p>{{ [1].map((info) => info).join(',') }}</p>
                 <p>{{ ({ info: localInfo }) => localInfo }}</p>
@@ -289,8 +285,50 @@ describe('build/vue-setup-transform override template forwarding', () => {
             </script>
         `;
 
-        expect(() => transformOrFail(source, 'authored-v-bind.override.vue')).toThrow(
-            'v-bind objects are not supported on <sw-block>, because they could carry the generated data or slot bindings.',
+        expect(() => transformOrFail(source, 'authored-v-bind.override.vue')).toThrow('"v-bind" is not supported');
+    });
+
+    it('emits the extended block names for the ownership cross-check', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_headline">
+                <h2>headline</h2>
+            </sw-block>
+            <sw-block extends="sw_example_component_body">
+                <p>body</p>
+            </sw-block>
+            </template>
+            <script setup>
+            swDefineOverride({});
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'extended-names.override.vue');
+
+        expect(result.extendedBlockNames).toEqual([
+            'sw_example_component_headline',
+            'sw_example_component_body',
+        ]);
+        expect(result.ownedBlockNames).toEqual([]);
+    });
+
+    it('rejects a bound :extends on sw-block (only a static extends is allowed)', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block :extends="blockName">
+                <p>{{ body }}</p>
+            </sw-block>
+            </template>
+            <script setup>
+            const blockName = 'sw_example_component_body';
+            const body = 'local';
+
+            swDefineOverride({});
+            </script>
+        `;
+
+        expect(() => transformOrFail(source, 'bound-extends.override.vue')).toThrow(
+            'Only a static "extends" attribute is allowed on <sw-block>; ":extends" is not supported.',
         );
     });
 
@@ -464,8 +502,6 @@ describe('build/vue-setup-transform override template forwarding', () => {
 
         // The generated slot scope only exists inside the block, so `showOverride` on the element itself
         // resolves against the hidden component and the block never mounts - reject it loudly instead.
-        expect(() => transformOrFail(source, 'extends-element-directive.override.vue')).toThrow(
-            'directive is not supported on <sw-block>',
-        );
+        expect(() => transformOrFail(source, 'extends-element-directive.override.vue')).toThrow('"v-if" is not supported');
     });
 });

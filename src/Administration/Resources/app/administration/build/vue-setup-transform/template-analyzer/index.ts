@@ -19,15 +19,14 @@ import {
     type SlotMapping,
     type TemplateEdit,
     collectTemplateReferences,
+    getStaticSwBlockExtends,
     getStaticSwBlockName,
     isSwBlockExtends,
     isSwBlockName,
 } from './template-references';
 import {
-    assertNoAuthoredSwBlockBindings,
-    assertNoSwBlockExtendsElementDirectives,
     assertOverrideTemplateTopLevel,
-    assertSwBlockModeIdentity,
+    assertSwBlockAttributes,
     createGeneratedSlotEdit,
     createPrivateSlotMapping,
     findOpeningTagNameEnd,
@@ -47,6 +46,10 @@ type TemplateAnalysis = {
     // branch can build a block-ownership registry (block name <-> owning component) and reject, at
     // compile time, overrides that extend a block whose owner cannot provide the override-local scope.
     ownedBlockNames: string[];
+    // Static names of the blocks an override `<sw-block extends="...">` extends. The registry's other
+    // half: a later branch cross-checks these against the emitted ownership to fail loudly on a typo'd
+    // or non-existent block name (per-file analysis can't see other files, so this is done at build time).
+    extendedBlockNames: string[];
 };
 
 /**
@@ -78,6 +81,7 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
             privateBindings: new Set<string>(),
             privateNamespace: null,
             ownedBlockNames: [],
+            extendedBlockNames: [],
         };
     }
 
@@ -88,20 +92,21 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
 
     const edits: TemplateEdit[] = [];
     const privateBindings = new Set<string>();
+    const extendedBlockNames: string[] = [];
     const overrideLocalNames = new Set<string>(analysis.overrideEntries);
     const privateNamespace = createOverridePrivateNamespace(block.filename, block.componentName);
 
     function visit(node: TemplateChildNode): void {
         if (node.type === NodeTypes.ELEMENT && node.tag === 'sw-block') {
-            const element = node as Parameters<typeof assertNoAuthoredSwBlockBindings>[0];
-
-            // No base-style <sw-block name> anywhere in an override (top level or nested).
-            assertSwBlockModeIdentity(element, 'override');
-            assertNoAuthoredSwBlockBindings(element);
+            assertSwBlockAttributes(node as Parameters<typeof assertSwBlockAttributes>[0], 'override');
         }
 
         if (isSwBlockExtends(node)) {
-            assertNoSwBlockExtendsElementDirectives(node);
+            const extendedName = getStaticSwBlockExtends(node);
+
+            if (extendedName !== null) {
+                extendedBlockNames.push(extendedName);
+            }
 
             const references = collectTemplateReferences(node.children, new Set());
             const publicMappings: SlotMapping[] = [];
@@ -160,6 +165,7 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
         privateBindings,
         privateNamespace,
         ownedBlockNames: [],
+        extendedBlockNames,
     };
 }
 
@@ -174,6 +180,7 @@ function analyzeBaseTemplate(block: ShopwareSetupBlock): TemplateAnalysis {
             privateBindings: new Set<string>(),
             privateNamespace: null,
             ownedBlockNames: [],
+            extendedBlockNames: [],
         };
     }
 
@@ -183,11 +190,7 @@ function analyzeBaseTemplate(block: ShopwareSetupBlock): TemplateAnalysis {
 
     function visit(node: TemplateChildNode): void {
         if (node.type === NodeTypes.ELEMENT && node.tag === 'sw-block') {
-            const element = node as Parameters<typeof assertNoAuthoredSwBlockBindings>[0];
-
-            // No override-style <sw-block extends> anywhere in a base component.
-            assertSwBlockModeIdentity(element, 'base');
-            assertNoAuthoredSwBlockBindings(element);
+            assertSwBlockAttributes(node as Parameters<typeof assertSwBlockAttributes>[0], 'base');
         }
 
         if (isSwBlockName(node)) {
@@ -222,6 +225,7 @@ function analyzeBaseTemplate(block: ShopwareSetupBlock): TemplateAnalysis {
         privateBindings: new Set<string>(),
         privateNamespace: null,
         ownedBlockNames,
+        extendedBlockNames: [],
     };
 }
 

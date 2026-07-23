@@ -27,6 +27,9 @@ type ShopwareSetupTransformResult = {
     // Static names of the base `<sw-block name="...">` blocks this component owns (empty for overrides).
     // Emitted for a later branch to build a cross-file block-ownership registry.
     ownedBlockNames: string[];
+    // Static names of the blocks this override `<sw-block extends="...">` extends (empty for base).
+    // The registry's other half, for a later branch to cross-check against the emitted ownership.
+    extendedBlockNames: string[];
 };
 
 /**
@@ -57,6 +60,7 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
         privateBindings: new Set<string>(),
         privateNamespace: null,
         ownedBlockNames: [],
+        extendedBlockNames: [],
     };
 
     try {
@@ -119,6 +123,7 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
         componentName: block.componentName,
         filename,
         ownedBlockNames: templateAnalysis.ownedBlockNames,
+        extendedBlockNames: templateAnalysis.extendedBlockNames,
     };
 }
 

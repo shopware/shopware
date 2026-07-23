@@ -38,43 +38,6 @@ export interface ParsedArgs {
 /** Exit code 2 territory: the invocation itself is wrong, nothing was executed. */
 export class CliUsageError extends Error {}
 
-function levenshtein(left: string, right: string): number {
-    const distances = Array.from({ length: left.length + 1 }, (unused, index) => index);
-
-    for (let rightIndex = 1; rightIndex <= right.length; rightIndex += 1) {
-        let previousDiagonal = distances[0];
-
-        distances[0] = rightIndex;
-
-        for (let leftIndex = 1; leftIndex <= left.length; leftIndex += 1) {
-            const previousValue = distances[leftIndex];
-
-            distances[leftIndex] = Math.min(
-                distances[leftIndex] + 1,
-                distances[leftIndex - 1] + 1,
-                previousDiagonal + (left[leftIndex - 1] === right[rightIndex - 1] ? 0 : 1),
-            );
-            previousDiagonal = previousValue;
-        }
-    }
-
-    return distances[left.length];
-}
-
-function closestFlag(name: string, spec: CommandSpec): string | null {
-    let best: { flag: string; distance: number } | null = null;
-
-    for (const flag of spec.flags) {
-        const distance = levenshtein(name, flag.name);
-
-        if (distance <= 2 && (best === null || distance < best.distance)) {
-            best = { flag: flag.name, distance };
-        }
-    }
-
-    return best?.flag ?? null;
-}
-
 export function parseCli(argv: string[], spec: CommandSpec): ParsedArgs {
     // Help wins over everything else: a user asking for help must get it even
     // when the rest of the invocation would not validate.
@@ -95,9 +58,7 @@ export function parseCli(argv: string[], spec: CommandSpec): ParsedArgs {
         const flagSpec = spec.flags.find((flag) => flag.name === name);
 
         if (!flagSpec) {
-            const suggestion = closestFlag(name, spec);
-
-            throw new CliUsageError(`Unknown option ${name}.${suggestion ? ` Did you mean ${suggestion}?` : ''}`);
+            throw new CliUsageError(`Unknown option ${name}. See --help for the available options.`);
         }
 
         if (flagSpec.value === 'required') {

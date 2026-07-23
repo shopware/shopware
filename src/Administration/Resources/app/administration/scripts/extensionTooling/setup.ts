@@ -35,7 +35,7 @@ import {
 import type { ExtensionToolingManifest, ExtensionToolingProject, WriteResult } from './shared';
 import { record, toManifestState } from './setup-context';
 import type { GeneratorContext } from './setup-context';
-import { checkDiscoveryFreshness, discoverProjects } from './setup-discovery';
+import { discoverProjects } from './setup-discovery';
 import {
     createIdeBootstraps,
     createLeafConfigs,
@@ -47,7 +47,7 @@ import { createShims } from './setup-bridge';
 import { ensureGitignoreBlock } from './setup-gitignore';
 
 // Barrel: discovery moved to setup-discovery but stays importable from ./setup.
-export { checkDiscoveryFreshness, discoverProjects };
+export { discoverProjects };
 
 export interface SetupExtensionToolingOptions {
     projectRoot: string;
@@ -120,11 +120,6 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
 
     const hostModules = loadHostModules(context);
     const entitySchemaAvailable = ensureEntitySchema(context);
-    const freshnessWarning = checkDiscoveryFreshness(projectRoot, pluginsConfigPath);
-
-    if (freshnessWarning) {
-        context.warnings.push(freshnessWarning);
-    }
 
     let discovered = discoverProjects(projectRoot, administrationRoot, pluginsConfigPath);
 

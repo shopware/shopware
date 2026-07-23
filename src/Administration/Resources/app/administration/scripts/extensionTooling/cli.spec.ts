@@ -10,7 +10,6 @@ const COMMAND: CommandSpec = {
     description: 'Generate configs for extensions.',
     flags: [
         { name: '--check', description: 'Report what would change, write nothing.' },
-        { name: '--explain', description: 'Verbose report.' },
         { name: '--shim', value: 'required', valueName: '<TechnicalName>|all-custom', description: 'Bridge one extension.' },
         { name: '--project-root', value: 'required', valueName: '<path>', description: '', internal: true },
     ],
@@ -34,14 +33,9 @@ describe('scripts/extensionTooling/cli', () => {
             expect(parsed.values['--project-root']).toBe('/srv/shop');
         });
 
-        it('rejects unknown flags with a suggestion for close misspellings', () => {
+        it('rejects unknown flags with a usage error pointing at --help', () => {
             expect(() => parseCli(['--chekc'], COMMAND)).toThrow(CliUsageError);
-            expect(() => parseCli(['--chekc'], COMMAND)).toThrow('Unknown option --chekc. Did you mean --check?');
-        });
-
-        it('rejects unknown flags without a suggestion when nothing is close', () => {
-            expect(() => parseCli(['--frobnicate'], COMMAND)).toThrow('Unknown option --frobnicate.');
-            expect(() => parseCli(['--frobnicate'], COMMAND)).not.toThrow('Did you mean');
+            expect(() => parseCli(['--chekc'], COMMAND)).toThrow('Unknown option --chekc. See --help for the available options.');
         });
 
         it('rejects value flags without a value', () => {

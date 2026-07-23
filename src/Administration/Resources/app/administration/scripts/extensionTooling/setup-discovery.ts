@@ -4,7 +4,6 @@
  * Discovery: read the installed extensions from var/plugins.json, group their
  * Administration source roots by extension, and resolve each root's nearest
  * owned tsconfig/eslint config plus its statically-derived TS/ESLint mode.
- * Includes the var/plugins.json freshness heuristic.
  */
 
 import fs from 'fs';
@@ -148,42 +147,3 @@ export function discoverProjects(
         });
 }
 
-/**
- * Discovery reads var/plugins.json, which only `bin/console bundle:dump`
- * refreshes — neither plugin:install nor cache:clear do. A freshly activated
- * plugin is invisible until then, so a stale file earns a hint instead of a
- * silently green "up to date". Heuristic: false positives cost one dim line.
- */
-export function checkDiscoveryFreshness(projectRoot: string, pluginsConfigPath: string): string | null {
-    try {
-        const pluginsMtime = fs.statSync(pluginsConfigPath).mtimeMs;
-        const customPluginsDir = path.join(projectRoot, 'custom', 'plugins');
-        let newestPluginMtime = 0;
-
-        for (const entry of fs.readdirSync(customPluginsDir, { withFileTypes: true })) {
-            if (!entry.isDirectory()) {
-                continue;
-            }
-
-            try {
-                newestPluginMtime = Math.max(
-                    newestPluginMtime,
-                    fs.statSync(path.join(customPluginsDir, entry.name, 'composer.json')).mtimeMs,
-                );
-            } catch {
-                // A plugin folder without composer.json cannot be discovered anyway.
-            }
-        }
-
-        if (newestPluginMtime > pluginsMtime) {
-            return (
-                'var/plugins.json is older than custom/plugins/ — if an extension is missing below, ' +
-                'run: bin/console bundle:dump'
-            );
-        }
-    } catch {
-        // Missing plugins.json or custom/plugins/ — discovery itself reports that.
-    }
-
-    return null;
-}

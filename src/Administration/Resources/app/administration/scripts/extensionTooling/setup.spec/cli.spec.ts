@@ -57,7 +57,7 @@ describe('scripts/extensionTooling/setup runSetupCli', () => {
 
         expect(exitCode).toBe(2);
         expect(listTree(projectRoot)).toEqual(treeBefore);
-        expect(errorSpy.mock.calls.join('\n')).toContain('Did you mean --check?');
+        expect(errorSpy.mock.calls.join('\n')).toContain('Unknown option --chekc. See --help');
         errorSpy.mockRestore();
     });
 

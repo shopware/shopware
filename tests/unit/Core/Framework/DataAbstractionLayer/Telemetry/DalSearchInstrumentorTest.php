@@ -21,8 +21,8 @@ use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySea
 /**
  * @internal
  */
-#[CoversClass(DalSearchInstrumentor::class)]
 #[Package('framework')]
+#[CoversClass(DalSearchInstrumentor::class)]
 class DalSearchInstrumentorTest extends TestCase
 {
     /**

@@ -24,8 +24,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[CoversClass(SalesChannelRepository::class)]
 #[Package('discovery')]
+#[CoversClass(SalesChannelRepository::class)]
 class SalesChannelRepositoryTest extends TestCase
 {
     public function testSearchIdsIsRoutedThroughTheInstrumentor(): void

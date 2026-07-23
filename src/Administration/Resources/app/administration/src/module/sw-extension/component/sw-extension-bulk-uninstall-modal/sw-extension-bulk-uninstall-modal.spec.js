@@ -4,7 +4,7 @@ async function createWrapper(propsData = {}) {
     return mount(await wrapTestComponent('sw-extension-bulk-uninstall-modal', { sync: true }), {
         global: {
             mocks: {
-                $t: (path, count) => (typeof count === 'number' ? `${path}${count}` : path),
+                $t: (path, named, choice) => (typeof choice === 'number' ? `${path}${choice}` : path),
             },
             stubs: {
                 'sw-modal': true,

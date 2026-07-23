@@ -2,7 +2,7 @@
     class="sw-extension-card-base"
     :class="extensionCardClasses"
 >
-    <sw-loader v-if="isLoading" />
+    <sw-loader v-if="showLoader" />
 
     <div class="sw-extension-card-base__select">
         <mt-checkbox

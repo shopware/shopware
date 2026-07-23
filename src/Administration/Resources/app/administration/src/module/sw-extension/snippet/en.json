@@ -31,7 +31,24 @@
         "activate": "Activate",
         "deactivate": "Deactivate",
         "update": "Update",
-        "uninstall": "Uninstall"
+        "uninstall": "Uninstall",
+        "uninstallModal": {
+          "title": "Uninstall {count} extension|Uninstall {count} extensions",
+          "description": "The following extensions will be uninstalled:",
+          "alert": "This action cannot be undone.",
+          "buttonLabel": "Uninstall",
+          "labelRemovePluginData": "Also remove all data for every selected extension",
+          "helpTextRemovePluginData": "Warning: If enabled, all data created by these extensions will be removed permanently."
+        },
+        "consent": {
+          "extensionLabel": "{count} extension|{count} extensions",
+          "installTitle": "Install {count} extension|Install {count} extensions",
+          "installDescription": "The selected extensions request the following permissions:",
+          "installAction": "Accept and install",
+          "updateTitle": "Update {count} extension|Update {count} extensions",
+          "updateDescription": "Updating the selected extensions requires accepting the following new permissions:",
+          "updateAction": "Accept and update"
+        }
       },
       "account": {
         "headline": "Shopware Account",

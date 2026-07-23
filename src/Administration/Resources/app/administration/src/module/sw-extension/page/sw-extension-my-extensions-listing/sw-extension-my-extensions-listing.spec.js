@@ -1,6 +1,7 @@
 import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 import ShopwareService from 'src/module/sw-extension/service/shopware-extension.service';
+import 'src/module/sw-extension/mixin/sw-extension-error.mixin';
 import selectMtSelectOptionByText from '../../../../../test/_helper_/select-mt-select-by-text';
 
 const routes = [
@@ -20,14 +21,37 @@ const routes = [
 
 const shopwareService = new ShopwareService({}, {}, {}, {});
 shopwareService.updateExtensionData = jest.fn();
+shopwareService.installExtension = jest.fn(() => Promise.resolve());
+shopwareService.installAndActivateExtension = jest.fn(() => Promise.resolve());
+shopwareService.activateExtension = jest.fn(() => Promise.resolve());
+shopwareService.deactivateExtension = jest.fn(() => Promise.resolve());
+shopwareService.uninstallExtension = jest.fn(() => Promise.resolve());
+shopwareService.updateExtension = jest.fn(() => Promise.resolve());
 
-function cardActionFns() {
+const extensionStoreActionService = {
+    downloadExtension: jest.fn(() => Promise.resolve()),
+};
+
+// The page uses the sw-extension-error mixin, which resolves this service to map error responses.
+if (!Shopware.Service().list().includes('extensionErrorService')) {
+    Shopware.Service().register('extensionErrorService', () => ({
+        handleErrorResponse: jest.fn(() => []),
+    }));
+}
+
+// Consent error the backend throws on update when an extension requires new permissions.
+function consentError(deltas = { permissions: {}, domains: [] }) {
     return {
-        installExtension: jest.fn(() => Promise.resolve()),
-        activateExtension: jest.fn(() => Promise.resolve()),
-        deactivateExtension: jest.fn(() => Promise.resolve()),
-        updateExtension: jest.fn(() => Promise.resolve()),
-        closeModalAndUninstallExtension: jest.fn(() => Promise.resolve()),
+        response: {
+            data: {
+                errors: [
+                    {
+                        code: 'FRAMEWORK__EXTENSION_UPDATE_REQUIRES_CONSENT_AFFIRMATION',
+                        meta: { parameters: { deltas } },
+                    },
+                ],
+            },
+        },
     };
 }
 
@@ -35,20 +59,15 @@ function setMyExtensions(extensions) {
     Shopware.Store.get('shopwareExtensions').setMyExtensions(extensions);
 }
 
-function makeCardStub({ methods = {}, emits = [], deferredClass = false } = {}) {
-    const template = deferredClass
-        ? '<div class="sw-self-maintained-extension-card" :class="{ \'is--deferred\': deferReload }">{{ extension.label }}</div>'
-        : '<div class="sw-self-maintained-extension-card">{{ extension.label }}</div>';
-
+function makeCardStub({ emits = [] } = {}) {
     return {
-        template,
+        template: '<div class="sw-self-maintained-extension-card">{{ extension.label }}</div>',
         props: [
             'extension',
             'selected',
-            'deferReload',
+            'bulkLoading',
         ],
         emits,
-        methods,
     };
 }
 
@@ -71,6 +90,8 @@ async function createWrapper({ aclCan = () => true, cardStub } = {}) {
         {
             global: {
                 plugins: [router],
+                // The page declares the sw-extension-error mixin by name, resolve it explicitly for the test.
+                mixins: [Shopware.Mixin.getByName('sw-extension-error')],
                 stubs: {
                     'router-link': true,
                     'sw-self-maintained-extension-card': cardStub ?? {
@@ -104,6 +125,24 @@ async function createWrapper({ aclCan = () => true, cardStub } = {}) {
                     'sw-help-text': true,
                     'sw-loader': true,
                     'sw-extension-component-section': true,
+                    'sw-extension-permissions-modal': {
+                        template: '<div class="sw-extension-permissions-modal" />',
+                        props: [
+                            'permissions',
+                            'domains',
+                            'title',
+                            'description',
+                            'actionLabel',
+                            'extensionLabel',
+                        ],
+                    },
+                    'sw-extension-bulk-uninstall-modal': {
+                        template: '<div class="sw-extension-bulk-uninstall-modal" />',
+                        props: [
+                            'extensions',
+                            'isLoading',
+                        ],
+                    },
                 },
                 provide: {
                     repositoryFactory: {
@@ -112,6 +151,7 @@ async function createWrapper({ aclCan = () => true, cardStub } = {}) {
                         },
                     },
                     shopwareExtensionService: shopwareService,
+                    extensionStoreActionService,
                     cacheApiService: {
                         clear: jest.fn(() => Promise.resolve()),
                     },
@@ -165,6 +205,20 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         Shopware.Store.get('context').app.config.settings.appUrlReachable = true;
 
         shopwareService.updateExtensionData.mockClear();
+        shopwareService.installExtension.mockClear();
+        shopwareService.installExtension.mockResolvedValue(undefined);
+        shopwareService.installAndActivateExtension.mockClear();
+        shopwareService.installAndActivateExtension.mockResolvedValue(undefined);
+        shopwareService.activateExtension.mockClear();
+        shopwareService.activateExtension.mockResolvedValue(undefined);
+        shopwareService.deactivateExtension.mockClear();
+        shopwareService.deactivateExtension.mockResolvedValue(undefined);
+        shopwareService.uninstallExtension.mockClear();
+        shopwareService.uninstallExtension.mockResolvedValue(undefined);
+        shopwareService.updateExtension.mockClear();
+        shopwareService.updateExtension.mockResolvedValue(undefined);
+        extensionStoreActionService.downloadExtension.mockClear();
+        extensionStoreActionService.downloadExtension.mockResolvedValue(undefined);
     });
 
     it('runtime management disabled should be there', async () => {
@@ -777,77 +831,92 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         });
     });
 
-    describe('bulk operations: runCardAction dispatch', () => {
-        it.each([
-            [
-                'install',
-                'installExtension',
-                [],
-            ],
-            [
-                'activate',
-                'activateExtension',
-                [],
-            ],
-            [
-                'deactivate',
-                'deactivateExtension',
-                [],
-            ],
-            [
-                'update',
-                'updateExtension',
-                [],
-            ],
-            [
-                'uninstall',
-                'closeModalAndUninstallExtension',
-                [false],
-            ],
-        ])('should dispatch runCardAction(%s) to card.%s', async (action, method, expectedArgs) => {
+    describe('bulk operations: runExtensionAction (service dispatch + result contract)', () => {
+        it('should install AND activate a extension without permissions, downloading first for store extensions', async () => {
+            // Without permissions, openPermissionsModalForInstall installs and activates.
             const wrapper = await createWrapper();
-            const card = cardActionFns();
-            wrapper.vm.cardRefs = { Foo: card };
 
-            await wrapper.vm.runCardAction(action, { name: 'Foo' });
+            const result = await wrapper.vm.runExtensionAction('install', { name: 'Foo', type: 'app', source: 'store' });
 
-            const callArgs = Object.fromEntries(
-                Object.entries(card).map(
-                    ([
-                        name,
-                        fn,
-                    ]) => [
-                        name,
-                        fn.mock.calls,
-                    ],
-                ),
-            );
-            const expectedCallArgs = {
-                installExtension: [],
-                activateExtension: [],
-                deactivateExtension: [],
-                updateExtension: [],
-                closeModalAndUninstallExtension: [],
-                [method]: [expectedArgs],
-            };
-
-            expect(callArgs).toEqual(expectedCallArgs);
+            expect(extensionStoreActionService.downloadExtension).toHaveBeenCalledWith('Foo');
+            expect(shopwareService.installAndActivateExtension).toHaveBeenCalledWith('Foo', 'app');
+            expect(shopwareService.installExtension).not.toHaveBeenCalled();
+            expect(result.status).toBe('success');
         });
 
-        it('should resolve runCardAction when no card ref exists', async () => {
+        it('should install only (no activation) an extension that declares permissions', async () => {
+            // An accepted permissions modal installs without activating.
             const wrapper = await createWrapper();
-            wrapper.vm.cardRefs = {};
 
-            await expect(wrapper.vm.runCardAction('install', { name: 'Absent' })).resolves.toBeUndefined();
+            const result = await wrapper.vm.runExtensionAction('install', {
+                name: 'Foo',
+                type: 'app',
+                source: 'store',
+                permissions: { product: [{ entity: 'product', operation: 'read' }] },
+            });
+
+            expect(extensionStoreActionService.downloadExtension).toHaveBeenCalledWith('Foo');
+            expect(shopwareService.installExtension).toHaveBeenCalledWith('Foo', 'app');
+            expect(shopwareService.installAndActivateExtension).not.toHaveBeenCalled();
+            expect(result.status).toBe('success');
         });
 
-        it('should resolve runCardAction for an unknown action without calling any card method', async () => {
+        it('should not download for a non-store install', async () => {
             const wrapper = await createWrapper();
-            const card = cardActionFns();
-            wrapper.vm.cardRefs = { Foo: card };
 
-            await expect(wrapper.vm.runCardAction('foo', { name: 'Foo' })).resolves.toBeUndefined();
-            expect(card.installExtension).not.toHaveBeenCalled();
+            await wrapper.vm.runExtensionAction('install', { name: 'Foo', type: 'app', source: 'local' });
+
+            expect(extensionStoreActionService.downloadExtension).not.toHaveBeenCalled();
+            expect(shopwareService.installAndActivateExtension).toHaveBeenCalledWith('Foo', 'app');
+        });
+
+        it('should activate via the service', async () => {
+            const wrapper = await createWrapper();
+
+            await wrapper.vm.runExtensionAction('activate', { name: 'Foo', type: 'app' });
+
+            expect(shopwareService.activateExtension).toHaveBeenCalledWith('Foo', 'app');
+        });
+
+        it('should deactivate via the service', async () => {
+            const wrapper = await createWrapper();
+
+            await wrapper.vm.runExtensionAction('deactivate', { name: 'Foo', type: 'app' });
+
+            expect(shopwareService.deactivateExtension).toHaveBeenCalledWith('Foo', 'app');
+        });
+
+        it('should report a failed result and surface the error on a non-consent failure', async () => {
+            const wrapper = await createWrapper();
+            const showErrors = jest.spyOn(wrapper.vm, 'showExtensionErrors');
+            shopwareService.installAndActivateExtension.mockRejectedValue({
+                response: { data: { errors: [{ code: 'SOME_ERROR' }] } },
+            });
+
+            const result = await wrapper.vm.runExtensionAction('install', { name: 'Foo', type: 'app' });
+
+            expect(result.status).toBe('failed');
+            expect(showErrors).toHaveBeenCalled();
+        });
+
+        it('should report requiresConsent with the deltas on an update consent error', async () => {
+            const wrapper = await createWrapper();
+            const deltas = { permissions: { order: [{ entity: 'order', operation: 'read' }] }, domains: ['x.example.com'] };
+            shopwareService.updateExtension.mockRejectedValue(consentError(deltas));
+
+            const result = await wrapper.vm.runExtensionAction('update', { name: 'Foo', type: 'app', installedAt: 'x' });
+
+            expect(result.status).toBe('requiresConsent');
+            expect(result.deltas).toEqual(deltas);
+        });
+
+        it('should resolve success for an unknown action without calling any service', async () => {
+            const wrapper = await createWrapper();
+
+            const result = await wrapper.vm.runExtensionAction('foo', { name: 'Foo', type: 'app' });
+
+            expect(result.status).toBe('success');
+            expect(shopwareService.installExtension).not.toHaveBeenCalled();
         });
     });
 
@@ -855,14 +924,12 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         it('should not run a bulk action when canManage is false', async () => {
             setMyExtensions([{ name: 'A', installedAt: null, updatedAt: null }]);
             const wrapper = await createWrapper({ aclCan: () => false });
-            const card = cardActionFns();
-            wrapper.vm.cardRefs = { A: card };
             const reload = jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
 
             wrapper.vm.onSelectChange({ name: 'A' }, true);
             await wrapper.vm.runBulkAction('install');
 
-            expect(card.installExtension).not.toHaveBeenCalled();
+            expect(shopwareService.installExtension).not.toHaveBeenCalled();
             expect(wrapper.vm.cacheApiService.clear).not.toHaveBeenCalled();
             expect(reload).not.toHaveBeenCalled();
             expect(wrapper.vm.isBulkRunning).toBe(false);
@@ -871,15 +938,13 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         it('should not run a bulk action when one is already running', async () => {
             setMyExtensions([{ name: 'A', installedAt: null, updatedAt: null }]);
             const wrapper = await createWrapper();
-            const card = cardActionFns();
-            wrapper.vm.cardRefs = { A: card };
             const reload = jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
 
             wrapper.vm.onSelectChange({ name: 'A' }, true);
             wrapper.vm.isBulkRunning = true;
             await wrapper.vm.runBulkAction('install');
 
-            expect(card.installExtension).not.toHaveBeenCalled();
+            expect(shopwareService.installExtension).not.toHaveBeenCalled();
             expect(wrapper.vm.cacheApiService.clear).not.toHaveBeenCalled();
             expect(reload).not.toHaveBeenCalled();
             expect(wrapper.vm.isBulkRunning).toBe(true);
@@ -898,24 +963,13 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             expect(wrapper.vm.selectedNames).toEqual(['A']);
         });
 
-        it('should run the bulk action for every applicable selected extension, then clear, clear cache and reload', async () => {
-            const installedNames = [];
-            const cardStub = makeCardStub({
-                methods: {
-                    installExtension() {
-                        installedNames.push(this.extension.name);
-
-                        return Promise.resolve();
-                    },
-                },
-            });
-
+        it('should run the action for every applicable selected extension, then clear, clear cache and reload', async () => {
             setMyExtensions([
-                { name: 'A', label: 'A', installedAt: null, updatedAt: null },
-                { name: 'B', label: 'B', installedAt: null, updatedAt: null },
-                { name: 'C', label: 'C', installedAt: 'x', updatedAt: null },
+                { name: 'A', label: 'A', type: 'app', installedAt: null, updatedAt: null },
+                { name: 'B', label: 'B', type: 'app', installedAt: null, updatedAt: null },
+                { name: 'C', label: 'C', type: 'app', installedAt: 'x', updatedAt: null },
             ]);
-            const wrapper = await createWrapper({ cardStub });
+            const wrapper = await createWrapper();
             await flushPromises();
 
             const reload = jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
@@ -926,10 +980,11 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
             await wrapper.vm.runBulkAction('install');
 
-            expect(installedNames).toEqual([
-                'A',
-                'B',
-            ]);
+            // Only the applicable (not installed) A and B install. C is already installed.
+            // Both are permissionless, so they install and activate like a single card install.
+            expect(shopwareService.installAndActivateExtension).toHaveBeenCalledWith('A', 'app');
+            expect(shopwareService.installAndActivateExtension).toHaveBeenCalledWith('B', 'app');
+            expect(shopwareService.installAndActivateExtension).toHaveBeenCalledTimes(2);
 
             expect(wrapper.vm.selectedNames).toEqual([]);
             expect(wrapper.vm.cacheApiService.clear).toHaveBeenCalledTimes(1);
@@ -937,75 +992,673 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             expect(wrapper.vm.isBulkRunning).toBe(false);
         });
 
-        it('should drive the real card ref registered via the template ref callback', async () => {
-            const fns = cardActionFns();
-            const richCardStub = makeCardStub({ methods: fns, deferredClass: true });
-
-            setMyExtensions([{ name: 'Solo', label: 'Solo', installedAt: null, updatedAt: null }]);
-            const wrapper = await createWrapper({ cardStub: richCardStub });
-            await flushPromises();
-
-            expect(typeof wrapper.vm.cardRefs.Solo.installExtension).toBe('function');
-
-            const reload = jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
-
-            wrapper.vm.onSelectChange({ name: 'Solo' }, true);
-            await wrapper.vm.runBulkAction('install');
-
-            expect(fns.installExtension).toHaveBeenCalledTimes(1);
-            expect(wrapper.vm.selectedNames).toEqual([]);
-            expect(wrapper.vm.cacheApiService.clear).toHaveBeenCalledTimes(1);
-            expect(reload).toHaveBeenCalledTimes(1);
-        });
-
-        it('should keep deferring the per-card reload until the whole batch is done', async () => {
-            let resolveInstall;
-            let deferDuringRun = null;
-            const cardStub = makeCardStub({
-                deferredClass: true,
-                methods: {
-                    installExtension() {
-                        deferDuringRun = this.deferReload;
-
-                        return new Promise((resolve) => {
-                            resolveInstall = resolve;
-                        });
-                    },
-                },
-            });
-
-            setMyExtensions([{ name: 'Solo', label: 'Solo', installedAt: null, updatedAt: null }]);
-            const wrapper = await createWrapper({ cardStub });
+        it('should activate every applicable selected extension via the service', async () => {
+            setMyExtensions([
+                { name: 'A', label: 'A', type: 'app', installedAt: 'x', active: false, updatedAt: null },
+                { name: 'B', label: 'B', type: 'app', installedAt: 'x', active: false, updatedAt: null },
+            ]);
+            const wrapper = await createWrapper();
             await flushPromises();
 
             jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+            wrapper.vm.onSelectChange({ name: 'B' }, true);
+            await wrapper.vm.runBulkAction('activate');
+
+            expect(shopwareService.activateExtension).toHaveBeenCalledWith('A', 'app');
+            expect(shopwareService.activateExtension).toHaveBeenCalledWith('B', 'app');
+        });
+
+        it('should deactivate only deactivatable selected extensions via the service', async () => {
+            setMyExtensions([
+                { name: 'A', label: 'A', type: 'app', installedAt: 'x', active: true, allowDisable: true, updatedAt: null },
+                { name: 'B', label: 'B', type: 'app', installedAt: 'x', active: true, allowDisable: false, updatedAt: null },
+            ]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+            wrapper.vm.onSelectChange({ name: 'B' }, true);
+            await wrapper.vm.runBulkAction('deactivate');
+
+            expect(shopwareService.deactivateExtension).toHaveBeenCalledWith('A', 'app');
+            expect(shopwareService.deactivateExtension).toHaveBeenCalledTimes(1);
+        });
+
+        it('should deactivate a rented store extension directly via the service', async () => {
+            setMyExtensions([
+                {
+                    name: 'Rented',
+                    label: 'Rented',
+                    type: 'app',
+                    source: 'store',
+                    installedAt: 'x',
+                    active: true,
+                    allowDisable: true,
+                    updatedAt: null,
+                    storeLicense: { variant: 'rent', expired: false },
+                },
+            ]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+            wrapper.vm.onSelectChange({ name: 'Rented' }, true);
+            await wrapper.vm.runBulkAction('deactivate');
+
+            expect(shopwareService.deactivateExtension).toHaveBeenCalledWith('Rented', 'app');
+            expect(shopwareService.deactivateExtension).toHaveBeenCalledTimes(1);
+            expect(wrapper.vm.isBulkRunning).toBe(false);
+        });
+
+        it('should surface per item errors and still reload after the batch completes', async () => {
+            setMyExtensions([
+                { name: 'A', label: 'A', type: 'app', installedAt: null, updatedAt: null },
+                { name: 'B', label: 'B', type: 'app', installedAt: null, updatedAt: null },
+            ]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            const reload = jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+            const showErrors = jest.spyOn(wrapper.vm, 'showExtensionErrors');
+            shopwareService.installAndActivateExtension.mockImplementation((name) => {
+                if (name === 'A') {
+                    return Promise.reject({ response: { data: { errors: [{ code: 'BOOM' }] } } });
+                }
+                return Promise.resolve();
+            });
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+            wrapper.vm.onSelectChange({ name: 'B' }, true);
+            await wrapper.vm.runBulkAction('install');
+
+            // A failed but B still installed. The error was surfaced and the batch finalized once.
+            expect(showErrors).toHaveBeenCalled();
+            expect(shopwareService.installAndActivateExtension).toHaveBeenCalledWith('B', 'app');
+            expect(reload).toHaveBeenCalledTimes(1);
+            expect(wrapper.vm.isBulkRunning).toBe(false);
+        });
+
+        it('should NOT reload or clear the cache when every item of the batch failed', async () => {
+            setMyExtensions([
+                { name: 'A', label: 'A', type: 'app', installedAt: null, updatedAt: null },
+                { name: 'B', label: 'B', type: 'app', installedAt: null, updatedAt: null },
+            ]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            const reload = jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+            const showErrors = jest.spyOn(wrapper.vm, 'showExtensionErrors');
+            shopwareService.installAndActivateExtension.mockRejectedValue({
+                response: { data: { errors: [{ code: 'BOOM' }] } },
+            });
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+            wrapper.vm.onSelectChange({ name: 'B' }, true);
+            await wrapper.vm.runBulkAction('install');
+
+            expect(showErrors).toHaveBeenCalledTimes(2);
+            expect(wrapper.vm.cacheApiService.clear).not.toHaveBeenCalled();
+            expect(reload).not.toHaveBeenCalled();
+            expect(wrapper.vm.isBulkRunning).toBe(false);
+        });
+
+        it('should flag each processing extension as bulk-loading while its action is in flight', async () => {
+            let resolveInstall;
+            setMyExtensions([{ name: 'Solo', label: 'Solo', type: 'app', installedAt: null, updatedAt: null }]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+            shopwareService.installAndActivateExtension.mockImplementation(
+                () =>
+                    new Promise((resolve) => {
+                        resolveInstall = resolve;
+                    }),
+            );
 
             wrapper.vm.onSelectChange({ name: 'Solo' }, true);
             const run = wrapper.vm.runBulkAction('install');
             await flushPromises();
 
-            expect(deferDuringRun).toBe(true);
+            // While the service call is pending, the card is marked busy so it shows the loader.
+            expect(wrapper.vm.bulkProcessingNames).toContain('Solo');
 
             resolveInstall();
             await run;
+
+            // Cleared once the batch finalizes.
+            expect(wrapper.vm.bulkProcessingNames).toEqual([]);
+        });
+    });
+
+    describe('bulk operations: aggregateConsent', () => {
+        it('should merge categories, de-duplicate entity+operation and union domains', async () => {
+            const wrapper = await createWrapper();
+
+            const result = wrapper.vm.aggregateConsent([
+                {
+                    permissions: {
+                        product: [
+                            { entity: 'product', operation: 'read' },
+                            { entity: 'product', operation: 'update' },
+                        ],
+                    },
+                    domains: ['a.example.com'],
+                },
+                {
+                    permissions: {
+                        product: [
+                            { entity: 'product', operation: 'read' },
+                        ],
+                        order: [{ entity: 'order', operation: 'read' }],
+                    },
+                    domains: [
+                        'a.example.com',
+                        'b.example.com',
+                    ],
+                },
+            ]);
+
+            expect(result.permissions).toEqual({
+                product: [
+                    { entity: 'product', operation: 'read' },
+                    { entity: 'product', operation: 'update' },
+                ],
+                order: [{ entity: 'order', operation: 'read' }],
+            });
+            expect(result.domains).toEqual([
+                'a.example.com',
+                'b.example.com',
+            ]);
+        });
+
+        it('should treat a missing permissions/domains field as empty', async () => {
+            const wrapper = await createWrapper();
+
+            expect(wrapper.vm.aggregateConsent([{ name: 'A' }])).toEqual({ permissions: {}, domains: [] });
+        });
+    });
+
+    describe('bulk operations: install consent', () => {
+        it('should open the aggregated consent modal and NOT install before the user accepts', async () => {
+            setMyExtensions([
+                {
+                    name: 'A',
+                    label: 'A',
+                    type: 'app',
+                    installedAt: null,
+                    updatedAt: null,
+                    permissions: { product: [{ entity: 'product', operation: 'read' }] },
+                    domains: ['a.example.com'],
+                },
+                {
+                    name: 'B',
+                    label: 'B',
+                    type: 'app',
+                    installedAt: null,
+                    updatedAt: null,
+                    permissions: { order: [{ entity: 'order', operation: 'read' }] },
+                    domains: [],
+                },
+            ]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            const reload = jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+            wrapper.vm.onSelectChange({ name: 'B' }, true);
+            await wrapper.vm.runBulkAction('install');
+
+            expect(wrapper.vm.showBulkConsentModal).toBe(true);
+            expect(wrapper.vm.bulkConsent.action).toBe('install');
+            expect(wrapper.vm.bulkConsent.permissions).toEqual({
+                product: [{ entity: 'product', operation: 'read' }],
+                order: [{ entity: 'order', operation: 'read' }],
+            });
+            expect(wrapper.vm.bulkConsent.domains).toEqual(['a.example.com']);
+            expect(shopwareService.installExtension).not.toHaveBeenCalled();
+            expect(reload).not.toHaveBeenCalled();
+            expect(wrapper.vm.isBulkRunning).toBe(true);
+
+            await wrapper.vm.onBulkConsentAccept();
+
+            expect(shopwareService.installExtension).toHaveBeenCalledWith('A', 'app');
+            expect(shopwareService.installExtension).toHaveBeenCalledWith('B', 'app');
+            expect(shopwareService.installAndActivateExtension).not.toHaveBeenCalled();
+            expect(wrapper.vm.cacheApiService.clear).toHaveBeenCalledTimes(1);
+            expect(reload).toHaveBeenCalledTimes(1);
+            expect(wrapper.vm.isBulkRunning).toBe(false);
+            expect(wrapper.vm.showBulkConsentModal).toBe(false);
+        });
+
+        it('should install only permission extensions and install + activate permissionless ones in a mixed batch', async () => {
+            setMyExtensions([
+                {
+                    name: 'WithPerms',
+                    label: 'WithPerms',
+                    type: 'app',
+                    installedAt: null,
+                    updatedAt: null,
+                    permissions: { product: [{ entity: 'product', operation: 'read' }] },
+                    domains: [],
+                },
+                {
+                    name: 'NoPerms',
+                    label: 'NoPerms',
+                    type: 'app',
+                    installedAt: null,
+                    updatedAt: null,
+                    permissions: {},
+                    domains: [],
+                },
+            ]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+            wrapper.vm.onSelectChange({ name: 'WithPerms' }, true);
+            wrapper.vm.onSelectChange({ name: 'NoPerms' }, true);
+            await wrapper.vm.runBulkAction('install');
+
+            // One extension declares permissions, so the aggregated modal gates the whole batch.
+            expect(wrapper.vm.showBulkConsentModal).toBe(true);
+
+            await wrapper.vm.onBulkConsentAccept();
+
+            // Per item single card parity:
+            // accepted permissions -> install only
+            // none -> install and activate
+            expect(shopwareService.installExtension).toHaveBeenCalledWith('WithPerms', 'app');
+            expect(shopwareService.installExtension).toHaveBeenCalledTimes(1);
+            expect(shopwareService.installAndActivateExtension).toHaveBeenCalledWith('NoPerms', 'app');
+            expect(shopwareService.installAndActivateExtension).toHaveBeenCalledTimes(1);
+        });
+
+        it('should install AND activate directly without a modal when no selected extension requires consent', async () => {
+            setMyExtensions([
+                { name: 'A', label: 'A', type: 'app', installedAt: null, updatedAt: null, permissions: {}, domains: [] },
+            ]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            const reload = jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+            await wrapper.vm.runBulkAction('install');
+
+            expect(wrapper.vm.showBulkConsentModal).toBe(false);
+            expect(shopwareService.installAndActivateExtension).toHaveBeenCalledWith('A', 'app');
+            expect(shopwareService.installExtension).not.toHaveBeenCalled();
+            expect(reload).toHaveBeenCalledTimes(1);
+        });
+
+        it('should install directly without a modal for a domains only extension', async () => {
+            setMyExtensions([
+                {
+                    name: 'A',
+                    label: 'A',
+                    type: 'app',
+                    installedAt: null,
+                    updatedAt: null,
+                    permissions: {},
+                    domains: ['a.example.com'],
+                },
+            ]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+            await wrapper.vm.runBulkAction('install');
+
+            expect(wrapper.vm.showBulkConsentModal).toBe(false);
+            expect(shopwareService.installAndActivateExtension).toHaveBeenCalledWith('A', 'app');
+        });
+
+        it('should install nothing, keep the selection and NOT reload when the consent modal is cancelled', async () => {
+            setMyExtensions([
+                {
+                    name: 'A',
+                    label: 'A',
+                    type: 'app',
+                    installedAt: null,
+                    updatedAt: null,
+                    permissions: { product: [{ entity: 'product', operation: 'read' }] },
+                    domains: [],
+                },
+            ]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            const reload = jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+            await wrapper.vm.runBulkAction('install');
+            expect(wrapper.vm.showBulkConsentModal).toBe(true);
+
+            await wrapper.vm.onBulkConsentCancel();
+            await flushPromises();
+
+            expect(shopwareService.installExtension).not.toHaveBeenCalled();
+            expect(shopwareService.installAndActivateExtension).not.toHaveBeenCalled();
+            expect(wrapper.vm.showBulkConsentModal).toBe(false);
+            expect(wrapper.vm.bulkConsent).toBeNull();
+            expect(reload).not.toHaveBeenCalled();
+            expect(wrapper.vm.cacheApiService.clear).not.toHaveBeenCalled();
+            expect(wrapper.vm.selectedNames).toEqual(['A']);
+            expect(wrapper.vm.isBulkRunning).toBe(false);
+        });
+    });
+
+    describe('bulk operations: update consent', () => {
+        it('should apply clean updates, then open the consent modal only for the delta items', async () => {
+            setMyExtensions([
+                {
+                    name: 'Clean',
+                    label: 'Clean',
+                    type: 'app',
+                    installedAt: 'x',
+                    updatedAt: null,
+                    allowUpdate: true,
+                    version: '1.0.0',
+                    latestVersion: '2.0.0',
+                },
+                {
+                    name: 'NeedsConsent',
+                    label: 'NeedsConsent',
+                    type: 'app',
+                    installedAt: 'x',
+                    updatedAt: null,
+                    allowUpdate: true,
+                    version: '1.0.0',
+                    latestVersion: '2.0.0',
+                },
+            ]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            const reload = jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+            shopwareService.updateExtension.mockImplementation((name) => {
+                if (name === 'NeedsConsent') {
+                    return Promise.reject(
+                        consentError({
+                            permissions: { order: [{ entity: 'order', operation: 'read' }] },
+                            domains: ['x.example.com'],
+                        }),
+                    );
+                }
+                return Promise.resolve();
+            });
+
+            wrapper.vm.onSelectChange({ name: 'Clean' }, true);
+            wrapper.vm.onSelectChange({ name: 'NeedsConsent' }, true);
+            await wrapper.vm.runBulkAction('update');
+            await flushPromises();
+
+            // First pass: both attempted with allowNewPermissions=false.
+            expect(shopwareService.updateExtension).toHaveBeenCalledWith('Clean', 'app', false);
+            expect(shopwareService.updateExtension).toHaveBeenCalledWith('NeedsConsent', 'app', false);
+
+            // Consent modal opened for the delta item only.
+            expect(wrapper.vm.showBulkConsentModal).toBe(true);
+            expect(wrapper.vm.bulkConsent.action).toBe('update');
+            expect(wrapper.vm.bulkConsent.items.map((item) => item.name)).toEqual(['NeedsConsent']);
+            expect(wrapper.vm.bulkConsent.permissions).toEqual({ order: [{ entity: 'order', operation: 'read' }] });
+            expect(wrapper.vm.bulkConsent.domains).toEqual(['x.example.com']);
+            expect(wrapper.vm.isBulkRunning).toBe(true);
+            expect(reload).not.toHaveBeenCalled();
+
+            await wrapper.vm.onBulkConsentAccept();
+
+            // On accept the delta item is re-run with allowNewPermissions=true.
+            expect(shopwareService.updateExtension).toHaveBeenCalledWith('NeedsConsent', 'app', true);
+            expect(reload).toHaveBeenCalledTimes(1);
+            expect(wrapper.vm.isBulkRunning).toBe(false);
+        });
+
+        it('should NOT apply new privileges and NOT reload when cancelled and no clean update applied', async () => {
+            setMyExtensions([
+                {
+                    name: 'NeedsConsent',
+                    label: 'NeedsConsent',
+                    type: 'app',
+                    installedAt: 'x',
+                    updatedAt: null,
+                    allowUpdate: true,
+                    version: '1.0.0',
+                    latestVersion: '2.0.0',
+                },
+            ]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            const reload = jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+            shopwareService.updateExtension.mockRejectedValue(consentError());
+
+            wrapper.vm.onSelectChange({ name: 'NeedsConsent' }, true);
+            await wrapper.vm.runBulkAction('update');
+            await flushPromises();
+
+            expect(wrapper.vm.showBulkConsentModal).toBe(true);
+            shopwareService.updateExtension.mockClear();
+
+            await wrapper.vm.onBulkConsentCancel();
+            await flushPromises();
+
+            expect(shopwareService.updateExtension).not.toHaveBeenCalledWith('NeedsConsent', 'app', true);
+            expect(reload).not.toHaveBeenCalled();
+            expect(wrapper.vm.selectedNames).toEqual(['NeedsConsent']);
+            expect(wrapper.vm.isBulkRunning).toBe(false);
+        });
+
+        it('should NOT apply new privileges but DO reload on cancel when a clean update already applied', async () => {
+            setMyExtensions([
+                {
+                    name: 'Clean',
+                    label: 'Clean',
+                    type: 'app',
+                    installedAt: 'x',
+                    updatedAt: null,
+                    allowUpdate: true,
+                    version: '1.0.0',
+                    latestVersion: '2.0.0',
+                },
+                {
+                    name: 'NeedsConsent',
+                    label: 'NeedsConsent',
+                    type: 'app',
+                    installedAt: 'x',
+                    updatedAt: null,
+                    allowUpdate: true,
+                    version: '1.0.0',
+                    latestVersion: '2.0.0',
+                },
+            ]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            const reload = jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+            shopwareService.updateExtension.mockImplementation((name) => {
+                if (name === 'NeedsConsent') {
+                    return Promise.reject(consentError());
+                }
+                return Promise.resolve();
+            });
+
+            wrapper.vm.onSelectChange({ name: 'Clean' }, true);
+            wrapper.vm.onSelectChange({ name: 'NeedsConsent' }, true);
+            await wrapper.vm.runBulkAction('update');
+            await flushPromises();
+
+            expect(wrapper.vm.showBulkConsentModal).toBe(true);
+            shopwareService.updateExtension.mockClear();
+
+            await wrapper.vm.onBulkConsentCancel();
+            await flushPromises();
+
+            expect(shopwareService.updateExtension).not.toHaveBeenCalledWith('NeedsConsent', 'app', true);
+            // The clean update already applied during preflight. Reload so the list reflects it.
+            expect(reload).toHaveBeenCalledTimes(1);
+            expect(wrapper.vm.isBulkRunning).toBe(false);
+        });
+
+        it('should surface a non consent update error and not open the consent modal', async () => {
+            setMyExtensions([
+                {
+                    name: 'Boom',
+                    label: 'Boom',
+                    type: 'app',
+                    installedAt: 'x',
+                    updatedAt: null,
+                    allowUpdate: true,
+                    version: '1.0.0',
+                    latestVersion: '2.0.0',
+                },
+            ]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            const reload = jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+            const showErrors = jest.spyOn(wrapper.vm, 'showExtensionErrors');
+            shopwareService.updateExtension.mockRejectedValue({
+                response: { data: { errors: [{ code: 'SOME_OTHER_ERROR' }] } },
+            });
+
+            wrapper.vm.onSelectChange({ name: 'Boom' }, true);
+            await wrapper.vm.runBulkAction('update');
+            await flushPromises();
+
+            expect(showErrors).toHaveBeenCalled();
+            expect(wrapper.vm.showBulkConsentModal).toBe(false);
+            // The only item failed -> nothing changed -> the run finalizes without a reload.
+            expect(reload).not.toHaveBeenCalled();
+            expect(wrapper.vm.isBulkRunning).toBe(false);
+        });
+
+        it('should download store updates before attempting the update', async () => {
+            setMyExtensions([
+                {
+                    name: 'Store',
+                    label: 'Store',
+                    type: 'app',
+                    installedAt: 'x',
+                    updatedAt: null,
+                    allowUpdate: true,
+                    version: '1.0.0',
+                    latestVersion: '2.0.0',
+                    updateSource: 'store',
+                },
+            ]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+            wrapper.vm.onSelectChange({ name: 'Store' }, true);
+            await wrapper.vm.runBulkAction('update');
+            await flushPromises();
+
+            expect(extensionStoreActionService.downloadExtension).toHaveBeenCalledWith('Store');
+        });
+    });
+
+    describe('bulk operations: uninstall confirmation', () => {
+        it('should open the bulk uninstall modal and uninstall nothing before confirmation', async () => {
+            setMyExtensions([
+                { name: 'A', label: 'A', type: 'app', installedAt: 'x', updatedAt: null },
+                { name: 'B', label: 'B', type: 'app', installedAt: 'x', updatedAt: null },
+            ]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            const reload = jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+            wrapper.vm.onSelectChange({ name: 'B' }, true);
+            await wrapper.vm.runBulkAction('uninstall');
+
+            expect(wrapper.vm.showBulkUninstallModal).toBe(true);
+            expect(wrapper.vm.bulkUninstallItems.map((item) => item.name)).toEqual([
+                'A',
+                'B',
+            ]);
+            expect(shopwareService.uninstallExtension).not.toHaveBeenCalled();
+            expect(reload).not.toHaveBeenCalled();
+            expect(wrapper.vm.isBulkRunning).toBe(true);
+        });
+
+        it.each([
+            true,
+            false,
+        ])(
+            'should uninstall every item via the service with the batch-wide removeData=%s on confirm',
+            async (removeData) => {
+                setMyExtensions([
+                    { name: 'A', label: 'A', type: 'app', installedAt: 'x', updatedAt: null },
+                    { name: 'B', label: 'B', type: 'theme', installedAt: 'x', updatedAt: null },
+                ]);
+                const wrapper = await createWrapper();
+                await flushPromises();
+
+                const reload = jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+                wrapper.vm.onSelectChange({ name: 'A' }, true);
+                wrapper.vm.onSelectChange({ name: 'B' }, true);
+                await wrapper.vm.runBulkAction('uninstall');
+
+                await wrapper.vm.confirmBulkUninstall(removeData);
+
+                expect(shopwareService.uninstallExtension).toHaveBeenCalledWith('A', 'app', removeData);
+                expect(shopwareService.uninstallExtension).toHaveBeenCalledWith('B', 'theme', removeData);
+                expect(wrapper.vm.showBulkUninstallModal).toBe(false);
+                expect(reload).toHaveBeenCalledTimes(1);
+                expect(wrapper.vm.isBulkRunning).toBe(false);
+            },
+        );
+
+        it('should uninstall nothing and reset the run when the confirmation is cancelled', async () => {
+            setMyExtensions([{ name: 'A', label: 'A', type: 'app', installedAt: 'x', updatedAt: null }]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            const reload = jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+            await wrapper.vm.runBulkAction('uninstall');
+
+            wrapper.vm.cancelBulkUninstall();
+
+            expect(shopwareService.uninstallExtension).not.toHaveBeenCalled();
+            expect(wrapper.vm.showBulkUninstallModal).toBe(false);
+            expect(wrapper.vm.bulkUninstallItems).toEqual([]);
+            expect(reload).not.toHaveBeenCalled();
+            expect(wrapper.vm.isBulkRunning).toBe(false);
         });
     });
 
     describe('bulk operations: template wiring', () => {
-        it('should bind defer-reload to isBulkRunning on the cards', async () => {
-            const cardStub = makeCardStub({ deferredClass: true });
+        it('should bind bulk loading to the per extension processing state on the cards', async () => {
+            const cardStub = makeCardStub();
             setMyExtensions([{ name: 'A', label: 'A', installedAt: null, updatedAt: null }]);
             const wrapper = await createWrapper({ cardStub });
             await flushPromises();
 
             const card = wrapper.findComponent('.sw-self-maintained-extension-card');
-            expect(card.props('deferReload')).toBe(false);
+            expect(card.props('bulkLoading')).toBe(false);
 
-            wrapper.vm.isBulkRunning = true;
+            wrapper.vm.bulkProcessingNames = ['A'];
             await wrapper.vm.$nextTick();
 
-            expect(card.props('deferReload')).toBe(true);
-            expect(card.classes()).toContain('is--deferred');
+            expect(card.props('bulkLoading')).toBe(true);
         });
 
         it('should pass the selected prop to the card from isSelected', async () => {
@@ -1087,12 +1740,9 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             expect(wrapper.vm.selectedNames).toEqual([]);
         });
 
-        it('should wire the bulk bar run-action event through runBulkAction to the cards', async () => {
-            const fns = cardActionFns();
-            const cardStub = makeCardStub({ methods: fns });
-
-            setMyExtensions([{ name: 'A', label: 'A', installedAt: null, updatedAt: null }]);
-            const wrapper = await createWrapper({ cardStub });
+        it('should wire the bulk bar run action event through runBulkAction to the service', async () => {
+            setMyExtensions([{ name: 'A', label: 'A', type: 'app', installedAt: null, updatedAt: null }]);
+            const wrapper = await createWrapper();
             await flushPromises();
 
             jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
@@ -1104,7 +1754,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             bar.vm.$emit('run-action', 'install');
             await flushPromises();
 
-            expect(fns.installExtension).toHaveBeenCalledTimes(1);
+            expect(shopwareService.installAndActivateExtension).toHaveBeenCalledWith('A', 'app');
         });
     });
 
@@ -1161,7 +1811,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             expect(wrapper.vm.selectedNames).toEqual([]);
         });
 
-        it('should keep the selection when only the sorting option changes', async () => {
+        it('should clear the selection when the sorting option changes (it can hide a selected item)', async () => {
             setMyExtensions([
                 { name: 'A', label: 'A', installedAt: 'x', updatedAt: null },
                 { name: 'B', label: 'B', installedAt: 'x', updatedAt: null },
@@ -1173,7 +1823,29 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             wrapper.vm.changeSortingOption('name-asc');
             await wrapper.vm.$nextTick();
 
-            expect(wrapper.vm.selectedNames).toEqual(['A']);
+            expect(wrapper.vm.selectedNames).toEqual([]);
+        });
+
+        it('should clear the selection when the page size (limit) changes', async () => {
+            const extensions = Array(40)
+                .fill()
+                .map((_, i) => ({
+                    name: `extension-${i}`,
+                    label: `extension-${i}`,
+                    installedAt: `foo-${i}`,
+                    updatedAt: null,
+                }));
+            setMyExtensions(extensions);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            wrapper.vm.selectAllVisible();
+            expect(wrapper.vm.selectedNames.length).toBeGreaterThan(0);
+
+            await wrapper.vm.$router.push({ name: wrapper.vm.$route.name, query: { limit: 10 } });
+            await flushPromises();
+
+            expect(wrapper.vm.selectedNames).toEqual([]);
         });
 
         it('should clear the selection when the active-state filter changes', async () => {
@@ -1185,21 +1857,6 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
             expect(wrapper.vm.selectedNames).toEqual([]);
             expect(wrapper.vm.filterByActiveState).toBe(true);
-        });
-    });
-
-    describe('bulk operations: registerCardRef', () => {
-        it('should store and delete card refs via registerCardRef', async () => {
-            setMyExtensions([]);
-            const wrapper = await createWrapper();
-
-            expect(wrapper.vm.cardRefs).toEqual({});
-
-            wrapper.vm.registerCardRef('X', { foo: 1 });
-            expect(wrapper.vm.cardRefs.X).toEqual({ foo: 1 });
-
-            wrapper.vm.registerCardRef('X', null);
-            expect(wrapper.vm.cardRefs.X).toBeUndefined();
         });
     });
 });

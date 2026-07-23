@@ -131,10 +131,9 @@
                     >
                         <component
                             :is="entry.storeLicense ? 'sw-extension-card-bought' : 'sw-self-maintained-extension-card'"
-                            :ref="(card) => registerCardRef(entry.name, card)"
                             :extension="entry"
                             :selected="isSelected(entry)"
-                            :defer-reload="isBulkRunning"
+                            :bulk-loading="bulkProcessingNames.includes(entry.name)"
                             @select-change="onSelectChange(entry, $event)"
                             @update-list="updateList"
                         />
@@ -149,5 +148,24 @@
                 </template>
             </div>
         </template>
+
+        <sw-extension-permissions-modal
+            v-if="showBulkConsentModal && bulkConsent"
+            :title="bulkConsentTitle"
+            :description="bulkConsentDescription"
+            :action-label="bulkConsentActionLabel"
+            :extension-label="bulkConsentExtensionLabel"
+            :permissions="bulkConsent.permissions"
+            :domains="bulkConsent.domains"
+            @modal-close="onBulkConsentCancel"
+            @close-with-action="onBulkConsentAccept"
+        />
+
+        <sw-extension-bulk-uninstall-modal
+            v-if="showBulkUninstallModal"
+            :extensions="bulkUninstallItems"
+            @modal-close="cancelBulkUninstall"
+            @confirm="confirmBulkUninstall"
+        />
     </div>
 </div>

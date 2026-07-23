@@ -31,7 +31,24 @@
         "activate": "Aktivieren",
         "deactivate": "Deaktivieren",
         "update": "Aktualisieren",
-        "uninstall": "Deinstallieren"
+        "uninstall": "Deinstallieren",
+        "uninstallModal": {
+          "title": "{count} Erweiterung deinstallieren|{count} Erweiterungen deinstallieren",
+          "description": "Die folgenden Erweiterungen werden deinstalliert:",
+          "alert": "Diese Aktion kann nicht rückgängig gemacht werden.",
+          "buttonLabel": "Deinstallieren",
+          "labelRemovePluginData": "Alle Daten jeder ausgewählten Erweiterung ebenfalls entfernen",
+          "helpTextRemovePluginData": "Achtung: Wenn aktiviert, werden alle von diesen Erweiterungen erstellten Daten unwiderruflich gelöscht."
+        },
+        "consent": {
+          "extensionLabel": "{count} Erweiterung|{count} Erweiterungen",
+          "installTitle": "{count} Erweiterung installieren|{count} Erweiterungen installieren",
+          "installDescription": "Die ausgewählten Erweiterungen fordern die folgenden Berechtigungen an:",
+          "installAction": "Akzeptieren und installieren",
+          "updateTitle": "{count} Erweiterung aktualisieren|{count} Erweiterungen aktualisieren",
+          "updateDescription": "Für die Aktualisierung der ausgewählten Erweiterungen müssen die folgenden neuen Berechtigungen akzeptiert werden:",
+          "updateAction": "Akzeptieren und aktualisieren"
+        }
       },
       "account": {
         "headline": "Shopware Account",

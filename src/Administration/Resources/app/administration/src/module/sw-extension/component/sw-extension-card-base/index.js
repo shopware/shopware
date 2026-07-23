@@ -35,7 +35,7 @@ export default {
             required: false,
             default: false,
         },
-        deferReload: {
+        bulkLoading: {
             type: Boolean,
             required: false,
             default: false,
@@ -58,6 +58,10 @@ export default {
     },
 
     computed: {
+        showLoader() {
+            return this.isLoading || this.bulkLoading;
+        },
+
         /**
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
@@ -441,10 +445,6 @@ export default {
         },
 
         clearCacheAndReloadPage() {
-            if (this.deferReload) {
-                return Promise.resolve();
-            }
-
             return this.cacheApiService.clear().then(() => {
                 this._reloadPage();
             });

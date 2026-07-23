@@ -11,7 +11,6 @@ import type EntityFactory from './entity-factory.data';
 import type EntityDefinition from './entity-definition.data';
 
 type options = {
-    useAxiosV1?: boolean;
     [key: string]: unknown;
 };
 
@@ -730,7 +729,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
     private buildRequestConfig(headers: ReturnType<Repository<EntityName>['buildHeaders']>) {
         return {
             headers,
-            useAxiosV1: this.options.useAxiosV1 !== false,
+            useAxiosV1: true,
         };
     }
 

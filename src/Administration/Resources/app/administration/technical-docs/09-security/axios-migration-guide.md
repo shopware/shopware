@@ -22,9 +22,9 @@ The resulting behavior is:
 | --- | --- | --- |
 | Direct HTTP requests on Shopware 6.7 | Legacy Axios | `useAxiosV1: true` |
 | Direct HTTP requests with `V6_8_0_0` active | Axios v1 | `useAxiosV1: false` |
-| Repository requests during the transition | Axios v1 | Repository option `useAxiosV1: false` |
+| Repository requests during the transition | Axios v1 | None; the transport is internal |
 
-Repository requests use Axios v1 before the global switch because repositories are the standard Administration data-access path. This exposes incompatibilities early without requiring extensions to change every repository call.
+Repository requests use Axios v1 before the global switch because repositories are the standard Administration data-access path. Axios is not part of the repository contract, so extensions do not select its transport or need to change repository calls.
 
 ## Migrating direct HTTP requests
 
@@ -62,15 +62,7 @@ No change is normally required:
 const product = await this.productRepository.get(productId, context);
 ```
 
-If a repository operation is incompatible with Axios v1, temporarily opt the complete repository out:
-
-```javascript
-const legacyProductRepository = Shopware.Service('repositoryFactory').create('product', null, {
-    useAxiosV1: false,
-});
-```
-
-Prefer this repository-level fallback over adding overrides to individual calls. Treat the fallback as a way to isolate a regression: document the incompatibility, fix it against Axios v1, and remove the option again.
+If a repository operation behaves differently with Axios v1, treat it as a Shopware compatibility issue. Repository consumers should not work around it by selecting an HTTP transport.
 
 ## TypeScript
 
@@ -216,7 +208,7 @@ Register it through `httpClient.interceptors` or `httpClient.defaults`. Do not r
 
 ### A repository request behaves differently
 
-Reproduce the request with Axios v1, check cancellation and error assumptions, and use the repository-level `useAxiosV1: false` option only while implementing the fix.
+Reproduce the request with Axios v1 and check cancellation and error assumptions. The repository transport cannot be changed by consumers; report the compatibility issue so it can be fixed centrally.
 
 ### TypeScript expects an Axios-specific property
 

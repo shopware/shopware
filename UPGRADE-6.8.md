@@ -1251,7 +1251,7 @@ This change addresses the security vulnerability CVE-2023-45857 present in older
 **Shopware 6.7.x:**
 - Default: axios 0.30.2
 - Opt-in to v1: `useAxiosV1: true`
-- Repository requests use axios 1.x automatically so the standard data-access path is migrated before the global switch. A repository can temporarily opt out through `{ useAxiosV1: false }` in its factory options.
+- Repository requests use axios 1.x internally so the standard data-access path is migrated before the global switch. Their transport is not configurable through repository options because repositories do not expose axios as part of their public contract.
 
 **Shopware 6.8.0+ (with `V6_8_0_0` feature flag active):**
 - Default: axios 1.x
@@ -1316,7 +1316,7 @@ However, if you use request cancellation or depend on specific axios behavior:
 2. **Test your plugin** with axios v1 before the 6.8 release
 3. **Review error handling** for version-specific error codes
 
-**If you need axios 0.30.2 temporarily:**
+**If a direct HTTP request needs axios 0.30.2 temporarily:**
 ```javascript
 // Explicitly opt-out to use axios 0.30.2
 httpClient.request({

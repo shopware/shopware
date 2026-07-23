@@ -8,11 +8,13 @@ use PHPUnit\Framework\Attributes\WithoutErrorHandler;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Base64;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CompressedCriteriaDecoder::class)]
 class CompressedCriteriaDecoderTest extends TestCase
 {

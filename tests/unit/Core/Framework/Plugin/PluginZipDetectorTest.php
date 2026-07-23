@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginZipDetector;
 use Shopware\Core\Framework\Plugin\Util\ZipUtils;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Plugin\Util\ZipUtils;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PluginZipDetector::class)]
 class PluginZipDetectorTest extends TestCase
 {

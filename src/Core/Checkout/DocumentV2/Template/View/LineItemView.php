@@ -47,12 +47,12 @@ final readonly class LineItemView
     /**
      * @return list<self>
      */
-    public static function listFromOrder(OrderEntity $order): array
+    public static function listFromOrder(OrderEntity $order, bool $allowNegative = false): array
     {
         $isGross = NetAmount::isOrderGross($order);
 
         $items = [];
-        self::appendLineItems($order, $order->getLineItems(), $isGross, '', $items);
+        self::appendLineItems($order, $order->getLineItems(), $isGross, '', $items, $allowNegative);
 
         return $items;
     }
@@ -66,10 +66,11 @@ final readonly class LineItemView
         bool $isGross,
         string $parentPosition,
         array &$items,
+        bool $allowNegative = false,
     ): void {
         foreach ($lineItems ?? [] as $lineItem) {
-            self::appendLineItem($order, $lineItem, $isGross, $parentPosition, $items);
-            self::appendLineItems($order, $lineItem->getChildren(), $isGross, $parentPosition . $lineItem->getPosition() . '-', $items);
+            self::appendLineItem($order, $lineItem, $isGross, $parentPosition, $items, $allowNegative);
+            self::appendLineItems($order, $lineItem->getChildren(), $isGross, $parentPosition . $lineItem->getPosition() . '-', $items, $allowNegative);
         }
     }
 
@@ -82,6 +83,7 @@ final readonly class LineItemView
         bool $isGross,
         string $parentPosition,
         array &$items,
+        bool $allowNegative = false,
     ): void {
         if (!\in_array(
             $lineItem->getType(),
@@ -99,11 +101,19 @@ final readonly class LineItemView
 
         $quantity = $lineItem->getQuantity();
 
-        if ($quantity <= 0) {
+        if ($quantity === 0) {
             throw DocumentV2Exception::invalidOrderData(
                 $order->getId(),
                 'lineItem.quantity',
-                \sprintf('Line item "%s" has non-positive quantity %s.', $lineItem->getIdentifier(), $quantity),
+                \sprintf('Line item "%s" has zero quantity.', $lineItem->getIdentifier()),
+            );
+        }
+
+        if ($quantity < 0 && !$allowNegative) {
+            throw DocumentV2Exception::invalidOrderData(
+                $order->getId(),
+                'lineItem.quantity',
+                \sprintf('Line item "%s" has negative quantity.', $lineItem->getIdentifier()),
             );
         }
 

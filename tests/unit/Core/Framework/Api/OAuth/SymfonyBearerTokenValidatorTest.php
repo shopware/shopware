@@ -16,11 +16,13 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SymfonyBearerTokenValidator::class)]
 class SymfonyBearerTokenValidatorTest extends TestCase
 {

@@ -9,10 +9,12 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\Resolver;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\ShopIdChangeStrategy;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Resolver::class)]
 class ResolverTest extends TestCase
 {

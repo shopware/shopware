@@ -26,7 +26,7 @@ use Symfony\Component\Finder\Finder;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class MediaGenerator implements DemodataGeneratorInterface
 {
     private Generator $faker;

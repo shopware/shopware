@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\Context;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AdminApiSource::class)]
 class AdminApiSourceTest extends TestCase
 {

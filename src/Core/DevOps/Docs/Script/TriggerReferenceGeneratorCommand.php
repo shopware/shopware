@@ -16,11 +16,11 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'docs:generate-trigger-reference',
     description: 'Generate a Markdown table with all business/flow triggers',
 )]
-#[Package('framework')]
 class TriggerReferenceGeneratorCommand extends Command
 {
     private const EVENT_DESCRIPTIONS = __DIR__ . '/../../Resources/templates/trigger-event-description.json';

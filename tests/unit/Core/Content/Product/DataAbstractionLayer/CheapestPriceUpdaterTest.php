@@ -13,11 +13,13 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\AbstractCheapestPriceQuan
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater;
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CheapestPriceUpdater::class)]
 class CheapestPriceUpdaterTest extends TestCase
 {

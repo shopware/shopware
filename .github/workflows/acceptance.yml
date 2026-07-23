@@ -47,7 +47,8 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - id: generate-matrix
         run: |
-          MATRIX=$(php .github/bin/generate-acceptance-matrix.php "${{ inputs.profile }}" "${{ contains(github.event.pull_request.labels.*.name, 'major-tests') }}" "${{ inputs.major }}")
+          # The major arm is a PR opt-in via the `major-acceptance` label (or `major-tests`, the umbrella label that enables every major arm).
+          MATRIX=$(php .github/bin/generate-acceptance-matrix.php "${{ inputs.profile }}" "${{ contains(github.event.pull_request.labels.*.name, 'major-acceptance') || contains(github.event.pull_request.labels.*.name, 'major-tests') }}" "${{ inputs.major }}")
           jq . <<<"$MATRIX"
           {
             echo "matrix<<EOF"

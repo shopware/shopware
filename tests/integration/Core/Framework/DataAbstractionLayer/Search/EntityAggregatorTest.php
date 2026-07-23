@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -41,6 +40,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestAggregation;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Util\DateHistogramCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -50,7 +50,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('framework')]
 class EntityAggregatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -1111,7 +1111,6 @@ class EntityAggregatorTest extends TestCase
     }
 
     #[DataProvider('dateHistogramProvider')]
-    #[Group('slow')]
     public function testDateHistogram(DateHistogramCase $case): void
     {
         $context = Context::createDefaultContext();

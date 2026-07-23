@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
@@ -14,6 +13,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Controller\SyncController;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('framework')]
 class SyncControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;

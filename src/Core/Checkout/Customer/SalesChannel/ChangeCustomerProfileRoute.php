@@ -34,13 +34,13 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+#[Package('checkout')]
 #[Route(
     defaults: [
         PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
         PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED => true,
     ]
 )]
-#[Package('checkout')]
 class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 {
     /**

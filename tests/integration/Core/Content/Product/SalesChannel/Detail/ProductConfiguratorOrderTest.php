@@ -84,13 +84,9 @@ class ProductConfiguratorOrderTest extends TestCase
     }
 
     /**
-     * Regression test for https://github.com/shopware/shopware/issues/14616.
-     *
      * When a variant carries an option id that is missing from
-     * `product_configurator_setting` (e.g. removed via the database, or never
-     * written via the API), the remaining configurator options for that
-     * product must still resolve as combinable for in-stock variants instead
-     * of being greyed out as unavailable.
+     * `product_configurator_setting`, the remaining configurator options must
+     * stay combinable for in-stock variants instead of being greyed out.
      */
     public function testVariantsRemainCombinableWhenOptionIsMissingFromConfiguratorSetting(): void
     {
@@ -116,10 +112,8 @@ class ProductConfiguratorOrderTest extends TestCase
         $smallOptionId = Uuid::randomHex();
         $mediumOptionId = Uuid::randomHex();
 
-        // Write the Blue property group option up front so the variants below can
-        // reference it without the admin also creating a product_configurator_setting
-        // row for it. This mirrors the shape reported in the issue (the option
-        // exists but is missing from product_configurator_setting).
+        // Write the Blue property group option up front so the variants below
+        // can reference it without a product_configurator_setting row.
         $propertyGroupOptionRepository = static::getContainer()->get('property_group_option.repository');
         $propertyGroupOptionRepository->create([
             [
@@ -137,7 +131,7 @@ class ProductConfiguratorOrderTest extends TestCase
             [
                 'id' => $productId,
                 'name' => 'Test product',
-                'productNumber' => 'configurator-14616-parent',
+                'productNumber' => 'configurator-missing-setting-parent',
                 'manufacturer' => ['name' => 'test'],
                 'tax' => $tax,
                 'stock' => 10,
@@ -159,7 +153,7 @@ class ProductConfiguratorOrderTest extends TestCase
             ],
             [
                 'id' => $redSmallId,
-                'productNumber' => 'configurator-14616-red-small',
+                'productNumber' => 'configurator-missing-setting-red-small',
                 'stock' => 5,
                 'active' => true,
                 'parentId' => $productId,
@@ -167,7 +161,7 @@ class ProductConfiguratorOrderTest extends TestCase
             ],
             [
                 'id' => $redMediumId,
-                'productNumber' => 'configurator-14616-red-medium',
+                'productNumber' => 'configurator-missing-setting-red-medium',
                 'stock' => 5,
                 'active' => true,
                 'parentId' => $productId,
@@ -175,7 +169,7 @@ class ProductConfiguratorOrderTest extends TestCase
             ],
             [
                 'id' => $blueSmallId,
-                'productNumber' => 'configurator-14616-blue-small',
+                'productNumber' => 'configurator-missing-setting-blue-small',
                 'stock' => 5,
                 'active' => true,
                 'parentId' => $productId,
@@ -183,7 +177,7 @@ class ProductConfiguratorOrderTest extends TestCase
             ],
             [
                 'id' => $blueMediumId,
-                'productNumber' => 'configurator-14616-blue-medium',
+                'productNumber' => 'configurator-missing-setting-blue-medium',
                 'stock' => 5,
                 'active' => true,
                 'parentId' => $productId,

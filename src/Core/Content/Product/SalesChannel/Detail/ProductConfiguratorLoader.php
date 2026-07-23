@@ -129,7 +129,6 @@ class ProductConfiguratorLoader
                 continue;
             }
 
-            // unique key on (product_id, option_id): at most one setting matches the filter
             $setting = $option->getProductConfiguratorSettings()?->first();
             if ($setting !== null) {
                 $option->setConfiguratorSetting($setting);

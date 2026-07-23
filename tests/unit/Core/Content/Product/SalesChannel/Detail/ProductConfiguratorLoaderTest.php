@@ -60,25 +60,10 @@ class ProductConfiguratorLoaderTest extends TestCase
     }
 
     /**
-     * Regression test for https://github.com/shopware/shopware/issues/14616.
-     *
-     * Reproduces the reported scenario:
-     * - Product has two option groups: Color (Red, Blue) and Size (S, M).
-     * - Variants exist for every Color/Size combination and all are in stock
-     *   on clearance.
-     * - The `product_configurator_setting` row for the "Blue" color has been
-     *   removed (e.g. via direct database modification, or never written by an
-     *   API client), so only Red, S and M are registered as configurator
-     *   settings.
-     * - The current variant is a Blue variant.
-     *
-     * Previously the Size group would grey out every option, because the
-     * stored variant combinations (which still carried the Blue option id)
-     * could never be matched against the hash built from the configurator
-     * options. The loader now loads the options from the actual variant
-     * combinations, so the setting-less Blue option is part of the current
-     * selection and every combination resolves against real variant
-     * availability.
+     * When the current variant carries an option id without a
+     * `product_configurator_setting` row (here: Blue), the sibling options must
+     * stay combinable and the setting-less option must be surfaced from the
+     * variant combinations.
      */
     public function testSizeOptionsRemainCombinableWhenCurrentVariantCarriesUnsetConfiguratorOption(): void
     {

@@ -10,11 +10,13 @@ use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MySQLFactory::class)]
 class MySQLFactoryTest extends TestCase
 {

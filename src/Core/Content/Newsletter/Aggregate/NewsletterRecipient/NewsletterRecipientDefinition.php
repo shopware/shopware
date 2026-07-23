@@ -64,7 +64,7 @@ class NewsletterRecipientDefinition extends EntityDefinition
                 NewsletterSubscribeRoute::STATUS_OPT_OUT,
                 NewsletterSubscribeRoute::STATUS_DIRECT,
             ]))->setDescription('When status is set, the NewsletterRecipient is made visible.'),
-            (new StringField('hash', 'hash'))->addFlags(new Required())->setDescription('Password hash for account recovery.'),
+            (new StringField('hash', 'hash'))->addFlags(new Required())->setDescription('Random string for the subscribe URL if opt-in is used.'),
             (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
             (new DateTimeField('confirmed_at', 'confirmedAt'))->setDescription('Date and time when the Newsletter was received.'),
             new ManyToManyAssociationField('tags', TagDefinition::class, NewsletterRecipientTagDefinition::class, 'newsletter_recipient_id', 'tag_id'),

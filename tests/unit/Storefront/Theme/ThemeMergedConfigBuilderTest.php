@@ -11,6 +11,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -27,9 +29,12 @@ use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeFixtures_6_7;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ThemeMergedConfigBuilder::class)]
 class ThemeMergedConfigBuilderTest extends TestCase
 {
+    use EnvTestBehaviour;
+
     private StorefrontPluginRegistry&Stub $storefrontPluginRegistryMock;
 
     /**
@@ -99,6 +104,57 @@ class ThemeMergedConfigBuilderTest extends TestCase
         ?array $expectedStructured = null,
     ): void {
         $this->testGetPlainThemeConfiguration($ids, $themeCollection, $expected, $expectedStructured);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 Will be removed together with legacy theme labels
+     *
+     * @param array<string, mixed> $ids
+     * @param array<string, mixed>|null $expected
+     * @param array<string, mixed>|null $expectedStructured
+     */
+    #[DataProviderExternal(ThemeFixtures_6_7::class, 'getThemeCollectionForThemeConfiguration')]
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testGetPlainThemeConfigurationDoesNotTriggerLegacyLabelDeprecations(
+        array $ids,
+        ThemeCollection $themeCollection,
+        ?array $expected = null,
+        ?array $expectedStructured = null,
+    ): void {
+        // Feature deprecations are suppressed in tests by default, so disable that to catch self-deprecations.
+        $this->setEnvVars(['TESTS_RUNNING' => false]);
+
+        $this->mockThemeRepositorySearch($themeCollection);
+
+        $storefrontPlugin = new StorefrontPluginConfiguration('Test');
+        $storefrontPlugin->setThemeConfig(ThemeFixtures::getThemeJsonConfig());
+
+        $this->storefrontPluginRegistryMock->method('getConfigurations')->willReturn(
+            new StorefrontPluginConfigurationCollection([$storefrontPlugin])
+        );
+
+        $deprecations = [];
+        set_error_handler(static function (int $errorNumber, string $message) use (&$deprecations): bool {
+            if ($errorNumber !== \E_USER_DEPRECATED) {
+                return false;
+            }
+
+            $deprecations[] = $message;
+
+            return true;
+        });
+
+        try {
+            $this->mergedConfigBuilder->getPlainThemeConfiguration($ids['themeId'], $this->context, true);
+            $this->mergedConfigBuilder->getThemeConfigurationFieldStructure($ids['themeId'], $this->context, true);
+        } finally {
+            restore_error_handler();
+        }
+
+        static::assertSame([], array_filter(
+            $deprecations,
+            static fn (string $message): bool => str_contains($message, ThemeEntity::class)
+        ));
     }
 
     /**

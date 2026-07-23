@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\FullEntityIndexerMessage;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -20,6 +21,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EntityIndexerRegistry::class)]
 class EntityIndexerRegistryTest extends TestCase
 {
@@ -149,6 +151,38 @@ class EntityIndexerRegistryTest extends TestCase
 
         $registry = new EntityIndexerRegistry([$indexer1, $this->indexerMock2], $this->messageBusMock, $this->dispatcherMock);
         $registry->refresh($eventMock);
+    }
+
+    public function testRefreshResetsWorkingStateWhenIndexerThrows(): void
+    {
+        $event = static::createStub(EntityWrittenContainerEvent::class);
+        $event->method('getContext')->willReturn(Context::createDefaultContext());
+
+        $calls = 0;
+        $indexer = $this->createMock(EntityIndexer::class);
+        $indexer->expects($this->exactly(2))
+            ->method('update')
+            ->with($event)
+            ->willReturnCallback(static function () use (&$calls): ?EntityIndexingMessage {
+                if (++$calls === 1) {
+                    throw new \RuntimeException('indexer failed');
+                }
+
+                return null;
+            });
+
+        $registry = new EntityIndexerRegistry([$indexer], $this->messageBusMock, $this->dispatcherMock);
+
+        try {
+            $registry->refresh($event);
+            static::fail('expected the indexer exception to bubble up');
+        } catch (\RuntimeException $e) {
+            static::assertSame('indexer failed', $e->getMessage());
+        }
+
+        // the second refresh must reach the indexer again - the working flag was reset despite the exception,
+        // otherwise all indexing stays silently disabled for the rest of the process
+        $registry->refresh($event);
     }
 
     public function testAddOnliesAddsCorrectSkips(): void

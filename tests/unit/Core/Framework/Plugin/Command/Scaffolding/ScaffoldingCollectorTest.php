@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command\Scaffolding;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ScaffoldingGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingCollector;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ScaffoldingCollector::class)]
 class ScaffoldingCollectorTest extends TestCase
 {

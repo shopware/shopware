@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Api\ConsumeMessagesController;
 use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 use Shopware\Core\Framework\MessageQueue\Stats\AbstractStatsRepository;
@@ -28,6 +29,7 @@ use Symfony\Component\Messenger\Transport\Receiver\ReceiverInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ConsumeMessagesController::class)]
 class ConsumeMessagesControllerTest extends TestCase
 {

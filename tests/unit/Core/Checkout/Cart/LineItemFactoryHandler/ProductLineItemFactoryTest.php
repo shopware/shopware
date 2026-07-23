@@ -17,8 +17,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(ProductLineItemFactory::class)]
 #[Package('checkout')]
+#[CoversClass(ProductLineItemFactory::class)]
 class ProductLineItemFactoryTest extends TestCase
 {
     public function testSupports(): void

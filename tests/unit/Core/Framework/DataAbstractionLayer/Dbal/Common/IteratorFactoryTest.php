@@ -15,8 +15,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(IteratorFactory::class)]
 #[Package('framework')]
+#[CoversClass(IteratorFactory::class)]
 class IteratorFactoryTest extends TestCase
 {
     public function testCreateIteratorAddsVersionFilterWhenVersionAwareAndProvided(): void

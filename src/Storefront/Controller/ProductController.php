@@ -21,6 +21,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Shopware\Storefront\Page\Product\ProductPageLoadedHook;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader;
@@ -34,8 +35,8 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
+#[Package('inventory')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
-#[Package('framework')]
 class ProductController extends StorefrontController
 {
     /**
@@ -54,7 +55,7 @@ class ProductController extends StorefrontController
 
     #[Route(
         path: '/detail/{productId}',
-        name: 'frontend.detail.page',
+        name: ProductPageSeoUrlRoute::ROUTE_NAME,
         defaults: [PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
         methods: [Request::METHOD_GET]
     )]
@@ -68,7 +69,7 @@ class ProductController extends StorefrontController
             '@Storefront/storefront/page/content/product-detail.html.twig',
             [
                 'page' => $page,
-                'redirectTo' => 'frontend.detail.page',
+                'redirectTo' => ProductPageSeoUrlRoute::ROUTE_NAME,
             ]
         );
     }
@@ -116,7 +117,7 @@ class ProductController extends StorefrontController
 
         $url = $this->seoUrlPlaceholderHandler->replace(
             $this->seoUrlPlaceholderHandler->generate(
-                'frontend.detail.page',
+                ProductPageSeoUrlRoute::ROUTE_NAME,
                 ['productId' => $productId]
             ),
             $host,

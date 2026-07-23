@@ -86,7 +86,7 @@ class MonetarySummationViewTest extends TestCase
     {
         $order = $this->createOrder(amountTotal: 0.0, amountNet: 0.0, currency: null);
 
-        static::expectExceptionObject(DocumentV2Exception::invalidOrderData(
+        $this->expectExceptionObject(DocumentV2Exception::invalidOrderData(
             $order->getId(),
             'currency',
             'Order has no currency assigned.',
@@ -136,8 +136,8 @@ class MonetarySummationViewTest extends TestCase
             actualAmount: $amount,
             basisAmount: null,
             calculationPercent: null,
-            reasonCode: AllowanceChargeReason::DELIVERY,
-            reason: AllowanceChargeReason::DELIVERY->defaultLabel(),
+            reasonCode: AllowanceChargeReason::SHIPPING_AND_HANDLING,
+            reason: AllowanceChargeReason::SHIPPING_AND_HANDLING->defaultLabel(),
             taxCategory: TaxCategory::STANDARD_RATE,
             taxRate: 19.0,
         );

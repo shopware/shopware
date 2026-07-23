@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Util\XmlReader;
 /**
  * @internal
  *
- * @phpstan-type CustomFieldTypeArray array{name?: string, type?: string, config: array{label: array<string, string>, helpText: array<string, string>, customFieldPosition: int, validation?: 'required'}, allowCustomerWrite?: true, allowCartExpose?: true}
+ * @phpstan-type CustomFieldTypeArray array{name?: string, type?: string, config: array{label: array<string, string>, helpText: array<string, string>, customFieldPosition: int, validation?: 'required'}, allowCustomerWrite?: true, allowCartExpose?: true, includeInSearch?: true}
  */
 #[Package('framework')]
 abstract class CustomFieldType extends XmlElement
@@ -27,6 +27,8 @@ abstract class CustomFieldType extends XmlElement
     protected bool $allowCustomerWrite = false;
 
     protected bool $allowCartExpose = false;
+
+    protected bool $includeInSearch = false;
 
     protected int $position = 1;
 
@@ -64,6 +66,10 @@ abstract class CustomFieldType extends XmlElement
 
         if ($this->allowCartExpose) {
             $entityArray['allowCartExpose'] = true;
+        }
+
+        if ($this->includeInSearch) {
+            $entityArray['includeInSearch'] = true;
         }
 
         /** @phpstan-ignore-next-line because of the array method, PHPStan could not recognize the array shape correctly */
@@ -109,6 +115,11 @@ abstract class CustomFieldType extends XmlElement
     public function isAllowCartExpose(): bool
     {
         return $this->allowCartExpose;
+    }
+
+    public function isIncludeInSearch(): bool
+    {
+        return $this->includeInSearch;
     }
 
     /**

@@ -20,8 +20,8 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 /**
  * @internal
  */
-#[CoversClass(RuleLoader::class)]
 #[Package('checkout')]
+#[CoversClass(RuleLoader::class)]
 class RuleLoaderTest extends TestCase
 {
     public function testDecorated(): void

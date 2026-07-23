@@ -104,7 +104,7 @@ Child issue layout (title:
 
   Afterwards restore your test DB with `APP_ENV=test FORCE_INSTALL=true composer init:testdb`.
 
-  **Verify your fix in CI:** add the `major-tests` label to your PR — it runs the full `integration-major` matrix on the PR (same switch as the acceptance major arm).
+  **Verify your fix in CI:** add the `major-php` label to your PR — it runs the full `integration-major` matrix on the PR (`major-tests` would additionally trigger the other major arms, e.g. acceptance).
   ````
 
   (Adapt the env block if the triaged workflow is not `integration-major` —

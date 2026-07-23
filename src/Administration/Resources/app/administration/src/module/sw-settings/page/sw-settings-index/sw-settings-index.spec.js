@@ -142,6 +142,7 @@ async function createWrapper(
                         template: '<a><slot></slot></a>',
                     },
                     'sw-extension-component-section': true,
+                    'sw-dismissible-notices': true,
                 },
                 provide: {
                     acl: {
@@ -441,6 +442,30 @@ describe('module/sw-settings/page/sw-settings-index', () => {
                 value: true,
             },
         });
+    });
+
+    it('provides the change notices with the version they can be removed with', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.changeNotices).toEqual([
+            {
+                key: 'sw-settings.index.textSettingRenameBanner',
+                deprecationVersion: 'v6.8.0.0',
+            },
+        ]);
+    });
+
+    it('fails once a change notice reached its deprecation version (delete the entry then)', async () => {
+        const wrapper = await createWrapper();
+
+        const outdated = wrapper.vm.changeNotices
+            .filter((notice) => Shopware.Feature.isActive(notice.deprecationVersion))
+            .map((notice) => notice.key);
+
+        expect(
+            outdated,
+            `Deprecated settings messages not removed! Please remove the outdated notices from 'sw-settings-index/index.ts': ${outdated.join(', ')}`,
+        ).toEqual([]);
     });
 
     describe('search functionality', () => {

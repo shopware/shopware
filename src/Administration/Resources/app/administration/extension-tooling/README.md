@@ -1,9 +1,11 @@
 # Administration Extension Tooling
 
 This folder ships the TypeScript and ESLint contract for Administration
-extensions. It travels with the Administration package, so a git checkout, a
-Composer install, and a production shop all carry identical tooling — matching
-the installed Shopware version.
+extensions. It travels with the Administration package, so a platform checkout,
+a Composer install, and a production shop all carry the identical toolchain —
+matching the installed Shopware version. Only the way you invoke the two
+commands differs between a platform checkout and a Composer/Flex install (both
+are covered below).
 
 ## What lives here
 
@@ -17,7 +19,27 @@ the installed Shopware version.
 
 ## How extensions use it
 
-You normally do not reference this folder manually. From the project root:
+You normally do not reference this folder manually.
+
+**In a Composer/Flex-installed shop** (the [official installation guide](https://developer.shopware.com/docs/guides/installation/) layout, where the Administration lives under `vendor/shopware/administration`), drive the toolchain through `bin/console`:
+
+```bash
+# One-time: install the Administration's Node dependencies (they are not part
+# of the Composer package). Re-run only after a Shopware update.
+( cd vendor/shopware/administration/Resources/app/administration && npm ci )
+
+bin/console administration:setup-extension-tooling            # generate configs for all installed extensions
+bin/console administration:check-extensions -- --only=MyPlugin  # type-check + lint your plugin
+bin/console administration:check-extensions -- --all            # check every extension
+bin/console administration:generate-entity-schema-types       # (re)generate the entity-schema types
+```
+
+The console commands resolve the shop root automatically and forward everything
+after `--` to the toolchain, so every option below works the same way. The
+tooling also prints these `bin/console` forms in its own guidance when it runs
+in a vendor layout, so any next step it suggests is copy-pasteable as-is.
+
+**In a platform (monorepo) checkout**, the equivalent Composer scripts are wired up. From the project root:
 
 ```bash
 composer admin:setup-extension-tooling   # generate configs for all installed extensions
@@ -167,6 +189,13 @@ baseline; it cannot be combined with `--fix` (fix first, then record).
 
 Vendor-installed extensions carry no baseline — their findings are already non-fatal unless
 `--strict-vendor`.
+
+> **Composer-managed plugins are `vendor`.** A plugin installed through Composer — including one
+> developed under `custom/static-plugins/` and pulled in via a path repository — resolves through
+> `vendor/`, so the toolchain classifies it as a read-only `vendor` extension: findings are
+> non-fatal by default, and neither the baseline nor `--shim` is available for it. Gate such
+> plugins in CI with `--strict-vendor`. For full first-party tooling (fatal findings, baseline,
+> `--shim`), develop the plugin under `custom/plugins/`.
 
 ## Generated files — what to commit, what to ignore
 

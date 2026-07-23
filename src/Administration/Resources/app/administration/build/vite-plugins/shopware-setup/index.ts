@@ -9,9 +9,11 @@ import type { transformShopwareSetupSfc as transformShopwareSetupSfcRuntime } fr
 type ShopwareSetupTransformModule = {
     transformShopwareSetupSfc: typeof transformShopwareSetupSfcRuntime;
 };
-type ShopwareSetupTransformImport = ShopwareSetupTransformModule | {
-    default: ShopwareSetupTransformModule;
-};
+type ShopwareSetupTransformImport =
+    | ShopwareSetupTransformModule
+    | {
+          default: ShopwareSetupTransformModule;
+      };
 type ShopwareSetupTransformResult = NonNullable<ReturnType<typeof transformShopwareSetupSfcRuntime>>;
 
 type Options = {
@@ -30,15 +32,11 @@ function withoutQuery(id: string): string {
  * default; if the transform is statically imported there, its `require()` calls
  * are inlined into an ESM config bundle and fail at runtime.
  */
-async function loadShopwareSetupTransform(
-    administrationRoot: string,
-): Promise<typeof transformShopwareSetupSfcRuntime> {
-    const transformImport = await import(
+async function loadShopwareSetupTransform(administrationRoot: string): Promise<typeof transformShopwareSetupSfcRuntime> {
+    const transformImport = (await import(
         path.join(administrationRoot, 'build/vue-setup-transform/index.js')
-    ) as ShopwareSetupTransformImport;
-    const transformModule = 'default' in transformImport
-        ? transformImport.default
-        : transformImport;
+    )) as ShopwareSetupTransformImport;
+    const transformModule = 'default' in transformImport ? transformImport.default : transformImport;
 
     return transformModule.transformShopwareSetupSfc;
 }
@@ -57,10 +55,7 @@ export default function ShopwareSetupPlugin(options: Options): Plugin {
     // the per-compilation cross-file uniqueness check the transform's componentName seam enables.
     const baseComponentFiles = new Map<string, string>();
 
-    async function transformCode(
-        code: string,
-        fileName: string,
-    ): Promise<ShopwareSetupTransformResult | null> {
+    async function transformCode(code: string, fileName: string): Promise<ShopwareSetupTransformResult | null> {
         const transformShopwareSetupSfc = await loadShopwareSetupTransform(options.administrationRoot);
 
         return transformShopwareSetupSfc(code, fileName);

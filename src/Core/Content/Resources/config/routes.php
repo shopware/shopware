@@ -2,6 +2,9 @@
 
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
+/**
+ * @codeCoverageIgnore
+ */
 return static function (RoutingConfigurator $routes): void {
     $routes->import('../../Cms/SalesChannel/**/*Controller.php', 'attribute');
     $routes->import('../../Product/**/*Controller.php', 'attribute');

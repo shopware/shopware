@@ -2,6 +2,9 @@
 
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
+/**
+ * @codeCoverageIgnore
+ */
 return static function (RoutingConfigurator $routes): void {
     $routes->import('../../Api/*Controller.php', 'attribute');
 };

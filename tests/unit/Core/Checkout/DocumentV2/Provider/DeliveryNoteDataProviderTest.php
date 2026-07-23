@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\DeliveryNoteDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -111,7 +112,7 @@ class DeliveryNoteDataProviderTest extends TestCase
             deliveryDate: self::DELIVERY_DATE,
         );
 
-        $result = $provider->provideRenderingData($order, $request, Context::createDefaultContext());
+        $result = $provider->provideRenderingData(new ProviderInput($order, $request), Context::createDefaultContext());
 
         static::assertSame('12345', $result->custom['deliveryNoteNumber']);
         static::assertSame(self::DELIVERY_DATE, $result->custom['deliveryDate']);
@@ -137,7 +138,7 @@ class DeliveryNoteDataProviderTest extends TestCase
             DocumentV2Exception::missingDocumentNumber(DocumentType::DELIVERY_NOTE->value),
         );
 
-        $provider->provideRenderingData($order, $request, Context::createDefaultContext());
+        $provider->provideRenderingData(new ProviderInput($order, $request), Context::createDefaultContext());
     }
 
     public function testProvideRenderingDataThrowsWhenDeliveryDateMissing(): void
@@ -159,7 +160,7 @@ class DeliveryNoteDataProviderTest extends TestCase
             DocumentV2Exception::missingDeliveryDate(DocumentType::DELIVERY_NOTE->value),
         );
 
-        $provider->provideRenderingData($order, $request, Context::createDefaultContext());
+        $provider->provideRenderingData(new ProviderInput($order, $request), Context::createDefaultContext());
     }
 
     private function createProvider(): DeliveryNoteDataProvider

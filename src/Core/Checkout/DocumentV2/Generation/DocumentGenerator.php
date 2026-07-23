@@ -8,8 +8,11 @@ use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
+use Shopware\Core\Checkout\DocumentV2\Provider\OrderVersionStrategy;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
+use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
+use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -35,6 +38,7 @@ final readonly class DocumentGenerator
         private DocumentNumberGenerator $documentNumberGenerator,
         private DocumentPersister $documentPersister,
         private DocumentDependencyResolver $dependencyResolver,
+        private ReferencedDocumentResolver $referencedDocumentResolver,
         private EntityRepository $orderRepository,
     ) {
     }
@@ -56,6 +60,7 @@ final readonly class DocumentGenerator
             'renderInput' => $renderInput,
             'renderState' => $renderState,
             'requestedFormats' => $requestedFormats,
+            'resolvedReference' => $resolvedReference,
         ] = $this->generateDocument($generationRequest, $apiContext);
 
         return $this->documentPersister->persist(
@@ -63,6 +68,7 @@ final readonly class DocumentGenerator
             $renderInput,
             $renderState,
             $requestedFormats,
+            $resolvedReference,
             $apiContext,
         );
     }
@@ -100,7 +106,8 @@ final readonly class DocumentGenerator
      *     generationRequest: DocumentGenerationRequest,
      *     renderInput: RenderInput,
      *     renderState: RenderState,
-     *     requestedFormats: list<string>
+     *     requestedFormats: list<string>,
+     *     resolvedReference: ?ReferencedDocument
      * }
      */
     private function generateDocument(
@@ -121,22 +128,50 @@ final readonly class DocumentGenerator
             $generationRequest->documentType,
         );
 
+        $strategy = $this->resolveOrderVersionStrategy($providers, $generationRequest->documentType);
+
         $criteria = new Criteria([$generationRequest->orderId]);
 
         foreach ($providers as $provider) {
             $provider->enrichOrderCriteria($criteria);
         }
 
-        [$orderVersionContext, $languageAwareContext] = $this->createGenerationContexts(
-            $generationRequest,
-            $apiContext,
-        );
+        if ($strategy === OrderVersionStrategy::REQUEST) {
+            $resolvedReference = null;
 
-        $order = $this->loadOrder(
-            $criteria,
-            $generationRequest->orderId,
-            $orderVersionContext,
-        );
+            [$orderVersionContext, $languageAwareContext] = $this->createGenerationContexts(
+                $generationRequest->orderId,
+                $generationRequest->orderVersionId,
+                $apiContext,
+            );
+
+            $order = $this->loadOrder($criteria, $generationRequest->orderId, $orderVersionContext);
+        } else {
+            $reference = $this->referencedDocumentResolver->resolve(
+                $generationRequest->orderId,
+                $generationRequest->referencedDocumentId,
+            );
+
+            [$orderVersionContext, $languageAwareContext] = $this->createGenerationContexts(
+                $generationRequest->orderId,
+                $strategy === OrderVersionStrategy::REFERENCED
+                    ? $reference->orderVersionId
+                    : $generationRequest->orderVersionId,
+                $apiContext,
+            );
+
+            $order = $this->loadOrder($criteria, $generationRequest->orderId, $orderVersionContext);
+
+            if ($strategy === OrderVersionStrategy::BOTH) {
+                $reference = $reference->withOrder($this->loadOrder(
+                    clone $criteria,
+                    $generationRequest->orderId,
+                    $orderVersionContext->createWithVersionId($reference->orderVersionId),
+                ));
+            }
+
+            $resolvedReference = $reference;
+        }
 
         $documentNumber = $generationRequest->documentNumber ?? $this->documentNumberGenerator->generate(
             $generationRequest,
@@ -149,8 +184,7 @@ final readonly class DocumentGenerator
 
         $providerData = $this->collectProviderData(
             $providers,
-            $order,
-            $generationRequest,
+            new ProviderInput($order, $generationRequest, $resolvedReference),
             $languageAwareContext,
         );
 
@@ -182,7 +216,32 @@ final readonly class DocumentGenerator
             'renderInput' => $renderInput,
             'renderState' => $renderState,
             'requestedFormats' => $requestedFormats,
+            'resolvedReference' => $resolvedReference,
         ];
+    }
+
+    /**
+     * @param list<AbstractDocumentDataProvider> $providers
+     *
+     * @throws DocumentV2Exception
+     */
+    private function resolveOrderVersionStrategy(array $providers, string $documentType): OrderVersionStrategy
+    {
+        $strategies = [];
+
+        foreach ($providers as $provider) {
+            $strategy = $provider->getOrderVersionStrategy();
+
+            if ($strategy !== OrderVersionStrategy::REQUEST) {
+                $strategies[$strategy->name] = $strategy;
+            }
+        }
+
+        if (\count($strategies) > 1) {
+            throw DocumentV2Exception::conflictingOrderVersionStrategies($documentType, array_keys($strategies));
+        }
+
+        return array_values($strategies)[0] ?? OrderVersionStrategy::REQUEST;
     }
 
     /**
@@ -192,16 +251,14 @@ final readonly class DocumentGenerator
      */
     private function collectProviderData(
         array $providers,
-        OrderEntity $order,
-        DocumentGenerationRequest $generationRequest,
+        ProviderInput $input,
         Context $context,
     ): array {
         $data = [];
 
         foreach ($providers as $provider) {
             $data[$provider->getKey()] = $provider->provideRenderingData(
-                $order,
-                $generationRequest,
+                $input,
                 $context,
             );
         }
@@ -215,13 +272,14 @@ final readonly class DocumentGenerator
      * @return array{0: Context, 1: Context}
      */
     private function createGenerationContexts(
-        DocumentGenerationRequest $generationRequest,
+        string $orderId,
+        string $orderVersionId,
         Context $apiContext,
     ): array {
-        $orderVersionContext = $apiContext->createWithVersionId($generationRequest->orderVersionId);
+        $orderVersionContext = $apiContext->createWithVersionId($orderVersionId);
         $languageAwareContext = clone $apiContext;
 
-        $orderLanguageId = $this->loadOrderLanguageId($generationRequest, $orderVersionContext);
+        $orderLanguageId = $this->loadOrderLanguageId($orderId, $orderVersionContext);
 
         $langChain = [
             'languageIdChain' => array_values(array_unique(array_filter(
@@ -260,9 +318,9 @@ final readonly class DocumentGenerator
     /**
      * @throws DocumentV2Exception
      */
-    private function loadOrderLanguageId(DocumentGenerationRequest $generationRequest, Context $context): string
+    private function loadOrderLanguageId(string $orderId, Context $context): string
     {
-        $criteria = (new Criteria([$generationRequest->orderId]))
+        $criteria = (new Criteria([$orderId]))
             ->setTitle('document-v2-generator::load-order-language')
             ->addFields(['languageId']);
 
@@ -273,7 +331,7 @@ final readonly class DocumentGenerator
             ?->get('languageId');
 
         if (!\is_string($languageId)) {
-            throw DocumentV2Exception::orderNotFound($generationRequest->orderId);
+            throw DocumentV2Exception::orderNotFound($orderId);
         }
 
         return $languageId;

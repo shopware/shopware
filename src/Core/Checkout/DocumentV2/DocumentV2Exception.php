@@ -84,6 +84,10 @@ class DocumentV2Exception extends HttpException
 
     public const REFERENCED_INVOICE_NUMBER_MISSING = 'DOCUMENT_V2__REFERENCED_INVOICE_NUMBER_MISSING';
 
+    public const REFERENCED_ORDER_VERSION_NOT_FOUND = 'DOCUMENT_V2__REFERENCED_ORDER_VERSION_NOT_FOUND';
+
+    public const CONFLICTING_ORDER_VERSION_STRATEGIES = 'DOCUMENT_V2__CONFLICTING_ORDER_VERSION_STRATEGIES';
+
     public static function unknownRenderData(string $key, string $expectedClass): self
     {
         return new self(
@@ -383,6 +387,29 @@ class DocumentV2Exception extends HttpException
             self::REFERENCED_INVOICE_NUMBER_MISSING,
             'Cannot generate cancellation invoice because the referenced invoice for order "{{ orderId }}" has no document number.',
             ['orderId' => $orderId],
+        );
+    }
+
+    public static function referencedOrderVersionNotFound(string $orderId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::REFERENCED_ORDER_VERSION_NOT_FOUND,
+            'Cannot resolve the order snapshot captured by the referenced document for order "{{ orderId }}".',
+            ['orderId' => $orderId],
+        );
+    }
+
+    /**
+     * @param list<string> $strategies
+     */
+    public static function conflictingOrderVersionStrategies(string $documentType, array $strategies): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CONFLICTING_ORDER_VERSION_STRATEGIES,
+            'Data providers for document type "{{ documentType }}" declare conflicting order version strategies: {{ strategies }}.',
+            ['documentType' => $documentType, 'strategies' => implode(', ', $strategies)],
         );
     }
 

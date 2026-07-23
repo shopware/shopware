@@ -12,9 +12,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @experimental stableVersion:v6.8.0
  */
+#[Package('framework')]
 #[McpTool(name: McpToolsetRegistry::LIST_TOOLSETS_TOOL, title: 'List Toolsets', description: 'List MCP toolsets that can be enabled for the current session. Use this first for any task: no domain tools are advertised until you enable their toolset.')]
 #[McpToolGroup('discovery')]
-#[Package('framework')]
 class ToolsetsListTool extends McpToolResponse
 {
     /**

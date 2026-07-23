@@ -21,7 +21,9 @@ final class ClassHierarchyChange implements CallSiteCompatibilityChange, Extende
     public function __construct(
         public readonly string $version,
         public readonly string $description,
-        /** @var class-string|null */
+        /**
+         * @var class-string|null
+         */
         public readonly ?string $newParentClass = null,
     ) {
     }

@@ -27,10 +27,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('twig.extension');
 
-    $services->set(AbstractLegalGuaranteeNoticeRoute::class, LegalGuaranteeNoticeRoute::class)
+    $services->set(LegalGuaranteeNoticeRoute::class)
         ->public()
         ->args([
             service(SystemConfigService::class),
             service(LegalGuaranteeNoticeRenderer::class),
         ]);
+
+    $services->alias(AbstractLegalGuaranteeNoticeRoute::class, LegalGuaranteeNoticeRoute::class);
 };

@@ -795,12 +795,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('sales_channel.product.repository'),
         ]);
 
-    $services->set(AbstractGaranLabelRoute::class, GaranLabelRoute::class)
+    $services->set(GaranLabelRoute::class)
         ->public()
         ->args([
             service('sales_channel.product.repository'),
             service(GaranLabelResolver::class),
         ]);
+
+    $services->alias(AbstractGaranLabelRoute::class, GaranLabelRoute::class);
 
     $services->set(BuyBoxCmsElementResolver::class)
         ->args([

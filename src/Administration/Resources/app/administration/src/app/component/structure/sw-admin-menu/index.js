@@ -64,7 +64,7 @@ export default {
 
         userTitle() {
             if (this.currentUser && this.currentUser.admin) {
-                return this.$tc('global.sw-admin-menu.administrator');
+                return this.$t('global.sw-admin-menu.administrator');
             }
 
             if (this.currentUser && this.currentUser.title && this.currentUser.title.length > 0) {
@@ -96,11 +96,11 @@ export default {
             // Throw an console error if navigation entry is on level 4 or higher. Also remove the navigation entry from menu
             return adminModuleNavigationEntries.filter((entry) => {
                 const levelOneParent = adminModuleNavigationEntries.find((e) => entry.parent && e.id === entry.parent);
-                // eslint-disable-next-line max-len
+                 
                 const levelTwoParent = adminModuleNavigationEntries.find(
                     (e) => levelOneParent?.parent && e.id === levelOneParent?.parent,
                 );
-                // eslint-disable-next-line max-len
+                 
                 const levelThreeParent = adminModuleNavigationEntries.find(
                     (e) => levelTwoParent?.parent && e.id === levelTwoParent?.parent,
                 );
@@ -142,7 +142,7 @@ The admin menu only supports up to three levels of nesting.`,
         },
 
         sidebarCollapseIcon() {
-            return 'solid-panel-right';
+            return 'regular-panel-left';
         },
 
         scrollbarOffsetStyle() {
@@ -519,10 +519,10 @@ The admin menu only supports up to three levels of nesting.`,
 
         getEntryLabel(entry) {
             if (entry.label instanceof Object) {
-                return entry.label.translated ? entry.label.label : this.$tc(entry.label.label);
+                return entry.label.translated ? entry.label.label : this.$t(entry.label.label);
             }
 
-            return this.$tc(entry.label);
+            return this.$t(entry.label);
         },
 
         expandAncestorBranchesForCurrentRoute() {

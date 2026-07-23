@@ -159,8 +159,7 @@
     }
 
     .sw-admin-menu__collapse-button {
-        color: var(--color-text-primary-default);
-        cursor: pointer;
+        flex-shrink: 0;
     }
 
     .sw-admin-menu__off-canvas-close {

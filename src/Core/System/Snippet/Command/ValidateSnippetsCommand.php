@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\System\Snippet\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\SnippetFixer;
 use Shopware\Core\System\Snippet\SnippetValidator;
@@ -16,6 +16,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @phpstan-type Snippets array<string, string|array<string, mixed>>
@@ -46,6 +47,11 @@ class ValidateSnippetsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        // @deprecated tag:v6.8.0 - Remove the `snippets:validate` alias from #[AsCommand] together with this condition.
+        if (!Feature::isActive('v6.8.0.0') && $input->getFirstArgument() === 'snippets:validate') {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'The "snippets:validate" command alias is deprecated; use "translation:validate" instead.');
+        }
+
         $invalidSnippetsStruct = $this->snippetValidator->getValidation();
 
         $missingSnippetsCollection = $invalidSnippetsStruct->missingSnippets;
@@ -54,7 +60,7 @@ class ValidateSnippetsCommand extends Command
         $invalidPluralization = $invalidSnippetsStruct->invalidPluralization;
         $hasInvalidPluralization = $invalidPluralization->count() > 0;
 
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
 
         if (!$hasMissingSnippets && !$hasInvalidPluralization) {
             $io->success('Snippets are valid!');
@@ -113,7 +119,7 @@ class ValidateSnippetsCommand extends Command
     }
 
     private function renderPluralizationErrors(
-        ShopwareStyle $io,
+        SymfonyStyle $io,
         OutputInterface $output,
         InvalidPluralizationCollection $invalidPluralization
     ): void {

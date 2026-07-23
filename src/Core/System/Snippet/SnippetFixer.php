@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\Snippet;
 
-use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
+use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand;
@@ -22,7 +22,7 @@ class SnippetFixer
     {
     }
 
-    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'invalidPluralization', parameterType: 'InvalidPluralizationCollection')]
+    #[NewRequiredParameter(version: 'v6.8.0', parameterName: 'invalidPluralization', parameterType: 'InvalidPluralizationCollection')]
     public function fix(MissingSnippetCollection $missingSnippetCollection /* , InvalidPluralizationCollection $invalidPluralization */): void
     {
         /** @var InvalidPluralizationCollection $invalidPluralization */

@@ -134,7 +134,7 @@ class SeoUrlUpdaterTest extends TestCase
 
         $this->seoUrlPersister->expects($this->never())->method('updateSeoUrls');
 
-        $seoUrlUpdater->update('frontend.detail.page', []);
+        $seoUrlUpdater->update(ProductPageSeoUrlRoute::ROUTE_NAME, []);
     }
 
     public function testUpdateGetPersisted(): void
@@ -177,7 +177,7 @@ class SeoUrlUpdaterTest extends TestCase
         $this->seoUrlGenerator->expects($this->once())->method('generate');
         $this->seoUrlPersister->expects($this->once())->method('updateSeoUrls');
 
-        $seoUrlUpdater->update('frontend.detail.page', []);
+        $seoUrlUpdater->update(ProductPageSeoUrlRoute::ROUTE_NAME, []);
     }
 
     /**

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
@@ -42,6 +43,7 @@ use Shopware\Tests\Integration\Storefront\Theme\fixtures\ThemeWithLabels\ThemeWi
 /**
  * @internal
  */
+#[Package('discovery')]
 class ThemeLifecycleServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

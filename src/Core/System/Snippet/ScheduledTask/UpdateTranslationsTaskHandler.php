@@ -14,8 +14,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal
  */
-#[AsMessageHandler(handles: UpdateTranslationsTask::class)]
 #[Package('discovery')]
+#[AsMessageHandler(handles: UpdateTranslationsTask::class)]
 final class UpdateTranslationsTaskHandler extends ScheduledTaskHandler
 {
     /**

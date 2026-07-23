@@ -16,8 +16,8 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[CoversClass(CartException::class)]
 #[Package('checkout')]
+#[CoversClass(CartException::class)]
 class CartExceptionTest extends TestCase
 {
     public function testInvalidPriceFieldType(): void

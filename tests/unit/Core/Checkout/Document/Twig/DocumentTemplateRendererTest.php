@@ -25,8 +25,8 @@ use Twig\Loader\ArrayLoader;
 /**
  * @internal
  */
-#[CoversClass(DocumentTemplateRenderer::class)]
 #[Package('after-sales')]
+#[CoversClass(DocumentTemplateRenderer::class)]
 class DocumentTemplateRendererTest extends TestCase
 {
     private static bool $rendererParameterEventCalled = false;

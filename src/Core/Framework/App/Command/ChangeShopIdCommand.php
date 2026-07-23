@@ -16,13 +16,13 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'app:shop-id:change',
     description: 'Change the shop ID by choosing a resolution strategy',
     /** @deprecated tag:v6.8.0 - Alias `app:url-change:resolve` will be removed */
     aliases: ['app:url-change:resolve'],
 )]
-#[Package('framework')]
 class ChangeShopIdCommand extends Command
 {
     public function __construct(private readonly Resolver $shopIdChangeResolver)

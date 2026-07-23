@@ -23,8 +23,8 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 /**
  * @internal
  */
-#[CoversClass(OrderAddressService::class)]
 #[Package('checkout')]
+#[CoversClass(OrderAddressService::class)]
 class OrderAddressServiceTest extends TestCase
 {
     /**

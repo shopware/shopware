@@ -230,6 +230,7 @@
     }
 
     .sw-admin-menu__headline_text {
+        pointer-events: auto;
         opacity: 1;
         transition:
             opacity 0.2s ease-in-out,

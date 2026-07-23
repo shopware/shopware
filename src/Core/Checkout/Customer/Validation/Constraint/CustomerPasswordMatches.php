@@ -44,7 +44,7 @@ class CustomerPasswordMatches extends Constraint
      */
     #[HasNamedArguments]
     #[ParameterRemoval(version: 'v6.8.0', parameterName: 'options', description: 'Use the $salesChannelContext argument instead.')]
-    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'salesChannelContext', newType: 'SalesChannelContext', description: 'The parameter loses its null default, becomes required and a promoted property.')]
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'salesChannelContext', newType: SalesChannelContext::class, description: 'The parameter loses its null default, becomes required and a promoted property.')]
     public function __construct(?array $options = null, ?SalesChannelContext $salesChannelContext = null, string $message = 'Your password is wrong')
     {
         if ($options !== null || $salesChannelContext === null) {

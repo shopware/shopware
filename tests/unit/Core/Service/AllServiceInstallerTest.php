@@ -4,8 +4,10 @@ namespace Shopware\Tests\Unit\Core\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\AllServiceInstaller;
@@ -36,7 +38,8 @@ class AllServiceInstallerTest extends TestCase
             $serviceLifeCycle,
             $this->buildAppRepository(),
             $messageBus,
-            $eventDispatcher
+            $eventDispatcher,
+            static::createStub(LoggerInterface::class)
         );
 
         $serviceRegistryClient->expects($this->once())
@@ -80,7 +83,8 @@ class AllServiceInstallerTest extends TestCase
             $serviceLifeCycle,
             $this->buildAppRepository([$app1]),
             $messageBus,
-            $eventDispatcher
+            $eventDispatcher,
+            static::createStub(LoggerInterface::class)
         );
 
         $serviceRegistryClient->expects($this->once())
@@ -123,6 +127,7 @@ class AllServiceInstallerTest extends TestCase
             $this->buildAppRepository([$app1, $app2]),
             $messageBus,
             $eventDispatcher,
+            static::createStub(LoggerInterface::class),
         );
 
         $serviceRegistryClient->expects($this->once())
@@ -152,7 +157,8 @@ class AllServiceInstallerTest extends TestCase
             $serviceLifeCycle,
             $this->buildAppRepository(),
             $messageBus,
-            $eventDispatcher
+            $eventDispatcher,
+            static::createStub(LoggerInterface::class)
         );
 
         $envelope = new Envelope(new \stdClass());
@@ -179,6 +185,7 @@ class AllServiceInstallerTest extends TestCase
             $this->buildAppRepository(),
             $messageBus,
             $eventDispatcher,
+            static::createStub(LoggerInterface::class),
         );
 
         $serviceRegistryClient->expects($this->once())
@@ -206,6 +213,7 @@ class AllServiceInstallerTest extends TestCase
             $this->buildAppRepository(),
             $messageBus,
             $eventDispatcher,
+            static::createStub(LoggerInterface::class),
         );
 
         $serviceRegistryClient->expects($this->once())
@@ -244,6 +252,7 @@ class AllServiceInstallerTest extends TestCase
             $this->buildAppRepository(),
             $messageBus,
             $eventDispatcher,
+            static::createStub(LoggerInterface::class),
         );
 
         $serviceRegistryClient->expects($this->once())
@@ -269,6 +278,53 @@ class AllServiceInstallerTest extends TestCase
         $result = $serviceInstaller->install(Context::createDefaultContext());
 
         static::assertSame(['Service1', 'Service3'], $result);
+    }
+
+    public function testInstallIsolatesServicesThatThrowDuringInstallation(): void
+    {
+        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
+        $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
+        $messageBus = static::createStub(MessageBusInterface::class);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $logger = $this->createMock(LoggerInterface::class);
+
+        $serviceInstaller = new AllServiceInstaller(
+            $serviceRegistryClient,
+            $serviceLifeCycle,
+            $this->buildAppRepository(),
+            $messageBus,
+            $eventDispatcher,
+            $logger,
+        );
+
+        $serviceRegistryClient->expects($this->once())
+            ->method('getAll')
+            ->willReturn([
+                new ServiceEntry('BrokenService', 'Broken Service', 'https://broken.example.com', '/app-endpoint'),
+                new ServiceEntry('ValidService', 'Valid Service', 'https://valid.example.com', '/app-endpoint'),
+            ]);
+
+        $exception = AppXmlParsingException::cannotParseContent('Invalid manifest');
+        $matcher = $this->exactly(2);
+        $serviceLifeCycle->expects($matcher)
+            ->method('install')
+            ->willReturnCallback(static function () use ($matcher, $exception): bool {
+                return match ($matcher->numberOfInvocations()) {
+                    1 => throw $exception,
+                    2 => true,
+                    default => throw new \UnhandledMatchError(),
+                };
+            });
+
+        $logger->expects($this->once())
+            ->method('error')
+            ->with(\sprintf('Cannot install service "BrokenService" because of error: "%s"', $exception->getMessage()));
+
+        $eventDispatcher->expects($this->once())->method('dispatch');
+
+        $result = $serviceInstaller->install(Context::createDefaultContext());
+
+        static::assertSame(['ValidService'], $result);
     }
 
     /**

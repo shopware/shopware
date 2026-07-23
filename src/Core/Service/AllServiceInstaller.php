@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Service;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
@@ -34,6 +35,7 @@ class AllServiceInstaller
         private readonly EntityRepository $appRepository,
         private readonly MessageBusInterface $messageBus,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -53,7 +55,14 @@ class AllServiceInstaller
         $installedServices = [];
         $newServices = $this->getNewServices($existingServices);
         foreach ($newServices as $service) {
-            $result = $this->serviceLifecycle->install($service, $context);
+            try {
+                $result = $this->serviceLifecycle->install($service, $context);
+            } catch (\Throwable $e) {
+                // isolate failures so a single broken service cannot block the installation of the remaining ones
+                $this->logger->error(\sprintf('Cannot install service "%s" because of error: "%s"', $service->name, $e->getMessage()));
+
+                continue;
+            }
 
             if ($result) {
                 $installedServices[] = $service->name;

@@ -28,7 +28,7 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
     private const METADATA_URL = 'metadata-url';
 
     /**
-     * Maps the snake_case keys of the `shopware.translation` config section to the dash-separated keys used in translation.yaml.
+     * @description Maps the snake_case keys of the `shopware.translation` config section to the dash-separated keys used in translation.yaml.
      */
     private const OVERRIDE_KEY_MAP = [
         'repository_url' => self::REPOSITORY_URL,
@@ -40,7 +40,9 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
     ];
 
     /**
-     * @param array<string, mixed> $translationConfig `shopware.translation` config section; keys left null fall back to translation.yaml
+     * @param array<string, mixed> $translationConfig
+     *
+     * @description `shopware.translation` config section - keys left null fall back to translation.yaml
      */
     public function __construct(
         private readonly Filesystem $configReader,

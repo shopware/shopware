@@ -13,6 +13,7 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
@@ -34,9 +35,9 @@ class EntityRouteResolverTest extends TestCase
 
     public function testGetRouteNameReturnsRegisteredRoute(): void
     {
-        $resolver = $this->createResolverWithRoute('product', 'frontend.detail.page');
+        $resolver = $this->createResolverWithRoute('product', ProductPageSeoUrlRoute::ROUTE_NAME);
 
-        static::assertSame('frontend.detail.page', $resolver->getRouteNameForEntityName('product'));
+        static::assertSame(ProductPageSeoUrlRoute::ROUTE_NAME, $resolver->getRouteNameForEntityName('product'));
     }
 
     public function testGetRouteNameResolvesViaConfiguredRouteWhenNotRegistered(): void
@@ -65,10 +66,10 @@ class EntityRouteResolverTest extends TestCase
         $this->placeholderHandler
             ->expects($this->once())
             ->method('generate')
-            ->with('frontend.detail.page', ['productId' => 'abc123'])
+            ->with(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => 'abc123'])
             ->willReturn('SEO_PLACEHOLDER');
 
-        $resolver = $this->createResolverWithRoute('product', 'frontend.detail.page', 'productId');
+        $resolver = $this->createResolverWithRoute('product', ProductPageSeoUrlRoute::ROUTE_NAME, 'productId');
 
         static::assertSame('SEO_PLACEHOLDER', $resolver->generateSeoUrlPlaceholder('product', 'abc123'));
     }
@@ -78,10 +79,10 @@ class EntityRouteResolverTest extends TestCase
         $this->router
             ->expects($this->once())
             ->method('generate')
-            ->with('frontend.detail.page', ['productId' => 'abc123'])
+            ->with(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => 'abc123'])
             ->willReturn('/product/some-product/abc123');
 
-        $resolver = $this->createResolverWithRoute('product', 'frontend.detail.page', 'productId');
+        $resolver = $this->createResolverWithRoute('product', ProductPageSeoUrlRoute::ROUTE_NAME, 'productId');
 
         static::assertSame('/product/some-product/abc123', $resolver->generateUrl('product', 'abc123'));
     }
@@ -90,7 +91,7 @@ class EntityRouteResolverTest extends TestCase
     {
         $this->expectExceptionObject(SeoUrlRouteConfigException::routeConfigMissingParameterKeyForPrimaryKey('product'));
 
-        $resolver = $this->createResolverWithRoute('product', 'frontend.detail.page');
+        $resolver = $this->createResolverWithRoute('product', ProductPageSeoUrlRoute::ROUTE_NAME);
 
         $resolver->generateUrl('product', 'abc123');
     }

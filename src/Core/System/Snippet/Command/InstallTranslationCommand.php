@@ -20,11 +20,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[AsCommand(
     name: 'translation:install',
     description: 'Downloads and installs translations from the translations GitHub repository for the specified locales or all available locales. Re-installing will overwrite existing translations.',
 )]
-#[Package('discovery')]
 class InstallTranslationCommand extends Command
 {
     public function __construct(

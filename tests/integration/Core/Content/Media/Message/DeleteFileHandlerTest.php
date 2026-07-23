@@ -5,11 +5,13 @@ namespace Shopware\Tests\Integration\Core\Content\Media\Message;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Message\DeleteFileHandler;
 use Shopware\Core\Content\Media\Message\DeleteFileMessage;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class DeleteFileHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;

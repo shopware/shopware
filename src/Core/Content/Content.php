@@ -27,17 +27,17 @@ class Content extends Bundle
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
-        $loader->load('breadcrumb.xml');
+        $phpLoader->load('breadcrumb.php');
         $loader->load('category.xml');
         $phpLoader->load('cookie.php');
         $loader->load('media.xml');
         $loader->load('media_path.xml');
-        $loader->load('product.xml');
+        $phpLoader->load('product.php');
         $phpLoader->load('newsletter_recipient.php');
         $loader->load('rule.xml');
-        $loader->load('product_stream.xml');
-        $loader->load('product_export.xml');
-        $loader->load('property.xml');
+        $phpLoader->load('product_stream.php');
+        $phpLoader->load('product_export.php');
+        $phpLoader->load('property.php');
         $loader->load('cms.xml');
         $phpLoader->load('mail.php');
         $phpLoader->load('mail_template.php');
@@ -48,7 +48,7 @@ class Content extends Bundle
         $loader->load('sitemap.xml');
         $loader->load('landing_page.xml');
         $phpLoader->load('flow.php');
-        $loader->load('measurement_system.xml');
+        $phpLoader->load('measurement_system.php');
         $phpLoader->load('shared.php');
 
         $phpLoader->load('product_export_tracking.php');

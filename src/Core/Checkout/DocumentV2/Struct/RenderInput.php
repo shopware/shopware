@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
  * It bundles the order snapshot, the final document number and all provider DTOs so renderers
  * can consume prepared data without reloading or recalculating it.
  *
- * @internal
+ * @internal - planned public
  */
 #[Package('after-sales')]
 final readonly class RenderInput

@@ -6,9 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 
 /**
- * @codeCoverageIgnore
+ * @internal - planned public
  *
- * @internal
+ * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 final readonly class DocumentCompanyInfo

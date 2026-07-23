@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
  * Each matching provider is called once per generation request. Its output is stored in the
  * RenderInput so multiple renderers can reuse the same prepared data.
  *
- * @internal
+ * @internal - planned public
  *
  * @codeCoverageIgnore
  */
@@ -28,7 +28,7 @@ abstract readonly class AbstractDocumentDataProvider
     abstract public function getKey(): string;
 
     /**
-     * Whether this provider contributes data for the given document type.
+     * Whether the provider supports the given document type.
      */
     abstract public function supports(string $documentType): bool;
 

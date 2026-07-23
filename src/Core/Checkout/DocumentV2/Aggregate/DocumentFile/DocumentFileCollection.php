@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @internal - planned public
  *
  * @extends EntityCollection<DocumentFileEntity>
  */

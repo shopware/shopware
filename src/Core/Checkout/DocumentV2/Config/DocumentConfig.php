@@ -6,9 +6,9 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @codeCoverageIgnore
+ * @internal - planned public
  *
- * @internal
+ * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 final readonly class DocumentConfig

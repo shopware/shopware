@@ -177,6 +177,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DocumentPersister::class),
             service(DocumentDependencyResolver::class),
             service('order.repository'),
+            service('event_dispatcher'),
         ]);
 
     $services->set(DocumentGenerationRequestResolver::class)

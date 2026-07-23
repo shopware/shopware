@@ -20,7 +20,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
  * Renderers pass only the view path, the {@see RenderInput} and any format-specific extras
  * (e.g. an HTML pagination counter or PDF configuration).
  *
- * @internal
+ * @internal - planned public
  */
 #[Package('after-sales')]
 final readonly class DocumentTemplateRenderer

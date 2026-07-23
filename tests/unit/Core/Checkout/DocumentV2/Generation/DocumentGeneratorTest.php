@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
@@ -36,6 +37,7 @@ use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInt
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentDataProvider;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -119,11 +121,21 @@ class DocumentGeneratorTest extends TestCase
 
         $document = new DocumentEntity();
 
+        $dispatcher = new EventDispatcher();
+        $generatedEvent = null;
+        $dispatcher->addListener(
+            DocumentGeneratedEvent::class,
+            function (DocumentGeneratedEvent $event) use (&$generatedEvent): void {
+                $generatedEvent = $event;
+            },
+        );
+
         [$generator, $documentRepository, $documentFileRepository] = $this->createGenerator(
             $orderRepository,
             $numberRangeValueGenerator,
             $documentTypeId,
             $document,
+            $dispatcher,
         );
 
         $result = $generator->generate($generationRequest, $context);
@@ -138,6 +150,13 @@ class DocumentGeneratorTest extends TestCase
         static::assertSame(DocumentFormat::PDF->value, $documentFileRepository->creates[0][0]['documentFormat']);
         static::assertIsString($documentFileRepository->creates[0][0]['mediaId']);
         static::assertNotSame('', $documentFileRepository->creates[0][0]['mediaId']);
+
+        static::assertInstanceOf(DocumentGeneratedEvent::class, $generatedEvent);
+        static::assertSame($document, $generatedEvent->getDocument());
+        static::assertSame($order, $generatedEvent->getOrder());
+        static::assertSame($orderId, $generatedEvent->getOrderId());
+        static::assertSame($salesChannelId, $generatedEvent->getSalesChannelId());
+        static::assertSame([DocumentFormat::PDF->value], $generatedEvent->getFormats());
     }
 
     public function testPreview(): void
@@ -290,7 +309,10 @@ class DocumentGeneratorTest extends TestCase
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         string $documentTypeId,
         DocumentEntity $document,
+        ?EventDispatcher $eventDispatcher = null,
     ): array {
+        $eventDispatcher ??= new EventDispatcher();
+
         /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             [],
@@ -348,6 +370,7 @@ class DocumentGeneratorTest extends TestCase
             ),
             new DocumentDependencyResolver($rendererRegistry),
             $orderRepository,
+            $eventDispatcher,
         );
 
         return [$generator, $documentRepository, $documentFileRepository];

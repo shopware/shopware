@@ -24,7 +24,7 @@ use Shopware\Core\Framework\Log\Package;
  * for HTML and PDF output for the same document number. Intermediate dependency formats that
  * only exist during rendering are not stored here.
  *
- * @internal
+ * @internal - planned public
  */
 #[Package('after-sales')]
 class DocumentFileDefinition extends EntityDefinition

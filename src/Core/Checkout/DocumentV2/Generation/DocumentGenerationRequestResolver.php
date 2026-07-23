@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Constraints\Type;
  * @internal
  */
 #[Package('after-sales')]
-readonly class DocumentGenerationRequestResolver implements ValueResolverInterface
+final readonly class DocumentGenerationRequestResolver implements ValueResolverInterface
 {
     public function __construct(
         private DataValidator $dataValidator,

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @internal - planned public
  */
 #[Package('after-sales')]
 class DocumentFileEntity extends Entity

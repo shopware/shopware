@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Clock\Clock;
 
 /**
- * @internal
+ * @internal - planned public
  */
 #[Package('after-sales')]
 final readonly class DocumentGenerationRequest

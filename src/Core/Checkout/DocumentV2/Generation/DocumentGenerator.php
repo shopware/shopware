@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent;
 use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
@@ -19,9 +20,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @internal
+ * @internal - planned public
  */
 #[Package('after-sales')]
 final readonly class DocumentGenerator
@@ -36,6 +38,7 @@ final readonly class DocumentGenerator
         private DocumentPersister $documentPersister,
         private DocumentDependencyResolver $dependencyResolver,
         private EntityRepository $orderRepository,
+        private EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -58,13 +61,24 @@ final readonly class DocumentGenerator
             'requestedFormats' => $requestedFormats,
         ] = $this->generateDocument($generationRequest, $apiContext);
 
-        return $this->documentPersister->persist(
+        $document = $this->documentPersister->persist(
             $generationRequest,
             $renderInput,
             $renderState,
             $requestedFormats,
             $apiContext,
         );
+
+        $event = new DocumentGeneratedEvent(
+            $document,
+            $renderInput->order,
+            $requestedFormats,
+            $apiContext
+        );
+
+        $this->eventDispatcher->dispatch($event);
+
+        return $document;
     }
 
     /**

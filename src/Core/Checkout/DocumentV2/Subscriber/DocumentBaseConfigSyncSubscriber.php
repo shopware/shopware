@@ -22,7 +22,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * @internal
  */
 #[Package('after-sales')]
-class DocumentBaseConfigSyncSubscriber implements EventSubscriberInterface
+final readonly class DocumentBaseConfigSyncSubscriber implements EventSubscriberInterface
 {
     final public const DOCUMENT_CONFIG_MIGRATION_MAP = [
         'pageSize' => [

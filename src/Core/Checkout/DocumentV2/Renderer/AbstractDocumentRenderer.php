@@ -31,6 +31,11 @@ abstract readonly class AbstractDocumentRenderer
     abstract public function getFormat(): string;
 
     /**
+     * Returns the file extension produced by this renderer.
+     */
+    abstract public function getFileExtension(): string;
+
+    /**
      * Returns the document types this renderer can render.
      *
      * @see DocumentType

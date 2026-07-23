@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -92,9 +93,7 @@ class SalesChannelException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function orderNotFound(string $orderId): self|OrderException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -288,9 +287,7 @@ class SalesChannelException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function missingAssociation(string $association): self|OrderException
     {
         if (!Feature::isActive('v6.8.0.0')) {

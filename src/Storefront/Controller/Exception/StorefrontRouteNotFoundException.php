@@ -8,7 +8,7 @@ use Symfony\Component\Routing\Exception\RouteNotFoundException;
 /**
  * @codeCoverageIgnore
  */
-#[Package('framework')]
+#[Package('discovery')]
 class StorefrontRouteNotFoundException extends RouteNotFoundException
 {
     public function __construct(string $route, ?\Throwable $previous = null)

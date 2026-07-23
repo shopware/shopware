@@ -1,5 +1,5 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": [],
     "components": {
@@ -276,9 +276,7 @@
                     },
                     "apiAlias": {
                         "type": "string",
-                        "enum": [
-                            "order_line_item"
-                        ]
+                        "const": "order_line_item"
                     },
                     "extensions": {
                         "type": "object"

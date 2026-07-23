@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
@@ -47,6 +48,7 @@ use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ThemeCompiler::class)]
 class ThemeCompilerTest extends TestCase
 {

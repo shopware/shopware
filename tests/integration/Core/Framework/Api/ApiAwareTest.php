@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Notification\NotificationDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -18,6 +19,7 @@ use Shopware\Storefront\Theme\ThemeDefinition;
 /**
  * @internal
  */
+#[Package('framework')]
 class ApiAwareTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour;

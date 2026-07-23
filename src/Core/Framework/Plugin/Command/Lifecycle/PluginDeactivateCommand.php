@@ -11,11 +11,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'plugin:deactivate',
     description: 'Deactivates a plugin',
 )]
-#[Package('framework')]
 class PluginDeactivateCommand extends AbstractPluginLifecycleCommand
 {
     private const LIFECYCLE_METHOD = 'deactivate';

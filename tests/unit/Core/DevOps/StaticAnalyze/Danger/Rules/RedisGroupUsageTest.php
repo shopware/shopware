@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\RedisGroupUsage;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Stub\StubFile;
 use Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Stub\StubPlatform;
 use Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Stub\StubPullRequest;
@@ -15,6 +16,7 @@ use Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Stub\StubPullRequest;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RedisGroupUsage::class)]
 class RedisGroupUsageTest extends TestCase
 {

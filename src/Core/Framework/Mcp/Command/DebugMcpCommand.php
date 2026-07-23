@@ -24,8 +24,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @experimental stableVersion:v6.8.0
  */
-#[AsCommand(name: 'debug:mcp', description: 'List registered MCP capabilities (tools, prompts, resources)')]
 #[Package('framework')]
+#[AsCommand(name: 'debug:mcp', description: 'List registered MCP capabilities (tools, prompts, resources)')]
 class DebugMcpCommand extends Command
 {
     /**

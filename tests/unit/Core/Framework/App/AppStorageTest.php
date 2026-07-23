@@ -7,11 +7,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppStorage::class)]
 class AppStorageTest extends TestCase
 {

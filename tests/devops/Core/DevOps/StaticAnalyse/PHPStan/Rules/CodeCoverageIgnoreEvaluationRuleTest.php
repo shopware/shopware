@@ -7,12 +7,14 @@ use PHPStan\Testing\RuleTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnoreEvaluationRule;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @extends RuleTestCase<CodeCoverageIgnoreEvaluationRule>
  */
+#[Package('framework')]
 class CodeCoverageIgnoreEvaluationRuleTest extends RuleTestCase
 {
     private const FIXTURE_DIR = __DIR__ . '/data/CodeCoverageIgnoreEvaluation/';

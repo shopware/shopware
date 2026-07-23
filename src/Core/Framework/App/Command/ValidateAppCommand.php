@@ -20,11 +20,11 @@ use Symfony\Component\Finder\Finder;
 /**
  * @internal only for use by the app-system
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'app:validate',
     description: 'Validates an app',
 )]
-#[Package('framework')]
 class ValidateAppCommand extends Command
 {
     public function __construct(

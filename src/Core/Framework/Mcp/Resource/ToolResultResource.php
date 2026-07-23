@@ -14,13 +14,13 @@ use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
  * Serves a large tool result that was stored during the current MCP session.
  * Access is restricted to the session that created the result.
  */
+#[Package('framework')]
 #[McpResourceTemplate(
     uriTemplate: 'shopware://tool-result/{id}',
     name: 'tool-result',
     description: 'Retrieves a large tool result stored by a previous tool call in this session. Fetch when a tool response contains a resourceUri pointing here.',
     mimeType: 'application/json',
 )]
-#[Package('framework')]
 class ToolResultResource
 {
     /**

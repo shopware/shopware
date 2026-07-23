@@ -4,7 +4,7 @@ import './sw-cms-el-config-product-listing.scss';
 const { Mixin } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
-const { has, set, unset } = Shopware.Utils.object;
+const { has } = Shopware.Utils.object;
 
 /**
  * @private
@@ -293,6 +293,8 @@ export default {
 
         async initProductSorting() {
             if (Object.keys(this.productSortingsConfigValue).length === 0) {
+                this.productSortings = new EntityCollection('/product-sorting', 'product_sorting', Shopware.Context.api);
+
                 return;
             }
 
@@ -344,15 +346,30 @@ export default {
 
         initDefaultSorting() {
             const defaultSortingId = this.element.config.defaultSorting.value;
-            if (defaultSortingId !== '') {
-                const criteria = new Criteria(1, 25);
+            if (!defaultSortingId) {
+                this.defaultSorting = {};
+                this.defaultSortingId = null;
 
-                criteria.addFilter(Criteria.equals('id', defaultSortingId));
+                return;
+            }
 
-                this.productSortingRepository.search(criteria).then((response) => {
-                    this.defaultSorting = response.first() || {};
-                    this.defaultSortingId = this.defaultSorting.id ?? null;
-                });
+            const criteria = new Criteria(1, 25);
+
+            criteria.addFilter(Criteria.equals('id', defaultSortingId));
+
+            return this.productSortingRepository.search(criteria).then((response) => {
+                this.defaultSorting = response.first() || {};
+                this.defaultSortingId = this.defaultSorting.id ?? null;
+            });
+        },
+
+        async restoreDefaultSorting() {
+            await this.initDefaultSorting();
+
+            if (this.defaultSorting.id && !this.productSortings.has(this.defaultSorting.id)) {
+                const collection = EntityCollection.fromCollection(this.productSortings);
+                collection.add(this.defaultSorting);
+                this.productSortings = collection;
             }
         },
 

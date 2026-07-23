@@ -209,6 +209,17 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         expect(wrapper.find('sw-cms-el-config-product-listing-config-sorting-grid-stub').exists()).toBeFalsy();
     });
 
+    it('should clear product sortings when restoring inheritance without product sortings', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.productSortings = new EntityCollection('', '', {}, {}, [{ id: 'local_sorting' }]);
+        wrapper.vm.element.config.availableSortings.value = {};
+
+        await wrapper.vm.initProductSorting();
+
+        expect(wrapper.vm.productSortings).toHaveLength(0);
+    });
+
     it('should contain only some content for sorting when defaultSorting is activated', async () => {
         const wrapper = await createWrapper();
 
@@ -282,6 +293,19 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
             foo_id: 2,
             default_id: 1,
         });
+    });
+
+    it('should clear the default sorting when restoring inheritance without a default sorting', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.defaultSorting = { id: 'local_default_sorting' };
+        wrapper.vm.defaultSortingId = 'local_default_sorting';
+        wrapper.vm.element.config.defaultSorting.value = null;
+
+        await wrapper.vm.restoreDefaultSorting();
+
+        expect(wrapper.vm.defaultSorting).toStrictEqual({});
+        expect(wrapper.vm.defaultSortingId).toBeNull();
     });
 
     it('should update the productSortings priority with the values from the config', async () => {

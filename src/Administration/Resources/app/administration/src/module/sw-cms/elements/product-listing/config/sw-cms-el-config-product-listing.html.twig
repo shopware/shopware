@@ -117,6 +117,7 @@
                     field="defaultSorting"
                     :element="element"
                     :label="$t('sw-cms.elements.productListing.config.sorting.labelDefaultSorting')"
+                    @inheritance:restore="restoreDefaultSorting"
                 >
                     <template #default="{ isInherited }">
                         <sw-entity-single-select

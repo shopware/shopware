@@ -334,6 +334,12 @@ public function provideFormData(MailDataSimulatorFormDataEvent $event): void
 
 ## Storefront
 
+### Deprecated `type` variable in address manager templates
+
+The Twig variable `type` in the address manager modal templates (`address-manager-modal-list.html.twig`, `address-manager-modal-create-address.html.twig`, and `address-manager-item.html.twig`) is deprecated in favor of `addressType`.
+The old variable remains available during the transition and will be removed with Shopware 6.8.
+Themes and plugins that extend these templates should migrate to `addressType`.
+
 ### Form validation messages use Storefront snippets
 
 Validation errors rendered by the Storefront `FormController` for contact, newsletter, and revocation forms are now translated from the violation code through Shopware's snippet system. This ensures that the active Storefront language is used instead of Symfony's validator translation catalogue. Plugin authors using custom constraints in these forms should provide matching `error.<violation-code>` entries in `Resources/snippet/storefront.<locale>.json`.

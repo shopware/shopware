@@ -84,15 +84,10 @@ class ProductConfiguratorLoader
     }
 
     /**
-     * Loads the configurator groups from the options that actually occur on the
-     * product's variant combinations, enriched with the parent's
-     * `product_configurator_setting` rows (position, media). Loading the options
-     * from the combinations instead of the settings keeps variants whose option
-     * id has no setting row (e.g. the row was deleted directly, or the variant
-     * was created via API without it) selectable: the option would otherwise
-     * silently disappear from the configurator and - in multi-group products -
-     * the stored combination could never be matched, greying out the sibling
-     * options.
+     * Loads the configurator groups from the options of the real variant
+     * combinations, enriched with the parent's `product_configurator_setting`
+     * rows. This keeps options without a setting row selectable instead of
+     * greying out their sibling options.
      *
      * @throws InconsistentCriteriaIdsException
      *

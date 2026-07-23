@@ -57,15 +57,15 @@ class AdminModuleGenerator implements ScaffoldingGenerator
     private function createModule(): Stub
     {
         return Stub::template(
-            'src/Resources/app/administration/src/module/swag-example/index.ts',
-            self::STUB_DIRECTORY . '/ts-module.stub'
+            'src/Resources/app/administration/src/module/swag-example/index.js',
+            self::STUB_DIRECTORY . '/js-module.stub'
         );
     }
 
     private function createMainJsEntry(): Stub
     {
         return Stub::raw(
-            'src/Resources/app/administration/src/main.ts',
+            'src/Resources/app/administration/src/main.js',
             $this->mainJsEntry,
         );
     }

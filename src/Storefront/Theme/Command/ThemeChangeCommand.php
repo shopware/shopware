@@ -12,6 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeService;
+use Shopware\Storefront\Theme\UnusedThemeFilesDeleter;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
@@ -43,7 +44,8 @@ class ThemeChangeCommand extends Command
         private readonly ThemeService $themeService,
         private readonly StorefrontPluginRegistry $pluginRegistry,
         private readonly EntityRepository $salesChannelRepository,
-        private readonly EntityRepository $themeRepository
+        private readonly EntityRepository $themeRepository,
+        private readonly UnusedThemeFilesDeleter $unusedThemeFilesDeleter
     ) {
         parent::__construct();
         $this->context = Context::createCLIContext();
@@ -56,6 +58,7 @@ class ThemeChangeCommand extends Command
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Set theme for all sales channel Can not be used together with -s');
         $this->addOption('no-compile', null, InputOption::VALUE_NONE, 'Skip theme compiling');
         $this->addOption('sync', null, InputOption::VALUE_NONE, 'Compile the theme synchronously');
+        $this->addOption('no-cleanup', null, InputOption::VALUE_NONE, 'Do not delete unused theme directories after compilation');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -130,6 +133,11 @@ class ThemeChangeCommand extends Command
                 $this->context,
                 $input->getOption('no-compile')
             );
+        }
+
+        if (!$input->getOption('no-compile') && !$input->getOption('no-cleanup')) {
+            $deletedDirectories = $this->unusedThemeFilesDeleter->deleteUnusedFiles();
+            $this->io->note(\sprintf('Deleted %d unused theme %s', $deletedDirectories, $deletedDirectories === 1 ? 'directory' : 'directories'));
         }
 
         return self::SUCCESS;

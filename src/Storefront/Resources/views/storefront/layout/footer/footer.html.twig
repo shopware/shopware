@@ -83,9 +83,33 @@
                                 </div>
                                 <div class="footer-contact-form">
                                     {% set contactSnippetKey = feature('ACCESSIBILITY_TWEAKS') ? 'footer.serviceContactTextPage' : 'footer.serviceContactText' %}
+                                    {% set contactCmsPageId = config('core.basicInformation.contactPage') %}
+                                    {% set contactUrl = contactCmsPageId ? path(cmsPath, { id: contactCmsPageId }) : '#' %}
+
+                                    {% if contactCmsPageId and feature('ACCESSIBILITY_TWEAKS') %}
+                                        {% for serviceMenuItem in footer.serviceMenu %}
+                                            {% if serviceMenuItem.cmsPageId == contactCmsPageId %}
+                                                {% set contactUrl = category_url(serviceMenuItem) %}
+                                            {% endif %}
+                                        {% endfor %}
+
+                                        {% if footer.navigation and footer.navigation.tree %}
+                                            {% for root in footer.navigation.tree %}
+                                                {% if root.category.cmsPageId == contactCmsPageId %}
+                                                    {% set contactUrl = category_url(root.category) %}
+                                                {% endif %}
+
+                                                {% for footerItem in root.children %}
+                                                    {% if footerItem.category.cmsPageId == contactCmsPageId %}
+                                                        {% set contactUrl = category_url(footerItem.category) %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endif %}
 
                                     {{ contactSnippetKey|trans({
-                                        '%url%': path(cmsPath, { id: config('core.basicInformation.contactPage') })
+                                        '%url%': contactUrl
                                     })|raw }}
                                 </div>
                             </div>
@@ -314,11 +338,35 @@
                         {%- else -%}
                             {% set shippingSnippetKey = context.taxState == 'gross' ? 'footer.includeVatText' : 'footer.excludeVatText' %}
                         {%- endif -%}
+                        {% set shippingCmsPageId = config('core.basicInformation.shippingPaymentInfoPage') %}
+                        {% set shippingUrl = shippingCmsPageId ? path(cmsPath, { id: shippingCmsPageId }) : '#' %}
+
+                        {% if shippingCmsPageId and feature('ACCESSIBILITY_TWEAKS') %}
+                            {% for serviceMenuItem in footer.serviceMenu %}
+                                {% if serviceMenuItem.cmsPageId == shippingCmsPageId %}
+                                    {% set shippingUrl = category_url(serviceMenuItem) %}
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if footer.navigation and footer.navigation.tree %}
+                                {% for root in footer.navigation.tree %}
+                                    {% if root.category.cmsPageId == shippingCmsPageId %}
+                                        {% set shippingUrl = category_url(root.category) %}
+                                    {% endif %}
+
+                                    {% for footerItem in root.children %}
+                                        {% if footerItem.category.cmsPageId == shippingCmsPageId %}
+                                            {% set shippingUrl = category_url(footerItem.category) %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endif %}
 
                         <p>
                             {# @deprecated tag:v6.7.0 - The %star% translation parameter will be removed. Translation text will no longer contain the asterisk/star. #}
                             {{ shippingSnippetKey|trans({
-                                '%url%': path(cmsPath, { id: config('core.basicInformation.shippingPaymentInfoPage') }),
+                                '%url%': shippingUrl,
                                 '%star%': feature('ACCESSIBILITY_TWEAKS') ? '' : '* '
                             })|raw }}
                         </p>

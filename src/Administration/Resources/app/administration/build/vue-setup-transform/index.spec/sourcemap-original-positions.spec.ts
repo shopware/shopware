@@ -196,12 +196,12 @@ describe('build/vue-setup-transform sourcemap original positions', () => {
         expectOriginalLine(result, source, '{{ headline }}', '{{ headline }}');
     });
 
-    it('keeps original template mappings around merged override default slot scopes', () => {
+    it('keeps original template mappings around generated override default slot scopes', () => {
         expect.hasAssertions();
 
         const source = stripIndent`
             <template>
-                <sw-block extends="sw_example_card" #default="{ headline }">
+                <sw-block extends="sw_example_card">
                     <p>{{ headline }}</p>
                     <small>{{ info }}</small>
                 </sw-block>
@@ -218,6 +218,7 @@ describe('build/vue-setup-transform sourcemap original positions', () => {
 
         const result = transformOrFail(source, 'template-slot-merge.override.vue');
 
+        // The transform generates the #default slot scope (forwarding headline + the private info).
         expect(result.code).toContain('__swOverride');
         expectOriginalLine(result, source, 'extends="sw_example_card"', 'extends="sw_example_card"');
         expectOriginalLine(result, source, '{{ headline }}', '{{ headline }}');

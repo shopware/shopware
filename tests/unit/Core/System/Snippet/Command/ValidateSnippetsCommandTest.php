@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\Snippet\Command;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand;
@@ -49,6 +50,22 @@ class ValidateSnippetsCommandTest extends TestCase
         $applicationTester = new ApplicationTester($application);
 
         static::assertSame(Command::SUCCESS, $applicationTester->run(['command' => 'snippets:validate']));
+    }
+
+    #[TestDox('The deprecated command alias throws when v6.8 is active')]
+    public function testDeprecatedCommandAliasThrowsWhenV68IsActive(): void
+    {
+        $command = $this->createCommand(new SnippetFileCollection(), []);
+        $command->setName('translation:validate');
+        $command->setAliases(['snippets:validate']);
+        $application = new Application();
+        $application->add($command);
+        $application->setCatchExceptions(false);
+        $applicationTester = new ApplicationTester($application);
+
+        $this->expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: The "snippets:validate" command alias is deprecated; use "translation:validate" instead.'));
+
+        $applicationTester->run(['command' => 'snippets:validate']);
     }
 
     #[TestDox('Missing translations are listed per ISO and fail the command')]

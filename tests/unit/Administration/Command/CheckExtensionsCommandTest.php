@@ -6,7 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Command\AbstractExtensionToolingCommand;
 use Shopware\Administration\Command\CheckExtensionsCommand;
-use Shopware\Administration\Command\SetupExtensionToolingCommand;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -18,10 +18,10 @@ use Symfony\Component\HttpKernel\KernelInterface;
  *
  * @phpstan-type ToolingCall array{command: list<string>, cwd: string, env: array<string, string>}
  */
+#[Package('framework')]
 #[CoversClass(AbstractExtensionToolingCommand::class)]
 #[CoversClass(CheckExtensionsCommand::class)]
-#[CoversClass(SetupExtensionToolingCommand::class)]
-class ExtensionToolingCommandTest extends TestCase
+class CheckExtensionsCommandTest extends TestCase
 {
     private Filesystem $filesystem;
 
@@ -81,28 +81,6 @@ class ExtensionToolingCommandTest extends TestCase
         $this->filesystem->remove($administrationRoot);
     }
 
-    public function testSetupCommandRunsTheSetupEntryScript(): void
-    {
-        $administrationRoot = $this->createAdministrationRoot(withDependencies: true);
-
-        /** @var ToolingCall|null $captured */
-        $captured = null;
-        $command = $this->setupCommand($administrationRoot, function (array $command, string $cwd, array $env) use (&$captured): int {
-            $captured = ['command' => $command, 'cwd' => $cwd, 'env' => $env];
-
-            return 0;
-        });
-        $tester = new CommandTester($command);
-
-        $tester->execute(['tooling-args' => ['--check']]);
-
-        static::assertNotNull($captured);
-        static::assertStringEndsWith('scripts/extensionTooling/setup.ts', $captured['command'][2]);
-        static::assertContains('--check', $captured['command']);
-
-        $this->filesystem->remove($administrationRoot);
-    }
-
     private function createAdministrationRoot(bool $withDependencies): string
     {
         $root = sys_get_temp_dir() . '/' . uniqid('sw-admin-tooling-', true);
@@ -122,35 +100,6 @@ class ExtensionToolingCommandTest extends TestCase
     private function checkCommand(string $administrationRoot, \Closure $runTooling): CheckExtensionsCommand
     {
         return new class($this->kernel(), $administrationRoot, $runTooling) extends CheckExtensionsCommand {
-            /**
-             * @param \Closure(list<string>, string, array<string, string>): int $runTooling
-             */
-            public function __construct(
-                KernelInterface $kernel,
-                private readonly string $administrationRootOverride,
-                private readonly \Closure $runTooling,
-            ) {
-                parent::__construct($kernel);
-            }
-
-            protected function administrationRoot(): string
-            {
-                return $this->administrationRootOverride;
-            }
-
-            protected function runTooling(array $command, string $cwd, array $env, OutputInterface $output): int
-            {
-                return ($this->runTooling)($command, $cwd, $env);
-            }
-        };
-    }
-
-    /**
-     * @param \Closure(list<string>, string, array<string, string>): int $runTooling
-     */
-    private function setupCommand(string $administrationRoot, \Closure $runTooling): SetupExtensionToolingCommand
-    {
-        return new class($this->kernel(), $administrationRoot, $runTooling) extends SetupExtensionToolingCommand {
             /**
              * @param \Closure(list<string>, string, array<string, string>): int $runTooling
              */

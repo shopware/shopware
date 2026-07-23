@@ -31,11 +31,11 @@ describe('extension tooling command layout', () => {
     });
 
     it('writes the layout-aware refresh command into the baseline marker', () => {
-        expect(serializeBaseline({ typescript: [], typescriptSpecs: [], eslint: [] }, flexCommands)).toContain(
+        expect(serializeBaseline({ version: 1, typescript: [], typescriptSpecs: [], eslint: [] }, flexCommands)).toContain(
             'refresh with bin/console administration:check-extensions -- --update-baseline',
         );
         // Default (no commands) keeps the composer form.
-        expect(serializeBaseline({ typescript: [], typescriptSpecs: [], eslint: [] })).toContain(
+        expect(serializeBaseline({ version: 1, typescript: [], typescriptSpecs: [], eslint: [] })).toContain(
             'refresh with composer admin:check-extensions -- --update-baseline',
         );
     });

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Administration\Command;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Command\GenerateEntitySchemaTypesCommand;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -13,6 +14,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(GenerateEntitySchemaTypesCommand::class)]
 class GenerateEntitySchemaTypesCommandTest extends TestCase
 {

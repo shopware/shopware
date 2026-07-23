@@ -20,7 +20,7 @@ class ValidatorFactory
      *
      * @return TClassToCreate
      */
-    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'allowExtraFields', parameterType: 'bool')]
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'allowExtraFields', parameterType: 'bool', defaultValue: false)]
     public static function create(array $data, string $class /* , bool $allowExtraFields = false */): object
     {
         $allowExtraFields = \func_num_args() > 2 && \func_get_arg(2);

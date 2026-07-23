@@ -1333,6 +1333,7 @@ The `useAxiosV1` flag will be deprecated once axios v1 becomes the sole version.
 Plan to migrate all code to axios v1 as soon as possible.
 
 For detailed migration instructions, see the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md`.
+The architectural rationale is documented in [Keep Administration HTTP transports behind a compatibility facade](adr/2026-07-23-administration-http-client-compatibility-facade.md).
 
 ## Removal of "sw-empty-state"
 

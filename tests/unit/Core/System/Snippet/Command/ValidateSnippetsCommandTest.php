@@ -7,7 +7,6 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
@@ -15,6 +14,7 @@ use Shopware\Core\System\Snippet\SnippetFileHandler;
 use Shopware\Core\System\Snippet\SnippetFixer;
 use Shopware\Core\System\Snippet\SnippetValidator;
 use Shopware\Core\System\Snippet\Struct\MissingSnippetCollection;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\HelperSet;
@@ -46,7 +46,7 @@ class ValidateSnippetsCommandTest extends TestCase
         $command->setName('translation:validate');
         $command->setAliases(['snippets:validate']);
         $application = new Application();
-        $application->add($command);
+        $application->addCommand($command);
         $applicationTester = new ApplicationTester($application);
 
         static::assertSame(Command::SUCCESS, $applicationTester->run(['command' => 'snippets:validate']));
@@ -59,7 +59,7 @@ class ValidateSnippetsCommandTest extends TestCase
         $command->setName('translation:validate');
         $command->setAliases(['snippets:validate']);
         $application = new Application();
-        $application->add($command);
+        $application->addCommand($command);
         $application->setCatchExceptions(false);
         $applicationTester = new ApplicationTester($application);
 

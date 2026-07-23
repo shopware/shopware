@@ -220,12 +220,7 @@ class LineItem extends Struct
         return $this->payload;
     }
 
-    /**
-     * @return mixed|null
-     *
-     * @deprecated tag:v6.8.0 - reason:return-type-change - will use "strong" return type `mixed`
-     */
-    public function getPayloadValue(string $key)
+    public function getPayloadValue(string $key): mixed
     {
         if (!$this->hasPayloadValue($key)) {
             return null;

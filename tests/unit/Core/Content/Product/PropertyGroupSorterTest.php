@@ -166,7 +166,7 @@ class PropertyGroupSorterTest extends TestCase
      * @param class-string<PropertyGroupOptionEntity|PartialEntity> $entityType
      */
     #[DataProvider('optionEntityTypeProvider')]
-    public function testNormalizedOptionsHaveGroupReference(string $entityType, bool $partialGroups): void
+    public function testNormalizedOptionsExposeGroupIdWithoutReferencingTheirGroup(string $entityType, bool $partialGroups): void
     {
         $groupId = Uuid::randomHex();
         $group = $this->createGroup($groupId, PropertyGroupDefinition::SORTING_TYPE_POSITION, true, $partialGroups);
@@ -188,7 +188,44 @@ class PropertyGroupSorterTest extends TestCase
         $normalizedOption = $groupOptions->first();
         static::assertNotNull($normalizedOption);
         static::assertSame($groupId, $normalizedOption->getGroupId());
-        static::assertSame($sortedGroup, $normalizedOption->getGroup());
+
+        // The option must never point back to the group that already contains it. Such a
+        // group <-> option cycle makes Entity::__clone() recurse infinitely, see
+        // testSortedResultCanBeClonedWithoutInfiniteRecursion().
+        static::assertNotSame($sortedGroup, $normalizedOption->getGroup());
+    }
+
+    /**
+     * @param class-string<PropertyGroupOptionEntity|PartialEntity> $entityType
+     */
+    #[DataProvider('optionEntityTypeProvider')]
+    public function testSortedResultCanBeClonedWithoutInfiniteRecursion(string $entityType, bool $partialGroups): void
+    {
+        $groupId = Uuid::randomHex();
+        $group = $this->createGroup($groupId, PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC, true, $partialGroups);
+
+        $options = $this->createOptionsCollection(
+            $this->createOption($entityType, $groupId, 'red', 2, $group),
+            $this->createOption($entityType, $groupId, 'blue', 1, $group),
+        );
+
+        $sorter = new PropertyGroupSorter();
+        $result = $sorter->sortUsingLocaleCode($options, 'en-GB');
+
+        // Regression guard for the storefront product detail page crash: the sorted collection is
+        // attached to the product as `sortedProperties` and later cloned while the product graph is
+        // copied. A cyclic group <-> option graph made Entity::__clone() (CloneTrait, no cycle
+        // detection) recurse until the call stack overflowed. Cloning must terminate and copy the
+        // options.
+        $clonedResult = clone $result;
+
+        $clonedGroup = $clonedResult->first();
+        static::assertNotNull($clonedGroup);
+        static::assertNotSame($result->first(), $clonedGroup);
+
+        $clonedOptions = $clonedGroup->getOptions();
+        static::assertInstanceOf(PropertyGroupOptionCollection::class, $clonedOptions);
+        static::assertSame(['blue', 'red'], $this->extractOptionNames($clonedOptions));
     }
 
     private function createGroup(string $id, string $sortingType, bool $visibleOnProductDetailPage, bool $partial = false): Entity

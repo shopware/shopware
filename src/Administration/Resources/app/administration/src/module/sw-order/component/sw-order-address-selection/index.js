@@ -114,14 +114,12 @@ export default {
                         return null;
                     }
 
-                    // Entity proxies may omit `id` when spread; set it explicitly for newly created addresses
-                    const option = {
-                        label: this.addressLabel(item),
+                    // Entity proxies may omit `id` when spread, so set it explicitly.
+                    return {
                         ...item,
+                        id: item.id,
+                        label: this.addressLabel(item),
                     };
-                    option.id = item.id;
-
-                    return option;
                 })
                 .filter((item) => item !== null);
 

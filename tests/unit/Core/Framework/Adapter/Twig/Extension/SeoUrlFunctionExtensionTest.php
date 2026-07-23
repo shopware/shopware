@@ -35,7 +35,7 @@ class SeoUrlFunctionExtensionTest extends TestCase
         $this->entityRouteResolver = $this->createMock(EntityRouteResolver::class);
 
         $this->extension = new SeoUrlFunctionExtension(
-            new RoutingExtension($this->createStub(UrlGeneratorInterface::class)),
+            new RoutingExtension(static::createStub(UrlGeneratorInterface::class)),
             $this->seoUrlReplacer,
             $this->entityRouteResolver,
         );
@@ -88,7 +88,7 @@ class SeoUrlFunctionExtensionTest extends TestCase
     {
         $primaryKey = Uuid::randomHex();
 
-        $salesChannelContext = $this->createStub(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('isHeadless')->willReturn(true);
 
         $this->entityRouteResolver
@@ -109,7 +109,7 @@ class SeoUrlFunctionExtensionTest extends TestCase
     {
         $primaryKey = Uuid::randomHex();
 
-        $salesChannelContext = $this->createStub(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('isHeadless')->willReturn(false);
 
         $this->entityRouteResolver

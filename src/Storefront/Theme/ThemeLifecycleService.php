@@ -75,7 +75,7 @@ class ThemeLifecycleService
         }
     }
 
-    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'configurationCollection', parameterType: '?StorefrontPluginConfigurationCollection')]
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'configurationCollection', parameterType: '?StorefrontPluginConfigurationCollection', defaultValue: null)]
     public function refreshTheme(StorefrontPluginConfiguration $configuration, Context $context/* , ?StorefrontPluginConfigurationCollection $configurationCollection = null */): void
     {
         $themeData = [];

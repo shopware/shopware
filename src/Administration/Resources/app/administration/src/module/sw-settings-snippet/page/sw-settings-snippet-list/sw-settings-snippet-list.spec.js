@@ -52,8 +52,23 @@ function getSnippetSets() {
 }
 
 describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
+    let wrapper = null;
+
+    beforeEach(() => {
+        jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({ data: {} });
+        jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
+    });
+
+    afterEach(() => {
+        if (wrapper) {
+            wrapper.unmount();
+            wrapper = null;
+        }
+        jest.restoreAllMocks();
+    });
+
     async function createWrapper(privileges = []) {
-        return mount(
+        wrapper = mount(
             await wrapTestComponent('sw-settings-snippet-list', {
                 sync: true,
             }),
@@ -95,10 +110,6 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                             getFilter: () => Promise.resolve({ data: [] }),
                         },
                         searchRankingService: {},
-                        userConfigService: {
-                            search: () => ({ data: [] }),
-                            upsert: () => null,
-                        },
                     },
                     mocks: {
                         $route: {
@@ -144,6 +155,8 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                 },
             },
         );
+
+        return wrapper;
     }
 
     it.each([

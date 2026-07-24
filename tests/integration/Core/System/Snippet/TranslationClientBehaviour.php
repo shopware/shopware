@@ -57,9 +57,22 @@ trait TranslationClientBehaviour
     }
 
     #[Before]
-    #[After]
     public function resetTranslationMock(): void
     {
         $this->getTranslationRequestHandler()->reset();
+    }
+
+    #[After]
+    public function assertTranslationMockConsumed(): void
+    {
+        $handler = $this->getTranslationRequestHandler();
+        $remaining = $handler->count();
+        $handler->reset();
+
+        // an unconsumed queue means requests did not reach the mocked client — this guards
+        // against the override being lost again (see #18067) and against over-queueing
+        if ($this->status()->isSuccess()) {
+            static::assertSame(0, $remaining, \sprintf('%d queued translation mock responses were not consumed', $remaining));
+        }
     }
 }

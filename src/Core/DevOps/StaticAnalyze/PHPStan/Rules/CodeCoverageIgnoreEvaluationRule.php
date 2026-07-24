@@ -33,7 +33,7 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
 {
     private readonly ExemptionResolver $exemptions;
 
-    public function __construct(ReflectionProvider $reflectionProvider)
+    public function __construct(private readonly ReflectionProvider $reflectionProvider)
     {
         $this->exemptions = new ExemptionResolver($reflectionProvider);
     }
@@ -78,7 +78,7 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
 
         $classExempted = $classHasIgnore && $this->exemptions->isExempted($node, $useMap);
 
-        return $this->checkMethods($node, $useMap, $className, $classHasIgnore, $classExempted);
+        return $this->checkMethods($node, $useMap, $className, $classHasIgnore, $classExempted, $this->isThrowable($className));
     }
 
     private function anyMethodHasIgnore(Class_ $node): bool
@@ -103,13 +103,14 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
         string $className,
         bool $classHasIgnore,
         bool $classExempted,
+        bool $inThrowableContext,
     ): array {
         $errors = [];
 
         foreach ($node->getMethods() as $method) {
             $methodName = (string) $method->name;
 
-            if ($classHasIgnore && !$classExempted && LogicDetector::methodContainsLogic($method)) {
+            if ($classHasIgnore && !$classExempted && LogicDetector::methodContainsLogic($method, $inThrowableContext)) {
                 $errors[] = Errors::classLevel($className, $methodName, $method->getStartLine());
 
                 continue;
@@ -123,7 +124,7 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
                 continue;
             }
 
-            if (LogicDetector::methodContainsLogic($method)) {
+            if (LogicDetector::methodContainsLogic($method, $inThrowableContext)) {
                 $errors[] = Errors::methodLevel($className, $methodName, $method->getStartLine());
             }
         }
@@ -152,5 +153,14 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
         }
 
         return (bool) preg_match('/@codeCoverageIgnore(?![A-Za-z])/', $doc->getText());
+    }
+
+    private function isThrowable(string $className): bool
+    {
+        if (!$this->reflectionProvider->hasClass($className)) {
+            return false;
+        }
+
+        return $this->reflectionProvider->getClass($className)->implementsInterface(\Throwable::class);
     }
 }

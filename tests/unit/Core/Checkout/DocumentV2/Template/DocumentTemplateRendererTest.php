@@ -75,6 +75,7 @@ class DocumentTemplateRendererTest extends TestCase
                     return $parameters['order'] === $order
                         && $parameters['documentNumber'] === '12345'
                         && $parameters['rootDir'] === 'rootDir'
+                        && $parameters['documentV2'] === true
                         && !\array_key_exists('counter', $parameters)
                         && $parameters['context'] instanceof SalesChannelContext;
                 }),

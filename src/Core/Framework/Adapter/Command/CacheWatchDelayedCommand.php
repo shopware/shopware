@@ -42,7 +42,15 @@ class CacheWatchDelayedCommand extends Command implements SignalableCommandInter
      */
     public function getSubscribedSignals(): array
     {
-        return [\SIGINT, \SIGTERM];
+        $signals = [];
+        if (\defined('SIGINT')) {
+            $signals[] = \SIGINT;
+        }
+        if (\defined('SIGTERM')) {
+            $signals[] = \SIGTERM;
+        }
+
+        return $signals;
     }
 
     public function handleSignal(int $signal, int|false $previousExitCode = 0): int|false

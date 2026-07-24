@@ -93,7 +93,7 @@ readonly class SystemLanguageChangedSubscriber implements EventSubscriberInterfa
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('code', $code));
 
-        $locale = $this->localeRepository->search($criteria, $context)->first();
+        $locale = $this->localeRepository->search($criteria, $context)->getEntities()->first();
         if (!$locale instanceof LocaleEntity) {
             throw LocaleException::localeDoesNotExists($code);
         }

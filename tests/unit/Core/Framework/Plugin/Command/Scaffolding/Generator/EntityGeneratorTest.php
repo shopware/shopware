@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command\Scaffolding\Generato
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\EntityGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
@@ -15,6 +16,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EntityGenerator::class)]
 class EntityGeneratorTest extends TestCase
 {
@@ -42,10 +44,10 @@ class EntityGeneratorTest extends TestCase
     ): void {
         $configuration = $this->getConfig();
 
-        $input = $this->createMock(InputInterface::class);
+        $input = static::createStub(InputInterface::class);
         $input->method('getOption')->willReturn($getOptionResponse);
 
-        $io = $this->createMock(SymfonyStyle::class);
+        $io = static::createStub(SymfonyStyle::class);
         $io->method('confirm')->willReturn($confirmResponse);
         $io->method('ask')->willReturn($entitiesAnswerInput);
 

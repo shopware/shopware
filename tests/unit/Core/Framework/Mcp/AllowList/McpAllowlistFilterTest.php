@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\AllowList;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(McpAllowlistFilter::class)]
 class McpAllowlistFilterTest extends TestCase
 {

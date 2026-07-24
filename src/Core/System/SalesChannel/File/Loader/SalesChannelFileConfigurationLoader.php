@@ -25,13 +25,14 @@ class SalesChannelFileConfigurationLoader
 
     public function load(string $fileFamily, string $fileName, string $salesChannelId, Context $context): ?SalesChannelFileEntity
     {
+        // The case-insensitive database collation and unique index guarantee at most one configuration per logical file name.
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('salesChannelId', $salesChannelId))
             ->addFilter(new EqualsFilter('fileFamily', $fileFamily))
             ->addFilter(new EqualsFilter('fileName', $fileName))
             ->setLimit(1);
 
-        return $this->repository->search($criteria, $context)->first();
+        return $this->repository->search($criteria, $context)->getEntities()->first();
     }
 
     /**
@@ -43,11 +44,11 @@ class SalesChannelFileConfigurationLoader
             ->addFilter(new EqualsFilter('salesChannelId', $salesChannelId))
             ->addFilter(new EqualsFilter('fileFamily', $fileFamily));
 
-        $entities = $this->repository->search($criteria, $context);
+        $entities = $this->repository->search($criteria, $context)->getEntities();
         $configurations = [];
 
         foreach ($entities as $entity) {
-            $configurations[$entity->getFileName()] = $entity;
+            $configurations[mb_strtolower($entity->getFileName())] = $entity;
         }
 
         return $configurations;

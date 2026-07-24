@@ -27,8 +27,8 @@ class ScheduledTaskHandlerTest extends TestCase
         /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
         $repository = new StaticEntityRepository([]);
 
-        $handler = new HandlerStub($repository, $this->createMock(LoggerInterface::class));
-        $handler->setScheduledTaskExecutor(new ScheduledTaskExecutor($repository, $this->createMock(LoggerInterface::class), new MockClock()));
+        $handler = new HandlerStub($repository, static::createStub(LoggerInterface::class));
+        $handler->setScheduledTaskExecutor(new ScheduledTaskExecutor($repository, static::createStub(LoggerInterface::class), new MockClock()));
 
         // a task without id is run directly by the executor, without touching the repository
         $task = new HandlerStubTask();
@@ -44,8 +44,8 @@ class ScheduledTaskHandlerTest extends TestCase
     public function testInvokeThrowsWhenNoExecutorIsSetAndMajorIsActive(): void
     {
         $handler = new HandlerStub(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(LoggerInterface::class),
         );
 
         Feature::fake(['v6.8.0.0'], function () use ($handler): void {
@@ -65,7 +65,7 @@ class ScheduledTaskHandlerTest extends TestCase
         /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
         $repository = new StaticEntityRepository([new ScheduledTaskCollection()]);
 
-        $handler = new HandlerStub($repository, $this->createMock(LoggerInterface::class));
+        $handler = new HandlerStub($repository, static::createStub(LoggerInterface::class));
 
         $task = new HandlerStubTask();
         $task->setTaskId('task-id');

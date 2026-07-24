@@ -59,7 +59,7 @@ export async function createComponentBuildConfig(options: ComponentBuildConfigOp
         namespace,
         storefrontAppDir,
         coreStorefrontAppDir = path.resolve(import.meta.dirname, '../..'),
-        sourcemap = process.env.NODE_ENV !== 'production',
+        sourcemap = process.env.NODE_ENV !== 'production' || process.env.GENERATE_SOURCEMAPS === 'true',
         cssLoadPaths,
         additionalPlugins = [],
         prependPlugins = [],

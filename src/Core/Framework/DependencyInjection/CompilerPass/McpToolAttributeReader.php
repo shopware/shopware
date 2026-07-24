@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  *
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  */
 #[Package('framework')]
 final class McpToolAttributeReader
@@ -45,5 +45,37 @@ final class McpToolAttributeReader
 
         return $extract($ref->getAttributes($attributeClass))
             ?? ($ref->hasMethod('__invoke') ? $extract($ref->getMethod('__invoke')->getAttributes($attributeClass)) : null);
+    }
+
+    /**
+     * Resolves the first $attributeClass instance declared at class level or on __invoke and
+     * returns the attribute object itself (the value object), or null when the class or attribute
+     * is absent. Prefer this over resolveInfo() when the caller only needs typed access to the
+     * attribute's properties.
+     *
+     * @template TAttribute of object
+     *
+     * @param class-string<TAttribute> $attributeClass
+     *
+     * @return TAttribute|null
+     */
+    public static function resolveAttribute(string $class, string $attributeClass): ?object
+    {
+        if (!class_exists($class)) {
+            return null;
+        }
+
+        $ref = new \ReflectionClass($class);
+
+        $attributes = $ref->getAttributes($attributeClass);
+        if ($attributes === [] && $ref->hasMethod('__invoke')) {
+            $attributes = $ref->getMethod('__invoke')->getAttributes($attributeClass);
+        }
+
+        foreach ($attributes as $attribute) {
+            return $attribute->newInstance();
+        }
+
+        return null;
     }
 }

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\Aggregate\ThemeMediaDefinition;
 use Shopware\Storefront\Theme\ThemeDefinition;
 
-#[Package('framework')]
+#[Package('discovery')]
 class MediaExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void

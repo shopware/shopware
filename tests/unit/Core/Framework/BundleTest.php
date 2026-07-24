@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -16,6 +17,7 @@ use Symfony\Component\Routing\RouteCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Bundle::class)]
 class BundleTest extends TestCase
 {
@@ -97,7 +99,7 @@ class BundleTest extends TestCase
     private function captureRouteImports(string $bundlePath, string $environment): array
     {
         $captured = [];
-        $loader = $this->createMock(PhpFileLoader::class);
+        $loader = static::createStub(PhpFileLoader::class);
         $loader->method('import')->willReturnCallback(
             function (mixed $resource, ?string $type = null) use (&$captured): array {
                 $captured[] = [$resource, $type];

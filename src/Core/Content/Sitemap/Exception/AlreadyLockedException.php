@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class AlreadyLockedException extends ShopwareHttpException
 {

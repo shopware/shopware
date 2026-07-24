@@ -99,7 +99,7 @@ class DocumentDependencyResolverTest extends TestCase
     {
         $resolver = $this->createResolver($renderers);
 
-        static::expectExceptionObject($exception);
+        $this->expectExceptionObject($exception);
 
         $resolver->resolve(DocumentType::INVOICE->value, $requested);
     }

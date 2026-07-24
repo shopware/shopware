@@ -20,8 +20,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
-#[CoversClass(CustomerRemoteAddressSubscriber::class)]
 #[Package('checkout')]
+#[CoversClass(CustomerRemoteAddressSubscriber::class)]
 class CustomerRemoteAddressSubscriberTest extends TestCase
 {
     public function testEvents(): void

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DependencyInjection;
 
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelPolicy;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
@@ -62,6 +63,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createProductTypesSection())
                 ->append($this->createMcpSection())
                 ->append($this->createWebhookSection())
+                ->append($this->createTranslationSection())
             ->end();
 
         return $treeBuilder;
@@ -683,6 +685,40 @@ class Configuration implements ConfigurationInterface
     {
         $rootNode = (new TreeBuilder('cache'))->getRootNode();
         $rootNode
+            // @deprecated tag:v6.8.0 - remove this whole "beforeNormalization" block
+            ->beforeNormalization()
+                ->always()->then(static function ($config) {
+                    if (!\is_array($config)) {
+                        return $config;
+                    }
+
+                    if (\array_key_exists('cache_compression', $config) && !\array_key_exists('compress', $config)) {
+                        Feature::triggerDeprecationOrThrow(
+                            'v6.8.0.0',
+                            'Parameter "shopware.cache.cache_compression" is deprecated and will be removed. Please use "shopware.cache.compress" instead.'
+                        );
+                        $config['compress'] = $config['cache_compression'];
+                    }
+
+                    if (\array_key_exists('cache_compression_method', $config) && !\array_key_exists('compression_method', $config)) {
+                        Feature::triggerDeprecationOrThrow(
+                            'v6.8.0.0',
+                            'Parameter "shopware.cache.cache_compression_method" is deprecated and will be removed. Please use "shopware.cache.compression_method" instead.'
+                        );
+                        $config['compression_method'] = $config['cache_compression_method'];
+                    }
+
+                    // backward compatibility
+                    if (!isset($config['cache_compression']) && isset($config['compress'])) {
+                        $config['cache_compression'] = $config['compress'];
+                    }
+                    if (!isset($config['cache_compression_method']) && isset($config['compression_method'])) {
+                        $config['cache_compression_method'] = $config['compression_method'];
+                    }
+
+                    return $config;
+                })
+            ->end()
             ->children()
                 ->scalarNode('redis_prefix')->end()
                 ->booleanNode('cache_compression')
@@ -1250,12 +1286,10 @@ class Configuration implements ConfigurationInterface
             ->end()
             ->validate()
             ->ifFalse(
-                static fn (array $v) => \count(
-                    array_filter(
-                        array_keys($v),
-                        static fn (string $key) => $key !== 'default' && !Uuid::isValid($key)
-                    )
-                ) === 0
+                static fn (array $v) => array_filter(
+                    array_keys($v),
+                    static fn (string $key) => $key !== 'default' && !Uuid::isValid($key)
+                ) === []
             )
             ->thenInvalid('Key must be "default" or a valid UUID')
             ->end();
@@ -1636,6 +1670,53 @@ class Configuration implements ConfigurationInterface
                     ->info('@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation')
                     ->values(WebhookFailureStrategy::values())
                     ->defaultValue(WebhookFailureStrategy::DisableOnThreshold->value)
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createTranslationSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('translation');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->info('Overrides for the built-in translation system. Options left unset fall back to the shipped defaults in translation.yaml.')
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->scalarNode('repository_url')->defaultNull()->end()
+                ->scalarNode('metadata_url')->defaultNull()->end()
+                // list overrides default to null so an unset option (keep the shipped default) can be told apart from an explicit empty list (clear the shipped default)
+                ->arrayNode('plugins')
+                    ->defaultNull()
+                    ->performNoDeepMerging()
+                    ->scalarPrototype()->cannotBeEmpty()->end()
+                ->end()
+                ->arrayNode('excluded_locales')
+                    ->defaultNull()
+                    ->performNoDeepMerging()
+                    ->scalarPrototype()->cannotBeEmpty()->end()
+                ->end()
+                ->arrayNode('plugin_mapping')
+                    ->defaultNull()
+                    ->performNoDeepMerging()
+                    ->arrayPrototype()
+                        ->children()
+                            ->scalarNode('plugin')->isRequired()->cannotBeEmpty()->end()
+                            ->scalarNode('name')->isRequired()->cannotBeEmpty()->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('languages')
+                    ->defaultNull()
+                    ->performNoDeepMerging()
+                    ->arrayPrototype()
+                        ->children()
+                            ->scalarNode('name')->isRequired()->cannotBeEmpty()->end()
+                            ->scalarNode('locale')->isRequired()->cannotBeEmpty()->end()
+                        ->end()
+                    ->end()
                 ->end()
             ->end();
 

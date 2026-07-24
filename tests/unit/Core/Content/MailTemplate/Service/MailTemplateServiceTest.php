@@ -32,8 +32,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[CoversClass(MailTemplateService::class)]
 #[Package('after-sales')]
+#[CoversClass(MailTemplateService::class)]
 class MailTemplateServiceTest extends TestCase
 {
     private MailDataProvider&MockObject $mailDataProvider;

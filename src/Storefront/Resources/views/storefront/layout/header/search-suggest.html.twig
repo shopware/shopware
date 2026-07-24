@@ -9,7 +9,7 @@
                 aria-label="{{ 'header.searchDropdownTitle'|trans|striptags }}"
                 role="listbox">
                 {% block layout_search_suggest_results %}
-                    {% for product in page.searchResult %}
+                    {% for product in page.searchResult.entities %}
                         {% block layout_search_suggest_result_product %}
                             <li class="search-suggest-product js-result" role="option">
                                 {% block layout_search_suggest_result_link %}

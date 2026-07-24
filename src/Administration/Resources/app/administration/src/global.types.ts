@@ -9,6 +9,7 @@ import type { NavigationGuardNext, RouteLocationNormalized, RouteLocationNormali
 // Import explicitly global types from meteor-admin-sdk
 import '@shopware-ag/meteor-admin-sdk';
 import type FeatureService from 'src/app/service/feature.service';
+import type CacheService from 'src/app/service/cache.service';
 import type { LoginService } from 'src/core/service/login.service';
 import type { AxiosInstance } from 'axios';
 import type { ShopwareClass } from 'src/core/shopware';
@@ -75,6 +76,7 @@ import type ValidationMixin from './app/mixin/validation.mixin';
 import type UserSettingsMixin from './app/mixin/user-settings.mixin';
 import type SwInlineSnippetMixin from './app/mixin/sw-inline-snippet.mixin';
 import type TranslateWithFallbackMixin from './app/mixin/translate-with-fallback.mixin';
+import type NotificationTranslationMixin from './app/mixin/notification-translation.mixin';
 import type SalutationMixin from './app/mixin/salutation.mixin';
 import type RuleContainerMixin from './app/mixin/rule-container.mixin';
 import type RemoveApiErrorMixin from './app/mixin/remove-api-error.mixin';
@@ -241,6 +243,7 @@ declare global {
         appCmsService: $TSFixMe;
         appModulesService: AppModulesService;
         businessEventService: BusinessEventsApiService;
+        cacheService: CacheService;
         cartStoreService: CartStoreService;
         checkoutStoreService: CheckoutStoreService;
         cmsBlockFavorites: cmsBlockFavoritesService;
@@ -307,6 +310,7 @@ declare global {
         'user-settings': typeof UserSettingsMixin;
         'sw-inline-snippet': typeof SwInlineSnippetMixin;
         'translate-with-fallback': typeof TranslateWithFallbackMixin;
+        'notification-translation': typeof NotificationTranslationMixin;
         salutation: typeof SalutationMixin;
         ruleContainer: typeof RuleContainerMixin;
         'remove-api-error': typeof RemoveApiErrorMixin;
@@ -524,6 +528,7 @@ interface CustomProperties extends ServiceContainer {
     $te: I18n<{}, {}, {}, string, true>['global']['te'];
     $tc: I18n<{}, {}, {}, string, true>['global']['t'];
     $t: I18n<{}, {}, {}, string, true>['global']['t'];
+    $sanitize: (dirtyHtml: string, config?: Record<string, unknown>) => string;
     $dataScope: ComponentInternalInstance['proxy'];
     /**
      * Starts a generated legacy block condition chain on the current Vue component instance.

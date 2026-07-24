@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\SwTwigFunction;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 use Twig\Environment;
@@ -15,6 +16,7 @@ use Twig\Source;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SwTwigFunction::class)]
 class SwTwigFunctionTest extends TestCase
 {

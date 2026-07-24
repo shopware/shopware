@@ -4,16 +4,22 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  */
-#[McpTool(name: 'shopware-system-config-read', title: 'System Config Read', description: 'Read Shopware application configuration values in the core.* namespace. Pass a domain prefix (e.g. "core.listing") to get all keys, or a full dotted key to read a single value. For theme appearance settings (colors, logos, fonts), use shopware-theme-config instead. Optionally scope to a sales channel.')]
-#[McpToolRequires('system_config:read')]
 #[Package('framework')]
+#[McpTool(
+    name: 'shopware-system-config-read',
+    title: 'System Config Read',
+    description: 'Read Shopware application configuration values in the core.* namespace. Pass a domain prefix (e.g. "core.listing") to get all keys, or a full dotted key to read a single value. For theme appearance settings (colors, logos, fonts), use shopware-theme-config instead. Optionally scope to a sales channel.'
+)]
+#[McpToolGroup('system-config')]
+#[McpToolRequires('system_config:read')]
 class SystemConfigReadTool extends McpToolResponse
 {
     /**

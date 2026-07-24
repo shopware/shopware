@@ -61,8 +61,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class RegisterRoute extends AbstractRegisterRoute
 {
     use CustomerAddressDataNormalizerTrait;
@@ -552,7 +552,7 @@ class RegisterRoute extends AbstractRegisterRoute
     private function requiredVatIdField(string $countryId, SalesChannelContext $context): bool
     {
         if (!Feature::isActive('v6.8.0.0')) {
-            $country = $this->countryRepository->search(new Criteria([$countryId]), $context)->get($countryId);
+            $country = $this->countryRepository->search(new Criteria([$countryId]), $context)->getEntities()->get($countryId);
 
             if (!$country) {
                 throw CustomerException::countryNotFound($countryId);

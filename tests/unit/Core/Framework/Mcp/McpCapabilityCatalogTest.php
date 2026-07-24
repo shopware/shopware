@@ -4,16 +4,18 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp;
 
 use Mcp\Capability\Registry;
 use Mcp\Schema\Prompt;
-use Mcp\Schema\Resource;
+use Mcp\Schema\ResourceDefinition;
 use Mcp\Schema\Tool;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(McpCapabilityCatalog::class)]
 class McpCapabilityCatalogTest extends TestCase
 {
@@ -61,6 +63,61 @@ class McpCapabilityCatalogTest extends TestCase
             ['static' => [], 'entityParam' => 'entity', 'operations' => ['delete']],
             $tools[0]['requiredPrivileges'],
         );
+    }
+
+    public function testEnrichedToolsIncludesConfiguredGroup(): void
+    {
+        $registry = new Registry();
+        $this->registerTool($registry, 'shopware-entity-search', 'Search');
+
+        $catalog = new McpCapabilityCatalog(
+            $registry,
+            $this->stubPrivilegeProvider(),
+            [],
+            [],
+            ['shopware-entity-search' => 'catalogue'],
+        );
+
+        static::assertSame('catalogue', $catalog->enrichedTools()[0]['group']);
+    }
+
+    public function testEnrichedToolsDerivesGroupFromLongestCommonNamePrefix(): void
+    {
+        $registry = new Registry();
+        $this->registerTool($registry, 'swag-my-plugin-orders', 'List orders');
+        $this->registerTool($registry, 'swag-my-plugin-products', 'List products');
+        $this->registerTool($registry, 'swag-other-plugin-customers', 'List customers');
+        $this->registerTool($registry, 'swag-other-plugin-products', 'List products');
+
+        $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
+
+        static::assertSame([
+            'swag-my-plugin',
+            'swag-my-plugin',
+            'swag-other-plugin',
+            'swag-other-plugin',
+        ], array_column($catalog->enrichedTools(), 'group'));
+    }
+
+    public function testEnrichedToolsUsesFirstNameSegmentForSingleUnconfiguredTool(): void
+    {
+        $registry = new Registry();
+        $this->registerTool($registry, 'swag-order-export', 'Export orders');
+
+        $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
+
+        static::assertSame('swag', $catalog->enrichedTools()[0]['group']);
+    }
+
+    public function testFindToolUsesGroupDerivedFromAllRegisteredTools(): void
+    {
+        $registry = new Registry();
+        $this->registerTool($registry, 'swag-my-plugin-orders', 'List orders');
+        $this->registerTool($registry, 'swag-my-plugin-products', 'List products');
+
+        $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
+
+        static::assertSame('swag-my-plugin', $catalog->findTool('swag-my-plugin-orders')['group'] ?? null);
     }
 
     public function testEnrichedToolsFallsBackToAppPrivilegesWhenNoCorePrivilegesDeclared(): void
@@ -150,14 +207,12 @@ class McpCapabilityCatalogTest extends TestCase
     {
         $registry = new Registry();
         $registry->registerResource(
-            new Resource('shopware://zzz', 'zzz-resource', 'Z Resource', null, null, null),
+            new ResourceDefinition('shopware://zzz', 'zzz-resource', null, 'Z Resource', null, null, null),
             'Acme\\ZzzResource',
-            true,
         );
         $registry->registerResource(
-            new Resource('shopware://aaa', 'aaa-resource', 'A Resource', null, null, null),
+            new ResourceDefinition('shopware://aaa', 'aaa-resource', null, 'A Resource', null, null, null),
             'Acme\\AaaResource',
-            true,
         );
 
         $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
@@ -173,14 +228,12 @@ class McpCapabilityCatalogTest extends TestCase
     {
         $registry = new Registry();
         $registry->registerResource(
-            new Resource('shopware://aaa', 'aaa-resource', 'A', null, null, null),
+            new ResourceDefinition('shopware://aaa', 'aaa-resource', null, 'A', null, null, null),
             'Acme\\AaaResource',
-            true,
         );
         $registry->registerResource(
-            new Resource('shopware://bbb', 'bbb-resource', 'B', null, null, null),
+            new ResourceDefinition('shopware://bbb', 'bbb-resource', null, 'B', null, null, null),
             'Acme\\BbbResource',
-            true,
         );
 
         $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
@@ -195,9 +248,8 @@ class McpCapabilityCatalogTest extends TestCase
     {
         $registry = new Registry();
         $registry->registerResource(
-            new Resource('shopware://aaa', 'aaa-resource', 'A', null, null, null),
+            new ResourceDefinition('shopware://aaa', 'aaa-resource', null, 'A', null, null, null),
             'Acme\\AaaResource',
-            true,
         );
 
         $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
@@ -212,13 +264,11 @@ class McpCapabilityCatalogTest extends TestCase
             new Prompt('zzz-prompt', null, 'Z prompt', []),
             'Acme\\ZzzPrompt',
             [],
-            true,
         );
         $registry->registerPrompt(
             new Prompt('aaa-prompt', null, 'A prompt', []),
             'Acme\\AaaPrompt',
             [],
-            true,
         );
 
         $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
@@ -237,13 +287,11 @@ class McpCapabilityCatalogTest extends TestCase
             new Prompt('prompt-a', null, 'A', []),
             'Acme\\PromptA',
             [],
-            true,
         );
         $registry->registerPrompt(
             new Prompt('prompt-b', null, 'B', []),
             'Acme\\PromptB',
             [],
-            true,
         );
 
         $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
@@ -261,7 +309,6 @@ class McpCapabilityCatalogTest extends TestCase
             new Prompt('prompt-a', null, 'A', []),
             'Acme\\PromptA',
             [],
-            true,
         );
 
         $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
@@ -275,7 +322,6 @@ class McpCapabilityCatalogTest extends TestCase
         $registry->registerTool(
             new Tool('my-tool', 'My Human-Readable Tool', ['type' => 'object', 'properties' => [], 'required' => []], 'desc', null),
             'Acme\\MyTool',
-            true,
         );
 
         $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
@@ -301,7 +347,6 @@ class McpCapabilityCatalogTest extends TestCase
             new Prompt('my-prompt', 'My Human-Readable Prompt', 'desc', []),
             'Acme\\MyPrompt',
             [],
-            true,
         );
 
         $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
@@ -317,7 +362,6 @@ class McpCapabilityCatalogTest extends TestCase
             new Prompt('prompt-a', null, 'A', []),
             'Acme\\PromptA',
             [],
-            true,
         );
 
         $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
@@ -363,7 +407,6 @@ class McpCapabilityCatalogTest extends TestCase
         $registry->registerTool(
             new Tool($name, null, ['type' => 'object', 'properties' => [], 'required' => []], $description, null),
             'Acme\\' . str_replace('-', '', ucwords($name, '-')),
-            true,
         );
     }
 }

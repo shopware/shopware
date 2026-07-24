@@ -1,6 +1,7 @@
 <?php
 
-$nightly = $_SERVER['argv'][1] ?? false;
+// argv[1] is the run profile: '' (PR), 'nightly' or 'release'. Only nightly widens the matrix.
+$nightly = ($_SERVER['argv'][1] ?? '') === 'nightly';
 $major = filter_var($_SERVER['argv'][2] ?? false, \FILTER_VALIDATE_BOOLEAN);
 
 // Integration shards: the paths + framework batches together cover the whole tests/integration tree.
@@ -35,7 +36,7 @@ $db = ['mysql:8.0'];
 
 if ($nightly) {
     $php = ['8.2', '8.5'];
-    $db = ['mysql:8.0', 'mariadb:11', 'quay.io/mariadb-foundation/mariadb-devel:verylatest'];
+    $db = ['mysql:8.0', 'mariadb:11', 'mariadb:12.3', 'quay.io/mariadb-foundation/mariadb-devel:verylatest'];
 }
 
 $matrix = [

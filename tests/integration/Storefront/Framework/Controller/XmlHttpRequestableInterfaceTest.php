@@ -3,11 +3,13 @@
 namespace Shopware\Tests\Integration\Storefront\Framework\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class XmlHttpRequestableInterfaceTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

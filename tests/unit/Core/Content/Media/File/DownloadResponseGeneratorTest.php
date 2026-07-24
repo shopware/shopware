@@ -81,7 +81,7 @@ class DownloadResponseGeneratorTest extends TestCase
         );
 
         $this->expectException(\RuntimeException::class);
-        $downloadResponseGenerator->getResponse($media, $this->salesChannelContext);
+        $downloadResponseGenerator->getResponseByContext($media, Context::createDefaultContext());
     }
 
     public function testThrowsExceptionWithoutDetachableResource(): void
@@ -95,7 +95,7 @@ class DownloadResponseGeneratorTest extends TestCase
         $media->setPath('foobar.txt');
 
         $this->expectExceptionObject(MediaException::fileNotFound('foobar.'));
-        $this->downloadResponseGenerator->getResponse($media, $this->salesChannelContext);
+        $this->downloadResponseGenerator->getResponseByContext($media, Context::createDefaultContext());
     }
 
     #[DataProvider('filesystemProvider')]
@@ -129,9 +129,29 @@ class DownloadResponseGeneratorTest extends TestCase
         $streamInterface->method('detach')->willReturn(fopen('php://temp', 'r'));
         $this->mediaService->method('loadFileStream')->willReturn($streamInterface);
 
-        $response = $this->downloadResponseGenerator->getResponse($media, $this->salesChannelContext);
+        $response = $this->downloadResponseGenerator->getResponseByContext($media, Context::createDefaultContext());
 
         AssertResponseHelper::assertResponseEquals($expectedResponse, $response);
+    }
+
+    public function testGetResponseRemainsThinWrapper(): void
+    {
+        $this->privateFilesystem->method('temporaryUrl')->willThrowException(new UnableToGenerateTemporaryUrl('reason', 'path'));
+
+        $media = new MediaEntity();
+        $media->setId(Uuid::randomHex());
+        $media->setFileName('foobar');
+        $media->setFileExtension('txt');
+        $media->setPrivate(true);
+        $media->setPath('foobar.txt');
+
+        $streamInterface = static::createStub(StreamInterface::class);
+        $streamInterface->method('detach')->willReturn(fopen('php://temp', 'r'));
+        $this->mediaService->method('loadFileStream')->willReturn($streamInterface);
+
+        $response = $this->downloadResponseGenerator->getResponse($media, $this->salesChannelContext);
+
+        AssertResponseHelper::assertResponseEquals(self::getExpectedStreamResponse(), $response);
     }
 
     public static function filesystemProvider(): \Generator
@@ -199,7 +219,7 @@ class DownloadResponseGeneratorTest extends TestCase
         $streamInterface->method('detach')->willReturn(fopen('php://temp', 'r'));
         $this->mediaService->method('loadFileStream')->willReturn($streamInterface);
 
-        $response = $downloadResponseGenerator->getResponse($media, $this->salesChannelContext);
+        $response = $downloadResponseGenerator->getResponseByContext($media, Context::createDefaultContext());
 
         AssertResponseHelper::assertResponseEquals(self::getExpectedStreamResponse(), $response);
     }

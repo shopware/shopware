@@ -43,7 +43,7 @@ class WebhookTransportTest extends TestCase
             ->with($envelope)
             ->willReturn($envelope);
 
-        $transport = new WebhookTransport($stateService, $asyncTransport, $this->createMock(MySQLWebhookReceiver::class));
+        $transport = new WebhookTransport($stateService, $asyncTransport, static::createStub(MySQLWebhookReceiver::class));
 
         static::assertSame($envelope, $transport->send($envelope));
     }
@@ -59,7 +59,7 @@ class WebhookTransportTest extends TestCase
         $asyncTransport = $this->createMock(TransportInterface::class);
         $asyncTransport->expects($this->never())->method('send');
 
-        $transport = new WebhookTransport($stateService, $asyncTransport, $this->createMock(MySQLWebhookReceiver::class));
+        $transport = new WebhookTransport($stateService, $asyncTransport, static::createStub(MySQLWebhookReceiver::class));
 
         static::assertSame($envelope, $transport->send($envelope));
     }
@@ -67,9 +67,9 @@ class WebhookTransportTest extends TestCase
     public function testSendRejectsNonWebhookEventMessage(): void
     {
         $transport = new WebhookTransport(
-            $this->createMock(WebhookOutboxStore::class),
-            $this->createMock(TransportInterface::class),
-            $this->createMock(MySQLWebhookReceiver::class),
+            static::createStub(WebhookOutboxStore::class),
+            static::createStub(TransportInterface::class),
+            static::createStub(MySQLWebhookReceiver::class),
         );
 
         $this->expectException(WebhookException::class);
@@ -83,8 +83,8 @@ class WebhookTransportTest extends TestCase
         $receiver->expects($this->never())->method('get');
 
         $transport = new WebhookTransport(
-            $this->createMock(WebhookOutboxStore::class),
-            $this->createMock(TransportInterface::class),
+            static::createStub(WebhookOutboxStore::class),
+            static::createStub(TransportInterface::class),
             $receiver,
         );
 
@@ -98,8 +98,8 @@ class WebhookTransportTest extends TestCase
         $receiver->expects($this->once())->method('get')->willReturn([$envelope]);
 
         $transport = new WebhookTransport(
-            $this->createMock(WebhookOutboxStore::class),
-            $this->createMock(TransportInterface::class),
+            static::createStub(WebhookOutboxStore::class),
+            static::createStub(TransportInterface::class),
             $receiver,
         );
 
@@ -116,8 +116,8 @@ class WebhookTransportTest extends TestCase
         $receiver->expects($this->never())->method('keepalive');
 
         $transport = new WebhookTransport(
-            $this->createMock(WebhookOutboxStore::class),
-            $this->createMock(TransportInterface::class),
+            static::createStub(WebhookOutboxStore::class),
+            static::createStub(TransportInterface::class),
             $receiver,
         );
 
@@ -135,8 +135,8 @@ class WebhookTransportTest extends TestCase
         $receiver->expects($this->once())->method('keepalive')->with($envelope, 5);
 
         $transport = new WebhookTransport(
-            $this->createMock(WebhookOutboxStore::class),
-            $this->createMock(TransportInterface::class),
+            static::createStub(WebhookOutboxStore::class),
+            static::createStub(TransportInterface::class),
             $receiver,
         );
 
@@ -176,7 +176,7 @@ class WebhookTransportTest extends TestCase
         $asyncTransport = $this->createMock(TransportInterface::class);
         $asyncTransport->expects($this->once())->method('send')->willReturn($envelope);
 
-        $transport = new WebhookTransport($stateService, $asyncTransport, $this->createMock(MySQLWebhookReceiver::class));
+        $transport = new WebhookTransport($stateService, $asyncTransport, static::createStub(MySQLWebhookReceiver::class));
 
         $transport->send($envelope);
     }
@@ -199,7 +199,7 @@ class WebhookTransportTest extends TestCase
         $asyncTransport = $this->createMock(TransportInterface::class);
         $asyncTransport->expects($this->once())->method('send')->willReturn($envelope);
 
-        $transport = new WebhookTransport($stateService, $asyncTransport, $this->createMock(MySQLWebhookReceiver::class));
+        $transport = new WebhookTransport($stateService, $asyncTransport, static::createStub(MySQLWebhookReceiver::class));
 
         $transport->send($envelope);
     }

@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -33,6 +34,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(ProductReviewLoader::class)]
 class ProductReviewLoaderTest extends TestCase
 {
@@ -70,9 +72,9 @@ class ProductReviewLoaderTest extends TestCase
 
         $result = $productReviewLoader->load($request, $salesChannelContext, $productId);
 
-        static::assertInstanceOf(ProductReviewEntity::class, $result->first());
-        static::assertSame($result->first()->getId(), $reviewId);
-        static::assertCount(1, $result);
+        static::assertInstanceOf(ProductReviewEntity::class, $result->getEntities()->first());
+        static::assertSame($result->getEntities()->first()->getId(), $reviewId);
+        static::assertCount(1, $result->getEntities());
         static::assertNull($result->getCustomerReview());
     }
 
@@ -105,11 +107,11 @@ class ProductReviewLoaderTest extends TestCase
 
         $result = $productReviewLoader->load($request, $salesChannelContext, $productId);
 
-        $firstResult = $result->first();
+        $firstResult = $result->getEntities()->first();
         static::assertInstanceOf(ProductReviewEntity::class, $firstResult);
         static::assertSame($firstResult->getId(), $reviewId);
         static::assertSame($result->getCriteria()->getOffset(), 10);
-        static::assertCount(1, $result);
+        static::assertCount(1, $result->getEntities());
         static::assertNull($result->getCustomerReview());
     }
 
@@ -142,10 +144,10 @@ class ProductReviewLoaderTest extends TestCase
 
         $result = $productReviewLoader->load($request, $salesChannelContext, $productId);
 
-        static::assertInstanceOf(ProductReviewEntity::class, $result->first());
-        static::assertSame($result->first()->getId(), $reviewId);
+        static::assertInstanceOf(ProductReviewEntity::class, $result->getEntities()->first());
+        static::assertSame($result->getEntities()->first()->getId(), $reviewId);
         static::assertSame($result->getCriteria()->getOffset(), 0);
-        static::assertCount(1, $result);
+        static::assertCount(1, $result->getEntities());
         static::assertNull($result->getCustomerReview());
     }
 
@@ -175,9 +177,9 @@ class ProductReviewLoaderTest extends TestCase
 
         $result = $productReviewLoader->load($request, $salesChannelContext, $productId);
 
-        static::assertInstanceOf(ProductReviewEntity::class, $result->first());
-        static::assertSame($reviewId, $result->first()->getId());
-        static::assertCount(1, $result);
+        static::assertInstanceOf(ProductReviewEntity::class, $result->getEntities()->first());
+        static::assertSame($reviewId, $result->getEntities()->first()->getId());
+        static::assertCount(1, $result->getEntities());
         static::assertEquals([new FieldSorting('points', 'DESC')], $result->getCriteria()->getSorting());
         static::assertNotNull($result->getCustomerReview());
     }
@@ -208,9 +210,9 @@ class ProductReviewLoaderTest extends TestCase
 
         $result = $productReviewLoader->load($request, $salesChannelContext, $productId);
 
-        static::assertInstanceOf(ProductReviewEntity::class, $result->first());
-        static::assertSame($result->first()->getId(), $reviewId);
-        static::assertCount(1, $result);
+        static::assertInstanceOf(ProductReviewEntity::class, $result->getEntities()->first());
+        static::assertSame($result->getEntities()->first()->getId(), $reviewId);
+        static::assertCount(1, $result->getEntities());
     }
 
     private function getReviewEntity(string $reviewId): ProductReviewEntity

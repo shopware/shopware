@@ -111,7 +111,7 @@ async function createWrapper(privileges = [], props = {}) {
                     },
                     meta: {
                         $module: {
-                            icon: 'solid-content',
+                            icon: 'regular-content',
                         },
                     },
                 },

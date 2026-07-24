@@ -13,14 +13,16 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SymfonyBearerTokenValidator::class)]
 class SymfonyBearerTokenValidatorTest extends TestCase
 {
@@ -33,8 +35,8 @@ class SymfonyBearerTokenValidatorTest extends TestCase
     public function testInvalidRequests(Request $request): void
     {
         $validator = new SymfonyBearerTokenValidator(
-            $this->createMock(AccessTokenRepositoryInterface::class),
-            $this->createMock(Connection::class),
+            static::createStub(AccessTokenRepositoryInterface::class),
+            static::createStub(Connection::class),
             $this->getJwtConfiguration()
         );
 
@@ -47,15 +49,14 @@ class SymfonyBearerTokenValidatorTest extends TestCase
     {
         $request = new Request([], [], [], [], [], ['HTTP_authorization' => 'Bearer ' . self::VALID_TOKEN]);
 
-        $accessTokenRepository = $this->createMock(AccessTokenRepositoryInterface::class);
+        $accessTokenRepository = static::createStub(AccessTokenRepositoryInterface::class);
         $accessTokenRepository
             ->method('isAccessTokenRevoked')
-            ->with(self::OAUTH_USER_ID)
             ->willReturn(true);
 
         $validator = new SymfonyBearerTokenValidator(
             $accessTokenRepository,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             $this->getJwtConfiguration()
         );
 
@@ -69,7 +70,7 @@ class SymfonyBearerTokenValidatorTest extends TestCase
         $request = new Request([], [], [], [], [], ['HTTP_authorization' => 'Bearer ' . self::VALID_TOKEN]);
 
         $validator = new SymfonyBearerTokenValidator(
-            $this->createMock(AccessTokenRepositoryInterface::class),
+            static::createStub(AccessTokenRepositoryInterface::class),
             $this->getConnectionMock(null),
             $this->getJwtConfiguration()
         );
@@ -87,7 +88,7 @@ class SymfonyBearerTokenValidatorTest extends TestCase
         $request = new Request([], [], [], [], [], ['HTTP_authorization' => 'Bearer ' . self::VALID_TOKEN]);
 
         $validator = new SymfonyBearerTokenValidator(
-            $this->createMock(AccessTokenRepositoryInterface::class),
+            static::createStub(AccessTokenRepositoryInterface::class),
             $this->getConnectionMock(false),
             $this->getJwtConfiguration()
         );
@@ -102,7 +103,7 @@ class SymfonyBearerTokenValidatorTest extends TestCase
         $request = new Request(server: ['HTTP_authorization' => 'Bearer ' . self::VALID_TOKEN]);
 
         $validator = new SymfonyBearerTokenValidator(
-            $this->createMock(AccessTokenRepositoryInterface::class),
+            static::createStub(AccessTokenRepositoryInterface::class),
             $this->getConnectionMock(null, false),
             $this->getJwtConfiguration()
         );
@@ -120,7 +121,7 @@ class SymfonyBearerTokenValidatorTest extends TestCase
         $request = new Request([], [], [], [], [], ['HTTP_authorization' => 'Bearer ' . self::VALID_TOKEN]);
 
         $validator = new SymfonyBearerTokenValidator(
-            $this->createMock(AccessTokenRepositoryInterface::class),
+            static::createStub(AccessTokenRepositoryInterface::class),
             $this->getConnectionMock(date('Y-m-d H:i:s')),
             $this->getJwtConfiguration()
         );
@@ -160,11 +161,11 @@ class SymfonyBearerTokenValidatorTest extends TestCase
         return $config->withValidationConstraints(new SignedWith(new Sha256(), $key));
     }
 
-    private function getConnectionMock(mixed $returnValue, bool $active = true): Connection&MockObject
+    private function getConnectionMock(mixed $returnValue, bool $active = true): Connection&Stub
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
-        $result = $this->createMock(Result::class);
+        $result = static::createStub(Result::class);
         $result->method('fetchAssociative')
             ->willReturnCallback(static function () use ($returnValue, $active): array|false {
                 if ($returnValue === false) {
@@ -177,7 +178,7 @@ class SymfonyBearerTokenValidatorTest extends TestCase
                 ];
             });
 
-        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder = static::createStub(QueryBuilder::class);
         $queryBuilder->method('select')->willReturn($queryBuilder);
         $queryBuilder->method('from')->willReturn($queryBuilder);
         $queryBuilder->method('where')->willReturn($queryBuilder);

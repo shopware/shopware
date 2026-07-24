@@ -109,7 +109,7 @@ class SsoUserInvitationMailService
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', 'admin_sso_user_invite'));
 
-        $result = $this->mailTemplateTypeRepository->search($criteria, $newContext)->first();
+        $result = $this->mailTemplateTypeRepository->search($criteria, $newContext)->getEntities()->first();
         if (!$result instanceof MailTemplateTypeEntity) {
             throw SsoException::mailTemplateNotFound();
         }
@@ -125,7 +125,7 @@ class SsoUserInvitationMailService
             )
         );
 
-        return $this->mailTemplateRepository->search($criteria, $newContext)->first();
+        return $this->mailTemplateRepository->search($criteria, $newContext)->getEntities()->first();
     }
 
     private function createInviterName(?UserEntity $user): string
@@ -151,7 +151,7 @@ class SsoUserInvitationMailService
             return null;
         }
 
-        return $this->userRepository->search(new Criteria([$userId]), $context)->first();
+        return $this->userRepository->search(new Criteria([$userId]), $context)->getEntities()->first();
     }
 
     private function getLanguageForLocale(string $localeId, Context $context): ?LanguageEntity
@@ -159,6 +159,6 @@ class SsoUserInvitationMailService
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('localeId', $localeId));
 
-        return $this->languageRepository->search($criteria, $context)->first();
+        return $this->languageRepository->search($criteria, $context)->getEntities()->first();
     }
 }

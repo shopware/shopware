@@ -13,10 +13,12 @@ use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlist;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
+use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\Mcp\McpException;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
@@ -32,20 +34,11 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(McpServerController::class)]
 #[CoversClass(McpAllowlistFilter::class)]
 class McpServerControllerTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        $_SERVER['MCP_SERVER'] = '1';
-    }
-
-    protected function tearDown(): void
-    {
-        unset($_SERVER['MCP_SERVER']);
-    }
-
     public function testHandleReturnsResponseForValidMcpRequest(): void
     {
         $body = json_encode([
@@ -630,6 +623,7 @@ class McpServerControllerTest extends TestCase
             $psr17,
             new McpRateLimiter(static::createStub(RateLimiter::class)),
             new McpSessionIdValidator(),
+            static::createStub(McpAllowedHostsProvider::class),
             null,
             $logger,
             new McpAllowlistFilter(),
@@ -757,18 +751,6 @@ class McpServerControllerTest extends TestCase
         static::assertObjectNotHasProperty('_meta', $result);
     }
 
-    public function testHandleReturnsNotFoundWhenFeatureFlagIsOff(): void
-    {
-        $_SERVER['MCP_SERVER'] = false;
-        try {
-            $controller = $this->buildController(new ServerRequest('POST', '/api/_mcp'));
-            $response = $controller->handle(new Request());
-            static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
-        } finally {
-            $_SERVER['MCP_SERVER'] = '1';
-        }
-    }
-
     /**
      * @return iterable<string, array{string}>
      */
@@ -794,6 +776,7 @@ class McpServerControllerTest extends TestCase
             $nullArg === 'streamFactory' ? null : $psr17,
             new McpRateLimiter(static::createStub(RateLimiter::class)),
             new McpSessionIdValidator(),
+            static::createStub(McpAllowedHostsProvider::class),
         );
 
         $response = $controller->handle(new Request());
@@ -811,6 +794,7 @@ class McpServerControllerTest extends TestCase
             static::createStub(StreamFactoryInterface::class),
             new McpRateLimiter($rateLimiter),
             new McpSessionIdValidator(),
+            static::createStub(McpAllowedHostsProvider::class),
         );
     }
 
@@ -845,6 +829,7 @@ class McpServerControllerTest extends TestCase
             $psr17,
             new McpRateLimiter(static::createStub(RateLimiter::class)),
             new McpSessionIdValidator(),
+            static::createStub(McpAllowedHostsProvider::class),
             allowlistFilter: new McpAllowlistFilter(),
         );
 
@@ -872,6 +857,7 @@ class McpServerControllerTest extends TestCase
             $psr17,
             new McpRateLimiter($rateLimiter ?? static::createStub(RateLimiter::class)),
             new McpSessionIdValidator(),
+            static::createStub(McpAllowedHostsProvider::class),
             $allowlistProvider,
             allowlistFilter: new McpAllowlistFilter(),
         );

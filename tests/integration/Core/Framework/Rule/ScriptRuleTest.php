@@ -384,7 +384,7 @@ class ScriptRuleTest extends TestCase
     {
         $this->appLifecycle->install($manifest, new AppInstallParameters(activate: false), $this->context);
 
-        $app = $this->appRepository->search((new Criteria())->addAssociation('scriptConditions'), $this->context)->first();
+        $app = $this->appRepository->search((new Criteria())->addAssociation('scriptConditions'), $this->context)->getEntities()->first();
         static::assertInstanceOf(AppEntity::class, $app);
         $this->appId = $app->getId();
         $this->appLifecycle->activate($this->appId, $this->context);

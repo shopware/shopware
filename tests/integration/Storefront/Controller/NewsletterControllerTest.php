@@ -62,7 +62,7 @@ class NewsletterControllerTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('email', 'nltest@example.com'));
         /** @var NewsletterRecipientEntity $recipientEntry */
-        $recipientEntry = $repo->search($criteria, Context::createDefaultContext())->first();
+        $recipientEntry = $repo->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertSame('direct', (string) $recipientEntry->getStatus());
         $this->validateRecipientData($recipientEntry);

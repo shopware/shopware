@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\Framework\Webhook\Hookable;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\Webhook\Hookable\WriteResultMerger;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(HookableEventFactory::class)]
 class HookableEventFactoryTest extends TestCase
 {

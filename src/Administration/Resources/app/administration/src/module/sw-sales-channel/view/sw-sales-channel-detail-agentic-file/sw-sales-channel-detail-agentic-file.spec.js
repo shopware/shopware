@@ -39,14 +39,14 @@ const discoveredFiles = [
     },
     {
         fileFamily: 'agentic',
-        fileName: 'agents.md',
-        templatePath: 'files/agentic/agents.md.twig',
+        fileName: 'AGENTS.md',
+        templatePath: 'files/agentic/AGENTS.md.twig',
         contentType: 'text/markdown; charset=utf-8',
         supportsUserProvidedContent: true,
         templates: [
             {
                 twigNamespace: 'Framework',
-                templateName: '@Framework/files/agentic/agents.md.twig',
+                templateName: '@Framework/files/agentic/AGENTS.md.twig',
                 templateContent: '{% block agentic_agents_md %}Shopware agents template{% endblock %}',
                 role: 'base',
             },
@@ -75,7 +75,9 @@ async function createWrapper(options = {}) {
     const routeFileName = options.routeFileName ?? 'llms.txt';
     const salesChannelFileApiService = {
         detail: jest.fn(async (_fileFamily, _salesChannelId, requestedFileName) => {
-            const file = cloneDiscoveredFiles().find((item) => item.fileName === requestedFileName) ?? null;
+            const file =
+                cloneDiscoveredFiles().find((item) => item.fileName.toLowerCase() === requestedFileName.toLowerCase()) ??
+                null;
 
             return options.serviceResponse ?? { data: file };
         }),
@@ -390,7 +392,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file'
         expect(wrapper.find('.sw-sales-channel-detail-agentic-file__override-modal').exists()).toBe(false);
         expect(wrapper.vm.salesChannel.salesChannelFiles).toBeUndefined();
         expect(salesChannelFileApiService.preview).toHaveBeenCalledTimes(1);
-        expect(salesChannelFileApiService.preview).toHaveBeenLastCalledWith('agentic', 'sales-channel-id', 'agents.md', {});
+        expect(salesChannelFileApiService.preview).toHaveBeenLastCalledWith('agentic', 'sales-channel-id', 'AGENTS.md', {});
     });
 
     it('links the public path to the first configured sales channel domain', async () => {
@@ -441,7 +443,6 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file'
         const { wrapper } = await createWrapper();
 
         await flushPromises();
-
         await wrapper.find('.mt-button').trigger('click');
         await flushPromises();
 
@@ -449,19 +450,25 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file'
     });
 
     it('stores custom notes on the sales channel file association for the global save', async () => {
+        const configuration = {
+            id: 'legacy-agents-file-id',
+            fileFamily: 'agentic',
+            fileName: 'agents.md',
+            templateOverrides: {},
+        };
         const { wrapper } = await createWrapper({
             routeFileName: 'agents.md',
+            salesChannel: {
+                id: 'sales-channel-id',
+                salesChannelFiles: [configuration],
+            },
         });
-
         await flushPromises();
-
         await wrapper
             .find('.sw-sales-channel-detail-agentic-file__custom-notes-input')
             .setValue('Ask before starting checkout.');
         await flushPromises();
-
-        const configuration = wrapper.vm.salesChannel.salesChannelFiles.find((item) => item.fileName === 'agents.md');
-
+        expect(wrapper.vm.salesChannel.salesChannelFiles).toEqual([configuration]);
         expect(configuration.templateOverrides).toEqual({
             user_provided_content: 'Ask before starting checkout.',
         });

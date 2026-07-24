@@ -10,12 +10,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppUrlVerifier::class)]
 class AppUrlVerifierTest extends TestCase
 {

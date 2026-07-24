@@ -44,8 +44,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @internal
  */
-#[CoversClass(Error::class)]
 #[Package('checkout')]
+#[CoversClass(Error::class)]
 class ErrorTest extends TestCase
 {
     public function testShippingMethodBlockedErrorSerialization(): void

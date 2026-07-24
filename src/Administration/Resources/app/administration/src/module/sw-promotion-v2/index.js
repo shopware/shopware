@@ -68,7 +68,7 @@ Module.register('sw-promotion-v2', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#FFD700',
-    icon: 'solid-megaphone',
+    icon: 'regular-megaphone',
     favicon: 'icon-module-marketing.png',
     entity: 'promotion',
 

@@ -295,7 +295,7 @@ class OrderTransactionStateHandlerTest extends TestCase
         $criteria->addAssociation('stateMachineState');
 
         /** @var OrderTransactionEntity|null $transaction */
-        $transaction = $this->orderTransactionRepository->search($criteria, $this->context)->first();
+        $transaction = $this->orderTransactionRepository->search($criteria, $this->context)->getEntities()->first();
 
         return $transaction?->getStateMachineState()?->getTechnicalName();
     }

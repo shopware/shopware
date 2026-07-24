@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Controller\CustomSnippetFormatController;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Tests\Unit\Core\Framework\Api\Controller\Fixtures\BundleWithCustomSnippet\BundleWithCustomSnippet;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,6 +15,7 @@ use Twig\Environment;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(CustomSnippetFormatController::class)]
 class CustomSnippetFormatControllerTest extends TestCase
 {

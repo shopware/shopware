@@ -193,7 +193,7 @@ class SystemConfigFacadeTest extends TestCase
         $this->loadAppsFromDir($appDir);
 
         /** @var AppEntity $app */
-        $app = static::getContainer()->get('app.repository')->search(new Criteria(), Context::createDefaultContext())->first();
+        $app = static::getContainer()->get('app.repository')->search(new Criteria(), Context::createDefaultContext())->getEntities()->first();
 
         return new ScriptAppInformation(
             $app->getId(),

@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(DiscountCompositionBuilder::class)]
 #[Package('checkout')]
+#[CoversClass(DiscountCompositionBuilder::class)]
 class DiscountCompositionBuilderTest extends TestCase
 {
     /**

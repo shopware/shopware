@@ -23,8 +23,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[CoversClass(OrderPersister::class)]
 #[Package('checkout')]
+#[CoversClass(OrderPersister::class)]
 class OrderPersisterTest extends TestCase
 {
     public function testPersist(): void

@@ -38,8 +38,8 @@ use Symfony\Contracts\Cache\CacheInterface;
 /**
  * @internal
  */
-#[CoversClass(CartRuleLoader::class)]
 #[Package('checkout')]
+#[CoversClass(CartRuleLoader::class)]
 class CartRuleLoaderTest extends TestCase
 {
     public function testLoadByTokenCreatesNewCart(): void

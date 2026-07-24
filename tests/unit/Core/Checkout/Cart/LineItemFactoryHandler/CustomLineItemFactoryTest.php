@@ -21,8 +21,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(CustomLineItemFactory::class)]
 #[Package('checkout')]
+#[CoversClass(CustomLineItemFactory::class)]
 class CustomLineItemFactoryTest extends TestCase
 {
     public function testSupports(): void

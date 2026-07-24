@@ -8,10 +8,12 @@ use Shopware\Core\Framework\App\Feature\AppFeatureConfig;
 use Shopware\Core\Framework\App\Feature\AppFeatureDefinition;
 use Shopware\Core\Framework\App\Feature\AppFeatureDefinitionRegistry;
 use Shopware\Core\Framework\App\Feature\AppFeatureException;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppFeatureDefinitionRegistry::class)]
 class AppFeatureDefinitionRegistryTest extends TestCase
 {

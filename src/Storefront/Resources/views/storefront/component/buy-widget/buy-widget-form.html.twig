@@ -15,14 +15,14 @@
         {% endif %}>
 
         {% set DIGITAL_CONST = constant('Shopware\\Core\\Content\\Product\\ProductDefinition::TYPE_DIGITAL') %}
-        {% set isQuantitySelectDisabled = product.type is defined and product.type == DIGITAL_CONST %}
+        {% set isQuantitySelectHidden = product.type is defined and product.type == DIGITAL_CONST %}
 
         {% if not feature('v6.8.0.0') %}
             {% set DOWNLOAD_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_DOWNLOAD') %}
-            {% set isQuantitySelectDisabled = isQuantitySelectDisabled or (product.states is defined and DOWNLOAD_STATE in product.states) %}
+            {% set isQuantitySelectHidden = isQuantitySelectHidden or (product.states is defined and DOWNLOAD_STATE in product.states) %}
         {% endif %}
 
-        {% set showQuantitySelect = not isQuantitySelectDisabled %}
+        {% set showQuantitySelect = not isQuantitySelectHidden %}
 
         {% set buyable = product.available and product.childCount <= 0 and product.calculatedMaxPurchase > 0 %}
 

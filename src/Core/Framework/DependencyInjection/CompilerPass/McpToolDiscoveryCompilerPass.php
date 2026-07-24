@@ -23,6 +23,7 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
     {
         $container->setParameter('shopware.mcp.tool_dependencies', []);
         $container->setParameter('shopware.mcp.tool_privileges', []);
+        $container->setParameter('shopware.mcp.tool_groups', []);
 
         if (!$container->hasDefinition('mcp.server.builder')) {
             return;

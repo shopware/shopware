@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Framework\Routing\AbstractDomainLoader;
-use Shopware\Storefront\Framework\Routing\Struct\DomainCollection;
 
 /**
  * @internal
@@ -37,7 +36,7 @@ class AbstractDomainLoaderTest extends TestCase
 
         $domains = $loader->loadDomains();
 
-        static::assertInstanceOf(DomainCollection::class, $domains);
+        static::assertCount(0, $domains);
         static::assertTrue($loader->loaded);
     }
 }

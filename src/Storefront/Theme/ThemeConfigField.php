@@ -146,7 +146,7 @@ class ThemeConfigField extends Struct
     #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'value', newType: 'array|bool|float|int|string')]
     public function setValue($value): void
     {
-        if (!\is_array($value) && !\is_bool($value) && !\is_float($value) && !\is_int($value) && !\is_string($value)) {
+        if (!\is_array($value) && !\is_scalar($value)) {
             Feature::triggerDeprecationOrThrow(
                 'v6.8.0.0',
                 'Passing a value that is neither an array, boolean, float, integer, nor string is deprecated and will not be allowed in v6.8.0.0.'

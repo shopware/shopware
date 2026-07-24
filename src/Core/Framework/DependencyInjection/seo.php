@@ -38,6 +38,7 @@ use Shopware\Core\Content\Seo\Validation\SeoUrlValidationFactory;
 use Shopware\Core\Content\Seo\Validation\SeoUrlWriteValidator;
 use Shopware\Core\Framework\Adapter\Twig\Extension\BuildBreadcrumbExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\CategoryUrlExtension;
+use Shopware\Core\Framework\Adapter\Twig\Extension\EntitySeoUrlFunctionExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\MediaExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\RawUrlFunctionExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\SeoUrlFunctionExtension;
@@ -168,6 +169,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('twig.extension.routing'),
             service(SeoUrlPlaceholderHandlerInterface::class),
+        ])
+        ->tag('twig.extension');
+
+    $services->set(EntitySeoUrlFunctionExtension::class)
+        ->args([
             service(EntityRouteResolver::class),
         ])
         ->tag('twig.extension');

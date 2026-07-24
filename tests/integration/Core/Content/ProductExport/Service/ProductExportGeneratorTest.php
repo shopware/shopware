@@ -419,7 +419,7 @@ class ProductExportGeneratorTest extends TestCase
                 'fileFormat' => ProductExportEntity::FILE_FORMAT_CSV,
                 'interval' => 0,
                 'headerTemplate' => '',
-                'bodyTemplate' => '{{ seoUrl("product", [product.id]) }}',
+                'bodyTemplate' => '{{ entitySeoUrl("product", product.id) }}',
                 'productStreamId' => $this->getProductStreamId($productIds),
                 'storefrontSalesChannelId' => $headlessSalesChannelId,
                 'salesChannelId' => $headlessSalesChannelId,

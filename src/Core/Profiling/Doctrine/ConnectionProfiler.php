@@ -123,7 +123,12 @@ class ConnectionProfiler extends DataCollector implements LateDataCollectorInter
         $this->data = ['queries' => $this->collectQueries(), 'connections' => $this->connections];
         $this->groupedQueries = null;
 
-        $this->dataHolder->reset();
+        // Do not reset the data holder here. It is shared across the whole request, and lateCollect()
+        // runs once per profiled request - including every sub-request (e.g. storefront pagelets).
+        // Resetting here would empty the holder after the first call, so every following sub-request's
+        // lateCollect() would read an empty holder and overwrite the collected queries with nothing,
+        // leaving the main-request profile showing zero queries. The holder is cleared in reset()
+        // instead, which the profiler invokes between top-level requests.
     }
 
     /**

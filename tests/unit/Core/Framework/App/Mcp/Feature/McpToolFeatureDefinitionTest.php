@@ -14,8 +14,8 @@ use Shopware\Core\Framework\Util\Filesystem;
 /**
  * @internal
  */
-#[CoversClass(McpToolFeatureDefinition::class)]
 #[Package('framework')]
+#[CoversClass(McpToolFeatureDefinition::class)]
 class McpToolFeatureDefinitionTest extends TestCase
 {
     private McpToolFeatureDefinition $definition;

@@ -193,7 +193,6 @@ class AppMcpToolLoaderTest extends TestCase
             ->with(
                 static::callback(fn (Tool $tool): bool => $tool->name === 'my-app-sync-orders'),
                 static::isCallable(),
-                true,
             );
 
         $loader = new AppMcpToolLoader($this->storage, $this->executor, $this->localeProvider, new NullLogger(), ['my-app-sync-orders']);

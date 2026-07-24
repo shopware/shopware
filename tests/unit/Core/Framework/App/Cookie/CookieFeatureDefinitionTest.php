@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Util\Filesystem;
 /**
  * @internal
  */
-#[CoversClass(CookieFeatureDefinition::class)]
 #[Package('framework')]
+#[CoversClass(CookieFeatureDefinition::class)]
 class CookieFeatureDefinitionTest extends TestCase
 {
     private CookieFeatureDefinition $definition;

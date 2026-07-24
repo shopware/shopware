@@ -31,10 +31,9 @@ class AppMcpCapabilityDetectorTest extends TestCase
             ->willReturnCallback(static function (string $queriedAppId, string $configClass) use ($appId): array {
                 static::assertSame($appId, $queriedAppId);
 
-                return match ($configClass) {
-                    McpToolConfig::class, McpPromptConfig::class => [new \stdClass()],
-                    McpResourceConfig::class => [],
-                };
+                static::assertContains($configClass, [McpToolConfig::class, McpResourceConfig::class, McpPromptConfig::class]);
+
+                return $configClass === McpResourceConfig::class ? [] : [new \stdClass()];
             });
 
         $detector = new AppMcpCapabilityDetector($storage);

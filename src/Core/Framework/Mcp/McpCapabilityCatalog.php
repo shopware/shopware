@@ -205,6 +205,7 @@ class McpCapabilityCatalog
      * tool uses the longest hyphen-separated prefix it shares with another unconfigured tool.
      *
      * @param array<string, string> $appToolGroups
+     *
      * @return array<string, string> tool-name => group
      */
     private function resolveToolGroups(array $appToolGroups): array

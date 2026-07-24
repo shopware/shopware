@@ -96,7 +96,7 @@ class AppMcpToolLoader extends AbstractAppMcpLoader
             $arguments = $request instanceof CallToolRequest ? $request->arguments : [];
 
             return $this->executor->execute($toolName, $appName, $url, $arguments, $appVersion);
-        }, true);
+        });
     }
 
     /**

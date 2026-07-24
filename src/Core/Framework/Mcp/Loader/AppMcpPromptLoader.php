@@ -63,6 +63,6 @@ class AppMcpPromptLoader extends AbstractAppMcpLoader
 
         $registry->registerPrompt($prompt, function (RequestContext $context) use ($promptName, $appName, $url): string {
             return $this->executor->execute($promptName, $appName, $url, []);
-        }, [], true);
+        }, []);
     }
 }

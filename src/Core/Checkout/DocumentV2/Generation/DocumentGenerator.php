@@ -42,8 +42,9 @@ final readonly class DocumentGenerator
     /**
      * Generates one logical document with one or more persisted document_file artifacts.
      *
-     * The request must contain at least one format. If no order version id is given, a new
-     * order version is created for the generation; explicitly passing the live version is rejected.
+     * The request must contain at least one format. A new order version is created for every
+     * generation call, so the persisted document stays consistent even if the order changes
+     * afterward.
      *
      * For example, if the caller requests only `pdf` and the PDF renderer depends on `html`,
      * both formats are rendered, but only the PDF result is persisted as a document_file.
@@ -70,6 +71,8 @@ final readonly class DocumentGenerator
 
     /**
      * Generates one logical document and returns the first requested format as a RenderedDocument.
+     * Nothing is persisted, so this renders directly against the live order version instead of
+     * creating a new one.
      *
      * @throws DocumentV2Exception
      */
@@ -109,15 +112,17 @@ final readonly class DocumentGenerator
         Context $apiContext,
         bool $preview = false,
     ): array {
-        $this->validateGenerationRequest($generationRequest);
+        if ($generationRequest->requestedFormats === []) {
+            throw DocumentV2Exception::missingFormats();
+        }
 
-        $orderVersionId = $generationRequest->orderVersionId ?? $this->orderRepository->createVersion(
-            $generationRequest->orderId,
-            $apiContext,
-            'document',
-        );
-
-        $generationRequest = $generationRequest->withOrderVersionId($orderVersionId);
+        $orderVersionId = $preview
+            ? Defaults::LIVE_VERSION
+            : $this->orderRepository->createVersion(
+                $generationRequest->orderId,
+                $apiContext,
+                'document',
+            );
 
         $requestedFormats = $this->normalizeRequestedFormats($generationRequest->requestedFormats);
 
@@ -288,20 +293,6 @@ final readonly class DocumentGenerator
         }
 
         return $languageId;
-    }
-
-    /**
-     * @throws DocumentV2Exception
-     */
-    private function validateGenerationRequest(DocumentGenerationRequest $generationRequest): void
-    {
-        if ($generationRequest->requestedFormats === []) {
-            throw DocumentV2Exception::missingFormats();
-        }
-
-        if ($generationRequest->orderVersionId === Defaults::LIVE_VERSION) {
-            throw DocumentV2Exception::liveVersionNotAllowed();
-        }
     }
 
     /**

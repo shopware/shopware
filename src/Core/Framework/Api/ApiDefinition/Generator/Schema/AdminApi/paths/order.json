@@ -184,11 +184,6 @@
                     "type": "string",
                     "pattern": "^[0-9a-f]{32}$"
                   },
-                  "orderVersionId": {
-                    "description": "Optional version identifier of an existing, non-live order version for which the document should be created. The live version is not allowed. When omitted, a new order version is created automatically.",
-                    "type": "string",
-                    "pattern": "^[0-9a-f]{32}$"
-                  },
                   "documentType": {
                     "description": "Document type technical name. Must be one of the keys returned by `/_action/order/document-v2/available-types`.",
                     "type": "string",
@@ -220,7 +215,6 @@
                 },
                 "example": {
                   "orderId": "018f5972f9ea72a0be49f7c39f72a2a0",
-                  "orderVersionId": "0fa91ce3e96a4bc2be4bd9ce752c3425",
                   "documentType": "invoice",
                   "formats": ["pdf", "zugferd_xml"],
                   "documentNumber": "1002",
@@ -635,11 +629,6 @@
                     "type": "string",
                     "pattern": "^[0-9a-f]{32}$"
                   },
-                  "orderVersionId": {
-                    "description": "Optional version identifier of an existing, non-live order version for which the document should be previewed. The live version is not allowed. When omitted, a new order version is created automatically.",
-                    "type": "string",
-                    "pattern": "^[0-9a-f]{32}$"
-                  },
                   "documentType": {
                     "description": "Document type technical name. Must be one of the keys returned by `/_action/order/document-v2/available-types`.",
                     "type": "string",
@@ -667,7 +656,6 @@
                 },
                 "example": {
                   "orderId": "018f5972f9ea72a0be49f7c39f72a2a0",
-                  "orderVersionId": "0fa91ce3e96a4bc2be4bd9ce752c3425",
                   "documentType": "invoice",
                   "format": "html",
                   "documentNumber": "1002",

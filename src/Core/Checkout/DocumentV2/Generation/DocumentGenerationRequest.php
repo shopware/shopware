@@ -30,7 +30,6 @@ final readonly class DocumentGenerationRequest
         public string $orderId,
         DocumentType|string $documentType,
         array $requestedFormats,
-        public ?string $orderVersionId = null,
         public ?string $documentNumber = null,
         public ?string $documentComment = null,
         ?string $documentDate = null,
@@ -52,23 +51,7 @@ final readonly class DocumentGenerationRequest
             $this->orderId,
             $this->documentType,
             $this->requestedFormats,
-            $this->orderVersionId,
             $documentNumber,
-            $this->documentComment,
-            $this->documentDate,
-            $this->deliveryDate,
-            $this->referencedDocumentId,
-        );
-    }
-
-    public function withOrderVersionId(string $orderVersionId): self
-    {
-        return new self(
-            $this->orderId,
-            $this->documentType,
-            $this->requestedFormats,
-            $orderVersionId,
-            $this->documentNumber,
             $this->documentComment,
             $this->documentDate,
             $this->deliveryDate,

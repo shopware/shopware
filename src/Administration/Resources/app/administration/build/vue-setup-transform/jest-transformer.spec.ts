@@ -41,7 +41,7 @@ describe('test/transformer/shopwareSetupVueTransformer integration', () => {
         ) as string | { code: string };
         const code = typeof transformed === 'string' ? transformed : transformed.code;
 
-        expect(code).toContain('Shopware.Component.createExtendableSetup(');
+        expect(code).toContain('Shopware.Component.attachOverrides(');
         expect(code).toContain("'sw-jest-transform-fixture'");
         expect(code).toContain('props: {');
         expect(code).toContain('emits: ["save"]');

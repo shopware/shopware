@@ -180,6 +180,9 @@ export default function createSearchRankingService() {
 
     function clearCacheUserSearchConfiguration() {
         cacheUserSearchConfiguration = undefined;
+        Shopware.Service('cacheService').invalidateCaches({
+            cacheKey: ['user-config'],
+        });
     }
 
     async function getMinSearchTermLength() {
@@ -439,21 +442,22 @@ export default function createSearchRankingService() {
             return entityName ? cacheUserSearchConfiguration[entityName] : cacheUserSearchConfiguration;
         }
 
-        const userConfigService = Service('userConfigService');
+        return Shopware.Service('userConfigService')
+            .search([KEY_USER_SEARCH_PREFERENCE])
+            .then((response) => {
+                const value = response?.data?.[KEY_USER_SEARCH_PREFERENCE];
 
-        return userConfigService.search([KEY_USER_SEARCH_PREFERENCE]).then((response) => {
-            const value = response.data[KEY_USER_SEARCH_PREFERENCE];
-            if (!value) {
-                return undefined;
-            }
+                if (!value) {
+                    return undefined;
+                }
 
-            cacheUserSearchConfiguration = Object.assign({}, ...value);
-            if (entityName) {
-                return cacheUserSearchConfiguration[entityName];
-            }
+                cacheUserSearchConfiguration = Object.assign({}, ...value);
+                if (entityName) {
+                    return cacheUserSearchConfiguration[entityName];
+                }
 
-            return cacheUserSearchConfiguration;
-        });
+                return cacheUserSearchConfiguration;
+            });
     }
 
     /**

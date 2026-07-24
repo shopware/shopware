@@ -150,7 +150,6 @@ class AppManagerTest extends TestCase
         static::assertSame('https://base-url.com', $appEntity->getBaseAppUrl());
 
         $this->assertDefaultActionButtons();
-        $this->assertDefaultModules($appEntity);
         $this->assertDefaultPrivileges($appEntity->getAclRoleId());
         $this->assertDefaultWebhooks($appEntity->getId());
         $this->assertDefaultTemplate($appEntity->getId());
@@ -426,7 +425,6 @@ class AppManagerTest extends TestCase
         static::assertTrue($appEntity->getAllowDisable());
 
         $this->assertDefaultActionButtons();
-        $this->assertDefaultModules($appEntity);
         $this->assertDefaultPrivileges($appEntity->getAclRoleId());
         $this->assertDefaultWebhooks($appEntity->getId());
         $this->assertDefaultTemplate($appEntity->getId(), false);
@@ -586,7 +584,6 @@ class AppManagerTest extends TestCase
         static::assertTrue($appEntity->getAllowDisable());
 
         $this->assertDefaultActionButtons();
-        $this->assertDefaultModules($appEntity);
         $this->assertDefaultPrivileges($appEntity->getAclRoleId());
         $this->assertDefaultWebhooks($appEntity->getId());
         $this->assertDefaultTemplate($appEntity->getId());
@@ -666,7 +663,6 @@ class AppManagerTest extends TestCase
         $this->assertDefaultActionButtons();
         $app1 = $apps->first();
         static::assertNotNull($app1);
-        $this->assertDefaultModules($app1);
         $this->assertDefaultPrivileges($app1->getAclRoleId());
         $this->assertDefaultWebhooks($app1->getId());
         $this->assertDefaultTemplate($app1->getId());
@@ -805,53 +801,6 @@ class AppManagerTest extends TestCase
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
         static::assertFalse($appEntity->isConfigurable());
-    }
-
-    public function testUpdateDoesClearJsonFieldsIfTheyAreNotPresentInManifest(): void
-    {
-        $id = Uuid::randomHex();
-        $roleId = Uuid::randomHex();
-        $path = str_replace(static::getContainer()->getParameter('kernel.project_dir') . '/', '', __DIR__ . '/../Manifest/_fixtures/withConfig');
-
-        $this->appRepository->create([[
-            'id' => $id,
-            'name' => 'withConfig',
-            'path' => $path,
-            'version' => '0.0.1',
-            'label' => 'test',
-            'accessToken' => 'test',
-            'modules' => [['test']],
-            'cookies' => [['test']],
-            'mainModule' => ['test'],
-            'appSecret' => 'iamsecret',
-            'integration' => [
-                'label' => 'test',
-                'accessKey' => 'test',
-                'secretAccessKey' => 'test',
-            ],
-            'aclRole' => [
-                'id' => $roleId,
-                'name' => 'SwagApp',
-            ],
-        ]], Context::createDefaultContext());
-
-        $app = [
-            'id' => $id,
-            'roleId' => $roleId,
-        ];
-
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/minimal/manifest.xml');
-
-        $this->appManager->update($manifest, new AppUpdateParameters(), $this->loadApp($app['id']), $this->context);
-
-        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
-
-        static::assertCount(1, $apps);
-        $appEntity = $apps->first();
-        static::assertNotNull($appEntity);
-        static::assertEmpty($appEntity->getModules());
-        static::assertEmpty($appEntity->getCookies());
-        static::assertNull($appEntity->getMainModule());
     }
 
     public function testDelete(): void
@@ -1187,33 +1136,6 @@ class AppManagerTest extends TestCase
 
         static::assertContains('viewOrder', $actionNames);
         static::assertContains('doStuffWithProducts', $actionNames);
-    }
-
-    private function assertDefaultModules(AppEntity $app): void
-    {
-        static::assertCount(2, $app->getModules());
-
-        static::assertEquals([
-            [
-                'name' => 'first-module',
-                'label' => [
-                    'de-DE' => 'Mein erstes eigenes Modul',
-                    'en-GB' => 'My first own module',
-                ],
-                'parent' => 'sw-test-structure-module',
-                'source' => 'https://test.com',
-                'position' => 10,
-            ], [
-                'name' => 'structure-module',
-                'label' => [
-                    'de-DE' => 'Mein Menüeintrag für Module',
-                    'en-GB' => 'My menu entry for modules',
-                ],
-                'parent' => 'sw-catalogue',
-                'source' => null,
-                'position' => 50,
-            ],
-        ], $app->getModules());
     }
 
     private function assertDefaultPrivileges(string $roleId): void

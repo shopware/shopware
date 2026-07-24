@@ -45,6 +45,7 @@ use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\App\AppDownloader;
 use Shopware\Core\Framework\App\AppExtractor;
 use Shopware\Core\Framework\App\AppLocaleProvider;
+use Shopware\Core\Framework\App\AppSecretResolver;
 use Shopware\Core\Framework\App\AppService;
 use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGateway;
@@ -67,6 +68,7 @@ use Shopware\Core\Framework\App\Command\ValidateAppCommand;
 use Shopware\Core\Framework\App\Context\Gateway\AppContextGateway;
 use Shopware\Core\Framework\App\Context\Payload\AppContextGatewayPayloadService;
 use Shopware\Core\Framework\App\Cookie\AppCookieCollectListener;
+use Shopware\Core\Framework\App\Cookie\CookieFeatureDefinition;
 use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
 use Shopware\Core\Framework\App\DeletedApps\RememberDeletedAppsSecretSubscriber;
 use Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider;
@@ -74,6 +76,9 @@ use Shopware\Core\Framework\App\Delta\DomainsDeltaProvider;
 use Shopware\Core\Framework\App\Delta\PermissionsDeltaProvider;
 use Shopware\Core\Framework\App\Flow\Action\AppFlowActionLoadedSubscriber;
 use Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider;
+use Shopware\Core\Framework\App\Feature\AppFeatureDefinitionRegistry;
+use Shopware\Core\Framework\App\Feature\AppFeatureLifecycleHandler;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Hmac\QuerySigner;
 use Shopware\Core\Framework\App\Lifecycle\AppFeatureValidator;
@@ -87,7 +92,6 @@ use Shopware\Core\Framework\App\Lifecycle\Handler\CmsBlockLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\CustomFieldLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\FlowActionLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\FlowEventLifecycleHandler;
-use Shopware\Core\Framework\App\Lifecycle\Handler\ModuleLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\PaymentMethodLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\RuleConditionLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\ScriptLifecycleHandler;
@@ -102,8 +106,9 @@ use Shopware\Core\Framework\App\Lifecycle\ScriptFileReader;
 use Shopware\Core\Framework\App\Lifecycle\Update\AbstractAppUpdater;
 use Shopware\Core\Framework\App\Lifecycle\Update\AppUpdater;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
-use Shopware\Core\Framework\App\Manifest\ModuleLoader;
 use Shopware\Core\Framework\App\MessageHandler\RotateAppSecretHandler;
+use Shopware\Core\Framework\App\Module\ModuleFeatureDefinition;
+use Shopware\Core\Framework\App\Module\ModuleLoader;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler;
 use Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService;
@@ -215,6 +220,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('app.repository'),
             service(ShopIdProvider::class),
             service(QuerySigner::class),
+            service(AppFeatureStorage::class),
+            service(AppSecretResolver::class),
         ]);
 
     $services->set(TranslationValidator::class)
@@ -301,11 +308,24 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('shopware.app_lifecycle.handler', ['priority' => -400]);
 
-    $services->set(ModuleLifecycleHandler::class)
+    $services->set(AppFeatureLifecycleHandler::class)
         ->args([
-            service('app.repository'),
+            service(AppFeatureDefinitionRegistry::class),
+            service(AppFeatureStorage::class),
         ])
-        ->tag('shopware.app_lifecycle.handler', ['priority' => -500]);
+        ->tag('shopware.app_lifecycle.handler', ['priority' => -1300]);
+
+    $services->set(AppFeatureDefinitionRegistry::class)
+        ->args([
+            tagged_iterator('shopware.app_feature.definition'),
+        ]);
+
+    $services->set(AppFeatureStorage::class)
+        ->args([
+            service(Connection::class),
+            service(ClockInterface::class),
+            service(AppFeatureDefinitionRegistry::class),
+        ]);
 
     $services->set(ShippingMethodLifecycleHandler::class)
         ->args([
@@ -445,9 +465,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(AppCookieCollectListener::class)
         ->args([
-            service('app.repository'),
+            service(AppFeatureStorage::class),
         ])
         ->tag('kernel.event_listener');
+
+    $services->set(CookieFeatureDefinition::class)
+        ->tag('shopware.app_feature.definition');
+
+    $services->set(ModuleFeatureDefinition::class)
+        ->tag('shopware.app_feature.definition');
 
     $services->set(AppPaymentHandler::class)
         ->args([
@@ -993,6 +1019,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('messenger.message_handler');
 
     $services->set(DeletedAppsGateway::class)
+        ->args([
+            service(Connection::class),
+        ]);
+
+    $services->set(AppSecretResolver::class)
         ->args([
             service(Connection::class),
         ]);

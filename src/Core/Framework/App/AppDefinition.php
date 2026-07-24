@@ -4,9 +4,6 @@ namespace Shopware\Core\Framework\App;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonDefinition;
-use Shopware\Core\Framework\App\Aggregate\AppMcpPrompt\AppMcpPromptDefinition;
-use Shopware\Core\Framework\App\Aggregate\AppMcpResource\AppMcpResourceDefinition;
-use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodDefinition;
@@ -76,8 +73,6 @@ class AppDefinition extends EntityDefinition
             'active' => false,
             'configurable' => false,
             'allowDisable' => true,
-            'modules' => [],
-            'cookies' => [],
             'allowedHosts' => [],
             'templateLoadPriority' => 0,
             'sourceType' => 'local',
@@ -107,9 +102,6 @@ class AppDefinition extends EntityDefinition
             (new BlobField('icon', 'iconRaw'))->removeFlag(ApiAware::class),
             (new StringField('icon', 'icon'))->addFlags(new WriteProtected(), new Runtime())->setDescription('Icon for the app.'),
             (new StringField('app_secret', 'appSecret'))->removeFlag(ApiAware::class)->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
-            (new ListField('modules', 'modules', JsonField::class))->setDescription('Configuration properties or settings related to modules of an app.'),
-            (new JsonField('main_module', 'mainModule'))->setDescription('Configuration properties or settings related to main modules of an app.'),
-            (new ListField('cookies', 'cookies', JsonField::class))->setDescription('Configuration properties or settings related to cookies of an app.'),
             (new BoolField('allow_disable', 'allowDisable'))->addFlags(new Required())->setDescription('When boolean value is `true`, then the users have the option to deactivate specific aspects of the app.'),
             (new StringField('base_app_url', 'baseAppUrl', 1024))->setDescription('Root URL for an app.'),
             (new ListField('allowed_hosts', 'allowedHosts', StringField::class))->setDescription('Indicates the allowed or permitted hosts that the application can communicate with or accept requests from.'),
@@ -146,9 +138,6 @@ class AppDefinition extends EntityDefinition
             (new OneToManyAssociationField('flowActions', AppFlowActionDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('flowEvents', AppFlowEventDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('appShippingMethods', AppShippingMethodDefinition::class, 'app_id'))->addFlags(new SetNullOnDelete()),
-            (new OneToManyAssociationField('mcpTools', AppMcpToolDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('mcpPrompts', AppMcpPromptDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('mcpResources', AppMcpResourceDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
         ]);
     }
 }

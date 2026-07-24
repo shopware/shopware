@@ -1,20 +1,19 @@
 /**
  * @sw-package framework
  */
-import { type Snackbar, useSnackbar } from '@shopware-ag/meteor-component-library';
-import { ref } from 'vue';
+import { type Snackbar } from '@shopware-ag/meteor-component-library';
+import useSnackbar from 'src/app/composables/use-snackbar';
 import SnackbarService from './snackbar.service';
 
-jest.mock('@shopware-ag/meteor-component-library', () => ({
-    useSnackbar: jest.fn(),
+jest.mock('src/app/composables/use-snackbar', () => ({
+    __esModule: true,
+    default: jest.fn(),
 }));
 
 describe('src/app/service/snackbar.service.ts', () => {
     const snackbar = {
-        snackbars: ref([]),
         addSnackbar: jest.fn(),
         removeSnackbar: jest.fn(),
-        clearSnackbars: jest.fn(),
     };
 
     beforeEach(() => {

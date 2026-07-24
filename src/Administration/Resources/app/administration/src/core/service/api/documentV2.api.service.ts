@@ -1,4 +1,4 @@
-import type { AxiosInstance, AxiosResponse } from 'axios';
+import type { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
 import { DocumentEvents } from './document.api.service';
@@ -53,7 +53,7 @@ type PreviewDocumentPayload = DocumentRequestPayload & {
     format: string;
 };
 
-type PreviewErrorResponse = {
+type DocumentErrorResponse = {
     errors?: DocumentError[];
 };
 
@@ -100,8 +100,8 @@ export default class DocumentV2ApiService extends ApiService {
 
         return this.httpClient
             .post<DocumentCreateResponse>('/_action/order/document-v2/create', payload, { headers })
-            .catch((error) => {
-                this.emitDocumentFailed(error.response?.data?.errors?.pop());
+            .catch((error: AxiosError<DocumentErrorResponse>) => {
+                this.emitDocumentFailed(error.response?.data.errors?.pop());
             });
     }
 
@@ -152,8 +152,8 @@ export default class DocumentV2ApiService extends ApiService {
             });
         }
 
-        return request.catch((error) => {
-            this.emitDocumentFailed(error.response?.data?.errors?.pop());
+        return request.catch((error: AxiosError<DocumentErrorResponse>) => {
+            this.emitDocumentFailed(error.response?.data.errors?.pop());
         });
     }
 
@@ -183,8 +183,12 @@ export default class DocumentV2ApiService extends ApiService {
                 responseType: 'blob',
                 headers,
             })
-            .catch(async (error) => {
-                const errorObject = (JSON.parse(await error.response.data.text()) as PreviewErrorResponse).errors?.pop();
+            .catch(async (error: AxiosError<Blob>) => {
+                if (!error.response) {
+                    return;
+                }
+
+                const errorObject = (JSON.parse(await error.response.data.text()) as DocumentErrorResponse).errors?.pop();
                 this.emitDocumentFailed(errorObject);
             });
     }

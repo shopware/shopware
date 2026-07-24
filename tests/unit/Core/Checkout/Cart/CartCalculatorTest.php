@@ -21,8 +21,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[CoversClass(CartCalculator::class)]
 #[Package('checkout')]
+#[CoversClass(CartCalculator::class)]
 class CartCalculatorTest extends TestCase
 {
     public const EXPECTED_HASH = '0e7471dd6822e878f04962fc750993c42ccfe121672409e8ef92237658055942';

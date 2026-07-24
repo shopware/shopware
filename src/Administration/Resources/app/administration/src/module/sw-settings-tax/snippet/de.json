@@ -12,10 +12,7 @@
       "columnDefaultTaxRate": "Steuersatz",
       "columnDefault": "Standard",
       "buttonAddTax": "Steuer anlegen",
-      "contextMenuEdit": "Bearbeiten",
-      "contextMenuDelete": "Löschen",
       "messageDeleteSuccess": "Die Steuer \"{name}\" wurde erfolgreich gelöscht.",
-      "buttonDelete": "Löschen",
       "taxCardTitle": "Steuern",
       "taxProvider": {
         "cardTitle": "Steueranbieter",
@@ -44,7 +41,6 @@
       "labelDefaultTaxRate": "Steuersatz",
       "placeholderName": "Namen eingeben ...",
       "placeholderDefaultTaxRate": "Standard-Steuersatz eingeben ...",
-      "buttonSave": "Speichern",
       "messageSaveError": "Fehler beim Speichern des Steuersatzes.",
       "messageSaveSuccess": "Steuersatz gespeichert.",
       "defaultTaxLabel": "Als Standard verwenden",

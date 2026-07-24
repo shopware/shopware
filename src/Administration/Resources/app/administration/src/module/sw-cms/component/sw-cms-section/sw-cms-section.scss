@@ -5,9 +5,9 @@
         background: var(--color-background-secondary-default) !important;
 
         .sw-cms-section__wrapper {
-            border: 30px solid var(--color-border-primary-default);
+            border: 30px solid var(--color-border-secondary-default);
             border-radius: 15px;
-            box-shadow: 0 0 0 1px var(--color-border-primary-default);
+            box-shadow: 0 0 0 1px var(--color-border-secondary-default);
         }
     }
 
@@ -47,8 +47,8 @@
     position: relative;
     background-repeat: no-repeat;
     background-position: center center;
-    border-top: 1px solid var(--color-border-primary-default);
-    border-bottom: 1px solid var(--color-border-primary-default);
+    border-top: 1px solid var(--color-border-secondary-default);
+    border-bottom: 1px solid var(--color-border-secondary-default);
     display: grid;
     grid-template-columns: 60px 1fr;
     align-items: center;
@@ -140,7 +140,7 @@
             align-items: center;
             flex-direction: column;
             border-radius: 10px;
-            border: 2px dashed var(--color-border-primary-default);
+            border: 2px dashed var(--color-border-secondary-default);
 
             &.is--valid-drop {
                 background-color: var(--color-background-brand-default);

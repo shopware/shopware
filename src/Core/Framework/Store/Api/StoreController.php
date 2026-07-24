@@ -25,8 +25,8 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class StoreController extends AbstractController
 {
     /**
@@ -160,7 +160,7 @@ class StoreController extends AbstractController
         }
 
         /** @var UserEntity|null $user */
-        $user = $this->userRepository->search(new Criteria([$userId]), $context)->first();
+        $user = $this->userRepository->search(new Criteria([$userId]), $context)->getEntities()->first();
 
         if ($user === null) {
             throw StoreException::storeTokenMissing();

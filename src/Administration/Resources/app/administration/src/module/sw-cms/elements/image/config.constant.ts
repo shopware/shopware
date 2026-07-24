@@ -31,6 +31,10 @@ const COMMON_MEDIA_CONFIG = {
 
 const IMAGE_DEFAULT_CONFIG = {
     ...COMMON_MEDIA_CONFIG,
+    minHeight: {
+        source: 'static',
+        value: '',
+    },
     url: {
         source: 'static',
         value: null,

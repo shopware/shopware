@@ -37,6 +37,19 @@ export default {
     },
 
     computed: {
+        filterOptions() {
+            return [
+                {
+                    value: 'permission',
+                    label: this.$t('sw-users-permissions.roles.mcpModal.viewByPermission'),
+                },
+                {
+                    value: 'tool',
+                    label: this.$t('sw-users-permissions.roles.mcpModal.viewByTool'),
+                },
+            ];
+        },
+
         anyIntegrationAllowsAllTools() {
             return this.mcpIntegrations.some((integration) => {
                 const tools = integration.mcpAllowlist?.tools;
@@ -161,6 +174,18 @@ export default {
     },
 
     methods: {
+        getBadgeVariant(chip) {
+            if (!chip.isDynamic && chip.isGranted) {
+                return 'positive';
+            }
+
+            if (!chip.isDynamic && !chip.isGranted) {
+                return 'critical';
+            }
+
+            return 'neutral';
+        },
+
         loadTools() {
             this.isLoading = true;
 

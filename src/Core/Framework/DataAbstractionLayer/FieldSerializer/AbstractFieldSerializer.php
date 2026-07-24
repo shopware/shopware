@@ -90,6 +90,9 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
         }
     }
 
+    /**
+     * @param mixed $value
+     */
     protected function requiresValidation(
         Field $field,
         EntityExistence $existence,

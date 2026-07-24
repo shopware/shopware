@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Plugin\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\BundleConfigGeneratorInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -10,9 +9,14 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(name: 'bundle:dump', description: 'Dumps the bundle configuration for a plugin', aliases: ['administration:dump:plugins', 'administration:dump:bundles'])]
 #[Package('framework')]
+#[AsCommand(
+    name: 'bundle:dump',
+    description: 'Dumps the bundle configuration for a plugin',
+    aliases: ['administration:dump:plugins', 'administration:dump:bundles']
+)]
 class BundleDumpCommand extends Command
 {
     /**
@@ -42,7 +46,7 @@ class BundleDumpCommand extends Command
             \json_encode($config, \JSON_PRETTY_PRINT)
         );
 
-        $style = new ShopwareStyle($input, $output);
+        $style = new SymfonyStyle($input, $output);
         $style->success('Dumped plugin configuration.');
 
         return self::SUCCESS;

@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
@@ -29,6 +30,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PriceFieldSerializer::class)]
 class PriceFieldSerializerTest extends TestCase
 {
@@ -38,7 +40,7 @@ class PriceFieldSerializerTest extends TestCase
     {
         $validator = new RecursiveValidator(
             new ExecutionContextFactory(
-                $this->createMock(TranslatorInterface::class)
+                static::createStub(TranslatorInterface::class)
             ),
             new BlackHoleMetadataFactory(),
             new ConstraintValidatorFactory()
@@ -51,7 +53,7 @@ class PriceFieldSerializerTest extends TestCase
                     new ProductDefinition(),
                 ],
                 $validator,
-                $this->createMock(EntityWriteGateway::class)
+                static::createStub(EntityWriteGateway::class)
             )
         );
     }

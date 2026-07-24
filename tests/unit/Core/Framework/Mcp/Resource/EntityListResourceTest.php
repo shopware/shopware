@@ -18,12 +18,12 @@ class EntityListResourceTest extends TestCase
 {
     public function testInvokeReturnsSortedEntitiesWithCorrectStructure(): void
     {
-        $defProduct = $this->createMock(EntityDefinition::class);
+        $defProduct = static::createStub(EntityDefinition::class);
         $defProduct->method('getEntityName')->willReturn('product');
-        $defCategory = $this->createMock(EntityDefinition::class);
+        $defCategory = static::createStub(EntityDefinition::class);
         $defCategory->method('getEntityName')->willReturn('category');
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('getDefinitions')->willReturn([$defProduct, $defCategory]);
 
         $resource = new EntityListResource($registry);

@@ -85,10 +85,6 @@ class SalesChannelTrackingListener implements EventSubscriberInterface
             return;
         }
 
-        if (!$request->hasSession()) {
-            return;
-        }
-
         $referralCode = $request->query->get(self::QUERY_PARAM);
 
         if (!$referralCode || !Uuid::isValid($referralCode)) {
@@ -99,23 +95,34 @@ class SalesChannelTrackingListener implements EventSubscriberInterface
             return;
         }
 
+        if (!$request->hasSession(true)) {
+            return;
+        }
+
         $session = $request->getSession();
         $session->set(self::SESSION_KEY_REFERRAL_CODE, $referralCode);
     }
 
     public function createTrackingRecords(EntityWrittenContainerEvent $event): void
     {
+        $orderEvent = $event->getEventByEntityName(OrderDefinition::ENTITY_NAME);
+        $customerEvent = $event->getEventByEntityName(CustomerDefinition::ENTITY_NAME);
+
+        if ($orderEvent === null && $customerEvent === null) {
+            return;
+        }
+
         $referralCode = $this->resolveReferralCode($event);
 
         if ($referralCode === null) {
             return;
         }
 
-        if ($orderEvent = $event->getEventByEntityName(OrderDefinition::ENTITY_NAME)) {
+        if ($orderEvent) {
             $this->trackOrders($orderEvent, $event->getContext(), $referralCode);
         }
 
-        if ($customerEvent = $event->getEventByEntityName(CustomerDefinition::ENTITY_NAME)) {
+        if ($customerEvent) {
             $this->trackCustomers($customerEvent, $event->getContext(), $referralCode);
         }
     }
@@ -138,11 +145,17 @@ class SalesChannelTrackingListener implements EventSubscriberInterface
 
         $request = $this->getCurrentRequest();
 
-        if ($request === null || !$request->hasSession()) {
+        if ($request === null || !$request->hasSession(true)) {
             return null;
         }
 
-        $referralCode = $request->getSession()->get(self::SESSION_KEY_REFERRAL_CODE);
+        $session = $request->getSession();
+
+        if (!$session->isStarted()) {
+            return null;
+        }
+
+        $referralCode = $session->get(self::SESSION_KEY_REFERRAL_CODE);
 
         if (!\is_string($referralCode) || $referralCode === '') {
             return null;
@@ -153,7 +166,7 @@ class SalesChannelTrackingListener implements EventSubscriberInterface
 
     private function trackOrders(EntityWrittenEvent $orderEvent, Context $context, string $referralCode): void
     {
-        $inserts = $this->filterInserts($orderEvent->getWriteResults());
+        $inserts = $orderEvent->getResults()->only(EntityWriteResult::OPERATION_INSERT)->getElements();
 
         if ($inserts === []) {
             return;
@@ -182,7 +195,7 @@ class SalesChannelTrackingListener implements EventSubscriberInterface
 
     private function trackCustomers(EntityWrittenEvent $customerEvent, Context $context, string $referralCode): void
     {
-        $inserts = $this->filterInserts($customerEvent->getWriteResults());
+        $inserts = $customerEvent->getResults()->only(EntityWriteResult::OPERATION_INSERT)->getElements();
 
         if ($inserts === []) {
             return;
@@ -206,19 +219,6 @@ class SalesChannelTrackingListener implements EventSubscriberInterface
                 'salesChannelId' => $referralCode,
             ]);
         }
-    }
-
-    /**
-     * @param list<EntityWriteResult> $results
-     *
-     * @return list<EntityWriteResult>
-     */
-    private function filterInserts(array $results): array
-    {
-        return array_values(array_filter(
-            $results,
-            static fn (EntityWriteResult $r): bool => $r->getOperation() === EntityWriteResult::OPERATION_INSERT,
-        ));
     }
 
     private function isTrackableChannel(string $salesChannelId): bool

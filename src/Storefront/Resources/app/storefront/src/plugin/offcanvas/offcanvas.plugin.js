@@ -121,6 +121,10 @@ class OffCanvasSingleton {
     _openOffcanvas(_offCanvas, callback) {
         window.focusHandler.saveFocusState('offcanvas');
 
+        // Keep the Bootstrap focus-trap working when the offcanvas is the last element before `</body>`.
+        // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
+        window.focusHandler._addFocusTrapGuard(_offCanvas);
+
         OffCanvasSingleton.bsOffcanvas.show();
         window.history.pushState('offcanvas-open', '');
 
@@ -145,6 +149,8 @@ class OffCanvasSingleton {
                 setTimeout(() => {
                     offCanvas.remove();
 
+                    // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
+                    window.focusHandler._removeFocusTrapGuard();
                     window.focusHandler.resumeFocusState('offcanvas');
 
                     this.$emitter.publish('onCloseOffcanvas', {
@@ -188,7 +194,10 @@ class OffCanvasSingleton {
             if (offCanvasInstance && typeof offCanvasInstance.dispose === 'function') {
                 offCanvasInstance.dispose();
             }
+
             offCanvas.remove();
+            // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
+            window.focusHandler._removeFocusTrapGuard();
         });
 
         // Clear the singleton reference after disposal

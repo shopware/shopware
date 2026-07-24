@@ -70,7 +70,13 @@ class AdminSearcher
             return [];
         }
 
-        $responses = $this->client->msearch(['body' => $indexes]);
+        try {
+            $responses = $this->client->msearch(['body' => $indexes]);
+        } catch (\Throwable $e) {
+            $this->adminEsHelper->logAndThrowException($e);
+
+            return [];
+        }
 
         $result = $this->parseResponse($responses);
 

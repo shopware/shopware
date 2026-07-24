@@ -20,8 +20,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[CoversClass(CustomerIndexer::class)]
 #[Package('checkout')]
+#[CoversClass(CustomerIndexer::class)]
 class CustomerIndexerTest extends TestCase
 {
     public function testUpdate(): void
@@ -35,13 +35,13 @@ class CustomerIndexerTest extends TestCase
             $customerId,
         ]);
 
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
 
         $indexer = new CustomerIndexer(
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ManyToManyIdFieldUpdater::class),
-            $this->createMock(CustomerNewsletterSalesChannelsUpdater::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ManyToManyIdFieldUpdater::class),
+            static::createStub(CustomerNewsletterSalesChannelsUpdater::class),
             $eventDispatcher
         );
 
@@ -55,10 +55,10 @@ class CustomerIndexerTest extends TestCase
     {
         $customerId = Uuid::randomHex();
 
-        $message = $this->createMock(CustomerIndexingMessage::class);
+        $message = static::createStub(CustomerIndexingMessage::class);
         $message->method('getData')->willReturn([$customerId]);
         $message->method('getContext')->willReturn(
-            $this->getMockBuilder(Context::class)->disableOriginalConstructor()->getMock()
+            static::createStub(Context::class)
         );
         $message->method('getIds')->willReturn([$customerId]);
 
@@ -71,10 +71,10 @@ class CustomerIndexerTest extends TestCase
         });
 
         $indexer = new CustomerIndexer(
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ManyToManyIdFieldUpdater::class),
-            $this->createMock(CustomerNewsletterSalesChannelsUpdater::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ManyToManyIdFieldUpdater::class),
+            static::createStub(CustomerNewsletterSalesChannelsUpdater::class),
             $eventDispatcher
         );
 

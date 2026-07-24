@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -25,63 +25,52 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[CoversClass(CartService::class)]
 #[Package('checkout')]
+#[CoversClass(CartService::class)]
 class CartServiceTest extends TestCase
 {
-    private AbstractCartDeleteRoute&MockObject $cartDeleteRoute;
+    private AbstractCartDeleteRoute&Stub $cartDeleteRoute;
 
-    private AbstractCartItemUpdateRoute&MockObject $cartItemUpdateRoute;
+    private AbstractCartItemUpdateRoute&Stub $cartItemUpdateRoute;
 
-    private AbstractCartItemRemoveRoute&MockObject $cartItemRemoveRoute;
+    private AbstractCartItemRemoveRoute&Stub $cartItemRemoveRoute;
 
-    private CartFactory&MockObject $cartFactory;
-
-    private CartService $cartService;
+    private CartFactory&Stub $cartFactory;
 
     protected function setUp(): void
     {
-        $this->cartDeleteRoute = $this->createMock(AbstractCartDeleteRoute::class);
-        $this->cartItemUpdateRoute = $this->createMock(AbstractCartItemUpdateRoute::class);
-        $this->cartItemRemoveRoute = $this->createMock(AbstractCartItemRemoveRoute::class);
-        $this->cartFactory = $this->createMock(CartFactory::class);
-
-        $this->cartService = new CartService(
-            $this->createMock(AbstractCartPersister::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(CartCalculator::class),
-            $this->createMock(AbstractCartLoadRoute::class),
-            $this->cartDeleteRoute,
-            $this->createMock(AbstractCartItemAddRoute::class),
-            $this->cartItemUpdateRoute,
-            $this->cartItemRemoveRoute,
-            $this->createMock(AbstractCartOrderRoute::class),
-            $this->cartFactory,
-        );
+        $this->cartDeleteRoute = static::createStub(AbstractCartDeleteRoute::class);
+        $this->cartItemUpdateRoute = static::createStub(AbstractCartItemUpdateRoute::class);
+        $this->cartItemRemoveRoute = static::createStub(AbstractCartItemRemoveRoute::class);
+        $this->cartFactory = static::createStub(CartFactory::class);
     }
 
     public function testDeleteCartCallsDeleteRoute(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
-        $this->cartDeleteRoute->expects($this->once())
+        $cartDeleteRoute = $this->createMock(AbstractCartDeleteRoute::class);
+        $cartDeleteRoute->expects($this->once())
             ->method('delete')
             ->with($context)
         ;
 
-        $this->cartService->deleteCart($context);
+        $cartService = $this->buildCartService(cartDeleteRoute: $cartDeleteRoute);
+
+        $cartService->deleteCart($context);
     }
 
     public function testRemoveItemsCallsRemoveRoute(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $cart = new Cart(Uuid::randomHex());
 
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
         $ids = [$id1, $id2];
 
-        $this->cartItemRemoveRoute->expects($this->once())
+        $cartItemRemoveRoute = $this->createMock(AbstractCartItemRemoveRoute::class);
+        $cartItemRemoveRoute->expects($this->once())
             ->method('remove')
             ->with(static::callback(static function (Request $actualRequest) use ($ids) {
                 static::assertSame($ids, $actualRequest->request->all('ids'));
@@ -89,17 +78,20 @@ class CartServiceTest extends TestCase
                 return true;
             }), $cart, $context);
 
-        $this->cartService->removeItems($cart, $ids, $context);
+        $cartService = $this->buildCartService(cartItemRemoveRoute: $cartItemRemoveRoute);
+
+        $cartService->removeItems($cart, $ids, $context);
     }
 
     public function testRemoveCallsRemoveRoute(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $cart = new Cart(Uuid::randomHex());
 
         $id = Uuid::randomHex();
 
-        $this->cartItemRemoveRoute->expects($this->once())
+        $cartItemRemoveRoute = $this->createMock(AbstractCartItemRemoveRoute::class);
+        $cartItemRemoveRoute->expects($this->once())
             ->method('remove')
             ->with(static::callback(static function (Request $actualRequest) use ($id) {
                 static::assertSame([$id], $actualRequest->request->all('ids'));
@@ -107,17 +99,20 @@ class CartServiceTest extends TestCase
                 return true;
             }), $cart, $context);
 
-        $this->cartService->remove($cart, $id, $context);
+        $cartService = $this->buildCartService(cartItemRemoveRoute: $cartItemRemoveRoute);
+
+        $cartService->remove($cart, $id, $context);
     }
 
     public function testChangeQuantityCallsItemUpdateRoute(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $cart = new Cart(Uuid::randomHex());
 
         $id = Uuid::randomHex();
 
-        $this->cartItemUpdateRoute->expects($this->once())
+        $cartItemUpdateRoute = $this->createMock(AbstractCartItemUpdateRoute::class);
+        $cartItemUpdateRoute->expects($this->once())
             ->method('change')
             ->with(static::callback(static function (Request $actualRequest) use ($id) {
                 $items = $actualRequest->request->all('items');
@@ -128,12 +123,14 @@ class CartServiceTest extends TestCase
                 return true;
             }), $cart, $context);
 
-        $this->cartService->changeQuantity($cart, $id, 5, $context);
+        $cartService = $this->buildCartService(cartItemUpdateRoute: $cartItemUpdateRoute);
+
+        $cartService->changeQuantity($cart, $id, 5, $context);
     }
 
     public function testUpdateMethodCallsUpdateRoute(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $cart = new Cart(Uuid::randomHex());
 
         $id1 = Uuid::randomHex();
@@ -149,7 +146,8 @@ class CartServiceTest extends TestCase
             ],
         ];
 
-        $this->cartItemUpdateRoute->expects($this->once())
+        $cartItemUpdateRoute = $this->createMock(AbstractCartItemUpdateRoute::class);
+        $cartItemUpdateRoute->expects($this->once())
             ->method('change')
             ->with(static::callback(static function (Request $actualRequest) use ($items) {
                 static::assertSame($items, $actualRequest->request->all('items'));
@@ -157,18 +155,44 @@ class CartServiceTest extends TestCase
                 return true;
             }), $cart, $context);
 
-        $this->cartService->update($cart, $items, $context);
+        $cartService = $this->buildCartService(cartItemUpdateRoute: $cartItemUpdateRoute);
+
+        $cartService->update($cart, $items, $context);
     }
 
     public function testCreatesNewCart(): void
     {
         $cart = new Cart('test');
-        $this->cartFactory
+
+        $cartFactory = $this->createMock(CartFactory::class);
+        $cartFactory
             ->expects($this->once())
             ->method('createNew')
             ->with('test')
             ->willReturn($cart);
 
-        static::assertSame($cart, $this->cartService->createNew('test'));
+        $cartService = $this->buildCartService(cartFactory: $cartFactory);
+
+        static::assertSame($cart, $cartService->createNew('test'));
+    }
+
+    private function buildCartService(
+        ?AbstractCartDeleteRoute $cartDeleteRoute = null,
+        ?AbstractCartItemUpdateRoute $cartItemUpdateRoute = null,
+        ?AbstractCartItemRemoveRoute $cartItemRemoveRoute = null,
+        ?CartFactory $cartFactory = null,
+    ): CartService {
+        return new CartService(
+            static::createStub(AbstractCartPersister::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(CartCalculator::class),
+            static::createStub(AbstractCartLoadRoute::class),
+            $cartDeleteRoute ?? $this->cartDeleteRoute,
+            static::createStub(AbstractCartItemAddRoute::class),
+            $cartItemUpdateRoute ?? $this->cartItemUpdateRoute,
+            $cartItemRemoveRoute ?? $this->cartItemRemoveRoute,
+            static::createStub(AbstractCartOrderRoute::class),
+            $cartFactory ?? $this->cartFactory,
+        );
     }
 }

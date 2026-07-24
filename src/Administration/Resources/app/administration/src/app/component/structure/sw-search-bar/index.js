@@ -1,7 +1,7 @@
 import template from './sw-search-bar.html.twig';
 import './sw-search-bar.scss';
 
-const { Application, Context } = Shopware;
+const { Application, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 const { cloneDeep } = utils.object;
@@ -146,10 +146,6 @@ export default {
 
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
-        },
-
-        salesChannelTypeRepository() {
-            return this.repositoryFactory.create('sales_channel_type');
         },
 
         salesChannelCriteria() {
@@ -864,12 +860,21 @@ export default {
         },
 
         loadSalesChannelType() {
-            return new Promise((resolve) => {
-                this.salesChannelTypeRepository.search(new Criteria(1, 25)).then((response) => {
-                    this.salesChannelTypes = response;
-                    resolve(response);
+            return this.repositoryFactory
+                .create('sales_channel_type')
+                .search(new Criteria(1, 100), Shopware.Context.api, {
+                    cacheKey: [
+                        'shared-data',
+                        'sales-channel-types',
+                        Shopware.Context.api.languageId ?? 'default',
+                    ],
+                    ttl: 5 * 60 * 1000,
+                })
+                .then((salesChannelTypes) => {
+                    this.salesChannelTypes = [...salesChannelTypes];
+
+                    return salesChannelTypes;
                 });
-            });
         },
 
         getModuleEntities(searchTerm, limit = 5) {
@@ -953,6 +958,19 @@ export default {
         getSalesChannelTypesBySearchTerm(regex) {
             return this.salesChannelTypes.reduce((salesChannelTypes, saleChannelType) => {
                 if (!saleChannelType?.translated.name.toLowerCase().match(regex)) {
+                    return salesChannelTypes;
+                }
+
+                /**
+                 * @deprecated tag:v6.8.0 - condition can be removed.
+                 *
+                 * Only reveal the agentic commerce sales channel as a search result
+                 * if the SwagAgenticCommerce plugin is installed.
+                 */
+                if (
+                    saleChannelType.id === Defaults.agenticCommerceTypeId &&
+                    !Shopware.Context.app.config.bundles?.SwagAgenticCommerce
+                ) {
                     return salesChannelTypes;
                 }
 

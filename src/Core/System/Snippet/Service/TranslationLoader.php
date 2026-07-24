@@ -19,12 +19,12 @@ use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
 use Shopware\Core\System\Snippet\DataTransfer\Language\Language;
+use Shopware\Core\System\Snippet\Event\TranslationLoadedEvent;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\SnippetPatterns;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Path;
-use Symfony\Component\Validator\Constraints\Locale;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -55,7 +55,7 @@ class TranslationLoader extends AbstractTranslationLoader
         private readonly EntityRepository $snippetSetRepository,
         private readonly ClientInterface $client,
         private readonly TranslationConfig $config,
-        private readonly ValidatorInterface $validator,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -77,6 +77,8 @@ class TranslationLoader extends AbstractTranslationLoader
 
         $this->createLanguage($language, $context, $activate);
         $this->createSnippetSet($language, $context);
+
+        $this->eventDispatcher->dispatch(new TranslationLoadedEvent($locale, $context));
     }
 
     public function pluginTranslationExists(Plugin $plugin): bool
@@ -112,13 +114,12 @@ class TranslationLoader extends AbstractTranslationLoader
 
     public function getLocalePath(string $locale): string
     {
-        if (!\array_key_exists($locale, SnippetPatterns::ALLOWED_PSEUDO_LOCALES)) {
-            $localeViolationCount = $this->validator
-                ->validate($locale, new Locale())
-                ->count();
-            if ($locale !== '*' && $localeViolationCount !== 0) {
-                return '';
-            }
+        if (
+            $locale !== '*'
+            && !\array_key_exists($locale, SnippetPatterns::ALLOWED_PSEUDO_LOCALES)
+            && !preg_match(SnippetPatterns::COMPLETE_LOCALE_PATTERN, $locale)
+        ) {
+            return '';
         }
 
         return Path::join(static::TRANSLATION_DIR, static::TRANSLATION_LOCALE_SUB_DIR, $locale);

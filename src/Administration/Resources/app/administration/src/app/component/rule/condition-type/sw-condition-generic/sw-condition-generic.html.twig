@@ -18,7 +18,10 @@
             v-for="(field, index) in config.fields"
             :key="index"
         >
-            <div class="sw-condition-generic__input-wrapper">
+            <div
+                class="sw-condition-generic__input-wrapper"
+                :class="{ 'sw-condition-generic__input-wrapper--has-unit': !!field.config.unit }"
+            >
                 <sw-condition-value-between-date
                     v-if="isBetweenDateField(field)"
                     :value="values[field.name]"
@@ -27,26 +30,26 @@
                     @update:value="updateBetweenDateValue(field.name, $event)"
                 />
 
-                <sw-form-field-renderer
-                    v-else
-                    v-bind="getBind(field)"
-                    :disabled="isDisabled || undefined"
-                    :value="getVisibleValue(field.name)"
-                    size="medium"
-                    show-clearable-button
-                    :placeholder="getPlaceholder(field.type)"
-                    @update:value="updateFieldValue(field.name, $event, baseUnit, selectedUnit)"
-                />
+                <template v-else>
+                    <sw-form-field-renderer
+                        v-bind="getBind(field)"
+                        :disabled="isDisabled || undefined"
+                        :value="getVisibleValue(field.name)"
+                        show-clearable-button
+                        :placeholder="getPlaceholder(field.type)"
+                        @update:value="updateFieldValue(field.name, $event, baseUnit, selectedUnit)"
+                    />
 
-                <sw-condition-unit-menu
-                    v-if="field.config.unit"
-                    :type="field.config.unit"
-                    :value="values[field.name]"
-                    :visible-value="getVisibleValue(field.name)"
-                    class="sw-condition-generic__unit-menu"
-                    @change-unit="handleUnitChange"
-                    @set-default-unit="setDefaultUnit"
-                />
+                    <sw-condition-unit-menu
+                        v-if="field.config.unit"
+                        :type="field.config.unit"
+                        :value="values[field.name]"
+                        :visible-value="getVisibleValue(field.name)"
+                        class="sw-condition-generic__unit-menu"
+                        @change-unit="handleUnitChange"
+                        @set-default-unit="setDefaultUnit"
+                    />
+                </template>
             </div>
         </template>
     </template>

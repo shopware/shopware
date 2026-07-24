@@ -6,6 +6,7 @@ import type { BasicHeaders } from 'src/core/service/api.service';
 import ApiService from 'src/core/service/api.service';
 
 type ExtensionVariantType = 'rent' | 'buy' | 'free';
+type LicenseVariantType = ExtensionVariantType | 'test';
 type ExtensionType = 'app' | 'plugin';
 type ExtensionSource = 'local' | 'store';
 type ExtensionRentDuration = 1 | 12;
@@ -41,13 +42,26 @@ interface StoreCategory {
     details: { [key: string]: string };
 }
 
+interface DiscountInformation {
+    discountedPrice: number;
+    firstDateOfFullCharging: string;
+}
+
+interface LicenseSubscription {
+    expirationDate: string;
+}
+
 interface License {
     id: number;
     creationDate: string;
-    variant: ExtensionVariantType;
+    expirationDate: string | null;
+    variant: LicenseVariantType;
     paymentText: string;
     netPrice: number;
     nextBookingDate: string | null;
+    subscription: LicenseSubscription | null;
+    trialPhaseIncluded: boolean;
+    discountInformation: DiscountInformation | null;
     licensedExtension: Extension;
 }
 

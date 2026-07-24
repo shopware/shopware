@@ -33,7 +33,7 @@ class LineItemCustomFieldRuleTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->salesChannelContext = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
+        $this->salesChannelContext = static::createStub(SalesChannelContext::class);
         $this->salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
     }
 

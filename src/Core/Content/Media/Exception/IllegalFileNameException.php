@@ -6,6 +6,9 @@ use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class IllegalFileNameException extends MediaException
 {

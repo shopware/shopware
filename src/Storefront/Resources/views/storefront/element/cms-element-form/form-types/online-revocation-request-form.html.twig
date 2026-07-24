@@ -19,7 +19,6 @@
                         required: firstNameFieldRequired,
                         additionalClass: 'col-md-6',
                         label: 'revocationRequest.firstNameLabel',
-                        placeholder: 'revocationRequest.firstNamePlaceholder'
                     } %}
                 {% endblock %}
 
@@ -32,7 +31,6 @@
                         required: lastNameFieldRequired,
                         additionalClass: 'col-md-6',
                         label: 'revocationRequest.lastNameLabel',
-                        placeholder: 'revocationRequest.lastNamePlaceholder'
                     } %}
                 {% endblock %}
             </div>
@@ -47,7 +45,6 @@
                         required: true,
                         additionalClass: 'col-md-12',
                         label: 'revocationRequest.eMailLabel',
-                        placeholder: 'revocationRequest.eMailPlaceholder'
                     } %}
                 {% endblock %}
             </div>
@@ -60,7 +57,6 @@
                         required: true,
                         additionalClass: 'col-md-12',
                         label: 'revocationRequest.contractNumberLabel',
-                        placeholder: 'revocationRequest.contractNumberPlaceholder'
                     } %}
                 {% endblock %}
             </div>
@@ -73,7 +69,6 @@
                         fieldName: 'comment',
                         additionalClass: 'col-12',
                         label: 'revocationRequest.commentLabel',
-                        placeholder: 'revocationRequest.commentPlaceholder'
                     }
                     %}
                 {% endblock %}
@@ -84,7 +79,16 @@
             {% endblock %}
 
             {% block cms_form_revocation_privacy %}
-                {% sw_include '@Storefront/storefront/component/privacy-notice.html.twig' %}
+                <div class="form-text privacy-notice data-protection-information">
+                    {% block cms_form_revocation_privacy_notice %}
+                        {% set cmsPath = 'frontend.cms.page' %}
+
+                        {{ 'revocationRequest.privacyNoticeTextModal'|trans({
+                            '%privacyModalTagOpen%': '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.privacyPage') }) ~ '">',
+                            '%privacyModalTagClose%': '</button>',
+                        })|raw }}
+                    {% endblock %}
+                </div>
             {% endblock %}
 
             {% block cms_form_revocation_required_fields_info %}
@@ -98,7 +102,13 @@
 
         {% block cms_form_revocation_hidden_fields %}
             <div class="form-hidden-fields">
-                <input type="hidden" id="{{ formPrefix }}-navigationId" name="navigationId" value="{{ shopware.navigation.id }}">
+                {% if page.navigationId and page.entityName %}
+                    <input type="hidden" id="{{ formPrefix }}-navigationId" name="navigationId" value="{{ page.navigationId }}">
+                    <input type="hidden" id="{{ formPrefix }}-entityName" name="entityName" value="{{ page.entityName }}">
+                {% else %}
+                    <input type="hidden" id="{{ formPrefix }}-navigationId" name="navigationId" value="{{ shopware.navigation.id }}">
+                {% endif %}
+
                 <input type="hidden" id="{{ formPrefix }}-slotId" name="slotId" value="{{ element.id }}">
                 <input type="submit" class="submit--hidden d-none">
             </div>

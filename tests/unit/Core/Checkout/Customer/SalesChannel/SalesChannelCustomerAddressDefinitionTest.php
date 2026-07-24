@@ -19,8 +19,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[CoversClass(SalesChannelCustomerAddressDefinition::class)]
 #[Package('checkout')]
+#[CoversClass(SalesChannelCustomerAddressDefinition::class)]
 class SalesChannelCustomerAddressDefinitionTest extends TestCase
 {
     public function testProcessCriteria(): void
@@ -45,8 +45,8 @@ class SalesChannelCustomerAddressDefinitionTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [$definition],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGateway::class),
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGateway::class),
         );
 
         $definition->compile($registry);

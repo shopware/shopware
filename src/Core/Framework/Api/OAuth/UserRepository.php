@@ -7,11 +7,16 @@ use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use Shopware\Core\Framework\Api\OAuth\User\User;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\Config\LoginConfigService;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * OAuth integrations should rely on {@see UserRepositoryInterface} instead of this concrete Shopware class.
+ */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class UserRepository implements UserRepositoryInterface
 {
     /**
@@ -41,7 +46,7 @@ class UserRepository implements UserRepositoryInterface
         }
 
         $builder = $this->connection->createQueryBuilder();
-        $user = $builder->select('user.id', 'user.password')
+        $user = $builder->select('user.id', 'user.password', 'user.active')
             ->from('user')
             ->where('username = :username')
             ->setParameter('username', $username)
@@ -54,6 +59,10 @@ class UserRepository implements UserRepositoryInterface
         }
 
         if (!password_verify($password, (string) $user['password'])) {
+            return null;
+        }
+
+        if (!(bool) $user['active']) {
             return null;
         }
 

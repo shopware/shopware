@@ -41,13 +41,13 @@ export default {
         },
 
         styles() {
+            // min-height only applies in cover mode; fall back to 340px when no explicit value is set
+            if (this.element.config.displayMode.value !== 'cover') {
+                return {};
+            }
+
             return {
-                'min-height':
-                    this.element.config.displayMode.value === 'cover' &&
-                    this.element.config.minHeight.value &&
-                    this.element.config.minHeight.value !== 0
-                        ? this.element.config.minHeight.value
-                        : '340px',
+                'min-height': this.element.config.minHeight.value || '340px',
             };
         },
 

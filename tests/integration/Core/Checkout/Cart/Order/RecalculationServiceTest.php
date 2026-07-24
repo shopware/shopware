@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart\Order;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -36,18 +35,20 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionDiscountUnknownConditionError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
-use Shopware\Core\Content\Product\State;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
@@ -61,7 +62,6 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 use Shopware\Core\Test\Stub\Rule\TrueRule;
 use Shopware\Core\Test\TestDefaults;
@@ -70,7 +70,6 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Group('slow')]
 #[Package('checkout')]
 class RecalculationServiceTest extends TestCase
 {
@@ -127,6 +126,99 @@ class RecalculationServiceTest extends TestCase
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
     }
 
+    public function testCreateVersionSucceedsForOrderWithUnregisteredRuleConditionInPriceDefinition(): void
+    {
+        // Simulates an order whose price-definition filter references a rule condition contributed by a
+        // plugin that has since been uninstalled. Opening such an order in the Administration creates an
+        // order version (a clone), which re-encodes the price definition - this must not fail.
+        $cart = $this->generateDemoCart();
+        $orderId = $this->persistCart($cart)['orderId'];
+
+        // stable serialized values; avoids importing the rule/price-definition classes just for the test
+        $originalFilter = ['_name' => 'unknownPluginRule', 'operator' => '='];
+        $priceDefinition = ['type' => 'percentage', 'percentage' => -20, 'filter' => $originalFilter];
+
+        $connection = static::getContainer()->get(Connection::class);
+        $lineItemId = $connection->fetchOne(
+            'SELECT LOWER(HEX(id)) FROM order_line_item WHERE order_id = :id LIMIT 1',
+            ['id' => Uuid::fromHexToBytes($orderId)]
+        );
+        static::assertIsString($lineItemId);
+
+        $connection->update(
+            'order_line_item',
+            ['price_definition' => json_encode($priceDefinition, \JSON_THROW_ON_ERROR)],
+            ['id' => Uuid::fromHexToBytes($lineItemId)]
+        );
+
+        // the order must still be readable (decode no longer throws)
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $this->context)->getEntities()->first();
+        static::assertNotNull($order);
+
+        // this is what the order detail page triggers on load; createVersionedOrder() asserts HTTP 200
+        $versionId = $this->createVersionedOrder($orderId);
+
+        // the unresolvable filter round-trips losslessly into the cloned version
+        $stored = $connection->fetchOne(
+            'SELECT price_definition FROM order_line_item WHERE id = :id AND version_id = :version',
+            ['id' => Uuid::fromHexToBytes($lineItemId), 'version' => Uuid::fromHexToBytes($versionId)]
+        );
+        static::assertIsString($stored);
+        $decoded = json_decode($stored, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame($originalFilter, $decoded['filter']);
+    }
+
+    public function testRecalculateSucceedsForOrderWithUnregisteredRuleConditionInPromotionFilter(): void
+    {
+        // A promotion discount whose "consider" rule was contributed by a now-uninstalled plugin: the
+        // filter inside the discount line item's price definition references a rule that is no longer
+        // registered. Recalculating the order must complete (products keep their normal price definition).
+        $cart = $this->generateDemoCart();
+        $orderId = $this->persistCart($cart)['orderId'];
+        $versionId = $this->createVersionedOrder($orderId);
+
+        // attach a real automatic percentage promotion -> creates a genuine promotion discount line item
+        $promotionId = $this->createPromotion(10.0, null, PromotionDiscountEntity::TYPE_PERCENTAGE);
+        $this->applyAutomaticPromotions($orderId, $versionId, $promotionId);
+
+        // simulate the plugin being uninstalled: point the discount's price-definition filter at an
+        // unregistered rule condition. Only the filter is touched; the rest of the discount is untouched.
+        $connection = static::getContainer()->get(Connection::class);
+        $row = $connection->fetchAssociative(
+            'SELECT id, price_definition FROM order_line_item WHERE order_id = :oid AND version_id = :vid AND type = :type LIMIT 1',
+            ['oid' => Uuid::fromHexToBytes($orderId), 'vid' => Uuid::fromHexToBytes($versionId), 'type' => PromotionProcessor::LINE_ITEM_TYPE]
+        );
+        static::assertIsArray($row);
+        $priceDefinition = json_decode((string) $row['price_definition'], true, 512, \JSON_THROW_ON_ERROR);
+        $priceDefinition['filter'] = ['_name' => 'unknownPluginRule', 'operator' => '='];
+        $connection->update(
+            'order_line_item',
+            ['price_definition' => json_encode($priceDefinition, \JSON_THROW_ON_ERROR)],
+            ['id' => $row['id'], 'version_id' => Uuid::fromHexToBytes($versionId)]
+        );
+
+        // recalculation must complete without throwing
+        $versionContext = $this->context->createWithVersionId($versionId);
+        $errors = static::getContainer()->get(RecalculationService::class)->recalculate($orderId, $versionContext);
+
+        // dropping the discount must be surfaced as a warning instead of happening silently
+        $unknownConditionErrors = $errors->filterInstance(PromotionDiscountUnknownConditionError::class);
+        static::assertCount(1, $unknownConditionErrors);
+        $unknownConditionError = $unknownConditionErrors->first();
+        static::assertInstanceOf(PromotionDiscountUnknownConditionError::class, $unknownConditionError);
+        static::assertSame('unknownPluginRule', $unknownConditionError->getOriginalConditionName());
+
+        // order is still intact: products survive, and the now-unmatchable discount is dropped (fail-closed)
+        $order = $this->orderRepository->search(
+            (new Criteria([$orderId]))->addAssociation('lineItems'),
+            $versionContext
+        )->getEntities()->first();
+        static::assertNotNull($order);
+        static::assertNotNull($order->getLineItems());
+        static::assertGreaterThan(0, $order->getLineItems()->filterByType(LineItem::PRODUCT_LINE_ITEM_TYPE)->count());
+        static::assertCount(0, $order->getLineItems()->filterByType(PromotionProcessor::LINE_ITEM_TYPE));
+    }
+
     #[DataProvider('customLineItemProvider')]
     public function testAddCustomLineItemSdf(LineItem $lineItem, int $positionCount): void
     {
@@ -141,7 +233,7 @@ class RecalculationServiceTest extends TestCase
             ->addAssociation('lineItems')
             ->addAssociation('deliveries.positions');
 
-        $order = $this->orderRepository->search($criteria, $context)->get($orderId);
+        $order = $this->orderRepository->search($criteria, $context)->getEntities()->get($orderId);
         static::assertNotNull($order);
 
         $lineItems = $order->getLineItems();
@@ -166,7 +258,7 @@ class RecalculationServiceTest extends TestCase
             (new LineItem(Uuid::randomHex(), LineItem::CUSTOM_LINE_ITEM_TYPE))
                 ->setLabel('Test custom line item')
                 ->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection([new TaxRule(19)])))
-                ->setStates([State::IS_DOWNLOAD]),
+                ->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL),
             2,
         ];
     }
@@ -209,7 +301,7 @@ class RecalculationServiceTest extends TestCase
             ->addAssociation('deliveries.shippingOrderAddress.country')
             ->addAssociation('deliveries.shippingOrderAddress.countryState');
 
-        $order = $this->orderRepository->search($criteria, $this->context)->get($orderId);
+        $order = $this->orderRepository->search($criteria, $this->context)->getEntities()->get($orderId);
         static::assertNotNull($order);
         static::assertNotNull($order->getNestedLineItems());
 
@@ -328,7 +420,7 @@ class RecalculationServiceTest extends TestCase
 
         // read order
         $versionContext = $this->context->createWithVersionId($versionId);
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $versionContext)->get($orderId);
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $versionContext)->getEntities()->get($orderId);
         static::assertNotNull($order);
 
         static::assertNotNull($order->getOrderCustomer());
@@ -373,7 +465,7 @@ class RecalculationServiceTest extends TestCase
 
         // read order
         $versionContext = $this->context->createWithVersionId($versionId);
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $versionContext)->get($orderId);
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $versionContext)->getEntities()->get($orderId);
         static::assertNotNull($order);
 
         static::assertSame($this->getDeDeLanguageId(), $order->getLanguageId());
@@ -421,7 +513,7 @@ class RecalculationServiceTest extends TestCase
 
         // read order
         $versionContext = $this->context->createWithVersionId($versionId);
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $versionContext)->get($orderId);
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $versionContext)->getEntities()->get($orderId);
         static::assertNotNull($order);
 
         static::assertNotNull($order->getOrderCustomer());
@@ -534,7 +626,7 @@ class RecalculationServiceTest extends TestCase
         // read versioned order
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems');
-        $order = $this->orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
+        $order = $this->orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->getEntities()->get($orderId);
         static::assertNotNull($order);
         static::assertNotNull($order->getLineItems());
         static::assertSame('test comment', $order->getCustomerComment());
@@ -659,9 +751,10 @@ class RecalculationServiceTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testToggleAutomaticPromotions(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         // create order
         $cart = $this->generateDemoCart();
         ['orderId' => $orderId, 'orderDateTime' => $orderDateTime, 'stateId' => $stateId] = $this->persistCart($cart);
@@ -679,13 +772,14 @@ class RecalculationServiceTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testToggleAutomaticPromotionsForDelivery(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         // create order
         $cart = $this->generateDemoCart();
 
-        $shippingMethod = $this->shippingMethodRepository->search(new Criteria(), $this->context)->first();
+        $shippingMethod = $this->shippingMethodRepository->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertInstanceOf(ShippingMethodEntity::class, $shippingMethod);
 
         $cart->setDeliveries(new DeliveryCollection([
@@ -805,7 +899,7 @@ class RecalculationServiceTest extends TestCase
 
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems');
-        $order = $this->orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
+        $order = $this->orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->getEntities()->get($orderId);
         static::assertNotNull($order);
 
         static::assertNotNull($order->getLineItems());
@@ -835,7 +929,7 @@ class RecalculationServiceTest extends TestCase
 
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems');
-        $order = $this->orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
+        $order = $this->orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->getEntities()->get($orderId);
         static::assertNotNull($order);
 
         static::assertNotNull($order->getLineItems());
@@ -866,7 +960,7 @@ class RecalculationServiceTest extends TestCase
 
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems');
-        $order = $this->orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
+        $order = $this->orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->getEntities()->get($orderId);
         static::assertNotNull($order);
 
         static::assertNotNull($order->getLineItems());
@@ -918,7 +1012,7 @@ class RecalculationServiceTest extends TestCase
         // read merged order
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems');
-        $order = $this->orderRepository->search($criteria, $this->context)->get($orderId);
+        $order = $this->orderRepository->search($criteria, $this->context)->getEntities()->get($orderId);
         static::assertNotNull($order);
         static::assertNotNull($order->getLineItems());
 
@@ -952,7 +1046,7 @@ class RecalculationServiceTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('order_delivery.orderId', $orderId));
-        $deliveries = $this->orderDeliveryRepository->search($criteria, $versionContext);
+        $deliveries = $this->orderDeliveryRepository->search($criteria, $versionContext)->getEntities();
 
         static::assertCount(1, $deliveries);
 
@@ -982,7 +1076,7 @@ class RecalculationServiceTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('order_delivery.orderId', $orderId));
-        $deliveries = $this->orderDeliveryRepository->search($criteria, $versionContext);
+        $deliveries = $this->orderDeliveryRepository->search($criteria, $versionContext)->getEntities();
 
         $delivery = $deliveries->first();
         static::assertNotNull($delivery);
@@ -1024,7 +1118,7 @@ class RecalculationServiceTest extends TestCase
             ->addAssociation('deliveries.shippingOrderAddress.country')
             ->addAssociation('deliveries.shippingOrderAddress.countryState');
 
-        $order = $this->orderRepository->search($criteria, $this->context)->get($orderId);
+        $order = $this->orderRepository->search($criteria, $this->context)->getEntities()->get($orderId);
         static::assertInstanceOf(OrderEntity::class, $order);
 
         $lineItemWithInactiveProduct = $order->getLineItems()?->filter(
@@ -1046,7 +1140,7 @@ class RecalculationServiceTest extends TestCase
         static::getContainer()->get(RecalculationService::class)->recalculate($orderId, $versionContext, $options);
 
         // Assert
-        $order = $this->orderRepository->search($criteria, $versionContext)->get($orderId);
+        $order = $this->orderRepository->search($criteria, $versionContext)->getEntities()->get($orderId);
         static::assertInstanceOf(OrderEntity::class, $order);
 
         $lineItemWithInactiveProduct = $order->getLineItems()?->filter(
@@ -1077,7 +1171,7 @@ class RecalculationServiceTest extends TestCase
             ->addAssociation('deliveries.shippingOrderAddress.country')
             ->addAssociation('deliveries.shippingOrderAddress.countryState');
 
-        $order = $this->orderRepository->search($criteria, $this->context)->get($orderId);
+        $order = $this->orderRepository->search($criteria, $this->context)->getEntities()->get($orderId);
         static::assertNotNull($order);
 
         static::assertSame(224.07, $order->getPrice()->getNetPrice());
@@ -1088,7 +1182,7 @@ class RecalculationServiceTest extends TestCase
 
         static::getContainer()->get(RecalculationService::class)->recalculate($orderId, $versionContext);
 
-        $order = $this->orderRepository->search($criteria, $this->context)->get($orderId);
+        $order = $this->orderRepository->search($criteria, $this->context)->getEntities()->get($orderId);
         static::assertNotNull($order);
         static::assertNotNull($order->getPrice());
 
@@ -1118,7 +1212,7 @@ class RecalculationServiceTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('order_delivery.orderId', $orderId));
 
-        $shippingCosts = $this->orderDeliveryRepository->search($criteria, $versionContext)->first()?->getShippingCosts();
+        $shippingCosts = $this->orderDeliveryRepository->search($criteria, $versionContext)->getEntities()->first()?->getShippingCosts();
         static::assertNotNull($shippingCosts);
 
         static::assertSame(1, $shippingCosts->getQuantity());
@@ -1148,7 +1242,7 @@ class RecalculationServiceTest extends TestCase
         $criteria->getAssociation('shippingMethod')->addAssociation('prices');
 
         $criteria->addFilter(new EqualsFilter('order_delivery.orderId', $orderId));
-        $shippingMethod = $this->orderDeliveryRepository->search($criteria, $versionContext)->first()?->getShippingMethod();
+        $shippingMethod = $this->orderDeliveryRepository->search($criteria, $versionContext)->getEntities()->first()?->getShippingMethod();
         static::assertNotNull($shippingMethod);
 
         $firstPriceRule = $shippingMethod->getPrices()->first();
@@ -1183,7 +1277,7 @@ class RecalculationServiceTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('order_delivery.orderId', $orderId));
 
-        $delivery = $this->orderDeliveryRepository->search($criteria, $versionContext)->first();
+        $delivery = $this->orderDeliveryRepository->search($criteria, $versionContext)->getEntities()->first();
         static::assertNotNull($delivery);
         static::assertSame(1, $delivery->getShippingCosts()->getQuantity());
         static::assertSame(15.0, $delivery->getShippingCosts()->getUnitPrice());
@@ -1210,7 +1304,7 @@ class RecalculationServiceTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('order_delivery.orderId', $orderId));
-        $delivery = $this->orderDeliveryRepository->search($criteria, $versionContext)->first();
+        $delivery = $this->orderDeliveryRepository->search($criteria, $versionContext)->getEntities()->first();
         static::assertNotNull($delivery);
         static::assertSame(1, $delivery->getShippingCosts()->getQuantity());
         static::assertSame(9.99, $delivery->getShippingCosts()->getUnitPrice());
@@ -1237,7 +1331,7 @@ class RecalculationServiceTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('order_delivery.orderId', $orderId));
-        $delivery = $this->orderDeliveryRepository->search($criteria, $versionContext)->first();
+        $delivery = $this->orderDeliveryRepository->search($criteria, $versionContext)->getEntities()->first();
         static::assertNotNull($delivery);
         static::assertSame(1, $delivery->getShippingCosts()->getQuantity());
         static::assertSame(15.0, $delivery->getShippingCosts()->getUnitPrice());
@@ -1258,7 +1352,7 @@ class RecalculationServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('addresses');
 
-        $order = $this->orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
+        $order = $this->orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->getEntities()->get($orderId);
         static::assertNotNull($order);
         static::assertNotNull($order->getAddresses());
 
@@ -1300,7 +1394,7 @@ class RecalculationServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('addresses');
 
-        $order = $this->orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
+        $order = $this->orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->getEntities()->get($orderId);
         static::assertNotNull($order);
         static::assertNotNull($order->getAddresses());
         $orderAddress = $order->getAddresses()->first();
@@ -1343,7 +1437,7 @@ class RecalculationServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems');
 
-        $order = $this->orderRepository->search($criteria, $versionContext)->get($orderId);
+        $order = $this->orderRepository->search($criteria, $versionContext)->getEntities()->get($orderId);
         static::assertNotNull($order);
         static::assertNotNull($order->getLineItems());
         static::assertSame($order->getLineItems()->count(), 2);
@@ -1352,7 +1446,7 @@ class RecalculationServiceTest extends TestCase
         $ids = $order->getLineItems()->fmap(static fn (OrderLineItemEntity $lineItem) => ['id' => $lineItem->getId()]);
         static::getContainer()->get('order_line_item.repository')->delete(array_values($ids), $versionContext);
 
-        $order = $this->orderRepository->search($criteria, $versionContext)->get($orderId);
+        $order = $this->orderRepository->search($criteria, $versionContext)->getEntities()->get($orderId);
         static::assertNotNull($order);
         static::assertNotNull($order->getLineItems());
         static::assertSame($order->getLineItems()->count(), 0);
@@ -1701,7 +1795,7 @@ class RecalculationServiceTest extends TestCase
         $orderId = static::getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
 
         $criteria = new Criteria([$orderId]);
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->get($orderId);
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->get($orderId);
         static::assertNotNull($order);
 
         return [
@@ -1774,7 +1868,7 @@ class RecalculationServiceTest extends TestCase
         // read versioned order
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems');
-        $order = $this->orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
+        $order = $this->orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->getEntities()->get($orderId);
         static::assertNotNull($order);
         static::assertNotNull($order->getLineItems());
 
@@ -1834,7 +1928,7 @@ class RecalculationServiceTest extends TestCase
         // read versioned order
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems');
-        $order = $this->orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
+        $order = $this->orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->getEntities()->get($orderId);
         static::assertNotNull($order);
         static::assertNotNull($order->getLineItems());
 
@@ -1901,7 +1995,7 @@ class RecalculationServiceTest extends TestCase
         // read versioned order
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems');
-        $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
+        $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->getEntities()->get($orderId);
         static::assertNotEmpty($order);
         static::assertNotNull($order->getLineItems());
         static::assertSame($oldTotal + $creditAmount, $order->getAmountTotal());
@@ -1950,7 +2044,7 @@ class RecalculationServiceTest extends TestCase
         // read versioned order
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems');
-        $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
+        $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->getEntities()->get($orderId);
         static::assertNotEmpty($order);
         static::assertNotNull($order->getLineItems());
         static::assertCount(3, $order->getLineItems());
@@ -1998,7 +2092,7 @@ class RecalculationServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems');
         $criteria->addAssociation('deliveries');
-        $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
+        $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->getEntities()->get($orderId);
         static::assertNotEmpty($order);
         static::assertNotNull($order->getLineItems());
         static::assertCount(3, $order->getLineItems());
@@ -2044,7 +2138,7 @@ class RecalculationServiceTest extends TestCase
         // read versioned order
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems');
-        $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
+        $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->getEntities()->get($orderId);
         static::assertNotEmpty($order);
         static::assertNotNull($order->getLineItems());
         static::assertCount(3, $order->getLineItems());
@@ -2093,7 +2187,7 @@ class RecalculationServiceTest extends TestCase
         // read versioned order
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('deliveries');
-        $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
+        $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->getEntities()->get($orderId);
         static::assertNotEmpty($order);
         static::assertNotNull($order->getDeliveries());
         static::assertCount(2, $order->getDeliveries());
@@ -2276,7 +2370,7 @@ class RecalculationServiceTest extends TestCase
         $criteria = new Criteria([$shippingMethodId]);
         $criteria->addAssociation('priceRules');
 
-        $shippingMethod = $this->shippingMethodRepository->search($criteria, $this->context)->get($shippingMethodId);
+        $shippingMethod = $this->shippingMethodRepository->search($criteria, $this->context)->getEntities()->get($shippingMethodId);
         static::assertNotNull($shippingMethod);
 
         return $shippingMethod;
@@ -2360,7 +2454,7 @@ class RecalculationServiceTest extends TestCase
         $criteria->addAssociation('prices');
         $criteria->addAssociation('deliveryTime');
 
-        $shippingMethod = $this->shippingMethodRepository->search($criteria, $this->context)->get($shippingMethodId);
+        $shippingMethod = $this->shippingMethodRepository->search($criteria, $this->context)->getEntities()->get($shippingMethodId);
         static::assertNotNull($shippingMethod);
 
         return $shippingMethod;
@@ -2444,7 +2538,7 @@ class RecalculationServiceTest extends TestCase
         $criteria->addAssociation('priceRules');
         $criteria->addAssociation('deliveryTime');
 
-        $shippingMethod = $this->shippingMethodRepository->search($criteria, $this->context)->get($shippingMethodId);
+        $shippingMethod = $this->shippingMethodRepository->search($criteria, $this->context)->getEntities()->get($shippingMethodId);
         static::assertNotNull($shippingMethod);
 
         return $shippingMethod;

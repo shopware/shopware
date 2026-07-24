@@ -191,7 +191,7 @@ class ProductBuilder
         protected string $productNumber,
         protected int $stock = 1,
         string $taxKey = 't1',
-        private string $type = ProductDefinition::TYPE_PHYSICAL
+        protected string $type = ProductDefinition::TYPE_PHYSICAL,
     ) {
         $this->ids = $ids;
         $this->id = $this->ids->create($productNumber);

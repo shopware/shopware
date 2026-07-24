@@ -6,17 +6,20 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\User\Command\UserListCommand;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(UserListCommand::class)]
 class UserListCommandTest extends TestCase
 {
@@ -67,6 +70,24 @@ class UserListCommandTest extends TestCase
         $commandTester->execute([]);
     }
 
+    public function testWithFormatJson(): void
+    {
+        $commandTester = $this->prepareCommandTester();
+        $commandTester->execute(['--format' => 'json']);
+
+        $commandTester->assertCommandIsSuccessful();
+
+        $output = $commandTester->getDisplay();
+
+        static::assertTrue(json_validate($output));
+        static::assertStringContainsString('Guy Marbello', $output);
+        static::assertStringContainsString('Jen Dalimil', $output);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with `--json` option
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testWithJson(): void
     {
         $commandTester = $this->prepareCommandTester();
@@ -79,6 +100,15 @@ class UserListCommandTest extends TestCase
         static::assertTrue(json_validate($output));
         static::assertStringContainsString('Guy Marbello', $output);
         static::assertStringContainsString('Jen Dalimil', $output);
+    }
+
+    public function testInvalidFormatReturnsError(): void
+    {
+        $commandTester = $this->prepareCommandTester();
+        $commandTester->execute(['--format' => 'xml']);
+
+        static::assertSame(2, $commandTester->getStatusCode());
+        static::assertStringContainsString('Invalid format "xml"', $commandTester->getDisplay());
     }
 
     private function prepareCommandTester(): CommandTester

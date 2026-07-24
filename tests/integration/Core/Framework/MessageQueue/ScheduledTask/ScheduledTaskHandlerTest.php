@@ -11,18 +11,22 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskExecutor;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Tests\Integration\Core\Framework\MessageQueue\fixtures\DummyScheduledTaskHandler;
 use Shopware\Tests\Integration\Core\Framework\MessageQueue\fixtures\TestRescheduleOnFailureTask;
 use Shopware\Tests\Integration\Core\Framework\MessageQueue\fixtures\TestTask;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class ScheduledTaskHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -67,12 +71,12 @@ class ScheduledTaskHandlerTest extends TestCase
         $task = new TestTask();
         $task->setTaskId($taskId);
 
-        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId);
+        $handler = $this->createHandler($taskId);
         $handler($task);
 
         static::assertTrue($handler->wasCalled());
 
-        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->getEntities()->get($taskId);
 
         static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         $newOriginalNextExecution = clone $originalNextExecution;
@@ -120,13 +124,13 @@ class ScheduledTaskHandlerTest extends TestCase
         $task = new TestTask();
         $task->setTaskId($taskId);
 
-        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId);
+        $handler = $this->createHandler($taskId);
         $handler($task);
         $nowTime = new \DateTime();
 
         static::assertTrue($handler->wasCalled());
 
-        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->getEntities()->get($taskId);
 
         static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
@@ -158,7 +162,7 @@ class ScheduledTaskHandlerTest extends TestCase
         $task = new TestTask();
         $task->setTaskId($taskId);
 
-        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId, true);
+        $handler = $this->createHandler($taskId, true);
 
         $exception = null;
 
@@ -172,7 +176,7 @@ class ScheduledTaskHandlerTest extends TestCase
 
         static::assertTrue($handler->wasCalled());
 
-        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->getEntities()->get($taskId);
         static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertSame(ScheduledTaskDefinition::STATUS_FAILED, $task->getStatus());
     }
@@ -200,7 +204,7 @@ class ScheduledTaskHandlerTest extends TestCase
 
         $this->logger->expects($this->once())->method('error');
 
-        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId, true);
+        $handler = $this->createHandler($taskId, true);
 
         try {
             $handler($task);
@@ -209,7 +213,7 @@ class ScheduledTaskHandlerTest extends TestCase
 
         static::assertTrue($handler->wasCalled());
 
-        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->getEntities()->get($taskId);
         static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
     }
@@ -222,7 +226,7 @@ class ScheduledTaskHandlerTest extends TestCase
         $task = new TestTask();
         $task->setTaskId($taskId);
 
-        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId);
+        $handler = $this->createHandler($taskId);
         $handler($task);
 
         static::assertFalse($handler->wasCalled());
@@ -249,12 +253,12 @@ class ScheduledTaskHandlerTest extends TestCase
         $task = new TestTask();
         $task->setTaskId($taskId);
 
-        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId);
+        $handler = $this->createHandler($taskId);
         $handler($task);
 
         static::assertFalse($handler->wasCalled());
 
-        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->getEntities()->get($taskId);
         static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertSame($status, $task->getStatus());
     }
@@ -268,5 +272,13 @@ class ScheduledTaskHandlerTest extends TestCase
             [ScheduledTaskDefinition::STATUS_SCHEDULED],
             [ScheduledTaskDefinition::STATUS_INACTIVE],
         ];
+    }
+
+    private function createHandler(string $taskId, bool $shouldThrowException = false): DummyScheduledTaskHandler
+    {
+        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId, $shouldThrowException);
+        $handler->setScheduledTaskExecutor(new ScheduledTaskExecutor($this->scheduledTaskRepo, $this->logger, new NativeClock()));
+
+        return $handler;
     }
 }

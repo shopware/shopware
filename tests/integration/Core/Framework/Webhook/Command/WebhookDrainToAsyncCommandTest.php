@@ -11,6 +11,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Command\WebhookDrainToAsyncCommand;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
 use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
+use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
@@ -33,6 +35,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 class WebhookDrainToAsyncCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -282,6 +285,7 @@ class WebhookDrainToAsyncCommandTest extends TestCase
         $deliveryService = new WebhookDeliveryService(
             $webhookClient,
             static::getContainer()->get(AppPayloadServiceHelper::class),
+            static::getContainer()->get(WebhookSigningSecretResolver::class),
             static::getContainer()->get(WebhookOutboxStore::class),
             static::getContainer()->get(RetryDelayCalculator::class),
             static::getContainer()->get('messenger.default_bus'),

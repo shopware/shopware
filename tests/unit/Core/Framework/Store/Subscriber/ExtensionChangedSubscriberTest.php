@@ -31,6 +31,8 @@ class ExtensionChangedSubscriberTest extends TestCase
 
     public function testItSubscribesToPluginAndAppWrittenEvents(): void
     {
+        $this->cache->expects($this->never())->method('delete');
+
         $expected = [
             PluginEvents::PLUGIN_WRITTEN_EVENT => 'onExtensionChanged',
             AppEvents::APP_WRITTEN_EVENT => 'onExtensionChanged',

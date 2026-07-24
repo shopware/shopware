@@ -73,7 +73,7 @@ class LineItemCreationDateRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_DATE)
+            ->operatorSet(RuleConfig::OPERATOR_SET_DATE, false, true)
             ->dateTimeField('lineItemCreationDate');
     }
 

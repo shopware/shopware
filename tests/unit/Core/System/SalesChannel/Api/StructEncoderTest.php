@@ -301,20 +301,20 @@ class StructEncoderTest extends TestCase
     {
         $registry = new StaticDefinitionInstanceRegistry(
             $definitions,
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $serializer = new Serializer([new StructNormalizer()], [new JsonEncoder()]);
 
-        $connection ??= $this->createMock(Connection::class);
+        $connection ??= static::createStub(Connection::class);
 
         return new StructEncoder($this->getChainRegistry($registry), $serializer, $connection);
     }
 
     private function getChainRegistry(StaticDefinitionInstanceRegistry $registry): DefinitionRegistryChain
     {
-        $mock = $this->createMock(ContainerInterface::class);
+        $mock = static::createStub(ContainerInterface::class);
 
         return new DefinitionRegistryChain($registry, new SalesChannelDefinitionInstanceRegistry('', $mock, [], []));
     }

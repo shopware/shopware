@@ -10,6 +10,20 @@ class AdminApiSource implements ContextSource, \JsonSerializable
 {
     use JsonSerializableTrait;
 
+    /**
+     * Runtime privileges granted to authenticated Administration users by default.
+     *
+     * @var list<string>
+     */
+    public const DEFAULT_USER_PRIVILEGES = [
+        'language:read',
+        'locale:read',
+        'message_queue_stats:read',
+        'log_entry:create',
+        'currency:read',
+        'country:read',
+    ];
+
     public string $type = 'admin-api';
 
     private bool $isAdmin = false;

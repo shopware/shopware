@@ -10,6 +10,20 @@ const createWrapper = async (customOptions) => {
 };
 
 describe('src/module/sw-media/component/sw-media-display-options', () => {
+    it('should default to created at ascending without v6.8.0.0 feature flag', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.sortingConCat).toBe('createdAt:asc');
+    });
+
+    it('should default to created at descending with v6.8.0.0 feature flag', async () => {
+        global.activeFeatureFlags = ['v6.8.0.0'];
+
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.sortingConCat).toBe('createdAt:desc');
+    });
+
     it('should return the correct presentationOptions', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

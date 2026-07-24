@@ -127,11 +127,40 @@
         </div>
 
         <div
-            v-if="showProductStateConditionWarning"
+            v-if="flowOnlyConditionLabels?.length > 0"
+            class="sw-settings-rule-detail-base__flow-only-warning"
+        >
+            <mt-banner variant="info">
+                {{ $t('sw-settings-rule.detail.flowOnlyConditionsWarning', {
+                conditions: flowOnlyConditionLabels.join(', '),
+                }) }}
+            </mt-banner>
+        </div>
+
+        <div
+            v-if="deprecatedConditionsInUse?.length > 0"
             class="sw-settings-rule-detail-base__product-type-warning"
         >
             <mt-banner variant="attention">
-                {{ $t('sw-settings-rule.detail.productStatesConditionWarning') }}
+                <span
+                    v-for="deprecation in deprecatedConditionsInUse"
+                    :key="deprecation.type"
+                >
+                    <template v-if="deprecation.replacement">
+                        {{ $t('sw-settings-rule.detail.deprecatedConditionWarning', {
+                        label: $t(deprecation.label),
+                        version: deprecation.version,
+                        replacement: $t(deprecation.replacement.label),
+                        }) }}
+                    </template>
+
+                    <template v-else>
+                        {{ $t('sw-settings-rule.detail.deprecatedConditionWarningNoReplacement', {
+                        label: $t(deprecation.label),
+                        version: deprecation.version,
+                        }) }}
+                    </template>
+                </span>
             </mt-banner>
         </div>
 

@@ -20,7 +20,7 @@ class AuthorFilter extends AbstractFilter implements SnippetFilterInterface
      */
     public function filter(array $snippets, $requestFilterValue): array
     {
-        if (empty($requestFilterValue) || !\is_array($requestFilterValue)) {
+        if (!\is_array($requestFilterValue) || $requestFilterValue === []) {
             return $snippets;
         }
 

@@ -463,8 +463,8 @@ class MediaDeletionSubscriberTest extends TestCase
 
         new StaticDefinitionInstanceRegistry(
             [$definition = new $class()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class),
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class),
         );
 
         return $definition;

@@ -1,16 +1,14 @@
-@import "~scss/variables";
-
 .mt-text-editor {
     .mt-text-editor__content-editor {
         .btn {
-            background: $color-gray-50;
-            color: $color-darkgray-200;
+            background: var(--color-background-secondary-default);
+            color: var(--color-text-primary-default);
             display: inline-block;
-            border-radius: $border-radius-default;
+            border-radius: var(--border-radius-button);
             padding: 2px 24px;
-            font-size: $font-size-xs;
+            font-size: var(--font-size-xs);
             outline: none;
-            font-weight: $font-weight-semi-bold;
+            font-weight: var(--font-weight-semibold);
             vertical-align: middle;
             text-decoration: none;
             user-select: none;
@@ -20,17 +18,17 @@
             border: 0 none;
 
             &-primary {
-                background-color: $color-gray-900;
-                color: $color-white;
+                background-color: var(--color-interaction-primary-default);
+                color: var(--color-static-white);
             }
 
             &-secondary {
-                background-color: $color-gray-300;
-                color: $color-darkgray-200;
+                background-color: var(--color-interaction-secondary-default);
+                color: var(--color-text-primary-default);
             }
 
             &-sm {
-                line-height: $line-height-lg;
+                line-height: var(--font-line-height-l);
             }
         }
     }

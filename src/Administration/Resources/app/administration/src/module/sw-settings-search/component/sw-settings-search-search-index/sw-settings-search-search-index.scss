@@ -1,22 +1,11 @@
 .sw-settings-search {
     &__search-index-latest-build {
-        padding-left: var(--scale-size-16);
+        padding-left: var(--scale-size-10);
         font-size: var(--font-size-xs);
-    }
-
-    &__search-index-rebuilding-text {
-        display: inline-block;
-        margin-bottom: var(--scale-size-2);
-        font-size: var(--font-size-xs);
-    }
-
-    &__search-index-warning-top {
-        padding-bottom: var(--scale-size-10);
+        color: var(--color-text-primary-default);
     }
 
     &__search-index-rebuilding-progress {
-        display: block;
-        width: 100%;
-        margin: var(--scale-size-24) 0;
+        margin: var(--scale-size-20) 0;
     }
 }

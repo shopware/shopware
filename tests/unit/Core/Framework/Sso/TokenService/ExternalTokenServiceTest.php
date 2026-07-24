@@ -101,7 +101,7 @@ class ExternalTokenServiceTest extends TestCase
         $loginConfigService = new LoginConfigService(
             // @phpstan-ignore argument.type
             $config,
-            $router = $this->createMock(RouterInterface::class)
+            $router = static::createStub(RouterInterface::class)
         );
 
         return new ExternalTokenService($client, $loginConfigService);

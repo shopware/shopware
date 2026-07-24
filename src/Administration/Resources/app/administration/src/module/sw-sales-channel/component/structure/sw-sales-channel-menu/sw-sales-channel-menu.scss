@@ -1,6 +1,3 @@
-@import "~scss/variables";
-@import "~scss/mixins";
-
 .sw-sales-channel-menu {
     .sw-sales-channel-menu-domain-link {
         margin-left: 16px;
@@ -39,8 +36,8 @@
         padding: 0 30px 12px;
 
         &-text {
-            font-size: $font-size-xs;
-            line-height: $line-height-md;
+            font-size: var(--font-size-xs);
+            line-height: var(--font-line-height-m);
             color: var(--color-text-secondary-default);
         }
 

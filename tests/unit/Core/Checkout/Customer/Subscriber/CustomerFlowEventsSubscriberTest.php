@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\Subscriber;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
@@ -31,27 +31,27 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(CustomerFlowEventsSubscriber::class)]
 class CustomerFlowEventsSubscriberTest extends TestCase
 {
-    private MockObject&EventDispatcherInterface $dispatcher;
+    private Stub&EventDispatcherInterface $dispatcher;
 
-    private MockObject&SalesChannelContextRestorer $restorer;
+    private Stub&SalesChannelContextRestorer $restorer;
 
-    private MockObject&CustomerIndexer $customerIndexer;
+    private Stub&CustomerIndexer $customerIndexer;
 
     private IdsCollection $ids;
 
     private CustomerFlowEventsSubscriber $customerFlowEventsSubscriber;
 
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
-        $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->restorer = $this->createMock(SalesChannelContextRestorer::class);
-        $this->customerIndexer = $this->createMock(CustomerIndexer::class);
-        $this->connection = $this->createMock(Connection::class);
+        $this->dispatcher = static::createStub(EventDispatcherInterface::class);
+        $this->restorer = static::createStub(SalesChannelContextRestorer::class);
+        $this->customerIndexer = static::createStub(CustomerIndexer::class);
+        $this->connection = static::createStub(Connection::class);
 
-        $this->customerFlowEventsSubscriber = new CustomerFlowEventsSubscriber($this->dispatcher, $this->restorer, $this->customerIndexer, $this->connection);
+        $this->customerFlowEventsSubscriber = $this->buildSubscriber();
     }
 
     public function testGetSubscribedEvents(): void
@@ -95,19 +95,23 @@ class CustomerFlowEventsSubscriberTest extends TestCase
             ->method('getPayloads')
             ->willReturn($payloads);
 
-        $this->customerIndexer->expects($this->never())
+        $customerIndexer = $this->createMock(CustomerIndexer::class);
+        $customerIndexer->expects($this->never())
             ->method('handle');
 
-        $this->restorer->expects($this->once())
+        $restorer = $this->createMock(SalesChannelContextRestorer::class);
+        $restorer->expects($this->once())
             ->method('restoreByCustomer')
             ->willThrowException(SalesChannelException::providedLanguageNotAvailable('de-DE', ['en-GB']));
 
-        $this->dispatcher->expects($this->never())->method('dispatch');
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->expects($this->never())->method('dispatch');
 
-        $this->connection->expects($this->once())
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
             ->method('delete');
 
-        $this->customerFlowEventsSubscriber->onCustomerWritten($event);
+        $this->buildSubscriber($dispatcher, $restorer, $customerIndexer, $connection)->onCustomerWritten($event);
     }
 
     public function testOnCustomerWrittenWithInstanceOfAdminApiButGettingOtherError(): void
@@ -132,19 +136,23 @@ class CustomerFlowEventsSubscriberTest extends TestCase
             ->method('getPayloads')
             ->willReturn($payloads);
 
-        $this->customerIndexer->expects($this->never())
+        $customerIndexer = $this->createMock(CustomerIndexer::class);
+        $customerIndexer->expects($this->never())
             ->method('handle');
 
-        $this->restorer->expects($this->once())
+        $restorer = $this->createMock(SalesChannelContextRestorer::class);
+        $restorer->expects($this->once())
             ->method('restoreByCustomer')
             ->willThrowException(SalesChannelException::salesChannelNotFound('sales-channel-id'));
 
-        $this->dispatcher->expects($this->never())->method('dispatch');
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->expects($this->never())->method('dispatch');
 
-        $this->connection->expects($this->never())
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())
             ->method('delete');
 
-        $this->customerFlowEventsSubscriber->onCustomerWritten($event);
+        $this->buildSubscriber($dispatcher, $restorer, $customerIndexer, $connection)->onCustomerWritten($event);
     }
 
     public function testOnCustomerCreatedWithoutCustomerInContext(): void
@@ -165,9 +173,10 @@ class CustomerFlowEventsSubscriberTest extends TestCase
             ->method('getPayloads')
             ->willReturn($payloads);
 
-        $this->dispatcher->expects($this->never())->method('dispatch');
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->expects($this->never())->method('dispatch');
 
-        $this->customerFlowEventsSubscriber->onCustomerWritten($event);
+        $this->buildSubscriber($dispatcher)->onCustomerWritten($event);
     }
 
     public function testOnCustomerCreatedWithCustomer(): void
@@ -188,7 +197,8 @@ class CustomerFlowEventsSubscriberTest extends TestCase
             ->method('getPayloads')
             ->willReturn($payloads);
 
-        $this->customerIndexer->expects($this->once())
+        $customerIndexer = $this->createMock(CustomerIndexer::class);
+        $customerIndexer->expects($this->once())
             ->method('handle')
             ->with(new CustomerIndexingMessage([$this->ids->get('customerId')]));
 
@@ -198,7 +208,8 @@ class CustomerFlowEventsSubscriberTest extends TestCase
             ->method('getCustomer')
             ->willReturn($customer);
 
-        $this->restorer->expects($this->once())
+        $restorer = $this->createMock(SalesChannelContextRestorer::class);
+        $restorer->expects($this->once())
             ->method('restoreByCustomer')
             ->willReturn($salesChannelContext);
 
@@ -207,10 +218,25 @@ class CustomerFlowEventsSubscriberTest extends TestCase
             $customer
         );
 
-        $this->dispatcher->expects($this->once())
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->expects($this->once())
             ->method('dispatch')
             ->with($customerCreated);
 
-        $this->customerFlowEventsSubscriber->onCustomerWritten($event);
+        $this->buildSubscriber($dispatcher, $restorer, $customerIndexer)->onCustomerWritten($event);
+    }
+
+    private function buildSubscriber(
+        ?EventDispatcherInterface $dispatcher = null,
+        ?SalesChannelContextRestorer $restorer = null,
+        ?CustomerIndexer $customerIndexer = null,
+        ?Connection $connection = null,
+    ): CustomerFlowEventsSubscriber {
+        return new CustomerFlowEventsSubscriber(
+            $dispatcher ?? $this->dispatcher,
+            $restorer ?? $this->restorer,
+            $customerIndexer ?? $this->customerIndexer,
+            $connection ?? $this->connection,
+        );
     }
 }

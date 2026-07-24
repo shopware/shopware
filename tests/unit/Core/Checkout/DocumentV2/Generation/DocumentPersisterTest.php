@@ -113,7 +113,7 @@ class DocumentPersisterTest extends TestCase
     ): void {
         [$persister] = $this->createPersister($documentTypeId, $documentSearch);
 
-        static::expectExceptionObject($exception);
+        $this->expectExceptionObject($exception);
 
         $persister->persist(
             $this->generationRequest,
@@ -162,7 +162,7 @@ class DocumentPersisterTest extends TestCase
 
         [$persister] = $this->createPersister($documentTypeId, existingDocumentIds: [$existingDocumentId]);
 
-        static::expectExceptionObject(DocumentV2Exception::documentNumberAlreadyExists('12345'));
+        $this->expectExceptionObject(DocumentV2Exception::documentNumberAlreadyExists('12345'));
 
         $persister->persist(
             $this->generationRequest,
@@ -224,7 +224,7 @@ class DocumentPersisterTest extends TestCase
             },
         ], new DocumentTypeDefinition());
 
-        $mediaService = $this->createMock(MediaService::class);
+        $mediaService = static::createStub(MediaService::class);
         $mediaService->method('saveFile')->willReturn($mediaServiceReturn ?? Uuid::randomHex());
 
         return [

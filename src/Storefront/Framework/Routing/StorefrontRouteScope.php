@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Routing\SalesChannelContextRouteScopeDependant;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('framework')]
+#[Package('discovery')]
 class StorefrontRouteScope extends AbstractRouteScope implements SalesChannelContextRouteScopeDependant
 {
     final public const ID = 'storefront';

@@ -11,6 +11,7 @@ use PHPStan\Rules\RuleErrorBuilder;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\CoversNothing;
+use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -21,6 +22,17 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class CoversAttributeRule implements Rule
 {
+    /**
+     * @var list<string>
+     */
+    private array $allowedUnitTestClassNamespaces;
+
+    public function __construct(
+        Configuration $configuration,
+    ) {
+        $this->allowedUnitTestClassNamespaces = $configuration->getAllowedUnitTestClassNamespaces();
+    }
+
     public function getNodeType(): string
     {
         return InClassNode::class;
@@ -34,7 +46,7 @@ class CoversAttributeRule implements Rule
     public function processNode(Node $node, Scope $scope): array
     {
         $classReflection = $node->getClassReflection();
-        $isUnitTest = TestRuleHelper::isUnitTestClass($classReflection);
+        $isUnitTest = TestRuleHelper::isUnitTestClass($classReflection, $this->allowedUnitTestClassNamespaces);
         $hasCovers = $this->hasCovers($node);
 
         if ($hasCovers && !$isUnitTest) {

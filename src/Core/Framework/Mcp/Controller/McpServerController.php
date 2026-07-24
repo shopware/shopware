@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\Mcp\McpJsonRpcResponse;
+use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -66,6 +67,7 @@ class McpServerController
         private readonly ?McpAllowlistProvider $allowlistProvider = null,
         private readonly ?LoggerInterface $logger = null,
         private readonly McpAllowlistFilter $allowlistFilter = new McpAllowlistFilter(),
+        private readonly ?McpSessionRegistry $sessionRegistry = null,
     ) {
     }
 
@@ -119,6 +121,7 @@ class McpServerController
         );
 
         $psrResponse = $this->server->run($transport);
+        $this->registerSession($psrResponse);
 
         if ($request->getMethod() === 'POST') {
             $psrResponse = $this->enrichInitializeResponse($request, $psrResponse);
@@ -127,6 +130,20 @@ class McpServerController
         $streamed = strtolower($psrResponse->getHeaderLine('Content-Type')) === 'text/event-stream';
 
         return $this->httpFoundationFactory->createResponse($psrResponse, $streamed);
+    }
+
+    private function registerSession(PsrResponseInterface $psrResponse): void
+    {
+        if ($this->sessionRegistry === null) {
+            return;
+        }
+
+        $sessionId = $psrResponse->getHeaderLine(PlatformRequest::HEADER_MCP_SESSION_ID);
+        if ($sessionId === '') {
+            return;
+        }
+
+        $this->sessionRegistry->register($sessionId);
     }
 
     /**

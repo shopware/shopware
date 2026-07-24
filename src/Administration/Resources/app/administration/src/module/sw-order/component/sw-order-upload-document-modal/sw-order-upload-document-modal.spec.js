@@ -202,7 +202,7 @@ describe('src/module/sw-order/component/sw-order-upload-document-modal', () => {
         await wrapper.setData({ selectedDocumentFile: file });
         await flushPromises();
 
-        await wrapper.vm.onUploadDocument();
+        await wrapper.find('.sw-order-upload-document-modal__upload-button').trigger('click');
 
         const emittedFile = wrapper.emitted()['document-create'][0][3];
 

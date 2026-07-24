@@ -614,7 +614,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     it('should derive available formats from V2 document files', async () => {
         wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
 
-        expect(wrapper.vm.availableFormatsFilter(documentV2Fixture)).toBe('HTML, ZUGFERD_XML');
+        expect(wrapper.vm.availableFormatsFilter(documentV2Fixture)).toBe('HTML, ZUGFeRD XML');
     });
 
     it('should render open and download actions for each available format', async () => {

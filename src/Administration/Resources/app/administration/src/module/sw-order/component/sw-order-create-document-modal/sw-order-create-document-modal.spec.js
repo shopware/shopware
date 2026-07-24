@@ -296,7 +296,7 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
         });
         await flushPromises();
 
-        await wrapper.vm.onCreateDocument();
+        await wrapper.find('.sw-order-create-document-modal__create-button').trigger('click');
 
         expect(wrapper.emitted()['document-create']).toBeTruthy();
         expect(wrapper.emitted()['document-create'][0][0].custom.invoiceNumber).toBe('1000');

@@ -641,8 +641,8 @@
                 "fileFormats": {
                     "pdf": "PDF",
                     "html": "HTML",
-                    "zugferdEmbeddedPdf": "ZUGFERD embedded PDF",
-                    "zugferdXml": "ZUGFERD XML"
+                    "zugferdEmbeddedPdf": "ZUGFeRD embedded PDF",
+                    "zugferdXml": "ZUGFeRD XML"
                 }
             },
             "uploadDocumentModal": {

@@ -758,7 +758,7 @@ export default {
         },
 
         availableFormatsFilter(item) {
-            return this.getDocumentFileTypes(item).join(', ').toUpperCase();
+            return this.getDocumentFileTypes(item).map((format) => this.getDocumentFormatLabel(format)).join(', ');
         },
     },
 };

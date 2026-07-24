@@ -15,6 +15,8 @@ const { Component, Mixin, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
 const { isEmpty } = Utils.types;
 
+const FILE_SIZE_LIMIT = 52428800; // 50 MB
+
 interface DocumentConfig {
     documentComment: string;
     documentDate: string;
@@ -93,7 +95,7 @@ export default Component.wrapComponentConfig({
             documentTypeLoading: false,
             documentTypes: [],
             features: {
-                uploadFileSizeLimit: 52428800,
+                uploadFileSizeLimit: FILE_SIZE_LIMIT,
             },
             isLoading: false,
             selectedDocumentFile: null,

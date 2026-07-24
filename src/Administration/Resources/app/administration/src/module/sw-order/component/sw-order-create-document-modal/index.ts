@@ -15,7 +15,7 @@ const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 interface DocumentConfigCustom {
-    invoiceNumber?: string;
+    invoiceNumber?: string | null;
     deliveryDate?: string;
     deliveryNoteNumber?: string;
     creditNoteNumber?: string;
@@ -42,7 +42,7 @@ function createEmptyDocumentConfig(technicalName: string | null = null): Documen
     const custom: DocumentConfigCustom = {};
 
     if (documentFamily === DOCUMENT_TYPES.CREDIT_NOTE || documentFamily === DOCUMENT_TYPES.CANCELLATION_INVOICE) {
-        custom.invoiceNumber = '';
+        custom.invoiceNumber = null;
     }
 
     if (documentFamily === DOCUMENT_TYPES.DELIVERY_NOTE) {

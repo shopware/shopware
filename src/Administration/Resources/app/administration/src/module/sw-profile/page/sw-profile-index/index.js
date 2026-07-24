@@ -24,6 +24,7 @@ export default {
         'searchRankingService',
         'ssoSettingsService',
         'validationApiService',
+        'feature',
     ],
 
     mixins: [
@@ -101,6 +102,24 @@ export default {
 
         languageId() {
             return Shopware.Store.get('session').languageId;
+        },
+
+        profileTabs() {
+            const createRouteTab = (label, routeName) => {
+                return {
+                    label: this.$t(label),
+                    name: routeName,
+                    onClick: () => {
+                        void this.$router.push({ name: routeName });
+                    },
+                };
+            };
+
+            return [
+                createRouteTab('sw-profile.tabGeneral.title', 'sw.profile.index.general'),
+                createRouteTab('sw-profile.tabSearchPreferences.title', 'sw.profile.index.searchPreferences'),
+                createRouteTab('sw-profile.tabPrivacyPreferences.title', 'sw.profile.index.privacyPreferences'),
+            ];
         },
     },
 

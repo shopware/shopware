@@ -154,11 +154,9 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
             }
 
             $group = McpToolAttributeReader::resolveAttribute($class, McpToolGroup::class)?->group;
-            $group = $group !== null && $group !== ''
-                ? $group
-                : (explode('-', $tool->name)[0] ?: 'other');
-
-            $groupMap[$tool->name] = $group;
+            if ($group !== null && $group !== '') {
+                $groupMap[$tool->name] = $group;
+            }
         }
 
         $container->setParameter('shopware.mcp.tool_groups', $groupMap);

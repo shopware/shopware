@@ -30,7 +30,7 @@ class UserConfigImplementation extends UserConfigBaseClass {
     }
 
     getConfigurationKey() {
-        return this.USER_CONFIG_KEY;
+        return UserConfigImplementation.USER_CONFIG_KEY;
     }
 
     async readUserConfig() {
@@ -76,11 +76,22 @@ describe('src/Administration/Resources/app/administration/src/core/service/suppo
     let service;
 
     beforeEach(() => {
+        jest.spyOn(Shopware.Service('acl'), 'can').mockReturnValue(true);
+        jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({
+            data: {
+                favorites: [],
+            },
+        });
+        jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
         Shopware.Store.get('session').setCurrentUser({
             id: '8fe88c269c214ea68badf7ebe678ab96',
         });
 
         service = new UserConfigImplementation();
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
     it('getFavoriteBlockNames > should return favorites from internal state', () => {
@@ -171,18 +182,17 @@ describe('src/Administration/Resources/app/administration/src/core/service/suppo
         expect(Array.isArray(userConfigMock.value)).toBeTruthy();
     });
 
-    it('getCriteria > returns a criteria including specific filters', () => {
-        const criteria = service.getCriteria(UserConfigImplementation.USER_CONFIG_KEY);
+    it('saveUserConfig > stores the current value', async () => {
+        service.state.favorites = [
+            'foo',
+        ];
 
-        expect(criteria.filters).toContainEqual({
-            type: 'equals',
-            field: 'key',
-            value: UserConfigImplementation.USER_CONFIG_KEY,
-        });
-        expect(criteria.filters).toContainEqual({
-            type: 'equals',
-            field: 'userId',
-            value: '8fe88c269c214ea68badf7ebe678ab96',
+        await service.saveUserConfig();
+
+        expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalledWith({
+            favorites: [
+                'foo',
+            ],
         });
     });
 

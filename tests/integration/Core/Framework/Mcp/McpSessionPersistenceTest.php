@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\Mcp;
 
 use Mcp\Server\Session\FileSessionStore;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -47,7 +46,6 @@ class McpSessionPersistenceTest extends TestCase
 
     public function testInitializeReturnsSessionIdHeader(): void
     {
-        Feature::skipTestIfInActive('MCP_SERVER', $this);
         $browser = $this->getBrowser();
         $this->initialize($browser);
 
@@ -64,7 +62,6 @@ class McpSessionPersistenceTest extends TestCase
 
     public function testSessionPersistsAcrossRequests(): void
     {
-        Feature::skipTestIfInActive('MCP_SERVER', $this);
         $browser = $this->getBrowser();
         $this->initialize($browser);
 
@@ -109,7 +106,6 @@ class McpSessionPersistenceTest extends TestCase
 
     public function testRequestWithUnknownSessionIdIsRejected(): void
     {
-        Feature::skipTestIfInActive('MCP_SERVER', $this);
         $browser = $this->getBrowser();
         $browser->request(
             'POST',

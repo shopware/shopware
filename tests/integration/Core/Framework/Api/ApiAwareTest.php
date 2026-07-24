@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Notification\NotificationDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -18,6 +19,7 @@ use Shopware\Storefront\Theme\ThemeDefinition;
 /**
  * @internal
  */
+#[Package('framework')]
 class ApiAwareTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour;
@@ -71,6 +73,8 @@ class ApiAwareTest extends TestCase
                 'product.states',
                 'order_address.vatId',
                 'order_line_item.states',
+                // the profile label translation is removed with v6.8 (#18097), dropping the runtime translated field
+                'import_export_profile.translated',
             ]));
         }
 

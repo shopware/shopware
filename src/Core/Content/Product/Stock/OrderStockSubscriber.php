@@ -173,7 +173,7 @@ final readonly class OrderStockSubscriber implements EventSubscriberInterface
                     return true;
                 }
 
-                if ($command->hasField('referenced_id') || $command->hasField('product_id') || $command->hasField('quantity')) {
+                if ($command->hasAnyField('referenced_id', 'product_id', 'quantity')) {
                     return true;
                 }
 

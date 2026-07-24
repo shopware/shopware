@@ -621,6 +621,7 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Feature\Command\FeatureDumpCommand">
             <argument type="service" id="kernel"/>
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
 
             <tag name="console.command"/>
             <tag name="console.command" command="administration:dump:features"/>

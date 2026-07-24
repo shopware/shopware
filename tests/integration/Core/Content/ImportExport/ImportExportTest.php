@@ -572,7 +572,6 @@ class ImportExportTest extends AbstractImportExportTestCase
         static::assertStringContainsString('media_url is set to required by the user but has no value', $first['_error']);
     }
 
-    #[Group('slow')]
     public function testProductsCsv(): void
     {
         $context = Context::createDefaultContext();
@@ -628,7 +627,6 @@ class ImportExportTest extends AbstractImportExportTestCase
         static::assertCount(1, $product->getMedia());
     }
 
-    #[Group('slow')]
     public function testProductsWithVariantsCsv(): void
     {
         $connection = static::getContainer()->get(Connection::class);
@@ -666,7 +664,6 @@ class ImportExportTest extends AbstractImportExportTestCase
         static::assertCount(10, $settings);
     }
 
-    #[Group('slow')]
     public function testProductsWithInvalidVariantsCsv(): void
     {
         $connection = static::getContainer()->get(Connection::class);
@@ -1249,7 +1246,6 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         yield 'sales channel assignments are imported from visibility names' => ['/fixtures/products_with_visibility_names.csv'];
     }
 
-    #[Group('slow')]
     public function testCrossSellingCsv(): void
     {
         $context = Context::createDefaultContext();
@@ -1304,7 +1300,6 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         );
     }
 
-    #[Group('slow')]
     public function testCustomersCsv(): void
     {
         $connection = static::getContainer()->get(Connection::class);

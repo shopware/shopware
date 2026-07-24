@@ -642,6 +642,57 @@ class AddressControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 
+    public function testAddressManagerCreateFormUsesTextInputType(): void
+    {
+        [$customerId] = $this->createCustomers();
+
+        $context = static::getContainer()
+            ->get(SalesChannelContextFactory::class)
+            ->create(
+                Uuid::randomHex(),
+                TestDefaults::SALES_CHANNEL,
+                [
+                    SalesChannelContextService::CUSTOMER_ID => $customerId,
+                ]
+            );
+
+        $controller = static::getContainer()->get(AddressController::class);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+        $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
+        $request->setSession($this->getSession());
+
+        static::getContainer()->get('request_stack')->push($request);
+
+        $customer = $context->getCustomer();
+        static::assertNotNull($customer);
+
+        foreach ([self::ADDRESS_TYPE_SHIPPING, self::ADDRESS_TYPE_BILLING] as $addressType) {
+            $response = $controller->addressManagerUpsert($request, new RequestDataBag(), $context, $customer, null, $addressType);
+
+            static::assertSame(Response::HTTP_OK, $response->getStatusCode(), 'Failed for address type: ' . $addressType);
+
+            $content = (string) $response->getContent();
+
+            static::assertMatchesRegularExpression(
+                '/<input(?=[^>]*name="address\[firstName\]")(?=[^>]*type="text")[^>]*>/',
+                $content,
+                'First name input must use type="text" for address type: ' . $addressType
+            );
+            static::assertMatchesRegularExpression(
+                '/<input(?=[^>]*name="address\[street\]")(?=[^>]*type="text")[^>]*>/',
+                $content,
+                'Street input must use type="text" for address type: ' . $addressType
+            );
+            static::assertDoesNotMatchRegularExpression(
+                '/<input(?=[^>]*class="[^"]*form-control[^"]*")(?=[^>]*type="' . $addressType . '")[^>]*>/',
+                $content,
+                'Form control inputs must not use invalid type="' . $addressType . '"'
+            );
+        }
+    }
+
     private function login(): KernelBrowser
     {
         $this->loginCustomer = $this->createCustomer();

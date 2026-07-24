@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Session\SessionFactory;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\OverwriteSessionFactoryCompilerPass;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\HttpFoundation\Session\SessionFactory as SymfonySessionFactory;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\Session\SessionFactory as SymfonySessionFac
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(OverwriteSessionFactoryCompilerPass::class)]
 class OverwriteSessionFactoryCompilerPassTest extends TestCase
 {

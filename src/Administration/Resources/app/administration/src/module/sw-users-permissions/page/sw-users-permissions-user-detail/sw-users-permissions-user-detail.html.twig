@@ -326,7 +326,7 @@
 
                 {% block sw_setting_user_detail_card_mcp_allowlist %}
                 <mt-card
-                    v-if="feature.isActive('MCP_SERVER') && user"
+                    v-if="user"
                     :title="$t('sw-users-permissions.users.user-detail.mcpAllowlistTitle')"
                     position-identifier="sw-users-permissions-user-detail-mcp-allowlist"
                 >

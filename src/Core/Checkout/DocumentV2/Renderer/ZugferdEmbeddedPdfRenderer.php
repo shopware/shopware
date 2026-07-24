@@ -38,6 +38,11 @@ final readonly class ZugferdEmbeddedPdfRenderer extends AbstractDocumentRenderer
         return self::FORMAT->value;
     }
 
+    public function getFileExtension(): string
+    {
+        return self::FORMAT->fileExtension();
+    }
+
     public function getDocumentTypes(): array
     {
         return [
@@ -72,7 +77,7 @@ final readonly class ZugferdEmbeddedPdfRenderer extends AbstractDocumentRenderer
             throw DocumentV2Exception::embedFailed($exception);
         }
 
-        $fileStem = $meta->config->buildFileStem($meta->documentNumber);
+        $fileStem = $meta->config->buildFileStem($meta->documentNumber, self::FORMAT->value);
 
         return new RenderResult(
             format: self::FORMAT->value,

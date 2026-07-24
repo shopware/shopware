@@ -153,54 +153,70 @@
             </mt-banner>
 
             {% block sw_order_detail_content_tabs %}
-            <sw-tabs
-                v-if="showTabs"
-                class="sw-order-detail__tabs"
-                :class="{ 'has-warning': showWarningTabStyle }"
-                position-identifier="sw-order-detail"
-            >
-
-                {% block sw_order_detail_content_tabs_general %}
-                <sw-tabs-item
-                    class="sw-order-detail__tabs-tab-general"
-                    :route="{ name: 'sw.order.detail.general', params: { id: $route.params.id } }"
-                    :title="$t('sw-order.detail.tabGeneral')"
-                >
-                    {{ $t('sw-order.detail.tabGeneral') }}
-                </sw-tabs-item>
+            <template v-if="feature.isActive('v6.8.0.0')">
+                {% block sw_order_detail_content_mt_tabs %}
+                <mt-tabs
+                    v-if="showTabs"
+                    class="sw-order-detail__tabs"
+                    :class="{ 'has-warning': showWarningTabStyle }"
+                    position-identifier="sw-order-detail"
+                    :default-item="$route.name"
+                    :items="orderDetailTabs"
+                    :small="true"
+                />
                 {% endblock %}
+            </template>
 
-                {% block sw_order_detail_content_tabs_details %}
-                <sw-tabs-item
-                    class="sw-order-detail__tabs-tab-details"
-                    :route="{ name: 'sw.order.detail.details', params: { id: $route.params.id } }"
-                    :title="$t('sw-order.detail.tabDetails')"
+            <template v-else>
+                <sw-tabs
+                    v-if="showTabs"
+                    class="sw-order-detail__tabs"
+                    :class="{ 'has-warning': showWarningTabStyle }"
+                    position-identifier="sw-order-detail"
                 >
-                    {{ $t('sw-order.detail.tabDetails') }}
-                </sw-tabs-item>
-                {% endblock %}
 
-                {% block sw_order_detail_content_tabs_documents %}
-                <sw-tabs-item
-                    class="sw-order-detail__tabs-tab-documents"
-                    :class="{ 'has-warning': isOrderEditing }"
-                    :route="{ name: 'sw.order.detail.documents', params: { id: $route.params.id } }"
-                    :title="$t('sw-order.detail.tabDocuments')"
-                >
-                    {{ $t('sw-order.detail.tabDocuments') }}
+                    {% block sw_order_detail_content_tabs_general %}
+                    <sw-tabs-item
+                        class="sw-order-detail__tabs-tab-general"
+                        :route="{ name: 'sw.order.detail.general', params: { id: $route.params.id } }"
+                        :title="$t('sw-order.detail.tabGeneral')"
+                    >
+                        {{ $t('sw-order.detail.tabGeneral') }}
+                    </sw-tabs-item>
+                    {% endblock %}
 
-                    <mt-icon
-                        v-if="isOrderEditing"
-                        v-tooltip="{ message: $t('sw-order.documentTab.tooltipSaveBeforeCreateDocument') }"
-                        class="sw-order-detail__tab-warning-badge"
-                        name="solid-exclamation-circle"
-                        size="12px"
-                    />
-                </sw-tabs-item>
-                {% endblock %}
+                    {% block sw_order_detail_content_tabs_details %}
+                    <sw-tabs-item
+                        class="sw-order-detail__tabs-tab-details"
+                        :route="{ name: 'sw.order.detail.details', params: { id: $route.params.id } }"
+                        :title="$t('sw-order.detail.tabDetails')"
+                    >
+                        {{ $t('sw-order.detail.tabDetails') }}
+                    </sw-tabs-item>
+                    {% endblock %}
 
-                {% block sw_order_detail_content_tabs_extension %}{% endblock %}
-            </sw-tabs>
+                    {% block sw_order_detail_content_tabs_documents %}
+                    <sw-tabs-item
+                        class="sw-order-detail__tabs-tab-documents"
+                        :class="{ 'has-warning': isOrderEditing }"
+                        :route="{ name: 'sw.order.detail.documents', params: { id: $route.params.id } }"
+                        :title="$t('sw-order.detail.tabDocuments')"
+                    >
+                        {{ $t('sw-order.detail.tabDocuments') }}
+
+                        <mt-icon
+                            v-if="isOrderEditing"
+                            v-tooltip="{ message: $t('sw-order.documentTab.tooltipSaveBeforeCreateDocument') }"
+                            class="sw-order-detail__tab-warning-badge"
+                            name="solid-exclamation-circle"
+                            size="12px"
+                        />
+                    </sw-tabs-item>
+                    {% endblock %}
+
+                    {% block sw_order_detail_content_tabs_extension %}{% endblock %}
+                </sw-tabs>
+            </template>
             {% endblock %}
 
             <sw-extension-component-section

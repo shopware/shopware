@@ -20,6 +20,7 @@ class ComposerVersionConstraints
             '^symfony\/.*$' => 'We are too tightly coupled to symfony, therefore minor updates often cause breaks',
             '^php$' => 'PHP does not follow semantic versioning, therefore minor updates include breaks',
             '^doctrine\/dbal$' => 'Minor updates often introduce deprecations, which cause PHPStan to fail.',
+            '^dompdf\/dompdf$' => 'Minor updates of dompdf may change rendered documents, therefore only patch updates are allowed.',
         ],
         'strict' => [
             '^phpstan\/phpstan.*$' => 'Even patch updates for PHPStan may lead to a red CI pipeline, because of new static analysis errors',
@@ -27,7 +28,6 @@ class ComposerVersionConstraints
             '^symplify\/phpstan-rules$' => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of new static analysis errors',
             '^rector\/type-perfect$' => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of new static analysis errors',
             '^phpat\/phpat$' => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of new static analysis errors',
-            '^dompdf\/dompdf$' => 'Patch updates of dompdf have let to a lot of issues in the past, therefore it is pinned.',
             '^scssphp\/scssphp$' => 'Patch updates of scssphp might lead to UI breaks, therefore it is pinned.',
             '^shopware\/conflicts$' => 'The shopware conflicts packages should be required in any version, so use `*` constraint',
             '^shopware\/core$' => 'The shopware core packages should be required in any version, so use `*` constraint, the version constraint will be automatically synced during the release process',

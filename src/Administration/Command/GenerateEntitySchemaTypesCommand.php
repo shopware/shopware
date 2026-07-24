@@ -21,11 +21,11 @@ use Symfony\Component\Process\Process;
  * script, which does not exist in a Composer/Flex shop. Runs the two steps that
  * script runs: dump the entity schema, then convert it to `entity-schema-definition.d.ts`.
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'administration:generate-entity-schema-types',
     description: 'Generates the Administration entity-schema TypeScript definitions used by the extension tooling.',
 )]
-#[Package('framework')]
 class GenerateEntitySchemaTypesCommand extends Command
 {
     public function __construct()

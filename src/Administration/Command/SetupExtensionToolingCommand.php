@@ -8,11 +8,11 @@ use Symfony\Component\Console\Attribute\AsCommand;
 /**
  * @internal
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'administration:setup-extension-tooling',
     description: 'Generates TypeScript/ESLint configs and IDE bootstraps for installed Administration extensions. Pass options after "--", e.g. -- --check.',
 )]
-#[Package('framework')]
 class SetupExtensionToolingCommand extends AbstractExtensionToolingCommand
 {
     protected function toolingEntryScript(): string

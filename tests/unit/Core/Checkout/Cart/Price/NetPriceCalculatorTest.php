@@ -117,6 +117,50 @@ class NetPriceCalculatorTest extends TestCase
         ];
     }
 
+    public function testListPriceIsRoundedBeforePercentageIsCalculated(): void
+    {
+        // Regression for https://github.com/shopware/shopware/issues/16687:
+        // the list price and the unit price only differ below the currency's
+        // rounding precision (50.004 vs 50.00). Both render identically in the
+        // storefront, so no discount percentage must be shown. The list price has
+        // to be rounded the same way as the unit price before the percentage is
+        // calculated - just like GrossPriceCalculator already does.
+        //
+        // isCalculated must be true here: that is the branch where the old guard
+        // skipped the rounding, and the one ProductPriceCalculator uses in the
+        // storefront. Set it explicitly so the regression stays valid even if the
+        // QuantityPriceDefinition default ever changes.
+        $definition = new QuantityPriceDefinition(50.00, new TaxRuleCollection(), 1);
+        $definition->setIsCalculated(true);
+        $definition->setListPrice(50.004);
+
+        $calculator = new NetPriceCalculator(new TaxCalculator(), new CashRounding());
+        $price = $calculator->calculate($definition, new CashRoundingConfig(2, 0.01, true));
+
+        $listPrice = $price->getListPrice();
+        static::assertNotNull($listPrice);
+        static::assertSame(50.0, $listPrice->getPrice());
+        static::assertSame(0.0, $listPrice->getDiscount());
+        static::assertSame(0.0, $listPrice->getPercentage());
+    }
+
+    public function testRegulationPriceIsRounded(): void
+    {
+        // Same rounding inconsistency as the list price (issue #16687): the
+        // regulation price must be rounded to the currency precision. isCalculated
+        // is set to true explicitly - that is the branch the old guard skipped.
+        $definition = new QuantityPriceDefinition(50.00, new TaxRuleCollection(), 1);
+        $definition->setIsCalculated(true);
+        $definition->setRegulationPrice(50.004);
+
+        $calculator = new NetPriceCalculator(new TaxCalculator(), new CashRounding());
+        $price = $calculator->calculate($definition, new CashRoundingConfig(2, 0.01, true));
+
+        $regulationPrice = $price->getRegulationPrice();
+        static::assertNotNull($regulationPrice);
+        static::assertSame(50.0, $regulationPrice->getPrice());
+    }
+
     public function testTaxesAreRoundedProperly(): void
     {
         $definition = new QuantityPriceDefinition(100, new TaxRuleCollection([new TaxRule(19, 48.12345)]), 1);

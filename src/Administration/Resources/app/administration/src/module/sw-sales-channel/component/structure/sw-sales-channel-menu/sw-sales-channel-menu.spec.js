@@ -392,6 +392,9 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         const moreItems = wrapper.find('.sw-admin-menu__sales-channel-more-items');
         expect(moreItems.isVisible()).toBe(true);
         expect(moreItems.text()).toContain('sw-sales-channel.general.titleMenuMoreItems');
+
+        // the "more" item must never show the current page highlight
+        expect(moreItems.attributes('show-active-state')).toBe('false');
     });
 
     it('shows "more" when more than 50 sales channels are available and marked as favourites', async () => {
@@ -539,6 +542,42 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         await flushPromises();
 
         expect(menuItem.attributes('sidebar-expanded')).toBe('true');
+    });
+
+    it('should show an add channel menu item when no sales channels exist', async () => {
+        global.activeAclRoles = ['sales_channel.creator'];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const addChannelItem = wrapper.find('.sw-sales-channel-menu__add-channel');
+        expect(addChannelItem.exists()).toBe(true);
+        expect(addChannelItem.text()).toContain('sw-sales-channel.general.addSalesChannel');
+
+        expect(wrapper.find('sw-sales-channel-modal-stub').exists()).toBe(false);
+
+        await addChannelItem.find('button').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('sw-sales-channel-modal-stub').exists()).toBe(true);
+    });
+
+    it('should not show the add channel menu item without the creator privilege', async () => {
+        global.activeAclRoles = [];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-sales-channel-menu__add-channel').exists()).toBe(false);
+    });
+
+    it('should not show the add channel menu item when sales channels exist', async () => {
+        global.activeAclRoles = ['sales_channel.creator'];
+
+        const wrapper = await createWrapper([headlessSalesChannel]);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-sales-channel-menu__add-channel').exists()).toBe(false);
     });
 
     it('should open the headline action menu beside the rail while the sidebar is collapsed', async () => {

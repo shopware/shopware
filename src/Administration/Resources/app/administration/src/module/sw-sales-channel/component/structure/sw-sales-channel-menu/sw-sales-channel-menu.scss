@@ -82,6 +82,20 @@
             background: none;
         }
     }
+
+    .sw-sales-channel-menu__add-channel {
+        // Native button reset; layout and typography come from the shared
+        // navigation-link classes.
+        .sw-admin-menu__navigation-link {
+            width: 100%;
+            border: 0;
+            background: none;
+
+            &:hover {
+                background: var(--color-interaction-secondary-hover);
+            }
+        }
+    }
 }
 
 // No justify-content change here: switching to `center` when collapsed made the

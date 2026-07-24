@@ -119,9 +119,35 @@
                 v-if="moreSalesChannelAvailable"
                 :entry="moreItemsEntry"
                 :sidebar-expanded="isSidebarExpanded"
+                :show-active-state="false"
                 class="sw-admin-menu__sales-channel-more-items"
                 icon-size="16px"
             />
+            {% endblock %}
+
+            {% block sw_sales_channel_menu_navigation_add_channel %}
+            <li
+                v-if="showAddChannelMenuItem"
+                class="sw-admin-menu__navigation-list-item sw-sales-channel-menu__add-channel hide-on-collapse"
+            >
+                <div class="sw-admin-menu__navigation-item-row">
+                    <button
+                        type="button"
+                        class="sw-admin-menu__navigation-link"
+                        :aria-label="$t('sw-sales-channel.general.addSalesChannel')"
+                        @click="openSalesChannelModal"
+                    >
+                        <mt-icon
+                            name="regular-plus-circle"
+                            size="16px"
+                            class="sw-admin-menu__navigation-link-icon"
+                        />
+                        <span class="sw-admin-menu__navigation-link-label collapsible-text">
+                            {{ $t('sw-sales-channel.general.addSalesChannel') }}
+                        </span>
+                    </button>
+                </div>
+            </li>
             {% endblock %}
         </ul>
         {% endblock %}

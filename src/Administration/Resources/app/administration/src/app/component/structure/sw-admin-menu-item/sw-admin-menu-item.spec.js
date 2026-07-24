@@ -805,6 +805,33 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         expect(childMenuItem.props().displayIcon).toBe(false);
     });
 
+    it('should never mark the row active when showActiveState is disabled', async () => {
+        const entry = {
+            id: 'sw-sales-channel-more',
+            path: 'sw.sales.channel.list',
+            label: 'sw-sales-channel.general.titleMenuMoreItems',
+            moduleType: 'core',
+            position: 10,
+            level: 1,
+            children: [],
+        };
+
+        const wrapper = await createWrapper({
+            props: {
+                entry,
+                showActiveState: false,
+            },
+            route: { name: 'sw.sales.channel.list' },
+        });
+
+        expect(wrapper.vm.rowActive).toBe(false);
+        expect(wrapper.find('.sw-admin-menu__navigation-link').classes()).not.toContain('router-link-active');
+        expect(wrapper.attributes('aria-current')).toBe('false');
+        // Vue Router's own active classes are suppressed as well
+        expect(wrapper.vm.routerLinkActiveClass).toBe('');
+        expect(wrapper.vm.routerLinkExactActiveClass).toBe('');
+    });
+
     describe('collapsed sidebar tooltip', () => {
         const leafEntry = {
             id: 'sw-dashboard',

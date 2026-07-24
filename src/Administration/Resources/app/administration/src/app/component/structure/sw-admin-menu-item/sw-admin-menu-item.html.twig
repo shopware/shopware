@@ -16,6 +16,8 @@
                 class="sw-admin-menu__navigation-link"
                 :to="getLinkToProp"
                 :class="{ 'router-link-active': rowActive }"
+                :active-class="routerLinkActiveClass"
+                :exact-active-class="routerLinkExactActiveClass"
                 :aria-expanded="collapsibleOpen"
                 @click="toggleSubmenu"
                 @pointerdown="emitMenuInteractionForFlyoutDismiss($event)"
@@ -142,6 +144,8 @@
                     class="sw-admin-menu__navigation-link"
                     :to="getLinkToProp"
                     :class="{ 'router-link-active': rowActive }"
+                    :active-class="routerLinkActiveClass"
+                    :exact-active-class="routerLinkExactActiveClass"
                 >
                     <mt-icon
                         v-if="displayIcon"

@@ -45,6 +45,10 @@ export default {
             return this.acl.can('sales_channel.creator');
         },
 
+        showAddChannelMenuItem() {
+            return !this.isLoading && this.buildMenuTree.length === 0 && this.canCreateSalesChannels;
+        },
+
         salesChannelCriteria() {
             const criteria = new Criteria(1, 7);
 
@@ -107,7 +111,7 @@ export default {
                 active: true,
                 children: [],
                 color: 'var(--color-zinc-200)',
-                icon: 'regular-ellipsis-v',
+                icon: 'regular-eye',
                 label: this.$t('sw-sales-channel.general.titleMenuMoreItems'),
                 path: 'sw.sales.channel.list',
                 position: -1, // use last position

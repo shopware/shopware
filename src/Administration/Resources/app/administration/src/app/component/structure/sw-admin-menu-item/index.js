@@ -89,6 +89,12 @@ export default {
             default: false,
             required: false,
         },
+        /** Set to false for entries that must never show the "current page" highlight. */
+        showActiveState: {
+            type: Boolean,
+            default: true,
+            required: false,
+        },
     },
 
     computed: {
@@ -108,6 +114,10 @@ export default {
          * parent yields the highlight to its active child.
          */
         rowActive() {
+            if (!this.showActiveState) {
+                return false;
+            }
+
             if (!isEntryOnActiveRoute(this.entry, this.$route, this.activeRouteNames)) {
                 return false;
             }
@@ -274,6 +284,18 @@ export default {
 
             // A descendant's route is the current route (or an ancestor of it).
             return this.children.some((child) => isEntryOnActiveRoute(child, this.$route, this.activeRouteNames));
+        },
+
+        /**
+         * Vue Router adds its active classes on matching links by itself, so they
+         * must be suppressed explicitly when the active state is disabled.
+         */
+        routerLinkActiveClass() {
+            return this.showActiveState ? 'router-link-active' : '';
+        },
+
+        routerLinkExactActiveClass() {
+            return this.showActiveState ? 'router-link-exact-active' : '';
         },
 
         /**

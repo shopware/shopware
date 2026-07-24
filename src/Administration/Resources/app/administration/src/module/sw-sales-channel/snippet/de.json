@@ -8,7 +8,7 @@
         "general": {
             "titleMenuItems": "Verkaufskanäle",
             "tooltipOpenStorefront": "Öffne Storefront",
-            "titleMenuMoreItems": "Mehr",
+            "titleMenuMoreItems": "Alle anzeigen",
             "manageSalesChannels": "Verkaufskanäle verwalten",
             "addSalesChannel": "Verkaufskanal hinzufügen"
         },

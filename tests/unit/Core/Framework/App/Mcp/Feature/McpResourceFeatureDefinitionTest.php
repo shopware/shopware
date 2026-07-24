@@ -14,8 +14,8 @@ use Shopware\Core\Framework\Util\Filesystem;
 /**
  * @internal
  */
-#[CoversClass(McpResourceFeatureDefinition::class)]
 #[Package('framework')]
+#[CoversClass(McpResourceFeatureDefinition::class)]
 class McpResourceFeatureDefinitionTest extends TestCase
 {
     private McpResourceFeatureDefinition $definition;

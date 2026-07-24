@@ -25,9 +25,9 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppMcpPromptLoader::class)]
 #[CoversClass(AbstractAppMcpLoader::class)]
-#[Package('framework')]
 class AppMcpPromptLoaderTest extends TestCase
 {
     private AppFeatureStorage&Stub $storage;

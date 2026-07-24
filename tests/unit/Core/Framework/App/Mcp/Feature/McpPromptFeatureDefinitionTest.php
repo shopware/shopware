@@ -14,8 +14,8 @@ use Shopware\Core\Framework\Util\Filesystem;
 /**
  * @internal
  */
-#[CoversClass(McpPromptFeatureDefinition::class)]
 #[Package('framework')]
+#[CoversClass(McpPromptFeatureDefinition::class)]
 class McpPromptFeatureDefinitionTest extends TestCase
 {
     private McpPromptFeatureDefinition $definition;

@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Monolog\Level;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
@@ -67,7 +66,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         private readonly ProductDefinition $productDefinition,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
         TwigVariableParserFactory $parserFactory,
-        private readonly ?CategoryBreadcrumbBuilder $breadcrumbBuilder = null
+        private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder
     ) {
         $this->twigVariableParser = $parserFactory->getParser($twig);
     }
@@ -143,9 +142,10 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
                 ->addFilter(new EqualsFilter('active', true));
         }
 
-        // Pre-load main_category so CategoryBreadcrumbBuilder::getProductSeoCategory()
-        // resolves the configured main category in-memory instead of issuing an extra
-        // product `search()` per exported row.
+        // Pre-load mainCategories.category so CategoryBreadcrumbBuilder::getMainCategory()
+        // resolves the configured main category in-memory via getMainCategoryFromProduct(),
+        // instead of the per-product fallback search(). Mirrors ProductPageLoader and
+        // MinimalQuickViewPageLoader, which preload the same association for the same reason.
         $criteria->addAssociation('mainCategories.category');
 
         $this->eventDispatcher->dispatch(
@@ -192,6 +192,8 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         } else {
             while ($productResult = $iterator->fetch()) {
                 foreach ($productResult->getEntities() as $product) {
+                    \assert($product instanceof SalesChannelProductEntity);
+
                     $data = $productContext->getContext();
                     $data['product'] = $product;
 
@@ -320,15 +322,19 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
      * Populate `seoCategory` so feed templates can render the configured main
      * category. Mirrors what ProductDetailRoute does on the storefront.
      */
-    private function populateSeoCategory(ProductEntity $product, SalesChannelContext $context): void
+    private function populateSeoCategory(SalesChannelProductEntity $product, SalesChannelContext $context): void
     {
-        if ($this->breadcrumbBuilder === null) {
-            return;
-        }
-        if (!$product instanceof SalesChannelProductEntity) {
-            return;
-        }
         if ($product->getSeoCategory() !== null) {
+            return;
+        }
+
+        // getProductSeoCategory() runs a per-product fallback search() when no main category is
+        // configured — an N+1 in a bulk export. Only resolve it when the product actually has a
+        // main category for this sales channel (checked in-memory on the preloaded
+        // mainCategories.category association). Products without one fall through to the
+        // template's `product.categories.first`, which is already loaded with the batch.
+        $mainCategories = $product->getMainCategories();
+        if ($mainCategories === null || $mainCategories->filterBySalesChannelId($context->getSalesChannelId())->count() === 0) {
             return;
         }
 

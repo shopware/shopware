@@ -7,7 +7,7 @@
 ",{#- -#}
 "{%- set productTypeCategory = product.seoCategory ?? product.categories.first -%}
 {%- if productTypeCategory -%}
-    {{ productTypeCategory.getBreadCrumb|slice(1)|join(' > ')|raw }}{#- -#}
+    {{ productTypeCategory.breadCrumb|slice(1)|join(' > ')|raw }}{#- -#}
 {%- endif -%}",{#- -#}
 {% set price = product.calculatedPrice %}
 {%- if product.calculatedPrices.count > 0 -%}

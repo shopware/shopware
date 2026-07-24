@@ -1,6 +1,6 @@
 "{%- set productTypeCategory = product.seoCategory ?? product.categories.first -%}
 {%- if productTypeCategory -%}
-    {{ productTypeCategory.getBreadCrumb|slice(1)|join(' > ')|raw }}{#- -#}
+    {{ productTypeCategory.breadCrumb|slice(1)|join(' > ')|raw }}{#- -#}
 {%- endif -%}",{#- -#}
 "{{ product.manufacturer.translated.name ?? '' }}",{#- -#}
 "{{ product.translated.name }}",{#- -#}

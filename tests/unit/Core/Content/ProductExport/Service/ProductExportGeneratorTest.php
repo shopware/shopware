@@ -21,6 +21,8 @@ use Shopware\Core\Content\ProductExport\Service\ProductExportValidatorInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
+use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
+use Shopware\Core\Content\Seo\MainCategory\MainCategoryEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
@@ -215,7 +217,8 @@ class ProductExportGeneratorTest extends TestCase
             $this->twig,
             $this->productDefinition,
             $this->languageLocaleProvider,
-            $this->parserFactory
+            $this->parserFactory,
+            $this->breadcrumbBuilder
         );
 
         // Reaching the "not found" result (no products resolve) proves the interface-only builder was routed
@@ -655,6 +658,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $context = $this->createSalesChannelContext();
         $product = $this->createProduct('product-id');
+        $product->setMainCategories($this->mainCategoryCollectionForSalesChannel('storefrontSalesChannelId'));
 
         $this->prepareGeneratorDependencies($context, '{{ product.id }}');
         $this->productRepository->expects($this->exactly(2))
@@ -701,6 +705,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $context = $this->createSalesChannelContext();
         $product = $this->createProduct('product-id');
+        $product->setMainCategories($this->mainCategoryCollectionForSalesChannel('storefrontSalesChannelId'));
 
         $this->prepareGeneratorDependencies($context, '{"id":"{{ product.id }}"}');
         $this->productRepository->expects($this->exactly(2))
@@ -734,6 +739,46 @@ class ProductExportGeneratorTest extends TestCase
         $this->createGenerator()->generate($productExport, new ExportBehavior(false, false, false, false, false));
 
         static::assertSame($mainCategory, $product->getSeoCategory());
+    }
+
+    public function testGenerateSkipsSeoCategoryResolutionWhenProductHasNoMainCategory(): void
+    {
+        // A product without a configured main category must not trigger the per-product
+        // getProductSeoCategory() fallback search (an N+1 in a bulk export); it falls through
+        // to the template's `product.categories.first`.
+        $productExport = $this->getProductExportEntity();
+        $productExport->setFileFormat(ProductExportEntity::FILE_FORMAT_CSV);
+        $productExport->setEncoding(ProductExportEntity::ENCODING_UTF8);
+        $productExport->setBodyTemplate('{{ product.id }}');
+        $productExport->setIncludeVariants(false);
+
+        $context = $this->createSalesChannelContext();
+        $product = $this->createProduct('product-id');
+
+        $this->prepareGeneratorDependencies($context, '{{ product.id }}');
+        $this->productRepository->expects($this->exactly(2))
+            ->method('searchIds')
+            ->willReturnOnConsecutiveCalls(
+                IdSearchResult::fromIds(['product-id'], new Criteria(), $context->getContext()),
+                IdSearchResult::fromIds([], new Criteria(), $context->getContext())
+            );
+        $this->productRepository->expects($this->exactly(2))
+            ->method('search')
+            ->willReturnOnConsecutiveCalls(
+                $this->createProductSearchResult($product, $context),
+                $this->createEmptyProductSearchResult($context)
+            );
+
+        $this->breadcrumbBuilder->expects($this->never())->method('getProductSeoCategory');
+
+        $this->productExportRender->expects($this->once())->method('renderBody')->willReturn('rendered');
+        $this->seoUrlPlaceholderHandler->expects($this->once())->method('replace')->willReturnArgument(0);
+        $this->productExportValidator->expects($this->once())->method('validate')->willReturn([]);
+        $this->connection->expects($this->once())->method('delete');
+
+        $this->createGenerator()->generate($productExport, new ExportBehavior(false, false, false, false, false));
+
+        static::assertNull($product->getSeoCategory());
     }
 
     private function createGenerator(): ProductExportGenerator
@@ -811,6 +856,16 @@ class ProductExportGeneratorTest extends TestCase
         $product->setChildCount($childCount);
 
         return $product;
+    }
+
+    private function mainCategoryCollectionForSalesChannel(string $salesChannelId): MainCategoryCollection
+    {
+        $assignment = new MainCategoryEntity();
+        $assignment->setId('main-category-' . $salesChannelId);
+        $assignment->setUniqueIdentifier('main-category-' . $salesChannelId);
+        $assignment->setSalesChannelId($salesChannelId);
+
+        return new MainCategoryCollection([$assignment]);
     }
 
     /**

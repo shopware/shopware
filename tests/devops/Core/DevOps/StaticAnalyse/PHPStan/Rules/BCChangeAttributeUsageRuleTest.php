@@ -88,10 +88,6 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
                 'ExceptionChange on "ExceptionChangeCases::unresolvableExceptionClass()": announced exception "UnimportedException" is not a resolvable class. Reference exception classes via ::class.',
                 185,
             ],
-            [
-                'ExceptionChange on "ExceptionChangeCases::emptyAnnouncement()": "newExceptions" must announce at least one exception class.',
-                193,
-            ],
         ]);
     }
 

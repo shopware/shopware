@@ -76,8 +76,9 @@ class ConfigurationTest extends TestCase
     {
         $configuration = new Configuration();
 
-        $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionMessage('Invalid type for path "shopware.translation.languages". Expected "array", but got "string"');
+        $this->expectExceptionObject(new InvalidConfigurationException(
+            'Invalid type for path "shopware.translation.languages". Expected "array", but got "string"'
+        ));
 
         (new Processor())->processConfiguration($configuration, [
             [

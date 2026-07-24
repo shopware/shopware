@@ -74,7 +74,11 @@ class BCChangeAttributeUsageRule implements Rule
         'Symfony\Component\Routing\Annotation\Route',
     ];
 
-    private const MUST_NOT_EXIST = [
+    /**
+     * These attributes announce a parameter that will only be added in the next major.
+     * The named parameter must therefore not be part of the current method signature.
+     */
+    private const NEW_PARAMETER_ATTRIBUTES = [
         NewOptionalParameter::class,
         NewRequiredParameter::class,
     ];
@@ -253,7 +257,7 @@ class BCChangeAttributeUsageRule implements Rule
 
         $parameterExists = $this->parameterExists($method, ltrim($parameterName, '$'));
 
-        if (\in_array($attributeClass, self::MUST_NOT_EXIST, true) && $parameterExists) {
+        if (\in_array($attributeClass, self::NEW_PARAMETER_ATTRIBUTES, true) && $parameterExists) {
             return [$this->error($line, \sprintf(
                 '%s on "%s": parameter "%s" already exists.',
                 $this->shortName($attribute),
@@ -262,7 +266,7 @@ class BCChangeAttributeUsageRule implements Rule
             ))];
         }
 
-        if (!\in_array($attributeClass, self::MUST_NOT_EXIST, true) && !$parameterExists) {
+        if (!\in_array($attributeClass, self::NEW_PARAMETER_ATTRIBUTES, true) && !$parameterExists) {
             return [$this->error($line, \sprintf(
                 '%s on "%s": parameter "%s" does not exist.',
                 $this->shortName($attribute),

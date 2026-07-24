@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(McpAllowedHostsProvider::class)]
 class McpAllowedHostsProviderTest extends TestCase
 {

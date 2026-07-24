@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Service\Requirement;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\Permission\PermissionsService;
 use Shopware\Core\Service\Requirement\Gate;
 use Shopware\Core\Service\Requirement\ServiceConsentRequirement;
@@ -11,6 +12,7 @@ use Shopware\Core\Service\Requirement\ServiceConsentRequirement;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ServiceConsentRequirement::class)]
 class ServiceConsentRequirementTest extends TestCase
 {

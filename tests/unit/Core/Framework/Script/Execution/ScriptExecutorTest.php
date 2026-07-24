@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Script\Execution;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Execution\InterfaceHook;
 use Shopware\Core\Framework\Script\Execution\ScriptEnvironmentFactory;
@@ -15,6 +16,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ScriptExecutor::class)]
 class ScriptExecutorTest extends TestCase
 {

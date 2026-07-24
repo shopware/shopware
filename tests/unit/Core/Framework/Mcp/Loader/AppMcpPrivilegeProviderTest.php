@@ -7,11 +7,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppMcpPrivilegeProvider::class)]
 class AppMcpPrivilegeProviderTest extends TestCase
 {

@@ -43,6 +43,7 @@ describe('src/app/init-pre/api-services.init.ts', () => {
                 'customerGroupRegistrationService',
                 'customerValidationService',
                 'documentService',
+                'documentV2Service',
                 'excludedSearchTermService',
                 'extensionSdkService',
                 'firstRunWizardService',
@@ -122,6 +123,7 @@ describe('src/app/init-pre/api-services.init.ts', () => {
         expect(Shopware.Service('customerGroupRegistrationService')).toBeUndefined();
         expect(Shopware.Service('customerValidationService')).toBeUndefined();
         expect(Shopware.Service('documentService')).toBeUndefined();
+        expect(Shopware.Service('documentV2Service')).toBeUndefined();
         expect(Shopware.Service('excludedSearchTermService')).toBeUndefined();
         expect(Shopware.Service('extensionSdkService')).toBeUndefined();
         expect(Shopware.Service('firstRunWizardService')).toBeUndefined();
@@ -183,6 +185,7 @@ describe('src/app/init-pre/api-services.init.ts', () => {
         expect(Shopware.Service('customerGroupRegistrationService')).toBeDefined();
         expect(Shopware.Service('customerValidationService')).toBeDefined();
         expect(Shopware.Service('documentService')).toBeDefined();
+        expect(Shopware.Service('documentV2Service')).toBeDefined();
         expect(Shopware.Service('excludedSearchTermService')).toBeDefined();
         expect(Shopware.Service('extensionSdkService')).toBeDefined();
         expect(Shopware.Service('firstRunWizardService')).toBeDefined();

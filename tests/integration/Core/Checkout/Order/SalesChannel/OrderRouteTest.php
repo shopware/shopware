@@ -50,7 +50,6 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[Package('checkout')]
-#[Group('slow')]
 #[Group('store-api')]
 class OrderRouteTest extends TestCase
 {

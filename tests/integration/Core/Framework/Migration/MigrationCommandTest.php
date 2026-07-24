@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Migration;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\Command\MigrationCommand;
 use Shopware\Core\Framework\Migration\Command\MigrationDestructiveCommand;
 use Shopware\Core\Framework\Migration\MigrationCollection;
@@ -22,6 +23,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('framework')]
 class MigrationCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -63,7 +65,7 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getCommand();
 
-        $command->run(new ArrayInput(['-all' => true, 'identifier' => self::INTEGRATION_IDENTIFIER()]), new BufferedOutput());
+        $command->run(new ArrayInput(['--all' => true, 'identifier' => self::INTEGRATION_IDENTIFIER()]), new BufferedOutput());
 
         static::assertSame(2, $this->getMigrationCount());
     }

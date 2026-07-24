@@ -12,6 +12,7 @@ use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\InvalidFileNameCharacters;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\LegacyTestsInSrc;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingIntegrationTestInSplitSuite;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingMigrationTests;
+use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingPackageAttributeInTests;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingReleaseInfo;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingUnitTests;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\PhpstanBaselineGrowth;
@@ -39,6 +40,7 @@ return (new Config())
     ->useRule(new ShopwareYamlConfigSchemaHint())
     ->useRule(new AgenticCommercePluginHint())
     ->useRule(new MissingMigrationTests())
+    ->useRule(new MissingPackageAttributeInTests())
     ->useRule(new RedisGroupUsage())
     ->useRule(new SqlHeredocUsage())
     ->useRule(new RemovedTwigBlocks())

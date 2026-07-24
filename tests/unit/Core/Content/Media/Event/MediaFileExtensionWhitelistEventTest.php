@@ -8,11 +8,13 @@ use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(MediaFileExtensionWhitelistEvent::class)]
 class MediaFileExtensionWhitelistEventTest extends TestCase
 {

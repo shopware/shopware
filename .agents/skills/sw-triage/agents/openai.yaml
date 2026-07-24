@@ -1,0 +1,6 @@
+interface:
+  display_name: "Shopware Issue Triage"
+  short_description: "Explicitly triage a Shopware issue"
+  default_prompt: "Use $sw-triage to triage the specified Shopware issue."
+policy:
+  allow_implicit_invocation: false

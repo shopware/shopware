@@ -37,7 +37,10 @@ runs:
           exit 0
         fi
 
-        if [ -z "$changed_files" ] || printf '%s\n' "$changed_files" | grep -Eivq '\.md$'; then
+        # A here-string instead of a pipe: with `grep -q` closing the pipe on the
+        # first match, a piped writer can fail with SIGPIPE and `pipefail` would
+        # invert the result, wrongly marking the PR as markdown-only.
+        if [ -z "$changed_files" ] || grep -Eivq '\.md$' <<<"$changed_files"; then
           echo "docs_only=false" >> "$GITHUB_OUTPUT"
           exit 0
         fi

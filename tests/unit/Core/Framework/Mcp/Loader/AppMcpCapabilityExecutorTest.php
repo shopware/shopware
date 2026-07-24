@@ -25,8 +25,8 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
-#[CoversClass(AppMcpCapabilityExecutor::class)]
 #[Package('framework')]
+#[CoversClass(AppMcpCapabilityExecutor::class)]
 class AppMcpCapabilityExecutorTest extends TestCase
 {
     private MockHandler $mockHandler;

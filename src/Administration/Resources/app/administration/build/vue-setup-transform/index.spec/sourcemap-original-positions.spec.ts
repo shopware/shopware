@@ -29,7 +29,7 @@ describe('build/vue-setup-transform sourcemap original positions', () => {
         expectOriginalPosition(result, source, '{{ headline }}', '{{ headline }}');
     });
 
-    it('maps copied base callback body code to its original script setup location', () => {
+    it('maps base body code to its original script setup location', () => {
         expect.hasAssertions();
 
         const source = stripIndent`
@@ -49,14 +49,11 @@ describe('build/vue-setup-transform sourcemap original positions', () => {
             </script>
         `;
 
-        const result = transformOrFail(source, 'base-callback.vue');
+        const result = transformOrFail(source, 'base-body.vue');
 
-        expectOriginalPosition(
-            result,
-            source,
-            "const headline = computed(() => 'Hello');",
-            "const headline = computed(() => 'Hello');",
-        );
+        // The body stays in place (the binding is renamed, but the initializer text is unchanged), so it
+        // maps straight back to its original script-setup location.
+        expectOriginalPosition(result, source, "computed(() => 'Hello')", "computed(() => 'Hello')");
     });
 
     it('maps copied override callback body code to its original script setup location', () => {
@@ -131,7 +128,8 @@ describe('build/vue-setup-transform sourcemap original positions', () => {
         const result = transformOrFail(source, 'crlf.vue');
 
         expectOriginalPosition(result, source, '{{ headline }}', '{{ headline }}');
-        expectOriginalPosition(result, source, "const headline = 'Hello';", "const headline = 'Hello';");
+        // The binding is renamed, but the literal is unchanged and maps straight back.
+        expectOriginalPosition(result, source, "'Hello';", "'Hello';");
     });
 
     it('maps teleported base macros to their original script setup location', () => {
@@ -263,13 +261,10 @@ describe('build/vue-setup-transform sourcemap original positions', () => {
         expectOriginalLine(result, source, "import { computed } from 'vue';", "import { computed } from 'vue';");
         expectOriginalLine(result, source, 'withDefaults(defineProps<{', 'withDefaults(defineProps<{');
         expectOriginalLine(result, source, 'defineEmits<{', 'defineEmits<{');
-        expectOriginalLine(
-            result,
-            source,
-            'const headline = computed(() => props.label);',
-            'const headline = computed(() => props.label);',
-        );
-        expectOriginalLine(result, source, 'function emitSave(): void {', 'function emitSave(): void {');
+        // headline and props are both renamed on this line; the computed initializer text is unchanged.
+        expectOriginalLine(result, source, 'computed(() =>', 'computed(() =>');
+        // emitSave is renamed to its author alias; the signature tail is unchanged.
+        expectOriginalLine(result, source, '(): void {', '(): void {');
         expectOriginalLine(result, source, '@click="emitSave"', '@click="emitSave"');
         expectOriginalLine(result, source, '{{ headline }}', '{{ headline }}');
     });

@@ -47,6 +47,7 @@ import UserActivityService from 'src/app/service/user-activity.service';
 import EntityValidationService from 'src/app/service/entity-validation.service';
 import CustomEntityDefinitionService from 'src/app/service/custom-entity-definition.service';
 import FileValidationService from 'src/app/service/file-validation.service';
+import CacheService from 'src/app/service/cache.service';
 
 /** Import Feature */
 import Feature from 'src/core/feature';
@@ -131,6 +132,9 @@ Application.addServiceProvider('feature', () => {
 
         return loginService;
     })
+    .addServiceProvider('cacheService', () => {
+        return new CacheService();
+    })
     .addServiceProvider('jsonApiParserService', () => {
         return JsonApiParser;
     })
@@ -197,9 +201,7 @@ Application.addServiceProvider('feature', () => {
         });
     })
     .addServiceProvider('filterService', () => {
-        return new FilterService({
-            userConfigRepository: Shopware.Service('repositoryFactory').create('user_config'),
-        });
+        return new FilterService();
     })
     .addServiceProvider('mediaDefaultFolderService', () => {
         return MediaDefaultFolderService();
@@ -225,9 +227,7 @@ Application.addServiceProvider('feature', () => {
         return new RecentlySearchService();
     })
     .addServiceProvider('searchPreferencesService', () => {
-        return new SearchPreferencesService({
-            userConfigRepository: Shopware.Service('repositoryFactory').create('user_config'),
-        });
+        return new SearchPreferencesService();
     })
     .addServiceProvider('userActivityService', () => {
         return new UserActivityService();

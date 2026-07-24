@@ -267,6 +267,8 @@ export default {
                     await this.mediaFolderRepository.save(this.mediaFolder, Context.api);
                 }
 
+                await this.invalidateMediaDefaultFolderCache();
+
                 this.createNotificationSuccess({
                     title: this.$root.$t('global.default.success'),
                     message: this.$root.$t('global.sw-media-modal-folder-settings.notification.success.message'),
@@ -281,6 +283,14 @@ export default {
                     message: this.$root.$t('global.sw-media-modal-folder-settings.notification.error.message'),
                 });
             }
+        },
+
+        async invalidateMediaDefaultFolderCache() {
+            // Clear all default-folder lookups instead of reading the changed default-folder entity first.
+            // The cache is tiny and repopulates per entity on demand.
+            Shopware.Service('cacheService').invalidateCaches({
+                cacheKey: ['media-default-folder'],
+            });
         },
 
         async ensureUniqueDefaultFolder(folderId, defaultFolderId) {

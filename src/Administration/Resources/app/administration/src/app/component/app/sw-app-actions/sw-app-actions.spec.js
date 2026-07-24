@@ -60,15 +60,6 @@ describe('sw-app-actions', () => {
                     },
 
                     extensionSdkService: {},
-
-                    repositoryFactory: {
-                        create: () => ({
-                            search: jest.fn(() => {
-                                return Promise.resolve([]);
-                            }),
-                            create: () => ({}),
-                        }),
-                    },
                 },
             },
         });
@@ -92,6 +83,9 @@ describe('sw-app-actions', () => {
     });
 
     beforeEach(async () => {
+        jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({ data: {} });
+        jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
+
         Shopware.Store.get('shopwareApps').selectedIds = [
             Shopware.Utils.createId(),
         ];
@@ -103,6 +97,7 @@ describe('sw-app-actions', () => {
         if (wrapper) {
             wrapper.unmount();
         }
+        jest.restoreAllMocks();
     });
 
     it('creates an sw-app-action-button per action', async () => {
@@ -297,6 +292,7 @@ describe('sw-app-actions', () => {
         const actionButtonId = Shopware.Utils.createId();
         await wrapper.vm.appActionButtonService.runAction(actionButtonId);
 
+        expect(Shopware.Service('userConfigService').search).toHaveBeenCalledWith(['app.action_button.iframe']);
         expect(wrapper.find('.sw-modal-app-action-button').exists()).toBe(true);
     });
 });

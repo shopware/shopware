@@ -42,6 +42,10 @@ use Shopware\Core\Framework\Mcp\Loader\AppMcpResourceLoader;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpToolLoader;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
+use Shopware\Core\Framework\Mcp\Notification\AppMcpCapabilityDetector;
+use Shopware\Core\Framework\Mcp\Notification\AppMcpCapabilityLifecycleSubscriber;
+use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
+use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Shopware\Core\Framework\Mcp\Prompt\ShopwareContextPrompt;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Resource\BusinessEventsResource;
@@ -87,6 +91,30 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set('shopware.mcp.discovery_cache', Psr16Cache::class)
         ->args([service('cache.system')]);
+
+    $services->set('shopware.mcp.session_registry_cache', Psr16Cache::class)
+        ->args([service('cache.system')]);
+
+    $services->set(McpSessionRegistry::class)
+        ->args([service('shopware.mcp.session_registry_cache')]);
+
+    $services->set(McpListChangedNotifier::class)
+        ->args([
+            service('mcp.session.store')->nullOnInvalid(),
+            service(McpSessionRegistry::class),
+            service('logger'),
+        ])
+        ->tag('monolog.logger', ['channel' => 'mcp']);
+
+    $services->set(AppMcpCapabilityDetector::class)
+        ->args([service(Connection::class)]);
+
+    $services->set(AppMcpCapabilityLifecycleSubscriber::class)
+        ->args([
+            service(AppMcpCapabilityDetector::class),
+            service(McpListChangedNotifier::class),
+        ])
+        ->tag('kernel.event_subscriber');
 
     $services->set(McpContextProvider::class)
         ->args([service('request_stack')]);
@@ -147,6 +175,7 @@ return static function (ContainerConfigurator $container): void {
             service(McpAllowlistProvider::class),
             service('logger'),
             service(McpAllowlistFilter::class),
+            service(McpSessionRegistry::class),
         ])
         ->tag('controller.service_arguments')
         ->tag('monolog.logger', ['channel' => 'mcp']);
@@ -237,7 +266,7 @@ return static function (ContainerConfigurator $container): void {
     $services->set(ToolSearch::class);
 
     $services->set(McpSessionCleanupSubscriber::class)
-        ->args([service(ToolResultCacheStorage::class)])
+        ->args([service(ToolResultCacheStorage::class), service(McpSessionRegistry::class)])
         ->tag('kernel.event_subscriber');
 
     $services->instanceof(McpToolResponse::class)
@@ -447,6 +476,8 @@ return static function (ContainerConfigurator $container): void {
             service(McpToolPersister::class),
             service(McpPromptPersister::class),
             service(McpResourcePersister::class),
+            service(AppMcpCapabilityDetector::class),
+            service(McpListChangedNotifier::class),
         ])
         ->tag('shopware.app_lifecycle.handler', ['priority' => -1300]);
 

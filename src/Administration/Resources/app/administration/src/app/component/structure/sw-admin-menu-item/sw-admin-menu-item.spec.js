@@ -165,8 +165,9 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             },
         });
 
+        // Entries without a usable path render a collapsible trigger button instead of a link
         const navigationLink = wrapper.find('.sw-admin-menu__navigation-link');
-        expect(navigationLink.element.tagName).toBe('SPAN');
+        expect(navigationLink.element.tagName).toBe('BUTTON');
     });
 
     it('should not show the menu entry when user has no privilege', async () => {
@@ -283,8 +284,9 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             },
         });
 
+        // Entries without a usable path render a collapsible trigger button instead of a link
         const navigationLink = wrapper.find('.sw-admin-menu__navigation-link');
-        expect(navigationLink.element.tagName).toBe('SPAN');
+        expect(navigationLink.element.tagName).toBe('BUTTON');
     });
 
     it('should show a link when the path goes to a route which needs a privilege which is set', async () => {
@@ -718,7 +720,10 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         const wrapper = await createWrapper({
             route: {
                 name: 'sw.product.detail.base',
-                matched: [{ name: 'sw.product.detail' }, { name: 'sw.product.detail.base' }],
+                matched: [
+                    { name: 'sw.product.detail' },
+                    { name: 'sw.product.detail.base' },
+                ],
                 meta: { parentPath: 'sw.product.index' },
             },
             routerRoutes: [{ name: 'sw.product.index', meta: {} }],
@@ -798,5 +803,91 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             '.sw-admin-menu__sub-navigation-list .sw-admin-menu__navigation-list-item',
         );
         expect(childMenuItem.props().displayIcon).toBe(false);
+    });
+
+    describe('collapsed sidebar tooltip', () => {
+        const leafEntry = {
+            id: 'sw-dashboard',
+            label: 'sw-dashboard.general.mainMenuItemGeneral',
+            color: '#6AD6F0',
+            path: 'sw.dashboard.index',
+            icon: 'regular-dashboard',
+            position: 10,
+            level: 1,
+            moduleType: 'core',
+            children: [],
+        };
+
+        it('should bind the mt-tooltip trigger to the row of a first level entry without children while the sidebar is collapsed', async () => {
+            const wrapper = await createWrapper({
+                props: {
+                    entry: leafEntry,
+                    sidebarExpanded: false,
+                },
+            });
+
+            const row = wrapper.find('.sw-admin-menu__navigation-item-row');
+            expect(row.attributes('id')).toMatch(/^mt-tooltip--.+__trigger$/);
+            expect(row.attributes('aria-describedby')).toMatch(/^mt-tooltip--.+__tooltip$/);
+
+            const tooltip = document.getElementById(row.attributes('aria-describedby'));
+            expect(tooltip).not.toBeNull();
+            expect(tooltip.textContent).toContain('sw-dashboard.general.mainMenuItemGeneral');
+        });
+
+        it('should open the tooltip when the row is hovered while the sidebar is collapsed', async () => {
+            jest.useFakeTimers();
+
+            const wrapper = await createWrapper({
+                props: {
+                    entry: leafEntry,
+                    sidebarExpanded: false,
+                },
+            });
+
+            const row = wrapper.find('.sw-admin-menu__navigation-item-row');
+            const tooltip = document.getElementById(row.attributes('aria-describedby'));
+
+            expect(tooltip.parentElement.style.display).toBe('none');
+
+            await row.trigger('mouseover');
+            jest.advanceTimersByTime(300);
+            await wrapper.vm.$nextTick();
+
+            expect(tooltip.parentElement.style.display).not.toBe('none');
+
+            jest.useRealTimers();
+        });
+
+        it('should not bind the tooltip trigger while the sidebar is expanded', async () => {
+            const wrapper = await createWrapper({
+                props: {
+                    entry: leafEntry,
+                    sidebarExpanded: true,
+                },
+            });
+
+            const row = wrapper.find('.sw-admin-menu__navigation-item-row');
+            // The trigger id always stays bound, otherwise mt-tooltip cannot find its trigger element
+            expect(row.attributes('id')).toMatch(/^mt-tooltip--.+__trigger$/);
+            expect(row.attributes('aria-describedby')).toBeUndefined();
+        });
+
+        it('should not bind the tooltip trigger on sub menu items', async () => {
+            const wrapper = await createWrapper({
+                props: {
+                    entry: {
+                        ...leafEntry,
+                        parent: 'sw-catalogue',
+                        level: 2,
+                    },
+                    menuDepth: 2,
+                    sidebarExpanded: false,
+                },
+            });
+
+            const row = wrapper.find('.sw-admin-menu__navigation-item-row');
+            expect(row.attributes('aria-describedby')).toBeUndefined();
+        });
     });
 });

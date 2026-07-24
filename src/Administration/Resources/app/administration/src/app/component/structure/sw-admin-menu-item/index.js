@@ -275,9 +275,33 @@ export default {
             // A descendant's route is the current route (or an ancestor of it).
             return this.children.some((child) => isEntryOnActiveRoute(child, this.$route, this.activeRouteNames));
         },
+
+        /**
+         * Top-level entries without children have no flyout, so their label is only
+         * accessible via a tooltip while the sidebar is collapsed.
+         */
+        showsCollapsedTooltip() {
+            return !this.sidebarExpanded && this.menuDepth === 1 && this.children.length === 0;
+        },
     },
 
     methods: {
+        collapsedTooltipTriggerProps(tooltipProps) {
+            if (this.showsCollapsedTooltip) {
+                return tooltipProps;
+            }
+
+            // The wrapping <mt-tooltip> stays mounted even when the tooltip must not open,
+            // because unmounting the row on sidebar toggle makes the navigation icons flash
+            // (see usesCollapsible). The trigger id also has to stay bound; mt-tooltip errors
+            // when it cannot find its trigger element. Only the handlers that open the
+            // tooltip are dropped — the closing handlers keep an already visible tooltip
+            // hidable when the sidebar expands while it is hovered.
+            const { onMouseover, onFocus, 'aria-describedby': ariaDescribedby, ...inactiveTriggerProps } = tooltipProps;
+
+            return inactiveTriggerProps;
+        },
+
         hasAccessToRoute(path) {
             const match = this.$router.getRoutes().find((route) => route.name === path);
 

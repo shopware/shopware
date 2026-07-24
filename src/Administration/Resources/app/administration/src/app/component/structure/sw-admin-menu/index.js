@@ -104,11 +104,11 @@ export default {
             // Throw an console error if navigation entry is on level 4 or higher. Also remove the navigation entry from menu
             return adminModuleNavigationEntries.filter((entry) => {
                 const levelOneParent = adminModuleNavigationEntries.find((e) => entry.parent && e.id === entry.parent);
-                 
+
                 const levelTwoParent = adminModuleNavigationEntries.find(
                     (e) => levelOneParent?.parent && e.id === levelOneParent?.parent,
                 );
-                 
+
                 const levelThreeParent = adminModuleNavigationEntries.find(
                     (e) => levelTwoParent?.parent && e.id === levelTwoParent?.parent,
                 );
@@ -543,16 +543,6 @@ The admin menu only supports up to three levels of nesting.`,
 
                 return this.acl.can(child.privilege);
             });
-        },
-
-        getSingleChildTooltipConfig(entry) {
-            const children = this.getChildren(entry);
-            const shouldShowTooltip = !this.isExpanded && children.length === 0;
-
-            return {
-                message: shouldShowTooltip ? this.getEntryLabel(entry) : '',
-                disabled: !shouldShowTooltip,
-            };
         },
 
         onFlyoutLeave() {

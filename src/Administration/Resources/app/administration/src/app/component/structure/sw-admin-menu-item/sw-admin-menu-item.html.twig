@@ -127,79 +127,89 @@
     @keydown.enter="handleLegacyRowClick($event)"
     @keydown.space="handleLegacyRowClick($event)"
 >
-    <div class="sw-admin-menu__navigation-item-row">
-
-        <router-link
-            v-if="entryPath"
-            class="sw-admin-menu__navigation-link"
-            :to="getLinkToProp"
-            :class="{ 'router-link-active': rowActive }"
-        >
-            <mt-icon
-                v-if="displayIcon"
-                :size="iconSize"
-                class="sw-admin-menu__navigation-link-icon"
-                :name="navigationIconName"
-            />
-
-            <span
-                class="sw-admin-menu__navigation-link-label"
-                :class="collapsibleText ? 'collapsible-text hide-on-collapse' : ''"
-                :title="getEntryLabel"
+    <mt-tooltip
+        :content="getEntryLabel"
+        placement="right"
+    >
+        <template #default="{ ...tooltipProps }">
+            <div
+                class="sw-admin-menu__navigation-item-row"
+                v-bind="collapsedTooltipTriggerProps(tooltipProps)"
             >
-                {{ getEntryLabel }}
-            </span>
 
-            <slot name="additional-text"></slot>
-        </router-link>
+                <router-link
+                    v-if="entryPath"
+                    class="sw-admin-menu__navigation-link"
+                    :to="getLinkToProp"
+                    :class="{ 'router-link-active': rowActive }"
+                >
+                    <mt-icon
+                        v-if="displayIcon"
+                        :size="iconSize"
+                        class="sw-admin-menu__navigation-link-icon"
+                        :name="navigationIconName"
+                    />
 
-        <a
-            v-else-if="entry.link"
-            :href="entry.link"
-            :target="entry.target"
-            :title="$t(entry.label)"
-            class="sw-admin-menu__navigation-link"
-        >
-            <mt-icon
-                v-if="displayIcon"
-                :size="iconSize"
-                class="sw-admin-menu__navigation-link-icon"
-                :name="navigationIconName"
-            />
+                    <span
+                        class="sw-admin-menu__navigation-link-label"
+                        :class="collapsibleText ? 'collapsible-text hide-on-collapse' : ''"
+                        :title="getEntryLabel"
+                    >
+                        {{ getEntryLabel }}
+                    </span>
 
-            <span
-                class="sw-admin-menu__navigation-link-label"
-                :class="collapsibleText ? 'collapsible-text hide-on-collapse' : ''"
-                :title="getEntryLabel"
-            >
-                {{ getEntryLabel }}
-            </span>
+                    <slot name="additional-text"></slot>
+                </router-link>
 
-            <slot name="additional-text"></slot>
-        </a>
+                <a
+                    v-else-if="entry.link"
+                    :href="entry.link"
+                    :target="entry.target"
+                    :title="$t(entry.label)"
+                    class="sw-admin-menu__navigation-link"
+                >
+                    <mt-icon
+                        v-if="displayIcon"
+                        :size="iconSize"
+                        class="sw-admin-menu__navigation-link-icon"
+                        :name="navigationIconName"
+                    />
 
-        <span
-            v-else
-            class="sw-admin-menu__navigation-link"
-            :class="{ 'router-link-active': rowActive }"
-        >
-            <mt-icon
-                v-if="displayIcon"
-                :size="iconSize"
-                class="sw-admin-menu__navigation-link-icon"
-                :name="navigationIconName"
-            />
+                    <span
+                        class="sw-admin-menu__navigation-link-label"
+                        :class="collapsibleText ? 'collapsible-text hide-on-collapse' : ''"
+                        :title="getEntryLabel"
+                    >
+                        {{ getEntryLabel }}
+                    </span>
 
-            <span
-                class="sw-admin-menu__navigation-link-label"
-                :class="collapsibleText ? 'collapsible-text hide-on-collapse' : ''"
-                :title="getEntryLabel"
-            >
-                {{ getEntryLabel }}
-            </span>
+                    <slot name="additional-text"></slot>
+                </a>
 
-            <slot name="additional-text"></slot>
-        </span>
-    </div>
+                <span
+                    v-else
+                    class="sw-admin-menu__navigation-link"
+                    :class="{ 'router-link-active': rowActive }"
+                >
+                    <mt-icon
+                        v-if="displayIcon"
+                        :size="iconSize"
+                        class="sw-admin-menu__navigation-link-icon"
+                        :name="navigationIconName"
+                    />
+
+                    <span
+                        class="sw-admin-menu__navigation-link-label"
+                        :class="collapsibleText ? 'collapsible-text hide-on-collapse' : ''"
+                        :title="getEntryLabel"
+                    >
+                        {{ getEntryLabel }}
+                    </span>
+
+                    <slot name="additional-text"></slot>
+                </span>
+            </div>
+        </template>
+    </mt-tooltip>
 </li>
 {% endblock %}

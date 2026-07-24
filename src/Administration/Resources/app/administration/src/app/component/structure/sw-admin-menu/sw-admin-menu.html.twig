@@ -141,7 +141,6 @@
                     <sw-admin-menu-item
                         v-for="(entry, index) in mainMenuEntries"
                         :key="entry.id || entry.path"
-                        v-tooltip.right="getSingleChildTooltipConfig(entry)"
                         :class="{ 'is--entry-expanded': isNavigationEntryExpanded(entry) }"
                         :sidebar-expanded="isExpanded"
                         :is-expanded="isNavigationEntryExpanded(entry)"

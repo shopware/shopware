@@ -122,8 +122,11 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     });
 
     beforeEach(async () => {
-        // This is here to fix v-bind false error for transition "persisted"
+        // This is here to fix v-bind false error for transition "persisted".
+        // Merge instead of replace: the globally registered meteor components
+        // (e.g. mt-tooltip used by sw-admin-menu-item) must stay resolvable.
         config.global.stubs = {
+            ...config.global.stubs,
             transition: false,
         };
 

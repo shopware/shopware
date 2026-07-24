@@ -81,9 +81,9 @@
             <sw-admin-menu-item
                 v-for="(entry, index) in buildMenuTree"
                 :key="entry.id || index"
-                v-tooltip.right="getEntryTooltipConfig(entry)"
                 class="sw-admin-menu__sales-channel-item"
                 :entry="entry"
+                :sidebar-expanded="isSidebarExpanded"
                 icon-size="16px"
                 :class="['sw-admin-menu__sales-channel-item--' + index]"
             >
@@ -114,8 +114,8 @@
             {% block sw_sales_channel_menu_navigation_more_items %}
             <sw-admin-menu-item
                 v-if="moreSalesChannelAvailable"
-                v-tooltip.right="getEntryTooltipConfig(moreItemsEntry)"
                 :entry="moreItemsEntry"
+                :sidebar-expanded="isSidebarExpanded"
                 class="sw-admin-menu__sales-channel-more-items"
                 icon-size="16px"
             />

@@ -524,4 +524,20 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
         expect(wrapper.find('sw-sales-channel-modal-stub').exists()).toBe(true);
     });
+
+    // The collapsed tooltip itself is rendered by sw-admin-menu-item based on this prop
+    it('should pass the sidebar state down to the menu items for the collapsed tooltip', async () => {
+        Shopware.Store.get('adminMenu').collapseSidebar();
+
+        const wrapper = await createWrapper([headlessSalesChannel]);
+        await flushPromises();
+
+        const menuItem = wrapper.find('.sw-admin-menu__sales-channel-item');
+        expect(menuItem.attributes('sidebar-expanded')).toBe('false');
+
+        Shopware.Store.get('adminMenu').expandSidebar();
+        await flushPromises();
+
+        expect(menuItem.attributes('sidebar-expanded')).toBe('true');
+    });
 });

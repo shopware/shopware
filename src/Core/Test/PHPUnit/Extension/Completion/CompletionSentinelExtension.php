@@ -9,6 +9,7 @@ use PHPUnit\TextUI\Configuration\Configuration;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\PHPUnit\Extension\Completion\Subscriber\WriteSentinelSubscriber;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Writes a sentinel file when the test runner finishes executing tests. CI
@@ -34,9 +35,7 @@ class CompletionSentinelExtension implements Extension
         }
 
         // a stale sentinel from a previous run must not mask a killed run
-        if (is_file($path)) {
-            unlink($path);
-        }
+        (new Filesystem())->remove($path);
 
         $facade->registerSubscribers(new WriteSentinelSubscriber($path));
     }

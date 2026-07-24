@@ -142,10 +142,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
                 ->addFilter(new EqualsFilter('active', true));
         }
 
-        // Pre-load mainCategories.category so CategoryBreadcrumbBuilder::getMainCategory()
-        // resolves the configured main category in-memory via getMainCategoryFromProduct(),
-        // instead of the per-product fallback search(). Mirrors ProductPageLoader and
-        // MinimalQuickViewPageLoader, which preload the same association for the same reason.
+        // Preload so getProductSeoCategory() resolves the main category in-memory.
         $criteria->addAssociation('mainCategories.category');
 
         $this->eventDispatcher->dispatch(
@@ -192,8 +189,6 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         } else {
             while ($productResult = $iterator->fetch()) {
                 foreach ($productResult->getEntities() as $product) {
-                    \assert($product instanceof SalesChannelProductEntity);
-
                     $data = $productContext->getContext();
                     $data['product'] = $product;
 
@@ -256,8 +251,6 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
 
         while ($productResult = $iterator->fetch()) {
             foreach ($productResult->getEntities() as $product) {
-                \assert($product instanceof SalesChannelProductEntity);
-
                 if ($productExport->isIncludeVariants() && !$product->getParentId() && $product->getChildCount() > 0) {
                     continue; // Skip main product if variants are included
                 }
@@ -318,21 +311,13 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         }
     }
 
-    /**
-     * Populate `seoCategory` so feed templates can render the configured main
-     * category. Mirrors what ProductDetailRoute does on the storefront.
-     */
     private function populateSeoCategory(SalesChannelProductEntity $product, SalesChannelContext $context): void
     {
         if ($product->getSeoCategory() !== null) {
             return;
         }
 
-        // getProductSeoCategory() runs a per-product fallback search() when no main category is
-        // configured — an N+1 in a bulk export. Only resolve it when the product actually has a
-        // main category for this sales channel (checked in-memory on the preloaded
-        // mainCategories.category association). Products without one fall through to the
-        // template's `product.categories.first`, which is already loaded with the batch.
+        // Only resolve when a main category is configured for this sales channel.
         $mainCategories = $product->getMainCategories();
         if ($mainCategories === null || $mainCategories->filterBySalesChannelId($context->getSalesChannelId())->count() === 0) {
             return;

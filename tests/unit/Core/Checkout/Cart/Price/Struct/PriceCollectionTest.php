@@ -14,8 +14,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(PriceCollection::class)]
 #[Package('checkout')]
+#[CoversClass(PriceCollection::class)]
 class PriceCollectionTest extends TestCase
 {
     public function testCollectionIsCountable(): void
@@ -60,6 +60,32 @@ class PriceCollectionTest extends TestCase
             new CalculatedPrice(300, 300, new CalculatedTaxCollection(), new TaxRuleCollection()),
         ]);
         static::assertSame(500.0, $collection->sum()->getTotalPrice());
+    }
+
+    public function testTotalPriceAmountSnapsFloatingPointResidualToZero(): void
+    {
+        // a voucher zeroing the cart must not leave a residual like -7.1E-15 (order matters)
+        $collection = new PriceCollection([
+            new CalculatedPrice(169, 169, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            new CalculatedPrice(-208.9, -208.9, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            new CalculatedPrice(39.9, 39.9, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+        ]);
+
+        static::assertSame(0.0, $collection->getTotalPriceAmount());
+        static::assertSame(0.0, $collection->sum()->getTotalPrice());
+    }
+
+    public function testUnitPriceAmountSnapsFloatingPointResidualToZero(): void
+    {
+        $collection = new PriceCollection([
+            new CalculatedPrice(169, 169, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            new CalculatedPrice(-208.9, -208.9, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            new CalculatedPrice(39.9, 39.9, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+        ]);
+
+        static::assertSame(0.0, $collection->getUnitPriceAmount());
     }
 
     public function testGetTaxesReturnsACalculatedTaxCollection(): void

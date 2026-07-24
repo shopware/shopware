@@ -18,11 +18,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+#[Package('discovery')]
 #[AsCommand(
     name: 'media:delete-unused',
     description: 'Deletes all media files which are not used in any entity',
 )]
-#[Package('discovery')]
 class DeleteNotUsedMediaCommand extends Command
 {
     /**

@@ -13,7 +13,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeRuntimeConfigService
 {
     /**

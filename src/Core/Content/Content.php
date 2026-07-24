@@ -27,29 +27,29 @@ class Content extends Bundle
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
-        $loader->load('breadcrumb.xml');
+        $phpLoader->load('breadcrumb.php');
         $phpLoader->load('category.php');
         $phpLoader->load('cookie.php');
         $phpLoader->load('media.php');
         $phpLoader->load('media_path.php');
-        $loader->load('product.xml');
-        $loader->load('newsletter_recipient.xml');
-        $loader->load('rule.xml');
-        $loader->load('product_stream.xml');
-        $loader->load('product_export.xml');
-        $loader->load('property.xml');
+        $phpLoader->load('product.php');
+        $phpLoader->load('newsletter_recipient.php');
+        $phpLoader->load('rule.php');
+        $phpLoader->load('product_stream.php');
+        $phpLoader->load('product_export.php');
+        $phpLoader->load('property.php');
         $phpLoader->load('cms.php');
-        $loader->load('mail.xml');
-        $loader->load('mail_template.xml');
+        $phpLoader->load('mail.php');
+        $phpLoader->load('mail_template.php');
         $phpLoader->load('delivery_time.php');
-        $loader->load('import_export.xml');
+        $phpLoader->load('import_export.php');
         $phpLoader->load('contact_form.php');
-        $loader->load('revocation_request_form.xml');
+        $phpLoader->load('revocation_request_form.php');
         $phpLoader->load('sitemap.php');
         $phpLoader->load('landing_page.php');
-        $loader->load('flow.xml');
-        $loader->load('measurement_system.xml');
-        $loader->load('shared.xml');
+        $phpLoader->load('flow.php');
+        $phpLoader->load('measurement_system.php');
+        $phpLoader->load('shared.php');
 
         $phpLoader->load('product_export_tracking.php');
 

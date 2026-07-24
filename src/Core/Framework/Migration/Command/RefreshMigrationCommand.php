@@ -12,11 +12,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'database:refresh-migration',
     description: 'Refreshes the migration state',
 )]
-#[Package('framework')]
 class RefreshMigrationCommand extends Command
 {
     /**

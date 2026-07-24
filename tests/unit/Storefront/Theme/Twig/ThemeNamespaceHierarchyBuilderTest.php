@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\File\Event\SalesChannelFileTemplateResolveEvent;
@@ -23,6 +24,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ThemeNamespaceHierarchyBuilder::class)]
 class ThemeNamespaceHierarchyBuilderTest extends TestCase
 {

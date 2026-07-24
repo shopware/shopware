@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @see \Shopware\Tests\Integration\Storefront\Theme\ThemeRuntimeConfigStorageTest
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeRuntimeConfigStorage
 {
     public function __construct(

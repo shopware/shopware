@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Log\Package;
  * change happens. Overrides in extending classes must not declare a wider visibility than the
  * announced one once the change happens.
  */
-#[\Attribute(\Attribute::TARGET_METHOD)]
 #[Package('framework')]
+#[\Attribute(\Attribute::TARGET_METHOD)]
 final class VisibilityChange implements CallSiteCompatibilityChange, ExtenderCompatibilityChange
 {
     /**

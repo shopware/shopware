@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Log\Package;
  * third-party reference — calling, extending, or type-hinting — relies on unsupported API from
  * the announced version on and must be reconsidered before the change happens.
  */
-#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
 #[Package('framework')]
+#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
 final class BecomesInternal implements CallSiteCompatibilityChange, ExtenderCompatibilityChange
 {
     public function __construct(

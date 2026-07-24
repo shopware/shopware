@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme\Subscriber;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Event\SnippetsThemeResolveEvent;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
@@ -14,6 +15,7 @@ use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ThemeSnippetsSubscriber::class)]
 class ThemeSnippetsSubscriberTest extends TestCase
 {

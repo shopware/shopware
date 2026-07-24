@@ -65,6 +65,61 @@ class McpCapabilityCatalogTest extends TestCase
         );
     }
 
+    public function testEnrichedToolsIncludesConfiguredGroup(): void
+    {
+        $registry = new Registry();
+        $this->registerTool($registry, 'shopware-entity-search', 'Search');
+
+        $catalog = new McpCapabilityCatalog(
+            $registry,
+            $this->stubPrivilegeProvider(),
+            [],
+            [],
+            ['shopware-entity-search' => 'catalogue'],
+        );
+
+        static::assertSame('catalogue', $catalog->enrichedTools()[0]['group']);
+    }
+
+    public function testEnrichedToolsDerivesGroupFromLongestCommonNamePrefix(): void
+    {
+        $registry = new Registry();
+        $this->registerTool($registry, 'swag-my-plugin-orders', 'List orders');
+        $this->registerTool($registry, 'swag-my-plugin-products', 'List products');
+        $this->registerTool($registry, 'swag-other-plugin-customers', 'List customers');
+        $this->registerTool($registry, 'swag-other-plugin-products', 'List products');
+
+        $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
+
+        static::assertSame([
+            'swag-my-plugin',
+            'swag-my-plugin',
+            'swag-other-plugin',
+            'swag-other-plugin',
+        ], array_column($catalog->enrichedTools(), 'group'));
+    }
+
+    public function testEnrichedToolsUsesFirstNameSegmentForSingleUnconfiguredTool(): void
+    {
+        $registry = new Registry();
+        $this->registerTool($registry, 'swag-order-export', 'Export orders');
+
+        $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
+
+        static::assertSame('swag', $catalog->enrichedTools()[0]['group']);
+    }
+
+    public function testFindToolUsesGroupDerivedFromAllRegisteredTools(): void
+    {
+        $registry = new Registry();
+        $this->registerTool($registry, 'swag-my-plugin-orders', 'List orders');
+        $this->registerTool($registry, 'swag-my-plugin-products', 'List products');
+
+        $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
+
+        static::assertSame('swag-my-plugin', $catalog->findTool('swag-my-plugin-orders')['group'] ?? null);
+    }
+
     public function testEnrichedToolsFallsBackToAppPrivilegesWhenNoCorePrivilegesDeclared(): void
     {
         $registry = new Registry();

@@ -50,6 +50,9 @@ async function createWrapper() {
                         return term && term.trim().length >= 1;
                     },
                 },
+                feature: {
+                    isActive: () => false,
+                },
             },
         },
     });

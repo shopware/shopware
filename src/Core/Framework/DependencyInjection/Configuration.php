@@ -63,6 +63,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createProductTypesSection())
                 ->append($this->createMcpSection())
                 ->append($this->createWebhookSection())
+                ->append($this->createTranslationSection())
             ->end();
 
         return $treeBuilder;
@@ -1669,6 +1670,53 @@ class Configuration implements ConfigurationInterface
                     ->info('@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation')
                     ->values(WebhookFailureStrategy::values())
                     ->defaultValue(WebhookFailureStrategy::DisableOnThreshold->value)
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createTranslationSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('translation');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->info('Overrides for the built-in translation system. Options left unset fall back to the shipped defaults in translation.yaml.')
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->scalarNode('repository_url')->defaultNull()->end()
+                ->scalarNode('metadata_url')->defaultNull()->end()
+                // list overrides default to null so an unset option (keep the shipped default) can be told apart from an explicit empty list (clear the shipped default)
+                ->arrayNode('plugins')
+                    ->defaultNull()
+                    ->performNoDeepMerging()
+                    ->scalarPrototype()->cannotBeEmpty()->end()
+                ->end()
+                ->arrayNode('excluded_locales')
+                    ->defaultNull()
+                    ->performNoDeepMerging()
+                    ->scalarPrototype()->cannotBeEmpty()->end()
+                ->end()
+                ->arrayNode('plugin_mapping')
+                    ->defaultNull()
+                    ->performNoDeepMerging()
+                    ->arrayPrototype()
+                        ->children()
+                            ->scalarNode('plugin')->isRequired()->cannotBeEmpty()->end()
+                            ->scalarNode('name')->isRequired()->cannotBeEmpty()->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('languages')
+                    ->defaultNull()
+                    ->performNoDeepMerging()
+                    ->arrayPrototype()
+                        ->children()
+                            ->scalarNode('name')->isRequired()->cannotBeEmpty()->end()
+                            ->scalarNode('locale')->isRequired()->cannotBeEmpty()->end()
+                        ->end()
+                    ->end()
                 ->end()
             ->end();
 

@@ -2,14 +2,14 @@
     &__body {
         display: flex;
         flex-direction: column;
-        min-height: 320px;
+        min-height: 20rem;
     }
 
     &__type-specific-fields {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-        gap: 0 16px;
-        margin-bottom: 24px;
+        grid-template-columns: repeat(auto-fit, minmax(var(--scale-size-160), 1fr));
+        gap: 0 var(--scale-size-16);
+        margin-bottom: var(--scale-size-24);
 
         .mt-field {
             min-width: 0;
@@ -19,14 +19,14 @@
 
     &__header-fields {
         .mt-field {
-            margin-bottom: 24px;
+            margin-bottom: var(--scale-size-24);
         }
     }
 
     &__divider {
-        margin: 0 0 24px;
+        margin: 0 0 var(--scale-size-24);
         border: none;
-        height: 1px;
+        height: var(--scale-size-1);
         background-color: var(--color-border-primary-default);
     }
 
@@ -54,7 +54,7 @@
 
         .mt-textarea__textarea {
             height: 100%;
-            min-height: 160px;
+            min-height: var(--scale-size-160);
             max-height: none;
         }
     }

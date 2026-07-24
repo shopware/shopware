@@ -1,5 +1,6 @@
 import type RepositoryType from 'src/core/data/repository.data';
 import type CriteriaType from 'src/core/data/criteria.data';
+import type { AvailableDocumentTypesResponse } from 'src/core/service/api/documentV2.api.service';
 import template from './sw-order-create-document-modal.html.twig';
 import './sw-order-create-document-modal.scss';
 import { DOCUMENT_TYPES } from '../../order.types';
@@ -32,10 +33,6 @@ interface DocumentEntityConfig {
     custom?: {
         invoiceNumber?: string;
     };
-}
-
-interface DocumentTypeFormats {
-    formats: string[];
 }
 
 function createEmptyDocumentConfig(technicalName: string | null = null): DocumentConfig {
@@ -116,7 +113,7 @@ export default Component.wrapComponentConfig({
         documentTypes: Entity<'document_type'>[];
         isLoading: boolean;
         selectedFileFormats: string[];
-        supportedDocumentTypes: Record<string, DocumentTypeFormats>;
+        supportedDocumentTypes: NonNullable<AvailableDocumentTypesResponse['documentTypes']>;
     } {
         return {
             documentConfig: createEmptyDocumentConfig(),
@@ -193,7 +190,16 @@ export default Component.wrapComponentConfig({
                 return [];
             }
 
-            return this.getFileFormatOptions(this.currentDocumentType.technicalName);
+            const formats = this.supportedDocumentTypes[this.currentDocumentType.technicalName]?.formats ?? [];
+
+            return [...formats]
+                .sort((left, right) => this.getFileFormatPriority(left) - this.getFileFormatPriority(right))
+                .map((format) => {
+                    return {
+                        label: this.translateFileFormat(format),
+                        value: format,
+                    };
+                });
         },
 
         isModalLoading(): boolean {
@@ -211,7 +217,15 @@ export default Component.wrapComponentConfig({
         },
 
         invoiceDocuments(): Entity<'document'>[] {
-            return this.getInvoiceDocuments(this.order.documents ?? []);
+            if (!this.order.documents) {
+                return [];
+            }
+
+            return this.order.documents.filter((document) => {
+                const technicalName = document.documentType?.technicalName;
+
+                return typeof technicalName === 'string' && INVOICE_DOCUMENT_TYPES.includes(technicalName);
+            });
         },
 
         invoiceNumberOptions(): { label: string; value: string }[] {
@@ -272,19 +286,13 @@ export default Component.wrapComponentConfig({
         async createdComponent(): Promise<void> {
             this.isLoading = true;
 
-            const documentV2Service = this.documentV2Service as {
-                getAvailableTypes: () => Promise<{
-                    data?: { documentTypes?: Record<string, DocumentTypeFormats> };
-                }>;
-            };
-
             try {
                 const [
                     response,
                     supportResponse,
                 ] = await Promise.all([
                     this.documentTypeRepository.search(this.documentTypeCriteria),
-                    documentV2Service.getAvailableTypes(),
+                    this.documentV2Service.getAvailableTypes(),
                 ]);
 
                 this.supportedDocumentTypes = supportResponse.data?.documentTypes ?? {};
@@ -293,10 +301,8 @@ export default Component.wrapComponentConfig({
                     (documentType) => documentType.technicalName in this.supportedDocumentTypes,
                 );
 
-                const documentTypeId = this.documentTypeId;
-
-                if (documentTypeId) {
-                    const documentType = this.documentTypeCollection.get(documentTypeId);
+                if (this.documentTypeId) {
+                    const documentType = this.documentTypeCollection.get(this.documentTypeId);
 
                     if (!documentType || !(documentType.technicalName in this.supportedDocumentTypes)) {
                         this.documentTypeId = null;
@@ -442,19 +448,6 @@ export default Component.wrapComponentConfig({
             );
         },
 
-        getFileFormatOptions(technicalName: string): { label: string; value: string }[] {
-            const formats = this.supportedDocumentTypes[technicalName]?.formats ?? [];
-
-            return [...formats]
-                .sort((left, right) => this.getFileFormatPriority(left) - this.getFileFormatPriority(right))
-                .map((format) => {
-                    return {
-                        label: this.translateFileFormat(format),
-                        value: format,
-                    };
-                });
-        },
-
         getPreferredFileFormat(formats?: string[]): string | null {
             const targetFormats = formats ?? this.selectedFileFormats;
 
@@ -469,14 +462,6 @@ export default Component.wrapComponentConfig({
             const priority = FILE_FORMAT_PRIORITY.indexOf(fileFormat);
 
             return priority === -1 ? Number.MAX_SAFE_INTEGER : priority;
-        },
-
-        getInvoiceDocuments(documents: Entity<'document'>[]): Entity<'document'>[] {
-            return documents.filter((document) => {
-                const technicalName = document.documentType?.technicalName;
-
-                return typeof technicalName === 'string' && INVOICE_DOCUMENT_TYPES.includes(technicalName);
-            });
         },
 
         translateFileFormat(format: string): string {

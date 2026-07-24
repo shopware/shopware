@@ -230,7 +230,7 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
         await flushPromises();
 
         await wrapper.setData({ documentTypeId: 'invoice' });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-order-create-document-modal__content').exists()).toBeFalsy();
         expect(wrapper.find('.sw-order-create-document-modal__empty-state').exists()).toBeFalsy();

@@ -1,5 +1,6 @@
 import type RepositoryType from 'src/core/data/repository.data';
 import type CriteriaType from 'src/core/data/criteria.data';
+import type { AvailableDocumentTypesResponse } from 'src/core/service/api/documentV2.api.service';
 import template from './sw-order-upload-document-modal.html.twig';
 import './sw-order-upload-document-modal.scss';
 import { DOCUMENT_TYPES } from '../../order.types';
@@ -19,10 +20,6 @@ interface DocumentConfig {
     documentDate: string;
     documentMediaFileId: string | null;
     documentNumber: string;
-}
-
-interface DocumentTypeFormats {
-    formats: string[];
 }
 
 function createEmptyDocumentConfig(): DocumentConfig {
@@ -86,7 +83,7 @@ export default Component.wrapComponentConfig({
         selectedDocumentFile: Entity<'media'> | null;
         selectedFileFormat: string | null;
         showMediaModal: boolean;
-        supportedDocumentTypes: Record<string, DocumentTypeFormats>;
+        supportedDocumentTypes: NonNullable<AvailableDocumentTypesResponse['documentTypes']>;
     } {
         return {
             documentConfig: createEmptyDocumentConfig(),
@@ -217,19 +214,13 @@ export default Component.wrapComponentConfig({
         async createdComponent(): Promise<void> {
             this.isLoading = true;
 
-            const documentV2Service = this.documentV2Service as {
-                getAvailableTypes: () => Promise<{
-                    data?: { documentTypes?: Record<string, DocumentTypeFormats> };
-                }>;
-            };
-
             try {
                 const [
                     response,
                     supportResponse,
                 ] = await Promise.all([
                     this.documentTypeRepository.search(this.documentTypeCriteria),
-                    documentV2Service.getAvailableTypes(),
+                    this.documentV2Service.getAvailableTypes(),
                 ]);
 
                 this.supportedDocumentTypes = supportResponse.data?.documentTypes ?? {};

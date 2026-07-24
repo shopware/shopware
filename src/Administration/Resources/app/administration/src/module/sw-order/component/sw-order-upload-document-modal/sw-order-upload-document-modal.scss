@@ -2,14 +2,14 @@
     &__body {
         display: flex;
         flex-direction: column;
-        min-height: 285px;
+        min-height: 18rem;
     }
 
     &__type-specific-fields {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 0 16px;
-        margin-bottom: 24px;
+        gap: 0 var(--scale-size-16);
+        margin-bottom: var(--scale-size-24);
 
         .mt-field {
             margin-bottom: 0;
@@ -17,9 +17,9 @@
     }
 
     &__divider {
-        margin: 0 0 24px;
+        margin: 0 0 var(--scale-size-24);
         border: none;
-        height: 1px;
+        height: var(--scale-size-1);
         background-color: var(--color-border-primary-default);
     }
 
@@ -40,12 +40,12 @@
 
     &__header-fields {
         .mt-field {
-            margin-bottom: 24px;
+            margin-bottom: var(--scale-size-24);
         }
     }
 
     &__upload-label {
-        margin-bottom: 8px;
+        margin-bottom: var(--scale-size-8);
         font-size: var(--font-size-xs);
         color: var(--color-text-secondary-default);
     }

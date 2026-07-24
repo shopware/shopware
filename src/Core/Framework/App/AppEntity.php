@@ -24,6 +24,9 @@ use Shopware\Core\System\Integration\IntegrationEntity;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 
 /**
+ * @phpstan-type Module array{name: string, label: array<string, string>, parent: string, source: string|null, position: int}
+ * @phpstan-type Cookie array{snippet_name: string, snippet_description?: string, cookie?: string, value?: string, expiration?: string, entries?: list<array{snippet_name: string, snippet_description?: string, cookie: string, value?: string, expiration?: string}>}
+ *
  * @phpstan-import-type SourceConfig from AppDefinition
  */
 #[Package('framework')]
@@ -55,6 +58,27 @@ class AppEntity extends Entity
     protected ?string $contextGatewayUrl = null;
 
     protected ?string $inAppPurchasesGatewayUrl = null;
+
+    /**
+     * @deprecated tag:v6.8.0 - App modules are stored as app features. Use ModuleLoader instead.
+     *
+     * @var list<Module>
+     */
+    protected array $modules = [];
+
+    /**
+     * @deprecated tag:v6.8.0 - App modules are stored as app features. Use ModuleLoader instead.
+     *
+     * @var Module|null
+     */
+    protected ?array $mainModule = null;
+
+    /**
+     * @deprecated tag:v6.8.0 - App cookies are stored as app features. Use AppFeatureStorage instead.
+     *
+     * @var list<Cookie>
+     */
+    protected array $cookies = [];
 
     /**
      * @var list<string>|null
@@ -256,6 +280,66 @@ class AppEntity extends Entity
     public function setInAppPurchasesGatewayUrl(?string $inAppPurchasesGatewayUrl): void
     {
         $this->inAppPurchasesGatewayUrl = $inAppPurchasesGatewayUrl;
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - App modules are stored as app features. Use ModuleLoader instead.
+     *
+     * @return list<Module>
+     */
+    public function getModules(): array
+    {
+        return $this->modules;
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - App modules are stored as app features. Use ModuleLoader instead.
+     *
+     * @param list<Module> $modules
+     */
+    public function setModules(array $modules): void
+    {
+        $this->modules = $modules;
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - App modules are stored as app features. Use ModuleLoader instead.
+     *
+     * @return Module|null
+     */
+    public function getMainModule(): ?array
+    {
+        return $this->mainModule;
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - App modules are stored as app features. Use ModuleLoader instead.
+     *
+     * @param Module $mainModule
+     */
+    public function setMainModule(array $mainModule): void
+    {
+        $this->mainModule = $mainModule;
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - App cookies are stored as app features. Use AppFeatureStorage instead.
+     *
+     * @return list<Cookie>
+     */
+    public function getCookies(): array
+    {
+        return $this->cookies;
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - App cookies are stored as app features. Use AppFeatureStorage instead.
+     *
+     * @param list<Cookie> $cookies
+     */
+    public function setCookies(array $cookies): void
+    {
+        $this->cookies = $cookies;
     }
 
     /**

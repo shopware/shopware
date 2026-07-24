@@ -20,16 +20,19 @@ runs:
       continue-on-error: true
       uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
       with:
-        # `every`: a file is non_docs only if it matches all patterns
+        # paths-filter can only answer "does any changed file match?", so ask
+        # the complement: did the PR touch anything that is not markdown?
+        # (`every` = a file only counts when it matches both negated patterns)
         predicate-quantifier: 'every'
         filters: |
-          non_docs:
+          non_markdown:
             - '!**/*.md'
             - '!**/*.MD'
 
-    # A skipped or failed filter step leaves the output empty, and
-    # '' == 'false' is false — do not simplify, this is the fail-open path.
+    # docs_only = files changed and none of them were non-markdown. A skipped
+    # or failed filter step leaves the output empty, and '' == 'false' is
+    # false — do not simplify, this is the fail-open path.
     - name: Report markdown-only result
       id: check
       shell: bash
-      run: echo "docs_only=${{ steps.filter.outputs.non_docs == 'false' }}" >> "$GITHUB_OUTPUT"
+      run: echo "docs_only=${{ steps.filter.outputs.non_markdown == 'false' }}" >> "$GITHUB_OUTPUT"

@@ -182,8 +182,7 @@ class McpCapabilityCatalog
         ?string $description,
         array $appToolPrivileges,
         array $toolGroups,
-    ): array
-    {
+    ): array {
         $privileges = $this->toolPrivileges[$name]
             ?? (isset($appToolPrivileges[$name])
                 ? ['static' => $appToolPrivileges[$name], 'entityParam' => null, 'operations' => []]

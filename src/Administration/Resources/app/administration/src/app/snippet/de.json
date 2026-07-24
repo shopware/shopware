@@ -160,6 +160,8 @@
     "sw-admin-menu": {
       "linkLogout": "Abmelden",
       "linkMinimizeMenu": "Menü einklappen",
+      "linkExpandMenu": "Menü ausklappen",
+      "linkCloseMenu": "Menü schließen",
       "textShopwareAdmin": "Shopware Administration",
       "textProjectName": "Administration",
       "administrator": "Administrator",

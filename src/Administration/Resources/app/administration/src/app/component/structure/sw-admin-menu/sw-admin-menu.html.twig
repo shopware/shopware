@@ -35,6 +35,7 @@
                 v-if="!isExpanded"
                 type="button"
                 class="sw-admin-menu__header-logo-expand-button"
+                :aria-label="$t('global.sw-admin-menu.linkExpandMenu')"
                 @click.stop="onToggleSidebar"
             >
                 <mt-icon
@@ -78,6 +79,7 @@
             v-if="isMobileViewport"
             type="button"
             class="sw-admin-menu__off-canvas-close"
+            :aria-label="$t('global.sw-admin-menu.linkCloseMenu')"
             @click.stop="closeOffCanvas"
         >
             <mt-icon

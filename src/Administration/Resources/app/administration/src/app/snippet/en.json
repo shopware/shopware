@@ -160,6 +160,8 @@
     "sw-admin-menu": {
       "linkLogout": "Logout",
       "linkMinimizeMenu": "Collapse menu",
+      "linkExpandMenu": "Expand menu",
+      "linkCloseMenu": "Close menu",
       "textShopwareAdmin": "Shopware Administration",
       "textProjectName": "Administration",
       "administrator": "Administrator",

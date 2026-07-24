@@ -1,8 +1,8 @@
 name: Integration tests (major)
 
-# Nightly via workflow_call; also opt-in on a PR by adding the `major-php` label
-# (or `major-tests`, the umbrella label that enables every major arm — acceptance.yml
-# uses `major-acceptance` the same way for its major arm).
+# Nightly via workflow_call; also opt-in on a PR by adding the `major-php` or
+# `major-js` label (or `major-tests`, the umbrella label that enables every
+# major arm — acceptance.yml uses `major-acceptance` for its major arm).
 on:
   workflow_dispatch:
   workflow_call:
@@ -91,7 +91,7 @@ jobs:
 
   jest-admin-major:
     name: "Jest Admin"
-    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-tests')
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-js') || contains(github.event.pull_request.labels.*.name, 'major-tests')
     runs-on: ubuntu-24.04
     env:
       NODE_VERSION: 'lts/*'
@@ -128,7 +128,7 @@ jobs:
   # single required/monitorable status for the whole major matrix
   integration-major-check:
     # Skip cleanly on unlabeled PRs so they don't get a confusing status; otherwise aggregate the matrix result.
-    if: always() && (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-php') || contains(github.event.pull_request.labels.*.name, 'major-tests'))
+    if: always() && (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-php') || contains(github.event.pull_request.labels.*.name, 'major-js') || contains(github.event.pull_request.labels.*.name, 'major-tests'))
     needs:
       - phpunit-major
       - jest-admin-major
@@ -138,3 +138,15 @@ jobs:
         uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
         with:
           jobs: ${{ toJSON(needs) }}
+          allowed-skips: >-
+            ${{
+              github.event_name == 'pull_request'
+              && !contains(github.event.pull_request.labels.*.name, 'major-php')
+              && !contains(github.event.pull_request.labels.*.name, 'major-tests')
+              && 'phpunit-major'
+              || github.event_name == 'pull_request'
+              && !contains(github.event.pull_request.labels.*.name, 'major-js')
+              && !contains(github.event.pull_request.labels.*.name, 'major-tests')
+              && 'jest-admin-major'
+              || ''
+            }}

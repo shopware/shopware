@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Error\AutoPromotionNotFoundError;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionsOnCartPriceZeroError;
@@ -107,8 +106,8 @@ class PromotionProcessor implements CartProcessorInterface
 
     private function preservePinnedSetPromotions(LineItemCollection $discountLineItems, Cart $calculated, CartBehavior $behavior): void
     {
-        $pinManual = $behavior->hasPermission(CheckoutPermissions::PIN_MANUAL_PROMOTIONS);
-        $pinAutomatic = $behavior->hasPermission(CheckoutPermissions::PIN_AUTOMATIC_PROMOTIONS);
+        $pinManual = $behavior->hasPermission(PromotionCollector::PIN_MANUAL_PROMOTIONS);
+        $pinAutomatic = $behavior->hasPermission(PromotionCollector::PIN_AUTOMATIC_PROMOTIONS);
 
         if (!$pinManual && !$pinAutomatic) {
             return;

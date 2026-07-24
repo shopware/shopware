@@ -14,10 +14,10 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionsOnCartPriceZeroError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCalculator;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Framework\Log\Package;
@@ -97,7 +97,7 @@ class PromotionProcessorTest extends TestCase
             $original,
             $calculated,
             static::createStub(SalesChannelContext::class),
-            new CartBehavior([CheckoutPermissions::PIN_AUTOMATIC_PROMOTIONS => true]),
+            new CartBehavior([PromotionCollector::PIN_AUTOMATIC_PROMOTIONS => true]),
         );
 
         static::assertSame(-10.0, $calculated->get('promotion')?->getPrice()?->getTotalPrice());

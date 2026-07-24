@@ -52,6 +52,7 @@ class McpCapabilityCatalog
         }
 
         $appToolPrivileges = $this->privilegeProvider->getAppToolPrivileges();
+        $toolGroups = $this->resolveToolGroups();
 
         $tools = [];
 
@@ -62,7 +63,7 @@ class McpCapabilityCatalog
                 continue;
             }
 
-            $tools[] = $this->buildToolEntry($tool->name, $tool->title, $tool->description, $appToolPrivileges);
+            $tools[] = $this->buildToolEntry($tool->name, $tool->title, $tool->description, $appToolPrivileges, $toolGroups);
         }
 
         usort($tools, static fn (array $a, array $b): int => $a['name'] <=> $b['name']);
@@ -82,13 +83,14 @@ class McpCapabilityCatalog
         }
 
         $appToolPrivileges = $this->privilegeProvider->getAppToolPrivileges();
+        $toolGroups = $this->resolveToolGroups();
 
         foreach ($this->registry->getTools()->references as $tool) {
             if (!$tool instanceof Tool || $tool->name !== $name) {
                 continue;
             }
 
-            return $this->buildToolEntry($tool->name, $tool->title, $tool->description, $appToolPrivileges);
+            return $this->buildToolEntry($tool->name, $tool->title, $tool->description, $appToolPrivileges, $toolGroups);
         }
 
         return null;
@@ -170,10 +172,17 @@ class McpCapabilityCatalog
 
     /**
      * @param array<string, list<string>> $appToolPrivileges
+     * @param array<string, string> $toolGroups
      *
      * @return array{name: string, title: ?string, description: ?string, group: string, dependencies: list<string>, requiredPrivileges: array{static: list<string>, entityParam: ?string, operations: list<string>}|null}
      */
-    private function buildToolEntry(string $name, ?string $title, ?string $description, array $appToolPrivileges): array
+    private function buildToolEntry(
+        string $name,
+        ?string $title,
+        ?string $description,
+        array $appToolPrivileges,
+        array $toolGroups,
+    ): array
     {
         $privileges = $this->toolPrivileges[$name]
             ?? (isset($appToolPrivileges[$name])
@@ -184,9 +193,76 @@ class McpCapabilityCatalog
             'name' => $name,
             'title' => $title,
             'description' => $description,
-            'group' => $this->toolGroups[$name] ?? 'other',
+            'group' => $toolGroups[$name],
             'dependencies' => $this->toolDependencies[$name] ?? [],
             'requiredPrivileges' => $privileges,
         ];
+    }
+
+    /**
+     * Explicit #[McpToolGroup] values take precedence. For the remaining tools, the group is the
+     * longest hyphen-separated prefix shared by tools with the same first segment.
+     *
+     * @return array<string, string> tool-name => group
+     */
+    private function resolveToolGroups(): array
+    {
+        \assert($this->registry !== null);
+
+        /** @var array<string, list<string>> $toolNamesByPrefix */
+        $toolNamesByPrefix = [];
+
+        foreach ($this->registry->getTools()->references as $tool) {
+            \assert($tool instanceof Tool);
+
+            if (isset($this->toolGroups[$tool->name])) {
+                continue;
+            }
+
+            $prefix = explode('-', $tool->name)[0] ?: 'other';
+            $toolNamesByPrefix[$prefix][] = $tool->name;
+        }
+
+        $resolvedGroups = $this->toolGroups;
+
+        foreach ($toolNamesByPrefix as $prefix => $toolNames) {
+            $group = $this->longestCommonPrefix($toolNames) ?: $prefix;
+
+            foreach ($toolNames as $toolName) {
+                $resolvedGroups[$toolName] = $group;
+            }
+        }
+
+        return $resolvedGroups;
+    }
+
+    /**
+     * @param list<string> $names
+     */
+    private function longestCommonPrefix(array $names): string
+    {
+        if (\count($names) < 2) {
+            return '';
+        }
+
+        $commonSegments = explode('-', $names[0]);
+
+        foreach (\array_slice($names, 1) as $name) {
+            $segments = explode('-', $name);
+            $sharedSegmentCount = 0;
+            $maximumSharedSegmentCount = min(\count($commonSegments), \count($segments));
+
+            while ($sharedSegmentCount < $maximumSharedSegmentCount) {
+                if (strtolower($segments[$sharedSegmentCount]) !== strtolower($commonSegments[$sharedSegmentCount])) {
+                    break;
+                }
+
+                ++$sharedSegmentCount;
+            }
+
+            $commonSegments = \array_slice($commonSegments, 0, $sharedSegmentCount);
+        }
+
+        return implode('-', $commonSegments);
     }
 }

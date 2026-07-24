@@ -506,19 +506,23 @@ export function overrideComponentSetup<TOriginalComponent>() {
  * generated footer passes the finished bindings here, and this delegates to createExtendableSetup()
  * with a callback that just returns them - all override application, previous-state, effect-scope,
  * and data-scope semantics are reused unchanged.
+ *
+ * The props object handed to override callbacks is read from the current instance, so the generated
+ * footer never has to thread a props binding through (and destructured `defineProps()` works too).
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function attachOverrides<TComponentName extends keyof ComponentPublicApiMapping>(options: {
     name: TComponentName;
-    props?: Record<string, unknown>;
     context?: SetupContext;
     public?: Record<string, unknown>;
     private?: Record<string, unknown>;
 }): any {
+    const props = (getCurrentInstance()?.props ?? {}) as Record<string, unknown>;
+
     return createExtendableSetup(
         {
             name: options.name,
-            props: (options.props ?? {}) as never,
+            props: props as never,
             context: options.context as never,
         },
         () =>

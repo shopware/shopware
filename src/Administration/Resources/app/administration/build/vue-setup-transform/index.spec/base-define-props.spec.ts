@@ -136,43 +136,48 @@ describe('build/vue-setup-transform base defineProps macro', () => {
         expect(result).toContain('const __swSetupAuthor_total = __swSetupAuthor_props.initial + __swSetupAuthor_count;');
     });
 
-    it('rejects destructured defineProps() because reactive props destructure is not lowered', () => {
-        // Since Vue 3.5 it allows to define default prop values through destructuring defineProps(...).
-        // To keep the reactivity intact the Vue compiler will then rewrite all references to make them reactive again.
-        // We would need to also build a rewrite pass. To not increase complexity, we explicitly don't want to support that.
+    it('supports destructured defineProps() by leaving it for Vue 3.5 reactive-props-destructure', () => {
         const source = stripIndent`
             <script setup lang="ts">
             const { initialCount = 0 } = defineProps<{
                 initialCount?: number;
             }>();
-            const count = initialCount;
+            const doubled = computed(() => initialCount * 2);
 
             swDefinePublic({
-                count,
+                doubled,
             });
             </script>
         `;
 
-        expect(() => transformShopwareSetupSfc(source, 'base-destructured-props.vue')).toThrow(
-            'Destructuring defineProps() is not supported in Shopware setup blocks: defaults declared through destructuring',
-        );
+        const result = transformOrFail(source, 'base-destructured-props.vue').code;
+
+        // The destructure is left untouched (names not aliased, not in the footer) so Vue's compiler
+        // rewrites `initialCount` into a reactive `props.initialCount` read - including inside the
+        // renamed `doubled` computed.
+        expect(result).toContain('const { initialCount = 0 } = defineProps<{');
+        expect(result).toContain('const __swSetupAuthor_doubled = computed(() => initialCount * 2);');
+        expect(result).not.toContain('__swSetupAuthor_initialCount');
+        // Vue's own compiler accepts the output and applies the reactive-props-destructure rewrite.
+        expectVueCompilerScriptToCompile(result, 'base-destructured-props.vue');
     });
 
-    it('rejects bare destructured defineProps() as well', () => {
+    it('supports a bare destructured defineProps()', () => {
         const source = stripIndent`
             <script setup>
             const { initialCount = 0 } = defineProps();
-            const count = initialCount;
+            const doubled = computed(() => initialCount * 2);
 
             swDefinePublic({
-                count,
+                doubled,
             });
             </script>
         `;
 
-        expect(() => transformShopwareSetupSfc(source, 'base-destructured-bare-props.vue')).toThrow(
-            'Destructuring defineProps() is not supported in Shopware setup blocks: defaults declared through destructuring',
-        );
+        const result = transformOrFail(source, 'base-destructured-bare-props.vue').code;
+
+        expect(result).toContain('const { initialCount = 0 } = defineProps();');
+        expect(result).not.toContain('__swSetupAuthor_initialCount');
     });
 
     it('keeps a bare defineProps() statement in place', () => {

@@ -99,39 +99,23 @@ function isRuntimeInputAlias(declaration: VariableDeclarator, mode: ShopwareSetu
 }
 
 /**
- * Rejects destructured props macros before lowering.
+ * Rejects destructuring a `withDefaults(...)` result.
  *
- * The props macro is hoisted out of the setup callback, so destructuring `(__shopwareProps)` snapshots
- * the value once (dropping reactivity) and the collected names collide with the declared prop keys that
- * `createExtendableSetup()` deletes from returned state. Authors keep the props object and read
- * `props.<name>` instead.
- *
- * `defineProps` gets the expectation-correcting message: Vue 3.5's reactive props destructure lets you
- * declare defaults inline (`const { count = 1 } = defineProps()`), and that is the surprising case that
- * silently would not work here. Destructuring `withDefaults(...)` is already a non-idiomatic pattern, so
- * it only gets the plain "read props.<name>" guidance.
+ * A destructured `defineProps()` is supported: Vue 3.5 rewrites the destructured names into reactive
+ * `props.<name>` reads (including inline defaults), and the base body is left in place for Vue to do
+ * that. `withDefaults(...)` returns a plain object, so destructuring it snapshots the value once and
+ * drops reactivity — reject it and point authors at inline destructure defaults or `props.<name>`.
  */
 function assertSupportedSetupInputDestructure(declaration: VariableDeclarator, scriptOffset: number): void {
     const init = unwrapTransparentMacroExpression(declaration.init);
     const calleeName = init?.type === 'CallExpression' && init.callee.type === 'Identifier' ? init.callee.name : null;
-    const index = scriptOffset + getNodeRange(declaration.id, scriptOffset).start;
-
-    if (calleeName === 'defineProps') {
-        throw new ShopwareSetupTransformError(
-            'Destructuring defineProps() is not supported in Shopware setup blocks: defaults declared through ' +
-                'destructuring (const { count = 1 } = defineProps()) are not applied. Assign the macro to a ' +
-                'variable such as `const props = defineProps(...)` and read `props.<name>`, and use ' +
-                '`withDefaults(defineProps(...), { ... })` for defaults.',
-            index,
-        );
-    }
 
     if (calleeName === 'withDefaults') {
         throw new ShopwareSetupTransformError(
-            'Destructuring the props object is not supported in Shopware setup blocks. Assign ' +
-                '`withDefaults(defineProps(...), { ... })` to a variable such as `const props = ...` and read ' +
-                '`props.<name>`.',
-            index,
+            'Destructuring the props object is not supported in Shopware setup blocks. Destructure ' +
+                'defineProps() directly (const { count = 1 } = defineProps<...>()) for reactive props with ' +
+                'defaults, or assign the macro to a variable such as `const props = ...` and read `props.<name>`.',
+            scriptOffset + getNodeRange(declaration.id, scriptOffset).start,
         );
     }
 }
@@ -186,8 +170,10 @@ function collectRuntimeBinding(
         statement.declarations.forEach((declaration) => {
             if (isSetupInputDeclaration(declaration)) {
                 if (declaration.id.type !== 'Identifier') {
+                    // Destructured props. withDefaults destructure is rejected (snapshots, loses
+                    // reactivity); a destructured defineProps() is left untouched - not renamed, not
+                    // returned as state - so Vue 3.5's reactive-destructure rewrite handles it.
                     assertSupportedSetupInputDestructure(declaration, scriptOffset);
-                    collectRuntimeBindingPattern(runtimeBindings, runtimeBindingNames, declaration.id, scriptOffset);
 
                     return;
                 }

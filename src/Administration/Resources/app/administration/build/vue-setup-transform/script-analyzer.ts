@@ -31,7 +31,7 @@ import {
 } from './script-analyzer/validation';
 import { assertHoistedMacroArgumentsDoNotUseLocalSetup } from './script-analyzer/hoisted-macro-arguments';
 import { collectSetupRenameTargets } from './flow-analysis';
-import { analyzeSetupInputs, type SetupMacroSummary } from './script-analyzer/setup-inputs';
+import { analyzeSetupInputs } from './script-analyzer/setup-inputs';
 
 const SUPPORTED_SCRIPT_LANGS = new Set([
     'js',
@@ -74,7 +74,6 @@ type ShopwareSetupScriptAnalysis = {
     importedBindings: Set<string>;
     publicEntries: string[];
     overrideEntries: string[];
-    propsMacro: SetupMacroSummary | null;
     overridePrivateBindings: Set<string>;
     overridePrivateNamespace: string | null;
 };
@@ -251,10 +250,7 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
             })),
     });
 
-    const { declaredPropNames, propsMacro } = analyzeSetupInputs(script, {
-        scriptOffset,
-        entries: macroEntries,
-    });
+    const { declaredPropNames } = analyzeSetupInputs(macroEntries);
 
     assertNoRuntimeBindingPropCollision(declaredPropNames, runtimeBindings, scriptOffset);
 
@@ -325,7 +321,6 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
         importedBindings,
         publicEntries,
         overrideEntries,
-        propsMacro,
         overridePrivateBindings: new Set(),
         overridePrivateNamespace: null,
     };

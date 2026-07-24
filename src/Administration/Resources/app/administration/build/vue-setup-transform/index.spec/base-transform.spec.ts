@@ -53,7 +53,6 @@ const {
     __swOverride,
 } = Shopware.Component.attachOverrides({
     name: 'sw-my-component',
-    props: __swSetupAuthor_props,
     public: {
         count: __swSetupAuthor_count,
         doubled: __swSetupAuthor_doubled,

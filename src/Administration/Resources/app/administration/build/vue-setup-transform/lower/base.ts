@@ -45,17 +45,13 @@ function buildBaseScript(block: ShopwareSetupBlock, analysis: ShopwareSetupScrip
 
     const body = transformRanges(block, analysis.markerRemovals, analysis.renameEdits);
 
-    // Forward the props object so override callbacks receive props.
-    const propsBindingName = analysis.propsMacro
-        ? analysis.runtimeBindings.find((binding) => binding.name === 'props')?.name
-        : null;
-
+    // attachOverrides() reads props from the current instance, so the footer never threads a props
+    // binding through — which also lets destructured defineProps() work (there is no props binding).
     const footer = [
         'const {',
         ...destructureEntries.map((entry) => `    ${entry},`),
         '} = Shopware.Component.attachOverrides({',
         `    name: '${escapeSingleQuoted(block.componentName)}',`,
-        ...(propsBindingName ? [`    props: __swSetupAuthor_${propsBindingName},`] : []),
         `    public: ${formatStateMap(analysis.publicEntries, 8)},`,
         `    private: ${formatStateMap(privateNames, 8)},`,
         '});',

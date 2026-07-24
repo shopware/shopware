@@ -5,31 +5,17 @@
 /**
  * Reads the props macro of a base Shopware setup block.
  *
- * Base lowering leaves the Vue macros in place, so nothing is hoisted or replaced. The
- * analyzer still needs two facts about the props macro: the declared prop names (to reject a setup
- * binding that would collide with a prop) and whether a props macro exists at all (so the footer can
- * forward the props object to `attachOverrides`).
+ * Base lowering leaves the Vue macros in place, so nothing is hoisted or replaced, and props are read
+ * from the component instance at runtime rather than forwarded by the generated footer. The analyzer
+ * only needs the declared prop names, to reject a setup binding that would collide with a prop.
  */
 
-import type { CallExpression } from '@babel/types';
-import { type SourceRange, getNodeRange, unwrapTransparentMacroExpression } from './utils';
+import { unwrapTransparentMacroExpression } from './utils';
 import { isWithDefaultsCall } from './macros';
 import { type MacroCallEntry, getMacroGroupEntry } from './macro-registry';
 
-type MacroName = 'defineProps' | 'withDefaults';
-
-/**
- * Captures the props macro call and its original source range.
- */
-type SetupMacroSummary = {
-    code: string;
-    macroName: MacroName;
-    ranges: SourceRange[];
-};
-
 type AnalyzeSetupInputsResult = {
     declaredPropNames: string[];
-    propsMacro: SetupMacroSummary | null;
 };
 
 /**
@@ -97,52 +83,13 @@ function collectDeclaredPropNames(propsEntry: MacroCallEntry | null): string[] {
 }
 
 /**
- * Creates the props macro summary consumed by base lowering.
+ * Reads the declared prop names of the base props macro.
  */
-function createMacroSummary(
-    script: string,
-    scriptOffset: number,
-    call: CallExpression | null,
-    macroName: MacroName,
-): SetupMacroSummary | null {
-    if (!call) {
-        return null;
-    }
-
-    const range = getNodeRange(call, scriptOffset);
-    const code = script.slice(range.start, range.end);
-
+function analyzeSetupInputs(entries: MacroCallEntry[]): AnalyzeSetupInputsResult {
+    // assertMacroRules already enforced modes, so the props macro resolves to at most one entry here.
     return {
-        code,
-        macroName,
-        ranges: [
-            range,
-        ],
+        declaredPropNames: collectDeclaredPropNames(getMacroGroupEntry(entries, 'props')),
     };
 }
 
-/**
- * Reads the props macro: its declared prop names and a summary of the call.
- */
-function analyzeSetupInputs(
-    script: string,
-    {
-        scriptOffset,
-        entries,
-    }: {
-        scriptOffset: number;
-        entries: MacroCallEntry[];
-    },
-): AnalyzeSetupInputsResult {
-    // assertMacroRules already enforced modes and multiplicity, so the props macro resolves to at most
-    // one entry here.
-    const propsEntry = getMacroGroupEntry(entries, 'props');
-    const propsMacroName = propsEntry && isWithDefaultsCall(propsEntry.call) ? 'withDefaults' : 'defineProps';
-
-    return {
-        declaredPropNames: collectDeclaredPropNames(propsEntry),
-        propsMacro: createMacroSummary(script, scriptOffset, propsEntry?.call ?? null, propsMacroName),
-    };
-}
-
-export { type AnalyzeSetupInputsResult, type SetupMacroSummary, analyzeSetupInputs };
+export { type AnalyzeSetupInputsResult, analyzeSetupInputs };

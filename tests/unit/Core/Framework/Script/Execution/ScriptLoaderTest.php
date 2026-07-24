@@ -15,8 +15,8 @@ use Symfony\Component\Cache\CacheItem;
 /**
  * @internal
  */
-#[CoversClass(ScriptLoader::class)]
 #[Package('framework')]
+#[CoversClass(ScriptLoader::class)]
 class ScriptLoaderTest extends TestCase
 {
     public function testCachesLoadedScriptsInMemory(): void

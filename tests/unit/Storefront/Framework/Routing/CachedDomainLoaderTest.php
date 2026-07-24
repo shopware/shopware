@@ -14,8 +14,8 @@ use Symfony\Component\Cache\Adapter\ArrayAdapter;
 /**
  * @internal
  */
-#[CoversClass(CachedDomainLoader::class)]
 #[Package('framework')]
+#[CoversClass(CachedDomainLoader::class)]
 class CachedDomainLoaderTest extends TestCase
 {
     public function testCachesDomainCollectionInMemory(): void

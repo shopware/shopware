@@ -61,9 +61,26 @@ abstract class AbstractToolSearchTool extends McpToolResponse
             ];
         }
 
-        return $this->success($results, [
+        $meta = [
             'query' => $query,
             'totalCandidates' => \count($tools),
-        ]);
+        ];
+
+        $usage = $this->usageHint();
+        if ($usage !== null) {
+            $meta['usage'] = $usage;
+        }
+
+        return $this->success($results, $meta);
+    }
+
+    /**
+     * Optional guidance appended to the search result telling the model how to make a matched
+     * tool callable when the client cannot invoke it directly from the inline result. Null when
+     * the scope has no progressive disclosure (e.g. Store API advertises all tools).
+     */
+    protected function usageHint(): ?string
+    {
+        return null;
     }
 }

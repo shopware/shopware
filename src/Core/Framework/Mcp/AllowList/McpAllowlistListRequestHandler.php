@@ -19,6 +19,9 @@ use Mcp\Schema\Tool;
 use Mcp\Server\Handler\Request\RequestHandlerInterface;
 use Mcp\Server\Session\SessionInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
+use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @experimental stableVersion:v6.8.0
@@ -33,6 +36,17 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
     private const TOOL_SEARCH = 'shopware-tool-search';
 
     /**
+     * The server-owned discovery meta-tools. They are always advertised and always callable,
+     * independent of the per-integration allowlist, so the guaranteed discovery path stays usable
+     * even for integrations whose allowlist omits them.
+     */
+    private const DISCOVERY_META_TOOLS = [
+        self::TOOL_SEARCH,
+        McpToolsetRegistry::LIST_TOOLSETS_TOOL,
+        McpToolsetRegistry::ENABLE_TOOLSET_TOOL,
+    ];
+
+    /**
      * @param list<string> $advertisedTools
      */
     public function __construct(
@@ -40,6 +54,9 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
         private readonly McpAllowlistProvider $allowlistProvider,
         private readonly int $pageSize,
         private readonly array $advertisedTools = [self::TOOL_SEARCH],
+        private readonly ?McpToolsetRegistry $toolsetRegistry = null,
+        private readonly ?McpToolsetSessionStorage $toolsetSessionStorage = null,
+        private readonly ?RequestStack $requestStack = null,
     ) {
     }
 
@@ -92,7 +109,7 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
      */
     private function visibleToolNames(McpAllowlist $allowlist): array
     {
-        $advertisedTools = $this->advertisedTools;
+        $advertisedTools = array_merge($this->advertisedTools, $this->toolsetToolsForSession());
 
         if (!\in_array(self::TOOL_SEARCH, $advertisedTools, true)) {
             array_unshift($advertisedTools, self::TOOL_SEARCH);
@@ -104,10 +121,30 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
             return $advertisedTools;
         }
 
+        // The server-owned discovery meta-tools stay advertised even when the integration's
+        // allowlist omits them, so the guaranteed discovery path (toolsets-list -> toolset-enable
+        // -> listChanged) keeps working. Every other tool remains bounded by the allowlist.
         return array_values(array_unique(array_merge(
-            [self::TOOL_SEARCH],
+            array_values(array_intersect($advertisedTools, self::DISCOVERY_META_TOOLS)),
             array_values(array_intersect($advertisedTools, $allowlist->tools)),
         )));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function toolsetToolsForSession(): array
+    {
+        if ($this->toolsetRegistry === null) {
+            return [];
+        }
+
+        $sessionId = $this->requestStack?->getCurrentRequest()?->headers->get('Mcp-Session-Id') ?? '';
+        if ($sessionId === '' || $this->toolsetSessionStorage === null) {
+            return $this->toolsetRegistry->advertisedTools([]);
+        }
+
+        return $this->toolsetRegistry->advertisedTools($this->toolsetSessionStorage->enabledToolsets($sessionId));
     }
 
     /**

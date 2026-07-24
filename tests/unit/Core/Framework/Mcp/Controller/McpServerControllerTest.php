@@ -8,8 +8,6 @@ use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\ResponseFactoryInterface;
-use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -18,8 +16,12 @@ use Shopware\Core\Framework\Mcp\AllowList\McpAllowlist;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
+use Shopware\Core\Framework\Mcp\Http\McpHttpTransportFactory;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\Mcp\McpException;
+use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
+use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
+use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
 use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
@@ -31,6 +33,7 @@ use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * @internal
@@ -253,6 +256,39 @@ class McpServerControllerTest extends TestCase
             'id' => 1,
             'method' => 'tools/call',
             'params' => ['name' => 'shopware-tool-search', 'arguments' => ['query' => 'entity']],
+        ], \JSON_THROW_ON_ERROR);
+
+        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $httpFoundationFactory = static::createStub(HttpFoundationFactoryInterface::class);
+        $httpFoundationFactory->method('createResponse')->willReturn(new Response('{}', 200));
+
+        $allowlistProvider = static::createStub(McpAllowlistProvider::class);
+        $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: [], resources: null, prompts: null));
+
+        $controller = $this->buildController($psrRequest, $httpFoundationFactory, $allowlistProvider);
+        $sfRequest = Request::create('/api/_mcp', 'POST', content: $body);
+        $response = $controller->handle($sfRequest);
+
+        static::assertStringNotContainsString('allowlist', (string) $response->getContent());
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function discoveryMetaToolProvider(): iterable
+    {
+        yield 'toolsets-list' => [McpToolsetRegistry::LIST_TOOLSETS_TOOL];
+        yield 'toolset-enable' => [McpToolsetRegistry::ENABLE_TOOLSET_TOOL];
+    }
+
+    #[DataProvider('discoveryMetaToolProvider')]
+    public function testDiscoveryMetaToolCallIsAllowedEvenWhenToolAllowlistIsEmpty(string $toolName): void
+    {
+        $body = json_encode([
+            'jsonrpc' => '2.0',
+            'id' => 1,
+            'method' => 'tools/call',
+            'params' => ['name' => $toolName, 'arguments' => []],
         ], \JSON_THROW_ON_ERROR);
 
         $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
@@ -526,15 +562,18 @@ class McpServerControllerTest extends TestCase
         $httpFoundationFactory->method('createResponse')->willReturn(new Response('', 405));
 
         $psr17 = new Psr17Factory();
+        $transportFactory = new McpHttpTransportFactory(
+            $httpMessageFactory,
+            $psr17,
+            $psr17,
+            $httpFoundationFactory,
+            static::createStub(McpAllowedHostsProvider::class),
+        );
         $controller = new McpServerController(
             Server::builder()->build(),
-            $httpMessageFactory,
-            $httpFoundationFactory,
-            $psr17,
-            $psr17,
+            $transportFactory,
             new McpRateLimiter(static::createStub(RateLimiter::class)),
             new McpSessionIdValidator(),
-            static::createStub(McpAllowedHostsProvider::class),
             null,
             $logger,
             new McpAllowlistFilter(),
@@ -662,49 +701,111 @@ class McpServerControllerTest extends TestCase
         static::assertObjectNotHasProperty('_meta', $result);
     }
 
-    /**
-     * @return iterable<string, array{string}>
-     */
-    public static function nullableConstructorArgProvider(): iterable
+    public function testHandleReturnsNotFoundWhenServerIsNull(): void
     {
-        yield 'server is null' => ['server'];
-        yield 'httpMessageFactory is null' => ['httpMessageFactory'];
-        yield 'httpFoundationFactory is null' => ['httpFoundationFactory'];
-        yield 'responseFactory is null' => ['responseFactory'];
-        yield 'streamFactory is null' => ['streamFactory'];
-    }
-
-    #[DataProvider('nullableConstructorArgProvider')]
-    public function testHandleReturnsNotFoundWhenAnyMcpBundleServiceIsNull(string $nullArg): void
-    {
-        $psr17 = new Psr17Factory();
-
         $controller = new McpServerController(
-            $nullArg === 'server' ? null : Server::builder()->build(),
-            $nullArg === 'httpMessageFactory' ? null : static::createStub(HttpMessageFactoryInterface::class),
-            $nullArg === 'httpFoundationFactory' ? null : static::createStub(HttpFoundationFactoryInterface::class),
-            $nullArg === 'responseFactory' ? null : $psr17,
-            $nullArg === 'streamFactory' ? null : $psr17,
+            null,
+            $this->transportFactory(),
             new McpRateLimiter(static::createStub(RateLimiter::class)),
             new McpSessionIdValidator(),
-            static::createStub(McpAllowedHostsProvider::class),
         );
 
-        $response = $controller->handle(new Request());
+        static::assertSame(Response::HTTP_NOT_FOUND, $controller->handle(new Request())->getStatusCode());
+    }
 
-        static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    public function testHandleReturnsNotFoundWhenTransportFactoryIsUnavailable(): void
+    {
+        // A transport factory built without the PhpMcp bundle factories reports itself unavailable.
+        $unavailable = new McpHttpTransportFactory(null, null, null, null, static::createStub(McpAllowedHostsProvider::class));
+
+        $controller = new McpServerController(
+            Server::builder()->build(),
+            $unavailable,
+            new McpRateLimiter(static::createStub(RateLimiter::class)),
+            new McpSessionIdValidator(),
+        );
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $controller->handle(new Request())->getStatusCode());
+    }
+
+    public function testFlushesPendingToolsListChangedForActiveSession(): void
+    {
+        $sessionId = Uuid::v4()->toRfc4122();
+
+        $notifier = $this->createMock(McpListChangedNotifier::class);
+        $notifier->expects($this->once())
+            ->method('notifySession')
+            ->with(
+                $sessionId,
+                static::callback(static fn (McpListChangedNotificationSet $set): bool => $set->tools && !$set->resources && !$set->prompts),
+            );
+
+        $controller = $this->buildController(
+            new ServerRequest('POST', '/api/_mcp'),
+            new HttpFoundationFactory(),
+            listChangedNotifier: $notifier,
+        );
+
+        $request = Request::create('/api/_mcp', 'POST');
+        $request->attributes->set(McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE, true);
+        $request->headers->set(PlatformRequest::HEADER_MCP_SESSION_ID, $sessionId);
+
+        $controller->handle($request);
+    }
+
+    public function testDoesNotFlushWhenNoPendingNotification(): void
+    {
+        $notifier = $this->createMock(McpListChangedNotifier::class);
+        $notifier->expects($this->never())->method('notifySession');
+
+        $controller = $this->buildController(
+            new ServerRequest('POST', '/api/_mcp'),
+            new HttpFoundationFactory(),
+            listChangedNotifier: $notifier,
+        );
+
+        $request = Request::create('/api/_mcp', 'POST');
+        $request->headers->set(PlatformRequest::HEADER_MCP_SESSION_ID, Uuid::v4()->toRfc4122());
+
+        $controller->handle($request);
+    }
+
+    public function testDoesNotFlushWhenSessionHeaderMissing(): void
+    {
+        $notifier = $this->createMock(McpListChangedNotifier::class);
+        $notifier->expects($this->never())->method('notifySession');
+
+        $controller = $this->buildController(
+            new ServerRequest('POST', '/api/_mcp'),
+            new HttpFoundationFactory(),
+            listChangedNotifier: $notifier,
+        );
+
+        $request = Request::create('/api/_mcp', 'POST');
+        $request->attributes->set(McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE, true);
+
+        $controller->handle($request);
     }
 
     private function controllerWithRateLimiter(RateLimiter $rateLimiter): McpServerController
     {
         return new McpServerController(
             Server::builder()->build(),
-            static::createStub(HttpMessageFactoryInterface::class),
-            static::createStub(HttpFoundationFactoryInterface::class),
-            static::createStub(ResponseFactoryInterface::class),
-            static::createStub(StreamFactoryInterface::class),
+            $this->transportFactory(),
             new McpRateLimiter($rateLimiter),
             new McpSessionIdValidator(),
+        );
+    }
+
+    private function transportFactory(): McpHttpTransportFactory
+    {
+        $psr17 = new Psr17Factory();
+
+        return new McpHttpTransportFactory(
+            static::createStub(HttpMessageFactoryInterface::class),
+            $psr17,
+            $psr17,
+            static::createStub(HttpFoundationFactoryInterface::class),
             static::createStub(McpAllowedHostsProvider::class),
         );
     }
@@ -716,23 +817,29 @@ class McpServerControllerTest extends TestCase
         ?RateLimiter $rateLimiter = null,
         ?Server $server = null,
         ?McpSessionRegistry $sessionRegistry = null,
+        ?McpListChangedNotifier $listChangedNotifier = null,
     ): McpServerController {
         $psr17 = new Psr17Factory();
         $httpMessageFactory = static::createStub(HttpMessageFactoryInterface::class);
         $httpMessageFactory->method('createRequest')->willReturn($psrRequest);
 
+        $transportFactory = new McpHttpTransportFactory(
+            $httpMessageFactory,
+            $psr17,
+            $psr17,
+            $httpFoundationFactory ?? static::createStub(HttpFoundationFactoryInterface::class),
+            static::createStub(McpAllowedHostsProvider::class),
+        );
+
         return new McpServerController(
             $server ?? Server::builder()->build(),
-            $httpMessageFactory,
-            $httpFoundationFactory ?? static::createStub(HttpFoundationFactoryInterface::class),
-            $psr17,
-            $psr17,
+            $transportFactory,
             new McpRateLimiter($rateLimiter ?? static::createStub(RateLimiter::class)),
             new McpSessionIdValidator(),
-            static::createStub(McpAllowedHostsProvider::class),
             $allowlistProvider,
             allowlistFilter: new McpAllowlistFilter(),
             sessionRegistry: $sessionRegistry,
+            listChangedNotifier: $listChangedNotifier,
         );
     }
 }

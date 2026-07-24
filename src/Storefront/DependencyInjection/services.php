@@ -259,7 +259,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CachedDomainLoader::class . '.inner'),
             service('cache.object'),
             service('logger'),
-        ]);
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(CachedDomainLoaderInvalidator::class)
         ->args([

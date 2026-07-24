@@ -313,5 +313,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(DocumentBaseConfigValidator::class)
         ->args([
             service(ClockInterface::class),
-        ]);
+        ])
+        ->tag('kernel.event_subscriber');
 };

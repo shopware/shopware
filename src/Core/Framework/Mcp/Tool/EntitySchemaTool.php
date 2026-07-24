@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 
 /**
  * @experimental stableVersion:v6.8.0
@@ -26,8 +27,10 @@ use Shopware\Core\Framework\Log\Package;
 #[McpTool(
     name: 'shopware-entity-schema',
     title: 'Entity Schema',
-    description: 'Get the field and association schema of a Shopware entity definition. Use this first to discover field names, types, and associations before building search criteria with shopware-entity-search. Returns {success, data: {fields: [...], associations: [...]}}. See shopware://entities resource for all available entity names.'
+    description: 'Get the field and association schema of a Shopware entity definition. Use this first to discover field names, types, and associations before building search criteria with shopware-entity-search. Returns {success, data: {fields: [...], associations: [...]}}. See shopware://entities resource for all available entity names.',
+    meta: ['deferred' => false]
 )]
+#[McpToolGroup('entity')]
 class EntitySchemaTool extends McpToolResponse
 {
     /**

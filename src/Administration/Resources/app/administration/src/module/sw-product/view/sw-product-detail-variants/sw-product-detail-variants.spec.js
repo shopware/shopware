@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package inventory
  */
@@ -7,10 +9,15 @@ import 'src/app/component/base/sw-button';
 import 'src/module/sw-product/component/sw-product-variants/sw-product-variants-overview';
 import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.service';
 
-async function createWrapper(privileges = []) {
+async function createWrapper(options = {}) {
+    const { privileges = [], featureActive = false } = Array.isArray(options) ? { privileges: options } : options;
+
     return mount(await wrapTestComponent('sw-product-detail-variants', { sync: true }), {
         global: {
             provide: {
+                feature: {
+                    isActive: (featureName) => featureName === 'v6.8.0.0' && featureActive,
+                },
                 repositoryFactory: {
                     create: () => ({
                         search: jest.fn(() =>
@@ -61,6 +68,7 @@ async function createWrapper(privileges = []) {
                 'mt-card': {
                     template: `
                     <div class="mt-card">
+                        <slot name="tabs"></slot>
                         <slot name="grid"></slot>
                         <slot></slot>
                     </div>
@@ -81,8 +89,65 @@ async function createWrapper(privileges = []) {
                 'sw-modal': true,
                 'sw-skeleton': true,
                 'sw-product-variants-overview': true,
-                'sw-tabs': true,
-                'sw-tabs-item': true,
+                'sw-tabs': {
+                    name: 'sw-tabs',
+                    props: {
+                        positionIdentifier: {
+                            type: String,
+                            required: false,
+                            default: undefined,
+                        },
+                        small: {
+                            type: Boolean,
+                            required: false,
+                            default: true,
+                        },
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: undefined,
+                        },
+                    },
+                    template: '<div class="sw-tabs"><slot></slot></div>',
+                },
+                'sw-tabs-item': {
+                    name: 'sw-tabs-item',
+                    props: {
+                        name: {
+                            type: String,
+                            required: false,
+                            default: undefined,
+                        },
+                        activeTab: {
+                            type: String,
+                            required: false,
+                            default: undefined,
+                        },
+                    },
+                    template: '<button class="sw-tabs-item"><slot></slot></button>',
+                },
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    emits: [
+                        'new-item-active',
+                    ],
+                    props: {
+                        positionIdentifier: {
+                            type: String,
+                            required: true,
+                        },
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: undefined,
+                        },
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                    },
+                    template: '<div class="mt-tabs"></div>',
+                },
                 'sw-product-modal-variant-generation': true,
                 'sw-product-modal-delivery': true,
                 'sw-product-add-properties-modal': true,
@@ -196,6 +261,66 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
             store.creationStates = 'is-physical';
         }
         store.creationType = 'physical';
+    });
+
+    it('should render the fallback tabs branch while the major feature flag is inactive', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+        await wrapper.setData({
+            isLoading: false,
+            propertiesAvailable: true,
+        });
+
+        const tabs = wrapper.getComponent({ name: 'sw-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-variant-card-tabs');
+        expect(tabs.props('small')).toBe(false);
+        expect(tabs.props('defaultItem')).toBe('all');
+        expect(wrapper.findAllComponents({ name: 'sw-tabs-item' })).toHaveLength(3);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('should render meteor tabs when the major feature flag is active', async () => {
+        const wrapper = await createWrapper({ featureActive: true });
+        await flushPromises();
+        await wrapper.setData({
+            isLoading: false,
+            propertiesAvailable: true,
+        });
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-variant-card-tabs');
+        expect(tabs.props('defaultItem')).toBe('all');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-product.variations.variationCard.tabs.allProducts',
+                name: 'all',
+            },
+            {
+                label: 'sw-product.variations.variationCard.tabs.physicalProducts',
+                name: 'physical',
+            },
+            {
+                label: 'sw-product.variations.variationCard.tabs.digitalProducts',
+                name: 'digital',
+            },
+        ]);
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+    });
+
+    it('should switch active tab when meteor tabs emits a new active item', async () => {
+        const wrapper = await createWrapper({ featureActive: true });
+        await flushPromises();
+        await wrapper.setData({
+            isLoading: false,
+            propertiesAvailable: true,
+        });
+
+        wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'digital');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('digital');
     });
 
     it('should display a customized empty state if there are neither variants nor properties', async () => {

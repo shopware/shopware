@@ -94,22 +94,37 @@ class GenerateEntitySchemaTypesCommandTest extends TestCase
 
     public function testAdministrationRootResolvesToTheBundleResourcesPath(): void
     {
-        $root = $this->exposedCommand()->exposedAdministrationRoot();
+        $command = new class extends GenerateEntitySchemaTypesCommand {
+            public function exposedAdministrationRoot(): string
+            {
+                return $this->administrationRoot();
+            }
+        };
 
-        static::assertStringEndsWith('/Resources/app/administration', $root);
+        static::assertStringEndsWith('/Resources/app/administration', $command->exposedAdministrationRoot());
     }
 
     public function testDumpEntitySchemaFailsWhenNoApplicationIsAvailable(): void
     {
-        // Without a console Application there is no framework:schema command to delegate to.
-        $exitCode = $this->exposedCommand()->exposedDumpEntitySchema('/tmp/schema.json', new BufferedOutput());
+        $command = new class extends GenerateEntitySchemaTypesCommand {
+            public function exposedDumpEntitySchema(string $schemaFile, OutputInterface $output): int
+            {
+                return $this->dumpEntitySchema($schemaFile, $output);
+            }
+        };
 
-        static::assertSame(Command::FAILURE, $exitCode);
+        // Without a console Application there is no framework:schema command to delegate to.
+        static::assertSame(Command::FAILURE, $command->exposedDumpEntitySchema('/tmp/schema.json', new BufferedOutput()));
     }
 
     public function testDumpEntitySchemaDelegatesToTheFrameworkSchemaCommand(): void
     {
-        $command = $this->exposedCommand();
+        $command = new class extends GenerateEntitySchemaTypesCommand {
+            public function exposedDumpEntitySchema(string $schemaFile, OutputInterface $output): int
+            {
+                return $this->dumpEntitySchema($schemaFile, $output);
+            }
+        };
 
         $schemaCommand = new class extends Command {
             public ?string $outfile = null;
@@ -133,7 +148,7 @@ class GenerateEntitySchemaTypesCommandTest extends TestCase
         };
 
         $application = new Application();
-        $application->add($schemaCommand);
+        $application->addCommand($schemaCommand);
         $command->setApplication($application);
 
         $exitCode = $command->exposedDumpEntitySchema('/tmp/entity-schema.json', new BufferedOutput());
@@ -153,8 +168,15 @@ class GenerateEntitySchemaTypesCommandTest extends TestCase
         );
         $this->filesystem->chmod($administrationRoot . '/node_modules/.bin/ts-node', 0755);
 
+        $command = new class extends GenerateEntitySchemaTypesCommand {
+            public function exposedConvertEntitySchema(string $administrationRoot, OutputInterface $output): int
+            {
+                return $this->convertEntitySchema($administrationRoot, $output);
+            }
+        };
+
         $output = new BufferedOutput();
-        $exitCode = $this->exposedCommand()->exposedConvertEntitySchema($administrationRoot, $output);
+        $exitCode = $command->exposedConvertEntitySchema($administrationRoot, $output);
 
         static::assertSame(3, $exitCode, 'the converter exit code reaches the shell unchanged');
         static::assertStringContainsString('converted', $output->fetch());
@@ -173,30 +195,6 @@ class GenerateEntitySchemaTypesCommandTest extends TestCase
         }
 
         return $root;
-    }
-
-    /**
-     * A command whose protected seams (reflection root, schema dump, converter spawn) are exposed
-     * so their real bodies can be exercised without going through the full execute() pipeline.
-     */
-    private function exposedCommand(): GenerateEntitySchemaTypesCommand
-    {
-        return new class extends GenerateEntitySchemaTypesCommand {
-            public function exposedAdministrationRoot(): string
-            {
-                return $this->administrationRoot();
-            }
-
-            public function exposedDumpEntitySchema(string $schemaFile, OutputInterface $output): int
-            {
-                return $this->dumpEntitySchema($schemaFile, $output);
-            }
-
-            public function exposedConvertEntitySchema(string $administrationRoot, OutputInterface $output): int
-            {
-                return $this->convertEntitySchema($administrationRoot, $output);
-            }
-        };
     }
 
     /**

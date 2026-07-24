@@ -84,33 +84,19 @@ class CheckExtensionsCommandTest extends TestCase
 
     public function testAdministrationRootResolvesToTheBundleResourcesPath(): void
     {
-        $root = $this->exposedCommand()->exposedAdministrationRoot();
-
-        static::assertStringEndsWith('/Resources/app/administration', $root);
-    }
-
-    public function testRunToolingSpawnsTheProcessAndPropagatesItsExitCode(): void
-    {
-        $output = new BufferedOutput();
-
-        $exitCode = $this->exposedCommand()->exposedRunTooling(
-            [\PHP_BINARY, '-r', 'fwrite(STDOUT, "tooling-ran"); exit(5);'],
-            sys_get_temp_dir(),
-            [],
-            $output,
-        );
-
-        static::assertSame(5, $exitCode, 'the tooling exit code reaches the shell unchanged');
-    }
-
-    private function exposedCommand(): CheckExtensionsCommand
-    {
-        return new class($this->kernel()) extends CheckExtensionsCommand {
+        $command = new class($this->kernel()) extends CheckExtensionsCommand {
             public function exposedAdministrationRoot(): string
             {
                 return $this->administrationRoot();
             }
+        };
 
+        static::assertStringEndsWith('/Resources/app/administration', $command->exposedAdministrationRoot());
+    }
+
+    public function testRunToolingSpawnsTheProcessAndPropagatesItsExitCode(): void
+    {
+        $command = new class($this->kernel()) extends CheckExtensionsCommand {
             /**
              * @param list<string> $command
              * @param array<string, string> $env
@@ -120,6 +106,15 @@ class CheckExtensionsCommandTest extends TestCase
                 return $this->runTooling($command, $cwd, $env, $output);
             }
         };
+
+        $exitCode = $command->exposedRunTooling(
+            [\PHP_BINARY, '-r', 'fwrite(STDOUT, "tooling-ran"); exit(5);'],
+            sys_get_temp_dir(),
+            [],
+            new BufferedOutput(),
+        );
+
+        static::assertSame(5, $exitCode, 'the tooling exit code reaches the shell unchanged');
     }
 
     private function createAdministrationRoot(bool $withDependencies): string

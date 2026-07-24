@@ -6,6 +6,12 @@
 
 ## Core
 
+### PHPUnit runs fail when the process dies before the suite finishes
+
+Test suites bootstrapped through `Shopware\Core\TestBootstrapper` (including plugin and project suites) now force a failure exit code when the PHPUnit process terminates before the test runner finished — for example when code under test calls `exit()`/`die()`, such as a Symfony console `Application` with auto-exit enabled. Previously such a run stopped mid-suite with exit code 0 and looked green while most tests never executed, both locally and in CI.
+
+No action is needed for healthy suites: completed runs (including `--stop-on-failure`), ordinary test failures, fatal errors, and commands like `--list-tests` behave as before. If your suite starts failing with "PHPUnit terminated before the test runner finished the suite", a test is killing the PHPUnit process and was silently truncating your runs; fix it, e.g. by calling `setAutoExit(false)` on console applications under test.
+
 ### Built-in translation system configurable via `shopware.translation`
 
 The built-in translation system's configuration (previously only editable by decorating `AbstractTranslationConfigLoader`) can now be overridden through the standard Symfony configuration in `config/packages`. Add a `shopware.translation` section to override individual options; any option left unset falls back to the shipped defaults in `translation.yaml`:

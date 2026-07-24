@@ -6,8 +6,8 @@ import { isFragment, getTextFromSlotItem, triggerTabItemClick, getTabItemsFromSl
  * @sw-package framework
  */
 
-function vnode(partial: Partial<VNode>): VNode {
-    return partial as VNode;
+function vnode(partial: Record<string, unknown>): VNode {
+    return partial as unknown as VNode;
 }
 
 describe('src/app/component/meteor/tab-slot-parser', () => {

@@ -655,13 +655,11 @@ export default {
                 this.activeTab = activeTab;
             }
 
-            for (const [key, item] of Object.entries(this.$refs)) {
-                if (
-                    key.startsWith('wrapper-') &&
-                    item !== undefined &&
-                    isArray(item) &&
-                    item[0] !== undefined
-                ) {
+            for (const [
+                key,
+                item,
+            ] of Object.entries(this.$refs)) {
+                if (key.startsWith('wrapper-') && item !== undefined && isArray(item) && item[0] !== undefined) {
                     this.inheritanceChanged[key] = item[0].isInherited;
                 }
             }

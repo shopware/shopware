@@ -163,10 +163,7 @@ final readonly class DocumentGenerator
         );
 
         foreach ($renderPlan as $format) {
-            $renderer = $this->documentRendererRegistry->getRenderer(
-                $format,
-                $generationRequest->documentType,
-            );
+            $renderer = $this->documentRendererRegistry->getRenderer($format);
 
             $result = $renderer->renderToString(
                 $renderInput,

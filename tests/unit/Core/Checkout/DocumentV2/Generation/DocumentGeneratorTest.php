@@ -323,12 +323,10 @@ class DocumentGeneratorTest extends TestCase
         $rendererRegistry = new DocumentRendererRegistry([
             new StaticDocumentRenderer(
                 DocumentFormat::HTML,
-                [DocumentType::INVOICE->value],
                 []
             ),
             new StaticDocumentRenderer(
                 DocumentFormat::PDF,
-                [DocumentType::INVOICE->value],
                 [DocumentFormat::HTML->value]
             ),
         ]);

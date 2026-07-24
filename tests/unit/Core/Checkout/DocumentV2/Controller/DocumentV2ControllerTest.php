@@ -24,6 +24,7 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -38,6 +39,7 @@ use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInt
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentDataProvider;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer;
+use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentType;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -70,16 +72,22 @@ class DocumentV2ControllerTest extends TestCase
         $this->documentTypeRepository = new StaticEntityRepository([], new DocumentTypeDefinition());
     }
 
-    public function testAvailableTypesReturnsFormatsForRendererSupportedDocumentTypes(): void
+    public function testAvailableTypesReturnsFormatsFromTypeRegistry(): void
     {
         $rendererRegistry = new DocumentRendererRegistry([
-            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value, 'partial_cancellation']),
-            new StaticDocumentRenderer(DocumentFormat::PDF, ['partial_cancellation']),
+            new StaticDocumentRenderer(DocumentFormat::HTML),
+            new StaticDocumentRenderer(DocumentFormat::PDF),
+        ]);
+
+        $typeRegistry = new DocumentTypeRegistry([
+            new StaticDocumentType(DocumentType::INVOICE->value, [DocumentFormat::HTML->value]),
+            new StaticDocumentType('partial_cancellation', [DocumentFormat::HTML->value, DocumentFormat::PDF->value]),
         ]);
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
             $rendererRegistry,
+            $typeRegistry,
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->documentFileRepository,
@@ -118,12 +126,13 @@ class DocumentV2ControllerTest extends TestCase
         $document = new DocumentEntity();
 
         $rendererRegistry = new DocumentRendererRegistry([
-            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
+            new StaticDocumentRenderer(DocumentFormat::HTML),
         ]);
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, $orderId, $document),
             $rendererRegistry,
+            $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->documentFileRepository,
@@ -161,12 +170,13 @@ class DocumentV2ControllerTest extends TestCase
         $orderId = Uuid::randomHex();
 
         $rendererRegistry = new DocumentRendererRegistry([
-            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
+            new StaticDocumentRenderer(DocumentFormat::HTML),
         ]);
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, $orderId),
             $rendererRegistry,
+            $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->documentFileRepository,
@@ -202,12 +212,13 @@ class DocumentV2ControllerTest extends TestCase
         $this->documentTypeRepository->searches[] = [$documentTypeId];
 
         $rendererRegistry = new DocumentRendererRegistry([
-            new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
+            new StaticDocumentRenderer(DocumentFormat::PDF),
         ]);
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, $orderId),
             $rendererRegistry,
+            $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->documentFileRepository,
@@ -271,12 +282,13 @@ class DocumentV2ControllerTest extends TestCase
         $orderVersionId = Uuid::randomHex();
 
         $rendererRegistry = new DocumentRendererRegistry([
-            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
+            new StaticDocumentRenderer(DocumentFormat::HTML),
         ]);
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, $orderId),
             $rendererRegistry,
+            $this->createTypeRegistry([DocumentFormat::HTML->value]),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->documentFileRepository,
@@ -343,12 +355,13 @@ class DocumentV2ControllerTest extends TestCase
             ->willReturn($mediaId);
 
         $rendererRegistry = new DocumentRendererRegistry([
-            new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
+            new StaticDocumentRenderer(DocumentFormat::PDF),
         ]);
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, $orderId),
             $rendererRegistry,
+            $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->documentFileRepository,
@@ -420,12 +433,13 @@ class DocumentV2ControllerTest extends TestCase
             ->willReturn('pdf content');
 
         $rendererRegistry = new DocumentRendererRegistry([
-            new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
+            new StaticDocumentRenderer(DocumentFormat::PDF),
         ]);
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
             $rendererRegistry,
+            $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->documentFileRepository,
@@ -497,12 +511,13 @@ class DocumentV2ControllerTest extends TestCase
             });
 
         $rendererRegistry = new DocumentRendererRegistry([
-            new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
+            new StaticDocumentRenderer(DocumentFormat::PDF),
         ]);
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
             $rendererRegistry,
+            $this->createTypeRegistry(),
             $this->createArchiveGenerator($mediaService),
             $this->documentRepository,
             $this->documentFileRepository,
@@ -548,12 +563,13 @@ class DocumentV2ControllerTest extends TestCase
         $this->documentRepository->searches[] = new DocumentCollection([$document]);
 
         $rendererRegistry = new DocumentRendererRegistry([
-            new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
+            new StaticDocumentRenderer(DocumentFormat::PDF),
         ]);
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
             $rendererRegistry,
+            $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->documentFileRepository,
@@ -597,7 +613,7 @@ class DocumentV2ControllerTest extends TestCase
         $this->documentRepository->searches[] = new DocumentCollection([$document]);
 
         $rendererRegistry = new DocumentRendererRegistry([
-            new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
+            new StaticDocumentRenderer(DocumentFormat::PDF),
         ]);
 
         $mediaService = $this->createMock(MediaService::class);
@@ -606,6 +622,7 @@ class DocumentV2ControllerTest extends TestCase
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
             $rendererRegistry,
+            $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->documentFileRepository,
@@ -630,12 +647,13 @@ class DocumentV2ControllerTest extends TestCase
         $this->documentRepository->searches[] = new DocumentCollection([]);
 
         $rendererRegistry = new DocumentRendererRegistry([
-            new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
+            new StaticDocumentRenderer(DocumentFormat::PDF),
         ]);
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
             $rendererRegistry,
+            $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->documentFileRepository,
@@ -653,14 +671,24 @@ class DocumentV2ControllerTest extends TestCase
         );
     }
 
+    /**
+     * @param list<string> $formats
+     */
+    private function createTypeRegistry(array $formats = [DocumentFormat::HTML->value, DocumentFormat::PDF->value]): DocumentTypeRegistry
+    {
+        return new DocumentTypeRegistry([
+            new StaticDocumentType(DocumentType::INVOICE->value, $formats),
+        ]);
+    }
+
     private function createArchiveGenerator(MediaService $mediaService): DocumentArchiveGenerator
     {
         return new DocumentArchiveGenerator(
             $mediaService,
             new Filesystem(),
             new DocumentRendererRegistry([
-                new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
-                new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
+                new StaticDocumentRenderer(DocumentFormat::PDF),
+                new StaticDocumentRenderer(DocumentFormat::HTML),
             ]),
         );
     }

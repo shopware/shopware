@@ -100,6 +100,9 @@ jobs:
       - name: Install Danger # analysed via phpstan-paths.php + registered in phpstan-bootstrap.php
         run: composer install -d vendor-bin/danger-php --no-interaction
 
+      - name: Install Rector # analysed via phpstan-paths.php + registered in phpstan-bootstrap.php
+        run: composer install -d vendor-bin/rector --no-interaction
+
       - name: Generate Schema
         run: composer run framework:schema:dump
 
@@ -142,6 +145,12 @@ jobs:
           key: "rector-result-cache-${{ github.run_id }}"
           restore-keys: |
             rector-result-cache-
+
+      - name: Install Rector with its test harness # vendor-bin lockfiles are gitignored, so install resolves phpunit here
+        run: composer install -d vendor-bin/rector --no-interaction
+
+      - name: Rector rule tests # self-contained harness, see vendor-bin/rector/tests
+        run: php vendor-bin/rector/vendor/bin/phpunit -c vendor-bin/rector/phpunit.xml.dist
 
       - name: Rector
         run: composer rector

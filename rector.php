@@ -9,6 +9,7 @@ use Rector\CodingStyle\Rector\FuncCall\CountArrayToEmptyArrayComparisonRector;
 use Rector\Config\RectorConfig;
 use Rector\Php55\Rector\Class_\ClassConstantToSelfClassRector;
 use Rector\Strict\Rector\Empty_\DisallowedEmptyRuleFixerRector;
+use Shopware\Core\DevOps\StaticAnalyze\Rector\EntitySearchResultGetEntitiesRector;
 
 return RectorConfig::configure()
     ->withSymfonyContainerXml(__DIR__ . '/var/cache/phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml')
@@ -23,12 +24,24 @@ return RectorConfig::configure()
         '**/vendor/*',
         '**/node_modules/*',
         '**/Resources/*',
+
+        EntitySearchResultGetEntitiesRector::class => [
+            // implements the deprecated methods it would rewrite
+            __DIR__ . '/src/Core/Framework/DataAbstractionLayer/Search/EntitySearchResult.php',
+            // tests the deprecated methods on purpose (under DisabledFeatures)
+            __DIR__ . '/tests/unit/Core/Framework/DataAbstractionLayer/Search/EntitySearchResultTest.php',
+            // ElementDataCollection::add() requires the result wrapper, so the getEntities()
+            // delegation cannot be applied mechanically; needs a manual migration with the
+            // v6.8 EntitySearchResult changes
+            __DIR__ . '/src/Core/Content/Cms/DataResolver/CmsSlotsDataResolver.php',
+        ],
     ])
     ->withCache(
         cacheDirectory: __DIR__ . '/var/cache/rector',
         cacheClass: FileCacheStorage::class,
     )
     ->withRules([
+        EntitySearchResultGetEntitiesRector::class,
         ClassConstantToSelfClassRector::class,
         DisallowedEmptyRuleFixerRector::class,
         CountArrayToEmptyArrayComparisonRector::class,

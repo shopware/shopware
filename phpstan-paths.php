@@ -43,19 +43,28 @@ $parameters = [
     'paths' => $paths,
 ];
 
-// The Danger rules and their tests type against the danger-php package from vendor-bin
-// (registered in src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php). Without that install
+// The Danger rules and their tests type against the danger-php package from vendor-bin, and the
+// custom Rector rules against the rector package (both registered in
+// src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php). Without the install
 // (integration jobs strip vendor-bin, plugin pipelines never have it) the symbols are unknown,
 // so those files are skipped instead of failing the whole run. The explicit analyseAndScan
 // structure is required: the shorthand list form is only normalized by the neon loader and
 // gets dropped when returned from a PHP config file. In this form the entries append-merge
 // with the excludePaths in phpstan.neon.dist.
+$conditionallyExcluded = [];
+
 if (!is_dir(__DIR__ . '/vendor-bin/danger-php/vendor')) {
+    $conditionallyExcluded[] = __DIR__ . '/src/Core/DevOps/StaticAnalyze/Danger';
+    $conditionallyExcluded[] = __DIR__ . '/tests/unit/Core/DevOps/StaticAnalyze/Danger';
+}
+
+if (!is_dir(__DIR__ . '/vendor-bin/rector/vendor')) {
+    $conditionallyExcluded[] = __DIR__ . '/src/Core/DevOps/StaticAnalyze/Rector';
+}
+
+if ($conditionallyExcluded !== []) {
     $parameters['excludePaths'] = [
-        'analyseAndScan' => [
-            __DIR__ . '/src/Core/DevOps/StaticAnalyze/Danger',
-            __DIR__ . '/tests/unit/Core/DevOps/StaticAnalyze/Danger',
-        ],
+        'analyseAndScan' => $conditionallyExcluded,
     ];
 }
 

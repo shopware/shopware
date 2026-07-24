@@ -51,6 +51,24 @@ if (is_dir($dangerSrc)) {
     $dangerClassLoader->register();
 }
 
+/*
+ * Same for the custom Rector rules (src/Core/DevOps/StaticAnalyze/Rector), which type against
+ * the rector package from vendor-bin. Only the Rector\ classes are registered from rector's
+ * bundled classmap — appended, never rector's full autoloader, which ships its own copies of
+ * nikic/php-parser and phpstan that must not shadow the root vendor's. Without the install the
+ * Rector paths are excluded via phpstan-paths.php.
+ */
+$rectorClassMap = TEST_PROJECT_DIR . '/vendor-bin/rector/vendor/rector/rector/vendor/composer/autoload_classmap.php';
+if (is_file($rectorClassMap)) {
+    $rectorClassLoader = new ClassLoader();
+    $rectorClassLoader->addClassMap(array_filter(
+        require $rectorClassMap,
+        static fn (string $class): bool => str_starts_with($class, 'Rector\\'),
+        \ARRAY_FILTER_USE_KEY,
+    ));
+    $rectorClassLoader->register();
+}
+
 $cacheDir = TEST_PROJECT_DIR . '/var/cache/static_phpstan_dev';
 $containerXml = $cacheDir . '/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml';
 $containerPhp = $cacheDir . '/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.php';

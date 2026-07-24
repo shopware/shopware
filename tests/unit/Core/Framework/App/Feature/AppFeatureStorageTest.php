@@ -31,8 +31,8 @@ class AppFeatureStorageTest extends TestCase
 
         $storage = new AppFeatureStorage(
             $connection,
-            $this->createStub(ClockInterface::class),
-            $this->createStub(AppFeatureDefinitionRegistry::class),
+            static::createStub(ClockInterface::class),
+            static::createStub(AppFeatureDefinitionRegistry::class),
         );
 
         $storage->deleteForApp($appId);

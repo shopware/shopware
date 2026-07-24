@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @see \Shopware\Tests\Integration\Storefront\Framework\HealthCheck\SalesChannelsReadinessCheckTest
  */
-#[Package('framework')]
+#[Package('discovery')]
 class SalesChannelsReadinessCheck extends BaseCheck
 {
     private const INDEX_PAGE = 'frontend.home.page';

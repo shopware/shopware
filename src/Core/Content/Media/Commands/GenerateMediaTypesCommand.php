@@ -18,11 +18,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('discovery')]
 #[AsCommand(
     name: 'media:generate-media-types',
     description: 'Generates media types for all media files',
 )]
-#[Package('discovery')]
 class GenerateMediaTypesCommand extends Command
 {
     private SymfonyStyle $io;

@@ -34,23 +34,26 @@
 .sw-admin-menu {
     // Shared motion tokens for the collapse/expand animation.
     --sw-admin-menu-bezier: cubic-bezier(0.32, 0.72, 0, 1);
-    --sw-admin-menu-duration: 0.5s; // root width/padding/gap
+    --sw-admin-menu-duration: 0.5s; // root width/padding
     --sw-admin-menu-duration-inner: 0.3s; // inner layout following the collapse
     --sw-admin-menu-fade-in-duration: 0.4s;
     --sw-admin-menu-fade-in-delay: 0.05s;
     --sw-admin-menu-fade-out-duration: 0.05s;
+
+    // Former root flex gap between header, body and footer. Lives on the
+    // scrolling body as vertical padding and doubles as the control points
+    // of the edge fade mask on the body container.
+    --sw-admin-menu-body-fade: var(--scale-size-16);
 
     background: var(--color-elevation-surface-sunken);
     width: 60px;
     height: 100%;
     display: flex;
     flex-direction: column;
-    gap: var(--scale-size-16);
     padding: var(--scale-size-16) var(--scale-size-12) var(--scale-size-8) var(--scale-size-12);
     transition:
         width var(--sw-admin-menu-duration) var(--sw-admin-menu-bezier),
-        padding var(--sw-admin-menu-duration) var(--sw-admin-menu-bezier),
-        gap var(--sw-admin-menu-duration) var(--sw-admin-menu-bezier);
+        padding var(--sw-admin-menu-duration) var(--sw-admin-menu-bezier);
 
     @media screen and (max-width: 500px) {
         width: 280px;
@@ -97,8 +100,9 @@
     }
 
     &.is--expanded {
+        --sw-admin-menu-body-fade: var(--scale-size-20);
+
         width: 300px;
-        gap: var(--scale-size-20);
         padding: var(--scale-size-24) var(--scale-size-12) var(--scale-size-8) var(--scale-size-12);
 
         .navigation-list-item__level-1 > .sw-admin-menu__navigation-link.router-link-active {
@@ -279,6 +283,19 @@
         flex: 1 1 0;
         order: 2;
         overflow: hidden;
+
+        // Fade the scrolling body out at the top and bottom edge. The fade runs
+        // from 4px inside the edge to the body's vertical padding, so resting
+        // content stays fully opaque and only fades while it moves through the
+        // padding zones.
+        mask-image:
+            linear-gradient(
+                to bottom,
+                transparent var(--scale-size-4),
+                #000 var(--sw-admin-menu-body-fade),
+                #000 calc(100% - var(--sw-admin-menu-body-fade)),
+                transparent calc(100% - var(--scale-size-4))
+            );
     }
 
     .sw-admin-menu__body {
@@ -287,10 +304,16 @@
         display: flex;
         flex-direction: column;
         gap: var(--scale-size-16);
+
+        // The vertical padding must live on the scroller itself: scroll
+        // containers clip at their padding box, so content passing through
+        // the padding stays visible for the fade mask on the container.
+        padding: var(--sw-admin-menu-body-fade) 0;
         overflow-x: hidden;
         overflow-y: scroll;
         -ms-overflow-style: none;
         -webkit-overflow-scrolling: touch;
+        transition: padding var(--sw-admin-menu-duration) var(--sw-admin-menu-bezier);
 
         &::-webkit-scrollbar {
             display: none;
@@ -584,6 +607,7 @@
     .sw-admin-menu,
     .sw-admin-menu .collapsible-text,
     .sw-admin-menu .hide-on-collapse,
+    .sw-admin-menu .sw-admin-menu__body,
     .sw-admin-menu .sw-admin-menu__header,
     .sw-admin-menu .sw-admin-menu__headline-context-menu,
     .sw-admin-menu .sw-admin-menu__header-logo,

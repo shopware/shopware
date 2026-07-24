@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\System\Snippet\Command;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
@@ -67,9 +66,7 @@ class ValidateSnippetsCommandTest extends TestCase
         $application->setCatchExceptions(false);
         $applicationTester = new ApplicationTester($application);
 
-        $result = Feature::withFeatureEnabled('v6.8.0.0', static fn (): int => $applicationTester->run(['command' => 'snippets:validate']));
-
-        static::assertSame(Command::SUCCESS, $result);
+        static::assertSame(Command::SUCCESS, $applicationTester->run(['command' => 'snippets:validate']));
     }
 
     #[TestDox('Missing translations are listed per ISO and fail the command')]

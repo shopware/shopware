@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Content\Seo;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoUrlRequestContext;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(SeoUrlRequestContext::class)]
 class SeoUrlRequestContextTest extends TestCase
 {

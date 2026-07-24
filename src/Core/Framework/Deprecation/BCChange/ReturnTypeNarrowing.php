@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Log\Package;
  * the method must declare a return type that is compatible with the announced type before the
  * change happens. Tooling (e.g. Rector) can prepare overrides by reading `$newType`.
  */
-#[\Attribute(\Attribute::TARGET_METHOD)]
 #[Package('framework')]
+#[\Attribute(\Attribute::TARGET_METHOD)]
 final class ReturnTypeNarrowing implements ExtenderCompatibilityChange
 {
     public function __construct(

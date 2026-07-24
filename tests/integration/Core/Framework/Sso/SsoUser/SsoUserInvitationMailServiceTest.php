@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Sso\SsoUser;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Defaults;
@@ -21,7 +20,6 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[Package('framework')]
-#[Group('slow')]
 class SsoUserInvitationMailServiceTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

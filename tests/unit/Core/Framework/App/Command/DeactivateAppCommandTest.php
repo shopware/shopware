@@ -9,12 +9,14 @@ use Shopware\Core\Framework\App\Command\AbstractAppActivationCommand;
 use Shopware\Core\Framework\App\Command\DeactivateAppCommand;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AbstractAppActivationCommand::class)]
 #[CoversClass(DeactivateAppCommand::class)]
 class DeactivateAppCommandTest extends TestCase

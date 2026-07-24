@@ -42,7 +42,7 @@ class OpenApiSchemaBuilder
 
     public function enrich(OpenApi $openApi, string $api): void
     {
-        $openApi->merge($this->createServers($api));
+        $openApi->merge(array_values($this->createServers($api)));
         $openApi->info = $this->createInfo($api, $this->version);
 
         $security = $openApi->security;
@@ -99,9 +99,9 @@ EOF,
 
     private function enrichComponents(Components $components, string $api): void
     {
-        $components->merge($this->getDefaultSchemas());
-        $components->merge($this->createSecurityScheme($api));
-        $components->merge($this->createDefaultResponses());
+        $components->merge(array_values($this->getDefaultSchemas()));
+        $components->merge(array_values($this->createSecurityScheme($api)));
+        $components->merge(array_values($this->createDefaultResponses()));
     }
 
     /**

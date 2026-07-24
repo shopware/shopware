@@ -86,8 +86,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[CoversClass(OrderConverter::class)]
 #[Package('checkout')]
+#[CoversClass(OrderConverter::class)]
 class OrderConverterTest extends TestCase
 {
     private EventDispatcher $eventDispatcher;

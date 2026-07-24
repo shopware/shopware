@@ -16,8 +16,8 @@ use Shopware\Core\Framework\Log\Package;
  * Only announce real contract changes: switching to exceptions that are already covered by the
  * current `@throws` contract (narrowing) does not affect callers and needs no announcement.
  */
-#[\Attribute(\Attribute::TARGET_METHOD)]
 #[Package('framework')]
+#[\Attribute(\Attribute::TARGET_METHOD)]
 final class ExceptionChange implements CallSiteCompatibilityChange
 {
     /**

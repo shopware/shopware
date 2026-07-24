@@ -21,8 +21,8 @@ use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 /**
  * @internal
  */
-#[CoversClass(ListAddressRoute::class)]
 #[Package('checkout')]
+#[CoversClass(ListAddressRoute::class)]
 class ListAddressRouteTest extends TestCase
 {
     /**

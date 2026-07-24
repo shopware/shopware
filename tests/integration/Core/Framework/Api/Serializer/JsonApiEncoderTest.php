@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\AssociationExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldPlainTestDefinition;
@@ -45,6 +46,7 @@ use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestMainRe
 /**
  * @internal
  */
+#[Package('framework')]
 class JsonApiEncoderTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour {

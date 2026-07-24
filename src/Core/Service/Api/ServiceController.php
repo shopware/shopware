@@ -26,8 +26,8 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal only for use by the service-system
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class ServiceController
 {
     public function __construct(

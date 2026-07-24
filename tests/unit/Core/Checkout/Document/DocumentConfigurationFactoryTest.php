@@ -12,8 +12,8 @@ use Shopware\Core\System\Country\CountryEntity;
 /**
  * @internal
  */
-#[CoversClass(DocumentConfigurationFactory::class)]
 #[Package('after-sales')]
+#[CoversClass(DocumentConfigurationFactory::class)]
 class DocumentConfigurationFactoryTest extends TestCase
 {
     public function testMergeConfigurationConvertsArrayToEntityObjectAndUseSetterMethod(): void

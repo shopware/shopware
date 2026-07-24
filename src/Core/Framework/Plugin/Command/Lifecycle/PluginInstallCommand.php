@@ -21,11 +21,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Path;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'plugin:install',
     description: 'Installs a plugin',
 )]
-#[Package('framework')]
 class PluginInstallCommand extends AbstractPluginLifecycleCommand
 {
     private const LIFECYCLE_METHOD = 'install';

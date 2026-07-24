@@ -63,7 +63,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     public function generate(array $definitions, string $api, string $apiType, ?string $bundleName): array
     {
         $openApi = new OpenApi([
-            'openapi' => '3.1.0',
+            'openapi' => '3.2.0',
         ]);
         $this->openApiBuilder->enrich($openApi, $api);
 
@@ -104,7 +104,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                 $overriddenSchemaNames[] = $schemaName;
             }
 
-            $openApi->components->merge($schema);
+            $openApi->components->merge(array_values($schema));
         }
 
         $this->addGeneralInformation($openApi);

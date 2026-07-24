@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Service\Requirement;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\Requirement\Gate;
 use Shopware\Core\Service\Requirement\ServicesEnabledRequirement;
@@ -12,6 +13,7 @@ use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ServicesEnabledRequirement::class)]
 class ServicesEnabledRequirementTest extends TestCase
 {

@@ -1,4 +1,4 @@
-import { Fragment } from 'vue';
+import { getTabItemsFromSlotContent, getTextFromSlotItem, triggerTabItemClick } from '../tab-slot-parser';
 import template from './sw-meteor-card.html.twig';
 import './sw-meteor-card.scss';
 
@@ -128,29 +128,10 @@ export default {
                 return [];
             }
 
-            return this.getTabItemsFromSlotContent(slotContent);
-        },
-
-        getTabItemsFromSlotContent(slotContent) {
-            return slotContent.reduce((items, item) => {
-                if (this.isFragment(item)) {
-                    const children = Array.isArray(item.children) ? item.children : [];
-
-                    return [
-                        ...items,
-                        ...this.getTabItemsFromSlotContent(children),
-                    ];
-                }
-
-                if (!this.isTabItem(item)) {
-                    return items;
-                }
-
-                return [
-                    ...items,
-                    this.createTabItem(item),
-                ];
-            }, []);
+            return getTabItemsFromSlotContent(slotContent, {
+                isTabItem: (item) => this.isTabItem(item),
+                createTabItem: (item) => this.createTabItem(item),
+            });
         },
 
         createTabItem(item) {
@@ -180,25 +161,11 @@ export default {
                         this.$router.push(props.route);
                     }
 
-                    this.triggerTabItemClick(props.onClick);
+                    triggerTabItemClick(props.onClick);
                 };
             }
 
             return tabItem;
-        },
-
-        triggerTabItemClick(clickHandler) {
-            if (Array.isArray(clickHandler)) {
-                clickHandler.forEach((handler) => {
-                    handler();
-                });
-
-                return;
-            }
-
-            if (typeof clickHandler === 'function') {
-                clickHandler();
-            }
         },
 
         getTabItemDefaultSlotText(item) {
@@ -209,23 +176,11 @@ export default {
             }
 
             const slotText = defaultSlotContent
-                .map((slotItem) => this.getTextFromSlotItem(slotItem))
+                .map((slotItem) => getTextFromSlotItem(slotItem))
                 .join('')
                 .trim();
 
             return slotText || undefined;
-        },
-
-        getTextFromSlotItem(slotItem) {
-            if (typeof slotItem.children === 'string') {
-                return slotItem.children;
-            }
-
-            if (Array.isArray(slotItem.children)) {
-                return slotItem.children.map((child) => this.getTextFromSlotItem(child)).join('');
-            }
-
-            return '';
         },
 
         isTabItem(item) {
@@ -239,10 +194,6 @@ export default {
                         props.title !== undefined ||
                         props.activeTab !== undefined))
             );
-        },
-
-        isFragment(item) {
-            return item.type === Fragment || (typeof item.type === 'symbol' && item.type.toString() === 'Symbol(v-fgt)');
         },
     },
 };

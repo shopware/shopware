@@ -1,7 +1,8 @@
-import { Fragment, type VNode } from 'vue';
+import { type VNode } from 'vue';
 import type { RouteLocationNamedRaw, RouteLocationRaw } from 'vue-router';
 import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
 import type { ModuleManifest } from 'src/core/factory/module.factory';
+import { getTabItemsFromSlotContent, getTextFromSlotItem, triggerTabItemClick } from '../tab-slot-parser';
 import template from './sw-meteor-page.html.twig';
 import './sw-meteor-page.scss';
 
@@ -129,29 +130,10 @@ export default Shopware.Component.wrapComponentConfig({
                 return [];
             }
 
-            return this.getTabItemsFromSlotContent(slotContent);
-        },
-
-        getTabItemsFromSlotContent(slotContent: VNode[]): TabItem[] {
-            return slotContent.reduce<TabItem[]>((items, item) => {
-                if (this.isFragment(item)) {
-                    const children = Array.isArray(item.children) ? (item.children as VNode[]) : [];
-
-                    return [
-                        ...items,
-                        ...this.getTabItemsFromSlotContent(children),
-                    ];
-                }
-
-                if (!this.isTabItem(item)) {
-                    return items;
-                }
-
-                return [
-                    ...items,
-                    this.createTabItem(item),
-                ];
-            }, []);
+            return getTabItemsFromSlotContent(slotContent, {
+                isTabItem: (item) => this.isTabItem(item),
+                createTabItem: (item) => this.createTabItem(item),
+            });
         },
 
         createTabItem(item: VNode): TabItem {
@@ -182,25 +164,11 @@ export default Shopware.Component.wrapComponentConfig({
                         void this.$router.push(props.route);
                     }
 
-                    this.triggerTabItemClick(props.onClick);
+                    triggerTabItemClick(props.onClick);
                 };
             }
 
             return tabItem;
-        },
-
-        triggerTabItemClick(clickHandler: SwTabsItemProps['onClick']): void {
-            if (Array.isArray(clickHandler)) {
-                clickHandler.forEach((handler) => {
-                    handler();
-                });
-
-                return;
-            }
-
-            if (typeof clickHandler === 'function') {
-                clickHandler();
-            }
         },
 
         getTabItemDefaultSlotText(item: VNode): string | undefined {
@@ -212,21 +180,9 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             return defaultSlotContent
-                .map((slotItem) => this.getTextFromSlotItem(slotItem))
+                .map((slotItem) => getTextFromSlotItem(slotItem))
                 .join('')
                 .trim();
-        },
-
-        getTextFromSlotItem(slotItem: VNode): string {
-            if (typeof slotItem.children === 'string') {
-                return slotItem.children;
-            }
-
-            if (Array.isArray(slotItem.children)) {
-                return (slotItem.children as VNode[]).map((child) => this.getTextFromSlotItem(child)).join('');
-            }
-
-            return '';
         },
 
         getRouteName(route: RouteLocationRaw | undefined): string | undefined {
@@ -249,10 +205,6 @@ export default Shopware.Component.wrapComponentConfig({
                     props !== null &&
                     (props.name !== undefined || props.route !== undefined || props.title !== undefined))
             );
-        },
-
-        isFragment(item: VNode): boolean {
-            return item.type === Fragment || (typeof item.type === 'symbol' && item.type.toString() === 'Symbol(v-fgt)');
         },
 
         initPage(): void {

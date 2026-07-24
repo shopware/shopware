@@ -342,7 +342,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
-    describe('composables-component: rewrites $router, $route, $slots, $nextTick, $t, $tc, and $el to their Composition API equivalents', () => {
+    describe('composables-component: rewrites $router, $route, $slots, $nextTick, $t, and $tc to their Composition API equivalents', () => {
         let result: ReturnType<typeof transformScript>;
 
         beforeAll(() => {
@@ -390,18 +390,32 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.script).toContain('useI18n()');
         });
 
-        it('rewrites this.$el → getCurrentInstance()?.proxy?.$el with a TODO comment', () => {
-            expect(result.script).toContain('/* TODO: $el */ getCurrentInstance()?.proxy?.$el');
-            expect(result.script).not.toMatch(/\bthis\.\$el\b/);
-            expect(result.script).toMatch(/import\s*\{[^}]*getCurrentInstance[^}]*\}\s*from\s*['"]vue['"]/);
-        });
-
         it('does not contain any this. references', () => {
             expect(result.script).not.toMatch(/\bthis\./);
         });
 
         it('matches the complete converted script snapshot', () => {
             expect(result.script).toMatchSnapshot();
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    describe('instance-api-component: keeps $el as a placeholder and requires manual follow-up', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            result = transformScript(readFixture('instance-api-component.index.js'));
+        });
+
+        it('reports status partially-migratable with a $el blocker', () => {
+            expect(result.status).toBe('partially-migratable');
+            expect(result.blockers.join('\n')).toContain('$el');
+        });
+
+        it('rewrites this.$el → getCurrentInstance()?.proxy?.$el with a TODO comment', () => {
+            expect(result.script).toContain('/* TODO: $el */ getCurrentInstance()?.proxy?.$el');
+            expect(result.script).not.toMatch(/\bthis\.\$el\b/);
+            expect(result.script).toMatch(/import\s*\{[^}]*getCurrentInstance[^}]*\}\s*from\s*['"]vue['"]/);
         });
     });
 
@@ -687,9 +701,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
 
         expect(result.status).toBe('partially-migratable');
         expect(result.blockers).toContain('methods: ...sharedMethods: spread method entries must be migrated manually');
-        expect(result.blockers).toContain(
-            'methods: shorthandMethod: shorthand method entries must be migrated manually',
-        );
+        expect(result.blockers).toContain('methods: shorthandMethod: shorthand method entries must be migrated manually');
         expect(result.script).toContain(
             'TODO: migrate method manually: methods: ...sharedMethods: spread method entries must be migrated manually',
         );
@@ -1635,6 +1647,931 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
 
         it('does not emit a local $dataScope variable', () => {
             expect(result.script).not.toContain('const $dataScope =');
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    describe('unsupported-shape regression coverage: never silently generate non-equivalent setup code', () => {
+        function expectManualFallback(result: ReturnType<typeof transformScript>, blocker: string): void {
+            expect(result.status).not.toBe('fully-migratable');
+            expect(result.blockers.join('\n')).toContain(blocker);
+        }
+
+        it('marks this[elementAccess] as unsupported instead of leaving executable this access', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data() { return { foo: 1, bar: 2 }; },
+                methods: {
+                    update(key, value) {
+                        this[key] = value;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'dynamic this access');
+            expect(result.script).not.toContain('this[key]');
+        });
+
+        it('marks unknown this properties as unsupported instead of leaving executable this access', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                methods: {
+                    notify() {
+                        this.createNotificationSuccess({ message: 'Saved' });
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'unknown this property');
+            expect(result.script).not.toContain('this.createNotificationSuccess');
+        });
+
+        it('marks bare this usage as unsupported instead of leaving setup with the wrong this binding', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                methods: {
+                    register() {
+                        shortcutService.startEventListener({
+                            scope: this,
+                        });
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'bare this');
+            expect(result.script).not.toContain('scope: this');
+        });
+
+        it('marks aliased instance access as unsupported instead of leaving a setup-time this alias', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data() { return { title: 'Title' }; },
+                methods: {
+                    getTitle() {
+                        const vm = this;
+
+                        return vm.title;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'this alias');
+            expect(result.script).not.toContain('const vm = this;');
+        });
+
+        it('marks instance destructuring as unsupported instead of destructuring the setup this value', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data() { return { title: 'Title' }; },
+                methods: {
+                    getTitle() {
+                        const { title } = this;
+
+                        return title;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'bare this');
+            expect(result.script).not.toContain('const { title } = this;');
+        });
+
+        it('marks instance binding helpers as unsupported instead of binding callbacks to setup this', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                methods: {
+                    save() {},
+                    scheduleSave() {
+                        return this.save.bind(this);
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'bare this');
+            expect(result.script).not.toContain('save.bind(this)');
+        });
+
+        it('marks unsupported data() return shapes as unsupported instead of dropping state', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data() {
+                    return buildInitialState();
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'data');
+        });
+
+        it('marks shorthand data declarations as unsupported instead of treating them as absent', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data,
+                methods: {
+                    getTitle() {
+                        return this.title;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'data');
+            expect(result.script).not.toContain('this.title');
+        });
+
+        it('marks non-function data declarations as unsupported instead of treating them as absent', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data: buildInitialState,
+                methods: {
+                    getTitle() {
+                        return this.title;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'data');
+            expect(result.script).not.toContain('this.title');
+        });
+
+        it('marks data initializers that call component methods as unsupported instead of emitting a setup TDZ access', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data() {
+                    return {
+                        title: this.buildTitle(),
+                    };
+                },
+                methods: {
+                    buildTitle() {
+                        return 'Title';
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'data');
+            expect(result.script).not.toContain('const title = ref(buildTitle());');
+        });
+
+        it('marks nested data() returns as unsupported instead of using the wrong return object', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data() {
+                    function buildState() {
+                        return { nestedOnly: true };
+                    }
+
+                    return buildState();
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'data');
+            expect(result.script).not.toContain('const nestedOnly = ref(true);');
+        });
+
+        it('marks shorthand props declarations as unsupported instead of treating them as absent', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                props,
+                methods: {
+                    getTitle() {
+                        return this.title;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'props');
+            expect(result.script).not.toContain('this.title');
+        });
+
+        it('marks non-string array props entries as unsupported instead of filtering them out', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                props: ['title', ...sharedProps],
+                methods: {
+                    getShared() {
+                        return this.shared;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'props');
+        });
+
+        it('marks object props with spread entries as unsupported instead of ignoring the spread', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                props: {
+                    title: String,
+                    ...sharedProps,
+                },
+                methods: {
+                    getShared() {
+                        return this.shared;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'props');
+        });
+
+        it('marks computed prop names as unsupported instead of dropping the dynamic prop from name extraction', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                props: {
+                    [dynamicPropName]: String,
+                },
+                methods: {
+                    getDynamicValue() {
+                        return this[dynamicPropName];
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'props');
+            expect(result.script).not.toContain('[dynamicPropName]: String');
+        });
+
+        it('marks non-literal props initializers as unsupported when prop names cannot be extracted', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                props: buildProps(),
+                methods: {
+                    getTitle() {
+                        return this.title;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'props');
+            expect(result.script).not.toContain('this.title');
+        });
+
+        it('marks props that reference local module declarations as unsupported for script setup macros', () => {
+            const js = `const TYPES = [String];
+
+            Shopware.Component.register('sw-test', {
+                props: {
+                    title: {
+                        type: TYPES[0],
+                    },
+                },
+                methods: {
+                    getTitle() {
+                        return this.title;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'props');
+            expect(result.script).not.toContain('defineProps({');
+        });
+
+        it('marks shorthand emits declarations as unsupported instead of treating them as absent', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                emits,
+                methods: {
+                    save() {
+                        this.$emit('save');
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'emits');
+        });
+
+        it('marks non-string array emits entries as unsupported instead of filtering them out', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                emits: ['save', ...sharedEmits],
+                methods: {
+                    save() {
+                        this.$emit('save');
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'emits');
+        });
+
+        it('marks computed emits names as unsupported instead of passing dynamic event validators through', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                emits: {
+                    [dynamicEventName](payload) {
+                        return Boolean(payload);
+                    },
+                },
+                methods: {
+                    save(payload) {
+                        this.$emit(dynamicEventName, payload);
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'emits');
+            expect(result.script).not.toContain('[dynamicEventName]');
+        });
+
+        it('marks unsupported emits initializers as unsupported instead of replacing them with inferred emits', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                emits: buildEmits(),
+                methods: {
+                    save() {
+                        this.$emit('save');
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'emits');
+        });
+
+        it('marks object emits with spread entries as unsupported instead of passing spread to defineEmits', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                emits: {
+                    ...sharedEmits,
+                    save(payload) {
+                        return Boolean(payload);
+                    },
+                },
+                methods: {
+                    save(payload) {
+                        this.$emit('save', payload);
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'emits');
+            expect(result.script).not.toContain('...sharedEmits');
+        });
+
+        it('marks emits that reference local module declarations as unsupported for script setup macros', () => {
+            const js = `const isValidSave = (payload) => Boolean(payload);
+
+            Shopware.Component.register('sw-test', {
+                emits: {
+                    save: isValidSave,
+                },
+                methods: {
+                    save(payload) {
+                        this.$emit('save', payload);
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'emits');
+            expect(result.script).not.toContain('defineEmits({');
+        });
+
+        it('marks shorthand methods declarations as unsupported instead of treating them as absent', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                methods,
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'methods');
+        });
+
+        it('marks non-object methods declarations as unsupported instead of treating them as absent', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                methods: buildMethods(),
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'methods');
+        });
+
+        it('marks spread methods entries as unsupported instead of dropping the spread methods', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                methods: {
+                    ...sharedMethods,
+                    save() {},
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'methods');
+        });
+
+        it('marks methods assigned to external references as unsupported instead of assuming instance binding is preserved', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                methods: {
+                    save: externalSave,
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'methods');
+            expect(result.script).not.toContain('const save = externalSave;');
+        });
+
+        it('marks bare this inside raw method expressions as unsupported instead of preserving nested instance binding', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                methods: {
+                    run: debounce(function() {
+                        nested(function() {
+                            return this;
+                        });
+                    }),
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'bare this');
+            expect(result.script).not.toContain('return this;');
+        });
+
+        it('marks shorthand computed declarations as unsupported instead of treating them as absent', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                computed,
+                methods: {
+                    getTitle() {
+                        return this.title;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'computed');
+            expect(result.script).not.toContain('this.title');
+        });
+
+        it('marks function-valued lifecycle hooks as unsupported instead of dropping them', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                created: function() {
+                    this.bootstrap();
+                },
+                methods: {
+                    bootstrap() {},
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'created');
+        });
+
+        it('marks shorthand lifecycle hook declarations as unsupported instead of dropping them', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                created,
+                methods: {
+                    bootstrap() {},
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'created');
+        });
+
+        it('marks shorthand watch declarations as unsupported instead of treating them as absent', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data() { return { title: 'Title' }; },
+                watch,
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'watch');
+        });
+
+        it('marks shorthand inject declarations as unsupported instead of treating them as absent', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                inject,
+                methods: {
+                    getRepository() {
+                        return this.repositoryFactory;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'inject');
+            expect(result.script).not.toContain('this.repositoryFactory');
+        });
+
+        it('marks destructured watcher parameters as unsupported instead of corrupting the parameter list', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data() { return { item: null }; },
+                watch: {
+                    item({ id }) {
+                        this.useId(id);
+                    },
+                },
+                methods: {
+                    useId(id) {
+                        return id;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'watch');
+            expect(result.script).not.toContain('(id) =>');
+        });
+
+        it('marks watcher parameters with defaults or rest syntax as unsupported instead of dropping parameter syntax', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data() { return { item: null }; },
+                watch: {
+                    item(newValue = {}) {
+                        this.useValue(newValue);
+                    },
+                },
+                methods: {
+                    useValue(value) {
+                        return value;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'watch');
+            expect(result.script).not.toContain('(newValue) =>');
+        });
+
+        it('marks computed setters with default parameters as unsupported instead of dropping parameter syntax', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data() { return { item: null }; },
+                computed: {
+                    itemProxy: {
+                        get() {
+                            return this.item;
+                        },
+                        set(value = null) {
+                            this.item = value;
+                        },
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'computed');
+            expect(result.script).not.toContain('set: (value) =>');
+        });
+
+        it('marks dynamic inheritAttrs as unsupported instead of assuming true', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                inheritAttrs: shouldInheritAttrs(),
+                methods: {
+                    noop() {},
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'inheritAttrs');
+        });
+
+        it('marks root-level component option spreads as unsupported instead of ignoring hidden options', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                ...buildComponentOptions(),
+                data() { return { title: 'Title' }; },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'component option spread');
+        });
+
+        it('marks dynamic root component option names as unsupported instead of ignoring hidden options', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                [dynamicOptionName]: buildRuntimeOption(),
+                data() { return { title: 'Title' }; },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'dynamic option');
+        });
+
+        it('marks computed render declarations as not migratable instead of missing the render blocker', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                ['render']() {
+                    return h('div');
+                },
+                data() { return { title: 'Title' }; },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('not-migratable');
+            expect(result.blockers.join('\n')).toContain('render');
+            expect(result.script).toBe('');
+        });
+
+        it('marks non-literal component names as unsupported instead of renaming to unknown-component', () => {
+            const js = `Shopware.Component.register(componentName, {
+                data() { return { title: 'Title' }; },
+                methods: {
+                    getTitle() {
+                        return this.title;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'component name');
+            expect(result.script).not.toContain("name: 'unknown-component'");
+        });
+
+        it('marks dynamic component option names as unsupported instead of emitting invalid defineOptions', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                name: componentDisplayName,
+                data() { return { title: 'Title' }; },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'name');
+            expect(result.script).not.toContain('defineOptions({ name: componentDisplayName })');
+        });
+
+        it('marks duplicate public setup names as unsupported instead of emitting duplicate declarations', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data() {
+                    return {
+                        save: false,
+                    };
+                },
+                methods: {
+                    save() {
+                        return this.save;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'duplicate');
+            expect(result.script).not.toContain('const save = ref(false);');
+            expect(result.script).not.toContain('const save = () =>');
+        });
+
+        it.each([
+            [
+                'beforeRouteEnter',
+                'beforeRouteEnter(to, from, next) { next(); }',
+            ],
+            [
+                'beforeRouteLeave',
+                'beforeRouteLeave(to, from, next) { next(); }',
+            ],
+            [
+                'beforeRouteUpdate',
+                'beforeRouteUpdate(to, from, next) { next(); }',
+            ],
+            [
+                'metaInfo',
+                "metaInfo() { return { title: 'Title' }; }",
+            ],
+            [
+                'shortcuts',
+                "shortcuts: { 'SYSTEMKEY+S': 'save' }",
+            ],
+            [
+                'errorCaptured',
+                'errorCaptured() { return false; }',
+            ],
+            [
+                'expose',
+                "expose: ['focus']",
+            ],
+            [
+                'extensionApiDevtoolInformation',
+                "extensionApiDevtoolInformation: { property: 'value' }",
+            ],
+            [
+                'saveFinish',
+                'saveFinish() { return true; }',
+            ],
+        ])('marks unsupported top-level option %s as requiring manual migration', (optionName, optionSource) => {
+            const js = `Shopware.Component.register('sw-test', {
+                ${optionSource},
+                methods: {
+                    save() {},
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, optionName);
+        });
+
+        it.each([
+            [
+                '$el',
+                'return this.$el;',
+            ],
+            [
+                '$parent',
+                'return this.$parent;',
+            ],
+            [
+                '$root',
+                'return this.$root;',
+            ],
+            [
+                '$options',
+                'return this.$options;',
+            ],
+            [
+                '$forceUpdate',
+                'this.$forceUpdate();',
+            ],
+        ])('marks placeholder rewrite for %s as requiring manual follow-up', (apiName, statement) => {
+            const js = `Shopware.Component.register('sw-test', {
+                methods: {
+                    useApi() {
+                        ${statement}
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, apiName);
+        });
+
+        it('drops a method that calls another method dropped for unresolved this access', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                methods: {
+                    dropped() {
+                        return this.unknownApi;
+                    },
+                    callDropped() {
+                        return this.dropped();
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'unknown this property');
+            expect(result.script).not.toContain('this.dropped');
+            expect(result.script).not.toContain('this.unknownApi');
+        });
+
+        it('drops a method that references a name removed as a duplicate public binding', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data() {
+                    return { collision: 1 };
+                },
+                methods: {
+                    collision() {
+                        return 2;
+                    },
+                    useCollision() {
+                        return this.collision;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'duplicate');
+            expect(result.script).not.toContain('this.collision');
+        });
+
+        it('drops a computed property that calls a method dropped for unresolved this access', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                computed: {
+                    value() {
+                        return this.dropped();
+                    },
+                },
+                methods: {
+                    dropped() {
+                        return this.unknownApi;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'computed');
+            expect(result.script).not.toContain('this.dropped');
+            expect(result.script).not.toContain('this.unknownApi');
+        });
+
+        it('drops a computed property that references a name removed as a duplicate public binding', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data() {
+                    return { collision: 1 };
+                },
+                computed: {
+                    collision() {
+                        return 2;
+                    },
+                    useCollision() {
+                        return this.collision;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'duplicate');
+            expect(result.script).not.toContain('this.collision');
+        });
+
+        it('drops a watcher that calls a method dropped for unresolved this access', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data() {
+                    return { count: 0 };
+                },
+                watch: {
+                    count() {
+                        this.dropped();
+                    },
+                },
+                methods: {
+                    dropped() {
+                        return this.unknownApi;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'watch');
+            expect(result.script).not.toContain('this.dropped');
+            expect(result.script).not.toContain('this.unknownApi');
+        });
+
+        it('drops a lifecycle hook that calls a method dropped for unresolved this access', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                mounted() {
+                    this.dropped();
+                },
+                methods: {
+                    dropped() {
+                        return this.unknownApi;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'mounted');
+            expect(result.script).not.toContain('this.dropped');
+            expect(result.script).not.toContain('this.unknownApi');
+        });
+
+        it('marks props that reference a destructured module-local declaration as unsupported', () => {
+            const js = `const { propConfig } = Shopware.Utils;
+
+            Shopware.Component.register('sw-test', {
+                props: {
+                    label: propConfig,
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'props');
+            expect(result.script).not.toContain('defineProps({');
+        });
+
+        it('marks emits that reference a destructured module-local declaration as unsupported', () => {
+            const js = `const { onSave } = Shopware.Utils;
+
+            Shopware.Component.register('sw-test', {
+                emits: {
+                    save: onSave,
+                },
+                methods: {
+                    save(payload) {
+                        this.$emit('save', payload);
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'emits');
+            expect(result.script).not.toContain('defineEmits({');
+        });
+
+        it('does not back off when an emits validator parameter matches an unrelated module-local name', () => {
+            const js = `const payload = 'module local';
+
+            Shopware.Component.register('sw-test', {
+                emits: {
+                    save(payload) {
+                        return Boolean(payload);
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.blockers).toEqual([]);
+            expect(result.scriptType).toBe('setup');
+        });
+
+        it('does not back off when a prop key matches an unrelated module-local name', () => {
+            const js = `const label = 'module local';
+
+            Shopware.Component.register('sw-test', {
+                props: {
+                    label: String,
+                },
+                methods: {
+                    getLabel() {
+                        return this.label;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.blockers).toEqual([]);
+            expect(result.scriptType).toBe('setup');
         });
     });
 });

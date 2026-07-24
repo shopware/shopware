@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Routing;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Event\MaintenanceModeRequestEvent;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\SalesChannelRequest;
@@ -13,6 +14,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MaintenanceModeResolver::class)]
 class MaintenanceModeResolverTest extends TestCase
 {

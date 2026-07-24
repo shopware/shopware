@@ -13,12 +13,14 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Mail\Message\SendMailHandler;
 use Shopware\Core\Content\Mail\Message\SendMailMessage;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 use Symfony\Component\Mime\Email;
 
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(SendMailHandler::class)]
 class SendMailHandlerTest extends TestCase
 {

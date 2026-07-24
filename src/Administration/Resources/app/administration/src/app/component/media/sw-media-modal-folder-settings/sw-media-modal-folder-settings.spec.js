@@ -227,4 +227,14 @@ describe('src/app/asyncComponent/media/sw-media-modal-folder-settings', () => {
             message: 'global.sw-media-modal-folder-settings.notification.error.messageThumbnailSizeExisted',
         });
     });
+
+    it('should invalidate media default folder cache', async () => {
+        const invalidateCaches = jest.spyOn(Shopware.Service('cacheService'), 'invalidateCaches');
+
+        await wrapper.vm.invalidateMediaDefaultFolderCache();
+
+        expect(invalidateCaches).toHaveBeenCalledWith({
+            cacheKey: ['media-default-folder'],
+        });
+    });
 });

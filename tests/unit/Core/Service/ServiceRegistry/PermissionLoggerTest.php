@@ -7,6 +7,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\Message\LogPermissionToRegistryMessage;
 use Shopware\Core\Service\Permission\ConsentState;
 use Shopware\Core\Service\Permission\PermissionsConsent;
@@ -20,6 +21,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PermissionLogger::class)]
 class PermissionLoggerTest extends TestCase
 {

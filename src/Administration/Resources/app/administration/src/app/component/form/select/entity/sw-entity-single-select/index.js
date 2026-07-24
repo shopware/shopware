@@ -180,6 +180,16 @@ export default {
             required: false,
             default: undefined,
         },
+        cacheKey: {
+            type: Array,
+            required: false,
+            default: () => [],
+        },
+        cacheTtl: {
+            type: Number,
+            required: false,
+            default: undefined,
+        },
     },
 
     data() {
@@ -277,17 +287,27 @@ export default {
             }
 
             this.isLoading = true;
-            return this.repository.get(this.value, { ...this.context, inheritance: true }, this.criteria).then((item) => {
-                if (!item) {
-                    this.$emit('update:value', null);
-                }
+            return this.repository
+                .get(
+                    this.value,
+                    { ...this.context, inheritance: true },
+                    this.criteria,
+                    this.getCacheOptions([
+                        'selected',
+                        this.value,
+                    ]),
+                )
+                .then((item) => {
+                    if (!item) {
+                        this.$emit('update:value', null);
+                    }
 
-                this.criteria.setIds([]);
+                    this.criteria.setIds([]);
 
-                this.singleSelection = item;
-                this.isLoading = false;
-                return item;
-            });
+                    this.singleSelection = item;
+                    this.isLoading = false;
+                    return item;
+                });
         },
 
         createCollection(collection) {
@@ -378,13 +398,36 @@ export default {
         loadData() {
             this.isLoading = true;
 
-            return this.repository.search(this.criteria, { ...this.context, inheritance: true }).then((result) => {
-                this.displaySearch(result);
+            return this.repository
+                .search(
+                    this.criteria,
+                    { ...this.context, inheritance: true },
+                    this.getCacheOptions([
+                        'search',
+                        this.criteria.parse(),
+                    ]),
+                )
+                .then((result) => {
+                    this.displaySearch(result);
 
-                this.isLoading = false;
+                    this.isLoading = false;
 
-                return result;
-            });
+                    return result;
+                });
+        },
+
+        getCacheOptions(key) {
+            if (this.cacheKey.length === 0) {
+                return undefined;
+            }
+
+            return {
+                cacheKey: [
+                    ...this.cacheKey,
+                    ...key,
+                ],
+                ttl: this.cacheTtl,
+            };
         },
 
         checkEntityExists(term) {
@@ -412,7 +455,7 @@ export default {
 
         displaySearch(result) {
             if (!this.resultCollection) {
-                this.resultCollection = result;
+                this.resultCollection = EntityCollection.fromCollection(result);
             } else {
                 result.forEach((item) => {
                     // Prevent duplicate entries

@@ -7,12 +7,14 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Command\UninstallAppCommand;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class UninstallAppCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

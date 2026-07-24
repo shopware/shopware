@@ -6,7 +6,8 @@ use horstoeko\zugferd\ZugferdDocumentPdfMerger;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
+use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
@@ -37,6 +38,11 @@ final readonly class ZugferdEmbeddedPdfRenderer extends AbstractDocumentRenderer
         return self::FORMAT->value;
     }
 
+    public function getFileExtension(): string
+    {
+        return self::FORMAT->fileExtension();
+    }
+
     public function getDocumentTypes(): array
     {
         return [
@@ -54,9 +60,9 @@ final readonly class ZugferdEmbeddedPdfRenderer extends AbstractDocumentRenderer
 
     public function renderToString(RenderInput $input, RenderState $state, Context $context): RenderResult
     {
-        $renderData = $input->requireData(
-            $input->documentType,
-            AbstractRenderData::class,
+        $meta = $input->requireData(
+            DocumentMetaProvider::KEY,
+            DocumentMetaRenderData::class,
         );
 
         $pdf = $state->require(DocumentFormat::PDF->value)->content;
@@ -71,10 +77,12 @@ final readonly class ZugferdEmbeddedPdfRenderer extends AbstractDocumentRenderer
             throw DocumentV2Exception::embedFailed($exception);
         }
 
+        $fileStem = $meta->config->buildFileStem($meta->documentNumber, self::FORMAT->value);
+
         return new RenderResult(
             format: self::FORMAT->value,
             content: $content,
-            fileName: $renderData->config->buildFileStem($renderData->documentNumber),
+            fileName: $fileStem,
             fileExtension: self::FORMAT->fileExtension(),
             mimeType: self::FORMAT->mimeType(),
         );

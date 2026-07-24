@@ -4,11 +4,13 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Filesystem\Plugin;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class CopyBatchInputFactoryTest extends TestCase
 {
     public function testCopyBatchInputFactoryUsingDirectory(): void

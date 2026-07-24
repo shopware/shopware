@@ -20,7 +20,6 @@ export default {
         'feature',
         'bulkEditApiFactory',
         'repositoryFactory',
-        'userConfigService',
     ],
 
     data() {
@@ -1389,7 +1388,7 @@ export default {
                 return Promise.resolve();
             }
 
-            return this.userConfigService.upsert({
+            return Shopware.Service('userConfigService').upsert({
                 'measurement.preferenceUnits': {
                     length: this.lengthUnit,
                     weight: this.weightUnit,
@@ -1412,9 +1411,8 @@ export default {
         },
 
         async loadPreferenceUnits() {
-            const response = await this.userConfigService.search(['measurement.preferenceUnits']);
-
-            const preferenceUnits = response.data['measurement.preferenceUnits'] || {
+            const preferenceUnits = (await Shopware.Service('userConfigService').search(['measurement.preferenceUnits']))
+                ?.data?.['measurement.preferenceUnits'] || {
                 length: 'mm',
                 weight: 'kg',
             };

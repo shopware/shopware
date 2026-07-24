@@ -34,7 +34,7 @@ class SqlHeredocUsage
             }
         }
 
-        if (\count($errorFiles) === 0) {
+        if ($errorFiles === []) {
             return;
         }
 

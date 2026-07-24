@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\EventListener\ExpectationSubscriber;
 use Shopware\Core\Framework\Api\Exception\ExpectationFailedException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
@@ -18,6 +19,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ExpectationSubscriber::class)]
 class ExpectationSubscriberTest extends TestCase
 {

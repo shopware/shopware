@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\IpUtils;
 use Symfony\Component\Validator\Validation;
@@ -24,6 +25,7 @@ use Symfony\Component\Validator\Validation;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RemoteAddressFieldSerializer::class)]
 class RemoteAddressFieldSerializerTest extends TestCase
 {

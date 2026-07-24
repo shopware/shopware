@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Webhook;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
@@ -15,6 +16,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(WebhookDispatcher::class)]
 class WebhookDispatcherTest extends TestCase
 {

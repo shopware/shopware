@@ -78,7 +78,7 @@ class StaticProductProcessor extends AbstractProductSliderProcessor
         }
 
         $criteriaIds = array_unique($searchResult->getCriteria()->getIds());
-        if (\count($criteriaIds) > 0 && \count($searchResult->getCriteria()->getSorting()) === 0) {
+        if ($criteriaIds !== [] && $searchResult->getCriteria()->getSorting() === []) {
             $configuredIds = $slot->getFieldConfig()->get('products')?->getArrayValue() ?? [];
             usort(
                 $criteriaIds,

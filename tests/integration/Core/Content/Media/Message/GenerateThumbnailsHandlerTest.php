@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\Media\Message;
 
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -14,11 +15,13 @@ use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class GenerateThumbnailsHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -186,7 +189,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
         $thumbnailServiceMock = $this->createMock(ThumbnailService::class);
 
-        $handler = new GenerateThumbnailsHandler($thumbnailServiceMock, $this->mediaRepository);
+        $handler = new GenerateThumbnailsHandler($thumbnailServiceMock, $this->mediaRepository, new NullLogger());
 
         $randomCriteria = (new Criteria())
             /* @see GenerateThumbnailsHandler Association as in target method is required for the ease of PHPUnit's constraint evaluation */

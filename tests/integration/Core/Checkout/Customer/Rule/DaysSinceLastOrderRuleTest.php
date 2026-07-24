@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\DaysSinceLastOrderRule;
-use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Context;
@@ -21,9 +20,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
-use Shopware\Core\System\StateMachine\StateMachineRegistry;
-use Shopware\Core\System\StateMachine\Transition;
 use Shopware\Core\Test\Integration\Traits\OrderFixture;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -51,14 +47,11 @@ class DaysSinceLastOrderRuleTest extends TestCase
 
     private Context $context;
 
-    private StateMachineRegistry $stateMachineRegistry;
-
     protected function setUp(): void
     {
         $this->ruleRepository = static::getContainer()->get('rule.repository');
         $this->conditionRepository = static::getContainer()->get('rule_condition.repository');
         $this->context = Context::createDefaultContext();
-        $this->stateMachineRegistry = static::getContainer()->get(StateMachineRegistry::class);
     }
 
     public function testValidateWithMissingValues(): void
@@ -128,7 +121,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id));
         $this->ruleRepository->delete([['id' => $ruleId]], $this->context);
         $this->conditionRepository->delete([['id' => $id]], $this->context);
     }
@@ -141,49 +134,6 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
 
         static::assertFalse($rule->match($scope));
-    }
-
-    public function testCustomerMetaFieldSubscriber(): void
-    {
-        /** @var EntityRepository<OrderCollection> $orderRepository */
-        $orderRepository = static::getContainer()->get('order.repository');
-        /** @var EntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = static::getContainer()->get('customer.repository');
-        $defaultContext = Context::createDefaultContext();
-        $orderId = Uuid::randomHex();
-        $orderData = $this->getOrderData($orderId, $defaultContext);
-
-        $orderRepository->create($orderData, $defaultContext);
-
-        $this->stateMachineRegistry->transition(
-            new Transition(
-                'order',
-                $orderId,
-                StateMachineTransitionActions::ACTION_PROCESS,
-                'stateId',
-            ),
-            $this->context
-        );
-
-        $this->stateMachineRegistry->transition(
-            new Transition(
-                'order',
-                $orderId,
-                StateMachineTransitionActions::ACTION_COMPLETE,
-                'stateId',
-            ),
-            $this->context
-        );
-
-        /** @var CustomerCollection|CustomerEntity[] $result */
-        $result = $customerRepository->search(
-            new Criteria([$orderData[0]['orderCustomer']['customer']['id']]),
-            $defaultContext
-        );
-
-        static::assertNotNull($result->first());
-        static::assertSame(1, $result->first()->getOrderCount());
-        static::assertNotNull($result->first()->getLastOrderDate());
     }
 
     private function createRealTestScope(): CheckoutRuleScope

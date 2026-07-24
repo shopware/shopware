@@ -45,8 +45,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Group('store-api')]
 #[Package('discovery')]
+#[Group('store-api')]
 #[CoversClass(CategoryRoute::class)]
 class CategoryRouteTest extends TestCase
 {

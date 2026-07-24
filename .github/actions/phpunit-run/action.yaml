@@ -29,3 +29,16 @@ runs:
       if: ${{ inputs.test-path != '' }}
       shell: bash
       run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml ${{ inputs.coverage == 'true' && '--coverage-cobertura coverage.xml' || '' }} -- tests/integration/${{ inputs.test-path }}
+
+    # junit.xml is only written when the suite runs to completion. If code under
+    # test kills the process with a success code (e.g. exit(0) from a console
+    # Application with auto-exit), the run step passes while most tests never
+    # ran — the missing report is the only trace.
+    - name: Fail if PHPUnit exited without writing its report
+      if: ${{ inputs.test-testsuite != '' || inputs.test-path != '' }}
+      shell: bash
+      run: |
+        if [ ! -f junit.xml ]; then
+          echo "::error::junit.xml is missing: the PHPUnit process terminated before finishing the suite."
+          exit 1
+        fi

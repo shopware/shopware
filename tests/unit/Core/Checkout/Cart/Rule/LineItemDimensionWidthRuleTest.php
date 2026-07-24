@@ -72,7 +72,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
 
         $match = $this->rule->match(new LineItemScope(
             $lineItem,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -149,7 +149,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -195,7 +195,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -463,7 +463,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
 
         $match = $allLineItemsRule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -560,7 +560,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
 
     public function testMatchWithUnsupportedScopeShouldReturnFalse(): void
     {
-        $scope = new TestRuleScope($this->createMock(SalesChannelContext::class));
+        $scope = new TestRuleScope(static::createStub(SalesChannelContext::class));
 
         $lineItemDimensionWidthRule = new LineItemDimensionWidthRule();
 

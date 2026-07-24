@@ -194,7 +194,7 @@ build and validate zip:
     variables:
         SHOPWARE_PROJECT_ROOT: "${CI_PROJECT_DIR}"
         APP_ENV: 'dev'
-        NODE_VERSION: 20
+        NODE_VERSION: "lts/*"
     before_script:
       - *setup_platform_and_plugin_files
     script:

@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -31,6 +32,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 class EntitySearcherTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -434,28 +436,28 @@ class EntitySearcherTest extends TestCase
         $result = $this->productRepository->search($criteria, $context);
 
         static::assertSame(4, $result->getTotal());
-        static::assertTrue($result->has($variant1));
-        static::assertTrue($result->has($variant2));
-        static::assertTrue($result->has($variant5));
-        static::assertTrue($result->has($variant6));
+        static::assertTrue($result->getEntities()->has($variant1));
+        static::assertTrue($result->getEntities()->has($variant2));
+        static::assertTrue($result->getEntities()->has($variant5));
+        static::assertTrue($result->getEntities()->has($variant6));
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('product.optionIds', [$yellowId]));
 
         $result = $this->productRepository->search($criteria, $context);
         static::assertSame(2, $result->getTotal());
-        static::assertTrue($result->has($variant5));
-        static::assertTrue($result->has($variant6));
+        static::assertTrue($result->getEntities()->has($variant5));
+        static::assertTrue($result->getEntities()->has($variant6));
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('product.optionIds', [$yellowId, $smallId]));
 
         $result = $this->productRepository->search($criteria, $context);
         static::assertSame(4, $result->getTotal());
-        static::assertTrue($result->has($variant5));
-        static::assertTrue($result->has($variant6));
-        static::assertTrue($result->has($variant4));
-        static::assertTrue($result->has($variant2));
+        static::assertTrue($result->getEntities()->has($variant5));
+        static::assertTrue($result->getEntities()->has($variant6));
+        static::assertTrue($result->getEntities()->has($variant4));
+        static::assertTrue($result->getEntities()->has($variant2));
     }
 
     public function testSortingByProvidedIds(): void

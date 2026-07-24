@@ -20,7 +20,7 @@ class GatewayStatusServiceTest extends TestCase
 {
     public function testGatewayAllowsPush(): void
     {
-        $gatewayClient = $this->createMock(GatewayClient::class);
+        $gatewayClient = static::createStub(GatewayClient::class);
         $gatewayClient->method('isGatewayAllowsPush')
             ->willReturn(true);
 
@@ -31,7 +31,7 @@ class GatewayStatusServiceTest extends TestCase
 
     public function testGatewayDoesNotAllowPush(): void
     {
-        $gatewayClient = $this->createMock(GatewayClient::class);
+        $gatewayClient = static::createStub(GatewayClient::class);
         $gatewayClient->method('isGatewayAllowsPush')
             ->willReturn(false);
 
@@ -42,7 +42,7 @@ class GatewayStatusServiceTest extends TestCase
 
     public function testGatewayDoesNotAllowPushIfClientThrowsServerException(): void
     {
-        $gatewayClient = $this->createMock(GatewayClient::class);
+        $gatewayClient = static::createStub(GatewayClient::class);
         $gatewayClient->method('isGatewayAllowsPush')
             ->willThrowException(new ServerException(
                 new MockResponse('', ['http_code' => Response::HTTP_SERVICE_UNAVAILABLE])

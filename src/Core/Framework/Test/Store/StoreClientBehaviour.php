@@ -118,7 +118,7 @@ trait StoreClientBehaviour
         );
 
         /** @var UserConfigEntity|null $config */
-        $config = static::getContainer()->get('user_config.repository')->search($criteria, $context)->first();
+        $config = static::getContainer()->get('user_config.repository')->search($criteria, $context)->getEntities()->first();
 
         return $config ? $config->getValue()[FirstRunWizardService::USER_CONFIG_VALUE_FRW_USER_TOKEN] ?? null : null;
     }

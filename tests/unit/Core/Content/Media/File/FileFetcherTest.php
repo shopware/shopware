@@ -44,7 +44,7 @@ class FileFetcherTest extends TestCase
 
     public function testFetchRequestData(): void
     {
-        $fileValidatorMock = $this->createMock(FileUrlValidatorInterface::class);
+        $fileValidatorMock = static::createStub(FileUrlValidatorInterface::class);
         $fileService = new FileService();
         $fileFetcher = new FileFetcher($fileValidatorMock, $fileService);
 
@@ -68,7 +68,7 @@ class FileFetcherTest extends TestCase
         string $extension,
         \Exception $expectedException
     ): void {
-        $fileValidatorMock = $this->createMock(FileUrlValidatorInterface::class);
+        $fileValidatorMock = static::createStub(FileUrlValidatorInterface::class);
         $fileService = new FileService();
         $fileFetcher = new FileFetcher($fileValidatorMock, $fileService);
 
@@ -100,7 +100,7 @@ class FileFetcherTest extends TestCase
 
     public function testFetchRequestDataThrowsOnEmptyFile(): void
     {
-        $fileFetcher = new FileFetcher($this->createMock(FileUrlValidatorInterface::class), new FileService());
+        $fileFetcher = new FileFetcher(static::createStub(FileUrlValidatorInterface::class), new FileService());
 
         $content = fopen(self::EMPTY_FILE_URL, 'r');
         static::assertIsResource($content);
@@ -116,10 +116,10 @@ class FileFetcherTest extends TestCase
 
     public function testFetchFromURLThrowsOnEmptyFile(): void
     {
-        $fileValidatorMock = $this->createMock(FileUrlValidatorInterface::class);
+        $fileValidatorMock = static::createStub(FileUrlValidatorInterface::class);
         $fileValidatorMock->method('isValid')->willReturn(true);
 
-        $fileServiceMock = $this->createMock(FileService::class);
+        $fileServiceMock = static::createStub(FileService::class);
         $fileServiceMock->method('isUrl')->willReturn(true);
 
         $fileFetcher = new FileFetcher($fileValidatorMock, $fileServiceMock);
@@ -142,10 +142,10 @@ class FileFetcherTest extends TestCase
         string $expectedMimeType,
         string $expectedExtension
     ): void {
-        $fileValidatorMock = $this->createMock(FileUrlValidatorInterface::class);
+        $fileValidatorMock = static::createStub(FileUrlValidatorInterface::class);
         $fileValidatorMock->method('isValid')->willReturn(true);
 
-        $fileServiceMock = $this->createMock(FileService::class);
+        $fileServiceMock = static::createStub(FileService::class);
         $fileServiceMock->method('isUrl')->willReturn(true);
 
         $fileFetcher = new FileFetcher($fileValidatorMock, $fileServiceMock);
@@ -190,10 +190,10 @@ class FileFetcherTest extends TestCase
         string $urlParameter,
         \Exception $expectedException
     ): void {
-        $fileServiceMock = $this->createMock(FileService::class);
+        $fileServiceMock = static::createStub(FileService::class);
         $fileServiceMock->method('isUrl')->willReturn($isUrl);
 
-        $fileValidatorMock = $this->createMock(FileUrlValidatorInterface::class);
+        $fileValidatorMock = static::createStub(FileUrlValidatorInterface::class);
         $fileValidatorMock->method('isValid')->willReturn($isValid);
 
         $fileFetcher = new FileFetcher($fileValidatorMock, $fileServiceMock, $enableUploadFeature);
@@ -240,7 +240,7 @@ class FileFetcherTest extends TestCase
 
     public function testFetchRequestDataThrowsWhenDestinationStreamCannotBeOpened(): void
     {
-        $fileValidatorMock = $this->createMock(FileUrlValidatorInterface::class);
+        $fileValidatorMock = static::createStub(FileUrlValidatorInterface::class);
         $fileService = new FileService();
         $fileFetcher = new FileFetcher($fileValidatorMock, $fileService);
 
@@ -259,7 +259,7 @@ class FileFetcherTest extends TestCase
 
     public function testFetchBlobCreatesTemporaryFileAndCleanUpDeletesIt(): void
     {
-        $fileFetcher = new FileFetcher($this->createMock(FileUrlValidatorInterface::class), new FileService());
+        $fileFetcher = new FileFetcher(static::createStub(FileUrlValidatorInterface::class), new FileService());
 
         $media = $fileFetcher->fetchBlob('myBlob', self::IMAGE_EXTENSION, self::IMAGE_MIME_TYPE);
 
@@ -305,7 +305,7 @@ class FileFetcherTest extends TestCase
 
     public function testUrlUploadLimitDoesNotAffectRequestUpload(): void
     {
-        $fileFetcher = new FileFetcher($this->createMock(FileUrlValidatorInterface::class), new FileService(), true, true, 10);
+        $fileFetcher = new FileFetcher(static::createStub(FileUrlValidatorInterface::class), new FileService(), true, true, 10);
 
         $content = fopen(self::IMAGE_URL_WITHOUT_EXTENSION, 'r');
         static::assertIsResource($content);
@@ -323,10 +323,10 @@ class FileFetcherTest extends TestCase
 
     private function createFileFetcherForReadableSource(int $maxFileSize): FileFetcher
     {
-        $fileValidatorMock = $this->createMock(FileUrlValidatorInterface::class);
+        $fileValidatorMock = static::createStub(FileUrlValidatorInterface::class);
         $fileValidatorMock->method('isValid')->willReturn(true);
 
-        $fileServiceMock = $this->createMock(FileService::class);
+        $fileServiceMock = static::createStub(FileService::class);
         $fileServiceMock->method('isUrl')->willReturn(true);
 
         return new FileFetcher($fileValidatorMock, $fileServiceMock, true, true, $maxFileSize);

@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Action;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
@@ -24,18 +24,15 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(GenerateDocumentAction::class)]
 class GenerateDocumentActionTest extends TestCase
 {
-    private MockObject&DocumentGenerator $documentGenerator;
+    private DocumentGenerator&Stub $documentGenerator;
 
     private GenerateDocumentAction $action;
 
     protected function setUp(): void
     {
-        $this->documentGenerator = $this->createMock(DocumentGenerator::class);
+        $this->documentGenerator = static::createStub(DocumentGenerator::class);
 
-        $this->action = new GenerateDocumentAction(
-            $this->documentGenerator,
-            $this->createMock(LoggerInterface::class),
-        );
+        $this->action = $this->createAction($this->documentGenerator);
     }
 
     public function testRequirements(): void
@@ -70,11 +67,12 @@ class GenerateDocumentActionTest extends TestCase
 
         $operation = new DocumentGenerateOperation($orderId, $fileType, $conf, null, $static);
 
-        $this->documentGenerator->expects($this->exactly($expected))
+        $documentGenerator = $this->createMock(DocumentGenerator::class);
+        $documentGenerator->expects($this->exactly($expected))
             ->method('generate')
             ->with($documentType, [$orderId => $operation], Context::createDefaultContext());
 
-        $this->action->handleFlow($flow);
+        $this->createAction($documentGenerator)->handleFlow($flow);
     }
 
     public static function actionExecutedProvider(): \Generator
@@ -117,5 +115,13 @@ class GenerateDocumentActionTest extends TestCase
             ],
             1,
         ];
+    }
+
+    private function createAction(DocumentGenerator $documentGenerator): GenerateDocumentAction
+    {
+        return new GenerateDocumentAction(
+            $documentGenerator,
+            static::createStub(LoggerInterface::class),
+        );
     }
 }

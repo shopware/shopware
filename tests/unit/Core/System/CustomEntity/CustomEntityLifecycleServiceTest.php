@@ -9,6 +9,7 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomEntity\CustomEntityCollection;
@@ -32,6 +33,7 @@ use Symfony\Component\Clock\NativeClock;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CustomEntityLifecycleService::class)]
 class CustomEntityLifecycleServiceTest extends TestCase
 {
@@ -56,8 +58,8 @@ class CustomEntityLifecycleServiceTest extends TestCase
             new StaticSourceResolver([
                 'SwagExampleTest' => new StaticFilesystem(),
             ]),
-            $this->createMock(Connection::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(EntityRepository::class),
             new NativeClock(),
         );
 
@@ -87,8 +89,8 @@ class CustomEntityLifecycleServiceTest extends TestCase
             new StaticSourceResolver([
                 'SwagExampleTest' => new Filesystem(__DIR__ . '/_fixtures/CustomEntityLifecycleServiceTest/withCustomEntities/app'),
             ]),
-            $this->createMock(Connection::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(EntityRepository::class),
             new NativeClock(),
         );
 
@@ -122,8 +124,8 @@ class CustomEntityLifecycleServiceTest extends TestCase
             new StaticSourceResolver([
                 'SwagExampleTest' => new Filesystem(__DIR__ . '/_fixtures/CustomEntityLifecycleServiceTest/withCustomEntitiesAndAdminUis/app'),
             ]),
-            $this->createMock(Connection::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(EntityRepository::class),
             new NativeClock(),
         );
 
@@ -381,8 +383,8 @@ class CustomEntityLifecycleServiceTest extends TestCase
         ?ClockInterface $clock = null
     ): CustomEntityLifecycleService {
         return new CustomEntityLifecycleService(
-            $this->createMock(CustomEntityPersister::class),
-            $customEntitySchemaUpdater ?? $this->createMock(CustomEntitySchemaUpdater::class),
+            static::createStub(CustomEntityPersister::class),
+            $customEntitySchemaUpdater ?? static::createStub(CustomEntitySchemaUpdater::class),
             new CustomEntityEnrichmentService(new AdminUiXmlSchemaValidator()),
             new CustomEntityXmlSchemaValidator(),
             new StaticSourceResolver([]),

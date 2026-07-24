@@ -15,12 +15,14 @@ use Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator;
 use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(RemoteThumbnailLoader::class)]
 class RemoteThumbnailLoaderTest extends TestCase
 {
@@ -33,10 +35,10 @@ class RemoteThumbnailLoaderTest extends TestCase
     {
         $filesystem = new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
 
-        $prefixFilesystem = $this->createMock(PrefixFilesystem::class);
+        $prefixFilesystem = static::createStub(PrefixFilesystem::class);
         $prefixFilesystem->method('publicUrl')->willReturn('http://localhost:8000');
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn($thumbnailSizes);
         $connection->method('fetchAllKeyValue')->willReturn([
             $ids->get('mediaFolderId') => $ids->get('mediaFolderConfigurationId'),
@@ -171,7 +173,7 @@ class RemoteThumbnailLoaderTest extends TestCase
             ['configuration_id' => $ids->get('mediaFolderConfigurationId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '400', 'height' => '400'],
         ];
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn($thumbnailSizes);
         $connection->method('fetchAllKeyValue')->willReturn([
             $ids->get('mediaFolderId') => $ids->get('mediaFolderConfigurationId'),
@@ -190,7 +192,7 @@ class RemoteThumbnailLoaderTest extends TestCase
         $loader = new RemoteThumbnailLoader(
             new MediaUrlGenerator($filesystem),
             $connection,
-            $this->createMock(PrefixFilesystem::class),
+            static::createStub(PrefixFilesystem::class),
             $extensionDispatcher,
             '{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}'
         );
@@ -222,7 +224,7 @@ class RemoteThumbnailLoaderTest extends TestCase
             ],
         ];
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn($thumbnailSizes);
         $connection->method('fetchAllKeyValue')->willReturn([
             $ids->get('mediaFolderId') => $ids->get('mediaFolderConfigurationId'),
@@ -241,7 +243,7 @@ class RemoteThumbnailLoaderTest extends TestCase
         $loader = new RemoteThumbnailLoader(
             new MediaUrlGenerator($filesystem),
             $connection,
-            $this->createMock(PrefixFilesystem::class),
+            static::createStub(PrefixFilesystem::class),
             $extensionDispatcher,
             '{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}'
         );

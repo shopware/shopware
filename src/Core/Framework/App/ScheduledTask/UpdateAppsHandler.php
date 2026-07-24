@@ -13,8 +13,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal
  */
-#[AsMessageHandler(handles: UpdateAppsTask::class)]
 #[Package('framework')]
+#[AsMessageHandler(handles: UpdateAppsTask::class)]
 final class UpdateAppsHandler extends ScheduledTaskHandler
 {
     /**

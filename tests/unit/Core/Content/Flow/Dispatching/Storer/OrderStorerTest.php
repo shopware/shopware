@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Storer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
@@ -26,22 +26,18 @@ class OrderStorerTest extends TestCase
 {
     private OrderStorer $storer;
 
-    private MockObject&OrderProvider $orderProvider;
+    private Stub&OrderProvider $orderProvider;
 
     protected function setUp(): void
     {
-        $this->orderProvider = $this->createMock(OrderProvider::class);
+        $this->orderProvider = static::createStub(OrderProvider::class);
 
-        $this->storer = new OrderStorer(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->orderProvider
-        );
+        $this->storer = $this->createStorer($this->orderProvider);
     }
 
     public function testStoreWithAware(): void
     {
-        $event = $this->createMock(CheckoutOrderPlacedEvent::class);
+        $event = static::createStub(CheckoutOrderPlacedEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayHasKey(OrderAware::ORDER_ID, $stored);
@@ -49,7 +45,7 @@ class OrderStorerTest extends TestCase
 
     public function testStoreWithNotAware(): void
     {
-        $event = $this->createMock(CustomerRegisterEvent::class);
+        $event = static::createStub(CustomerRegisterEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayNotHasKey(OrderAware::ORDER_ID, $stored);
@@ -75,12 +71,15 @@ class OrderStorerTest extends TestCase
 
     public function testLazyLoadEntity(): void
     {
+        $orderProvider = $this->createMock(OrderProvider::class);
+        $storer = $this->createStorer($orderProvider);
+
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['orderId' => 'id'], []);
-        $this->storer->restore($storable);
+        $storer->restore($storable);
         $entity = new OrderEntity();
         $entity->setId('id');
 
-        $this->orderProvider->expects($this->once())->method('getData')->willReturn($entity);
+        $orderProvider->expects($this->once())->method('getData')->willReturn($entity);
         $res = $storable->getData('order');
 
         static::assertSame($res, $entity);
@@ -88,10 +87,13 @@ class OrderStorerTest extends TestCase
 
     public function testLazyLoadNullEntity(): void
     {
-        $storable = new StorableFlow('name', Context::createDefaultContext(), ['orderId' => 'id'], []);
-        $this->storer->restore($storable);
+        $orderProvider = $this->createMock(OrderProvider::class);
+        $storer = $this->createStorer($orderProvider);
 
-        $this->orderProvider->expects($this->once())->method('getData')->willReturn(null);
+        $storable = new StorableFlow('name', Context::createDefaultContext(), ['orderId' => 'id'], []);
+        $storer->restore($storable);
+
+        $orderProvider->expects($this->once())->method('getData')->willReturn(null);
         $res = $storable->getData('order');
 
         static::assertNull($res);
@@ -104,5 +106,14 @@ class OrderStorerTest extends TestCase
         $customerGroup = $storable->getData('order');
 
         static::assertNull($customerGroup);
+    }
+
+    private function createStorer(OrderProvider $orderProvider): OrderStorer
+    {
+        return new OrderStorer(
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            $orderProvider,
+        );
     }
 }

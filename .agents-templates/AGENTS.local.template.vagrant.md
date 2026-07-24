@@ -9,7 +9,7 @@ vagrant ssh -c "cd /vagrant && <command>"
 ```
 
 ### Examples:
-- `vagrant ssh -c "cd /vagrant && composer ecs-fix"`
+- `vagrant ssh -c "cd /vagrant && composer cs-fix"`
 - `vagrant ssh -c "cd /vagrant && bin/console cache:clear"`
 
 **All commands from AGENTS.md must be wrapped with the Vagrant SSH pattern.**

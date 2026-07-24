@@ -17,13 +17,13 @@ use Shopware\Elasticsearch\ResolvedField;
 /**
  * @internal
  */
-#[CoversClass(ExplainFieldQueryBuilder::class)]
 #[Package('inventory')]
+#[CoversClass(ExplainFieldQueryBuilder::class)]
 class ExplainFieldQueryBuilderTest extends TestCase
 {
     public function testGetDecorated(): void
     {
-        $inner = $this->createMock(AbstractFieldQueryBuilder::class);
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
         $builder = new ExplainFieldQueryBuilder($inner);
 
         static::assertSame($inner, $builder->getDecorated());
@@ -32,7 +32,7 @@ class ExplainFieldQueryBuilderTest extends TestCase
     public function testDelegatesWithoutExplainMode(): void
     {
         $expected = new TermQuery('name', 'foo');
-        $inner = $this->createMock(AbstractFieldQueryBuilder::class);
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
         $inner->method('build')->willReturn($expected);
 
         $builder = new ExplainFieldQueryBuilder($inner);
@@ -49,7 +49,7 @@ class ExplainFieldQueryBuilderTest extends TestCase
 
     public function testAddsExplainMetadata(): void
     {
-        $inner = $this->createMock(AbstractFieldQueryBuilder::class);
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
         $inner->method('build')->willReturn(new TermQuery('name', 'foo'));
 
         $builder = new ExplainFieldQueryBuilder($inner);
@@ -76,7 +76,7 @@ class ExplainFieldQueryBuilderTest extends TestCase
         $innerQuery = new TermQuery('tags.name', 'foo');
         $nestedQuery = new NestedQuery('tags', $innerQuery);
 
-        $inner = $this->createMock(AbstractFieldQueryBuilder::class);
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
         $inner->method('build')->willReturn($nestedQuery);
 
         $builder = new ExplainFieldQueryBuilder($inner);
@@ -99,7 +99,7 @@ class ExplainFieldQueryBuilderTest extends TestCase
 
     public function testReturnsNullWhenInnerReturnsNull(): void
     {
-        $inner = $this->createMock(AbstractFieldQueryBuilder::class);
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
         $inner->method('build')->willReturn(null);
 
         $builder = new ExplainFieldQueryBuilder($inner);

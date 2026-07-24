@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Util;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlPurifierConfigProvider;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(HtmlPurifierConfigProvider::class)]
 class HtmlPurifierConfigProviderTest extends TestCase
 {

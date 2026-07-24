@@ -17,8 +17,12 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('after-sales')]
 final readonly class RenderInput
 {
+    private const DOCUMENT_TYPE_PATTERN = '/^[a-z0-9_]+$/D';
+
     /**
      * @param array<string, AbstractRenderData> $data
+     *
+     * @throws DocumentV2Exception
      */
     public function __construct(
         public string $documentType,
@@ -26,6 +30,9 @@ final readonly class RenderInput
         public OrderEntity $order,
         private array $data = [],
     ) {
+        if (\preg_match(self::DOCUMENT_TYPE_PATTERN, $this->documentType) !== 1) {
+            throw DocumentV2Exception::invalidDocumentType($this->documentType);
+        }
     }
 
     public function getData(string $key): ?AbstractRenderData

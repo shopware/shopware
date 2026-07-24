@@ -3,12 +3,14 @@
 namespace Shopware\Core\Framework\Mcp\Controller;
 
 use Mcp\Server;
+use Mcp\Server\Transport\Http\Middleware\DnsRebindingProtectionMiddleware;
 use Mcp\Server\Transport\StreamableHttpTransport;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
+use Psr\Http\Server\MiddlewareInterface;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -20,7 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Store API entry point for the MCP protocol over HTTP.
  * This endpoint uses the normal Store API sales-channel access key and
@@ -32,8 +34,8 @@ use Symfony\Component\Routing\Attribute\Route;
  * can access all registered Store API MCP capabilities. Fine-grained access
  * control at the sales-channel level is a deliberate future extension point.
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class StoreApiMcpServerController
 {
     /**
@@ -41,7 +43,7 @@ class StoreApiMcpServerController
      *
      * The first five params are nullable because they are injected via
      * nullOnInvalid(): when the MCP bundle is absent they resolve to null.
-     * Once MCP_SERVER is stable (v6.8.0) remove the nullable types and the null guards in handle().
+     * Once MCP is stable (v6.8.0) remove the nullable types and the null guards in handle().
      */
     public function __construct(
         private readonly ?Server $server,
@@ -51,6 +53,7 @@ class StoreApiMcpServerController
         private readonly ?StreamFactoryInterface $streamFactory,
         private readonly McpRateLimiter $rateLimiter,
         private readonly McpSessionIdValidator $sessionIdValidator,
+        private readonly McpAllowedHostsProvider $allowedHostsProvider,
         private readonly ?LoggerInterface $logger = null,
     ) {
     }
@@ -63,8 +66,7 @@ class StoreApiMcpServerController
     )]
     public function handle(Request $request): Response
     {
-        if (!Feature::isActive('MCP_SERVER')
-            || $this->server === null
+        if ($this->server === null
             || $this->httpMessageFactory === null
             || $this->httpFoundationFactory === null
             || $this->responseFactory === null
@@ -86,11 +88,32 @@ class StoreApiMcpServerController
             $this->responseFactory,
             $this->streamFactory,
             logger: $this->logger,
+            middleware: $this->transportMiddleware(),
         );
 
         $psrResponse = $this->server->run($transport);
         $streamed = strtolower($psrResponse->getHeaderLine('Content-Type')) === 'text/event-stream';
 
         return $this->httpFoundationFactory->createResponse($psrResponse, $streamed);
+    }
+
+    /**
+     * The SDK's default {@see DnsRebindingProtectionMiddleware} only allows localhost, which
+     * rejects every request that reaches Shopware through its configured hostname. Keep the
+     * mitigation but seed it with the shop's own hosts (APP_URL + sales channel domains) so
+     * legitimate Store API clients pass while cross-origin rebinding attempts are still blocked.
+     *
+     * @return list<MiddlewareInterface>
+     */
+    private function transportMiddleware(): array
+    {
+        $allowedHosts = $this->allowedHostsProvider->getAllowedHosts();
+
+        return array_map(
+            static fn (MiddlewareInterface $middleware): MiddlewareInterface => $middleware instanceof DnsRebindingProtectionMiddleware
+                ? new DnsRebindingProtectionMiddleware($allowedHosts)
+                : $middleware,
+            StreamableHttpTransport::defaultMiddleware(),
+        );
     }
 }

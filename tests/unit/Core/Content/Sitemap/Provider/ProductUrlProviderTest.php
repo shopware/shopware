@@ -6,7 +6,7 @@ use Doctrine\DBAL\Cache\ArrayResult;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -24,6 +24,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -33,31 +34,31 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 #[CoversClass(ProductUrlProvider::class)]
 class ProductUrlProviderTest extends TestCase
 {
-    private readonly ConfigHandler&MockObject $configHandler;
+    private readonly ConfigHandler&Stub $configHandler;
 
-    private readonly Connection&MockObject $connection;
+    private readonly Connection&Stub $connection;
 
-    private readonly ProductDefinition&MockObject $definition;
+    private readonly ProductDefinition&Stub $definition;
 
-    private readonly IteratorFactory&MockObject $iteratorFactory;
+    private readonly IteratorFactory&Stub $iteratorFactory;
 
-    private readonly EntityRouteResolver&MockObject $entityRouteResolver;
+    private readonly EntityRouteResolver&Stub $entityRouteResolver;
 
-    private readonly SystemConfigService&MockObject $systemConfigService;
+    private readonly SystemConfigService&Stub $systemConfigService;
 
-    private readonly EventDispatcher&MockObject $dispatcher;
+    private readonly EventDispatcher&Stub $dispatcher;
 
     private ProductUrlProvider $productUrlProvider;
 
     protected function setUp(): void
     {
-        $this->configHandler = $this->createMock(ConfigHandler::class);
-        $this->connection = $this->createMock(Connection::class);
-        $this->definition = $this->createMock(ProductDefinition::class);
-        $this->iteratorFactory = $this->createMock(IteratorFactory::class);
-        $this->entityRouteResolver = $this->createMock(EntityRouteResolver::class);
-        $this->systemConfigService = $this->createMock(SystemConfigService::class);
-        $this->dispatcher = $this->createMock(EventDispatcher::class);
+        $this->configHandler = static::createStub(ConfigHandler::class);
+        $this->connection = static::createStub(Connection::class);
+        $this->definition = static::createStub(ProductDefinition::class);
+        $this->iteratorFactory = static::createStub(IteratorFactory::class);
+        $this->entityRouteResolver = static::createStub(EntityRouteResolver::class);
+        $this->systemConfigService = static::createStub(SystemConfigService::class);
+        $this->dispatcher = static::createStub(EventDispatcher::class);
 
         $this->productUrlProvider = new ProductUrlProvider(
             $this->configHandler,
@@ -103,13 +104,13 @@ class ProductUrlProviderTest extends TestCase
             ],
         ]);
 
-        $this->entityRouteResolver->method('getRouteNameForEntityName')->willReturn('frontend.detail.page');
+        $this->entityRouteResolver->method('getRouteNameForEntityName')->willReturn(ProductPageSeoUrlRoute::ROUTE_NAME);
         $this->entityRouteResolver->method('generateUrl')->willReturn('product/2/detail');
 
-        $queryBuilderMock = $this->createMock(QueryBuilder::class);
+        $queryBuilderMock = static::createStub(QueryBuilder::class);
         $queryBuilderMock->method('executeQuery')->willReturn($queryResult);
 
-        $query = $this->createMock(IterableQuery::class);
+        $query = static::createStub(IterableQuery::class);
         $query->method('getQuery')->willReturn($queryBuilderMock);
 
         $this->iteratorFactory->method('createIterator')->willReturn($query);

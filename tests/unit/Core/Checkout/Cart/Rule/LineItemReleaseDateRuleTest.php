@@ -123,7 +123,7 @@ class LineItemReleaseDateRuleTest extends TestCase
 
         $isMatching = $this->rule->match(new LineItemScope(
             $this->createLineItemWithReleaseDate($itemReleased),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $isMatching);
@@ -133,7 +133,7 @@ class LineItemReleaseDateRuleTest extends TestCase
     {
         $scope = new LineItemScope(
             $this->createLineItem(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $match = $this->rule->match($scope);
@@ -150,7 +150,7 @@ class LineItemReleaseDateRuleTest extends TestCase
 
         $match = $this->rule->match(new LineItemScope(
             $this->createLineItem(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertFalse($match);
@@ -164,7 +164,7 @@ class LineItemReleaseDateRuleTest extends TestCase
         ]);
 
         $match = $this->rule->match(new CheckoutRuleScope(
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertFalse($match);
@@ -190,7 +190,7 @@ class LineItemReleaseDateRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -217,7 +217,7 @@ class LineItemReleaseDateRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);

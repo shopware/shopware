@@ -144,8 +144,8 @@ class DeliveryBuilder
             $restockTime = $item->getDeliveryInformation()->getRestockTime();
             $restockAvailableFrom = $availableFrom;
 
-            // if the line item has a restock time, add this days to the restock date
-            if ($restockTime) {
+            // if the line item has a positive restock time, add this days to the restock date
+            if ($restockTime !== null && $restockTime > 0) {
                 $restockDateCandidate = Clock::get()->now()->add(new \DateInterval('P' . $restockTime . 'D'));
 
                 if ($restockDateCandidate > $restockAvailableFrom) {

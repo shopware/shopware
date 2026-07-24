@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
@@ -50,43 +50,31 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[CoversClass(AccountOrderController::class)]
 #[Package('checkout')]
+#[CoversClass(AccountOrderController::class)]
 class AccountOrderControllerTest extends TestCase
 {
     private AccountOrderControllerTestClass $controller;
 
-    private MockObject&AbstractOrderRoute $orderRouteMock;
+    private Stub&AbstractOrderRoute $orderRouteMock;
 
-    private MockObject&AccountEditOrderPageLoader $accountEditOrderPageLoaderMock;
+    private Stub&AccountEditOrderPageLoader $accountEditOrderPageLoaderMock;
 
-    private MockObject&AbstractHandlePaymentMethodRoute $handlePaymentRouteMock;
+    private Stub&AbstractHandlePaymentMethodRoute $handlePaymentRouteMock;
 
-    private MockObject&OrderService $orderServiceMock;
+    private Stub&OrderService $orderServiceMock;
 
     protected function setUp(): void
     {
-        $this->orderRouteMock = $this->createMock(AbstractOrderRoute::class);
-        $this->accountEditOrderPageLoaderMock = $this->createMock(AccountEditOrderPageLoader::class);
-        $this->handlePaymentRouteMock = $this->createMock(AbstractHandlePaymentMethodRoute::class);
+        $this->orderRouteMock = static::createStub(AbstractOrderRoute::class);
+        $this->accountEditOrderPageLoaderMock = static::createStub(AccountEditOrderPageLoader::class);
+        $this->handlePaymentRouteMock = static::createStub(AbstractHandlePaymentMethodRoute::class);
 
-        $this->orderServiceMock = $this->createMock(OrderService::class);
+        $this->orderServiceMock = static::createStub(OrderService::class);
 
-        $this->controller = new AccountOrderControllerTestClass(
-            $this->createMock(AccountOrderPageLoader::class),
-            $this->accountEditOrderPageLoaderMock,
-            $this->createMock(AbstractContextSwitchRoute::class),
-            $this->createMock(AbstractCancelOrderRoute::class),
-            $this->createMock(AbstractSetPaymentOrderRoute::class),
-            $this->handlePaymentRouteMock,
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(AccountOrderDetailPageLoader::class),
+        $this->controller = $this->createController(
             $this->orderRouteMock,
-            $this->createMock(SalesChannelContextServiceInterface::class),
-            $this->createMock(SystemConfigService::class),
-            $this->orderServiceMock,
-            $this->createMock(HeaderPageletLoaderInterface::class),
-            $this->createMock(FooterPageletLoaderInterface::class),
+            $this->handlePaymentRouteMock,
         );
     }
 
@@ -146,7 +134,7 @@ class AccountOrderControllerTest extends TestCase
             )
         );
 
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher = static::createStub(EventDispatcherInterface::class);
 
         $container = new ContainerBuilder();
         $container->set('event_dispatcher', $dispatcher);
@@ -167,7 +155,7 @@ class AccountOrderControllerTest extends TestCase
 
     public function testCancelOrderRedirectsToCorrectRouteForLoggedInCustomer(): void
     {
-        $salesChannelContextMock = $this->createMock(SalesChannelContext::class);
+        $salesChannelContextMock = static::createStub(SalesChannelContext::class);
 
         $customer = new CustomerEntity();
         $customer->setGuest(false);
@@ -184,7 +172,7 @@ class AccountOrderControllerTest extends TestCase
 
     public function testCancelOrderRedirectsToCorrectRouteForGuestCustomer(): void
     {
-        $salesChannelContextMock = $this->createMock(SalesChannelContext::class);
+        $salesChannelContextMock = static::createStub(SalesChannelContext::class);
 
         $customer = new CustomerEntity();
         $customer->setGuest(true);
@@ -241,7 +229,8 @@ class AccountOrderControllerTest extends TestCase
             )
         );
 
-        $this->orderRouteMock
+        $orderRoute = $this->createMock(AbstractOrderRoute::class);
+        $orderRoute
             ->expects($this->once())
             ->method('load')
             ->with($request = new Request(), $salesChannelContext, $criteria)
@@ -251,13 +240,38 @@ class AccountOrderControllerTest extends TestCase
             ->method('isPaymentChangeableByTransactionState')
             ->willReturn(true);
 
-        $this->handlePaymentRouteMock
+        $handlePaymentRoute = $this->createMock(AbstractHandlePaymentMethodRoute::class);
+        $handlePaymentRoute
             ->expects($this->once())
             ->method('load')
             ->with(static::isInstanceOf(Request::class), $salesChannelContext)
             ->willReturn(new HandlePaymentMethodRouteResponse(new RedirectResponse('https://doesnotexist.com')));
 
-        $this->controller->updateOrder($ids->get('order'), $request, $salesChannelContext);
+        $controller = $this->createController($orderRoute, $handlePaymentRoute);
+
+        $controller->updateOrder($ids->get('order'), $request, $salesChannelContext);
+    }
+
+    private function createController(
+        AbstractOrderRoute $orderRoute,
+        AbstractHandlePaymentMethodRoute $handlePaymentRoute,
+    ): AccountOrderControllerTestClass {
+        return new AccountOrderControllerTestClass(
+            static::createStub(AccountOrderPageLoader::class),
+            $this->accountEditOrderPageLoaderMock,
+            static::createStub(AbstractContextSwitchRoute::class),
+            static::createStub(AbstractCancelOrderRoute::class),
+            static::createStub(AbstractSetPaymentOrderRoute::class),
+            $handlePaymentRoute,
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(AccountOrderDetailPageLoader::class),
+            $orderRoute,
+            static::createStub(SalesChannelContextServiceInterface::class),
+            static::createStub(SystemConfigService::class),
+            $this->orderServiceMock,
+            static::createStub(HeaderPageletLoaderInterface::class),
+            static::createStub(FooterPageletLoaderInterface::class),
+        );
     }
 }
 

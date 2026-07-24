@@ -38,7 +38,7 @@ class McpSessionCleanupSubscriberTest extends TestCase
         $request->headers->set('Mcp-Session-Id', 'test-session-id');
 
         $event = new TerminateEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             new Response(),
         );
@@ -57,7 +57,7 @@ class McpSessionCleanupSubscriberTest extends TestCase
         $request->headers->set('Mcp-Session-Id', 'test-session-id');
 
         $event = new TerminateEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             new Response(),
         );
@@ -76,7 +76,7 @@ class McpSessionCleanupSubscriberTest extends TestCase
         $request->headers->set('Mcp-Session-Id', 'test-session-id');
 
         $event = new TerminateEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             new Response(),
         );
@@ -94,7 +94,7 @@ class McpSessionCleanupSubscriberTest extends TestCase
         $request = Request::create('/api/_mcp', 'DELETE');
 
         $event = new TerminateEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             new Response(),
         );

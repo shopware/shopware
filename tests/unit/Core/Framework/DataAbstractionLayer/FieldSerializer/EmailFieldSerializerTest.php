@@ -16,12 +16,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EmailFieldSerializer::class)]
 class EmailFieldSerializerTest extends TestCase
 {
@@ -31,7 +33,7 @@ class EmailFieldSerializerTest extends TestCase
     {
         $this->serializer = new EmailFieldSerializer(
             Validation::createValidator(),
-            $this->createMock(DefinitionInstanceRegistry::class)
+            static::createStub(DefinitionInstanceRegistry::class)
         );
     }
 

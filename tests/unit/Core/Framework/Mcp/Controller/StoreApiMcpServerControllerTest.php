@@ -7,8 +7,11 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\StoreApiMcpServerController;
+use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\Mcp\McpException;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
@@ -28,6 +31,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(StoreApiMcpServerController::class)]
 class StoreApiMcpServerControllerTest extends TestCase
 {
@@ -37,14 +41,12 @@ class StoreApiMcpServerControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $_SERVER['MCP_SERVER'] = '1';
         $this->rateLimiter = $this->createMock(RateLimiter::class);
         $this->psr17 = new Psr17Factory();
     }
 
     protected function tearDown(): void
     {
-        unset($_SERVER['MCP_SERVER']);
         Clock::set(new NativeClock());
     }
 
@@ -72,23 +74,19 @@ class StoreApiMcpServerControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 
-    public function testHandleReturnsNotFoundWhenFeatureFlagIsInactive(): void
-    {
-        $_SERVER['MCP_SERVER'] = false;
-
-        $controller = $this->buildController(new ServerRequest('POST', '/store-api/_mcp'));
-
-        static::assertSame(Response::HTTP_NOT_FOUND, $controller->handle(new Request())->getStatusCode());
-    }
-
-    public function testRateLimitUsesSalesChannelContext(): void
+    public function testRateLimitUsesSalesChannelContextAndClientIp(): void
     {
         $salesChannelContext = $this->createSalesChannelContext();
 
+        // The context token is rotatable, so the endpoint is throttled on both the per-context key
+        // and a stable per-IP key (same mcp_store_api bucket).
+        $calls = [];
         $this->rateLimiter
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('ensureAccepted')
-            ->with(RateLimiter::MCP_STORE_API, 'sales-channel-id-context-token');
+            ->willReturnCallback(static function (string $route, string $key) use (&$calls): void {
+                $calls[] = [$route, $key];
+            });
 
         $controller = $this->buildController(
             new ServerRequest('GET', '/store-api/_mcp'),
@@ -99,6 +97,11 @@ class StoreApiMcpServerControllerTest extends TestCase
         $sfRequest->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
 
         $controller->handle($sfRequest);
+
+        static::assertSame([
+            [RateLimiter::MCP_STORE_API, 'sales-channel-id-context-token'],
+            [RateLimiter::MCP_STORE_API, '127.0.0.1'],
+        ], $calls);
     }
 
     public function testRateLimitExceptionIsConvertedToMcpException(): void
@@ -149,12 +152,13 @@ class StoreApiMcpServerControllerTest extends TestCase
             $this->psr17,
             new McpRateLimiter($this->rateLimiter),
             new McpSessionIdValidator(),
+            static::createStub(McpAllowedHostsProvider::class),
         );
     }
 
-    private function createSalesChannelContext(): SalesChannelContext&MockObject
+    private function createSalesChannelContext(): SalesChannelContext&Stub
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannelId')->willReturn('sales-channel-id');
         $salesChannelContext->method('getToken')->willReturn('context-token');
 

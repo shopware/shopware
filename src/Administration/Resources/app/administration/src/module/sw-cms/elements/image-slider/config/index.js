@@ -336,5 +336,11 @@ export default {
 
             this.$emit('element-update', this.element);
         },
+
+        getMediaItemById(mediaId) {
+            return this.mediaItems.find((item) => {
+                return item.id === mediaId;
+            });
+        },
     },
 };

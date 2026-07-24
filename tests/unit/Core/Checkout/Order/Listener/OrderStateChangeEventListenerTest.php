@@ -123,11 +123,11 @@ class OrderStateChangeEventListenerTest extends TestCase
 
         $listener = new OrderStateChangeEventListener(
             $orderRepo,
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             $repo,
             $dispatcher,
-            $this->createMock(BusinessEventCollector::class),
-            $this->createMock(EntityRepository::class)
+            static::createStub(BusinessEventCollector::class),
+            static::createStub(EntityRepository::class)
         );
 
         $listener->onOrderDeliveryStateChange($event);
@@ -153,12 +153,12 @@ class OrderStateChangeEventListenerTest extends TestCase
         $this->expectException(OrderException::class);
 
         $listener = new OrderStateChangeEventListener(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             $repo,
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(BusinessEventCollector::class),
-            $this->createMock(EntityRepository::class)
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(BusinessEventCollector::class),
+            static::createStub(EntityRepository::class)
         );
 
         $stateMachine = new StateMachineEntity();
@@ -204,12 +204,12 @@ class OrderStateChangeEventListenerTest extends TestCase
         $this->expectException(OrderException::class);
 
         $listener = new OrderStateChangeEventListener(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             $repo,
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(BusinessEventCollector::class),
-            $this->createMock(EntityRepository::class)
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(BusinessEventCollector::class),
+            static::createStub(EntityRepository::class)
         );
 
         $stateMachine = new StateMachineEntity();
@@ -310,10 +310,10 @@ class OrderStateChangeEventListenerTest extends TestCase
         $listener = new OrderStateChangeEventListener(
             $orderRepo,
             $repo,
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             $dispatcher,
-            $this->createMock(BusinessEventCollector::class),
-            $this->createMock(EntityRepository::class)
+            static::createStub(BusinessEventCollector::class),
+            static::createStub(EntityRepository::class)
         );
 
         $listener->onOrderTransactionStateChange($event);
@@ -339,12 +339,12 @@ class OrderStateChangeEventListenerTest extends TestCase
         $this->expectException(OrderException::class);
 
         $listener = new OrderStateChangeEventListener(
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             $repo,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(BusinessEventCollector::class),
-            $this->createMock(EntityRepository::class)
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(BusinessEventCollector::class),
+            static::createStub(EntityRepository::class)
         );
 
         $stateMachine = new StateMachineEntity();
@@ -389,12 +389,12 @@ class OrderStateChangeEventListenerTest extends TestCase
         $this->expectException(OrderException::class);
 
         $listener = new OrderStateChangeEventListener(
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             $repo,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(BusinessEventCollector::class),
-            $this->createMock(EntityRepository::class)
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(BusinessEventCollector::class),
+            static::createStub(EntityRepository::class)
         );
 
         $stateMachine = new StateMachineEntity();
@@ -440,12 +440,12 @@ class OrderStateChangeEventListenerTest extends TestCase
         $this->expectException(OrderException::class);
 
         $listener = new OrderStateChangeEventListener(
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             $repo,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(BusinessEventCollector::class),
-            $this->createMock(EntityRepository::class)
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(BusinessEventCollector::class),
+            static::createStub(EntityRepository::class)
         );
 
         $stateMachine = new StateMachineEntity();
@@ -515,11 +515,11 @@ class OrderStateChangeEventListenerTest extends TestCase
 
         $listener = new OrderStateChangeEventListener(
             $orderRepo,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             $dispatcher,
-            $this->createMock(BusinessEventCollector::class),
-            $this->createMock(EntityRepository::class)
+            static::createStub(BusinessEventCollector::class),
+            static::createStub(EntityRepository::class)
         );
 
         $listener->onOrderStateChange($event);
@@ -571,10 +571,10 @@ class OrderStateChangeEventListenerTest extends TestCase
             });
 
         $listener = new OrderStateChangeEventListener(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
             $collector,
             $stateRepo,
         );

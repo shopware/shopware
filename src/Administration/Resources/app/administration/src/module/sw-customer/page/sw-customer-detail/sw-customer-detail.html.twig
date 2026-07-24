@@ -34,7 +34,7 @@
                 size="default"
                 @click.prevent="onActivateCustomerEditMode"
             >
-                {{ $t('sw-customer.detail.buttonEdit') }}
+                {{ $t('global.default.edit') }}
             </mt-button>
         </span>
         {% endblock %}
@@ -61,7 +61,7 @@
                 @update:process-success="saveFinish"
                 @click.prevent="onSave"
             >
-                {{ $t('sw-customer.detail.buttonSave') }}
+                {{ $t('global.default.save') }}
             </sw-button-process>
             {% endblock %}
         </span>

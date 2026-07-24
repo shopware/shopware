@@ -25,10 +25,7 @@
       "columnIso3": "ISO3",
       "columnActive": "Aktiv",
       "buttonAddCountry": "Land anlegen",
-      "contextMenuEdit": "Bearbeiten",
-      "contextMenuDelete": "Löschen",
-      "messageDeleteSuccess": "Das Land \"{name}\" wurde erfolgreich gelöscht.",
-      "buttonDelete": "Löschen"
+      "messageDeleteSuccess": "Das Land \"{name}\" wurde erfolgreich gelöscht."
     },
     "detail": {
       "textHeadline": "Neues Land",
@@ -53,7 +50,6 @@
       "placeholderStateSearch": "Durchsuche Länder/Regionen ...",
       "placeholderIso": "Zweistelligen ISO-Code eingeben ...",
       "placeholderIso3": "Dreistelligen ISO-Code eingeben ...",
-      "buttonSave": "Speichern",
       "buttonAddCountryState": "Land/Region hinzufügen",
       "editAction": "Editieren",
       "columnStateNameLabel": "Name",
@@ -88,7 +84,6 @@
   "sw-country-state-detail": {
     "titleNew": "Neues Land/Region",
     "titleEdit": "Land/Region bearbeiten",
-    "buttonSave": "Speichern",
     "labelName": "Name",
     "labelPosition": "Position",
     "labelShortCode": "ISO",

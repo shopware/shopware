@@ -390,7 +390,7 @@ export default {
         },
 
         privilegeChipClass(chip) {
-            if (this.isAdmin || this.grantedPrivileges.length === 0 || chip.startsWith('<')) {
+            if (this.isAdmin || this.grantedPrivileges.length === 0 || typeof chip !== 'string' || chip.startsWith('<')) {
                 return 'neutral';
             }
 

@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Twig\Environment;
 
-#[Package('framework')]
+#[Package('discovery')]
 class ErrorTemplateResolver
 {
     /**

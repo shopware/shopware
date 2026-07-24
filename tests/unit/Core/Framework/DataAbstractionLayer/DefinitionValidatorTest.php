@@ -21,12 +21,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Validation\Fixtures\DefinitionStub;
 use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Validation\Fixtures\DefinitionWithNonStorageAwarePrimaryKeyStub;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DefinitionValidator::class)]
 class DefinitionValidatorTest extends TestCase
 {
@@ -265,8 +267,8 @@ class DefinitionValidatorTest extends TestCase
     public function testFeatureGatedIgnoreFieldsAreValidatedWithFeatureActive(string $key): void
     {
         $validator = new DefinitionValidator(
-            $this->createMock(DefinitionInstanceRegistry::class),
-            $this->createMock(Connection::class)
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(Connection::class)
         );
         $method = new \ReflectionMethod(DefinitionValidator::class, 'isIgnoredField');
 
@@ -285,8 +287,8 @@ class DefinitionValidatorTest extends TestCase
     public function testIgnoreFieldsAreStillIgnoredWithFeatureActive(): void
     {
         $validator = new DefinitionValidator(
-            $this->createMock(DefinitionInstanceRegistry::class),
-            $this->createMock(Connection::class)
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(Connection::class)
         );
         $method = new \ReflectionMethod(DefinitionValidator::class, 'isIgnoredField');
 
@@ -386,23 +388,23 @@ class DefinitionValidatorTest extends TestCase
             new Column('updated_at', Type::getType(Types::DATETIME_MUTABLE)),
         ];
 
-        $table = $this->createMock(Table::class);
+        $table = static::createStub(Table::class);
         $table->method('getName')->willReturn('definition_validator_test');
         $table->method('getColumns')->willReturn($columns);
         $table->method('getPrimaryKeyConstraint')->willReturn($pkConstraint);
 
-        $schema = $this->createMock(Schema::class);
+        $schema = static::createStub(Schema::class);
         $schema->method('hasTable')->willReturn(true);
         $schema->method('getTable')->willReturn($table);
         $schema->method('getTables')->willReturn([$table]);
 
-        $schemaManager = $this->createMock(AbstractSchemaManager::class);
+        $schemaManager = static::createStub(AbstractSchemaManager::class);
         $schemaManager->method('introspectSchema')->willReturn($schema);
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('createSchemaManager')->willReturn($schemaManager);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $definition->compile($registry);
         $registry->method('getDefinitions')->willReturn([$definition]);
         $registry->method('getByEntityName')->willReturn($definition);
@@ -418,17 +420,17 @@ class DefinitionValidatorTest extends TestCase
 
     private function createValidatorWithNonExistentTable(EntityDefinition $definition): DefinitionValidator
     {
-        $schema = $this->createMock(Schema::class);
+        $schema = static::createStub(Schema::class);
         $schema->method('hasTable')->willReturn(false);
         $schema->method('getTables')->willReturn([]);
 
-        $schemaManager = $this->createMock(AbstractSchemaManager::class);
+        $schemaManager = static::createStub(AbstractSchemaManager::class);
         $schemaManager->method('introspectSchema')->willReturn($schema);
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('createSchemaManager')->willReturn($schemaManager);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $definition->compile($registry);
         $registry->method('getDefinitions')->willReturn([$definition]);
         $registry->method('getByEntityName')->willReturn($definition);

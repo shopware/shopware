@@ -38,7 +38,7 @@ class IsActiveRuleTest extends TestCase
         bool $expectedValue,
         bool $noCustomer
     ): void {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         if (!$noCustomer) {
             $customer = new CustomerEntity();
@@ -70,7 +70,7 @@ class IsActiveRuleTest extends TestCase
 
     public function testReturnsFalseWhenProvidingIncorrectScope(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $lineItem = new LineItem('random-id', 'line-item');
 
         $isActiveCustomerRule = new IsActiveRule(true);

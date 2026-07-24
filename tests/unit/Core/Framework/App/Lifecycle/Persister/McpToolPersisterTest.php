@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle\Persister;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolCollection;
 use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolEntity;
@@ -25,15 +26,15 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(McpToolPersister::class)]
 #[CoversClass(AbstractMcpCapabilityPersister::class)]
-#[Package('framework')]
 class McpToolPersisterTest extends TestCase
 {
     /**
-     * @var EntityRepository<AppMcpToolCollection>&MockObject
+     * @var EntityRepository<AppMcpToolCollection>&Stub
      */
-    private EntityRepository&MockObject $mcpToolRepository;
+    private EntityRepository&Stub $mcpToolRepository;
 
     private McpToolPersister $persister;
 
@@ -41,7 +42,7 @@ class McpToolPersisterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->mcpToolRepository = $this->createMock(EntityRepository::class);
+        $this->mcpToolRepository = static::createStub(EntityRepository::class);
         $this->persister = new McpToolPersister($this->mcpToolRepository);
         $this->context = Context::createDefaultContext();
     }
@@ -64,17 +65,19 @@ class McpToolPersisterTest extends TestCase
             $this->context,
         );
 
-        $this->mcpToolRepository->expects($this->once())
+        $mcpToolRepository = $this->createMock(EntityRepository::class);
+        $mcpToolRepository->expects($this->once())
             ->method('search')
             ->willReturn($searchResult);
 
-        $this->mcpToolRepository->expects($this->never())->method('upsert');
+        $mcpToolRepository->expects($this->never())->method('upsert');
 
-        $this->mcpToolRepository->expects($this->once())
+        $mcpToolRepository->expects($this->once())
             ->method('delete')
             ->with([['id' => 'existing-tool-id']], $this->context);
 
-        $this->persister->persist(null, 'app-id', 'en-GB', $this->context);
+        $persister = $this->createPersister($mcpToolRepository);
+        $persister->persist(null, 'app-id', 'en-GB', $this->context);
     }
 
     public function testUpdateToolsWithMatchingExistingToolCallsUpsertWithId(): void
@@ -104,11 +107,12 @@ class McpToolPersisterTest extends TestCase
         $mcpTools = McpTools::fromArray(['tools' => [$tool]]);
         $mcp = $this->createMcpWithTools($mcpTools);
 
-        $this->mcpToolRepository->expects($this->once())
+        $mcpToolRepository = $this->createMock(EntityRepository::class);
+        $mcpToolRepository->expects($this->once())
             ->method('search')
             ->willReturn($searchResult);
 
-        $this->mcpToolRepository->expects($this->once())
+        $mcpToolRepository->expects($this->once())
             ->method('upsert')
             ->with(
                 static::callback(function (array $upserts): bool {
@@ -122,9 +126,10 @@ class McpToolPersisterTest extends TestCase
                 $this->context,
             );
 
-        $this->mcpToolRepository->expects($this->never())->method('delete');
+        $mcpToolRepository->expects($this->never())->method('delete');
 
-        $this->persister->persist($mcp, 'app-id', 'en-GB', $this->context);
+        $persister = $this->createPersister($mcpToolRepository);
+        $persister->persist($mcp, 'app-id', 'en-GB', $this->context);
     }
 
     public function testUpdateToolsWithNewToolCallsUpsertWithoutId(): void
@@ -147,11 +152,12 @@ class McpToolPersisterTest extends TestCase
         $mcpTools = McpTools::fromArray(['tools' => [$tool]]);
         $mcp = $this->createMcpWithTools($mcpTools);
 
-        $this->mcpToolRepository->expects($this->once())
+        $mcpToolRepository = $this->createMock(EntityRepository::class);
+        $mcpToolRepository->expects($this->once())
             ->method('search')
             ->willReturn($searchResult);
 
-        $this->mcpToolRepository->expects($this->once())
+        $mcpToolRepository->expects($this->once())
             ->method('upsert')
             ->with(
                 static::callback(function (array $upserts): bool {
@@ -165,9 +171,10 @@ class McpToolPersisterTest extends TestCase
                 $this->context,
             );
 
-        $this->mcpToolRepository->expects($this->never())->method('delete');
+        $mcpToolRepository->expects($this->never())->method('delete');
 
-        $this->persister->persist($mcp, 'app-id', 'en-GB', $this->context);
+        $persister = $this->createPersister($mcpToolRepository);
+        $persister->persist($mcp, 'app-id', 'en-GB', $this->context);
     }
 
     public function testValidateRequiredPrivilegesPassesWhenPrivilegesMatchManifest(): void
@@ -257,9 +264,17 @@ class McpToolPersisterTest extends TestCase
         $this->persister->validateRequiredPrivileges($manifest, null);
     }
 
+    /**
+     * @param EntityRepository<AppMcpToolCollection>&MockObject $mcpToolRepository
+     */
+    private function createPersister(EntityRepository&MockObject $mcpToolRepository): McpToolPersister
+    {
+        return new McpToolPersister($mcpToolRepository);
+    }
+
     private function createMcpWithTools(McpTools $mcpTools): Mcp
     {
-        $mcp = $this->createMock(Mcp::class);
+        $mcp = static::createStub(Mcp::class);
         $mcp->method('getTools')->willReturn($mcpTools);
 
         return $mcp;
@@ -278,7 +293,7 @@ class McpToolPersisterTest extends TestCase
             'privacyPolicyExtensions' => [],
         ]);
 
-        $manifest = $this->createMock(Manifest::class);
+        $manifest = static::createStub(Manifest::class);
         $manifest->method('getMetadata')->willReturn($metadata);
         $manifest->method('getPermissions')->willReturn($permissions);
 

@@ -174,7 +174,7 @@ describe('module/sw-product/component/sw-product-media-form', () => {
 
         const buttons = wrapper.find('.sw-context-menu').findAll('.sw-context-menu-item__text');
         expect(buttons).toHaveLength(1);
-        expect(buttons.at(0).text()).toContain('Remove');
+        expect(buttons.at(0).text()).toContain('global.default.remove');
     });
 
     it('should move media to first position when it is marked as cover', async () => {

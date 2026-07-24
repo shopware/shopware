@@ -218,7 +218,7 @@ class CurrencyRuleTest extends TestCase
         $context = Context::createDefaultContext();
         $context->assign(['currencyId' => $currencyId]);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext
             ->method('getContext')
             ->willReturn($context);

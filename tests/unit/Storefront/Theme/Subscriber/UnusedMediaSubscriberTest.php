@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\Theme\Subscriber\UnusedMediaSubscriber;
@@ -17,6 +18,7 @@ use Shopware\Storefront\Theme\ThemeService;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(UnusedMediaSubscriber::class)]
 class UnusedMediaSubscriberTest extends TestCase
 {
@@ -68,7 +70,7 @@ class UnusedMediaSubscriberTest extends TestCase
             $themeId2 => $themeConfig2,
         ];
 
-        $themeService = $this->createMock(ThemeService::class);
+        $themeService = static::createStub(ThemeService::class);
         $themeService->method('getPlainThemeConfiguration')
             ->willReturnCallback(static function (string $themeId, ...$params) use ($themeConfigMap) {
                 return $themeConfigMap[$themeId];
@@ -116,7 +118,7 @@ class UnusedMediaSubscriberTest extends TestCase
             },
         ]);
 
-        $themeService = $this->createMock(ThemeService::class);
+        $themeService = static::createStub(ThemeService::class);
         $themeService->method('getPlainThemeConfiguration')
             ->willReturn([
                 'fields' => [

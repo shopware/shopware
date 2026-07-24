@@ -67,7 +67,7 @@ class WebhookDeliveryServiceTest extends TestCase
 
         $this->guzzleMock = new MockHandler();
         $stack = HandlerStack::create($this->guzzleMock);
-        $stack->push(new AuthMiddleware('6.7.0', $this->createMock(AppLocaleProvider::class)));
+        $stack->push(new AuthMiddleware('6.7.0', static::createStub(AppLocaleProvider::class)));
         $this->webhookClient = new WebhookClient(new Client(['handler' => $stack]), $this->clock);
 
         $this->appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
@@ -426,7 +426,7 @@ class WebhookDeliveryServiceTest extends TestCase
         bool $isAdminWorkerEnabled = false,
         string $failureStrategy = WebhookFailureStrategy::DisableOnThreshold->value,
     ): WebhookDeliveryService {
-        $signingSecretResolver = $this->createMock(WebhookSigningSecretResolver::class);
+        $signingSecretResolver = static::createStub(WebhookSigningSecretResolver::class);
         $signingSecretResolver->method('resolve')->willReturnCallback(
             static fn (WebhookEventMessage $message): ?string => $message->getSecret()
         );

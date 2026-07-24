@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
@@ -24,6 +25,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TaskRegistry::class)]
 class TaskRegistryTest extends TestCase
 {
@@ -39,6 +41,8 @@ class TaskRegistryTest extends TestCase
 
     public function testNewTasksAreCreated(): void
     {
+        $this->scheduleTaskRepository->expects($this->never())->method('search');
+
         $tasks = [new TestScheduledTask(), new SitemapGenerateTask(), new CleanupCartTask()];
         $parameterBag = new ParameterBag([
             'shopware.test.active' => true,
@@ -103,7 +107,7 @@ class TaskRegistryTest extends TestCase
         $registeredTask->setNextExecutionTime(new \DateTimeImmutable());
         /** @phpstan-ignore argument.type (wrong class string is needed for test case) */
         $registeredTask->setScheduledTaskClass('InvalidClass');
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$registeredTask]));
         $this->scheduleTaskRepository->expects($this->once())->method('search')->willReturn($result);
         $this->scheduleTaskRepository->expects($this->never())->method('update');
@@ -148,7 +152,7 @@ class TaskRegistryTest extends TestCase
         $scheduledTask->setNextExecutionTime(new \DateTimeImmutable());
         $scheduledTask->setScheduledTaskClass(SitemapGenerateTask::class);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$queuedTask, $scheduledTask]));
 
         $this->scheduleTaskRepository->expects($this->once())->method('search')->willReturn($result);
@@ -210,7 +214,7 @@ class TaskRegistryTest extends TestCase
         $skippedTask->setNextExecutionTime(new \DateTimeImmutable());
         $skippedTask->setScheduledTaskClass(SitemapGenerateTask::class);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$queuedTask, $skippedTask]));
 
         $this->scheduleTaskRepository->expects($this->once())->method('search')->willReturn($result);
@@ -256,7 +260,7 @@ class TaskRegistryTest extends TestCase
         $taskEntity->setNextExecutionTime(new \DateTimeImmutable());
         $taskEntity->setScheduledTaskClass(CleanupCartTask::class);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$taskEntity]));
 
         $this->scheduleTaskRepository->expects($this->once())->method('search')->willReturn($result);
@@ -294,7 +298,7 @@ class TaskRegistryTest extends TestCase
         $taskEntity->setNextExecutionTime(new \DateTimeImmutable());
         $taskEntity->setScheduledTaskClass(CleanupCartTask::class);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$taskEntity]));
 
         $this->scheduleTaskRepository->expects($this->once())->method('search')->willReturn($result);
@@ -319,6 +323,8 @@ class TaskRegistryTest extends TestCase
 
     public function testListAllTasks(): void
     {
+        $this->scheduleTaskRepository->expects($this->never())->method('search');
+
         $taskEntity = new ScheduledTaskEntity();
         $taskEntity->setId('cleanupTask');
         $taskEntity->setName('foo');
@@ -339,7 +345,7 @@ class TaskRegistryTest extends TestCase
         $taskEntity->setName('test.task');
         $taskEntity->setStatus(ScheduledTaskDefinition::STATUS_SCHEDULED);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturnOnConsecutiveCalls(
             new ScheduledTaskCollection([$taskEntity]),
             new ScheduledTaskCollection([$taskEntity])
@@ -373,7 +379,7 @@ class TaskRegistryTest extends TestCase
         $taskEntity->setName('test.task');
         $taskEntity->setStatus(ScheduledTaskDefinition::STATUS_SCHEDULED);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturnOnConsecutiveCalls(
             new ScheduledTaskCollection([$taskEntity]),
             new ScheduledTaskCollection([$taskEntity])
@@ -411,7 +417,7 @@ class TaskRegistryTest extends TestCase
         $taskEntity->setName('test.task');
         $taskEntity->setStatus(ScheduledTaskDefinition::STATUS_RUNNING);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$taskEntity]));
         $result->method('first')->willReturn($taskEntity);
 
@@ -435,7 +441,7 @@ class TaskRegistryTest extends TestCase
         $taskEntity->setName('test.task');
         $taskEntity->setStatus(ScheduledTaskDefinition::STATUS_QUEUED);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$taskEntity]));
         $result->method('first')->willReturn($taskEntity);
 
@@ -459,7 +465,7 @@ class TaskRegistryTest extends TestCase
         $taskEntity->setName('test.task');
         $taskEntity->setStatus(ScheduledTaskDefinition::STATUS_RUNNING);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturnOnConsecutiveCalls(
             new ScheduledTaskCollection([$taskEntity]),
             new ScheduledTaskCollection([$taskEntity])
@@ -488,7 +494,7 @@ class TaskRegistryTest extends TestCase
 
     public function testScheduleTaskThrowsExceptionWhenTaskNotFound(): void
     {
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([]));
         $result->method('first')->willReturn(null);
 
@@ -510,7 +516,7 @@ class TaskRegistryTest extends TestCase
         $taskEntity->setName('test.task');
         $taskEntity->setStatus(ScheduledTaskDefinition::STATUS_INACTIVE);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturnOnConsecutiveCalls(
             new ScheduledTaskCollection([$taskEntity]),
             new ScheduledTaskCollection([$taskEntity])
@@ -544,7 +550,7 @@ class TaskRegistryTest extends TestCase
         $taskEntity->setName('test.task');
         $taskEntity->setStatus(ScheduledTaskDefinition::STATUS_RUNNING);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$taskEntity]));
         $result->method('first')->willReturn($taskEntity);
 
@@ -568,7 +574,7 @@ class TaskRegistryTest extends TestCase
         $taskEntity->setName('test.task');
         $taskEntity->setStatus(ScheduledTaskDefinition::STATUS_QUEUED);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$taskEntity]));
         $result->method('first')->willReturn($taskEntity);
 
@@ -592,7 +598,7 @@ class TaskRegistryTest extends TestCase
         $taskEntity->setName('test.task');
         $taskEntity->setStatus(ScheduledTaskDefinition::STATUS_RUNNING);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturnOnConsecutiveCalls(
             new ScheduledTaskCollection([$taskEntity]),
             new ScheduledTaskCollection([$taskEntity])
@@ -621,7 +627,7 @@ class TaskRegistryTest extends TestCase
 
     public function testDeactivateTaskThrowsExceptionWhenTaskNotFound(): void
     {
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([]));
         $result->method('first')->willReturn(null);
 

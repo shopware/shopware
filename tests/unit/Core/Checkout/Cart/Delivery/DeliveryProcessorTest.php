@@ -56,8 +56,8 @@ class DeliveryProcessorTest extends TestCase
             ->method('search')->willReturn($result);
 
         $processor = new DeliveryProcessor(
-            $this->createMock(DeliveryBuilder::class),
-            $this->createMock(DeliveryCalculator::class),
+            static::createStub(DeliveryBuilder::class),
+            static::createStub(DeliveryCalculator::class),
             $repository
         );
 
@@ -69,7 +69,7 @@ class DeliveryProcessorTest extends TestCase
 
     public function testProcessDeliveryCost(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $calculator = $this->createMock(DeliveryCalculator::class);
         $calculator
             ->expects($this->once())
@@ -89,7 +89,7 @@ class DeliveryProcessorTest extends TestCase
             ->method('build')
             ->willReturn(new DeliveryCollection([$delivery]));
 
-        $processor = new DeliveryProcessor($builder, $calculator, $this->createMock(EntityRepository::class));
+        $processor = new DeliveryProcessor($builder, $calculator, static::createStub(EntityRepository::class));
 
         $manualShippingCosts = new CalculatedPrice(10.00, 10.0, new CalculatedTaxCollection(), new TaxRuleCollection());
         $original = new Cart('test');

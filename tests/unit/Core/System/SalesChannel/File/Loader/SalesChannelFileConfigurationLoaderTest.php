@@ -52,7 +52,7 @@ class SalesChannelFileConfigurationLoaderTest extends TestCase
         $context = Context::createDefaultContext();
         $salesChannelId = Uuid::randomHex();
         $llms = $this->createConfiguration($salesChannelId, 'agentic', 'llms.txt');
-        $agents = $this->createConfiguration($salesChannelId, 'agentic', 'agents.md');
+        $agents = $this->createConfiguration($salesChannelId, 'agentic', 'AGENTS.md');
 
         /** @var StaticEntityRepository<SalesChannelFileCollection> $repository */
         $repository = new StaticEntityRepository([

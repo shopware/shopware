@@ -27,6 +27,7 @@ Shopware.Component.register(
     () => import('./component/sw-customer-imitate-customer-modal'),
 );
 Shopware.Component.register('sw-customer-card', () => import('./component/sw-customer-card'));
+Shopware.Component.register('sw-customer-convert-guest-modal', () => import('./component/sw-customer-convert-guest-modal'));
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -38,7 +39,7 @@ Module.register('sw-customer', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: 'var(--color-pumpkin-500)',
-    icon: 'solid-users',
+    icon: 'regular-users',
     favicon: 'icon-module-customers.png',
     entity: 'customer',
 

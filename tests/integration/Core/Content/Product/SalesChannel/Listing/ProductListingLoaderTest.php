@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Listing;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductListingResolvePreviewEvent;
@@ -21,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -36,7 +36,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('inventory')]
 class ProductListingLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -338,14 +338,14 @@ class ProductListingLoaderTest extends TestCase
         // all variants should be returned
         static::assertSame(4, $listing->getTotal());
 
-        $variants = $listing->getIds();
+        $variants = $listing->getEntities()->getIds();
 
         static::assertContains($this->variantIds['redXl'], $variants);
         static::assertContains($this->variantIds['redL'], $variants);
         static::assertContains($this->variantIds['greenL'], $variants);
         static::assertContains($this->variantIds['greenXl'], $variants);
 
-        foreach ($listing as $variant) {
+        foreach ($listing->getEntities() as $variant) {
             static::assertInstanceOf(ProductEntity::class, $variant);
             static::assertTrue($variant->hasExtension('search'));
         }
@@ -387,6 +387,32 @@ class ProductListingLoaderTest extends TestCase
 
         static::assertSame($this->mainVariantId, $variantId);
         static::assertTrue($firstVariant->hasExtension('search'));
+    }
+
+    public function testDisplayAsGroupFalseReturnsAllMatchingVariantsFromSameDisplayGroup(): void
+    {
+        $this->createProduct([], true);
+
+        $criteria = new Criteria();
+        $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
+        $criteria->addFilter(new EqualsFilter('product.options.id', $this->optionIds['green']));
+        $listing = $this->fetchListing($criteria);
+
+        static::assertSame(2, $listing->getTotal());
+        static::assertEqualsCanonicalizing([$this->variantIds['greenL'], $this->variantIds['greenXl']], array_values($listing->getEntities()->getIds()));
+    }
+
+    public function testDisplayAsGroupFalseSkipsPreviewRemapping(): void
+    {
+        $this->createProduct([], true);
+
+        $criteria = new Criteria();
+        $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
+        $criteria->addFilter(new EqualsFilter('product.options.id', $this->optionIds['green']));
+        $listing = $this->fetchListing($criteria);
+
+        static::assertSame(2, $listing->getTotal());
+        static::assertEqualsCanonicalizing([$this->variantIds['greenL'], $this->variantIds['greenXl']], array_values($listing->getEntities()->getIds()));
     }
 
     public function testMainVariantAndVariantGroupsWithPostFilterOnOptions(): void
@@ -643,14 +669,14 @@ class ProductListingLoaderTest extends TestCase
         // all variants should be returned
         static::assertSame(4, $listing->getTotal());
 
-        $variants = $listing->getIds();
+        $variants = $listing->getEntities()->getIds();
 
         static::assertContains($this->variantIds['redXl'], $variants);
         static::assertContains($this->variantIds['redL'], $variants);
         static::assertContains($this->variantIds['greenL'], $variants);
         static::assertContains($this->variantIds['greenXl'], $variants);
 
-        foreach ($listing as $variant) {
+        foreach ($listing->getEntities() as $variant) {
             static::assertTrue($variant->hasExtension('search'));
         }
     }

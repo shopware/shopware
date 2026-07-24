@@ -221,6 +221,7 @@ export default {
             this.getProductCustomFields().then(() => {
                 Context.api.languageId = Context.api.systemLanguageId;
                 this.productStream = this.productStreamRepository.create(Context.api);
+                this.productStream.displayAsGroup = true;
                 this.productStreamFilters = this.productStream.filters;
             });
         },
@@ -320,6 +321,7 @@ export default {
                             params: { id: this.productStream.id },
                         });
                         this.isSaveSuccessful = true;
+                        this.isSaving = false;
                     })
                     .catch(() => {
                         this.showErrorNotification();

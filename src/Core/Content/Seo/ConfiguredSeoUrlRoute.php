@@ -14,6 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+use function Symfony\Component\String\u;
+
 /**
  * @internal
  */
@@ -52,7 +54,7 @@ class ConfiguredSeoUrlRoute implements SeoUrlRouteInterface
         return new SeoUrlMapping(
             $entity,
             $this->config->getPrimaryKeyParameter($entity->getUniqueIdentifier()),
-            [$this->config->getDefinition()->getEntityName() => $serialized]
+            [u($this->config->getDefinition()->getEntityName())->camel()->toString() => $serialized]
         );
     }
 }

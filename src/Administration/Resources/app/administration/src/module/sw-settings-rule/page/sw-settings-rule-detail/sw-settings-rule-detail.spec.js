@@ -2,6 +2,7 @@
 
 import { config, mount } from '@vue/test-utils';
 import kebabCase from 'lodash-es/kebabCase';
+import ShopwareError from 'src/core/data/ShopwareError';
 import { createRouter, createWebHistory } from 'vue-router';
 
 /**
@@ -110,6 +111,51 @@ const languageRepositoryMock = {
     ),
 };
 
+const languageSwitchStub = {
+    props: [
+        'saveChangesFunction',
+        'abortChangeFunction',
+    ],
+    emits: ['on-change'],
+    data() {
+        return {
+            isOpen: false,
+            showUnsavedChangesModal: false,
+        };
+    },
+    methods: {
+        openSelect() {
+            this.isOpen = true;
+        },
+
+        selectLanguage() {
+            if (this.abortChangeFunction()) {
+                this.showUnsavedChangesModal = true;
+
+                return;
+            }
+
+            this.$emit('on-change', 'uuid1');
+        },
+
+        async saveLanguageChange() {
+            await this.saveChangesFunction();
+            this.$emit('on-change', 'uuid1');
+        },
+    },
+    template: `
+        <div>
+            <button class="sw-select__selection" @click="openSelect"></button>
+            <button v-if="isOpen" class="sw-select-result" @click="selectLanguage"></button>
+            <button
+                v-if="showUnsavedChangesModal"
+                id="sw-language-switch-save-changes-button"
+                @click="saveLanguageChange"
+            ></button>
+        </div>
+    `,
+};
+
 const appConditionRepositoryMock = {
     search: jest.fn(() => Promise.resolve(getCollection('app_script_condition', []))),
 };
@@ -162,7 +208,7 @@ const routeLeaveOrUpdateTestCases = [
     },
 ];
 
-async function createWrapper(props = defaultProps, provide = {}) {
+async function createWrapper(props = defaultProps, provide = {}, { featureActive = false } = {}) {
     delete config.global.mocks.$router;
     delete config.global.mocks.$route;
 
@@ -211,7 +257,26 @@ async function createWrapper(props = defaultProps, provide = {}) {
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
                 'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
-                'sw-language-switch': await wrapTestComponent('sw-language-switch'),
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    props: {
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: undefined,
+                        },
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            required: true,
+                        },
+                    },
+                    template: '<div class="mt-tabs"></div>',
+                },
+                'sw-language-switch': languageSwitchStub,
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
@@ -258,6 +323,9 @@ async function createWrapper(props = defaultProps, provide = {}) {
                 'sw-extension-teaser-popover': true,
             },
             provide: {
+                feature: {
+                    isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
+                },
                 ruleConditionDataProviderService: ruleConditionDataProviderServiceMock,
                 ruleConditionsConfigApiService: ruleConditionsConfigApiServiceMock,
                 repositoryFactory: {
@@ -302,6 +370,7 @@ async function createWrapper(props = defaultProps, provide = {}) {
 describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     afterEach(() => {
         jest.clearAllMocks();
+        Shopware.Store.get('error').resetApiErrors();
     });
 
     it('provides shortcuts for save and cancel', async () => {
@@ -442,10 +511,9 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 ruleMock.conditions.entity,
                 ruleMock.conditions.source,
             ],
-            ['language'],
         ];
 
-        expect(wrapper.vm.repositoryFactory.create).toHaveBeenCalledTimes(4);
+        expect(wrapper.vm.repositoryFactory.create).toHaveBeenCalledTimes(3);
         expect(wrapper.vm.repositoryFactory.create.mock.calls).toEqual(expectedRepositories);
     });
 
@@ -474,12 +542,89 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.find('.sw-settings-rule-detail__cancel-action').attributes('tooltip-mock-message')).toBe('ESC');
     });
 
-    it('should render tab items', async () => {
+    it('should render fallback tab items', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
         expect(wrapper.find('.sw-settings-rule-detail__tab-item-general').exists()).toBe(true);
         expect(wrapper.find('.sw-settings-rule-detail__tab-item-assignments').exists()).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('should render meteor route tabs when the major feature flag is active', async () => {
+        const wrapper = await createWrapper(defaultProps, {}, { featureActive: true });
+        await flushPromises();
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-settings-rule-detail');
+        expect(tabs.props('defaultItem')).toBe('sw.settings.rule.detail.base');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-settings-rule.detail.tabGeneral',
+                name: 'sw.settings.rule.detail.base',
+                hasError: false,
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-settings-rule.detail.tabAssignments',
+                name: 'sw.settings.rule.detail.assignments',
+                hasError: false,
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+        expect(wrapper.find('.sw-settings-rule-detail__tab-item-general').exists()).toBe(false);
+    });
+
+    it('should pass validation errors to meteor tabs', async () => {
+        const wrapper = await createWrapper(defaultProps, {}, { featureActive: true });
+        await flushPromises();
+
+        Shopware.Store.get('error').addApiError({
+            expression: 'rule.uuid1.name',
+            error: new ShopwareError({
+                code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                detail: 'This value should not be blank.',
+                status: '400',
+                template: 'This value should not be blank.',
+            }),
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.getComponent({ name: 'mt-tabs' }).props('items')).toEqual([
+            {
+                label: 'sw-settings-rule.detail.tabGeneral',
+                name: 'sw.settings.rule.detail.base',
+                hasError: true,
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-settings-rule.detail.tabAssignments',
+                name: 'sw.settings.rule.detail.assignments',
+                hasError: false,
+                onClick: expect.any(Function),
+            },
+        ]);
+    });
+
+    it('should navigate when a meteor route tab is selected', async () => {
+        const wrapper = await createWrapper(defaultProps, {}, { featureActive: true });
+        await flushPromises();
+
+        const routerSpy = jest.spyOn(wrapper.vm.$router, 'push').mockResolvedValue();
+        const assignmentsTab = wrapper
+            .getComponent({ name: 'mt-tabs' })
+            .props('items')
+            .find((tab) => tab.name === 'sw.settings.rule.detail.assignments');
+
+        assignmentsTab.onClick();
+
+        expect(routerSpy).toHaveBeenCalledWith({
+            name: 'sw.settings.rule.detail.assignments',
+            params: { id: 'uuid1' },
+        });
     });
 
     it.each([
@@ -616,6 +761,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         { name: 'rule changed', abort: false },
         { name: 'rule not changed', abort: true },
     ])('should change language switch', async ({ abort }) => {
+        Shopware.Store.get('context').api.languageId = 'default-language-id';
         ruleRepositoryMock.hasChanges.mockReturnValueOnce(abort);
         const wrapper = await createWrapper();
         await flushPromises();

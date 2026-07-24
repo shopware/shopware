@@ -7,7 +7,10 @@ import { nextTick } from 'vue';
  * @sw-package checkout
  */
 
-async function createWrapper(order = {}) {
+async function createWrapper(
+    order = {},
+    { featureActive = false, routeName = 'sw.order.detail.general', routerPush = jest.fn() } = {},
+) {
     const repositoryFactoryMock = {
         search: () => Promise.resolve([]),
         hasChanges: () => false,
@@ -21,6 +24,7 @@ async function createWrapper(order = {}) {
         global: {
             mocks: {
                 $route: {
+                    name: routeName,
                     params: {
                         id: 'order123',
                     },
@@ -44,6 +48,9 @@ async function createWrapper(order = {}) {
                         },
                     },
                 },
+                $router: {
+                    push: routerPush,
+                },
             },
             stubs: {
                 'sw-page': {
@@ -66,8 +73,40 @@ async function createWrapper(order = {}) {
 
                 'sw-loader': true,
                 'router-view': true,
-                'sw-tabs': true,
-                'sw-tabs-item': true,
+                'sw-tabs': {
+                    name: 'sw-tabs',
+                    template: '<div class="sw-tabs"><slot></slot></div>',
+                    props: [
+                        'positionIdentifier',
+                    ],
+                },
+                'sw-tabs-item': {
+                    name: 'sw-tabs-item',
+                    template: '<div class="sw-tabs-item"></div>',
+                    props: [
+                        'route',
+                        'title',
+                    ],
+                },
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    template: '<div class="mt-tabs"></div>',
+                    props: {
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: undefined,
+                        },
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            required: true,
+                        },
+                    },
+                },
                 'sw-language-switch': true,
                 'sw-order-leave-page-modal': true,
                 'sw-order-save-changes-beforehand-modal': true,
@@ -79,6 +118,9 @@ async function createWrapper(order = {}) {
                     create: () => repositoryFactoryMock,
                 },
                 orderService: {},
+                feature: {
+                    isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
+                },
             },
         },
         props: {
@@ -122,6 +164,91 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         await nextTick();
 
         expect(wrapper.find('.sw-order-detail__manual-order-label').exists()).toBeTruthy();
+    });
+
+    it('should render the fallback tabs branch while the major feature flag is inactive', async () => {
+        wrapper = await createWrapper();
+
+        const tabs = wrapper.getComponent({ name: 'sw-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-order-detail');
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('should render meteor tabs when the major feature flag is active', async () => {
+        wrapper = await createWrapper(
+            {},
+            {
+                featureActive: true,
+                routeName: 'sw.order.detail.details',
+            },
+        );
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-order-detail');
+        expect(tabs.props('defaultItem')).toBe('sw.order.detail.details');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-order.detail.tabGeneral',
+                name: 'sw.order.detail.general',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-order.detail.tabDetails',
+                name: 'sw.order.detail.details',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-order.detail.tabDocuments',
+                name: 'sw.order.detail.documents',
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+    });
+
+    it('should navigate when a meteor route tab is clicked', async () => {
+        const routerPush = jest.fn();
+        wrapper = await createWrapper(
+            {},
+            {
+                featureActive: true,
+                routerPush,
+            },
+        );
+
+        const documentsTab = wrapper.vm.orderDetailTabs.find((tab) => tab.name === 'sw.order.detail.documents');
+
+        documentsTab.onClick();
+
+        expect(routerPush).toHaveBeenCalledWith({
+            name: 'sw.order.detail.documents',
+            params: { id: 'order123' },
+        });
+    });
+
+    it('should pass the document warning state to meteor tabs', async () => {
+        wrapper = await createWrapper(
+            {},
+            {
+                featureActive: true,
+            },
+        );
+
+        wrapper.vm.hasOrderDeepEdit = true;
+        await nextTick();
+
+        const documentsTab = wrapper
+            .getComponent({ name: 'mt-tabs' })
+            .props('items')
+            .find((tab) => tab.name === 'sw.order.detail.documents');
+
+        expect(documentsTab).toEqual(
+            expect.objectContaining({
+                badge: 'warning',
+            }),
+        );
     });
 
     it('should created a new version when component was created', async () => {

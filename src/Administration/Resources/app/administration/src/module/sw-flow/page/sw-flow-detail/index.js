@@ -190,6 +190,25 @@ export default {
             });
         },
 
+        flowDetailTabs() {
+            const createRouteTab = (label, tabName) => {
+                const route = this.routeDetailTab(tabName);
+
+                return {
+                    label: this.$t(label),
+                    name: route.name,
+                    onClick: () => {
+                        void this.$router.push(this.routeDetailTab(tabName));
+                    },
+                };
+            };
+
+            return [
+                createRouteTab('sw-flow.page.tabGeneral', 'general'),
+                createRouteTab('sw-flow.page.tabFlow', 'flow'),
+            ];
+        },
+
         ...mapState(
             () => Store.get('swFlow'),
             [

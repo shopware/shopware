@@ -15,11 +15,12 @@ export default {
     inject: [
         'repositoryFactory',
         'acl',
+        'feature',
     ],
 
     mixins: [
-        'notification',
-        'placeholder',
+        Mixin.getByName('notification'),
+        Mixin.getByName('placeholder'),
         Mixin.getByName('discard-detail-page-changes')('promotion'),
     ],
 
@@ -116,6 +117,34 @@ export default {
 
         promotionGroupRepository() {
             return this.repositoryFactory.create('promotion_setgroup');
+        },
+
+        promotionDetailTabs() {
+            const createRouteTab = (label, routeName) => {
+                const route = {
+                    name: routeName,
+                    params: { id: this.$route.params.id },
+                };
+
+                return {
+                    label: this.$t(label),
+                    name: route.name,
+                    disabled: !this.promotionId || undefined,
+                    onClick: () => {
+                        void this.$router.push(route);
+                    },
+                };
+            };
+
+            const generalTab = createRouteTab('sw-promotion-v2.detail.tabs.tabGeneral', 'sw.promotion.v2.detail.base');
+
+            generalTab.hasError = this.swPromotionV2DetailBaseError;
+
+            return [
+                generalTab,
+                createRouteTab('sw-promotion-v2.detail.tabs.tabConditions', 'sw.promotion.v2.detail.conditions'),
+                createRouteTab('sw-promotion-v2.detail.tabs.tabDiscounts', 'sw.promotion.v2.detail.discounts'),
+            ];
         },
 
         ...mapPageErrors(errorConfig),

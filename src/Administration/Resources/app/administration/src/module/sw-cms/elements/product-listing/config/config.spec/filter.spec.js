@@ -8,6 +8,49 @@ describe('src/module/sw-cms/elements/product-listing/config - filters', () => {
         registerCmsPageStore();
     });
 
+    it('should render deprecated tabs when the major feature flag is inactive', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('.sw-tabs').exists()).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('should render meteor tabs when the major feature flag is active', async () => {
+        const wrapper = await createWrapper('sorting', { featureActive: true });
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-cms-element-config-product-listing');
+        expect(tabs.props('defaultItem')).toBe('content');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-cms.elements.general.config.tab.content',
+                name: 'content',
+            },
+            {
+                label: 'sw-cms.elements.productListing.config.tab.sorting',
+                name: 'sorting',
+            },
+            {
+                label: 'sw-cms.elements.productListing.config.tab.filter',
+                name: 'filter',
+            },
+        ]);
+        expect(wrapper.find('.sw-tabs').exists()).toBe(false);
+        expect(wrapper.find('.sw-cms-el-config-product-listing__content-info').exists()).toBe(true);
+    });
+
+    it('should switch meteor tab content when the active tab changes', async () => {
+        const wrapper = await createWrapper('sorting', { featureActive: true });
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        await tabs.vm.$emit('new-item-active', 'sorting');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('sorting');
+        expect(wrapper.find('.sw-cms-el-config-product-listing__content-info').exists()).toBe(false);
+        expect(wrapper.find('sw-entity-single-select-stub[entity="product_sorting"]').exists()).toBe(true);
+    });
+
     it('should contain content for filter setting', async () => {
         const wrapper = await createWrapper('filter');
         await flushPromises();

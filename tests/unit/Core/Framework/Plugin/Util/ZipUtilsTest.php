@@ -36,7 +36,7 @@ class ZipUtilsTest extends TestCase
         );
 
         try {
-            static::assertSame(20, $archive->numFiles);
+            static::assertSame(21, $archive->numFiles);
         } finally {
             $archive->close();
         }

@@ -50,7 +50,7 @@ const repositoryMockFactory = (entity) => {
     throw new Error(`Repository for ${entity} is not implemented`);
 };
 
-export async function createWrapper(activeTab = 'sorting') {
+export async function createWrapper(activeTab = 'sorting', { featureActive = false } = {}) {
     return mount(
         await wrapTestComponent('sw-cms-el-config-product-listing', {
             sync: true,
@@ -69,13 +69,33 @@ export async function createWrapper(activeTab = 'sorting') {
                     'sw-pagination': true,
                     'sw-container': true,
                     'sw-tabs-item': true,
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        emits: ['new-item-active'],
+                        props: {
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                        },
+                        template: '<div class="mt-tabs"></div>',
+                    },
 
                     'sw-tabs': {
                         data() {
                             return { active: activeTab };
                         },
                         template: `
-                        <div>
+                        <div class="sw-tabs">
                             <slot></slot>
                             <slot name="content" v-bind="{ active }"></slot>
                         </div>
@@ -103,6 +123,9 @@ export async function createWrapper(activeTab = 'sorting') {
                     },
                 },
                 provide: {
+                    feature: {
+                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
+                    },
                     cmsService: Shopware.Service('cmsService'),
                     repositoryFactory: {
                         create: (entity) => repositoryMockFactory(entity),
@@ -125,6 +148,9 @@ export async function createWrapper(activeTab = 'sorting') {
                     config: {
                         boxLayout: {
                             value: {},
+                        },
+                        boxHeadlineLevel: {
+                            value: null,
                         },
                         defaultSorting: {
                             value: {},

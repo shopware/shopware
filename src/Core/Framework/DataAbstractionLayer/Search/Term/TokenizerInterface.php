@@ -11,6 +11,6 @@ interface TokenizerInterface
     /**
      * @return list<string>
      */
-    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'tokenMinimumLength', parameterType: '?int')]
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'tokenMinimumLength', parameterType: '?int', defaultValue: null)]
     public function tokenize(string $string/* , ?int $tokenMinimumLength = null */): array;
 }

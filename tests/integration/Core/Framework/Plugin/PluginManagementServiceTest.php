@@ -68,6 +68,9 @@ class PluginManagementServiceTest extends TestCase
         $this->filesystem->remove(self::PLUGIN_FASHION_THEME_PATH);
         $this->filesystem->remove(self::PLUGIN_ZIP_FIXTURE_PATH);
         $this->filesystem->remove(self::APP_ZIP_FIXTURE_PATH);
+        // App.zip extracts into the shared fixture dir; its root must never collide with a
+        // committed fixture app (it used to be `plugin/`, silently overwriting apps/plugin)
+        $this->filesystem->remove(self::APPS_PATH . '/SwagApp');
         $this->filesystem->remove($this->cacheDir);
 
         Kernel::getConnection()->executeStatement('DELETE FROM plugin');

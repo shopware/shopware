@@ -610,7 +610,7 @@ class CustomerEntity extends Entity implements \Stringable
         return $this->activeBillingAddress ?? $this->defaultBillingAddress;
     }
 
-    #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'activeBillingAddress', newType: '?CustomerAddressEntity')]
+    #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'activeBillingAddress', newType: '?' . CustomerAddressEntity::class)]
     public function setActiveBillingAddress(/* ? */ CustomerAddressEntity $activeBillingAddress): void
     {
         $this->activeBillingAddress = $activeBillingAddress;
@@ -621,7 +621,7 @@ class CustomerEntity extends Entity implements \Stringable
         return $this->activeShippingAddress ?? $this->defaultShippingAddress;
     }
 
-    #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'activeShippingAddress', newType: '?CustomerAddressEntity')]
+    #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'activeShippingAddress', newType: '?' . CustomerAddressEntity::class)]
     public function setActiveShippingAddress(/* ? */ CustomerAddressEntity $activeShippingAddress): void
     {
         $this->activeShippingAddress = $activeShippingAddress;

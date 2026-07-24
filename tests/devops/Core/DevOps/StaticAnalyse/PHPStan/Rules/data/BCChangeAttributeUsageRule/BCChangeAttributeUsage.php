@@ -235,7 +235,7 @@ class ExceptionChangeCases
      * @throws \RuntimeException
      */
     #[ExceptionChange(version: 'v6.8.0', newExceptions: [])]
-    public function emptyAnnouncement(): void
+    public function removedExceptionIsARealChange(): void
     {
     }
 }

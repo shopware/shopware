@@ -233,7 +233,12 @@ class PromotionDiscountEntity extends Entity
     public function getSorterKey(): string
     {
         // @deprecated tag:v6.8.0 - The fallback to empty string will be removed
-        return $this->sorterKey ?? '';
+        /** @deprecated tag:v6.8.0 - remove this fallback condition */
+        if ($this->sorterKey === null) {
+            return '';
+        }
+
+        return $this->sorterKey;
     }
 
     public function setSorterKey(?string $sorterKey): void
@@ -245,7 +250,12 @@ class PromotionDiscountEntity extends Entity
     public function getApplierKey(): string
     {
         // @deprecated tag:v6.8.0 - The fallback to empty string will be removed
-        return $this->applierKey ?? '';
+        /** @deprecated tag:v6.8.0 - remove this fallback condition */
+        if ($this->applierKey === null) {
+            return '';
+        }
+
+        return $this->applierKey;
     }
 
     public function setApplierKey(?string $applierKey): void
@@ -257,7 +267,12 @@ class PromotionDiscountEntity extends Entity
     public function getUsageKey(): string
     {
         // @deprecated tag:v6.8.0 - The fallback to empty string will be removed
-        return $this->usageKey ?? '';
+        /** @deprecated tag:v6.8.0 - remove this fallback condition */
+        if ($this->usageKey === null) {
+            return '';
+        }
+
+        return $this->usageKey;
     }
 
     public function setUsageKey(?string $usageKey): void

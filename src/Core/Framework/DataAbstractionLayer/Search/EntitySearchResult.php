@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
+use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @final
@@ -21,7 +22,7 @@ use Shopware\Core\Framework\Struct\StateAwareTrait;
  * @extends EntityCollection<TElement>
  */
 #[Package('framework')]
-#[ClassHierarchyChange(version: 'v6.8.0', description: 'Will no longer extend EntityCollection, but will keep extending Struct.')]
+#[ClassHierarchyChange(version: 'v6.8.0', description: 'Will no longer extend EntityCollection, but will keep extending Struct.', newParentClass: Struct::class)]
 class EntitySearchResult extends EntityCollection implements \JsonSerializable
 {
     use StateAwareTrait;

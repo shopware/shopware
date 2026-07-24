@@ -81,9 +81,10 @@ class MediaFolderEntity extends Entity
         $this->childCount = $childCount;
     }
 
-    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?MediaCollection')]
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?' . MediaCollection::class)]
     public function getMedia(): MediaCollection
     {
+        /** @deprecated tag:v6.8.0 - remove this fallback condition */
         if ($this->media === null) {
             $this->media = new MediaCollection();
         }

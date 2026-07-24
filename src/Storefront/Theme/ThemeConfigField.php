@@ -2,6 +2,8 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeWidening;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
@@ -32,9 +34,9 @@ class ThemeConfigField extends Struct
     protected ?string $type = null;
 
     /**
-     * @deprecated tag:v6.8.0 - Property will be typed natively as array|string
+     * @deprecated tag:v6.8.0 - Property will be typed natively as array|bool|float|int|string
      *
-     * @var list<string>|string
+     * @var array<mixed>|bool|float|int|string
      *
      * @phpstan-ignore shopware.propertyNativeType (Will be natively typed with next major)
      */
@@ -130,24 +132,27 @@ class ThemeConfigField extends Struct
     }
 
     /**
-     * Will be natively typed in v6.8.0. Note that the `list<string>|string` docblock type is
-     * currently inaccurate: theme.json config values also contain booleans and numbers.
-     *
-     * @return list<string>|string
+     * @return array<mixed>|bool|float|int|string
      */
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: 'array|bool|float|int|string')]
     public function getValue()
     {
         return $this->value;
     }
 
     /**
-     * Will be natively typed in v6.8.0. Note that the `list<string>|string` docblock type is
-     * currently inaccurate: theme.json config values also contain booleans and numbers.
-     *
-     * @param list<string>|string $value
+     * @param array<mixed>|bool|float|int|string $value
      */
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'value', newType: 'array|bool|float|int|string')]
     public function setValue($value): void
     {
+        if (!\is_array($value) && !\is_scalar($value)) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'Passing a value that is neither an array, boolean, float, integer, nor string is deprecated and will not be allowed in v6.8.0.0.'
+            );
+        }
+
         $this->value = $value;
     }
 

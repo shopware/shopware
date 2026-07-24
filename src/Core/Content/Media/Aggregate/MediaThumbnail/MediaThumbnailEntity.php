@@ -64,6 +64,7 @@ class MediaThumbnailEntity extends Entity
     #[ReturnTypeWidening(version: 'v6.8.0', newType: '?string')]
     public function getUrl(): string
     {
+        /** @deprecated tag:v6.8.0 - remove this fallback condition */
         if ($this->url === null) {
             return '';
         }
@@ -106,6 +107,7 @@ class MediaThumbnailEntity extends Entity
     #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'string')]
     public function getMediaThumbnailSizeId(): ?string
     {
+        /** @deprecated tag:v6.8.0 - remove this fallback condition */
         if (!isset($this->mediaThumbnailSizeId)) {
             Feature::triggerDeprecationOrThrow('v6.8.0.0', '$mediaThumbnailSizeId must not be null');
 

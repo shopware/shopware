@@ -77,43 +77,43 @@ class Framework extends Bundle
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
 
-        $loader->load('services.xml');
         $phpLoader->load('acl.php');
-        $loader->load('cache.xml');
         $phpLoader->load('api.php');
+        $phpLoader->load('services.php');
+        $phpLoader->load('cache.php');
         $phpLoader->load('app.php');
         $phpLoader->load('custom-field.php');
         $phpLoader->load('data-abstraction-layer.php');
-        $loader->load('demodata.xml');
-        $loader->load('event.xml');
+        $phpLoader->load('demodata.php');
+        $phpLoader->load('event.php');
         $phpLoader->load('hydrator.php');
-        $loader->load('filesystem.xml');
-        $loader->load('message-queue.xml');
+        $phpLoader->load('filesystem.php');
+        $phpLoader->load('message-queue.php');
         $phpLoader->load('plugin.php');
-        $loader->load('rule.xml');
-        $loader->load('scheduled-task.xml');
+        $phpLoader->load('rule.php');
         $phpLoader->load('store.php');
+        $phpLoader->load('scheduled-task.php');
         $phpLoader->load('script.php');
-        $loader->load('language.xml');
-        $loader->load('update.xml');
+        $phpLoader->load('language.php');
         $phpLoader->load('validation.php');
-        $loader->load('seo.xml');
+        $phpLoader->load('update.php');
+        $phpLoader->load('seo.php');
         $phpLoader->load('rate-limiter.php');
         $phpLoader->load('webhook.php');
-        $loader->load('increment.xml');
-        $loader->load('flag.xml');
-        $loader->load('health.xml');
-        $loader->load('telemetry.xml');
-        $loader->load('notification.xml');
+        $phpLoader->load('increment.php');
+        $phpLoader->load('flag.php');
+        $phpLoader->load('health.php');
+        $phpLoader->load('telemetry.php');
+        $phpLoader->load('notification.php');
         $phpLoader->load('sso.php');
 
         // @codeCoverageIgnoreStart
         $phpLoader->load('mcp.php');
 
         if ($container->getParameter('kernel.environment') === 'test') {
-            $loader->load('services_test.xml');
+            $phpLoader->load('services_test.php');
             $phpLoader->load('store_test.php');
-            $loader->load('seo_test.xml');
+            $phpLoader->load('seo_test.php');
             $phpLoader->load('app_test.php');
         }
         // @codeCoverageIgnoreEnd

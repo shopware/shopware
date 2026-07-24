@@ -11,7 +11,7 @@ class LockedField extends BoolField
 {
     private bool $lockTranslation;
 
-    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'lockTranslation', parameterType: 'bool', description: 'The default will be true.')]
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'lockTranslation', parameterType: 'bool', defaultValue: true)]
     public function __construct(/* bool $lockTranslation = true */)
     {
         parent::__construct('locked', 'locked');

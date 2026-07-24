@@ -199,7 +199,7 @@ class Context extends Struct
      *
      * @return TReturn the return value of the provided callback function
      */
-    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'states', parameterType: 'array', description: 'Temporary states that should exist only for this scope; nested scopes do not inherit them unless they pass the same states again.')]
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'states', parameterType: 'array', defaultValue: [], description: 'Temporary states that should exist only for this scope; nested scopes do not inherit them unless they pass the same states again.')]
     public function scope(string $scope, \Closure $callback/* , array $states = [] */): mixed
     {
         $currentScope = $this->getScope();

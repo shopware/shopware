@@ -81,14 +81,43 @@ class McpCapabilityCatalogTest extends TestCase
         static::assertSame('catalogue', $catalog->enrichedTools()[0]['group']);
     }
 
-    public function testEnrichedToolsUsesOtherGroupWhenNoGroupIsConfigured(): void
+    public function testEnrichedToolsDerivesGroupFromLongestCommonNamePrefix(): void
+    {
+        $registry = new Registry();
+        $this->registerTool($registry, 'swag-my-plugin-orders', 'List orders');
+        $this->registerTool($registry, 'swag-my-plugin-products', 'List products');
+        $this->registerTool($registry, 'swag-other-plugin-customers', 'List customers');
+        $this->registerTool($registry, 'swag-other-plugin-products', 'List products');
+
+        $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
+
+        static::assertSame([
+            'swag-my-plugin',
+            'swag-my-plugin',
+            'swag-other-plugin',
+            'swag-other-plugin',
+        ], array_column($catalog->enrichedTools(), 'group'));
+    }
+
+    public function testEnrichedToolsUsesFirstNameSegmentForSingleUnconfiguredTool(): void
     {
         $registry = new Registry();
         $this->registerTool($registry, 'swag-order-export', 'Export orders');
 
         $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
 
-        static::assertSame('other', $catalog->enrichedTools()[0]['group']);
+        static::assertSame('swag', $catalog->enrichedTools()[0]['group']);
+    }
+
+    public function testFindToolUsesGroupDerivedFromAllRegisteredTools(): void
+    {
+        $registry = new Registry();
+        $this->registerTool($registry, 'swag-my-plugin-orders', 'List orders');
+        $this->registerTool($registry, 'swag-my-plugin-products', 'List products');
+
+        $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
+
+        static::assertSame('swag-my-plugin', $catalog->findTool('swag-my-plugin-orders')['group'] ?? null);
     }
 
     public function testEnrichedToolsUsesRuntimeAppGroupWhenNoCompileTimeGroupExists(): void

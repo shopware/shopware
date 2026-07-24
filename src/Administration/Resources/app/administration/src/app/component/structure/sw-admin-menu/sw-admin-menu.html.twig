@@ -228,7 +228,10 @@
             </mt-dropdown-menu-trigger>
 
             <mt-dropdown-menu-portal>
-                <mt-action-menu :match-trigger-width="true">
+                <mt-action-menu
+                    :match-trigger-width="true"
+                    :side-offset="4"
+                >
                     {% block sw_admin_menu_user_actions_items %}
                     <mt-action-menu-group>
                         {% block sw_admin_menu_user_actions_items_logout_user %}

@@ -5,8 +5,12 @@
 
         // Collapse via width instead of `display: none` so the element never
         // leaves the flex layout mid-animation (which caused a visible jump).
-        // The fade lives on the inner icon (hide-on-collapse).
-        transition: width 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+        // The fade lives on the inner icon (hide-on-collapse). Visibility flips
+        // at the end of the shrink and removes the button from the tab order
+        // while collapsed.
+        transition:
+            width 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+            visibility 0.3s cubic-bezier(0.32, 0.72, 0, 1);
 
         .sw-sales-channel-menu-domain-link__icon {
             color: var(--color-icon-primary-default);
@@ -38,6 +42,7 @@
         .sw-admin-menu__headline_text a:focus-visible {
             text-decoration: underline;
             color: var(--color-text-primary-default);
+            outline: none;
         }
     }
 
@@ -102,6 +107,7 @@
 
     .sw-sales-channel-menu-domain-link {
         width: 0;
+        visibility: hidden;
         pointer-events: none;
     }
 

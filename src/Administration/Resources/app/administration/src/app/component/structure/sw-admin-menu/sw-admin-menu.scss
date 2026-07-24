@@ -124,7 +124,7 @@
     }
 
     .sw-admin-menu__header {
-        max-height: 36px;
+        /* max-height: 36px; */
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -406,7 +406,8 @@
         border-radius: var(--border-radius-s);
         transition:
             padding var(--sw-admin-menu-duration-inner) ease-in-out,
-            gap var(--sw-admin-menu-duration-inner) ease-in-out;
+            gap var(--sw-admin-menu-duration-inner) ease-in-out,
+            margin var(--sw-admin-menu-duration-inner) ease-in-out;
 
         &:hover {
             background: var(--color-interaction-secondary-hover);
@@ -453,7 +454,7 @@
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
-        transition: transform var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier);
+        transition: transform var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier), opacity 0.1s ease;
     }
 
     .sw-admin-menu__user-custom-fields {
@@ -473,6 +474,13 @@
             width: var(--scale-size-36);
             height: var(--scale-size-36);
             border-radius: var(--border-radius-s);
+
+            // The button fills the overflow-clipped headline exactly, so the
+            // default outer focus outline of mt-button would be cut off.
+            // Draw it inset instead, like the navigation links.
+            &:focus-visible {
+                outline-offset: -2px;
+            }
         }
 
         .sw-admin-menu__collapse-button {
@@ -484,11 +492,24 @@
         }
 
         .sw-admin-menu__user-actions-toggle {
-            padding-left: 0;
-            padding-right: 0;
+            padding: 0;
+            margin-bottom: var(--scale-size-8);
 
             &:hover:not(.is--active) {
                 background: transparent;
+
+                .sw-admin-menu__avatar {
+                    opacity: 0.8;
+                }
+            }
+
+            &:focus-visible {
+                outline: none;
+
+                .sw-admin-menu__avatar {
+                    outline: 2px solid var(--color-border-brand-default);
+                    outline-offset: 2px;
+                }
             }
 
             &.is--active,

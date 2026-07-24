@@ -1,6 +1,15 @@
 {% block sw_order_detail_documents %}
 <div>
     {% block sw_order_detail_documents_card %}
+    {# TODO: Replace this temporary banner with MtTabs item tooltip metadata once Meteor supports badge/disabled tab tooltips (https://github.com/shopware/meteor/issues/1182). Only shown on the mt-tabs path; the legacy sw-tabs path still has the tab tooltip. #}
+    <mt-banner
+        v-if="isEditing && feature.isActive('v6.8.0.0')"
+        class="sw-order-detail-documents__save-warning"
+        variant="attention"
+    >
+        {{ $t('sw-order.documentTab.tooltipSaveBeforeCreateDocument') }}
+    </mt-banner>
+
     {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
     <sw-order-document-card
         :order="order"

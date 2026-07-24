@@ -33,13 +33,31 @@ const defaultSalesChannelResponse = {
 };
 
 async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
+    const hasOptionsShape =
+        typeof optionsOrLegacyArg === 'object' &&
+        optionsOrLegacyArg !== null &&
+        !Array.isArray(optionsOrLegacyArg) &&
+        [
+            'routeParams',
+            'salesChannelResponse',
+            'featureActive',
+            'routeName',
+            'routerPush',
+        ].some((key) => Object.hasOwn(optionsOrLegacyArg, key));
+
     const normalizedOptions = Array.isArray(optionsOrLegacyArg)
         ? { routeParams: { id: '1a2b3c4d' } }
-        : optionsOrLegacyArg.routeParams || optionsOrLegacyArg.salesChannelResponse
+        : hasOptionsShape
           ? optionsOrLegacyArg
           : { routeParams: optionsOrLegacyArg };
 
-    const { routeParams = { id: '1a2b3c4d' }, salesChannelResponse = {} } = normalizedOptions;
+    const {
+        routeParams = { id: '1a2b3c4d' },
+        salesChannelResponse = {},
+        featureActive = false,
+        routeName = '',
+        routerPush = jest.fn(),
+    } = normalizedOptions;
 
     mockGet.mockResolvedValue({
         ...defaultSalesChannelResponse,
@@ -72,15 +90,39 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
                 },
                 'sw-language-info': true,
                 'sw-tabs': {
+                    name: 'sw-tabs',
                     template: '<div class="sw-tabs"><slot /></div>',
+                    props: [
+                        'positionIdentifier',
+                    ],
                 },
                 'sw-tabs-item': {
+                    name: 'sw-tabs-item',
                     template: '<div class="sw-tabs-item"><slot /></div>',
                     props: [
                         'route',
                         'title',
                         'disabled',
                     ],
+                },
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    template: '<div class="mt-tabs"></div>',
+                    props: {
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: undefined,
+                        },
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            required: true,
+                        },
+                    },
                 },
                 'router-view': true,
                 'sw-skeleton': true,
@@ -117,11 +159,17 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
                     getValues: mockGetSystemConfigValues,
                     batchSave: () => Promise.resolve(),
                 },
+                feature: {
+                    isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
+                },
             },
             mocks: {
                 $route: {
                     params: routeParams,
-                    name: '',
+                    name: routeName,
+                },
+                $router: {
+                    push: routerPush,
                 },
             },
         },
@@ -130,6 +178,7 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
 
 describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
     beforeEach(() => {
+        global.activeFeatureFlags = [];
         global.activeAclRoles = [];
         mockSave.mockClear();
         mockGet.mockClear();

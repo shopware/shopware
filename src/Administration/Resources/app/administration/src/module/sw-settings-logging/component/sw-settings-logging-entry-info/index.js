@@ -8,6 +8,10 @@ import template from './sw-settings-logging-entry-info.html.twig';
 export default {
     template,
 
+    inject: [
+        'feature',
+    ],
+
     emits: ['close'],
 
     props: {
@@ -24,6 +28,15 @@ export default {
     },
 
     computed: {
+        entryInfoTabs() {
+            return [
+                {
+                    label: this.$t('sw-settings-logging.entryInfo.tabRaw'),
+                    name: 'raw',
+                },
+            ];
+        },
+
         displayString() {
             return this.logEntry.context ? JSON.stringify(this.logEntry.context, null, 2) : '';
         },

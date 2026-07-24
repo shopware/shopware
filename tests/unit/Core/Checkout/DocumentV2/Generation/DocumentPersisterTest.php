@@ -54,16 +54,18 @@ class DocumentPersisterTest extends TestCase
 
         $this->generationRequest = new DocumentGenerationRequest(
             Uuid::randomHex(),
-            Uuid::randomHex(),
             self::DOCUMENT_TYPE,
             [self::FORMAT],
             '12345',
         );
 
+        $order = new OrderEntity();
+        $order->setVersionId(Uuid::randomHex());
+
         $this->renderInput = new RenderInput(
             self::DOCUMENT_TYPE,
             '12345',
-            new OrderEntity(),
+            $order,
             ['test' => new StaticRenderData()]
         );
 
@@ -99,6 +101,7 @@ class DocumentPersisterTest extends TestCase
         static::assertCount(1, $documentRepository->creates);
         static::assertSame($documentRepository->creates[0][0]['id'], $document->getId());
         static::assertSame($documentTypeId, $documentRepository->creates[0][0]['documentTypeId']);
+        static::assertSame($this->renderInput->order->getVersionId(), $documentRepository->creates[0][0]['orderVersionId']);
 
         static::assertCount(1, $documentFileRepository->creates);
         static::assertSame(self::FORMAT, $documentFileRepository->creates[0][0]['documentFormat']);

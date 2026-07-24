@@ -65,7 +65,7 @@ class AppEntity extends Entity
      *
      * @var list<Module>
      */
-    protected array $modules = [];
+    protected array $modules;
 
     /**
      * @deprecated tag:v6.8.0 - App modules are stored as app features. Use ModuleLoader instead.
@@ -79,7 +79,7 @@ class AppEntity extends Entity
      *
      * @var list<Cookie>
      */
-    protected array $cookies = [];
+    protected array $cookies;
 
     /**
      * @var list<string>|null

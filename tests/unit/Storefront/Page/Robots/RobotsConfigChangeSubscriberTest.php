@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Page\Robots;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
 use Shopware\Storefront\Page\Robots\Parser\ParsedRobots;
 use Shopware\Storefront\Page\Robots\Parser\ParseIssue;
@@ -15,6 +16,7 @@ use Shopware\Storefront\Page\Robots\RobotsConfigChangeSubscriber;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(RobotsConfigChangeSubscriber::class)]
 class RobotsConfigChangeSubscriberTest extends TestCase
 {

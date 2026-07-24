@@ -16,8 +16,8 @@ use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
 /**
  * @internal
  */
-#[CoversClass(AppMcpPrivilegeProvider::class)]
 #[Package('framework')]
+#[CoversClass(AppMcpPrivilegeProvider::class)]
 class AppMcpPrivilegeProviderTest extends TestCase
 {
     public function testReturnsEmptyMapWhenNoFeatures(): void

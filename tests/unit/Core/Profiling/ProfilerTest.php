@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Profiling;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Integration\ProfilerInterface;
 use Shopware\Core\Profiling\Integration\Stopwatch;
 use Shopware\Core\Profiling\Profiler;
@@ -12,6 +13,7 @@ use Symfony\Component\Stopwatch\Stopwatch as SymfonyStopwatch;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Profiler::class)]
 class ProfilerTest extends TestCase
 {

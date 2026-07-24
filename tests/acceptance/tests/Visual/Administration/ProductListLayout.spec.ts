@@ -23,7 +23,7 @@ const prepareDetailScreenshot = async (
 test(
     'Visual: Shopping experiences pages',
     { tag: '@Visual' },
-    async ({ ShopAdmin, AdminListingPageLayoutDetail, AdminApiContext, TestDataService, IdProvider }) => {
+    async ({ ShopAdmin, AdminListingPageLayoutDetail, TestDataService, IdProvider }) => {
         test.slow();
 
         const createdLayoutId = IdProvider.getIdPair().uuid;
@@ -67,10 +67,6 @@ test(
             await prepareDetailScreenshot(AdminListingPageLayoutDetail.page, AdminListingPageLayoutDetail.saveButton);
             await ShopAdmin.expects(AdminListingPageLayoutDetail.sidebarTitle).toBeVisible();
             await assertScreenshot(AdminListingPageLayoutDetail.page, 'Layout-Detail-Navigator-Tab.png');
-        });
-
-        await test.step('Delete the created layout.', async () => {
-            await AdminApiContext.delete(`cms-page/${createdLayoutId}`);
         });
     },
 );

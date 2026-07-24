@@ -23,11 +23,11 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'framework:dump:class:schema',
     description: 'Dumps the schema of the given entity',
 )]
-#[Package('framework')]
 class DumpClassSchemaCommand extends Command
 {
     protected string $schemaPath;

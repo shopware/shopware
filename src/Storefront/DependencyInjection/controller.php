@@ -54,6 +54,7 @@ use Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute;
 use Shopware\Core\Content\RevocationRequest\SalesChannel\RevocationRequestRoute;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Sitemap\SalesChannel\SitemapFileRoute;
+use Shopware\Core\Framework\Adapter\Translation\ConstraintViolationTranslator;
 use Shopware\Core\Framework\App\Api\AppJWTGenerateRoute;
 use Shopware\Core\Framework\Gateway\Context\SalesChannel\ContextGatewayRoute;
 use Shopware\Core\Framework\Script\Api\ScriptResponseEncoder;
@@ -277,6 +278,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(NewsletterSubscribeRoute::class),
             service(NewsletterUnsubscribeRoute::class),
             service(RevocationRequestRoute::class),
+            service(ConstraintViolationTranslator::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

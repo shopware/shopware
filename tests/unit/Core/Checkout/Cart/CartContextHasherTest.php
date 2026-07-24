@@ -24,8 +24,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[CoversClass(CartContextHasher::class)]
 #[Package('checkout')]
+#[CoversClass(CartContextHasher::class)]
 class CartContextHasherTest extends TestCase
 {
     public const EXPECTED_HASH = '4b23999825d79f8ef836181beb8c95beb298618d8edc35e7fea35b638cd533ac';

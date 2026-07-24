@@ -34,6 +34,7 @@ use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPromptLoader;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpResourceLoader;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpToolLoader;
+use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
 use Shopware\Core\Framework\Mcp\Prompt\ShopwareContextPrompt;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
@@ -109,6 +110,12 @@ return static function (ContainerConfigurator $container): void {
     $services->set(McpRateLimiter::class)
         ->args([service(RateLimiter::class)]);
 
+    $services->set(McpAllowedHostsProvider::class)
+        ->args([
+            service(Connection::class),
+            env('APP_URL'),
+        ]);
+
     $services->set(McpServerController::class)
         ->public()
         ->args([
@@ -119,6 +126,7 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.psr17_factory')->nullOnInvalid(),
             service(McpRateLimiter::class),
             service(McpSessionIdValidator::class),
+            service(McpAllowedHostsProvider::class),
             service(McpAllowlistProvider::class),
             service('logger'),
             service(McpAllowlistFilter::class),
@@ -160,6 +168,7 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.psr17_factory')->nullOnInvalid(),
             service(McpRateLimiter::class),
             service(McpSessionIdValidator::class),
+            service(McpAllowedHostsProvider::class),
             service('logger'),
         ])
         ->tag('controller.service_arguments')
@@ -393,14 +402,11 @@ return static function (ContainerConfigurator $container): void {
         ->tag('monolog.logger', ['channel' => 'mcp']);
 
     $services->set(McpToolFeatureDefinition::class)
-        ->tag('shopware.app_feature.definition')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('shopware.app_feature.definition');
 
     $services->set(McpPromptFeatureDefinition::class)
-        ->tag('shopware.app_feature.definition')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('shopware.app_feature.definition');
 
     $services->set(McpResourceFeatureDefinition::class)
-        ->tag('shopware.app_feature.definition')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('shopware.app_feature.definition');
 };

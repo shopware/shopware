@@ -3,13 +3,13 @@
 namespace Shopware\Core\Framework\Mcp\Loader;
 
 use Mcp\Capability\RegistryInterface;
-use Mcp\Schema\Resource;
+use Mcp\Schema\ResourceDefinition;
 use Mcp\Server\RequestContext;
 use Shopware\Core\Framework\App\Mcp\Feature\McpResourceConfig;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Registers app-provided MCP resources with the MCP server registry at build time.
  */
@@ -54,7 +54,7 @@ class AppMcpResourceLoader extends AbstractAppMcpLoader
         $description = $this->resolveDescription($row, $resourceName);
         $mimeType = isset($row['mimeType']) ? (string) $row['mimeType'] : null;
 
-        $resource = new Resource(
+        $resource = new ResourceDefinition(
             uri: (string) $row['uri'],
             name: $resourceName,
             description: $description,
@@ -66,6 +66,6 @@ class AppMcpResourceLoader extends AbstractAppMcpLoader
 
         $registry->registerResource($resource, function (RequestContext $context) use ($resourceName, $appName, $url, $uri): string {
             return $this->executor->execute($resourceName, $appName, $url, ['uri' => $uri]);
-        }, true);
+        });
     }
 }

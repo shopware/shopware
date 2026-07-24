@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Adapter\Twig\ConfigurableFilesystemCache;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
+use Shopware\Core\Framework\Log\Package;
 use Twig\Cache\FilesystemCache;
 use Twig\Environment;
 use Twig\Error\LoaderError;
@@ -19,6 +20,7 @@ use Twig\Loader\LoaderInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TemplateFinder::class)]
 class TemplateFinderTest extends TestCase
 {

@@ -31,11 +31,7 @@ class FeedLabelValidator implements EventSubscriberInterface
 
     public function preValidate(PreWriteValidationEvent $event): void
     {
-        foreach ($event->getCommands() as $command) {
-            if ($command->getEntityName() !== ProductExportDefinition::ENTITY_NAME) {
-                continue;
-            }
-
+        foreach ($event->getCommandsForEntity(ProductExportDefinition::ENTITY_NAME) as $command) {
             if (!$command instanceof InsertCommand && !$command instanceof UpdateCommand) {
                 continue;
             }

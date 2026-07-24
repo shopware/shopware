@@ -16,12 +16,14 @@ use Shopware\Core\Framework\App\Cookie\AppCookieCollectListener;
 use Shopware\Core\Framework\App\Cookie\CookieConfig;
 use Shopware\Core\Framework\App\Feature\AppFeature;
 use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppCookieCollectListener::class)]
 class AppCookieCollectListenerTest extends TestCase
 {

@@ -10,6 +10,8 @@ export function transformScript(jsContent: string): TransformScriptResult {
     const registration = findComponentRegistration(sourceFile);
     const optionsObj = registration?.optionsObject;
 
+    const componentName = registration?.componentName ?? 'unknown-component';
+
     if (!optionsObj) {
         return {
             script: '',
@@ -17,6 +19,7 @@ export function transformScript(jsContent: string): TransformScriptResult {
             status: 'not-migratable',
             blockers: ['no options object found'],
             publicNames: [],
+            componentName,
         };
     }
 
@@ -27,7 +30,7 @@ export function transformScript(jsContent: string): TransformScriptResult {
         // render() owns the component output. Combining it with the migrated
         // Twig template would either be ignored by Vue or change rendering
         // semantics, so the component must be rewritten by hand first.
-        return { script: '', scriptType: 'options', status: 'not-migratable', blockers, publicNames: [] };
+        return { script: '', scriptType: 'options', status: 'not-migratable', blockers, publicNames: [], componentName };
     }
 
     if (blockers.length > 0 || unsupportedInjectAnalysis.reasons.length > 0) {
@@ -43,19 +46,17 @@ export function transformScript(jsContent: string): TransformScriptResult {
                 ...unsupportedInjectAnalysis.reasons,
             ],
             publicNames: [],
+            componentName,
         };
     }
 
-    const { script, publicNames, manualMigrationReasons } = buildCompositionApiScript(
-        optionsObj,
-        registration,
-        sourceFile,
-    );
+    const { script, publicNames, manualMigrationReasons } = buildCompositionApiScript(optionsObj, registration, sourceFile);
     return {
         script,
         scriptType: 'setup',
         status: manualMigrationReasons.length > 0 ? 'partially-migratable' : 'fully-migratable',
         blockers: manualMigrationReasons,
         publicNames,
+        componentName,
     };
 }

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  */
 #[Package('framework')]
 abstract class AbstractAppMcpLoader implements LoaderInterface

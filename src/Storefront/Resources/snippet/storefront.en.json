@@ -143,7 +143,8 @@
     "CHECKOUT__ORDER_ORDER_CANCELLED": "The order with the order number \"%orderNumber%\" was canceled and cannot be edited afterwards.",
     "CHECKOUT__ORDER_ORDER_NOT_FOUND": "This order could not be found.",
     "CHECKOUT__CART_HASH_MISMATCH": "Products or prices in your shopping cart may have changed. Please check your shopping cart before placing your order.",
-    "CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY": "The quantity (%quantity%) is incorrect."
+    "CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY": "The quantity (%quantity%) is incorrect.",
+    "urlNotAllowed": "Please do not enter a URL in this field."
   },
   "account": {
     "externalPaymentCanceled": "We have received your order, but the payment was aborted. Please change your payment method or try again.",
@@ -606,18 +607,13 @@
     "labelActionSelect": "Action",
     "labelMail": "Email address",
     "labelFirstName": "First name",
-    "labelLastName": "Last name",
-    "placeholderMail": "Enter email address...",
-    "placeholderFirstName": "John",
-    "placeholderLastName": "Doe"
+    "labelLastName": "Last name"
   },
   "contact": {
     "headline": "Contact",
     "info": "We look forward to hearing from you.",
     "subjectLabel": "Subject",
-    "subjectPlaceholder": "Enter subject...",
     "commentLabel": "Comment",
-    "commentPlaceholder": "Enter comment...",
     "privacyNoticeText": "I have read and acknowledge the <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" data-prev-url=\"%prevUrl%\" href=\"%privacyUrl%\" title=\"Privacy policy\">privacy policy</a>.",
     "privacyNoticeTextModal": "I have read and acknowledge the %privacyModalTagOpen%privacy policy%privacyModalTagClose%.",
     "privacyNoticeTextPage": "I have read and acknowledge the <a href=\"%privacyUrl%\" title=\"Privacy policy\">privacy policy</a>.",
@@ -627,15 +623,10 @@
   "revocationRequest": {
     "headline": "Revocation",
     "firstNameLabel": "First name",
-    "firstNamePlaceholder": "Enter first name...",
     "lastNameLabel": "Last name",
-    "lastNamePlaceholder": "Enter last name...",
     "eMailLabel": "Email address",
-    "eMailPlaceholder": "Enter email address...",
     "contractNumberLabel": "Contract number (order number, subscription number, ...)",
-    "contractNumberPlaceholder": "Enter contract number...",
     "commentLabel": "Comment",
-    "commentPlaceholder": "Enter comment...",
     "privacyNoticeTextModal": "Our Privacy Notice is available %privacyModalTagOpen%here%privacyModalTagClose%.",
     "formSubmit": "Confirm revocation",
     "success": "We have received your revocation request and will process it as soon as possible."

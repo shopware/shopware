@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Loader;
 
 use Doctrine\DBAL\Exception as DBALException;
+use Mcp\Capability\Registry\PromptReference;
 use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\JsonRpc\Request;
 use Mcp\Schema\Prompt;
@@ -76,7 +77,6 @@ class AppMcpPromptLoaderTest extends TestCase
                 }),
                 static::isCallable(),
                 [],
-                true,
             );
 
         $this->loader->load($registry);
@@ -100,7 +100,6 @@ class AppMcpPromptLoaderTest extends TestCase
                 }),
                 static::isCallable(),
                 [],
-                true,
             );
 
         $this->loader->load($registry);
@@ -124,7 +123,6 @@ class AppMcpPromptLoaderTest extends TestCase
                 }),
                 static::isCallable(),
                 [],
-                true,
             );
 
         $this->loader->load($registry);
@@ -145,8 +143,10 @@ class AppMcpPromptLoaderTest extends TestCase
         $registry = $this->createMock(RegistryInterface::class);
         $registry->expects($this->once())
             ->method('registerPrompt')
-            ->willReturnCallback(function (Prompt $prompt, callable $callback) use (&$capturedCallback): void {
+            ->willReturnCallback(function (Prompt $prompt, callable $callback) use (&$capturedCallback): PromptReference {
                 $capturedCallback = $callback;
+
+                return static::createStub(PromptReference::class);
             });
 
         $loader->load($registry);

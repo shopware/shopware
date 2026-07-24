@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Loader;
 
 use Doctrine\DBAL\Exception as DBALException;
+use Mcp\Capability\Registry\ToolReference;
 use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\JsonRpc\Request;
 use Mcp\Schema\Request\CallToolRequest;
@@ -89,7 +90,6 @@ class AppMcpToolLoaderTest extends TestCase
                     return true;
                 }),
                 static::isCallable(),
-                true,
             );
 
         $this->loader->load($registry);
@@ -112,7 +112,6 @@ class AppMcpToolLoaderTest extends TestCase
                     return true;
                 }),
                 static::isCallable(),
-                true,
             );
 
         $this->loader->load($registry);
@@ -147,7 +146,6 @@ class AppMcpToolLoaderTest extends TestCase
                     return true;
                 }),
                 static::isCallable(),
-                true,
             );
 
         $this->loader->load($registry);
@@ -169,7 +167,6 @@ class AppMcpToolLoaderTest extends TestCase
                     return true;
                 }),
                 static::isCallable(),
-                true,
             );
 
         $this->loader->load($registry);
@@ -196,7 +193,6 @@ class AppMcpToolLoaderTest extends TestCase
             ->with(
                 static::callback(fn (Tool $tool): bool => $tool->name === 'my-app-sync-orders'),
                 static::isCallable(),
-                true,
             );
 
         $loader = new AppMcpToolLoader($this->storage, $this->executor, $this->localeProvider, new NullLogger(), ['my-app-sync-orders']);
@@ -220,7 +216,6 @@ class AppMcpToolLoaderTest extends TestCase
                     return true;
                 }),
                 static::isCallable(),
-                true,
             );
 
         $this->loader->load($registry);
@@ -243,8 +238,10 @@ class AppMcpToolLoaderTest extends TestCase
         $registry = $this->createMock(RegistryInterface::class);
         $registry->expects($this->once())
             ->method('registerTool')
-            ->willReturnCallback(function (Tool $tool, callable $callback) use (&$capturedCallback): void {
+            ->willReturnCallback(function (Tool $tool, callable $callback) use (&$capturedCallback): ToolReference {
                 $capturedCallback = $callback;
+
+                return static::createStub(ToolReference::class);
             });
 
         $loader->load($registry);
@@ -273,8 +270,10 @@ class AppMcpToolLoaderTest extends TestCase
         $registry = $this->createMock(RegistryInterface::class);
         $registry->expects($this->once())
             ->method('registerTool')
-            ->willReturnCallback(function (Tool $tool, callable $callback) use (&$capturedCallback): void {
+            ->willReturnCallback(function (Tool $tool, callable $callback) use (&$capturedCallback): ToolReference {
                 $capturedCallback = $callback;
+
+                return static::createStub(ToolReference::class);
             });
 
         $loader->load($registry);
@@ -315,7 +314,6 @@ class AppMcpToolLoaderTest extends TestCase
                     return true;
                 }),
                 static::isCallable(),
-                true,
             );
 
         $this->loader->load($registry);

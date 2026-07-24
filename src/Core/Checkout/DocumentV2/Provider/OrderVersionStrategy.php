@@ -14,9 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('after-sales')]
 enum OrderVersionStrategy
 {
-    case REQUEST;
+    case CREATE;
 
     case REFERENCED;
-
-    case BOTH;
 }

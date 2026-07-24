@@ -84,20 +84,20 @@ class DocumentGeneratorTest extends TestCase
     {
         $orderId = $this->createDemoOrder();
 
-        $invoiceVersionId = $this->orderRepository->createVersion($orderId, $this->context);
-        $invoice = $this->generateDocument(DocumentType::INVOICE, $orderId, $invoiceVersionId, self::DOCUMENT_NUMBER);
+        $invoice = $this->generateDocument(DocumentType::INVOICE, $orderId, self::DOCUMENT_NUMBER);
+
+        $invoiceVersionId = $invoice->getOrderVersionId();
+        static::assertNotSame(Defaults::LIVE_VERSION, $invoiceVersionId);
 
         $invoicedTotal = $this->loadOrderTotal($orderId, $invoiceVersionId);
         static::assertNotSame(self::EDITED_TOTAL, $invoicedTotal);
 
         $this->changeOrderTotal($orderId, self::EDITED_TOTAL);
-        $cancellationVersionId = $this->orderRepository->createVersion($orderId, $this->context);
-        static::assertSame(self::EDITED_TOTAL, $this->loadOrderTotal($orderId, $cancellationVersionId));
+        static::assertSame(self::EDITED_TOTAL, $this->loadOrderTotal($orderId, Defaults::LIVE_VERSION));
 
         $cancellationInvoice = $this->generateDocument(
             DocumentType::CANCELLATION_INVOICE,
             $orderId,
-            $cancellationVersionId,
             self::CANCELLATION_INVOICE_NUMBER,
         );
 
@@ -115,12 +115,9 @@ class DocumentGeneratorTest extends TestCase
 
         $invoiceId = $this->seedReferenceInvoice($orderId, self::DOCUMENT_NUMBER, Defaults::LIVE_VERSION);
 
-        $cancellationVersionId = $this->orderRepository->createVersion($orderId, $this->context);
-
         $cancellationInvoice = $this->generateDocument(
             DocumentType::CANCELLATION_INVOICE,
             $orderId,
-            $cancellationVersionId,
             self::CANCELLATION_INVOICE_NUMBER,
         );
 
@@ -135,14 +132,11 @@ class DocumentGeneratorTest extends TestCase
         $invoiceId = $this->seedReferenceInvoice($orderId);
         $this->simulateLegacySnapshotLoss($invoiceId);
 
-        $cancellationVersionId = $this->orderRepository->createVersion($orderId, $this->context);
-
         $this->expectExceptionObject(DocumentV2Exception::referencedOrderVersionNotFound($orderId));
 
         $this->generateDocument(
             DocumentType::CANCELLATION_INVOICE,
             $orderId,
-            $cancellationVersionId,
             self::CANCELLATION_INVOICE_NUMBER,
         );
     }
@@ -151,20 +145,16 @@ class DocumentGeneratorTest extends TestCase
     {
         $orderId = $this->createDemoOrder();
 
-        $invoiceVersionId = $this->orderRepository->createVersion($orderId, $this->context);
-        $invoice = $this->generateDocument(DocumentType::INVOICE, $orderId, $invoiceVersionId, self::DOCUMENT_NUMBER);
-
-        $cancellationVersionId = $this->orderRepository->createVersion($orderId, $this->context);
+        $invoice = $this->generateDocument(DocumentType::INVOICE, $orderId, self::DOCUMENT_NUMBER);
 
         $cancellationInvoice = $this->generateDocument(
             DocumentType::CANCELLATION_INVOICE,
             $orderId,
-            $cancellationVersionId,
             self::CANCELLATION_INVOICE_NUMBER,
             $invoice->getId(),
         );
 
-        static::assertSame($invoiceVersionId, $cancellationInvoice->getOrderVersionId());
+        static::assertSame($invoice->getOrderVersionId(), $cancellationInvoice->getOrderVersionId());
         static::assertSame($invoice->getId(), $cancellationInvoice->getReferencedDocumentId());
     }
 
@@ -183,14 +173,12 @@ class DocumentGeneratorTest extends TestCase
     private function generateDocument(
         DocumentType $documentType,
         string $orderId,
-        string $orderVersionId,
         string $documentNumber,
         ?string $referencedDocumentId = null,
     ): DocumentEntity {
         return $this->documentGenerator->generate(
             new DocumentGenerationRequest(
                 $orderId,
-                $orderVersionId,
                 $documentType,
                 [DocumentFormat::HTML],
                 $documentNumber,

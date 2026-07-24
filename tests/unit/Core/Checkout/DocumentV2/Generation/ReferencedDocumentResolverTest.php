@@ -41,7 +41,6 @@ class ReferencedDocumentResolverTest extends TestCase
         static::assertSame($documentId, $reference->id);
         static::assertSame('1000', $reference->documentNumber);
         static::assertSame($orderVersionId, $reference->orderVersionId);
-        static::assertNull($reference->order);
     }
 
     public function testResolvesTheDocumentNumberFromConfigWhenColumnIsEmpty(): void

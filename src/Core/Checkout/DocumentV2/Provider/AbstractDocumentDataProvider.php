@@ -34,12 +34,12 @@ abstract readonly class AbstractDocumentDataProvider
     /**
      * Which order snapshot the generation pipeline loads for this provider's document type.
      *
-     * Two different strategies for one document type throw. REQUEST never conflicts.
-     * REFERENCED and BOTH fill {@see ProviderInput::$resolvedReference}.
+     * Any provider declaring REFERENCED switches the whole document type to REFERENCED
+     * and fills {@see ProviderInput::$resolvedReference}.
      */
     public function getOrderVersionStrategy(): OrderVersionStrategy
     {
-        return OrderVersionStrategy::REQUEST;
+        return OrderVersionStrategy::CREATE;
     }
 
     /**

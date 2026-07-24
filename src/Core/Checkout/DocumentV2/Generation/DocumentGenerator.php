@@ -46,9 +46,9 @@ final readonly class DocumentGenerator
     /**
      * Generates one logical document with one or more persisted document_file artifacts.
      *
-     * The request must contain at least one format. A new order version is created for every
-     * generation call, so the persisted document stays consistent even if the order changes
-     * afterward.
+     * The request must contain at least one format. The order is loaded at the snapshot chosen
+     * by the document type's {@see OrderVersionStrategy}, so the persisted document stays
+     * consistent even if the order changes afterward.
      *
      * For example, if the caller requests only `pdf` and the PDF renderer depends on `html`,
      * both formats are rendered, but only the PDF result is persisted as a document_file.
@@ -77,8 +77,8 @@ final readonly class DocumentGenerator
 
     /**
      * Generates one logical document and returns the first requested format as a RenderedDocument.
-     * Nothing is persisted, so this renders directly against the live order version instead of
-     * creating a new one.
+     * Nothing is persisted, so CREATE document types render against the live order version instead
+     * of creating a new one. REFERENCED types render the referenced snapshot in preview too.
      *
      * @throws DocumentV2Exception
      */
@@ -123,14 +123,6 @@ final readonly class DocumentGenerator
             throw DocumentV2Exception::missingFormats();
         }
 
-        $orderVersionId = $preview
-            ? Defaults::LIVE_VERSION
-            : $this->orderRepository->createVersion(
-                $generationRequest->orderId,
-                $apiContext,
-                'document',
-            );
-
         $requestedFormats = $this->normalizeRequestedFormats($generationRequest->requestedFormats);
 
         $renderPlan = $this->dependencyResolver->resolve(
@@ -142,7 +134,7 @@ final readonly class DocumentGenerator
             $generationRequest->documentType,
         );
 
-        $strategy = $this->resolveOrderVersionStrategy($providers, $generationRequest->documentType);
+        $strategy = $this->resolveOrderVersionStrategy($providers);
 
         $criteria = new Criteria([$generationRequest->orderId]);
 
@@ -150,7 +142,7 @@ final readonly class DocumentGenerator
             $provider->enrichOrderCriteria($criteria);
         }
 
-        if ($strategy === OrderVersionStrategy::REQUEST) {
+        if ($strategy === OrderVersionStrategy::CREATE) {
             if ($generationRequest->referencedDocumentId !== null) {
                 throw DocumentV2Exception::referencedDocumentNotSupported(
                     $generationRequest->documentType,
@@ -160,39 +152,29 @@ final readonly class DocumentGenerator
 
             $resolvedReference = null;
 
-            [$orderVersionContext, $languageAwareContext] = $this->createGenerationContexts(
-                $generationRequest->orderId,
-                $orderVersionId,
-                $apiContext,
-            );
-
-            $order = $this->loadOrder($criteria, $generationRequest->orderId, $orderVersionContext);
+            $orderVersionId = $preview
+                ? Defaults::LIVE_VERSION
+                : $this->orderRepository->createVersion(
+                    $generationRequest->orderId,
+                    $apiContext,
+                    'document',
+                );
         } else {
-            $reference = $this->referencedDocumentResolver->resolve(
+            $resolvedReference = $this->referencedDocumentResolver->resolve(
                 $generationRequest->orderId,
                 $generationRequest->referencedDocumentId,
             );
 
-            [$orderVersionContext, $languageAwareContext] = $this->createGenerationContexts(
-                $generationRequest->orderId,
-                $strategy === OrderVersionStrategy::REFERENCED
-                    ? $reference->orderVersionId
-                    : $orderVersionId,
-                $apiContext,
-            );
-
-            $order = $this->loadOrder($criteria, $generationRequest->orderId, $orderVersionContext);
-
-            if ($strategy === OrderVersionStrategy::BOTH) {
-                $reference = $reference->withOrder($this->loadOrder(
-                    clone $criteria,
-                    $generationRequest->orderId,
-                    $orderVersionContext->createWithVersionId($reference->orderVersionId),
-                ));
-            }
-
-            $resolvedReference = $reference;
+            $orderVersionId = $resolvedReference->orderVersionId;
         }
+
+        [$orderVersionContext, $languageAwareContext] = $this->createGenerationContexts(
+            $generationRequest->orderId,
+            $orderVersionId,
+            $apiContext,
+        );
+
+        $order = $this->loadOrder($criteria, $generationRequest->orderId, $orderVersionContext);
 
         $documentNumber = $generationRequest->documentNumber ?? $this->documentNumberGenerator->generate(
             $generationRequest,
@@ -243,26 +225,16 @@ final readonly class DocumentGenerator
 
     /**
      * @param list<AbstractDocumentDataProvider> $providers
-     *
-     * @throws DocumentV2Exception
      */
-    private function resolveOrderVersionStrategy(array $providers, string $documentType): OrderVersionStrategy
+    private function resolveOrderVersionStrategy(array $providers): OrderVersionStrategy
     {
-        $strategies = [];
-
         foreach ($providers as $provider) {
-            $strategy = $provider->getOrderVersionStrategy();
-
-            if ($strategy !== OrderVersionStrategy::REQUEST) {
-                $strategies[$strategy->name] = $strategy;
+            if ($provider->getOrderVersionStrategy() === OrderVersionStrategy::REFERENCED) {
+                return OrderVersionStrategy::REFERENCED;
             }
         }
 
-        if (\count($strategies) > 1) {
-            throw DocumentV2Exception::conflictingOrderVersionStrategies($documentType, array_keys($strategies));
-        }
-
-        return array_values($strategies)[0] ?? OrderVersionStrategy::REQUEST;
+        return OrderVersionStrategy::CREATE;
     }
 
     /**

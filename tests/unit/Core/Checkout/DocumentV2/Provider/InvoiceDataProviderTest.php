@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\OrderVersionStrategy;
 use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
@@ -72,6 +73,11 @@ class InvoiceDataProviderTest extends TestCase
         yield 'invoice is supported' => [DocumentType::INVOICE->value, true];
         yield 'other core type is not supported' => [DocumentType::CREDIT_NOTE->value, false];
         yield 'plugin-defined type is not supported' => ['my_plugin_document', false];
+    }
+
+    public function testDeclaresTheCreateOrderVersionStrategyByDefault(): void
+    {
+        static::assertSame(OrderVersionStrategy::CREATE, $this->createProvider()->getOrderVersionStrategy());
     }
 
     public function testEnrichOrderCriteria(): void

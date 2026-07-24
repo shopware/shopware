@@ -86,8 +86,6 @@ class DocumentV2Exception extends HttpException
 
     public const REFERENCED_DOCUMENT_NOT_SUPPORTED = 'DOCUMENT_V2__REFERENCED_DOCUMENT_NOT_SUPPORTED';
 
-    public const CONFLICTING_ORDER_VERSION_STRATEGIES = 'DOCUMENT_V2__CONFLICTING_ORDER_VERSION_STRATEGIES';
-
     public static function unknownRenderData(string $key, string $expectedClass): self
     {
         return new self(
@@ -398,19 +396,6 @@ class DocumentV2Exception extends HttpException
             self::REFERENCED_DOCUMENT_NOT_SUPPORTED,
             'Document type "{{ documentType }}" does not support a referenced document, but referenced document id "{{ referencedDocumentId }}" was supplied.',
             ['documentType' => $documentType, 'referencedDocumentId' => $referencedDocumentId],
-        );
-    }
-
-    /**
-     * @param list<string> $strategies
-     */
-    public static function conflictingOrderVersionStrategies(string $documentType, array $strategies): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::CONFLICTING_ORDER_VERSION_STRATEGIES,
-            'Data providers for document type "{{ documentType }}" declare conflicting order version strategies: {{ strategies }}.',
-            ['documentType' => $documentType, 'strategies' => implode(', ', $strategies)],
         );
     }
 

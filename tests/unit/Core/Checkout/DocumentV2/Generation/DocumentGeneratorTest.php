@@ -228,38 +228,7 @@ class DocumentGeneratorTest extends TestCase
         $generator->generate($generationRequest, Context::createDefaultContext());
     }
 
-    public function testGenerateThrowsOnConflictingOrderVersionStrategies(): void
-    {
-        /** @var StaticEntityRepository<OrderCollection> $orderRepository */
-        $orderRepository = new StaticEntityRepository([], new OrderDefinition());
-
-        [$generator] = $this->createGenerator(
-            $orderRepository,
-            static::createStub(NumberRangeValueGeneratorInterface::class),
-            Uuid::randomHex(),
-            new DocumentEntity(),
-            providers: [
-                new StaticDocumentDataProvider([DocumentType::INVOICE->value], 'referencing', OrderVersionStrategy::REFERENCED),
-                new StaticDocumentDataProvider([DocumentType::INVOICE->value], 'diffing', OrderVersionStrategy::BOTH),
-            ],
-        );
-
-        $this->expectExceptionObject(DocumentV2Exception::conflictingOrderVersionStrategies(
-            DocumentType::INVOICE->value,
-            [OrderVersionStrategy::REFERENCED->name, OrderVersionStrategy::BOTH->name],
-        ));
-
-        $generator->generate(
-            new DocumentGenerationRequest(
-                Uuid::randomHex(),
-                DocumentType::INVOICE,
-                [DocumentFormat::PDF],
-            ),
-            Context::createDefaultContext(),
-        );
-    }
-
-    public function testGenerateRejectsReferencedDocumentIdForRequestStrategyType(): void
+    public function testGenerateRejectsReferencedDocumentIdForCreateStrategyType(): void
     {
         $referencedDocumentId = Uuid::randomHex();
 
@@ -331,61 +300,35 @@ class DocumentGeneratorTest extends TestCase
         static::assertSame($referencedDocumentId, $documentRepository->creates[0][0]['referencedDocumentId']);
     }
 
-    public function testGenerateWithBothStrategyKeepsTheRequestSnapshotAndLoadsTheReferencedOrder(): void
+    public function testPreviewWithReferencedStrategyRendersTheReferencedSnapshot(): void
     {
         $orderId = Uuid::randomHex();
-        $requestVersionId = Uuid::randomHex();
         $referencedVersionId = Uuid::randomHex();
         $referencedDocumentId = Uuid::randomHex();
         $orderLanguageId = Uuid::randomHex();
 
         $order = new OrderEntity();
         $order->setId($orderId);
-        $order->setVersionId($requestVersionId);
+        $order->setVersionId($referencedVersionId);
         $order->setSalesChannelId(Uuid::randomHex());
         $order->setLanguageId($orderLanguageId);
 
-        $referencedOrder = new OrderEntity();
-        $referencedOrder->setId($orderId);
-        $referencedOrder->setVersionId($referencedVersionId);
+        $orderRepository = $this->createOrderRepository($order, $orderId, $referencedVersionId, $orderLanguageId);
 
-        /** @var StaticEntityRepository<OrderCollection> $orderRepository */
-        $orderRepository = new StaticEntityRepository([
-            self::orderSearch($order, $requestVersionId),
-            self::orderSearch($order, $requestVersionId),
-            function (
-                Criteria $criteria,
-                Context $searchContext,
-            ) use ($referencedOrder, $referencedVersionId): EntitySearchResult {
-                static::assertSame('document-v2-generator::load-order', $criteria->getTitle());
-                static::assertSame($referencedVersionId, $searchContext->getVersionId());
-                static::assertArrayHasKey('lineItems', $criteria->getAssociations());
-
-                return new EntitySearchResult(
-                    OrderDefinition::ENTITY_NAME,
-                    1,
-                    new OrderCollection([$referencedOrder]),
-                    null,
-                    $criteria,
-                    $searchContext,
-                );
-            },
-        ], new OrderDefinition());
-
-        [$generator, $documentRepository] = $this->createGenerator(
+        [$generator, $documentRepository, $documentFileRepository] = $this->createGenerator(
             $orderRepository,
             static::createStub(NumberRangeValueGeneratorInterface::class),
             Uuid::randomHex(),
             new DocumentEntity(),
             providers: [
-                new StaticDocumentDataProvider([DocumentType::INVOICE->value], 'diffing', OrderVersionStrategy::BOTH),
+                new StaticDocumentDataProvider([DocumentType::INVOICE->value], 'referencing', OrderVersionStrategy::REFERENCED),
             ],
             referenceRows: [
                 $this->referenceInvoiceRow($orderId, $referencedDocumentId, $referencedVersionId),
             ],
         );
 
-        $generator->generate(
+        $result = $generator->preview(
             new DocumentGenerationRequest(
                 $orderId,
                 DocumentType::INVOICE,
@@ -395,9 +338,9 @@ class DocumentGeneratorTest extends TestCase
             Context::createDefaultContext(),
         );
 
-        static::assertCount(1, $documentRepository->creates);
-        static::assertSame($requestVersionId, $documentRepository->creates[0][0]['orderVersionId']);
-        static::assertSame($referencedDocumentId, $documentRepository->creates[0][0]['referencedDocumentId']);
+        static::assertSame('content', $result->getContent());
+        static::assertCount(0, $documentRepository->creates);
+        static::assertCount(0, $documentFileRepository->creates);
     }
 
     /**
@@ -486,42 +429,36 @@ class DocumentGeneratorTest extends TestCase
     }
 
     /**
-     * @return StaticEntityRepository<OrderCollection>
+     * @return EntityRepository<OrderCollection>
      */
     private function createOrderRepository(
         OrderEntity $order,
         string $orderId,
         string $expectedVersionId,
         string $orderLanguageId,
-    ): StaticEntityRepository {
-        /** @var StaticEntityRepository<OrderCollection> $orderRepository */
-        $orderRepository = new StaticEntityRepository([
-            function (
-                Criteria $criteria,
-                Context $searchContext,
-            ) use ($order, $orderId, $expectedVersionId): EntitySearchResult {
-                static::assertSame([$orderId], $criteria->getIds());
-                static::assertSame('document-v2-generator::load-order-language', $criteria->getTitle());
-                static::assertSame(['languageId'], $criteria->getFields());
-                static::assertSame($expectedVersionId, $searchContext->getVersionId());
+    ): EntityRepository {
+        $orderRepository = $this->createMock(EntityRepository::class);
 
-                return new EntitySearchResult(
-                    OrderDefinition::ENTITY_NAME,
-                    1,
-                    new OrderCollection([$order]),
-                    null,
-                    $criteria,
-                    $searchContext,
-                );
-            },
-            function (
+        $orderRepository
+            ->expects($this->never())
+            ->method('createVersion');
+
+        $orderRepository
+            ->expects($this->exactly(2))
+            ->method('search')
+            ->willReturnCallback(function (
                 Criteria $criteria,
                 Context $searchContext,
             ) use ($order, $orderId, $expectedVersionId, $orderLanguageId): EntitySearchResult {
                 static::assertSame([$orderId], $criteria->getIds());
-                static::assertSame('document-v2-generator::load-order', $criteria->getTitle());
                 static::assertSame($expectedVersionId, $searchContext->getVersionId());
-                static::assertSame($orderLanguageId, $searchContext->getLanguageIdChain()[0]);
+
+                if ($criteria->getTitle() === 'document-v2-generator::load-order-language') {
+                    static::assertSame(['languageId'], $criteria->getFields());
+                } else {
+                    static::assertSame('document-v2-generator::load-order', $criteria->getTitle());
+                    static::assertSame($orderLanguageId, $searchContext->getLanguageIdChain()[0]);
+                }
 
                 return new EntitySearchResult(
                     OrderDefinition::ENTITY_NAME,
@@ -531,29 +468,9 @@ class DocumentGeneratorTest extends TestCase
                     $criteria,
                     $searchContext,
                 );
-            },
-        ], new OrderDefinition());
+            });
 
         return $orderRepository;
-    }
-
-    private static function orderSearch(OrderEntity $order, string $expectedVersionId): \Closure
-    {
-        return function (
-            Criteria $criteria,
-            Context $searchContext,
-        ) use ($order, $expectedVersionId): EntitySearchResult {
-            static::assertSame($expectedVersionId, $searchContext->getVersionId());
-
-            return new EntitySearchResult(
-                OrderDefinition::ENTITY_NAME,
-                1,
-                new OrderCollection([$order]),
-                null,
-                $criteria,
-                $searchContext,
-            );
-        };
     }
 
     /**

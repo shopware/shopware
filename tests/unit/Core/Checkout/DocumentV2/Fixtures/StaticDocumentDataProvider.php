@@ -24,7 +24,7 @@ readonly class StaticDocumentDataProvider extends AbstractDocumentDataProvider
     public function __construct(
         private array $documentTypes = [DocumentType::INVOICE->value],
         private string $key = self::KEY,
-        private OrderVersionStrategy $orderVersionStrategy = OrderVersionStrategy::REQUEST,
+        private OrderVersionStrategy $orderVersionStrategy = OrderVersionStrategy::CREATE,
     ) {
     }
 

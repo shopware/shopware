@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Test\PHPUnit\CompletionGuard\Subscriber;
 
+use PHPUnit\Event\Code\TestCollection;
 use PHPUnit\Event\Telemetry\Duration;
 use PHPUnit\Event\Telemetry\GarbageCollectorStatus;
 use PHPUnit\Event\Telemetry\HRTime;
@@ -9,7 +10,6 @@ use PHPUnit\Event\Telemetry\Info;
 use PHPUnit\Event\Telemetry\MemoryUsage;
 use PHPUnit\Event\Telemetry\Snapshot;
 use PHPUnit\Event\TestRunner\ExecutionStarted;
-use PHPUnit\Event\Code\TestCollection;
 use PHPUnit\Event\TestSuite\TestSuiteWithName;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;

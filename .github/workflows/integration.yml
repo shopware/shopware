@@ -91,7 +91,7 @@ jobs:
           SYMFONY_ALLOW_ALL_IP: "1"
         run: symfony server:start
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: lts/*
 
@@ -352,7 +352,7 @@ jobs:
         working-directory: old-shopware
         run: symfony server:start -d
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: lts/*
 

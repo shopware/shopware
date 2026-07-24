@@ -137,6 +137,13 @@ final readonly class DocumentGenerator
         }
 
         if ($strategy === OrderVersionStrategy::REQUEST) {
+            if ($generationRequest->referencedDocumentId !== null) {
+                throw DocumentV2Exception::referencedDocumentNotSupported(
+                    $generationRequest->documentType,
+                    $generationRequest->referencedDocumentId,
+                );
+            }
+
             $resolvedReference = null;
 
             [$orderVersionContext, $languageAwareContext] = $this->createGenerationContexts(

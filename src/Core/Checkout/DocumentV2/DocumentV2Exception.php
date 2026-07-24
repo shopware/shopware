@@ -86,6 +86,8 @@ class DocumentV2Exception extends HttpException
 
     public const REFERENCED_ORDER_VERSION_NOT_FOUND = 'DOCUMENT_V2__REFERENCED_ORDER_VERSION_NOT_FOUND';
 
+    public const REFERENCED_DOCUMENT_NOT_SUPPORTED = 'DOCUMENT_V2__REFERENCED_DOCUMENT_NOT_SUPPORTED';
+
     public const CONFLICTING_ORDER_VERSION_STRATEGIES = 'DOCUMENT_V2__CONFLICTING_ORDER_VERSION_STRATEGIES';
 
     public static function unknownRenderData(string $key, string $expectedClass): self
@@ -397,6 +399,16 @@ class DocumentV2Exception extends HttpException
             self::REFERENCED_ORDER_VERSION_NOT_FOUND,
             'Cannot resolve the order snapshot captured by the referenced document for order "{{ orderId }}".',
             ['orderId' => $orderId],
+        );
+    }
+
+    public static function referencedDocumentNotSupported(string $documentType, string $referencedDocumentId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::REFERENCED_DOCUMENT_NOT_SUPPORTED,
+            'Document type "{{ documentType }}" does not support a referenced document, but referenced document id "{{ referencedDocumentId }}" was supplied.',
+            ['documentType' => $documentType, 'referencedDocumentId' => $referencedDocumentId],
         );
     }
 

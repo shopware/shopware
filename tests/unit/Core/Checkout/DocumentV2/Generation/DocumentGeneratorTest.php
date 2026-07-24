@@ -239,6 +239,36 @@ class DocumentGeneratorTest extends TestCase
         );
     }
 
+    public function testGenerateRejectsReferencedDocumentIdForRequestStrategyType(): void
+    {
+        $referencedDocumentId = Uuid::randomHex();
+
+        /** @var StaticEntityRepository<OrderCollection> $orderRepository */
+        $orderRepository = new StaticEntityRepository([], new OrderDefinition());
+
+        [$generator] = $this->createGenerator(
+            $orderRepository,
+            static::createStub(NumberRangeValueGeneratorInterface::class),
+            Uuid::randomHex(),
+            new DocumentEntity(),
+        );
+
+        $this->expectExceptionObject(
+            DocumentV2Exception::referencedDocumentNotSupported(DocumentType::INVOICE->value, $referencedDocumentId),
+        );
+
+        $generator->generate(
+            new DocumentGenerationRequest(
+                Uuid::randomHex(),
+                Uuid::randomHex(),
+                DocumentType::INVOICE,
+                [DocumentFormat::PDF],
+                referencedDocumentId: $referencedDocumentId,
+            ),
+            Context::createDefaultContext(),
+        );
+    }
+
     public function testGenerateWithReferencedStrategyRendersAndPersistsTheReferencedSnapshot(): void
     {
         $orderId = Uuid::randomHex();

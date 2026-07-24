@@ -1,6 +1,7 @@
 const { remove } = Shopware.Utils.array;
 const { Service } = Shopware;
 const { Criteria } = Shopware.Data;
+const DEFAULT_TTL = 5 * 60 * 1000;
 
 /**
  * @sw-package framework
@@ -162,11 +163,22 @@ export default function createCustomFieldService() {
         });
     }
 
-    function getCustomFieldSets(entityName) {
+    function getCustomFieldSets(entityName, forceReload = false) {
         const customFieldSetRepository = Service('repositoryFactory').create('custom_field_set');
+        const cacheService = Service('cacheService');
 
-        return customFieldSetRepository.search(customFieldSetCriteria(entityName), Shopware.Context.api).then((sets) => {
-            return sets.filter((set) => set.customFields.length > 0);
+        return cacheService.query({
+            key: [
+                'custom-field-sets',
+                entityName,
+                Shopware.Context.api.languageId ?? 'default',
+            ],
+            ttl: DEFAULT_TTL,
+            forceReload,
+            fn: () =>
+                customFieldSetRepository
+                    .search(customFieldSetCriteria(entityName), Shopware.Context.api)
+                    .then((sets) => sets.filter((set) => set.customFields.length > 0)),
         });
     }
 

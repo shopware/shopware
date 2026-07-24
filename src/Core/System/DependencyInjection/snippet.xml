@@ -77,7 +77,10 @@
 
         <service id="Shopware\Core\System\Snippet\Service\TranslationConfigLoader">
             <argument type="service" id="filesystem"/>
+            <argument>%shopware.translation%</argument>
         </service>
+
+        <service id="Shopware\Core\System\Snippet\Service\AbstractTranslationConfigLoader" alias="Shopware\Core\System\Snippet\Service\TranslationConfigLoader"/>
 
         <service id="Shopware\Core\System\Snippet\Struct\TranslationConfig" lazy="true" public="true">
             <factory service="Shopware\Core\System\Snippet\Service\TranslationConfigLoader" method="load"/>

@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\System\Snippet\Command;
 
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\SnippetFixer;
 use Shopware\Core\System\Snippet\SnippetValidator;
@@ -17,9 +19,6 @@ use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal in v6.8.0
- * @deprecated tag:v6.8.0 - reason:parameter-name-change - alias 'snippets:validate' will be removed
- *
  * @phpstan-type Snippets array<string, string|array<string, mixed>>
  */
 #[Package('discovery')]
@@ -28,6 +27,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     description: 'Validates completeness and correct pluralization of snippets',
     aliases: ['snippets:validate'],
 )]
+#[BecomesInternal(version: 'v6.8.0')]
 class ValidateSnippetsCommand extends Command
 {
     /**
@@ -47,6 +47,11 @@ class ValidateSnippetsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        // @deprecated tag:v6.8.0 - Remove the `snippets:validate` alias from #[AsCommand] together with this condition.
+        if (!Feature::isActive('v6.8.0.0') && $input->getFirstArgument() === 'snippets:validate') {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'The "snippets:validate" command alias is deprecated; use "translation:validate" instead.');
+        }
+
         $invalidSnippetsStruct = $this->snippetValidator->getValidation();
 
         $missingSnippetsCollection = $invalidSnippetsStruct->missingSnippets;

@@ -99,10 +99,6 @@ async function createWrapper() {
                         create: () => ({ id: 'id' }),
                     }),
                 },
-                userConfigService: {
-                    search: () => Promise.resolve({ data: {} }),
-                    upsert: () => Promise.resolve(),
-                },
             },
         },
     });
@@ -110,6 +106,10 @@ async function createWrapper() {
 
 describe('src/module/sw-product/view/sw-product-detail-base', () => {
     beforeEach(() => {
+        jest.restoreAllMocks();
+        jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({ data: {} });
+        jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
+
         const store = Shopware.Store.get('swProductDetail');
         store.$reset();
         store.parentProduct = {

@@ -23,6 +23,7 @@ Thumbs.db
 
 # AI/LLM Development Tools
 .claude/
+.codex/
 .cursor/
 .cursorrules
 .tabnine/

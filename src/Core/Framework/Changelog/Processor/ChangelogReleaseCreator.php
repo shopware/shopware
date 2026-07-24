@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Changelog\Processor;
 
+use Shopware\Core\Framework\Changelog\ChangelogException;
 use Shopware\Core\Framework\Changelog\ChangelogFileCollection;
 use Shopware\Core\Framework\Log\Package;
 
@@ -19,7 +20,7 @@ class ChangelogReleaseCreator extends ChangelogProcessor
     public function release(string $version, bool $force = false, bool $dryRun = false): array
     {
         if (!$force && $this->existedRelease($version)) {
-            throw new \InvalidArgumentException('A given version release existed already. Please specify another version or use "-f" to override the existing.');
+            throw ChangelogException::releaseAlreadyExists();
         }
 
         $output = [];
@@ -98,7 +99,7 @@ class ChangelogReleaseCreator extends ChangelogProcessor
             $printedIssues[$changelog->getDefinition()->getIssue()] = $changelog->getDefinition()->getIssue();
         }
 
-        $latestTag = $this->findLastestTag();
+        $latestTag = $this->findLastestTag($version);
         if ($latestTag) {
             foreach ($this->getFixCommits($latestTag) as $issue) {
                 if (isset($printedIssues[$issue['fixes'][0]])) {

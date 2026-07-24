@@ -14,7 +14,6 @@ use Shopware\Core\System\Country\Event\CountryStateRouteCacheTagsEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -22,7 +21,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed
  */
-#[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('fundamentals@discovery')]
 class CachedCountryStateRoute extends AbstractCountryStateRoute
 {
@@ -49,7 +47,6 @@ class CachedCountryStateRoute extends AbstractCountryStateRoute
         return CountryStateRoute::buildName($id);
     }
 
-    #[Route(path: '/store-api/country-state/{countryId}', name: 'store-api.country.state', methods: ['GET', 'POST'], defaults: ['_entity' => 'country'])]
     public function load(string $countryId, Request $request, Criteria $criteria, SalesChannelContext $context): CountryStateRouteResponse
     {
         if (Feature::isActive('cache_rework')) {

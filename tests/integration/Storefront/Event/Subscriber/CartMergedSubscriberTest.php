@@ -33,6 +33,7 @@ class CartMergedSubscriberTest extends TestCase
     public function testMergedHintIsAdded(): void
     {
         $session = new Session(new MockArraySessionStorage());
+        $session->start();
         $request = new Request();
         $request->setSession($session);
         $requestStack = new RequestStack();

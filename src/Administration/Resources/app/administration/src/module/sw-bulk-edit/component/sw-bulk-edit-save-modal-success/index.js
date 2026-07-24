@@ -172,6 +172,14 @@ export default {
                 return Promise.resolve();
             }
 
+            if (!this.document[documentType]) {
+                if (this.isCompatEnabled('INSTANCE_SET')) {
+                    this.$set(this.document, documentType, {});
+                } else {
+                    this.document[documentType] = {};
+                }
+            }
+
             if (this.isCompatEnabled('INSTANCE_SET')) {
                 this.$set(this.document[documentType], 'isDownloading', true);
             } else {

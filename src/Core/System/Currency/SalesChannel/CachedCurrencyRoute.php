@@ -14,7 +14,6 @@ use Shopware\Core\System\Currency\Event\CurrencyRouteCacheTagsEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -22,7 +21,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed
  */
-#[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('fundamentals@framework')]
 class CachedCurrencyRoute extends AbstractCurrencyRoute
 {
@@ -54,7 +52,6 @@ class CachedCurrencyRoute extends AbstractCurrencyRoute
         return $this->decorated;
     }
 
-    #[Route(path: '/store-api/currency', name: 'store-api.currency', methods: ['GET', 'POST'], defaults: ['_entity' => 'currency'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): CurrencyRouteResponse
     {
         if (Feature::isActive('cache_rework')) {

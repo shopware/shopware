@@ -41,6 +41,7 @@ Component.register('sw-filter-panel', {
             activeFilters: {},
             filterChanged: false,
             storedFilters: null,
+            storedFiltersRequestId: 0,
         };
     },
 
@@ -107,14 +108,21 @@ Component.register('sw-filter-panel', {
 
     methods: {
         createdComponent() {
+            const requestId = this.storedFiltersRequestId + 1;
+            this.storedFiltersRequestId = requestId;
+
             Shopware.Service('filterService')
                 .getStoredFilters(this.storeKey)
                 .then((filters) => {
+                    if (requestId !== this.storedFiltersRequestId || this.filterChanged) {
+                        return;
+                    }
+
                     this.activeFilters = {};
-                    this.storedFilters = filters;
+                    this.storedFilters = filters ?? {};
 
                     this.listFilters.forEach((filter) => {
-                        const criteria = filters[filter.name] ? filters[filter.name].criteria : null;
+                        const criteria = this.storedFilters[filter.name] ? this.storedFilters[filter.name].criteria : null;
                         if (criteria) {
                             if (this.isCompatEnabled('INSTANCE_SET')) {
                                 this.$set(this.activeFilters, filter.name, criteria);
@@ -128,26 +136,23 @@ Component.register('sw-filter-panel', {
 
         updateFilter(name, filter, value) {
             this.filterChanged = true;
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.activeFilters, name, filter);
-            } else {
-                this.activeFilters[name] = filter;
-            }
+            this.storedFilters = this.storedFilters ?? {};
+
+            this.activeFilters[name] = filter;
             this.storedFilters[name] = { value: value, criteria: filter };
         },
 
         resetFilter(name) {
             this.filterChanged = true;
-            if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                this.$delete(this.activeFilters, name);
-            } else {
-                delete this.activeFilters[name];
-            }
+            this.storedFilters = this.storedFilters ?? {};
+
+            delete this.activeFilters[name];
             this.storedFilters[name] = { value: null, criteria: null };
         },
 
         resetAll() {
             this.filterChanged = true;
+            this.storedFilters = this.storedFilters ?? {};
             this.activeFilters = {};
 
             Object.values(this.storedFilters).forEach((el) => {

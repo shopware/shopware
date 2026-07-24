@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Changelog\Command;
 
+use Shopware\Core\Framework\Changelog\ChangelogException;
 use Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseCreator;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -46,13 +47,13 @@ class ChangelogReleaseCommand extends Command
         $version = $input->getArgument('version')
             ?? $IOHelper->ask('A version of release', null, function ($version) {
                 if (!$version) {
-                    throw new \RuntimeException('Version of release is required.');
+                    throw ChangelogException::versionRequired();
                 }
 
                 return $version;
             });
         if (!preg_match("/^\d+(\.\d+){3}$/", (string) $version)) {
-            throw new \RuntimeException('Invalid version of release ("' . $version . '"). It should be 4-digits type');
+            throw ChangelogException::invalidReleaseVersion((string) $version);
         }
 
         $force = $input->getOption('force');

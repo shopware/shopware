@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Changelog\Command;
 
+use Shopware\Core\Framework\Changelog\ChangelogException;
 use Shopware\Core\Framework\Changelog\ChangelogSection;
 use Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseExporter;
 use Shopware\Core\Framework\Log\Package;
@@ -49,7 +50,7 @@ class ChangelogChangeCommand extends Command
 
         $version = $input->getArgument('version');
         if (!empty($version) && !preg_match("/^\d+(\.\d+){3}$/", $version)) {
-            throw new \RuntimeException('Invalid version of release. It should be 4-digits type');
+            throw ChangelogException::invalidReleaseVersion((string) $version);
         }
 
         $includeFeatureFlags = $input->getOption('include-feature-flags');

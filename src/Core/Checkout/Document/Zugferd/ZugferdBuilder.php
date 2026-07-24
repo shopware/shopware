@@ -111,9 +111,9 @@ class ZugferdBuilder
         $document = (new ZugferdDocument(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), $order->getTaxStatus() === CartPrice::TAX_STATE_GROSS))
             ->withBuyerInformation($customer, $billingAddress)
             ->withSellerInformation($config)
+            ->withDocumentInformation($config->getDocumentDate() ?? 'now', $config->getDocumentNumber() ?? '', $order->getCurrency()?->getIsoCode() ?? '', $documentType)
             ->withDelivery($order->getDeliveries() ?? new OrderDeliveryCollection())
             ->withTaxes($order->getPrice())
-            ->withDocumentInformation($config->getDocumentDate() ?? 'now', $config->getDocumentNumber() ?? '', $order->getCurrency()?->getIsoCode() ?? '', $documentType)
             ->withBuyerReference($order->getOrderNumber() ?? '');
 
         if ($deliveryDate !== null) {

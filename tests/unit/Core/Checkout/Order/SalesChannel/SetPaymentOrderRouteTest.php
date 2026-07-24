@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRouteResponse;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -107,6 +108,54 @@ class SetPaymentOrderRouteTest extends TestCase
         );
 
         $this->expectException(OrderException::class);
+
+        $route->setPayment(new Request(request: [
+            'orderId' => $orderId,
+            'paymentMethodId' => $paymentMethodId,
+        ]), $salesChannelContext);
+    }
+
+    public function testPaymentMethodNotAfterOrderEnabled(): void
+    {
+        $orderId = Uuid::randomHex();
+        $paymentMethodId = Uuid::randomHex();
+
+        $order = new OrderEntity();
+        $order->setId($orderId);
+
+        $paymentMethod = new PaymentMethodEntity();
+        $paymentMethod->setId($paymentMethodId);
+        $paymentMethod->setAfterOrderEnabled(false);
+
+        $salesChannelContext = Generator::generateSalesChannelContext(token: 'storefront-token');
+        $orderContext = Generator::generateSalesChannelContext(token: 'restored-order-token');
+
+        $orderConverter = $this->createMock(OrderConverter::class);
+        $orderConverter
+            ->method('assembleSalesChannelContext')
+            ->willReturn($orderContext);
+        $orderConverter
+            ->method('convertToCart')
+            ->willReturn(new Cart('converted-order-token'));
+
+        $paymentRoute = $this->createMock(AbstractPaymentMethodRoute::class);
+        $paymentRoute
+            ->method('load')
+            ->willReturn($this->createPaymentMethodRouteResponse(new PaymentMethodCollection([$paymentMethod])));
+
+        $route = new SetPaymentOrderRoute(
+            $this->createMock(OrderService::class),
+            new StaticEntityRepository([new OrderCollection([$order])]),
+            $paymentRoute,
+            $orderConverter,
+            $this->createMock(CartRuleLoader::class),
+            $this->createMock(CartService::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(InitialStateIdLoader::class)
+        );
+
+        // A method that is available but has "Allow payment change after checkout" disabled must be rejected.
+        $this->expectExceptionObject(OrderException::paymentMethodNotChangeable());
 
         $route->setPayment(new Request(request: [
             'orderId' => $orderId,

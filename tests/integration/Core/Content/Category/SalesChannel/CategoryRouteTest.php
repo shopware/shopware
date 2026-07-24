@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\Category\SalesChannel;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
@@ -124,7 +125,7 @@ class CategoryRouteTest extends TestCase
             ]
         );
 
-        $this->assertError($id);
+        $this->assertLinkCategory($this->ids->get('link'));
     }
 
     public function testHomeWithSalesChannelOverride(): void
@@ -158,6 +159,20 @@ class CategoryRouteTest extends TestCase
 
         static::assertSame($expectedError['status'], $response['errors'][0]['status']);
         static::assertSame($expectedError['message'], $response['errors'][0]['detail']);
+    }
+
+    private function assertLinkCategory(string $expectedCategoryId): void
+    {
+        $response = $this->browser->getResponse();
+        static::assertIsString($response->getContent());
+        $response = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame($expectedCategoryId, $response['id'], 'CategoryIds do not match');
+        static::assertSame($this->ids->get('linked-category-name'), $response['name']);
+        static::assertSame(CategoryDefinition::TYPE_LINK, $response['type']);
+        static::assertSame(CategoryDefinition::LINK_TYPE_PRODUCT, $response['linkType']);
+        static::assertSame($this->ids->get('linked-product'), $response['internalLink'], 'Internal Link Ids do not match');
+        static::assertTrue($response['linkNewTab']);
     }
 
     private function assertCmsPage(string $categoryId, string $cmsPageId): void
@@ -254,7 +269,11 @@ class CategoryRouteTest extends TestCase
 
         $linkData = $childData;
         $linkData['id'] = $this->ids->create('link');
+        $linkData['name'] = $this->ids->create('linked-category-name');
         $linkData['type'] = 'link';
+        $linkData['linkType'] = CategoryDefinition::LINK_TYPE_PRODUCT;
+        $linkData['internalLink'] = $this->ids->create('linked-product');
+        $linkData['linkNewTab'] = true;
         unset($linkData['cmsPage']);
 
         static::getContainer()->get('category.repository')

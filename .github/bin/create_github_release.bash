@@ -42,7 +42,8 @@ draft_release_payload() {
     body: ([env.release_message_header, env.changelog_entries] | join("\n\n")),
     draft: true,
     prerelease: false,
-    generate_release_notes: false
+    generate_release_notes: false,
+    make_latest: "false"
   }'
 }
 

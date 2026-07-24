@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Changelog\Command;
 
 use Shopware\Core\Framework\Changelog\ChangelogDefinition;
+use Shopware\Core\Framework\Changelog\ChangelogException;
 use Shopware\Core\Framework\Changelog\Processor\ChangelogGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -53,7 +54,7 @@ class ChangelogCreateCommand extends Command
         $title = $input->getArgument('title')
             ?? $IOHelper->ask('A short meaningful title of your change', null, function ($title) {
                 if (!$title) {
-                    throw new \RuntimeException('Title is required in changelog file');
+                    throw ChangelogException::titleRequired();
                 }
 
                 return $title;
@@ -62,7 +63,7 @@ class ChangelogCreateCommand extends Command
         $date = $input->getOption('date')
             ?? $IOHelper->ask('The date in `YYYY-MM-DD` format which the change will be applied', $default['date'], function ($date) {
                 if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
-                    throw new \RuntimeException('The date has to follow the format: YYYY-MM-DD');
+                    throw ChangelogException::invalidDate();
                 }
 
                 return $date;

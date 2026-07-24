@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -24,7 +23,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed
  */
-#[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('discovery')]
 class CachedLandingPageRoute extends AbstractLandingPageRoute
 {
@@ -54,7 +52,6 @@ class CachedLandingPageRoute extends AbstractLandingPageRoute
         return $this->decorated;
     }
 
-    #[Route(path: '/store-api/landing-page/{landingPageId}', name: 'store-api.landing-page.detail', methods: ['POST'])]
     public function load(string $landingPageId, Request $request, SalesChannelContext $context): LandingPageRouteResponse
     {
         if (Feature::isActive('cache_rework')) {

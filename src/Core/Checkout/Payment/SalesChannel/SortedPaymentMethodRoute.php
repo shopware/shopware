@@ -9,12 +9,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed
  */
-#[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('checkout')]
 class SortedPaymentMethodRoute extends AbstractPaymentMethodRoute
 {
@@ -32,7 +30,6 @@ class SortedPaymentMethodRoute extends AbstractPaymentMethodRoute
         return $this->decorated;
     }
 
-    #[Route(path: '/store-api/payment-method', name: 'store-api.payment.method', methods: ['GET', 'POST'], defaults: ['_entity' => 'payment_method'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): PaymentMethodRouteResponse
     {
         if (Feature::isActive('cache_rework')) {

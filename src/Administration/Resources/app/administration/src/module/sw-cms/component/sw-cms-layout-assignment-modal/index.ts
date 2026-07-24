@@ -18,6 +18,7 @@ export default Shopware.Component.wrapComponentConfig({
         'repositoryFactory',
         'systemConfigApiService',
         'acl',
+        'feature',
     ],
 
     emits: ['modal-close'],
@@ -59,12 +60,46 @@ export default Shopware.Component.wrapComponentConfig({
             previousProductIds: [] as string[],
             categoryIndex: 1,
             isCategoriesLoading: false,
+            activeTab: 'categories',
         };
     },
 
     computed: {
         systemConfigDomain() {
             return 'core.basicInformation';
+        },
+
+        layoutAssignmentTabs() {
+            const tabs: Array<{
+                label: string;
+                name: string;
+                disabled?: boolean;
+            }> = [];
+
+            if (this.page.type === 'page' || this.page.type === 'landingpage') {
+                tabs.push({
+                    label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.tabCategories'),
+                    name: 'categories',
+                });
+            }
+
+            if (this.page.type === 'page') {
+                tabs.push({
+                    label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.tabShopPages'),
+                    name: 'shop_pages',
+                    disabled: !this.acl.can('system.system_config'),
+                });
+            }
+
+            if (this.page.type === 'landingpage') {
+                tabs.push({
+                    label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.tabLandingPages'),
+                    name: 'landing_pages',
+                    disabled: !this.acl.can('system.system_config'),
+                });
+            }
+
+            return tabs;
         },
 
         shopPages() {

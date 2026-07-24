@@ -4,18 +4,17 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Administration\Snippet\AppAdministrationSnippetDefinition;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiSchemaMigrationReporter;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Definition\GroupByTestDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_extensionFixtures\ExtensionDefinition;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\CustomBundleWithApiSchema\ShopwareBundleWithName;
-use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\DefinitionWithAssociations;
-use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\DefinitionWithJsonOverride;
-use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SimpleDefinition;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -29,18 +28,16 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
     {
         $report = $this->createReporter()->report($this->createDefinitions());
 
-        static::assertContains('JsonOverrideEntity', $report->jsonOverridesPhpGenerated);
-        static::assertContains('JsonOverrideEntity', $report->jsonOverridesPhpGeneratedAllowed);
-        static::assertNotContains('JsonOverrideEntity', $report->jsonOverridesPhpGeneratedWithoutAllowlist);
-        static::assertContains('Simple', $report->phpGeneratedOnly);
-        static::assertContains('TestEntityWithAssociations', $report->phpGeneratedOnly);
-        static::assertContains('Simple', $report->phpGeneratedOnlyAllowed);
-        static::assertNotContains('Simple', $report->phpGeneratedOnlyWithoutAllowlist);
-        static::assertContains('TestEntityWithAssociations', $report->phpGeneratedOnlyWithoutAllowlist);
-        static::assertContains('infoConfigResponse', $report->jsonWithoutPhpGenerated);
-        static::assertContains('StaleJsonOverrideAllowlistEntry', $report->allowlistWithoutJsonOverridesPhpGeneratedSchema);
-        static::assertContains('StalePhpGeneratedOnlyAllowlistEntry', $report->allowlistWithoutPhpGeneratedOnlySchema);
-        static::assertContains('StalePhpGeneratedOnlyAllowlistEntry', $report->allowlistWithoutPhpGeneratedSchema);
+        static::assertContains('GroupByTest', $report->phpGeneratedOnly);
+        static::assertContains('AppAdministrationSnippet', $report->phpGeneratedOnly);
+        static::assertContains('AppAdministrationSnippet', $report->phpGeneratedOnlyAllowed);
+        static::assertContains('GroupByTest', $report->phpGeneratedOnlyWithoutAllowlist);
+        static::assertContains('CalculatedPrice', $report->jsonWithoutPhpGenerated);
+        static::assertSame([], $report->jsonOverridesPhpGenerated);
+        static::assertNotContains('Category', $report->jsonOverridesPhpGeneratedWithoutAllowlist);
+        static::assertContains('Category', $report->allowlistWithoutJsonOverridesPhpGeneratedSchema);
+        static::assertContains('Currency', $report->allowlistWithoutPhpGeneratedOnlySchema);
+        static::assertContains('Currency', $report->allowlistWithoutPhpGeneratedSchema);
     }
 
     public function testCoreScopeIgnoresExtensionDefinitionsAndSchemaFiles(): void
@@ -49,13 +46,13 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
         $definitions = $this->createDefinitions([ExtensionDefinition::class]);
 
         $coreReport = $reporter->report($definitions, StoreApiSchemaMigrationReporter::SCOPE_CORE);
-        static::assertContains('Simple', $coreReport->phpGeneratedOnly);
-        static::assertNotContains('Simple', $coreReport->jsonOverridesPhpGenerated);
+        static::assertContains('GroupByTest', $coreReport->phpGeneratedOnly);
+        static::assertContains('AppAdministrationSnippet', $coreReport->phpGeneratedOnly);
         static::assertNotContains('Extension', $coreReport->phpGeneratedOnly);
         static::assertNotContains('Presentation', $coreReport->jsonWithoutPhpGenerated);
 
         $allReport = $reporter->report($definitions, StoreApiSchemaMigrationReporter::SCOPE_ALL);
-        static::assertContains('Simple', $allReport->jsonOverridesPhpGenerated);
+        static::assertContains('GroupByTest', $allReport->phpGeneratedOnly);
         static::assertContains('Extension', $allReport->phpGeneratedOnly);
         static::assertContains('Presentation', $allReport->jsonWithoutPhpGenerated);
     }
@@ -64,9 +61,6 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
     {
         return new StoreApiSchemaMigrationReporter(
             new OpenApiDefinitionSchemaBuilder(),
-            [
-                'Framework' => ['path' => __DIR__ . '/_fixtures'],
-            ],
             $bundleSchemaPathCollection ?? new BundleSchemaPathCollection([]),
         );
     }
@@ -80,9 +74,8 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
     {
         return (new StaticDefinitionInstanceRegistry(
             array_merge([
-                DefinitionWithAssociations::class,
-                DefinitionWithJsonOverride::class,
-                SimpleDefinition::class,
+                AppAdministrationSnippetDefinition::class,
+                GroupByTestDefinition::class,
             ], $additionalDefinitionClasses),
             static::createStub(ValidatorInterface::class),
             static::createStub(EntityWriteGatewayInterface::class),

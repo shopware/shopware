@@ -31,27 +31,18 @@ class StoreApiSchemaMigrationReporter
 
     private readonly string $schemaPath;
 
-    private readonly string $frameworkPath;
-
-    private readonly string $corePath;
+    private readonly string $sourcePath;
 
     private readonly string $allowlistPath;
 
-    /**
-     * @internal
-     *
-     * @param array{Framework: array{path: string}} $bundles
-     */
     public function __construct(
         private readonly OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
-        array $bundles,
         private readonly BundleSchemaPathCollection $bundleSchemaPathCollection,
         private readonly Filesystem $filesystem = new Filesystem(),
     ) {
-        $this->frameworkPath = realpath($bundles['Framework']['path']) ?: $bundles['Framework']['path'];
-        $this->corePath = str_ends_with($this->frameworkPath, '/src/Core/Framework') ? \dirname($this->frameworkPath, 2) : $this->frameworkPath;
-        $this->schemaPath = $this->frameworkPath . '/Api/ApiDefinition/Generator/Schema/StoreApi';
-        $this->allowlistPath = $this->frameworkPath . '/Api/ApiDefinition/Generator/StoreApiPhpGeneratedSchemaAllowlist.json';
+        $this->sourcePath = \dirname(__DIR__, 5);
+        $this->schemaPath = __DIR__ . '/Schema/StoreApi';
+        $this->allowlistPath = __DIR__ . '/StoreApiPhpGeneratedSchemaAllowlist.json';
     }
 
     /**
@@ -226,7 +217,7 @@ class StoreApiSchemaMigrationReporter
             return false;
         }
 
-        return str_starts_with($filename, $this->corePath . '/');
+        return str_starts_with($filename, $this->sourcePath . '/');
     }
 
     private function shouldIncludeReferenceOnly(EntityDefinition $definition): bool

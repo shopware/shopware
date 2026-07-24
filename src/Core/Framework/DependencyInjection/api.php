@@ -272,7 +272,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(StoreApiSchemaMigrationReporter::class)
         ->args([
             service(OpenApiDefinitionSchemaBuilder::class),
-            param('kernel.bundles_metadata'),
             service(BundleSchemaPathCollection::class),
         ]);
 

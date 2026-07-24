@@ -78,6 +78,7 @@ class Framework extends Bundle
         $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
 
         $loader->load('services.xml');
+        $phpLoader->load('http_discovery.php');
         $phpLoader->load('acl.php');
         $loader->load('cache.xml');
         $phpLoader->load('api.php');

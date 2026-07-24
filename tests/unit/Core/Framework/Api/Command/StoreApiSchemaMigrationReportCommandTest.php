@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -52,6 +53,33 @@ class StoreApiSchemaMigrationReportCommandTest extends TestCase
         $exitCode = $commandTester->execute(['--fail-on-mismatch' => true], ['capture_stderr_separately' => true]);
 
         static::assertSame(Command::FAILURE, $exitCode);
+    }
+
+    public function testCommandWritesReportToFile(): void
+    {
+        $filesystem = static::createMock(Filesystem::class);
+        $filesystem->expects($this->once())
+            ->method('dumpFile')
+            ->with(
+                '/tmp/store-api-schema-migration-report.json',
+                static::callback(static function (string $contents): bool {
+                    $report = json_decode($contents, true, 512, \JSON_THROW_ON_ERROR);
+
+                    return \is_array($report)
+                        && $report['jsonOverridesPhpGenerated'] === ['JsonOverrideEntity'];
+                }),
+            );
+
+        $commandTester = new CommandTester(new StoreApiSchemaMigrationReportCommand(
+            $this->createReporter($this->createReport()),
+            $this->createDefinitionRegistry(),
+            $filesystem,
+        ));
+
+        $commandTester->execute(['outfile' => '/tmp/store-api-schema-migration-report.json'], ['capture_stderr_separately' => true]);
+
+        $commandTester->assertCommandIsSuccessful();
+        static::assertSame('', $commandTester->getDisplay());
     }
 
     public function testCommandFailsForInvalidScope(): void

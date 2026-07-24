@@ -39,10 +39,13 @@ class StoreApiSchemaMigrationReporter
         private readonly OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
         private readonly BundleSchemaPathCollection $bundleSchemaPathCollection,
         private readonly Filesystem $filesystem = new Filesystem(),
+        ?string $schemaPath = null,
+        ?string $allowlistPath = null,
+        ?string $sourcePath = null,
     ) {
-        $this->sourcePath = \dirname(__DIR__, 5);
-        $this->schemaPath = __DIR__ . '/Schema/StoreApi';
-        $this->allowlistPath = __DIR__ . '/StoreApiPhpGeneratedSchemaAllowlist.json';
+        $this->sourcePath = $sourcePath ?? \dirname(__DIR__, 5);
+        $this->schemaPath = $schemaPath ?? __DIR__ . '/Schema/StoreApi';
+        $this->allowlistPath = $allowlistPath ?? __DIR__ . '/StoreApiPhpGeneratedSchemaAllowlist.json';
     }
 
     /**

@@ -174,6 +174,25 @@ export function applyCompositionOverridesToOptionsBase(componentName: string): R
 /**
  * @private
  *
+ * Returns a `setup()` for an Options base that has composition overrides registered — or null.
+ *
+ * The component factory calls this at build time (via `Shopware.Component`) and only injects the
+ * returned setup when it is non-null, so components without a targeting override are left completely
+ * untouched (no injected setup, no behaviour change).
+ */
+export function createOptionsBaseOverrideSetup(componentName: string): (() => Record<string, unknown>) | null {
+    const overrides = _overridesMap[componentName];
+
+    if (!overrides || overrides.length === 0) {
+        return null;
+    }
+
+    return () => applyCompositionOverridesToOptionsBase(componentName) ?? {};
+}
+
+/**
+ * @private
+ *
  * Test-only reset of the dev-warning dedupe cache.
  */
 export function _resetOptionsBaseOverrideWarnings(): void {

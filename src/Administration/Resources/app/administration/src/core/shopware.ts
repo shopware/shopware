@@ -44,6 +44,7 @@ import ApiServices from 'src/core/service/api';
 import ModuleFilterFactory from 'src/core/data/filter-factory.data';
 import Store from 'src/app/store';
 import { createExtendableSetup, overrideComponentSetup } from 'src/app/adapter/composition-extension-system';
+import { createOptionsBaseOverrideSetup } from 'src/app/adapter/options-base-override';
 import * as Vue from 'vue';
 import type { DefineComponent, Ref } from 'vue';
 import CMS from '../module/sw-cms/constant/sw-cms.constant';
@@ -141,6 +142,7 @@ class ShopwareClass implements CustomShopwareProperties {
         getOverrideRegistry: AsyncComponentFactory.getOverrideRegistry,
         createExtendableSetup: createExtendableSetup,
         overrideComponentSetup: overrideComponentSetup,
+        createOptionsBaseOverrideSetup: createOptionsBaseOverrideSetup,
 
         /**
          * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM

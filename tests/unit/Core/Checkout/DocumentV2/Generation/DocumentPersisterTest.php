@@ -57,7 +57,6 @@ class DocumentPersisterTest extends TestCase
 
         $this->generationRequest = new DocumentGenerationRequest(
             Uuid::randomHex(),
-            Uuid::randomHex(),
             self::DOCUMENT_TYPE,
             [self::FORMAT],
             '12345',

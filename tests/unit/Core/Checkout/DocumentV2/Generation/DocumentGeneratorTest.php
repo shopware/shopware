@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Generation;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
@@ -32,6 +31,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
@@ -52,7 +52,7 @@ class DocumentGeneratorTest extends TestCase
     public function testGenerate(): void
     {
         $orderId = Uuid::randomHex();
-        $orderVersionId = Uuid::randomHex();
+        $createdOrderVersionId = Uuid::randomHex();
         $salesChannelId = Uuid::randomHex();
         $documentTypeId = Uuid::randomHex();
         $orderLanguageId = Uuid::randomHex();
@@ -60,18 +60,42 @@ class DocumentGeneratorTest extends TestCase
 
         $generationRequest = new DocumentGenerationRequest(
             $orderId,
-            $orderVersionId,
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
         );
 
         $order = new OrderEntity();
         $order->setId($orderId);
-        $order->setVersionId($orderVersionId);
+        $order->setVersionId($createdOrderVersionId);
         $order->setSalesChannelId($salesChannelId);
         $order->setLanguageId($orderLanguageId);
 
-        $orderRepository = $this->createOrderRepository($order, $orderId, $orderVersionId, $orderLanguageId);
+        $orderRepository = $this->createMock(EntityRepository::class);
+        $orderRepository
+            ->expects($this->once())
+            ->method('createVersion')
+            ->with($orderId, $context, 'document')
+            ->willReturn($createdOrderVersionId);
+
+        $orderRepository
+            ->expects($this->exactly(2))
+            ->method('search')
+            ->willReturnCallback(function (
+                Criteria $criteria,
+                Context $searchContext,
+            ) use ($order, $orderId, $createdOrderVersionId): EntitySearchResult {
+                static::assertSame([$orderId], $criteria->getIds());
+                static::assertSame($createdOrderVersionId, $searchContext->getVersionId());
+
+                return new EntitySearchResult(
+                    OrderDefinition::ENTITY_NAME,
+                    1,
+                    new OrderCollection([$order]),
+                    null,
+                    $criteria,
+                    $searchContext,
+                );
+            });
 
         $numberRangeValueGenerator = $this->createMock(NumberRangeValueGeneratorInterface::class);
         $numberRangeValueGenerator
@@ -99,7 +123,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertSame($document, $result);
         static::assertCount(1, $documentRepository->creates);
         static::assertSame($orderId, $documentRepository->creates[0][0]['orderId']);
-        static::assertSame($orderVersionId, $documentRepository->creates[0][0]['orderVersionId']);
+        static::assertSame($createdOrderVersionId, $documentRepository->creates[0][0]['orderVersionId']);
         static::assertSame($documentTypeId, $documentRepository->creates[0][0]['documentTypeId']);
         static::assertSame('generated-number', $documentRepository->creates[0][0]['config']['documentNumber']);
         static::assertCount(1, $documentFileRepository->creates);
@@ -111,7 +135,6 @@ class DocumentGeneratorTest extends TestCase
     public function testPreview(): void
     {
         $orderId = Uuid::randomHex();
-        $orderVersionId = Uuid::randomHex();
         $salesChannelId = Uuid::randomHex();
         $documentTypeId = Uuid::randomHex();
         $orderLanguageId = Uuid::randomHex();
@@ -119,18 +142,39 @@ class DocumentGeneratorTest extends TestCase
 
         $generationRequest = new DocumentGenerationRequest(
             $orderId,
-            $orderVersionId,
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
         );
 
         $order = new OrderEntity();
         $order->setId($orderId);
-        $order->setVersionId($orderVersionId);
         $order->setSalesChannelId($salesChannelId);
         $order->setLanguageId($orderLanguageId);
 
-        $orderRepository = $this->createOrderRepository($order, $orderId, $orderVersionId, $orderLanguageId);
+        $orderRepository = $this->createMock(EntityRepository::class);
+        $orderRepository
+            ->expects($this->never())
+            ->method('createVersion');
+
+        $orderRepository
+            ->expects($this->exactly(2))
+            ->method('search')
+            ->willReturnCallback(function (
+                Criteria $criteria,
+                Context $searchContext,
+            ) use ($order, $orderId): EntitySearchResult {
+                static::assertSame([$orderId], $criteria->getIds());
+                static::assertSame(Defaults::LIVE_VERSION, $searchContext->getVersionId());
+
+                return new EntitySearchResult(
+                    OrderDefinition::ENTITY_NAME,
+                    1,
+                    new OrderCollection([$order]),
+                    null,
+                    $criteria,
+                    $searchContext,
+                );
+            });
 
         $numberRangeValueGenerator = $this->createMock(NumberRangeValueGeneratorInterface::class);
         $numberRangeValueGenerator
@@ -161,11 +205,8 @@ class DocumentGeneratorTest extends TestCase
         static::assertCount(0, $documentFileRepository->creates);
     }
 
-    #[DataProvider('invalidGenerationRequestProvider')]
-    public function testGenerateThrowsExceptionOnInvalidGenerationRequest(
-        DocumentGenerationRequest $generationRequest,
-        DocumentV2Exception $exception
-    ): void {
+    public function testGenerateThrowsExceptionForMissingFormats(): void
+    {
         /** @var StaticEntityRepository<OrderCollection> $orderRepository */
         $orderRepository = new StaticEntityRepository([], new OrderDefinition());
 
@@ -176,35 +217,15 @@ class DocumentGeneratorTest extends TestCase
             new DocumentEntity(),
         );
 
-        $this->expectExceptionObject($exception);
+        $generationRequest = new DocumentGenerationRequest(
+            Uuid::randomHex(),
+            DocumentType::INVOICE,
+            [],
+        );
+
+        $this->expectExceptionObject(DocumentV2Exception::missingFormats());
 
         $generator->generate($generationRequest, Context::createDefaultContext());
-    }
-
-    /**
-     * @return iterable<string, array{generationRequest: DocumentGenerationRequest, exception: DocumentV2Exception}>
-     */
-    public static function invalidGenerationRequestProvider(): iterable
-    {
-        yield 'missing formats' => [
-            'generationRequest' => new DocumentGenerationRequest(
-                Uuid::randomHex(),
-                Uuid::randomHex(),
-                DocumentType::INVOICE,
-                [],
-            ),
-            'exception' => DocumentV2Exception::missingFormats(),
-        ];
-
-        yield 'live version not allowed' => [
-            'generationRequest' => new DocumentGenerationRequest(
-                Uuid::randomHex(),
-                Defaults::LIVE_VERSION,
-                DocumentType::INVOICE,
-                [DocumentFormat::PDF],
-            ),
-            'exception' => DocumentV2Exception::liveVersionNotAllowed(),
-        ];
     }
 
     public function testGenerateThrowsOnConflictingOrderVersionStrategies(): void
@@ -230,7 +251,6 @@ class DocumentGeneratorTest extends TestCase
 
         $generator->generate(
             new DocumentGenerationRequest(
-                Uuid::randomHex(),
                 Uuid::randomHex(),
                 DocumentType::INVOICE,
                 [DocumentFormat::PDF],
@@ -260,7 +280,6 @@ class DocumentGeneratorTest extends TestCase
         $generator->generate(
             new DocumentGenerationRequest(
                 Uuid::randomHex(),
-                Uuid::randomHex(),
                 DocumentType::INVOICE,
                 [DocumentFormat::PDF],
                 referencedDocumentId: $referencedDocumentId,
@@ -272,7 +291,6 @@ class DocumentGeneratorTest extends TestCase
     public function testGenerateWithReferencedStrategyRendersAndPersistsTheReferencedSnapshot(): void
     {
         $orderId = Uuid::randomHex();
-        $requestVersionId = Uuid::randomHex();
         $referencedVersionId = Uuid::randomHex();
         $referencedDocumentId = Uuid::randomHex();
         $orderLanguageId = Uuid::randomHex();
@@ -301,7 +319,6 @@ class DocumentGeneratorTest extends TestCase
         $generator->generate(
             new DocumentGenerationRequest(
                 $orderId,
-                $requestVersionId,
                 DocumentType::INVOICE,
                 [DocumentFormat::PDF],
                 '2000',
@@ -371,7 +388,6 @@ class DocumentGeneratorTest extends TestCase
         $generator->generate(
             new DocumentGenerationRequest(
                 $orderId,
-                $requestVersionId,
                 DocumentType::INVOICE,
                 [DocumentFormat::PDF],
                 '2000',
@@ -385,7 +401,7 @@ class DocumentGeneratorTest extends TestCase
     }
 
     /**
-     * @param StaticEntityRepository<OrderCollection> $orderRepository
+     * @param EntityRepository<OrderCollection> $orderRepository
      * @param list<StaticDocumentDataProvider>|null $providers
      * @param list<array<string, string>> $referenceRows
      *
@@ -396,7 +412,7 @@ class DocumentGeneratorTest extends TestCase
      * }
      */
     private function createGenerator(
-        StaticEntityRepository $orderRepository,
+        EntityRepository $orderRepository,
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         string $documentTypeId,
         DocumentEntity $document,

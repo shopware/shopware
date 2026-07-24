@@ -8,6 +8,7 @@ use Shopware\Administration\Command\AbstractExtensionToolingCommand;
 use Shopware\Administration\Command\CheckExtensionsCommand;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
@@ -79,6 +80,46 @@ class CheckExtensionsCommandTest extends TestCase
         static::assertContains('--all', $captured['command']);
 
         $this->filesystem->remove($administrationRoot);
+    }
+
+    public function testAdministrationRootResolvesToTheBundleResourcesPath(): void
+    {
+        $root = $this->exposedCommand()->exposedAdministrationRoot();
+
+        static::assertStringEndsWith('/Resources/app/administration', $root);
+    }
+
+    public function testRunToolingSpawnsTheProcessAndPropagatesItsExitCode(): void
+    {
+        $output = new BufferedOutput();
+
+        $exitCode = $this->exposedCommand()->exposedRunTooling(
+            [\PHP_BINARY, '-r', 'fwrite(STDOUT, "tooling-ran"); exit(5);'],
+            sys_get_temp_dir(),
+            [],
+            $output,
+        );
+
+        static::assertSame(5, $exitCode, 'the tooling exit code reaches the shell unchanged');
+    }
+
+    private function exposedCommand(): CheckExtensionsCommand
+    {
+        return new class($this->kernel()) extends CheckExtensionsCommand {
+            public function exposedAdministrationRoot(): string
+            {
+                return $this->administrationRoot();
+            }
+
+            /**
+             * @param list<string> $command
+             * @param array<string, string> $env
+             */
+            public function exposedRunTooling(array $command, string $cwd, array $env, OutputInterface $output): int
+            {
+                return $this->runTooling($command, $cwd, $env, $output);
+            }
+        };
     }
 
     private function createAdministrationRoot(bool $withDependencies): string

@@ -6,7 +6,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Command\GenerateEntitySchemaTypesCommand;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
@@ -88,6 +92,76 @@ class GenerateEntitySchemaTypesCommandTest extends TestCase
         $this->filesystem->remove($administrationRoot);
     }
 
+    public function testAdministrationRootResolvesToTheBundleResourcesPath(): void
+    {
+        $root = $this->exposedCommand()->exposedAdministrationRoot();
+
+        static::assertStringEndsWith('/Resources/app/administration', $root);
+    }
+
+    public function testDumpEntitySchemaFailsWhenNoApplicationIsAvailable(): void
+    {
+        // Without a console Application there is no framework:schema command to delegate to.
+        $exitCode = $this->exposedCommand()->exposedDumpEntitySchema('/tmp/schema.json', new BufferedOutput());
+
+        static::assertSame(Command::FAILURE, $exitCode);
+    }
+
+    public function testDumpEntitySchemaDelegatesToTheFrameworkSchemaCommand(): void
+    {
+        $command = $this->exposedCommand();
+
+        $schemaCommand = new class extends Command {
+            public ?string $outfile = null;
+
+            public ?string $schemaFormat = null;
+
+            protected function configure(): void
+            {
+                $this->setName('framework:schema')
+                    ->addArgument('outfile')
+                    ->addOption('schema-format', null, InputOption::VALUE_REQUIRED);
+            }
+
+            protected function execute(InputInterface $input, OutputInterface $output): int
+            {
+                $this->outfile = $input->getArgument('outfile');
+                $this->schemaFormat = $input->getOption('schema-format');
+
+                return 4;
+            }
+        };
+
+        $application = new Application();
+        $application->add($schemaCommand);
+        $command->setApplication($application);
+
+        $exitCode = $command->exposedDumpEntitySchema('/tmp/entity-schema.json', new BufferedOutput());
+
+        static::assertSame(4, $exitCode, 'the framework:schema exit code is propagated');
+        static::assertSame('/tmp/entity-schema.json', $schemaCommand->outfile);
+        static::assertSame('entity-schema', $schemaCommand->schemaFormat);
+    }
+
+    public function testConvertEntitySchemaSpawnsTheConverterAndPropagatesItsExitCode(): void
+    {
+        $administrationRoot = $this->createAdministrationRoot(withDependencies: true);
+        // Replace the ts-node stub with an executable that reports a known exit code and output.
+        $this->filesystem->dumpFile(
+            $administrationRoot . '/node_modules/.bin/ts-node',
+            "#!/bin/sh\nprintf 'converted'\nexit 3\n",
+        );
+        $this->filesystem->chmod($administrationRoot . '/node_modules/.bin/ts-node', 0755);
+
+        $output = new BufferedOutput();
+        $exitCode = $this->exposedCommand()->exposedConvertEntitySchema($administrationRoot, $output);
+
+        static::assertSame(3, $exitCode, 'the converter exit code reaches the shell unchanged');
+        static::assertStringContainsString('converted', $output->fetch());
+
+        $this->filesystem->remove($administrationRoot);
+    }
+
     private function createAdministrationRoot(bool $withDependencies): string
     {
         $root = sys_get_temp_dir() . '/' . uniqid('sw-admin-schema-', true);
@@ -99,6 +173,30 @@ class GenerateEntitySchemaTypesCommandTest extends TestCase
         }
 
         return $root;
+    }
+
+    /**
+     * A command whose protected seams (reflection root, schema dump, converter spawn) are exposed
+     * so their real bodies can be exercised without going through the full execute() pipeline.
+     */
+    private function exposedCommand(): GenerateEntitySchemaTypesCommand
+    {
+        return new class extends GenerateEntitySchemaTypesCommand {
+            public function exposedAdministrationRoot(): string
+            {
+                return $this->administrationRoot();
+            }
+
+            public function exposedDumpEntitySchema(string $schemaFile, OutputInterface $output): int
+            {
+                return $this->dumpEntitySchema($schemaFile, $output);
+            }
+
+            public function exposedConvertEntitySchema(string $administrationRoot, OutputInterface $output): int
+            {
+                return $this->convertEntitySchema($administrationRoot, $output);
+            }
+        };
     }
 
     /**

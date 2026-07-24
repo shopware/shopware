@@ -751,6 +751,20 @@ Profiles are now identified and displayed only by their technical name.
 * You must pass the `confidential` parameter as the third parameter of the constructor.
 * You must pass the `name` parameter as the fourth parameter of the constructor.
 
+## OAuth concrete classes are internal
+
+The following concrete OAuth classes are internal. Do not type-hint, instantiate, or extend them; rely on the corresponding League OAuth interface instead:
+
+* `\Shopware\Core\Framework\Api\OAuth\AccessTokenRepository` → `\League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface`
+* `\Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository` → `\League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface`
+* `\Shopware\Core\Framework\Api\OAuth\ScopeRepository` → `\League\OAuth2\Server\Repositories\ScopeRepositoryInterface`
+* `\Shopware\Core\Framework\Api\OAuth\UserRepository` → `\League\OAuth2\Server\Repositories\UserRepositoryInterface`
+* `\Shopware\Core\Framework\Api\OAuth\ClientRepository` → `\League\OAuth2\Server\Repositories\ClientRepositoryInterface`
+* `\Shopware\Core\Framework\Api\OAuth\Client\ApiClient` → `\League\OAuth2\Server\Entities\ClientEntityInterface`
+* `\Shopware\Core\Framework\Api\OAuth\AccessToken` → `\League\OAuth2\Server\Entities\AccessTokenEntityInterface`
+* `\Shopware\Core\Framework\Api\OAuth\RefreshToken` → `\League\OAuth2\Server\Entities\RefreshTokenEntityInterface`
+* `\Shopware\Core\Framework\Api\OAuth\User\User` → `\League\OAuth2\Server\Entities\UserEntityInterface`
+
 ## Removed unused `ImportExport` exceptions
 
 The following unused exceptions were removed:

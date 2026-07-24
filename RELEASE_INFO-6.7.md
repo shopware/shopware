@@ -6,6 +6,31 @@
 
 ## Core
 
+### Built-in translation system configurable via `shopware.translation`
+
+The built-in translation system's configuration (previously only editable by decorating `AbstractTranslationConfigLoader`) can now be overridden through the standard Symfony configuration in `config/packages`. Add a `shopware.translation` section to override individual options; any option left unset falls back to the shipped defaults in `translation.yaml`:
+
+```yaml
+# config/packages/translation.yaml
+shopware:
+    translation:
+        repository_url: 'https://example.com/translations'
+        metadata_url: 'https://example.com/crowdin-metadata.json'
+        plugins:
+            - 'MyPlugin'
+        excluded_locales:
+            - 'de-DE'
+            - 'en-GB'
+        plugin_mapping:
+            - plugin: 'MyPlugin'
+              name: 'MySnippetName'
+        languages:
+            - name: 'Deutsch'
+              locale: 'de-DE'
+```
+
+List options (`plugins`, `excluded_locales`, `plugin_mapping`, `languages`) replace the shipped default entirely rather than merging; provide the full list you want. Setting a list to `[]` clears the shipped default. Decorating `AbstractTranslationConfigLoader` continues to work; a decorator that fully replaces `load()` bypasses these config overrides.
+
 ### Polyfill packages are installed as declared dependencies
 
 The `shopware/core` and `shopware/platform` package manifests no longer replace Symfony polyfill packages or `paragonie/random_compat`. Composer now installs the polyfills required by the resolved dependency graph instead of treating them as supplied by Shopware. Extension projects that depend on these packages continue to work; their production dependency tree can gain the required polyfill packages. Projects that guarantee the required native PHP functionality can add relevant packages to their own root `replace` section to avoid installing them and reduce their vendor directory size; they must not replace `symfony/polyfill-mbstring`, which Core requires for `mb_ltrim()` on PHP 8.2 and 8.3.
@@ -38,6 +63,10 @@ Such changes are now documented with dedicated PHP attributes under `Shopware\Co
 * If your code does not use the annotated symbol in the affected way, there is nothing to do.
 
 All existing `reason:*` BC-planning annotations in the core have been migrated to these attributes; the remaining `@deprecated` annotations are actual deprecations.
+
+### Product export scheduling decoupled from the cache timestamp
+
+Cron-driven product export generation no longer derives the next run from `generatedAt`, which also anchors the cache validity of the generated feed file. A new `nextGenerationAt` field on the `product_export` entity is set when the first export chunk starts, and the scheduler prefers it over the legacy `generatedAt` + interval calculation. This keeps the schedule anchored to the export start time without making storefront requests treat in-flight exports as stale. The database column is added automatically by a migration; exports generated before the update fall back to the previous `generatedAt`-based scheduling until their next run. No action is required.
 
 ## Administration
 
@@ -111,6 +140,10 @@ Plugins that build `Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument` ins
 ### Text-based media is stored and served with an explicit charset
 
 Text-based media files (`text/plain`, `text/csv`, `text/html`, `text/xml`, `application/json`, `application/xml`) are now written to storage with an explicit `Content-Type: …; charset=utf-8`. Previously the charset was missing, so serving such a file directly from object storage / CDN made browsers fall back to a non-UTF-8 encoding and render umlauts and other multi-byte characters as mojibake. This applies to both the server-side upload path and the presigned direct-to-S3 upload path. The `mimeType` persisted on the media entity stays bare (without the charset parameter), so no code reading it needs to change.
+
+### Whole-phrase product-search matches rank higher
+
+Elasticsearch product search now adds an explicit phrase-proximity boost for multi-word searches, weighted above single-word matches. A product whose field contains the full search phrase in order now ranks above one that only contains the individual words scattered around. The same documents still match — this only re-ranks — but `_score` values and borderline orderings shift, which can affect a configured `core.search.minScore`. The per-match-type boosts are configurable via `elasticsearch.search.boost.*`.
 
 ### Webhooks are signed with the current app secret after a secret rotation
 

@@ -8,7 +8,7 @@
     :open="collapsibleOpen"
     @update:open="onCollapsibleOpenUpdate"
     @mouseenter="$emit('menu-item-hover', entry, $event.currentTarget)"
-    @focusin="$emit('menu-item-hover', entry, $event.currentTarget)"
+    @keydown="onCollapsedParentKeydown"
 >
     <div class="sw-admin-menu__navigation-item-row">
         <template v-if="entryPath">
@@ -19,6 +19,7 @@
                 :active-class="routerLinkActiveClass"
                 :exact-active-class="routerLinkExactActiveClass"
                 :aria-expanded="collapsibleOpen"
+                v-bind="collapsedFlyoutAria"
                 @click="toggleSubmenu"
                 @pointerdown="emitMenuInteractionForFlyoutDismiss($event)"
             >
@@ -60,6 +61,7 @@
             type="button"
             class="sw-admin-menu__navigation-link"
             :class="{ 'router-link-active': rowActive }"
+            v-bind="collapsedFlyoutAria"
             @pointerdown="emitMenuInteractionForFlyoutDismiss($event)"
         >
             {% block sw_admin_menu_item_navigation_icon_fold %}

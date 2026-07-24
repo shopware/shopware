@@ -1,3 +1,4 @@
+import { createFocusTrap } from 'focus-trap';
 import template from './sw-admin-menu.html.twig';
 import { getActiveRouteNames, isEntryOnActiveRoute } from '../sw-admin-menu-item/menu-item-active.helper';
 import './sw-admin-menu.scss';
@@ -225,6 +226,14 @@ The admin menu only supports up to three levels of nesting.`,
         },
         '$route.fullPath': {
             handler() {
+                // Close an open flyout after navigating, e.g. when a flyout link
+                // was activated. Focus follows the navigation, so it must not be
+                // pulled back into the sidebar.
+                if (!this.isExpanded && this.flyoutEntries.length) {
+                    this.deactivateFlyoutFocusTrap(false);
+                    this.onFlyoutLeave();
+                }
+
                 this.$nextTick(() => this.expandAncestorBranchesForCurrentRoute());
             },
             immediate: true,
@@ -241,12 +250,16 @@ The admin menu only supports up to three levels of nesting.`,
 
     beforeUnmount() {
         this.cancelFlyoutClose();
+        this.deactivateFlyoutFocusTrap(false);
 
         this.beforeUnmountedComponent();
     },
 
     methods: {
         createdComponent() {
+            // Non-reactive instance property; holds the active flyout focus trap.
+            this.flyoutFocusTrap = null;
+
             this.loginService.notifyOnLoginListener();
 
             this.viewportWidth = this.$device.getViewportWidth();
@@ -545,7 +558,140 @@ The admin menu only supports up to three levels of nesting.`,
             });
         },
 
+        /**
+         * Whether the flyout currently shows the children of the given entry.
+         * Drives the aria-expanded state of the collapsed parent items.
+         */
+        isFlyoutEntryActive(entry) {
+            if (this.isExpanded || this.flyoutEntries.length === 0) {
+                return false;
+            }
+
+            const active = this.activeEntry?.entry;
+
+            return !!active && (active.id || active.path) === (entry.id || entry.path);
+        },
+
+        /**
+         * Moves keyboard focus into the flyout. The flyout is teleported to the
+         * body and therefore unreachable via the natural tab order — a focus trap
+         * keeps Tab cycling inside it; Escape deactivates the trap, closes the
+         * flyout and returns focus to the menu entry it was opened from.
+         */
+        onFlyoutFocusRequest() {
+            this.$nextTick(() => {
+                const flyoutElement = this.$refs.swAdminMenuFlyout;
+
+                if (!flyoutElement || this.flyoutEntries.length === 0) {
+                    return;
+                }
+
+                this.flyoutFocusTrap = createFocusTrap(flyoutElement, {
+                    escapeDeactivates: true,
+                    clickOutsideDeactivates: true,
+                    returnFocusOnDeactivate: true,
+                    delayInitialFocus: false,
+                    fallbackFocus: flyoutElement,
+                    onDeactivate: () => {
+                        this.flyoutFocusTrap = null;
+                        this.onFlyoutLeave();
+                    },
+                });
+
+                this.flyoutFocusTrap.activate();
+            });
+        },
+
+        deactivateFlyoutFocusTrap(returnFocus = true) {
+            if (!this.flyoutFocusTrap) {
+                return;
+            }
+
+            const trap = this.flyoutFocusTrap;
+            this.flyoutFocusTrap = null;
+
+            // Override the configured onDeactivate: it closes the flyout via
+            // onFlyoutLeave, which is the caller of this method.
+            trap.deactivate({ returnFocus, onDeactivate: () => {} });
+        },
+
+        /**
+         * All focusable navigation links inside the given container. Links of
+         * closed collapsible branches stay in the DOM (hidden="until-found")
+         * and are skipped — they cannot receive focus.
+         */
+        getNavigationLinks(container) {
+            return Array.from(container.querySelectorAll('.sw-admin-menu__navigation-link')).filter(
+                (link) => !link.closest('[hidden]'),
+            );
+        },
+
+        /**
+         * Optional arrow key support (APG disclosure navigation pattern):
+         * ArrowDown/ArrowUp move through the given links, Home/End jump to the
+         * first/last one.
+         */
+        moveListFocus(links, event) {
+            if (links.length === 0) {
+                return;
+            }
+
+            const currentIndex = links.indexOf(document.activeElement);
+            let nextIndex = null;
+
+            switch (event.key) {
+                case 'ArrowDown':
+                    nextIndex = currentIndex < 0 ? 0 : (currentIndex + 1) % links.length;
+                    break;
+                case 'ArrowUp':
+                    nextIndex = currentIndex < 0 ? links.length - 1 : (currentIndex - 1 + links.length) % links.length;
+                    break;
+                case 'Home':
+                    nextIndex = 0;
+                    break;
+                case 'End':
+                    nextIndex = links.length - 1;
+                    break;
+                default:
+                    return;
+            }
+
+            event.preventDefault();
+            links[nextIndex]?.focus();
+        },
+
+        onNavigationKeydown(event) {
+            const menuBody = this.$refs.swAdminMenuBody;
+
+            if (!menuBody) {
+                return;
+            }
+
+            this.moveListFocus(this.getNavigationLinks(menuBody), event);
+        },
+
+        onFlyoutKeydown(event) {
+            if (event.key === 'ArrowLeft') {
+                event.preventDefault();
+                // Mirror of ArrowRight on the menu entry: the trap returns the
+                // focus to the entry the flyout was opened from.
+                this.deactivateFlyoutFocusTrap(true);
+                this.onFlyoutLeave();
+
+                return;
+            }
+
+            const flyoutElement = this.$refs.swAdminMenuFlyout;
+
+            if (!flyoutElement) {
+                return;
+            }
+
+            this.moveListFocus(this.getNavigationLinks(flyoutElement), event);
+        },
+
         onFlyoutLeave() {
+            this.deactivateFlyoutFocusTrap();
             this.cancelFlyoutClose();
             this.deactivatePreviousMenuItem();
             this.flyoutReferenceElement = null;

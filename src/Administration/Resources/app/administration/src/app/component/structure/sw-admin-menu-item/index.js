@@ -26,6 +26,8 @@ export default {
         'menu-item-click',
         'menu-item-hover',
         'branch-toggle',
+        'flyout-focus-request',
+        'flyout-close-request',
     ],
 
     data() {
@@ -93,6 +95,12 @@ export default {
         showActiveState: {
             type: Boolean,
             default: true,
+            required: false,
+        },
+        /** Whether the collapsed sidebar currently shows this entry's children in the flyout. */
+        flyoutActive: {
+            type: Boolean,
+            default: false,
             required: false,
         },
     },
@@ -287,6 +295,22 @@ export default {
         },
 
         /**
+         * Collapsed top-level parents act as disclosure triggers for the flyout:
+         * aria-expanded reflects the flyout state instead of the (forced closed)
+         * collapsible. Empty while expanded, so the collapsible semantics apply.
+         */
+        collapsedFlyoutAria() {
+            if (this.sidebarExpanded || this.menuDepth !== 1 || this.children.length === 0) {
+                return {};
+            }
+
+            return {
+                'aria-expanded': this.flyoutActive ? 'true' : 'false',
+                ...(this.flyoutActive ? { 'aria-controls': 'sw-admin-menu-flyout' } : {}),
+            };
+        },
+
+        /**
          * Vue Router adds its active classes on matching links by itself, so they
          * must be suppressed explicitly when the active state is disabled.
          */
@@ -412,6 +436,34 @@ export default {
 
         emitMenuInteractionForFlyoutDismiss(event) {
             this.$emit('menu-item-click', this.entry, event?.currentTarget || event?.target);
+        },
+
+        /**
+         * Keyboard access to the collapsed flyout (disclosure navigation pattern):
+         * ArrowRight — and Enter/Space on entries without an own route — opens the
+         * flyout and moves focus into it; Escape or ArrowLeft closes an open flyout.
+         */
+        onCollapsedParentKeydown(event) {
+            if (this.sidebarExpanded || this.menuDepth !== 1 || this.children.length === 0) {
+                return;
+            }
+
+            if ((event.key === 'Escape' || event.key === 'ArrowLeft') && this.flyoutActive) {
+                this.$emit('flyout-close-request');
+                return;
+            }
+
+            const isActivationKey = event.key === 'Enter' || event.key === ' ';
+            // Entries with an own route keep Enter/Space for navigation.
+            const opensFlyout = event.key === 'ArrowRight' || (isActivationKey && !this.entryPath);
+
+            if (!opensFlyout) {
+                return;
+            }
+
+            event.preventDefault();
+            this.$emit('menu-item-hover', this.entry, event.currentTarget);
+            this.$emit('flyout-focus-request');
         },
 
         forwardMenuItemHover(entry, target) {

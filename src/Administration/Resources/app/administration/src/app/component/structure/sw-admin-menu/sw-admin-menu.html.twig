@@ -112,10 +112,12 @@
     <div class="sw-admin-menu__body-container">
 
         {% block sw_admin_menu_body %}
+        <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
         <div
             ref="swAdminMenuBody"
             class="sw-admin-menu__body"
             :style="scrollbarOffsetStyle"
+            @keydown="onNavigationKeydown"
         >
             {% block sw_admin_menu_navigation_main %}
             <nav
@@ -146,10 +148,13 @@
                         :class="{ 'is--entry-expanded': isNavigationEntryExpanded(entry) }"
                         :sidebar-expanded="isExpanded"
                         :is-expanded="isNavigationEntryExpanded(entry)"
+                        :flyout-active="isFlyoutEntryActive(entry)"
                         :entry="entry"
                         @menu-item-hover="onMenuItemHover"
                         @menu-item-click="onMenuItemClick"
                         @branch-toggle="onMenuBranchToggle"
+                        @flyout-focus-request="onFlyoutFocusRequest"
+                        @flyout-close-request="onFlyoutLeave"
                     />
                     {% endblock %}
                 </ul>
@@ -279,12 +284,16 @@
     >
         <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
         <div
+            id="sw-admin-menu-flyout"
+            ref="swAdminMenuFlyout"
             class="sw-admin-menu__flyout-content"
             :class="{ 'is--closing': isFlyoutClosing }"
+            tabindex="-1"
             @mouseenter="cancelFlyoutClose"
             @focusin="cancelFlyoutClose"
             @mouseleave="onFlyoutMouseLeave"
             @focusout="onFlyoutMouseLeave"
+            @keydown="onFlyoutKeydown"
         >
             <mt-text
                 v-if="flyoutTitle"

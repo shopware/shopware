@@ -42,7 +42,7 @@ describe('sw-app-actions', () => {
 
                             return Promise.resolve([]);
                         }),
-                        getActionButtonsPerView(entity, view) {
+                        getActionButtonsPerView: jest.fn((entity, view) => {
                             if (!entity || !view) {
                                 throw new InvalidActionButtonParameterError('error');
                             }
@@ -56,7 +56,7 @@ describe('sw-app-actions', () => {
                             }
 
                             return Promise.reject(new Error('error occured'));
-                        },
+                        }),
                     },
 
                     extensionSdkService: {},
@@ -95,6 +95,8 @@ describe('sw-app-actions', () => {
         Shopware.Store.get('shopwareApps').selectedIds = [
             Shopware.Utils.createId(),
         ];
+
+        await router.push({ name: 'index' });
     });
 
     afterEach(() => {
@@ -135,6 +137,26 @@ describe('sw-app-actions', () => {
         expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
             expect.any(String),
         ]);
+    });
+
+    it('does not reload actions when only listing query parameters change', async () => {
+        await router.push({ name: 'sw.order.detail' });
+        wrapper = await createWrapper(router);
+        await flushPromises();
+
+        const getActionButtonsPerView = wrapper.vm.appActionButtonService.getActionButtonsPerView;
+        getActionButtonsPerView.mockClear();
+
+        await router.push({
+            name: 'sw.order.detail',
+            query: {
+                page: '2',
+                limit: '50',
+            },
+        });
+        await flushPromises();
+
+        expect(getActionButtonsPerView).not.toHaveBeenCalled();
     });
 
     it('is not rendered if action buttons is empty', async () => {

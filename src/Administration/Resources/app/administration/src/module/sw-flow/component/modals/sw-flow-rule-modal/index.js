@@ -46,6 +46,7 @@ export default {
             conditions: null,
             conditionTree: null,
             deletedIds: [],
+            activeTab: 'detail',
         };
     },
 
@@ -74,6 +75,19 @@ export default {
 
         availableModuleTypes() {
             return this.ruleConditionDataProviderService.getModuleTypes((moduleType) => moduleType);
+        },
+
+        tabs() {
+            return [
+                {
+                    label: this.$t('sw-flow.modals.rule.tabDetail'),
+                    name: 'detail',
+                },
+                {
+                    label: this.$t('sw-flow.modals.rule.tabRule'),
+                    name: 'rule',
+                },
+            ];
         },
 
         moduleTypes: {

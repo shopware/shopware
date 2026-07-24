@@ -6,7 +6,6 @@ import template from './sw-app-actions.html.twig';
 import './sw-app-actions.scss';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 const { hasOwnProperty } = Shopware.Utils.object;
 
 const actionTypeConstants = Object.freeze({
@@ -50,7 +49,6 @@ export default {
     inject: [
         'feature',
         'appActionButtonService',
-        'repositoryFactory',
         'extensionSdkService',
     ],
 
@@ -87,23 +85,6 @@ export default {
 
         params() {
             return Shopware.Store.get('shopwareApps').selectedIds;
-        },
-
-        userConfigRepository() {
-            return this.repositoryFactory.create('user_config');
-        },
-
-        currentUser() {
-            return Shopware.Store.get('session').currentUser;
-        },
-
-        userConfigCriteria() {
-            const criteria = new Criteria(1, 25);
-
-            criteria.addFilter(Criteria.equals('key', IFRAME_KEY));
-            criteria.addFilter(Criteria.equals('userId', this.currentUser?.id));
-
-            return criteria;
         },
 
         extensionSdkButtons() {
@@ -228,19 +209,13 @@ export default {
             this.isShowModalConfirm = !this.isShowModalConfirm;
         },
 
-        getUserConfig() {
-            this.userConfigRepository.search(this.userConfigCriteria, Shopware.Context.api).then((response) => {
-                if (response.length) {
-                    this.iframeUserConfig = response.first();
-                } else {
-                    this.iframeUserConfig = this.userConfigRepository.create(Shopware.Context.api);
-                    this.iframeUserConfig.key = IFRAME_KEY;
-                    this.iframeUserConfig.userId = this.currentUser?.id;
-                    this.iframeUserConfig.value = {
-                        isShowModalConfirm: true,
-                    };
-                }
-            });
+        async getUserConfig() {
+            this.iframeUserConfig = {
+                key: IFRAME_KEY,
+                value: (await Shopware.Service('userConfigService').search([IFRAME_KEY]))?.data?.[IFRAME_KEY] || {
+                    isShowModalConfirm: true,
+                },
+            };
         },
 
         /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
@@ -253,9 +228,13 @@ export default {
                 isShowModalConfirm: value,
             };
 
-            this.userConfigRepository.save(this.iframeUserConfig, Shopware.Context.api).then(() => {
-                this.getUserConfig();
-            });
+            Shopware.Service('userConfigService')
+                .upsert({
+                    [IFRAME_KEY]: this.iframeUserConfig.value,
+                })
+                .then(() => {
+                    this.getUserConfig();
+                });
         },
     },
 };

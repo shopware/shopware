@@ -51,7 +51,7 @@ See `UPGRADE-6.7.md` for concrete examples.
 
 The MCP server is now always enabled. The `MCP_SERVER` feature flag has been removed, so the `/api/_mcp` and `/store-api/_mcp` endpoints are available without setting any flag. The MCP classes stay marked `@experimental` until 6.8.0, so the API may still change before then.
 
-### New BC-change attributes for planned, breaking API changes
+### New BC-change attributes for planned API changes
 
 Shopware previously used `@deprecated tag:vX.Y.Z - reason:*` PHPDoc annotations to document planned backwards-compatibility-affecting changes that are not actual deprecations, such as return type narrowing, new optional parameters, or classes becoming internal or final. In plugin projects these annotations surfaced as `Call to deprecated method` errors in static analysis, although there is no replacement API to migrate to.
 
@@ -62,7 +62,7 @@ Such changes are now documented with dedicated PHP attributes under `Shopware\Co
 * When a core symbol you use carries a BC-change attribute, the attribute tells you whether your project can be affected: attributes implementing `CallSiteCompatibilityChange` concern code *calling* the symbol (for example a parameter type being narrowed, or a parameter you pass as a named argument being renamed), attributes implementing `ExtenderCompatibilityChange` concern classes in your project that *extend or override* the symbol (for example a return type being narrowed or a class becoming final). Each attribute states the version in which the change happens and the new declaration, so you can prepare ahead of the next major.
 * If your code does not use the annotated symbol in the affected way, there is nothing to do.
 
-The existing `reason:*` annotations will be migrated to these attributes in follow-up releases.
+All existing `reason:*` BC-planning annotations in the core have been migrated to these attributes; the remaining `@deprecated` annotations are actual deprecations.
 
 ### Product export scheduling decoupled from the cache timestamp
 
@@ -105,6 +105,11 @@ Store API requests now remain stateless unless application or extension code exp
 
 ## Core
 
+### MCP tools expose a group for operator-facing selection
+
+MCP tool metadata now includes a `group` value in the `/_action/mcp/tools` and `/_action/mcp/capabilities` responses. The Administration MCP allowlist UI and `bin/console debug:mcp` use this value to group tools for operators without changing tool names or call behaviour.
+
+Tools without an explicit group derive one from the longest name prefix they share with another tool at a hyphen boundary, so tools such as `swag-my-plugin-orders` and `swag-my-plugin-products` use `swag-my-plugin` without being combined with tools from another `swag-*` extension. Existing core, plugin, and app tools continue to work.
 ### Product `descriptionTeaser` backfill runs once as a post-update indexer
 
 The `product.description_teaser.indexer` that fills `descriptionTeaser` for products predating the column (introduced in 6.7.12) is now a one-time post-update indexer: it runs once through the post-update flow after the update and is no longer executed by `bin/console dal:refresh:index`. It rebuilds each teaser from the current description and rewrites only the rows whose stored value is missing or out of date. Ongoing changes continue to be kept in sync synchronously on write by the product description-teaser subscriber.
@@ -577,6 +582,60 @@ GENERATE_SOURCEMAPS=true NODE_ENV=production composer build:js:storefront
 
 ## Administration
 
+### Administration caches shared user configuration and lookup data
+
+Administration now reuses a generic cache layer for current-user configuration and frequently loaded lookup data such as the system currency, currencies, taxes, active languages, sales channel types, number range ids, and custom field sets. This reduces repeated Admin API requests when multiple Administration components need the same data.
+
+Current-user configuration is cached per current user through `userConfigService`. Read individual keys from the shared cached `_info/config-me` response and write changes through the same service:
+
+```js
+const userConfigService = Shopware.Service('userConfigService');
+
+const response = await userConfigService.search(['my-plugin.config-key']);
+const value = response?.data?.['my-plugin.config-key'];
+
+await userConfigService.upsert({
+    'my-plugin.config-key': nextValue,
+});
+```
+
+Shared entity reads can be cached directly on repository reads by passing a stable `cacheKey`:
+
+```js
+const criteria = new Shopware.Data.Criteria(1, 500);
+criteria.addSorting(Shopware.Data.Criteria.sort('name', 'ASC', false));
+
+const currencies = await Shopware.Service('repositoryFactory')
+    .create('currency')
+    .search(criteria, Shopware.Context.api, {
+        cacheKey: ['shared-data', 'currencies', Shopware.Context.api.languageId ?? 'default'],
+        ttl: 5 * 60 * 1000,
+    });
+```
+
+If your plugin changes cached data and needs a fresh follow-up read, either invalidate the affected cache key prefix or force the next read to reload:
+
+```js
+const cacheService = Shopware.Service('cacheService');
+const taxRepository = Shopware.Service('repositoryFactory').create('tax');
+
+cacheService.invalidateCaches({
+    // Invalidate only the cached tax entries.
+    cacheKey: ['shared-data', 'taxes'],
+});
+
+const freshTaxes = await taxRepository.search(criteria, Shopware.Context.api, {
+    cacheKey: ['shared-data', 'taxes', Shopware.Context.api.languageId ?? 'default'],
+    // true bypasses the cached result for this read and stores the fresh response again.
+    forceReload: true,
+    ttl: 5 * 60 * 1000,
+});
+
+cacheService.invalidateCaches({
+    // Custom field sets can be invalidated independently from taxes.
+    cacheKey: ['custom-field-sets', 'product'],
+});
+```
 ### Reworked search behaviour options
 
 The "Search behaviour" card in `Settings > Search` presents the search mode as "Broad search (OR)" and "Exact search (AND)" with short one-line descriptions, replacing the previous "OR"/"AND" labels with example texts. The broad option is now listed first; the stored configuration (`product_search_config.andLogic`) and the template blocks are unchanged. Extensions that override the mode selection (e.g. Advanced Search) can swap the offered options based on their own configuration.

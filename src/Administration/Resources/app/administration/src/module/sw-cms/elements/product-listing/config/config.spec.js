@@ -50,7 +50,9 @@ const repositoryMockFactory = (entity) => {
     throw new Error(`Repository for ${entity} is not implemented`);
 };
 
-async function createWrapper(activeTab = 'sorting') {
+async function createWrapper(options = {}) {
+    const { activeTab = 'sorting', featureActive = false } = typeof options === 'string' ? { activeTab: options } : options;
+
     return mount(
         await wrapTestComponent('sw-cms-el-config-product-listing', {
             sync: true,
@@ -69,13 +71,33 @@ async function createWrapper(activeTab = 'sorting') {
                     'sw-pagination': true,
                     'sw-container': true,
                     'sw-tabs-item': true,
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        emits: ['new-item-active'],
+                        props: {
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                        },
+                        template: '<div class="mt-tabs"></div>',
+                    },
 
                     'sw-tabs': {
                         data() {
                             return { active: activeTab };
                         },
                         template: `
-                        <div>
+                        <div class="sw-tabs">
                             <slot></slot>
                             <slot name="content" v-bind="{ active }"></slot>
                         </div>
@@ -104,6 +126,9 @@ async function createWrapper(activeTab = 'sorting') {
                 },
                 provide: {
                     cmsService: Shopware.Service('cmsService'),
+                    feature: {
+                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
+                    },
                     repositoryFactory: {
                         create: (entity) => repositoryMockFactory(entity),
                     },
@@ -125,6 +150,9 @@ async function createWrapper(activeTab = 'sorting') {
                     config: {
                         boxLayout: {
                             value: {},
+                        },
+                        boxHeadlineLevel: {
+                            value: null,
                         },
                         defaultSorting: {
                             value: {},
@@ -165,6 +193,49 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         expect(wrapper.find('sw-tabs-item-stub[name="content"]').exists()).toBeTruthy();
         expect(wrapper.find('sw-tabs-item-stub[name="sorting"]').exists()).toBeTruthy();
         expect(wrapper.find('sw-tabs-item-stub[name="filter"]').exists()).toBeTruthy();
+    });
+
+    it('should render deprecated tabs when the major feature flag is inactive', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('.sw-tabs').exists()).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('should render meteor tabs when the major feature flag is active', async () => {
+        const wrapper = await createWrapper({ featureActive: true });
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-cms-element-config-product-listing');
+        expect(tabs.props('defaultItem')).toBe('content');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-cms.elements.general.config.tab.content',
+                name: 'content',
+            },
+            {
+                label: 'sw-cms.elements.productListing.config.tab.sorting',
+                name: 'sorting',
+            },
+            {
+                label: 'sw-cms.elements.productListing.config.tab.filter',
+                name: 'filter',
+            },
+        ]);
+        expect(wrapper.find('.sw-tabs').exists()).toBe(false);
+        expect(wrapper.find('.sw-cms-el-config-product-listing__content-info').exists()).toBe(true);
+    });
+
+    it('should switch meteor tab content when the active tab changes', async () => {
+        const wrapper = await createWrapper({ featureActive: true });
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        await tabs.vm.$emit('new-item-active', 'sorting');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('sorting');
+        expect(wrapper.find('.sw-cms-el-config-product-listing__content-info').exists()).toBe(false);
+        expect(wrapper.find('sw-entity-single-select-stub[entity="product_sorting"]').exists()).toBe(true);
     });
 
     it('should contain content for sorting when defaultSorting is deactivated', async () => {

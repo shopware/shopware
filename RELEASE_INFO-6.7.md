@@ -86,12 +86,17 @@ Store API requests now remain stateless unless application or extension code exp
 
 ## Core
 
+### MCP tools can be enabled per session through toolsets
+
+The experimental MCP server now advertises only its default meta-tools until a client enables additional toolsets for the current MCP session. Clients can call `shopware-toolsets-list` to inspect available toolsets and `shopware-toolset-enable` to enable one. Enabling a toolset emits `notifications/tools/list_changed` so clients that support MCP list-change notifications can refresh `tools/list`.
+
+Tool execution is still bounded by the configured MCP allowlist. Enabling a toolset only changes which allowlisted tools are advertised for that session.
 ### MCP clients are notified when app capabilities change
 
 The experimental MCP server now queues `notifications/*/list_changed` messages for active sessions when an app's MCP tools, resources, or prompts change (install, update, activation, deactivation, deletion), so clients can refresh their discovered capabilities.
 ### MCP tools can be discovered on demand
 
-The MCP server now advertises a bounded non-deferred tool surface and includes the `shopware-tool-search` meta-tool. MCP clients can call this tool with a free-text query to discover relevant tool definitions from the caller's allowlisted catalogue without loading every allowed tool into the initial `tools/list` response. Tools are deferred by default; tools that should be visible immediately opt out with `#[McpTool(..., meta: ['deferred' => false])]`.
+A fresh MCP session advertises only the three server-owned discovery meta-tools in `tools/list`: `shopware-tool-search`, `shopware-toolsets-list`, and `shopware-toolset-enable`. Every other tool is deferred and reachable in two ways: `shopware-tool-search` returns relevant tool definitions inline for a free-text query, and `shopware-toolset-enable` enables a whole toolset for the session (see the toolset section above). Tool visibility is derived solely from the tool's group — the `discovery` group is the always-advertised surface — so a tool opts into the default surface via `#[McpToolGroup('discovery')]`, not a per-tool flag.
 
 The per-integration MCP allowlist remains the call-time security boundary. `shopware-tool-search` only returns tools that are already allowed for the current integration, and tools outside the allowlist remain uncallable.
 ### MCP list responses apply allowlists before pagination

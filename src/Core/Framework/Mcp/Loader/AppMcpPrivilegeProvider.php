@@ -10,7 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @experimental stableVersion:v6.8.0
  *
- * Reads the declared required privileges for app MCP tools.
+ * Reads runtime metadata for app MCP tools: declared required
+ * privileges and the toolset group each tool belongs to.
  *
  * @internal
  */
@@ -39,6 +40,31 @@ class AppMcpPrivilegeProvider
             return $map;
         } catch (\Throwable $e) {
             $this->logger->error('Failed to load app MCP tool privileges', [
+                'exception' => $e->getMessage(),
+            ]);
+
+            return [];
+        }
+    }
+
+    /**
+     * Runtime app tools carry no compile-time #[McpToolGroup]; without a group they would fall to
+     * the catch-all "other" bucket. Grouping each app's tools under the owning app's technical name
+     * gives them a real, enable-able toolset so clients without inline tool promotion can reach them.
+     *
+     * @return array<string, string> tool-name => group (the owning app's technical name)
+     */
+    public function getAppToolGroups(): array
+    {
+        try {
+            $map = [];
+            foreach ($this->storage->forActiveApps(McpToolConfig::class) as $feature) {
+                $map[$feature->appName . '-' . $feature->config->name] = $feature->appName;
+            }
+
+            return $map;
+        } catch (\Throwable $e) {
+            $this->logger->error('Failed to load app MCP tool groups', [
                 'exception' => $e->getMessage(),
             ]);
 

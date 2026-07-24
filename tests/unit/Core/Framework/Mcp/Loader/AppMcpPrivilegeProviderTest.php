@@ -80,6 +80,42 @@ class AppMcpPrivilegeProviderTest extends TestCase
         static::assertSame([], $provider->getAppToolPrivileges());
     }
 
+    public function testMapsAppToolsToTheirOwningAppGroup(): void
+    {
+        $storage = static::createStub(AppFeatureStorage::class);
+        $storage->method('forActiveApps')->willReturn([
+            $this->feature('sync-orders', [], 'my-erp'),
+            $this->feature('read-stock', [], 'my-erp'),
+            $this->feature('do-thing', [], 'other-app'),
+        ]);
+
+        $provider = new AppMcpPrivilegeProvider($storage, new NullLogger());
+
+        static::assertSame(
+            [
+                'my-erp-sync-orders' => 'my-erp',
+                'my-erp-read-stock' => 'my-erp',
+                'other-app-do-thing' => 'other-app',
+            ],
+            $provider->getAppToolGroups(),
+        );
+    }
+
+    public function testReturnsEmptyGroupMapAndLogsErrorWhenDbThrows(): void
+    {
+        $storage = static::createStub(AppFeatureStorage::class);
+        $storage->method('forActiveApps')->willThrowException(new \RuntimeException('DB down'));
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with('Failed to load app MCP tool groups', static::arrayHasKey('exception'));
+
+        $provider = new AppMcpPrivilegeProvider($storage, $logger);
+
+        static::assertSame([], $provider->getAppToolGroups());
+    }
+
     /**
      * @param list<string> $requiredPrivileges
      *

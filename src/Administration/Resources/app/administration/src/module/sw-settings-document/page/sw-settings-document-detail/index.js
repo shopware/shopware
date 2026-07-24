@@ -18,6 +18,11 @@ export const DOCUMENT_TYPE_TECHNICAL_NAMES = {
 /**
  * @private
  */
+export const COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY = 'companySettingsMovedBannerHidden';
+
+/**
+ * @private
+ */
 export const DOCUMENT_CONFIG_DEFAULTS = {
     pageSize: 'a4',
     pageOrientation: 'portrait',
@@ -103,6 +108,16 @@ export const DOCUMENT_SETTINGS_GENERAL = (tc) => [
             required: true,
             label: tc('sw-settings-document.detail.labelFileTypes'),
             placeholder: tc('sw-settings-document.detail.placeholderFileTypes'),
+        },
+    },
+    {
+        name: 'paymentDueDate',
+        type: 'text',
+        config: {
+            type: 'text',
+            label: tc('sw-settings-document.detail.labelPaymentDueDate'),
+            placeholder: tc('sw-settings-document.detail.placeholderPaymentDueDate'),
+            helpText: tc('sw-settings-document.detail.helpTextPaymentDueDate'),
         },
     },
 ];
@@ -333,15 +348,6 @@ export const DOCUMENT_SETTINGS_COMPANY = (tc) => [
             placeholder: tc('sw-settings-document.detail.placeholderExecutiveDirector'),
         },
     },
-    {
-        name: 'paymentDueDate',
-        type: 'text',
-        config: {
-            type: 'text',
-            label: tc('sw-settings-document.detail.labelPaymentDueDate'),
-            placeholder: tc('sw-settings-document.detail.placeholderPaymentDueDate'),
-        },
-    },
 ];
 
 /**
@@ -394,6 +400,7 @@ export default {
             typeIsLoading: false,
             salesChannels: null,
             customFieldSets: null,
+            showCompanySettingsMovedBanner: localStorage.getItem(COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY) !== 'true',
             isShowDisplayNoteDelivery: false,
             isShowDivergentDeliveryAddress: false,
             documentConfigSalesChannels: [],
@@ -749,6 +756,11 @@ export default {
 
         onChangeCompanyLogo(media) {
             this.documentConfig.logoId = media.at(0)?.id || null;
+        },
+
+        hideCompanySettingsMovedBanner() {
+            this.showCompanySettingsMovedBanner = false;
+            localStorage.setItem(COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY, 'true');
         },
 
         /**

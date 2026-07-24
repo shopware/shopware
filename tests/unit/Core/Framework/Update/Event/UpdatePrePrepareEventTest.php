@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Update\Event;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Event\UpdatePrePrepareEvent;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(UpdatePrePrepareEvent::class)]
 class UpdatePrePrepareEventTest extends TestCase
 {

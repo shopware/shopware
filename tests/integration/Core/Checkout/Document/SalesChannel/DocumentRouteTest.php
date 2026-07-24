@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
@@ -267,7 +268,7 @@ class DocumentRouteTest extends TestCase
             'loggedInCustomerId' => 'different-customer',
             'requestParameters' => [],
             'withValidDeepLinkCode' => null,
-            'expectedException' => CustomerNotLoggedInException::class,
+            'expectedException' => Feature::isActive('v6.8.0.0') ? CustomerException::class : CustomerNotLoggedInException::class,
             'expectedErrorCode' => CartException::CUSTOMER_NOT_LOGGED_IN_CODE,
         ];
 
@@ -298,7 +299,7 @@ class DocumentRouteTest extends TestCase
                 'zipcode' => '48624',
             ],
             'withValidDeepLinkCode' => true,
-            'expectedException' => CustomerNotLoggedInException::class,
+            'expectedException' => Feature::isActive('v6.8.0.0') ? CustomerException::class : CustomerNotLoggedInException::class,
             'expectedErrorCode' => CartException::CUSTOMER_NOT_LOGGED_IN_CODE,
         ];
 
@@ -307,7 +308,7 @@ class DocumentRouteTest extends TestCase
             'loggedInCustomerId' => 'guest',
             'requestParameters' => [],
             'withValidDeepLinkCode' => true,
-            'expectedException' => CustomerNotLoggedInException::class,
+            'expectedException' => Feature::isActive('v6.8.0.0') ? CustomerException::class : CustomerNotLoggedInException::class,
             'expectedErrorCode' => CartException::CUSTOMER_NOT_LOGGED_IN_CODE,
         ];
     }

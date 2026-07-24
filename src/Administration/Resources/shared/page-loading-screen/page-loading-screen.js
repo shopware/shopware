@@ -2,8 +2,6 @@
  * @sw-package framework
  */
 
-console.log('page loading screen script loaded');
-
 (() => {
     const pageLoadTime = Date.now();
 
@@ -27,7 +25,6 @@ console.log('page loading screen script loaded');
     };
 
     const onError = (event) => {
-        console.log('onError', event);
         addErrorMessage(event.message);
     };
 
@@ -55,8 +52,6 @@ console.log('page loading screen script loaded');
 
     window.addEventListener('error', onError);
     window.addEventListener('unhandledrejection', onUnhandledRejection);
-
-    console.log('page loading screen initialized');
 
     window.removePageLoadingIndicator = () => {
         // `DELAY` matches animation-delay that is used in `administration/index.html`

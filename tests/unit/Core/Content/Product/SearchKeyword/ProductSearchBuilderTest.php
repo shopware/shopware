@@ -9,12 +9,14 @@ use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilder;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreterInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductSearchBuilder::class)]
 class ProductSearchBuilderTest extends TestCase
 {

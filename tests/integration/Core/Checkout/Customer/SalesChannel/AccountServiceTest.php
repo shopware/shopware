@@ -216,7 +216,7 @@ class AccountServiceTest extends TestCase
         $customer = $this
             ->getContainer()
             ->get('customer.repository')
-            ->search(new Criteria([$idCustomer]), $context->getContext())
+            ->search(new Criteria([$idCustomer]), $context->getContext())->getEntities()
             ->first();
         static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertNull($customer->getLegacyPassword());

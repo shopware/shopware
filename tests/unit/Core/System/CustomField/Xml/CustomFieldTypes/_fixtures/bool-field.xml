@@ -29,6 +29,7 @@
             <fields>
                 <bool name="test_bool_field">
                     <label>Test bool field</label>
+                    <include-in-search>true</include-in-search>
                 </bool>
             </fields>
         </custom-field-set>

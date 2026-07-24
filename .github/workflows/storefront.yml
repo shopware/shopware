@@ -7,7 +7,22 @@ on:
   workflow_call:
 
 jobs:
+  markdown-only-changes:
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
+    outputs:
+      docs_only: ${{ steps.check.outputs.docs_only }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - id: check
+        uses: ./.github/actions/markdown-only-changes
+
   lint:
+    needs:
+      - markdown-only-changes
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-24.04
     env:
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
@@ -24,7 +39,7 @@ jobs:
           install-storefront: true
 
       - name: Cache ESLint and Stylelint
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             src/Storefront/Resources/app/storefront/node_modules/.eslintcache
@@ -41,7 +56,10 @@ jobs:
         run: composer storefront:lint:snippets
 
   lint-admin-modules:
-    name: "Storefront admin-modules ESLint"
+    name: "Storefront admin-modules code style"
+    needs:
+      - markdown-only-changes
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-24.04
     env:
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
@@ -57,17 +75,24 @@ jobs:
           install-admin: true
 
       - name: Cache ESLint
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             src/Storefront/Resources/app/administration/.eslintcache
-          key: storefront-admin-modules-lint-${{ runner.os }}-${{ hashFiles('src/Administration/Resources/app/administration/package-lock.json', 'src/Administration/Resources/app/administration/eslint.config.mjs') }}
+          key: storefront-admin-modules-lint-${{ runner.os }}-${{ hashFiles('src/Administration/Resources/app/administration/package-lock.json', 'src/Administration/Resources/app/administration/eslint.config.ts') }}
 
       - name: Lint
         run: composer eslint:storefront:admin-modules
 
+      - name: Format
+        working-directory: src/Storefront/Resources/app/administration
+        run: npm run format
+
   twig-lint-storefront:
     name: Twig Lint (Storefront)
+    needs:
+      - markdown-only-changes
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -78,7 +103,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release download v0.13.0 --repo MalteJanz/ludtwig  --pattern '*unknown-linux-gnu.tar.gz' && tar xf *.tar.gz
+          gh release download v0.13.0 --repo MalteJanz/ludtwig  --pattern '*unknown-linux-gnu.tar.gz' && tar xf ./*.tar.gz
           mv ./ludtwig /usr/local/bin
 
       - name: Run ludtwig linter
@@ -94,10 +119,13 @@ jobs:
           echo "If you want to run this locally install https://github.com/MalteJanz/ludtwig in the version above"
           echo "And then composer run ludtwig:storefront or ludtwig:storefront:fix"
           echo "Alternatively you also can run these in the DevEnv shell"
-          exit $status  # Fail the job if ludtwig . failed
+          exit "$status"  # Fail the job if ludtwig . failed
 
   jest:
     name: "Jest Storefront"
+    needs:
+      - markdown-only-changes
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-24.04
     env:
       APP_ENV: prod
@@ -132,6 +160,9 @@ jobs:
 
   vitest:
     name: "Vitest Storefront Components"
+    needs:
+      - markdown-only-changes
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-24.04
     env:
       APP_ENV: prod
@@ -167,6 +198,9 @@ jobs:
           flags: vitest-storefront-components
 
   license-check:
+    needs:
+      - markdown-only-changes
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-24.04
     name: "License check"
     env:
@@ -180,7 +214,7 @@ jobs:
       - name: Install npm
         run: npm install -g npm@11.8.0
       - name: Cache npm packages
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           # ~/.npm is npm's tarball cache; `npm ci` wipes node_modules but reuses this
           # offline (see prefer-offline below), which keeps retries off the network.
@@ -203,8 +237,9 @@ jobs:
             --excludePrivatePackages
 
   storefront-check:
-      if: always()
-      needs:
+    if: always()
+    needs:
+      - markdown-only-changes
       - lint
       - lint-admin-modules
       - jest
@@ -212,11 +247,11 @@ jobs:
       - license-check
       - twig-lint-storefront
 
-      runs-on: Ubuntu-latest
-      steps:
+    runs-on: Ubuntu-latest
+    steps:
       - name: Decide whether the needed jobs succeeded or failed
         uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
         with:
           # allowed-failures: docs, linters
-          # allowed-skips: non-voting-flaky-job
+          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'lint, lint-admin-modules, jest, vitest, license-check, twig-lint-storefront' || '' }}
           jobs: ${{ toJSON(needs) }}

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan;
 
+use Composer\Autoload\ClassLoader;
 use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
@@ -36,6 +37,19 @@ if (!\defined('TEST_PROJECT_DIR')) {
 
 $_ENV['PROJECT_ROOT'] = $_SERVER['PROJECT_ROOT'] = TEST_PROJECT_DIR;
 $classLoader = require TEST_PROJECT_DIR . '/vendor/autoload.php';
+
+/*
+ * The Danger rules (src/Core/DevOps/StaticAnalyze/Danger) type against the danger-php package
+ * from vendor-bin. Only its own Danger\ namespace is registered — appended, never the package's
+ * full vendor autoloader, which would take priority over the root vendor for the symfony
+ * packages both ship. Without the install the Danger paths are excluded via phpstan-paths.php.
+ */
+$dangerSrc = TEST_PROJECT_DIR . '/vendor-bin/danger-php/vendor/shyim/danger-php/src';
+if (is_dir($dangerSrc)) {
+    $dangerClassLoader = new ClassLoader();
+    $dangerClassLoader->addPsr4('Danger\\', $dangerSrc);
+    $dangerClassLoader->register();
+}
 
 $cacheDir = TEST_PROJECT_DIR . '/var/cache/static_phpstan_dev';
 $containerXml = $cacheDir . '/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml';

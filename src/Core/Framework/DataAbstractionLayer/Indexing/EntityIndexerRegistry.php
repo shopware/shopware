@@ -19,8 +19,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @final
  */
-#[AsMessageHandler]
 #[Package('framework')]
+#[AsMessageHandler]
 class EntityIndexerRegistry
 {
     final public const EXTENSION_INDEXER_SKIP = 'indexer-skip';
@@ -126,35 +126,37 @@ class EntityIndexerRegistry
         }
         $this->working = true;
 
-        if ($this->disabled($context)) {
+        // the flag must be reset even when an indexer throws (e.g. synchronous handling),
+        // otherwise all indexing stays silently disabled for the rest of the process
+        try {
+            if ($this->disabled($context)) {
+                return;
+            }
+
+            $useQueue = $this->useQueue($context);
+
+            foreach ($this->indexer as $indexer) {
+                if ($indexer instanceof PostUpdateIndexer) {
+                    continue;
+                }
+
+                $message = $indexer->update($event);
+
+                if (!$message) {
+                    continue;
+                }
+
+                $message->setIndexer($indexer->getName());
+                $message->isFullIndexing = false;
+
+                self::addOnlyAllowedIndexers($message, $indexer->getOptions(), $context);
+                self::addSkips($message, $context);
+
+                $this->sendOrHandle($message, $useQueue);
+            }
+        } finally {
             $this->working = false;
-
-            return;
         }
-
-        $useQueue = $this->useQueue($context);
-
-        foreach ($this->indexer as $indexer) {
-            if ($indexer instanceof PostUpdateIndexer) {
-                continue;
-            }
-
-            $message = $indexer->update($event);
-
-            if (!$message) {
-                continue;
-            }
-
-            $message->setIndexer($indexer->getName());
-            $message->isFullIndexing = false;
-
-            self::addOnlyAllowedIndexers($message, $indexer->getOptions(), $context);
-            self::addSkips($message, $context);
-
-            $this->sendOrHandle($message, $useQueue);
-        }
-
-        $this->working = false;
     }
 
     public static function addSkips(EntityIndexingMessage $message, Context $context): void

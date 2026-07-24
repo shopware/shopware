@@ -17,6 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -33,6 +35,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(CheckoutFinishPageLoader::class)]
 class CheckoutFinishPageLoaderTest extends TestCase
 {
@@ -198,7 +201,7 @@ class CheckoutFinishPageLoaderTest extends TestCase
         ]);
 
         try {
-            $this->createLoader($pageLoader, $this->getOrderRouteWithValidOrder($orderId))->load(
+            $this->createLoader($pageLoader, $this->getOrderRouteWithValidOrder($orderId, criteriaOrderId: 'invalid-order-id'))->load(
                 $request,
                 Generator::generateSalesChannelContext(),
             );
@@ -229,8 +232,12 @@ class CheckoutFinishPageLoaderTest extends TestCase
         );
     }
 
-    private function getOrderRouteWithValidOrder(string $orderId, ?CashRoundingConfig $itemRounding = null, ?CashRoundingConfig $totalRounding = null): OrderRoute
-    {
+    private function getOrderRouteWithValidOrder(
+        string $orderId,
+        ?CashRoundingConfig $itemRounding = null,
+        ?CashRoundingConfig $totalRounding = null,
+        ?string $criteriaOrderId = null,
+    ): OrderRoute {
         $order = new OrderEntity();
         $order->setId($orderId);
 
@@ -256,9 +263,31 @@ class CheckoutFinishPageLoaderTest extends TestCase
             ->method('getOrders')
             ->willReturn($searchResult);
 
+        $expectedCriteria = (new Criteria([$criteriaOrderId ?? $orderId]))
+            ->addFilter(new EqualsFilter('order.orderCustomer.customerId', Generator::CUSTOMER))
+            ->addAssociation('primaryOrderDelivery.shippingMethod')
+            ->addAssociation('primaryOrderDelivery.shippingOrderAddress.salutation')
+            ->addAssociation('primaryOrderDelivery.shippingOrderAddress.country')
+            ->addAssociation('primaryOrderDelivery.shippingOrderAddress.countryState')
+            ->addAssociation('primaryOrderTransaction.paymentMethod')
+            ->addAssociation('lineItems.cover')
+            ->addAssociation('billingAddress.salutation')
+            ->addAssociation('billingAddress.country')
+            ->addAssociation('billingAddress.countryState')
+            ->addAssociation('currency');
+
         $orderRoute = $this->createMock(OrderRoute::class);
         $orderRoute->expects($this->once())
             ->method('load')
+            ->with(
+                static::isInstanceOf(Request::class),
+                static::isInstanceOf(SalesChannelContext::class),
+                static::callback(static function (Criteria $criteria) use ($expectedCriteria): bool {
+                    static::assertSame((string) $expectedCriteria, (string) $criteria);
+
+                    return true;
+                }),
+            )
             ->willReturn($orderRouteResponse);
 
         return $orderRoute;

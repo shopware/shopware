@@ -1,0 +1,49 @@
+name: Lint Actions
+# Lints GitHub Actions workflows/actions with actionlint and checks their
+# formatting with yamlfmt. Mirrors `composer run lint:actions` locally.
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/**"
+      - ".github/actions/**"
+      - ".github/actionlint.yaml"
+      - ".github/bin/lint-actions.bash"
+      - ".yamlfmt"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  ACTIONLINT_VERSION: 1.7.12
+  ACTIONLINT_SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
+  YAMLFMT_VERSION: 0.21.0
+  YAMLFMT_SHA256: 1f300d9257b232bb3b541d7fb1b0e6b3c121bcbab381c86cd38cb8722be8a566
+
+jobs:
+  lint-actions:
+    runs-on: ubuntu-24.04
+    name: "Lint workflows"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Install actionlint and yamlfmt
+        run: |
+          tmp="$(mktemp -d)"
+
+          curl -sSfL "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz" -o "$tmp/actionlint.tar.gz"
+          echo "${ACTIONLINT_SHA256}  $tmp/actionlint.tar.gz" | sha256sum --check
+          tar -xzf "$tmp/actionlint.tar.gz" -C "$tmp" actionlint
+          sudo install -m 0755 "$tmp/actionlint" /usr/local/bin/actionlint
+
+          curl -sSfL "https://github.com/google/yamlfmt/releases/download/v${YAMLFMT_VERSION}/yamlfmt_${YAMLFMT_VERSION}_Linux_x86_64.tar.gz" -o "$tmp/yamlfmt.tar.gz"
+          echo "${YAMLFMT_SHA256}  $tmp/yamlfmt.tar.gz" | sha256sum --check
+          tar -xzf "$tmp/yamlfmt.tar.gz" -C "$tmp" yamlfmt
+          sudo install -m 0755 "$tmp/yamlfmt" /usr/local/bin/yamlfmt
+
+      # shellcheck (used by actionlint for `run:` scripts) is preinstalled on
+      # GitHub-hosted ubuntu runners.
+      - name: Lint workflows
+        run: .github/bin/lint-actions.bash

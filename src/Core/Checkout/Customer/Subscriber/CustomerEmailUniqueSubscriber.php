@@ -81,7 +81,7 @@ class CustomerEmailUniqueSubscriber implements EventSubscriberInterface
         foreach ($conflictingChecks as $check) {
             \assert($check->customerId !== null);
 
-            $this->addViolation($violations, $check->customerId, $check->email);
+            $this->addViolation($violations, $customerCommands[$check->customerId]->getPath(), $check->email);
         }
 
         $event->getExceptions()->add(new WriteConstraintViolationException($violations));
@@ -94,16 +94,12 @@ class CustomerEmailUniqueSubscriber implements EventSubscriberInterface
     {
         $commands = [];
 
-        foreach ($event->getCommands() as $command) {
-            if ($command->getEntityName() !== CustomerDefinition::ENTITY_NAME) {
-                continue;
-            }
-
+        foreach ($event->getCommandsForEntity(CustomerDefinition::ENTITY_NAME) as $command) {
             if (!$command instanceof InsertCommand && !$command instanceof UpdateCommand) {
                 continue;
             }
 
-            $commands[Uuid::fromBytesToHex($command->getPrimaryKey()['id'])] = $command;
+            $commands[$command->getDecodedPrimaryKey()['id']] = $command;
         }
 
         return $commands;
@@ -125,8 +121,7 @@ class CustomerEmailUniqueSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            $payload = $command->getPayload();
-            if (\array_key_exists('email', $payload) || \array_key_exists('guest', $payload) || \array_key_exists('bound_sales_channel_id', $payload)) {
+            if ($command->hasAnyField('email', 'guest', 'bound_sales_channel_id')) {
                 $customerIds[] = $customerId;
             }
         }
@@ -204,7 +199,7 @@ class CustomerEmailUniqueSubscriber implements EventSubscriberInterface
         return $states;
     }
 
-    private function addViolation(ConstraintViolationList $violations, string $customerId, string $email): void
+    private function addViolation(ConstraintViolationList $violations, string $path, string $email): void
     {
         $message = 'The email address {{ email }} is already in use.';
 
@@ -213,7 +208,7 @@ class CustomerEmailUniqueSubscriber implements EventSubscriberInterface
             $message,
             ['{{ email }}' => $email],
             null,
-            '/' . $customerId . '/email',
+            $path . '/email',
             $email,
             null,
             CustomerEmailUnique::CUSTOMER_EMAIL_NOT_UNIQUE,

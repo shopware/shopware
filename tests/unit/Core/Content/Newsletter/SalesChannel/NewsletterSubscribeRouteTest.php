@@ -216,7 +216,11 @@ class NewsletterSubscribeRouteTest extends TestCase
             ['firstName' => 'Y http://localhost', 'lastName' => 'Tran http://localhost'],
             [
                 new NotBlank(),
-                new Regex(pattern: NewsletterSubscribeRoute::DOMAIN_NAME_REGEX, match: false),
+                new Regex(
+                    pattern: NewsletterSubscribeRoute::DOMAIN_NAME_REGEX,
+                    message: 'error.urlNotAllowed',
+                    match: false,
+                ),
             ],
         ];
 
@@ -230,7 +234,11 @@ class NewsletterSubscribeRouteTest extends TestCase
             ['firstName' => 'Y', 'lastName' => 'Tran'],
             [
                 new NotBlank(),
-                new Regex(pattern: NewsletterSubscribeRoute::DOMAIN_NAME_REGEX, match: false),
+                new Regex(
+                    pattern: NewsletterSubscribeRoute::DOMAIN_NAME_REGEX,
+                    message: 'error.urlNotAllowed',
+                    match: false,
+                ),
             ],
         ];
     }

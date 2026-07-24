@@ -3,6 +3,7 @@
     "error": {
       "COMPANY_IS_REQUIRED": "Bei gewerblichen Kunden ist die Firma ein Pflichtfeld",
       "passwordDoNotMatch": "Die Eingaben für Passwort und Passwortbestätigung stimmen nicht überein.",
+      "VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE": "Diese E-Mail-Adresse ist bereits registriert.",
       "VIOLATION::PASSWORD_IS_TOO_LONG": "Das gewählte Passwort ist zu lang.",
       "VIOLATION::PASSWORD_IS_TOO_SHORT": "Das gewählte Passwort ist zu kurz."
     },
@@ -33,6 +34,7 @@
       }
     },
     "card": {
+      "buttonConvertCustomer": "In ein registriertes Konto umwandeln",
       "buttonImitateCustomer": "Als Kunde anmelden",
       "tooltipImitateCustomerGuest": "Gastbesteller können nicht imitiert werden.",
       "tooltipImitateCustomerInactive": "Inaktive Kunden können nicht imitiert werden.",
@@ -197,6 +199,20 @@
       "modalInfo": "Bitte denke daran, Dich {logout}, nachdem du Deine Arbeit erledigt hast.",
       "modalInfoLogout": "abzumelden",
       "modalInfoNoDomains": "Keine aktive Domain gefunden. Bitte überprüfe die Verkaufskanaleinstellungen."
+    },
+    "convertGuest": {
+      "modalTitle": "Benutzer konvertieren",
+      "mail": {
+        "title": "Passwort-Reset-E-Mail senden (empfohlen)",
+        "description": "Der Kunde erhält einen sicheren Link, um ein neues Passwort festzulegen.",
+        "button": "Reset-E-Mail senden"
+      },
+      "manual": {
+        "title": "Passwort manuell setzen",
+        "passwordLabel": "Neues Passwort",
+        "description": "Ein neues Passwort wird direkt für den Kunden festgelegt. Der Kunde wird nicht benachrichtigt.",
+        "button": "Passwort setzen"
+      }
     },
     "addressForm": {
       "labelCompany": "Firma",

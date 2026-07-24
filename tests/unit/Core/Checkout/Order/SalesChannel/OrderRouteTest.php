@@ -110,7 +110,7 @@ class OrderRouteTest extends TestCase
             new NativeClock()
         );
 
-        $responseOrder = $route->load(new Request(), $context, new Criteria())->getOrders()->first();
+        $responseOrder = $route->load(new Request(), $context, new Criteria())->getOrders()->getEntities()->first();
 
         static::assertNotNull($responseOrder);
         static::assertSame($order->getId(), $responseOrder->getId());
@@ -203,7 +203,7 @@ class OrderRouteTest extends TestCase
         $request->request->set('login', $login);
 
         $response = $route->load($request, $context, $criteria);
-        $responseOrder = $response->getOrders()->first();
+        $responseOrder = $response->getOrders()->getEntities()->first();
 
         static::assertNotNull($responseOrder);
         static::assertSame($order->getId(), $responseOrder->getId());
@@ -324,7 +324,7 @@ class OrderRouteTest extends TestCase
         $response = $route->load($request, $context, $criteria);
 
         if (!$expectedFiltered) {
-            static::assertSame($order->getId(), $response->getOrders()->first()?->getId());
+            static::assertSame($order->getId(), $response->getOrders()->getEntities()->first()?->getId());
         }
     }
 

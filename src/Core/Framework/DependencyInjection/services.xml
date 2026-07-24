@@ -160,6 +160,8 @@ frame-ancestors 'none';
         </service>
 
         <service id="Shopware\Core\Framework\Migration\Command\RefreshMigrationCommand">
+            <argument type="service" id="filesystem"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <tag name="console.command"/>
         </service>
 
@@ -279,6 +281,10 @@ frame-ancestors 'none';
             <tag name="monolog.logger"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Translation\ConstraintViolationTranslator">
+            <argument type="service" id="translator"/>
+        </service>
+
         <!-- Snippets -->
         <service id="Shopware\Core\System\Snippet\SnippetService" lazy="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
@@ -303,7 +309,7 @@ frame-ancestors 'none';
         <service id="Shopware\Core\System\Snippet\Api\TranslationController" public="true">
             <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationMetadataStore"/>
-            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationLoader"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationUpdater"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationRemover"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -615,6 +621,7 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Feature\Command\FeatureDumpCommand">
             <argument type="service" id="kernel"/>
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
 
             <tag name="console.command"/>
             <tag name="console.command" command="administration:dump:features"/>

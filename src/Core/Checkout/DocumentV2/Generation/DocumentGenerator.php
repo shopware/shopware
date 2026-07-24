@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\DocumentV2\Generation;
 
 use Shopware\Core\Checkout\Document\DocumentEntity;
+use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
@@ -50,6 +51,63 @@ final readonly class DocumentGenerator
      */
     public function generate(DocumentGenerationRequest $generationRequest, Context $apiContext): DocumentEntity
     {
+        [
+            'generationRequest' => $generationRequest,
+            'renderInput' => $renderInput,
+            'renderState' => $renderState,
+            'requestedFormats' => $requestedFormats,
+        ] = $this->generateDocument($generationRequest, $apiContext);
+
+        return $this->documentPersister->persist(
+            $generationRequest,
+            $renderInput,
+            $renderState,
+            $requestedFormats,
+            $apiContext,
+        );
+    }
+
+    /**
+     * Generates one logical document and returns the first requested format as a RenderedDocument.
+     *
+     * @throws DocumentV2Exception
+     */
+    public function preview(
+        DocumentGenerationRequest $generationRequest,
+        Context $apiContext,
+    ): RenderedDocument {
+        [
+            'renderState' => $renderState,
+            'requestedFormats' => $requestedFormats,
+        ] = $this->generateDocument($generationRequest, $apiContext, true);
+
+        $result = $renderState->require($requestedFormats[0]);
+
+        $document = new RenderedDocument(
+            name: $result->fileName . '.' . $result->fileExtension,
+            fileExtension: $result->fileExtension,
+            contentType: $result->mimeType,
+        );
+        $document->setContent($result->content);
+
+        return $document;
+    }
+
+    /**
+     * @throws DocumentV2Exception
+     *
+     * @return array{
+     *     generationRequest: DocumentGenerationRequest,
+     *     renderInput: RenderInput,
+     *     renderState: RenderState,
+     *     requestedFormats: list<string>
+     * }
+     */
+    private function generateDocument(
+        DocumentGenerationRequest $generationRequest,
+        Context $apiContext,
+        bool $preview = false,
+    ): array {
         $this->validateGenerationRequest($generationRequest);
 
         $requestedFormats = $this->normalizeRequestedFormats($generationRequest->requestedFormats);
@@ -84,6 +142,7 @@ final readonly class DocumentGenerator
             $generationRequest,
             $order,
             $apiContext,
+            $preview,
         );
 
         $generationRequest = $generationRequest->withDocumentNumber($documentNumber);
@@ -118,13 +177,12 @@ final readonly class DocumentGenerator
             $renderState->add($result);
         }
 
-        return $this->documentPersister->persist(
-            $generationRequest,
-            $renderInput,
-            $renderState,
-            $requestedFormats,
-            $apiContext,
-        );
+        return [
+            'generationRequest' => $generationRequest,
+            'renderInput' => $renderInput,
+            'renderState' => $renderState,
+            'requestedFormats' => $requestedFormats,
+        ];
     }
 
     /**

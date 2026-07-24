@@ -75,6 +75,7 @@ final readonly class DocumentPersister
                 'orderId' => $generationRequest->orderId,
                 'orderVersionId' => $generationRequest->orderVersionId,
                 'documentTypeId' => $this->getDocumentTypeId($generationRequest, $context),
+                'referencedDocumentId' => $generationRequest->referencedDocumentId,
                 'deepLinkCode' => Random::getAlphanumericString(32),
                 'config' => [
                     'documentNumber' => $input->documentNumber,
@@ -98,7 +99,7 @@ final readonly class DocumentPersister
         $document = $this->documentRepository->search(
             (new Criteria([$documentId]))->addAssociation('documentFiles.media'),
             $context,
-        )->first();
+        )->getEntities()->first();
 
         if (!$document instanceof DocumentEntity) {
             throw DocumentV2Exception::documentNotPersisted($input->documentNumber);

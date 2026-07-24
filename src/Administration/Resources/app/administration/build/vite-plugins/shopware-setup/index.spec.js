@@ -33,7 +33,7 @@ swDefinePublic({ count });
         const result = await transformVueSource(plugin, source, '/example/sw-my-component.vue');
 
         expect(result).toHaveProperty('code');
-        expect(result.code).toContain('Shopware.Component.createExtendableSetup(');
+        expect(result.code).toContain('Shopware.Component.attachOverrides(');
         expect(result.code).toContain("name: 'sw-my-component'");
         expect(result.map).toBeNull();
     });

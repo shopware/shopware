@@ -23,6 +23,7 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
+use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistListRequestHandler;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\Authentication\McpAuthenticationListener;
 use Shopware\Core\Framework\Mcp\Authentication\McpExceptionListener;
@@ -98,6 +99,14 @@ return static function (ContainerConfigurator $container): void {
             service('request_stack'),
             param('shopware.mcp.tool_dependencies'),
         ]);
+
+    $services->set(McpAllowlistListRequestHandler::class)
+        ->args([
+            service('mcp.registry'),
+            service(McpAllowlistProvider::class),
+            param('mcp.pagination_limit'),
+        ])
+        ->tag('mcp.request_handler');
 
     $services->set(McpAuthenticationListener::class)
         ->args([

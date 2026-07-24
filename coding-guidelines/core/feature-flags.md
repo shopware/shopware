@@ -90,6 +90,8 @@ class ApiController
 ### Using flags in tests
 In unit tests, current major feature flags are active by default. Test legacy/off behavior by disabling the relevant flag with the `#[DisabledFeatures]` attribute instead of calling `Feature::fake()` just to activate the current major flag.
 
+`#[DisabledFeatures]` only works in the unit suite: the feature-flag test extension processes `Shopware\Tests\Unit\` (plus namespaces registered via `FeatureFlagExtension::addTestNamespace()`). In integration tests the flag state comes from the job configuration (`FEATURE_ALL`), the attribute has no effect, and the test runner rejects it — a test carrying it fails the run. When an integration test must not run under a specific flag state, skip it at runtime with `Feature::skipTestIfActive()` / `Feature::skipTestIfInActive()`.
+
 ```php
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 

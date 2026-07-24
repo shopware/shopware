@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Adapter\Filesystem\Plugin;
 
 use League\Flysystem\Visibility;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Tests\Integration\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactoryTest;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
@@ -14,7 +13,7 @@ use Symfony\Component\Finder\SplFileInfo;
  *
  * @codeCoverageIgnore
  *
- * @see CopyBatchInputFactoryTest
+ * @see \Shopware\Tests\Integration\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactoryTest
  */
 #[Package('framework')]
 class CopyBatchInputFactory

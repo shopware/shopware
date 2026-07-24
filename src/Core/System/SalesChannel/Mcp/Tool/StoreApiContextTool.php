@@ -8,12 +8,16 @@ use Shopware\Core\Framework\Mcp\Context\StoreApiMcpContextProvider;
 use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * @internal
  */
-#[McpTool(name: 'shopware-store-api-context', title: 'Store API Context', description: 'Read the current Store API sales-channel context for this MCP session, including sales channel, language, currency, context token, and whether a customer is authenticated.')]
 #[Package('framework')]
+#[McpTool(
+    name: 'shopware-store-api-context',
+    title: 'Store API Context',
+    description: 'Read the current Store API sales-channel context for this MCP session, including sales channel, language, currency, context token, and whether a customer is authenticated.'
+)]
 class StoreApiContextTool extends McpToolResponse
 {
     public function __construct(

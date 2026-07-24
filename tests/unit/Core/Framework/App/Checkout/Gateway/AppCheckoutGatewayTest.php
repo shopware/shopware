@@ -38,8 +38,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[CoversClass(AppCheckoutGateway::class)]
 #[Package('checkout')]
+#[CoversClass(AppCheckoutGateway::class)]
 class AppCheckoutGatewayTest extends TestCase
 {
     public function testProcessWithoutAppsDoesNothing(): void
@@ -50,13 +50,13 @@ class AppCheckoutGatewayTest extends TestCase
             ->method('search');
 
         $gateway = new AppCheckoutGateway(
-            $this->createMock(AppCheckoutGatewayPayloadService::class),
+            static::createStub(AppCheckoutGatewayPayloadService::class),
             new CheckoutGatewayCommandExecutor($this->getRegistry(), new ExceptionLogger('test', false, new NullLogger())),
-            $this->createMock(CheckoutGatewayCommandRegistry::class),
+            static::createStub(CheckoutGatewayCommandRegistry::class),
             $appRepository,
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(ExceptionLogger::class),
-            $this->createMock(ActiveAppsLoader::class)
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(ExceptionLogger::class),
+            static::createStub(ActiveAppsLoader::class)
         );
 
         $gateway->process(new CheckoutGatewayPayloadStruct(new Cart('hatoken'), Generator::generateSalesChannelContext(), new PaymentMethodCollection(), new ShippingMethodCollection()));
@@ -134,7 +134,7 @@ class AppCheckoutGatewayTest extends TestCase
             ->method('dispatch')
             ->with(static::equalTo(new CheckoutGatewayCommandsCollectedEvent($payload, $expectedCollection)));
 
-        $loader = $this->createMock(ActiveAppsLoader::class);
+        $loader = static::createStub(ActiveAppsLoader::class);
         $loader->method('getActiveApps')->willReturn([$app]);
 
         $gateway = new AppCheckoutGateway(
@@ -143,7 +143,7 @@ class AppCheckoutGatewayTest extends TestCase
             $registry,
             $appRepo,
             $eventDispatcher,
-            $this->createMock(ExceptionLogger::class),
+            static::createStub(ExceptionLogger::class),
             $loader
         );
 

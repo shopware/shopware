@@ -2,11 +2,27 @@
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\Filesystem\Path;
 
 /** @codeCoverageIgnore */
 return static function (ContainerConfigurator $container, ContainerBuilder $builder): void {
     if (!$builder->hasExtension('mcp')) {
         return;
+    }
+
+    // The MCP SDK resolves scan_dirs relative to kernel.project_dir (the Discoverer
+    // joins basePath . '/' . dir), so the directories must point at where the bundles
+    // actually live. Hardcoding "src/Core/Framework/Mcp" only works for the platform
+    // monorepo; in a Composer/production install the code sits under vendor/shopware/*
+    // and discovery would find nothing (0 tools registered). Deriving the paths from
+    // the bundle metadata the kernel already computed keeps discovery correct in every
+    // layout without runtime cost (this closure only runs at container compile time).
+    $projectDir = (string) $builder->getParameter('kernel.project_dir');
+    $bundles = $builder->getParameter('kernel.bundles_metadata');
+
+    $scanDirs = [Path::makeRelative($bundles['Framework']['path'] . '/Mcp', $projectDir)];
+    if (isset($bundles['Storefront'])) {
+        $scanDirs[] = Path::makeRelative($bundles['Storefront']['path'] . '/Mcp', $projectDir);
     }
 
     $container->extension('mcp', [
@@ -17,10 +33,7 @@ return static function (ContainerConfigurator $container, ContainerBuilder $buil
         'client_transports' => ['http' => true],
         'http' => ['path' => '/api/_mcp'],
         'discovery' => [
-            'scan_dirs' => [
-                'src/Core/Framework/Mcp',
-                'src/Storefront/Mcp',
-            ],
+            'scan_dirs' => $scanDirs,
         ],
     ]);
 };

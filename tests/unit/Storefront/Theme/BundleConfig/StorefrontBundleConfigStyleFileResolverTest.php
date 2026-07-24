@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme\BundleConfig;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\BundleConfig\StorefrontBundleConfigStyleFileResolver;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -14,13 +15,14 @@ use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(StorefrontBundleConfigStyleFileResolver::class)]
 class StorefrontBundleConfigStyleFileResolverTest extends TestCase
 {
     #[TestDox('resolveStyleFiles() returns an empty array when the registry has no configuration for the technical name')]
     public function testResolveStyleFilesReturnsEmptyWhenConfigurationMissing(): void
     {
-        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry = static::createStub(StorefrontPluginRegistry::class);
         $registry->method('getConfigurations')->willReturn(new StorefrontPluginConfigurationCollection());
 
         $resolver = new StorefrontBundleConfigStyleFileResolver($registry);
@@ -37,7 +39,7 @@ class StorefrontBundleConfigStyleFileResolverTest extends TestCase
             'app/storefront/src/scss/overrides.scss',
         ]));
 
-        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry = static::createStub(StorefrontPluginRegistry::class);
         $registry->method('getConfigurations')
             ->willReturn(new StorefrontPluginConfigurationCollection([$configuration]));
 

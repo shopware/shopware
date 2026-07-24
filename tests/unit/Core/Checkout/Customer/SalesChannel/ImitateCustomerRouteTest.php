@@ -44,19 +44,19 @@ class ImitateCustomerRouteTest extends TestCase
             ->method('validate')
             ->with($token, TestDefaults::SALES_CHANNEL, $customerId, $userId);
 
-        $accountService = $this->createMock(AccountService::class);
+        $accountService = static::createStub(AccountService::class);
         $accountService->method('loginById')->willReturn('newToken');
 
         $route = new ImitateCustomerRoute(
             $accountService,
             $imitateCustomerTokenGenerator,
-            $this->createMock(LogoutRoute::class),
-            $this->createMock(SalesChannelContextFactory::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(DataValidator::class),
+            static::createStub(LogoutRoute::class),
+            static::createStub(SalesChannelContextFactory::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(DataValidator::class),
         );
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
 
         $dataBag = new RequestDataBag([
@@ -97,10 +97,10 @@ class ImitateCustomerRouteTest extends TestCase
         $route = new ImitateCustomerRoute(
             $accountService,
             $imitateCustomerTokenGenerator,
-            $this->createMock(LogoutRoute::class),
-            $this->createMock(SalesChannelContextFactory::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(DataValidator::class),
+            static::createStub(LogoutRoute::class),
+            static::createStub(SalesChannelContextFactory::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(DataValidator::class),
         );
 
         $dataBag = new RequestDataBag([
@@ -153,8 +153,8 @@ class ImitateCustomerRouteTest extends TestCase
             $imitateCustomerTokenGenerator,
             $logoutRoute,
             $salesChannelContextFactory,
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(DataValidator::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(DataValidator::class),
         );
 
         $dataBag = new RequestDataBag([

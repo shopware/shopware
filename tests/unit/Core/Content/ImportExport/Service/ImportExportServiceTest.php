@@ -17,6 +17,7 @@ use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserDefinition;
@@ -25,6 +26,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 /**
  * @internal
  */
+#[Package('fundamentals@after-sales')]
 #[CoversClass(ImportExportService::class)]
 class ImportExportServiceTest extends TestCase
 {
@@ -80,7 +82,7 @@ class ImportExportServiceTest extends TestCase
             $logRepo,
             $userRepo,
             $profileRepo,
-            $this->createMock(FileService::class),
+            static::createStub(FileService::class),
         );
     }
 }

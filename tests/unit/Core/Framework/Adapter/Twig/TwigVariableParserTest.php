@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
+use Shopware\Core\Framework\Log\Package;
 use Twig\Environment;
 use Twig\Extension\DebugExtension;
 use Twig\Loader\ArrayLoader;
@@ -12,6 +13,7 @@ use Twig\Loader\ArrayLoader;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TwigVariableParser::class)]
 class TwigVariableParserTest extends TestCase
 {

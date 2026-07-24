@@ -237,9 +237,7 @@ NPM CI:
       matrix:
         - JS_APP_DIR: "src/Administration/Resources/app/administration/"
           NODE_IMAGE_TAG:
-          - "lts-alpine"
-          - "20-alpine"
+            - "lts-alpine"
         - JS_APP_DIR: "src/Storefront/Resources/app/storefront/"
           NODE_IMAGE_TAG:
             - "lts-alpine"
-            - "20-alpine"

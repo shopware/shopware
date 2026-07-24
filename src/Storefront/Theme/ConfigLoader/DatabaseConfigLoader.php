@@ -17,7 +17,7 @@ use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeConfigField;
 use Shopware\Storefront\Theme\ThemeEntity;
 
-#[Package('framework')]
+#[Package('discovery')]
 class DatabaseConfigLoader extends AbstractConfigLoader
 {
     /**
@@ -189,6 +189,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
             /** @var ThemeEntity $parentTheme */
             $parentTheme = $this->themeRepository
                 ->search($criteria, $context)
+                ->getEntities()
                 ->first();
 
             if (!\is_string($parentTheme->getTechnicalName())) {

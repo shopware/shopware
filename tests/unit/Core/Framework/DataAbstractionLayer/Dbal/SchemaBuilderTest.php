@@ -93,8 +93,8 @@ class SchemaBuilderTest extends TestCase
                 ProductDefinition::class,
                 TestAssociationWithMissingReferenceVersionDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 

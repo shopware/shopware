@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Content\Media\Aggregate\MediaThumbnail;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(MediaThumbnailEntity::class)]
 class MediaThumbnailStructTest extends TestCase
 {

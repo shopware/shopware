@@ -13,14 +13,10 @@
             <argument type="service" id="Shopware\Core\Content\ContactForm\Validation\ContactFormValidationFactory"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="cms_slot.repository" />
             <argument type="service" id="salutation.repository" />
-            <argument type="service" id="category.repository" />
-            <argument type="service" id="landing_page.repository" />
-            <argument type="service" id="product.repository" />
             <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack" />
             <argument type="service" id="shopware.rate_limiter" />
+            <argument type="service" id="Shopware\Core\Content\Cms\Service\CmsFormSlotConfigResolver" />
         </service>
     </services>
 </container>

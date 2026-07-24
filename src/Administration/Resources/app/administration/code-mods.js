@@ -235,10 +235,10 @@ async function lintFiles(filePaths, fix, shopwareVersion) {
     const twigVuePlugin = require('eslint-plugin-twig-vue');
     const vueParser = require('vue-eslint-parser');
 
-    // Base plugins/parsers come from eslint.config.mjs; these entries only add the codemod-specific rules 
-    // and the twig processor for plugin files that live outside src/ (not covered by eslint.config.mjs).
+    // Base plugins/parsers come from eslint.config.ts; these entries only add the codemod-specific rules
+    // and the twig processor for plugin files that live outside src/ (not covered by eslint.config.ts).
     const overrideConfig = [
-        // Twig files: register processor here because eslint.config.mjs only covers src/**
+        // Twig files: register processor here because eslint.config.ts only covers src/**
         {
             files: ['**/*.html.twig'],
             plugins: {

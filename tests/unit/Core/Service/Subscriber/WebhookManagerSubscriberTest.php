@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Service\Subscriber;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Event\PreWebhooksDispatchEvent;
@@ -15,6 +16,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(WebhookManagerSubscriber::class)]
 class WebhookManagerSubscriberTest extends TestCase
 {

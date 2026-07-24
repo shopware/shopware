@@ -27,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -34,6 +35,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(CheapestPriceFacade::class)]
 class CheapestPriceFacadeTest extends TestCase
 {
@@ -71,8 +73,8 @@ class CheapestPriceFacadeTest extends TestCase
             new PriceFacade(
                 new Entity(),
                 new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                $this->createMock(ScriptPriceStubs::class),
-                $this->createMock(SalesChannelContext::class)
+                static::createStub(ScriptPriceStubs::class),
+                static::createStub(SalesChannelContext::class)
             )
         );
 
@@ -129,7 +131,7 @@ class CheapestPriceFacadeTest extends TestCase
 
         $stubs = new ScriptPriceStubs(
             // not necessary for this test
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             $quantityCalculator,
             new PercentagePriceCalculator(new CashRounding(), $quantityCalculator, new PercentageTaxRuleBuilder()),
         );
@@ -139,7 +141,7 @@ class CheapestPriceFacadeTest extends TestCase
         $original = new CalculatedCheapestPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(new TaxRuleCollection([new TaxRule(10)])));
 
         // mock context to simulate currency and tax states
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         // currency key will be provided, we want to test different currencies are taking into account
         $context->method('getCurrencyId')->willReturn($ids->get($currencyKey));

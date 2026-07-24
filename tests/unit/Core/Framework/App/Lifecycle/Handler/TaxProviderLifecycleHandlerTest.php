@@ -182,7 +182,7 @@ class TaxProviderLifecycleHandlerTest extends TestCase
      */
     private function createManifest(array $providers = []): Manifest
     {
-        $manifest = $this->createMock(Manifest::class);
+        $manifest = static::createStub(Manifest::class);
 
         $tax = Tax::fromArray([
             'taxProviders' => $providers,

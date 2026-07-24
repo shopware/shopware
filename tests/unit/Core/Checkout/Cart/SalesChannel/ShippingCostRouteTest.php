@@ -45,9 +45,9 @@ class ShippingCostRouteTest extends TestCase
     public function testGetDecorated(): void
     {
         $route = new ShippingCostRoute(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(CartRuleLoader::class),
-            $this->createMock(AbstractCheckoutGatewayRoute::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(CartRuleLoader::class),
+            static::createStub(AbstractCheckoutGatewayRoute::class),
         );
 
         $this->expectException(DecorationPatternException::class);

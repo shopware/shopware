@@ -6,10 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\Review\MatrixElement;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(MatrixElement::class)]
 class MatrixElementTest extends TestCase
 {

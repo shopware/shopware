@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Checkout\Document\Service;
 
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
@@ -111,7 +110,7 @@ class DocumentGeneratorTest extends TestCase
             ->addAssociation('documentMediaFile');
 
         $document = $this->documentRepository
-            ->search($criteria, $this->context)
+            ->search($criteria, $this->context)->getEntities()
             ->get($documentStruct->getId());
 
         static::assertNotNull($document);
@@ -144,7 +143,7 @@ class DocumentGeneratorTest extends TestCase
         $this->expectException(DocumentException::class);
 
         /** @var OrderEntity $order */
-        $order = static::getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->first();
+        $order = static::getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->getEntities()->first();
 
         $operation = new DocumentGenerateOperation($this->orderId);
         $operation->assign([
@@ -161,7 +160,7 @@ class DocumentGeneratorTest extends TestCase
 
     public function testPreviewInvoice(): void
     {
-        $order = static::getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->first();
+        $order = static::getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->getEntities()->first();
         static::assertNotNull($order);
         static::assertInstanceOf(OrderEntity::class, $order);
 
@@ -174,7 +173,7 @@ class DocumentGeneratorTest extends TestCase
 
     public function testPreviewStorno(): void
     {
-        $order = static::getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->first();
+        $order = static::getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->getEntities()->first();
         static::assertNotNull($order);
         static::assertInstanceOf(OrderEntity::class, $order);
         $orderCustomer = $order->getOrderCustomer();
@@ -277,7 +276,7 @@ class DocumentGeneratorTest extends TestCase
 
         $this->documentGenerator->upload($documentId, $this->context, $uploadFileRequest);
 
-        $document = $this->documentRepository->search(new Criteria([$documentId]), $this->context)->get($documentId);
+        $document = $this->documentRepository->search(new Criteria([$documentId]), $this->context)->getEntities()->get($documentId);
 
         static::assertNotNull($document);
         static::assertNotNull($document->getDocumentMediaFileId());
@@ -341,7 +340,7 @@ class DocumentGeneratorTest extends TestCase
             ->addAssociation('documentMediaFile');
 
         $document = $this->documentRepository
-            ->search($criteria, $this->context)
+            ->search($criteria, $this->context)->getEntities()
             ->get($documentStruct->getId());
 
         static::assertNotNull($document);
@@ -369,7 +368,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($invoiceStruct);
         static::assertTrue(Uuid::isValid($invoiceStruct->getId()));
 
-        $invoice = $this->documentRepository->search(new Criteria([$invoiceStruct->getId()]), $this->context)->get($invoiceStruct->getId());
+        $invoice = $this->documentRepository->search(new Criteria([$invoiceStruct->getId()]), $this->context)->getEntities()->get($invoiceStruct->getId());
 
         static::assertNotNull($invoice);
         // create a cancellation invoice which references the invoice
@@ -380,14 +379,13 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($stornoStruct);
         static::assertTrue(Uuid::isValid($stornoStruct->getId()));
 
-        $storno = $this->documentRepository->search(new Criteria([$stornoStruct->getId()]), $this->context)->get($stornoStruct->getId());
+        $storno = $this->documentRepository->search(new Criteria([$stornoStruct->getId()]), $this->context)->getEntities()->get($stornoStruct->getId());
 
         static::assertNotNull($storno);
         static::assertSame($invoice->getId(), $storno->getReferencedDocumentId());
         static::assertSame($storno->getOrderVersionId(), $invoice->getOrderVersionId());
     }
 
-    #[Group('slow')]
     public function testCreateFileIsWrittenInFs(): void
     {
         /** @var FilesystemOperator $fileSystem */
@@ -425,7 +423,7 @@ class DocumentGeneratorTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', DeliveryNoteRenderer::TYPE));
 
-        $documentType = $documentTypeRepository->search($criteria, $this->context)->first();
+        $documentType = $documentTypeRepository->search($criteria, $this->context)->getEntities()->first();
 
         static::assertNotNull($documentType);
         static::assertInstanceOf(DocumentTypeEntity::class, $documentType);
@@ -459,7 +457,7 @@ class DocumentGeneratorTest extends TestCase
 
         $criteria = new Criteria([$documentId]);
         $criteria->addAssociation('documentMediaFile');
-        $document = $this->documentRepository->search($criteria, $this->context)->get($documentId);
+        $document = $this->documentRepository->search($criteria, $this->context)->getEntities()->get($documentId);
 
         static::assertNotNull($document?->getDocumentMediaFile());
         $filePath = $document->getDocumentMediaFile()->getPath();
@@ -490,7 +488,7 @@ class DocumentGeneratorTest extends TestCase
         $documentId = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
         static::assertNotNull($documentId);
 
-        $document = $this->documentRepository->search(new Criteria([$documentId->getId()]), Context::createDefaultContext())->first();
+        $document = $this->documentRepository->search(new Criteria([$documentId->getId()]), Context::createDefaultContext())->getEntities()->first();
         static::assertNotNull($document);
 
         $expectedConfig = array_merge($globalConfig, $salesChannelConfig);
@@ -531,7 +529,7 @@ class DocumentGeneratorTest extends TestCase
         $documentIdWithOverride = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operation], $this->context)->getSuccess()->first();
         static::assertNotNull($documentIdWithOverride);
 
-        $document = $this->documentRepository->search(new Criteria([$documentIdWithOverride->getId()]), Context::createDefaultContext())->first();
+        $document = $this->documentRepository->search(new Criteria([$documentIdWithOverride->getId()]), Context::createDefaultContext())->getEntities()->first();
         static::assertNotNull($document);
 
         $expectedConfig = array_merge($globalConfig, $salesChannelConfig, $overrides);
@@ -560,7 +558,7 @@ class DocumentGeneratorTest extends TestCase
             ->addAssociation('documentMediaFile');
 
         $document = $this->documentRepository
-            ->search($criteria, $this->context)
+            ->search($criteria, $this->context)->getEntities()
             ->get($documentInvoice->getId());
 
         static::assertNotNull($document);
@@ -608,7 +606,7 @@ class DocumentGeneratorTest extends TestCase
         $criteria->addAssociation('documentType')
             ->addAssociation('documentMediaFile');
 
-        $documents = $this->documentRepository->search($criteria, $this->context);
+        $documents = $this->documentRepository->search($criteria, $this->context)->getEntities();
 
         static::assertCount(2, $documents);
 
@@ -671,7 +669,7 @@ class DocumentGeneratorTest extends TestCase
         $criteria->addAssociation('documentType');
 
         $document = $this->documentRepository
-            ->search($criteria, $this->context)
+            ->search($criteria, $this->context)->getEntities()
             ->get($documentInvoice->getId());
 
         static::assertNotNull($document);
@@ -726,7 +724,7 @@ class DocumentGeneratorTest extends TestCase
         $document = $this->documentRepository->search(
             new Criteria([$invoiceStruct->getId()]),
             $this->context,
-        )->first();
+        )->getEntities()->first();
 
         $mediaId = $document?->getDocumentMediaFileId();
         static::assertNotNull($mediaId);
@@ -772,7 +770,7 @@ class DocumentGeneratorTest extends TestCase
         $document = $this->documentRepository->search(
             new Criteria([$documentId]),
             $this->context,
-        )->first();
+        )->getEntities()->first();
 
         $mediaId = $document?->getDocumentMediaFileId();
         static::assertNotNull($mediaId);
@@ -836,7 +834,7 @@ class DocumentGeneratorTest extends TestCase
                 ->addAssociation('documentA11yMediaFile');
 
             $documentRepository = static::getContainer()->get('document.repository');
-            $document = $documentRepository->search($criteria, $this->context)->get($documentId);
+            $document = $documentRepository->search($criteria, $this->context)->getEntities()->get($documentId);
 
             static::assertNotNull($document);
 
@@ -844,7 +842,7 @@ class DocumentGeneratorTest extends TestCase
             $mediaRepository = static::getContainer()->get('media.repository');
 
             /** @var MediaCollection $mediaFiles */
-            $mediaFiles = $mediaRepository->search(new Criteria([$documentMediaFileId, $documentA11yMediaFileId]), $this->context);
+            $mediaFiles = $mediaRepository->search(new Criteria([$documentMediaFileId, $documentA11yMediaFileId]), $this->context)->getEntities();
             static::assertNotNull($mediaFiles);
 
             /** @var MediaEntity $media */
@@ -888,7 +886,7 @@ class DocumentGeneratorTest extends TestCase
         $document = $this->documentRepository->search(
             new Criteria([$invoiceStruct->getId()]),
             $this->context,
-        )->first();
+        )->getEntities()->first();
 
         static::assertNotNull($document);
 
@@ -915,7 +913,7 @@ class DocumentGeneratorTest extends TestCase
             ->addAssociation('documentA11yMediaFile');
 
         $document = $this->documentRepository
-            ->search($criteria, $this->context)
+            ->search($criteria, $this->context)->getEntities()
             ->get($documentStruct->getId());
         static::assertNotNull($document);
 
@@ -929,7 +927,7 @@ class DocumentGeneratorTest extends TestCase
         ]], $versionContext);
 
         $document = $this->documentRepository
-            ->search($criteria, $this->context)
+            ->search($criteria, $this->context)->getEntities()
             ->get($documentStruct->getId());
         static::assertNotNull($document);
 
@@ -963,7 +961,7 @@ class DocumentGeneratorTest extends TestCase
             ->search(
                 (new Criteria())->addFilter(new EqualsFilter('technicalName', InvoiceRenderer::TYPE)),
                 $this->context
-            )
+            )->getEntities()
             ->first();
         static::assertInstanceOf(DocumentTypeEntity::class, $documentType);
 
@@ -989,7 +987,7 @@ class DocumentGeneratorTest extends TestCase
         ]], $this->context);
 
         $criteria = (new Criteria([$documentId]))->addAssociation('documentMediaFile');
-        $document = $this->documentRepository->search($criteria, $this->context)->get($documentId);
+        $document = $this->documentRepository->search($criteria, $this->context)->getEntities()->get($documentId);
         static::assertNotNull($document?->getDocumentMediaFile());
 
         $filePath = $document->getDocumentMediaFile()->getPath();
@@ -1012,12 +1010,12 @@ class DocumentGeneratorTest extends TestCase
             ->addAssociation('documentA11yMediaFile')
             ->addAssociation('documentType');
 
-        $document = $this->documentRepository->search($criteria, $this->context)->get($documentStruct->getId());
+        $document = $this->documentRepository->search($criteria, $this->context)->getEntities()->get($documentStruct->getId());
         static::assertNotNull($document);
 
         $this->documentGenerator->readDocument($document->getId(), $this->context);
 
-        $document = $this->documentRepository->search($criteria, $this->context)->get($documentStruct->getId());
+        $document = $this->documentRepository->search($criteria, $this->context)->getEntities()->get($documentStruct->getId());
         static::assertNotNull($document);
 
         return $document;

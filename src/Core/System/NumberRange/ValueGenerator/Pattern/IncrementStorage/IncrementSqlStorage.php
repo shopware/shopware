@@ -8,12 +8,11 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Integration\Core\System\NumberRange\ValueGenerator\IncrementSqlStorageTest;
 
 /**
  * @codeCoverageIgnore
  *
- * @see IncrementSqlStorageTest
+ * @see \Shopware\Tests\Integration\Core\System\NumberRange\ValueGenerator\IncrementSqlStorageTest
  */
 #[Package('framework')]
 class IncrementSqlStorage extends AbstractIncrementStorage

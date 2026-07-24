@@ -75,7 +75,7 @@ class SalesChannelFileLoaderTest extends TestCase
             ->method('addTag')
             ->with(SalesChannelFileCacheInvalidator::buildCacheTag($configurationId));
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannelId')->willReturn($salesChannelId);
         $salesChannelContext->method('getContext')->willReturn($context);
 
@@ -118,7 +118,7 @@ class SalesChannelFileLoaderTest extends TestCase
             $configurationLoader,
             $renderer,
             $cacheTagCollector
-        ))->load($templatePath, $this->createMock(SalesChannelContext::class));
+        ))->load($templatePath, static::createStub(SalesChannelContext::class));
 
         static::assertNull($result);
     }

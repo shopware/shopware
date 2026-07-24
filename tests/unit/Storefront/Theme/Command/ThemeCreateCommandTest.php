@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme\Command;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\Command\ThemeCreateCommand;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
@@ -15,6 +16,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ThemeCreateCommand::class)]
 class ThemeCreateCommandTest extends TestCase
 {
@@ -68,7 +70,7 @@ class ThemeCreateCommandTest extends TestCase
 
     public function testCommandFailsWhenDirectoryCannotBeCreated(): void
     {
-        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem = static::createStub(Filesystem::class);
         $filesystem->method('mkdir')->willThrowException(new IOException('Permission denied'));
 
         $commandTester = $this->getCommandTester($filesystem);

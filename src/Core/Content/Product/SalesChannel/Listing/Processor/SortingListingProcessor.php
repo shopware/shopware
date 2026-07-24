@@ -142,6 +142,6 @@ class SortingListingProcessor extends AbstractListingProcessor
 
         $criteria = new Criteria([$id]);
 
-        return $this->sortingRepository->search($criteria, $context->getContext())->first()?->get('key');
+        return $this->sortingRepository->search($criteria, $context->getContext())->getEntities()->first()?->get('key');
     }
 }

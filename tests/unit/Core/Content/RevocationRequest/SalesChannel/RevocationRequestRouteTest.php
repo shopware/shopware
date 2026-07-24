@@ -3,14 +3,9 @@
 namespace Shopware\Tests\Unit\Core\Content\RevocationRequest\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
-use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition;
-use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\Cms\Service\CmsFormSlotConfigResolver;
 use Shopware\Core\Content\RevocationRequest\SalesChannel\RevocationRequestRoute;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
@@ -18,13 +13,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -38,138 +32,90 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(RevocationRequestRoute::class)]
 class RevocationRequestRouteTest extends TestCase
 {
-    public function testRequestShouldReturnCategorySuccessMessage(): void
+    /**
+     * @param array<string, string> $data
+     */
+    #[DataProvider('validationDataProvider')]
+    public function testRequestValidatesFormData(array $data): void
     {
-        $successMessage = 'category success message';
-        $slotId = Uuid::randomHex();
-        $category = new CategoryEntity();
-        $category->setId(Uuid::randomHex());
-        $category->setSlotConfig($this->createSlotConfig($slotId, $successMessage));
+        $requestData = new RequestDataBag($data);
+        $definition = new DataValidationDefinition('revocation_request_form.create');
 
-        $dataBag = new RequestDataBag($this->createValidFormData($slotId, Uuid::randomHex()));
+        $validationFactory = static::createStub(DataValidationFactoryInterface::class);
+        $validationFactory->method('create')->willReturn($definition);
 
-        $revocationRequestRoute = $this->createRevocationRequestRoute(categoryEntities: [$category]);
+        $validator = $this->createMock(DataValidator::class);
+        $validator->expects($this->once())
+            ->method('getViolations')
+            ->willReturnCallback(static function (array $validatedData, DataValidationDefinition $validatedDefinition) use ($data, $definition): ConstraintViolationList {
+                foreach ($data as $property => $value) {
+                    static::assertSame($value, $validatedData[$property] ?? null);
+                }
+                static::assertSame($definition, $validatedDefinition);
 
-        $result = $revocationRequestRoute->request($dataBag, $this->createSalesChannelContext());
+                return new ConstraintViolationList();
+            });
 
-        static::assertSame($successMessage, $result->getIndividualSuccessMessage());
+        $route = $this->createRevocationRequestRoute(
+            validatorFactory: $validationFactory,
+            validator: $validator,
+        );
+
+        $route->request($requestData, $this->createSalesChannelContext());
     }
 
-    public function testRequestShouldReturnCmsSlotSuccessMessage(): void
+    public static function validationDataProvider(): \Generator
     {
-        $successMessage = 'cms slot success message';
+        yield 'valid form data' => [[
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'email' => 'max@muster.com',
+            'contractNumber' => 'SW123456789',
+            'comment' => 'This is a simple comment',
+        ]];
 
-        $slotId = Uuid::randomHex();
-        $config = $this->createSlotConfig($slotId, $successMessage);
-
-        $cmsSlot = new CmsSlotEntity();
-        $cmsSlot->setId($slotId);
-        $cmsSlot->setTranslated(['config' => $config[$slotId]]);
-
-        $formData = $this->createValidFormData($slotId);
-        $dataBag = new RequestDataBag($formData);
-
-        $result = $this->createRevocationRequestRoute([$cmsSlot])->request($dataBag, $this->createSalesChannelContext());
-
-        static::assertSame($successMessage, $result->getIndividualSuccessMessage());
+        yield 'form data with optional context fields' => [[
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'email' => 'max@muster.com',
+            'contractNumber' => 'SW123456789',
+            'comment' => 'This is a simple comment',
+            'slotId' => Uuid::randomHex(),
+            'navigationId' => Uuid::randomHex(),
+            'entityName' => 'landing_page',
+        ]];
     }
 
-    public function testRequestWithoutSlotIdShouldReturnDefaultsMessage(): void
+    private function createRequestStackMock(): RequestStack
     {
-        $successMessage = '';
-
-        $formData = $this->createValidFormData();
-        $dataBag = new RequestDataBag($formData);
-
-        $result = $this->createRevocationRequestRoute()->request($dataBag, $this->createSalesChannelContext());
-
-        static::assertSame($successMessage, $result->getIndividualSuccessMessage());
-    }
-
-    public function testRequestWithoutSlotEntityShouldReturnDefaultsMessage(): void
-    {
-        $successMessage = '';
-
-        $slotId = Uuid::randomHex();
-
-        $formData = $this->createValidFormData($slotId);
-        $dataBag = new RequestDataBag($formData);
-
-        $result = $this->createRevocationRequestRoute()->request($dataBag, $this->createSalesChannelContext());
-
-        static::assertSame($successMessage, $result->getIndividualSuccessMessage());
-    }
-
-    public function testRequestWithSlotEntityWithoutTranslationShouldReturnDefaultsMessage(): void
-    {
-        $successMessage = '';
-
-        $slotId = Uuid::randomHex();
-
-        $config = $this->createSlotConfig($slotId, $successMessage);
-
-        $formData = $this->createValidFormData($slotId);
-        $dataBag = new RequestDataBag($formData);
-
-        $cmsSlot = new CmsSlotEntity();
-        $cmsSlot->setId($slotId);
-        $cmsSlot->setTranslated(['config' => $config[$slotId]]);
-
-        $result = $this->createRevocationRequestRoute([$cmsSlot])->request($dataBag, $this->createSalesChannelContext());
-
-        static::assertSame($successMessage, $result->getIndividualSuccessMessage());
-    }
-
-    public function createValidatorMock(): DataValidator&MockObject
-    {
-        $validatorMock = $this->createMock(DataValidator::class);
-
-        $validatorMock->method('getViolations')->willReturnCallback(static function (): ConstraintViolationList {
-            return new ConstraintViolationList();
-        });
-
-        return $validatorMock;
-    }
-
-    public function createRequestStackMock(): RequestStack&MockObject
-    {
-        $requestStackMock = $this->createMock(RequestStack::class);
+        $requestStackMock = static::createStub(RequestStack::class);
         $requestStackMock->method('getMainRequest')->willReturn(new Request());
 
         return $requestStackMock;
     }
 
-    /**
-     * @param array<int, CmsSlotEntity>|null $slotEntities
-     * @param array<int, CategoryEntity>|null $categoryEntities
-     */
-    private function createRevocationRequestRoute(?array $slotEntities = [], ?array $categoryEntities = []): RevocationRequestRoute
-    {
-        $validatorFactoryMock = $this->createMock(DataValidationFactoryInterface::class);
+    private function createRevocationRequestRoute(
+        ?EventDispatcherInterface $eventDispatcher = null,
+        ?DataValidationFactoryInterface $validatorFactory = null,
+        ?DataValidator $validator = null,
+    ): RevocationRequestRoute {
+        $validatorFactory ??= static::createStub(DataValidationFactoryInterface::class);
+        $validator ??= static::createStub(DataValidator::class);
 
-        $validatorMock = $this->createValidatorMock();
-
-        $requestStackMock = $this->createRequestStackMock();
-
-        $rateLimiterMock = $this->createMock(RateLimiter::class);
-        $eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
-        $systemConfigServiceMock = $this->createMock(SystemConfigService::class);
-
-        /** @var StaticEntityRepository<CmsSlotCollection> $cmsSlotRepository */
-        $cmsSlotRepository = new StaticEntityRepository([$slotEntities], new CmsSlotDefinition());
-        /** @var StaticEntityRepository<CategoryCollection> $categoryRepository */
-        $categoryRepository = new StaticEntityRepository([$categoryEntities], new CategoryDefinition());
+        $slotConfigResolver = static::createStub(CmsFormSlotConfigResolver::class);
+        $slotConfigResolver->method('resolve')->willReturn([
+            'receivers' => ['foo' => 'bar'],
+            'message' => 'baz',
+        ]);
 
         return new RevocationRequestRoute(
-            $validatorFactoryMock,
-            $validatorMock,
-            $requestStackMock,
-            $rateLimiterMock,
-            $eventDispatcherMock,
-            $systemConfigServiceMock,
-            $cmsSlotRepository,
-            $categoryRepository,
-            new NativeClock()
+            $validatorFactory,
+            $validator,
+            $this->createRequestStackMock(),
+            static::createStub(RateLimiter::class),
+            $eventDispatcher ?? static::createStub(EventDispatcherInterface::class),
+            new NativeClock(),
+            $slotConfigResolver,
         );
     }
 
@@ -182,48 +128,5 @@ class RevocationRequestRouteTest extends TestCase
             baseContext: new Context(new SalesChannelApiSource(Uuid::randomHex())),
             salesChannel: $salesChannel
         );
-    }
-
-    /**
-     * @return array<string, array{
-     *     mailReceiver: array{value: string},
-     *     confirmationText: array{value: string}
-     * }>
-     */
-    private function createSlotConfig(string $slotId, string $successMessage): array
-    {
-        return [$slotId => ['mailReceiver' => ['value' => 'admin'], 'confirmationText' => ['value' => $successMessage]]];
-    }
-
-    /**
-     * @return array{
-     *     firstName: string,
-     *     lastName: string,
-     *     email: string,
-     *     contractNumber: string,
-     *     comment: string,
-     *     slotId?: string,
-     *     navigationId?: string,
-     * }
-     */
-    private function createValidFormData(?string $cmsSlotId = null, ?string $navigationId = null): array
-    {
-        $forData = [
-            'firstName' => 'Max',
-            'lastName' => 'Mustermann',
-            'email' => 'max@muster.com',
-            'contractNumber' => 'SW123456789',
-            'comment' => 'This is a simple comment',
-        ];
-
-        if ($cmsSlotId !== null) {
-            $forData['slotId'] = $cmsSlotId;
-        }
-
-        if ($navigationId !== null) {
-            $forData['navigationId'] = $navigationId;
-        }
-
-        return $forData;
     }
 }

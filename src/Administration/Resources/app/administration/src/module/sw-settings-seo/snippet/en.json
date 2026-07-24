@@ -3,8 +3,7 @@
     "general": {
       "mainMenuItemGeneral": "SEO",
       "descriptionTextModule": "Manage SEO settings.",
-      "textHeadline": "SEO",
-      "buttonSave": "Save"
+      "textHeadline": "SEO"
     }
   },
   "sw-settings-seo-entity-detail": {
@@ -25,7 +24,6 @@
       "textUrlPreviewNotPossible": "A preview for this template could not be generated.",
       "textUrlNoEntitiesForPreview": "No {entity} available.",
       "textUrlPreviewEmptyTemplate": "The template is empty, SEO URLs for {entity} won't be generated.",
-      "headlineInfoMessageBoxEmptyProperties": "Info",
       "textInfoMessageBoxEmptyProperties": "When using variables, make sure that data is available in all respective fields of the entities (products, landing pages or categories). If variables refer to empty fields, no SEO URLs will be created for the corresponding entity."
     },
     "routeNames": {

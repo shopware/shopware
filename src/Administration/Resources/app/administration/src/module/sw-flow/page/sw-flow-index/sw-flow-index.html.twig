@@ -42,6 +42,7 @@
             }"
             class="sw-flow-list__create"
             variant="primary"
+            size="default"
             :disabled="!acl.can('flow.creator') || undefined"
             @click="$router.push({ name: 'sw.flow.create' })"
         >

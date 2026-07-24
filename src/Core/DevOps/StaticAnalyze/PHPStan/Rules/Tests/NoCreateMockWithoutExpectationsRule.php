@@ -43,13 +43,15 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     public const ERROR_MIXED = 'createMock(%s) is a shared mock that is ->expects()-ed in some test methods but left without an expectation in others, so it triggers the PHPUnit "no expectations" notice there. Do not mix mock and stub usage on one shared double: give it a real expectation (e.g. ->expects($this->never())) in every test, split the test, or use a per-test double.';
 
     /**
-     * The rule is rolled out domain by domain for early adoption
+     * The domain-by-domain rollout is complete: every unit test suite is covered.
      *
      * @var list<string>
      */
     private const ENABLED_NAMESPACES = [
-        'Shopware\\Tests\\Unit\\Core\\DevOps\\',
-        'Shopware\\Tests\\Unit\\Core\\Profiling\\',
+        'Shopware\\Tests\\Unit\\Core\\',
+        'Shopware\\Tests\\Unit\\Administration\\',
+        'Shopware\\Tests\\Unit\\Storefront\\',
+        'Shopware\\Tests\\Unit\\Elasticsearch\\',
     ];
 
     public function getNodeType(): string
@@ -339,7 +341,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     private function eachOwnCallArg(NodeFinder $finder, array $stmts, callable $onArg): void
     {
         foreach ($finder->findInstanceOf($stmts, MethodCall::class) as $call) {
-            if ($call->var instanceof Variable && $call->var->name === 'this') {
+            if ($call->var instanceof Variable && $call->var->name === 'this' && !$call->isFirstClassCallable()) {
                 foreach ($call->getArgs() as $arg) {
                     $onArg($arg);
                 }
@@ -347,7 +349,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         }
 
         foreach ($finder->findInstanceOf($stmts, StaticCall::class) as $call) {
-            if ($call->class instanceof Name && \in_array(mb_strtolower($call->class->toString()), ['self', 'static'], true)) {
+            if ($call->class instanceof Name && \in_array(mb_strtolower($call->class->toString()), ['self', 'static'], true) && !$call->isFirstClassCallable()) {
                 foreach ($call->getArgs() as $arg) {
                     $onArg($arg);
                 }
@@ -439,6 +441,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         return ($expr instanceof MethodCall || $expr instanceof StaticCall)
             && $expr->name instanceof Identifier
             && $expr->name->name === 'createMock'
+            && !$expr->isFirstClassCallable()
             && \count($expr->getArgs()) === 1;
     }
 

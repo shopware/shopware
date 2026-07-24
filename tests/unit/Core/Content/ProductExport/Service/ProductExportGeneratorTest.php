@@ -86,8 +86,8 @@ class ProductExportGeneratorTest extends TestCase
     {
         $registry = new StaticDefinitionInstanceRegistry(
             [CategoryDefinition::class, ProductCategoryDefinition::class, ProductDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
         $productDefinition = $registry->get(ProductDefinition::class);
         static::assertInstanceOf(ProductDefinition::class, $productDefinition);
@@ -147,7 +147,7 @@ class ProductExportGeneratorTest extends TestCase
         $this->salesChannelContextService->expects($this->once())->method('get');
 
         $errorMessage = 'error message';
-        $twigVariableParser = $this->createMock(TwigVariableParser::class);
+        $twigVariableParser = static::createStub(TwigVariableParser::class);
         $twigVariableParser->method('parse')
             ->willThrowException(new \Exception($errorMessage));
         $this->parserFactory->expects($this->once())
@@ -427,7 +427,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $this->parserFactory->expects($this->once())
             ->method('getParser')
-            ->willReturn($this->createMock(TwigVariableParser::class));
+            ->willReturn(static::createStub(TwigVariableParser::class));
 
         $generator = $this->createGenerator();
 

@@ -106,7 +106,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
             ]
         );
 
-        $input = $this->createMock(InputInterface::class);
+        $input = static::createStub(InputInterface::class);
         $input->method('getOption')
             ->willReturn(...$inputs);
 
@@ -156,7 +156,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
             'name',
         ];
 
-        $input = $this->createMock(InputInterface::class);
+        $input = static::createStub(InputInterface::class);
         $input->method('getOption')
             ->willReturn(...$inputs);
 

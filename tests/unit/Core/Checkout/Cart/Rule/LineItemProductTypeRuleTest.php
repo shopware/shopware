@@ -24,8 +24,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(LineItemProductTypeRule::class)]
 #[Package('fundamentals@after-sales')]
+#[CoversClass(LineItemProductTypeRule::class)]
 class LineItemProductTypeRuleTest extends TestCase
 {
     private LineItemProductTypeRule $rule;
@@ -101,7 +101,7 @@ class LineItemProductTypeRuleTest extends TestCase
 
         $match = $this->rule->match(new LineItemScope(
             $this->createLineItemWithProductType($type),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -128,7 +128,7 @@ class LineItemProductTypeRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -141,7 +141,7 @@ class LineItemProductTypeRuleTest extends TestCase
             'productType' => ProductDefinition::TYPE_DIGITAL,
         ]);
 
-        $match = $this->rule->match(new CheckoutRuleScope($this->createMock(SalesChannelContext::class)));
+        $match = $this->rule->match(new CheckoutRuleScope(static::createStub(SalesChannelContext::class)));
 
         static::assertFalse($match);
     }

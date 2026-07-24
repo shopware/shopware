@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Action;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
@@ -27,19 +27,19 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(SetCustomerCustomFieldAction::class)]
 class SetCustomerCustomFieldActionTest extends TestCase
 {
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
     /**
-     * @var MockObject&EntityRepository<CustomerCollection>
+     * @var Stub&EntityRepository<CustomerCollection>
      */
-    private MockObject&EntityRepository $repository;
+    private Stub&EntityRepository $repository;
 
     private SetCustomerCustomFieldAction $action;
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
-        $this->repository = $this->createMock(EntityRepository::class);
+        $this->connection = static::createStub(Connection::class);
+        $this->repository = static::createStub(EntityRepository::class);
 
         $this->action = new SetCustomerCustomFieldAction($this->connection, $this->repository);
     }
@@ -84,27 +84,30 @@ class SetCustomerCustomFieldActionTest extends TestCase
             $context
         );
 
-        $this->repository->expects($this->once())
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->once())
             ->method('search')
             ->willReturn($entitySearchResult);
 
-        $this->connection->expects($this->once())
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
             ->method('fetchOne')
             ->willReturn('custom_field_test');
 
-        $this->repository->expects($this->once())
+        $repository->expects($this->once())
             ->method('update')
             ->with([['id' => $customerId, 'customFields' => $expected['custom_field_test'] ? $expected : null]]);
 
-        $this->action->handleFlow($flow);
+        $this->createAction($connection, $repository)->handleFlow($flow);
     }
 
     public function testActionWithNotAware(): void
     {
         $flow = new StorableFlow('', Context::createDefaultContext(), [], []);
-        $this->repository->expects($this->never())->method('update');
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->never())->method('update');
 
-        $this->action->handleFlow($flow);
+        $this->createAction(repository: $repository)->handleFlow($flow);
     }
 
     public static function actionExecutedProvider(): \Generator
@@ -199,5 +202,16 @@ class SetCustomerCustomFieldActionTest extends TestCase
                 'custom_field_test' => ['red'],
             ],
         ];
+    }
+
+    /**
+     * @param EntityRepository<CustomerCollection>|null $repository
+     */
+    private function createAction(?Connection $connection = null, ?EntityRepository $repository = null): SetCustomerCustomFieldAction
+    {
+        return new SetCustomerCustomFieldAction(
+            $connection ?? $this->connection,
+            $repository ?? $this->repository,
+        );
     }
 }

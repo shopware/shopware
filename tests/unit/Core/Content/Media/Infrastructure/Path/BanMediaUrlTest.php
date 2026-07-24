@@ -59,7 +59,7 @@ class BanMediaUrlTest extends TestCase
         $gateway->method('enabled')->willReturn(true);
         $gateway->expects($this->never())->method('ban');
 
-        $generator = $this->createMock(MediaUrlGenerator::class);
+        $generator = static::createStub(MediaUrlGenerator::class);
         $generator->method('generate')->willReturn([]);
 
         $banMediaUrl = new BanMediaUrl($gateway, $generator);

@@ -8,10 +8,12 @@ use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EventDataCollection::class)]
 class EventDataCollectionTest extends TestCase
 {

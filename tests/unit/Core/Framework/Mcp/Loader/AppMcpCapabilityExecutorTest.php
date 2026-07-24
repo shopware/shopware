@@ -25,8 +25,8 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
-#[CoversClass(AppMcpCapabilityExecutor::class)]
 #[Package('framework')]
+#[CoversClass(AppMcpCapabilityExecutor::class)]
 class AppMcpCapabilityExecutorTest extends TestCase
 {
     private MockHandler $mockHandler;
@@ -42,7 +42,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
             'https://shop.example.com',
             $this->createShopIdProvider(),
             30,
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
             static::createStub(KernelInterface::class),
             new RequestStack(),
             static::createStub(RouterInterface::class),
@@ -367,7 +367,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
             'https://shop.example.com',
             $this->createShopIdProvider(),
             30,
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
             $kernel,
             $requestStack,
             $router,
@@ -376,7 +376,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
 
     private function createShopIdProvider(): ShopIdProvider
     {
-        $provider = $this->createMock(ShopIdProvider::class);
+        $provider = static::createStub(ShopIdProvider::class);
         $provider->method('getShopId')->willReturn(ShopId::v2('test-shop-id'));
 
         return $provider;

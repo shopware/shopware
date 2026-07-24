@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Extension\LoadPreviewExtension;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Examples\ProductListingCriteriaExtensionExample;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -13,6 +14,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(LoadPreviewExtension::class)]
 class LoadPreviewExtensionTest extends TestCase
 {
@@ -25,7 +27,7 @@ class LoadPreviewExtensionTest extends TestCase
 
         $extension = new LoadPreviewExtension(
             ['5441aebfd9d048338476f88ba7f07c76'],
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $result = (new ExtensionDispatcher($dispatcher))->publish(

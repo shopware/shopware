@@ -9,6 +9,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -19,6 +20,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TestBootstrapper::class)]
 class TestBootstrapperTest extends TestCase
 {
@@ -86,7 +88,7 @@ class TestBootstrapperTest extends TestCase
             ],
         ]);
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getPluginLoader')->willReturn($pluginLoader);
 
         KernelLifecycleAccessor::setKernel($kernel);
@@ -122,7 +124,7 @@ class TestBootstrapperTest extends TestCase
             ],
         ]);
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getPluginLoader')->willReturn($pluginLoader);
 
         KernelLifecycleAccessor::setKernel($kernel);
@@ -140,7 +142,7 @@ class TestBootstrapperTest extends TestCase
         $projectDir = __DIR__ . '/_fixtures/TestBootstrapper/project';
         $pluginPath = $projectDir . '/custom/static-plugins/SwagStaticAnalysis';
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getPluginLoader')->willThrowException(new \RuntimeException('Kernel plugin loader is not available.'));
 
         KernelLifecycleAccessor::setKernel($kernel);
@@ -158,7 +160,7 @@ class TestBootstrapperTest extends TestCase
         $projectDir = __DIR__ . '/_fixtures/TestBootstrapper/project';
         $pluginPath = $projectDir . '/custom/static-plugins/SwagStaticAnalysis';
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getPluginLoader')->willThrowException(new \RuntimeException('Kernel plugin loader is not available.'));
 
         KernelLifecycleAccessor::setKernel($kernel);

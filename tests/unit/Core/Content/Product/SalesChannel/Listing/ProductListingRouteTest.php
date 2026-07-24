@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -29,6 +30,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductListingRoute::class)]
 class ProductListingRouteTest extends TestCase
 {
@@ -47,15 +49,15 @@ class ProductListingRouteTest extends TestCase
 
         $eventDispatcher = new EventDispatcher();
         $controller = new ProductListingRoute(
-            $this->createMock(ProductListingLoader::class),
+            static::createStub(ProductListingLoader::class),
             $categoryRepository,
-            $this->createMock(ProductStreamBuilder::class),
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(ProductStreamBuilder::class),
+            static::createStub(CacheTagCollector::class),
             new ExtensionDispatcher($eventDispatcher),
         );
 
         $criteria = new Criteria();
-        $controller->load($categoryId, new Request(), $this->createMock(SalesChannelContext::class), $criteria);
+        $controller->load($categoryId, new Request(), static::createStub(SalesChannelContext::class), $criteria);
 
         static::assertSame([
             'product.visibilities.visibility',
@@ -79,7 +81,7 @@ class ProductListingRouteTest extends TestCase
                 ]
             )])]);
 
-        $productStreamBuilder = $this->createMock(ProductStreamBuilder::class);
+        $productStreamBuilder = static::createStub(ProductStreamBuilder::class);
         $productStreamBuilder->method('enrichCriteria')
             ->willReturnCallback(static function (Criteria $criteria, string $id, mixed ...$_): void {
                 $criteria->addFilter(new EqualsFilter('product.product_stream', $id));
@@ -87,10 +89,10 @@ class ProductListingRouteTest extends TestCase
 
         $eventDispatcher = new EventDispatcher();
         $controller = new ProductListingRoute(
-            $this->createMock(ProductListingLoader::class),
+            static::createStub(ProductListingLoader::class),
             $categoryRepository,
             $productStreamBuilder,
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             new ExtensionDispatcher($eventDispatcher),
         );
 
@@ -98,7 +100,7 @@ class ProductListingRouteTest extends TestCase
         $result = $controller->load(
             $categoryId,
             new Request(),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             $criteria
         )->getResult();
 
@@ -126,7 +128,7 @@ class ProductListingRouteTest extends TestCase
                 ]
             )])]);
 
-        $productStreamBuilder = $this->createMock(ProductStreamBuilder::class);
+        $productStreamBuilder = static::createStub(ProductStreamBuilder::class);
         $productStreamBuilder->method('enrichCriteria');
 
         $cacheTagCollector = $this->createMock(CacheTagCollector::class);
@@ -143,7 +145,7 @@ class ProductListingRouteTest extends TestCase
 
         $eventDispatcher = new EventDispatcher();
         $controller = new ProductListingRoute(
-            $this->createMock(ProductListingLoader::class),
+            static::createStub(ProductListingLoader::class),
             $categoryRepository,
             $productStreamBuilder,
             $cacheTagCollector,
@@ -153,7 +155,7 @@ class ProductListingRouteTest extends TestCase
         $controller->load(
             $categoryId,
             new Request(),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             new Criteria()
         );
     }
@@ -162,10 +164,10 @@ class ProductListingRouteTest extends TestCase
     {
         $eventDispatcher = new EventDispatcher();
         $controller = new ProductListingRoute(
-            $this->createMock(ProductListingLoader::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ProductStreamBuilder::class),
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(ProductListingLoader::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ProductStreamBuilder::class),
+            static::createStub(CacheTagCollector::class),
             new ExtensionDispatcher($eventDispatcher),
         );
 
@@ -195,15 +197,15 @@ class ProductListingRouteTest extends TestCase
         $eventDispatcher->addListener(ProductListingCriteriaExtension::NAME . '.post', $listener);
 
         $controller = new ProductListingRoute(
-            $this->createMock(ProductListingLoader::class),
+            static::createStub(ProductListingLoader::class),
             $categoryRepository,
-            $this->createMock(ProductStreamBuilder::class),
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(ProductStreamBuilder::class),
+            static::createStub(CacheTagCollector::class),
             new ExtensionDispatcher($eventDispatcher),
         );
 
         $criteria = new Criteria();
-        $controller->load($categoryId, new Request(), $this->createMock(SalesChannelContext::class), $criteria);
+        $controller->load($categoryId, new Request(), static::createStub(SalesChannelContext::class), $criteria);
 
         static::assertSame([
             'product.visibilities.visibility',
@@ -228,7 +230,7 @@ class ProductListingRouteTest extends TestCase
                 ]
             )])]);
 
-        $productStreamBuilder = $this->createMock(ProductStreamBuilder::class);
+        $productStreamBuilder = static::createStub(ProductStreamBuilder::class);
         $productStreamBuilder->method('enrichCriteria')
             ->willReturnCallback(static function (Criteria $criteria, string $id, mixed ...$_): void {
                 $criteria->addFilter(new EqualsFilter('product.product_stream', $id));
@@ -237,10 +239,10 @@ class ProductListingRouteTest extends TestCase
 
         $eventDispatcher = new EventDispatcher();
         $controller = new ProductListingRoute(
-            $this->createMock(ProductListingLoader::class),
+            static::createStub(ProductListingLoader::class),
             $categoryRepository,
             $productStreamBuilder,
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             new ExtensionDispatcher($eventDispatcher),
         );
 
@@ -248,7 +250,7 @@ class ProductListingRouteTest extends TestCase
         $controller->load(
             $categoryId,
             new Request(),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             $criteria
         );
 
@@ -280,10 +282,10 @@ class ProductListingRouteTest extends TestCase
 
         $eventDispatcher = new EventDispatcher();
         $controller = new ProductListingRoute(
-            $this->createMock(ProductListingLoader::class),
+            static::createStub(ProductListingLoader::class),
             $categoryRepository,
             $productStreamBuilder,
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             new ExtensionDispatcher($eventDispatcher),
         );
 
@@ -291,7 +293,7 @@ class ProductListingRouteTest extends TestCase
         $controller->load(
             $categoryId,
             new Request(),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             $criteria
         );
 

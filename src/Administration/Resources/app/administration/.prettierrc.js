@@ -5,6 +5,8 @@ module.exports = {
     trailingComma: 'all',
     multilineArraysWrapThreshold: 1,
     plugins: [
-        'prettier-plugin-multiline-arrays',
+        require.resolve('prettier-plugin-multiline-arrays', {
+            paths: [process.cwd(), __dirname],
+        }),
     ],
 }

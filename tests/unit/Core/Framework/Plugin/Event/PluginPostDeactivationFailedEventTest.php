@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Event;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivationFailedEvent;
 use Shopware\Core\Framework\Plugin\PluginEntity;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PluginPostDeactivationFailedEvent::class)]
 class PluginPostDeactivationFailedEventTest extends TestCase
 {

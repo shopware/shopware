@@ -40,7 +40,7 @@ readonly class RememberDeletedAppsSecretSubscriber implements EventSubscriberInt
     public function saveSecretFromDeletedApp(AppDeletedEvent $event): void
     {
         $criteria = new Criteria([$event->getAppId()]);
-        $app = $this->appRepository->search($criteria, $event->getContext())->first();
+        $app = $this->appRepository->search($criteria, $event->getContext())->getEntities()->first();
 
         if (!$secret = $app?->getAppSecret()) {
             return;

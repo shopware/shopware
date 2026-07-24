@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\NumberRangeCollection;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementRedisStorage;
@@ -18,6 +19,7 @@ use Symfony\Component\Lock\SharedLockInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(IncrementRedisStorage::class)]
 class IncrementRedisStorageTest extends TestCase
 {
@@ -171,6 +173,9 @@ class IncrementRedisStorageTest extends TestCase
             'pattern' => 'n',
         ];
 
+        $this->lockFactoryMock->expects($this->never())
+            ->method('createLock');
+
         $this->redisMock->expects($this->once())
             ->method('get')
             ->with($this->getKey($config['id']))
@@ -187,6 +192,9 @@ class IncrementRedisStorageTest extends TestCase
             'pattern' => 'n',
         ];
 
+        $this->lockFactoryMock->expects($this->never())
+            ->method('createLock');
+
         $this->redisMock->expects($this->once())
             ->method('get')
             ->with($this->getKey($config['id']))
@@ -202,6 +210,9 @@ class IncrementRedisStorageTest extends TestCase
             'start' => 10,
             'pattern' => 'n',
         ];
+
+        $this->lockFactoryMock->expects($this->never())
+            ->method('createLock');
 
         $this->redisMock->expects($this->once())
             ->method('get')
@@ -223,6 +234,10 @@ class IncrementRedisStorageTest extends TestCase
         $numberRangeIds = ['abc' => '10', 'def' => '5'];
 
         $keys = array_map(fn (string $id) => [$this->getKey($id)], $numberRangeIds);
+
+        $this->lockFactoryMock->expects($this->never())
+            ->method('createLock');
+
         $this->redisMock->expects($this->exactly(\count($keys)))
             ->method('get')
             ->willReturnOnConsecutiveCalls('10', '5', false);
@@ -242,6 +257,9 @@ class IncrementRedisStorageTest extends TestCase
     public function testSet(): void
     {
         $configId = Uuid::randomHex();
+
+        $this->lockFactoryMock->expects($this->never())
+            ->method('createLock');
 
         $this->redisMock->expects($this->once())
             ->method('set')

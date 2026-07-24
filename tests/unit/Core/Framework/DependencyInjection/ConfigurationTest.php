@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\Configuration;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\BooleanNodeDefinition;
@@ -17,6 +18,7 @@ use Symfony\Component\Config\Definition\Processor;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Configuration::class)]
 class ConfigurationTest extends TestCase
 {
@@ -46,6 +48,84 @@ class ConfigurationTest extends TestCase
         static::assertArrayHasKey('enable', $nodes);
         $node = $nodes['enable'];
         static::assertInstanceOf(BooleanNodeDefinition::class, $node);
+    }
+
+    public function testTranslationConfigTreeNode(): void
+    {
+        $configuration = new Configuration();
+
+        $rootNode = $configuration->getConfigTreeBuilder()->getRootNode();
+
+        static::assertInstanceOf(ArrayNodeDefinition::class, $rootNode);
+        $nodes = $rootNode->getChildNodeDefinitions();
+
+        static::assertArrayHasKey('translation', $nodes);
+        $node = $nodes['translation'];
+        static::assertInstanceOf(ArrayNodeDefinition::class, $node);
+
+        $children = $node->getChildNodeDefinitions();
+        static::assertInstanceOf(ScalarNodeDefinition::class, $children['repository_url']);
+        static::assertInstanceOf(ScalarNodeDefinition::class, $children['metadata_url']);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $children['plugins']);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $children['excluded_locales']);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $children['plugin_mapping']);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $children['languages']);
+    }
+
+    public function testTranslationConfigRejectsInvalidListType(): void
+    {
+        $configuration = new Configuration();
+
+        $this->expectExceptionObject(new InvalidConfigurationException(
+            'Invalid type for path "shopware.translation.languages". Expected "array", but got "string"'
+        ));
+
+        (new Processor())->processConfiguration($configuration, [
+            [
+                'translation' => [
+                    'languages' => 'foo',
+                ],
+            ],
+        ]);
+    }
+
+    public function testTranslationConfigDefaultsToNull(): void
+    {
+        $configuration = new Configuration();
+
+        $config = (new Processor())->processConfiguration($configuration, []);
+
+        static::assertSame([
+            'repository_url' => null,
+            'metadata_url' => null,
+            'plugins' => null,
+            'excluded_locales' => null,
+            'plugin_mapping' => null,
+            'languages' => null,
+        ], $config['translation']);
+    }
+
+    public function testTranslationConfigListOverrideReplacesPreviousValue(): void
+    {
+        $configuration = new Configuration();
+
+        $config = (new Processor())->processConfiguration($configuration, [
+            [
+                'translation' => [
+                    'plugins' => ['PluginA', 'PluginB'],
+                    'excluded_locales' => ['de-DE'],
+                ],
+            ],
+            [
+                'translation' => [
+                    'plugins' => ['PluginC'],
+                    'excluded_locales' => [],
+                ],
+            ],
+        ]);
+
+        static::assertSame(['PluginC'], $config['translation']['plugins']);
+        static::assertSame([], $config['translation']['excluded_locales']);
     }
 
     public function testFeatureConfigTreeNode(): void

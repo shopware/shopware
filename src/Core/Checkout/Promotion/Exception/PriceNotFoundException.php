@@ -9,6 +9,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use PromotionException::priceNotFound() instead
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class PriceNotFoundException extends PromotionException

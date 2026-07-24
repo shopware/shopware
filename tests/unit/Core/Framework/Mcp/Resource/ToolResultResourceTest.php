@@ -27,9 +27,13 @@ class ToolResultResourceTest extends TestCase
         $sessionId = '00000000-0000-0000-0000-000000000001';
 
         $storage = $this->createMock(ToolResultCacheStorage::class);
-        $storage->method('read')
-            ->with($id, $sessionId)
-            ->willReturn(['content' => '{"success":true}', 'mimeType' => 'application/json']);
+        $storage->expects($this->once())->method('read')
+            ->willReturnCallback(function (string $resultId, string $session) use ($id, $sessionId): array {
+                static::assertSame($id, $resultId);
+                static::assertSame($sessionId, $session);
+
+                return ['content' => '{"success":true}', 'mimeType' => 'application/json'];
+            });
 
         $resource = new ToolResultResource($storage);
         $result = ($resource)($id, $this->makeContext($sessionId));
@@ -43,7 +47,7 @@ class ToolResultResourceTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $storage = $this->createMock(ToolResultCacheStorage::class);
+        $storage = static::createStub(ToolResultCacheStorage::class);
         $storage->method('read')->willReturn(null);
 
         $resource = new ToolResultResource($storage);
@@ -57,7 +61,7 @@ class ToolResultResourceTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $storage = $this->createMock(ToolResultCacheStorage::class);
+        $storage = static::createStub(ToolResultCacheStorage::class);
         $storage->method('read')->willReturn(null);
 
         $resource = new ToolResultResource($storage);
@@ -69,10 +73,10 @@ class ToolResultResourceTest extends TestCase
 
     private function makeContext(string $sessionId): RequestContext
     {
-        $session = $this->createMock(SessionInterface::class);
+        $session = static::createStub(SessionInterface::class);
         $session->method('getId')->willReturn(SymfonyUuid::fromString($sessionId));
 
-        $request = $this->createMock(JsonRpcRequest::class);
+        $request = static::createStub(JsonRpcRequest::class);
 
         return new RequestContext($session, $request);
     }

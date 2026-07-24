@@ -36,7 +36,7 @@ class ShippingStreetRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $context
             ->method('getShippingLocation')
@@ -57,7 +57,7 @@ class ShippingStreetRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $context
             ->method('getShippingLocation')
@@ -78,7 +78,7 @@ class ShippingStreetRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $context
             ->method('getShippingLocation')
@@ -99,7 +99,7 @@ class ShippingStreetRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $context
             ->method('getShippingLocation')
@@ -122,7 +122,7 @@ class ShippingStreetRuleTest extends TestCase
             $this->expectException(CustomerException::class);
         }
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $context
             ->method('getShippingLocation')
@@ -165,7 +165,7 @@ class ShippingStreetRuleTest extends TestCase
     public function testRuleMatching(string $operator, bool $isMatching, string $shippingStreet, bool $noAddress = false): void
     {
         $streetName = 'kyln123';
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         $customerAddress = new CustomerAddressEntity();
         $customerAddress->setStreet($shippingStreet);
@@ -207,7 +207,7 @@ class ShippingStreetRuleTest extends TestCase
     {
         try {
             $rule = new ShippingStreetRule();
-            $salesChannelContext = $this->createMock(SalesChannelContext::class);
+            $salesChannelContext = static::createStub(SalesChannelContext::class);
             $location = new ShippingLocation(new CountryEntity(), null, new CustomerAddressEntity());
             $salesChannelContext->method('getShippingLocation')->willReturn($location);
             $rule->match(new CheckoutRuleScope($salesChannelContext));

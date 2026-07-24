@@ -18,11 +18,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\Count
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryDefinition;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(MediaVisibilityRestrictionSubscriber::class)]
 class MediaVisibilityRestrictionSubscriberTest extends TestCase
 {
@@ -317,7 +319,7 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
 
     private function createSubscriber(string $productDownloadMediaFolderId = self::PRODUCT_DOWNLOAD_MEDIA_FOLDER_ID): MediaVisibilityRestrictionSubscriber
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection
             ->method('fetchOne')
             ->willReturn($productDownloadMediaFolderId);

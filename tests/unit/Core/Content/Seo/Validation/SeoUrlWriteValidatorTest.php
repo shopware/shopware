@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -42,8 +43,8 @@ class SeoUrlWriteValidatorTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [SeoUrlDefinition::class, SalesChannelDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $seoUrlDefinition = $registry->get(SeoUrlDefinition::class);
@@ -69,7 +70,7 @@ class SeoUrlWriteValidatorTest extends TestCase
             $this->salesChannelDefinition,
             ['name' => 'channel'],
             ['id' => Uuid::randomBytes()],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             '/0/'
         );
 
@@ -85,7 +86,7 @@ class SeoUrlWriteValidatorTest extends TestCase
             $this->seoUrlDefinition,
             ['is_canonical' => 1],
             ['id' => Uuid::randomBytes()],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             '/0/'
         );
 
@@ -154,12 +155,12 @@ class SeoUrlWriteValidatorTest extends TestCase
             [
                 'seo_path_info' => $seoPathInfo,
                 'path_info' => '/detail/' . Uuid::randomHex(),
-                'route_name' => 'frontend.detail.page',
+                'route_name' => ProductPageSeoUrlRoute::ROUTE_NAME,
                 'foreign_key' => Uuid::randomBytes(),
                 'language_id' => Uuid::randomBytes(),
             ],
             ['id' => Uuid::randomBytes()],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             '/0/'
         );
 

@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\RedisCartPersister;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\LastIdQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
@@ -22,15 +21,16 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @phpstan-import-type RedisTypeHint from RedisConnectionFactory
  */
+#[Package('checkout')]
 #[AsCommand(
     name: 'cart:migrate',
     description: 'Migrate carts from redis to database',
 )]
-#[Package('checkout')]
 class CartMigrateCommand extends Command
 {
     use ConsoleProgressTrait;
@@ -106,7 +106,7 @@ class CartMigrateCommand extends Command
             throw CartException::cartMigrationMissingRedisConnection();
         }
 
-        $this->io = new ShopwareStyle($input, $output);
+        $this->io = new SymfonyStyle($input, $output);
 
         $keys = $this->redis->keys(RedisCartPersister::PREFIX . '*');
         if (!\is_array($keys) || $keys === []) {
@@ -169,7 +169,7 @@ class CartMigrateCommand extends Command
             throw CartException::cartMigrationMissingRedisConnection();
         }
 
-        $this->io = new ShopwareStyle($input, $output);
+        $this->io = new SymfonyStyle($input, $output);
 
         $count = (int) $this->connection->fetchOne('SELECT COUNT(token) FROM cart');
 

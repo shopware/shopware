@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Update\Services;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Services\ApiClient;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Filesystem\Filesystem;
@@ -14,6 +15,7 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ApiClient::class)]
 class ApiClientTest extends TestCase
 {

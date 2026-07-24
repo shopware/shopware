@@ -540,4 +540,19 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
         expect(menuItem.attributes('sidebar-expanded')).toBe('true');
     });
+
+    it('should open the headline action menu beside the rail while the sidebar is collapsed', async () => {
+        Shopware.Store.get('adminMenu').collapseSidebar();
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const actionMenu = wrapper.find('.mt-action-menu');
+        expect(actionMenu.attributes('side')).toBe('right');
+
+        Shopware.Store.get('adminMenu').expandSidebar();
+        await flushPromises();
+
+        expect(actionMenu.attributes('side')).toBe('bottom');
+    });
 });

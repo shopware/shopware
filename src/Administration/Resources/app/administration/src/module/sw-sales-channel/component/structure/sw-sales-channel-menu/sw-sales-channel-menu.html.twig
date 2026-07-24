@@ -37,7 +37,10 @@
             </mt-dropdown-menu-trigger>
 
             <mt-dropdown-menu-portal>
-                <mt-action-menu>
+                <mt-action-menu
+                    :side="isSidebarExpanded ? 'bottom' : 'right'"
+                    :side-offset="isSidebarExpanded ? 4 : 12"
+                >
                     {% block sw_sales_channel_menu_headline_context_button_item %}
                     <router-link
                         v-slot="{ navigate }"

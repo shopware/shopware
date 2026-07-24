@@ -39,8 +39,8 @@ class System extends Bundle
         $phpLoader->load('country.php');
         $phpLoader->load('currency.php');
         $phpLoader->load('custom_entity.php');
-        $loader->load('locale.xml');
-        $loader->load('snippet.xml');
+        $phpLoader->load('locale.php');
+        $phpLoader->load('snippet.php');
         $phpLoader->load('salutation.php');
         $phpLoader->load('tax.php');
         $phpLoader->load('tax_provider.php');

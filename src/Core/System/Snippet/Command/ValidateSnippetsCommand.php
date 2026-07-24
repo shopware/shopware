@@ -48,7 +48,7 @@ class ValidateSnippetsCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         // @deprecated tag:v6.8.0 - Remove the `snippets:validate` alias from #[AsCommand] together with this condition.
-        if (!Feature::isActive('v6.8.0.0') && $input->getFirstArgument() === 'snippets:validate') {
+        if ($input->getFirstArgument() === 'snippets:validate') {
             Feature::triggerDeprecationOrThrow('v6.8.0.0', 'The "snippets:validate" command alias is deprecated; use "translation:validate" instead.');
         }
 

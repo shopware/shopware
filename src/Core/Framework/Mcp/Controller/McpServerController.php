@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\Mcp\Controller;
 use Mcp\Schema\Request\CallToolRequest;
 use Mcp\Schema\Request\GetPromptRequest;
 use Mcp\Schema\Request\InitializeRequest;
-use Mcp\Schema\Request\ListPromptsRequest;
-use Mcp\Schema\Request\ListResourcesRequest;
-use Mcp\Schema\Request\ListToolsRequest;
 use Mcp\Schema\Request\ReadResourceRequest;
 use Mcp\Server;
 use Mcp\Server\Transport\Http\Middleware\DnsRebindingProtectionMiddleware;
@@ -122,10 +119,6 @@ class McpServerController
 
         $psrResponse = $this->server->run($transport);
 
-        if ($allowlist !== null && $request->getMethod() === 'POST') {
-            $psrResponse = $this->filterListResponse($request, $psrResponse, $allowlist);
-        }
-
         if ($request->getMethod() === 'POST') {
             $psrResponse = $this->enrichInitializeResponse($request, $psrResponse);
         }
@@ -202,56 +195,6 @@ class McpServerController
         }
 
         return null;
-    }
-
-    private function filterListResponse(Request $request, PsrResponseInterface $psrResponse, McpAllowlist $allowlist): PsrResponseInterface
-    {
-        \assert($this->streamFactory !== null);
-
-        $body = $this->decodeJson($request->getContent());
-
-        if (!\is_array($body)) {
-            return $psrResponse;
-        }
-
-        $method = \is_string($body['method'] ?? null) ? $body['method'] : null;
-
-        if (!$this->hasListFilter($method, $allowlist)) {
-            return $psrResponse;
-        }
-
-        $response = McpJsonRpcResponse::fromJson((string) $psrResponse->getBody());
-
-        if ($response === null) {
-            return $psrResponse;
-        }
-
-        $this->applyAllowlistFilter($response, $method, $allowlist);
-
-        $newBody = Json::encode($response);
-        $newStream = $this->streamFactory->createStream($newBody);
-
-        return $psrResponse
-            ->withBody($newStream)
-            ->withHeader('Content-Length', (string) \strlen($newBody));
-    }
-
-    private function hasListFilter(?string $method, McpAllowlist $allowlist): bool
-    {
-        return ($method === ListToolsRequest::getMethod() && $allowlist->tools !== null)
-            || ($method === ListResourcesRequest::getMethod() && $allowlist->resources !== null)
-            || ($method === ListPromptsRequest::getMethod() && $allowlist->prompts !== null);
-    }
-
-    private function applyAllowlistFilter(McpJsonRpcResponse $response, ?string $method, McpAllowlist $allowlist): void
-    {
-        if ($method === ListToolsRequest::getMethod() && $allowlist->tools !== null) {
-            $response->filterTools($allowlist->tools);
-        } elseif ($method === ListResourcesRequest::getMethod() && $allowlist->resources !== null) {
-            $response->filterResources($allowlist->resources);
-        } elseif ($method === ListPromptsRequest::getMethod() && $allowlist->prompts !== null) {
-            $response->filterPrompts($allowlist->prompts);
-        }
     }
 
     private function enrichInitializeResponse(Request $request, PsrResponseInterface $psrResponse): PsrResponseInterface

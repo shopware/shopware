@@ -30,10 +30,16 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class McpAllowlistListRequestHandler implements RequestHandlerInterface
 {
+    private const TOOL_SEARCH = 'shopware-tool-search';
+
+    /**
+     * @param list<string> $advertisedTools
+     */
     public function __construct(
         private readonly RegistryInterface $registry,
         private readonly McpAllowlistProvider $allowlistProvider,
         private readonly int $pageSize,
+        private readonly array $advertisedTools = [self::TOOL_SEARCH],
     ) {
     }
 
@@ -71,20 +77,37 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
     {
         $allowlist = $this->allowlistProvider->forCurrentRequest();
 
-        if ($allowlist->tools === null) {
-            $page = $this->registry->getTools($this->pageSize, $request->cursor);
-
-            return $this->createResponse($request->getId(), new ListToolsResult($this->collectTools($page->references), $page->nextCursor));
-        }
-
         $tools = $this->collectTools(
             $this->registry->getTools()->references,
-            $allowlist->tools,
+            $this->visibleToolNames($allowlist),
         );
 
         [$page, $nextCursor] = $this->paginate($tools, $request->cursor);
 
         return $this->createResponse($request->getId(), new ListToolsResult($page, $nextCursor));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function visibleToolNames(McpAllowlist $allowlist): array
+    {
+        $advertisedTools = $this->advertisedTools;
+
+        if (!\in_array(self::TOOL_SEARCH, $advertisedTools, true)) {
+            array_unshift($advertisedTools, self::TOOL_SEARCH);
+        }
+
+        $advertisedTools = array_values(array_unique($advertisedTools));
+
+        if ($allowlist->tools === null) {
+            return $advertisedTools;
+        }
+
+        return array_values(array_unique(array_merge(
+            [self::TOOL_SEARCH],
+            array_values(array_intersect($advertisedTools, $allowlist->tools)),
+        )));
     }
 
     /**

@@ -195,6 +195,29 @@ class McpServerControllerTest extends TestCase
         static::assertStringNotContainsString('allowlist', (string) $response->getContent());
     }
 
+    public function testToolSearchCallIsAllowedEvenWhenToolAllowlistIsEmpty(): void
+    {
+        $body = json_encode([
+            'jsonrpc' => '2.0',
+            'id' => 1,
+            'method' => 'tools/call',
+            'params' => ['name' => 'shopware-tool-search', 'arguments' => ['query' => 'entity']],
+        ], \JSON_THROW_ON_ERROR);
+
+        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $httpFoundationFactory = static::createStub(HttpFoundationFactoryInterface::class);
+        $httpFoundationFactory->method('createResponse')->willReturn(new Response('{}', 200));
+
+        $allowlistProvider = static::createStub(McpAllowlistProvider::class);
+        $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: [], resources: null, prompts: null));
+
+        $controller = $this->buildController($psrRequest, $httpFoundationFactory, $allowlistProvider);
+        $sfRequest = Request::create('/api/_mcp', 'POST', content: $body);
+        $response = $controller->handle($sfRequest);
+
+        static::assertStringNotContainsString('allowlist', (string) $response->getContent());
+    }
+
     /**
      * @return iterable<string, array{?string, ?string, string}>
      */

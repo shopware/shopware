@@ -86,6 +86,9 @@ Store API requests now remain stateless unless application or extension code exp
 
 ## Core
 
+### MCP clients are notified when app capabilities change
+
+The experimental MCP server now queues `notifications/*/list_changed` messages for active sessions when an app's MCP tools, resources, or prompts change (install, update, activation, deactivation, deletion), so clients can refresh their discovered capabilities.
 ### MCP tools can be discovered on demand
 
 The MCP server now advertises a bounded non-deferred tool surface and includes the `shopware-tool-search` meta-tool. MCP clients can call this tool with a free-text query to discover relevant tool definitions from the caller's allowlisted catalogue without loading every allowed tool into the initial `tools/list` response. Tools are deferred by default; tools that should be visible immediately opt out with `#[McpTool(..., meta: ['deferred' => false])]`.

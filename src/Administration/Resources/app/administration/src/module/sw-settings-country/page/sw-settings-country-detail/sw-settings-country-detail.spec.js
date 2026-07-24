@@ -3,6 +3,8 @@
  */
 import { mount } from '@vue/test-utils';
 
+const countrySaveMock = jest.fn(() => Promise.resolve());
+
 async function createWrapper(
     privileges = [],
     {
@@ -86,6 +88,8 @@ async function createWrapper(
                             create: () => {
                                 return {};
                             },
+                            save: countrySaveMock,
+                            hasChanges: () => false,
                         }),
                     },
                     acl: {
@@ -180,6 +184,16 @@ async function createWrapper(
 describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     beforeAll(() => {
         Shopware.Store.get('session').setCurrentUser({});
+    });
+
+    beforeEach(() => {
+        countrySaveMock.mockClear();
+        jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({ data: {} });
+        jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
     it('should render the deprecated tabs when the major feature flag is inactive', async () => {
@@ -300,6 +314,19 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
         ]);
     });
 
+    it('should be render tab', async () => {
+        const wrapper = await createWrapper([
+            'country.editor',
+        ]);
+
+        await wrapper.vm.$nextTick();
+        const generalTab = wrapper.find('.sw-settings-country__setting-tab');
+        const stateTab = wrapper.find('.sw-settings-country__state-tab');
+
+        expect(generalTab.exists()).toBeTruthy();
+        expect(stateTab.exists()).toBeTruthy();
+    });
+
     it('should be able to save the country', async () => {
         const wrapper = await createWrapper([
             'country.editor',
@@ -318,5 +345,53 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
         const saveButton = wrapper.find('.sw-settings-country-detail__save-action');
 
         expect(saveButton.attributes().disabled).toBeTruthy();
+    });
+
+    it('loads country display settings from the user config service', async () => {
+        Shopware.Service('userConfigService').search.mockResolvedValue({
+            data: {
+                'setting-country': {
+                    'the-id': {
+                        showPreview: true,
+                    },
+                },
+            },
+        });
+        const wrapper = await createWrapper([
+            'country.editor',
+        ]);
+
+        wrapper.vm.countryId = 'the-id';
+        await wrapper.vm.loadUserConfig();
+
+        expect(Shopware.Service('userConfigService').search).toHaveBeenCalledWith(['setting-country']);
+        expect(wrapper.vm.userConfigValues).toEqual({
+            showPreview: true,
+        });
+    });
+
+    it('saves country display settings through the admin user config store', async () => {
+        const wrapper = await createWrapper([
+            'country.editor',
+        ]);
+        wrapper.vm.countryId = 'the-id';
+        wrapper.vm.userConfig = {
+            value: {
+                'the-id': {
+                    showPreview: true,
+                },
+            },
+        };
+
+        await wrapper.vm.onSave();
+
+        expect(countrySaveMock).toHaveBeenCalled();
+        expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalledWith({
+            'setting-country': {
+                'the-id': {
+                    showPreview: true,
+                },
+            },
+        });
     });
 });

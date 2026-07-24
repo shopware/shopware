@@ -22,7 +22,6 @@ export default {
         'acl',
         'searchPreferencesService',
         'searchRankingService',
-        'userConfigService',
         'ssoSettingsService',
         'validationApiService',
         'feature',
@@ -483,7 +482,7 @@ export default {
 
             this.isLoading = true;
             this.isSaveSuccessful = false;
-            return this.userConfigService
+            return Shopware.Service('userConfigService')
                 .upsert({
                     [KEY_USER_SEARCH_PREFERENCE]: this.userSearchPreferences.value,
                 })

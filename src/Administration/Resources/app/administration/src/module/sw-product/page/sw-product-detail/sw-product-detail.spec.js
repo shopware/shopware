@@ -105,6 +105,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                                 return {};
                             },
                             search: searchFunction,
+                            searchIds: () => Promise.resolve({ data: [] }),
                             get: getFunction,
                             hasChanges: () => true,
                             save: () => Promise.resolve({}),
@@ -117,6 +118,9 @@ describe('module/sw-product/page/sw-product-detail', () => {
                             }),
                         getValues: () => Promise.resolve(defaultSalesChannelData),
                     },
+                    customFieldDataProviderService: {
+                        getCustomFieldSets: () => Promise.resolve([]),
+                    },
                     entityValidationService: {
                         validate: (entity, customValidator) => {
                             let errors = [];
@@ -126,10 +130,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
                             return errors.length < 1;
                         },
-                    },
-                    userConfigService: {
-                        search: () => Promise.resolve({ data: {} }),
-                        upsert: () => Promise.resolve(),
                     },
                 },
                 stubs: {
@@ -223,6 +223,10 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     beforeEach(async () => {
+        jest.restoreAllMocks();
+        jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({ data: {} });
+        jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
+
         wrapper = await createWrapper();
 
         Shopware.Store.get('swProductDetail').setLengthUnit = jest.fn();
@@ -403,7 +407,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     it('should show item tabs when advanced mode deactivate', async () => {
-        wrapper.vm.userModeSettingsRepository.save = jest.fn(() => Promise.resolve());
         Shopware.Store.get('swProductDetail').product = { parentId: '' };
         await wrapper.setProps({
             productId: '1234',
@@ -497,16 +500,17 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
     it('should set purchasePrices to default value when given purchasePrices are empty', async () => {
         await wrapper.vm.$nextTick();
-        wrapper.vm.currencyRepository.search = jest.fn(() => {
-            return Promise.resolve([
+        wrapper.unmount();
+        wrapper = await createWrapper(() =>
+            Promise.resolve([
                 {
                     id: '123',
                     name: 'EUR',
                 },
-            ]);
-        });
+            ]),
+        );
 
-        await wrapper.vm.loadCurrencies();
+        await flushPromises();
         await nextTick();
 
         expect(wrapper.vm.product.purchasePrices).toStrictEqual([
@@ -632,12 +636,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     it('should initialize with default units when no preferences exist', async () => {
-        wrapper.vm.userConfigService.search = jest.fn(() =>
-            Promise.resolve({
-                data: {},
-            }),
-        );
-
         await wrapper.vm.initProductMeasurementUnits();
 
         expect(wrapper.vm.previousLengthUnit).toBe('mm');
@@ -652,13 +650,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
             weight: 'g',
         };
 
-        wrapper.vm.userConfigService.search = jest.fn(() =>
-            Promise.resolve({
-                data: {
-                    'measurement.preferenceUnits': preferredUnits,
-                },
-            }),
-        );
+        Shopware.Service('userConfigService').search.mockResolvedValue({
+            data: {
+                'measurement.preferenceUnits': preferredUnits,
+            },
+        });
 
         await wrapper.vm.initProductMeasurementUnits();
 
@@ -674,11 +670,9 @@ describe('module/sw-product/page/sw-product-detail', () => {
             previousWeightUnit: 'kg',
         });
 
-        wrapper.vm.userConfigService.upsert = jest.fn(() => Promise.resolve());
-
         await wrapper.vm.saveProduct();
 
-        expect(wrapper.vm.userConfigService.upsert).toHaveBeenCalled();
+        expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalled();
         expect(wrapper.vm.previousLengthUnit).toBe('mm');
         expect(wrapper.vm.previousWeightUnit).toBe('kg');
     });
@@ -689,11 +683,9 @@ describe('module/sw-product/page/sw-product-detail', () => {
             previousWeightUnit: 'kg',
         });
 
-        wrapper.vm.userConfigService.upsert = jest.fn(() => Promise.resolve());
-
         await wrapper.vm.saveProduct();
 
-        expect(wrapper.vm.userConfigService.upsert).not.toHaveBeenCalled();
+        expect(Shopware.Service('userConfigService').upsert).not.toHaveBeenCalled();
         expect(wrapper.vm.previousLengthUnit).toBe('mm');
         expect(wrapper.vm.previousWeightUnit).toBe('kg');
     });
@@ -704,11 +696,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
             previousWeightUnit: 'kg',
         });
 
-        wrapper.vm.userConfigService.upsert = jest.fn(() => Promise.reject(new Error('Save failed')));
+        Shopware.Service('userConfigService').upsert.mockRejectedValue(new Error('Save failed'));
 
         await wrapper.vm.saveProduct();
 
-        expect(wrapper.vm.userConfigService.upsert).toHaveBeenCalled();
+        expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalled();
         // Previous units should not be updated on error
         expect(wrapper.vm.previousLengthUnit).toBe('cm');
         expect(wrapper.vm.previousWeightUnit).toBe('kg');
@@ -1253,38 +1245,36 @@ describe('module/sw-product/page/sw-product-detail', () => {
         ]);
     });
 
-    it('should load mode settings from user config when editing existing product', async () => {
-        // Mock user config with 'prices' disabled (enabled: false)
+    it('should load mode settings from cached user config when editing existing product', async () => {
         const mockSettings = {
-            first: () => ({
-                value: {
-                    advancedMode: {
-                        label: 'sw-product.general.textAdvancedMode',
-                        enabled: true,
-                    },
-                    settings: [
-                        {
-                            key: 'prices',
-                            label: 'sw-product.detailBase.cardTitlePrices',
-                            enabled: false,
-                            name: 'general',
-                        },
-                    ],
+            advancedMode: {
+                label: 'sw-product.general.textAdvancedMode',
+                enabled: true,
+            },
+            settings: [
+                {
+                    key: 'prices',
+                    label: 'sw-product.detailBase.cardTitlePrices',
+                    enabled: false,
+                    name: 'general',
                 },
-            }),
-            total: 1,
+            ],
         };
 
+        Shopware.Service('userConfigService').search.mockImplementation((keys) => {
+            if (keys.includes('mode.setting.advancedModeSettings')) {
+                return Promise.resolve({
+                    data: {
+                        'mode.setting.advancedModeSettings': mockSettings,
+                    },
+                });
+            }
+
+            return Promise.resolve({ data: {} });
+        });
+
         wrapper = await createWrapper(
-            (criteria) => {
-                const isUserConfigSearch = criteria.filters.some(
-                    (f) => f.field === 'key' && f.value === 'mode.setting.advancedModeSettings',
-                );
-                if (isUserConfigSearch) {
-                    return Promise.resolve(mockSettings);
-                }
-                return Promise.resolve([]);
-            },
+            () => Promise.resolve([]),
             () => Promise.resolve({}),
             null,
         );
@@ -1307,6 +1297,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             'essential_characteristics',
             'custom_fields',
         ]);
+        expect(Shopware.Service('userConfigService').search).toHaveBeenCalledWith(['mode.setting.advancedModeSettings']);
     });
 
     it('should clear stale variant data when opening create page after viewing a variant product', async () => {

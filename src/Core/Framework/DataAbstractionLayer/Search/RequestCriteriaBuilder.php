@@ -388,7 +388,8 @@ class RequestCriteriaBuilder
         }
 
         $page = (int) $payload['page'];
-        $limit = (int) ($payload['limit'] ?? 0);
+        // Use the effective criteria limit, so that paginating without an explicit limit still produces disjoint pages.
+        $limit = $criteria->getLimit() ?? 0;
 
         if ($page <= 0) {
             $searchRequestException->add(new InvalidPageQueryException($page), '/page');

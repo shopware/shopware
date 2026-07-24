@@ -6,6 +6,10 @@
 
 ## Core
 
+### Rule Builder no longer duplicates conditions for large rules
+
+Rules with more than 500 conditions are now displayed correctly in the Administration Rule Builder. Previously such rules showed duplicated conditions and dropped the ones beyond the first 500, caused by incorrect pagination when a search request was sent without an explicit limit.
+
 ### Built-in translation system configurable via `shopware.translation`
 
 The built-in translation system's configuration (previously only editable by decorating `AbstractTranslationConfigLoader`) can now be overridden through the standard Symfony configuration in `config/packages`. Add a `shopware.translation` section to override individual options; any option left unset falls back to the shipped defaults in `translation.yaml`:

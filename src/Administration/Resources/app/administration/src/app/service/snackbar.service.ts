@@ -4,7 +4,7 @@ import useSnackbar from 'src/app/composables/use-snackbar';
 /**
  * @sw-package framework
  *
- * @private
+ * @public
  */
 export default class SnackbarService {
     addSnackbar(config: Omit<Snackbar, 'id'>): Snackbar {

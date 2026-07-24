@@ -160,7 +160,6 @@ class BuildBreadcrumbExtensionTest extends TestCase
             $entitySearchResult, clone $entitySearchResult,
         ]);
 
-        /** @var StaticEntityRepository<CategoryCollection> $categoryRepository */
         $categoryRepository = new StaticEntityRepository([]);
 
         return new BuildBreadcrumbExtension($categoryBreadcrumbBuilder, $salesChannelCategoryRepository, $categoryRepository);

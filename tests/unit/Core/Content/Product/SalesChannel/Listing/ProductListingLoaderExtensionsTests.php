@@ -87,8 +87,7 @@ class ProductListingLoaderExtensionsTests extends TestCase
 
         $client = new Client(['handler' => $handlerStack]);
 
-        /** @var StaticEntityRepository<ProductCollection> $productRepo */
-        $productRepo = new StaticEntityRepository([
+        $productRepo = StaticEntityRepository::of(ProductCollection::class, [
             [(new ProductEntity())->assign(['id' => 'plugin-id'])],
         ]);
         $example = new ResolveListingExample($client, $productRepo);

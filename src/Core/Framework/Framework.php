@@ -90,14 +90,14 @@ class Framework extends Bundle
         $phpLoader->load('filesystem.php');
         $phpLoader->load('message-queue.php');
         $phpLoader->load('plugin.php');
-        $loader->load('rule.xml');
+        $phpLoader->load('rule.php');
         $phpLoader->load('store.php');
         $phpLoader->load('scheduled-task.php');
         $phpLoader->load('script.php');
-        $loader->load('language.xml');
+        $phpLoader->load('language.php');
         $phpLoader->load('validation.php');
         $phpLoader->load('update.php');
-        $loader->load('seo.xml');
+        $phpLoader->load('seo.php');
         $phpLoader->load('rate-limiter.php');
         $phpLoader->load('webhook.php');
         $phpLoader->load('increment.php');
@@ -113,7 +113,7 @@ class Framework extends Bundle
         if ($container->getParameter('kernel.environment') === 'test') {
             $phpLoader->load('services_test.php');
             $phpLoader->load('store_test.php');
-            $loader->load('seo_test.xml');
+            $phpLoader->load('seo_test.php');
             $phpLoader->load('app_test.php');
         }
         // @codeCoverageIgnoreEnd

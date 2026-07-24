@@ -47,6 +47,20 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
+        /**
+         * Dismissible change notices shown at the top of the settings overview. Each entry carries the
+         * `deprecationVersion` it becomes obsolete with. Once that version is reached, DELETE the entry
+         * here — it is no longer relevant.
+         */
+        changeNotices(): { key: string; deprecationVersion: string }[] {
+            return [
+                {
+                    key: 'sw-settings.index.textSettingRenameBanner',
+                    deprecationVersion: 'v6.8.0.0',
+                },
+            ];
+        },
+
         settingsGroups() {
             // Helpers
             const labelOfSetting = (setting: SettingsItemHere) =>

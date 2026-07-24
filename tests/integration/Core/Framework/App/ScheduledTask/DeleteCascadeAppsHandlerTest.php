@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskExecutor;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Integration\IntegrationCollection;
@@ -107,13 +108,15 @@ class DeleteCascadeAppsHandlerTest extends TestCase
         $task = new DeleteCascadeAppsTask();
         $task->setTaskId($taskId);
 
+        $logger = $this->createMock(LoggerInterface::class);
         $handler = new DeleteCascadeAppsHandler(
             $this->scheduledTaskRepo,
-            $this->createMock(LoggerInterface::class),
+            $logger,
             $this->aclRoleRepo,
             $this->integrationRepo,
             new NativeClock()
         );
+        $handler->setScheduledTaskExecutor(new ScheduledTaskExecutor($this->scheduledTaskRepo, $logger, new NativeClock()));
 
         $handler($task);
 

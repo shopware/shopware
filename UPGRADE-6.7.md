@@ -1,5 +1,24 @@
 # 6.7.14.0
 
+## Product export templates: manual URL encoding no longer required
+
+`ProductExportRenderer::renderBody()` now automatically encodes absolute URLs in the body-template data context according to RFC 3986. Invalid characters in media paths, query strings, product URLs, and other absolute URL values are percent-encoded before the Twig template is rendered. Existing percent-encoded sequences (`%20`, `%2C`, …) pass through unchanged.
+
+**Action required if your custom body template already encodes URLs manually.**
+Templates that apply `|url_encode`, `|replace({' ': '%20'})`, or any other manual percent-encoding to a value that is already an absolute URL will now produce double-encoded output, for example `%20` becomes `%2520`.
+
+Remove the manual encoding from your template body:
+
+```twig
+{# Before — no longer needed, will double-encode #}
+<g:image_link>{{ product.cover.media.url|url_encode }}</g:image_link>
+
+{# After — encoding is applied automatically #}
+<g:image_link>{{ product.cover.media.url }}</g:image_link>
+```
+
+This affects the body template only. Header and footer templates, and any URLs assembled entirely inside a Twig expression rather than coming from the data context, are not changed.
+
 ## MCP server no longer uses the `MCP_SERVER` feature flag
 
 The experimental MCP server is now always enabled and the `MCP_SERVER` feature flag has been removed.

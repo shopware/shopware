@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport\Service;
 
+use GuzzleHttp\Psr7\Uri;
 use Monolog\Level;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderFooterContextEvent;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -109,7 +111,7 @@ class ProductExportRenderer implements ProductExportRendererInterface
         try {
             return $this->templateRenderer->render(
                 $bodyTemplate,
-                $data,
+                $this->encodeUrls($data),
                 $salesChannelContext->getContext()
             ) . \PHP_EOL;
         } catch (AdapterException $exception) {
@@ -118,6 +120,55 @@ class ProductExportRenderer implements ProductExportRendererInterface
 
             throw $renderProductException;
         }
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     *
+     * @return array<string, mixed>
+     */
+    private function encodeUrls(array $data): array
+    {
+        foreach ($data as $key => $value) {
+            $encodedValue = $this->encodeUrl($value);
+
+            if ($encodedValue !== $value) {
+                $data[$key] = $encodedValue;
+            }
+        }
+
+        return $data;
+    }
+
+    private function encodeUrl(mixed $value): mixed
+    {
+        if (\is_string($value) && preg_match('#^https?://[^/\s]#i', $value) === 1) {
+            try {
+                return (string) new Uri($value);
+            } catch (\InvalidArgumentException) {
+                return $value;
+            }
+        }
+
+        if (\is_array($value)) {
+            return $this->encodeUrls($value);
+        }
+
+        if (!$value instanceof Struct) {
+            return $value;
+        }
+
+        $variables = $value->getVars();
+        $encodedVariables = $this->encodeUrls($variables);
+
+        if ($encodedVariables === $variables) {
+            return $value;
+        }
+
+        $copy = clone $value;
+        $copy->assign($encodedVariables);
+
+        return $copy;
     }
 
     private function logException(

@@ -6,6 +6,8 @@ use Monolog\Level;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderFooterContextEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderHeaderContextEvent;
@@ -15,6 +17,7 @@ use Shopware\Core\Content\ProductExport\Service\ProductExportRenderer;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -261,6 +264,126 @@ class ProductExportRendererTest extends TestCase
         $renderer->renderBody($productExport, $this->context, []);
     }
 
+    public function testRenderBodyEncodesUrlsInNestedData(): void
+    {
+        $renderer = $this->createRenderer();
+        $productExport = new ProductExportEntity();
+        $productExport->setId(Uuid::randomHex());
+        $productExport->setBodyTemplate('{{ custom.nested.url }}');
+
+        $rendered = $renderer->renderBody($productExport, $this->context, [
+            'custom' => [
+                'nested' => [
+                    'url' => 'https://example.com/media/My Image, Front.jpg?width=100#preview',
+                ],
+            ],
+        ]);
+
+        static::assertSame('https://example.com/media/My%20Image,%20Front.jpg?width=100#preview' . \PHP_EOL, $rendered);
+    }
+
+    public function testRenderBodyEncodesUrlsInNestedStructsWithoutMutatingThem(): void
+    {
+        $renderer = $this->createRenderer();
+        $productExport = new ProductExportEntity();
+        $productExport->setId(Uuid::randomHex());
+        $productExport->setBodyTemplate('{{ cover.media.url }}');
+
+        $media = new MediaEntity();
+        $media->setUrl('https://example.com/media/My Image, Front.jpg');
+
+        $cover = new ProductMediaEntity();
+        $cover->setMedia($media);
+
+        $rendered = $renderer->renderBody($productExport, $this->context, ['cover' => $cover]);
+
+        static::assertSame('https://example.com/media/My%20Image,%20Front.jpg' . \PHP_EOL, $rendered);
+
+        static::assertSame('https://example.com/media/My Image, Front.jpg', $media->getUrl());
+        $coverMedia = $cover->getMedia();
+        static::assertNotNull($coverMedia);
+        static::assertSame('https://example.com/media/My Image, Front.jpg', $coverMedia->getUrl());
+    }
+
+    public function testRenderBodyKeepsUnchangedStructsByIdentity(): void
+    {
+        $productExport = new ProductExportEntity();
+        $productExport->setId(Uuid::randomHex());
+        $productExport->setBodyTemplate('{{ cover.media.url }}');
+
+        $media = new MediaEntity();
+        $media->setUrl('https://example.com/media/My Image.jpg');
+
+        $cover = new ProductMediaEntity();
+        $cover->setMedia($media);
+
+        $unchanged = new ArrayStruct(['label' => 'Product feed']);
+
+        $twigRenderer = $this->createMock(StringTemplateRenderer::class);
+        $twigRenderer->expects($this->once())->method('render')->willReturnCallback(
+            static function (string $template, array $data) use ($cover, $unchanged): string {
+                static::assertSame('{{ cover.media.url }}', $template);
+                static::assertNotSame($cover, $data['cover']);
+                static::assertSame($unchanged, $data['unchanged']);
+
+                return 'rendered';
+            }
+        );
+
+        $renderer = new ProductExportRenderer(
+            $twigRenderer,
+            static::createStub(EventDispatcherInterface::class),
+        );
+
+        static::assertSame('rendered' . \PHP_EOL, $renderer->renderBody($productExport, $this->context, [
+            'cover' => $cover,
+            'unchanged' => $unchanged,
+        ]));
+    }
+
+    public function testRenderBodyDoesNotDoubleEncodeUrls(): void
+    {
+        $renderer = $this->createRenderer();
+        $productExport = new ProductExportEntity();
+        $productExport->setId(Uuid::randomHex());
+        $productExport->setBodyTemplate('{{ url }}');
+
+        $rendered = $renderer->renderBody($productExport, $this->context, [
+            'url' => 'https://example.com/media/My%20Image,%20Front.jpg?foo=hello%20world',
+        ]);
+
+        static::assertSame('https://example.com/media/My%20Image,%20Front.jpg?foo=hello%20world' . \PHP_EOL, $rendered);
+    }
+
+    public function testRenderBodyKeepsNonUrlAndUnparsableUrlValues(): void
+    {
+        $renderer = $this->createRenderer();
+        $productExport = new ProductExportEntity();
+        $productExport->setId(Uuid::randomHex());
+        $productExport->setBodyTemplate('{{ label }} {{ url }}');
+
+        $rendered = $renderer->renderBody($productExport, $this->context, [
+            'label' => 'Product feed',
+            'url' => 'https://',
+        ]);
+
+        static::assertSame('Product feed https://' . \PHP_EOL, $rendered);
+    }
+
+    public function testRenderBodyKeepsOriginalValueForInvalidUrls(): void
+    {
+        $renderer = $this->createRenderer();
+        $productExport = new ProductExportEntity();
+        $productExport->setId(Uuid::randomHex());
+        $productExport->setBodyTemplate('{{ url }}');
+
+        $rendered = $renderer->renderBody($productExport, $this->context, [
+            'url' => 'https://cdn.example.com:99999/image.jpg',
+        ]);
+
+        static::assertSame('https://cdn.example.com:99999/image.jpg' . \PHP_EOL, $rendered);
+    }
+
     /**
      * @return iterable<string, array<int, string|null>>
      */
@@ -308,5 +431,13 @@ class ProductExportRendererTest extends TestCase
             [],
             'http://en.test',
         ];
+    }
+
+    private function createRenderer(): ProductExportRenderer
+    {
+        return new ProductExportRenderer(
+            new StringTemplateRenderer(new Environment(new ArrayLoader()), sys_get_temp_dir()),
+            static::createStub(EventDispatcherInterface::class),
+        );
     }
 }

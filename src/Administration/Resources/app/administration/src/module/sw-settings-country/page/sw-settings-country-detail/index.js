@@ -15,6 +15,7 @@ export default {
         'repositoryFactory',
         'acl',
         'customFieldDataProviderService',
+        'feature',
     ],
 
     mixins: [
@@ -82,6 +83,30 @@ export default {
 
         allowSave() {
             return this.isNewCountry ? this.acl.can('country.creator') : this.acl.can('country.editor');
+        },
+
+        countryTabs() {
+            const createRouteTab = (label, routeName) => {
+                const route = {
+                    name: routeName,
+                };
+
+                return {
+                    label: this.$t(label),
+                    name: route.name,
+                    onClick: () => {
+                        void this.$router.push(route);
+                    },
+                };
+            };
+
+            const routePrefix = this.isNewCountry ? 'sw.settings.country.create' : 'sw.settings.country.detail';
+
+            return [
+                createRouteTab('sw-settings-country.page.generalTab', `${routePrefix}.general`),
+                createRouteTab('sw-settings-country.page.stateTab', `${routePrefix}.state`),
+                createRouteTab('sw-settings-country.page.addressHandlingTab', `${routePrefix}.address-handling`),
+            ];
         },
 
         tooltipSave() {

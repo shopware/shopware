@@ -53,6 +53,7 @@ export default {
             removedSalesChannels: [],
             showMediaModal: false,
             activeMediaField: null,
+            activeTab: 'default',
             themeConfigErrors: {},
         };
     },
@@ -649,7 +650,11 @@ export default {
             }
         },
 
-        onChangeTab() {
+        onChangeTab(activeTab = null) {
+            if (typeof activeTab === 'string') {
+                this.activeTab = activeTab;
+            }
+
             for (const [
                 key,
                 item,

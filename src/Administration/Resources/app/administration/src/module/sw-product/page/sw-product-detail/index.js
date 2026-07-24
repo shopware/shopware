@@ -21,6 +21,7 @@ export default {
     template,
 
     inject: [
+        'feature',
         'mediaService',
         'repositoryFactory',
         'numberRangeService',
@@ -139,6 +140,54 @@ export default {
 
         advanceModeEnabled() {
             return Shopware.Store.get('swProductDetail').advanceModeEnabled;
+        },
+
+        productDetailTabs() {
+            const createRouteTab = (label, routeName, additionalProperties = {}) => {
+                const route = {
+                    name: routeName,
+                    params: { id: this.$route.params.id },
+                };
+
+                return {
+                    label: this.$t(label),
+                    name: route.name,
+                    onClick: () => {
+                        void this.$router.push(route);
+                    },
+                    ...additionalProperties,
+                };
+            };
+
+            const tabs = [
+                createRouteTab('sw-product.detail.tabGeneral', 'sw.product.detail.base', {
+                    hasError: this.swProductDetailBaseError,
+                }),
+                createRouteTab('sw-product.detail.tabSpecifications', 'sw.product.detail.specifications'),
+            ];
+
+            if (this.showModeSetting) {
+                tabs.push(createRouteTab('sw-product.detail.tabAdvancedPrices', 'sw.product.detail.prices'));
+            }
+
+            if (!this.isChild && this.showModeSetting) {
+                tabs.push(
+                    createRouteTab('sw-product.detail.tabVariation', 'sw.product.detail.variants'),
+                    createRouteTab('sw-product.detail.tabLayout', 'sw.product.detail.layout'),
+                );
+            }
+
+            if (this.showModeSetting) {
+                tabs.push(
+                    createRouteTab('sw-product.detail.tabSeo', 'sw.product.detail.seo'),
+                    createRouteTab('sw-product.detail.tabCrossSelling', 'sw.product.detail.crossSelling', {
+                        hasError: this.swProductDetailCrossSellingError,
+                    }),
+                    createRouteTab('sw-product.detail.tabReviews', 'sw.product.detail.reviews'),
+                );
+            }
+
+            return tabs;
         },
 
         /**

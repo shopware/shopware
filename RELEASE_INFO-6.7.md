@@ -6,6 +6,10 @@
 
 ## Core
 
+### Skip the exact total count query on the last page of a search
+
+For `Criteria::TOTAL_COUNT_MODE_EXACT`, when the requested page is the last (partial) page — the fetched result is shorter than the limit, or there is no limit — `Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher` now derives the exact total directly from the fetched rows (`offset + rows`) instead of running a separate `SELECT COUNT(*)` query. Paginated searches that land on or past the last page save that second query; the returned total and result set are unchanged.
+
 ### Built-in translation system configurable via `shopware.translation`
 
 The built-in translation system's configuration (previously only editable by decorating `AbstractTranslationConfigLoader`) can now be overridden through the standard Symfony configuration in `config/packages`. Add a `shopware.translation` section to override individual options; any option left unset falls back to the shipped defaults in `translation.yaml`:
@@ -76,7 +80,7 @@ Cron-driven product export generation no longer derives the next run from `gener
 
 ## Hosting & Configuration
 
-# 6.7.13.0
+# 6.7.13.0 (upcoming)
 
 ## Critical Fixes
 

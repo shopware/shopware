@@ -512,6 +512,10 @@
             padding: 0;
             border: 0;
             visibility: hidden;
+
+            // Hide instantly when collapsing; the transition on the base state
+            // still animates the reveal when the sidebar expands again.
+            transition: none;
         }
 
         .sw-admin-menu__user-actions-toggle {

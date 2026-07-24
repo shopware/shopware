@@ -337,7 +337,6 @@ class DocumentRendererSnapshotTest extends TestCase
 
         $request = new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::CANCELLATION_INVOICE,
             [DocumentFormat::ZUGFERD_XML],
             self::DOCUMENT_NUMBER,

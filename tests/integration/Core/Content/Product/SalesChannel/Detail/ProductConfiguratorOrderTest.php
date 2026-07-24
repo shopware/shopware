@@ -194,6 +194,7 @@ class ProductConfiguratorOrderTest extends TestCase
         // Load a Blue variant; Blue has no configurator setting row.
         $salesChannelProduct = $this->salesChannelProductRepository
             ->search(new Criteria([$blueSmallId]), $this->context)
+            ->getEntities()
             ->first();
         static::assertInstanceOf(SalesChannelProductEntity::class, $salesChannelProduct);
 

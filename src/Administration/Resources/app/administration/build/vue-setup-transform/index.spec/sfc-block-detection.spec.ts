@@ -21,7 +21,7 @@ describe('build/vue-setup-transform SFC block detection', () => {
 
         const result = transformOrFail(source, 'sw-native.vue');
 
-        expect(result.code).toContain('Shopware.Component.createExtendableSetup(');
+        expect(result.code).toContain('Shopware.Component.attachOverrides(');
         expect(result.code).toContain("name: 'sw-native'");
     });
 
@@ -35,7 +35,7 @@ describe('build/vue-setup-transform SFC block detection', () => {
 
         const result = transformOrFail(source, 'script-attribute.vue').code;
 
-        expect(result).toContain('Shopware.Component.createExtendableSetup(');
+        expect(result).toContain('Shopware.Component.attachOverrides(');
         expect(result).toContain("name: 'script-attribute'");
     });
 
@@ -61,9 +61,10 @@ describe('build/vue-setup-transform SFC block detection', () => {
 
         const result = transformOrFail(source, 'scanner.vue').code;
 
-        // Exactly the real block is lowered; the fake tags survive verbatim as comment/string text.
-        expect(result.match(/createExtendableSetup\(/g)).toHaveLength(1);
-        expect(result).toContain("const single = '<script setup>';");
+        // Exactly the real block is lowered; the fake tags survive verbatim as comment/string text
+        // (the binding is renamed, but the string literal content is untouched).
+        expect(result.match(/attachOverrides\(/g)).toHaveLength(1);
+        expect(result).toContain("= '<script setup>';");
         expect(result).toContain('/* <script setup> */');
     });
 

@@ -25,7 +25,7 @@
 
 import type { Identifier, Node as BabelNode } from '@babel/types';
 import { forEachPatternIdentifier } from '../utils/babel-patterns';
-import { childBabelNodes, findInTree, isTypeKey } from '../utils/ast-traversal';
+import { childBabelEntries, childBabelNodes, findInTree, isTypeKey } from '../utils/ast-traversal';
 
 /**
  * Whether an identifier is a **runtime identifier reference** - a value read - rather than a
@@ -113,6 +113,18 @@ function findLocalSetupTypeReference(node: BabelNode | null | undefined, localBi
 
         return null;
     });
+}
+
+/**
+ * Whether every identifier below this node lives in type space.
+ *
+ * Type-declaration statements (`interface X {…}`, `type Y = …`) are reached through ordinary child
+ * keys (`declaration`/`body`), not the `typeAnnotation`-style keys `isTypeKey` recognises, so their
+ * members would otherwise be walked as value positions and their keys wrongly renamed. Once inside
+ * such a node the only value reference is a `typeof` query, which is matched before recursion.
+ */
+function isTypeDeclarationContainer(node: BabelNode): boolean {
+    return node.type === 'TSInterfaceDeclaration' || node.type === 'TSTypeAliasDeclaration';
 }
 
 /**
@@ -217,4 +229,113 @@ function findLocalSetupReference(
     return null;
 }
 
-export { findLocalSetupReference, findLocalSetupTypeReference };
+/**
+ * One identifier a rename pass must rewrite, together with the exact text to put in its place.
+ *
+ * For most occurrences `replacement` is just the alias, but a shorthand object property (`{ foo }`)
+ * must expand to `{ foo: alias }` - renaming the single shared identifier in place would silently
+ * rewrite the property *key* as well, so the collector emits the expanded replacement here.
+ */
+type SetupRenameTarget = {
+    node: Identifier;
+    replacement: string;
+};
+
+/**
+ * Whether an identifier is the value of a shorthand object property (`{ foo }` or `{ foo = 1 }`).
+ *
+ * In these the property key and value share one source range, so a plain rename would rewrite the key
+ * too; the replacement must expand the shorthand to `key: alias`.
+ */
+function isShorthandPropertyValue(node: Identifier, parent: BabelNode | null): boolean {
+    return parent?.type === 'ObjectProperty' && parent.shorthand === true && parent.value === node;
+}
+
+/**
+ * Collects EVERY identifier occurrence of the given top-level names that a rename pass must touch,
+ * each paired with the text to replace it with.
+ *
+ * Unlike `findLocalSetupReference` (which reports the first *read*), a rename must also cover the
+ * declaration ids and write targets, and additionally `typeof name` type queries — while still
+ * skipping shadowed occurrences, member-access property names, static object keys, and other type
+ * positions. Occurrences inside scopes that re-declare the name are left untouched (they refer to the
+ * local, not the renamed top-level binding). Shorthand object-property values are expanded to
+ * `key: alias` so the property key survives the rewrite.
+ */
+function collectSetupRenameTargets(
+    node: BabelNode | null | undefined,
+    names: Set<string>,
+    aliasFor: (name: string) => string,
+    targets: SetupRenameTarget[] = [],
+    shadowedBindings = new Set<string>(),
+    parent: BabelNode | null = null,
+    inTypePosition = false,
+): SetupRenameTarget[] {
+    if (!node) {
+        return targets;
+    }
+
+    // Inside type positions only `typeof name` reads the value binding; every other identifier there
+    // is a type name or member key and must not be renamed.
+    if (!inTypePosition && node.type === 'Identifier' && names.has(node.name) && !shadowedBindings.has(node.name)) {
+        // Value reads/writes plus declaration ids; static keys and member property names still excluded.
+        const isDeclarationId =
+            parent !== null &&
+            'id' in parent &&
+            (parent as { id?: BabelNode }).id === node &&
+            (parent.type === 'VariableDeclarator' ||
+                parent.type === 'FunctionDeclaration' ||
+                parent.type === 'ClassDeclaration');
+
+        if (isDeclarationId || isRuntimeIdentifierReference(node, parent)) {
+            const alias = aliasFor(node.name);
+
+            targets.push({
+                node,
+                replacement: isShorthandPropertyValue(node, parent) ? `${node.name}: ${alias}` : alias,
+            });
+        }
+    }
+
+    // `typeof count` reads the value binding from type space and must be renamed with it.
+    if (node.type === 'TSTypeQuery') {
+        const identifier = getLeftmostEntityIdentifier(node.exprName);
+
+        if (identifier && names.has(identifier.name) && !shadowedBindings.has(identifier.name)) {
+            targets.push({ node: identifier, replacement: aliasFor(identifier.name) });
+        }
+
+        return targets;
+    }
+
+    const childShadowedBindings = new Set(shadowedBindings);
+
+    if (isFunctionLikeNode(node)) {
+        const functionNode = node as unknown as { params: BabelNode[]; body: BabelNode };
+
+        functionNode.params.forEach((param) =>
+            forEachPatternIdentifier(param, (identifier) => childShadowedBindings.add(identifier.name)),
+        );
+
+        collectFunctionScopeDeclarations(functionNode.body, childShadowedBindings);
+    }
+
+    const childInTypePosition = inTypePosition || isTypeDeclarationContainer(node);
+
+    childBabelEntries(node).forEach(({ node: child, key }) =>
+        collectSetupRenameTargets(
+            child,
+            names,
+            aliasFor,
+            targets,
+            childShadowedBindings,
+            node,
+            childInTypePosition || isTypeKey(key),
+        ),
+    );
+
+    return targets;
+}
+
+export { collectSetupRenameTargets, findLocalSetupReference, findLocalSetupTypeReference };
+export type { SetupRenameTarget };

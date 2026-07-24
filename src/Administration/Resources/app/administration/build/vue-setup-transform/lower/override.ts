@@ -59,7 +59,7 @@ function buildOverrideScript(block: ShopwareSetupBlock, analysis: ShopwareSetupS
     const previousStateName = '__swSetupPreviousState';
     const propsName = '__swSetupProps';
     const contextName = '__swSetupContext';
-    const callbackBody = buildCallbackBodyChunks(block, analysis, null);
+    const callbackBody = buildCallbackBodyChunks(block, analysis);
     const body = [
         generated(`const useSwPreviousState = () => ${previousStateName};\n`),
         generated(`const useSwProps = () => ${propsName};\n`),

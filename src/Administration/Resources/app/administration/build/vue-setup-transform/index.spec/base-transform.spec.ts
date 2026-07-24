@@ -27,51 +27,44 @@ describe('build/vue-setup-transform base transforms', () => {
             </script>
         `;
 
-        const expected = stripIndent`
-            <template><div>{{ count }}{{ foo2 }}</div></template>
-            <script setup lang="ts">
-            import { ref, computed } from 'vue';
+        // Base lowering: the author body stays native (macros in place, bindings renamed to their
+        // __swSetupAuthor_ alias), and a single generated footer re-declares the original names by
+        // destructuring attachOverrides(). Written as a literal to pin the exact generated formatting.
+        const expected = `<template><div>{{ count }}{{ foo2 }}</div></template>
+<script setup lang="ts">
+const useSwContext = () => Shopware.Component.getComponentContext();
 
-            const __swSetupPropsDeclaration = defineProps<{
-                initialCount?: number;
-            }>();
+import { ref, computed } from 'vue';
 
-            const {
-                props,
-                count,
-                doubled,
-                internalThing,
-                foo2,
-                __swOverride,
-            } = Shopware.Component.createExtendableSetup(
-                {
-                    name: 'sw-my-component',
-                    props: __swSetupPropsDeclaration,
-                },
-                (__swSetupProps, __swSetupContext) => {
-                    const useSwContext = () => __swSetupContext;
+const __swSetupAuthor_props = defineProps<{
+    initialCount?: number;
+}>();
+const __swSetupAuthor_count = ref(__swSetupAuthor_props.initialCount ?? 0);
+const __swSetupAuthor_doubled = computed(() => __swSetupAuthor_count.value * 2);
+const __swSetupAuthor_internalThing = ref('secret');
+const __swSetupAuthor_foo2 = ref('bar');
 
-                    const props = (__swSetupProps);
-                    const count = ref(props.initialCount ?? 0);
-                    const doubled = computed(() => count.value * 2);
-                    const internalThing = ref('secret');
-                    const foo2 = ref('bar');
-
-                    return {
-                        public: {
-                            count,
-                            doubled,
-                            foo2,
-                        },
-                        private: {
-                            props,
-                            internalThing,
-                        },
-                    };
-                },
-            );
-            </script>
-        `;
+const {
+    props,
+    count,
+    doubled,
+    internalThing,
+    foo2,
+    __swOverride,
+} = Shopware.Component.attachOverrides({
+    name: 'sw-my-component',
+    props: __swSetupAuthor_props,
+    public: {
+        count: __swSetupAuthor_count,
+        doubled: __swSetupAuthor_doubled,
+        foo2: __swSetupAuthor_foo2,
+    },
+    private: {
+        props: __swSetupAuthor_props,
+        internalThing: __swSetupAuthor_internalThing,
+    },
+});
+</script>`;
 
         expect(transformOrFail(source, 'sw-my-component.vue').code).toBe(expected);
     });
@@ -91,9 +84,9 @@ describe('build/vue-setup-transform base transforms', () => {
 
         const result = transformOrFail(source, 'base-template-literal.vue').code;
 
-        // The callback body is indented by 8 spaces, but the interior line of the template literal must
-        // keep its original column - indenting it would add spaces to the runtime string.
-        expect(result).toContain('const message = `hello\nworld`;');
+        // The author body is never relocated or re-indented, so the interior line of the template
+        // literal keeps its original column; only the binding name is aliased.
+        expect(result).toContain('const __swSetupAuthor_message = `hello\nworld`;');
         expect(result).not.toContain('hello\n        world');
     });
 
@@ -185,9 +178,19 @@ describe('build/vue-setup-transform base transforms', () => {
 
         const result = transformOrFail(source, 'base-destructured-runtime.vue').code;
 
-        expect(result).toContain('publicTitle,');
+        // Every destructured runtime binding is renamed at its declaration and re-exposed from the
+        // footer; the public one keeps its name for the template.
+        expect(result).toContain(`const {
+    title: __swSetupAuthor_publicTitle,
+    nested: {
+        label: __swSetupAuthor_localLabel = __swSetupAuthor_fallbackLabel,
+    },
+    ...__swSetupAuthor_rest
+} = __swSetupAuthor_source;`);
+        expect(result).toContain('const [__swSetupAuthor_firstItem] = __swSetupAuthor_items;');
+        expect(result).toContain('publicTitle: __swSetupAuthor_publicTitle');
         expect(result).toContain(
-            'private: {\n                source,\n                items,\n                fallbackLabel,\n                localLabel,\n                rest,\n                firstItem,\n            }',
+            'private: {\n        source: __swSetupAuthor_source,\n        items: __swSetupAuthor_items,\n        fallbackLabel: __swSetupAuthor_fallbackLabel,\n        localLabel: __swSetupAuthor_localLabel,\n        rest: __swSetupAuthor_rest,\n        firstItem: __swSetupAuthor_firstItem,\n    }',
         );
     });
 

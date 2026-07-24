@@ -80,7 +80,6 @@ const MACRO_RULES: Record<MacroName, MacroRule> = {
         modes: ['base'],
         wrongModeMessage: 'defineProps() is only supported in base Shopware setup blocks.',
         group: 'props',
-        duplicateMessage: 'Only one props declaration macro is allowed in a base Shopware setup block.',
         setupInput: true,
         exposable: true,
         hoistedArguments: true,
@@ -90,7 +89,6 @@ const MACRO_RULES: Record<MacroName, MacroRule> = {
         modes: ['base'],
         wrongModeMessage: 'withDefaults() is only supported in base Shopware setup blocks.',
         group: 'props',
-        duplicateMessage: 'Only one props declaration macro is allowed in a base Shopware setup block.',
         setupInput: true,
         exposable: true,
         hoistedArguments: true,
@@ -99,7 +97,6 @@ const MACRO_RULES: Record<MacroName, MacroRule> = {
         vueBuiltin: true,
         modes: ['base'],
         wrongModeMessage: 'defineEmits() is only supported in base Shopware setup blocks.',
-        duplicateMessage: 'Only one defineEmits() call is allowed in a base Shopware setup block.',
         setupInput: true,
         exposable: true,
         hoistedArguments: true,
@@ -108,7 +105,6 @@ const MACRO_RULES: Record<MacroName, MacroRule> = {
         vueBuiltin: true,
         modes: ['base'],
         wrongModeMessage: 'defineSlots() is only supported in base Shopware setup blocks.',
-        duplicateMessage: 'Only one defineSlots() call is allowed in a base Shopware setup block.',
         setupInput: true,
         exposable: true,
     },
@@ -116,13 +112,11 @@ const MACRO_RULES: Record<MacroName, MacroRule> = {
         vueBuiltin: true,
         modes: ['base'],
         wrongModeMessage: 'defineExpose() is only supported in base Shopware setup blocks.',
-        duplicateMessage: 'Only one defineExpose() call is allowed in a base Shopware setup block.',
     },
     defineOptions: {
         vueBuiltin: true,
         modes: ['base'],
         wrongModeMessage: 'defineOptions() is only supported in base Shopware setup blocks.',
-        duplicateMessage: 'Only one defineOptions() call is allowed in a base Shopware setup block.',
         hoistedArguments: true,
     },
     defineModel: {
@@ -299,16 +293,6 @@ function getMacroEntries(entries: MacroCallEntry[], name: MacroName, form?: Macr
 }
 
 /**
- * Returns the single entry for one macro name, or null.
- *
- * Only meaningful after `assertMacroRules` ran: the multiplicity rules guarantee at most one entry
- * per limited macro, so consumers can drop the array handling.
- */
-function getMacroEntry(entries: MacroCallEntry[], name: MacroName, form?: MacroCallEntry['form']): MacroCallEntry | null {
-    return getMacroEntries(entries, name, form)[0] ?? null;
-}
-
-/**
  * Returns the entries of one multiplicity group in source order (e.g. `props` for
  * defineProps/withDefaults).
  */
@@ -317,8 +301,8 @@ function getMacroGroupEntries(entries: MacroCallEntry[], group: string): MacroCa
 }
 
 /**
- * Returns the single entry of one multiplicity group, or null. Same post-assert contract as
- * `getMacroEntry`.
+ * Returns the first entry of one multiplicity group, or null. (A duplicate would be rejected by Vue's
+ * own compiler downstream for the Vue macros, and by assertMacroRules for the swDefine* markers.)
  */
 function getMacroGroupEntry(entries: MacroCallEntry[], group: string): MacroCallEntry | null {
     return getMacroGroupEntries(entries, group)[0] ?? null;
@@ -380,7 +364,6 @@ export {
     getExposableSetupMacroNames,
     getHoistedArgumentMacroNames,
     getMacroEntries,
-    getMacroEntry,
     getMacroGroupEntries,
     getMacroGroupEntry,
     getReservedHelperNames,

@@ -47,10 +47,10 @@ describe('build/vue-setup-transform script setup constraints', () => {
 
         const result = transformOrFail(source, 'vue-macro-import.vue').code;
 
-        // The import is legal (Vue itself drops it again during compilation) and the call is still
-        // hoisted as the props macro.
+        // The import is legal (Vue itself drops it again during compilation) and the call stays a props
+        // macro in place; only the binding is renamed to its author alias.
         expect(result).toContain("import { defineProps } from 'vue';");
-        expect(result).toContain('const __swSetupPropsDeclaration = defineProps({ count: Number });');
+        expect(result).toContain('const __swSetupAuthor_props = defineProps({ count: Number });');
     });
 
     it('rejects importing a Vue macro name from anywhere but vue', () => {
@@ -97,7 +97,7 @@ describe('build/vue-setup-transform script setup constraints', () => {
         );
     });
 
-    it('hoists ambient declare declarations to the generated script root', () => {
+    it('keeps ambient declare declarations in place without collecting them as state', () => {
         const source = stripIndent`
             <script setup lang="ts">
             declare const injected: number;
@@ -108,15 +108,15 @@ describe('build/vue-setup-transform script setup constraints', () => {
 
         const result = transformOrFail(source, 'declare.vue').code;
 
-        // Like Vue, ambient declarations describe runtime values provided from elsewhere: they stay at the
-        // script root, are referenced from the callback, but are never collected as returned setup state.
+        // Ambient declarations describe runtime values provided from elsewhere: they are not runtime
+        // bindings, so they are neither renamed nor collected as returned setup state.
         expect(result).toContain('declare const injected: number;');
-        expect(result.indexOf('declare const injected')).toBeLessThan(result.indexOf('createExtendableSetup('));
-        expect(result).toContain('const count = injected + 1;');
+        expect(result.indexOf('declare const injected')).toBeLessThan(result.indexOf('attachOverrides('));
+        expect(result).toContain('const __swSetupAuthor_count = injected + 1;');
         expect(result).not.toMatch(/\n\s*injected,/);
     });
 
-    it('accepts type-only exports like Vue and hoists them to the script root', () => {
+    it('accepts type-only exports and leaves them in place', () => {
         const source = stripIndent`
             <script setup lang="ts">
             export type PublicCount = number;
@@ -131,9 +131,10 @@ describe('build/vue-setup-transform script setup constraints', () => {
         const result = transformOrFail(source, 'type-only-export.vue').code;
 
         expect(result).toContain('export type PublicCount = number;');
-        expect(result).toContain('export interface PublicShape {');
+        // The interface member key is a type-space name and must survive the runtime rename untouched.
+        expect(result).toContain('count: number;');
         expect(result.indexOf('export interface PublicShape')).toBeLessThan(
-            result.indexOf('Shopware.Component.createExtendableSetup('),
+            result.indexOf('Shopware.Component.attachOverrides('),
         );
         expectVueCompilerScriptToCompile(result, 'type-only-export.vue');
     });
@@ -154,9 +155,7 @@ describe('build/vue-setup-transform script setup constraints', () => {
         const result = transformOrFail(source, 'ambient-module-export.vue').code;
 
         expect(result).toContain("declare module 'vue' {");
-        expect(result.indexOf("declare module 'vue'")).toBeLessThan(
-            result.indexOf('Shopware.Component.createExtendableSetup('),
-        );
+        expect(result.indexOf("declare module 'vue'")).toBeLessThan(result.indexOf('Shopware.Component.attachOverrides('));
     });
 
     it('still rejects a value-carrying named export', () => {
@@ -208,7 +207,7 @@ describe('build/vue-setup-transform script setup constraints', () => {
 
         const result = transformOrFail(source, 'tsx-lang.vue').code;
 
-        expect(result).toContain('Shopware.Component.createExtendableSetup(');
+        expect(result).toContain('Shopware.Component.attachOverrides(');
     });
 
     it('reports transform errors at the offending author source offset', () => {

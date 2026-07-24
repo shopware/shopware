@@ -43,7 +43,12 @@ import RouterFactory from 'src/core/factory/router.factory';
 import ApiServices from 'src/core/service/api';
 import ModuleFilterFactory from 'src/core/data/filter-factory.data';
 import Store from 'src/app/store';
-import { createExtendableSetup, overrideComponentSetup } from 'src/app/adapter/composition-extension-system';
+import {
+    attachOverrides,
+    createExtendableSetup,
+    getComponentContext,
+    overrideComponentSetup,
+} from 'src/app/adapter/composition-extension-system';
 import * as Vue from 'vue';
 import type { DefineComponent, Ref } from 'vue';
 import CMS from '../module/sw-cms/constant/sw-cms.constant';
@@ -140,6 +145,8 @@ class ShopwareClass implements CustomShopwareProperties {
         isSyncComponent: AsyncComponentFactory.isSyncComponent,
         getOverrideRegistry: AsyncComponentFactory.getOverrideRegistry,
         createExtendableSetup: createExtendableSetup,
+        attachOverrides: attachOverrides,
+        getComponentContext: getComponentContext,
         overrideComponentSetup: overrideComponentSetup,
 
         /**

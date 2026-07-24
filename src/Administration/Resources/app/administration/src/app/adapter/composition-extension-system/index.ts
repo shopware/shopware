@@ -152,7 +152,8 @@ const checkNestedStructure = <
     return result;
 };
 
-const getComponentContext = (): SetupContext => {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export const getComponentContext = (): SetupContext => {
     const instance = getCurrentInstance();
 
     return (
@@ -495,4 +496,35 @@ export function overrideComponentSetup<TOriginalComponent>() {
         // Cast required: typed generics → internal OverrideFn (parameter types are contravariant)
         _overridesMap[componentName].push(override as unknown as OverrideFn);
     };
+}
+
+/**
+ * @private
+ *
+ * Hooks the override machinery into an already-executed native
+ * `<script setup>` body. The author's code runs natively (no hoisting, macros in place); the
+ * generated footer passes the finished bindings here, and this delegates to createExtendableSetup()
+ * with a callback that just returns them - all override application, previous-state, effect-scope,
+ * and data-scope semantics are reused unchanged.
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export function attachOverrides<TComponentName extends keyof ComponentPublicApiMapping>(options: {
+    name: TComponentName;
+    props?: Record<string, unknown>;
+    context?: SetupContext;
+    public?: Record<string, unknown>;
+    private?: Record<string, unknown>;
+}): any {
+    return createExtendableSetup(
+        {
+            name: options.name,
+            props: (options.props ?? {}) as never,
+            context: options.context as never,
+        },
+        () =>
+            ({
+                public: options.public ?? {},
+                private: options.private ?? {},
+            }) as never,
+    );
 }

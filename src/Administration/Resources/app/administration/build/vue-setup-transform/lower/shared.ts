@@ -11,17 +11,8 @@
 
 import { transformRanges } from '../source-edits/transform-ranges';
 import type { ShopwareSetupScriptAnalysis } from '../script-analyzer';
-import type { SetupInputKind } from '../script-analyzer/setup-inputs';
 import type { SourceChunk } from '../source-edits/chunks';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
-
-/**
- * Names the generated callback inputs that replace Vue setup macros inside a base setup body.
- */
-type SetupInputNames = {
-    props: string;
-    context: string;
-};
 
 /**
  * Escapes component names embedded in generated single-quoted strings.
@@ -45,41 +36,14 @@ function formatObjectProperties(properties: string[], spaces = 12): string {
 }
 
 /**
- * Maps one replaced Vue macro call site to the generated callback input that stands in for it.
- */
-function getSetupInputReplacement(kind: SetupInputKind, names: SetupInputNames): string {
-    switch (kind) {
-        case 'props':
-            return `(${names.props})`;
-        case 'emits':
-            return `(${names.context}.emit)`;
-        case 'slots':
-            return `(${names.context}.slots)`;
-    }
-}
-
-/**
- * Applies analyzer-provided source ranges to produce the generated setup callback body.
+ * Applies analyzer-provided source ranges to produce the generated override callback body.
  *
- * In base mode the Vue setup macros are replaced with callback parameters. In override mode no
- * replacements are passed because override helpers such as `useSwProps()` are generated instead.
+ * Only the marker statements (`swDefineOverride(...)`) are removed; override helpers such as
+ * `useSwProps()` are emitted as generated header lines by the override lowerer, so no in-body macro
+ * replacement is needed.
  */
-function buildCallbackBodyChunks(
-    block: ShopwareSetupBlock,
-    analysis: ShopwareSetupScriptAnalysis,
-    setupInputNames: SetupInputNames | null,
-): SourceChunk[] {
-    const replacements = setupInputNames
-        ? analysis.setupInputReplacements.map((range) => ({
-              ...range,
-              // A statement-initial replacement (`(__swSetupProps)`, `(__swSetupContext.expose)`, ...)
-              // gets a leading `;` so automatic-semicolon insertion cannot glue it onto the previous
-              // line in semicolon-less author code (`window.foo\n(__swSetupContext.expose)(...)`).
-              replacement: (range.statementInitial ? ';' : '') + getSetupInputReplacement(range.kind, setupInputNames),
-          }))
-        : [];
-
-    return transformRanges(block, analysis.bodyRemovals, replacements);
+function buildCallbackBodyChunks(block: ShopwareSetupBlock, analysis: ShopwareSetupScriptAnalysis): SourceChunk[] {
+    return transformRanges(block, analysis.bodyRemovals, []);
 }
 
-export { type SetupInputNames, buildCallbackBodyChunks, escapeSingleQuoted, formatObjectProperties };
+export { buildCallbackBodyChunks, escapeSingleQuoted, formatObjectProperties };

@@ -27,4 +27,4 @@ export {
     parseBindingPattern,
 } from './references';
 
-export { findLocalSetupReference, findLocalSetupTypeReference } from './setup-references';
+export { collectSetupRenameTargets, findLocalSetupReference, findLocalSetupTypeReference } from './setup-references';

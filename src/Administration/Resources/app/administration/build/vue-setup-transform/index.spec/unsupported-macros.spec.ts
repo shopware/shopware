@@ -40,9 +40,9 @@ describe('build/vue-setup-transform unsupported macros', () => {
 
         const result = transformOrFail(source, 'nested-unsupported-macro.vue').code;
 
-        expect(result).toContain(`function createModel() {
-            return defineModel();
-        }`);
+        // The enclosing function is renamed as a top-level binding, but the nested defineModel() call
+        // is a function-local and stays untouched (never rejected as a top-level unsupported macro).
+        expect(result).toContain('return defineModel();');
     });
 
     it('rejects defineProps() in override mode', () => {

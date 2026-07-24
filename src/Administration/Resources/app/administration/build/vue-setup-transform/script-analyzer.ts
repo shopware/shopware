@@ -20,7 +20,6 @@ import {
     collectMacroCallEntries,
     getHoistedArgumentMacroNames,
     getMacroEntries,
-    getMacroEntry,
 } from './script-analyzer/macro-registry';
 import { type SourceRange, getNodeRange, parseScript, walk } from './script-analyzer/utils';
 import { type RuntimeBinding, collectImportBindings, collectRuntimeBinding } from './script-analyzer/runtime-bindings';
@@ -31,7 +30,8 @@ import {
     assertStaticObjectEntries,
 } from './script-analyzer/validation';
 import { assertHoistedMacroArgumentsDoNotUseLocalSetup } from './script-analyzer/hoisted-macro-arguments';
-import { analyzeSetupInputs, type SetupInputReplacement, type SetupMacroSummary } from './script-analyzer/setup-inputs';
+import { collectSetupRenameTargets } from './flow-analysis';
+import { analyzeSetupInputs, type SetupMacroSummary } from './script-analyzer/setup-inputs';
 
 const SUPPORTED_SCRIPT_LANGS = new Set([
     'js',
@@ -60,7 +60,11 @@ type ShopwareSetupScriptAnalysis = {
     imports: ImportBlock[];
     typeDeclarations: TypeDeclarationBlock[];
     bodyRemovals: SourceRange[];
-    setupInputReplacements: SetupInputReplacement[];
+    // Base lowering keeps the author body in place: it removes only the marker statements and applies
+    // the rename edits that move every top-level runtime binding to its __swSetupAuthor_ alias, so the
+    // generated footer can re-declare the original names from attachOverrides(...).
+    markerRemovals: SourceRange[];
+    renameEdits: (SourceRange & { replacement: string })[];
     // Absolute source ranges of template literals, so the renderer can skip re-indenting their interior
     // lines (indenting would rewrite the runtime string contents).
     templateLiteralRanges: [number, number][];
@@ -71,10 +75,6 @@ type ShopwareSetupScriptAnalysis = {
     publicEntries: string[];
     overrideEntries: string[];
     propsMacro: SetupMacroSummary | null;
-    emitsMacro: SetupMacroSummary | null;
-    slotsMacro: SetupMacroSummary | null;
-    optionsMacro: SetupMacroSummary | null;
-    exposeMacro: SetupMacroSummary | null;
     overridePrivateBindings: Set<string>;
     overridePrivateNamespace: string | null;
 };
@@ -251,11 +251,10 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
             })),
     });
 
-    const { setupInputReplacements, declaredPropNames, propsMacro, emitsMacro, slotsMacro, optionsMacro, exposeMacro } =
-        analyzeSetupInputs(script, {
-            scriptOffset,
-            entries: macroEntries,
-        });
+    const { declaredPropNames, propsMacro } = analyzeSetupInputs(script, {
+        scriptOffset,
+        entries: macroEntries,
+    });
 
     assertNoRuntimeBindingPropCollision(declaredPropNames, runtimeBindings, scriptOffset);
 
@@ -293,26 +292,32 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
         scriptOffset,
     );
 
-    // Post-assert there is at most one kept-at-root defineOptions(). The marker arrays stay plural
-    // because they predate the assert (see above); at this point they also hold at most one entry.
-    const keptAtRootEntry = getMacroEntry(macroEntries, 'defineOptions', 'statement');
-    // defineExpose is removed from the callback body and re-emitted as a real macro at the script-setup
-    // footer (see setup-inputs exposeMacro / base lowering).
-    const exposeStatementEntry = getMacroEntry(macroEntries, 'defineExpose', 'statement');
+    // Override lowering removes imports, type declarations, and the marker statements from the callback
+    // body (base lowering uses markerRemovals + renameEdits instead).
     const bodyRemovals = [
         ...imports.map((importNode) => getNodeRange(importNode, scriptOffset)),
         ...typeDeclarations.map((declaration) => getNodeRange(declaration, scriptOffset)),
-        ...(keptAtRootEntry ? [getNodeRange(keptAtRootEntry.statement, scriptOffset)] : []),
-        ...(exposeStatementEntry ? [getNodeRange(exposeStatementEntry.statement, scriptOffset)] : []),
         ...publicMarkerEntries.map((entry) => getNodeRange(entry.statement, scriptOffset)),
         ...overrideMarkerEntries.map((entry) => getNodeRange(entry.statement, scriptOffset)),
     ];
+    const markerRemovals = [
+        ...publicMarkerEntries.map((entry) => getNodeRange(entry.statement, scriptOffset)),
+        ...overrideMarkerEntries.map((entry) => getNodeRange(entry.statement, scriptOffset)),
+    ];
+    const renameEdits = collectSetupRenameTargets(ast.program, runtimeBindingNames, (name) => `__swSetupAuthor_${name}`).map(
+        ({ node, replacement }) => ({
+            ...getNodeRange(node, scriptOffset),
+            replacement,
+        }),
+    );
+
     return {
         source: script,
         imports: getImportRangesAndCode(script, imports, scriptOffset),
         typeDeclarations: getTypeDeclarationRangesAndCode(script, typeDeclarations, scriptOffset),
         bodyRemovals,
-        setupInputReplacements,
+        markerRemovals,
+        renameEdits,
         templateLiteralRanges,
         runtimeBindings,
         runtimeBindingNames,
@@ -321,10 +326,6 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
         publicEntries,
         overrideEntries,
         propsMacro,
-        emitsMacro,
-        slotsMacro,
-        optionsMacro,
-        exposeMacro,
         overridePrivateBindings: new Set(),
         overridePrivateNamespace: null,
     };

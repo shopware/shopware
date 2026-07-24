@@ -3,128 +3,71 @@
  */
 
 /**
- * Lowers base Shopware setup scripts into `Shopware.Component.createExtendableSetup(...)` calls.
+ * Lowers base Shopware setup scripts by keeping the author's body native and
+ * appending a generated `Shopware.Component.attachOverrides(...)` footer.
  *
- * Base lowering owns the public/private state split: public bindings become overrideable API,
- * private bindings stay available to the component template through the returned data scope.
+ * The author's code runs as plain `<script setup>` - all Vue macros stay in place, nothing is
+ * hoisted, nothing is wrapped. Every top-level runtime binding is renamed to a reserved
+ * `__swSetupAuthor_<name>` alias, and the footer re-declares the original names by destructuring the
+ * override wrapper, so templates read overrideable state exactly like before while the body text
+ * itself never moves.
  */
 
-import { fromSource, generated, indent, type SourceChunk } from '../source-edits/chunks';
+import { generated, trim, type SourceChunk } from '../source-edits/chunks';
+import { transformRanges } from '../source-edits/transform-ranges';
 import type { ShopwareSetupScriptAnalysis } from '../script-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
-import { buildCallbackBodyChunks, escapeSingleQuoted, formatObjectProperties } from './shared';
+import { escapeSingleQuoted, formatObjectProperties } from './shared';
 
 /**
- * Builds the base callback return object split into public and private state.
- *
- * Zero runtime bindings are valid: import-only or macro-only `<script setup>` blocks (for example a
- * component that only imports a child or only calls `defineOptions()`) lower to empty state objects.
+ * Formats the public/private maps passed into the override wrapper, mapping each original name to
+ * its renamed author binding.
  */
-function buildBaseReturn(analysis: ShopwareSetupScriptAnalysis): string {
-    const publicLocalNames = new Set(analysis.publicEntries);
-    const privateProperties = analysis.runtimeBindings
-        .filter((binding) => !publicLocalNames.has(binding.name))
-        .map((binding) => binding.name);
-
-    return [
-        'return {',
-        `    public: ${formatObjectProperties(analysis.publicEntries, 8)},`,
-        `    private: ${formatObjectProperties(privateProperties, 8)},`,
-        '};',
-    ].join('\n');
+function formatStateMap(names: string[], spaces: number): string {
+    return formatObjectProperties(
+        names.map((name) => `${name}: __swSetupAuthor_${name}`),
+        spaces,
+    );
 }
 
 /**
- * Lowers base mode into the existing extendable setup runtime bridge.
+ * Lowers base mode into a native body plus the generated override-functionality footer.
  */
 function buildBaseScript(block: ShopwareSetupBlock, analysis: ShopwareSetupScriptAnalysis): SourceChunk[] {
-    // Only the hoisted props declaration needs an identifier: its value is passed into the
-    // createExtendableSetup() options. Hoisted defineEmits()/defineSlots() declare nothing.
-    const setupPropsName = '__swSetupProps';
-    const setupContextName = '__swSetupContext';
-    const propsName = analysis.propsMacro ? '__swSetupPropsDeclaration' : null;
+    const publicLocalNames = new Set(analysis.publicEntries);
+    const privateNames = analysis.runtimeBindings
+        .filter((binding) => !publicLocalNames.has(binding.name))
+        .map((binding) => binding.name);
     const destructureEntries = [
         ...analysis.runtimeBindings.map((binding) => binding.name),
         '__swOverride',
     ];
-    const callbackBody = buildCallbackBodyChunks(block, analysis, {
-        props: setupPropsName,
-        context: setupContextName,
-    });
-    const body = [
-        generated(`const useSwContext = () => ${setupContextName};\n\n`),
-        ...callbackBody,
-        generated(`\n\n${buildBaseReturn(analysis)}`),
+
+    const body = transformRanges(block, analysis.markerRemovals, analysis.renameEdits);
+
+    // Forward the props object so override callbacks receive props.
+    const propsBindingName = analysis.propsMacro
+        ? analysis.runtimeBindings.find((binding) => binding.name === 'props')?.name
+        : null;
+
+    const footer = [
+        'const {',
+        ...destructureEntries.map((entry) => `    ${entry},`),
+        '} = Shopware.Component.attachOverrides({',
+        `    name: '${escapeSingleQuoted(block.componentName)}',`,
+        ...(propsBindingName ? [`    props: __swSetupAuthor_${propsBindingName},`] : []),
+        `    public: ${formatStateMap(analysis.publicEntries, 8)},`,
+        `    private: ${formatStateMap(privateNames, 8)},`,
+        '});',
+    ].join('\n');
+
+    return [
+        generated(`${block.openingTagSource}\n`),
+        // useSwContext() must exist before the author's body runs, so it is a header, not a footer.
+        generated('const useSwContext = () => Shopware.Component.getComponentContext();\n\n'),
+        trim([body].flat()),
+        generated(`\n\n${footer}\n</script>`),
     ];
-    const chunks: SourceChunk[] = [generated(`${block.openingTagSource}\n`)];
-
-    analysis.imports.forEach((importBlock) => {
-        chunks.push(fromSource(block, importBlock));
-        chunks.push(generated('\n'));
-    });
-
-    if (analysis.imports.length > 0) {
-        chunks.push(generated('\n'));
-    }
-
-    analysis.typeDeclarations.forEach((typeDeclaration) => {
-        chunks.push(fromSource(block, typeDeclaration));
-        chunks.push(generated('\n'));
-    });
-
-    if (analysis.typeDeclarations.length > 0) {
-        chunks.push(generated('\n'));
-    }
-
-    if (analysis.propsMacro) {
-        chunks.push(generated(`const ${propsName} = `));
-        chunks.push(fromSource(block, analysis.propsMacro.ranges[0]));
-        chunks.push(generated(';\n\n'));
-    }
-
-    if (analysis.emitsMacro) {
-        chunks.push(fromSource(block, analysis.emitsMacro.ranges[0]));
-        chunks.push(generated(';\n\n'));
-    }
-
-    if (analysis.slotsMacro) {
-        chunks.push(fromSource(block, analysis.slotsMacro.ranges[0]));
-        chunks.push(generated(';\n\n'));
-    }
-
-    if (analysis.optionsMacro) {
-        chunks.push(fromSource(block, analysis.optionsMacro.ranges[0]));
-        chunks.push(generated(';\n\n'));
-    }
-
-    chunks.push(
-        generated(
-            [
-                'const {',
-                ...destructureEntries.map((entry) => `    ${entry},`),
-                '} = Shopware.Component.createExtendableSetup(',
-                '    {',
-                `        name: '${escapeSingleQuoted(block.componentName)}',`,
-                `        props: ${propsName ?? '{}'},`,
-                '    },',
-                `    (${setupPropsName}, ${setupContextName}) => {`,
-            ].join('\n'),
-        ),
-        generated('\n'),
-        indent(body, 8),
-        generated('\n    },\n);\n'),
-        // Re-emit the author's defineExpose() as a real macro here, after the destructure, so the
-        // exposed bindings are in scope and Vue wires expose exactly once (no double-expose warning).
-        ...(analysis.exposeMacro
-            ? [
-                  fromSource(block, analysis.exposeMacro.ranges[0]),
-                  generated(';\n'),
-              ]
-            : []),
-        generated('</script>'),
-    );
-
-    return chunks;
 }
 
 export { buildBaseScript };

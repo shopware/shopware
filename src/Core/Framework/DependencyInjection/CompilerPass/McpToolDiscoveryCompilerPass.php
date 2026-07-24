@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 use Mcp\Capability\Attribute\McpTool;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
+use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -23,6 +25,7 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
     {
         $container->setParameter('shopware.mcp.tool_dependencies', []);
         $container->setParameter('shopware.mcp.tool_privileges', []);
+        $container->setParameter('shopware.mcp.advertised_tools', []);
         $container->setParameter('shopware.mcp.tool_groups', []);
 
         if (!$container->hasDefinition('mcp.server.builder')) {
@@ -47,6 +50,7 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
 
         $this->enforceToolAllowlist($container);
         $this->detectToolNameConflicts($container);
+        $this->buildAdvertisedTools($container);
     }
 
     /**
@@ -97,5 +101,33 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
 
             $toolNames[$toolInfo['name']] = $serviceId;
         }
+    }
+
+    /**
+     * The initial tools/list surface is exactly the discovery group (tool-search + toolsets-list/
+     * -enable). Every other tool is deferred and only advertised once its toolset is enabled, so a
+     * domain tool cannot leak into the default surface — group membership is the single gate.
+     */
+    private function buildAdvertisedTools(ContainerBuilder $container): void
+    {
+        $advertisedTools = [];
+
+        foreach ($container->findTaggedServiceIds('mcp.tool') as $serviceId => $tags) {
+            $definition = $container->getDefinition($serviceId);
+            $class = $definition->getClass() ?? $serviceId;
+            $toolInfo = McpToolAttributeReader::resolveInfo($class, McpTool::class, ['name']);
+
+            if ($toolInfo === null || !\is_string($toolInfo['name'] ?? null) || !class_exists($class)) {
+                continue;
+            }
+
+            $groupInfo = McpToolAttributeReader::resolveInfo($class, McpToolGroup::class, ['group']);
+
+            if ($groupInfo !== null && ($groupInfo['group'] ?? null) === McpToolsetRegistry::DISCOVERY_GROUP) {
+                $advertisedTools[] = $toolInfo['name'];
+            }
+        }
+
+        $container->setParameter('shopware.mcp.advertised_tools', array_values(array_unique($advertisedTools)));
     }
 }

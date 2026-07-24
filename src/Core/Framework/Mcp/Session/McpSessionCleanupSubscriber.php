@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Mcp\Session;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
+use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
@@ -24,6 +26,8 @@ final class McpSessionCleanupSubscriber implements EventSubscriberInterface
      */
     public function __construct(
         private readonly ToolResultCacheStorage $storage,
+        private readonly McpToolsetSessionStorage $toolsetSessionStorage,
+        private readonly McpSessionRegistry $sessionRegistry,
     ) {
     }
 
@@ -51,5 +55,7 @@ final class McpSessionCleanupSubscriber implements EventSubscriberInterface
         }
 
         $this->storage->deleteForSession($sessionId);
+        $this->toolsetSessionStorage->deleteForSession($sessionId);
+        $this->sessionRegistry->remove($sessionId);
     }
 }

@@ -19,6 +19,9 @@ use Mcp\Schema\Tool;
 use Mcp\Server\Handler\Request\RequestHandlerInterface;
 use Mcp\Server\Session\SessionInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
+use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @experimental stableVersion:v6.8.0
@@ -30,10 +33,30 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class McpAllowlistListRequestHandler implements RequestHandlerInterface
 {
+    private const TOOL_SEARCH = 'shopware-tool-search';
+
+    /**
+     * The server-owned discovery meta-tools. They are always advertised and always callable,
+     * independent of the per-integration allowlist, so the guaranteed discovery path stays usable
+     * even for integrations whose allowlist omits them.
+     */
+    private const DISCOVERY_META_TOOLS = [
+        self::TOOL_SEARCH,
+        McpToolsetRegistry::LIST_TOOLSETS_TOOL,
+        McpToolsetRegistry::ENABLE_TOOLSET_TOOL,
+    ];
+
+    /**
+     * @param list<string> $advertisedTools
+     */
     public function __construct(
         private readonly RegistryInterface $registry,
         private readonly McpAllowlistProvider $allowlistProvider,
         private readonly int $pageSize,
+        private readonly array $advertisedTools = [self::TOOL_SEARCH],
+        private readonly ?McpToolsetRegistry $toolsetRegistry = null,
+        private readonly ?McpToolsetSessionStorage $toolsetSessionStorage = null,
+        private readonly ?RequestStack $requestStack = null,
     ) {
     }
 
@@ -71,20 +94,57 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
     {
         $allowlist = $this->allowlistProvider->forCurrentRequest();
 
-        if ($allowlist->tools === null) {
-            $page = $this->registry->getTools($this->pageSize, $request->cursor);
-
-            return $this->createResponse($request->getId(), new ListToolsResult($this->collectTools($page->references), $page->nextCursor));
-        }
-
         $tools = $this->collectTools(
             $this->registry->getTools()->references,
-            $allowlist->tools,
+            $this->visibleToolNames($allowlist),
         );
 
         [$page, $nextCursor] = $this->paginate($tools, $request->cursor);
 
         return $this->createResponse($request->getId(), new ListToolsResult($page, $nextCursor));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function visibleToolNames(McpAllowlist $allowlist): array
+    {
+        $advertisedTools = array_merge($this->advertisedTools, $this->toolsetToolsForSession());
+
+        if (!\in_array(self::TOOL_SEARCH, $advertisedTools, true)) {
+            array_unshift($advertisedTools, self::TOOL_SEARCH);
+        }
+
+        $advertisedTools = array_values(array_unique($advertisedTools));
+
+        if ($allowlist->tools === null) {
+            return $advertisedTools;
+        }
+
+        // The server-owned discovery meta-tools stay advertised even when the integration's
+        // allowlist omits them, so the guaranteed discovery path (toolsets-list -> toolset-enable
+        // -> listChanged) keeps working. Every other tool remains bounded by the allowlist.
+        return array_values(array_unique(array_merge(
+            array_values(array_intersect($advertisedTools, self::DISCOVERY_META_TOOLS)),
+            array_values(array_intersect($advertisedTools, $allowlist->tools)),
+        )));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function toolsetToolsForSession(): array
+    {
+        if ($this->toolsetRegistry === null) {
+            return [];
+        }
+
+        $sessionId = $this->requestStack?->getCurrentRequest()?->headers->get('Mcp-Session-Id') ?? '';
+        if ($sessionId === '' || $this->toolsetSessionStorage === null) {
+            return $this->toolsetRegistry->advertisedTools([]);
+        }
+
+        return $this->toolsetRegistry->advertisedTools($this->toolsetSessionStorage->enabledToolsets($sessionId));
     }
 
     /**

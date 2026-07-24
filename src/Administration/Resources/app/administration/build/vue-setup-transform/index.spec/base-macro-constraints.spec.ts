@@ -36,6 +36,23 @@ describe('build/vue-setup-transform base non-props macros', () => {
         expect(result).toContain('emit: __swSetupAuthor_emit');
     });
 
+    it('collects destructured defineSlots() bindings (unlike props, which are left for Vue)', () => {
+        const source = stripIndent`
+            <script setup>
+            const { default: defaultSlot } = defineSlots();
+            const count = defaultSlot ? 1 : 0;
+            swDefinePublic({ count });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'base-slots-destructure.vue').code;
+
+        // defineSlots() is not a props macro, so its destructured bindings are ordinary runtime state:
+        // renamed to their author alias and re-exposed from the footer.
+        expect(result).toContain('const { default: __swSetupAuthor_defaultSlot } = defineSlots();');
+        expect(result).toContain('defaultSlot: __swSetupAuthor_defaultSlot');
+    });
+
     it('rejects local setup bindings in defineOptions() arguments', () => {
         const source = stripIndent`
             <script setup>

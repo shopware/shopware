@@ -255,25 +255,28 @@ describe('build/vue-setup-transform base defineProps macro', () => {
         );
     });
 
-    it('rejects destructured withDefaults() with the generic props-object message', () => {
+    it('leaves destructured withDefaults() for Vue to handle (it warns and disables reactive destructure)', () => {
         const source = stripIndent`
             <script setup lang="ts">
-            const { initialCount } = withDefaults(defineProps<{
+            const { initialCount = 0 } = withDefaults(defineProps<{
                 initialCount?: number;
             }>(), {
                 initialCount: 3,
             });
-            const count = initialCount;
+            const doubled = computed(() => initialCount * 2);
 
             swDefinePublic({
-                count,
+                doubled,
             });
             </script>
         `;
 
-        expect(() => transformShopwareSetupSfc(source, 'base-destructured-props-with-defaults.vue')).toThrow(
-            'Destructuring the props object is not supported in Shopware setup blocks.',
-        );
+        const result = transformOrFail(source, 'base-destructured-props-with-defaults.vue').code;
+
+        // We do not reject this: Vue's own compiler accepts it (with a "reactive destructure disabled"
+        // warning) - that is Vue's concern, not ours. The destructure is left untouched.
+        expect(result).toContain('const { initialCount = 0 } = withDefaults(defineProps<{');
+        expect(result).not.toContain('__swSetupAuthor_initialCount');
     });
 
     it('keeps defineProps() wrapped in a TypeScript as expression', () => {

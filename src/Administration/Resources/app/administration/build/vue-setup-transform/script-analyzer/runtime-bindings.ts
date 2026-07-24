@@ -99,25 +99,17 @@ function isRuntimeInputAlias(declaration: VariableDeclarator, mode: ShopwareSetu
 }
 
 /**
- * Rejects destructuring a `withDefaults(...)` result.
+ * Whether a declaration initializes from a props macro (`defineProps` / `withDefaults`).
  *
- * A destructured `defineProps()` is supported: Vue 3.5 rewrites the destructured names into reactive
- * `props.<name>` reads (including inline defaults), and the base body is left in place for Vue to do
- * that. `withDefaults(...)` returns a plain object, so destructuring it snapshots the value once and
- * drops reactivity — reject it and point authors at inline destructure defaults or `props.<name>`.
+ * A destructured props macro is left in place for Vue rather than collected as runtime state: a
+ * destructured `defineProps()` gets Vue 3.5's reactive-props-destructure rewrite, and a destructured
+ * `withDefaults()` gets Vue's own "reactive destructure disabled" warning. Both are Vue's concern.
  */
-function assertSupportedSetupInputDestructure(declaration: VariableDeclarator, scriptOffset: number): void {
+function isPropsMacroDeclaration(declaration: VariableDeclarator): boolean {
     const init = unwrapTransparentMacroExpression(declaration.init);
     const calleeName = init?.type === 'CallExpression' && init.callee.type === 'Identifier' ? init.callee.name : null;
 
-    if (calleeName === 'withDefaults') {
-        throw new ShopwareSetupTransformError(
-            'Destructuring the props object is not supported in Shopware setup blocks. Destructure ' +
-                'defineProps() directly (const { count = 1 } = defineProps<...>()) for reactive props with ' +
-                'defaults, or assign the macro to a variable such as `const props = ...` and read `props.<name>`.',
-            scriptOffset + getNodeRange(declaration.id, scriptOffset).start,
-        );
-    }
+    return calleeName === 'defineProps' || calleeName === 'withDefaults';
 }
 
 /**
@@ -170,10 +162,12 @@ function collectRuntimeBinding(
         statement.declarations.forEach((declaration) => {
             if (isSetupInputDeclaration(declaration)) {
                 if (declaration.id.type !== 'Identifier') {
-                    // Destructured props. withDefaults destructure is rejected (snapshots, loses
-                    // reactivity); a destructured defineProps() is left untouched - not renamed, not
-                    // returned as state - so Vue 3.5's reactive-destructure rewrite handles it.
-                    assertSupportedSetupInputDestructure(declaration, scriptOffset);
+                    // A destructured props macro is left in place for Vue (reactive-props-destructure,
+                    // or Vue's own withDefaults warning) - not renamed, not returned as state. Other
+                    // setup-input macros (defineSlots/defineEmits) destructure into ordinary bindings.
+                    if (!isPropsMacroDeclaration(declaration)) {
+                        collectRuntimeBindingPattern(runtimeBindings, runtimeBindingNames, declaration.id, scriptOffset);
+                    }
 
                     return;
                 }

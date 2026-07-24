@@ -39,12 +39,12 @@ class ClearSiteDataListener implements EventSubscriberInterface
     }
 
     /**
-     * @return array<string, array{0: string, 1: int}>
+     * @return array<string, string>
      */
     public static function getSubscribedEvents(): array
     {
         return [
-            ResponseEvent::class => ['onResponse', -15],
+            StorefrontRouteScope::ID . '.scope.response' => 'onResponse',
         ];
     }
 
@@ -67,13 +67,6 @@ class ClearSiteDataListener implements EventSubscriberInterface
     private function isEligible(Request $request): bool
     {
         if (!$request->attributes->getBoolean(PlatformRequest::ATTRIBUTE_CLEAR_SITE_DATA)) {
-            return false;
-        }
-
-        /** @var list<string> $scopes */
-        $scopes = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
-
-        if (!\in_array(StorefrontRouteScope::ID, $scopes, true)) {
             return false;
         }
 

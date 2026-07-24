@@ -47,6 +47,7 @@ use Shopware\Storefront\Controller\AuthController;
 use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Routing\ClearSiteDataListener;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Page\Account\Login\AccountGuestLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
@@ -61,7 +62,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
@@ -261,7 +261,7 @@ class AuthControllerTest extends TestCase
     {
         $dispatcher = static::getContainer()->get('event_dispatcher');
         $onResponse = (new ClearSiteDataListener(['cache', 'storage']))->onResponse(...);
-        $dispatcher->addListener(KernelEvents::RESPONSE, $onResponse, -15);
+        $dispatcher->addListener(StorefrontRouteScope::ID . '.scope.response', $onResponse);
 
         try {
             $browser = $this->login();
@@ -275,7 +275,7 @@ class AuthControllerTest extends TestCase
             static::assertSame(302, $response->getStatusCode(), (string) $response->getContent());
             static::assertSame('"cache", "storage"', $response->headers->get('Clear-Site-Data'));
         } finally {
-            $dispatcher->removeListener(KernelEvents::RESPONSE, $onResponse);
+            $dispatcher->removeListener(StorefrontRouteScope::ID . '.scope.response', $onResponse);
         }
     }
 

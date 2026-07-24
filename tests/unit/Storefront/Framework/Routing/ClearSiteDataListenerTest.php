@@ -6,10 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Framework\Routing\ClearSiteDataListener;
-use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
@@ -22,10 +20,13 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 #[CoversClass(ClearSiteDataListener::class)]
 class ClearSiteDataListenerTest extends TestCase
 {
-    public function testSubscribesAfterTheResponseHeaderListener(): void
+    /**
+     * The storefront-scoped event keeps every other scope (Store API, Admin API) out of reach.
+     */
+    public function testSubscribesToTheStorefrontScopedResponseEvent(): void
     {
         static::assertSame(
-            [ResponseEvent::class => ['onResponse', -15]],
+            ['storefront.scope.response' => 'onResponse'],
             ClearSiteDataListener::getSubscribedEvents()
         );
     }
@@ -57,16 +58,6 @@ class ClearSiteDataListenerTest extends TestCase
     public function testNoHeaderOnSubRequests(): void
     {
         $response = $this->dispatch(['storage'], $this->createStorefrontLogoutRequest(), HttpKernelInterface::SUB_REQUEST);
-
-        static::assertFalse($response->headers->has('Clear-Site-Data'));
-    }
-
-    public function testNoHeaderOutsideOfTheStorefrontScope(): void
-    {
-        $request = $this->createStorefrontLogoutRequest();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
-
-        $response = $this->dispatch(['storage'], $request);
 
         static::assertFalse($response->headers->has('Clear-Site-Data'));
     }
@@ -144,7 +135,6 @@ class ClearSiteDataListenerTest extends TestCase
     private function createStorefrontLogoutRequest(): Request
     {
         $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StorefrontRouteScope::ID]);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CLEAR_SITE_DATA, true);
         $request->headers->set('Sec-Fetch-Site', 'same-origin');
         $request->headers->set('Sec-Fetch-Mode', 'navigate');

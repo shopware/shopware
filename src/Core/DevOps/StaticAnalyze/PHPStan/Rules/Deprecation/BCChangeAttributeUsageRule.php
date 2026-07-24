@@ -316,6 +316,10 @@ class BCChangeAttributeUsageRule implements Rule
             ))];
         }
 
+        if ($announced === []) {
+            return [];
+        }
+
         $announcedTypes = [];
         foreach ($announced as $exceptionClass) {
             if (!\is_string($exceptionClass) || !$this->reflectionProvider->hasClass($exceptionClass)) {

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviou
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextSwitchEvent;
 use Shopware\Storefront\Framework\Routing\Router;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -138,7 +139,7 @@ class ContextControllerContextTest extends TestCase
         $this->browser->request(
             'POST',
             $this->testBaseUrl . '/checkout/language',
-            ['languageId' => Defaults::LANGUAGE_SYSTEM, 'redirectTo' => 'frontend.detail.page', 'redirectParameters' => ['productId' => $productId]]
+            ['languageId' => Defaults::LANGUAGE_SYSTEM, 'redirectTo' => ProductPageSeoUrlRoute::ROUTE_NAME, 'redirectParameters' => ['productId' => $productId]]
         );
 
         $response = $this->browser->getResponse();

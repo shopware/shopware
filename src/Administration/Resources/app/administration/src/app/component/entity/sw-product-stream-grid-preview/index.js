@@ -74,10 +74,6 @@ export default {
             return this.repositoryFactory.create('product');
         },
 
-        currencyRepository() {
-            return this.repositoryFactory.create('currency');
-        },
-
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
         },
@@ -191,7 +187,17 @@ export default {
         },
 
         loadSystemDefaultCurrency() {
-            return this.currencyRepository.get(Context.app.systemCurrencyId, Context.api);
+            return this.repositoryFactory
+                .create('currency')
+                .get(Shopware.Context.app.systemCurrencyId, Shopware.Context.api, {
+                    cacheKey: [
+                        'shared-data',
+                        'system-currency',
+                        Shopware.Context.app.systemCurrencyId,
+                        Shopware.Context.api.languageId ?? 'default',
+                    ],
+                    ttl: 5 * 60 * 1000,
+                });
         },
 
         loadProducts() {

@@ -27,6 +27,19 @@ class FloatComparator
         return (float) (string) $a;
     }
 
+    /**
+     * Sums the given floats, snapping a near-zero residual (e.g. -7.1E-15 from prices that cancel
+     * out to zero) to an exact 0.0, which {@see self::cast()} alone cannot do.
+     *
+     * @param array<float> $values
+     */
+    public static function sum(array $values): float
+    {
+        $sum = self::cast(array_sum($values));
+
+        return self::equals($sum, 0.0) ? 0.0 : $sum;
+    }
+
     public static function equals(float $a, float $b): bool
     {
         return abs($a - $b) < self::EPSILON;

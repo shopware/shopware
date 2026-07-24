@@ -3,10 +3,13 @@
 namespace Shopware\Tests\Unit\Storefront\Framework\Routing;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\Hreflang\HreflangCollection;
 use Shopware\Core\Content\Seo\HreflangLoaderInterface;
+use Shopware\Core\Content\Seo\HreflangLoaderParameter;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
@@ -18,6 +21,8 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\TemplateDataSubscriber;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
+use Shopware\Storefront\Page\Product\ProductPage;
 use Shopware\Storefront\Theme\ThemeRuntimeConfig;
 use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,7 +34,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(TemplateDataSubscriber::class)]
 class TemplateDataSubscriberTest extends TestCase
 {
-    private HreflangLoaderInterface&Stub $hreflangLoader;
+    private HreflangLoaderInterface&MockObject $hreflangLoader;
 
     private ShopIdProvider&Stub $shopIdProvider;
 
@@ -41,7 +46,7 @@ class TemplateDataSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->hreflangLoader = static::createStub(HreflangLoaderInterface::class);
+        $this->hreflangLoader = static::createMock(HreflangLoaderInterface::class);
         $this->shopIdProvider = static::createStub(ShopIdProvider::class);
         $this->activeAppsLoader = static::createStub(ActiveAppsLoader::class);
         $this->themeRuntimeConfigService = static::createStub(ThemeRuntimeConfigService::class);
@@ -136,6 +141,107 @@ class TemplateDataSubscriberTest extends TestCase
         $subscriber->addHreflang($event);
 
         static::assertInstanceOf(HreflangCollection::class, $event->getParameters()['hrefLang']);
+    }
+
+    public function testAddHreflangUsesCanonicalProductIdWhenSet(): void
+    {
+        $variantProductId = 'variant-product-id';
+        $canonicalProductId = 'canonical-product-id';
+
+        $request = new Request();
+        $request->attributes->set('_route', ProductPageSeoUrlRoute::ROUTE_NAME);
+        $request->attributes->set('_route_params', ['productId' => $variantProductId]);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, Generator::generateSalesChannelContext());
+
+        $product = new SalesChannelProductEntity();
+        $product->setCanonicalProductId($canonicalProductId);
+
+        $page = new ProductPage();
+        $page->setProduct($product);
+
+        $event = new StorefrontRenderEvent(
+            'test',
+            ['page' => $page],
+            $request,
+            Generator::generateSalesChannelContext()
+        );
+
+        $this->hreflangLoader
+            ->expects($this->once())
+            ->method('load')
+            ->with(static::callback(static function (HreflangLoaderParameter $parameter) use ($canonicalProductId): bool {
+                return $parameter->getRouteParameters()['productId'] === $canonicalProductId;
+            }))
+            ->willReturn(new HreflangCollection());
+
+        $this->subscriber->addHreflang($event);
+    }
+
+    public function testAddHreflangUsesProductIdWhenNoCanonicalProductId(): void
+    {
+        $productId = 'parent-product-id';
+
+        $request = new Request();
+        $request->attributes->set('_route', ProductPageSeoUrlRoute::ROUTE_NAME);
+        $request->attributes->set('_route_params', ['productId' => $productId]);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, Generator::generateSalesChannelContext());
+
+        $product = new SalesChannelProductEntity();
+        $product->setId($productId);
+
+        $page = new ProductPage();
+        $page->setProduct($product);
+
+        $event = new StorefrontRenderEvent(
+            'test',
+            ['page' => $page],
+            $request,
+            Generator::generateSalesChannelContext()
+        );
+
+        $this->hreflangLoader
+            ->expects($this->once())
+            ->method('load')
+            ->with(static::callback(static function (HreflangLoaderParameter $parameter) use ($productId): bool {
+                return $parameter->getRouteParameters()['productId'] === $productId;
+            }))
+            ->willReturn(new HreflangCollection());
+
+        $this->subscriber->addHreflang($event);
+    }
+
+    public function testAddHreflangUsesVariantProductIdWhenParentRouteIsUsed(): void
+    {
+        $parentProductId = 'parent-product-id';
+        $variantProductId = 'parent-product-id';
+
+        $request = new Request();
+        $request->attributes->set('_route', ProductPageSeoUrlRoute::ROUTE_NAME);
+        $request->attributes->set('_route_params', ['productId' => $parentProductId]);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, Generator::generateSalesChannelContext());
+
+        $product = new SalesChannelProductEntity();
+        $product->setId($variantProductId);
+
+        $page = new ProductPage();
+        $page->setProduct($product);
+
+        $event = new StorefrontRenderEvent(
+            'test',
+            ['page' => $page],
+            $request,
+            Generator::generateSalesChannelContext()
+        );
+
+        $this->hreflangLoader
+            ->expects($this->once())
+            ->method('load')
+            ->with(static::callback(static function (HreflangLoaderParameter $parameter) use ($variantProductId): bool {
+                return $parameter->getRouteParameters()['productId'] === $variantProductId;
+            }))
+            ->willReturn(new HreflangCollection());
+
+        $this->subscriber->addHreflang($event);
     }
 
     public function testAddShopIdParameterWithNoActiveApps(): void

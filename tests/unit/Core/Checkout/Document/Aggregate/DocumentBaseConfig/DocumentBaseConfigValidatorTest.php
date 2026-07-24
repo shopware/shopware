@@ -1,44 +1,48 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Checkout\Document\Aggregate\DocumentBaseConfig;
+namespace Shopware\Tests\Unit\Core\Checkout\Document\Aggregate\DocumentBaseConfig;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigValidator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
-use Symfony\Component\Clock\ClockInterface;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Symfony\Component\Clock\MockClock;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
  */
 #[Package('after-sales')]
+#[CoversClass(DocumentBaseConfigValidator::class)]
 class DocumentBaseConfigValidatorTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-
     private Context $context;
 
     private DocumentBaseConfigValidator $documentBaseConfigValidator;
 
-    private DefinitionInstanceRegistry $definitionInstanceRegistry;
+    private StaticDefinitionInstanceRegistry $definitionInstanceRegistry;
 
     protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
         $this->documentBaseConfigValidator = new DocumentBaseConfigValidator(
-            $this->getContainer()->get(ClockInterface::class),
+            new MockClock('2026-01-01 12:00:00'),
         );
-        $this->definitionInstanceRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+        $this->definitionInstanceRegistry = new StaticDefinitionInstanceRegistry(
+            [DocumentBaseConfigDefinition::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class),
+        );
     }
 
     public function testValidateWithNoConfigKeyShouldBeValid(): void
@@ -103,7 +107,7 @@ class DocumentBaseConfigValidatorTest extends TestCase
     }
 
     /**
-     * @return array<string, null|string>
+     * @return array<string, string|null>
      */
     private function createPayload(?string $value): array
     {
@@ -119,7 +123,7 @@ class DocumentBaseConfigValidatorTest extends TestCase
             $this->definitionInstanceRegistry->get(DocumentBaseConfigDefinition::class),
             $payload,
             ['id' => Uuid::randomBytes()],
-            new EntityExistence(DocumentBaseConfigEntity::class, ['id' => Uuid::randomHex()], true, false, false, []),
+            static::createStub(EntityExistence::class),
             '/0/'
         );
 
@@ -128,6 +132,4 @@ class DocumentBaseConfigValidatorTest extends TestCase
             [$writeCommand]
         );
     }
-
-
 }

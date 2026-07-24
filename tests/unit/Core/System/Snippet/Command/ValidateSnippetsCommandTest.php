@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
@@ -55,8 +54,8 @@ class ValidateSnippetsCommandTest extends TestCase
         static::assertSame(Command::SUCCESS, $applicationTester->run(['command' => 'snippets:validate']));
     }
 
-    #[TestDox('The deprecated command alias throws when v6.8 is active')]
-    public function testDeprecatedCommandAliasThrowsWhenV68IsActive(): void
+    #[TestDox('The deprecated command alias stays silent when v6.8 is active')]
+    public function testDeprecatedCommandAliasIsSilentWhenV68IsActive(): void
     {
         $command = $this->createCommand(new SnippetFileCollection(), []);
         $command->setName('translation:validate');
@@ -64,14 +63,13 @@ class ValidateSnippetsCommandTest extends TestCase
         $application = new Application();
         $application->setAutoExit(false);
         $application->addCommand($command);
+        // without catching, a deprecation wrongly raised as FeatureException would surface here
         $application->setCatchExceptions(false);
         $applicationTester = new ApplicationTester($application);
 
-        $this->expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: The "snippets:validate" command alias is deprecated; use "translation:validate" instead.'));
+        $result = Feature::withFeatureEnabled('v6.8.0.0', static fn (): int => $applicationTester->run(['command' => 'snippets:validate']));
 
-        Feature::withFeatureEnabled('v6.8.0.0', static function () use ($applicationTester): void {
-            $applicationTester->run(['command' => 'snippets:validate']);
-        });
+        static::assertSame(Command::SUCCESS, $result);
     }
 
     #[TestDox('Missing translations are listed per ISO and fail the command')]

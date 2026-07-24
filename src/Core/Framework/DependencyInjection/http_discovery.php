@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
  * Inlined from php-http/discovery Symfony Flex recipe:
  * https://github.com/symfony/recipes/blob/main/php-http/discovery/1.18/config/packages/http_discovery.yaml
  *
- * The composer plugin is disabled (allow-plugins), so these service aliases are registered here.
+ * Shopware does not apply Flex recipes, so these PSR-17 service aliases are registered here.
  */
 return static function (ContainerConfigurator $containerConfigurator): void {
     $services = $containerConfigurator->services();

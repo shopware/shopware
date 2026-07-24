@@ -54,7 +54,7 @@ class McpAllowlistListRequestHandlerTest extends TestCase
             tools: ['tool-b', 'tool-d', 'tool-e'],
             resources: null,
             prompts: null,
-        ));
+        ), ['tool-a', 'tool-b', 'tool-c', 'tool-d', 'tool-e']);
 
         $firstResult = $this->handleToolsList($handler, null);
 
@@ -67,24 +67,64 @@ class McpAllowlistListRequestHandlerTest extends TestCase
         static::assertNull($secondResult->nextCursor);
     }
 
-    public function testToolsListUsesRegistryPaginationWhenToolAllowlistAllowsAllTools(): void
+    public function testToolsListUsesAdvertisedToolsWhenToolAllowlistAllowsAllTools(): void
     {
         $registry = new Registry();
-        foreach (['tool-a', 'tool-b', 'tool-c'] as $toolName) {
+        foreach (['shopware-tool-search', 'shopware-entity-schema', 'shopware-entity-search', 'hidden-tool'] as $toolName) {
             $registry->registerTool($this->tool($toolName), static fn (): string => '');
         }
 
-        $handler = $this->createHandler($registry, new McpAllowlist(tools: null, resources: [], prompts: []));
+        $handler = $this->createHandler(
+            $registry,
+            new McpAllowlist(tools: null, resources: [], prompts: []),
+            ['shopware-tool-search', 'shopware-entity-schema', 'shopware-entity-search'],
+        );
 
         $firstResult = $this->handleToolsList($handler, null);
 
-        static::assertSame(['tool-a', 'tool-b'], array_map(static fn (Tool $tool): string => $tool->name, $firstResult->tools));
+        static::assertSame(['shopware-tool-search', 'shopware-entity-schema'], array_map(static fn (Tool $tool): string => $tool->name, $firstResult->tools));
         static::assertSame(base64_encode('2'), $firstResult->nextCursor);
 
         $secondResult = $this->handleToolsList($handler, $firstResult->nextCursor);
 
-        static::assertSame(['tool-c'], array_map(static fn (Tool $tool): string => $tool->name, $secondResult->tools));
+        static::assertSame(['shopware-entity-search'], array_map(static fn (Tool $tool): string => $tool->name, $secondResult->tools));
         static::assertNull($secondResult->nextCursor);
+    }
+
+    public function testToolsListAlwaysAdvertisesToolSearch(): void
+    {
+        $registry = new Registry();
+        foreach (['shopware-tool-search', 'shopware-entity-schema'] as $toolName) {
+            $registry->registerTool($this->tool($toolName), static fn (): string => '');
+        }
+
+        $handler = $this->createHandler(
+            $registry,
+            new McpAllowlist(tools: null, resources: [], prompts: []),
+            ['shopware-entity-schema'],
+        );
+
+        $result = $this->handleToolsList($handler, null);
+
+        static::assertSame(['shopware-tool-search', 'shopware-entity-schema'], array_map(static fn (Tool $tool): string => $tool->name, $result->tools));
+    }
+
+    public function testToolsListWithEmptyToolAllowlistOnlyAdvertisesToolSearch(): void
+    {
+        $registry = new Registry();
+        foreach (['shopware-tool-search', 'shopware-entity-schema'] as $toolName) {
+            $registry->registerTool($this->tool($toolName), static fn (): string => '');
+        }
+
+        $handler = $this->createHandler(
+            $registry,
+            new McpAllowlist(tools: [], resources: [], prompts: []),
+            ['shopware-tool-search', 'shopware-entity-schema'],
+        );
+
+        $result = $this->handleToolsList($handler, null);
+
+        static::assertSame(['shopware-tool-search'], array_map(static fn (Tool $tool): string => $tool->name, $result->tools));
     }
 
     public function testToolsListIgnoresNonToolReferences(): void
@@ -95,7 +135,7 @@ class McpAllowlistListRequestHandlerTest extends TestCase
             $this->resource('resource-a'),
         ], null));
 
-        $handler = $this->createHandler($registry, new McpAllowlist(tools: null, resources: [], prompts: []));
+        $handler = $this->createHandler($registry, new McpAllowlist(tools: null, resources: [], prompts: []), ['tool-a']);
 
         $result = $this->handleToolsList($handler, null);
 
@@ -237,7 +277,7 @@ class McpAllowlistListRequestHandlerTest extends TestCase
         $registry = new Registry();
         $registry->registerTool($this->tool('tool-a'), static fn (): string => '');
 
-        $handler = $this->createHandler($registry, new McpAllowlist(tools: ['tool-a'], resources: null, prompts: null));
+        $handler = $this->createHandler($registry, new McpAllowlist(tools: ['tool-a'], resources: null, prompts: null), ['tool-a']);
 
         $this->expectException(InvalidCursorException::class);
 
@@ -249,19 +289,22 @@ class McpAllowlistListRequestHandlerTest extends TestCase
         $registry = new Registry();
         $registry->registerTool($this->tool('tool-a'), static fn (): string => '');
 
-        $handler = $this->createHandler($registry, new McpAllowlist(tools: ['tool-a'], resources: null, prompts: null));
+        $handler = $this->createHandler($registry, new McpAllowlist(tools: ['tool-a'], resources: null, prompts: null), ['tool-a']);
 
         $this->expectException(InvalidCursorException::class);
 
         $this->handleToolsList($handler, base64_encode('2'));
     }
 
-    private function createHandler(RegistryInterface $registry, McpAllowlist $allowlist): McpAllowlistListRequestHandler
+    /**
+     * @param list<string> $advertisedTools
+     */
+    private function createHandler(RegistryInterface $registry, McpAllowlist $allowlist, array $advertisedTools = ['shopware-tool-search', 'tool-a', 'tool-b', 'tool-c', 'tool-d', 'tool-e']): McpAllowlistListRequestHandler
     {
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
         $allowlistProvider->method('forCurrentRequest')->willReturn($allowlist);
 
-        return new McpAllowlistListRequestHandler($registry, $allowlistProvider, 2);
+        return new McpAllowlistListRequestHandler($registry, $allowlistProvider, 2, $advertisedTools);
     }
 
     private function handleToolsList(McpAllowlistListRequestHandler $handler, ?string $cursor): ListToolsResult

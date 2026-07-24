@@ -45,6 +45,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class McpServerController
 {
     public const ATTRIBUTE_JSONRPC_BODY = 'mcp._jsonrpc_body';
+    private const TOOL_SEARCH = 'shopware-tool-search';
 
     /**
      * @internal
@@ -160,6 +161,10 @@ class McpServerController
 
         if ($method === CallToolRequest::getMethod() && $allowlist->tools !== null) {
             $toolName = $body['params']['name'] ?? '';
+            if ($toolName === self::TOOL_SEARCH) {
+                return null;
+            }
+
             if ($this->allowlistFilter->isToolCallDenied($toolName, $allowlist->tools)) {
                 return $this->jsonRpcError(
                     $body['id'] ?? null,

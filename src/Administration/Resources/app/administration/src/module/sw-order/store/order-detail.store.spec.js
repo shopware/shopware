@@ -54,10 +54,25 @@ describe('src/module/sw-order/state/order-detail.store', () => {
             customerAddressId: '0190d9275a6a72ae8b536849a4a02d85',
             type: 'billing',
         });
+        Shopware.Store.get('swOrderDetail').setCustomer({ id: 'customer-id' });
 
         Shopware.Store.get('swOrderDetail').setOrderAddressIds(null);
 
         expect(state.orderAddressIds).toEqual([]);
+        // Customer stays loaded across order version resets so address selects keep their options
+        expect(state.customer).toEqual({ id: 'customer-id' });
+    });
+
+    it('should be able to setCustomer', () => {
+        const customer = { id: '63e27affb5804538b5b06cb4e344b130' };
+
+        Shopware.Store.get('swOrderDetail').setCustomer(customer);
+
+        expect(state.customer).toEqual(customer);
+
+        Shopware.Store.get('swOrderDetail').setCustomer(null);
+
+        expect(state.customer).toBeNull();
     });
 
     it('should set order address ids when provided valid address info', () => {

@@ -248,6 +248,7 @@ export default {
 
     watch: {
         orderId() {
+            Store.get('swOrderDetail').setCustomer(null);
             this.createdComponent();
         },
 
@@ -300,6 +301,7 @@ export default {
 
         async beforeDestroyComponent() {
             Store.get('swOrderDetail').setOrderAddressIds(null);
+            Store.get('swOrderDetail').setCustomer(null);
 
             if (this.hasNewVersionId) {
                 const oldVersionContext = this.versionContext;

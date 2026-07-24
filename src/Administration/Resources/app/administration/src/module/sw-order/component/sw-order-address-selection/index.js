@@ -60,7 +60,6 @@ export default {
 
     data() {
         return {
-            customer: {},
             currentAddress: null,
             customerAddressCustomFieldSets: null,
             orderAddressId: cloneDeep(this.address?.id),
@@ -72,6 +71,15 @@ export default {
         order: () => Store.get('swOrderDetail').order,
 
         versionContext: () => Store.get('swOrderDetail').versionContext,
+
+        customer: {
+            get() {
+                return Store.get('swOrderDetail').customer;
+            },
+            set(customer) {
+                Store.get('swOrderDetail').setCustomer(customer);
+            },
+        },
 
         orderCustomer() {
             return this.order.orderCustomer;
@@ -108,9 +116,18 @@ export default {
         },
 
         addressOptions() {
+            const selectedAddressId = this.selectedAddressId;
+            const orderAddress = this.address;
+
             const addresses = (this.customer?.addresses || [])
                 .map((item) => {
-                    if (this.address && this.address.hash === item.hash) {
+                    const matchesOrderAddress = this.addressesRepresentSamePlace(orderAddress, item);
+
+                    // Same place as the order address: keep only when that customer row is selected
+                    if (
+                        matchesOrderAddress &&
+                        !(item.id === selectedAddressId && selectedAddressId !== orderAddress?.id)
+                    ) {
                         return null;
                     }
 
@@ -123,11 +140,29 @@ export default {
                 })
                 .filter((item) => item !== null);
 
-            this.address &&
+            const selectedOption = addresses.find((item) => item.id === selectedAddressId);
+            const selectedIsSamePlaceAsOrder =
+                !!orderAddress &&
+                !!selectedOption &&
+                this.addressesRepresentSamePlace(orderAddress, selectedOption);
+
+            // Prepend the order address when needed, but never when the active selection is
+            // already in the list and represents the same place (duplicate active row).
+            const shouldPrependOrderAddress =
+                !!orderAddress &&
+                !selectedIsSamePlaceAsOrder &&
+                !addresses.some(
+                    (item) =>
+                        item.id === orderAddress.id || this.addressesRepresentSamePlace(orderAddress, item),
+                );
+
+            if (shouldPrependOrderAddress) {
                 addresses.unshift({
-                    label: this.addressLabel(this.address),
-                    ...this.address,
+                    label: this.addressLabel(orderAddress),
+                    ...orderAddress,
+                    id: orderAddress.id,
                 });
+            }
 
             return addresses;
         },
@@ -155,6 +190,19 @@ export default {
                 return this.renderSelectedAddress();
             },
             immediate: true,
+        },
+
+        'orderCustomer.customerId': {
+            handler(customerId, previousCustomerId) {
+                if (!customerId) {
+                    this.customer = null;
+                    return;
+                }
+
+                if (customerId !== previousCustomerId || this.customer?.id !== customerId) {
+                    this.getCustomer(true);
+                }
+            },
         },
     },
 
@@ -231,11 +279,16 @@ export default {
 
             this.customer.addresses.push(address);
 
-            return this.customerRepository.save(this.customer).then(() => {
-                this.currentAddress = null;
+            const savedAddressId = address.id;
 
-                this.onAddressChange(address.id);
-            });
+            return this.customerRepository
+                .save(this.customer)
+                .then(() => this.getCustomer(true))
+                .then(() => {
+                    this.currentAddress = null;
+
+                    this.onAddressChange(savedAddressId);
+                });
         },
 
         isValidAddress(address) {
@@ -296,15 +349,23 @@ export default {
             });
         },
 
-        getCustomer() {
+        getCustomer(forceReload = false) {
             if (!this.orderCustomer.customerId) {
+                this.customer = null;
+
                 return Promise.reject();
+            }
+
+            if (!forceReload && this.customer?.id === this.orderCustomer.customerId) {
+                return Promise.resolve(this.customer);
             }
 
             return this.customerRepository
                 .get(this.orderCustomer.customerId, Shopware.Context.api, this.customerCriteria)
                 .then((customer) => {
                     this.customer = customer;
+
+                    return customer;
                 });
         },
 
@@ -335,6 +396,60 @@ export default {
                 .catch(() => {
                     this.selectedAddressFormatting = '';
                 });
+        },
+
+        /**
+         * Match by API hash, full content fingerprint, or visible dropdown fields.
+         * Do not stop at unequal hashes — display can still look identical.
+         */
+        addressesRepresentSamePlace(left, right) {
+            if (!left || !right) {
+                return false;
+            }
+
+            if (left.hash && right.hash && left.hash === right.hash) {
+                return true;
+            }
+
+            if (this.getAddressContentKey(left) === this.getAddressContentKey(right)) {
+                return true;
+            }
+
+            return this.getAddressDisplayKey(left) === this.getAddressDisplayKey(right);
+        },
+
+        getAddressContentKey(address) {
+            return [
+                address.firstName,
+                address.lastName,
+                address.zipcode,
+                address.city,
+                address.company,
+                address.department,
+                address.title,
+                address.street,
+                address.additionalAddressLine1,
+                address.additionalAddressLine2,
+                address.countryId,
+                address.countryStateId,
+            ]
+                .map((value) => value ?? '')
+                .join('|');
+        },
+
+        getAddressDisplayKey(address) {
+            // Intentionally omit company/department: the active order address often has company
+            // set while the matching customer address does not (or vice versa), which produced
+            // a duplicate row (order address on top + same place again in the list).
+            return [
+                address.firstName,
+                address.lastName,
+                address.street,
+                address.zipcode,
+                address.city,
+            ]
+                .map((value) => `${value ?? ''}`.trim().toLowerCase())
+                .join('|');
         },
 
         addressLabel(address) {

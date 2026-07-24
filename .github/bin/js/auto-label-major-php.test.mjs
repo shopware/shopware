@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { FEATURE_REGISTRY_PATH, hasMajorMarkers, parseBCChangeAttributes, parseMajorFlags, shouldDetect } from './auto-label-major-php.mjs';
+import { FEATURE_REGISTRY_PATH, hasMajorMarkers, parseMajorFlags, shouldDetect } from './auto-label-major-php.mjs';
 
 
 const diffFor = (path, hunk) => `diff --git a/${path} b/${path}
@@ -80,46 +80,29 @@ test('mixed diff matches through the non-excluded file only', () => {
     assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), true);
 });
 
-const ATTRIBUTE_DIR = [
-    { name: 'BCChangeAttribute.php', type: 'file' },
-    { name: 'BecomesFinal.php', type: 'file' },
-    { name: 'ReturnTypeNarrowing.php', type: 'file' },
-    { name: 'Subdir', type: 'dir' },
-    { name: 'README.md', type: 'file' },
-];
-
-test('parseBCChangeAttributes keeps only php file basenames', () => {
-    assert.deepEqual(parseBCChangeAttributes(ATTRIBUTE_DIR), ['BCChangeAttribute', 'BecomesFinal', 'ReturnTypeNarrowing']);
-});
-
-test('added BC-change attribute usage matches', () => {
+test('added BC-change attribute usage matches through its version string', () => {
     const diff = diffFor('src/Core/Framework/Context.php', "+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'string')]");
-    assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY), parseBCChangeAttributes(ATTRIBUTE_DIR)), true);
+    assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), true);
 });
 
-test('removed BC-change attribute usage matches', () => {
+test('removed BC-change attribute usage matches through its version string', () => {
     const diff = diffFor('src/Core/Framework/Context.php', "-    #[BecomesFinal(version: 'v6.8.0')]");
-    assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY), parseBCChangeAttributes(ATTRIBUTE_DIR)), true);
+    assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), true);
 });
 
-test('qualified BC-change attribute usage matches', () => {
-    const diff = diffFor('src/Core/Framework/Context.php', "+    #[BCChange\\ReturnTypeNarrowing(version: 'v6.8.0', newType: 'string')]");
-    assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY), parseBCChangeAttributes(ATTRIBUTE_DIR)), true);
-});
-
-test('unrelated attributes do not match', () => {
+test('version-free attributes do not match', () => {
     const diff = diffFor('src/Core/Framework/Context.php', "+    #[Route(path: '/api/test', name: 'api.test')]");
-    assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY), parseBCChangeAttributes(ATTRIBUTE_DIR)), false);
+    assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), false);
 });
 
 test('BC-change attribute in .github tooling does not match', () => {
     const diff = diffFor('.github/bin/js/auto-label-major-php.test.mjs', "+    #[ReturnTypeNarrowing(version: 'v6.8.0')]");
-    assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY), parseBCChangeAttributes(ATTRIBUTE_DIR)), false);
+    assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), false);
 });
 
-test('attribute usage without a known attribute list does not match', () => {
-    const diff = diffFor('src/Core/Framework/Context.php', "+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'string')]");
-    assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), false);
+test('accepted imprecision: a changelog release heading matches the version regex', () => {
+    const diff = diffFor('CHANGELOG.md', '+## 6.6.10.21');
+    assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), true);
 });
 
 const baseContext = (overrides = {}) => ({

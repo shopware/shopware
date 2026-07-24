@@ -8,18 +8,16 @@
  * `#[DisabledFeatures]`, `triggerDeprecationOrThrow`) quotes the flag name, so one
  * quoted-name pattern covers them all.
  *
- * BC-change attributes (`#[ReturnTypeNarrowing(...)]`, `#[BecomesFinal(...)]`, ...)
- * are detected the same way: the attribute class names are read from the
- * `Framework/Deprecation/BCChange` directory listing at the PR's head, so
- * attributes added later are covered without touching this script. They mark
- * code whose contract changes at the next major, and their version strings
- * (`'v6.8.0'`) match neither the flag names (`'v6.8.0.0'`) nor the
- * `@deprecated tag:` pattern, so they need their own marker.
+ * Beyond flag names, any `6.x.y` version string in a changed line counts: it covers
+ * `@deprecated tag:v6.9.0` annotations and the BC-change attributes
+ * (`#[ReturnTypeNarrowing(version: 'v6.8.0', ...)]`) alike — the three constructs
+ * use three different version formats, so the shared digits are the one stable
+ * signal. The imprecision is accepted: mentioning a version in changed code is a
+ * good-enough reason to run the major matrix, and the known noise (e.g. changelog
+ * release headings) is rare — see the discussion on the introducing PR.
  */
 
 export const FEATURE_REGISTRY_PATH = 'src/Core/Framework/Resources/config/packages/feature.yaml';
-
-export const BC_CHANGE_ATTRIBUTES_PATH = 'src/Core/Framework/Deprecation/BCChange';
 
 /**
  * All run conditions beyond the workflow-level `if: github.event_name == 'pull_request'`
@@ -72,20 +70,6 @@ export function parseMajorFlags(registryYaml) {
 }
 
 /**
- * The directory listing contains the attribute classes plus the marker interfaces
- * they implement; including the interface names in the pattern is harmless because
- * interfaces never appear as `#[Name(` usages.
- *
- * @param {Array<{name: string, type: string}>} entries getContent directory listing
- * @returns {string[]} class names of the BC-change attributes
- */
-export function parseBCChangeAttributes(entries) {
-    return entries
-        .filter((entry) => entry.type === 'file' && entry.name.endsWith('.php'))
-        .map((entry) => entry.name.slice(0, -'.php'.length));
-}
-
-/**
  * Tooling and workflow code quotes flag names without changing major behavior,
  * so changes under .github/ never count as a hit.
  */
@@ -109,10 +93,9 @@ function splitDiffByFile(diff) {
 /**
  * @param {string} diff unified diff of the PR
  * @param {string[]} majorFlags
- * @param {string[]} bcChangeAttributes
  * @returns {boolean}
  */
-export function hasMajorMarkers(diff, majorFlags, bcChangeAttributes = []) {
+export function hasMajorMarkers(diff, majorFlags) {
     const files = splitDiffByFile(diff).filter(({ path }) => !path.startsWith(EXCLUDED_PATH_PREFIX));
 
     if (files.some(({ path }) => path === FEATURE_REGISTRY_PATH)) {
@@ -129,13 +112,9 @@ export function hasMajorMarkers(diff, majorFlags, bcChangeAttributes = []) {
     const escaped = majorFlags.map((flag) => flag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
     const markers = [
         new RegExp(`['"](${escaped.join('|')})['"]`),
-        /@deprecated\s+tag:v6\.\d+\.\d+/,
+        // any 6.x.y version string: @deprecated tag:v6.9.0, BC attributes (version: 'v6.8.0'), ...
+        /6\.\d+\.\d/,
     ];
-
-    if (bcChangeAttributes.length > 0) {
-        // matches plain and qualified usages: #[ReturnTypeNarrowing(, #[BCChange\ReturnTypeNarrowing(
-        markers.push(new RegExp(`#\\[(?:[A-Za-z0-9_]+\\\\)*(?:${bcChangeAttributes.join('|')})\\(`));
-    }
 
     return changedLines.some((line) => markers.some((marker) => marker.test(line)));
 }
@@ -161,15 +140,6 @@ export async function detectMajorFlagUsage({ github, core, context }) {
 
     const majorFlags = parseMajorFlags(String(registry));
 
-    const { data: attributeDir } = await github.rest.repos.getContent({
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        path: BC_CHANGE_ATTRIBUTES_PATH,
-        ref: context.payload.pull_request.head.sha,
-    });
-
-    const bcChangeAttributes = parseBCChangeAttributes(attributeDir);
-
     const { data: diff } = await github.rest.pulls.get({
         owner: context.repo.owner,
         repo: context.repo.repo,
@@ -177,10 +147,10 @@ export async function detectMajorFlagUsage({ github, core, context }) {
         mediaType: { format: 'diff' },
     });
 
-    const hit = hasMajorMarkers(String(diff), majorFlags, bcChangeAttributes);
+    const hit = hasMajorMarkers(String(diff), majorFlags);
     core.info(
         hit
-            ? `major marker found in the diff (${majorFlags.length} registered major flags, ${bcChangeAttributes.length} BC-change attributes)`
+            ? `major marker found in the diff (${majorFlags.length} registered major flags)`
             : 'no major markers in the diff',
     );
 

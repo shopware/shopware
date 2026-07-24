@@ -124,10 +124,7 @@ export default {
                     const matchesOrderAddress = this.addressesRepresentSamePlace(orderAddress, item);
 
                     // Same place as the order address: keep only when that customer row is selected
-                    if (
-                        matchesOrderAddress &&
-                        !(item.id === selectedAddressId && selectedAddressId !== orderAddress?.id)
-                    ) {
+                    if (matchesOrderAddress && !(item.id === selectedAddressId && selectedAddressId !== orderAddress?.id)) {
                         return null;
                     }
 
@@ -142,9 +139,7 @@ export default {
 
             const selectedOption = addresses.find((item) => item.id === selectedAddressId);
             const selectedIsSamePlaceAsOrder =
-                !!orderAddress &&
-                !!selectedOption &&
-                this.addressesRepresentSamePlace(orderAddress, selectedOption);
+                !!orderAddress && !!selectedOption && this.addressesRepresentSamePlace(orderAddress, selectedOption);
 
             // Prepend the order address when needed, but never when the active selection is
             // already in the list and represents the same place (duplicate active row).
@@ -152,8 +147,7 @@ export default {
                 !!orderAddress &&
                 !selectedIsSamePlaceAsOrder &&
                 !addresses.some(
-                    (item) =>
-                        item.id === orderAddress.id || this.addressesRepresentSamePlace(orderAddress, item),
+                    (item) => item.id === orderAddress.id || this.addressesRepresentSamePlace(orderAddress, item),
                 );
 
             if (shouldPrependOrderAddress) {

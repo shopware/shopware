@@ -416,10 +416,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
             getEntityName: () => 'customer_address',
         });
 
-        const customerGet = jest
-            .fn()
-            .mockResolvedValueOnce(createCustomerMock())
-            .mockResolvedValueOnce(reloadedCustomer);
+        const customerGet = jest.fn().mockResolvedValueOnce(createCustomerMock()).mockResolvedValueOnce(reloadedCustomer);
 
         Shopware.Store.get('swOrderDetail').setCustomer(null);
         wrapper = await createWrapper({ type: 'billing' }, createCustomerMock(), { customerGet });
@@ -448,9 +445,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         await flushPromises();
 
         expect(customerGet).toHaveBeenCalledTimes(2);
-        expect(
-            shippingWrapper.vm.addressOptions.some((option) => option.id === 'shared-new-address-id'),
-        ).toBe(true);
+        expect(shippingWrapper.vm.addressOptions.some((option) => option.id === 'shared-new-address-id')).toBe(true);
 
         shippingWrapper.unmount();
     });
@@ -479,10 +474,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
             getEntityName: () => 'customer_address',
         });
 
-        const customerGet = jest
-            .fn()
-            .mockResolvedValueOnce(createCustomerMock())
-            .mockResolvedValueOnce(reloadedCustomer);
+        const customerGet = jest.fn().mockResolvedValueOnce(createCustomerMock()).mockResolvedValueOnce(reloadedCustomer);
 
         Shopware.Store.get('swOrderDetail').setCustomer(null);
         wrapper = await createWrapper({}, createCustomerMock(), { customerGet });
@@ -503,15 +495,11 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         await wrapper.vm.onSaveAddress();
         await flushPromises();
 
-        const optionsWithSameStreet = wrapper.vm.addressOptions.filter(
-            (option) => option.street === 'Denesik Bridge',
-        );
+        const optionsWithSameStreet = wrapper.vm.addressOptions.filter((option) => option.street === 'Denesik Bridge');
 
         expect(optionsWithSameStreet).toHaveLength(1);
         expect(optionsWithSameStreet[0].id).toBe('38e8895864a649a1b2ec806dad02ab87');
-        expect(wrapper.vm.addressOptions.some((option) => option.id === 'new-but-same-hash-address')).toBe(
-            false,
-        );
+        expect(wrapper.vm.addressOptions.some((option) => option.id === 'new-but-same-hash-address')).toBe(false);
     });
 
     it('should dedupe customer address matching order content when hash is missing', async () => {
@@ -538,15 +526,11 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
             getEntityName: () => 'customer_address',
         });
 
-        const optionsWithSameStreet = wrapper.vm.addressOptions.filter(
-            (option) => option.street === 'Denesik Bridge',
-        );
+        const optionsWithSameStreet = wrapper.vm.addressOptions.filter((option) => option.street === 'Denesik Bridge');
 
         expect(optionsWithSameStreet).toHaveLength(1);
         expect(optionsWithSameStreet[0].id).toBe('38e8895864a649a1b2ec806dad02ab87');
-        expect(wrapper.vm.addressOptions.some((option) => option.id === 'same-content-without-hash')).toBe(
-            false,
-        );
+        expect(wrapper.vm.addressOptions.some((option) => option.id === 'same-content-without-hash')).toBe(false);
     });
 
     it('should keep selected customer address once when it matches order content', async () => {
@@ -578,15 +562,11 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
             getEntityName: () => 'customer_address',
         });
 
-        const optionsWithSameStreet = wrapper.vm.addressOptions.filter(
-            (option) => option.street === 'Denesik Bridge',
-        );
+        const optionsWithSameStreet = wrapper.vm.addressOptions.filter((option) => option.street === 'Denesik Bridge');
 
         expect(optionsWithSameStreet).toHaveLength(1);
         expect(optionsWithSameStreet[0].id).toBe(selectedCustomerAddressId);
-        expect(wrapper.vm.addressOptions.some((option) => option.id === '38e8895864a649a1b2ec806dad02ab87')).toBe(
-            false,
-        );
+        expect(wrapper.vm.addressOptions.some((option) => option.id === '38e8895864a649a1b2ec806dad02ab87')).toBe(false);
     });
 
     it('should not show order address twice when selected matches order by display fields only', async () => {
@@ -616,37 +596,29 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         });
         await flushPromises();
 
-        wrapper.vm.customer.addresses = new EntityCollection(
-            '/customer_address',
-            'customer_address',
-            Context.api,
-            null,
-            [
-                {
-                    street: 'Denesik Bridge',
-                    zipcode: '05132',
-                    city: 'Bernierstad',
-                    company: 'Other Company',
-                    department: 'Sales',
-                    id: selectedCustomerAddressId,
-                    hash: 'customer-hash-b',
-                    firstName: 'Max',
-                    lastName: 'Mustermann',
-                    countryId: 'country-customer',
-                    country: {
-                        translated: {
-                            name: 'Buzbach',
-                        },
+        wrapper.vm.customer.addresses = new EntityCollection('/customer_address', 'customer_address', Context.api, null, [
+            {
+                street: 'Denesik Bridge',
+                zipcode: '05132',
+                city: 'Bernierstad',
+                company: 'Other Company',
+                department: 'Sales',
+                id: selectedCustomerAddressId,
+                hash: 'customer-hash-b',
+                firstName: 'Max',
+                lastName: 'Mustermann',
+                countryId: 'country-customer',
+                country: {
+                    translated: {
+                        name: 'Buzbach',
                     },
-                    getEntityName: () => 'customer_address',
                 },
-            ],
-        );
+                getEntityName: () => 'customer_address',
+            },
+        ]);
 
         const optionIds = wrapper.vm.addressOptions.map((option) => option.id);
-        const optionsWithSameStreet = wrapper.vm.addressOptions.filter(
-            (option) => option.street === 'Denesik Bridge',
-        );
+        const optionsWithSameStreet = wrapper.vm.addressOptions.filter((option) => option.street === 'Denesik Bridge');
 
         expect(optionsWithSameStreet).toHaveLength(1);
         expect(optionIds).toContain(selectedCustomerAddressId);
@@ -679,40 +651,30 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         });
         await flushPromises();
 
-        wrapper.vm.customer.addresses = new EntityCollection(
-            '/customer_address',
-            'customer_address',
-            Context.api,
-            null,
-            [
-                {
-                    firstName: 'Max',
-                    lastName: 'Mustermann',
-                    street: 'Denesik Bridge',
-                    zipcode: '05132',
-                    city: 'Bernierstad',
-                    company: null,
-                    id: selectedCustomerAddressId,
-                    hash: 'customer-without-company',
-                    country: {
-                        translated: {
-                            name: 'Buzbach',
-                        },
+        wrapper.vm.customer.addresses = new EntityCollection('/customer_address', 'customer_address', Context.api, null, [
+            {
+                firstName: 'Max',
+                lastName: 'Mustermann',
+                street: 'Denesik Bridge',
+                zipcode: '05132',
+                city: 'Bernierstad',
+                company: null,
+                id: selectedCustomerAddressId,
+                hash: 'customer-without-company',
+                country: {
+                    translated: {
+                        name: 'Buzbach',
                     },
-                    getEntityName: () => 'customer_address',
                 },
-            ],
-        );
+                getEntityName: () => 'customer_address',
+            },
+        ]);
 
-        const optionsWithSameStreet = wrapper.vm.addressOptions.filter(
-            (option) => option.street === 'Denesik Bridge',
-        );
+        const optionsWithSameStreet = wrapper.vm.addressOptions.filter((option) => option.street === 'Denesik Bridge');
 
         expect(optionsWithSameStreet).toHaveLength(1);
         expect(optionsWithSameStreet[0].id).toBe(selectedCustomerAddressId);
-        expect(wrapper.vm.addressOptions.some((option) => option.id === '38e8895864a649a1b2ec806dad02ab87')).toBe(
-            false,
-        );
+        expect(wrapper.vm.addressOptions.some((option) => option.id === '38e8895864a649a1b2ec806dad02ab87')).toBe(false);
     });
 
     it('should be able to get the options with props', async () => {

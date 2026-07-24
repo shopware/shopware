@@ -308,25 +308,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('shopware.app_lifecycle.handler', ['priority' => -400]);
 
-    $services->set(AppFeatureLifecycleHandler::class)
-        ->args([
-            service(AppFeatureDefinitionRegistry::class),
-            service(AppFeatureStorage::class),
-        ])
-        ->tag('shopware.app_lifecycle.handler', ['priority' => -1300]);
-
-    $services->set(AppFeatureDefinitionRegistry::class)
-        ->args([
-            tagged_iterator('shopware.app_feature.definition'),
-        ]);
-
-    $services->set(AppFeatureStorage::class)
-        ->args([
-            service(Connection::class),
-            service(ClockInterface::class),
-            service(AppFeatureDefinitionRegistry::class),
-        ]);
-
     $services->set(ShippingMethodLifecycleHandler::class)
         ->args([
             service('shipping_method.repository'),
@@ -379,6 +360,25 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(BlockTemplateLoader::class),
         ])
         ->tag('shopware.app_lifecycle.handler', ['priority' => -1200]);
+
+    $services->set(AppFeatureLifecycleHandler::class)
+        ->args([
+            service(AppFeatureDefinitionRegistry::class),
+            service(AppFeatureStorage::class),
+        ])
+        ->tag('shopware.app_lifecycle.handler', ['priority' => -1300]);
+
+    $services->set(AppFeatureDefinitionRegistry::class)
+        ->args([
+            tagged_iterator('shopware.app_feature.definition'),
+        ]);
+
+    $services->set(AppFeatureStorage::class)
+        ->args([
+            service(Connection::class),
+            service(ClockInterface::class),
+            service(AppFeatureDefinitionRegistry::class),
+        ]);
 
     $services->set(ScriptFileReader::class)
         ->args([

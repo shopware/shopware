@@ -724,8 +724,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ProductConfiguratorLoader::class)
         ->args([
-            service('product_configurator_setting.repository'),
             service(AvailableCombinationLoader::class),
+            service('property_group_option.repository'),
         ]);
 
     $services->set(AvailableCombinationLoader::class)

@@ -251,5 +251,10 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="shopware.sync.fk_resolver"/>
         </service>
+
+        <service id="Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigValidator">
+            <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

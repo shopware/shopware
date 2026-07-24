@@ -6,12 +6,14 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(DatabaseSalesChannelThemeLoader::class)]
 class DatabaseSalesChannelThemeLoaderTest extends TestCase
 {

@@ -138,31 +138,30 @@ describe('storeService', () => {
     it('test getDefaultFolderId with folder', async () => {
         const mediaApiService = getMediaApiService();
 
-        let searchCount = 0;
+        const search = jest.fn(() =>
+            Promise.resolve([
+                {
+                    id: 'test',
+                    folder: {
+                        id: 'product_download_id',
+                    },
+                },
+            ]),
+        );
 
         const spyRepository = jest.spyOn(Shopware.Service('repositoryFactory'), 'create').mockImplementation(() => {
             return {
-                search: async () => {
-                    searchCount += 1;
-
-                    return Promise.resolve([
-                        {
-                            id: 'test',
-                            folder: {
-                                id: 'product_download_id',
-                            },
-                        },
-                    ]);
-                },
+                search,
             };
         });
 
         expect(await mediaApiService.getDefaultFolderId('product_download')).toBe('product_download_id');
-        expect(await mediaApiService.getDefaultFolderId('product_download')).toBe('product_download_id');
-        expect(mediaApiService.cacheDefaultFolder).toMatchObject({
-            product_download: 'product_download_id',
+        expect(search).toHaveBeenCalledWith(expect.anything(), {
+            cacheKey: [
+                'media-default-folder',
+                'product_download',
+            ],
         });
-        expect(searchCount).toBe(1);
 
         spyRepository.mockRestore();
     });

@@ -97,14 +97,13 @@ class DocumentV2ControllerTest extends TestCase
     {
         $this->seedDemoBaseConfig(DocumentType::INVOICE->value);
 
-        [$orderId, $orderVersionId] = $this->createDraftOrder();
+        $orderId = $this->createDraftOrder();
 
         $this->getBrowser()->jsonRequest(
             'POST',
             '/api/_action/order/document-v2/preview',
             [
                 'orderId' => $orderId,
-                'orderVersionId' => $orderVersionId,
                 'documentType' => DocumentType::INVOICE->value,
                 'format' => DocumentFormat::HTML->value,
                 'documentNumber' => self::DOCUMENT_NUMBER,
@@ -129,14 +128,13 @@ class DocumentV2ControllerTest extends TestCase
     {
         $this->seedDemoBaseConfig(DocumentType::INVOICE->value);
 
-        [$orderId, $orderVersionId] = $this->createDraftOrder();
+        $orderId = $this->createDraftOrder();
 
         $this->getBrowser()->jsonRequest(
             'POST',
             '/api/_action/order/document-v2/create',
             [
                 'orderId' => $orderId,
-                'orderVersionId' => $orderVersionId,
                 'documentType' => DocumentType::INVOICE->value,
                 'formats' => [
                     DocumentFormat::HTML->value,
@@ -166,7 +164,9 @@ class DocumentV2ControllerTest extends TestCase
 
     public function testUploadStoresDocumentFileAndDownloadReturnsIt(): void
     {
-        [$orderId, $orderVersionId] = $this->createDraftOrder();
+        $orderId = $this->createDraftOrder();
+        $orderVersionId = $this->orderRepository->createVersion($orderId, $this->context, 'DRAFT');
+
         $content = 'uploaded invoice';
 
         $this->getBrowser()->request(
@@ -224,20 +224,14 @@ class DocumentV2ControllerTest extends TestCase
         static::assertStringContainsString('uploaded-invoice.pdf', (string) $response->headers->get('content-disposition'));
     }
 
-    /**
-     * @return array{0: string, 1: string}
-     */
-    private function createDraftOrder(): array
+    private function createDraftOrder(): string
     {
         $cart = $this->generateDemoCartWithTaxes([19, 7]);
         $cart = $this->applyTenPercentPromotion($cart);
         $orderId = $this->persistCart($cart);
         $this->enrichOrderForRendering($orderId);
 
-        return [
-            $orderId,
-            $this->orderRepository->createVersion($orderId, $this->context, 'DRAFT'),
-        ];
+        return $orderId;
     }
 
     private function loadDocumentFiles(string $documentId): DocumentFileCollection

@@ -89,6 +89,12 @@ Cron-driven product export generation no longer derives the next run from `gener
 Store API requests now remain stateless unless application or extension code explicitly starts a session. Previously, several sales channel and Storefront event subscribers could initialize Symfony's lazy session factory during Store API requests, causing unnecessary session storage growth and potentially taking PHP session locks. Storefront session handling, including customer imitation, remains unchanged.
 
 ## Core
+
+### MCP tools expose a group for operator-facing selection
+
+MCP tool metadata now includes a `group` value in the `/_action/mcp/tools` and `/_action/mcp/capabilities` responses. The Administration MCP allowlist UI and `bin/console debug:mcp` use this value to group tools for operators without changing tool names or call behaviour.
+
+Tools without an explicit group derive one from the longest name prefix they share with another tool at a hyphen boundary, so tools such as `swag-my-plugin-orders` and `swag-my-plugin-products` use `swag-my-plugin` without being combined with tools from another `swag-*` extension. Existing core, plugin, and app tools continue to work.
 ### Product `descriptionTeaser` backfill runs once as a post-update indexer
 
 The `product.description_teaser.indexer` that fills `descriptionTeaser` for products predating the column (introduced in 6.7.12) is now a one-time post-update indexer: it runs once through the post-update flow after the update and is no longer executed by `bin/console dal:refresh:index`. It rebuilds each teaser from the current description and rewrites only the rows whose stored value is missing or out of date. Ongoing changes continue to be kept in sync synchronously on write by the product description-teaser subscriber.

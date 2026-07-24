@@ -1,0 +1,14 @@
+name: "PHPUnit completion guard"
+description: "Fail when the preceding PHPUnit run exited successfully without finishing the suite. The run step must export PHPUNIT_COMPLETION_SENTINEL=$RUNNER_TEMP/phpunit-completion-sentinel; the CompletionSentinelExtension (registered in phpunit.xml.dist) writes that file when the test runner finishes executing tests, so a zero exit code without it means code under test terminated the process (e.g. exit(0) from a console Application with auto-exit) and most of the suite never ran."
+author: "shopware AG"
+
+runs:
+  using: composite
+  steps:
+    - name: Fail if PHPUnit exited without finishing the suite
+      shell: bash
+      run: |
+        if [ ! -f "$RUNNER_TEMP/phpunit-completion-sentinel" ]; then
+          echo "::error::PHPUnit exited successfully but never finished the suite: the process was terminated from inside (completion sentinel missing)."
+          exit 1
+        fi

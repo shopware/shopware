@@ -228,7 +228,13 @@ jobs:
 
       - name: Run integration tests
         if: inputs.profile == 'nightly'
+        env:
+          PHPUNIT_COMPLETION_SENTINEL: ${{ runner.temp }}/phpunit-completion-sentinel
         run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure
+
+      - name: Guard against a silently killed PHPUnit process
+        if: inputs.profile == 'nightly'
+        uses: ./.github/actions/phpunit-completion-guard
 
       - name: Install Shopware in previous major version
         if: inputs.profile != 'nightly'
@@ -315,6 +321,8 @@ jobs:
           DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
         run: bin/console theme:refresh
 
+      # No completion guard here: this step runs the PREVIOUS major's checkout,
+      # whose phpunit.xml.dist does not register the CompletionSentinelExtension.
       - name: Run integration tests in previous major version
         if: inputs.profile == 'nightly'
         run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure
@@ -392,7 +400,12 @@ jobs:
         run: bin/console dal:refresh:index
 
       - name: Run integration tests
+        env:
+          PHPUNIT_COMPLETION_SENTINEL: ${{ runner.temp }}/phpunit-completion-sentinel
         run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure
+
+      - name: Guard against a silently killed PHPUnit process
+        uses: ./.github/actions/phpunit-completion-guard
 
   # this allows us to specify just one required job/check
   # this is not practical with matrix jobs directly, because you've to specify all permutations

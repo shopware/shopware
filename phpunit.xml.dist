@@ -242,6 +242,7 @@
     </testsuites>
     <extensions>
         <bootstrap class="Ergebnis\PHPUnit\SlowTestDetector\Extension"/>
+        <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\Completion\CompletionSentinelExtension"/>
         <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\FeatureFlagExtension"/>
         <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\Datadog\DatadogExtension"/>
         <!-- Enable to see the db side effects of the tests. -->

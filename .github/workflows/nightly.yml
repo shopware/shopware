@@ -35,8 +35,13 @@ jobs:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
       - name: Run PHPUnit
+        env:
+          PHPUNIT_COMPLETION_SENTINEL: ${{ runner.temp }}/phpunit-completion-sentinel
         run: |
           ./vendor/bin/phpunit --testsuite redis
+
+      - name: Guard against a silently killed PHPUnit process
+        uses: ./.github/actions/phpunit-completion-guard
 
   admin:
     if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'

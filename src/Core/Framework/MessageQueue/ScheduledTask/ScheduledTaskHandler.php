@@ -60,9 +60,16 @@ abstract class ScheduledTaskHandler
      *
      * Will be removed in v6.8.0 together with the {@see rescheduleTask()} hook; the executor will then always
      * persist the schedule itself and use {@see DynamicallyScheduledTaskHandler} for custom timing.
+     *
+     * @deprecated tag:v6.8.0 - will be removed together with the {@see rescheduleTask()} hook
      */
     public function rescheduleNext(ScheduledTask $task, ScheduledTaskEntity $taskEntity): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         // Only when a subclass actually overrides the deprecated rescheduleTask() hook do we route through it,
         // so its custom logic (and the deprecation nudge it triggers) keeps working until the hook is removed in
         // v6.8.0.0. The default handler never overrides it, so it takes the doRescheduleTask() path and no

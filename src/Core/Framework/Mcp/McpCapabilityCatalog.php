@@ -199,8 +199,8 @@ class McpCapabilityCatalog
     }
 
     /**
-     * Explicit #[McpToolGroup] values take precedence. For the remaining tools, the group is the
-     * longest hyphen-separated prefix shared by tools with the same first segment.
+     * Explicit #[McpToolGroup] values take precedence. Each remaining tool uses the longest
+     * hyphen-separated prefix it shares with another unconfigured tool.
      *
      * @return array<string, string> tool-name => group
      */
@@ -208,8 +208,7 @@ class McpCapabilityCatalog
     {
         \assert($this->registry !== null);
 
-        /** @var array<string, list<string>> $toolNamesByPrefix */
-        $toolNamesByPrefix = [];
+        $unconfiguredToolNames = [];
 
         foreach ($this->registry->getTools()->references as $tool) {
             \assert($tool instanceof Tool);
@@ -218,18 +217,26 @@ class McpCapabilityCatalog
                 continue;
             }
 
-            $prefix = explode('-', $tool->name)[0] ?: 'other';
-            $toolNamesByPrefix[$prefix][] = $tool->name;
+            $unconfiguredToolNames[] = $tool->name;
         }
 
         $resolvedGroups = $this->toolGroups;
 
-        foreach ($toolNamesByPrefix as $prefix => $toolNames) {
-            $group = $this->longestCommonPrefix($toolNames) ?: $prefix;
+        foreach ($unconfiguredToolNames as $toolName) {
+            $group = explode('-', $toolName)[0] ?: 'other';
 
-            foreach ($toolNames as $toolName) {
-                $resolvedGroups[$toolName] = $group;
+            foreach ($unconfiguredToolNames as $otherToolName) {
+                if ($otherToolName === $toolName) {
+                    continue;
+                }
+
+                $sharedPrefix = $this->longestCommonPrefix([$toolName, $otherToolName]);
+                if (substr_count($sharedPrefix, '-') > substr_count($group, '-')) {
+                    $group = $sharedPrefix;
+                }
             }
+
+            $resolvedGroups[$toolName] = $group;
         }
 
         return $resolvedGroups;

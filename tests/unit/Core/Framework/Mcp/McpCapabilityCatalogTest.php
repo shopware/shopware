@@ -86,12 +86,16 @@ class McpCapabilityCatalogTest extends TestCase
         $registry = new Registry();
         $this->registerTool($registry, 'swag-my-plugin-orders', 'List orders');
         $this->registerTool($registry, 'swag-my-plugin-products', 'List products');
+        $this->registerTool($registry, 'swag-other-plugin-customers', 'List customers');
+        $this->registerTool($registry, 'swag-other-plugin-products', 'List products');
 
         $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
 
         static::assertSame([
             'swag-my-plugin',
             'swag-my-plugin',
+            'swag-other-plugin',
+            'swag-other-plugin',
         ], array_column($catalog->enrichedTools(), 'group'));
     }
 

@@ -112,6 +112,7 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
     const mockFilter = [{ type: 'equals', field: 'parentId', value: null }];
 
     beforeEach(async () => {
+        jest.restoreAllMocks();
         wrapper = await createWrapper();
     });
 

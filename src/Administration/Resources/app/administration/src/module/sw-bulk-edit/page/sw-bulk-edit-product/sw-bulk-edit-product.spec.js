@@ -325,21 +325,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                         startEventListener: () => {},
                         stopEventListener: () => {},
                     },
-                    userConfigService: {
-                        search: () => {
-                            return Promise.resolve({
-                                data: {
-                                    'measurement.preferenceUnits': {
-                                        length: 'mm',
-                                        weight: 'kg',
-                                    },
-                                },
-                            });
-                        },
-                        upsert: () => {
-                            return Promise.resolve();
-                        },
-                    },
                     syncService: {},
                 },
             },
@@ -438,6 +423,16 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     });
 
     beforeEach(async () => {
+        jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({
+            data: {
+                'measurement.preferenceUnits': {
+                    length: 'mm',
+                    weight: 'kg',
+                },
+            },
+        });
+        jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
+
         const mockResponses = global.repositoryFactoryMock.responses;
         mockResponses.addResponse({
             method: 'post',
@@ -457,6 +452,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         Shopware.Store.get('swBulkEdit').selectedIds = [
             Shopware.Utils.createId(),
         ];
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
     it('should be handled change data', async () => {
@@ -1362,7 +1361,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
     it('should get preference units', async () => {
         const wrapper = await createWrapper();
-        wrapper.vm.userConfigService.search = jest.fn().mockResolvedValue({
+        Shopware.Service('userConfigService').search.mockResolvedValue({
             data: {
                 'measurement.preferenceUnits': {
                     length: 'cm',
@@ -1379,9 +1378,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
     it('should not get preference units', async () => {
         const wrapper = await createWrapper();
-        wrapper.vm.userConfigService.search = jest.fn().mockResolvedValue({
-            data: {},
-        });
+        Shopware.Service('userConfigService').search.mockResolvedValue({ data: {} });
 
         await wrapper.vm.loadPreferenceUnits();
 
@@ -1391,7 +1388,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
     it('should save preference units', async () => {
         const wrapper = await createWrapper();
-        wrapper.vm.userConfigService.upsert = jest.fn();
 
         await wrapper.setData({
             lengthUnit: 'cm',
@@ -1404,13 +1400,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         await wrapper.vm.savePreferenceUnits();
 
-        expect(wrapper.vm.userConfigService.upsert).toHaveBeenCalledWith({
+        expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalledWith({
             'measurement.preferenceUnits': {
                 length: 'cm',
                 weight: 'g',
             },
         });
-
-        wrapper.vm.userConfigService.upsert.mockRestore();
     });
 });

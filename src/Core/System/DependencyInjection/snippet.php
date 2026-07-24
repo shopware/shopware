@@ -15,6 +15,7 @@ use Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\ScheduledTask\UpdateTranslationsTask;
 use Shopware\Core\System\Snippet\ScheduledTask\UpdateTranslationsTaskHandler;
+use Shopware\Core\System\Snippet\Service\AbstractTranslationConfigLoader;
 use Shopware\Core\System\Snippet\Service\TranslationConfigLoader;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
@@ -111,7 +112,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(TranslationConfigLoader::class)
         ->args([
             service('filesystem'),
+            param('shopware.translation'),
         ]);
+
+    $services->alias(AbstractTranslationConfigLoader::class, TranslationConfigLoader::class);
 
     $services->set(TranslationConfig::class)
         ->lazy()

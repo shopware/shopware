@@ -444,6 +444,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.filesystem.s3.client')->nullOnInvalid(),
             param('shopware.media.presigned_upload.expiration_minutes'),
             param('shopware.media.presigned_upload.enabled'),
+            param('shopware.filesystem.private'),
         ]);
 
     $services->alias(PresignedUrlGeneratorInterface::class, PresignedUploadUrlGenerator::class);

@@ -54,7 +54,7 @@ class ValidateSnippetsCommandTest extends TestCase
     }
 
     #[TestDox('The deprecated command alias stays silent when v6.8 is active')]
-    public function testDeprecatedCommandAliasIsSilentWhenV68IsActive(): void
+    public function testDeprecatedCommandAliasIsSilent(): void
     {
         $command = $this->createCommand(new SnippetFileCollection(), []);
         $command->setName('translation:validate');

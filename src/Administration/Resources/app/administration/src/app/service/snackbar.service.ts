@@ -6,6 +6,7 @@ import useSnackbar from 'src/app/composables/use-snackbar';
  *
  * @public
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class SnackbarService {
     addSnackbar(config: Omit<Snackbar, 'id'>): Snackbar {
         return useSnackbar().addSnackbar(config);

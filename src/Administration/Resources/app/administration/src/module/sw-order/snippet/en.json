@@ -378,6 +378,7 @@
             "messageEmptyTitle": "No documents created yet",
             "messageNoDocumentFound": "No documents found",
             "messageEmptySubline": "Manage documents here.",
+            "notificationDeleteErrorMessage": "The document could not be deleted.",
             "error": {
                 "DOCUMENT__NUMBER_ALREADY_EXISTS": "Document number {number} has already been allocated."
             },

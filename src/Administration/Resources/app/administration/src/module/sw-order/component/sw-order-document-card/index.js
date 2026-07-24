@@ -695,7 +695,11 @@ export default {
                 .then(() => {
                     return this.getList();
                 })
-                .catch(() => {});
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$t('sw-order.documentCard.notificationDeleteErrorMessage'),
+                    });
+                });
         },
 
         onSendDocument(id) {

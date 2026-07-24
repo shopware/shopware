@@ -378,6 +378,7 @@
             "messageEmptyTitle": "Noch keine Dokumente",
             "messageNoDocumentFound": "Keine Dokumente vorhanden",
             "messageEmptySubline": "Verwaltung von Dokumenten.",
+            "notificationDeleteErrorMessage": "Das Dokument konnte nicht gelöscht werden.",
             "error": {
                 "DOCUMENT__NUMBER_ALREADY_EXISTS": "Die Dokumentnummer {number} ist bereits in Verwendung."
             },

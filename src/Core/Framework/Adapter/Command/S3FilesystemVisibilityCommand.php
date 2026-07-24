@@ -12,11 +12,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('framework')]
 #[AsCommand(
     name: 's3:set-visibility',
     description: 'Sets the visibility of all files in the s3 filesystem to public',
 )]
-#[Package('framework')]
 class S3FilesystemVisibilityCommand extends Command
 {
     /**

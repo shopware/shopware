@@ -43,8 +43,8 @@ use Symfony\Component\Routing\Attribute\Route;
  * Applies Shopware's Admin API authentication and route scoping, then delegates
  * the actual protocol handling to the Symfony MCP Server.
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class McpServerController
 {
     public const ATTRIBUTE_JSONRPC_BODY = 'mcp._jsonrpc_body';

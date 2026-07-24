@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @extends Collection<File>
  */
-#[Package('framework')]
+#[Package('discovery')]
 class FileCollection extends Collection
 {
     /**

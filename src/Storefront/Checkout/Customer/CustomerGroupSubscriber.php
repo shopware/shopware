@@ -186,6 +186,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
                         'routeName' => self::ROUTE_NAME,
                         'pathInfo' => '/customer-group-registration/' . $group->getId(),
                         'isCanonical' => true,
+                        'isDeleted' => false,
                         'seoPathInfo' => '/' . $this->slugify->slugify($title),
                     ];
                 }

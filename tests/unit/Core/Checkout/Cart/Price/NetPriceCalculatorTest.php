@@ -21,8 +21,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(NetPriceCalculator::class)]
 #[Package('checkout')]
+#[CoversClass(NetPriceCalculator::class)]
 class NetPriceCalculatorTest extends TestCase
 {
     #[DataProvider('referencePriceCalculationProvider')]

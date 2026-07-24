@@ -6,6 +6,7 @@
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import TimezoneService from 'src/core/service/timezone.service';
+import 'src/module/sw-profile/store/sw-profile.store';
 
 async function createWrapper(
     privileges = [],
@@ -90,19 +91,16 @@ async function createWrapper(
                             userId: 'userId',
                         };
                     },
+                    processSearchPreferencesFields: () => ({
+                        name: {
+                            _searchable: true,
+                        },
+                    }),
                 },
                 searchRankingService: {
                     clearCacheUserSearchConfiguration: () => {},
                     isValidTerm: (term) => {
                         return term && term.trim().length >= 1;
-                    },
-                },
-                userConfigService: {
-                    upsert: () => {
-                        return Promise.resolve();
-                    },
-                    search: () => {
-                        return Promise.resolve();
                     },
                 },
                 ssoSettingsService: {
@@ -131,6 +129,15 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
                 setLocaleWithId: jest.fn(),
             };
         });
+    });
+
+    beforeEach(() => {
+        Shopware.Store.get('swProfile').$reset();
+        jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
     it('should not be able to save own user', async () => {
@@ -296,6 +303,41 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
 
         wrapper.vm.saveMinSearchTermLength.mockRestore();
         wrapper.vm.saveUserSearchPreferences.mockRestore();
+    });
+
+    it('should save user search preferences through the admin user config store', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        Shopware.Store.get('swProfile').searchPreferences = [
+            {
+                entityName: 'product',
+                _searchable: true,
+                fields: [
+                    {
+                        fieldName: 'name',
+                    },
+                ],
+            },
+        ];
+        Shopware.Store.get('swProfile').userSearchPreferences = null;
+
+        await wrapper.vm.saveUserSearchPreferences();
+
+        expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalledWith({
+            'search.preferences': [
+                {
+                    product: {
+                        _searchable: true,
+                        name: {
+                            _searchable: true,
+                        },
+                    },
+                },
+            ],
+        });
+        expect(wrapper.vm.isLoading).toBe(false);
+        expect(wrapper.vm.isSaveSuccessful).toBe(true);
     });
 
     it('should re-login before updateCurrentUser when password changes (user:editor path)', async () => {

@@ -8,81 +8,59 @@ use Shopware\Administration\Command\AbstractExtensionToolingCommand;
 use Shopware\Administration\Command\CheckExtensionsCommand;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Output\BufferedOutput;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
- *
- * @phpstan-type ToolingCall array{command: list<string>, cwd: string, env: array<string, string>}
  */
 #[Package('framework')]
 #[CoversClass(AbstractExtensionToolingCommand::class)]
 #[CoversClass(CheckExtensionsCommand::class)]
 class CheckExtensionsCommandTest extends TestCase
 {
-    private Filesystem $filesystem;
-
-    protected function setUp(): void
-    {
-        $this->filesystem = new Filesystem();
-    }
+    use ExtensionToolingCommandTestBehaviour;
 
     public function testFailsWithNpmCiGuidanceWhenNodeDependenciesAreMissing(): void
     {
         // A vendor/flex install ships the tooling code but not its node_modules.
-        $administrationRoot = $this->createAdministrationRoot(withDependencies: false);
-        $spawned = false;
+        $administrationRoot = $this->createAdministrationRoot(withToolingStub: false);
 
-        $command = $this->checkCommand($administrationRoot, function () use (&$spawned): int {
-            $spawned = true;
-
-            return 0;
-        });
-        $tester = new CommandTester($command);
-
+        $tester = new CommandTester(new CheckExtensionsCommand($this->kernel(), $administrationRoot));
         $exitCode = $tester->execute([]);
 
         static::assertSame(Command::FAILURE, $exitCode);
-        static::assertFalse($spawned, 'the tooling must not be spawned when its dependencies are missing');
         static::assertStringContainsString('npm ci', $tester->getDisplay(true));
+        static::assertFileDoesNotExist(
+            $administrationRoot . '/.tooling-capture.json',
+            'the tooling must not be spawned when its dependencies are missing',
+        );
 
-        $this->filesystem->remove($administrationRoot);
+        $this->removeAdministrationRoot($administrationRoot);
     }
 
     public function testForwardsArgumentsAndProjectRootAndPropagatesExitCode(): void
     {
-        $administrationRoot = $this->createAdministrationRoot(withDependencies: true);
+        // A non-zero tooling exit (findings) must reach the shell unchanged.
+        $administrationRoot = $this->createAdministrationRoot(withToolingStub: true, stubExitCode: 1);
 
-        /** @var ToolingCall|null $captured */
-        $captured = null;
-        $command = $this->checkCommand($administrationRoot, function (array $command, string $cwd, array $env) use (&$captured): int {
-            $captured = ['command' => $command, 'cwd' => $cwd, 'env' => $env];
-
-            // A non-zero tooling exit (findings) must reach the shell unchanged.
-            return 1;
-        });
-        $tester = new CommandTester($command);
-
+        $tester = new CommandTester(new CheckExtensionsCommand($this->kernel(), $administrationRoot));
         $exitCode = $tester->execute(['tooling-args' => ['--only=MyPlugin', '--all']]);
 
         static::assertSame(1, $exitCode);
-        static::assertNotNull($captured);
-        static::assertSame($administrationRoot, $captured['cwd']);
-        static::assertSame('/shop', $captured['env']['PROJECT_ROOT']);
-        static::assertSame($administrationRoot . '/node_modules/.bin/ts-node', $captured['command'][0]);
-        static::assertContains('--transpileOnly', $captured['command']);
-        static::assertStringEndsWith('scripts/extensionTooling/check.ts', $captured['command'][2]);
-        static::assertContains('--only=MyPlugin', $captured['command']);
-        static::assertContains('--all', $captured['command']);
 
-        $this->filesystem->remove($administrationRoot);
+        $capture = $this->readToolingCapture($administrationRoot);
+        static::assertSame('/shop', $capture['project_root']);
+        static::assertSame(realpath($administrationRoot), $capture['cwd']);
+        static::assertContains('--transpileOnly', $capture['argv']);
+        static::assertStringEndsWith('scripts/extensionTooling/check.ts', $capture['argv'][1]);
+        static::assertContains('--only=MyPlugin', $capture['argv']);
+        static::assertContains('--all', $capture['argv']);
+
+        $this->removeAdministrationRoot($administrationRoot);
     }
 
-    public function testAdministrationRootResolvesToTheBundleResourcesPath(): void
+    public function testAdministrationRootResolvesToTheBundleResourcesPathByDefault(): void
     {
         $command = new class($this->kernel()) extends CheckExtensionsCommand {
             public function exposedAdministrationRoot(): string
@@ -92,71 +70,6 @@ class CheckExtensionsCommandTest extends TestCase
         };
 
         static::assertStringEndsWith('/Resources/app/administration', $command->exposedAdministrationRoot());
-    }
-
-    public function testRunToolingSpawnsTheProcessAndPropagatesItsExitCode(): void
-    {
-        $command = new class($this->kernel()) extends CheckExtensionsCommand {
-            /**
-             * @param list<string> $command
-             * @param array<string, string> $env
-             */
-            public function exposedRunTooling(array $command, string $cwd, array $env, OutputInterface $output): int
-            {
-                return $this->runTooling($command, $cwd, $env, $output);
-            }
-        };
-
-        $exitCode = $command->exposedRunTooling(
-            [\PHP_BINARY, '-r', 'fwrite(STDOUT, "tooling-ran"); exit(5);'],
-            sys_get_temp_dir(),
-            [],
-            new BufferedOutput(),
-        );
-
-        static::assertSame(5, $exitCode, 'the tooling exit code reaches the shell unchanged');
-    }
-
-    private function createAdministrationRoot(bool $withDependencies): string
-    {
-        $root = sys_get_temp_dir() . '/' . uniqid('sw-admin-tooling-', true);
-        $this->filesystem->mkdir($root);
-
-        if ($withDependencies) {
-            $this->filesystem->mkdir($root . '/node_modules/.bin');
-            $this->filesystem->touch($root . '/node_modules/.bin/ts-node');
-        }
-
-        return $root;
-    }
-
-    /**
-     * @param \Closure(list<string>, string, array<string, string>): int $runTooling
-     */
-    private function checkCommand(string $administrationRoot, \Closure $runTooling): CheckExtensionsCommand
-    {
-        return new class($this->kernel(), $administrationRoot, $runTooling) extends CheckExtensionsCommand {
-            /**
-             * @param \Closure(list<string>, string, array<string, string>): int $runTooling
-             */
-            public function __construct(
-                KernelInterface $kernel,
-                private readonly string $administrationRootOverride,
-                private readonly \Closure $runTooling,
-            ) {
-                parent::__construct($kernel);
-            }
-
-            protected function administrationRoot(): string
-            {
-                return $this->administrationRootOverride;
-            }
-
-            protected function runTooling(array $command, string $cwd, array $env, OutputInterface $output): int
-            {
-                return ($this->runTooling)($command, $cwd, $env);
-            }
-        };
     }
 
     private function kernel(): KernelInterface

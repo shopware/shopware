@@ -13,7 +13,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -22,77 +21,58 @@ use Symfony\Component\Filesystem\Filesystem;
 #[CoversClass(GenerateEntitySchemaTypesCommand::class)]
 class GenerateEntitySchemaTypesCommandTest extends TestCase
 {
-    private Filesystem $filesystem;
-
-    protected function setUp(): void
-    {
-        $this->filesystem = new Filesystem();
-    }
+    use ExtensionToolingCommandTestBehaviour;
 
     public function testStopsWhenTheSchemaDumpFailsWithoutConverting(): void
     {
-        $administrationRoot = $this->createAdministrationRoot(withDependencies: true);
-        $converted = false;
-
-        $command = $this->command($administrationRoot, dump: static fn (): int => 3, convert: static function () use (&$converted): int {
-            $converted = true;
-
-            return 0;
-        });
+        $administrationRoot = $this->createAdministrationRoot(withToolingStub: true);
+        $command = $this->commandInApplication($administrationRoot, dumpExitCode: 3);
 
         $exitCode = (new CommandTester($command))->execute([]);
 
         static::assertSame(3, $exitCode, 'a failed dump short-circuits and propagates its exit code');
-        static::assertFalse($converted, 'conversion must not run when the dump failed');
+        static::assertFileDoesNotExist(
+            $administrationRoot . '/.tooling-capture.json',
+            'conversion must not run when the dump failed',
+        );
 
-        $this->filesystem->remove($administrationRoot);
+        $this->removeAdministrationRoot($administrationRoot);
     }
 
     public function testFailsWithNpmCiGuidanceWhenNodeDependenciesAreMissing(): void
     {
-        $administrationRoot = $this->createAdministrationRoot(withDependencies: false);
-        $converted = false;
+        $administrationRoot = $this->createAdministrationRoot(withToolingStub: false);
+        $command = $this->commandInApplication($administrationRoot, dumpExitCode: Command::SUCCESS);
 
-        $command = $this->command($administrationRoot, dump: static fn (): int => Command::SUCCESS, convert: static function () use (&$converted): int {
-            $converted = true;
-
-            return 0;
-        });
         $tester = new CommandTester($command);
-
         $exitCode = $tester->execute([]);
 
         static::assertSame(Command::FAILURE, $exitCode);
-        static::assertFalse($converted, 'conversion must not run without the Node dependencies');
         static::assertStringContainsString('npm ci', $tester->getDisplay(true));
+        static::assertFileDoesNotExist(
+            $administrationRoot . '/.tooling-capture.json',
+            'conversion must not run without the Node dependencies',
+        );
 
-        $this->filesystem->remove($administrationRoot);
+        $this->removeAdministrationRoot($administrationRoot);
     }
 
     public function testConvertsAfterASuccessfulDumpAndPropagatesTheExitCode(): void
     {
-        $administrationRoot = $this->createAdministrationRoot(withDependencies: true);
-        $convertedRoot = null;
-
-        $command = $this->command(
-            $administrationRoot,
-            dump: static fn (): int => Command::SUCCESS,
-            convert: static function (string $root) use (&$convertedRoot): int {
-                $convertedRoot = $root;
-
-                return 1;
-            },
-        );
+        $administrationRoot = $this->createAdministrationRoot(withToolingStub: true, stubExitCode: 3);
+        $command = $this->commandInApplication($administrationRoot, dumpExitCode: Command::SUCCESS);
 
         $exitCode = (new CommandTester($command))->execute([]);
 
-        static::assertSame(1, $exitCode, 'the converter exit code is propagated');
-        static::assertSame($administrationRoot, $convertedRoot);
+        static::assertSame(3, $exitCode, 'the converter exit code is propagated');
 
-        $this->filesystem->remove($administrationRoot);
+        $capture = $this->readToolingCapture($administrationRoot);
+        static::assertStringEndsWith('scripts/entitySchemaConverter/convert-schema.ts', $capture['argv'][1]);
+
+        $this->removeAdministrationRoot($administrationRoot);
     }
 
-    public function testAdministrationRootResolvesToTheBundleResourcesPath(): void
+    public function testAdministrationRootResolvesToTheBundleResourcesPathByDefault(): void
     {
         $command = new class extends GenerateEntitySchemaTypesCommand {
             public function exposedAdministrationRoot(): string
@@ -158,78 +138,37 @@ class GenerateEntitySchemaTypesCommandTest extends TestCase
         static::assertSame('entity-schema', $schemaCommand->schemaFormat);
     }
 
-    public function testConvertEntitySchemaSpawnsTheConverterAndPropagatesItsExitCode(): void
-    {
-        $administrationRoot = $this->createAdministrationRoot(withDependencies: true);
-        // Replace the ts-node stub with an executable that reports a known exit code and output.
-        $this->filesystem->dumpFile(
-            $administrationRoot . '/node_modules/.bin/ts-node',
-            "#!/bin/sh\nprintf 'converted'\nexit 3\n",
-        );
-        $this->filesystem->chmod($administrationRoot . '/node_modules/.bin/ts-node', 0755);
-
-        $command = new class extends GenerateEntitySchemaTypesCommand {
-            public function exposedConvertEntitySchema(string $administrationRoot, OutputInterface $output): int
-            {
-                return $this->convertEntitySchema($administrationRoot, $output);
-            }
-        };
-
-        $output = new BufferedOutput();
-        $exitCode = $command->exposedConvertEntitySchema($administrationRoot, $output);
-
-        static::assertSame(3, $exitCode, 'the converter exit code reaches the shell unchanged');
-        static::assertStringContainsString('converted', $output->fetch());
-
-        $this->filesystem->remove($administrationRoot);
-    }
-
-    private function createAdministrationRoot(bool $withDependencies): string
-    {
-        $root = sys_get_temp_dir() . '/' . uniqid('sw-admin-schema-', true);
-        $this->filesystem->mkdir($root);
-
-        if ($withDependencies) {
-            $this->filesystem->mkdir($root . '/node_modules/.bin');
-            $this->filesystem->touch($root . '/node_modules/.bin/ts-node');
-        }
-
-        return $root;
-    }
-
     /**
-     * @param \Closure(string): int $dump
-     * @param \Closure(string): int $convert
+     * Registers the real command in an Application alongside a fake `framework:schema`,
+     * so `execute()` runs end-to-end on the real class (the schema dump delegates to
+     * the fake, the conversion spawns the injected root's `ts-node` stub).
      */
-    private function command(string $administrationRoot, \Closure $dump, \Closure $convert): GenerateEntitySchemaTypesCommand
+    private function commandInApplication(string $administrationRoot, int $dumpExitCode): GenerateEntitySchemaTypesCommand
     {
-        return new class($administrationRoot, $dump, $convert) extends GenerateEntitySchemaTypesCommand {
-            /**
-             * @param \Closure(string): int $dump
-             * @param \Closure(string): int $convert
-             */
-            public function __construct(
-                private readonly string $administrationRootOverride,
-                private readonly \Closure $dump,
-                private readonly \Closure $convert,
-            ) {
-                parent::__construct();
+        $command = new GenerateEntitySchemaTypesCommand($administrationRoot);
+
+        $schemaCommand = new class($dumpExitCode) extends Command {
+            public function __construct(private readonly int $dumpExitCode)
+            {
+                parent::__construct('framework:schema');
             }
 
-            protected function administrationRoot(): string
+            protected function configure(): void
             {
-                return $this->administrationRootOverride;
+                $this->addArgument('outfile')
+                    ->addOption('schema-format', null, InputOption::VALUE_REQUIRED);
             }
 
-            protected function dumpEntitySchema(string $schemaFile, OutputInterface $output): int
+            protected function execute(InputInterface $input, OutputInterface $output): int
             {
-                return ($this->dump)($schemaFile);
-            }
-
-            protected function convertEntitySchema(string $administrationRoot, OutputInterface $output): int
-            {
-                return ($this->convert)($administrationRoot);
+                return $this->dumpExitCode;
             }
         };
+
+        $application = new Application();
+        $application->addCommand($schemaCommand);
+        $application->addCommand($command);
+
+        return $command;
     }
 }

@@ -25,8 +25,13 @@ use Symfony\Component\Process\Process;
 #[Package('framework')]
 abstract class AbstractExtensionToolingCommand extends Command
 {
-    public function __construct(private readonly KernelInterface $kernel)
-    {
+    /**
+     * @param string|null $administrationRootPath overrides the bundle-resolved app root; defaults to auto-resolution when null (the production path)
+     */
+    public function __construct(
+        private readonly KernelInterface $kernel,
+        private readonly ?string $administrationRootPath = null,
+    ) {
         parent::__construct();
     }
 
@@ -78,8 +83,9 @@ abstract class AbstractExtensionToolingCommand extends Command
      */
     protected function administrationRoot(): string
     {
-        return \dirname((string) (new \ReflectionClass(Administration::class))->getFileName())
-            . '/Resources/app/administration';
+        return $this->administrationRootPath
+            ?? \dirname((string) (new \ReflectionClass(Administration::class))->getFileName())
+                . '/Resources/app/administration';
     }
 
     /**

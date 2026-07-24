@@ -6,7 +6,7 @@ import { stripIndent, transformOrFail } from './helpers';
 import { expectGeneratedTokenUnmapped, expectUnmapped } from './sourcemap-helpers';
 
 describe('build/vue-setup-transform sourcemap generated code', () => {
-    it('does not map generated setup input replacements to user-authored macro calls', () => {
+    it('does not map the generated attachOverrides footer or context header to user source', () => {
         expect.hasAssertions();
 
         const source = stripIndent`
@@ -31,11 +31,12 @@ describe('build/vue-setup-transform sourcemap generated code', () => {
             </script>
         `;
 
-        const result = transformOrFail(source, 'setup-input-replacements.vue');
+        const result = transformOrFail(source, 'generated-footer.vue');
 
-        expectGeneratedTokenUnmapped(result, '(__swSetupProps)');
-        expectGeneratedTokenUnmapped(result, '(__swSetupContext.emit)');
-        expectGeneratedTokenUnmapped(result, '(__swSetupContext.slots)');
+        // The author body stays in place (macros untouched, bindings renamed); only the generated
+        // context header and the attachOverrides footer are transform-authored and must stay unmapped.
+        expectGeneratedTokenUnmapped(result, 'const useSwContext = () => Shopware.Component.getComponentContext();');
+        expectGeneratedTokenUnmapped(result, 'Shopware.Component.attachOverrides({');
     });
 
     it('does not map injected data scope attributes to user-authored template source', () => {
@@ -159,7 +160,6 @@ swDefineOverride({
         const result = transformOrFail(source, 'combined-edits.vue');
 
         expectGeneratedTokenUnmapped(result, ':data="$dataScope"');
-        expectGeneratedTokenUnmapped(result, '(__swSetupProps)');
-        expectGeneratedTokenUnmapped(result, '(__swSetupContext.emit)');
+        expectGeneratedTokenUnmapped(result, 'Shopware.Component.attachOverrides({');
     });
 });

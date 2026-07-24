@@ -686,7 +686,8 @@ export default {
 
             this.onChangeSalesChannel();
 
-            await this.documentBaseConfigRepository.save(this.documentConfig)
+            await this.documentBaseConfigRepository
+                .save(this.documentConfig)
                 .then(async () => {
                     if (this.documentConfig.isNew()) {
                         await this.$router.replace({
@@ -697,19 +698,23 @@ export default {
 
                     await this.loadEntityData();
                     this.paymentDueDateIsValid = true;
-                }).catch((error) => {
+                })
+                .catch((error) => {
                     if (error.response?.data?.errors?.length) {
-                        error.response.data.errors.forEach((errorEntry) =>  {
+                        error.response.data.errors.forEach((errorEntry) => {
                             if (errorEntry.code === INVALID_PAYMENT_DUE_DATE) {
                                 this.paymentDueDateIsValid = false;
                             } else {
                                 this.createNotificationError({
-                                    message: this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
+                                    message: this.$t(
+                                        'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
+                                    ),
                                 });
                             }
-                        })
+                        });
                     }
-                }).finally(() => {
+                })
+                .finally(() => {
                     this.isLoading = false;
                 });
         },

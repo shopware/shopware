@@ -216,7 +216,7 @@ return static function (ContainerConfigurator $container): void {
             'Shopware Store API MCP server for sales-channel and customer-context operations.',
         ])
         ->call('setPaginationLimit', [param('mcp.pagination_limit')])
-        ->call('setInstructions', ['This MCP server exposes Store API capabilities. All operations run in the current sales-channel context and use Store API authentication headers.'])
+        ->call('setInstructions', ['This MCP server exposes Store API capabilities. All operations run in the current sales-channel context and use Store API authentication headers. The advertised tool list is not the full catalogue: if no advertised tool matches the requested action, call shopware-tool-search first instead of assuming the action is unsupported, then use shopware-toolsets-list and shopware-toolset-enable to make a matched tool callable if your client cannot invoke it inline.'])
         ->call('setEventDispatcher', [service('event_dispatcher')])
         ->call('setRegistry', [service('mcp.store_api.registry')])
         ->call('setSession', [service('mcp.session.store')->nullOnInvalid()])

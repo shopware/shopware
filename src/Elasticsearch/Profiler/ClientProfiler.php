@@ -6,14 +6,14 @@ use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\UriResolver;
 use OpenSearch\Client;
 use Psr\Http\Message\UriInterface;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @deprecated tag:v6.8.0 - reason:becomes-internal - will be considered internal from 6.8.0.0 onwards
- *
  * @phpstan-type RequestInfo array{url: string, request: array<string, mixed>, response: array<string, mixed>, time: float, backtrace: string, client?: string}
  */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class ClientProfiler extends Client
 {
     /**

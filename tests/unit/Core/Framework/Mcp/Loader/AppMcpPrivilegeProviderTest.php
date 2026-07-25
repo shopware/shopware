@@ -95,4 +95,40 @@ class AppMcpPrivilegeProviderTest extends TestCase
 
         static::assertSame(['tool' => ['a', 'b']], $provider->getAppToolPrivileges());
     }
+
+    public function testMapsAppToolsToTheirOwningAppGroup(): void
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['tool_name' => 'my-erp-sync-orders', 'group_name' => 'my-erp'],
+            ['tool_name' => 'my-erp-read-stock', 'group_name' => 'my-erp'],
+            ['tool_name' => 'other-app-do-thing', 'group_name' => 'other-app'],
+        ]);
+
+        $provider = new AppMcpPrivilegeProvider($connection, new NullLogger());
+
+        static::assertSame(
+            [
+                'my-erp-sync-orders' => 'my-erp',
+                'my-erp-read-stock' => 'my-erp',
+                'other-app-do-thing' => 'other-app',
+            ],
+            $provider->getAppToolGroups(),
+        );
+    }
+
+    public function testReturnsEmptyGroupMapAndLogsErrorWhenDbThrows(): void
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willThrowException(new \RuntimeException('DB down'));
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with('Failed to load app MCP tool groups', static::arrayHasKey('exception'));
+
+        $provider = new AppMcpPrivilegeProvider($connection, $logger);
+
+        static::assertSame([], $provider->getAppToolGroups());
+    }
 }

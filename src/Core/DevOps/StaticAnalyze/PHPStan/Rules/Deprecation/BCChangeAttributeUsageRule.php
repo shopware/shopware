@@ -309,11 +309,15 @@ class BCChangeAttributeUsageRule implements Rule
     private function validateExceptionChange(ReflectionAttribute|FakeReflectionAttribute $attribute, ClassReflection $class, string $methodName, string $symbol, int $line): array
     {
         $announced = $this->argument($attribute, 'newExceptions', 1);
-        if (!\is_array($announced) || $announced === []) {
+        if (!\is_array($announced)) {
             return [$this->error($line, \sprintf(
-                'ExceptionChange on "%s": "newExceptions" must announce at least one exception class.',
+                'ExceptionChange on "%s": "newExceptions" must be an array of exception classes.',
                 $symbol
             ))];
+        }
+
+        if ($announced === []) {
+            return [];
         }
 
         $announcedTypes = [];

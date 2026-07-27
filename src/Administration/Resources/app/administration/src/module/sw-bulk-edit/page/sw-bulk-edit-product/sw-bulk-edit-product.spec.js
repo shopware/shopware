@@ -1008,7 +1008,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     });
 
     it('should get preference units', async () => {
-        const wrapper = await createWrapper();
+        wrapper = await createWrapper();
         Shopware.Service('userConfigService').search.mockResolvedValue({
             data: {
                 'measurement.preferenceUnits': {
@@ -1025,7 +1025,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     });
 
     it('should not get preference units', async () => {
-        const wrapper = await createWrapper();
+        wrapper = await createWrapper();
         Shopware.Service('userConfigService').search.mockResolvedValue({ data: {} });
 
         await wrapper.vm.loadPreferenceUnits();
@@ -1035,7 +1035,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     });
 
     it('should flag the selected sales channel as removed for a variant', async () => {
-        const wrapper = await createWrapper(undefined, {
+        wrapper = await createWrapper(undefined, {
             name: 'sw.bulk.edit.product.save',
             params: { parentId: 'parent_id', includesDigital: '0' },
         });
@@ -1076,7 +1076,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     });
 
     it('should flag every selected sales channel as removed for a variant', async () => {
-        const wrapper = await createWrapper(undefined, {
+        wrapper = await createWrapper(undefined, {
             name: 'sw.bulk.edit.product.save',
             params: { parentId: 'parent_id', includesDigital: '0' },
         });
@@ -1117,7 +1117,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     });
 
     it('should flag the removed sales channels via onProcessData', async () => {
-        const wrapper = await createWrapper(undefined, {
+        wrapper = await createWrapper(undefined, {
             name: 'sw.bulk.edit.product.save',
             params: { parentId: 'parent_id', includesDigital: '0' },
         });
@@ -1157,7 +1157,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
     it('should NOT flag a parent bulk edit visibility remove (non-variant path)', async () => {
         // parentId 'null' marks a parent (non-variant) bulk edit, so isChild() is false.
-        const wrapper = await createWrapper(undefined, {
+        wrapper = await createWrapper(undefined, {
             name: 'sw.bulk.edit.product.save',
             params: { parentId: 'null', includesDigital: '0' },
         });
@@ -1184,7 +1184,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     });
 
     it('should flag nothing to remove when the variant field stays inherited', async () => {
-        const wrapper = await createWrapper(undefined, {
+        wrapper = await createWrapper(undefined, {
             name: 'sw.bulk.edit.product.save',
             params: { parentId: 'parent_id', includesDigital: '0' },
         });
@@ -1215,7 +1215,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     });
 
     it('should flag the selected sales channels as added for a variant', async () => {
-        const wrapper = await createWrapper(undefined, {
+        wrapper = await createWrapper(undefined, {
             name: 'sw.bulk.edit.product.save',
             params: { parentId: 'parent_id', includesDigital: '0' },
         });
@@ -1253,7 +1253,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     });
 
     it('should flag added sales channels via onProcessData', async () => {
-        const wrapper = await createWrapper(undefined, {
+        wrapper = await createWrapper(undefined, {
             name: 'sw.bulk.edit.product.save',
             params: { parentId: 'parent_id', includesDigital: '0' },
         });
@@ -1291,7 +1291,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     });
 
     it('should save preference units', async () => {
-        const wrapper = await createWrapper();
+        wrapper = await createWrapper();
 
         await wrapper.setData({
             lengthUnit: 'cm',

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\RateLimiter;
 
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Policy\SystemConfigLimiter;
 use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoffLimiter;
@@ -43,13 +44,18 @@ class RateLimiterFactory
     ) {
     }
 
-    public function create(?string $key = null): LimiterInterface
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'salesChannelId', parameterType: '?string', defaultValue: null, description: 'Sales channel id used to resolve sales-channel scoped limits for the system_config policy and to track consumption per sales channel.')]
+    public function create(?string $key = null/* , ?string $salesChannelId = null */): LimiterInterface
     {
+        /** @deprecated tag:v6.8.0 - Remove next line as $salesChannelId will become a part of method signature */
+        /** @var string|null $salesChannelId */
+        $salesChannelId = \func_get_args()[1] ?? null;
+
         if ($this->config['enabled'] === false) {
             return new NoLimiter();
         }
 
-        $id = $this->config['id'] . '-' . (string) $key;
+        $id = $this->config['id'] . '-' . ($salesChannelId !== null ? $salesChannelId . '-' : '') . (string) $key;
         $lock = $this->lockFactory ? $this->lockFactory->createLock($id) : new NoLock();
 
         if (isset($this->config['reset']) && !($this->config['reset'] instanceof \DateInterval)) {
@@ -68,7 +74,7 @@ class RateLimiterFactory
         if ($this->config['policy'] === 'system_config' && isset($this->config['limits']) && isset($this->config['reset'])) {
             \assert($this->config['reset'] instanceof \DateInterval);
 
-            return new SystemConfigLimiter($this->systemConfigService, $id, $this->config['limits'], $this->config['reset'], $this->storage, $lock, $this->clock);
+            return new SystemConfigLimiter($this->systemConfigService, $id, $this->config['limits'], $this->config['reset'], $this->storage, $lock, $this->clock, $salesChannelId);
         }
 
         // prevent symfony errors due to customized values

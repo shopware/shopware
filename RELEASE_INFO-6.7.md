@@ -6,6 +6,12 @@
 
 ## Core
 
+### Sales-channel scoped rate limits for the `system_config` policy
+
+Rate limiters using the `system_config` policy previously resolved their limits from the global system configuration only. A limit configured for a specific sales channel — for example "Maximum addable products to cart per minute through API" in the cart settings, which the Administration offers per sales channel — was saved but never applied.
+
+`RateLimiter::ensureAccepted()` and `RateLimiterFactory::create()` now accept an optional sales channel id, passed as an additional argument; the parameter becomes part of the declared method signature with v6.8.0 (see the `#[NewOptionalParameter]` attributes). When given, `system_config` limits are resolved with that scope and consumption is tracked in a separate bucket per sales channel. The core cart line-item limiter now passes the sales channel of the current context, so per-sales-channel values of `core.cart.lineItemAddLimit` take effect. Plugins using their own `system_config` rate limiters can pass their sales channel id the same way; existing calls without the argument keep the previous global behaviour.
+
 ### Built-in translation system configurable via `shopware.translation`
 
 The built-in translation system's configuration (previously only editable by decorating `AbstractTranslationConfigLoader`) can now be overridden through the standard Symfony configuration in `config/packages`. Add a `shopware.translation` section to override individual options; any option left unset falls back to the shipped defaults in `translation.yaml`:

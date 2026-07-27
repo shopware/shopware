@@ -106,10 +106,24 @@ class SystemConfigLimiterTest extends TestCase
         static::assertTrue($limit->isAccepted());
     }
 
+    public function testConsumeUsesSalesChannelScopedLimit(): void
+    {
+        $limiter = $this->createLimiter([
+            'test.limit' => 100,
+            'test.limit-sales-channel-id' => 2,
+        ], 'sales-channel-id');
+
+        $limit = $limiter->consume(2);
+        static::assertTrue($limit->isAccepted());
+
+        $limit = $limiter->consume();
+        static::assertFalse($limit->isAccepted());
+    }
+
     /**
      * @param array<string, int|null> $domainLimits
      */
-    private function createLimiter(array $domainLimits): LimiterInterface
+    private function createLimiter(array $domainLimits, ?string $salesChannelId = null): LimiterInterface
     {
         static::assertArrayHasKey('limits', $this->config);
         static::assertIsArray($this->config['limits']);
@@ -119,7 +133,7 @@ class SystemConfigLimiterTest extends TestCase
             ->expects($this->exactly(\array_key_exists('limit', $this->config['limits'][0]) ? 0 : 1))
             ->method('get')
             ->willReturnCallback(
-                static fn (string $domain) => $domainLimits[$domain] ?? null
+                static fn (string $domain, ?string $salesChannelId = null) => $domainLimits[$domain . ($salesChannelId !== null ? '-' . $salesChannelId : '')] ?? null
             );
 
         $cacheStorage = $this->createMock(CacheStorage::class);
@@ -151,6 +165,6 @@ class SystemConfigLimiterTest extends TestCase
             static::createStub(LockFactory::class),
         );
 
-        return $factory->create('example');
+        return $factory->create('example', $salesChannelId);
     }
 }

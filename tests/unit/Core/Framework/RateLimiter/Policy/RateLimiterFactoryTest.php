@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\RateLimiter\Policy;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\RateLimiter\Policy\SystemConfigLimiter;
 use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoffLimiter;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -96,6 +97,68 @@ class RateLimiterFactoryTest extends TestCase
         );
 
         static::assertInstanceOf(TokenBucketLimiter::class, $factory->create('example'));
+    }
+
+    public function testFactoryPassesSalesChannelIdToSystemConfigLimiter(): void
+    {
+        $systemConfig = $this->createMock(SystemConfigService::class);
+        $systemConfig
+            ->expects($this->once())
+            ->method('get')
+            ->with('test.limit', 'sales-channel-id')
+            ->willReturn(3);
+
+        $factory = new RateLimiterFactory(
+            [
+                'enabled' => true,
+                'id' => 'test_limiter',
+                'policy' => 'system_config',
+                'reset' => '5 minutes',
+                'limits' => [
+                    [
+                        'domain' => 'test.limit',
+                        'interval' => '10 seconds',
+                    ],
+                ],
+            ],
+            static::createStub(StorageInterface::class),
+            $systemConfig,
+            new MockClock(),
+            static::createStub(LockFactory::class),
+        );
+
+        static::assertInstanceOf(SystemConfigLimiter::class, $factory->create('example', 'sales-channel-id'));
+    }
+
+    public function testFactoryScopesLimiterIdBySalesChannelId(): void
+    {
+        $storage = $this->createMock(StorageInterface::class);
+        $storage
+            ->expects($this->atLeastOnce())
+            ->method('fetch')
+            ->with('test_limiter-sales-channel-id-example')
+            ->willReturn(null);
+
+        $factory = new RateLimiterFactory(
+            [
+                'enabled' => true,
+                'id' => 'test_limiter',
+                'policy' => 'time_backoff',
+                'reset' => '1 hour',
+                'limits' => [
+                    [
+                        'limit' => 3,
+                        'interval' => '10 seconds',
+                    ],
+                ],
+            ],
+            $storage,
+            static::createStub(SystemConfigService::class),
+            new MockClock(),
+            static::createStub(LockFactory::class),
+        );
+
+        $factory->create('example', 'sales-channel-id')->consume();
     }
 
     public function testFactoryShouldKeepConfigUntouched(): void

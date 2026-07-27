@@ -11,14 +11,18 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskExecutor;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ScheduledTaskHandler::class)]
 class ScheduledTaskHandlerTest extends TestCase
 {
@@ -74,6 +78,34 @@ class ScheduledTaskHandlerTest extends TestCase
 
         // task entity is not found, so the handler returns before running
         static::assertFalse($handler->wasCalled);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testInlineLogicRunsAndReschedulesAnAllowedTask(): void
+    {
+        $taskId = 'task-id';
+
+        $taskEntity = new ScheduledTaskEntity();
+        $taskEntity->setId($taskId);
+        $taskEntity->setStatus(ScheduledTaskDefinition::STATUS_QUEUED);
+        $taskEntity->setNextExecutionTime(new \DateTimeImmutable('2024-01-01 00:00:00'));
+        $taskEntity->setRunInterval(300);
+
+        /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
+        $repository = new StaticEntityRepository([new ScheduledTaskCollection([$taskEntity])]);
+
+        $handler = new HandlerStub($repository, static::createStub(LoggerInterface::class));
+
+        $task = new HandlerStubTask();
+        $task->setTaskId($taskId);
+
+        $handler($task);
+
+        static::assertTrue($handler->wasCalled);
+
+        static::assertCount(2, $repository->updates);
+        static::assertSame(ScheduledTaskDefinition::STATUS_RUNNING, $repository->updates[0][0]['status'] ?? null);
+        static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $repository->updates[1][0]['status'] ?? null);
     }
 }
 

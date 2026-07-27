@@ -118,7 +118,7 @@ class ProductListingLoaderExtensionsTests extends TestCase
         );
 
         static::assertInstanceOf(EntitySearchResult::class, $result);
-        static::assertSame(['plugin-id'], array_values($result->getIds()));
+        static::assertSame(['plugin-id'], array_values($result->getEntities()->getIds()));
         static::assertIsArray($history);
         static::assertCount(1, $history);
 

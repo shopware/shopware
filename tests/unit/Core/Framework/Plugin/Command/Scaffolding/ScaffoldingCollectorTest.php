@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\CommandGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\EventSubscriberGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ScaffoldingGenerator;
+use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\StoreApiRouteGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\StorefrontControllerGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingCollector;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
+use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * @internal
@@ -150,6 +152,7 @@ class ScaffoldingCollectorTest extends TestCase
                 StorefrontControllerGenerator::OPTION_NAME => true,
                 EventSubscriberGenerator::OPTION_NAME => true,
                 CommandGenerator::OPTION_NAME => true,
+                StoreApiRouteGenerator::OPTION_NAME => true,
                 PluginScaffoldConfiguration::ROUTE_XML_OPTION_NAME => true,
             ],
         );
@@ -158,6 +161,7 @@ class ScaffoldingCollectorTest extends TestCase
             new StorefrontControllerGenerator(),
             new EventSubscriberGenerator(),
             new CommandGenerator(),
+            new StoreApiRouteGenerator(),
         ]);
 
         $content = $collector->collect($configuration)->get('src/Resources/config/services.php')?->getContent();
@@ -180,6 +184,13 @@ class ScaffoldingCollectorTest extends TestCase
             static::assertTrue($container->hasDefinition('Swag\Example\Subscriber\MySubscriber'));
             static::assertArrayHasKey('kernel.event_subscriber', $container->getDefinition('Swag\Example\Subscriber\MySubscriber')->getTags());
             static::assertTrue($container->hasDefinition('Swag\Example\Command\ExampleCommand'));
+
+            $route = 'Swag\Example\Core\Content\Example\SalesChannel\ExampleRoute';
+            static::assertTrue($container->hasDefinition($route));
+            // Symfony's ControllerResolver fetches route services from the container
+            // at request time, so they must be public.
+            static::assertTrue($container->getDefinition($route)->isPublic());
+            static::assertEquals([new Reference('product.repository')], $container->getDefinition($route)->getArguments());
         } finally {
             unlink($dir . '/services.php');
             rmdir($dir);

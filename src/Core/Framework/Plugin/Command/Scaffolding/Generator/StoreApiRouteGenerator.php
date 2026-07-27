@@ -25,6 +25,7 @@ class StoreApiRouteGenerator implements ScaffoldingGenerator
     private string $servicesPhpEntry = <<<'EOL'
 
     $services->set(\{{ namespace }}\Core\Content\Example\SalesChannel\ExampleRoute::class)
+        ->public()
         ->args([
             service('product.repository'),
         ]);

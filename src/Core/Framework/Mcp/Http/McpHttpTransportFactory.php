@@ -106,9 +106,74 @@ class McpHttpTransportFactory
             if (\is_array($decoded) && array_is_list($decoded) && $decoded !== []) {
                 return $this->eventStreamResponse($decoded, $psrResponse);
             }
+
+            if (\is_array($decoded)) {
+                $normalized = self::normalizeToolSchemas($decoded);
+
+                if ($normalized !== null) {
+                    return $this->jsonResponse($normalized, $psrResponse);
+                }
+            }
         }
 
         return $this->httpFoundationFactory->createResponse($psrResponse, false);
+    }
+
+    /**
+     * Forces an empty `inputSchema.properties` to a JSON object; returns null when nothing changed.
+     *
+     * A parameterless tool has an empty properties map, and PHP encodes an empty array as `[]`.
+     * JSON Schema requires an object there, so strict clients reject the whole payload — OpenAI
+     * answers `400 invalid_function_parameters: "[] is not of type 'object'"`. Because
+     * `shopware-toolsets-list` is advertised in every session, one malformed tool breaks every
+     * request such a client makes, not just calls to that tool.
+     *
+     * The SDK normalizes this in `Tool::fromArray()` but not in `Tool::jsonSerialize()`, so tools
+     * discovered by reflection — all of Shopware's — reach the wire unnormalized. Normalizing at
+     * this single funnel covers both endpoints and every response shape, and stays correct
+     * whichever way a future SDK release goes.
+     *
+     * @param array<string, mixed> $message
+     *
+     * @return array<string, mixed>|null
+     */
+    private static function normalizeToolSchemas(array $message): ?array
+    {
+        if (!\is_array($message['result'] ?? null) || !\is_array($message['result']['tools'] ?? null)) {
+            return null;
+        }
+
+        $changed = false;
+
+        foreach ($message['result']['tools'] as $index => $tool) {
+            if (!\is_array($tool) || !\is_array($tool['inputSchema'] ?? null)) {
+                continue;
+            }
+
+            if (($tool['inputSchema']['properties'] ?? null) === []) {
+                $message['result']['tools'][$index]['inputSchema']['properties'] = new \stdClass();
+                $changed = true;
+            }
+        }
+
+        return $changed ? $message : null;
+    }
+
+    /**
+     * @param array<string, mixed> $message
+     */
+    private function jsonResponse(array $message, PsrResponseInterface $psrResponse): Response
+    {
+        $response = new Response(Json::encode($message), $psrResponse->getStatusCode(), [
+            'Content-Type' => 'application/json',
+        ]);
+
+        $sessionId = $psrResponse->getHeaderLine(PlatformRequest::HEADER_MCP_SESSION_ID);
+        if ($sessionId !== '') {
+            $response->headers->set(PlatformRequest::HEADER_MCP_SESSION_ID, $sessionId);
+        }
+
+        return $response;
     }
 
     /**
@@ -118,6 +183,13 @@ class McpHttpTransportFactory
     {
         $body = '';
         foreach ($messages as $message) {
+            // The batched shape is exactly what a tools/list following a toolset-enable looks
+            // like (the list_changed notification rides along), so it needs the same schema
+            // normalization as the single-object path.
+            if (\is_array($message)) {
+                $message = self::normalizeToolSchemas($message) ?? $message;
+            }
+
             $body .= 'event: message' . "\n" . 'data: ' . Json::encode($message) . "\n\n";
         }
 

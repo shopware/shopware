@@ -83,6 +83,58 @@ class McpHttpTransportFactoryTest extends TestCase
         static::assertStringStartsWith('text/event-stream', (string) $response->headers->get('Content-Type'));
     }
 
+    /**
+     * A parameterless tool encodes its empty properties map as `[]`, but JSON Schema requires an
+     * object there. Strict clients reject the whole payload over it — OpenAI answers
+     * `400 invalid_function_parameters: "[] is not of type 'object'"` — and because
+     * shopware-toolsets-list is advertised in every session, that breaks every request such a
+     * client makes, not just calls to that tool.
+     */
+    public function testCreateResponseForcesEmptyToolPropertiesToAnObject(): void
+    {
+        $json = '{"jsonrpc":"2.0","id":1,"result":{"tools":[{"name":"shopware-toolsets-list","inputSchema":{"type":"object","properties":[]}}]}}';
+
+        $response = $this->factory()->createResponse($this->psrResponse('application/json', $json));
+
+        static::assertStringContainsString('"properties":{}', (string) $response->getContent());
+        static::assertStringNotContainsString('"properties":[]', (string) $response->getContent());
+    }
+
+    public function testCreateResponseForcesEmptyToolPropertiesInsideAnEventStreamBatch(): void
+    {
+        // What tools/list looks like right after a toolset-enable: the list_changed notification
+        // is batched alongside the response, so the tools travel the SSE path instead.
+        $json = '[{"jsonrpc":"2.0","method":"notifications/tools/list_changed"},'
+            . '{"jsonrpc":"2.0","id":2,"result":{"tools":[{"name":"shopware-toolsets-list","inputSchema":{"type":"object","properties":[]}}]}}]';
+
+        $response = $this->factory()->createResponse($this->psrResponse('application/json', $json));
+
+        static::assertStringStartsWith('text/event-stream', (string) $response->headers->get('Content-Type'));
+        static::assertStringContainsString('"properties":{}', (string) $response->getContent());
+        static::assertStringNotContainsString('"properties":[]', (string) $response->getContent());
+    }
+
+    public function testCreateResponseLeavesPopulatedToolPropertiesUntouched(): void
+    {
+        $json = '{"jsonrpc":"2.0","id":1,"result":{"tools":[{"name":"t","inputSchema":{"type":"object","properties":{"q":{"type":"string"}}}}]}}';
+
+        $response = $this->factory()->createResponse($this->psrResponse('application/json', $json));
+
+        static::assertSame($json, $response->getContent());
+    }
+
+    public function testCreateResponseKeepsTheSessionHeaderWhenRewritingTheBody(): void
+    {
+        $json = '{"jsonrpc":"2.0","id":1,"result":{"tools":[{"name":"t","inputSchema":{"type":"object","properties":[]}}]}}';
+
+        $psrResponse = $this->psrResponse('application/json', $json)
+            ->withHeader(PlatformRequest::HEADER_MCP_SESSION_ID, 'session-123');
+
+        $response = $this->factory()->createResponse($psrResponse);
+
+        static::assertSame('session-123', $response->headers->get(PlatformRequest::HEADER_MCP_SESSION_ID));
+    }
+
     private function psrResponse(string $contentType, string $body): ResponseInterface
     {
         $psr17 = new Psr17Factory();

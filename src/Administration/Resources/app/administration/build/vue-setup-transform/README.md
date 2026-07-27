@@ -18,7 +18,7 @@ developers working on the transform itself.
 | `index.js` / `index.d.ts` | CommonJS bridge (jiti) plus its hand-written types for JS consumers |
 | `sfc-parser.ts` | Finds the `<script setup>` block via `@vue/compiler-sfc` and normalizes it |
 | `script-analyzer.ts` | Statement classification pass: produces the semantic model for lowering |
-| `script-analyzer/` | Analyzer internals: macros, runtime bindings, setup inputs, validation, hoisted-macro-argument guard, Babel utils |
+| `script-analyzer/` | Analyzer internals: macro registry, runtime bindings, setup inputs, validation, Babel utils |
 | `template-analyzer/` | Template pass: expression/template reference detection, slot-scope merging, data-scope injection |
 | `lower.ts`, `lower/` | Code generation: base and override lowerers plus shared chunk helpers |
 | `source-edits/` | Chunk IR (`generated`/`original`/`trim`/`indent`), range transforms, rendering |
@@ -30,7 +30,9 @@ developers working on the transform itself.
 - **Runtime binding** — a top-level author declaration that becomes returned setup state:
   `const count = ref(0)`. Public if listed in `swDefinePublic({...})`, private otherwise.
 - **Setup input declaration** — a declaration that reads a setup input through a macro/helper:
-  `const props = defineProps<Props>()`. The macro call is hoisted or replaced; the variable stays.
+  `const props = defineProps<Props>()`. In base mode the macro call stays exactly where it was written
+  and Vue compiles it; in override mode the `useSw*` helpers are emitted as generated headers above the
+  author body. Either way the variable itself stays.
 - **Exposable setup macro declaration** — a setup input declaration assigned to a plain identifier
   (`const emit = defineEmits(...)`). Exposed as private state so the template can read `emit`,
   `slots`, and `props.<name>`. The macro call itself is left in place for Vue.

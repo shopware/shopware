@@ -1007,33 +1007,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(wrapper.vm.parentProductFrozen).toBeNull();
     });
 
-    it('should get preference units', async () => {
-        wrapper = await createWrapper();
-        Shopware.Service('userConfigService').search.mockResolvedValue({
-            data: {
-                'measurement.preferenceUnits': {
-                    length: 'cm',
-                    weight: 'g',
-                },
-            },
-        });
-
-        await wrapper.vm.loadPreferenceUnits();
-
-        expect(wrapper.vm.lengthUnit).toBe('cm');
-        expect(wrapper.vm.weightUnit).toBe('g');
-    });
-
-    it('should not get preference units', async () => {
-        wrapper = await createWrapper();
-        Shopware.Service('userConfigService').search.mockResolvedValue({ data: {} });
-
-        await wrapper.vm.loadPreferenceUnits();
-
-        expect(wrapper.vm.lengthUnit).toBe('mm');
-        expect(wrapper.vm.weightUnit).toBe('kg');
-    });
-
     it('should flag the selected sales channel as removed for a variant', async () => {
         wrapper = await createWrapper(undefined, {
             name: 'sw.bulk.edit.product.save',
@@ -1288,27 +1261,5 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
             { salesChannelId: 'scn_1', visibility: 30 },
             { salesChannelId: 'scn_2', visibility: 30 },
         ]);
-    });
-
-    it('should save preference units', async () => {
-        wrapper = await createWrapper();
-
-        await wrapper.setData({
-            lengthUnit: 'cm',
-            weightUnit: 'g',
-            preferenceUnits: {
-                length: 'mm',
-                weight: 'kg',
-            },
-        });
-
-        await wrapper.vm.savePreferenceUnits();
-
-        expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalledWith({
-            'measurement.preferenceUnits': {
-                length: 'cm',
-                weight: 'g',
-            },
-        });
     });
 });

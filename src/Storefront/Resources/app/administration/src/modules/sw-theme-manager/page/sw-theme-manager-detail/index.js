@@ -53,6 +53,7 @@ export default {
             removedSalesChannels: [],
             showMediaModal: false,
             activeMediaField: null,
+            activeTab: 'default',
             themeConfigErrors: {},
         };
     },
@@ -649,7 +650,11 @@ export default {
             }
         },
 
-        onChangeTab() {
+        onChangeTab(activeTab = null) {
+            if (typeof activeTab === 'string') {
+                this.activeTab = activeTab;
+            }
+
             for (const [
                 key,
                 item,
@@ -698,14 +703,21 @@ export default {
             criteria.addAssociation('folder');
             criteria.addFilter(Criteria.equals('entity', this.themeRepository.schema.entity));
 
-            return this.defaultFolderRepository.search(criteria).then((searchResult) => {
-                const defaultFolder = searchResult.first();
-                if (defaultFolder.folder.id) {
-                    return defaultFolder.folder.id;
-                }
+            return this.defaultFolderRepository
+                .search(criteria, {
+                    cacheKey: [
+                        'media-default-folder',
+                        this.themeRepository.schema.entity,
+                    ],
+                })
+                .then((searchResult) => {
+                    const defaultFolder = searchResult.first();
+                    if (defaultFolder.folder.id) {
+                        return defaultFolder.folder.id;
+                    }
 
-                return null;
-            });
+                    return null;
+                });
         },
 
         getDefaultTheme() {

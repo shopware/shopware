@@ -18,6 +18,7 @@ use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\AppInfo;
 use Shopware\Core\Service\Event\ServiceInstalledEvent;
@@ -39,6 +40,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ServiceLifecycle::class)]
 class ServiceLifecycleTest extends TestCase
 {
@@ -184,8 +186,7 @@ class ServiceLifecycleTest extends TestCase
         $this->stateChangePermitted(false);
 
         $app = AppFixture::createAppEntity(name: 'MyCoolService');
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
-        $appRepo = new StaticEntityRepository([
+        $appRepo = StaticEntityRepository::of(AppCollection::class, [
             static function (Criteria $criteria) use ($app) {
                 static::assertCount(2, $criteria->getFilters());
 
@@ -403,8 +404,7 @@ class ServiceLifecycleTest extends TestCase
         $this->appManager->expects($this->once())->method('uninstall')->with($app, $context);
 
         // findAll() walks the installed services, then uninstall() looks the service up again by name
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
-        $appRepo = new StaticEntityRepository([new AppCollection([$app]), new AppCollection([$app])]);
+        $appRepo = StaticEntityRepository::of(AppCollection::class, [new AppCollection([$app]), new AppCollection([$app])]);
 
         $this->createLifecycle($appRepo)->reevaluateInstalled($context);
     }
@@ -577,8 +577,7 @@ class ServiceLifecycleTest extends TestCase
      */
     private function buildAppRepository(array $apps = []): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
-        $appRepository = new StaticEntityRepository([
+        $appRepository = StaticEntityRepository::of(AppCollection::class, [
             new AppCollection($apps),
         ]);
 

@@ -17,7 +17,6 @@ use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -102,7 +101,6 @@ class ZugferdEmbeddedPdfRendererTest extends TestCase
 
         $request = new DocumentGenerationRequest(
             orderId: $orderId,
-            orderVersionId: Defaults::LIVE_VERSION,
             documentType: DocumentType::INVOICE,
             requestedFormats: [DocumentFormat::ZUGFERD_EMBEDDED_PDF],
             documentNumber: self::DOCUMENT_NUMBER,
@@ -127,6 +125,7 @@ class ZugferdEmbeddedPdfRendererTest extends TestCase
         $result = $this->embeddedRenderer->renderToString($input, $state, $this->context);
 
         static::assertSame(DocumentFormat::ZUGFERD_EMBEDDED_PDF->value, $result->format);
+        static::assertSame('invoice_' . self::DOCUMENT_NUMBER . '_zugferd_embedded_pdf', $result->fileName);
         static::assertSame('pdf', $result->fileExtension);
         static::assertSame('application/pdf', $result->mimeType);
         static::assertStringStartsWith('%PDF-', $result->content);

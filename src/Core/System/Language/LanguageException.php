@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Language;
 
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -16,9 +17,7 @@ class LanguageException extends HttpException
 {
     public const VALUE_NOT_SUPPORTED = 'LANGUAGE__RULE_VALUE_NOT_SUPPORTED';
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function unsupportedValue(string $type, string $class): self|UnsupportedValueException
     {
         if (!Feature::isActive('v6.8.0.0')) {

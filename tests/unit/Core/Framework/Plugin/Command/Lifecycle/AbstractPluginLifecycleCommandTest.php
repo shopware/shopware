@@ -51,7 +51,6 @@ class AbstractPluginLifecycleCommandTest extends TestCase
         $this->cacheClearer = $this->createMock(CacheClearer::class);
         $this->plugins = new PluginCollection();
 
-        /** @var StaticEntityRepository<PluginCollection> $pluginRepository */
         $pluginRepository = new StaticEntityRepository([
             fn (): PluginCollection => $this->plugins,
         ]);

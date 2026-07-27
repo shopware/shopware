@@ -23,7 +23,7 @@ async function createWrapper(privileges = []) {
                         query: '',
                         meta: {
                             $module: {
-                                icon: 'solid-content',
+                                icon: 'regular-content',
                             },
                         },
                     },

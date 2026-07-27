@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Content\Product\Repository;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Content\Category\CategoryCollection;
@@ -41,6 +40,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ParentRelationValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -55,7 +55,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('inventory')]
 class ProductRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -3040,7 +3040,6 @@ class ProductRepositoryTest extends TestCase
      * @param array<string, mixed> $expected
      */
     #[DataProvider('customFieldVariantsProvider')]
-    #[Group('slow')]
     public function testVariantCustomFieldInheritance(array $translations, array $expected, Context $context): void
     {
         $ids = new IdsCollection();

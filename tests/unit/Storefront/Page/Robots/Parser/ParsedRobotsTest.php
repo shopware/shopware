@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Page\Robots\Parser;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Robots\Parser\ParsedRobots;
 use Shopware\Storefront\Page\Robots\Parser\ParseIssue;
 use Shopware\Storefront\Page\Robots\Parser\ParseIssueSeverity;
@@ -14,6 +15,7 @@ use Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ParsedRobots::class)]
 class ParsedRobotsTest extends TestCase
 {

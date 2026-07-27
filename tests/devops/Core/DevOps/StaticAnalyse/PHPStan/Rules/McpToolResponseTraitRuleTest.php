@@ -5,18 +5,27 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\McpToolResponseRule;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @extends RuleTestCase<McpToolResponseRule>
  */
+#[Package('framework')]
 class McpToolResponseTraitRuleTest extends RuleTestCase
 {
     public function testToolExtendingAbstractClassPasses(): void
     {
         $this->analyse([
             __DIR__ . '/data/McpToolResponseTraitRule/ToolWithTrait.php',
+        ], []);
+    }
+
+    public function testToolExtendingAbstractMcpToolResponsePasses(): void
+    {
+        $this->analyse([
+            __DIR__ . '/data/McpToolResponseTraitRule/ToolWithAbstractResponse.php',
         ], []);
     }
 
@@ -39,6 +48,6 @@ class McpToolResponseTraitRuleTest extends RuleTestCase
 
     protected function getRule(): Rule
     {
-        return new McpToolResponseRule();
+        return new McpToolResponseRule(self::createReflectionProvider());
     }
 }

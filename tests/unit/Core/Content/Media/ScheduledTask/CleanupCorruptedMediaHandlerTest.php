@@ -56,7 +56,7 @@ class CleanupCorruptedMediaHandlerTest extends TestCase
             $this->ids->get('media-2') => ['primaryKey' => $this->ids->get('media-2'), 'data' => []],
         ];
 
-        $this->mediaRepository = new StaticEntityRepository([
+        $this->mediaRepository = StaticEntityRepository::of(MediaCollection::class, [
             function (Criteria $criteria, Context $context) use ($data): IdSearchResult {
                 $this->assertCleanupFilters($criteria);
                 static::assertSame(500, $criteria->getLimit());
@@ -86,7 +86,7 @@ class CleanupCorruptedMediaHandlerTest extends TestCase
 
     public function testRunCleansNothingUpIfNoCorruptedMediaExists(): void
     {
-        $this->mediaRepository = new StaticEntityRepository([
+        $this->mediaRepository = StaticEntityRepository::of(MediaCollection::class, [
             function (Criteria $criteria, Context $context): IdSearchResult {
                 $this->assertCleanupFilters($criteria);
                 static::assertSame(500, $criteria->getLimit());

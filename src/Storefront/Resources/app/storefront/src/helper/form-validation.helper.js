@@ -306,6 +306,10 @@ export default class FormValidation {
      * @returns {boolean}
      */
     validateEmail(value) {
+        if (!value || value.length === 0) {
+            return true;
+        }
+
         // https://regex101.com/r/bfI8Ea/1
         const emailRegEx = /^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
 

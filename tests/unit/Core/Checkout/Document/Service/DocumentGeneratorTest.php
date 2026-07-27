@@ -40,8 +40,8 @@ use Symfony\Component\Clock\NativeClock;
 /**
  * @internal
  */
-#[CoversClass(DocumentGenerator::class)]
 #[Package('after-sales')]
+#[CoversClass(DocumentGenerator::class)]
 class DocumentGeneratorTest extends TestCase
 {
     #[DataProvider('readDataProvider')]
@@ -89,7 +89,6 @@ class DocumentGeneratorTest extends TestCase
             $document->getDocumentA11yMediaFileId(),
         );
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 'document',
@@ -145,7 +144,6 @@ class DocumentGeneratorTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 'document',
@@ -210,7 +208,6 @@ class DocumentGeneratorTest extends TestCase
 
         $registry = new DocumentRendererRegistry([$mockRenderer]);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([]);
 
         $fileRendererRegistry = static::createStub(DocumentFileRendererRegistry::class);
@@ -256,7 +253,6 @@ class DocumentGeneratorTest extends TestCase
                 return Uuid::randomHex();
             });
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([]);
 
         $generator = new DocumentGenerator(
@@ -302,7 +298,6 @@ class DocumentGeneratorTest extends TestCase
 
         $registry = new DocumentRendererRegistry([$mockRenderer]);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([]);
 
         $generator = new DocumentGenerator(
@@ -343,7 +338,6 @@ class DocumentGeneratorTest extends TestCase
 
         $registry = new DocumentRendererRegistry([$mockRenderer]);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([]);
 
         $connection = static::createStub(Connection::class);

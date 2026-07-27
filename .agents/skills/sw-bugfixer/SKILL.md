@@ -5,6 +5,7 @@ description: >
   request after maintainer feedback. Use when the user asks to fix an issue,
   create a bugfix PR, handle a qi/sw-bugfixer issue, improve a Bugfixer PR, or react to
   /sw-bugfixer feedback.
+disable-model-invocation: true
 license: MIT
 allowed-tools: Bash(rg:*) Bash(find:*) Bash(ls:*) Bash(git log:*) Bash(git show:*) Bash(git diff:*) Bash(git blame:*) Bash(git status:*) Bash(git branch:*) Bash(git checkout:*) Bash(git switch:*) Bash(git rev-parse:*) Bash(git merge-base:*) Bash(gh issue view:*) Bash(gh issue list:*) Bash(gh pr view:*) Bash(gh pr diff:*) Bash(gh pr checks:*) Bash(gh api repos/*:*) Bash(composer:*) Bash(php:*) Bash(bin/console:*) Bash(npm:*) Bash(pnpm:*) Read Glob Grep Edit
 ---

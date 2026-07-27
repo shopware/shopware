@@ -18,11 +18,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'dal:refresh:index',
     description: 'Refreshes the index for a given entity',
 )]
-#[Package('framework')]
 class RefreshIndexCommand extends Command implements EventSubscriberInterface
 {
     use ConsoleProgressTrait;

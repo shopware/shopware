@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -21,6 +22,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  *
  * @phpstan-import-type AppModule from ModuleLoader
  */
+#[Package('framework')]
 class ModuleLoaderTest extends TestCase
 {
     use CacheTestBehaviour;

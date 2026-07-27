@@ -9,6 +9,7 @@ description: >
   owner. Use when the user links a failing Actions run or job, asks to "identify all
   failing tests" from a nightly, asks to triage integration-major / a red nightly,
   or wants CI failures grouped into per-team issues.
+disable-model-invocation: true
 license: MIT
 allowed-tools: Bash(gh run view:*) Bash(gh run list:*) Bash(gh issue view:*) Bash(gh issue list:*) Bash(rg:*) Bash(grep:*) Bash(git log:*) Bash(git show:*) Bash(python3:*) Bash(docker compose exec:*) Read Glob Grep
 ---
@@ -21,22 +22,20 @@ sweep (412 failing tests → 6 domain issues + 1 parent, ~9 root causes).
 
 ## Core principles
 
-1. **Cluster before you file.** Hundreds of failing tests usually collapse into
-   a handful of deterministic root causes (schema migration, `Required()` field
-   change, deprecation enforcement, exception-class refactor). Never file
-   per-test; never file per-shard.
-2. **Root-cause owner wins over test-file owner.** A confirmed root cause
-   re-routes ALL its member tests to the owning domain, regardless of each
-   test file's `#[Package]` marker (e.g. framework DAL tests broken by
-   `product.type` → inventory). An *unconfirmed* mechanism does NOT move a
-   test — keep it with the test owner and add a "needs investigation" note.
-3. **Verify opaque clusters locally before filing.** `--log-failed` truncates
-   nested errors (`WriteException: There are N error(s)` hides the detail).
-   Reproduce in Docker before asserting a cause — see
-   `references/REPRODUCTION.md` for the exact recipe and its traps.
-4. **Confirmed ≠ plausible.** Sample the *actual failing variant* — an
-   assertion-failure sibling of a WriteException test can pass locally and
-   have a different (schema-dependent) cause. Say "mechanism TBD" when it is.
+Single-sourced in **`.github/aw/shared/sw-nightly-policy.md`**, shared with
+the unattended twin (`.github/workflows/sw-nightly.md`, triggered by the
+`qi/sw-nightly` label or `/sw-nightly` comment on a nightly tracking issue)
+so the two modes cannot drift: cluster before you route, root-cause owner
+wins over test-file owner, confirmed ≠ plausible, check the catalogue before
+declaring anything new — plus trust boundaries, tool budget, and
+anti-reward-hacking rules. Read that file first.
+
+Interactive-only addition: **verify opaque clusters locally before filing.**
+`--log-failed` truncates nested errors (`WriteException: There are N error(s)`
+hides the detail). Reproduce in Docker before asserting a cause — see
+`references/REPRODUCTION.md` for the exact recipe and its traps. Sample the
+*actual failing variant* — an assertion-failure sibling of a WriteException
+test can pass locally and have a different (schema-dependent) cause.
 
 ## Workflow
 

@@ -114,6 +114,25 @@ class McpHttpTransportFactoryTest extends TestCase
         static::assertStringNotContainsString('"properties":[]', (string) $response->getContent());
     }
 
+    public function testCreateResponseForcesEmptyToolPropertiesInsideANativeEventStream(): void
+    {
+        // The SDK can answer a tools/list directly as an SSE stream when the client accepts
+        // text/event-stream (the shape right after a toolset-enable). That skips the JSON branch,
+        // so the `data:` frame must still be normalized while the SSE framing (event:/id:) stays
+        // intact for resumability.
+        $data = '{"jsonrpc":"2.0","id":2,"result":{"tools":[{"name":"swag-dev-tools-list-skills","inputSchema":{"type":"object","properties":[]}}]}}';
+        $sse = "event: message\nid: 1\ndata: " . $data . "\n\n";
+
+        $response = $this->factory()->createResponse($this->psrResponse('text/event-stream', $sse));
+
+        static::assertStringStartsWith('text/event-stream', (string) $response->headers->get('Content-Type'));
+
+        $body = (string) $response->getContent();
+        static::assertStringContainsString('"properties":{}', $body);
+        static::assertStringNotContainsString('"properties":[]', $body);
+        static::assertStringContainsString("event: message\nid: 1\ndata: ", $body, 'SSE framing must be preserved');
+    }
+
     public function testCreateResponseForcesEmptyNestedObjectPropertiesToAnObject(): void
     {
         // A nested object parameter with no members hits the same `[]` vs `{}` problem, one level

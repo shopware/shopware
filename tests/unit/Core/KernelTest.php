@@ -12,11 +12,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Kernel;
 use Symfony\Component\Config\ConfigCache;
+use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\Config\Loader\LoaderResolverInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\Loader\PhpFileLoader;
-use Symfony\Component\Routing\RouteCollection;
 use Symfony\UX\TwigComponent\TwigComponentBundle;
 
 /**
@@ -156,8 +156,8 @@ class KernelTest extends TestCase
     private function captureRouteImports(string $environment): array
     {
         $captured = [];
-        $loader = static::createStub(PhpFileLoader::class);
-        $loader->method('import')->willReturnCallback(
+        $routeLoader = static::createStub(PhpFileLoader::class);
+        $routeLoader->method('import')->willReturnCallback(
             function (mixed $resource, ?string $type = null) use (&$captured): array {
                 $captured[] = [$resource, $type];
 
@@ -165,10 +165,14 @@ class KernelTest extends TestCase
             }
         );
 
-        (new \ReflectionMethod(Kernel::class, 'configureRoutes'))->invoke(
-            $this->createKernel($environment),
-            new RoutingConfigurator(new RouteCollection(), $loader, '/tmp', '/tmp'),
-        );
+        $resolver = static::createStub(LoaderResolverInterface::class);
+        $resolver->method('resolve')->willReturn($routeLoader);
+
+        $loader = static::createStub(LoaderInterface::class);
+        $loader->method('getResolver')->willReturn($resolver);
+
+        // `loadRoutes()` is the public routing entry point Symfony registers as `kernel::loadRoutes`
+        $this->createKernel($environment)->loadRoutes($loader);
 
         return $captured;
     }

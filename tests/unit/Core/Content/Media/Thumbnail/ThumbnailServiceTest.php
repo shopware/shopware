@@ -380,24 +380,52 @@ class ThumbnailServiceTest extends TestCase
     }
 
     /**
-     * @param array<string, int> $imageSize
+     * @param array<string, int<1, max>> $imageSize
      * @param array<string, int<1, max>> $preferredThumbnailSize
      * @param array<string, int> $expectedSize
      */
     #[DataProvider('thumbnailSizeProvider')]
-    public function testCalculateThumbnailSize(array $imageSize, bool $keepAspectRatio, array $preferredThumbnailSize, array $expectedSize): void
+    public function testGenerateCalculatesThumbnailSize(array $imageSize, bool $keepAspectRatio, array $preferredThumbnailSize, array $expectedSize): void
     {
-        $mediaFolderConfigEntity = new MediaFolderConfigurationEntity();
-        $mediaFolderConfigEntity->setKeepAspectRatio($keepAspectRatio);
-
         $thumbnailSizeEntity = new MediaThumbnailSizeEntity();
+        $thumbnailSizeEntity->setId('$mediaThumbnailSizeEntity-id-1');
         $thumbnailSizeEntity->setWidth($preferredThumbnailSize['width']);
         $thumbnailSizeEntity->setHeight($preferredThumbnailSize['height']);
 
-        $method = new \ReflectionMethod(ThumbnailService::class, 'calculateThumbnailSize');
-        $calculatedSize = $method->invokeArgs($this->thumbnailService, [$imageSize, $thumbnailSizeEntity, $mediaFolderConfigEntity]);
+        $mediaFolderConfigEntity = new MediaFolderConfigurationEntity();
+        $mediaFolderConfigEntity->setMediaThumbnailSizes(new MediaThumbnailSizeCollection([$thumbnailSizeEntity]));
+        $mediaFolderConfigEntity->setCreateThumbnails(true);
+        $mediaFolderConfigEntity->setKeepAspectRatio($keepAspectRatio);
+        $mediaFolderConfigEntity->setThumbnailQuality(80);
 
-        static::assertSame($expectedSize, $calculatedSize);
+        $mediaFolderEntity = new MediaFolderEntity();
+        $mediaFolderEntity->setConfiguration($mediaFolderConfigEntity);
+
+        $mediaThumbnailEntity = $this->createMediaThumbnailEntity();
+        $mediaEntity = $this->createMediaEntity($mediaThumbnailEntity, $mediaFolderEntity);
+        $mediaThumbnailEntity->setMedia($mediaEntity);
+
+        $filesystemPublic = static::createStub(FilesystemOperator::class);
+        $filesystemPublic->method('read')->willReturn($this->createPngImage($imageSize['width'], $imageSize['height']));
+        $filesystemPublic->method('fileSize')->willReturn(100);
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllKeyValue')
+            ->willReturnCallback(static function ($_, $params) {
+                return [
+                    Uuid::fromBytesToHex($params['ids'][0]) => '/thumbnail/test.png',
+                ];
+            });
+
+        $result = $this->createThumbnailService(filesystemPublic: $filesystemPublic, connection: $connection)
+            ->generate(new MediaCollection([$mediaEntity]), $this->context);
+
+        static::assertSame(1, $result);
+
+        static::assertCount(1, $this->thumbnailRepository->creates);
+        $created = $this->thumbnailRepository->creates[0][0] ?? [];
+        static::assertSame($expectedSize['width'], $created['width']);
+        static::assertSame($expectedSize['height'], $created['height']);
     }
 
     /**
@@ -722,6 +750,21 @@ class ThumbnailServiceTest extends TestCase
 
         static::assertSame(0, $result);
         static::assertCount(1, $this->thumbnailRepository->deletes);
+    }
+
+    /**
+     * @param int<1, max> $width
+     * @param int<1, max> $height
+     */
+    private function createPngImage(int $width, int $height): string
+    {
+        $image = imagecreatetruecolor($width, $height);
+        static::assertNotFalse($image);
+
+        ob_start();
+        imagepng($image);
+
+        return (string) ob_get_clean();
     }
 
     private function createThumbnailService(

@@ -1,9 +1,28 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { FEATURE_REGISTRY_PATH, hasMajorMarkers, parseMajorFlags, shouldDetect } from './auto-label-major-php.mjs';
+import { FEATURE_REGISTRY_PATH, hasMajorMarkers, parseMajorFlags, shouldDetect } from './auto-label-major-php.ts';
 
 
-const diffFor = (path, hunk) => `diff --git a/${path} b/${path}
+type TestContext = {
+    eventName: string;
+    repo: {
+        owner: string;
+        repo: string;
+    };
+    payload: {
+        action: string;
+        pull_request: {
+            head: {
+                repo: {
+                    full_name: string;
+                };
+            };
+            labels: Array<{ name: string }>;
+        };
+    };
+};
+
+const diffFor = (path: string, hunk: string): string => `diff --git a/${path} b/${path}
 index 0000000..1111111 100644
 --- a/${path}
 +++ b/${path}
@@ -66,12 +85,12 @@ test('empty diff does not match', () => {
 });
 
 test('flag usage in .github tooling does not match', () => {
-    const diff = diffFor('.github/bin/js/auto-label-major-php.test.mjs', "+    const diff = \"Feature::isActive('v6.8.0.0')\";");
+    const diff = diffFor('.github/bin/js/auto-label-major-php.test.ts', "+    const diff = \"Feature::isActive('v6.8.0.0')\";");
     assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), false);
 });
 
 test('registry path mentioned inside a .github file does not match', () => {
-    const diff = diffFor('.github/bin/js/auto-label-major-php.mjs', `+export const FEATURE_REGISTRY_PATH = '${FEATURE_REGISTRY_PATH}';`);
+    const diff = diffFor('.github/bin/js/auto-label-major-php.ts', `+export const FEATURE_REGISTRY_PATH = '${FEATURE_REGISTRY_PATH}';`);
     assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), false);
 });
 
@@ -96,7 +115,7 @@ test('version-free attributes do not match', () => {
 });
 
 test('BC-change attribute in .github tooling does not match', () => {
-    const diff = diffFor('.github/bin/js/auto-label-major-php.test.mjs', "+    #[ReturnTypeNarrowing(version: 'v6.8.0')]");
+    const diff = diffFor('.github/bin/js/auto-label-major-php.test.ts', "+    #[ReturnTypeNarrowing(version: 'v6.8.0')]");
     assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), false);
 });
 
@@ -105,7 +124,7 @@ test('accepted imprecision: a changelog release heading matches the version rege
     assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), true);
 });
 
-const baseContext = (overrides = {}) => ({
+const baseContext = (overrides: Partial<TestContext> = {}): TestContext => ({
     eventName: 'pull_request',
     repo: { owner: 'shopware', repo: 'shopware' },
     payload: {

@@ -34,7 +34,7 @@ jobs:
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
-            const { detectMajorFlagUsage } = await import('${{ github.workspace }}/.github/bin/js/auto-label-major-php.mjs')
+            const { detectMajorFlagUsage } = await import('${{ github.workspace }}/.github/bin/js/auto-label-major-php.ts')
             const hit = await detectMajorFlagUsage({ github, core, context })
             core.setOutput('hit', hit ? 'yes' : 'no')
       # an app token is required for the added label to trigger integration-major's `labeled` run;
@@ -51,7 +51,7 @@ jobs:
         with:
           github-token: ${{ steps.sts-major.outputs.token || secrets.GITHUB_TOKEN }}
           script: |
-            const { addMajorPhpLabel } = await import('${{ github.workspace }}/.github/bin/js/auto-label-major-php.mjs')
+            const { addMajorPhpLabel } = await import('${{ github.workspace }}/.github/bin/js/auto-label-major-php.ts')
             await addMajorPhpLabel({ github, context })
 
   cleanup-needs-triage:

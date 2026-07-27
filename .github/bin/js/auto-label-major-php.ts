@@ -19,14 +19,98 @@
 
 export const FEATURE_REGISTRY_PATH = 'src/Core/Framework/Resources/config/packages/feature.yaml';
 
-/**
- * All run conditions beyond the workflow-level `if: github.event_name == 'pull_request'`
- * live here so they are unit-testable instead of being an untestable YAML expression.
- *
- * @param {object} context github-script context
- * @returns {boolean}
- */
-export function shouldDetect(context) {
+type PullRequestLabel = {
+    name: string;
+};
+
+type PullRequestDetectionContext = {
+    eventName: string;
+    repo: {
+        owner: string;
+        repo: string;
+    };
+    payload: {
+        action: string;
+        pull_request: {
+            head: {
+                repo: {
+                    full_name: string;
+                };
+            };
+            labels?: PullRequestLabel[];
+        };
+    };
+};
+
+type PullRequestContext = PullRequestDetectionContext & {
+    payload: {
+        action: string;
+        pull_request: {
+            number: number;
+            head: {
+                sha: string;
+                repo: {
+                    full_name: string;
+                };
+            };
+            labels?: PullRequestLabel[];
+        };
+    };
+};
+
+type GitHubRestClient = {
+    rest: {
+        repos: {
+            getContent(options: {
+                owner: string;
+                repo: string;
+                path: string;
+                ref: string;
+                mediaType: { format: 'raw' };
+            }): Promise<{ data: unknown }>;
+        };
+        pulls: {
+            get(options: {
+                owner: string;
+                repo: string;
+                pull_number: number;
+                mediaType: { format: 'diff' };
+            }): Promise<{ data: unknown }>;
+        };
+        issues: {
+            addLabels(options: {
+                owner: string;
+                repo: string;
+                issue_number: number;
+                labels: string[];
+            }): Promise<unknown>;
+        };
+    };
+};
+
+type CoreLogger = {
+    info(message: string): void;
+};
+
+type DetectionToolkit = {
+    github: GitHubRestClient;
+    core: CoreLogger;
+    context: PullRequestContext;
+};
+
+type LabelToolkit = {
+    github: GitHubRestClient;
+    context: PullRequestContext;
+};
+
+type DiffFileSection = {
+    path: string;
+    section: string;
+};
+
+// All run conditions beyond the workflow-level `if: github.event_name == 'pull_request'`
+// live here so they are unit-testable instead of being an untestable YAML expression.
+export function shouldDetect(context: PullRequestDetectionContext): boolean {
     if (context.eventName !== 'pull_request') {
         return false;
     }
@@ -46,13 +130,9 @@ export function shouldDetect(context) {
     return !labels.includes('major-php') && !labels.includes('major-tests');
 }
 
-/**
- * @param {string} registryYaml
- * @returns {string[]} names of flags registered with `major: true`
- */
-export function parseMajorFlags(registryYaml) {
-    const majorFlags = [];
-    let currentFlag = null;
+export function parseMajorFlags(registryYaml: string): string[] {
+    const majorFlags: string[] = [];
+    let currentFlag: string | null = null;
 
     for (const line of registryYaml.split('\n')) {
         const name = line.match(/^\s*-\s*name:\s*(\S+)/);
@@ -75,11 +155,7 @@ export function parseMajorFlags(registryYaml) {
  */
 export const EXCLUDED_PATH_PREFIX = '.github/';
 
-/**
- * @param {string} diff unified diff of the PR
- * @returns {Array<{path: string, section: string}>}
- */
-function splitDiffByFile(diff) {
+function splitDiffByFile(diff: string): DiffFileSection[] {
     return diff
         .split(/^diff --git /m)
         .slice(1)
@@ -90,12 +166,7 @@ function splitDiffByFile(diff) {
         });
 }
 
-/**
- * @param {string} diff unified diff of the PR
- * @param {string[]} majorFlags
- * @returns {boolean}
- */
-export function hasMajorMarkers(diff, majorFlags) {
+export function hasMajorMarkers(diff: string, majorFlags: string[]): boolean {
     const files = splitDiffByFile(diff).filter(({ path }) => !path.startsWith(EXCLUDED_PATH_PREFIX));
 
     if (files.some(({ path }) => path === FEATURE_REGISTRY_PATH)) {
@@ -119,11 +190,7 @@ export function hasMajorMarkers(diff, majorFlags) {
     return changedLines.some((line) => markers.some((marker) => marker.test(line)));
 }
 
-/**
- * @param {{github: object, core: object, context: object}} toolkit
- * @returns {Promise<boolean>}
- */
-export async function detectMajorFlagUsage({ github, core, context }) {
+export async function detectMajorFlagUsage({ github, core, context }: DetectionToolkit): Promise<boolean> {
     if (!shouldDetect(context)) {
         core.info('skipping major-flag detection: event, fork head, or existing label rules it out');
 
@@ -157,10 +224,8 @@ export async function detectMajorFlagUsage({ github, core, context }) {
     return hit;
 }
 
-/**
- * @param {{github: object, context: object}} toolkit expects a token able to trigger the `labeled` workflow run
- */
-export async function addMajorPhpLabel({ github, context }) {
+// Expects a token able to trigger the `labeled` workflow run.
+export async function addMajorPhpLabel({ github, context }: LabelToolkit): Promise<void> {
     await github.rest.issues.addLabels({
         owner: context.repo.owner,
         repo: context.repo.repo,

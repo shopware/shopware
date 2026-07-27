@@ -374,23 +374,38 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
 
     function setModuleFavicon(routeDestination, assetsPath) {
         const moduleInfo = getModuleInfo(routeDestination);
-        if (!moduleInfo) {
-            return false;
-        }
-        const favicon = moduleInfo.manifest.favicon || null;
+        const favicon = moduleInfo?.manifest.favicon;
         const favRef = document.getElementById('dynamic-favicon');
 
-        favRef.rel = 'shortcut icon';
+        const file = favicon ? `modules/${favicon}` : 'favicon.svg';
+        // The logo always ships with the Administration, only module icons may live in a plugin bundle.
+        const faviconSrc = (favicon && moduleInfo.manifest.faviconSrc) || 'administration';
 
-        const faviconSrc = moduleInfo.manifest.faviconSrc || 'administration';
         if (assetsPath.length !== 0) {
             assetsPath = `${assetsPath}${faviconSrc}/`;
         }
 
-        favRef.href = favicon
-            ? `${assetsPath}administration/static/img/favicon/modules/${favicon}`
-            : `${assetsPath}administration/static/img/favicon/favicon-32x32.png`;
+        // Plugin modules may still ship PNG favicons.
+        const isSvg = file.endsWith('.svg');
+        const attributes = {
+            rel: 'icon',
+            type: isSvg ? 'image/svg+xml' : 'image/png',
+            sizes: isSvg ? 'any' : '32x32',
+            href: `${assetsPath}administration/static/img/favicon/${file}`,
+        };
 
-        return true;
+        // Writing an unchanged attribute makes the browser drop the icon and flash the default one.
+        Object.entries(attributes).forEach(
+            ([
+                name,
+                value,
+            ]) => {
+                if (favRef.getAttribute(name) !== value) {
+                    favRef.setAttribute(name, value);
+                }
+            },
+        );
+
+        return !!moduleInfo;
     }
 }

@@ -33,7 +33,7 @@ Module.register('sw-settings-product-feature-sets', {
     description: 'Essential characteristics section in the settings module',
     color: '#9AA8B5',
     icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    favicon: 'icon-module-settings.svg',
     entity: 'product_feature_set',
 
     routes: {

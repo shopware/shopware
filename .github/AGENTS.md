@@ -1,9 +1,62 @@
 # GitHub Automation
 
-Rules for everything under `.github/` — workflow sources, composite actions, and
-the scripts they call. They are mandatory. The reasoning, worked examples, and
-the incident that produced most of them live in
+How the CI here is laid out, and the rules for changing it. The rules are
+mandatory; the reasoning, worked examples, and the incident that produced most of
+them live in
 [`coding-guidelines/core/ci-workflows.md`](../coding-guidelines/core/ci-workflows.md).
+
+## How the CI fits together
+
+Almost every test workflow is **both** a PR entry point and a reusable workflow:
+it declares `pull_request`, `merge_group`, `workflow_dispatch` *and*
+`workflow_call`, so the same file runs on a PR and is called again by the
+nightlies and the release gate. Change one and you change all three contexts.
+
+| Workflow | Covers |
+|---|---|
+| `php.yml` | lint, phpstan, rector, bc-checker, openapi-lint, PHPUnit `unit` and `migration` suites, license-check, composer-audit, composer-prefer-lowest |
+| `integration.yml` | PHPUnit integration shards, dynamic matrix |
+| `integration-major.yml` | the same with `FEATURE_ALL: major` |
+| `admin.yml` | ESLint, Stylelint and Jest for the Administration |
+| `storefront.yml` | ESLint, Stylelint, snippet and Twig lints, Jest and Vitest |
+| `acceptance.yml` | Playwright acceptance runs |
+| `lint-actions.yml` | actionlint, yamlfmt, zizmor, and the `.github/bin/js` tests |
+
+Composition, rather than duplication, is how the arms are built:
+
+- `nightly.yml` (01:00) calls `admin`, `integration`, `acceptance`,
+  `visual-tests`, `php`, `storefront`, `zugferd-compliance`, `downstream` and
+  `05-prepare-release` with `profile: nightly`.
+- `nightly-major.yml` (03:00, deliberately offset) calls `acceptance` and
+  `integration-major`.
+- `release-gate.yml` runs on pushes to maintenance branches (`6.7.x`,
+  `6.7.11.x`) and calls the same workflows with `profile: release`.
+
+Three mechanisms decide how much runs:
+
+- **Profile** — `''` (PR), `nightly`, or `release`, passed into
+  `generate-phpunit-matrix.php` / `generate-acceptance-matrix.php`. Only
+  `nightly` widens the matrix. The matrix is generated at runtime and consumed as
+  `strategy: ${{ fromJson(...) }}`.
+- **Major arms** — opt in on a PR with the `major-php` or `major-acceptance`
+  label, or the `major-tests` umbrella. `01-pr-issue-labeler.yml` applies
+  `major-php` automatically when the diff touches major feature flags. Nightly
+  and manual runs ignore the labels.
+- **`markdown-only-changes`** — a first job in each heavy workflow that
+  short-circuits docs-only PRs.
+
+PHPUnit runs through three composite actions rather than one, so each phase gets
+its own timing in the job UI: `phpunit-prepare` (PHP, database, webserver, test
+install) → `phpunit-run` (the suite) → `phpunit-upload` (Codecov, called with
+`if: !cancelled()`).
+
+The agentic workflows (`sw-triage`, `sw-review`, `sw-bugfixer`) are
+[gh aw](https://github.com/githubnext/gh-aw) sources: edit `<name>.md`, never the
+generated `<name>.lock.yml`, and run `gh aw compile`. Setup and the version pin
+live in [`.github/aw/README.md`](aw/README.md).
+
+Locally: `composer lint:actions` runs the workflow linters,
+`cd .github/bin/js && node --test` runs the automation-script tests.
 
 ## Fix it at the lowest layer that covers everyone
 

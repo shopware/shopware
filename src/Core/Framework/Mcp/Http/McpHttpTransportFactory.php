@@ -12,6 +12,7 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
+use Shopware\Core\Framework\Mcp\McpToolSchemaNormalizer;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
@@ -92,7 +93,7 @@ class McpHttpTransportFactory
      *
      * On top of that, tool schemas are normalized on every path — the plain JSON object, the batch
      * re-emitted as SSE, and a native SSE stream the SDK emits directly — so an empty
-     * `properties` map never reaches a client as `[]` (see {@see self::normalizeToolSchemas()}).
+     * `properties` map never reaches a client as `[]` (see {@see McpToolSchemaNormalizer}).
      */
     public function createResponse(PsrResponseInterface $psrResponse): Response
     {
@@ -120,7 +121,7 @@ class McpHttpTransportFactory
             }
 
             if (\is_array($decoded)) {
-                $normalized = self::normalizeToolSchemas($decoded);
+                $normalized = McpToolSchemaNormalizer::normalizeToolListResult($decoded);
 
                 if ($normalized !== null) {
                     return $this->rebuildResponse(Json::encode($normalized), $psrResponse);
@@ -129,79 +130,6 @@ class McpHttpTransportFactory
         }
 
         return $this->httpFoundationFactory->createResponse($psrResponse, false);
-    }
-
-    /**
-     * Forces every empty JSON Schema `properties` map inside a tool to a JSON object; returns null
-     * when nothing changed.
-     *
-     * A parameterless tool — or a nested object parameter with no members — has an empty properties
-     * map, and PHP encodes an empty array as `[]`. JSON Schema requires an object there, so strict
-     * clients reject the whole payload — OpenAI answers
-     * `400 invalid_function_parameters: "[] is not of type 'object'"`. Because
-     * `shopware-toolsets-list` is advertised in every session, one malformed tool breaks every
-     * request such a client makes, not just calls to that tool.
-     *
-     * The SDK normalizes this in `Tool::fromArray()` but not in `Tool::jsonSerialize()`, so tools
-     * discovered by reflection — all of Shopware's — reach the wire unnormalized. Normalizing at
-     * this single funnel covers both endpoints and every response shape, and stays correct
-     * whichever way a future SDK release goes. The walk is recursive, so nested object properties
-     * and an `outputSchema` are covered too, not just the top-level `inputSchema.properties`.
-     *
-     * @param array<string, mixed> $message
-     *
-     * @return array<string, mixed>|null
-     */
-    private static function normalizeToolSchemas(array $message): ?array
-    {
-        if (!\is_array($message['result'] ?? null) || !\is_array($message['result']['tools'] ?? null)) {
-            return null;
-        }
-
-        $changed = false;
-
-        foreach ($message['result']['tools'] as $index => $tool) {
-            if (!\is_array($tool)) {
-                continue;
-            }
-
-            foreach (['inputSchema', 'outputSchema'] as $schemaKey) {
-                if (!\is_array($tool[$schemaKey] ?? null)) {
-                    continue;
-                }
-
-                $message['result']['tools'][$index][$schemaKey] = self::normalizeSchemaNode($tool[$schemaKey], $changed);
-            }
-        }
-
-        return $changed ? $message : null;
-    }
-
-    /**
-     * Walks a JSON Schema node and replaces every empty `properties` map (at any depth) with an
-     * empty object, so it serializes as `{}` instead of `[]`. Nested schemas — property
-     * definitions, `items`, `$defs`, etc. — are reached through the generic array branch.
-     *
-     * @param array<string, mixed> $node
-     *
-     * @return array<string, mixed>
-     */
-    private static function normalizeSchemaNode(array $node, bool &$changed): array
-    {
-        foreach ($node as $key => $value) {
-            if ($key === 'properties' && $value === []) {
-                $node[$key] = new \stdClass();
-                $changed = true;
-
-                continue;
-            }
-
-            if (\is_array($value)) {
-                $node[$key] = self::normalizeSchemaNode($value, $changed);
-            }
-        }
-
-        return $node;
     }
 
     /**
@@ -227,7 +155,7 @@ class McpHttpTransportFactory
                 continue;
             }
 
-            $normalized = self::normalizeToolSchemas($decoded);
+            $normalized = McpToolSchemaNormalizer::normalizeToolListResult($decoded);
 
             if ($normalized === null) {
                 continue;
@@ -269,7 +197,7 @@ class McpHttpTransportFactory
             // like (the list_changed notification rides along), so it needs the same schema
             // normalization as the single-object path.
             if (\is_array($message)) {
-                $message = self::normalizeToolSchemas($message) ?? $message;
+                $message = McpToolSchemaNormalizer::normalizeToolListResult($message) ?? $message;
             }
 
             $body .= 'event: message' . "\n" . 'data: ' . Json::encode($message) . "\n\n";

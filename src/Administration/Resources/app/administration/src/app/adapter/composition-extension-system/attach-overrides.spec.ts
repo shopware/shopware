@@ -19,8 +19,12 @@ describe('src/app/adapter/composition-extension-system attachOverrides', () => {
     });
 
     /**
-     * Simulates the transform's NEW output: fully native body, bindings returned as-is,
-     * one generated footer call. The template binds the AUTHOR's refs directly.
+     * Simulates an author body WITHOUT the rename pass: the template binds the author's own refs
+     * directly, so the footer's returned keys are never read.
+     *
+     * This is deliberately NOT what the transform emits - see `createLoweredBase()` for that. It is
+     * kept because it isolates what `attachOverrides()` can and cannot do on its own, which is the
+     * reason the rename pass exists at all.
      */
     function createBase(name: string) {
         return defineComponent({
@@ -43,6 +47,65 @@ describe('src/app/adapter/composition-extension-system attachOverrides', () => {
             },
         });
     }
+
+    /**
+     * Simulates the transform's ACTUAL base output: every top-level author binding renamed to its
+     * `__swSetupAuthor_` alias, and the original names re-declared by destructuring the generated
+     * `attachOverrides(...)` footer. The template binds the footer's names, not the author's refs.
+     *
+     * This is the shape `build/vue-setup-transform` emits for `sw-thing.vue`, so it is the shape the
+     * override contract has to hold for.
+     */
+    function createLoweredBase(name: string) {
+        return defineComponent({
+            template: '<div>{{ count }}|{{ doubled }}</div>',
+            setup(props, { expose }) {
+                // -- author code, native, renamed by the transform --
+                const __swSetupAuthor_count = ref(1);
+                const __swSetupAuthor_doubled = computed(() => __swSetupAuthor_count.value * 2);
+
+                // -- generated footer --
+                const { count, doubled } = attachOverrides({
+                    name,
+                    public: {
+                        count: __swSetupAuthor_count,
+                        doubled: __swSetupAuthor_doubled,
+                    },
+                    private: {},
+                }) as unknown as { count: unknown; doubled: unknown };
+
+                expose({});
+
+                return { count, doubled };
+            },
+        });
+    }
+
+    it('lowered shape: a computed replacement DOES reach the template', async () => {
+        const wrapper = mount(createLoweredBase('loweredComputed'));
+        expect(wrapper.text()).toBe('1|2');
+
+        overrideComponentSetup()('loweredComputed', () => {
+            return { doubled: computed(() => 999) } as never;
+        });
+        await flushPromises();
+
+        // This is the whole point of the rename pass. The footer binding is a `toRef` into the wrapper's
+        // reactive state, so rebinding the `doubled` key there is visible to the template - unlike the
+        // un-renamed shape above, which stays at 1|2.
+        expect(wrapper.text()).toBe('1|999');
+    });
+
+    it('lowered shape: a plain ref replacement reaches the template too', async () => {
+        const wrapper = mount(createLoweredBase('loweredRef'));
+        expect(wrapper.text()).toBe('1|2');
+
+        overrideComponentSetup()('loweredRef', () => ({ count: ref(5) }) as never);
+        await flushPromises();
+
+        // syncRef writes into the author's original ref, so the author's derived computed recomputes.
+        expect(wrapper.text()).toBe('5|10');
+    });
 
     it('plain ref replacement reaches the template through the original ref (syncRef)', async () => {
         const wrapper = mount(createBase('extendableRef'));
@@ -94,7 +157,7 @@ describe('src/app/adapter/composition-extension-system attachOverrides', () => {
         expect((scope!.__swOverride as { value: unknown }).value).toEqual({ 'plugin/a': { msg: 'local' } });
     });
 
-    it('computed replacement does not reach templates binding the raw author computed (the rename pass restores this)', async () => {
+    it('un-renamed shape: a computed replacement does NOT reach a template binding the raw author computed', async () => {
         const wrapper = mount(createBase('extendableComputed'));
         expect(wrapper.text()).toBe('1|2');
 

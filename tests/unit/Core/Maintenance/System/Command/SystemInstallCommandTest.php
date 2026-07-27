@@ -48,37 +48,34 @@ class SystemInstallCommandTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $mockInputValues
+     * @param array<string, mixed> $options
      */
     #[DataProvider('dataProviderTestExecuteWhenInstallLockExists')]
-    public function testExecuteWhenInstallLockExists(array $mockInputValues): void
+    public function testExecuteWhenInstallLockExists(array $options): void
     {
         touch(__DIR__ . '/install.lock');
 
         $systemInstallCmd = $this->prepareCommandInstance();
 
-        $refMethod = new \ReflectionMethod(SystemInstallCommand::class, 'execute');
-
-        $result = $refMethod->invoke($systemInstallCmd, $this->getMockInput($mockInputValues), static::createStub(OutputInterface::class));
+        $output = new BufferedOutput();
+        $result = $systemInstallCmd->run(new ArrayInput($options), $output);
 
         static::assertSame(Command::FAILURE, $result);
+        static::assertStringContainsString('install.lock already exists', $output->fetch());
     }
 
     public static function dataProviderTestExecuteWhenInstallLockExists(): \Generator
     {
         yield 'Data provider for test execute failure' => [
-            'mockInputValues' => [
-                'force' => false,
-                'shopName' => 'Storefront',
-                'shopEmail' => 'admin@gmail.com',
-                'shopLocale' => 'de-DE',
-                'shopCurrency' => 'USD',
-                'basicSetup' => true,
-                'shopName_1' => 'Storefront',
-                'shopLocale_1' => 'de-DE',
-                'no-assign-theme' => true,
-                'dropDatabase' => true,
-                'createDatabase' => true,
+            'options' => [
+                '--shop-name' => 'Storefront',
+                '--shop-email' => 'admin@gmail.com',
+                '--shop-locale' => 'de-DE',
+                '--shop-currency' => 'USD',
+                '--basic-setup' => true,
+                '--no-assign-theme' => true,
+                '--drop-database' => true,
+                '--create-database' => true,
             ],
         ];
     }
@@ -430,18 +427,6 @@ class SystemInstallCommandTest extends TestCase
         ];
 
         return $this->prepareCommandInstance(array_merge($defaultCommands, $additionalCommands), $projectDir);
-    }
-
-    /**
-     * @param array<string, mixed> $mockInputValues
-     */
-    private function getMockInput(array $mockInputValues): InputInterface
-    {
-        $input = static::createStub(InputInterface::class);
-        $input->method('getOption')
-            ->willReturnOnConsecutiveCalls(...array_values($mockInputValues));
-
-        return $input;
     }
 
     private function createHtaccessDist(string $content = 'Default .htaccess content'): void

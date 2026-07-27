@@ -49,11 +49,12 @@ class RangeAggregationTest extends TestCase
     #[DataProvider('buildRangeKeyDataProvider')]
     public function testBuildRangeKey(?float $from, ?float $to, string $expectedKey): void
     {
-        $method = new \ReflectionMethod(RangeAggregation::class, 'buildRangeKey');
-
         $aggregation = new RangeAggregation('test', 'test', []);
+        $aggregation->addRange($from, $to);
 
-        static::assertSame($expectedKey, $method->invoke($aggregation, $from, $to));
+        $ranges = $aggregation->getRanges();
+        static::assertCount(1, $ranges);
+        static::assertSame($expectedKey, $ranges[0]['key']);
     }
 
     /**

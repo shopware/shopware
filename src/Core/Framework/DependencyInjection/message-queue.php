@@ -15,7 +15,10 @@ use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\MessageQueue\Subscriber\EarlyReturnMessagesListener;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueSizeRestrictListener;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber;
+use Shopware\Core\Framework\MessageQueue\Telemetry\MessageGroupResolver;
 use Shopware\Core\Framework\MessageQueue\Telemetry\MessageQueueTelemetrySubscriber;
+use Shopware\Core\Framework\MessageQueue\Telemetry\MessengerQueueDepthCollector;
+use Shopware\Core\Framework\MessageQueue\Telemetry\WorkerMessageTimingHelper;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Messenger\Event\SendMessageToTransportsEvent;
@@ -43,13 +46,26 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber');
 
+    $services->set(MessageGroupResolver::class);
+
+    $services->set(WorkerMessageTimingHelper::class);
+
     $services->set(MessageQueueTelemetrySubscriber::class)
         ->args([
             service(Meter::class),
             service(MessageSizeCalculator::class),
+            service(MessageGroupResolver::class),
+            service(WorkerMessageTimingHelper::class),
         ])
         ->tag('kernel.event_subscriber')
         ->tag('shopware.telemetry.subscriber');
+
+    $services->set(MessengerQueueDepthCollector::class)
+        ->args([
+            service('messenger.receiver_locator'),
+            service('logger'),
+        ])
+        ->tag('shopware.telemetry.periodic_metric_collector');
 
     // Controller
     $services->set(ConsumeMessagesController::class)

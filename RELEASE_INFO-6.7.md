@@ -72,6 +72,35 @@ Cron-driven product export generation no longer derives the next run from `gener
 
 ## Storefront
 
+### `PluginManager.override()` now works for async plugins
+
+Overriding a lazily loaded core storefront plugin no longer silently falls back to the core class. Three defects caused the override to be registered but never applied:
+
+* A core plugin class that finished loading after the override was registered overwrote the override in the registry.
+* An element kept the plugin instance it was first initialized with, even after the registered class had changed.
+* Re-registering an async plugin with a plain (non-lazy) class left it flagged as async, so it was never initialized at all.
+
+Overriding a plugin that is already initialized on the page now replaces its live instances instead of doing nothing. Before an outdated instance is replaced, the PluginManager calls its `destroy()` method (if defined) and resets its `$emitter`. If your plugin adds event listeners directly to DOM nodes in `init()`, implement `destroy()` to remove them, otherwise the listeners of the replaced instance stay attached:
+
+```js
+export default class MyPlugin extends window.PluginBaseClass {
+    init() {
+        this._onClick = this._onClick.bind(this);
+        this.el.addEventListener('click', this._onClick);
+    }
+
+    destroy() {
+        this.el.removeEventListener('click', this._onClick);
+    }
+}
+```
+
+Note that `PluginManager.override()` still requires the exact selector the plugin was registered with. Overriding `FormCmsHandler` for example only takes effect with the selector `.cms-element-form form`.
+
+### `PluginManager.extend()` can extend plugins under a new name again
+
+`PluginManager.extend(fromName, newName, ...)` threw a `TypeError` for every plugin, because it assigned to the non-writable `prototype` property of the generated class. Extending a lazily loaded plugin additionally failed because the unloaded plugin cannot be used as a base class. Both cases now work; for a lazily loaded parent, the extended class is built once the parent has been loaded.
+
 ## App System
 
 ## Hosting & Configuration

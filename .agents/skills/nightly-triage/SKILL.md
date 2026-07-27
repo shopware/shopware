@@ -45,6 +45,13 @@ sweep (412 failing tests → 6 domain issues + 1 parent, ~9 root causes).
 UPDATE those (comment with the new run, adjust test lists) instead of filing
 a new set. Only file fresh issues for a first-of-its-kind run.
 
+Scheduled runs also file/update an automated inventory issue
+(`[nightly] Nightly (Major) PHPUnit failures`, via
+`.github/workflows/report-phpunit-failures.yml`): a domain-grouped failing-test
+list with no clustering or routing overrides applied. Use it as the starting
+inventory for Steps 1–3, verify against the run, and link the per-domain issues
+you file from it.
+
 **Step 1 — Inventory the run.** `gh run view <run-id> --json jobs` → failing
 job IDs and names. The job/shard names are the "job area" axis.
 

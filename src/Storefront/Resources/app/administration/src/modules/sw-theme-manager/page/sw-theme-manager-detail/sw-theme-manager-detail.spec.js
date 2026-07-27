@@ -20,7 +20,12 @@ describe('sw-theme-manager-detail', () => {
         });
     });
 
-    async function createWrapper({ aclCan = true, themeServiceOverrides = {}, themeOverrides = {} } = {}) {
+    async function createWrapper({
+        aclCan = true,
+        themeServiceOverrides = {},
+        themeOverrides = {},
+        featureActive = false,
+    } = {}) {
         const component = await Shopware.Component.build('sw-theme-manager-detail');
         component.methods.createdComponent = jest.fn();
 
@@ -95,20 +100,74 @@ describe('sw-theme-manager-detail', () => {
                     'sw-media-modal-v2': true,
                     'sw-media-upload-v2': true,
                     'sw-modal': true,
-                    'sw-page': true,
+                    'sw-page': {
+                        template: `
+                            <div class="sw-page">
+                                <slot name="search-bar"></slot>
+                                <slot name="smart-bar-header"></slot>
+                                <slot name="smart-bar-actions"></slot>
+                                <slot name="content"></slot>
+                                <slot name="sidebar"></slot>
+                            </div>
+                        `,
+                    },
                     'sw-search-bar': true,
                     'sw-select-field': true,
                     'sw-sidebar': true,
                     'sw-sidebar-media-item': true,
                     'sw-skeleton': true,
-                    'sw-tabs': true,
+                    'sw-tabs': {
+                        name: 'sw-tabs',
+                        template: '<div class="sw-tabs"></div>',
+                        emits: ['new-item-active'],
+                        props: {
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                            items: {
+                                type: Array,
+                                required: false,
+                                default: () => [],
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                        },
+                    },
                     'sw-tabs-item': true,
                     'sw-text-field': true,
                     'sw-upload-listener': true,
                     'sw-url-field': true,
                     'mt-button': true,
+                    'mt-card': true,
+                    'mt-colorpicker': true,
                     'mt-icon': true,
+                    'mt-select': true,
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        template: '<div class="mt-tabs"></div>',
+                        emits: ['new-item-active'],
+                        props: {
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                        },
+                    },
                     'mt-text-field': true,
+                    'mt-url-field': true,
                 },
                 provide: {
                     repositoryFactory: {
@@ -129,13 +188,40 @@ describe('sw-theme-manager-detail', () => {
                     acl: {
                         can: jest.fn(() => aclCan),
                     },
-                    feature: {},
+                    feature: {
+                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
+                    },
                 },
                 mocks: {
                     $t: (key) => key,
                     $route: { params: { id: 'theme-id' } },
                     $router: { push: jest.fn() },
                     $createTitle: jest.fn(() => 'title'),
+                },
+            },
+        });
+    }
+
+    async function showContentWithTabs(wrapper) {
+        wrapper.vm.getTabLabel = jest.fn((key, fallback) => fallback || key);
+
+        await wrapper.setData({
+            defaultTheme: {
+                id: 'default-theme-id',
+                name: 'Storefront',
+            },
+            structuredThemeFields: {
+                tabs: {
+                    default: {
+                        labelSnippetKey: 'default',
+                        label: 'Default',
+                        blocks: {},
+                    },
+                    layout: {
+                        labelSnippetKey: 'layout',
+                        label: 'Layout',
+                        blocks: {},
+                    },
                 },
             },
         });
@@ -167,6 +253,7 @@ describe('sw-theme-manager-detail', () => {
 
     it('should keep default tab first without reordering other tabs', async () => {
         const wrapper = await createWrapper();
+        wrapper.vm.getTabLabel = jest.fn((key) => key);
 
         wrapper.vm.structuredThemeFields = {
             tabs: {
@@ -181,6 +268,82 @@ describe('sw-theme-manager-detail', () => {
             'layout',
             'advanced',
         ]);
+    });
+
+    it('renders fallback sw-tabs while the major feature flag is inactive', async () => {
+        const wrapper = await createWrapper();
+        await showContentWithTabs(wrapper);
+
+        const tabs = wrapper.getComponent({ name: 'sw-tabs' });
+
+        expect(tabs.props('defaultItem')).toBe('default');
+        expect(tabs.props('positionIdentifier')).toBe('theme-manager-detail-tabs');
+        expect(tabs.props('items')).toEqual([
+            {
+                name: 'default',
+                label: 'Default',
+            },
+            {
+                name: 'layout',
+                label: 'Layout',
+            },
+        ]);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('renders mt-tabs with the item API while the major feature flag is active', async () => {
+        const wrapper = await createWrapper({ featureActive: true });
+        await showContentWithTabs(wrapper);
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('defaultItem')).toBe('default');
+        expect(tabs.props('positionIdentifier')).toBe('theme-manager-detail-tabs');
+        expect(tabs.props('items')).toEqual([
+            {
+                name: 'default',
+                label: 'Default',
+            },
+            {
+                name: 'layout',
+                label: 'Layout',
+            },
+        ]);
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+    });
+
+    it('hides mt-tabs when only a single tab is available', async () => {
+        const wrapper = await createWrapper({ featureActive: true });
+        wrapper.vm.getTabLabel = jest.fn((key, fallback) => fallback || key);
+
+        await wrapper.setData({
+            defaultTheme: {
+                id: 'default-theme-id',
+                name: 'Storefront',
+            },
+            structuredThemeFields: {
+                tabs: {
+                    default: {
+                        labelSnippetKey: 'default',
+                        label: 'Default',
+                        blocks: {},
+                    },
+                },
+            },
+        });
+
+        expect(wrapper.vm.tabItems).toHaveLength(1);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('updates active content when mt-tabs emits a new active item', async () => {
+        const wrapper = await createWrapper({ featureActive: true });
+        await showContentWithTabs(wrapper);
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+        await tabs.vm.$emit('new-item-active', 'layout');
+
+        expect(wrapper.vm.activeTab).toBe('layout');
     });
 
     it('sanitizes CSS values', async () => {

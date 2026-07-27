@@ -17,7 +17,6 @@ use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -102,7 +101,6 @@ class ZugferdEmbeddedPdfRendererTest extends TestCase
 
         $request = new DocumentGenerationRequest(
             orderId: $orderId,
-            orderVersionId: Defaults::LIVE_VERSION,
             documentType: DocumentType::INVOICE,
             requestedFormats: [DocumentFormat::ZUGFERD_EMBEDDED_PDF],
             documentNumber: self::DOCUMENT_NUMBER,

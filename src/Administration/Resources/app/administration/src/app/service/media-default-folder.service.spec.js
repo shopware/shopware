@@ -3,6 +3,8 @@
  */
 import MediaDefaultFolderService from 'src/app/service/media-default-folder.service';
 
+const { Criteria } = Shopware.Data;
+
 describe('app/service/media-default-folder.service.js', () => {
     it('should be a function', async () => {
         const type = typeof MediaDefaultFolderService;
@@ -18,7 +20,7 @@ describe('app/service/media-default-folder.service.js', () => {
         const factory = Shopware.Service('repositoryFactory');
         factory.create = () => {
             return {
-                search: (criteria, context) => {
+                search: (criteria, cacheOptions) => {
                     expect(criteria).toEqual(
                         expect.objectContaining({
                             associations: expect.arrayContaining([
@@ -35,7 +37,12 @@ describe('app/service/media-default-folder.service.js', () => {
                             ]),
                         }),
                     );
-                    expect(context).toEqual(Shopware.Context.api);
+                    expect(cacheOptions).toEqual({
+                        cacheKey: [
+                            'media-default-folder',
+                            'product',
+                        ],
+                    });
 
                     return Promise.resolve({
                         first: () => {
@@ -52,20 +59,28 @@ describe('app/service/media-default-folder.service.js', () => {
         expect(id).toBe('defaultFolderId');
     });
 
-    it('getDefaultFolderId function should return a response faster when called with the same argument', async () => {
+    it('getDefaultFolderId should pass an entity-scoped cache key to the repository', async () => {
+        const search = jest.fn(() =>
+            Promise.resolve({
+                first: () => {
+                    return { folder: { id: 'defaultFolderId' } };
+                },
+            }),
+        );
+
+        Shopware.Service('repositoryFactory').create = () => {
+            return { search };
+        };
+
         const mediaDefaultFolderService = MediaDefaultFolderService();
 
-        const startNotSaved = performance.now();
-        mediaDefaultFolderService.getDefaultFolderId('product');
-        const endNotSaved = performance.now();
+        await mediaDefaultFolderService.getDefaultFolderId('product');
 
-        const startSaved = performance.now();
-        mediaDefaultFolderService.getDefaultFolderId('product');
-        const endSaved = performance.now();
-
-        const savedResponse = endSaved - startSaved;
-        const notSavedResponse = endNotSaved - startNotSaved;
-
-        expect(savedResponse).toBeLessThan(notSavedResponse);
+        expect(search).toHaveBeenCalledWith(expect.any(Criteria), {
+            cacheKey: [
+                'media-default-folder',
+                'product',
+            ],
+        });
     });
 });

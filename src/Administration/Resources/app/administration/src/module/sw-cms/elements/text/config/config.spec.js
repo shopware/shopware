@@ -5,7 +5,7 @@ import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
-async function createWrapper(additionalStubs = {}) {
+async function createWrapper(additionalStubs = {}, { featureActive = false } = {}) {
     return mount(await wrapTestComponent('sw-cms-el-config-text', { sync: true }), {
         global: {
             provide: {
@@ -15,6 +15,15 @@ async function createWrapper(additionalStubs = {}) {
                     },
                     getCmsElementRegistry: () => {
                         return { text: {} };
+                    },
+                },
+                feature: {
+                    isActive: (feature) => {
+                        if (feature === 'v6.8.0.0') {
+                            return featureActive;
+                        }
+
+                        return (global.activeFeatureFlags ?? []).includes(feature);
                     },
                 },
             },
@@ -29,6 +38,26 @@ async function createWrapper(additionalStubs = {}) {
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item', {
                     sync: true,
                 }),
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    emits: ['new-item-active'],
+                    props: {
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: undefined,
+                        },
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            required: true,
+                        },
+                    },
+                    template: '<div class="mt-tabs"></div>',
+                },
                 'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field', { sync: true }),
                 'sw-text-editor': {
                     props: ['value'],
@@ -39,6 +68,15 @@ async function createWrapper(additionalStubs = {}) {
                     ],
                     template:
                         '<input type="text" :value="value" @blur="$emit(\'blur\', $event.target.value)" @input="$emit(\'update:value\', $event.target.value)" @change="$emit(\'change\', $event.target.value)"></input>',
+                },
+                'mt-select': {
+                    template:
+                        '<select class="mt-select" :value="modelValue" @change="$emit(`update:modelValue`, $event.target.value)"></select>',
+                    props: [
+                        'modelValue',
+                        'options',
+                        'disabled',
+                    ],
                 },
                 'sw-select-field': true,
                 'sw-extension-component-section': true,
@@ -63,6 +101,9 @@ async function createWrapper(additionalStubs = {}) {
                     content: {
                         value: '',
                     },
+                    verticalAlign: {
+                        value: null,
+                    },
                 },
             },
         },
@@ -72,6 +113,45 @@ async function createWrapper(additionalStubs = {}) {
 describe('src/module/sw-cms/elements/text/config', () => {
     beforeAll(async () => {
         await setupCmsEnvironment();
+    });
+
+    it('should render deprecated tabs when the major feature flag is inactive', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('.sw-tabs').exists()).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('should render meteor tabs when the major feature flag is active', async () => {
+        const wrapper = await createWrapper({}, { featureActive: true });
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-cms-element-config-text');
+        expect(tabs.props('defaultItem')).toBe('content');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-cms.elements.general.config.tab.content',
+                name: 'content',
+            },
+            {
+                label: 'sw-cms.elements.general.config.tab.settings',
+                name: 'settings',
+            },
+        ]);
+        expect(wrapper.find('.sw-tabs').exists()).toBe(false);
+        expect(wrapper.find('.sw-cms-el-config-text__tab-content').exists()).toBe(true);
+    });
+
+    it('should switch meteor tab content when the active tab changes', async () => {
+        const wrapper = await createWrapper({}, { featureActive: true });
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        await tabs.vm.$emit('new-item-active', 'settings');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('settings');
+        expect(wrapper.find('.sw-cms-el-config-text__tab-content').exists()).toBe(false);
+        expect(wrapper.find('.sw-cms-el-config-text__tab-settings').exists()).toBe(true);
     });
 
     it('should emits element-update when trigger @input event', async () => {

@@ -124,43 +124,57 @@
             {% endblock %}
 
             {% block sw_customer_detail_content_tabs %}
-            <sw-tabs
-                class="sw-customer-detail-page__tabs"
-                position-identifier="sw-customer-detail-tabs"
-            >
-                {% block sw_customer_detail_content_tab_general %}
-                <sw-tabs-item
-                    class="sw-customer-detail__tab-general"
-                    :route="generalRoute"
-                    :title="$t('sw-customer.detail.tabGeneral')"
-                    :has-error="swCustomerDetailBaseError"
-                >
-                    {{ $t('sw-customer.detail.tabGeneral') }}
-                </sw-tabs-item>
+            <template v-if="feature.isActive('v6.8.0.0')">
+                {% block sw_customer_detail_content_mt_tabs %}
+                <mt-tabs
+                    class="sw-customer-detail-page__tabs"
+                    position-identifier="sw-customer-detail-tabs"
+                    :default-item="$route.name"
+                    :items="customerDetailTabs"
+                    :small="true"
+                />
                 {% endblock %}
+            </template>
 
-                {% block sw_customer_detail_content_tab_addresses %}
-                <sw-tabs-item
-                    class="sw-customer-detail__tab-addresses"
-                    :route="addressesRoute"
-                    :title="$t('sw-customer.detail.tabAddresses')"
+            <template v-else>
+                <sw-tabs
+                    class="sw-customer-detail-page__tabs"
+                    position-identifier="sw-customer-detail-tabs"
                 >
-                    {{ $t('sw-customer.detail.tabAddresses') }}
-                </sw-tabs-item>
-                {% endblock %}
+                    {% block sw_customer_detail_content_tab_general %}
+                    <sw-tabs-item
+                        class="sw-customer-detail__tab-general"
+                        :route="generalRoute"
+                        :title="$t('sw-customer.detail.tabGeneral')"
+                        :has-error="swCustomerDetailBaseError"
+                    >
+                        {{ $t('sw-customer.detail.tabGeneral') }}
+                    </sw-tabs-item>
+                    {% endblock %}
 
-                {% block sw_customer_detail_content_tab_order %}
-                <sw-tabs-item
-                    class="sw-customer-detail__tab-order"
-                    :route="ordersRoute"
-                    :title="$t('sw-customer.detailBase.labelOrderCard')"
-                >
-                    {{ $t('sw-customer.detailBase.labelOrderCard') }}
-                </sw-tabs-item>
-                {% endblock %}
+                    {% block sw_customer_detail_content_tab_addresses %}
+                    <sw-tabs-item
+                        class="sw-customer-detail__tab-addresses"
+                        :route="addressesRoute"
+                        :title="$t('sw-customer.detail.tabAddresses')"
+                    >
+                        {{ $t('sw-customer.detail.tabAddresses') }}
+                    </sw-tabs-item>
+                    {% endblock %}
 
-                {% block sw_customer_detail_content_tab_after %}{% endblock %}
-            </sw-tabs>
+                    {% block sw_customer_detail_content_tab_order %}
+                    <sw-tabs-item
+                        class="sw-customer-detail__tab-order"
+                        :route="ordersRoute"
+                        :title="$t('sw-customer.detailBase.labelOrderCard')"
+                    >
+                        {{ $t('sw-customer.detailBase.labelOrderCard') }}
+                    </sw-tabs-item>
+                    {% endblock %}
+
+                    {% block sw_customer_detail_content_tab_after %}{% endblock %}
+                </sw-tabs>
+            </template>
             {% endblock %}
 
             <sw-extension-component-section

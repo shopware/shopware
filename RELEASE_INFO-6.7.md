@@ -77,18 +77,19 @@ The `sw-system-config` component now exposes which sales channel is selected in 
 The value is available on two surfaces, because they reach different consumers:
 
 * Slot props: the `card-element`, `card-element-last`, `beforeElements` and `afterElements` slots receive an additional `currentSalesChannelId` prop. A template override that replaces one of these slots keeps its own copy of the `v-bind` expression and will not see the new prop until it is re-synced against this version.
-* Injection: descendants of the component, in particular custom components rendered through a plugin's `config.xml` component elements, can inject the value. Use the defaulted form, so the component stays warning-free when it renders outside a system config form:
+* Injection: descendants of the component, in particular custom components rendered through a plugin's `config.xml` component elements, can inject the value. Use the defaulted forms below, so the component stays warning-free and crash-free when it renders outside a system config form. With the default in place, a component rendered outside the form reads the same value as the global scope:
 
 ```js
+// Options API: the injected value is unwrapped, read it directly
 inject: {
-    swSystemConfigCurrentSalesChannelId: {
-        from: 'swSystemConfigCurrentSalesChannelId',
-        default: null,
-    },
+    swSystemConfigCurrentSalesChannelId: { default: null },
 },
+
+// Composition API: you receive the ref itself, read `.value`
+const salesChannelId = inject('swSystemConfigCurrentSalesChannelId', ref(null));
 ```
 
-The provided value is a read-only computed ref. Components using the Options API read the injected value directly; `setup`-based components receive the ref and read `.value`. Note that the form body is torn down and rebuilt while the configuration of a not yet visited sales channel loads, so embedded components must not assume instance continuity across a switch.
+The provided value is a read-only computed ref. Note that the form body is torn down and rebuilt while the configuration of a not yet visited sales channel loads, so embedded components must not assume instance continuity across a switch.
 
 Existing slot usages keep working unchanged. Previously, following the switcher required traversing `$parent` into private component state or overriding `sw-system-config` itself, both of which break across Administration refactors.
 

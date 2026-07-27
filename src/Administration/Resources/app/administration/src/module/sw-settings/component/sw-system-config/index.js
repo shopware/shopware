@@ -32,11 +32,7 @@ export default {
 
     inject: ['systemConfigApiService'],
 
-    /**
-     * @public
-     * The sales channel selected in the scope switcher, `null` for the global scope.
-     * Also reaches components that receive no slot props, like custom config.xml components.
-     */
+    /** @public */
     provide() {
         return {
             swSystemConfigCurrentSalesChannelId: computed(() => this.currentSalesChannelId),

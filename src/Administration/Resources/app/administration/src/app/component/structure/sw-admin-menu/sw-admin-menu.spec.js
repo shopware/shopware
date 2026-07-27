@@ -579,8 +579,33 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
         expect(wrapper.vm.flyoutEntries.length).toBeGreaterThan(0);
 
-        const flyoutItem = wrapper.find('.sw-admin-menu_flyout-holder .sw-admin-menu__navigation-link');
+        const flyoutItem = wrapper.find('.sw-admin-menu__flyout-list .sw-admin-menu__navigation-link');
         expect(flyoutItem.exists()).toBe(true);
         expect(flyoutItem.element.querySelectorAll('mt-icon-stub, .mt-icon')).toHaveLength(0);
+    });
+
+    it('should close the off-canvas menu on route change on mobile', async () => {
+        const emitSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
+
+        wrapper.vm.viewportWidth = 375;
+        wrapper.vm.isOffCanvasShown = true;
+
+        wrapper.vm.$options.watch['$route.fullPath'].handler.call(wrapper.vm);
+        await flushPromises();
+
+        expect(wrapper.vm.isOffCanvasShown).toBe(false);
+        expect(emitSpy).toHaveBeenCalledWith('sw-admin-menu/toggle-offcanvas', false);
+
+        emitSpy.mockRestore();
+    });
+
+    it('should not close the off-canvas menu on route change on desktop', async () => {
+        wrapper.vm.viewportWidth = 1920;
+        wrapper.vm.isOffCanvasShown = true;
+
+        wrapper.vm.$options.watch['$route.fullPath'].handler.call(wrapper.vm);
+        await flushPromises();
+
+        expect(wrapper.vm.isOffCanvasShown).toBe(true);
     });
 });

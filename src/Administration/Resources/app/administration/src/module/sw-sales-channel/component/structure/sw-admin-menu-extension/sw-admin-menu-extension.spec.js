@@ -39,6 +39,12 @@ async function createWrapper() {
                 appModulesService: {
                     fetchAppModules: () => Promise.resolve([]),
                 },
+                systemConfigApiService: {
+                    getValues: () => Promise.resolve({}),
+                },
+                shortcutService: {
+                    isPendingCombinationKey: () => false,
+                },
                 customEntityDefinitionService: {
                     getMenuEntries: () => {
                         return [];

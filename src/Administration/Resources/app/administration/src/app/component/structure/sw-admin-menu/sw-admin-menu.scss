@@ -1,10 +1,11 @@
+@import "~scss/variables";
 @import "~scss/mixins";
 
 .sw-admin-menu__backdrop {
     position: fixed;
     inset: 0;
     background: var(--color-elevation-backdrop-default);
-    z-index: 749;
+    z-index: $z-index-off-canvas - 1;
     cursor: pointer;
 }
 
@@ -62,7 +63,7 @@
         left: -280px;
         bottom: 0;
         height: 100%;
-        z-index: 750;
+        z-index: $z-index-off-canvas;
         transition: left var(--sw-admin-menu-duration-inner) ease-in-out;
 
         &.is--off-canvas-shown {
@@ -105,10 +106,6 @@
         width: 300px;
         padding: var(--scale-size-24) var(--scale-size-12) var(--scale-size-8) var(--scale-size-12);
 
-        .navigation-list-item__level-1 > .sw-admin-menu__navigation-link.router-link-active {
-            background: var(--color-background-brand-default);
-        }
-
         .sw-admin-menu__navigation-link.router-link-active {
             background: var(--color-background-brand-default);
 
@@ -128,7 +125,6 @@
     }
 
     .sw-admin-menu__header {
-        /* max-height: 36px; */
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -162,14 +158,14 @@
         border-radius: var(--border-radius-m);
         transition:
             opacity 0.12s var(--sw-admin-menu-bezier),
-            transform 0.25s var(--sw-admin-menu-bezier),
-            filter 0.25s var(--sw-admin-menu-bezier);
+            transform 0.175s var(--sw-admin-menu-bezier),
+            filter 0.175s var(--sw-admin-menu-bezier);
     }
 
     .sw-admin-menu__header-logo {
         width: var(--scale-size-26);
         height: var(--scale-size-26);
-        color: var(--color-icon-static-default, #fff);
+        color: var(--color-icon-static-default);
         transition:
             width var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier),
             height var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier);
@@ -275,13 +271,12 @@
         // actually visible while the element is already opaque.
         transition:
             opacity 0.12s var(--sw-admin-menu-bezier),
-            transform 0.25s var(--sw-admin-menu-bezier),
-            filter 0.25s var(--sw-admin-menu-bezier);
+            transform 0.2s var(--sw-admin-menu-bezier),
+            filter 0.2s var(--sw-admin-menu-bezier);
     }
 
     .sw-admin-menu__body-container {
         flex: 1 1 0;
-        order: 2;
         overflow: hidden;
 
         // Fade the scrolling body out at the top and bottom edge. The fade runs
@@ -357,62 +352,12 @@
         }
     }
 
-    .sw-admin-menu__headline-context-menu {
-        color: var(--color-text-primary-default);
-        cursor: pointer;
-        border: 0;
-        background: none;
-        outline: none;
-        padding: var(--scale-size-4);
-        border-radius: var(--border-radius-xs);
-        transform: translate(0, 0);
-        opacity: 1;
-        transition:
-            opacity 0.2s ease-in-out,
-            transform 0.2s ease-in-out;
-
-        &:hover {
-            background: var(--color-interaction-secondary-hover);
-        }
-
-        .sw-context-button__button {
-            display: block;
-            line-height: 0;
-            height: 100%;
-            padding: 0;
-            color: var(--color-text-primary-default);
-
-            &.is--active,
-            &:hover,
-            &:focus {
-                color: var(--color-text-primary-inverse);
-                border-color: transparent;
-            }
-        }
-    }
-
-    .sw-admin-menu__headline-icon {
-        margin-right: 4px;
-    }
-
     .sw-admin-menu__navigation {
         white-space: nowrap;
-
-        &.sw-admin-menu__navigation--secondary .sw-admin-menu__navigation-link {
-            font-weight: normal;
-        }
     }
 
     .sw-admin-menu__navigation-list {
         list-style: none;
-    }
-
-    .sw-admin-menu__footer {
-        order: 4;
-    }
-
-    .sw-admin-menu__user-actions-menu {
-        display: block;
     }
 
     .sw-admin-menu__user-actions-toggle {
@@ -442,10 +387,6 @@
         }
 
         .mt-loader {
-            background: var(--color-background-brand-default);
-        }
-
-        .sw-admin-menu__navigation-list-item:hover {
             background: var(--color-background-brand-default);
         }
 
@@ -489,10 +430,6 @@
     }
 
     &.is--collapsed {
-        .sw-admin-menu__navigation {
-            margin-bottom: 0;
-        }
-
         .sw-admin-menu__headline-action {
             width: var(--scale-size-36);
             height: var(--scale-size-36);
@@ -598,33 +535,20 @@
                 opacity: 0;
             }
         }
-
-        .sw-admin-menu__headline-context-menu {
-            transform: translate(-100%, 0);
-            opacity: 0;
-            pointer-events: none;
-        }
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
     .sw-admin-menu,
-    .sw-admin-menu .collapsible-text,
     .sw-admin-menu .hide-on-collapse,
     .sw-admin-menu .sw-admin-menu__body,
     .sw-admin-menu .sw-admin-menu__header,
-    .sw-admin-menu .sw-admin-menu__headline-context-menu,
     .sw-admin-menu .sw-admin-menu__header-logo,
     .sw-admin-menu .sw-admin-menu__header-logo-box,
     .sw-admin-menu .sw-admin-menu__header-logo-expand-button,
     .sw-admin-menu .sw-admin-menu__user-actions-toggle,
-    .sw-admin-menu .sw-admin-menu__user-actions-toggle-icon-wrapper,
-    .sw-admin-menu .sw-admin-menu__navigation-link-expand-icon-box {
+    .sw-admin-menu .sw-admin-menu__user-actions-toggle-icon-wrapper {
         transition: none;
-    }
-
-    .sw-admin-menu .collapsible-text {
-        animation: none;
     }
 }
 
@@ -634,9 +558,9 @@
     display: flex;
     flex-direction: column;
     border-radius: var(--border-radius-m);
-    border: 1px solid var(--color-border-secondary-default, #e2e3e9);
+    border: 1px solid var(--color-border-secondary-default);
     background: var(--color-elevation-surface-raised);
-    box-shadow: 0 6px 12px -8px rgba(16, 16, 19, 4%);
+    box-shadow: 0 6px 12px -8px var(--color-elevation-shadow-default);
     transform: translateY(calc(-1 * (var(--scale-size-36) + var(--scale-size-6) + 1px)));
     transform-origin: left center;
     animation: sw-admin-menu-flyout-in 0.1s ease;
@@ -668,6 +592,12 @@
         opacity: 0;
         transform: translateY(calc(-1 * (var(--scale-size-36) + var(--scale-size-6)))) scale(0.95);
     }
+}
+
+.sw-admin-menu__flyout-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
 }
 
 // Typography comes from mt-text — layout and truncation are ours.

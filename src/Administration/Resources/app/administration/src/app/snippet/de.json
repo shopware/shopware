@@ -164,6 +164,7 @@
       "linkCloseMenu": "Menü schließen",
       "textShopwareAdmin": "Shopware Administration",
       "textProjectName": "Administration",
+      "textVersion": "Version:",
       "administrator": "Administrator",
       "navigation": {
         "label": "Hauptnavigation",
@@ -636,6 +637,7 @@
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
     },
     "sw-search-bar": {
+      "ariaLabelCloseSearch": "Suche schließen",
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
       "messageNoTypeResults": "Es wurde kein passender Typ gefunden.",
       "placeholderSearchField": "Finde Produkte, Kunden, Bestellungen ...",
@@ -1495,7 +1497,7 @@
     "functionAddSaleschannel": "Verkaufskanal hinzufügen",
     "keyboardShortcutAddSaleschannel": "A S",
     "functionToggleMainMenu": "Hauptnavigation öffnen / schließen",
-    "keyboardShortcutToggleMainMenu": "M",
+    "keyboardShortcutToggleMainMenu": "S",
     "functionGoToDashboard": "Dashboard öffnen",
     "keyboardShortcutGoToDashboard": "G H",
     "functionGoToProducts": "Produkte öffnen",

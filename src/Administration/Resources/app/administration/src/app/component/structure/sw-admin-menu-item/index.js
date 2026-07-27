@@ -4,6 +4,18 @@ import { getActiveRouteNames, isEntryOnActiveRoute, entryParamsMatchRoute } from
 import './sw-admin-menu-item.scss';
 
 /**
+ * The mt-tooltip trigger props that make the tooltip open. Stripped from the trigger when the
+ * collapsed tooltip must stay silent — see collapsedTooltipTriggerProps.
+ *
+ * @private
+ */
+export const TOOLTIP_OPEN_TRIGGER_PROPS = [
+    'onMouseover',
+    'onFocus',
+    'aria-describedby',
+];
+
+/**
  * @sw-package framework
  *
  * @private
@@ -17,13 +29,12 @@ export default {
         MtCollapsibleContent,
     },
 
-    inject: {
-        acl: 'acl',
-        feature: 'feature',
-    },
+    inject: [
+        'acl',
+        'feature',
+    ],
 
     emits: [
-        'menu-item-click',
         'menu-item-hover',
         'branch-toggle',
         'flyout-focus-request',
@@ -107,7 +118,7 @@ export default {
 
     computed: {
         /** Admin menu supports at most three levels; level-3 rows are leaf items only */
-        leafDepth() {
+        isLeafDepth() {
             return this.menuDepth >= 3;
         },
 
@@ -199,23 +210,15 @@ export default {
         },
 
         hasCollapsibleSubtree() {
-            return this.children.length > 0 && !this.leafDepth;
+            return this.children.length > 0 && !this.isLeafDepth;
         },
 
+        // Keep collapsible items on the same <mt-collapsible> template branch whether the sidebar
+        // is expanded or collapsed. Switching branches on collapse remounts the row and makes the
+        // navigation icons flash; the collapsed appearance is handled purely via CSS and the
+        // forced-closed collapsibleOpen state instead.
         usesCollapsible() {
-            if (!this.hasCollapsibleSubtree) {
-                return false;
-            }
-
-            // Keep collapsible items on the same <MtCollapsible> template branch whether the sidebar
-            // is expanded or collapsed. Switching branches on collapse remounts the row and makes the
-            // navigation icons flash; the collapsed appearance is handled purely via CSS and the
-            // forced-closed collapsibleOpen state instead.
-            if (!this.sidebarExpanded && this.menuDepth >= 2) {
-                return true;
-            }
-
-            return this.menuDepth <= 2;
+            return this.hasCollapsibleSubtree;
         },
 
         routeKeepsFolderOpen() {
@@ -271,7 +274,7 @@ export default {
             ];
         },
 
-        legacyLiClass() {
+        leafLiClass() {
             return [
                 'sw-admin-menu__navigation-list-item',
                 this.getElementClasses(this.entry.id || this.entryPath),
@@ -343,9 +346,14 @@ export default {
             // when it cannot find its trigger element. Only the handlers that open the
             // tooltip are dropped — the closing handlers keep an already visible tooltip
             // hidable when the sidebar expands while it is hovered.
-            const { onMouseover, onFocus, 'aria-describedby': ariaDescribedby, ...inactiveTriggerProps } = tooltipProps;
-
-            return inactiveTriggerProps;
+            //
+            // These are mt-tooltip's internal trigger prop names rather than a documented API:
+            // a meteor upgrade that renames or adds an opening handler would silently re-enable
+            // the tooltip. TOOLTIP_OPEN_TRIGGER_PROPS is asserted against the real component in
+            // sw-admin-menu-item.spec/collapsed-sidebar.spec.js so the drift fails a test.
+            return Object.fromEntries(
+                Object.entries(tooltipProps).filter(([key]) => !TOOLTIP_OPEN_TRIGGER_PROPS.includes(key)),
+            );
         },
 
         hasAccessToRoute(path) {
@@ -370,10 +378,6 @@ export default {
             }
 
             return `${name}`;
-        },
-
-        getItemName(menuItemName) {
-            return menuItemName.replace(/\./g, '-');
         },
 
         getElementClasses(menuItemName) {
@@ -416,11 +420,7 @@ export default {
         },
 
         onCollapsibleOpenUpdate(open) {
-            if (!open) {
-                this.suppressRouteKeepsFolderOpen = true;
-            } else {
-                this.suppressRouteKeepsFolderOpen = false;
-            }
+            this.suppressRouteKeepsFolderOpen = !open;
 
             if (this.menuDepth >= 2) {
                 this.manualNestedOpen = open;
@@ -432,10 +432,6 @@ export default {
                     open,
                 });
             }
-        },
-
-        emitMenuInteractionForFlyoutDismiss(event) {
-            this.$emit('menu-item-click', this.entry, event?.currentTarget || event?.target);
         },
 
         /**
@@ -470,22 +466,8 @@ export default {
             this.$emit('menu-item-hover', entry, target);
         },
 
-        forwardMenuItemClick(entry, target) {
-            this.$emit('menu-item-click', entry, target);
-        },
-
         forwardBranchToggle(payload) {
             this.$emit('branch-toggle', payload);
-        },
-
-        handleLegacyRowClick(event) {
-            const isNestedRow = !this.$el?.parentElement?.classList.contains('sw-admin-menu__navigation-list');
-
-            if (isNestedRow) {
-                event.stopPropagation();
-            }
-
-            this.$emit('menu-item-click', this.entry, event.target);
         },
     },
 };

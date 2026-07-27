@@ -10,7 +10,6 @@
 </transition>
 {% endblock %}
 
-<!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
 <aside
     class="sw-admin-menu"
     :class="adminMenuClasses"
@@ -67,7 +66,7 @@
                 size="2xs"
                 color="color-text-secondary-default"
             >
-                Administration
+                {{ $t('global.sw-admin-menu.textProjectName') }}
                 {% block sw_admin_menu_header_title_status %}{% endblock %}
             </mt-text>
             {% endblock %}
@@ -99,7 +98,7 @@
             <template #iconFront>
                 <mt-icon
                     class="hide-on-collapse"
-                    :name="sidebarCollapseIcon"
+                    name="regular-panel-left"
                     size="16px"
                 />
             </template>
@@ -128,7 +127,7 @@
                     id="mainmenulabel"
                     class="visually-hidden"
                 >
-                    {{ $tc('global.sw-admin-menu.navigation.label') }}
+                    {{ $t('global.sw-admin-menu.navigation.label') }}
                 </h2>
 
                 {% block sw_admin_menu_navigation_main_list %}
@@ -143,7 +142,7 @@
                     <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_admin_menu_navigation_main_items %}
                     <sw-admin-menu-item
-                        v-for="(entry, index) in mainMenuEntries"
+                        v-for="entry in mainMenuEntries"
                         :key="entry.id || entry.path"
                         :class="{ 'is--entry-expanded': isNavigationEntryExpanded(entry) }"
                         :sidebar-expanded="isExpanded"
@@ -151,7 +150,6 @@
                         :flyout-active="isFlyoutEntryActive(entry)"
                         :entry="entry"
                         @menu-item-hover="onMenuItemHover"
-                        @menu-item-click="onMenuItemClick"
                         @branch-toggle="onMenuBranchToggle"
                         @flyout-focus-request="onFlyoutFocusRequest"
                         @flyout-close-request="onFlyoutLeave"
@@ -172,7 +170,6 @@
         {% block sw_admin_menu_user_actions_toggle %}
         <mt-dropdown-menu-root
             :open="isUserActionsActive"
-            class="sw-admin-menu__user-actions-menu"
             @update:open="isUserActionsActive = $event"
         >
             <mt-dropdown-menu-trigger as-child>
@@ -248,7 +245,7 @@
                             variant="critical"
                             @click="onLogoutUser"
                         >
-                            {{ $tc('global.sw-admin-menu.linkLogout') }}
+                            {{ $t('global.sw-admin-menu.linkLogout') }}
                         </mt-action-menu-item>
                         {% endblock %}
                     </mt-action-menu-group>
@@ -261,7 +258,7 @@
                             size="2xs"
                             color="color-text-secondary-default"
                         >
-                            Version:
+                            {{ $t('global.sw-admin-menu.textVersion') }}
                             <sw-version />
                         </mt-text>
                     </mt-action-menu-group>
@@ -305,7 +302,7 @@
                 {{ flyoutTitle }}
             </mt-text>
 
-            <ul class="sw-admin-menu_flyout-holder">
+            <ul class="sw-admin-menu__flyout-list">
                 <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
                 <template
                     v-for="entry in flyoutEntries"
@@ -317,7 +314,6 @@
                         :sidebar-expanded="isExpanded"
                         :display-icon="false"
                         :collapsible-text="false"
-                        @menu-item-click="onMenuItemClick"
                         @branch-toggle="onMenuBranchToggle"
                     />
                 </template>

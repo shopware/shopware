@@ -2,85 +2,9 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
-import AclService from 'src/app/service/acl.service';
-import 'src/app/component/structure/sw-admin-menu-item';
+import { TOOLTIP_OPEN_TRIGGER_PROPS } from 'src/app/component/structure/sw-admin-menu-item';
+import createWrapper from '../_sw-admin-menu-item/create-wrapper';
 import catalogues from '../_sw-admin-menu-item/catalogues';
-
-async function createWrapper({ props = {}, privileges = [], route = {}, routerRoutes = null } = {}) {
-    const collectRoutes = (entry) => {
-        if (!entry) {
-            return [];
-        }
-
-        return [
-            ...(entry.children ?? []).flatMap((child) => collectRoutes(child)),
-            entry,
-        ];
-    };
-
-    const $router = {
-        getRoutes: () =>
-            routerRoutes ??
-            collectRoutes(props.entry)
-                .filter((entry) => entry.path)
-                .map((entry) => ({
-                    name: entry.path,
-                    meta: {
-                        privilege: entry.privilege,
-                    },
-                })),
-    };
-
-    const can = (privilege) => {
-        if (!privilege) {
-            return true;
-        }
-
-        return privileges.includes(privilege);
-    };
-
-    const aclService = new AclService();
-
-    return mount(await wrapTestComponent('sw-admin-menu-item', { sync: true }), {
-        props,
-        global: {
-            stubs: {
-                'sw-admin-menu-item': await Shopware.Component.build('sw-admin-menu-item'),
-                'router-link': {
-                    template: '<a class="router-link"></a>',
-                    props: ['to'],
-                },
-            },
-            mocks: {
-                $route: {
-                    name: route.name,
-                    params: route.params ?? {},
-                    matched: route.matched ?? [],
-                    meta: { $module: { name: '' }, ...(route.meta ?? {}) },
-                },
-                $router,
-            },
-            provide: {
-                acl: {
-                    can,
-                    hasAccessToRoute: (path) => {
-                        const match = $router.getRoutes().find((route) => route.name === path);
-
-                        if (!match?.meta) {
-                            return true;
-                        }
-
-                        return can(match.meta.privilege);
-                    },
-                    hasActiveSettingModules: aclService.hasActiveSettingModules,
-                    state: aclService.state,
-                },
-                feature: {},
-            },
-        },
-    });
-}
 
 describe('src/app/component/structure/sw-admin-menu-item: collapsed sidebar', () => {
     beforeEach(async () => {
@@ -252,6 +176,64 @@ describe('src/app/component/structure/sw-admin-menu-item: collapsed sidebar', ()
 
             const row = wrapper.find('.sw-admin-menu__navigation-item-row');
             expect(row.attributes('aria-describedby')).toBeUndefined();
+        });
+
+        // Behavioural counterpart to the collapsed hover test above: the tooltip is silenced by
+        // stripping mt-tooltip's opening handlers by name (TOOLTIP_OPEN_TRIGGER_PROPS). Those
+        // names are library internals, so if a meteor upgrade renames or adds one, the strip
+        // stops working and this test fails instead of tooltips silently appearing on every
+        // expanded menu row.
+        it('should not open the tooltip on hover or focus while the sidebar is expanded', async () => {
+            jest.useFakeTimers();
+
+            const wrapper = await createWrapper({
+                props: {
+                    entry: leafEntry,
+                    sidebarExpanded: true,
+                },
+            });
+
+            const row = wrapper.find('.sw-admin-menu__navigation-item-row');
+            const tooltip = document.getElementById(row.attributes('id').replace('__trigger', '__tooltip'));
+
+            expect(tooltip.parentElement.style.display).toBe('none');
+
+            await row.trigger('mouseover');
+            await row.trigger('focus');
+            jest.advanceTimersByTime(300);
+            await wrapper.vm.$nextTick();
+
+            expect(tooltip.parentElement.style.display).toBe('none');
+
+            jest.useRealTimers();
+        });
+
+        it('should keep the trigger id and the closing handlers when silencing the tooltip', async () => {
+            const wrapper = await createWrapper({
+                props: {
+                    entry: leafEntry,
+                    sidebarExpanded: true,
+                },
+            });
+
+            const stripped = wrapper.vm.collapsedTooltipTriggerProps({
+                id: 'trigger-id',
+                onMouseover: () => {},
+                onMouseleave: () => {},
+                onFocus: () => {},
+                onBlur: () => {},
+                'aria-describedby': 'tooltip-id',
+            });
+
+            TOOLTIP_OPEN_TRIGGER_PROPS.forEach((prop) => {
+                expect(stripped).not.toHaveProperty(prop);
+            });
+
+            // mt-tooltip errors without its trigger id, and the closing handlers must keep an
+            // already visible tooltip hidable when the sidebar expands while it is hovered.
+            expect(stripped).toHaveProperty('id', 'trigger-id');
+            expect(stripped).toHaveProperty('onMouseleave');
+            expect(stripped).toHaveProperty('onBlur');
         });
     });
 });

@@ -13,12 +13,12 @@
         <div class="collapsible-text sw-admin-menu__headline_text hide-on-collapse">
             <router-link
                 :to="{ name: 'sw.sales.channel.list' }"
-            >{{ $tc('sw-sales-channel.general.titleMenuItems') }}</router-link>
+            >{{ $t('sw-sales-channel.general.titleMenuItems') }}</router-link>
         </div>
         {% endblock %}
 
         {% block sw_sales_channel_menu_headline_context_button %}
-        <mt-dropdown-menu-root class="sw-admin-menu__headline-context-menu">
+        <mt-dropdown-menu-root>
             <mt-dropdown-menu-trigger as-child>
                 <mt-button
                     class="sw-admin-menu__headline-action"
@@ -52,7 +52,7 @@
                             icon="regular-pencil-s"
                             @click="navigate"
                         >
-                            {{ $tc('sw-sales-channel.general.manageSalesChannels') }}
+                            {{ $t('sw-sales-channel.general.manageSalesChannels') }}
                         </mt-action-menu-item>
                     </router-link>
                     {% endblock %}
@@ -64,7 +64,7 @@
                         icon="regular-plus-circle"
                         @click="openSalesChannelModal"
                     >
-                        {{ $tc('sw-sales-channel.general.addSalesChannel') }}
+                        {{ $t('sw-sales-channel.general.addSalesChannel') }}
                     </mt-action-menu-item>
                     {% endblock %}
                 </mt-action-menu>

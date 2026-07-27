@@ -17,10 +17,6 @@
         }
     }
 
-    .sw-admin-menu__headline-context-menu {
-        display: block;
-    }
-
     .sw-admin-menu__headline {
         overflow: hidden;
 
@@ -43,43 +39,6 @@
             text-decoration: underline;
             color: var(--color-text-primary-default);
             outline: none;
-        }
-    }
-
-    &__whitespacing {
-        display: inline;
-        padding: 0 30px 12px;
-
-        &-text {
-            font-size: var(--font-size-xs);
-            line-height: var(--font-line-height-m);
-            color: var(--color-text-secondary-default);
-        }
-
-        &.collapsible-text {
-            white-space: normal !important;
-        }
-    }
-
-    &__collapsed-context-menu {
-        transition: opacity 0.2s ease;
-        opacity: 0;
-        width: 100%;
-        text-align: center;
-        margin-top: 10px;
-        left: 0;
-        position: absolute !important;
-
-        .sw-context-button__button {
-            color: var(--color-static-white) !important;
-        }
-    }
-
-    .sw-admin-menu__navigation {
-        position: relative;
-
-        .sw-loader {
-            background: none;
         }
     }
 
@@ -110,24 +69,10 @@
     gap: 0;
 }
 
-.is--collapsed .sw-sales-channel-menu {
-    .sw-sales-channel-menu__collapsed-context-menu {
-        opacity: 1;
-
-        .mt-icon {
-            margin-right: 4px;
-        }
-    }
-
-    .sw-sales-channel-menu-domain-link {
-        width: 0;
-        visibility: hidden;
-        pointer-events: none;
-    }
-
-    .sw-loader {
-        display: none;
-    }
+.is--collapsed .sw-sales-channel-menu .sw-sales-channel-menu-domain-link {
+    width: 0;
+    visibility: hidden;
+    pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

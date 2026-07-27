@@ -1,6 +1,6 @@
 {% block sw_admin_menu_item %}
-<!-- eslint-disable vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions, vuejs-accessibility/interactive-supports-focus -->
-<MtCollapsible
+<!-- eslint-disable vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+<mt-collapsible
     v-if="showMenuItem && usesCollapsible"
     as="li"
     :class="collapsibleLiClass"
@@ -21,7 +21,6 @@
                 :aria-expanded="collapsibleOpen"
                 v-bind="collapsedFlyoutAria"
                 @click="toggleSubmenu"
-                @pointerdown="emitMenuInteractionForFlyoutDismiss($event)"
             >
                 {% block sw_admin_menu_item_icon_linked %}
                 <mt-icon
@@ -56,13 +55,12 @@
             </router-link>
         </template>
 
-        <MtCollapsibleTrigger
+        <mt-collapsible-trigger
             v-else
             type="button"
             class="sw-admin-menu__navigation-link"
             :class="{ 'router-link-active': rowActive }"
             v-bind="collapsedFlyoutAria"
-            @pointerdown="emitMenuInteractionForFlyoutDismiss($event)"
         >
             {% block sw_admin_menu_item_navigation_icon_fold %}
             <mt-icon
@@ -97,11 +95,11 @@
                 />
             </span>
             {% endblock %}
-        </MtCollapsibleTrigger>
+        </mt-collapsible-trigger>
     </div>
 
     {% block sw_sidebar_sub_items_collapsible %}
-    <MtCollapsibleContent
+    <mt-collapsible-content
         as="ul"
         class="sw-admin-menu__sub-navigation-list"
     >
@@ -115,21 +113,17 @@
             :collapsible-text="collapsibleText"
             :icon-size="iconSize"
             @menu-item-hover="forwardMenuItemHover"
-            @menu-item-click="forwardMenuItemClick"
             @branch-toggle="forwardBranchToggle"
         />
-    </MtCollapsibleContent>
+    </mt-collapsible-content>
     {% endblock %}
-</MtCollapsible>
+</mt-collapsible>
 
 <li
     v-else-if="showMenuItem"
-    :class="legacyLiClass"
+    :class="leafLiClass"
     :aria-current="rowActive ? 'page' : 'false'"
     @mouseenter="$emit('menu-item-hover', entry, $event.target)"
-    @click.prevent="handleLegacyRowClick($event)"
-    @keydown.enter="handleLegacyRowClick($event)"
-    @keydown.space="handleLegacyRowClick($event)"
 >
     <mt-tooltip
         :content="getEntryLabel"

@@ -1,7 +1,4 @@
-@import "~scss/variables";
 @import "~scss/mixins";
-
-$sw-version-font-size-info: 12px;
 
 .sw-version {
     width: 100%;
@@ -11,7 +8,7 @@ $sw-version-font-size-info: 12px;
 
         max-width: 200px;
         color: var(--color-text-secondary-default);
-        font-family: var(--font-family-body, Inter);
+        font-family: var(--font-family-body);
         font-size: var(--font-size-2xs);
         font-style: normal;
         font-weight: var(--font-weight-regular);

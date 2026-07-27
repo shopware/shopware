@@ -6,6 +6,9 @@ import './sw-admin-menu.scss';
 const { Mixin } = Shopware;
 const { dom } = Shopware.Utils;
 
+// Keep in sync with --sw-admin-menu-duration in sw-admin-menu.scss.
+const SIDEBAR_TOGGLE_ANIMATION_DURATION = 500;
+
 /**
  * @sw-package framework
  *
@@ -95,10 +98,6 @@ export default {
             return Shopware.Store.get('session').currentLocale;
         },
 
-        currentExpandedMenuEntries() {
-            return this.adminMenuStore.expandedEntries;
-        },
-
         adminModuleNavigation() {
             const adminModuleNavigationEntries = this.adminMenuStore.adminModuleNavigation;
 
@@ -148,10 +147,6 @@ The admin menu only supports up to three levels of nesting.`,
             this.navigationEntries.forEach((module) => tree.add(module));
 
             return tree.convertToTree();
-        },
-
-        sidebarCollapseIcon() {
-            return 'regular-panel-left';
         },
 
         scrollbarOffsetStyle() {
@@ -222,7 +217,7 @@ The admin menu only supports up to three levels of nesting.`,
     watch: {
         isExpanded() {
             this.toggleSidebar();
-            this.suppressLogoHoverDuringToggle();
+            this.startSidebarToggleWindow();
         },
         '$route.fullPath': {
             handler() {
@@ -232,6 +227,10 @@ The admin menu only supports up to three levels of nesting.`,
                 if (!this.isExpanded && this.flyoutEntries.length) {
                     this.deactivateFlyoutFocusTrap(false);
                     this.onFlyoutLeave();
+                }
+
+                if (this.isMobileViewport && this.isOffCanvasShown) {
+                    this.closeOffCanvas();
                 }
 
                 this.$nextTick(() => this.expandAncestorBranchesForCurrentRoute());
@@ -368,19 +367,23 @@ The admin menu only supports up to three levels of nesting.`,
             this.onToggleSidebar();
         },
 
-        suppressLogoHoverDuringToggle() {
+        /**
+         * Marks the sidebar as mid-toggle (`is--toggling`), which suppresses the logo/expand-button
+         * crossfade on hover and scopes the nested tree-line transitions to the toggle window.
+         * Must outlast the longest animation it gates: the root width/padding transition
+         * (--sw-admin-menu-duration, 0.5s).
+         */
+        startSidebarToggleWindow() {
             this.isTogglingSidebar = true;
 
             if (this.toggleSidebarTimeout) {
                 clearTimeout(this.toggleSidebarTimeout);
             }
 
-            // 400ms matches the 0.4s panel width transition and the delayed
-            // fade-in of hide-on-collapse elements (0.1s delay + 0.3s duration).
             this.toggleSidebarTimeout = setTimeout(() => {
                 this.isTogglingSidebar = false;
                 this.toggleSidebarTimeout = null;
-            }, 400);
+            }, SIDEBAR_TOGGLE_ANIMATION_DURATION);
         },
 
         toggleSidebar() {
@@ -406,21 +409,6 @@ The admin menu only supports up to three levels of nesting.`,
             const scrollbarWidthPx = dom.getScrollbarWidth(this.$refs.swAdminMenuBody);
 
             this.scrollbarOffset = `-${scrollbarWidthPx}px`;
-        },
-
-        onMenuItemClick(entry, eventTarget) {
-            if (!this.isExpanded) {
-                return;
-            }
-
-            if (eventTarget?.closest?.('.sw-admin-menu__sub-navigation-list')) {
-                return;
-            }
-
-            if (this.flyoutEntries.length) {
-                this.flyoutEntries = [];
-                this.flyoutTitle = '';
-            }
         },
 
         onMenuBranchToggle({ entry, open }) {
@@ -496,7 +484,7 @@ The admin menu only supports up to three levels of nesting.`,
             this.deactivatePreviousMenuItem();
             target.classList.add('is--flyout-enabled');
 
-            this.activeEntry = { entry, target, parentEntries: [] };
+            this.activeEntry = { entry, target };
         },
 
         onNavigationListMouseLeave(event) {

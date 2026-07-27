@@ -99,6 +99,7 @@
             {% block sw_search_bar_field_close %}
             <button
                 class="sw-search-bar__field-close"
+                :aria-label="$t('global.sw-search-bar.ariaLabelCloseSearch')"
                 @click="hideSearchBar"
             >
                 <mt-icon

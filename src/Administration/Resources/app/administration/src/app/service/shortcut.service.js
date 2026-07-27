@@ -35,7 +35,7 @@ export default function createShortcutService(shortcutFactory, keystrokeDelay = 
 
     /**
      * Returns true when the given key would complete a currently buffered
-     * navigation key sequence (e.g. "M" while "G" is buffered completes "GM").
+     * navigation key sequence (e.g. "S" while "A" is buffered completes "AS").
      * Lets single-key component shortcuts skip firing in the middle of a
      * registered sequence.
      */

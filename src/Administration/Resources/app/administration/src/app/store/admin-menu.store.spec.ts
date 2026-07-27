@@ -61,6 +61,23 @@ describe('admin-menu.store', () => {
         expect(store.expandedEntries).not.toContainEqual({ id: 'test2' });
     });
 
+    it('keys entries without an id by their path', () => {
+        store.expandMenuEntry({ path: 'sw.first.index' });
+        store.expandMenuEntry({ path: 'sw.second.index' });
+        expect(store.expandedEntries).toHaveLength(2);
+
+        store.collapseMenuEntry({ path: 'sw.first.index' });
+
+        expect(store.expandedEntries).toStrictEqual([{ path: 'sw.second.index' }]);
+    });
+
+    it('does not expand the same menu entry twice', () => {
+        store.expandMenuEntry({ id: 'test' });
+        store.expandMenuEntry({ id: 'test' });
+
+        expect(store.expandedEntries).toStrictEqual([{ id: 'test' }]);
+    });
+
     it('collapses the sidebar with `collapseSidebar`', () => {
         expect(store.isExpanded).toBe(true);
         expect(localStorage.getItem('sw-admin-menu-expanded')).toBeNull();

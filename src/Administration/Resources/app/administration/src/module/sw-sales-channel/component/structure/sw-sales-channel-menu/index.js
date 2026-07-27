@@ -91,7 +91,6 @@ export default {
                     id: salesChannel.id,
                     path: 'sw.sales.channel.detail',
                     params: { id: salesChannel.id },
-                    color: 'var(--color-zinc-200)',
                     label: {
                         label: salesChannel.translated.name,
                         translated: true,
@@ -108,13 +107,10 @@ export default {
 
         moreItemsEntry() {
             return {
-                active: true,
                 children: [],
-                color: 'var(--color-zinc-200)',
                 icon: 'regular-eye',
                 label: this.$t('sw-sales-channel.general.titleMenuMoreItems'),
                 path: 'sw.sales.channel.list',
-                position: -1, // use last position
             };
         },
 

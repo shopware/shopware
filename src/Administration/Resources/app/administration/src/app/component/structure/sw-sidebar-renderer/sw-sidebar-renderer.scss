@@ -48,10 +48,10 @@
 
     &.is-active {
         display: block;
-        animation: expandSidebar 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+        animation: sw-sidebar-renderer-expand 0.4s cubic-bezier(0.32, 0.72, 0, 1);
 
         .sw-sidebar-renderer__overlay {
-            animation: slideInFromRight 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+            animation: sw-sidebar-renderer-slide-in 0.4s cubic-bezier(0.32, 0.72, 0, 1);
         }
     }
 
@@ -66,14 +66,14 @@
     }
 
     &.is-active.is-closing {
-        animation: shrinkSidebar 0.4s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+        animation: sw-sidebar-renderer-shrink 0.4s cubic-bezier(0.32, 0.72, 0, 1) forwards;
 
         .sw-sidebar-renderer__overlay {
-            animation: slideOutToRight 0.4s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+            animation: sw-sidebar-renderer-slide-out 0.4s cubic-bezier(0.32, 0.72, 0, 1) forwards;
         }
     }
 
-    @keyframes slideInFromRight {
+    @keyframes sw-sidebar-renderer-slide-in {
         from {
             transform: translateX(100%);
         }
@@ -83,19 +83,19 @@
         }
     }
 
-    @keyframes slideOutToRight {
+    @keyframes sw-sidebar-renderer-slide-out {
         to {
             transform: translateX(100%);
         }
     }
 
-    @keyframes expandSidebar {
+    @keyframes sw-sidebar-renderer-expand {
         from {
             width: 0;
         }
     }
 
-    @keyframes shrinkSidebar {
+    @keyframes sw-sidebar-renderer-shrink {
         to {
             width: 0;
         }
@@ -191,5 +191,31 @@
         font-size: var(--font-size-m);
         line-height: var(--font-line-height-m);
         font-weight: var(--font-weight-semibold);
+    }
+}
+
+// The panel still opens and closes — only the motion is dropped. The store's
+// close delay is time-based, so the panel stays mounted for the same duration
+// and simply disappears without the slide/shrink.
+@media (prefers-reduced-motion: reduce) {
+    .sw-sidebar-renderer,
+    .sw-sidebar-renderer.is-active,
+    .sw-sidebar-renderer.is-active.is-closing {
+        transition: none;
+
+        .sw-sidebar-renderer__overlay {
+            animation: none;
+            transition: none;
+        }
+    }
+
+    .sw-sidebar-renderer.is-active,
+    .sw-sidebar-renderer.is-active.is-closing {
+        animation: none;
+    }
+
+    .sw-sidebar-renderer-backdrop-enter-active,
+    .sw-sidebar-renderer-backdrop-leave-active {
+        transition: none;
     }
 }

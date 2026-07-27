@@ -12,6 +12,15 @@ interface MenuService {
     getNavigationFromApps(apps: AppModuleDefinition[]): AppModuleDefinition[];
 }
 
+/**
+ * Navigation entries are not required to carry an `id` — path-only entries are valid — so the
+ * identity of an entry is its id with the path as fallback. Must match how the admin menu keys
+ * its branches, otherwise collapsing one id-less branch would drop every other id-less entry.
+ */
+function menuEntryKey(entry: NavigationEntry): string | undefined {
+    return entry?.id ?? entry?.path;
+}
+
 const adminMenuStore = Shopware.Store.register({
     id: 'adminMenu',
 
@@ -42,6 +51,10 @@ const adminMenuStore = Shopware.Store.register({
          * @param entry The Navigation Entry to expand
          */
         expandMenuEntry(entry: NavigationEntry) {
+            if (this.expandedEntries.some((e) => menuEntryKey(e) === menuEntryKey(entry))) {
+                return;
+            }
+
             this.expandedEntries.push(entry);
         },
         /**
@@ -49,7 +62,7 @@ const adminMenuStore = Shopware.Store.register({
          * @param entry The Navigation Entry to collapse
          */
         collapseMenuEntry(entry: NavigationEntry) {
-            this.expandedEntries = this.expandedEntries.filter((e) => e.id !== entry.id);
+            this.expandedEntries = this.expandedEntries.filter((e) => menuEntryKey(e) !== menuEntryKey(entry));
         },
         /**
          * Expands the  sidebar menu

@@ -489,14 +489,6 @@ export default class VueAdapter extends ViewAdapter {
             MtColorpicker: () => import('@shopware-ag/meteor-component-library/dist/esm/MtColorpicker'),
             MtPopover: () => import('@shopware-ag/meteor-component-library/dist/esm/MtPopover'),
             MtPopoverItem: () => import('@shopware-ag/meteor-component-library/dist/esm/MtPopoverItem'),
-            MtActionMenu: () => import('@shopware-ag/meteor-component-library/dist/esm/MtActionMenu'),
-            MtActionMenuGroup: () => import('@shopware-ag/meteor-component-library/dist/esm/MtActionMenuGroup'),
-            MtActionMenuItem: () => import('@shopware-ag/meteor-component-library/dist/esm/MtActionMenuItem'),
-            MtDropdownMenuRoot: () => import('@shopware-ag/meteor-component-library').then((m) => m.MtDropdownMenuRoot),
-            MtDropdownMenuPortal: () => import('@shopware-ag/meteor-component-library').then((m) => m.MtDropdownMenuPortal),
-            MtDropdownMenuTrigger: () =>
-                import('@shopware-ag/meteor-component-library').then((m) => m.MtDropdownMenuTrigger),
-            MtDropdownMenuSub: () => import('@shopware-ag/meteor-component-library').then((m) => m.MtDropdownMenuSub),
         };
 
         Object.entries(meteorComponents).forEach(

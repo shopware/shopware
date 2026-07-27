@@ -164,6 +164,7 @@
       "linkCloseMenu": "Close menu",
       "textShopwareAdmin": "Shopware Administration",
       "textProjectName": "Administration",
+      "textVersion": "Version:",
       "administrator": "Administrator",
       "navigation": {
         "label": "Main navigation",
@@ -636,6 +637,7 @@
       "messageNoResults": "No results found for \"{term}\"."
     },
     "sw-search-bar": {
+      "ariaLabelCloseSearch": "Close search",
       "messageNoResults": "No results found for \"{term}\".",
       "messageNoTypeResults": "No type found.",
       "placeholderSearchField": "Find products, customers, orders...",

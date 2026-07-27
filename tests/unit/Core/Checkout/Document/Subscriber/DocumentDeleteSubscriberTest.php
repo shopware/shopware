@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer;
 use Shopware\Core\Checkout\Document\Subscriber\DocumentDeleteSubscriber;
-use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -49,7 +48,6 @@ class DocumentDeleteSubscriberTest extends TestCase
         $documentDefinition = new DocumentDefinition();
         $documentDefinition->compile($definitionInstanceRegistry);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([]), // dependency check with empty result
             new EntitySearchResult(
@@ -65,7 +63,6 @@ class DocumentDeleteSubscriberTest extends TestCase
         $mediaDefinition = new MediaDefinition();
         $mediaDefinition->compile($definitionInstanceRegistry);
 
-        /** @var StaticEntityRepository<MediaCollection> $mediaRepository */
         $mediaRepository = new StaticEntityRepository(
             [],
             $mediaDefinition,
@@ -115,7 +112,6 @@ class DocumentDeleteSubscriberTest extends TestCase
         $documentDefinition = new DocumentDefinition();
         $documentDefinition->compile($definitionInstanceRegistry);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 DocumentEntity::class,
@@ -130,7 +126,6 @@ class DocumentDeleteSubscriberTest extends TestCase
         $mediaDefinition = new MediaDefinition();
         $mediaDefinition->compile($definitionInstanceRegistry);
 
-        /** @var StaticEntityRepository<MediaCollection> $mediaRepository */
         $mediaRepository = new StaticEntityRepository(
             [],
             $mediaDefinition,

@@ -98,7 +98,6 @@ class OrderAddressServiceTest extends TestCase
 
     public function testMissingOrder(): void
     {
-        /** @var StaticEntityRepository<OrderCollection> $orderRepository */
         $orderRepository = new StaticEntityRepository([new OrderCollection([])]);
 
         $orderAddressService = new OrderAddressService(
@@ -156,7 +155,6 @@ class OrderAddressServiceTest extends TestCase
                 return $this->createStub(EntityWrittenContainerEvent::class);
             });
 
-        /** @var StaticEntityRepository<CustomerAddressCollection> $customerAddressRepository */
         $customerAddressRepository = new StaticEntityRepository([new CustomerAddressCollection([$customerAddress]), new CustomerAddressCollection([$customerAddress])]);
 
         $orderDeliveryRepository = $this->createMock(EntityRepository::class);
@@ -166,7 +164,6 @@ class OrderAddressServiceTest extends TestCase
 
         $order = $this->createOrderEntity();
 
-        /** @var StaticEntityRepository<OrderCollection> $orderRepository */
         $orderRepository = new StaticEntityRepository([new OrderCollection([$order])]);
 
         $orderAddressService = new OrderAddressService(

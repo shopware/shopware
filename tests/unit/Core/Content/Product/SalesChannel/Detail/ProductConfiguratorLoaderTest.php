@@ -30,7 +30,6 @@ class ProductConfiguratorLoaderTest extends TestCase
 {
     public function testSortSettingsOrdersRemainingGroupsByPositionWhenConfigIsPartial(): void
     {
-        /** @var StaticEntityRepository<PropertyGroupOptionCollection> $optionRepository */
         $optionRepository = new StaticEntityRepository([]);
 
         $loader = new ProductConfiguratorLoader(
@@ -91,7 +90,6 @@ class ProductConfiguratorLoaderTest extends TestCase
         $combinationLoader = static::createStub(AbstractAvailableCombinationLoader::class);
         $combinationLoader->method('loadCombinations')->willReturn($combinationResult);
 
-        /** @var StaticEntityRepository<PropertyGroupOptionCollection> $optionRepository */
         $optionRepository = new StaticEntityRepository([
             new PropertyGroupOptionCollection([
                 $this->buildOption($redOptionId, 'Red', $colorGroupId, 'Color', 1, settingPosition: 1),
@@ -164,7 +162,6 @@ class ProductConfiguratorLoaderTest extends TestCase
         // Without combinations there is nothing to display, so the option
         // repository must not be queried at all. The empty static repository
         // throws on an unexpected search, doubling as the assertion.
-        /** @var StaticEntityRepository<PropertyGroupOptionCollection> $optionRepository */
         $optionRepository = new StaticEntityRepository([]);
 
         $loader = new ProductConfiguratorLoader($combinationLoader, $optionRepository);
@@ -200,7 +197,6 @@ class ProductConfiguratorLoaderTest extends TestCase
         // No option of the product carries a configurator setting: variants were
         // deliberately created without a configurator (supported API pattern), so
         // the product detail page must not render one.
-        /** @var StaticEntityRepository<PropertyGroupOptionCollection> $optionRepository */
         $optionRepository = new StaticEntityRepository([
             new PropertyGroupOptionCollection([
                 $this->buildOption($redOptionId, 'Red', $colorGroupId, 'Color', 1),
@@ -252,7 +248,6 @@ class ProductConfiguratorLoaderTest extends TestCase
         $blueOption->setName('Blue');
         $blueOption->setTranslated(['name' => 'Blue']);
 
-        /** @var StaticEntityRepository<PropertyGroupOptionCollection> $optionRepository */
         $optionRepository = new StaticEntityRepository([
             new PropertyGroupOptionCollection([
                 $this->buildOption($redOptionId, 'Red', $colorGroupId, 'Color', 1, settingPosition: 1),
@@ -306,7 +301,6 @@ class ProductConfiguratorLoaderTest extends TestCase
 
         // The Color group has no configurator settings at all - only the Size
         // group is configured.
-        /** @var StaticEntityRepository<PropertyGroupOptionCollection> $optionRepository */
         $optionRepository = new StaticEntityRepository([
             new PropertyGroupOptionCollection([
                 $this->buildOption($redOptionId, 'Red', $colorGroupId, 'Color', 1),

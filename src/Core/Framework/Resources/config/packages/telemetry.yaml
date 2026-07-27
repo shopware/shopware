@@ -24,6 +24,17 @@ shopware:
                   parameters:
                     buckets: [0, 512, 1024, 2048, 4096, 8192, 16384, 32768]
 
+                scheduled_task.backlog.max_lateness_seconds:
+                    # scheduler stalled or backed up; sampled by the telemetry.collect_periodic_metrics task
+                    description: 'Max seconds a scheduled task is past its next execution time'
+                    type: 'gauge'
+                    unit: 's'
+
+                scheduled_task.failed.count:
+                    # tasks in the 'failed' state never rerun on their own; sampled by the telemetry.collect_periodic_metrics task
+                    description: 'Scheduled tasks in the terminal failed state'
+                    type: 'gauge'
+
                 messenger.message.handled.count:
                     description: 'Messages handled by the worker, per outcome'
                     type: 'counter'

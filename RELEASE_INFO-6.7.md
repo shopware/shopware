@@ -71,6 +71,24 @@ List options (`plugins`, `excluded_locales`, `plugin_mapping`, `languages`) repl
 Product export body templates now receive RFC 3986-encoded `MediaEntity::url` and `MediaThumbnailEntity::url` values from their data context. This applies to media URLs such as `product.cover.media.url` and `product.media.*.media.url` in built-in and custom body templates, so feeds such as Google Merchant Center exports can use them without manually encoding their paths.
 
 Other URL-valued strings, including custom fields, are unchanged. Custom body templates that render those values can explicitly encode them with the `sw_encode_url` Twig filter.
+### Product migrations no longer fail on MySQL 8.4 with non-standard foreign keys
+
+MySQL 8.4 enables `restrict_fk_on_non_standard_key` by default. While that guard is on, MySQL bug [#118151](https://bugs.mysql.com/bug.php?id=118151) makes any `ALTER TABLE` or `CREATE INDEX` on a table fail with `Cannot drop index '<unknown key name>': needed in a foreign key constraint` when that table is involved in a foreign key with a non-standard supporting key. Shops carrying such drift from older Shopware versions or from extensions could not run product-table migrations at all.
+
+All core migrations doing DDL on the `product` table now run that DDL with the guard relaxed for the current session, restoring the previous value afterwards. On MariaDB and MySQL versions without the variable, nothing changes.
+
+Extension migrations can hit the same failure. `MigrationStep::withRelaxedNonStandardFkGuard()` wraps the affected DDL:
+
+```php
+public function update(Connection $connection): void
+{
+    $this->withRelaxedNonStandardFkGuard($connection, function () use ($connection): void {
+        $connection->executeStatement('ALTER TABLE `product` ADD COLUMN `my_column` VARCHAR(32) NULL');
+    });
+}
+```
+
+The method is marked `@internal` because it exists only until MySQL fixes bug #118151, but it is safe to call from extension migrations in the meantime.
 
 ### Polyfill packages are installed as declared dependencies
 

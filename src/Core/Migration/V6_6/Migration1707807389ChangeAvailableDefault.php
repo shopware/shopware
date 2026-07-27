@@ -19,6 +19,8 @@ class Migration1707807389ChangeAvailableDefault extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('ALTER TABLE `product` CHANGE `available` `available` tinyint(1) NOT NULL DEFAULT \'0\';');
+        $this->withRelaxedNonStandardFkGuard($connection, function () use ($connection): void {
+            $connection->executeStatement('ALTER TABLE `product` CHANGE `available` `available` tinyint(1) NOT NULL DEFAULT \'0\';');
+        });
     }
 }

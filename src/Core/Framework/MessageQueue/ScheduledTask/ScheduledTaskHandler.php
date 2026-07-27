@@ -186,6 +186,7 @@ abstract class ScheduledTaskHandler
 
         $taskEntity = $this->scheduledTaskRepository
             ->search(new Criteria([$taskId]), Context::createCLIContext())
+            ->getEntities()
             ->get($taskId);
 
         if ($taskEntity === null || !$taskEntity->isExecutionAllowed()) {

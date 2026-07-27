@@ -24,6 +24,14 @@ Tests should read like executable examples.
 - Prefer `expectExceptionObject()` over a broader `expectException`, build the expected exception through the same domain factory when one exists so class, code, and message stay aligned with production behavior.
 - Do not behavior-mock Doctrine DBAL `Connection` in unit tests by asserting SQL calls or parameters. Stub DBAL-consuming collaborators when needed; isolate SQL/DBAL adapters and cover those adapters with integration tests.
 
+## Stubbing DAL Repositories
+
+- Stub DAL repositories with `Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository`, not with a mock of `EntityRepository`.
+- Do not add a `/** @var StaticEntityRepository<FooCollection> */` annotation above the construction. The generic is inferred from the constructor when the searches contain a typed collection or `EntitySearchResult`.
+- When no search carries the type — empty searches, plain id lists for `searchIds()`, callables — bind the generic with the factory instead: `StaticEntityRepository::of(FooCollection::class, $searches)`.
+- Build search results with the concrete collection class the consumer expects (`new AppCollection([...])`, not `new EntityCollection([...])`); a generic `EntityCollection` infers the wrong type and fails against `EntityRepository<AppCollection>` parameters.
+- Class properties holding the stub keep their `@var StaticEntityRepository<FooCollection>` docblock — that is the property's type declaration, not an inference crutch.
+
 ## Feature Flags And Coverage
 
 - Keep legacy feature-flag behavior in dedicated tests that are easy to remove when the flag is removed.

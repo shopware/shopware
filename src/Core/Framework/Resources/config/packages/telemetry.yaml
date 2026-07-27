@@ -65,6 +65,37 @@ shopware:
                     description: 'Number of associations loaded'
                     type: 'histogram'
 
+                indexer.run.duration:
+                    # the result label keeps failed-run latency out of the healthy distribution.
+                    description: 'Duration of a single entity indexer run (EntityIndexer::handle), per indexer/mode/outcome. Full re-index and partial (post-write) updates have different profiles; compare each mode on its own.'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        # tens of ms per batch up to minute-plus on heavy indexers; >1min falls in the overflow bucket
+                        buckets: [10, 100, 1000, 10000, 60000]
+                    labels:
+                        # indexer technical name, passed through unmapped (known core: product.indexer, category.indexer, ...; plugin indexers expected)
+                        indexer:
+                            policy: open
+                        mode:
+                            allowed_values: [full, partial]
+                        result:
+                            allowed_values: [success, failed]
+
+                indexer.batch.size:
+                    # records handled per message handle; paired with run.duration this gives per-record indexing cost
+                    description: 'Records processed per entity indexer run (EntityIndexingMessage id count)'
+                    type: 'histogram'
+                    parameters:
+                        # anchored on the default iterate page size of 50 (IteratorFactory); partial updates
+                        # range from single writes up to a few hundred ids on bulk writes
+                        buckets: [1, 10, 50, 100, 250, 500]
+                    labels:
+                        indexer:
+                            policy: open
+                        mode:
+                            allowed_values: [full, partial]
+
                 dal.search.duration:
                     description: 'Duration of DAL read/search/aggregate operations. The es_aware and backend labels together reveal OpenSearch scaling possibilities: es_aware=yes with backend=sql marks a query eligible for OpenSearch but served by SQL. Each operation is measured once per top-level call (a search does not double-count its internal id-search/aggregate), so operation samples can be compared or summed without overlap.'
                     type: 'histogram'

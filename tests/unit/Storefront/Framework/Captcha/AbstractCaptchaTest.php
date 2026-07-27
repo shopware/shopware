@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Captcha;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Shopware\Storefront\Framework\Captcha\CaptchaException;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,6 +14,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(AbstractCaptcha::class)]
 class AbstractCaptchaTest extends TestCase
 {

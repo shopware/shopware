@@ -33,6 +33,9 @@ use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
@@ -144,7 +147,6 @@ class DocumentV2ControllerTest extends TestCase
         $response = $controller->create(
             new DocumentGenerationRequest(
                 $orderId,
-                Uuid::randomHex(),
                 DocumentType::INVOICE,
                 [DocumentFormat::HTML],
                 '1000',
@@ -188,7 +190,6 @@ class DocumentV2ControllerTest extends TestCase
         $response = $controller->preview(
             new DocumentGenerationRequest(
                 $orderId,
-                Uuid::randomHex(),
                 DocumentType::INVOICE,
                 [DocumentFormat::HTML],
                 '1000',
@@ -698,16 +699,26 @@ class DocumentV2ControllerTest extends TestCase
         string $orderId,
         ?DocumentEntity $document = null,
     ): DocumentGenerator {
+        $orderVersionId = Uuid::randomHex();
+
         $order = new OrderEntity();
         $order->setId($orderId);
+        $order->setVersionId($orderVersionId);
         $order->setSalesChannelId(Uuid::randomHex());
         $order->setLanguageId(Uuid::randomHex());
 
-        /** @var StaticEntityRepository<OrderCollection> $orderRepository */
-        $orderRepository = new StaticEntityRepository([
+        $orderSearchResult = new EntitySearchResult(
+            OrderDefinition::ENTITY_NAME,
+            1,
             new OrderCollection([$order]),
-            new OrderCollection([$order]),
-        ], new OrderDefinition());
+            null,
+            new Criteria(),
+            Context::createDefaultContext(),
+        );
+
+        $orderRepository = static::createStub(EntityRepository::class);
+        $orderRepository->method('search')->willReturn($orderSearchResult);
+        $orderRepository->method('createVersion')->willReturn($orderVersionId);
 
         $document ??= new DocumentEntity();
         $document->setId(Uuid::randomHex());

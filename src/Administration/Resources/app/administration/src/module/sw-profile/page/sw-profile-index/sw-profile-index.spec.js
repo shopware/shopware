@@ -13,6 +13,7 @@ async function createWrapper(
     isSso = { isSso: false },
     saveFunction = () => Promise.resolve({}),
     loginService = { loginByUsername: () => Promise.resolve({}), logout: () => {} },
+    { featureActive = false, routeName = 'sw.profile.index.general', routerPush = jest.fn() } = {},
 ) {
     return mount(await wrapTestComponent('sw-profile-index', { sync: true }), {
         global: {
@@ -37,11 +38,52 @@ async function createWrapper(
                 'sw-language-switch': true,
                 'sw-button-process': true,
                 'sw-language-info': true,
-                'sw-tabs': true,
-                'sw-tabs-item': true,
+                'sw-tabs': {
+                    name: 'sw-tabs',
+                    template: '<div class="sw-tabs"><slot /></div>',
+                    props: [
+                        'positionIdentifier',
+                    ],
+                },
+                'sw-tabs-item': {
+                    name: 'sw-tabs-item',
+                    template: '<div class="sw-tabs-item"><slot /></div>',
+                    props: [
+                        'route',
+                        'title',
+                    ],
+                },
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    template: '<div class="mt-tabs"></div>',
+                    props: {
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: undefined,
+                        },
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            required: true,
+                        },
+                    },
+                },
                 'sw-skeleton': true,
                 'sw-verify-user-modal': true,
                 'sw-media-modal-v2': true,
+            },
+            mocks: {
+                $route: {
+                    name: routeName,
+                    params: {},
+                },
+                $router: {
+                    push: routerPush,
+                },
             },
             provide: {
                 acl: {
@@ -113,8 +155,18 @@ async function createWrapper(
                         return Promise.resolve(true);
                     },
                 },
+                feature: {
+                    isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
+                },
             },
         },
+    });
+}
+
+function createFeatureWrapper(options = {}) {
+    return createWrapper([], undefined, undefined, undefined, {
+        featureActive: true,
+        ...options,
     });
 }
 
@@ -138,6 +190,83 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
 
     afterEach(() => {
         jest.restoreAllMocks();
+    });
+
+    it('should render the deprecated tabs when the major feature flag is inactive', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const tabs = wrapper.getComponent({ name: 'sw-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-profile-index');
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('should keep the fallback tab route contract', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const tabItems = wrapper.findAllComponents({ name: 'sw-tabs-item' });
+
+        expect(tabItems).toHaveLength(3);
+        expect(tabItems[0].props('route')).toStrictEqual({ name: 'sw.profile.index.general' });
+        expect(tabItems[0].props('title')).toBe('sw-profile.tabGeneral.title');
+        expect(tabItems[0].text()).toBe('sw-profile.tabGeneral.title');
+
+        expect(tabItems[1].props('route')).toStrictEqual({ name: 'sw.profile.index.searchPreferences' });
+        expect(tabItems[1].props('title')).toBe('sw-profile.tabSearchPreferences.title');
+        expect(tabItems[1].text()).toBe('sw-profile.tabSearchPreferences.title');
+
+        expect(tabItems[2].props('route')).toStrictEqual({ name: 'sw.profile.index.privacyPreferences' });
+        expect(tabItems[2].props('title')).toBe('sw-profile.tabPrivacyPreferences.title');
+        expect(tabItems[2].text()).toBe('sw-profile.tabPrivacyPreferences.title');
+    });
+
+    it('should render meteor tabs when the major feature flag is active', async () => {
+        const wrapper = await createFeatureWrapper({
+            routeName: 'sw.profile.index.searchPreferences',
+        });
+        await flushPromises();
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-profile-index');
+        expect(tabs.props('defaultItem')).toBe('sw.profile.index.searchPreferences');
+        expect(tabs.props('items')).toEqual([
+            expect.objectContaining({
+                label: 'sw-profile.tabGeneral.title',
+                name: 'sw.profile.index.general',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-profile.tabSearchPreferences.title',
+                name: 'sw.profile.index.searchPreferences',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-profile.tabPrivacyPreferences.title',
+                name: 'sw.profile.index.privacyPreferences',
+                onClick: expect.any(Function),
+            }),
+        ]);
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+    });
+
+    it('should navigate when a meteor tab item is clicked', async () => {
+        const routerPush = jest.fn();
+        const wrapper = await createFeatureWrapper({
+            routerPush,
+        });
+        await flushPromises();
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+        const privacyTab = tabs.props('items').find((item) => {
+            return item.name === 'sw.profile.index.privacyPreferences';
+        });
+
+        privacyTab.onClick();
+
+        expect(routerPush).toHaveBeenCalledWith({ name: 'sw.profile.index.privacyPreferences' });
     });
 
     it('should not be able to save own user', async () => {

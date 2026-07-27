@@ -28,8 +28,13 @@ class ReflectionOnPrivateMethodsInTests
                     return false;
                 }
 
-                // real test classes only — rule-test fixtures under data/ deliberately contain the pattern
-                if (preg_match('#^(tests/|src/[^/]+/.*Test/).*Test\.php$#', $file->name) !== 1) {
+                if (!fnmatch('tests/**/*Test.php', $file->name)
+                    && !fnmatch('src/**/*Test.php', $file->name)) {
+                    return false;
+                }
+
+                // rule-test fixtures deliberately contain the pattern
+                if (str_contains($file->name, '/data/')) {
                     return false;
                 }
 

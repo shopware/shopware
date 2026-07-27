@@ -76,6 +76,12 @@ class ReflectionOnPrivateMethodsInTestsTest extends TestCase
             '+        $reflection = new \\ReflectionMethod(Target::class, \'privateMethod\');',
             false,
         ];
+        yield 'rule-test fixture named like a test under data/ passes' => [
+            'tests/devops/Core/DevOps/StaticAnalyse/PHPStan/Rules/data/NoReflectionOnNonPublicMethodsRule/ReflectionCasesTest.php',
+            File::STATUS_ADDED,
+            '+        $reflection = new \\ReflectionMethod(Target::class, \'privateMethod\');',
+            false,
+        ];
         yield 'http request getMethod passes' => [
             'tests/unit/Core/Framework/Api/RequestTest.php',
             File::STATUS_MODIFIED,

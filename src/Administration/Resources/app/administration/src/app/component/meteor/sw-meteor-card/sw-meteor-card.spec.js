@@ -7,7 +7,36 @@ import 'src/app/component/meteor/sw-meteor-card';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
 
-async function createWrapper(customConfig = {}) {
+function createFeatureMock(featureActive = false) {
+    return {
+        isActive: (flag) => flag === 'v6.8.0.0' && featureActive,
+    };
+}
+
+function createMtTabsStub() {
+    return {
+        name: 'mt-tabs',
+        emits: ['new-item-active'],
+        props: {
+            defaultItem: {
+                type: String,
+                required: false,
+                default: undefined,
+            },
+            items: {
+                type: Array,
+                required: true,
+            },
+            positionIdentifier: {
+                type: String,
+                required: true,
+            },
+        },
+        template: '<div class="mt-tabs"></div>',
+    };
+}
+
+async function createWrapper(customConfig = {}, { featureActive = false } = {}) {
     return mount(await wrapTestComponent('sw-meteor-card', { sync: true }), {
         props: {},
         global: {
@@ -16,14 +45,55 @@ async function createWrapper(customConfig = {}) {
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
                 'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
-                'mt-tabs': true,
+                'mt-tabs': createMtTabsStub(),
                 'sw-extension-component-section': true,
                 'router-link': true,
             },
-            provide: {},
+            provide: {
+                feature: createFeatureMock(featureActive),
+            },
         },
         ...customConfig,
     });
+}
+
+async function createMeteorCardWithTabs({ featureActive = false } = {}) {
+    return mount(
+        {
+            template: `
+<sw-meteor-card defaultTab="tab1">
+
+    <template #tabs="{ activeTab }">
+        <sw-tabs-item name="tab1" :activeTab="activeTab">Tab 1</sw-tabs-item>
+        <sw-tabs-item name="tab2" :activeTab="activeTab">Tab 2</sw-tabs-item>
+    </template>
+
+    <template #default="{ activeTab }">
+        <p v-if="activeTab === 'tab1'">Tab 1</p>
+        <p v-if="activeTab === 'tab2'">Tab 2</p>
+    </template>
+
+</sw-meteor-card>
+            `,
+        },
+        {
+            global: {
+                stubs: {
+                    'sw-meteor-card': await wrapTestComponent('sw-meteor-card'),
+                    'sw-tabs': await wrapTestComponent('sw-tabs'),
+                    'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
+                    'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                    'sw-loader': true,
+                    'mt-tabs': createMtTabsStub(),
+                    'sw-extension-component-section': true,
+                    'router-link': true,
+                },
+                provide: {
+                    feature: createFeatureMock(featureActive),
+                },
+            },
+        },
+    );
 }
 
 describe('src/app/component/meteor/sw-meteor-card', () => {
@@ -168,9 +238,12 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
                         'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                         'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
                         'sw-loader': true,
-                        'mt-tabs': true,
+                        'mt-tabs': createMtTabsStub(),
                         'sw-extension-component-section': true,
                         'router-link': true,
+                    },
+                    provide: {
+                        feature: createFeatureMock(),
                     },
                 },
             },
@@ -183,41 +256,8 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
         expect(tabItems.at(1).text()).toBe('Tab 2');
     });
 
-    it('should render tabs and change content', async () => {
-        const wrapper = mount(
-            {
-                template: `
-<sw-meteor-card defaultTab="tab1">
-
-    <template #tabs="{ activeTab }">
-        <sw-tabs-item name="tab1" :activeTab="activeTab">Tab 1</sw-tabs-item>
-        <sw-tabs-item name="tab2" :activeTab="activeTab">Tab 2</sw-tabs-item>
-    </template>
-
-    <template #default="{ activeTab }">
-        <p v-if="activeTab === 'tab1'">Tab 1</p>
-        <p v-if="activeTab === 'tab2'">Tab 2</p>
-    </template>
-
-</sw-meteor-card>
-            `,
-            },
-            {
-                global: {
-                    stubs: {
-                        'sw-meteor-card': await wrapTestComponent('sw-meteor-card'),
-                        'sw-tabs': await wrapTestComponent('sw-tabs'),
-                        'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
-                        'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
-                        'sw-loader': true,
-                        'mt-tabs': true,
-                        'sw-extension-component-section': true,
-                        'router-link': true,
-                    },
-                },
-            },
-        );
-
+    it('should render deprecated tabs and change content when the major feature flag is inactive', async () => {
+        const wrapper = await createMeteorCardWithTabs();
         await flushPromises();
 
         const tabTwo = wrapper.findAll('.sw-tabs-item').at(1);
@@ -229,5 +269,85 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
 
         content = wrapper.find('.sw-meteor-card__content-wrapper');
         expect(content.text()).toBe('Tab 2');
+    });
+
+    it('should render meteor tabs and change content when the major feature flag is active', async () => {
+        const wrapper = await createMeteorCardWithTabs({ featureActive: true });
+        await flushPromises();
+
+        const tabs = wrapper.findComponent({ name: 'mt-tabs' });
+
+        expect(tabs.exists()).toBe(true);
+        expect(tabs.props('positionIdentifier')).toBe('sw-meteor-card');
+        expect(tabs.props('defaultItem')).toBe('tab1');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'Tab 1',
+                name: 'tab1',
+            },
+            {
+                label: 'Tab 2',
+                name: 'tab2',
+            },
+        ]);
+        expect(wrapper.find('.sw-tabs').exists()).toBe(false);
+
+        let content = wrapper.find('.sw-meteor-card__content-wrapper');
+        expect(content.text()).toBe('Tab 1');
+
+        await tabs.vm.$emit('new-item-active', 'tab2');
+        await flushPromises();
+
+        content = wrapper.find('.sw-meteor-card__content-wrapper');
+        expect(content.text()).toBe('Tab 2');
+        expect(tabs.props('defaultItem')).toBe('tab2');
+    });
+
+    it('should prefer the visible tab text over the title attribute for meteor tab labels', async () => {
+        const wrapper = mount(
+            {
+                template: `
+<sw-meteor-card defaultTab="tab1">
+    <template #tabs="{ activeTab }">
+        <sw-tabs-item
+            name="tab1"
+            title="Tooltip text"
+            :activeTab="activeTab"
+        >
+            Visible tab text
+        </sw-tabs-item>
+    </template>
+</sw-meteor-card>
+            `,
+            },
+            {
+                global: {
+                    stubs: {
+                        'sw-meteor-card': await wrapTestComponent('sw-meteor-card'),
+                        'sw-tabs': await wrapTestComponent('sw-tabs'),
+                        'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
+                        'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                        'sw-loader': true,
+                        'mt-tabs': createMtTabsStub(),
+                        'sw-extension-component-section': true,
+                        'router-link': true,
+                    },
+                    provide: {
+                        feature: createFeatureMock(true),
+                    },
+                },
+            },
+        );
+
+        await flushPromises();
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'Visible tab text',
+                name: 'tab1',
+            },
+        ]);
     });
 });

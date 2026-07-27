@@ -16,7 +16,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 readonly class CaptchaRouteListener implements EventSubscriberInterface
 {
     /**

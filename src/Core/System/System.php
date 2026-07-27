@@ -34,24 +34,24 @@ class System extends Bundle
         $configLocator = new FileLocator(__DIR__ . '/DependencyInjection/');
 
         $loader = new XmlFileLoader($container, $configLocator);
-        $loader->load('sales_channel.xml');
-        $loader->load('country.xml');
-        $loader->load('currency.xml');
-        $loader->load('custom_entity.xml');
-        $loader->load('locale.xml');
-        $loader->load('snippet.xml');
-        $loader->load('salutation.xml');
-        $loader->load('tax.xml');
-        $loader->load('tax_provider.xml');
-        $loader->load('unit.xml');
-        $loader->load('user.xml');
-        $loader->load('integration.xml');
-        $loader->load('state_machine.xml');
-        $loader->load('configuration.xml');
-        $loader->load('number_range.xml');
-        $loader->load('tag.xml');
-
         $phpLoader = new PhpFileLoader($container, $configLocator);
+        $phpLoader->load('sales_channel.php');
+        $phpLoader->load('country.php');
+        $phpLoader->load('currency.php');
+        $phpLoader->load('custom_entity.php');
+        $phpLoader->load('locale.php');
+        $phpLoader->load('snippet.php');
+        $phpLoader->load('salutation.php');
+        $phpLoader->load('tax.php');
+        $phpLoader->load('tax_provider.php');
+        $phpLoader->load('unit.php');
+        $phpLoader->load('user.php');
+        $phpLoader->load('integration.php');
+        $phpLoader->load('state_machine.php');
+        $phpLoader->load('configuration.php');
+        $phpLoader->load('number_range.php');
+        $phpLoader->load('tag.php');
+
         $phpLoader->load('consent.php');
         $phpLoader->load('usage_data.php');
 

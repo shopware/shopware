@@ -11,11 +11,11 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'debug:business-events',
     description: 'Dumps all business events',
 )]
-#[Package('framework')]
 class DebugDumpBusinessEventsCommand extends Command
 {
     /**

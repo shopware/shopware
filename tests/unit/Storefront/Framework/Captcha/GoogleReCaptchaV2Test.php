@@ -12,6 +12,7 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
@@ -23,6 +24,7 @@ use Symfony\Component\Validator\ConstraintViolation;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(GoogleReCaptchaV2::class)]
 class GoogleReCaptchaV2Test extends TestCase
 {

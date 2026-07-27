@@ -26,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Snippet\SnippetDefinition;
@@ -35,6 +36,7 @@ use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CacheInvalidationSubscriber::class)]
 #[Group('cache')]
 class CacheInvalidationSubscriberTest extends TestCase

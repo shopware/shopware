@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Mcp\AllowList;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Typed representation of the per-principal MCP capability allowlist.
  * null for a type means unrestricted (all capabilities allowed).

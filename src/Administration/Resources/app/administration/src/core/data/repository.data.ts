@@ -14,6 +14,12 @@ type options = {
     [key: string]: unknown;
 };
 
+type RepositoryCacheOptions = {
+    cacheKey: unknown[];
+    ttl?: number;
+    forceReload?: boolean;
+};
+
 type IdSearchResult = {
     total: number;
     data: string[];
@@ -104,7 +110,12 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
     /**
      * Sends a search request to the server to find entity ids for the provided criteria.
      */
-    searchIds(criteria: Criteria, context = Shopware.Context.api): Promise<IdSearchResult> {
+    searchIds(
+        criteria: Criteria,
+        contextOrOptions: apiContext | RepositoryCacheOptions = Shopware.Context.api,
+        cacheOptions?: RepositoryCacheOptions,
+    ): Promise<IdSearchResult> {
+        const { context, cache } = this.resolveReadOptions(contextOrOptions, cacheOptions);
         const headers = this.buildHeaders(context);
 
         let url = `/search-ids${this.route}`;
@@ -113,15 +124,22 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
             url += `?title=${criteria.getTitle()}`;
         }
 
-        return this.httpClient.post(url, criteria.parse(), { headers }).then((response) => {
-            return response.data as IdSearchResult;
+        return this.runCachedRead(cache, () => {
+            return this.httpClient.post(url, criteria.parse(), { headers }).then((response) => {
+                return response.data as IdSearchResult;
+            });
         });
     }
 
     /**
      * Sends a search request for the repository entity.
      */
-    search(criteria: Criteria, context = Shopware.Context.api): Promise<EntityCollection<EntityName>> {
+    search(
+        criteria: Criteria,
+        contextOrOptions: apiContext | RepositoryCacheOptions = Shopware.Context.api,
+        cacheOptions?: RepositoryCacheOptions,
+    ): Promise<EntityCollection<EntityName>> {
+        const { context, cache } = this.resolveReadOptions(contextOrOptions, cacheOptions);
         const headers = this.buildHeaders(context);
 
         let url = `/search${this.route}`;
@@ -130,20 +148,40 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
             url += `?title=${criteria.getTitle()}`;
         }
 
-        return this.httpClient.post(url, criteria.parse(), { headers }).then((response) => {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            return this.hydrator.hydrateSearchResult(this.route, this.entityName, response, context, criteria);
+        return this.runCachedRead(cache, () => {
+            return this.httpClient.post(url, criteria.parse(), { headers }).then((response) => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                return this.hydrator.hydrateSearchResult(this.route, this.entityName, response, context, criteria);
+            });
         });
     }
 
     /**
      * Short hand to fetch a single entity from the server
      */
-    get(id: string, context = Shopware.Context.api, criteria: Criteria | null = null): Promise<Entity<EntityName> | null> {
+    get(
+        id: string,
+        contextOrOptions: apiContext | RepositoryCacheOptions = Shopware.Context.api,
+        criteriaOrOptions: Criteria | RepositoryCacheOptions | null = null,
+        cacheOptions?: RepositoryCacheOptions,
+    ): Promise<Entity<EntityName> | null> {
+        let context = contextOrOptions;
+        let criteria = criteriaOrOptions instanceof Criteria ? criteriaOrOptions : null;
+        let cache = cacheOptions;
+
+        if (this.isCacheOptions(criteriaOrOptions)) {
+            cache = criteriaOrOptions;
+        }
+
+        if (this.isCacheOptions(contextOrOptions)) {
+            context = Shopware.Context.api;
+            cache = contextOrOptions;
+        }
+
         criteria = criteria || new Criteria(1, 1);
         criteria.setIds([id]);
 
-        return this.search(criteria, context).then((result) => {
+        return this.search(criteria, context as apiContext, cache).then((result) => {
             return result.get(id);
         });
     }
@@ -754,5 +792,39 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
         });
 
         return operations;
+    }
+
+    private resolveReadOptions(
+        contextOrOptions: apiContext | RepositoryCacheOptions,
+        cacheOptions?: RepositoryCacheOptions,
+    ): { context: apiContext; cache?: RepositoryCacheOptions } {
+        if (this.isCacheOptions(contextOrOptions)) {
+            return {
+                context: Shopware.Context.api,
+                cache: contextOrOptions,
+            };
+        }
+
+        return {
+            context: contextOrOptions,
+            cache: cacheOptions,
+        };
+    }
+
+    private runCachedRead<T>(cacheOptions: RepositoryCacheOptions | undefined, fn: () => Promise<T>): Promise<T> {
+        if (!cacheOptions) {
+            return fn();
+        }
+
+        return Shopware.Service('cacheService').query({
+            key: cacheOptions.cacheKey,
+            fn,
+            ttl: cacheOptions.ttl,
+            forceReload: cacheOptions.forceReload,
+        });
+    }
+
+    private isCacheOptions(value: unknown): value is RepositoryCacheOptions {
+        return typeof value === 'object' && value !== null && Array.isArray((value as RepositoryCacheOptions).cacheKey);
     }
 }

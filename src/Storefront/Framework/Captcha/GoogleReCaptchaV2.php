@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-#[Package('framework')]
+#[Package('discovery')]
 class GoogleReCaptchaV2 extends AbstractCaptcha
 {
     final public const CAPTCHA_NAME = 'googleReCaptchaV2';

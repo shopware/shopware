@@ -21,6 +21,7 @@ export default {
         return {
             isOpened: false,
             optionsMenuOpen: false,
+            isBellRinging: false,
             showDeleteModal: false,
             unsubscribeFromStore: null,
         };
@@ -85,6 +86,10 @@ export default {
 
         onCloseDeleteModal() {
             this.showDeleteModal = false;
+        },
+
+        onEmptyStateBellClick() {
+            this.isBellRinging = true;
         },
 
         togglePanel() {

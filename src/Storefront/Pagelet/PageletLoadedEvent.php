@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('framework')]
+#[Package('discovery')]
 abstract class PageletLoadedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     public function __construct(

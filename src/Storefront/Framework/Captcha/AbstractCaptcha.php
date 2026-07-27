@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-#[Package('framework')]
+#[Package('discovery')]
 abstract class AbstractCaptcha
 {
     /**

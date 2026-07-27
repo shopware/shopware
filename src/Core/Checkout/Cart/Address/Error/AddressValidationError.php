@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Address\Error;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -12,9 +13,7 @@ class AddressValidationError extends Error implements AddressErrorInterface
 {
     private const KEY = 'address-invalid';
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $addressId will be required and non-nullable
-     */
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'addressId', newType: 'string', description: 'The parameter loses its null default and becomes required.')]
     public function __construct(
         protected readonly bool $isBillingAddress,
         protected readonly ConstraintViolationList $violations,

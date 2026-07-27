@@ -5,17 +5,24 @@ on:
   merge_group:
   workflow_dispatch:
     inputs:
-      nightly:
+      profile:
+        description: "Run profile: '' (PR), 'nightly' or 'release' (patch release gate)"
+        default: ""
+      major:
+        description: "Filter major variants: '' (all), 'exclude' (non-major only), 'only' (major only)"
         default: ""
   workflow_call:
     inputs:
-      nightly:
+      profile:
+        type: string
+        default: ""
+      major:
         type: string
         default: ""
 
 permissions:
-    contents: read
-    id-token: write
+  contents: read
+  id-token: write
 
 jobs:
   markdown-only-changes:
@@ -40,11 +47,14 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - id: generate-matrix
         run: |
-          MATRIX=$(php .github/bin/generate-acceptance-matrix.php "${{ inputs.nightly }}" "${{ contains(github.event.pull_request.labels.*.name, 'major-tests') }}")
+          # The major arm is a PR opt-in via the `major-acceptance` label (or `major-tests`, the umbrella label that enables every major arm).
+          MATRIX=$(php .github/bin/generate-acceptance-matrix.php "${{ inputs.profile }}" "${{ contains(github.event.pull_request.labels.*.name, 'major-acceptance') || contains(github.event.pull_request.labels.*.name, 'major-tests') }}" "${{ inputs.major }}")
           jq . <<<"$MATRIX"
-          echo "matrix<<EOF" >> $GITHUB_OUTPUT
-          echo "$MATRIX" >> $GITHUB_OUTPUT
-          echo 'EOF' >> $GITHUB_OUTPUT
+          {
+            echo "matrix<<EOF"
+            echo "$MATRIX"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
 
   acceptance:
     runs-on: ubuntu-24.04
@@ -63,7 +73,7 @@ jobs:
           major: ${{ matrix.major }}
           install: ${{ matrix.name != 'Install' && 'true' || 'false' }}
           extra-options: ${{ matrix.name == 'Install' && '--trace=on' || '' }}
-          use-currents: ${{ inputs.nightly == 'true' && github.event_name == 'schedule' && matrix.no-currents != 'true' || '' }}
+          use-currents: ${{ inputs.profile == 'nightly' && github.event_name == 'schedule' && matrix.no-currents != 'true' || '' }}
           currents-project-id: ${{ secrets.CURRENTS_PROJECT_ID }}
           currents-record-key: ${{ secrets.CURRENTS_RECORD_KEY }}
           playwright-role-arn: ${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}
@@ -74,7 +84,7 @@ jobs:
   acceptance-status-check:
     runs-on: ubuntu-24.04
     needs: acceptance
-    if: ${{ !cancelled() && inputs.nightly == 'true' }}
+    if: ${{ !cancelled() && inputs.profile == 'nightly' }}
     permissions:
       actions: read
     steps:
@@ -86,10 +96,12 @@ jobs:
           REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
           SLACK_ATS_WORKFLOW_URL: ${{ secrets.SLACK_ATS_WORKFLOW_URL }}
+          RUN_LABEL: ${{ inputs.major == 'only' && 'Major' || '' }}
         run: .github/bin/acceptance-slack-status.bash
 
   acceptance-code-style:
     name: Acceptance code style
+    if: ${{ inputs.major != 'only' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -120,7 +132,7 @@ jobs:
   acceptance-tests-changed:
     needs:
       - markdown-only-changes
-    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' && inputs.major != 'only' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -144,15 +156,14 @@ jobs:
           project: "Platform"
           install: true
           extra-options: >-
-            --repeat-each="10"
-            -- ${{ format(' {0}', steps.changed-files.outputs.all_changed_files) }}
+            --repeat-each="10" -- ${{ format(' {0}', steps.changed-files.outputs.all_changed_files) }}
           artifact-prefix: "ats-changed"
 
   tested-update-versions:
     name: tested-versions
     needs:
       - markdown-only-changes
-    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' && inputs.major != 'only' }}
     runs-on: ubuntu-24.04
     outputs:
       first-version: ${{ steps.versions.outputs.first-version }}
@@ -168,6 +179,7 @@ jobs:
 
   acceptance-update:
     needs: tested-update-versions
+    if: ${{ inputs.major != 'only' }}
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -206,7 +218,7 @@ jobs:
           path: new-shopware
 
       - name: Cache Storefront npm packages
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           # ~/.npm is npm's tarball cache; `npm ci` wipes node_modules but reuses this
           # offline (see prefer-offline below), which keeps the install off the network.
@@ -229,10 +241,10 @@ jobs:
           composer run npm:storefront run production
           (cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js)
 
-          composer -d src/Core config version ${SW_RECOVERY_NEXT_VERSION}
-          composer -d src/Administration config version ${SW_RECOVERY_NEXT_VERSION}
-          composer -d src/Storefront config version ${SW_RECOVERY_NEXT_VERSION}
-          composer -d src/Elasticsearch config version ${SW_RECOVERY_NEXT_VERSION}
+          composer -d src/Core config version "${SW_RECOVERY_NEXT_VERSION}"
+          composer -d src/Administration config version "${SW_RECOVERY_NEXT_VERSION}"
+          composer -d src/Storefront config version "${SW_RECOVERY_NEXT_VERSION}"
+          composer -d src/Elasticsearch config version "${SW_RECOVERY_NEXT_VERSION}"
 
       - name: Checkout template
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -285,11 +297,11 @@ jobs:
           working-directory: new-shopware/tests/acceptance
           command: sudo apt-get update --allow-releaseinfo-change && npx playwright install --with-deps chromium
       - name: Run update tests with reporting
-        if: ${{ (inputs.nightly == 'true' && github.event_name == 'schedule') && 'true' || '' }}
+        if: ${{ (inputs.profile == 'nightly' && github.event_name == 'schedule') && 'true' || '' }}
         working-directory: new-shopware/tests/acceptance
         run: npx pwc --project-id ${{ secrets.CURRENTS_PROJECT_ID }} --key ${{ secrets.CURRENTS_RECORD_KEY }} -- --project=Update --trace=on
       - name: Run update tests
-        if: ${{ (inputs.nightly != 'true' || github.event_name != 'schedule') && 'true' || '' }}
+        if: ${{ (inputs.profile != 'nightly' || github.event_name != 'schedule') && 'true' || '' }}
         working-directory: new-shopware/tests/acceptance
         run: npx playwright test --project=Update --trace=on
 
@@ -302,68 +314,69 @@ jobs:
 
       - name: Check if this run should attempt AWS operations
         id: check-aws-allowed
-        if: ${{ github.repository_owner == 'shopware' &&
-              (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
+        if: ${{ github.repository_owner == 'shopware' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
         shell: bash
         run: |
-              if [ -z "${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}" ]; then
-                echo "has_role_arn=false" >> "$GITHUB_OUTPUT"
-                echo "Secret PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN is empty or unavailable (likely a fork)." >&2
-              else
-                echo "has_role_arn=true" >> "$GITHUB_OUTPUT"
-              fi
+          if [ -z "${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}" ]; then
+            echo "has_role_arn=false" >> "$GITHUB_OUTPUT"
+            echo "Secret PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN is empty or unavailable (likely a fork)." >&2
+          else
+            echo "has_role_arn=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Configure AWS credentials (OIDC)
         if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
-        uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6.2.0
+        uses: aws-actions/configure-aws-credentials@517a711dbcd0e402f90c77e7e2f81e849156e31d # v6.2.2
         with:
-           aws-region: eu-central-1
-           role-session-name: gha-playwright-${{ github.run_id }}-${{ github.run_attempt }}
-           role-to-assume: ${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}
+          aws-region: eu-central-1
+          role-session-name: gha-playwright-${{ github.run_id }}-${{ github.run_attempt }}
+          role-to-assume: ${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}
 
       - name: Upload Playwright HTML report to S3
         working-directory: new-shopware/tests/acceptance
         if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
         shell: bash
         run: |
-            set -euo pipefail
-            RANDOM_STR=$(openssl rand -hex 6)
+          set -euo pipefail
+          RANDOM_STR=$(openssl rand -hex 6)
 
-            # build the destination prefix and export it for subsequent steps
-            REPORT_DEST="${REPORT_PREFIX}/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${RANDOM_STR}"
+          # build the destination prefix and export it for subsequent steps
+          REPORT_DEST="${REPORT_PREFIX}/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${RANDOM_STR}"
 
-            if [ ! -f "playwright-report/index.html" ]; then
-            echo "No Playwright report found, skipping upload."
-            exit 0
-            fi
+          if [ ! -f "playwright-report/index.html" ]; then
+          echo "No Playwright report found, skipping upload."
+          exit 0
+          fi
 
-            aws s3 cp "playwright-report" "s3://${S3_BUCKET}/${REPORT_DEST}/" --recursive
-            echo "REPORT_DEST=${REPORT_DEST}" >> "$GITHUB_ENV"
-            echo "Uploaded to s3://${S3_BUCKET}/${REPORT_DEST}/"
+          aws s3 cp "playwright-report" "s3://${S3_BUCKET}/${REPORT_DEST}/" --recursive
+          echo "REPORT_DEST=${REPORT_DEST}" >> "$GITHUB_ENV"
+          echo "Uploaded to s3://${S3_BUCKET}/${REPORT_DEST}/"
 
       - name: Publish S3 Static Website URL
         if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
         shell: bash
         run: |
-            set -euo pipefail
+          set -euo pipefail
 
-            if [ -z "${REPORT_DEST:-}" ]; then
-            echo "REPORT_DEST not set (upload skipped or failed); skipping publish." >&2
-            exit 0
-            fi
+          if [ -z "${REPORT_DEST:-}" ]; then
+          echo "REPORT_DEST not set (upload skipped or failed); skipping publish." >&2
+          exit 0
+          fi
 
-            if ! aws s3 ls "s3://${S3_BUCKET}/${REPORT_DEST}/index.html" >/dev/null 2>&1; then
-            echo "Index file not found ... skipping publish." >&2
-            exit 0
-            fi
+          if ! aws s3 ls "s3://${S3_BUCKET}/${REPORT_DEST}/index.html" >/dev/null 2>&1; then
+          echo "Index file not found ... skipping publish." >&2
+          exit 0
+          fi
 
-            DOMAIN="${{ vars.PLAYWRIGHT_TRACES_DOMAIN }}"
-            URL="https://${DOMAIN}/${REPORT_DEST}/index.html"
-            echo "${URL}"
+          DOMAIN="${{ vars.PLAYWRIGHT_TRACES_DOMAIN }}"
+          URL="https://${DOMAIN}/${REPORT_DEST}/index.html"
+          echo "${URL}"
 
-            echo "### Playwright HTML Report" >> "$GITHUB_STEP_SUMMARY"
-            echo "" >> "$GITHUB_STEP_SUMMARY"
-            echo "- ${URL}" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "### Playwright HTML Report"
+            echo ""
+            echo "- ${URL}"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   # this allows us to specify just one required job/check
   # this is not practical with matrix jobs directly, because you've to specify all permutations
@@ -380,6 +393,9 @@ jobs:
       - name: Decide whether the needed jobs succeeded or failed
         uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
         with:
-          # allow markdown-only PRs to skip the expensive jobs, but fail on unexpected skips otherwise
-          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'acceptance, acceptance-update' || '' }}
+          # allow markdown-only PRs to skip the expensive jobs, and the major-only nightly to skip
+          # the jobs that are irrelevant to it, but fail on unexpected skips otherwise
+          allowed-skips: >-
+            ${{ inputs.major == 'only' && 'acceptance-code-style, acceptance-update'
+              || (needs.markdown-only-changes.outputs.docs_only == 'true' && 'acceptance, acceptance-update' || '') }}
           jobs: ${{ toJSON(needs) }}

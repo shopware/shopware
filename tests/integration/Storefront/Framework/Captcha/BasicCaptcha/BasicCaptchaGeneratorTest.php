@@ -3,12 +3,14 @@
 namespace Shopware\Tests\Integration\Storefront\Framework\Captcha\BasicCaptcha;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha\BasicCaptchaGenerator;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class BasicCaptchaGeneratorTest extends TestCase
 {
     use KernelTestBehaviour;

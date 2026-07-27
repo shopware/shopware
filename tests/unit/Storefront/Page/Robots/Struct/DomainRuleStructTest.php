@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Page\Robots\Struct;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Page\Robots\Parser\ParsedRobots;
 use Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct;
@@ -15,6 +16,7 @@ use Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(DomainRuleStruct::class)]
 class DomainRuleStructTest extends TestCase
 {

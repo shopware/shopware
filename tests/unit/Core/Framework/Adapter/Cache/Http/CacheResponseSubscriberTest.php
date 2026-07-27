@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\Http\DefaultPolicies;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
@@ -45,6 +46,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * @phpstan-import-type DefaultPoliciesConfig from DefaultPolicies
  * @phpstan-import-type CacheAttributeType from CacheAttribute
  */
+#[Package('framework')]
 #[CoversClass(CacheResponseSubscriber::class)]
 #[CoversClass(HttpCacheCookieEvent::class)]
 class CacheResponseSubscriberTest extends TestCase

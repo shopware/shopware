@@ -120,18 +120,21 @@ class McpHttpTransportFactory
     }
 
     /**
-     * Forces an empty `inputSchema.properties` to a JSON object; returns null when nothing changed.
+     * Forces every empty JSON Schema `properties` map inside a tool to a JSON object; returns null
+     * when nothing changed.
      *
-     * A parameterless tool has an empty properties map, and PHP encodes an empty array as `[]`.
-     * JSON Schema requires an object there, so strict clients reject the whole payload — OpenAI
-     * answers `400 invalid_function_parameters: "[] is not of type 'object'"`. Because
+     * A parameterless tool — or a nested object parameter with no members — has an empty properties
+     * map, and PHP encodes an empty array as `[]`. JSON Schema requires an object there, so strict
+     * clients reject the whole payload — OpenAI answers
+     * `400 invalid_function_parameters: "[] is not of type 'object'"`. Because
      * `shopware-toolsets-list` is advertised in every session, one malformed tool breaks every
      * request such a client makes, not just calls to that tool.
      *
      * The SDK normalizes this in `Tool::fromArray()` but not in `Tool::jsonSerialize()`, so tools
      * discovered by reflection — all of Shopware's — reach the wire unnormalized. Normalizing at
      * this single funnel covers both endpoints and every response shape, and stays correct
-     * whichever way a future SDK release goes.
+     * whichever way a future SDK release goes. The walk is recursive, so nested object properties
+     * and an `outputSchema` are covered too, not just the top-level `inputSchema.properties`.
      *
      * @param array<string, mixed> $message
      *
@@ -146,13 +149,16 @@ class McpHttpTransportFactory
         $changed = false;
 
         foreach ($message['result']['tools'] as $index => $tool) {
-            if (!\is_array($tool) || !\is_array($tool['inputSchema'] ?? null)) {
+            if (!\is_array($tool)) {
                 continue;
             }
 
-            if (($tool['inputSchema']['properties'] ?? null) === []) {
-                $message['result']['tools'][$index]['inputSchema']['properties'] = new \stdClass();
-                $changed = true;
+            foreach (['inputSchema', 'outputSchema'] as $schemaKey) {
+                if (!\is_array($tool[$schemaKey] ?? null)) {
+                    continue;
+                }
+
+                $message['result']['tools'][$index][$schemaKey] = self::normalizeSchemaNode($tool[$schemaKey], $changed);
             }
         }
 
@@ -160,18 +166,48 @@ class McpHttpTransportFactory
     }
 
     /**
+     * Walks a JSON Schema node and replaces every empty `properties` map (at any depth) with an
+     * empty object, so it serializes as `{}` instead of `[]`. Nested schemas — property
+     * definitions, `items`, `$defs`, etc. — are reached through the generic array branch.
+     *
+     * @param array<string, mixed> $node
+     *
+     * @return array<string, mixed>
+     */
+    private static function normalizeSchemaNode(array $node, bool &$changed): array
+    {
+        foreach ($node as $key => $value) {
+            if ($key === 'properties' && $value === []) {
+                $node[$key] = new \stdClass();
+                $changed = true;
+
+                continue;
+            }
+
+            if (\is_array($value)) {
+                $node[$key] = self::normalizeSchemaNode($value, $changed);
+            }
+        }
+
+        return $node;
+    }
+
+    /**
+     * Re-emits a normalized message as JSON while preserving the SDK response's status code and
+     * headers (Content-Type, mcp-session-id, and any others). The body is re-encoded, so a stale
+     * Content-Length is dropped and left for Symfony to recompute.
+     *
      * @param array<string, mixed> $message
      */
     private function jsonResponse(array $message, PsrResponseInterface $psrResponse): Response
     {
-        $response = new Response(Json::encode($message), $psrResponse->getStatusCode(), [
-            'Content-Type' => 'application/json',
-        ]);
+        $response = new Response(Json::encode($message), $psrResponse->getStatusCode());
 
-        $sessionId = $psrResponse->getHeaderLine(PlatformRequest::HEADER_MCP_SESSION_ID);
-        if ($sessionId !== '') {
-            $response->headers->set(PlatformRequest::HEADER_MCP_SESSION_ID, $sessionId);
+        foreach ($psrResponse->getHeaders() as $name => $values) {
+            $response->headers->set($name, $values);
         }
+
+        $response->headers->remove('Content-Length');
 
         return $response;
     }

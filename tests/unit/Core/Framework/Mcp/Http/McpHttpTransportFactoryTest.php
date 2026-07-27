@@ -114,6 +114,43 @@ class McpHttpTransportFactoryTest extends TestCase
         static::assertStringNotContainsString('"properties":[]', (string) $response->getContent());
     }
 
+    public function testCreateResponseForcesEmptyNestedObjectPropertiesToAnObject(): void
+    {
+        // A nested object parameter with no members hits the same `[]` vs `{}` problem, one level
+        // deeper than the tool's top-level input schema.
+        $json = '{"jsonrpc":"2.0","id":1,"result":{"tools":[{"name":"t","inputSchema":{"type":"object","properties":{"filter":{"type":"object","properties":[]}}}}]}}';
+
+        $response = $this->factory()->createResponse($this->psrResponse('application/json', $json));
+
+        static::assertStringContainsString('"properties":{}', (string) $response->getContent());
+        static::assertStringNotContainsString('"properties":[]', (string) $response->getContent());
+    }
+
+    public function testCreateResponseForcesEmptyOutputSchemaPropertiesToAnObject(): void
+    {
+        $json = '{"jsonrpc":"2.0","id":1,"result":{"tools":[{"name":"t","inputSchema":{"type":"object","properties":{"q":{"type":"string"}}},"outputSchema":{"type":"object","properties":[]}}]}}';
+
+        $response = $this->factory()->createResponse($this->psrResponse('application/json', $json));
+
+        static::assertStringContainsString('"properties":{}', (string) $response->getContent());
+        static::assertStringNotContainsString('"properties":[]', (string) $response->getContent());
+    }
+
+    public function testCreateResponsePreservesResponseHeadersWhenRewritingTheBody(): void
+    {
+        // Rewriting the body must not drop headers the SDK set; the untouched path keeps them all,
+        // so the normalized path has to as well (including the Content-Type charset).
+        $json = '{"jsonrpc":"2.0","id":1,"result":{"tools":[{"name":"t","inputSchema":{"type":"object","properties":[]}}]}}';
+
+        $psrResponse = $this->psrResponse('application/json; charset=utf-8', $json)
+            ->withHeader('X-Custom-Header', 'kept');
+
+        $response = $this->factory()->createResponse($psrResponse);
+
+        static::assertSame('kept', $response->headers->get('X-Custom-Header'));
+        static::assertStringContainsString('charset=utf-8', (string) $response->headers->get('Content-Type'));
+    }
+
     public function testCreateResponseLeavesPopulatedToolPropertiesUntouched(): void
     {
         $json = '{"jsonrpc":"2.0","id":1,"result":{"tools":[{"name":"t","inputSchema":{"type":"object","properties":{"q":{"type":"string"}}}}]}}';

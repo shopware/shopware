@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
@@ -265,6 +266,7 @@ class ProductExportRendererTest extends TestCase
         $renderer->renderBody($productExport, $this->context, []);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testRenderBodyKeepsUrlLikeDescriptionsUnchanged(): void
     {
         $renderer = $this->createRenderer();
@@ -283,6 +285,7 @@ class ProductExportRendererTest extends TestCase
         static::assertSame('https://foo.com/barbaz is the address where you can find more about this product' . \PHP_EOL, $rendered);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testRenderBodyEncodesUrlsInNestedStructsWithoutMutatingThem(): void
     {
         $renderer = $this->createRenderer();
@@ -306,6 +309,7 @@ class ProductExportRendererTest extends TestCase
         static::assertSame('https://example.com/media/My Image, Front.jpg', $coverMedia->getUrl());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testRenderBodyEncodesNestedThumbnailUrlsWithoutMutatingThem(): void
     {
         $renderer = $this->createRenderer();
@@ -324,6 +328,7 @@ class ProductExportRendererTest extends TestCase
         static::assertSame('https://example.com/thumbnail/My Image.jpg', $thumbnail->getUrl());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testRenderBodyKeepsUnchangedStructsByIdentity(): void
     {
         $productExport = new ProductExportEntity();
@@ -360,6 +365,7 @@ class ProductExportRendererTest extends TestCase
         ]));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testRenderBodyDoesNotDoubleEncodeMediaUrls(): void
     {
         $renderer = $this->createRenderer();
@@ -378,6 +384,7 @@ class ProductExportRendererTest extends TestCase
         static::assertSame('https://example.com/media/My%20Image,%20Front.jpg?foo=hello%20world', $media->getUrl());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testRenderBodyKeepsNonUrlAndUnparsableUrlValues(): void
     {
         $renderer = $this->createRenderer();
@@ -393,6 +400,7 @@ class ProductExportRendererTest extends TestCase
         static::assertSame('Product feed https://' . \PHP_EOL, $rendered);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testRenderBodyKeepsInvalidMediaUrlsUnchanged(): void
     {
         $renderer = $this->createRenderer();
@@ -408,6 +416,24 @@ class ProductExportRendererTest extends TestCase
         ]);
 
         static::assertSame('https://cdn.example.com:99999/image.jpg' . \PHP_EOL, $rendered);
+    }
+
+    public function testRenderBodyPassesThroughMediaUrlsWhenV68IsActive(): void
+    {
+        $renderer = $this->createRenderer();
+        $productExport = new ProductExportEntity();
+        $productExport->setId(Uuid::randomHex());
+        $productExport->setBodyTemplate('{{ media.url }}');
+
+        $media = new MediaEntity();
+        $media->setUrl('https://example.com/media/My Image.jpg');
+
+        $rendered = $renderer->renderBody($productExport, $this->context, [
+            'media' => $media,
+        ]);
+
+        static::assertSame('https://example.com/media/My Image.jpg' . \PHP_EOL, $rendered);
+        static::assertSame('https://example.com/media/My Image.jpg', $media->getUrl());
     }
 
     /**

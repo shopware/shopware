@@ -127,6 +127,43 @@ class PromotionCalculatorTest extends TestCase
         static::assertEquals('Promotion second-promotion was excluded for cart.', $error->getMessage());
     }
 
+    public function testAlreadyPreservedPromotionIsNotRecalculated(): void
+    {
+        $discountItem = $this->getDiscountItem('promotion')
+            ->setPayloadValue('discountScope', PromotionDiscountEntity::SCOPE_SET);
+
+        $calculated = new Cart('calculated');
+        $calculated->add($discountItem);
+
+        $setScopeDiscountPackager = $this->createMock(DiscountPackager::class);
+        $setScopeDiscountPackager->expects($this->never())->method('getMatchingItems');
+
+        $calculator = new PromotionCalculator(
+            $this->createMock(AmountCalculator::class),
+            $this->createMock(AbsolutePriceCalculator::class),
+            $this->createMock(LineItemGroupBuilder::class),
+            $this->createMock(DiscountCompositionBuilder::class),
+            $this->createMock(PackageFilter::class),
+            $this->createMock(AdvancedPackagePicker::class),
+            $this->createMock(SetGroupScopeFilter::class),
+            $this->createMock(LineItemQuantitySplitter::class),
+            $this->createMock(PercentagePriceCalculator::class),
+            $this->createMock(DiscountPackager::class),
+            $this->createMock(DiscountPackager::class),
+            $setScopeDiscountPackager
+        );
+
+        $calculator->calculate(
+            new LineItemCollection([$discountItem]),
+            new Cart('original'),
+            $calculated,
+            $this->createMock(SalesChannelContext::class),
+            new CartBehavior()
+        );
+
+        static::assertSame($discountItem, $calculated->get($discountItem->getId()));
+    }
+
     public function testAddDiscountWithPackages(): void
     {
         $lineItem1 = new LineItem($this->ids->get('line-item-1'), LineItem::PRODUCT_LINE_ITEM_TYPE, $this->ids->get('line-item-1'));

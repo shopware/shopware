@@ -56,7 +56,7 @@
         width var(--sw-admin-menu-duration) var(--sw-admin-menu-bezier),
         padding var(--sw-admin-menu-duration) var(--sw-admin-menu-bezier);
 
-    @media screen and (max-width: 500px) {
+    @media screen and (max-width: 1280px) {
         width: 280px;
         position: absolute;
         top: 0;
@@ -493,7 +493,7 @@
 
         // The off-canvas menu always renders expanded — never apply the
         // collapsed header reset on mobile so the padding is kept.
-        @media screen and (min-width: 501px) {
+        @media screen and (min-width: 1281px) {
             .sw-admin-menu__header {
                 padding: 0;
                 margin: 0;

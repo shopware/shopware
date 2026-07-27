@@ -71,7 +71,7 @@ export default {
         },
 
         isMobileViewport() {
-            return this.viewportWidth !== null && this.viewportWidth <= 500;
+            return this.viewportWidth !== null && this.viewportWidth <= 1280;
         },
 
         userTitle() {

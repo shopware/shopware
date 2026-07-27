@@ -476,6 +476,24 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(wrapper.vm.isOffCanvasShown).toBe(false);
     });
 
+    it('should render the off-canvas toggle next to the full search bar', async () => {
+        wrapper = await createWrapper();
+
+        // The toggle used to sit inside the mobile controls, so it only existed in compact mode. It is
+        // rendered next to the search field now and hidden per media query above the off-canvas viewport.
+        expect(wrapper.find('.sw-search-bar__off-canvas-toggle').exists()).toBe(true);
+        expect(wrapper.find('.sw-search-bar__field-wrapper').exists()).toBe(true);
+        expect(wrapper.find('.sw-search-bar__mobile-controls').exists()).toBe(false);
+    });
+
+    it('should toggle the off-canvas menu when the toggle is clicked', async () => {
+        wrapper = await createWrapper();
+
+        await wrapper.find('.sw-search-bar__off-canvas-toggle').trigger('click');
+
+        expect(wrapper.vm.isOffCanvasShown).toBe(true);
+    });
+
     it('should search with repository when no service is set in searchTypeService', async () => {
         wrapper = await createWrapper(
             {

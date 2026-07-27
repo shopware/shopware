@@ -4,28 +4,29 @@
     {% block sw_search_bar_container %}
     <div class="sw-search-bar__container">
 
+        {% block sw_search_bar_button_off_canvas_toggle %}
+        <mt-button
+            class="sw-search-bar__off-canvas-toggle"
+            variant="tertiary"
+            size="default"
+            square
+            :aria-label="isOffCanvasShown ? $t('global.sw-admin-menu.linkCloseMenu') : $t('global.sw-admin-menu.linkExpandMenu')"
+            @click="toggleOffCanvas"
+        >
+            <template #iconFront>
+                <mt-icon
+                    name="regular-bars"
+                    size="20px"
+                />
+            </template>
+        </mt-button>
+        {% endblock %}
+
         {% block sw_search_bar_mobile_controls %}
         <div
             v-if="!isSearchBarShown"
             class="sw-search-bar__mobile-controls"
         >
-
-            {% block sw_search_bar_button_off_canvas_toggle %}
-            <button
-                class="sw-search-bar__button"
-                @click="toggleOffCanvas"
-            >
-                <mt-icon
-                    v-if="isOffCanvasShown"
-                    name="regular-times"
-                />
-                <mt-icon
-                    v-else
-                    name="regular-bars"
-                    size="20px"
-                />
-            </button>
-            {% endblock %}
 
             {% block sw_search_bar_button_search %}
             <button

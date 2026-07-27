@@ -714,9 +714,7 @@ export default {
                         });
                     } else {
                         this.createNotificationError({
-                            message: this.$t(
-                                'global.notification.notificationSaveErrorMessage',
-                            ),
+                            message: this.$t('global.notification.notificationSaveErrorMessage'),
                         });
                     }
                 })

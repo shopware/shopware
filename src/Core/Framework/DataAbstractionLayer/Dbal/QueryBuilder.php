@@ -97,7 +97,7 @@ class QueryBuilder extends DBALQueryBuilder
         $sql = $query->getUnmodifiedSQL();
 
         if ($this->title) {
-            $sql = '-- ' . str_replace(["\r", "\n"], ' ', $this->title) . \PHP_EOL . $sql;
+            $sql = '-- ' . self::sanitizeSqlComment($this->title) . \PHP_EOL . $sql;
         }
 
         return $sql;
@@ -165,6 +165,15 @@ class QueryBuilder extends DBALQueryBuilder
     public function getOrderByParts(): array
     {
         return $this->oderByParts;
+    }
+
+    /**
+     * SQL has no built-in escaping for line comments. Since only carriage returns and line feeds terminate a `--`
+     * comment in the supported database platforms, replacing them prevents the title from changing the query grammar.
+     */
+    private static function sanitizeSqlComment(string $comment): string
+    {
+        return str_replace(["\r", "\n"], ' ', $comment);
     }
 
     /**

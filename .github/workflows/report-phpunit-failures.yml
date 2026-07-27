@@ -1,8 +1,9 @@
 name: Report PHPUnit failures
 
 # Files (or updates) a tracking issue from the junit.xml artifacts of a failed scheduled
-# PHPUnit run, grouped by owning domain. Called by integration.yml and integration-major.yml,
-# which upload the `junit-phpunit-*` artifacts this consumes.
+# PHPUnit run, grouped by owning domain. Called by nightly.yml and nightly-major.yml;
+# the PHPUnit jobs of the run (redis, integration.yml, integration-major.yml, php.yml)
+# upload the `junit-phpunit-*` artifacts this consumes.
 
 on:
   workflow_call:

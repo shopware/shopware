@@ -118,18 +118,6 @@ jobs:
           if-no-files-found: ignore
           overwrite: true
 
-  # nightly (via nightly.yml): turn the red matrix into a domain-grouped tracking issue
-  report-scheduled-failures:
-    if: always() && github.event_name == 'schedule' && needs.phpunit.result == 'failure'
-    needs:
-      - phpunit
-    uses: ./.github/workflows/report-phpunit-failures.yml
-    permissions:
-      contents: read
-      issues: write
-    with:
-      report-title: "[nightly] Nightly PHPUnit failures"
-
   win-checkout:
     runs-on: windows-latest
     needs:

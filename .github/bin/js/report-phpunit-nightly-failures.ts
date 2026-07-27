@@ -171,8 +171,11 @@ export function resolvePackageKey(testFile: string, repoRoot: string): string | 
     return ownKey;
   }
 
-  // tests/{integration,unit}/ mirrors src/ — fall back to the mirrored directory.
-  const mirrored = testFile.replace(/^tests\/(?:integration|unit)\//, 'src/');
+  // tests/{integration,unit}/ mirrors src/, tests/migration/<Bundle>/ mirrors
+  // src/<Bundle>/Migration/ — fall back to the mirrored directory.
+  const mirrored = testFile
+    .replace(/^tests\/(?:integration|unit)\//, 'src/')
+    .replace(/^tests\/migration\/([^/]+)\//, 'src/$1/Migration/');
   if (mirrored === testFile) {
     return null;
   }
@@ -222,7 +225,9 @@ function buildReportLines(groups: DomainGroup[], runUrl: string): string[] {
 
   if (groups.length === 0) {
     lines.push('');
-    lines.push('No junit reports were produced — the run failed before PHPUnit could report. Check the run logs.');
+    lines.push(
+      'No junit reports were produced — the failure is outside PHPUnit, or a shard died before reporting. Check the run logs.'
+    );
     return lines;
   }
 

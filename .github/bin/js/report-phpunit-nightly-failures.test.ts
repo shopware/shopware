@@ -91,6 +91,15 @@ describe('resolvePackageKey', () => {
     assert.equal(resolvePackageKey('tests/integration/Core/Content/Product/ProductTest.php', repoRoot), 'inventory');
   });
 
+  it('maps migration tests to the bundle Migration directory', () => {
+    mkdirSync(join(repoRoot, 'tests/migration/Core/V6_8'), { recursive: true });
+    writeFileSync(join(repoRoot, 'tests/migration/Core/V6_8/Migration1Test.php'), '<?php\nclass Migration1Test {}\n');
+    mkdirSync(join(repoRoot, 'src/Core/Migration/V6_8'), { recursive: true });
+    writeFileSync(join(repoRoot, 'src/Core/Migration/V6_8/Migration1.php'), "<?php\n#[Package('framework')]\nclass Migration1 {}\n");
+
+    assert.equal(resolvePackageKey('tests/migration/Core/V6_8/Migration1Test.php', repoRoot), 'framework');
+  });
+
   it('returns null when nothing resolves', () => {
     assert.equal(resolvePackageKey('tests/integration/Nowhere/MissingTest.php', repoRoot), null);
     assert.equal(resolvePackageKey('', repoRoot), null);

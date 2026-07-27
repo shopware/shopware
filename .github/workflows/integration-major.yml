@@ -98,18 +98,6 @@ jobs:
           if-no-files-found: ignore
           overwrite: true
 
-  # nightly (via nightly-major.yml): turn the red matrix into a domain-grouped tracking issue
-  report-scheduled-failures:
-    if: always() && github.event_name == 'schedule' && needs.phpunit-major.result == 'failure'
-    needs:
-      - phpunit-major
-    uses: ./.github/workflows/report-phpunit-failures.yml
-    permissions:
-      contents: read
-      issues: write
-    with:
-      report-title: "[nightly] Nightly Major PHPUnit failures"
-
   # single required/monitorable status for the whole major matrix
   integration-major-check:
     # Skip cleanly on unlabeled PRs so they don't get a confusing status; otherwise aggregate the matrix result.

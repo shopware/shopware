@@ -94,7 +94,6 @@ class PromotionIndividualCodeRedeemerTest extends TestCase
         $code->setId(Uuid::randomHex());
         $code->setCode('existing');
 
-        /** @var StaticEntityRepository<PromotionIndividualCodeCollection> $codeRepository */
         $codeRepository = new StaticEntityRepository([
             static function (Criteria $criteria) use ($code) {
                 $filter = $criteria->getFilters()[0];
@@ -160,7 +159,6 @@ class PromotionIndividualCodeRedeemerTest extends TestCase
 
     public function testPayloadWithoutTypeIsSkipped(): void
     {
-        /** @var StaticEntityRepository<PromotionIndividualCodeCollection> $codeRepository */
         $codeRepository = new StaticEntityRepository([]);
 
         $redeemer = new PromotionIndividualCodeRedeemer(

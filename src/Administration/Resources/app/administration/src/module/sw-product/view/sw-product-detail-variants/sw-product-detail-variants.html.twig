@@ -13,33 +13,45 @@
             v-if="!isLoading && propertiesAvailable"
             #tabs
         >
-            <sw-tabs
-                position-identifier="sw-variant-card-tabs"
-                :small="false"
-                :default-item="defaultTab"
-                @new-item-active="setActiveTab($event.name)"
-            >
-                <sw-tabs-item
-                    name="all"
-                    :active-tab="activeTab"
-                >
-                    {{ $t('sw-product.variations.variationCard.tabs.allProducts') }}
-                </sw-tabs-item>
+            <template v-if="feature.isActive('v6.8.0.0')">
+                <mt-tabs
+                    position-identifier="sw-variant-card-tabs"
+                    :default-item="activeTab"
+                    :items="variantCardTabs"
+                    :small="true"
+                    @new-item-active="setActiveTab($event)"
+                />
+            </template>
 
-                <sw-tabs-item
-                    name="physical"
-                    :active-tab="activeTab"
+            <template v-else>
+                <sw-tabs
+                    position-identifier="sw-variant-card-tabs"
+                    :small="false"
+                    :default-item="defaultTab"
+                    @new-item-active="setActiveTab($event.name)"
                 >
-                    {{ $t('sw-product.variations.variationCard.tabs.physicalProducts') }}
-                </sw-tabs-item>
+                    <sw-tabs-item
+                        name="all"
+                        :active-tab="activeTab"
+                    >
+                        {{ $t('sw-product.variations.variationCard.tabs.allProducts') }}
+                    </sw-tabs-item>
 
-                <sw-tabs-item
-                    name="digital"
-                    :active-tab="activeTab"
-                >
-                    {{ $t('sw-product.variations.variationCard.tabs.digitalProducts') }}
-                </sw-tabs-item>
-            </sw-tabs>
+                    <sw-tabs-item
+                        name="physical"
+                        :active-tab="activeTab"
+                    >
+                        {{ $t('sw-product.variations.variationCard.tabs.physicalProducts') }}
+                    </sw-tabs-item>
+
+                    <sw-tabs-item
+                        name="digital"
+                        :active-tab="activeTab"
+                    >
+                        {{ $t('sw-product.variations.variationCard.tabs.digitalProducts') }}
+                    </sw-tabs-item>
+                </sw-tabs>
+            </template>
         </template>
 
         <sw-skeleton v-if="isLoading" />

@@ -9,6 +9,7 @@ import type { NavigationGuardNext, RouteLocationNormalized, RouteLocationNormali
 // Import explicitly global types from meteor-admin-sdk
 import '@shopware-ag/meteor-admin-sdk';
 import type FeatureService from 'src/app/service/feature.service';
+import type CacheService from 'src/app/service/cache.service';
 import type { LoginService } from 'src/core/service/login.service';
 import type { AxiosInstance } from 'axios';
 import type { ShopwareClass } from 'src/core/shopware';
@@ -242,6 +243,7 @@ declare global {
         appCmsService: $TSFixMe;
         appModulesService: AppModulesService;
         businessEventService: BusinessEventsApiService;
+        cacheService: CacheService;
         cartStoreService: CartStoreService;
         checkoutStoreService: CheckoutStoreService;
         cmsBlockFavorites: cmsBlockFavoritesService;

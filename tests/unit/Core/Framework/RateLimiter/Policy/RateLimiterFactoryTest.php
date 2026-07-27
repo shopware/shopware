@@ -130,13 +130,13 @@ class RateLimiterFactoryTest extends TestCase
         static::assertInstanceOf(SystemConfigLimiter::class, $factory->create('example', 'sales-channel-id'));
     }
 
-    public function testFactoryScopesLimiterIdBySalesChannelId(): void
+    public function testFactoryKeepsLimiterIdUnscopedWhenSalesChannelIdGiven(): void
     {
         $storage = $this->createMock(StorageInterface::class);
         $storage
             ->expects($this->atLeastOnce())
             ->method('fetch')
-            ->with('test_limiter-sales-channel-id-example')
+            ->with('test_limiter-example')
             ->willReturn(null);
 
         $factory = new RateLimiterFactory(

@@ -59,7 +59,7 @@ class RateLimiter
         $factory?->create($key)->reset();
     }
 
-    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'salesChannelId', parameterType: '?string', defaultValue: null, description: 'Sales channel id used to resolve sales-channel scoped limits for limiters using the system_config policy and to track consumption per sales channel.')]
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'salesChannelId', parameterType: '?string', defaultValue: null, description: 'Sales channel id used to resolve sales-channel scoped limits for the system_config policy.')]
     public function ensureAccepted(string $route, string $key/* , ?string $salesChannelId = null */): void
     {
         /** @deprecated tag:v6.8.0 - Remove next line as $salesChannelId will become a part of method signature */

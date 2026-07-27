@@ -44,7 +44,7 @@ class RateLimiterFactory
     ) {
     }
 
-    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'salesChannelId', parameterType: '?string', defaultValue: null, description: 'Sales channel id used to resolve sales-channel scoped limits for the system_config policy and to track consumption per sales channel.')]
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'salesChannelId', parameterType: '?string', defaultValue: null, description: 'Sales channel id used to resolve sales-channel scoped limits for the system_config policy.')]
     public function create(?string $key = null/* , ?string $salesChannelId = null */): LimiterInterface
     {
         /** @deprecated tag:v6.8.0 - Remove next line as $salesChannelId will become a part of method signature */
@@ -55,7 +55,7 @@ class RateLimiterFactory
             return new NoLimiter();
         }
 
-        $id = $this->config['id'] . '-' . ($salesChannelId !== null ? $salesChannelId . '-' : '') . (string) $key;
+        $id = $this->config['id'] . '-' . (string) $key;
         $lock = $this->lockFactory ? $this->lockFactory->createLock($id) : new NoLock();
 
         if (isset($this->config['reset']) && !($this->config['reset'] instanceof \DateInterval)) {

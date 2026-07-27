@@ -6,12 +6,6 @@
 
 ## Core
 
-### Sales-channel scoped rate limits for the `system_config` policy
-
-Rate limiters using the `system_config` policy previously resolved their limits from the global system configuration only. A limit configured for a specific sales channel — for example "Maximum addable products to cart per minute through API" in the cart settings, which the Administration offers per sales channel — was saved but never applied.
-
-`RateLimiter::ensureAccepted()` and `RateLimiterFactory::create()` now accept an optional sales channel id, passed as an additional argument; the parameter becomes part of the declared method signature with v6.8.0 (see the `#[NewOptionalParameter]` attributes). When given, `system_config` limits are resolved with that scope and consumption is tracked in a separate bucket per sales channel. The core cart line-item limiter now passes the sales channel of the current context, so per-sales-channel values of `core.cart.lineItemAddLimit` take effect. Plugins using their own `system_config` rate limiters can pass their sales channel id the same way; existing calls without the argument keep the previous global behaviour.
-
 ### Built-in translation system configurable via `shopware.translation`
 
 The built-in translation system's configuration (previously only editable by decorating `AbstractTranslationConfigLoader`) can now be overridden through the standard Symfony configuration in `config/packages`. Add a `shopware.translation` section to override individual options; any option left unset falls back to the shipped defaults in `translation.yaml`:
@@ -73,6 +67,14 @@ All existing `reason:*` BC-planning annotations in the core have been migrated t
 ### Product export scheduling decoupled from the cache timestamp
 
 Cron-driven product export generation no longer derives the next run from `generatedAt`, which also anchors the cache validity of the generated feed file. A new `nextGenerationAt` field on the `product_export` entity is set when the first export chunk starts, and the scheduler prefers it over the legacy `generatedAt` + interval calculation. This keeps the schedule anchored to the export start time without making storefront requests treat in-flight exports as stale. The database column is added automatically by a migration; exports generated before the update fall back to the previous `generatedAt`-based scheduling until their next run. No action is required.
+
+### Sales-channel scoped limits for `system_config` rate limiters
+
+Rate limiters using the `system_config` policy resolved their limits from the global system configuration only. A limit configured for a specific sales channel — for example "Maximum addable products to cart per minute through API" in the cart settings, which the Administration offers per sales channel — was saved but never applied.
+
+`RateLimiter::ensureAccepted()`, `RateLimiterFactory::create()` and `NoLimitRateLimiterFactory::create()` now accept an optional sales channel id. Until v6.8.0 the parameter is not part of the declared signatures and can only be passed positionally (see the `#[NewOptionalParameter]` attributes); classes overriding these methods must add the parameter before v6.8.0. When given, the id is used to resolve `system_config` limits with that scope — it does not change which bucket consumption is counted in, and policies other than `system_config` ignore it. Callers that want separate consumption per sales channel include the sales channel id in their limiter key.
+
+The core cart line-item limiter now does both: `CartItemAddRoute` resolves `core.cart.lineItemAddLimit` for the current sales channel and includes the sales channel id in its rate-limiter key. Consequences for operators: per-sales-channel values of this setting now take effect; a limit configured globally now applies per sales channel rather than shop-wide; and because the key changed, in-flight cart-add counters restart once when updating. A sales-channel value of `0` cannot lift a globally configured limit, since empty values fall back to the global configuration.
 
 ## Administration
 

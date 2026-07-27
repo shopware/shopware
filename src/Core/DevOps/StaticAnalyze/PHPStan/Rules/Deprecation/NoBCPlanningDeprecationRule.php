@@ -30,6 +30,7 @@ class NoBCPlanningDeprecationRule implements Rule
         'reason:return-type-change' => 'Use the #[ReturnTypeNarrowing] or #[ReturnTypeWidening] attribute instead.',
         'reason:parameter-type-change' => 'Use the #[ParameterTypeNarrowing] attribute instead.',
         'reason:parameter-type-extension' => 'Use the #[ParameterTypeWidening] attribute instead.',
+        'reason:parameter-default-change' => 'Use the #[ParameterDefaultValueChange] attribute instead.',
         'reason:new-optional-parameter' => 'Use the #[NewOptionalParameter] attribute instead.',
         'reason:parameter-name-change' => 'Use the #[ParameterNameChange] attribute instead.',
         'reason:becomes-internal' => 'Use the #[BecomesInternal] attribute instead.',

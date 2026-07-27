@@ -33,8 +33,12 @@ class NoBCPlanningDeprecationRuleTest extends RuleTestCase
                 21,
             ],
             [
+                'The deprecation reason "reason:parameter-default-change" is a BC-planning note, not a deprecation. Remove the deprecation annotation. Use the #[ParameterDefaultValueChange] attribute instead.',
+                28,
+            ],
+            [
                 'The deprecation reason "reason:exception-change" is a BC-planning note, not a deprecation. Remove the deprecation annotation. Use the #[ExceptionChange] attribute instead.',
-                35,
+                42,
             ],
         ]);
     }

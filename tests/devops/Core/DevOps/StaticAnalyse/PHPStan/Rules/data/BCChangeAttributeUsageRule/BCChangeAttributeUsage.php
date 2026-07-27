@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterDefaultValueChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
@@ -236,6 +237,34 @@ class ExceptionChangeCases
      */
     #[ExceptionChange(version: 'v6.8.0', newExceptions: [])]
     public function removedExceptionIsARealChange(): void
+    {
+    }
+}
+
+class ParameterDefaultValueChangeCases
+{
+    #[ParameterDefaultValueChange(version: 'v6.8.0', parameterName: 'missing', newDefaultValue: 'new')]
+    public function missingParameter(string $value = 'old'): void
+    {
+    }
+
+    #[ParameterDefaultValueChange(version: 'v6.8.0', parameterName: 'required', newDefaultValue: 'new')]
+    public function requiredParameter(string $required): void
+    {
+    }
+
+    #[ParameterDefaultValueChange(version: 'v6.8.0', parameterName: 'value', newDefaultValue: 'old')]
+    public function unchangedDefault(string $value = 'old'): void
+    {
+    }
+
+    #[ParameterDefaultValueChange(version: 'v6.8.0', parameterName: 'value', newDefaultValue: null)]
+    public function defaultChangesToNull(?string $value = 'old'): void
+    {
+    }
+
+    #[ParameterDefaultValueChange(version: 'v6.8.0', parameterName: 'scopes', newDefaultValue: ['system', 'crud'])]
+    public function defaultChangesToArray(array $scopes = ['system']): void
     {
     }
 }

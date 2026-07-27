@@ -28,7 +28,6 @@ final readonly class DocumentGenerationRequest
      */
     public function __construct(
         public string $orderId,
-        public string $orderVersionId,
         DocumentType|string $documentType,
         array $requestedFormats,
         public ?string $documentNumber = null,
@@ -50,7 +49,6 @@ final readonly class DocumentGenerationRequest
     {
         return new self(
             $this->orderId,
-            $this->orderVersionId,
             $this->documentType,
             $this->requestedFormats,
             $documentNumber,

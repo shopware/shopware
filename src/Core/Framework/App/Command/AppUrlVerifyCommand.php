@@ -15,11 +15,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'app:url:verify',
     description: 'Check the status of the app URL and force verification',
 )]
-#[Package('framework')]
 class AppUrlVerifyCommand extends Command
 {
     public function __construct(

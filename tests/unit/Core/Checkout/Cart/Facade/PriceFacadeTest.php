@@ -35,8 +35,8 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[CoversClass(PriceFacade::class)]
 #[Package('checkout')]
+#[CoversClass(PriceFacade::class)]
 class PriceFacadeTest extends TestCase
 {
     public function testLineItemsGetUpdatePriceDefinition(): void

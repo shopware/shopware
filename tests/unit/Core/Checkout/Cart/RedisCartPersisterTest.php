@@ -26,8 +26,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[CoversClass(RedisCartPersister::class)]
 #[Package('checkout')]
+#[CoversClass(RedisCartPersister::class)]
 class RedisCartPersisterTest extends TestCase
 {
     public function testDecorated(): void

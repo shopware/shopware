@@ -15,8 +15,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(Validator::class)]
 #[Package('checkout')]
+#[CoversClass(Validator::class)]
 class ValidatorTest extends TestCase
 {
     public function testValidate(): void

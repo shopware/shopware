@@ -68,7 +68,6 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
         $newsletterRecipientEntity->setStatus(NewsletterSubscribeRoute::STATUS_OPT_IN);
 
-        /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
         $entityRepository = new StaticEntityRepository([
             [$newsletterRecipientEntity->getId()],
             new NewsletterRecipientCollection([$newsletterRecipientEntity]),
@@ -123,7 +122,6 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
         $newsletterRecipientEntity->setStatus(NewsletterSubscribeRoute::STATUS_DIRECT);
 
-        /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
         $entityRepository = new StaticEntityRepository([
             [$newsletterRecipientEntity->getId()],
             new NewsletterRecipientCollection([$newsletterRecipientEntity]),
@@ -176,7 +174,6 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterRecipientEntity->setId(Uuid::randomHex());
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
 
-        /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
         $entityRepository = new StaticEntityRepository([
             [$newsletterRecipientEntity->getId()],
             new NewsletterRecipientCollection([$newsletterRecipientEntity]),
@@ -255,7 +252,6 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterRecipientEntity->setId(Uuid::randomHex());
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
 
-        /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
         $entityRepository = new StaticEntityRepository([
             [$newsletterRecipientEntity->getId()],
             new NewsletterRecipientCollection([$newsletterRecipientEntity]),

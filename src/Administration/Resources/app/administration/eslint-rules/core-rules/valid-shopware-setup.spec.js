@@ -129,9 +129,13 @@ const doubled: number = previousState.count.value * 2;
 swDefineOverride({ doubled });
 </script>`,
         },
-    ],
 
-    invalid: [
+        // Constraints that belong to Vue, not to this rule. The transform passes these through so Vue's
+        // own compiler reports them, which means the rule must not flag them.
+        //
+        // A destructured props macro is left in place: `defineProps()` gets Vue 3.5's
+        // reactive-props-destructure rewrite, and `withDefaults()` gets Vue's own "reactive destructure
+        // disabled" advice.
         {
             filename: 'base-destructured-props.vue',
             code: `<script setup lang="ts">
@@ -139,15 +143,6 @@ const { initialCount = 0 } = defineProps<{ initialCount?: number }>();
 const count = initialCount;
 swDefinePublic({ count });
 </script>`,
-            errors: [
-                {
-                    message:
-                        'Destructuring defineProps() is not supported in Shopware setup blocks: defaults declared through '
-                        + 'destructuring (const { count = 1 } = defineProps()) are not applied. Assign the macro to a '
-                        + 'variable such as `const props = defineProps(...)` and read `props.<name>`, and use '
-                        + '`withDefaults(defineProps(...), { ... })` for defaults.',
-                },
-            ],
         },
         {
             filename: 'base-destructured-props-with-defaults.vue',
@@ -158,12 +153,77 @@ const { initialCount = 0 } = withDefaults(defineProps<{ initialCount?: number }>
 const count = initialCount;
 swDefinePublic({ count });
 </script>`,
+        },
+        // Macro arguments reading a local: Vue lifts macro arguments into the options object and hoists a
+        // statically analysable local up there with them, rejecting only what it cannot hoist. Both
+        // outcomes are Vue's to report - the transform does not inspect these arguments at all.
+        {
+            filename: 'base-with-defaults-local-binding.vue',
+            code: `<script setup lang="ts">
+const defaultCount = 1;
+const props = withDefaults(defineProps<{ initialCount?: number }>(), {
+    initialCount: defaultCount,
+});
+const count = props.initialCount;
+swDefinePublic({ count });
+</script>`,
+        },
+        {
+            filename: 'base-define-props-local-binding.vue',
+            code: `<script setup lang="ts">
+const defaultCount = 1;
+const props = defineProps({
+    initialCount: {
+        default: defaultCount,
+    },
+});
+const count = props.initialCount;
+swDefinePublic({ count });
+</script>`,
+        },
+        {
+            filename: 'base-define-emits-local-binding.vue',
+            code: `<script setup lang="ts">
+const events = ['save'];
+const emit = defineEmits(events);
+const count = 1;
+swDefinePublic({ count });
+</script>`,
+        },
+        {
+            filename: 'base-define-options-local-binding.vue',
+            code: `<script setup>
+const inheritAttrs = false;
+defineOptions({
+    inheritAttrs,
+});
+const count = 1;
+swDefinePublic({ count });
+</script>`,
+        },
+    ],
+
+    invalid: [
+        // Written for the removed macro-argument guard, but it is still rejected - for an unrelated
+        // reason. The local shorthand happens to share the declared prop's name, which the runtime would
+        // strip from returned state.
+        {
+            filename: 'base-with-defaults-local-shorthand.vue',
+            code: `<script setup lang="ts">
+const initialCount = 1;
+const props = withDefaults(defineProps<{ initialCount?: number }>(), {
+    initialCount,
+});
+const count = props.initialCount;
+swDefinePublic({ count });
+</script>`,
             errors: [
                 {
                     message:
-                        'Destructuring the props object is not supported in Shopware setup blocks. Assign '
-                        + '`withDefaults(defineProps(...), { ... })` to a variable such as `const props = ...` and read '
-                        + '`props.<name>`.',
+                        'Setup binding "initialCount" has the same name as a declared prop. The extendable setup runtime '
+                        + 'removes declared prop keys from returned state, so this binding would be deleted and its '
+                        + 'template reference would read undefined. Rename the binding and read the prop through the '
+                        + 'props object (props.initialCount).',
                 },
             ],
         },
@@ -238,91 +298,6 @@ swDefineOverride({});
             errors: [
                 {
                     message: 'defineOptions() is only supported in base Shopware setup blocks.',
-                },
-            ],
-        },
-        {
-            filename: 'base-with-defaults-local-binding.vue',
-            code: `<script setup lang="ts">
-const defaultCount = 1;
-const props = withDefaults(defineProps<{ initialCount?: number }>(), {
-    initialCount: defaultCount,
-});
-const count = props.initialCount;
-swDefinePublic({ count });
-</script>`,
-            errors: [
-                {
-                    message:
-                        'withDefaults() arguments are hoisted outside the Shopware setup callback and must not reference local setup bindings. Use inline literals or imported constants instead.',
-                },
-            ],
-        },
-        {
-            filename: 'base-with-defaults-local-shorthand.vue',
-            code: `<script setup lang="ts">
-const initialCount = 1;
-const props = withDefaults(defineProps<{ initialCount?: number }>(), {
-    initialCount,
-});
-const count = props.initialCount;
-swDefinePublic({ count });
-</script>`,
-            errors: [
-                {
-                    message:
-                        'withDefaults() arguments are hoisted outside the Shopware setup callback and must not reference local setup bindings. Use inline literals or imported constants instead.',
-                },
-            ],
-        },
-        {
-            filename: 'base-define-props-local-binding.vue',
-            code: `<script setup lang="ts">
-const defaultCount = 1;
-const props = defineProps({
-    initialCount: {
-        default: defaultCount,
-    },
-});
-const count = props.initialCount;
-swDefinePublic({ count });
-</script>`,
-            errors: [
-                {
-                    message:
-                        'defineProps() arguments are hoisted outside the Shopware setup callback and must not reference local setup bindings. Use inline literals or imported constants instead.',
-                },
-            ],
-        },
-        {
-            filename: 'base-define-emits-local-binding.vue',
-            code: `<script setup lang="ts">
-const events = ['save'];
-const emit = defineEmits(events);
-const count = 1;
-swDefinePublic({ count });
-</script>`,
-            errors: [
-                {
-                    message:
-                        'defineEmits() arguments are hoisted outside the Shopware setup callback and must not reference local setup bindings. Use inline literals or imported constants instead.',
-                },
-            ],
-        },
-        {
-            filename: 'base-define-options-local-binding.vue',
-            code: `<script setup>
-const inheritAttrs = false;
-defineOptions({
-    inheritAttrs,
-});
-const count = 1;
-swDefinePublic({ count });
-</script>`,
-            errors: [
-                {
-                    message:
-                        'defineOptions() arguments are hoisted outside the Shopware setup callback and must not reference local setup bindings. Use inline literals or imported constants instead.',
                 },
             ],
         },

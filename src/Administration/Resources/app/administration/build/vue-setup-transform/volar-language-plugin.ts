@@ -152,7 +152,10 @@ function collectShopwareSetupVolarDiagnostics(fileName: string, sfc: VueSfcDescr
                 throw error;
             }
 
-            const token = findIdentifierTokenAtOffset(block, error.index);
+            // A positionless error (`index === null`) cannot be anchored to a token, so there is nothing
+            // to underline and nothing to mask - masking is what lets the loop find the next error, so
+            // continuing would spin. Report what we have and stop.
+            const token = error.index === null ? null : findIdentifierTokenAtOffset(block, error.index);
 
             if (!token) {
                 return diagnostics;

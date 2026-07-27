@@ -180,23 +180,43 @@ class ThemeCompilerTest extends TestCase
 
     public function testFormatVariablesArrayConvertsToNonAssociativeArrayWithValidScssSyntax(): void
     {
-        $formatVariables = new \ReflectionMethod(ThemeCompiler::class, 'formatVariables');
+        $config = new StorefrontPluginConfiguration('test');
+        $config->setThemeConfig([
+            'fields' => [
+                'sw-color-brand-primary' => [
+                    'name' => 'sw-color-brand-primary',
+                    'type' => 'color',
+                    'value' => '#008490',
+                ],
+                'sw-color-brand-secondary' => [
+                    'name' => 'sw-color-brand-secondary',
+                    'type' => 'color',
+                    'value' => '#526e7f',
+                ],
+                'sw-border-color' => [
+                    'name' => 'sw-border-color',
+                    'type' => 'color',
+                    'value' => '#bcc1c7',
+                ],
+            ],
+        ]);
 
-        $variables = [
-            'sw-color-brand-primary' => '#008490',
-            'sw-color-brand-secondary' => '#526e7f',
-            'sw-border-color' => '#bcc1c7',
-        ];
+        $this->getThemeCompiler()->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'themeId',
+            $config,
+            new StorefrontPluginConfigurationCollection(),
+            false,
+            Context::createDefaultContext()
+        );
 
-        $actual = $formatVariables->invoke($this->getThemeCompiler(), $variables);
-
-        $expected = [
+        $expected = implode(\PHP_EOL, [
             '$sw-color-brand-primary: #008490;',
             '$sw-color-brand-secondary: #526e7f;',
             '$sw-border-color: #bcc1c7;',
-        ];
+        ]);
 
-        static::assertSame($expected, $actual);
+        static::assertStringContainsString($expected, $this->tempFilesystem->read('theme-variables.scss'));
     }
 
     /**
@@ -205,16 +225,24 @@ class ThemeCompilerTest extends TestCase
     #[DataProvider('configForDumpVariables')]
     public function testDumpVariables(array $config, string $expected): void
     {
-        $dumpVariables = new \ReflectionMethod(ThemeCompiler::class, 'dumpVariables');
+        $themeConfig = new StorefrontPluginConfiguration('test');
+        $themeConfig->setThemeConfig($config);
 
-        $actual = $dumpVariables->invoke($this->getThemeCompiler(), $config, 'themeId', $this->mockSalesChannelId, Context::createDefaultContext());
+        $this->getThemeCompiler()->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'themeId',
+            $themeConfig,
+            new StorefrontPluginConfigurationCollection(),
+            false,
+            Context::createDefaultContext()
+        );
 
-        static::assertSame($expected, $actual);
+        static::assertSame($expected, $this->tempFilesystem->read('theme-variables.scss'));
+        static::assertSame($expected, $this->tempFilesystem->read('theme-variables/themeId.scss'));
     }
 
     public static function configForDumpVariables(): \Generator
     {
-        // The resulting color values will be #ffffff00 because the scsscompiler is just a mock and the fallback will replace the real values
         yield 'finds config fields and returns string with scss variables' => [
             [
                 'fields' => [

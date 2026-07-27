@@ -34,9 +34,9 @@ class ThemeConfigField extends Struct
     protected ?string $type = null;
 
     /**
-     * @deprecated tag:v6.8.0 - Property will be typed natively as array|bool|float|int|string
+     * @deprecated tag:v6.8.0 - Property will be typed natively as array|bool|float|int|string|null
      *
-     * @var array<mixed>|bool|float|int|string
+     * @var array<mixed>|bool|float|int|string|null
      *
      * @phpstan-ignore shopware.propertyNativeType (Will be natively typed with next major)
      */
@@ -132,24 +132,24 @@ class ThemeConfigField extends Struct
     }
 
     /**
-     * @return array<mixed>|bool|float|int|string
+     * @return array<mixed>|bool|float|int|string|null
      */
-    #[ReturnTypeWidening(version: 'v6.8.0', newType: 'array|bool|float|int|string')]
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: 'array|bool|float|int|string|null')]
     public function getValue()
     {
         return $this->value;
     }
 
     /**
-     * @param array<mixed>|bool|float|int|string $value
+     * @param array<mixed>|bool|float|int|string|null $value
      */
-    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'value', newType: 'array|bool|float|int|string')]
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'value', newType: 'array|bool|float|int|string|null')]
     public function setValue($value): void
     {
-        if (!\is_array($value) && !\is_scalar($value)) {
+        if ($value !== null && !\is_array($value) && !\is_scalar($value)) {
             Feature::triggerDeprecationOrThrow(
                 'v6.8.0.0',
-                'Passing a value that is neither an array, boolean, float, integer, nor string is deprecated and will not be allowed in v6.8.0.0.'
+                'Passing a value that is neither an array, boolean, float, integer, string, nor null is deprecated and will not be allowed in v6.8.0.0.'
             );
         }
 

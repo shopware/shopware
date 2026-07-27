@@ -22,6 +22,8 @@ abstract class MigrationStep
 
     private const MAX_INT_32_BIT = 2147483647;
 
+    private const NON_STANDARD_FK_GUARD = 'restrict_fk_on_non_standard_key';
+
     /**
      * get creation timestamp
      */
@@ -98,6 +100,48 @@ abstract class MigrationStep
             'SHOW INDEXES FROM `' . $table . '` WHERE `key_name` LIKE :index',
             ['index' => $index]
         );
+    }
+
+    /**
+     * Runs DDL with `restrict_fk_on_non_standard_key` relaxed for the current session.
+     *
+     * MySQL 8.4 enables that guard by default, and while it is on, MySQL bug #118151 makes any
+     * `ALTER TABLE` / `CREATE INDEX` on a table fail with `Cannot drop index '<unknown key name>':
+     * needed in a foreign key constraint` when the table is involved in a foreign key with a
+     * non-standard supporting key. Shops carrying such drift cannot upgrade without this.
+     *
+     * On MariaDB and MySQL < 8.4 the variable does not exist and the callback just runs as-is.
+     *
+     * @see https://bugs.mysql.com/bug.php?id=118151
+     *
+     * @internal Temporary workaround, will be removed once MySQL fixes bug #118151
+     */
+    protected function withRelaxedNonStandardFkGuard(Connection $connection, \Closure $ddl): void
+    {
+        // Empty result means the server does not know the variable. More reliable than parsing
+        // VERSION(), which reports strings like "5.5.5-10.11.2-MariaDB" that compare as >= 8.4.
+        $guard = $connection->fetchAssociative(
+            'SHOW SESSION VARIABLES LIKE :variable',
+            ['variable' => self::NON_STANDARD_FK_GUARD]
+        );
+
+        if ($guard === false) {
+            $ddl();
+
+            return;
+        }
+
+        $connection->executeStatement('SET SESSION ' . self::NON_STANDARD_FK_GUARD . ' = OFF');
+
+        try {
+            $ddl();
+        } finally {
+            $connection->executeStatement(\sprintf(
+                'SET SESSION %s = %s',
+                self::NON_STANDARD_FK_GUARD,
+                $connection->quote((string) $guard['Value'])
+            ));
+        }
     }
 
     protected function dropTableIfExists(Connection $connection, string $table): void

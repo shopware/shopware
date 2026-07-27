@@ -31,6 +31,25 @@ shopware:
 
 List options (`plugins`, `excluded_locales`, `plugin_mapping`, `languages`) replace the shipped default entirely rather than merging; provide the full list you want. Setting a list to `[]` clears the shipped default. Decorating `AbstractTranslationConfigLoader` continues to work; a decorator that fully replaces `load()` bypasses these config overrides.
 
+### Product migrations no longer fail on MySQL 8.4 with non-standard foreign keys
+
+MySQL 8.4 enables `restrict_fk_on_non_standard_key` by default. While that guard is on, MySQL bug [#118151](https://bugs.mysql.com/bug.php?id=118151) makes any `ALTER TABLE` or `CREATE INDEX` on a table fail with `Cannot drop index '<unknown key name>': needed in a foreign key constraint` when that table is involved in a foreign key with a non-standard supporting key. Shops carrying such drift from older Shopware versions or from extensions could not run product-table migrations at all.
+
+All core migrations doing DDL on the `product` table now run that DDL with the guard relaxed for the current session, restoring the previous value afterwards. On MariaDB and MySQL versions without the variable, nothing changes.
+
+Extension migrations can hit the same failure. `MigrationStep::withRelaxedNonStandardFkGuard()` wraps the affected DDL:
+
+```php
+public function update(Connection $connection): void
+{
+    $this->withRelaxedNonStandardFkGuard($connection, function () use ($connection): void {
+        $connection->executeStatement('ALTER TABLE `product` ADD COLUMN `my_column` VARCHAR(32) NULL');
+    });
+}
+```
+
+The method is marked `@internal` because it exists only until MySQL fixes bug #118151, but it is safe to call from extension migrations in the meantime.
+
 ### Polyfill packages are installed as declared dependencies
 
 The `shopware/core` and `shopware/platform` package manifests no longer replace Symfony polyfill packages or `paragonie/random_compat`. Composer now installs the polyfills required by the resolved dependency graph instead of treating them as supplied by Shopware. Extension projects that depend on these packages continue to work; their production dependency tree can gain the required polyfill packages. Projects that guarantee the required native PHP functionality can add relevant packages to their own root `replace` section to avoid installing them and reduce their vendor directory size; they must not replace `symfony/polyfill-mbstring`, which Core requires for `mb_ltrim()` on PHP 8.2 and 8.3.

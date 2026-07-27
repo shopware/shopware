@@ -64,6 +64,8 @@ class Migration1726049442UpdateVariantListingConfigInProductTable extends Migrat
             return;
         }
 
-        $connection->executeStatement('ALTER TABLE `product` MODIFY `display_group` VARCHAR(64) NULL');
+        $this->withRelaxedNonStandardFkGuard($connection, function () use ($connection): void {
+            $connection->executeStatement('ALTER TABLE `product` MODIFY `display_group` VARCHAR(64) NULL');
+        });
     }
 }

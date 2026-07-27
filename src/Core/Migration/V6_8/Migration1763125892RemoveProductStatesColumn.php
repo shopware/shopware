@@ -25,6 +25,8 @@ class Migration1763125892RemoveProductStatesColumn extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        $this->dropColumnIfExists($connection, 'product', 'states');
+        $this->withRelaxedNonStandardFkGuard($connection, function () use ($connection): void {
+            $this->dropColumnIfExists($connection, 'product', 'states');
+        });
     }
 }

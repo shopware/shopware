@@ -29,9 +29,14 @@ class StoreApiSchemaMigrationReporter
 
     public const SCOPE_ALL = 'all';
 
-    private readonly string $schemaPath;
+    private const PLATFORM_NAMESPACES = [
+        'Shopware\\Administration\\',
+        'Shopware\\Core\\',
+        'Shopware\\Elasticsearch\\',
+        'Shopware\\Storefront\\',
+    ];
 
-    private readonly string $sourcePath;
+    private readonly string $schemaPath;
 
     private readonly string $allowlistPath;
 
@@ -41,9 +46,7 @@ class StoreApiSchemaMigrationReporter
         private readonly Filesystem $filesystem = new Filesystem(),
         ?string $schemaPath = null,
         ?string $allowlistPath = null,
-        ?string $sourcePath = null,
     ) {
-        $this->sourcePath = $sourcePath ?? \dirname(__DIR__, 5);
         $this->schemaPath = $schemaPath ?? __DIR__ . '/Schema/StoreApi';
         $this->allowlistPath = $allowlistPath ?? __DIR__ . '/StoreApiPhpGeneratedSchemaAllowlist.json';
     }
@@ -215,12 +218,13 @@ class StoreApiSchemaMigrationReporter
 
     private function isCoreDefinition(EntityDefinition $definition): bool
     {
-        $filename = (new \ReflectionClass($definition))->getFileName();
-        if ($filename === false) {
-            return false;
+        foreach (self::PLATFORM_NAMESPACES as $namespace) {
+            if (str_starts_with($definition::class, $namespace)) {
+                return true;
+            }
         }
 
-        return str_starts_with($filename, $this->sourcePath . '/');
+        return false;
     }
 
     private function shouldIncludeReferenceOnly(EntityDefinition $definition): bool

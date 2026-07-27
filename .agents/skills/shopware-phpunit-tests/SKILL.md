@@ -19,6 +19,7 @@ Tests should read like executable examples.
 - Keep test helpers smaller than the code they replace.
 - Do not hide assertions or feature-flag toggling behind abstractions when direct assertions are just as readable.
 - Prefer one focused test per distinct exception or behavior over broad data providers when each case has its own meaning.
+- Do not use reflection to access non-public methods (`new \ReflectionMethod(...)`, `ReflectionClass::getMethod()`, `setAccessible()`). Test the behavior through the public API, or restructure the code (e.g. extract the logic into a collaborator with a public contract) so it is testable without reflection. A Danger rule blocks new usage; fix legacy usages when touching such a test. Reflection on public methods (attribute scanning, signature assertions) stays allowed.
 
 ## Assertions And Fixtures
 

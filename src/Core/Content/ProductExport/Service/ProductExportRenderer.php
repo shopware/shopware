@@ -112,7 +112,7 @@ class ProductExportRenderer implements ProductExportRendererInterface
         }
 
         if (!Feature::isActive('v6.8.0.0')) {
-            // @deprecated tag:v6.8.0.0 - MediaUrlGenerator encodes media paths.
+            // @deprecated tag:v6.8.0 - MediaUrlGenerator encodes media paths.
             $data = $this->encodeMediaUrls($data);
         }
 

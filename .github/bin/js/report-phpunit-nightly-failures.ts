@@ -24,11 +24,20 @@ interface DomainGroup {
   tests: FailedTest[];
 }
 
-interface IssuePayload {
+interface IssueContent {
   issueTitle: string;
   issueMarker: string;
   issueBody: string;
   commentBody: string;
+}
+
+interface DomainIssue extends IssueContent {
+  label: string | null;
+}
+
+interface IssuePayload {
+  parent: IssueContent;
+  domains: DomainIssue[];
 }
 
 export const ISSUE_MARKER = '<!-- nightly-phpunit-failures -->';
@@ -216,12 +225,17 @@ function formatTest(test: FailedTest): string {
   return `- \`${shortClass}::${test.testName}\`${message}`;
 }
 
-function buildReportLines(groups: DomainGroup[], runUrl: string): string[] {
+function testCount(count: number): string {
+  return count === 1 ? '1 failing test' : `${count} failing tests`;
+}
+
+const TRIAGE_NOTE =
+  'Grouping uses the test files\' `#[Package]` markers only. Root-cause clustering, routing overrides, ' +
+  'and re-routing between the domain sub-issues are the deep-triage pass, see `.agents/skills/nightly-triage/SKILL.md`.';
+
+function buildParentLines(groups: DomainGroup[], runUrl: string): string[] {
   const totalCount = groups.reduce((sum, group) => sum + group.tests.length, 0);
-  const lines = [
-    `Run: ${runUrl}`,
-    `Failing tests: ${totalCount}`,
-  ];
+  const lines = [`Run: ${runUrl}`, `Failing tests: ${totalCount}`];
 
   if (groups.length === 0) {
     lines.push('');
@@ -231,49 +245,79 @@ function buildReportLines(groups: DomainGroup[], runUrl: string): string[] {
     return lines;
   }
 
+  lines.push('');
   for (const group of groups) {
     const packageKeys = group.packageKeys.size > 0 ? [...group.packageKeys].sort().join(', ') : 'none resolved';
-    const testCount = group.tests.length === 1 ? '1 failing test' : `${group.tests.length} failing tests`;
-    lines.push('');
-    lines.push('<details>');
-    lines.push(`<summary><b>${group.label}</b>: ${testCount} (package keys: ${packageKeys})</summary>`);
-    lines.push('');
-    for (const test of group.tests.slice(0, MAX_TESTS_PER_DOMAIN)) {
-      lines.push(formatTest(test));
-    }
-    if (group.tests.length > MAX_TESTS_PER_DOMAIN) {
-      lines.push(`- …and ${group.tests.length - MAX_TESTS_PER_DOMAIN} more, see the run logs.`);
-    }
-    lines.push('');
-    lines.push('</details>');
+    lines.push(`- **${group.label}**: ${testCount(group.tests.length)} (package keys: ${packageKeys})`);
   }
-
   lines.push('');
-  lines.push(
-    'Grouping uses the test files\' `#[Package]` markers only. Root-cause clustering, ' +
-      'routing overrides, and per-domain filing are the deep-triage pass, see `.agents/skills/nightly-triage/SKILL.md`.'
-  );
+  lines.push('Per-domain details live in the sub-issues.');
+  lines.push('');
+  lines.push(TRIAGE_NOTE);
+
+  return lines;
+}
+
+function buildDomainLines(group: DomainGroup, runUrl: string): string[] {
+  const lines = [`Run: ${runUrl}`, `Failing tests: ${group.tests.length}`, ''];
+
+  for (const test of group.tests.slice(0, MAX_TESTS_PER_DOMAIN)) {
+    lines.push(formatTest(test));
+  }
+  if (group.tests.length > MAX_TESTS_PER_DOMAIN) {
+    lines.push(`- …and ${group.tests.length - MAX_TESTS_PER_DOMAIN} more, see the run logs.`);
+  }
 
   return lines;
 }
 
 export function buildIssuePayload(issueTitle: string, groups: DomainGroup[], runUrl: string): IssuePayload {
-  const reportLines = buildReportLines(groups, runUrl);
-  const issueBody = [
-    ISSUE_MARKER,
-    `# ${issueTitle}`,
-    '',
-    'This issue tracks failing scheduled PHPUnit runs. New failures are added as comments.',
-    '',
-    'Latest failure:',
-    '',
-    ...reportLines,
-  ]
-    .join('\n')
-    .trimEnd();
-  const commentBody = [ISSUE_MARKER, '## Scheduled PHPUnit failure update', '', ...reportLines].join('\n').trimEnd();
+  const parentLines = buildParentLines(groups, runUrl);
+  const parent: IssueContent = {
+    issueTitle,
+    issueMarker: ISSUE_MARKER,
+    issueBody: [
+      ISSUE_MARKER,
+      `# ${issueTitle}`,
+      '',
+      'This issue tracks failing scheduled PHPUnit runs: one sub-issue per owning domain, new failures are added as comments.',
+      '',
+      'Latest failure:',
+      '',
+      ...parentLines,
+    ]
+      .join('\n')
+      .trimEnd(),
+    commentBody: [ISSUE_MARKER, '## Scheduled PHPUnit failure update', '', ...parentLines].join('\n').trimEnd(),
+  };
 
-  return { issueTitle, issueMarker: ISSUE_MARKER, issueBody, commentBody };
+  const domains = groups.map((group): DomainIssue => {
+    const slug = group.label === UNROUTED_LABEL ? 'needs-manual-routing' : group.label;
+    const marker = `<!-- nightly-phpunit-failures:${slug} -->`;
+    const title = `${issueTitle}: ${group.label}`;
+    const lines = buildDomainLines(group, runUrl);
+
+    return {
+      issueTitle: title,
+      issueMarker: marker,
+      label: group.label === UNROUTED_LABEL ? null : group.label,
+      issueBody: [
+        marker,
+        `# ${title}`,
+        '',
+        'Failing scheduled PHPUnit tests grouped to this domain by their `#[Package]` markers. New failures are added as comments.',
+        '',
+        'Latest failure:',
+        '',
+        ...lines,
+      ]
+        .join('\n')
+        .trimEnd(),
+      commentBody: [marker, '## Scheduled PHPUnit failure update', '', ...lines].join('\n').trimEnd(),
+    };
+  });
+
+  return { parent, domains };
 }
 
 function collectXmlFiles(directory: string): string[] {

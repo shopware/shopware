@@ -42,7 +42,7 @@ jobs:
             "$RUNNER_TEMP/junit-reports" \
             "$RUNNER_TEMP/phpunit-failure-issue-payload.json"
 
-      - name: Create or update tracking issue
+      - name: Create or update tracking issues
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         env:
           ISSUE_PAYLOAD_FILE: ${{ runner.temp }}/phpunit-failure-issue-payload.json
@@ -50,35 +50,70 @@ jobs:
           script: |
             const fs = require('node:fs');
             const payload = JSON.parse(fs.readFileSync(process.env.ISSUE_PAYLOAD_FILE, 'utf8'));
-            const marker = payload.issueMarker;
+            const { owner, repo } = context.repo;
 
-            const issues = await github.paginate(github.rest.issues.listForRepo, {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
+            const openIssues = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
               state: 'open',
               per_page: 100,
             });
 
-            const existingIssue = issues.find((issue) =>
-              issue.title === payload.issueTitle && typeof issue.body === 'string' && issue.body.includes(marker)
-            );
+            // comment on the tracked issue when one is open, create it otherwise
+            const upsert = async (content, labels) => {
+              const existing = openIssues.find((issue) =>
+                issue.title === content.issueTitle
+                  && typeof issue.body === 'string'
+                  && issue.body.includes(content.issueMarker)
+              );
 
-            if (existingIssue) {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: existingIssue.number,
-                body: payload.commentBody,
+              if (existing) {
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: existing.number,
+                  body: content.commentBody,
+                });
+                core.info(`Added comment to issue #${existing.number}`);
+                return existing;
+              }
+
+              const created = await github.rest.issues.create({
+                owner,
+                repo,
+                title: content.issueTitle,
+                body: content.issueBody,
+                labels,
               });
-              core.info(`Added comment to issue #${existingIssue.number}`);
-              return;
-            }
+              core.info(`Created issue #${created.data.number}`);
+              return created.data;
+            };
 
-            const createdIssue = await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: payload.issueTitle,
-              body: payload.issueBody,
+            const parent = await upsert(payload.parent, []);
+
+            const subIssues = await github.paginate('GET /repos/{owner}/{repo}/issues/{issue_number}/sub_issues', {
+              owner,
+              repo,
+              issue_number: parent.number,
+              per_page: 100,
             });
+            const linkedIds = new Set(subIssues.map((issue) => issue.id));
 
-            core.info(`Created issue #${createdIssue.data.number}`);
+            for (const domain of payload.domains) {
+              const issue = await upsert(domain, domain.label ? [domain.label] : []);
+
+              if (linkedIds.has(issue.id)) {
+                continue;
+              }
+              try {
+                await github.request('POST /repos/{owner}/{repo}/issues/{issue_number}/sub_issues', {
+                  owner,
+                  repo,
+                  issue_number: parent.number,
+                  sub_issue_id: issue.id,
+                  replace_parent: true,
+                });
+              } catch (error) {
+                core.warning(`Could not link #${issue.number} as sub-issue of #${parent.number}: ${error.message}`);
+              }
+            }

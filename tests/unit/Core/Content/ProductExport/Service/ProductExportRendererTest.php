@@ -6,6 +6,7 @@ use Monolog\Level;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
@@ -264,22 +265,22 @@ class ProductExportRendererTest extends TestCase
         $renderer->renderBody($productExport, $this->context, []);
     }
 
-    public function testRenderBodyEncodesUrlsInNestedData(): void
+    public function testRenderBodyKeepsUrlLikeDescriptionsUnchanged(): void
     {
         $renderer = $this->createRenderer();
         $productExport = new ProductExportEntity();
         $productExport->setId(Uuid::randomHex());
-        $productExport->setBodyTemplate('{{ custom.nested.url }}');
+        $productExport->setBodyTemplate('{{ custom.nested.description }}');
 
         $rendered = $renderer->renderBody($productExport, $this->context, [
             'custom' => [
                 'nested' => [
-                    'url' => 'https://example.com/media/My Image, Front.jpg?width=100#preview',
+                    'description' => 'https://foo.com/barbaz is the address where you can find more about this product',
                 ],
             ],
         ]);
 
-        static::assertSame('https://example.com/media/My%20Image,%20Front.jpg?width=100#preview' . \PHP_EOL, $rendered);
+        static::assertSame('https://foo.com/barbaz is the address where you can find more about this product' . \PHP_EOL, $rendered);
     }
 
     public function testRenderBodyEncodesUrlsInNestedStructsWithoutMutatingThem(): void
@@ -303,6 +304,24 @@ class ProductExportRendererTest extends TestCase
         $coverMedia = $cover->getMedia();
         static::assertNotNull($coverMedia);
         static::assertSame('https://example.com/media/My Image, Front.jpg', $coverMedia->getUrl());
+    }
+
+    public function testRenderBodyEncodesNestedThumbnailUrlsWithoutMutatingThem(): void
+    {
+        $renderer = $this->createRenderer();
+        $productExport = new ProductExportEntity();
+        $productExport->setId(Uuid::randomHex());
+        $productExport->setBodyTemplate('{{ media.thumbnail.url }}');
+
+        $thumbnail = new MediaThumbnailEntity();
+        $thumbnail->setUrl('https://example.com/thumbnail/My Image.jpg');
+
+        $media = new ArrayStruct(['thumbnail' => $thumbnail]);
+
+        $rendered = $renderer->renderBody($productExport, $this->context, ['media' => $media]);
+
+        static::assertSame('https://example.com/thumbnail/My%20Image.jpg' . \PHP_EOL, $rendered);
+        static::assertSame('https://example.com/thumbnail/My Image.jpg', $thumbnail->getUrl());
     }
 
     public function testRenderBodyKeepsUnchangedStructsByIdentity(): void
@@ -341,18 +360,22 @@ class ProductExportRendererTest extends TestCase
         ]));
     }
 
-    public function testRenderBodyDoesNotDoubleEncodeUrls(): void
+    public function testRenderBodyDoesNotDoubleEncodeMediaUrls(): void
     {
         $renderer = $this->createRenderer();
         $productExport = new ProductExportEntity();
         $productExport->setId(Uuid::randomHex());
-        $productExport->setBodyTemplate('{{ url }}');
+        $productExport->setBodyTemplate('{{ media.url }}');
+
+        $media = new MediaEntity();
+        $media->setUrl('https://example.com/media/My%20Image,%20Front.jpg?foo=hello%20world');
 
         $rendered = $renderer->renderBody($productExport, $this->context, [
-            'url' => 'https://example.com/media/My%20Image,%20Front.jpg?foo=hello%20world',
+            'media' => $media,
         ]);
 
         static::assertSame('https://example.com/media/My%20Image,%20Front.jpg?foo=hello%20world' . \PHP_EOL, $rendered);
+        static::assertSame('https://example.com/media/My%20Image,%20Front.jpg?foo=hello%20world', $media->getUrl());
     }
 
     public function testRenderBodyKeepsNonUrlAndUnparsableUrlValues(): void
@@ -370,15 +393,18 @@ class ProductExportRendererTest extends TestCase
         static::assertSame('Product feed https://' . \PHP_EOL, $rendered);
     }
 
-    public function testRenderBodyKeepsOriginalValueForInvalidUrls(): void
+    public function testRenderBodyKeepsInvalidMediaUrlsUnchanged(): void
     {
         $renderer = $this->createRenderer();
         $productExport = new ProductExportEntity();
         $productExport->setId(Uuid::randomHex());
-        $productExport->setBodyTemplate('{{ url }}');
+        $productExport->setBodyTemplate('{{ media.url }}');
+
+        $media = new MediaEntity();
+        $media->setUrl('https://cdn.example.com:99999/image.jpg');
 
         $rendered = $renderer->renderBody($productExport, $this->context, [
-            'url' => 'https://cdn.example.com:99999/image.jpg',
+            'media' => $media,
         ]);
 
         static::assertSame('https://cdn.example.com:99999/image.jpg' . \PHP_EOL, $rendered);

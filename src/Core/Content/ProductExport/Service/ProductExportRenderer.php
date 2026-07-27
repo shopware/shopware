@@ -4,6 +4,8 @@ namespace Shopware\Core\Content\ProductExport\Service;
 
 use GuzzleHttp\Psr7\Uri;
 use Monolog\Level;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderFooterContextEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderHeaderContextEvent;
@@ -111,7 +113,8 @@ class ProductExportRenderer implements ProductExportRendererInterface
         try {
             return $this->templateRenderer->render(
                 $bodyTemplate,
-                $this->encodeUrls($data),
+                // $this->encodeMediaUrls($data),
+                $data,
                 $salesChannelContext->getContext()
             ) . \PHP_EOL;
         } catch (AdapterException $exception) {
@@ -127,10 +130,10 @@ class ProductExportRenderer implements ProductExportRendererInterface
      *
      * @return array<string, mixed>
      */
-    private function encodeUrls(array $data): array
+    private function encodeMediaUrls(array $data): array
     {
         foreach ($data as $key => $value) {
-            $encodedValue = $this->encodeUrl($value);
+            $encodedValue = $this->encodeMediaUrl($value);
 
             if ($encodedValue !== $value) {
                 $data[$key] = $encodedValue;
@@ -140,18 +143,10 @@ class ProductExportRenderer implements ProductExportRendererInterface
         return $data;
     }
 
-    private function encodeUrl(mixed $value): mixed
+    private function encodeMediaUrl(mixed $value): mixed
     {
-        if (\is_string($value) && preg_match('#^https?://[^/\s]#i', $value) === 1) {
-            try {
-                return (string) new Uri($value);
-            } catch (\InvalidArgumentException) {
-                return $value;
-            }
-        }
-
         if (\is_array($value)) {
-            return $this->encodeUrls($value);
+            return $this->encodeMediaUrls($value);
         }
 
         if (!$value instanceof Struct) {
@@ -159,7 +154,21 @@ class ProductExportRenderer implements ProductExportRendererInterface
         }
 
         $variables = $value->getVars();
-        $encodedVariables = $this->encodeUrls($variables);
+        $encodedVariables = $this->encodeMediaUrls($variables);
+
+        if ($value instanceof MediaEntity || $value instanceof MediaThumbnailEntity) {
+            $encodedUrl = $this->encodeUrl($value->getUrl());
+
+            if ($encodedVariables === $variables && $encodedUrl === $value->getUrl()) {
+                return $value;
+            }
+
+            $copy = clone $value;
+            $copy->assign($encodedVariables);
+            $copy->setUrl($encodedUrl);
+
+            return $copy;
+        }
 
         if ($encodedVariables === $variables) {
             return $value;
@@ -169,6 +178,15 @@ class ProductExportRenderer implements ProductExportRendererInterface
         $copy->assign($encodedVariables);
 
         return $copy;
+    }
+
+    private function encodeUrl(string $url): string
+    {
+        try {
+            return (string) new Uri($url);
+        } catch (\InvalidArgumentException) {
+            return $url;
+        }
     }
 
     private function logException(

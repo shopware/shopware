@@ -36,16 +36,16 @@ class ProductExportRendererBench extends AbstractBenchCase
         $this->renderer->renderBody($this->productExport, $this->context, $this->data);
     }
 
-    #[BeforeMethods(['setUpWithoutUrlBenchmark'])]
+    #[BeforeMethods(['setUpWithCompliantMediaUrlBenchmark'])]
     #[AfterMethods(['tearDown'])]
-    public function bench_render_body_without_urls(): void
+    public function bench_render_body_with_compliant_media_url(): void
     {
         $this->renderer->renderBody($this->productExport, $this->context, $this->data);
     }
 
-    #[BeforeMethods(['setUpWithNestedUrlBenchmark'])]
+    #[BeforeMethods(['setUpWithUnencodedMediaUrlBenchmark'])]
     #[AfterMethods(['tearDown'])]
-    public function bench_render_body_with_nested_url(): void
+    public function bench_render_body_with_unencoded_media_url(): void
     {
         $this->renderer->renderBody($this->productExport, $this->context, $this->data);
     }
@@ -57,12 +57,12 @@ class ProductExportRendererBench extends AbstractBenchCase
         $this->data = ['name' => 'Simple product'];
     }
 
-    public function setUpWithoutUrlBenchmark(): void
+    public function setUpWithCompliantMediaUrlBenchmark(): void
     {
-        $this->setUpBenchmark('Product image.jpg');
+        $this->setUpBenchmark('https://example.com/media/Product%20image.jpg');
     }
 
-    public function setUpWithNestedUrlBenchmark(): void
+    public function setUpWithUnencodedMediaUrlBenchmark(): void
     {
         $this->setUpBenchmark('https://example.com/media/Product image.jpg');
     }

@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Content\Seo;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Framework\Context;
@@ -23,23 +22,18 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(SeoUrlPersister::class)]
 class SeoUrlPersisterTest extends TestCase
 {
-    private Connection&MockObject $connection;
-
     private SeoUrlPersister $seoUrlPersister;
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
-        $this->seoUrlPersister = new SeoUrlPersister(
-            $this->connection,
-            static::createStub(EntityRepository::class),
-            static::createStub(EventDispatcherInterface::class),
-            new NativeClock()
-        );
+        $this->seoUrlPersister = $this->createSeoUrlPersister(static::createStub(Connection::class));
     }
 
     public function testUpdateSeoUrlsWithNewSeoPaths(): void
     {
+        $connection = $this->createMock(Connection::class);
+        $seoUrlPersister = $this->createSeoUrlPersister($connection);
+
         $seoUrls = [
             [
                 'languageId' => Uuid::randomHex(),
@@ -59,21 +53,21 @@ class SeoUrlPersisterTest extends TestCase
             ],
         ];
 
-        $this->connection->expects($this->once())
+        $connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([]);
 
-        $this->connection->expects($this->never())
+        $connection->expects($this->never())
             ->method('fetchOne')
             ->willReturn([]);
 
-        $this->connection->expects($this->never())
+        $connection->expects($this->never())
             ->method('executeStatement');
 
         $seoChannel = new SalesChannelEntity();
         $seoChannel->setId(Uuid::randomHex());
 
-        $this->seoUrlPersister->updateSeoUrls(
+        $seoUrlPersister->updateSeoUrls(
             Context::createDefaultContext(),
             'test-route',
             [
@@ -227,6 +221,9 @@ class SeoUrlPersisterTest extends TestCase
 
     public function testForceUpdateSeoUrlsPersistsNewSeoPaths(): void
     {
+        $connection = $this->createMock(Connection::class);
+        $seoUrlPersister = $this->createSeoUrlPersister($connection);
+
         $seoUrls = [
             [
                 'languageId' => Uuid::randomHex(),
@@ -238,20 +235,20 @@ class SeoUrlPersisterTest extends TestCase
             ],
         ];
 
-        $this->connection->expects($this->once())
+        $connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([]);
 
-        $this->connection->expects($this->never())
+        $connection->expects($this->never())
             ->method('fetchOne');
 
-        $this->connection->expects($this->never())
+        $connection->expects($this->never())
             ->method('executeStatement');
 
         $seoChannel = new SalesChannelEntity();
         $seoChannel->setId(Uuid::randomHex());
 
-        $this->seoUrlPersister->forceUpdateSeoUrls(
+        $seoUrlPersister->forceUpdateSeoUrls(
             Context::createDefaultContext(),
             'test-route',
             [
@@ -264,6 +261,9 @@ class SeoUrlPersisterTest extends TestCase
 
     public function testUpdateSeoUrlsWithInuseSeoPaths(): void
     {
+        $connection = $this->createMock(Connection::class);
+        $seoUrlPersister = $this->createSeoUrlPersister($connection);
+
         $seoUrls = [
             [
                 'languageId' => Uuid::randomHex(),
@@ -287,7 +287,7 @@ class SeoUrlPersisterTest extends TestCase
         $id2 = Uuid::randomBytes();
         $expectedIds = [$id1, $id2];
 
-        $this->connection->expects($this->once())
+        $connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([
                 [
@@ -306,11 +306,11 @@ class SeoUrlPersisterTest extends TestCase
                 ],
             ]);
 
-        $this->connection->expects($this->exactly(2))
+        $connection->expects($this->exactly(2))
             ->method('fetchOne')
             ->willReturnOnConsecutiveCalls($id1, $id2);
 
-        $this->connection->expects($this->once())
+        $connection->expects($this->once())
             ->method('executeStatement')
             ->with(
                 'UPDATE seo_url SET is_canonical = 1, is_modified = 1 WHERE id IN (:ids)',
@@ -321,7 +321,7 @@ class SeoUrlPersisterTest extends TestCase
         $seoChannel = new SalesChannelEntity();
         $seoChannel->setId(Uuid::randomHex());
 
-        $this->seoUrlPersister->updateSeoUrls(
+        $seoUrlPersister->updateSeoUrls(
             Context::createDefaultContext(),
             'test-route',
             [
@@ -342,5 +342,15 @@ class SeoUrlPersisterTest extends TestCase
         $reflection->setAccessible(true);
 
         return (bool) $reflection->invoke($this->seoUrlPersister, $existing, $seoUrl, $overwrite);
+    }
+
+    private function createSeoUrlPersister(Connection $connection): SeoUrlPersister
+    {
+        return new SeoUrlPersister(
+            $connection,
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            new NativeClock()
+        );
     }
 }

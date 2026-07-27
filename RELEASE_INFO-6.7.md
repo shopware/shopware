@@ -72,7 +72,25 @@ Cron-driven product export generation no longer derives the next run from `gener
 
 ### System config component exposes the selected sales channel scope
 
-The `sw-system-config` component now tells embedded components which sales channel the merchant has selected in the scope switcher. The `card-element`, `beforeElements` and `afterElements` slots receive an additional `currentSalesChannelId` slot prop, and the same value is available for injection under the key `swSystemConfigCurrentSalesChannelId`. Injection is the intended route for custom components rendered through a plugin's `config.xml` component elements, which have no access to the slot props. The provided value is a computed ref: components using the Options API read the injected value directly, `setup`-based components read `.value`. Previously the only way to follow the scope switcher was traversing `$parent` into private component state, which breaks across Administration refactors. The value is `null` while the global scope is selected. Existing slot usages are unaffected, the slots only gain a prop.
+The `sw-system-config` component now exposes which sales channel is selected in its scope switcher. The value follows the switcher, not the `salesChannelId` prop, and is `null` while the global scope is selected.
+
+The value is available on two surfaces, because they reach different consumers:
+
+* Slot props: the `card-element`, `card-element-last`, `beforeElements` and `afterElements` slots receive an additional `currentSalesChannelId` prop. A template override that replaces one of these slots keeps its own copy of the `v-bind` expression and will not see the new prop until it is re-synced against this version.
+* Injection: descendants of the component, in particular custom components rendered through a plugin's `config.xml` component elements, can inject the value. Use the defaulted form, so the component stays warning-free when it renders outside a system config form:
+
+```js
+inject: {
+    swSystemConfigCurrentSalesChannelId: {
+        from: 'swSystemConfigCurrentSalesChannelId',
+        default: null,
+    },
+},
+```
+
+The provided value is a read-only computed ref. Components using the Options API read the injected value directly; `setup`-based components receive the ref and read `.value`. Note that the form body is torn down and rebuilt while the configuration of a not yet visited sales channel loads, so embedded components must not assume instance continuity across a switch.
+
+Existing slot usages keep working unchanged. Previously, following the switcher required traversing `$parent` into private component state or overriding `sw-system-config` itself, both of which break across Administration refactors.
 
 ## Storefront
 

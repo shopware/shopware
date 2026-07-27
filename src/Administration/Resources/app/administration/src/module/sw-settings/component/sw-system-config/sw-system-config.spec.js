@@ -6,6 +6,7 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
+import { computed, inject } from 'vue';
 import ShopwareError from 'src/core/data/ShopwareError';
 import { MtTextField, MtUrlField } from '@shopware-ag/meteor-component-library';
 import kebabCase from 'lodash-es/kebabCase';
@@ -16,7 +17,7 @@ import 'src/app/filter/unicode-uri';
 /** @type Wrapper */
 let wrapper;
 
-async function createWrapper(defaultValues = {}, config = createConfig(), slots = {}) {
+async function createWrapper(defaultValues = {}, config = createConfig(), slots = {}, components = {}) {
     const systemConfigApiService = {
         getConfig: jest.fn(() => Promise.resolve(config)),
         getValues: jest.fn((domain, salesChannelId) => {
@@ -36,6 +37,7 @@ async function createWrapper(defaultValues = {}, config = createConfig(), slots 
             domain: 'ConfigRenderer.config',
         },
         global: {
+            components,
             directives: {
                 tooltip: {},
                 popover: {},
@@ -1457,6 +1459,11 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         await flushPromises();
 
         expect(wrapper.find('.test-scope-slot').text()).toBe(uuid.get('headless'));
+
+        wrapper.vm.onSalesChannelChanged(null);
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-slot').text()).toBe('global');
     });
 
     it('should expose the current sales channel id on the beforeElements and afterElements slots', async () => {
@@ -1485,10 +1492,14 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
     it('should provide the current sales channel id to embedded components', async () => {
         const scopeProbe = {
             template: '<div class="test-scope-probe">{{ label }}</div>',
-            inject: ['swSystemConfigCurrentSalesChannelId'],
+            inject: {
+                swSystemConfigCurrentSalesChannelId: {
+                    from: 'swSystemConfigCurrentSalesChannelId',
+                    default: null,
+                },
+            },
             computed: {
                 label() {
-                    // Options API inject unwraps the provided computed ref
                     const salesChannelId = this.swSystemConfigCurrentSalesChannelId;
 
                     return salesChannelId === null ? 'global' : salesChannelId;
@@ -1507,5 +1518,54 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         await flushPromises();
 
         expect(wrapper.find('.test-scope-probe').text()).toBe(uuid.get('headless'));
+
+        const probeVm = wrapper.findComponent(scopeProbe).vm;
+
+        wrapper.vm.onSalesChannelChanged(null);
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-probe').text()).toBe('global');
+        expect(wrapper.findComponent(scopeProbe).vm).toBe(probeVm);
+    });
+
+    it('should provide the current sales channel id to components rendered through config.xml', async () => {
+        const setupProbe = {
+            template: '<div class="test-scope-setup">{{ label }}</div>',
+            setup() {
+                const salesChannelId = inject('swSystemConfigCurrentSalesChannelId');
+
+                return { label: computed(() => salesChannelId.value ?? 'global') };
+            },
+        };
+
+        wrapper = await createWrapper(
+            {},
+            [
+                {
+                    name: 'probeCard',
+                    title: { 'en-GB': 'Probe card' },
+                    elements: [
+                        {
+                            name: 'ConfigRenderer.config.probeField',
+                            type: 'text',
+                            config: {
+                                componentName: 'test-scope-setup-probe',
+                                label: { 'en-GB': 'probe field' },
+                            },
+                        },
+                    ],
+                },
+            ],
+            {},
+            { 'test-scope-setup-probe': setupProbe },
+        );
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-setup').text()).toBe('global');
+
+        wrapper.vm.onSalesChannelChanged(uuid.get('headless'));
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-setup').text()).toBe(uuid.get('headless'));
     });
 });

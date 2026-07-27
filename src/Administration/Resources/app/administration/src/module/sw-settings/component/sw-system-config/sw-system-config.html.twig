@@ -97,7 +97,10 @@
                     {% endblock %}
                 </slot>
             </template>
-            <slot name="card-element-last"></slot>
+            <slot
+                name="card-element-last"
+                v-bind="{ card, config: actualConfigData[currentSalesChannelId], currentSalesChannelId }"
+            ></slot>
         </template>
 
         <slot

@@ -32,8 +32,11 @@ export default {
 
     inject: ['systemConfigApiService'],
 
-    // Components rendered through config.xml component elements have no access to the
-    // slot props, injection is the only way for them to follow the scope switcher.
+    /**
+     * @public
+     * The sales channel selected in the scope switcher, `null` for the global scope.
+     * Also reaches components that receive no slot props, like custom config.xml components.
+     */
     provide() {
         return {
             swSystemConfigCurrentSalesChannelId: computed(() => this.currentSalesChannelId),

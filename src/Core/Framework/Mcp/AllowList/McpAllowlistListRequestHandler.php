@@ -51,7 +51,7 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
      */
     public function __construct(
         private readonly RegistryInterface $registry,
-        private readonly McpAllowlistProvider $allowlistProvider,
+        private readonly ?McpAllowlistProvider $allowlistProvider,
         private readonly int $pageSize,
         private readonly array $advertisedTools = [self::TOOL_SEARCH],
         private readonly ?McpToolsetRegistry $toolsetRegistry = null,
@@ -92,7 +92,7 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
      */
     private function handleListTools(ListToolsRequest $request): Response
     {
-        $allowlist = $this->allowlistProvider->forCurrentRequest();
+        $allowlist = $this->allowlistProvider?->forCurrentRequest() ?? McpAllowlist::unrestricted();
 
         $tools = $this->collectTools(
             $this->registry->getTools()->references,
@@ -152,7 +152,7 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
      */
     private function handleListResources(ListResourcesRequest $request): Response
     {
-        $allowlist = $this->allowlistProvider->forCurrentRequest();
+        $allowlist = $this->allowlistProvider?->forCurrentRequest() ?? McpAllowlist::unrestricted();
 
         if ($allowlist->resources === null) {
             $page = $this->registry->getResources($this->pageSize, $request->cursor);
@@ -175,7 +175,7 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
      */
     private function handleListPrompts(ListPromptsRequest $request): Response
     {
-        $allowlist = $this->allowlistProvider->forCurrentRequest();
+        $allowlist = $this->allowlistProvider?->forCurrentRequest() ?? McpAllowlist::unrestricted();
 
         if ($allowlist->prompts === null) {
             $page = $this->registry->getPrompts($this->pageSize, $request->cursor);

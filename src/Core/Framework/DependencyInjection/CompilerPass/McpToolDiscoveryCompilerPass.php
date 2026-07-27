@@ -23,10 +23,12 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
-        $container->setParameter('shopware.mcp.tool_dependencies', []);
-        $container->setParameter('shopware.mcp.tool_privileges', []);
-        $container->setParameter('shopware.mcp.advertised_tools', []);
-        $container->setParameter('shopware.mcp.tool_groups', []);
+        foreach (['shopware.mcp.', 'shopware.store_api_mcp.'] as $paramPrefix) {
+            $container->setParameter($paramPrefix . 'tool_dependencies', []);
+            $container->setParameter($paramPrefix . 'tool_privileges', []);
+            $container->setParameter($paramPrefix . 'advertised_tools', []);
+            $container->setParameter($paramPrefix . 'tool_groups', []);
+        }
 
         if (!$container->hasDefinition('mcp.server.builder')) {
             return;
@@ -49,8 +51,13 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
         }
 
         $this->enforceToolAllowlist($container);
-        $this->detectToolNameConflicts($container);
-        $this->buildAdvertisedTools($container);
+
+        // Per scope: names are unique within a scope's own registry (admin and Store API may
+        // legitimately share a name like shopware-tool-search across the two registries).
+        foreach (['mcp.tool' => 'shopware.mcp.advertised_tools', 'shopware.store_api_mcp.tool' => 'shopware.store_api_mcp.advertised_tools'] as $tag => $advertisedParam) {
+            $this->detectToolNameConflicts($container, $tag);
+            $this->buildAdvertisedTools($container, $tag, $advertisedParam);
+        }
     }
 
     /**
@@ -81,12 +88,12 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
         }
     }
 
-    private function detectToolNameConflicts(ContainerBuilder $container): void
+    private function detectToolNameConflicts(ContainerBuilder $container, string $tag): void
     {
         /** @var array<string, string> $toolNames tool-name => service-id */
         $toolNames = [];
 
-        foreach ($container->findTaggedServiceIds('mcp.tool') as $serviceId => $tags) {
+        foreach ($container->findTaggedServiceIds($tag) as $serviceId => $tags) {
             $definition = $container->getDefinition($serviceId);
             $class = $definition->getClass() ?? $serviceId;
             $toolInfo = McpToolAttributeReader::resolveInfo($class, McpTool::class, ['name', 'description']);
@@ -108,11 +115,11 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
      * -enable). Every other tool is deferred and only advertised once its toolset is enabled, so a
      * domain tool cannot leak into the default surface — group membership is the single gate.
      */
-    private function buildAdvertisedTools(ContainerBuilder $container): void
+    private function buildAdvertisedTools(ContainerBuilder $container, string $tag, string $advertisedParam): void
     {
         $advertisedTools = [];
 
-        foreach ($container->findTaggedServiceIds('mcp.tool') as $serviceId => $tags) {
+        foreach ($container->findTaggedServiceIds($tag) as $serviceId => $tags) {
             $definition = $container->getDefinition($serviceId);
             $class = $definition->getClass() ?? $serviceId;
             $toolInfo = McpToolAttributeReader::resolveInfo($class, McpTool::class, ['name']);
@@ -128,6 +135,6 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
             }
         }
 
-        $container->setParameter('shopware.mcp.advertised_tools', array_values(array_unique($advertisedTools)));
+        $container->setParameter($advertisedParam, array_values(array_unique($advertisedTools)));
     }
 }

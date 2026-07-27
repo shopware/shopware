@@ -27,7 +27,7 @@ use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 #[McpTool(
     name: 'shopware-entity-schema',
     title: 'Entity Schema',
-    description: 'Get the field and association schema of a Shopware entity definition. Use this first to discover field names, types, and associations before building search criteria with shopware-entity-search. Returns {success, data: {fields: [...], associations: [...]}}. See shopware://entities resource for all available entity names.'
+    description: 'Get the field and association schema of a Shopware entity definition: field names, types, and associations for building shopware-entity-search criteria. Returns {success, data: {fields: [...], associations: [...]}}. See shopware://entities resource for all available entity names.'
 )]
 #[McpToolGroup('entity')]
 class EntitySchemaTool extends McpToolResponse

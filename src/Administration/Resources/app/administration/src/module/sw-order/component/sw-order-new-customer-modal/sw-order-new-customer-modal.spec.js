@@ -8,12 +8,13 @@ import ShopwareError from 'src/core/data/ShopwareError';
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
-async function createWrapper(
+async function createWrapper({
     repositoryMocks = {
         customerRepositoryMock: undefined,
         languageRepositoryMock: undefined,
     },
-) {
+    featureActive = false,
+} = {}) {
     return mount(await wrapTestComponent('sw-order-new-customer-modal', { sync: true }), {
         global: {
             stubs: {
@@ -23,6 +24,28 @@ async function createWrapper(
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
                 'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    emits: [
+                        'new-item-active',
+                    ],
+                    props: {
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: undefined,
+                        },
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            required: true,
+                        },
+                    },
+                    template: '<div class="mt-tabs"></div>',
+                },
                 'sw-customer-address-form': true,
                 'sw-customer-base-form': true,
                 'sw-extension-component-section': true,
@@ -106,6 +129,9 @@ async function createWrapper(
                 customerValidationService: {
                     checkCustomerEmail: () => Promise.resolve(),
                 },
+                feature: {
+                    isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
+                },
             },
         },
     });
@@ -115,7 +141,106 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
     let wrapper;
 
     beforeEach(async () => {
+        Shopware.Store.get('error').resetApiErrors();
         wrapper = await createWrapper();
+    });
+
+    it('should render the fallback tabs branch while the major feature flag is inactive', () => {
+        expect(wrapper.find('.sw-tabs').exists()).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('should render meteor tabs when the major feature flag is active', async () => {
+        wrapper = await createWrapper({ featureActive: true });
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-order-new-customer-modal');
+        expect(tabs.props('defaultItem')).toBe('details');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-order.newCustomerModal.labelDetails',
+                name: 'details',
+                hasError: false,
+            },
+            {
+                label: 'sw-order.createBase.detailsBody.labelBillingAddress',
+                name: 'billingAddress',
+                hasError: false,
+            },
+            {
+                label: 'sw-order.createBase.detailsBody.labelShippingAddress',
+                name: 'shippingAddress',
+                hasError: false,
+            },
+        ]);
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+        expect(wrapper.find('sw-customer-base-form-stub').exists()).toBe(true);
+        expect(wrapper.find('sw-customer-address-form-stub').exists()).toBe(false);
+    });
+
+    it('should switch meteor tab content when the active tab changes', async () => {
+        wrapper = await createWrapper({ featureActive: true });
+
+        wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'billingAddress');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('billingAddress');
+        expect(wrapper.find('sw-customer-base-form-stub').exists()).toBe(false);
+        expect(wrapper.find('sw-customer-address-form-stub').exists()).toBe(true);
+    });
+
+    it('should pass validation errors to meteor tabs', async () => {
+        wrapper = await createWrapper({ featureActive: true });
+
+        Shopware.Store.get('error').addApiError({
+            expression: 'customer.1.email',
+            error: new ShopwareError({
+                code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                detail: 'This value should not be blank.',
+                status: '400',
+                template: 'This value should not be blank.',
+            }),
+        });
+
+        Shopware.Store.get('error').addApiError({
+            expression: 'customer_address.1.street',
+            error: new ShopwareError({
+                code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                detail: 'This value should not be blank.',
+                status: '400',
+                template: 'This value should not be blank.',
+            }),
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.getComponent({ name: 'mt-tabs' }).props('items')).toEqual([
+            {
+                label: 'sw-order.newCustomerModal.labelDetails',
+                name: 'details',
+                hasError: true,
+            },
+            {
+                label: 'sw-order.createBase.detailsBody.labelBillingAddress',
+                name: 'billingAddress',
+                hasError: true,
+            },
+            {
+                label: 'sw-order.createBase.detailsBody.labelShippingAddress',
+                name: 'shippingAddress',
+                hasError: false,
+            },
+        ]);
+
+        wrapper.vm.customer.defaultShippingAddressId = 'different-shipping-address-id';
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.getComponent({ name: 'mt-tabs' }).props('items')[2]).toEqual({
+            label: 'sw-order.createBase.detailsBody.labelShippingAddress',
+            name: 'shippingAddress',
+            hasError: true,
+        });
     });
 
     it('should navigate tab correctly', async () => {
@@ -138,12 +263,14 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
     it('should override context when the sales channel does not exist language compared to the API language', async () => {
         await wrapper.unmount();
         wrapper = await createWrapper({
-            customerRepositoryMock: {
-                create: () => ({
-                    id: '1',
-                    addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, []),
-                }),
-                save: jest.fn((customer, context) => Promise.resolve(context)),
+            repositoryMocks: {
+                customerRepositoryMock: {
+                    create: () => ({
+                        id: '1',
+                        addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, []),
+                    }),
+                    save: jest.fn((customer, context) => Promise.resolve(context)),
+                },
             },
         });
 
@@ -172,19 +299,21 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
     it('should keep context when sales channel exists language compared to API language', async () => {
         await wrapper.unmount();
         wrapper = await createWrapper({
-            languageRepositoryMock: {
-                searchIds: () =>
-                    Promise.resolve({
-                        total: 1,
-                        data: [Shopware.Context.api.languageId],
+            repositoryMocks: {
+                languageRepositoryMock: {
+                    searchIds: () =>
+                        Promise.resolve({
+                            total: 1,
+                            data: [Shopware.Context.api.languageId],
+                        }),
+                },
+                customerRepositoryMock: {
+                    create: () => ({
+                        id: '1',
+                        addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, []),
                     }),
-            },
-            customerRepositoryMock: {
-                create: () => ({
-                    id: '1',
-                    addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, []),
-                }),
-                save: jest.fn((customer, context) => Promise.resolve(context)),
+                    save: jest.fn((customer, context) => Promise.resolve(context)),
+                },
             },
         });
 

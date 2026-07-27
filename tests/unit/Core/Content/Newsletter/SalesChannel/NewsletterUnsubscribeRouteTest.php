@@ -51,7 +51,6 @@ class NewsletterUnsubscribeRouteTest extends TestCase
         $newsletterRecipientEntity->setSalesChannelId(TestDefaults::SALES_CHANNEL);
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
 
-        /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
         $entityRepository = new StaticEntityRepository([
             new NewsletterRecipientCollection([$newsletterRecipientEntity]),
         ]);
@@ -93,7 +92,6 @@ class NewsletterUnsubscribeRouteTest extends TestCase
             'email' => null,
         ]);
 
-        /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
         $entityRepository = new StaticEntityRepository([]);
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
@@ -125,7 +123,6 @@ class NewsletterUnsubscribeRouteTest extends TestCase
             'email' => 'test@example.com',
         ]);
 
-        /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
         $entityRepository = new StaticEntityRepository([
             new NewsletterRecipientCollection([]),
         ]);
@@ -164,7 +161,6 @@ class NewsletterUnsubscribeRouteTest extends TestCase
         $newsletterRecipientEntity->setSalesChannelId(TestDefaults::SALES_CHANNEL);
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
 
-        /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
         $entityRepository = new StaticEntityRepository([
             new NewsletterRecipientCollection([$newsletterRecipientEntity]),
         ]);

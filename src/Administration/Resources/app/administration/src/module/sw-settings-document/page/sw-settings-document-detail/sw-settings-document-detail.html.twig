@@ -226,6 +226,7 @@
                                 v-else-if="formField"
                                 v-model:value="documentConfig.config[formField.name]"
                                 :disabled="!acl.can('document.editor') || undefined"
+                                :error="formField.name === 'paymentDueDate' ? getPaymentDueDateError : undefined"
                                 class="sw-settings-document-detail__form-field-renderer"
                                 v-bind="formField"
                             />

@@ -56,7 +56,6 @@ class ProductPriceCalculatorTest extends TestCase
     {
         $this->eventDispatcher = new EventDispatcher();
 
-        /** @var StaticEntityRepository<UnitCollection> $unitRepository */
         $unitRepository = new StaticEntityRepository([
             new UnitCollection([(
             new UnitEntity())->assign(['id' => Defaults::CURRENCY, 'translated' => ['name' => 'test']])]),

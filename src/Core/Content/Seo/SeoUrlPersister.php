@@ -42,6 +42,32 @@ class SeoUrlPersister
      */
     public function updateSeoUrls(Context $context, string $routeName, array $foreignKeys, iterable $seoUrls, SalesChannelEntity $salesChannel): void
     {
+        $this->doUpdateSeoUrls($context, $routeName, $foreignKeys, $seoUrls, $salesChannel, false);
+    }
+
+    /**
+     * Like {@see self::updateSeoUrls()} but bypasses the write-protection guard
+     * that normally keeps automatic template regeneration from overwriting
+     * manually modified (`isModified = true`) SEO URLs.
+     *
+     * Intended for explicit admin/API updates where the user wants to edit or
+     * reset a manually modified SEO URL; must not be used for automatic
+     * template regeneration pipelines (indexers, subscribers on other entities).
+     *
+     * @param array<string> $foreignKeys
+     * @param iterable<array<string, mixed>|SeoUrlEntity> $seoUrls
+     */
+    public function forceUpdateSeoUrls(Context $context, string $routeName, array $foreignKeys, iterable $seoUrls, SalesChannelEntity $salesChannel): void
+    {
+        $this->doUpdateSeoUrls($context, $routeName, $foreignKeys, $seoUrls, $salesChannel, true);
+    }
+
+    /**
+     * @param array<string> $foreignKeys
+     * @param iterable<array<string, mixed>|SeoUrlEntity> $seoUrls
+     */
+    private function doUpdateSeoUrls(Context $context, string $routeName, array $foreignKeys, iterable $seoUrls, SalesChannelEntity $salesChannel, bool $overwrite): void
+    {
         $languageId = $context->getLanguageId();
         $canonicals = $this->findCanonicalPaths($routeName, $languageId, $foreignKeys);
         $dateTime = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
@@ -85,7 +111,7 @@ class SeoUrlPersister
             if ($existing) {
                 // entity has override or does not change
                 /** @phpstan-ignore-next-line PHPStan could not recognize the array generated from the jsonSerialize method of the SeoUrlEntity */
-                if ($this->skipUpdate($existing, $seoUrl)) {
+                if ($this->skipUpdate($existing, $seoUrl, $overwrite)) {
                     continue;
                 }
                 $obsoleted[] = $existing['id'];
@@ -148,14 +174,28 @@ class SeoUrlPersister
      * @param array{isModified: bool, seoPathInfo: string, salesChannelId: string} $existing
      * @param array{isModified?: bool, seoPathInfo: string, salesChannelId: string} $seoUrl
      */
-    private function skipUpdate(array $existing, array $seoUrl): bool
+    private function skipUpdate(array $existing, array $seoUrl, bool $overwrite = false): bool
     {
-        if ($existing['isModified'] && !($seoUrl['isModified'] ?? false) && trim($seoUrl['seoPathInfo']) !== '') {
+        // Write-protection guard: automatic template regeneration (overwrite=false)
+        // must never replace a manually modified (isModified=1) SEO URL that still
+        // has a non-empty path.
+        if (!$overwrite && $existing['isModified'] && !($seoUrl['isModified'] ?? false) && trim($seoUrl['seoPathInfo']) !== '') {
             return true;
         }
 
-        return $seoUrl['seoPathInfo'] === $existing['seoPathInfo']
-            && $seoUrl['salesChannelId'] === $existing['salesChannelId'];
+        // A different path or sales channel is always a real change, so never skip.
+        if ($seoUrl['seoPathInfo'] !== $existing['seoPathInfo']
+            || $seoUrl['salesChannelId'] !== $existing['salesChannelId']) {
+            return false;
+        }
+
+        // Path and sales channel are identical. Normally we skip to avoid creating a
+        // duplicate row. For an explicit overwrite, however, we must still proceed when
+        // only the isModified flag differs, so that an admin "reset to template" can drop
+        // the write-protection flag even when the manual value already equals the template
+        // output (shopware/shopware#4413). When the flag matches too, nothing changed -> skip.
+        return !$overwrite
+            || ($seoUrl['isModified'] ?? false) === $existing['isModified'];
     }
 
     /**

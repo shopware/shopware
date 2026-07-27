@@ -306,7 +306,7 @@ class SeoActionControllerTest extends TestCase
         $firstPayload['seoPathInfo'] = $manualPath;
         $firstPayload['isModified'] = true;
 
-        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', $firstPayload);
+        $this->getBrowser()->request('PATCH', '/api/_action/seo-url/canonical', $firstPayload);
         static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
 
         $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
@@ -320,7 +320,7 @@ class SeoActionControllerTest extends TestCase
         $editPayload['seoPathInfo'] = $editedPath;
         $editPayload['isModified'] = true;
 
-        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', $editPayload);
+        $this->getBrowser()->request('PATCH', '/api/_action/seo-url/canonical', $editPayload);
         static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
 
         $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
@@ -334,7 +334,7 @@ class SeoActionControllerTest extends TestCase
         $clearPayload['seoPathInfo'] = 'manual-path-final';
         $clearPayload['isModified'] = false;
 
-        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', $clearPayload);
+        $this->getBrowser()->request('PATCH', '/api/_action/seo-url/canonical', $clearPayload);
         static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
 
         $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
@@ -407,7 +407,7 @@ class SeoActionControllerTest extends TestCase
         ]);
 
         // Reset through the admin endpoint: same path, isModified=false.
-        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', [
+        $this->getBrowser()->request('PATCH', '/api/_action/seo-url/canonical', [
             'foreignKey' => $productId,
             'routeName' => $route,
             'pathInfo' => '/detail/' . $productId,

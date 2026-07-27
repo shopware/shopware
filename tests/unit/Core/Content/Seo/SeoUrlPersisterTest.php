@@ -32,6 +32,7 @@ class SeoUrlPersisterTest extends TestCase
     public function testUpdateSeoUrlsWithNewSeoPaths(): void
     {
         $connection = $this->createMock(Connection::class);
+        $connection->method('createQueryBuilder')->willReturn($this->createMock(QueryBuilder::class));
         $seoUrlPersister = $this->createSeoUrlPersister($connection);
 
         $seoUrls = [
@@ -222,6 +223,7 @@ class SeoUrlPersisterTest extends TestCase
     public function testForceUpdateSeoUrlsPersistsNewSeoPaths(): void
     {
         $connection = $this->createMock(Connection::class);
+        $connection->method('createQueryBuilder')->willReturn($this->createMock(QueryBuilder::class));
         $seoUrlPersister = $this->createSeoUrlPersister($connection);
 
         $seoUrls = [
@@ -262,6 +264,7 @@ class SeoUrlPersisterTest extends TestCase
     public function testUpdateSeoUrlsWithInuseSeoPaths(): void
     {
         $connection = $this->createMock(Connection::class);
+        $connection->method('createQueryBuilder')->willReturn($this->createMock(QueryBuilder::class));
         $seoUrlPersister = $this->createSeoUrlPersister($connection);
 
         $seoUrls = [
@@ -349,8 +352,7 @@ class SeoUrlPersisterTest extends TestCase
         return new SeoUrlPersister(
             $connection,
             static::createStub(EntityRepository::class),
-            static::createStub(EventDispatcherInterface::class),
-            new NativeClock()
+            static::createStub(EventDispatcherInterface::class)
         );
     }
 }

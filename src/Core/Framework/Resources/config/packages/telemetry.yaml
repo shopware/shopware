@@ -28,7 +28,76 @@ shopware:
                     description: 'Number of associations loaded'
                     type: 'histogram'
 
+                dal.search.duration:
+                    description: 'Duration of DAL read/search/aggregate operations. The es_aware and backend labels together reveal OpenSearch scaling possibilities: es_aware=yes with backend=sql marks a query eligible for OpenSearch but served by SQL. Each operation is measured once per top-level call (a search does not double-count its internal id-search/aggregate), so operation samples can be compared or summed without overlap.'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        # sub-ms indexed lookups up to multi-hundred-ms complex searches/aggregations
+                        buckets: [0.5, 1, 2, 5, 10, 25, 50, 100, 250, 500]
+                    labels:
+                        # EntityGroupResolver (known: product, category, customer, order, media, content, cms, rule, system, b2b, other)
+                        entity_group:
+                            policy: open
+                        operation:
+                            allowed_values: [search, searchIds, aggregate]
+                        es_aware:
+                            allowed_values: ['yes', 'no']
+                        # elasticsearch when the ES bundle served the result, else sql (bundle inactive or ES fell back to SQL);
+                        # es_aware=no with backend=elasticsearch is impossible
+                        backend:
+                            allowed_values: [sql, elasticsearch]
+
                 database.locks.count:
                     description: 'Number of database locks'
                     enabled: true
                     type: 'counter'
+
+                http.server.request.duration:
+                    description: 'Main HTTP request wall time'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        # typical web requests (25ms–1s) through long-running admin/sync/import-export (up to 60s)
+                        buckets: [25, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 30000, 60000]
+                    labels:
+                        # AreaResolver (known: storefront, store-api, admin-api, sync-api, payment, other)
+                        area:
+                            policy: open
+                        # DomainResolver (polymorphic per area; functional / action / entity groups + other)
+                        domain:
+                            policy: open
+                        # OperationResolver (admin-api CRUD only; none otherwise)
+                        operation:
+                            allowed_values: [read, write, delete, none]
+                        status_class:
+                            allowed_values: ['2xx', '3xx', '4xx', '5xx']
+
+                http.server.request.queries.count:
+                    description: 'SQL statements per main request'
+                    type: 'histogram'
+                    parameters:
+                        # a handful of queries on cached/store-api requests up to thousands on import-export, indexing and sync
+                        buckets: [10, 50, 200, 1000, 5000]
+                    labels:
+                        area:
+                            policy: open
+                        domain:
+                            policy: open
+                        operation:
+                            allowed_values: [read, write, delete, none]
+
+                http.server.request.memory.peak:
+                    description: 'Peak memory per main request'
+                    type: 'histogram'
+                    unit: 'byte'
+                    parameters:
+                        # 16MB–512MB covers typical requests; 1GB/2GB catch import-export, indexing and other heavy jobs
+                        buckets: [16777216, 33554432, 67108864, 134217728, 268435456, 536870912, 1073741824, 2147483648]
+                    labels:
+                        area:
+                            policy: open
+                        domain:
+                            policy: open
+                        operation:
+                            allowed_values: [read, write, delete, none]

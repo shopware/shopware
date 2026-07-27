@@ -133,6 +133,21 @@ class McpHttpTransportFactoryTest extends TestCase
         static::assertStringContainsString("event: message\nid: 1\ndata: ", $body, 'SSE framing must be preserved');
     }
 
+    public function testCreateResponseLeavesScalarEventStreamDataFramesUntouched(): void
+    {
+        // A `data:` frame whose payload is a JSON scalar (not an object/array) cannot carry a tool
+        // list, so it must be passed through verbatim while a sibling tools/list frame is normalized.
+        $tools = '{"jsonrpc":"2.0","id":2,"result":{"tools":[{"name":"t","inputSchema":{"type":"object","properties":[]}}]}}';
+        $sse = "event: message\ndata: 42\n\nevent: message\ndata: " . $tools . "\n\n";
+
+        $response = $this->factory()->createResponse($this->psrResponse('text/event-stream', $sse));
+
+        $body = (string) $response->getContent();
+        static::assertStringContainsString('data: 42', $body, 'scalar data frame must be preserved verbatim');
+        static::assertStringContainsString('"properties":{}', $body);
+        static::assertStringNotContainsString('"properties":[]', $body);
+    }
+
     public function testCreateResponseForcesEmptyNestedObjectPropertiesToAnObject(): void
     {
         // A nested object parameter with no members hits the same `[]` vs `{}` problem, one level

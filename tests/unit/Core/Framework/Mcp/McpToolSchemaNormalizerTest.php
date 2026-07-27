@@ -62,6 +62,22 @@ class McpToolSchemaNormalizerTest extends TestCase
         static::assertNull(McpToolSchemaNormalizer::normalizeToolListResult(['jsonrpc' => '2.0', 'method' => 'ping']));
     }
 
+    public function testNormalizeToolListResultSkipsNonArrayToolEntries(): void
+    {
+        $message = [
+            'result' => ['tools' => [
+                'not-a-tool',
+                ['name' => 't', 'inputSchema' => ['type' => 'object', 'properties' => []]],
+            ]],
+        ];
+
+        $normalized = McpToolSchemaNormalizer::normalizeToolListResult($message);
+
+        static::assertNotNull($normalized);
+        static::assertSame('not-a-tool', $normalized['result']['tools'][0]);
+        static::assertStringContainsString('"properties":{}', Json::encode($normalized['result']['tools'][1]));
+    }
+
     public function testNormalizeToolAlwaysReturnsTheToolWithObjectProperties(): void
     {
         $tool = McpToolSchemaNormalizer::normalizeTool(['name' => 't', 'inputSchema' => ['type' => 'object', 'properties' => []]]);

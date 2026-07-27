@@ -76,7 +76,7 @@
 
     {% block sw_category_detail_link_field %}
     <component
-        :is="linkHasProtocol ? 'mt-url-field' : 'mt-text-field'"
+        :is="linkHasProtocol ? 'sw-url-field' : 'sw-text-field'"
         v-if="isExternal"
         v-model:value="category.externalLink"
         class="sw-category-link-settings__external-link"
@@ -86,9 +86,9 @@
     />
     {% endblock %}
 
-    <mt-switch
+    <sw-switch-field
         v-if="isExternal"
-        v-model="linkHasProtocol"
+        v-model:value="linkHasProtocol"
         class="sw-category-link-settings__link-has-protocol"
         :disabled="!acl.can('category.editor') || undefined"
         :label="$t('sw-category.base.link.linkHasProtocol')"

@@ -71,6 +71,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
 
         const wrapper = await createWrapper({
             linkType: 'external',
+            externalLink: 'https://example.com',
         });
 
         const linkTypeField = wrapper.find('sw-single-select-stub');

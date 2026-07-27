@@ -18,6 +18,7 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -167,9 +168,9 @@ class ScaffoldingCollectorTest extends TestCase
         $content = $collector->collect($configuration)->get('src/Resources/config/services.php')?->getContent();
         static::assertIsString($content);
 
-        $dir = sys_get_temp_dir() . '/sw-scaffold-test-' . uniqid('', true);
-        mkdir($dir);
-        file_put_contents($dir . '/services.php', $content);
+        $dir = \sys_get_temp_dir() . '/' . uniqid(__FUNCTION__, true);
+        $filesystem = new Filesystem();
+        $filesystem->dumpFile($dir . '/services.php', $content);
 
         try {
             // Loading through the real PhpFileLoader proves the generated file is valid,
@@ -192,8 +193,7 @@ class ScaffoldingCollectorTest extends TestCase
             static::assertTrue($container->getDefinition($route)->isPublic());
             static::assertEquals([new Reference('product.repository')], $container->getDefinition($route)->getArguments());
         } finally {
-            unlink($dir . '/services.php');
-            rmdir($dir);
+            $filesystem->remove($dir);
         }
     }
 }

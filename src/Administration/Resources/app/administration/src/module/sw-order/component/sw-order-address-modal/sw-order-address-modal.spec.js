@@ -4,7 +4,7 @@ import { mount } from '@vue/test-utils';
  * @sw-package checkout
  */
 
-async function createWrapper() {
+async function createWrapper({ featureActive = false } = {}) {
     return mount(await wrapTestComponent('sw-order-address-modal', { sync: true }), {
         global: {
             stubs: {
@@ -12,11 +12,57 @@ async function createWrapper() {
                     template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
                 },
                 'sw-tabs': {
-                    props: ['defaultItem'],
+                    name: 'sw-tabs',
+                    props: {
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: undefined,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            required: false,
+                            default: undefined,
+                        },
+                    },
                     template:
                         '<div class="sw-tabs"><slot :active="defaultItem"></slot><slot name="content" :active="defaultItem"></slot></div>',
                 },
                 'sw-tabs-item': true,
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    emits: [
+                        'new-item-active',
+                    ],
+                    props: {
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: undefined,
+                        },
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            required: true,
+                        },
+                    },
+                    template: '<div class="mt-tabs"></div>',
+                },
+                'mt-button': {
+                    emits: [
+                        'click',
+                    ],
+                    props: [
+                        'block',
+                        'disabled',
+                        'size',
+                        'variant',
+                    ],
+                    template: '<button class="mt-button" @click="$emit(\'click\')"><slot></slot></button>',
+                },
                 'sw-customer-address-form': {
                     name: 'sw-customer-address-form',
                     props: ['disabled'],
@@ -39,6 +85,14 @@ async function createWrapper() {
                         },
                     }),
                 },
+                acl: {
+                    can: (privilege) => {
+                        return (global.activeAclRoles || []).includes(privilege);
+                    },
+                },
+                feature: {
+                    isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
+                },
             },
         },
         props: {
@@ -60,6 +114,64 @@ describe('src/module/sw-order/component/sw-order-address-modal', () => {
     beforeEach(async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();
+    });
+
+    it('should render the fallback tabs branch while the major feature flag is inactive', () => {
+        const tabs = wrapper.getComponent({ name: 'sw-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-order-address-modal');
+        expect(tabs.props('defaultItem')).toBe('edit');
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('should render meteor tabs when the major feature flag is active', async () => {
+        wrapper = await createWrapper({ featureActive: true });
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-order-address-modal');
+        expect(tabs.props('defaultItem')).toBe('edit');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-order.addressSelection.headlineTabEditAddress',
+                name: 'edit',
+            },
+            {
+                label: 'sw-order.addressSelection.headlineTabSelectAddress',
+                name: 'addresses',
+            },
+        ]);
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+        expect(wrapper.findComponent('.sw-customer-address-form').exists()).toBe(true);
+    });
+
+    it('should switch meteor tab content when the active tab changes', async () => {
+        wrapper = await createWrapper({ featureActive: true });
+
+        await wrapper.setData({
+            availableAddresses: [
+                {
+                    id: 'address-id',
+                    company: 'Test company',
+                    salutation: null,
+                    street: 'Test street',
+                    zipcode: '12345',
+                    city: 'Test city',
+                    country: {
+                        name: 'Test country',
+                    },
+                },
+            ],
+            selectedAddressId: 'address-id',
+        });
+
+        wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'addresses');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('addresses');
+        expect(wrapper.vm.selectedAddressId).toBe(0);
+        expect(wrapper.findComponent('.sw-customer-address-form').exists()).toBe(false);
+        expect(wrapper.find('[data-analytics-id="sw-order-address-modal.select-existing-address"]').exists()).toBe(true);
     });
 
     it('should get customer information on creation', async () => {

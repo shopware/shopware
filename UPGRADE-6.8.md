@@ -253,11 +253,11 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
-## XML service definitions for bundles and plugins are no longer supported
+## XML configuration for bundles and plugins is no longer supported
 
-Symfony 8 removes support for XML service definitions, and loading them for Shopware bundles and plugins is removed with Shopware 6.8. Plugins that ship their service definitions as `Resources/config/services.xml` (or `services_test.xml`) fail during container compilation with an exception.
+Symfony 8 removes support for XML configuration, and loading it for Shopware bundles and plugins is removed with Shopware 6.8. This affects service definitions (`Resources/config/services.xml`, `services_test.xml`), route definitions (`Resources/config/routes*.xml` and XML files below `Resources/config/routes/`), and package configuration (`Resources/config/packages/**/*.xml`). Plugins that still ship such files are no longer loaded correctly and fail with an exception. Shopware-specific XML formats such as `config.xml`, `custom-fields.xml`, or app manifests are not affected.
 
-Migrate the file to PHP format. The service ids, arguments, and tags stay exactly the same, only the notation changes:
+Migrate service definitions to PHP format. The service ids, arguments, and tags stay exactly the same, only the notation changes:
 
 Before (`src/Resources/config/services.xml`):
 
@@ -291,7 +291,30 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 };
 ```
 
-YAML service definitions (`services.yaml`) remain supported.
+Migrate route definitions the same way, using the `RoutingConfigurator`.
+
+Before (`src/Resources/config/routes.xml`):
+
+```xml
+<routes xmlns="http://symfony.com/schema/routing">
+    <import resource="../../Storefront/Controller/**/*Controller.php" type="attribute" />
+</routes>
+```
+
+After (`src/Resources/config/routes.php`):
+
+```php
+<?php declare(strict_types=1);
+
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+
+return static function (RoutingConfigurator $routes): void {
+    $routes->import('../../Storefront/Controller/**/*Controller.php', 'attribute');
+};
+```
+
+XML package configuration below `Resources/config/packages/` can be migrated to YAML or PHP. YAML configuration (`services.yaml`, `routes.yaml`, package YAML files) remains supported.
+
 ## Landing page slot config must not be null
 
 `LandingPageEntity::setSlotConfig()` and `LandingPageTranslationEntity::setSlotConfig()` no longer accept `null` for their `$slotConfig` argument. Pass the slot configuration array when writing a landing page or its translation.

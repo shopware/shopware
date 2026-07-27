@@ -80,6 +80,13 @@ abstract class Bundle extends SymfonyBundle
         $confDir = $this->getPath() . '/Resources/config';
 
         if (\is_dir($confDir)) {
+            // @deprecated tag:v6.8.0 - remove the deprecation trigger, XML route definitions are no longer loaded
+            foreach ([...$this->getXmlFilesRecursive($confDir . '/routes'), $confDir . '/routes.xml', $confDir . '/routes_' . $environment . '.xml'] as $path) {
+                if (is_file($path)) {
+                    $this->triggerXmlConfigDeprecation($path, 'route definitions', 'Migrate the file to PHP format (routes.php).');
+                }
+            }
+
             $routes->import($confDir . '/{routes}/*' . Kernel::CONFIG_EXTS, 'glob');
             $routes->import($confDir . '/{routes}/' . $environment . '/**/*' . Kernel::CONFIG_EXTS, 'glob');
             $routes->import($confDir . '/{routes}' . Kernel::CONFIG_EXTS, 'glob');
@@ -101,6 +108,11 @@ abstract class Bundle extends SymfonyBundle
         $confDir = $this->getPath() . '/Resources/config';
 
         if ($fileSystem->exists($confDir)) {
+            // @deprecated tag:v6.8.0 - remove the deprecation trigger, XML route definitions are no longer loaded
+            if (is_file($confDir . '/routes_overwrite.xml')) {
+                $this->triggerXmlConfigDeprecation($confDir . '/routes_overwrite.xml', 'route definitions', 'Migrate the file to PHP format (routes_overwrite.php).');
+            }
+
             $routes->import($confDir . '/{routes_overwrite}' . Kernel::CONFIG_EXTS, 'glob');
         }
     }
@@ -147,6 +159,7 @@ abstract class Bundle extends SymfonyBundle
         $locator = new FileLocator('Resources/config');
 
         $resolver = new LoaderResolver([
+            // @deprecated tag:v6.8.0 - XML configuration is deprecated, remove the XmlFileLoader together with the deprecation
             new XmlFileLoader($container, $locator),
             new YamlFileLoader($container, $locator),
             new IniFileLoader($container, $locator),
@@ -159,6 +172,11 @@ abstract class Bundle extends SymfonyBundle
         $configLoader = new DelegatingLoader($resolver);
 
         $confDir = $this->getPath() . '/Resources/config';
+
+        // @deprecated tag:v6.8.0 - remove the deprecation trigger, XML package configuration is no longer loaded
+        foreach ($this->getXmlFilesRecursive($confDir . '/packages') as $path) {
+            $this->triggerXmlConfigDeprecation($path, 'package configuration', 'Migrate the file to YAML or PHP format.');
+        }
 
         $configLoader->load($confDir . '/{packages}/*' . Kernel::CONFIG_EXTS, 'glob');
 
@@ -221,19 +239,22 @@ abstract class Bundle extends SymfonyBundle
         $delegatingLoader = new DelegatingLoader($loaderResolver);
 
         foreach ($this->getServicesFilePathArray($this->getPath() . '/Resources/config/services.*') as $path) {
-            $this->triggerXmlServiceDefinitionDeprecation($path);
+            // @deprecated tag:v6.8.0 - remove the deprecation trigger, XML service definitions are no longer loaded
+            $this->triggerXmlConfigDeprecation($path, 'service definitions', 'Migrate the file to PHP format (services.php).');
             $delegatingLoader->load($path);
         }
 
         if ($container->getParameter('kernel.environment') === 'test') {
             foreach ($this->getServicesFilePathArray($this->getPath() . '/Resources/config/services_test.*') as $testPath) {
-                $this->triggerXmlServiceDefinitionDeprecation($testPath);
+                // @deprecated tag:v6.8.0 - remove the deprecation trigger, XML service definitions are no longer loaded
+                $this->triggerXmlConfigDeprecation($testPath, 'service definitions', 'Migrate the file to PHP format (services.php).');
                 $delegatingLoader->load($testPath);
             }
         }
     }
 
-    private function triggerXmlServiceDefinitionDeprecation(string $path): void
+    // @deprecated tag:v6.8.0 - remove together with the XML configuration deprecation triggers
+    private function triggerXmlConfigDeprecation(string $path, string $configType, string $migrationHint): void
     {
         if (!str_ends_with($path, '.xml')) {
             return;
@@ -242,11 +263,37 @@ abstract class Bundle extends SymfonyBundle
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
             \sprintf(
-                'Loading service definitions from XML file "%s" in bundle "%s" is deprecated and will be removed in v6.8.0.0. Migrate the file to PHP format (services.php).',
+                'Loading %s from XML file "%s" in bundle "%s" is deprecated and will be removed in v6.8.0.0. %s',
+                $configType,
                 $path,
                 $this->getName(),
+                $migrationHint,
             ),
         );
+    }
+
+    // @deprecated tag:v6.8.0 - remove together with the XML configuration deprecation triggers
+    /**
+     * @return list<string>
+     */
+    private function getXmlFilesRecursive(string $dir): array
+    {
+        if (!is_dir($dir)) {
+            return [];
+        }
+
+        $files = [];
+        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS));
+
+        foreach ($iterator as $file) {
+            if ($file instanceof \SplFileInfo && $file->isFile() && $file->getExtension() === 'xml') {
+                $files[] = $file->getPathname();
+            }
+        }
+
+        sort($files);
+
+        return $files;
     }
 
     /**

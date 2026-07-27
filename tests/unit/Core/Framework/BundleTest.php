@@ -75,6 +75,68 @@ class BundleTest extends TestCase
         static::assertTrue($container->hasDefinition('unit_test.bundle.php_service'));
     }
 
+    public function testConfigureRoutesTriggersDeprecationForXmlRouteDefinitions(): void
+    {
+        $bundlePath = self::FIXTURES_DIR . '/with-xml-routes';
+
+        $this->expectExceptionObject(FeatureException::error(\sprintf(
+            'Tried to access deprecated functionality: Loading route definitions from XML file "%s" in bundle "BundleStub" is deprecated and will be removed in v6.8.0.0. Migrate the file to PHP format (routes.php).',
+            $bundlePath . '/Resources/config/routes.xml',
+        )));
+
+        $this->captureRouteImports($bundlePath, 'test');
+    }
+
+    // @deprecated tag:v6.8.0 - remove together with the XML route definition deprecation
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testConfigureRoutesStillImportsXmlRouteDefinitionsWhenDeprecationsAreDisabled(): void
+    {
+        $bundlePath = self::FIXTURES_DIR . '/with-xml-routes';
+        $confDir = $bundlePath . '/Resources/config';
+
+        $captured = $this->captureRouteImports($bundlePath, 'test');
+
+        static::assertContains([$confDir . '/{routes}' . Kernel::CONFIG_EXTS, 'glob'], $captured);
+    }
+
+    public function testConfigureRouteOverwritesTriggersDeprecationForXmlRouteDefinitions(): void
+    {
+        $bundlePath = self::FIXTURES_DIR . '/with-xml-routes';
+
+        $this->expectExceptionObject(FeatureException::error(\sprintf(
+            'Tried to access deprecated functionality: Loading route definitions from XML file "%s" in bundle "BundleStub" is deprecated and will be removed in v6.8.0.0. Migrate the file to PHP format (routes_overwrite.php).',
+            $bundlePath . '/Resources/config/routes_overwrite.xml',
+        )));
+
+        (new BundleStub($bundlePath))->configureRouteOverwrites(
+            new RoutingConfigurator(new RouteCollection(), static::createStub(PhpFileLoader::class), '/tmp', '/tmp'),
+            'test',
+        );
+    }
+
+    public function testBuildDefaultConfigTriggersDeprecationForXmlPackageConfiguration(): void
+    {
+        $bundlePath = self::FIXTURES_DIR . '/with-xml-packages';
+
+        $this->expectExceptionObject(FeatureException::error(\sprintf(
+            'Tried to access deprecated functionality: Loading package configuration from XML file "%s" in bundle "BundleStub" is deprecated and will be removed in v6.8.0.0. Migrate the file to YAML or PHP format.',
+            $bundlePath . '/Resources/config/packages/unit_test.xml',
+        )));
+
+        (new BundleStub($bundlePath))->runBuildDefaultConfig($this->createContainerBuilder());
+    }
+
+    // @deprecated tag:v6.8.0 - remove together with the XML package configuration deprecation
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testBuildDefaultConfigStillLoadsXmlPackageConfigurationWhenDeprecationsAreDisabled(): void
+    {
+        $container = $this->createContainerBuilder();
+
+        (new BundleStub(self::FIXTURES_DIR . '/with-xml-packages'))->runBuildDefaultConfig($container);
+
+        static::assertSame('loaded', $container->getParameter('unit_test.bundle.xml_package'));
+    }
+
     public function testGetTwigComponentNamespace(): void
     {
         $bundleClass = new class extends Bundle {};
@@ -125,5 +187,10 @@ class BundleStub extends Bundle
     public function __construct(string $path)
     {
         $this->path = $path;
+    }
+
+    public function runBuildDefaultConfig(ContainerBuilder $container): void
+    {
+        $this->buildDefaultConfig($container);
     }
 }

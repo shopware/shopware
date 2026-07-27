@@ -386,6 +386,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('shopware.tax.adjustment_calculator'),
             service(CashRounding::class),
+            service(TransactionProcessor::class),
         ]);
 
     // Checkout gateway

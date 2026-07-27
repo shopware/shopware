@@ -1,6 +1,7 @@
 import template from './sw-order-create-initial-modal.html.twig';
 import './sw-order-create-initial-modal.scss';
 
+import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
 import type { Cart, LineItem, SalesChannelContext, ContextSwitchParameters, CartDelivery } from '../../order.types';
 
 import { LineItemType } from '../../order.types';
@@ -19,6 +20,10 @@ interface PromotionCodeItem {
 export default Component.wrapComponentConfig({
     template,
 
+    inject: [
+        'feature',
+    ],
+
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('cart-notification'),
@@ -32,6 +37,7 @@ export default Component.wrapComponentConfig({
         productItems: LineItem[];
         context: ContextSwitchParameters;
         shippingCosts: number | null;
+        activeTab: string;
     } {
         return {
             productItems: [],
@@ -40,6 +46,7 @@ export default Component.wrapComponentConfig({
             isProductGridLoading: false,
             disabledAutoPromotion: false,
             shippingCosts: null,
+            activeTab: 'customer',
             context: {
                 currencyId: '',
                 paymentMethodId: '',
@@ -87,6 +94,25 @@ export default Component.wrapComponentConfig({
 
         cartDelivery(): CartDelivery | null {
             return this.cart?.deliveries[0] as CartDelivery | null;
+        },
+
+        orderCreateInitialModalTabs(): TabItem[] {
+            return [
+                {
+                    label: this.$t('sw-order.initialModal.tabCustomer'),
+                    name: 'customer',
+                },
+                {
+                    label: this.$t('sw-order.initialModal.tabProducts'),
+                    name: 'products',
+                    disabled: !this.customer || undefined,
+                },
+                {
+                    label: this.$t('sw-order.initialModal.tabOptions'),
+                    name: 'options',
+                    disabled: !this.customer || undefined,
+                },
+            ];
         },
     },
 

@@ -57,6 +57,7 @@ class TranslatedFieldQueryBuilder extends AbstractFieldQueryBuilder
                 $config->isAndLogic(),
                 $config->usePrefixMatch(),
                 $config->useExactSubfield(),
+                $config->isPhrase(),
             );
 
             $languageQuery = $this->getDecorated()->build(

@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\System\Snippet\Command;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
@@ -46,26 +45,28 @@ class ValidateSnippetsCommandTest extends TestCase
         $command->setName('translation:validate');
         $command->setAliases(['snippets:validate']);
         $application = new Application();
+        // without this, Application::run() calls exit(0) and silently kills the whole PHPUnit process
+        $application->setAutoExit(false);
         $application->addCommand($command);
         $applicationTester = new ApplicationTester($application);
 
         static::assertSame(Command::SUCCESS, $applicationTester->run(['command' => 'snippets:validate']));
     }
 
-    #[TestDox('The deprecated command alias throws when v6.8 is active')]
-    public function testDeprecatedCommandAliasThrowsWhenV68IsActive(): void
+    #[TestDox('The deprecated command alias stays silent when v6.8 is active')]
+    public function testDeprecatedCommandAliasIsSilent(): void
     {
         $command = $this->createCommand(new SnippetFileCollection(), []);
         $command->setName('translation:validate');
         $command->setAliases(['snippets:validate']);
         $application = new Application();
+        $application->setAutoExit(false);
         $application->addCommand($command);
+        // without catching, a deprecation wrongly raised as FeatureException would surface here
         $application->setCatchExceptions(false);
         $applicationTester = new ApplicationTester($application);
 
-        $this->expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: The "snippets:validate" command alias is deprecated; use "translation:validate" instead.'));
-
-        $applicationTester->run(['command' => 'snippets:validate']);
+        static::assertSame(Command::SUCCESS, $applicationTester->run(['command' => 'snippets:validate']));
     }
 
     #[TestDox('Missing translations are listed per ISO and fail the command')]

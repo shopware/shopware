@@ -123,7 +123,11 @@ class EntityAggregator implements EntityAggregatorInterface
 
     private function validateAggregation(Aggregation $aggregation): void
     {
-        if (str_contains($aggregation->getName(), '?') || str_contains($aggregation->getName(), ':')) {
+        if (
+            str_contains($aggregation->getName(), '?')
+            || str_contains($aggregation->getName(), ':')
+            || strpbrk($aggregation->getName(), "\r\n") !== false
+        ) {
             throw DataAbstractionLayerException::invalidAggregationName($aggregation->getName());
         }
 

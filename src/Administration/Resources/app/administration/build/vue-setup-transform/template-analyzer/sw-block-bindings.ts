@@ -11,7 +11,7 @@
  */
 
 import { NodeTypes, type TemplateChildNode } from '@vue/compiler-dom';
-import type { ShopwareSetupBlock, ShopwareSetupMode } from '../utils/shopware-setup-block';
+import type { ShopwareSetupMode, ShopwareSetupTemplate } from '../utils/shopware-setup-block';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import { OVERRIDE_NAMESPACE_BINDING } from '../script-analyzer/macros';
 import {
@@ -214,27 +214,19 @@ function findOpeningTagNameEnd(template: string, elementStart: number): number {
  *
  */
 function createPrivateSlotMapping(localNames: string[]): SlotMapping {
-    return {
-        sourceKey: '__swOverride',
-        source: `__swOverride: { [${OVERRIDE_NAMESPACE_BINDING}]: { ${localNames.join(', ')} } }`,
-    };
+    return `__swOverride: { [${OVERRIDE_NAMESPACE_BINDING}]: { ${localNames.join(', ')} } }`;
 }
 
 /**
  * Builds the generated `#default` slot scope for one extended sw-block.
  */
-function createGeneratedSlotEdit(block: ShopwareSetupBlock, node: ElementNode, mappings: SlotMapping[]): TemplateEdit {
-    if (!block.template) {
-        throw new ShopwareSetupTransformError('Unable to generate a slot scope without a template block.', 0);
-    }
-
-    const sources = mappings.map((mapping) => mapping.source);
-    const insertionPoint = findOpeningTagAttributeEnd(block.template.content, node.loc.start.offset);
+function createGeneratedSlotEdit(template: ShopwareSetupTemplate, node: ElementNode, mappings: SlotMapping[]): TemplateEdit {
+    const insertionPoint = findOpeningTagAttributeEnd(template.content, node.loc.start.offset);
 
     return {
-        start: block.template.contentStart + insertionPoint,
-        end: block.template.contentStart + insertionPoint,
-        replacement: ` #default="{ ${sources.join(', ')} }"`,
+        start: template.contentStart + insertionPoint,
+        end: template.contentStart + insertionPoint,
+        replacement: ` #default="{ ${mappings.join(', ')} }"`,
     };
 }
 

@@ -18,9 +18,12 @@ import type { ShopwareSetupBlock } from './utils/shopware-setup-block';
 
 /**
  * Dispatches to the mode-specific lowering path after shared analysis has completed.
+ *
+ * Narrowing on `analysis.mode` (rather than `block.mode`) is what gives each lowerer a parameter type
+ * carrying only the fields its strategy actually produces.
  */
 function lowerShopwareSetupBlock(block: ShopwareSetupBlock, analysis: ShopwareSetupScriptAnalysis): SourceChunk[] {
-    return block.mode === 'base' ? buildBaseScript(block, analysis) : buildOverrideScript(block, analysis);
+    return analysis.mode === 'base' ? buildBaseScript(block, analysis) : buildOverrideScript(block, analysis);
 }
 
 /**

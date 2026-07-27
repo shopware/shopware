@@ -45,43 +45,56 @@ function collectImportBindings(importNode: ImportDeclaration, importedBindings: 
 }
 
 /**
- * Adds a top-level runtime binding and rejects duplicates before lowering.
+ * Accumulates the top-level runtime bindings of one setup script.
+ *
+ * Owns the three results the classification pass produces together - the ordered bindings, the name
+ * set used for duplicate detection and rename targeting, and the runtime input alias names - plus the
+ * script offset every diagnostic needs. Keeping them here means they cannot drift apart and no caller
+ * has to thread three accumulators through the recursion by hand.
  */
-function addRuntimeBinding(
-    runtimeBindings: RuntimeBinding[],
-    runtimeBindingNames: Set<string>,
-    name: string,
-    node: BabelNode,
-    scriptOffset: number,
-): void {
-    if (runtimeBindingNames.has(name)) {
-        // Vue mostly relies on JavaScript parser scope errors here. Shopware also rejects duplicate collected names
-        // explicitly because aliases such as var/function combinations can otherwise overwrite returned state.
-        throw new ShopwareSetupTransformError(
-            `Duplicate top-level Shopware setup binding "${name}".`,
-            absoluteStart(node, scriptOffset),
-        );
+class RuntimeBindingCollector {
+    readonly bindings: RuntimeBinding[] = [];
+
+    /** Always exactly the names in `bindings`; kept as a Set for duplicate and rename lookups. */
+    readonly names = new Set<string>();
+
+    /** Names that alias a runtime input (`useSwProps()`), usable locally but never returned as state. */
+    readonly aliasNames = new Set<string>();
+
+    #scriptOffset: number;
+
+    constructor(scriptOffset: number) {
+        this.#scriptOffset = scriptOffset;
     }
 
-    runtimeBindingNames.add(name);
-    runtimeBindings.push({
-        name,
-        node,
-    });
-}
+    /**
+     * Adds a top-level runtime binding and rejects duplicates before lowering.
+     */
+    add(name: string, node: BabelNode): void {
+        if (this.names.has(name)) {
+            // Vue mostly relies on JavaScript parser scope errors here. Shopware also rejects duplicate collected names
+            // explicitly because aliases such as var/function combinations can otherwise overwrite returned state.
+            throw new ShopwareSetupTransformError(
+                `Duplicate top-level Shopware setup binding "${name}".`,
+                absoluteStart(node, this.#scriptOffset),
+            );
+        }
 
-/**
- * Collects runtime-visible setup bindings from one declaration pattern.
- */
-function collectRuntimeBindingPattern(
-    runtimeBindings: RuntimeBinding[],
-    runtimeBindingNames: Set<string>,
-    pattern: BabelNode | null | undefined,
-    scriptOffset: number,
-): void {
-    forEachPatternIdentifier(pattern, (identifier) => {
-        addRuntimeBinding(runtimeBindings, runtimeBindingNames, identifier.name, identifier, scriptOffset);
-    });
+        this.names.add(name);
+        this.bindings.push({
+            name,
+            node,
+        });
+    }
+
+    /**
+     * Adds every runtime-visible binding one declaration pattern declares.
+     */
+    addPattern(pattern: BabelNode | null | undefined): void {
+        forEachPatternIdentifier(pattern, (identifier) => {
+            this.add(identifier.name, identifier);
+        });
+    }
 }
 
 /**
@@ -129,8 +142,8 @@ function isSetupInputDeclaration(declaration: VariableDeclarator): boolean {
  * A base props/emits/slots macro assigned to a plain identifier (`const emit = defineEmits(...)`).
  *
  * These variables are exposed as private setup state so the template can reference them through the
- * generated destructure (`emit`, `slots`, `props.<name>`) instead of relying on a hoisted top-level
- * identifier. The macro call itself is still hoisted/replaced separately by the lowering step.
+ * generated footer destructure (`emit`, `slots`, `props.<name>`). The macro call itself is left exactly
+ * where the author wrote it, for Vue to compile.
  */
 function isExposableSetupMacroDeclaration(declaration: VariableDeclarator): boolean {
     const init = unwrapTransparentMacroExpression(declaration.init);
@@ -152,9 +165,7 @@ function isExposableSetupMacroDeclaration(declaration: VariableDeclarator): bool
  */
 function collectRuntimeBinding(
     statement: Statement,
-    runtimeBindings: RuntimeBinding[],
-    runtimeBindingNames: Set<string>,
-    runtimeInputAliasNames: Set<string>,
+    collector: RuntimeBindingCollector,
     scriptOffset: number,
     mode: ShopwareSetupMode,
 ): void {
@@ -166,26 +177,20 @@ function collectRuntimeBinding(
                     // or Vue's own withDefaults warning) - not renamed, not returned as state. Other
                     // setup-input macros (defineSlots/defineEmits) destructure into ordinary bindings.
                     if (!isPropsMacroDeclaration(declaration)) {
-                        collectRuntimeBindingPattern(runtimeBindings, runtimeBindingNames, declaration.id, scriptOffset);
+                        collector.addPattern(declaration.id);
                     }
 
                     return;
                 }
 
                 if (mode === 'base' && isExposableSetupMacroDeclaration(declaration)) {
-                    addRuntimeBinding(
-                        runtimeBindings,
-                        runtimeBindingNames,
-                        declaration.id.name,
-                        declaration.id,
-                        scriptOffset,
-                    );
+                    collector.add(declaration.id.name, declaration.id);
                 } else if (isRuntimeInputAlias(declaration, mode)) {
                     // e.g. override `const props = useSwProps()`: useSwProps is both a setup input and a
                     // runtime input alias, so it is not returned as state, but its name is recorded so an
                     // override template referencing it is forwarded to the generated <sw-block extends>
                     // slot scope like useSwPreviousState()/useSwContext().
-                    runtimeInputAliasNames.add(declaration.id.name);
+                    collector.aliasNames.add(declaration.id.name);
                 }
 
                 return;
@@ -193,13 +198,13 @@ function collectRuntimeBinding(
 
             if (isRuntimeInputAlias(declaration, mode)) {
                 if (declaration.id.type === 'Identifier') {
-                    runtimeInputAliasNames.add(declaration.id.name);
+                    collector.aliasNames.add(declaration.id.name);
                 }
 
                 return;
             }
 
-            collectRuntimeBindingPattern(runtimeBindings, runtimeBindingNames, declaration.id, scriptOffset);
+            collector.addPattern(declaration.id);
         });
         return;
     }
@@ -212,16 +217,16 @@ function collectRuntimeBinding(
             );
         }
 
-        addRuntimeBinding(runtimeBindings, runtimeBindingNames, statement.id.name, statement.id, scriptOffset);
+        collector.add(statement.id.name, statement.id);
         return;
     }
 
     if (statement.type === 'TSEnumDeclaration') {
-        addRuntimeBinding(runtimeBindings, runtimeBindingNames, statement.id.name, statement.id, scriptOffset);
+        collector.add(statement.id.name, statement.id);
     }
 }
 
 /**
  * @private
  */
-export { type RuntimeBinding, collectImportBindings, collectRuntimeBinding };
+export { type RuntimeBinding, RuntimeBindingCollector, collectImportBindings, collectRuntimeBinding };

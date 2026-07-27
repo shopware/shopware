@@ -321,20 +321,28 @@ function collectBabelReferences(
  * write to a forwarded override binding silently no-ops. Member writes (`count.value = 1`) and nested
  * shadowing are out of scope; template-local names are filtered by the caller's scope.
  */
-function collectBabelWriteTargets(node: BabelNode | null | undefined, targets: Set<string>): void {
-    if (!node || typeof node.type !== 'string') {
-        return;
+function collectBabelWriteTargets(root: BabelNode | null | undefined): Set<string> {
+    const targets = new Set<string>();
+
+    function visit(node: BabelNode | null | undefined): void {
+        if (!node || typeof node.type !== 'string') {
+            return;
+        }
+
+        if (node.type === 'AssignmentExpression' && node.left.type === 'Identifier') {
+            targets.add(node.left.name);
+        }
+
+        if (node.type === 'UpdateExpression' && node.argument.type === 'Identifier') {
+            targets.add(node.argument.name);
+        }
+
+        childBabelNodes(node).forEach(visit);
     }
 
-    if (node.type === 'AssignmentExpression' && node.left.type === 'Identifier') {
-        targets.add(node.left.name);
-    }
+    visit(root);
 
-    if (node.type === 'UpdateExpression' && node.argument.type === 'Identifier') {
-        targets.add(node.argument.name);
-    }
-
-    childBabelNodes(node).forEach((child) => collectBabelWriteTargets(child, targets));
+    return targets;
 }
 
 /**
@@ -348,8 +356,7 @@ function collectExpressionWriteTargets(expression: string | undefined, templateS
         return new Set<string>();
     }
 
-    const targets = new Set<string>();
-    collectBabelWriteTargets(parseTemplateExpression(expression), targets);
+    const targets = collectBabelWriteTargets(parseTemplateExpression(expression));
 
     return new Set([...targets].filter((name) => !templateScope.has(name)));
 }

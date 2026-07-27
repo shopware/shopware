@@ -60,15 +60,12 @@ type ElementNode = CoreElementNode & {
 };
 
 /**
- * Describes one generated slot-scope source entry.
+ * One entry of a generated `#default` slot scope: the exact destructuring text to emit.
  *
- * `sourceKey` is used to avoid duplicate insertion when a user already declared the same slot prop,
- * while `source` keeps the exact destructuring text that will be merged.
+ * Authoring `#default` on `<sw-block>` is rejected outright, so there is never a user-declared slot
+ * prop to merge with or deduplicate against - the transform owns the whole pattern.
  */
-type SlotMapping = {
-    sourceKey: string;
-    source: string;
-};
+type SlotMapping = string;
 
 /**
  * Returns the pattern texts a directive contributes, in evaluation order.

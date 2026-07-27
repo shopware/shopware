@@ -11,7 +11,7 @@
  */
 
 import { NodeTypes, parse as parseTemplate, type TemplateChildNode } from '@vue/compiler-dom';
-import type { ShopwareSetupScriptAnalysis } from '../script-analyzer';
+import type { OverrideSetupScriptAnalysis } from '../script-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 import {
     type ElementNode,
@@ -87,13 +87,14 @@ function forEachTemplateElement(nodes: TemplateChildNode[], visit: (element: Ele
  * Creates the template edits and private return bindings required by override SFCs.
  *
  */
-function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSetupScriptAnalysis): TemplateAnalysis {
+function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: OverrideSetupScriptAnalysis): TemplateAnalysis {
     if (!block.template) {
         return emptyTemplateAnalysis();
     }
 
-    const templateOffset = block.template.contentStart;
-    const ast = parseTemplate(block.template.content);
+    const template = block.template;
+    const templateOffset = template.contentStart;
+    const ast = parseTemplate(template.content);
 
     // An override template may only carry <sw-block extends> blocks at its top level.
     assertOverrideTemplateTopLevel(ast.children, templateOffset);
@@ -138,10 +139,7 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
                 // Public override bindings keep their own name in the slot scope; only private
                 // ones need the deterministic override namespace.
                 if (overrideLocalNames.has(binding.name)) {
-                    publicMappings.push({
-                        sourceKey: binding.name,
-                        source: binding.name,
-                    });
+                    publicMappings.push(binding.name);
                     return;
                 }
 
@@ -167,7 +165,7 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
             ];
 
             if (mappings.length > 0) {
-                edits.push(createGeneratedSlotEdit(block, element, mappings));
+                edits.push(createGeneratedSlotEdit(template, element, mappings));
             }
         }
     });

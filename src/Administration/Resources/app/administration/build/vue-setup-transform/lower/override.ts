@@ -13,7 +13,7 @@
  */
 
 import { fromSource, generated, indent, type SourceChunk } from '../source-edits/chunks';
-import type { ShopwareSetupScriptAnalysis } from '../script-analyzer';
+import type { OverrideSetupScriptAnalysis } from '../script-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 import { escapeSingleQuoted } from './shared';
 import { OVERRIDE_NAMESPACE_BINDING } from '../script-analyzer/macros';
@@ -22,7 +22,7 @@ import { transformRanges } from '../source-edits/transform-ranges';
 /**
  * Builds the override callback payload from declared replacements and template-used private aliases.
  */
-function buildOverrideReturn(analysis: ShopwareSetupScriptAnalysis): string {
+function buildOverrideReturn(analysis: OverrideSetupScriptAnalysis): string {
     const privateBindings = Array.from(analysis.overridePrivateBindings);
 
     if (analysis.overrideEntries.length === 0 && privateBindings.length === 0) {
@@ -53,7 +53,7 @@ function buildOverrideReturn(analysis: ShopwareSetupScriptAnalysis): string {
  * Lowers override mode into a hidden override component consumed by
  * registerOverrideComponent.
  */
-function buildOverrideScript(block: ShopwareSetupBlock, analysis: ShopwareSetupScriptAnalysis): SourceChunk[] {
+function buildOverrideScript(block: ShopwareSetupBlock, analysis: OverrideSetupScriptAnalysis): SourceChunk[] {
     // Generated bindings use the reserved `__swSetup` prefix (rejected as user bindings), so they are
     // deterministic and never collide.
     const previousStateName = '__swSetupPreviousState';

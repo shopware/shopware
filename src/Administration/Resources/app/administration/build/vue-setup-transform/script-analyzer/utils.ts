@@ -12,7 +12,6 @@
 import { parse, type ParserPlugin } from '@babel/parser';
 import type { File as BabelFile, Node as BabelNode } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
-import { isBabelNodeLike } from '../utils/babel-patterns';
 import { childBabelNodes } from '../utils/ast-traversal';
 
 type SourceRange = {
@@ -142,11 +141,9 @@ function unwrapTransparentMacroExpression(node: BabelNode | null | undefined): B
  * @private
  */
 export {
-    type AstVisitor,
     type SourceRange,
     absoluteStart,
     getNodeRange,
-    isBabelNodeLike,
     isFunctionNode,
     parseScript,
     unwrapTransparentMacroExpression,

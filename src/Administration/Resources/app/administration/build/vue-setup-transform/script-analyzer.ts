@@ -19,9 +19,15 @@ import {
     assertMacroRules,
     collectMacroCallEntries,
     getMacroEntries,
+    getMacroGroupEntry,
 } from './script-analyzer/macro-registry';
 import { type SourceRange, getNodeRange, parseScript, walk } from './script-analyzer/utils';
-import { type RuntimeBinding, collectImportBindings, collectRuntimeBinding } from './script-analyzer/runtime-bindings';
+import {
+    type RuntimeBinding,
+    RuntimeBindingCollector,
+    collectImportBindings,
+    collectRuntimeBinding,
+} from './script-analyzer/runtime-bindings';
 import {
     assertNoRuntimeBindingPropCollision,
     assertNoUnsupportedSyntax,
@@ -29,7 +35,7 @@ import {
     assertStaticObjectEntries,
 } from './script-analyzer/validation';
 import { collectSetupRenameTargets } from './flow-analysis';
-import { analyzeSetupInputs } from './script-analyzer/setup-inputs';
+import { collectDeclaredPropNames } from './script-analyzer/setup-inputs';
 
 const SUPPORTED_SCRIPT_LANGS = new Set([
     'js',
@@ -38,8 +44,6 @@ const SUPPORTED_SCRIPT_LANGS = new Set([
     'tsx',
 ]);
 
-/** A statement's script-local range plus the exact source text it covers. */
-type SourceCodeBlock = SourceRange & { code: string };
 type AnalyzerOptions = {
     mode: ShopwareSetupMode;
     lang: string | null;
@@ -47,50 +51,64 @@ type AnalyzerOptions = {
 };
 
 /**
- * Describes one parsed Shopware setup script after macro validation and binding classification.
- *
- * Lowering uses this shape as its only script-side input: imports/type declarations are hoisted,
- * body ranges are removed or replaced, runtime bindings become setup state, and override template
- * analysis later fills the private binding namespace fields.
+ * The parts of the analysis both lowering modes read.
  */
-type ShopwareSetupScriptAnalysis = {
+type SharedScriptAnalysis = {
     source: string;
-    imports: SourceCodeBlock[];
-    typeDeclarations: SourceCodeBlock[];
-    bodyRemovals: SourceRange[];
-    // Base lowering keeps the author body in place: it removes only the marker statements and applies
-    // the rename edits that move every top-level runtime binding to its __swSetupAuthor_ alias, so the
-    // generated footer can re-declare the original names from attachOverrides(...).
-    markerRemovals: SourceRange[];
-    renameEdits: (SourceRange & { replacement: string })[];
     // Absolute source ranges of template literals, so the renderer can skip re-indenting their interior
     // lines (indenting would rewrite the runtime string contents).
     templateLiteralRanges: [number, number][];
     runtimeBindings: RuntimeBinding[];
     runtimeBindingNames: Set<string>;
-    runtimeInputAliasNames: Set<string>;
     importedBindings: Set<string>;
+};
+
+/**
+ * Base mode keeps the author body in place, so it needs no imports or type declarations lifted out.
+ *
+ * It removes only the marker statements, and applies the rename edits that move every top-level
+ * runtime binding to its `__swSetupAuthor_` alias so the generated footer can re-declare the original
+ * names from `attachOverrides(...)`.
+ */
+type BaseScriptAnalysis = {
+    mode: 'base';
+    markerRemovals: SourceRange[];
+    renameEdits: (SourceRange & { replacement: string })[];
     publicEntries: string[];
+};
+
+/**
+ * Override mode moves the author body into a callback, so imports and type declarations are lifted to
+ * the generated script root and removed from the body, and nothing is renamed.
+ *
+ * `overridePrivateBindings` is filled by template analysis, which runs after this pass.
+ */
+type OverrideScriptAnalysis = {
+    mode: 'override';
+    // Script-local ranges only: override lowering copies these through `fromSource(...)`, which keeps
+    // them addressable for sourcemaps rather than materializing their text.
+    imports: SourceRange[];
+    typeDeclarations: SourceRange[];
+    bodyRemovals: SourceRange[];
     overrideEntries: string[];
+    runtimeInputAliasNames: Set<string>;
     overridePrivateBindings: Set<string>;
 };
 
 /**
- * Pairs each statement's script-local range with its exact source text.
+ * Describes one parsed Shopware setup script after macro validation and binding classification.
  *
- * Lowering copies these verbatim, so imports and type declarations keep the author's formatting. Both
- * kinds are captured identically - only the caller's intent differs.
+ * Lowering uses this shape as its only script-side input. It is a union on `mode` because the two
+ * lowering strategies genuinely need different things: narrow on `analysis.mode` and each lowerer sees
+ * only the fields it can actually use.
  */
-function withSourceCode(script: string, nodes: Statement[]): SourceCodeBlock[] {
-    return nodes.map((node) => {
-        const range = getNodeRange(node);
+type ShopwareSetupScriptAnalysis = SharedScriptAnalysis & (BaseScriptAnalysis | OverrideScriptAnalysis);
 
-        return {
-            ...range,
-            code: script.slice(range.start, range.end),
-        };
-    });
-}
+/** The analysis narrowed to base mode, as `buildBaseScript` consumes it. */
+type BaseSetupScriptAnalysis = SharedScriptAnalysis & BaseScriptAnalysis;
+
+/** The analysis narrowed to override mode, as `buildOverrideScript` consumes it. */
+type OverrideSetupScriptAnalysis = SharedScriptAnalysis & OverrideScriptAnalysis;
 
 /**
  * Type-only declarations have no runtime output. They are hoisted to the generated script root
@@ -159,9 +177,7 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
     const imports: ImportDeclaration[] = [];
     const typeDeclarations: Statement[] = [];
     const importedBindings = new Set<string>();
-    const runtimeBindings: RuntimeBinding[] = [];
-    const runtimeBindingNames = new Set<string>();
-    const runtimeInputAliasNames = new Set<string>();
+    const collector = new RuntimeBindingCollector(scriptOffset);
     const macroEntries: MacroCallEntry[] = [];
 
     ast.program.body.forEach((statement) => {
@@ -179,20 +195,17 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
             return;
         }
 
-        // Marker, expose, and options statements are consumed here: markers and kept-at-root options
-        // are removed from the callback body, expose statements stay but get their call replaced.
+        // The Shopware marker statements are compile-time only: their entries are extracted below and
+        // the statements themselves are removed from the generated output, so they never contribute
+        // runtime bindings. Vue's own bare macro statements need no branch here - they declare nothing
+        // for collectRuntimeBinding to find either way.
         const statementMacroName = statementEntries.find((entry) => entry.form === 'statement')?.name;
 
-        if (
-            statementMacroName === 'swDefinePublic' ||
-            statementMacroName === 'swDefineOverride' ||
-            statementMacroName === 'defineOptions' ||
-            statementMacroName === 'defineExpose'
-        ) {
+        if (statementMacroName === 'swDefinePublic' || statementMacroName === 'swDefineOverride') {
             return;
         }
 
-        collectRuntimeBinding(statement, runtimeBindings, runtimeBindingNames, runtimeInputAliasNames, scriptOffset, mode);
+        collectRuntimeBinding(statement, collector, scriptOffset, mode);
     });
 
     // Deliberately plural: the top-level walk runs before assertMacroRules, so even duplicate marker
@@ -220,9 +233,10 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
     // over another local, a `let`) with a clear message naming the separate-<script> workaround. A
     // guard here only produced false positives on the code Vue hoists fine.
 
-    const { declaredPropNames } = analyzeSetupInputs(macroEntries);
+    // assertMacroRules already enforced modes, so the props macro resolves to at most one entry here.
+    const declaredPropNames = collectDeclaredPropNames(getMacroGroupEntry(macroEntries, 'props'));
 
-    assertNoRuntimeBindingPropCollision(declaredPropNames, runtimeBindings, scriptOffset);
+    assertNoRuntimeBindingPropCollision(declaredPropNames, collector.bindings, scriptOffset);
 
     const publicEntries =
         publicMarkerEntries.length > 0
@@ -233,8 +247,8 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
             ? extractStaticObjectMarker(overrideMarkerEntries[0].call, scriptOffset, 'swDefineOverride', 'override')
             : [];
 
-    assertStaticObjectEntries(publicEntries, runtimeBindingNames, importedBindings, scriptOffset, 'swDefinePublic');
-    assertStaticObjectEntries(overrideEntries, runtimeBindingNames, importedBindings, scriptOffset, 'swDefineOverride');
+    assertStaticObjectEntries(publicEntries, collector.names, importedBindings, scriptOffset, 'swDefinePublic');
+    assertStaticObjectEntries(overrideEntries, collector.names, importedBindings, scriptOffset, 'swDefineOverride');
 
     const importedNamedBindings = Array.from(importedBindings).flatMap((name) => {
         const node = imports.find((importNode) => importNode.specifiers.some((specifier) => specifier.local?.name === name));
@@ -252,50 +266,69 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
 
     assertReservedMacroNames(
         [
-            ...runtimeBindings,
+            ...collector.bindings,
             ...importedNamedBindings,
         ],
         scriptOffset,
     );
 
-    // Override lowering removes imports, type declarations, and the marker statements from the callback
-    // body (base lowering uses markerRemovals + renameEdits instead).
-    const bodyRemovals = [
-        ...imports.map((importNode) => getNodeRange(importNode)),
-        ...typeDeclarations.map((declaration) => getNodeRange(declaration)),
-        ...publicMarkerEntries.map((entry) => getNodeRange(entry.statement)),
-        ...overrideMarkerEntries.map((entry) => getNodeRange(entry.statement)),
-    ];
+    // Both modes strip the compile-time marker statements; only their surroundings differ.
     const markerRemovals = [
-        ...publicMarkerEntries.map((entry) => getNodeRange(entry.statement)),
-        ...overrideMarkerEntries.map((entry) => getNodeRange(entry.statement)),
-    ];
-    const renameEdits = collectSetupRenameTargets(ast.program, runtimeBindingNames, (name) => `__swSetupAuthor_${name}`).map(
-        ({ node, replacement }) => ({
-            ...getNodeRange(node),
-            replacement,
-        }),
-    );
+        ...publicMarkerEntries,
+        ...overrideMarkerEntries,
+    ].map((entry) => getNodeRange(entry.statement));
+
+    const shared: SharedScriptAnalysis = {
+        source: script,
+        templateLiteralRanges,
+        runtimeBindings: collector.bindings,
+        runtimeBindingNames: collector.names,
+        importedBindings,
+    };
+
+    if (mode === 'override') {
+        return {
+            ...shared,
+            mode,
+            // Script-local ranges; override lowering copies them back out to the generated script root.
+            imports: imports.map(getNodeRange),
+            typeDeclarations: typeDeclarations.map(getNodeRange),
+            // The author body moves into a callback, so imports and type declarations leave it too - an
+            // import is illegal there, and an ambient `declare` describes a value from elsewhere.
+            bodyRemovals: [
+                ...imports.map(getNodeRange),
+                ...typeDeclarations.map(getNodeRange),
+                ...markerRemovals,
+            ],
+            overrideEntries,
+            runtimeInputAliasNames: collector.aliasNames,
+            overridePrivateBindings: new Set(),
+        };
+    }
 
     return {
-        source: script,
-        imports: withSourceCode(script, imports),
-        typeDeclarations: withSourceCode(script, typeDeclarations),
-        bodyRemovals,
+        ...shared,
+        mode,
         markerRemovals,
-        renameEdits,
-        templateLiteralRanges,
-        runtimeBindings,
-        runtimeBindingNames,
-        runtimeInputAliasNames,
-        importedBindings,
+        // Only base mode renames: the body stays where the author wrote it, so every top-level runtime
+        // binding moves to its alias and the footer re-declares the original name. Computing this for
+        // override mode would be a wasted AST walk - nothing there reads it.
+        renameEdits: collectSetupRenameTargets(ast.program, collector.names, (name) => `__swSetupAuthor_${name}`).map(
+            ({ node, replacement }) => ({
+                ...getNodeRange(node),
+                replacement,
+            }),
+        ),
         publicEntries,
-        overrideEntries,
-        overridePrivateBindings: new Set(),
     };
 }
 
 /**
  * @private
  */
-export { type ShopwareSetupScriptAnalysis, type SourceCodeBlock, analyzeShopwareSetupScript };
+export {
+    type BaseSetupScriptAnalysis,
+    type OverrideSetupScriptAnalysis,
+    type ShopwareSetupScriptAnalysis,
+    analyzeShopwareSetupScript,
+};

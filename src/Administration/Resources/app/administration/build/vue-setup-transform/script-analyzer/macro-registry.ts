@@ -51,9 +51,13 @@ type MacroRule = {
     modes: ShopwareSetupMode[];
     /** Error for a top-level call in a mode not listed in `modes` (or for empty `modes`). */
     wrongModeMessage: string;
-    /** Multiplicity group; defaults to the macro name. defineProps/withDefaults share `props`. */
+    /**
+     * Lookup group for macros that are interchangeable to a consumer; defineProps/withDefaults share
+     * `props` so `getMacroGroupEntry(entries, 'props')` finds either. Lookup only - multiplicity is
+     * counted per name, so do not reach for this to express "only one of these two".
+     */
     group?: string;
-    /** Error for the second top-level call of the same group. Omit for no multiplicity limit. */
+    /** Error for the second top-level call of this name. Omit for no multiplicity limit. */
     duplicateMessage?: string;
     /** Requires exactly one top-level call of this name in the listed modes, with its error. */
     required?: { modes: ShopwareSetupMode[]; message: string };
@@ -243,7 +247,8 @@ function collectMacroCallEntries(statement: Statement): MacroCallEntry[] {
  * Applies the declarative registry rules to the collected top-level entries.
  *
  * Rules run per macro in registry order (Vue macros before Shopware markers), each checking wrong
- * mode first, then multiplicity, then required presence.
+ * mode first, then multiplicity, then required presence - so an author who both misplaces a macro and
+ * duplicates it hears about the misplacement.
  */
 function assertMacroRules(entries: MacroCallEntry[], mode: ShopwareSetupMode, scriptOffset: number): void {
     MACRO_NAMES.forEach((name) => {
@@ -253,25 +258,15 @@ function assertMacroRules(entries: MacroCallEntry[], mode: ShopwareSetupMode, sc
         if (!rule.modes.includes(mode) && named.length > 0) {
             throw new ShopwareSetupTransformError(rule.wrongModeMessage, absoluteStart(named[0].call, scriptOffset));
         }
-    });
 
-    MACRO_NAMES.forEach((name) => {
-        const rule = MACRO_RULES[name];
-
-        if (rule.duplicateMessage) {
-            const group = rule.group ?? name;
-            const grouped = entries.filter((entry) => (MACRO_RULES[entry.name].group ?? entry.name) === group);
-
-            if (grouped.length > 1) {
-                throw new ShopwareSetupTransformError(rule.duplicateMessage, absoluteStart(grouped[1].call, scriptOffset));
-            }
+        // Multiplicity is per name, not per `group`: the only macros with a duplicate limit are the
+        // swDefine* markers, which have no group, and the grouped props macros deliberately leave
+        // multiplicity to Vue's own "duplicate defineProps() call" error.
+        if (rule.duplicateMessage && named.length > 1) {
+            throw new ShopwareSetupTransformError(rule.duplicateMessage, absoluteStart(named[1].call, scriptOffset));
         }
-    });
 
-    MACRO_NAMES.forEach((name) => {
-        const rule = MACRO_RULES[name];
-
-        if (rule.required?.modes.includes(mode) && !entries.some((entry) => entry.name === name)) {
+        if (rule.required?.modes.includes(mode) && named.length === 0) {
             throw new ShopwareSetupTransformError(rule.required.message, scriptOffset);
         }
     });
@@ -354,7 +349,6 @@ export {
     collectMacroCallEntries,
     getExposableSetupMacroNames,
     getMacroEntries,
-    getMacroGroupEntries,
     getMacroGroupEntry,
     getReservedHelperNames,
     getRuntimeInputAliasNames,

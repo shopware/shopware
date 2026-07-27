@@ -15,7 +15,7 @@
 
 import { generated, trim, type SourceChunk } from '../source-edits/chunks';
 import { transformRanges } from '../source-edits/transform-ranges';
-import type { ShopwareSetupScriptAnalysis } from '../script-analyzer';
+import type { BaseSetupScriptAnalysis } from '../script-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 import { escapeSingleQuoted, formatObjectProperties } from './shared';
 
@@ -33,7 +33,7 @@ function formatStateMap(names: string[], spaces: number): string {
 /**
  * Lowers base mode into a native body plus the generated override-functionality footer.
  */
-function buildBaseScript(block: ShopwareSetupBlock, analysis: ShopwareSetupScriptAnalysis): SourceChunk[] {
+function buildBaseScript(block: ShopwareSetupBlock, analysis: BaseSetupScriptAnalysis): SourceChunk[] {
     const publicLocalNames = new Set(analysis.publicEntries);
     const privateNames = analysis.runtimeBindings
         .filter((binding) => !publicLocalNames.has(binding.name))

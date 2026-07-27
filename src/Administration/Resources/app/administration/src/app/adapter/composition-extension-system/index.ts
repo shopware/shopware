@@ -522,17 +522,17 @@ export function overrideComponentSetup<TOriginalComponent>() {
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function attachOverrides<TComponentName extends keyof ComponentPublicApiMapping>(options: {
     name: TComponentName;
-    context?: SetupContext;
     public?: Record<string, unknown>;
     private?: Record<string, unknown>;
 }): ExtendableSetupState<Record<string, unknown>> {
     const props = (getCurrentInstance()?.props ?? {}) as Record<string, unknown>;
 
+    // No `context` is threaded through: createExtendableSetup() falls back to getComponentContext(),
+    // and the generated footer has no context binding to pass anyway.
     return createExtendableSetup(
         {
             name: options.name,
             props: props as never,
-            context: options.context as never,
         },
         () =>
             ({

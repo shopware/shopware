@@ -12,11 +12,7 @@
 
 import { unwrapTransparentMacroExpression } from './utils';
 import { isWithDefaultsCall } from './macros';
-import { type MacroCallEntry, getMacroGroupEntry } from './macro-registry';
-
-type AnalyzeSetupInputsResult = {
-    declaredPropNames: string[];
-};
+import type { MacroCallEntry } from './macro-registry';
 
 /**
  * Collects the statically declared prop names from the props macro.
@@ -83,16 +79,6 @@ function collectDeclaredPropNames(propsEntry: MacroCallEntry | null): string[] {
 }
 
 /**
- * Reads the declared prop names of the base props macro.
- */
-function analyzeSetupInputs(entries: MacroCallEntry[]): AnalyzeSetupInputsResult {
-    // assertMacroRules already enforced modes, so the props macro resolves to at most one entry here.
-    return {
-        declaredPropNames: collectDeclaredPropNames(getMacroGroupEntry(entries, 'props')),
-    };
-}
-
-/**
  * @private
  */
-export { type AnalyzeSetupInputsResult, analyzeSetupInputs };
+export { collectDeclaredPropNames };

@@ -99,9 +99,11 @@
                 field="defaultSorting"
                 :element="element"
                 :label="$t('sw-cms.elements.productListing.config.sorting.labelDefaultSorting')"
+                @inheritance:restore="restoreDefaultSorting"
             >
                 <template #default="{ isInherited }">
                     <sw-entity-single-select
+                        v-model:value="defaultSortingId"
                         class="sw-cms-element-config-product-listing__sorting-default-select"
                         entity="product_sorting"
                         label-property="label"
@@ -174,9 +176,12 @@
 
                     {% block sw_cms_element_product_listing_config_mt_sorting_grid %}
                     <sw-cms-el-config-product-listing-config-sorting-grid
-                        :product-sortings="productSortings"
+                        v-if="showProductSortingsSelection"
+                        v-model="productSortings"
                         :default-sorting="defaultSorting"
                         :disabled="isInherited"
+                        @inline-edit-save="onSortingPrioritySave"
+                        @inline-edit-cancel="onSortingPriorityCancel"
                     />
                     {% endblock %}
                 </template>
@@ -457,9 +462,11 @@
                         field="defaultSorting"
                         :element="element"
                         :label="$t('sw-cms.elements.productListing.config.sorting.labelDefaultSorting')"
+                        @inheritance:restore="restoreDefaultSorting"
                     >
                         <template #default="{ isInherited }">
                             <sw-entity-single-select
+                                v-model:value="defaultSortingId"
                                 class="sw-cms-element-config-product-listing__sorting-default-select"
                                 entity="product_sorting"
                                 label-property="label"
@@ -532,9 +539,12 @@
 
                         {% block sw_cms_element_product_listing_config_sorting_grid %}
                             <sw-cms-el-config-product-listing-config-sorting-grid
-                                :product-sortings="productSortings"
+                                v-if="showProductSortingsSelection"
+                                v-model="productSortings"
                                 :default-sorting="defaultSorting"
                                 :disabled="isInherited"
+                                @inline-edit-save="onSortingPrioritySave"
+                                @inline-edit-cancel="onSortingPriorityCancel"
                             />
                         {% endblock %}
                         </template>

@@ -132,7 +132,8 @@ describe('groupByDomain / buildIssuePayload', () => {
     assert.ok(payload.issueBody.startsWith(ISSUE_MARKER));
     assert.ok(payload.issueBody.includes('Failing tests: 45'));
     assert.ok(payload.issueBody.includes('…and 5 more'));
-    assert.ok(payload.issueBody.includes('`Integration\\Core\\FooTest::testCase00` — boom'));
+    assert.ok(payload.issueBody.includes('`Integration\\Core\\FooTest::testCase00`: boom'));
+    assert.ok(!payload.issueBody.includes('—'));
     assert.ok(!payload.issueBody.includes('testCase44'));
     assert.ok(payload.commentBody.startsWith(ISSUE_MARKER));
     assert.ok(payload.commentBody.includes('Failing tests: 45'));

@@ -212,7 +212,7 @@ export function groupByDomain(tests: FailedTest[], repoRoot: string): DomainGrou
 
 function formatTest(test: FailedTest): string {
   const shortClass = test.className.replace(/^Shopware\\Tests\\/, '');
-  const message = test.message === '' ? '' : ` — ${test.message}`;
+  const message = test.message === '' ? '' : `: ${test.message}`;
   return `- \`${shortClass}::${test.testName}\`${message}`;
 }
 
@@ -226,22 +226,23 @@ function buildReportLines(groups: DomainGroup[], runUrl: string): string[] {
   if (groups.length === 0) {
     lines.push('');
     lines.push(
-      'No junit reports were produced — the failure is outside PHPUnit, or a shard died before reporting. Check the run logs.'
+      'No junit reports were produced: the failure is outside PHPUnit, or a shard died before reporting. Check the run logs.'
     );
     return lines;
   }
 
   for (const group of groups) {
     const packageKeys = group.packageKeys.size > 0 ? [...group.packageKeys].sort().join(', ') : 'none resolved';
+    const testCount = group.tests.length === 1 ? '1 failing test' : `${group.tests.length} failing tests`;
     lines.push('');
     lines.push('<details>');
-    lines.push(`<summary><b>${group.label}</b> — ${group.tests.length} failing tests (package keys: ${packageKeys})</summary>`);
+    lines.push(`<summary><b>${group.label}</b>: ${testCount} (package keys: ${packageKeys})</summary>`);
     lines.push('');
     for (const test of group.tests.slice(0, MAX_TESTS_PER_DOMAIN)) {
       lines.push(formatTest(test));
     }
     if (group.tests.length > MAX_TESTS_PER_DOMAIN) {
-      lines.push(`- …and ${group.tests.length - MAX_TESTS_PER_DOMAIN} more — see the run logs.`);
+      lines.push(`- …and ${group.tests.length - MAX_TESTS_PER_DOMAIN} more, see the run logs.`);
     }
     lines.push('');
     lines.push('</details>');
@@ -250,7 +251,7 @@ function buildReportLines(groups: DomainGroup[], runUrl: string): string[] {
   lines.push('');
   lines.push(
     'Grouping uses the test files\' `#[Package]` markers only. Root-cause clustering, ' +
-      'routing overrides, and per-domain filing are the deep-triage pass — see `.agents/skills/nightly-triage/SKILL.md`.'
+      'routing overrides, and per-domain filing are the deep-triage pass, see `.agents/skills/nightly-triage/SKILL.md`.'
   );
 
   return lines;

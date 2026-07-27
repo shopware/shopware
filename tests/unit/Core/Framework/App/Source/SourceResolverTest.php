@@ -31,7 +31,6 @@ class SourceResolverTest extends TestCase
     {
         static::expectException(AppException::class);
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
         $resolver = new SourceResolver([], $repo, static::createStub(NoDatabaseSourceResolver::class));
@@ -45,7 +44,6 @@ class SourceResolverTest extends TestCase
     {
         $app = static::createStub(Manifest::class);
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
         $resolver = new SourceResolver([new SupportingSource()], $repo, static::createStub(NoDatabaseSourceResolver::class));
@@ -57,7 +55,6 @@ class SourceResolverTest extends TestCase
     {
         static::expectException(AppException::class);
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
         $resolver = new SourceResolver([new NonSupportingSource()], $repo, static::createStub(NoDatabaseSourceResolver::class));
@@ -71,7 +68,6 @@ class SourceResolverTest extends TestCase
     {
         $app = static::createStub(Manifest::class);
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
         $resolver = new SourceResolver([new SupportingSource()], $repo, static::createStub(NoDatabaseSourceResolver::class));
@@ -83,7 +79,6 @@ class SourceResolverTest extends TestCase
     {
         static::expectException(AppException::class);
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
         $resolver = new SourceResolver([new NonSupportingSource()], $repo, static::createStub(NoDatabaseSourceResolver::class));
@@ -103,7 +98,6 @@ class SourceResolverTest extends TestCase
         $app->setName('TestApp');
         $app->setVersion('1.0.0');
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
         $resolver = new SourceResolver([new SupportingSource()], $repo, static::createStub(NoDatabaseSourceResolver::class));
@@ -118,7 +112,6 @@ class SourceResolverTest extends TestCase
         $app->setName('TestApp');
         $app->setVersion('1.0.0');
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
         $fs = new Filesystem('/');
@@ -151,7 +144,6 @@ class SourceResolverTest extends TestCase
         $secondApp->setName('TestApp');
         $secondApp->setVersion('2.0.0');
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
         $firstFs = new Filesystem('/one/');
@@ -178,7 +170,6 @@ class SourceResolverTest extends TestCase
         $app->setName('TestApp');
         $app->setVersion('1.0.0');
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
         $fs = new Filesystem('/');
@@ -206,7 +197,6 @@ class SourceResolverTest extends TestCase
     {
         static::expectException(AppException::class);
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([new AppCollection()]);
 
         $resolver = new SourceResolver([new NonSupportingSource()], $repo, static::createStub(NoDatabaseSourceResolver::class));
@@ -223,7 +213,6 @@ class SourceResolverTest extends TestCase
         $app->setName('TestApp');
         $app->setVersion('1.0.0');
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([new AppCollection([$app])]);
 
         $resolver = new SourceResolver([new NonSupportingSource()], $repo, static::createStub(NoDatabaseSourceResolver::class));
@@ -238,7 +227,6 @@ class SourceResolverTest extends TestCase
         $app->setName('TestApp');
         $app->setVersion('1.0.0');
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([new AppCollection([$app])]);
 
         $resolver = new SourceResolver([new SupportingSource()], $repo, static::createStub(NoDatabaseSourceResolver::class));

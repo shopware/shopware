@@ -218,7 +218,6 @@ class TemplateLifecycleHandlerTest extends TestCase
         }, array_keys($templates), $templates)));
         $app->setActive(true);
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([new AppCollection([$app])]);
 
         return $repo;

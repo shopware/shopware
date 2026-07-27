@@ -20,7 +20,6 @@ export default {
         'userService',
         'repositoryFactory',
         'acl',
-        'userConfigService',
     ],
 
     mixins: [
@@ -230,21 +229,14 @@ export default {
         },
 
         async getFilterSettings() {
-            const userConfig = await this.getUserConfig();
+            const userConfig = (await Shopware.Service('userConfigService').search(['grid.filter.setting-snippet-list']))
+                ?.data?.['grid.filter.setting-snippet-list'];
 
-            this.filterSettings = userConfig.data['grid.filter.setting-snippet-list']
-                ? userConfig.data['grid.filter.setting-snippet-list']
-                : this.createFilterSettings();
-        },
-
-        getUserConfig() {
-            return this.userConfigService.search([
-                'grid.filter.setting-snippet-list',
-            ]);
+            this.filterSettings = userConfig || this.createFilterSettings();
         },
 
         saveUserConfig() {
-            return this.userConfigService.upsert({
+            return Shopware.Service('userConfigService').upsert({
                 'grid.filter.setting-snippet-list': this.filterSettings,
             });
         },

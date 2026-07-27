@@ -28,7 +28,6 @@ class ScheduledTaskExecutorTest extends TestCase
 {
     public function testRunsWithoutScheduleWhenTaskHasNoId(): void
     {
-        /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
         $repository = new StaticEntityRepository([]);
 
         $handler = $this->createHandler($repository);
@@ -42,7 +41,6 @@ class ScheduledTaskExecutorTest extends TestCase
 
     public function testReturnsEarlyWhenTaskNotFound(): void
     {
-        /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
         $repository = new StaticEntityRepository([new ScheduledTaskCollection()]);
 
         $handler = $this->createHandler($repository);
@@ -59,7 +57,6 @@ class ScheduledTaskExecutorTest extends TestCase
         $task = $this->createTask();
         $entity = $this->createEntity($task->getTaskId(), ScheduledTaskDefinition::STATUS_SCHEDULED);
 
-        /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
         $repository = new StaticEntityRepository([new ScheduledTaskCollection([$entity])]);
 
         $handler = $this->createHandler($repository);
@@ -82,7 +79,6 @@ class ScheduledTaskExecutorTest extends TestCase
             300,
         );
 
-        /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
         $repository = new StaticEntityRepository([new ScheduledTaskCollection([$entity])]);
 
         $handler = $this->createHandler($repository);
@@ -116,7 +112,6 @@ class ScheduledTaskExecutorTest extends TestCase
             60,
         );
 
-        /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
         $repository = new StaticEntityRepository([new ScheduledTaskCollection([$entity])]);
 
         $handler = $this->createHandler($repository);
@@ -133,7 +128,6 @@ class ScheduledTaskExecutorTest extends TestCase
         $task = $this->createTask();
         $entity = $this->createEntity($task->getTaskId(), ScheduledTaskDefinition::STATUS_QUEUED);
 
-        /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
         $repository = new StaticEntityRepository([new ScheduledTaskCollection([$entity])]);
 
         $logger = $this->createMock(LoggerInterface::class);
@@ -161,7 +155,6 @@ class ScheduledTaskExecutorTest extends TestCase
         $task->setTaskId(Uuid::randomHex());
         $entity = $this->createEntity($task->getTaskId(), ScheduledTaskDefinition::STATUS_QUEUED);
 
-        /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
         $repository = new StaticEntityRepository([new ScheduledTaskCollection([$entity])]);
 
         $logger = $this->createMock(LoggerInterface::class);
@@ -185,7 +178,6 @@ class ScheduledTaskExecutorTest extends TestCase
         $next = new \DateTimeImmutable('2026-06-09 08:00:00');
         $entity = $this->createEntity($task->getTaskId(), ScheduledTaskDefinition::STATUS_QUEUED);
 
-        /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
         $repository = new StaticEntityRepository([new ScheduledTaskCollection([$entity])]);
 
         $handler = new TestDynamicExecutorHandler($repository, static::createStub(LoggerInterface::class), $next);
@@ -210,7 +202,6 @@ class ScheduledTaskExecutorTest extends TestCase
             300,
         );
 
-        /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
         $repository = new StaticEntityRepository([new ScheduledTaskCollection([$entity])]);
 
         $handler = new TestDynamicExecutorHandler($repository, static::createStub(LoggerInterface::class), null);
@@ -228,7 +219,6 @@ class ScheduledTaskExecutorTest extends TestCase
         $now = new \DateTimeImmutable('2026-06-08 12:00:00');
         $entity = $this->createEntity($task->getTaskId(), ScheduledTaskDefinition::STATUS_QUEUED);
 
-        /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
         $repository = new StaticEntityRepository([new ScheduledTaskCollection([$entity])]);
 
         // the handler returns a time in the past, which must be clamped to now
@@ -247,7 +237,6 @@ class ScheduledTaskExecutorTest extends TestCase
             $task = $this->createTask();
             $entity = $this->createEntity($task->getTaskId(), ScheduledTaskDefinition::STATUS_QUEUED);
 
-            /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
             $repository = new StaticEntityRepository([new ScheduledTaskCollection([$entity])]);
 
             $legacyHandler = new TestLegacyRescheduleHandler($repository, $this->createStub(LoggerInterface::class));

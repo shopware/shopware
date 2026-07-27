@@ -116,6 +116,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
 use Shopware\Core\Framework\DataAbstractionLayer\TechnicalNameExceptionHandler;
+use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\DalSearchInstrumentor;
+use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityGroupResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityTelemetrySubscriber;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExistsValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityNotExistsValidator;
@@ -135,6 +137,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Script\AppContextCreator;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfigProvider;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\CustomField\CustomFieldService;
@@ -949,4 +952,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber')
         ->tag('shopware.telemetry.subscriber');
+
+    // shared entity-name bucketing for telemetry labels (DAL search collectors + HTTP request domain)
+    $services->set(EntityGroupResolver::class);
+
+    // injected into every EntityRepository by EntityCompilerPass; self-gates on the telemetry flag
+    $services->set(DalSearchInstrumentor::class)
+        ->args([
+            service(Meter::class),
+            service(EntityGroupResolver::class),
+            service(MetricConfigProvider::class),
+            param('shopware.telemetry.metrics.enabled'),
+        ]);
 };

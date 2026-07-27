@@ -3,11 +3,13 @@
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
@@ -21,6 +23,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintValidatorFactory;
 use Symfony\Component\Validator\Context\ExecutionContextFactory;
 use Symfony\Component\Validator\Mapping\Factory\BlackHoleMetadataFactory;
@@ -342,6 +346,62 @@ class PriceFieldSerializerTest extends TestCase
         ]);
     }
 
+    #[DataProvider('nonArrayValueProvider')]
+    public function testSerializeNonArrayValueThrows(mixed $value): void
+    {
+        try {
+            $this->encode($value);
+
+            static::fail(WriteConstraintViolationException::class . ' not thrown.');
+        } catch (WriteConstraintViolationException $e) {
+            static::assertCount(1, $e->getViolations()->findByCodes(Type::INVALID_TYPE_ERROR));
+            static::assertSame('/someId', $e->getViolations()->get(0)->getPropertyPath());
+        }
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function nonArrayValueProvider(): iterable
+    {
+        yield 'float' => [12.5];
+        yield 'string' => ['2025-10-09'];
+        yield 'int' => [12];
+        yield 'bool' => [true];
+        yield 'zero' => [0];
+        yield 'empty string' => [''];
+        yield 'numeric string' => ['12.50'];
+    }
+
+    public function testSerializeEmptyArrayStillRequiresDefaultCurrency(): void
+    {
+        try {
+            $this->encode([]);
+
+            static::fail(WriteConstraintViolationException::class . ' not thrown.');
+        } catch (WriteConstraintViolationException $e) {
+            static::assertSame('No price for default currency defined', $e->getViolations()->get(0)->getMessage());
+        }
+    }
+
+    /**
+     * The array check runs before the `NotBlank` check, and `Type` deliberately lets `null` pass so a
+     * required-but-missing price is still reported as blank rather than as a type mismatch.
+     */
+    public function testSerializeNullOnRequiredFieldStillReportsBlank(): void
+    {
+        $field = (new PriceField('test', 'test'))->addFlags(new Required());
+
+        try {
+            $this->encode(null, $field);
+
+            static::fail(WriteConstraintViolationException::class . ' not thrown.');
+        } catch (WriteConstraintViolationException $e) {
+            static::assertCount(1, $e->getViolations()->findByCodes(NotBlank::IS_BLANK_ERROR));
+            static::assertCount(0, $e->getViolations()->findByCodes(Type::INVALID_TYPE_ERROR));
+        }
+    }
+
     public function testDecodeIsBackwardCompatible(): void
     {
         $json = '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca":{"net":5.0,"gross":5.0,"currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true,"listPrice":{"net":"10","gross":"10","currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true},"regulationPrice":{"net":"10","gross":"10","currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true}}}';
@@ -366,13 +426,10 @@ class PriceFieldSerializerTest extends TestCase
         static::assertNull($price->getPercentage());
     }
 
-    /**
-     * @param array<mixed>|PriceCollection $data
-     */
-    private function encode(array|PriceCollection $data): string
+    private function encode(mixed $data, ?PriceField $field = null): string
     {
-        $field = new PriceField('test', 'test');
-        $existence = new EntityExistence('test', ['someId' => true], true, false, false, []);
+        $field ??= new PriceField('test', 'test');
+        $existence = new EntityExistence('product', ['someId' => true], true, false, false, []);
         $keyPair = new KeyValuePair('someId', $data, false);
         $bag = new WriteParameterBag(
             new ProductDefinition(),

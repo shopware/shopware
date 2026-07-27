@@ -4,6 +4,12 @@
 
 ## API
 
+### Malformed price payloads are rejected with a validation error instead of failing the request
+
+Writing a non-array value into a price-like field — for example `"price": 12.5` instead of the expected list of price structs, most easily triggered through a custom field registered with type `price` — aborted the request with an uncaught PHP `TypeError`/`Error` instead of a validation error. Such values now produce a regular write constraint violation, so the API answers with HTTP 400 and an `errors[]` entry pointing at the offending field. This affects `PriceField`, `CalculatedPriceField`, `CartPriceField`, `PriceDefinitionField`, `CashRoundingConfigField` and `TaxFreeConfigField` — in practice `product.price`, `order.price`, `order.shippingCosts`, `order_line_item.price`, `order_line_item.priceDefinition`, `currency.itemRounding`, `country.customerTax` and `price`-typed custom fields.
+
+Note for API consumers: this covers the value written into the field itself. Structurally malformed arrays are not in scope and can still fail with a server error — for example a `priceDefinition` object without a `type`, or a bare price struct sent where a list of structs is expected. Well-formed writes are unaffected.
+
 ## Core
 
 ### Built-in translation system configurable via `shopware.translation`

@@ -1004,6 +1004,36 @@ class CustomFieldTest extends TestCase
         $repo->create($entities, Context::createDefaultContext());
     }
 
+    public function testCustomFieldPriceRejectsNonArrayValue(): void
+    {
+        $this->addCustomFields(['price' => CustomFieldTypes::PRICE]);
+
+        $ids = new IdsCollection();
+        $entities = [
+            [
+                'id' => $ids->create('id-1'),
+                'custom' => [
+                    'price' => 12.5,
+                ],
+            ],
+        ];
+
+        $repo = $this->getTestRepository();
+
+        try {
+            $repo->create($entities, Context::createDefaultContext());
+
+            static::fail(WriteException::class . ' not thrown.');
+        } catch (WriteException $exception) {
+            // `WriteException::getErrors()` `yield from`s each inner exception, so the inner generators'
+            // keys collide — without `preserve_keys: false` every error but the last is silently dropped
+            $errors = iterator_to_array($exception->getErrors(), false);
+
+            static::assertCount(1, $errors);
+            static::assertSame('/0/custom/price', $errors[0]['source']['pointer']);
+        }
+    }
+
     public function testCustomFieldArray(): void
     {
         $this->addCustomFields(['array' => CustomFieldTypes::JSON]);

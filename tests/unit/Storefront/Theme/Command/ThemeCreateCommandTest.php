@@ -79,13 +79,13 @@ class ThemeCreateCommandTest extends TestCase
         static::assertFileExists($expectedDirectory . 'Resources/theme.json');
     }
 
-    public function testSuccessfulCreateExtendedCommand(): void
+    public function testSuccessfulCreateFullCommand(): void
     {
         $expectedDirectory = $this->projectDir . 'custom/plugins/' . self::THEME_NAME . '/src/';
 
         $commandTester = $this->getCommandTester();
 
-        $commandTester->execute(['theme-name' => self::THEME_NAME, '--extended' => true]);
+        $commandTester->execute(['theme-name' => self::THEME_NAME, '--full' => true]);
         $result = preg_replace('/\s+/', ' ', trim($commandTester->getDisplay(true)));
 
         static::assertIsString($result);
@@ -111,6 +111,47 @@ class ThemeCreateCommandTest extends TestCase
         static::assertIsString($baseScssContent);
         static::assertStringContainsString('@import "abstracts/variables";', $baseScssContent);
         static::assertStringContainsString('@import "pages/home";', $baseScssContent);
+    }
+
+    public function testSuccessfulCreateWithConfigOnly(): void
+    {
+        $expectedDirectory = $this->projectDir . 'custom/plugins/' . self::THEME_NAME . '/src/';
+
+        $commandTester = $this->getCommandTester();
+        $commandTester->execute(['theme-name' => self::THEME_NAME, '--with-config' => true]);
+
+        static::assertFileExists($expectedDirectory . 'Resources/config/config.xml');
+        static::assertDirectoryDoesNotExist($expectedDirectory . 'Resources/snippet');
+        static::assertDirectoryDoesNotExist($expectedDirectory . 'Resources/app/storefront/src/scss/abstracts');
+        static::assertFileExists($expectedDirectory . 'Resources/app/storefront/src/scss/base.scss');
+    }
+
+    public function testSuccessfulCreateWithSnippetsOnly(): void
+    {
+        $expectedDirectory = $this->projectDir . 'custom/plugins/' . self::THEME_NAME . '/src/';
+
+        $commandTester = $this->getCommandTester();
+        $commandTester->execute(['theme-name' => self::THEME_NAME, '--with-snippets' => true]);
+
+        static::assertFileExists($expectedDirectory . 'Resources/snippet/storefront.de-DE.json');
+        static::assertFileExists($expectedDirectory . 'Resources/snippet/storefront.en-GB.json');
+        static::assertDirectoryDoesNotExist($expectedDirectory . 'Resources/config');
+        static::assertDirectoryDoesNotExist($expectedDirectory . 'Resources/app/storefront/src/scss/abstracts');
+    }
+
+    public function testSuccessfulCreateWithScssOnly(): void
+    {
+        $expectedDirectory = $this->projectDir . 'custom/plugins/' . self::THEME_NAME . '/src/';
+
+        $commandTester = $this->getCommandTester();
+        $commandTester->execute(['theme-name' => self::THEME_NAME, '--with-scss' => true]);
+
+        $scssBase = $expectedDirectory . 'Resources/app/storefront/src/scss/';
+        static::assertFileExists($scssBase . 'base.scss');
+        static::assertFileExists($scssBase . 'abstracts/_variables.scss');
+        static::assertFileExists($scssBase . 'pages/_home.scss');
+        static::assertDirectoryDoesNotExist($expectedDirectory . 'Resources/config');
+        static::assertDirectoryDoesNotExist($expectedDirectory . 'Resources/snippet');
     }
 
     public function testCommandFailsWhenDirectoryCannotBeCreated(): void

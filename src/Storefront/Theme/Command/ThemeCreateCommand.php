@@ -38,7 +38,10 @@ class ThemeCreateCommand extends Command
         $this
             ->addArgument('theme-name', InputArgument::OPTIONAL, 'Theme name')
             ->addOption('static', null, null, 'Theme will be created in the static-plugins folder')
-            ->addOption('extended', null, null, 'Also scaffold a theme config, snippet files, and an SCSS folder structure');
+            ->addOption('full', null, null, 'Also scaffold a theme config, snippet files, and an SCSS folder structure (shorthand for --with-config --with-snippets --with-scss)')
+            ->addOption('with-config', null, null, 'Also scaffold a theme config.xml')
+            ->addOption('with-snippets', null, null, 'Also scaffold storefront snippet files')
+            ->addOption('with-scss', null, null, 'Also scaffold an SCSS 7-1 folder structure');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -46,7 +49,10 @@ class ThemeCreateCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $themeName = $input->getArgument('theme-name');
         $staticPrefix = $input->getOption('static') ? 'static-' : '';
-        $extended = (bool) $input->getOption('extended');
+        $full = (bool) $input->getOption('full');
+        $withConfig = $full || $input->getOption('with-config');
+        $withSnippets = $full || $input->getOption('with-snippets');
+        $withScss = $full || $input->getOption('with-scss');
 
         if (!$themeName) {
             $question = new Question('Please enter a theme name: ');
@@ -93,13 +99,19 @@ class ThemeCreateCommand extends Command
             $this->createDirectory($directory . '/src/Resources/app/storefront/dist/storefront/js');
             $this->createDirectory($directory . '/src/Resources/app/storefront/dist/storefront/js/' . $snakeCaseName);
 
-            if ($extended) {
+            if ($withScss) {
                 $this->createDirectory($directory . '/src/Resources/app/storefront/src/scss/abstracts');
                 $this->createDirectory($directory . '/src/Resources/app/storefront/src/scss/base');
                 $this->createDirectory($directory . '/src/Resources/app/storefront/src/scss/components');
                 $this->createDirectory($directory . '/src/Resources/app/storefront/src/scss/layout');
                 $this->createDirectory($directory . '/src/Resources/app/storefront/src/scss/pages');
+            }
+
+            if ($withConfig) {
                 $this->createDirectory($directory . '/src/Resources/config');
+            }
+
+            if ($withSnippets) {
                 $this->createDirectory($directory . '/src/Resources/snippet');
             }
         } catch (ThemeException $e) {
@@ -140,10 +152,16 @@ class ThemeCreateCommand extends Command
         $this->filesystem->touch($directory . '/src/Resources/app/storefront/src/main.js');
         $this->filesystem->touch($directory . '/src/Resources/app/storefront/dist/storefront/js/' . $snakeCaseName . '/' . $snakeCaseName . '.js');
 
-        if ($extended) {
+        if ($withConfig) {
             $this->filesystem->dumpFile($directory . '/src/Resources/config/config.xml', $this->getConfigTemplate());
+        }
+
+        if ($withSnippets) {
             $this->filesystem->dumpFile($directory . '/src/Resources/snippet/storefront.de-DE.json', $this->getSnippetTemplate());
             $this->filesystem->dumpFile($directory . '/src/Resources/snippet/storefront.en-GB.json', $this->getSnippetTemplate());
+        }
+
+        if ($withScss) {
             $this->filesystem->dumpFile($directory . '/src/Resources/app/storefront/src/scss/base.scss', $this->getBaseScssTemplate());
             $this->filesystem->dumpFile($directory . '/src/Resources/app/storefront/src/scss/abstracts/_variables.scss', "// Theme-specific SCSS variables.\n");
             $this->filesystem->dumpFile($directory . '/src/Resources/app/storefront/src/scss/abstracts/_mixins.scss', "// Theme-specific SCSS mixins.\n");

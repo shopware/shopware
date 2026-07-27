@@ -80,6 +80,21 @@ Cron-driven product export generation no longer derives the next run from `gener
 
 ## Hosting & Configuration
 
+### Fallback thumbnail sizes for remote thumbnails
+
+When remote thumbnails are enabled, operators can optionally configure `shopware.media.remote_thumbnails.fallback_sizes`. It defaults to `[]` and accepts entries with `width` and `height`:
+
+```yaml
+# config/packages/shopware.yaml
+shopware:
+    media:
+        remote_thumbnails:
+            fallback_sizes:
+                - { width: 400, height: 400 }
+```
+
+Fallback sizes apply only in remote-thumbnail mode to media in known folders whose configuration has `createThumbnails: true` but no assigned thumbnail sizes. Configured folder-specific sizes remain the normal source when thumbnail creation is enabled. A folder with `createThumbnails: false` is an explicit opt-out and receives no thumbnail URLs, even when fallback sizes are configured. Media without a known folder mapping also receives no fallback thumbnail URLs.
+
 # 6.7.13.0
 
 ## Critical Fixes

@@ -58,7 +58,6 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
         $customerDefinition = new CustomerDefinition();
         $customerDefinition->compile($definitionInstanceRegistry);
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 CustomerEntity::class,
@@ -77,7 +76,6 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
             'id' => $salesChannelId,
             'languages' => new LanguageCollection([$language]),
         ]);
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([
             new SalesChannelCollection([$salesChannel]),
         ]);
@@ -153,9 +151,7 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
         $customerDefinition = new CustomerDefinition();
         $customerDefinition->compile($definitionInstanceRegistry);
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository([], $customerDefinition);
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([]);
         $salesChannelContextService = static::createStub(SalesChannelContextService::class);
         $eventDispatcher = new EventDispatcher();
@@ -208,7 +204,6 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
         $customerDefinition = new CustomerDefinition();
         $customerDefinition->compile($definitionInstanceRegistry);
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 CustomerEntity::class,
@@ -225,7 +220,6 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
             'id' => $salesChannelIdFromSource,
             'languages' => new LanguageCollection([$language]),
         ]);
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([
             new SalesChannelCollection([$salesChannel]),
         ]);
@@ -297,7 +291,6 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
         $customerDefinition = new CustomerDefinition();
         $customerDefinition->compile($definitionInstanceRegistry);
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 CustomerEntity::class,
@@ -314,7 +307,6 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
             'id' => $salesChannelId,
             'languages' => new LanguageCollection([$salesChannelHasOnlyOtherLanguage]),
         ]);
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([
             new SalesChannelCollection([$salesChannel]),
         ]);

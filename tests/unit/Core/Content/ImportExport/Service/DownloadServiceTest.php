@@ -39,7 +39,6 @@ class DownloadServiceTest extends TestCase
     public function testInvalidAccessToken(ImportExportFileEntity $fileEntity, string $accessToken): void
     {
         $this->expectExceptionObject(ImportExportException::invalidFileAccessToken());
-        /** @var StaticEntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository */
         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
 
         $downloadService = $this->createDownloadService(fileRepository: $fileRepository);
@@ -52,7 +51,6 @@ class DownloadServiceTest extends TestCase
     {
         $this->expectExceptionObject(ImportExportException::fileNotFound($fileId));
 
-        /** @var StaticEntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository */
         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
 
         $downloadService = $this->createDownloadService(fileRepository: $fileRepository);
@@ -68,7 +66,6 @@ class DownloadServiceTest extends TestCase
         string $expectOutputFilename,
         string $expectedContentType
     ): void {
-        /** @var StaticEntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository */
         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
 
         $fileSystem = $this->createMock(Filesystem::class);
@@ -104,7 +101,6 @@ class DownloadServiceTest extends TestCase
             'updatedAt' => new \DateTimeImmutable(),
         ]);
 
-        /** @var StaticEntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository */
         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
 
         $fileSystem = $this->createMock(Filesystem::class);
@@ -167,7 +163,6 @@ class DownloadServiceTest extends TestCase
             'updatedAt' => new \DateTimeImmutable(),
         ]);
 
-        /** @var StaticEntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository */
         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
 
         $fileSystem = $this->createMock(Filesystem::class);

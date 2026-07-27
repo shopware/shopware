@@ -68,16 +68,6 @@ All existing `reason:*` BC-planning annotations in the core have been migrated t
 
 Cron-driven product export generation no longer derives the next run from `generatedAt`, which also anchors the cache validity of the generated feed file. A new `nextGenerationAt` field on the `product_export` entity is set when the first export chunk starts, and the scheduler prefers it over the legacy `generatedAt` + interval calculation. This keeps the schedule anchored to the export start time without making storefront requests treat in-flight exports as stale. The database column is added automatically by a migration; exports generated before the update fall back to the previous `generatedAt`-based scheduling until their next run. No action is required.
 
-### Cart save signals concurrently deleted carts
-
-`CartPersister::save()` and `RedisCartPersister::save()` now throw `CartException::tokenNotFound()` (error code `CHECKOUT__CART_TOKEN_NOT_FOUND`, HTTP 404) when they are asked to update an already persisted cart whose storage entry was deleted in the meantime, for example by a concurrent order placement with the same context token. Previously such a save was silently discarded and the stale cart was still returned to the client.
-
-`GET /store-api/checkout/cart` handles this like an unknown cart token and responds with a fresh empty cart. Mutating routes such as adding, updating, or removing line items now respond with the error instead of pretending the write succeeded; API clients should re-fetch the cart in that case.
-
-`CartService::add()` recovers on its own: if the cart was deleted while the items were being added, it retries once against a fresh cart, so the items end up in a new cart instead of being lost. This keeps adding to the cart and merging a guest cart into a customer cart during login working across a concurrent order placement. The remaining Storefront entry points degrade gracefully: the checkout confirm page keeps the cart unchanged instead of switching payment or shipping method.
-
-Extensions are affected in two ways: code calling `AbstractCartPersister::save()` should be prepared for the exception when the cart may have been deleted concurrently, and decorators of `AbstractCartPersister` should mirror the new behaviour so callers can rely on it.
-
 ## Administration
 
 ## Storefront

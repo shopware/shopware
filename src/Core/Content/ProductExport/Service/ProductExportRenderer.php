@@ -14,6 +14,7 @@ use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -110,10 +111,14 @@ class ProductExportRenderer implements ProductExportRendererInterface
             throw ProductExportException::templateBodyNotSet();
         }
 
+        if (!Feature::isActive('v6.8.0.0')) {
+            // @deprecated tag:v6.8.0.0 - MediaUrlGenerator encodes media paths.
+            $data = $this->encodeMediaUrls($data);
+        }
+
         try {
             return $this->templateRenderer->render(
                 $bodyTemplate,
-                // $this->encodeMediaUrls($data),
                 $data,
                 $salesChannelContext->getContext()
             ) . \PHP_EOL;

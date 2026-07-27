@@ -13,6 +13,8 @@
  * The positions where an identifier is *not* a read:
  * - member-access property name - the `x` in `obj.x` (a read only when computed, `obj[x]`)
  * - static object key - the `x` in `{ x: … }` or `x() {}` (a read only when computed, `{ [x]: … }`)
+ * - static class member name - the `x` in `class C { x = 1 }` or `class C { x() {} }`
+ * - enum member name - the `x` in `enum E { x }`
  * - declaration id - the name in `const x` / `function x` / `class x`
  * - function parameter name
  * - break/continue/label target
@@ -44,6 +46,25 @@ function isValueReadPosition(node: BabelNode, parent: BabelNode | null): boolean
     // e.g. `{ count() {} }` does not read the method name `count`.
     if (parent.type === 'ObjectMethod') {
         return parent.key !== node || Boolean(parent.computed);
+    }
+
+    // e.g. `class Thing { count = 0; total() {} }` declares members named `count`/`total`; it does not
+    // read bindings of those names. Renaming them would change the class's own API. A member's value or
+    // body is still a read, hence the key comparison rather than a blanket false.
+    if (parent.type === 'ClassMethod' || parent.type === 'ClassProperty' || parent.type === 'ClassAccessorProperty') {
+        return parent.key !== node || Boolean(parent.computed);
+    }
+
+    // e.g. `class Thing { #count = 0 }` - `#count` is a class-private name, never a binding reference.
+    // Private members reach here through their `PrivateName` key, so this also covers
+    // ClassPrivateProperty and ClassPrivateMethod (whose values and bodies stay ordinary reads).
+    if (parent.type === 'PrivateName') {
+        return false;
+    }
+
+    // e.g. `enum Status { active }` declares the member `active` rather than reading a binding.
+    if (parent.type === 'TSEnumMember') {
+        return parent.id !== node;
     }
 
     // e.g. `const count = 1` or `function count() {}` declare `count` rather than reading it.

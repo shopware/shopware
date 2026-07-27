@@ -121,13 +121,24 @@ type SetupRenameTarget = {
 };
 
 /**
- * Whether an identifier is the value of a shorthand object property (`{ foo }` or `{ foo = 1 }`).
+ * Whether an identifier is the value of a shorthand object property without a default (`{ foo }`).
  *
- * In these the property key and value share one source range, so a plain rename would rewrite the key
- * too; the replacement must expand the shorthand to `key: alias`.
+ * The property key and value share one source range, so a plain rename would rewrite the key too; the
+ * replacement must expand the shorthand to `key: alias`.
+ *
+ * The defaulted form (`{ foo = 1 }`) shares that range too, but Babel nests the identifier as an
+ * `AssignmentPattern`'s `left`, so the leaf cannot recognise it from its parent alone. It is handled
+ * by the dedicated branch in `collectSetupRenameTargets`, which expands it the same way.
  */
 function isShorthandPropertyValue(node: Identifier, parent: BabelNode | null): boolean {
     return parent?.type === 'ObjectProperty' && parent.shorthand === true && parent.value === node;
+}
+
+/**
+ * Expands the alias of a shorthand property into `key: alias`, keeping the property key intact.
+ */
+function expandShorthandProperty(name: string, alias: string): string {
+    return `${name}: ${alias}`;
 }
 
 /**
@@ -142,91 +153,124 @@ function isShorthandPropertyValue(node: Identifier, parent: BabelNode | null): b
  * `key: alias` so the property key survives the rewrite.
  */
 function collectSetupRenameTargets(
-    node: BabelNode | null | undefined,
+    root: BabelNode | null | undefined,
     names: Set<string>,
     aliasFor: (name: string) => string,
-    targets: SetupRenameTarget[] = [],
-    shadowedBindings = new Set<string>(),
-    parent: BabelNode | null = null,
-    inTypePosition = false,
 ): SetupRenameTarget[] {
-    if (!node) {
-        return targets;
+    const targets: SetupRenameTarget[] = [];
+
+    /** Whether this occurrence refers to the top-level binding rather than a local of the same name. */
+    function renames(name: string, shadowedBindings: Set<string>): boolean {
+        return names.has(name) && !shadowedBindings.has(name);
     }
 
-    // Inside type positions only `typeof name` reads the value binding; every other identifier there
-    // is a type name or member key and must not be renamed.
-    if (!inTypePosition && node.type === 'Identifier' && names.has(node.name) && !shadowedBindings.has(node.name)) {
-        // Value reads/writes plus declaration ids; static keys and member property names still excluded.
-        const isDeclarationId =
-            parent !== null &&
-            'id' in parent &&
-            (parent as { id?: BabelNode }).id === node &&
-            (parent.type === 'VariableDeclarator' ||
-                parent.type === 'FunctionDeclaration' ||
-                parent.type === 'ClassDeclaration');
-
-        if (isDeclarationId || isValueReadPosition(node, parent)) {
-            const alias = aliasFor(node.name);
-
-            targets.push({
-                node,
-                replacement: isShorthandPropertyValue(node, parent) ? `${node.name}: ${alias}` : alias,
-            });
-        }
-    }
-
-    // `typeof count` reads the value binding from type space and must be renamed with it.
-    if (node.type === 'TSTypeQuery') {
-        const identifier = getLeftmostEntityIdentifier(node.exprName);
-
-        if (identifier && names.has(identifier.name) && !shadowedBindings.has(identifier.name)) {
-            targets.push({ node: identifier, replacement: aliasFor(identifier.name) });
+    /**
+     * `shadowedBindings` and `inTypePosition` are the only genuine recursion state; `names`, `aliasFor`
+     * and `targets` are closed over so they are not threaded through every call site.
+     */
+    function visit(
+        node: BabelNode | null | undefined,
+        shadowedBindings: Set<string>,
+        parent: BabelNode | null,
+        inTypePosition: boolean,
+    ): void {
+        if (!node) {
+            return;
         }
 
-        return targets;
-    }
+        // Inside type positions only `typeof name` reads the value binding; every other identifier there
+        // is a type name or member key and must not be renamed.
+        if (!inTypePosition && node.type === 'Identifier' && renames(node.name, shadowedBindings)) {
+            // Value reads/writes plus declaration ids; static keys and member property names still excluded.
+            const isDeclarationId =
+                parent !== null &&
+                'id' in parent &&
+                (parent as { id?: BabelNode }).id === node &&
+                (parent.type === 'VariableDeclarator' ||
+                    parent.type === 'FunctionDeclaration' ||
+                    parent.type === 'ClassDeclaration');
 
-    // A type reference naming a *runtime* binding must be renamed with it. Only enums (and classes)
-    // land in `names` while also being usable as a type, so `defineProps<{ kind: Kind }>()` next to
-    // `enum Kind` has to follow the declaration to `__swSetupAuthor_Kind` - otherwise the alias is
-    // declared and the type reference is left dangling. Purely type-level names (interfaces, type
-    // aliases) are never runtime bindings, so they are never in `names` and stay untouched.
-    if (node.type === 'TSTypeReference') {
-        const identifier = getLeftmostEntityIdentifier(node.typeName);
+            if (isDeclarationId || isValueReadPosition(node, parent)) {
+                const alias = aliasFor(node.name);
 
-        if (identifier && names.has(identifier.name) && !shadowedBindings.has(identifier.name)) {
-            targets.push({ node: identifier, replacement: aliasFor(identifier.name) });
+                targets.push({
+                    node,
+                    replacement: isShorthandPropertyValue(node, parent) ? expandShorthandProperty(node.name, alias) : alias,
+                });
+            }
         }
 
-        return targets;
-    }
+        // `typeof count` reads the value binding from type space and must be renamed with it.
+        if (node.type === 'TSTypeQuery') {
+            const identifier = getLeftmostEntityIdentifier(node.exprName);
 
-    const childShadowedBindings = new Set(shadowedBindings);
+            if (identifier && renames(identifier.name, shadowedBindings)) {
+                targets.push({ node: identifier, replacement: aliasFor(identifier.name) });
+            }
 
-    if (isFunctionLikeNode(node)) {
-        const functionNode = node as unknown as { params: BabelNode[]; body: BabelNode };
+            return;
+        }
 
-        functionNode.params.forEach((param) =>
-            forEachPatternIdentifier(param, (identifier) => childShadowedBindings.add(identifier.name)),
+        // A type reference naming a *runtime* binding must be renamed with it. Only enums (and classes)
+        // land in `names` while also being usable as a type, so `defineProps<{ kind: Kind }>()` next to
+        // `enum Kind` has to follow the declaration to `__swSetupAuthor_Kind` - otherwise the alias is
+        // declared and the type reference is left dangling. Purely type-level names (interfaces, type
+        // aliases) are never runtime bindings, so they are never in `names` and stay untouched.
+        if (node.type === 'TSTypeReference') {
+            const identifier = getLeftmostEntityIdentifier(node.typeName);
+
+            if (identifier && renames(identifier.name, shadowedBindings)) {
+                targets.push({ node: identifier, replacement: aliasFor(identifier.name) });
+            }
+
+            return;
+        }
+
+        const childShadowedBindings = new Set(shadowedBindings);
+
+        if (isFunctionLikeNode(node)) {
+            const functionNode = node as unknown as { params: BabelNode[]; body: BabelNode };
+
+            functionNode.params.forEach((param) =>
+                forEachPatternIdentifier(param, (identifier) => childShadowedBindings.add(identifier.name)),
+            );
+
+            collectFunctionScopeDeclarations(functionNode.body, childShadowedBindings);
+        }
+
+        const childInTypePosition = inTypePosition || isTypeDeclarationContainer(node);
+
+        // A shorthand property with a default (`{ foo = 1 }`) nests the declared identifier one level
+        // deeper, as the AssignmentPattern's `left` - but that identifier still shares its source range
+        // with the property KEY, exactly like the plain `{ foo }` form. So it needs the same expansion
+        // to `foo: alias`; renaming it in place would rewrite the key too and the destructure would read
+        // a property that does not exist, silently yielding the default forever.
+        //
+        // Handled here rather than at the leaf because the leaf's parent is the AssignmentPattern, which
+        // carries no hint that it sits inside a shorthand property. The `key` child is skipped
+        // deliberately: it covers the same source range as `left`, so visiting it could only duplicate
+        // the edit. Only `right` (the default expression) still needs the ordinary walk.
+        if (node.type === 'ObjectProperty' && node.shorthand && node.value.type === 'AssignmentPattern') {
+            const declared = node.value.left;
+
+            if (!inTypePosition && declared.type === 'Identifier' && renames(declared.name, shadowedBindings)) {
+                targets.push({
+                    node: declared,
+                    replacement: expandShorthandProperty(declared.name, aliasFor(declared.name)),
+                });
+            }
+
+            visit(node.value.right, childShadowedBindings, node.value, childInTypePosition);
+
+            return;
+        }
+
+        childBabelEntries(node).forEach(({ node: child, key }) =>
+            visit(child, childShadowedBindings, node, childInTypePosition || isTypeKey(key)),
         );
-
-        collectFunctionScopeDeclarations(functionNode.body, childShadowedBindings);
     }
 
-    const childInTypePosition = inTypePosition || isTypeDeclarationContainer(node);
-
-    childBabelEntries(node).forEach(({ node: child, key }) =>
-        collectSetupRenameTargets(
-            child,
-            names,
-            aliasFor,
-            targets,
-            childShadowedBindings,
-            node,
-            childInTypePosition || isTypeKey(key),
-        ),
-    );
+    visit(root, new Set<string>(), null, false);
 
     return targets;
 }

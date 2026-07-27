@@ -93,6 +93,101 @@ describe('build/vue-setup-transform base rename pass', () => {
         expect(result).toContain('const __swSetupAuthor_out = __swSetupAuthor_compute() + __swSetupAuthor_total;');
     });
 
+    it.each([
+        [
+            'shorthand without a default expands, keeping the key',
+            'const { foo } = config;',
+            'const { foo: __swSetupAuthor_foo } = __swSetupAuthor_config;',
+        ],
+        [
+            'shorthand WITH a default expands too, keeping the key and the default',
+            'const { foo = 5 } = config;',
+            'const { foo: __swSetupAuthor_foo = 5 } = __swSetupAuthor_config;',
+        ],
+        [
+            'renamed key leaves the key alone and aliases the local',
+            'const { other: foo } = config;',
+            'const { other: __swSetupAuthor_foo } = __swSetupAuthor_config;',
+        ],
+        [
+            'renamed key with a default leaves the key alone',
+            'const { other: foo = 5 } = config;',
+            'const { other: __swSetupAuthor_foo = 5 } = __swSetupAuthor_config;',
+        ],
+        [
+            'array pattern with a default has no key to protect',
+            'const [foo = 5] = config;',
+            'const [__swSetupAuthor_foo = 5] = __swSetupAuthor_config;',
+        ],
+        [
+            'rest element aliases the collected name while the sibling shorthand still expands',
+            'const { other, ...foo } = config;',
+            'const { other: __swSetupAuthor_other, ...__swSetupAuthor_foo } = __swSetupAuthor_config;',
+        ],
+    ])('renames a destructured binding: %s', (_name, declaration, expected) => {
+        const source = stripIndent`
+            <script setup>
+            const config = { foo: 1, other: 2 };
+            ${declaration}
+            swDefinePublic({ foo });
+            </script>
+        `;
+
+        // A destructuring pattern's key and value share one source range in the shorthand forms, so a
+        // blind rename rewrites the KEY and the destructure silently reads a property that does not
+        // exist - yielding `undefined`, or the default forever when one is present.
+        expect(transformOrFail(source, 'sw-destructure.vue').code).toContain(expected);
+    });
+
+    it('does not rename class member names that collide with a top-level binding', () => {
+        const source = stripIndent`
+            <script setup>
+            const count = 1;
+            const total = 2;
+            class Thing {
+                count = 0;
+                total() {
+                    return 3;
+                }
+            }
+            const thing = new Thing();
+            swDefinePublic({ thing });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'sw-class-members.vue').code;
+
+        // The class binding itself is renamed, but its member names are its own API: renaming `count`
+        // would make `thing.count` read undefined, and renaming `total` would make `thing.total()`
+        // throw "is not a function".
+        expect(result).toContain(
+            'class __swSetupAuthor_Thing {\n    count = 0;\n    total() {\n        return 3;\n    }\n}',
+        );
+        expect(result).toContain('const __swSetupAuthor_thing = new __swSetupAuthor_Thing();');
+    });
+
+    it('does not rename enum member names that collide with a top-level binding', () => {
+        const source = stripIndent`
+            <script setup lang="ts">
+            const active = 1;
+            enum Status {
+                active,
+                done,
+            }
+            const status = Status.active;
+            swDefinePublic({ status });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'sw-enum-members.vue').code;
+
+        // `Status` is a runtime binding, so the enum name follows its declaration - but the member
+        // `active` is a key on that enum, not a reference to the top-level `active` binding. Renaming
+        // it would make `Status.active` undefined.
+        expect(result).toContain('enum __swSetupAuthor_Status {\n    active,\n    done,\n}');
+        expect(result).toContain('const __swSetupAuthor_status = __swSetupAuthor_Status.active;');
+    });
+
     it('renames member-access objects but never the static property name', () => {
         const source = stripIndent`
             <script setup>

@@ -703,6 +703,10 @@ class InvoiceRendererTest extends TestCase
 
         $data = [
             'displayAdditionalNoteDelivery' => $enableIntraCommunityDeliveryLabel,
+            'displayCustomerVatId' => false,
+            'displayHeader' => true,
+            'displayLineItems' => true,
+            'displayPrices' => true,
             'fileTypes' => ['pdf', 'html'],
         ];
 
@@ -734,6 +738,13 @@ class InvoiceRendererTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
+        static::getContainer()->get('customer.repository')->upsert([
+            [
+                'id' => $order->getOrderCustomer()?->getCustomerId(),
+                'vatIds' => [$vatNumber],
+            ],
+        ], Context::createDefaultContext());
+
         $rendered = $this->invoiceRenderer->render(
             [$orderId => $invoice],
             $this->context,
@@ -745,8 +756,12 @@ class InvoiceRendererTest extends TestCase
 
         if ($shouldDisplay) {
             static::assertStringContainsString('Intra-community delivery (EU)', $data[$orderId]->getContent());
+            static::assertStringContainsString("VAT Reg.No: $vatNumber", $data[$orderId]->getContent());
+            static::assertStringNotContainsString('Incl. VAT', $data[$orderId]->getContent());
         } else {
             static::assertStringNotContainsString('Intra-community delivery (EU)', $data[$orderId]->getContent());
+            static::assertStringNotContainsString('VAT Reg.No:', $data[$orderId]->getContent());
+            static::assertStringContainsString('Incl. VAT', $data[$orderId]->getContent());
         }
     }
 

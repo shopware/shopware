@@ -33,13 +33,9 @@ All blocks of this template are available in the template which renders this tem
 
                 {% block document_line_item_table_head_prices %}
                     {% if config.displayPrices %}
-                        {% set companyTaxEnabled = billingAddress.country.companyTax.enabled %}
-                        {% set displayAdditionalNoteDelivery = config.displayAdditionalNoteDelivery %}
-                        {% set isDeliveryCountry = billingAddress.country.id in config.deliveryCountries %}
-                        {% set taxStatusGross = order.price.taxStatus == constant('Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice::TAX_STATE_GROSS') %}
-                        {% set taxStatusNet = order.price.taxStatus == constant('Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice::TAX_STATE_NET') %}
-
-                        {% set displayVAT = not companyTaxEnabled or not (displayAdditionalNoteDelivery and isDeliveryCountry) %}
+                        {% set taxStatusGross = order.price.taxStatus == constant('Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice::TAX_STATE_GROSS') -%}
+                        {% set taxStatusNet = order.price.taxStatus == constant('Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice::TAX_STATE_NET') -%}
+                        {% set displayVAT = not config.intraCommunityDelivery -%}
 
                         {% block document_line_item_table_head_tax_rate %}
                             <th class="numbers">{{ 'document.lineItems.header.tax'|trans|sw_sanitize(null, true) }}</th>

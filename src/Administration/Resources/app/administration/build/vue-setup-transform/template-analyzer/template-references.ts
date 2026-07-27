@@ -29,7 +29,11 @@ import {
  */
 type TemplateReferences = {
     references: Set<string>;
-    writeTargets: Set<string>;
+    /**
+     * Write targets mapped to the template offset of the expression that writes them, so a rejection can
+     * point at the author's `@click="count = 1"` rather than at the enclosing block.
+     */
+    writeTargets: Map<string, number>;
 };
 
 type TemplateEdit = {
@@ -67,69 +71,48 @@ type SlotMapping = {
 };
 
 /**
- * Returns names declared by a Vue v-slot expression.
+ * Returns the pattern texts a directive contributes, in evaluation order.
  *
+ * A v-slot contributes its single expression (`#default="{ item }"`); a v-for contributes its alias
+ * slots (`(value, key, index)`) left to right, so an earlier alias shadows a later default.
  */
-function collectSlotScopeNames(slotDirective: DirectiveNode | undefined): Set<string> {
-    const scopeNames = new Set<string>();
-
-    if (!slotDirective?.exp?.content) {
-        return scopeNames;
+function getBindingPatternSources(directive: DirectiveNode | undefined): string[] {
+    if (!directive) {
+        return [];
     }
 
-    try {
-        const { pattern } = parseBindingPattern(slotDirective.exp.content);
-        addPatternNames(pattern, scopeNames);
-    } catch {
-        return scopeNames;
+    if (directive.name === 'for') {
+        const parseResult = directive.forParseResult;
+
+        return [
+            parseResult?.value,
+            parseResult?.key,
+            parseResult?.index,
+        ]
+            .map((expression) => expression?.content)
+            .filter((content): content is string => Boolean(content));
     }
 
-    return scopeNames;
+    return directive.exp?.content ? [directive.exp.content] : [];
 }
 
 /**
- * Returns outer references used by a Vue v-slot binding pattern, such as destructuring defaults and computed keys.
+ * Returns the names a directive's binding patterns declare (v-slot props, v-for aliases).
  *
+ * An unparseable v-for alias falls back to its raw text, which is what a plain `v-for="item in list"`
+ * alias already looks like; an unparseable v-slot pattern is left to Vue's own parser to report.
  */
-function collectSlotScopeReferences(slotDirective: DirectiveNode | undefined, templateScope: Set<string>): Set<string> {
-    const references = new Set<string>();
-
-    if (!slotDirective?.exp?.content) {
-        return references;
-    }
-
-    try {
-        const { pattern } = parseBindingPattern(slotDirective.exp.content);
-        collectPatternReferences(pattern, [templateScope], references);
-    } catch {
-        // Invalid or unsupported patterns are handled by Vue's own template parser/compiler.
-    }
-
-    return references;
-}
-
-/**
- * Returns v-for aliases declared on an element.
- *
- */
-function collectForScopeNames(forDirective: DirectiveNode | undefined): Set<string> {
+function collectBindingPatternNames(directive: DirectiveNode | undefined): Set<string> {
     const scopeNames = new Set<string>();
-    const parseResult = forDirective?.forParseResult;
 
-    [
-        parseResult?.value,
-        parseResult?.key,
-        parseResult?.index,
-    ].forEach((expression) => {
-        if (!expression?.content) {
-            return;
-        }
-
+    getBindingPatternSources(directive).forEach((source) => {
         try {
-            const { pattern } = parseBindingPattern(expression.content);
+            const { pattern } = parseBindingPattern(source);
             addPatternNames(pattern, scopeNames);
         } catch {
-            scopeNames.add(expression.content);
+            if (directive?.name === 'for') {
+                scopeNames.add(source);
+            }
         }
     });
 
@@ -137,24 +120,17 @@ function collectForScopeNames(forDirective: DirectiveNode | undefined): Set<stri
 }
 
 /**
- * Returns outer references used in v-for aliases, such as destructuring defaults and computed keys.
+ * Returns the outer references a directive's binding patterns read.
  *
+ * A pattern only reads through destructuring defaults (`{ a = fallback }`) and computed keys
+ * (`{ [key]: v }`); the names it declares are handled by `collectBindingPatternNames`.
  */
-function collectForAliasReferences(forDirective: DirectiveNode | undefined, templateScope: Set<string>): Set<string> {
+function collectBindingPatternReferences(directive: DirectiveNode | undefined, templateScope: Set<string>): Set<string> {
     const references = new Set<string>();
-    const parseResult = forDirective?.forParseResult;
 
-    [
-        parseResult?.value,
-        parseResult?.key,
-        parseResult?.index,
-    ].forEach((expression) => {
-        if (!expression?.content) {
-            return;
-        }
-
+    getBindingPatternSources(directive).forEach((source) => {
         try {
-            const { pattern } = parseBindingPattern(expression.content);
+            const { pattern } = parseBindingPattern(source);
             collectPatternReferences(pattern, [templateScope], references);
         } catch {
             // Invalid or unsupported patterns are handled by Vue's own template parser/compiler.
@@ -240,7 +216,7 @@ function collectDirectiveReferences(directive: DirectiveNode, templateScope: Set
  */
 function collectTemplateReferences(children: TemplateChildNode[], initialScope: Set<string>): TemplateReferences {
     const references = new Set<string>();
-    const writeTargets = new Set<string>();
+    const writeTargets = new Map<string, number>();
 
     function visit(node: TemplateChildNode, scope: Set<string>): void {
         if (node.type === NodeTypes.INTERPOLATION) {
@@ -260,8 +236,8 @@ function collectTemplateReferences(children: TemplateChildNode[], initialScope: 
 
         if (forDirective) {
             collectDirectiveReferences(forDirective, scope).forEach((name) => references.add(name));
-            collectForAliasReferences(forDirective, scope).forEach((name) => references.add(name));
-            collectForScopeNames(forDirective).forEach((name) => childScope.add(name));
+            collectBindingPatternReferences(forDirective, scope).forEach((name) => references.add(name));
+            collectBindingPatternNames(forDirective).forEach((name) => childScope.add(name));
         }
 
         node.props.forEach((prop) => {
@@ -275,7 +251,13 @@ function collectTemplateReferences(children: TemplateChildNode[], initialScope: 
 
             // Assignment/update targets in a directive expression (e.g. `@click="count = count + 1"`).
             if (directive.exp?.content) {
-                collectExpressionWriteTargets(directive.exp.content, childScope).forEach((name) => writeTargets.add(name));
+                const expressionOffset = directive.exp.loc.start.offset;
+
+                collectExpressionWriteTargets(directive.exp.content, childScope).forEach((name) => {
+                    if (!writeTargets.has(name)) {
+                        writeTargets.set(name, expressionOffset);
+                    }
+                });
             }
 
             // Any slot directive - default, named (#item), or dynamic (#[name]) - is handled the same:
@@ -284,8 +266,8 @@ function collectTemplateReferences(children: TemplateChildNode[], initialScope: 
             // shadow the slot content, so a `#item="{ info }"` with a setup binding `info` does not
             // over-forward the shadowed `info`.
             if (directive.name === 'slot') {
-                collectSlotScopeReferences(directive, childScope).forEach((name) => references.add(name));
-                collectSlotScopeNames(directive).forEach((name) => slotScopeNames.add(name));
+                collectBindingPatternReferences(directive, childScope).forEach((name) => references.add(name));
+                collectBindingPatternNames(directive).forEach((name) => slotScopeNames.add(name));
             }
         });
 
@@ -304,43 +286,39 @@ function collectTemplateReferences(children: TemplateChildNode[], initialScope: 
 }
 
 /**
- * Checks whether an element is an override block declaration.
+ * Checks whether an element is a `<sw-block>` carrying the given identity attribute.
  *
+ * Accepts the static form (`name="x"`) and the bound form (`:name="x"`); the bound form is rejected
+ * later by `assertSwBlockAttributes`, but has to be recognised here so it reaches that check.
  */
-function isSwBlockExtends(node: TemplateChildNode): node is ElementNode {
+function isSwBlockWithIdentity(node: TemplateChildNode, attribute: 'name' | 'extends'): node is ElementNode {
     if (node.type !== NodeTypes.ELEMENT || node.tag !== 'sw-block') {
         return false;
     }
 
     return node.props.some((prop) => {
         if (prop.type === NodeTypes.ATTRIBUTE) {
-            return prop.name === 'extends';
+            return prop.name === attribute;
         }
 
         const directive = prop as DirectiveNode;
 
-        return directive.name === 'bind' && directive.arg?.isStatic && directive.arg.content === 'extends';
+        return directive.name === 'bind' && directive.arg?.isStatic && directive.arg.content === attribute;
     });
 }
 
 /**
- * Checks whether an element is a base sw-block declaration.
- *
+ * Checks whether an element is an override block declaration (`<sw-block extends="...">`).
+ */
+function isSwBlockExtends(node: TemplateChildNode): node is ElementNode {
+    return isSwBlockWithIdentity(node, 'extends');
+}
+
+/**
+ * Checks whether an element is a base block declaration (`<sw-block name="...">`).
  */
 function isSwBlockName(node: TemplateChildNode): node is ElementNode {
-    if (node.type !== NodeTypes.ELEMENT || node.tag !== 'sw-block') {
-        return false;
-    }
-
-    return node.props.some((prop) => {
-        if (prop.type === NodeTypes.ATTRIBUTE) {
-            return prop.name === 'name';
-        }
-
-        const directive = prop as DirectiveNode;
-
-        return directive.name === 'bind' && directive.arg?.isStatic && directive.arg.content === 'name';
-    });
+    return isSwBlockWithIdentity(node, 'name');
 }
 
 /**
@@ -370,14 +348,15 @@ function getStaticSwBlockExtends(node: ElementNode): string | null {
     return getStaticSwBlockAttribute(node, 'extends');
 }
 
+/**
+ * @private
+ */
 export {
     type DirectiveNode,
     type ElementNode,
     type SlotMapping,
     type TemplateEdit,
     type TemplateReferences,
-    collectSlotScopeNames,
-    collectSlotScopeReferences,
     collectTemplateReferences,
     getDefaultSlotDirective,
     getStaticSwBlockExtends,

@@ -11,14 +11,17 @@
  *
  * - Template-expression references (`references`): what a Vue expression reads / writes / a binding
  *   pattern declares, honoring template and JS scopes.
- * - Setup-script references (`setup-references`): whether a hoisted node references a binding that
- *   stays inside the setup callback (value or type position), with function-scope shadowing.
+ * - Setup-script references (`setup-references`): every occurrence of a top-level setup name that the
+ *   base-mode rename pass must rewrite, with function-scope shadowing.
  *
  * Generic AST traversal primitives live in `../utils/ast-traversal`; this module builds the
  * identifier-aware layer on top. It is the intended home for future binding-flow work (e.g. locating
  * `watch(...)` calls to manage, or rewriting reactive-props destructuring).
  */
 
+/**
+ * @private
+ */
 export {
     addPatternNames,
     collectExpressionReferences,
@@ -27,4 +30,7 @@ export {
     parseBindingPattern,
 } from './references';
 
-export { collectSetupRenameTargets, findLocalSetupReference, findLocalSetupTypeReference } from './setup-references';
+/**
+ * @private
+ */
+export { collectSetupRenameTargets } from './setup-references';

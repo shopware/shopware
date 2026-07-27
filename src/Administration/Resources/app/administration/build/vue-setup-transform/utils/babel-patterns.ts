@@ -69,4 +69,7 @@ function forEachPatternIdentifier(pattern: BabelNode | null | undefined, visit: 
     }
 }
 
+/**
+ * @private
+ */
 export { forEachPatternIdentifier, isBabelNodeLike };

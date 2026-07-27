@@ -45,7 +45,7 @@ swDefineOverride({
 
 ## Props And Defaults
 
-Base components declare props with Vue's native `defineProps(...)` or `withDefaults(defineProps(...), ...)` macros. The declaration is hoisted to the generated script setup root and the props object is passed into `createExtendableSetup(...)`. Inside the setup callback the original macro call is replaced with the reactive props object.
+Base components declare props with Vue's native `defineProps(...)` or `withDefaults(defineProps(...), ...)` macros. The macro stays exactly where you wrote it: the author body runs as plain `<script setup>`, so Vue compiles the props declaration itself and the transform never moves or rewrites it. Override callbacks read the props object from the component instance at runtime, so nothing has to be threaded through the generated footer.
 
 Read props through the props variable so access stays reactive:
 
@@ -56,20 +56,27 @@ const count = ref(props.initialCount ?? 0);
 </script>
 ```
 
-### Destructuring the props macro is not supported
+### Destructuring the props macro
 
 ```ts
-// rejected — defaults declared here are not applied
 const { initialCount = 0 } = defineProps<{ initialCount?: number }>();
 ```
 
-Since Vue 3.5, destructuring `defineProps()` lets you declare prop defaults inline, and Vue's compiler keeps them reactive by rewriting every reference (`initialCount` -> `props.initialCount`) and folding the `= 0` default into the props declaration. The Shopware transform hoists `defineProps(...)` out of macro position before Vue sees it, so that rewrite never runs: a destructured binding would be a one-time snapshot of the props object (non-reactive), and because it is returned as setup state it collides with the declared prop key that `createExtendableSetup()` strips from returned state — leaving the template binding `undefined`. Reproducing Vue's behavior would mean maintaining our own reference-rewrite pass, which we deliberately avoid.
+This works, and it behaves exactly as it does in any other Vue 3.5 component — because the transform leaves it alone. A destructured props macro is not renamed and not returned as setup state, so Vue's own compiler sees it in macro position and applies its reactive-props-destructure rewrite: every reference becomes `props.initialCount`, and the `= 0` default is compiled into the prop declaration itself. The default therefore also reaches the template, because it lands on the prop and not on a local binding.
 
-The transform therefore rejects destructuring the props macro. Destructuring `defineProps()` reports the default-specific message above, because inline defaults are the case Vue developers expect to work; destructuring `withDefaults(...)` — already a non-idiomatic pattern — reports a plain "read `props.<name>`" message. Assign the macro to a variable and read `props.<name>`, and use `withDefaults(defineProps(...), { ... })` for defaults.
+Destructuring `withDefaults(...)` is likewise left to Vue. It compiles, and Vue emits its own advice — *"withDefaults() is unnecessary when using destructure with defineProps(); reactive destructure will be disabled"* — which is Vue's diagnostic to give, not ours. Prefer a destructure default or a `props` variable.
 
-### Defaults reach the template through the prop
+### Defaults must live on the prop, not on a local binding
 
-The value a template reads is the declared prop, so a default must live on the prop declaration, not on a local binding. Use `withDefaults(...)`:
+The value a template reads is the declared prop. A destructure default (above) and `withDefaults(...)` both compile onto the prop declaration, so both are fine. What does *not* work is computing a fallback into a separate local:
+
+```ts
+// the template still reads the prop, which has no default
+const props = defineProps<{ initialCount?: number }>();
+const initialCount = props.initialCount ?? 0;
+```
+
+With a `props` variable, use `withDefaults(...)`:
 
 ```vue
 <template>
@@ -82,11 +89,11 @@ const props = withDefaults(defineProps<{ initialCount?: number }>(), {
 </script>
 ```
 
-`initialCount` is a declared prop, so the template resolves `{{ initialCount }}` to the reactive prop. `withDefaults` bakes the default into the prop declaration, so the default is applied to the prop itself and is visible both in the setup body (`props.initialCount`) and in the template — reactively, and before any override merges run. A default written only on a local binding (a destructured default, or `const initialCount = props.initialCount ?? 0`) never reaches the template, because the template reads the prop and not the local binding.
+`initialCount` is a declared prop, so the template resolves `{{ initialCount }}` to the reactive prop. `withDefaults` bakes the default into the prop declaration, so the default is applied to the prop itself and is visible both in the setup body (`props.initialCount`) and in the template — reactively, and before any override merges run. A default written only on a separate local binding (`const initialCount = props.initialCount ?? 0`) never reaches the template, because the template reads the prop and not the local binding.
 
 ## Runtime Lowering
 
-The preprocessor runs before Vue compiles the SFC. Base components are lowered directly through `createExtendableSetup(...)`. Overrides stay `<script setup>` components whose body registers an `overrideComponentSetup(...)` callback; each override component is rendered once in a hidden container at boot, which runs the registration and lets `<sw-block extends>` template content register its block overrides. A template-less override receives a generated comment-only template so the hidden component can mount without a missing-render warning.
+The preprocessor runs before Vue compiles the SFC. A base component keeps its author body exactly as written — plain `<script setup>`, macros in place, nothing hoisted and nothing wrapped. The transform only renames each top-level runtime binding to a reserved `__swSetupAuthor_<name>` alias and appends a generated `attachOverrides(...)` footer that re-declares the original names from the override wrapper, so templates read overrideable state exactly as before while the body text itself never moves. Overrides stay `<script setup>` components whose body registers an `overrideComponentSetup(...)` callback; each override component is rendered once in a hidden container at boot, which runs the registration and lets `<sw-block extends>` template content register its block overrides. A template-less override receives a generated comment-only template so the hidden component can mount without a missing-render warning.
 
 Base mode is auto-private by default. Supported top-level local runtime bindings become private state unless they are listed in `swDefinePublic({...})`. Public state is the public override API surface. Private state is still normal component/template state; it is only hidden from the top-level public override API and remains available to overrides through `_private`.
 
@@ -100,10 +107,10 @@ Override template bindings are read-only. Inside `<sw-block extends>` content, f
 
 Runtime inputs are explicit. Base component props use Vue's native `defineProps(...)` or `withDefaults(defineProps(...), ...)` macros. Override props use a helper because override files cannot declare the base component's props with `defineProps(...)`.
 
-- Base: `defineProps(...)`, `withDefaults(defineProps(...), ...)`, `useSwContext()`
+- Base: `defineProps(...)`, `withDefaults(defineProps(...), ...)` — plus Vue's own composables (`useAttrs()`, `useSlots()`, …), since a base body is a native `<script setup>`
 - Override: `useSwPreviousState()`, `useSwProps()`, `useSwContext()`
 
-The `useSw...` calls are transform-injected local helpers, not broad runtime globals.
+The `useSw...` calls are transform-injected local helpers in **override** mode only, not broad runtime globals. Base components get no injected helpers at all: their body runs natively, so Vue's own APIs apply unchanged.
 
 ## Setup Macros
 
@@ -154,18 +161,12 @@ Override mode requires exactly one top-level `swDefineOverride({...})` call. Tem
 
 Shopware setup blocks differ from plain native setup:
 
-- Author code is lowered into Shopware base/override callback contracts.
 - Base public/private state is explicit Shopware extension state, not native setup return behavior.
 - Override SFCs register with `overrideComponentSetup(...)` at import time.
-- Base components may use one props declaration macro, either `defineProps(...)` or `withDefaults(defineProps(...), ...)`; the declaration is hoisted once and original calls are replaced with the props object passed into the extendable setup runtime.
-- Destructuring the props declaration macro is not supported; assign it to a variable and read `props.<name>`.
-- Base components may use one `defineEmits(...)` declaration; the declaration is hoisted once and original calls are replaced with the setup context emitter.
-- Base components may use one top-level `defineExpose(...)` call; it is replaced with the setup context expose function inside the extendable setup callback.
-- Base components may use one `defineSlots(...)` declaration; the declaration is hoisted once and original calls are replaced with the setup context slots object.
-- Base components may use one top-level `defineOptions(...)` call; it is kept at the generated script setup root and removed from the extendable setup callback.
-- Type-only declarations (`interface`, `type`, and ambient `declare` statements) are hoisted to the generated script setup root and removed from the setup callback, matching how Vue keeps them at the module root. Ambient `declare` statements describe runtime values provided from elsewhere, so they are never returned as setup state.
-- Runtime arguments passed to hoisted macros such as `defineProps(...)`, `withDefaults(...)`, `defineEmits(...)`, and `defineOptions(...)` must use inline values, imports, or type-only declarations. They must not reference local setup bindings, because those bindings live inside the generated Shopware setup callback. For prop defaults use `withDefaults(defineProps(...), { ... })` so the default lives on the reactive prop.
-- Other Vue macros are not supported in Shopware setup blocks.
+- In **base** mode the Vue macros are not touched at all. `defineProps(...)`, `withDefaults(...)`, `defineEmits(...)`, `defineSlots(...)`, `defineExpose(...)`, and `defineOptions(...)` stay where you wrote them and are compiled by Vue with their normal semantics — including Vue's own rules on how many times each may appear. The transform only renames top-level runtime bindings to `__swSetupAuthor_<name>` and appends the `attachOverrides(...)` footer.
+- In **override** mode the author body moves into a callback, so imports and type-only declarations (`interface`, `type`, ambient `declare`) are lifted back out to the generated script root — where an import or an ambient declaration is legal — matching how Vue keeps them at the module root. Ambient `declare` statements describe runtime values provided from elsewhere, so they are never returned as setup state.
+- Vue macros other than the base-mode set above are not supported in either mode.
+- Runtime arguments passed to `defineProps(...)`, `withDefaults(...)`, `defineEmits(...)`, and `defineOptions(...)` must use inline values, imports, or type-only declarations. Vue hoists macro arguments into the component options object, outside `setup()`, so they cannot reference locally declared variables. Vue itself only reports this for `defineEmits(...)`; for the other three it would silently emit an options object referencing a name that only exists inside `setup()`, so the transform rejects it at build time instead. For prop defaults use a destructure default or `withDefaults(defineProps(...), { ... })` so the default lives on the reactive prop.
 - Top-level `await` is not supported.
 
 ## Unsupported
@@ -173,15 +174,10 @@ Shopware setup blocks differ from plain native setup:
 The transform rejects these cases loudly:
 
 - Script languages other than `js`, `jsx`, `ts`, and `tsx`
-- Vue macros except supported base props, emits, expose, slots, and options declarations: `defineModel()`
-- Props declaration macros in override mode, or more than one props declaration macro
-- Destructured `defineProps()` or `withDefaults(defineProps(...), ...)`
-- Local setup bindings referenced in hoisted macro arguments passed to `defineProps(...)`, `withDefaults(...)`, `defineEmits(...)`, or `defineOptions(...)`
+- `defineModel()`, in either mode
+- Any of the base-mode macros used in override mode: `defineProps()`, `withDefaults()`, `defineEmits()`, `defineExpose()`, `defineSlots()`, `defineOptions()`
+- Local setup bindings referenced in macro arguments passed to `defineProps(...)`, `withDefaults(...)`, `defineEmits(...)`, or `defineOptions(...)`
 - Override-only helpers such as `useSwPreviousState()` and `useSwProps()` in base mode
-- `defineEmits()` in override mode, or more than one `defineEmits()` call
-- `defineExpose()` in override mode, or more than one `defineExpose()` call
-- `defineSlots()` in override mode, or more than one `defineSlots()` call
-- `defineOptions()` in override mode, or more than one `defineOptions()` call
 - Top-level `await`
 - Non-top-level, duplicate, spread, renamed/string/computed-key, or non-object-literal `swDefinePublic()` usage
 - Missing, non-top-level, duplicate, spread, renamed/string/computed-key, or non-object-literal `swDefineOverride()` usage in override mode

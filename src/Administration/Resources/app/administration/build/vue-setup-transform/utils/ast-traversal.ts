@@ -5,9 +5,9 @@
 /**
  * Small shared depth-first traversal primitives over Babel nodes.
  *
- * Several analyzer passes walk the same AST shape - enumerate a node's children, or find the first
- * node that matches. These helpers own the child-enumeration boilerplate (flatten arrays, skip
- * position/comment keys) so each pass only has to express its own visitor.
+ * Several analyzer passes walk the same AST shape by enumerating a node's children. These helpers own
+ * the child-enumeration boilerplate (flatten arrays, skip position/comment keys) so each pass only has
+ * to express its own visitor.
  */
 
 import type { Node as BabelNode } from '@babel/types';
@@ -90,35 +90,6 @@ function childBabelNodes(node: BabelNode, skipKey?: ChildKeyFilter): BabelNode[]
 }
 
 /**
- * Depth-first pre-order search that returns the first non-null visitor result.
- *
- * The visitor receives each node and its parent; `skipKey` narrows which child fields are descended.
+ * @private
  */
-function findInTree<T>(
-    node: BabelNode | null | undefined,
-    visit: (node: BabelNode, parent: BabelNode | null) => T | null,
-    skipKey?: ChildKeyFilter,
-    parent: BabelNode | null = null,
-): T | null {
-    if (!node) {
-        return null;
-    }
-
-    const hit = visit(node, parent);
-
-    if (hit !== null) {
-        return hit;
-    }
-
-    for (const child of childBabelNodes(node, skipKey)) {
-        const found = findInTree(child, visit, skipKey, node);
-
-        if (found !== null) {
-            return found;
-        }
-    }
-
-    return null;
-}
-
-export { type ChildBabelEntry, type ChildKeyFilter, childBabelEntries, childBabelNodes, findInTree, isTypeKey };
+export { type ChildBabelEntry, type ChildKeyFilter, childBabelEntries, childBabelNodes, isTypeKey };

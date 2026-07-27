@@ -10,7 +10,7 @@
  * (props forwarded to the footer, destructuring, prop-name collisions).
  */
 
-import { stripIndent, transformOrFail, transformShopwareSetupSfc } from './helpers';
+import { expectVueCompilerScriptToCompile, stripIndent, transformOrFail } from './helpers';
 
 describe('build/vue-setup-transform base non-props macros', () => {
     it('keeps every non-props macro in place with its binding renamed and re-exposed', () => {
@@ -53,7 +53,7 @@ describe('build/vue-setup-transform base non-props macros', () => {
         expect(result).toContain('defaultSlot: __swSetupAuthor_defaultSlot');
     });
 
-    it('rejects local setup bindings in defineOptions() arguments', () => {
+    it('leaves a hoistable local in defineOptions() arguments to Vue, which hoists it and compiles', () => {
         const source = stripIndent`
             <script setup>
             const inheritAttrs = false;
@@ -63,10 +63,11 @@ describe('build/vue-setup-transform base non-props macros', () => {
             </script>
         `;
 
-        // Vue hoists defineOptions() to the component options object, so referencing a local setup
-        // binding in its argument is invalid — we reject it with an actionable message up front.
-        expect(() => transformShopwareSetupSfc(source, 'base-options-local.vue')).toThrow(
-            'defineOptions() arguments are hoisted outside the Shopware setup callback and must not reference local setup bindings.',
-        );
+        // Same as defineProps: Vue lifts `const inheritAttrs = false` to module scope next to the emitted
+        // option, so this compiles. The transform must not pre-empt it.
+        const result = transformOrFail(source, 'base-options-local.vue').code;
+
+        expect(result).toContain('defineOptions({ inheritAttrs: __swSetupAuthor_inheritAttrs })');
+        expectVueCompilerScriptToCompile(result, 'base-options-local.vue');
     });
 });

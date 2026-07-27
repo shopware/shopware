@@ -26,7 +26,8 @@ import { proxyRefs, reactive, toRef, toRefs } from 'vue';
  * Use this key for generated override return values so multiple override files can contribute isolated fields.
  *
  * @example
- * return { __swOverride: { 'plugin/override-file.ts': { message: 'Hello' } } };
+ * const __swSetupNamespace = Symbol('sw-thing.override');   // module root, one per override file
+ * return { __swOverride: { [__swSetupNamespace]: { message: 'Hello' } } };
  */
 export const OVERRIDE_LOCAL_STATE_KEY = '__swOverride' as const;
 
@@ -41,7 +42,7 @@ export const OVERRIDE_LOCAL_STATE_KEY = '__swOverride' as const;
  * @example
  * const state: OverrideLocalState = { 'plugin/first-override.ts': { headline: 'Draft' } };
  */
-export type OverrideLocalState = Record<string, Record<string, unknown>>;
+export type OverrideLocalState = Record<PropertyKey, Record<string, unknown>>;
 
 /**
  * Represents the proxy-compatible scope exposed to `sw-block` slot data.

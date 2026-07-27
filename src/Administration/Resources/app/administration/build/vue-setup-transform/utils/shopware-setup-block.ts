@@ -29,7 +29,6 @@ type ShopwareSetupBlock = ScriptBlock & {
     componentName: string;
     lang: string | null;
     template: ShopwareSetupTemplate | null;
-    filename: string;
 };
 
 type InferredShopwareSetup = {
@@ -94,10 +93,7 @@ function inferShopwareSetupFromFilename(filename: string): InferredShopwareSetup
 /**
  * Turns a generic script setup block into the filename-inferred base/override Shopware mode.
  */
-function normalizeShopwareSetupBlock(
-    block: ScriptBlock,
-    filename: string,
-): Omit<ShopwareSetupBlock, 'template' | 'filename'> {
+function normalizeShopwareSetupBlock(block: ScriptBlock, filename: string): Omit<ShopwareSetupBlock, 'template'> {
     const inferred = inferShopwareSetupFromFilename(filename);
 
     return {
@@ -108,6 +104,9 @@ function normalizeShopwareSetupBlock(
     };
 }
 
+/**
+ * @private
+ */
 export {
     type ShopwareSetupBlock,
     type ShopwareSetupMode,

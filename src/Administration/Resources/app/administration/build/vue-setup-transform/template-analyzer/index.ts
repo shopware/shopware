@@ -10,8 +10,6 @@
  * transform so the Vue compiler sees a normal SFC.
  */
 
-import crypto from 'crypto';
-import path from 'path';
 import { NodeTypes, parse as parseTemplate, type TemplateChildNode } from '@vue/compiler-dom';
 import type { ShopwareSetupScriptAnalysis } from '../script-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
@@ -37,13 +35,12 @@ import {
 /**
  * Carries template source edits plus the private setup bindings that must be returned by an override.
  *
- * `privateNamespace` is deterministic per override file so several override SFCs can pass local
- * fields through the same reserved slot-scope key without colliding.
+ * Non-empty `privateBindings` is what tells the lowerer to emit the namespace symbol and file those
+ * bindings under it; the binding name itself is a fixed constant, so it is not carried here.
  */
 type TemplateAnalysis = {
     edits: TemplateEdit[];
     privateBindings: Set<string>;
-    privateNamespace: string | null;
     // Static names of the base `<sw-block name="...">` blocks this component owns. Emitted so a later
     // branch can build a block-ownership registry (block name <-> owning component) and reject, at
     // compile time, overrides that extend a block whose owner cannot provide the override-local scope.
@@ -55,21 +52,17 @@ type TemplateAnalysis = {
 };
 
 /**
- * Keeps override-private namespace names stable for builds, tests, and debugging.
+ * The analysis result for a template that contributes nothing - no template block, or no matched elements.
  *
+ * @private
  */
-function createOverridePrivateNamespace(filename: string, componentName: string): string {
-    const normalizedFilename = path.normalize(filename).split(path.sep).join('/');
-    // sha1 (Node builtin) is used for a stable, well-spread suffix only - this is not security hashing.
-    const hash = crypto.createHash('sha1').update(`${normalizedFilename}:${componentName}`).digest('hex').slice(0, 5);
-    const readableFilename = path
-        .basename(normalizedFilename)
-        .replace(/\.[^.]+$/u, '')
-        .replace(/[^A-Za-z0-9_$]/gu, '_')
-        .replace(/_+/gu, '_')
-        .replace(/^([^A-Za-z_$])/u, '_$1');
-
-    return `${readableFilename}_${hash}`;
+function emptyTemplateAnalysis(): TemplateAnalysis {
+    return {
+        edits: [],
+        privateBindings: new Set<string>(),
+        ownedBlockNames: [],
+        extendedBlockNames: [],
+    };
 }
 
 /**
@@ -96,29 +89,23 @@ function forEachTemplateElement(nodes: TemplateChildNode[], visit: (element: Ele
  */
 function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSetupScriptAnalysis): TemplateAnalysis {
     if (!block.template) {
-        return {
-            edits: [],
-            privateBindings: new Set<string>(),
-            privateNamespace: null,
-            ownedBlockNames: [],
-            extendedBlockNames: [],
-        };
+        return emptyTemplateAnalysis();
     }
 
+    const templateOffset = block.template.contentStart;
     const ast = parseTemplate(block.template.content);
 
     // An override template may only carry <sw-block extends> blocks at its top level.
-    assertOverrideTemplateTopLevel(ast.children);
+    assertOverrideTemplateTopLevel(ast.children, templateOffset);
 
     const edits: TemplateEdit[] = [];
     const privateBindings = new Set<string>();
     const extendedBlockNames: string[] = [];
     const overrideLocalNames = new Set<string>(analysis.overrideEntries);
-    const privateNamespace = createOverridePrivateNamespace(block.filename, block.componentName);
 
     forEachTemplateElement(ast.children, (element) => {
         if (element.tag === 'sw-block') {
-            assertSwBlockAttributes(element, 'override');
+            assertSwBlockAttributes(element, 'override', templateOffset);
         }
 
         if (isSwBlockExtends(element)) {
@@ -137,6 +124,7 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
                     ...analysis.runtimeBindingNames,
                     ...analysis.runtimeInputAliasNames,
                 ]),
+                templateOffset,
             );
 
             const publicMappings: SlotMapping[] = [];
@@ -174,7 +162,7 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
             });
 
             const mappings = [
-                ...(privateLocalNames.length > 0 ? [createPrivateSlotMapping(privateNamespace, privateLocalNames)] : []),
+                ...(privateLocalNames.length > 0 ? [createPrivateSlotMapping(privateLocalNames)] : []),
                 ...publicMappings,
             ];
 
@@ -187,7 +175,6 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
     return {
         edits,
         privateBindings,
-        privateNamespace,
         ownedBlockNames: [],
         extendedBlockNames,
     };
@@ -199,13 +186,7 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
  */
 function analyzeBaseTemplate(block: ShopwareSetupBlock): TemplateAnalysis {
     if (!block.template) {
-        return {
-            edits: [],
-            privateBindings: new Set<string>(),
-            privateNamespace: null,
-            ownedBlockNames: [],
-            extendedBlockNames: [],
-        };
+        return emptyTemplateAnalysis();
     }
 
     const template = block.template;
@@ -215,7 +196,7 @@ function analyzeBaseTemplate(block: ShopwareSetupBlock): TemplateAnalysis {
 
     forEachTemplateElement(ast.children, (element) => {
         if (element.tag === 'sw-block') {
-            assertSwBlockAttributes(element, 'base');
+            assertSwBlockAttributes(element, 'base', template.contentStart);
         }
 
         if (isSwBlockName(element)) {
@@ -238,10 +219,12 @@ function analyzeBaseTemplate(block: ShopwareSetupBlock): TemplateAnalysis {
     return {
         edits,
         privateBindings: new Set<string>(),
-        privateNamespace: null,
         ownedBlockNames,
         extendedBlockNames: [],
     };
 }
 
-export { type TemplateAnalysis, analyzeBaseTemplate, analyzeOverrideTemplate, createOverridePrivateNamespace };
+/**
+ * @private
+ */
+export { type TemplateAnalysis, analyzeBaseTemplate, analyzeOverrideTemplate, emptyTemplateAnalysis };

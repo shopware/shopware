@@ -92,4 +92,7 @@ function analyzeSetupInputs(entries: MacroCallEntry[]): AnalyzeSetupInputsResult
     };
 }
 
+/**
+ * @private
+ */
 export { type AnalyzeSetupInputsResult, analyzeSetupInputs };

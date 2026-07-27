@@ -10,22 +10,46 @@
  * distinction lets the transform preserve author ranges when sourcemaps are added.
  */
 
-/** Compiler-owned code with no source location in the original SFC. */
+/**
+ * Compiler-owned code with no source location in the original SFC.
+ *
+ * @private
+ */
 export type GeneratedChunk = { type: 'generated'; code: string };
 
-/** Absolute source slice copied from the original SFC. */
+/**
+ * Absolute source slice copied from the original SFC.
+ *
+ * @private
+ */
 export type OriginalChunk = { type: 'original'; start: number; end: number };
 
-/** Deferred indentation wrapper around generated and original chunks. */
+/**
+ * Deferred indentation wrapper around generated and original chunks.
+ *
+ * @private
+ */
 export type IndentChunk = { type: 'indent'; chunks: SourceChunk[]; spaces: number };
 
-/** Deferred trim wrapper that keeps remaining original ranges intact. */
+/**
+ * Deferred trim wrapper that keeps remaining original ranges intact.
+ *
+ * @private
+ */
 export type TrimChunk = { type: 'trim'; chunks: SourceChunk[] };
 
-/** Chunk variant that can be rendered without another source-aware expansion pass. */
+/**
+ * Chunk variant that can be rendered without another source-aware expansion pass.
+ *
+ * @private
+ */
 export type FlatSourceChunk = GeneratedChunk | OriginalChunk;
 
-/** Recursive chunk tree produced by lowerers before rendering. */
+/**
+ * Recursive chunk tree produced by lowerers before rendering.
+ *
+ * @private
+ */
 export type SourceChunk = FlatSourceChunk | IndentChunk | TrimChunk;
 
 type SourceBlock = {
@@ -79,4 +103,7 @@ function indent(chunks: SourceChunk[], spaces = 4): IndentChunk {
     };
 }
 
+/**
+ * @private
+ */
 export { fromSource, generated, indent, trim };

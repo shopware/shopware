@@ -2,7 +2,13 @@
  * @sw-package framework
  */
 
-import { expectVueCompilerScriptToCompile, stripIndent, transformOrFail, transformShopwareSetupSfc } from './helpers';
+import {
+    expectVueCompilerScriptToCompile,
+    expectVueCompilerScriptToReject,
+    stripIndent,
+    transformOrFail,
+    transformShopwareSetupSfc,
+} from './helpers';
 
 describe('build/vue-setup-transform base defineProps macro', () => {
     it('keeps base defineProps() in place and passes the props object into attachOverrides', () => {
@@ -57,7 +63,7 @@ describe('build/vue-setup-transform base defineProps macro', () => {
         expectVueCompilerScriptToCompile(result, 'base-props-local-type.vue');
     });
 
-    it('rejects local setup bindings in defineProps() arguments', () => {
+    it('leaves a hoistable local in defineProps() arguments to Vue, which hoists it and compiles', () => {
         const source = stripIndent`
             <script setup lang="ts">
             const defaultCount = 1;
@@ -74,11 +80,15 @@ describe('build/vue-setup-transform base defineProps macro', () => {
             </script>
         `;
 
-        // Vue hoists defineProps() to the component options object, so referencing a local setup
-        // binding in its argument is invalid — we reject it with an actionable message up front.
-        expect(() => transformShopwareSetupSfc(source, 'base-props-local-runtime-value.vue')).toThrow(
-            'defineProps() arguments are hoisted outside the Shopware setup callback and must not reference local setup bindings.',
-        );
+        // Vue lifts a statically-analysable local (`const defaultCount = 1`) to module scope next to the
+        // generated props option, so this is valid and the default is applied. The transform must not
+        // reject it - the constraint here belongs to Vue, which enforces it where it actually applies.
+        const result = transformOrFail(source, 'base-props-local-runtime-value.vue').code;
+
+        // The macro and its argument are left exactly as written (only the binding is aliased).
+        expect(result).toContain('defineProps({');
+        expect(result).toContain('default: __swSetupAuthor_defaultCount,');
+        expectVueCompilerScriptToCompile(result, 'base-props-local-runtime-value.vue');
     });
 
     it('allows macro-local function parameters to shadow setup bindings', () => {
@@ -233,10 +243,11 @@ describe('build/vue-setup-transform base defineProps macro', () => {
         expect(result.match(/withDefaults/g)).toHaveLength(1);
     });
 
-    it('rejects local setup bindings in withDefaults() arguments', () => {
+    it('leaves a non-hoistable local in withDefaults() arguments to Vue, which reports it', () => {
         const source = stripIndent`
             <script setup lang="ts">
-            const defaultLabel = 'fallback';
+            const prefix = 'fall';
+            const defaultLabel = prefix + 'back';
             const props = withDefaults(defineProps<{
                 label?: string;
             }>(), {
@@ -250,8 +261,17 @@ describe('build/vue-setup-transform base defineProps macro', () => {
             </script>
         `;
 
-        expect(() => transformShopwareSetupSfc(source, 'base-props-local-default.vue')).toThrow(
-            'withDefaults() arguments are hoisted outside the Shopware setup callback and must not reference local setup bindings.',
+        // A local Vue cannot hoist is Vue's own error to give — and its message names the
+        // separate-<script> workaround, which ours never did.
+        const result = transformOrFail(source, 'base-props-local-default.vue').code;
+
+        // The transform passes it through unchanged...
+        expect(result).toContain('withDefaults(');
+        // ...and Vue is the one that reports it, with the workaround ours never mentioned.
+        expectVueCompilerScriptToReject(
+            result,
+            'base-props-local-default.vue',
+            'cannot reference locally declared variables',
         );
     });
 
@@ -389,7 +409,7 @@ describe('build/vue-setup-transform base defineProps macro', () => {
         );
     });
 
-    it('rejects a props type that references a runtime binding kept inside the setup body', () => {
+    it('resolves a props type referencing a runtime enum to its runtime shape', () => {
         const source = stripIndent`
             <script setup lang="ts">
             enum Kind { A, B }
@@ -399,10 +419,12 @@ describe('build/vue-setup-transform base defineProps macro', () => {
             </script>
         `;
 
-        // `enum Kind` is a runtime binding; Vue hoists defineProps<{ kind: Kind }>() to the component
-        // options, where that name is unreachable.
-        expect(() => transformShopwareSetupSfc(source, 'base-props-type-enum.vue')).toThrow(
-            'defineProps() arguments are hoisted outside the Shopware setup callback and must not reference local setup bindings.',
-        );
+        // Vue resolves the enum in type position down to a runtime type (`kind: { type: Number }`), so the
+        // enum name never reaches the emitted options and there is nothing to guard against.
+        const result = transformOrFail(source, 'base-props-type-enum.vue').code;
+
+        // The type argument is untouched; Vue narrows it to a runtime type on its own.
+        expect(result).toContain('defineProps<{ kind: __swSetupAuthor_Kind }>()');
+        expectVueCompilerScriptToCompile(result, 'base-props-type-enum.vue');
     });
 });

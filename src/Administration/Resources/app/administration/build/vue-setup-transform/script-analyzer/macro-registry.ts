@@ -17,7 +17,7 @@
 import type { CallExpression, Statement } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
-import { getNodeRange, unwrapTransparentMacroExpression } from './utils';
+import { absoluteStart, unwrapTransparentMacroExpression } from './utils';
 
 type MacroName =
     | 'defineProps'
@@ -55,21 +55,18 @@ type MacroRule = {
     group?: string;
     /** Error for the second top-level call of the same group. Omit for no multiplicity limit. */
     duplicateMessage?: string;
-    /** Modes that require exactly one top-level call of this name. */
-    requiredInModes?: ShopwareSetupMode[];
-    requiredMessage?: string;
+    /** Requires exactly one top-level call of this name in the listed modes, with its error. */
+    required?: { modes: ShopwareSetupMode[]; message: string };
     /** Wrong-mode calls of this name are also rejected in nested positions (via the AST walk). */
     rejectAnywhereInWrongMode?: boolean;
-    /** Calls of this name outside the top level are rejected (via the AST walk). */
-    topLevelOnlyMessage?: string;
+    /** Calls of this name outside the top level are rejected (via the AST walk), with this error. */
+    topLevelOnly?: { message: string };
     /** Declaration initializers of this name read a setup input (props/emits/slots object). */
     setupInput?: boolean;
     /** Identifier declarations of this name are exposed as private setup state. */
     exposable?: boolean;
     /** Declarations of this name alias a runtime input and are never returned as state. */
     alias?: boolean;
-    /** Hoisted to the generated script root, so arguments must not read setup-local bindings. */
-    hoistedArguments?: boolean;
     /** A Vue compiler macro: importing its name is accepted (from anywhere) and never shadows it. */
     vueBuiltin?: boolean;
 };
@@ -82,7 +79,6 @@ const MACRO_RULES: Record<MacroName, MacroRule> = {
         group: 'props',
         setupInput: true,
         exposable: true,
-        hoistedArguments: true,
     },
     withDefaults: {
         vueBuiltin: true,
@@ -91,7 +87,6 @@ const MACRO_RULES: Record<MacroName, MacroRule> = {
         group: 'props',
         setupInput: true,
         exposable: true,
-        hoistedArguments: true,
     },
     defineEmits: {
         vueBuiltin: true,
@@ -99,7 +94,6 @@ const MACRO_RULES: Record<MacroName, MacroRule> = {
         wrongModeMessage: 'defineEmits() is only supported in base Shopware setup blocks.',
         setupInput: true,
         exposable: true,
-        hoistedArguments: true,
     },
     defineSlots: {
         vueBuiltin: true,
@@ -117,7 +111,6 @@ const MACRO_RULES: Record<MacroName, MacroRule> = {
         vueBuiltin: true,
         modes: ['base'],
         wrongModeMessage: 'defineOptions() is only supported in base Shopware setup blocks.',
-        hoistedArguments: true,
     },
     defineModel: {
         vueBuiltin: true,
@@ -132,7 +125,9 @@ const MACRO_RULES: Record<MacroName, MacroRule> = {
             'Override components must use swDefineOverride() to declare replacement bindings instead.',
         ].join(' '),
         duplicateMessage: 'Only one swDefinePublic() call is allowed in a base Shopware setup block.',
-        topLevelOnlyMessage: 'swDefinePublic() must be called once at the top level of a base Shopware setup block.',
+        topLevelOnly: {
+            message: 'swDefinePublic() must be called once at the top level of a base Shopware setup block.',
+        },
     },
     swDefineOverride: {
         modes: ['override'],
@@ -142,19 +137,22 @@ const MACRO_RULES: Record<MacroName, MacroRule> = {
             'Base components must use swDefinePublic() to expose overrideable setup bindings instead.',
         ].join(' '),
         duplicateMessage: 'Only one swDefineOverride() call is allowed in an override Shopware setup block.',
-        requiredInModes: [
-            'override',
-        ],
-        requiredMessage:
-            'swDefineOverride() must be called exactly once at the top level of an override Shopware setup block.',
-        topLevelOnlyMessage: 'swDefineOverride() must be called once at the top level of an override Shopware setup block.',
+        required: {
+            modes: ['override'],
+            message: 'swDefineOverride() must be called exactly once at the top level of an override Shopware setup block.',
+        },
+        topLevelOnly: {
+            message: 'swDefineOverride() must be called once at the top level of an override Shopware setup block.',
+        },
     },
     useSwContext: {
-        modes: [
-            'base',
-            'override',
-        ],
-        wrongModeMessage: 'useSwContext() is only supported inside Shopware setup blocks.',
+        modes: ['override'],
+        // Base bodies run as plain `<script setup>`, so there is nothing to bridge: Vue's own composables
+        // already give an author the setup context. Only overrides need a helper, because their body runs
+        // inside a generated callback that receives the context as a parameter.
+        wrongModeMessage:
+            "useSwContext() is only supported in override Shopware setup blocks. A base component runs as a native <script setup>, so use Vue's own APIs instead - useAttrs(), useSlots(), useTemplateRef(), or defineEmits() for the emitter.",
+        rejectAnywhereInWrongMode: true,
         alias: true,
     },
     useSwProps: {
@@ -253,10 +251,7 @@ function assertMacroRules(entries: MacroCallEntry[], mode: ShopwareSetupMode, sc
         const named = entries.filter((entry) => entry.name === name);
 
         if (!rule.modes.includes(mode) && named.length > 0) {
-            throw new ShopwareSetupTransformError(
-                rule.wrongModeMessage,
-                scriptOffset + getNodeRange(named[0].call, scriptOffset).start,
-            );
+            throw new ShopwareSetupTransformError(rule.wrongModeMessage, absoluteStart(named[0].call, scriptOffset));
         }
     });
 
@@ -268,10 +263,7 @@ function assertMacroRules(entries: MacroCallEntry[], mode: ShopwareSetupMode, sc
             const grouped = entries.filter((entry) => (MACRO_RULES[entry.name].group ?? entry.name) === group);
 
             if (grouped.length > 1) {
-                throw new ShopwareSetupTransformError(
-                    rule.duplicateMessage,
-                    scriptOffset + getNodeRange(grouped[1].call, scriptOffset).start,
-                );
+                throw new ShopwareSetupTransformError(rule.duplicateMessage, absoluteStart(grouped[1].call, scriptOffset));
             }
         }
     });
@@ -279,8 +271,8 @@ function assertMacroRules(entries: MacroCallEntry[], mode: ShopwareSetupMode, sc
     MACRO_NAMES.forEach((name) => {
         const rule = MACRO_RULES[name];
 
-        if (rule.requiredInModes?.includes(mode) && !entries.some((entry) => entry.name === name)) {
-            throw new ShopwareSetupTransformError(String(rule.requiredMessage), scriptOffset);
+        if (rule.required?.modes.includes(mode) && !entries.some((entry) => entry.name === name)) {
+            throw new ShopwareSetupTransformError(rule.required.message, scriptOffset);
         }
     });
 }
@@ -340,10 +332,11 @@ function getWrongModeWalkChecks(mode: ShopwareSetupMode): { name: MacroName; mes
 
 /** Names the AST walk must reject outside the top level, with their messages. */
 function getTopLevelOnlyWalkChecks(): { name: MacroName; message: string }[] {
-    return MACRO_NAMES.filter((name) => MACRO_RULES[name].topLevelOnlyMessage).map((name) => ({
-        name,
-        message: String(MACRO_RULES[name].topLevelOnlyMessage),
-    }));
+    return MACRO_NAMES.flatMap((name) => {
+        const topLevelOnly = MACRO_RULES[name].topLevelOnly;
+
+        return topLevelOnly ? [{ name, message: topLevelOnly.message }] : [];
+    });
 }
 
 /** Vue compiler macro names: their imports are accepted, like native setup, and never shadow the macro. */
@@ -351,18 +344,15 @@ function getVueBuiltinMacroNames(): Set<string> {
     return new Set(MACRO_NAMES.filter((name) => MACRO_RULES[name].vueBuiltin));
 }
 
-/** Names hoisted to the generated script root whose arguments must not read setup locals. */
-function getHoistedArgumentMacroNames(): MacroName[] {
-    return MACRO_NAMES.filter((name) => MACRO_RULES[name].hoistedArguments);
-}
-
+/**
+ * @private
+ */
 export {
     type MacroCallEntry,
     type MacroName,
     assertMacroRules,
     collectMacroCallEntries,
     getExposableSetupMacroNames,
-    getHoistedArgumentMacroNames,
     getMacroEntries,
     getMacroGroupEntries,
     getMacroGroupEntry,

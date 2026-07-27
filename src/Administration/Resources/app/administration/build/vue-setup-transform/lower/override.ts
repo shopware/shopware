@@ -15,13 +15,15 @@
 import { fromSource, generated, indent, type SourceChunk } from '../source-edits/chunks';
 import type { ShopwareSetupScriptAnalysis } from '../script-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
-import { buildCallbackBodyChunks, escapeSingleQuoted } from './shared';
+import { escapeSingleQuoted } from './shared';
+import { OVERRIDE_NAMESPACE_BINDING } from '../script-analyzer/macros';
+import { transformRanges } from '../source-edits/transform-ranges';
 
 /**
  * Builds the override callback payload from declared replacements and template-used private aliases.
  */
 function buildOverrideReturn(analysis: ShopwareSetupScriptAnalysis): string {
-    const privateBindings = Array.from(analysis.overridePrivateBindings).map((localName) => String(localName));
+    const privateBindings = Array.from(analysis.overridePrivateBindings);
 
     if (analysis.overrideEntries.length === 0 && privateBindings.length === 0) {
         return 'return {};';
@@ -33,11 +35,9 @@ function buildOverrideReturn(analysis: ShopwareSetupScriptAnalysis): string {
     ];
 
     if (privateBindings.length > 0) {
-        const privateNamespace = String(analysis.overridePrivateNamespace);
-
         lines.push(
             '    __swOverride: {',
-            `        ${privateNamespace}: {`,
+            `        [${OVERRIDE_NAMESPACE_BINDING}]: {`,
             ...privateBindings.map((localName) => `            ${localName},`),
             '        },',
             '    },',
@@ -59,7 +59,8 @@ function buildOverrideScript(block: ShopwareSetupBlock, analysis: ShopwareSetupS
     const previousStateName = '__swSetupPreviousState';
     const propsName = '__swSetupProps';
     const contextName = '__swSetupContext';
-    const callbackBody = buildCallbackBodyChunks(block, analysis);
+    // Only the marker statements are removed; the override helpers are emitted as generated headers above.
+    const callbackBody = transformRanges(block, analysis.bodyRemovals, []);
     const body = [
         generated(`const useSwPreviousState = () => ${previousStateName};\n`),
         generated(`const useSwProps = () => ${propsName};\n`),
@@ -76,6 +77,21 @@ function buildOverrideScript(block: ShopwareSetupBlock, analysis: ShopwareSetupS
 
     if (analysis.imports.length > 0) {
         chunks.push(generated('\n'));
+    }
+
+    // Only needed when this override actually forwards private locals into a <sw-block extends> scope;
+    // an override that only replaces public bindings has nothing to file under the namespace.
+    //
+    // Declared at module root, NOT inside the callback: the callback runs once per base-component
+    // instance, so a symbol created there would be a different value every time and the state lookup
+    // would never match. Module scope evaluates once, giving one stable symbol per override file - and it
+    // stays template-visible, so the generated computed key resolves.
+    if (analysis.overridePrivateBindings.size > 0) {
+        chunks.push(
+            generated(
+                `const ${OVERRIDE_NAMESPACE_BINDING} = Symbol('${escapeSingleQuoted(block.componentName)}.override');\n\n`,
+            ),
+        );
     }
 
     analysis.typeDeclarations.forEach((typeDeclaration) => {
@@ -99,4 +115,7 @@ function buildOverrideScript(block: ShopwareSetupBlock, analysis: ShopwareSetupS
     return chunks;
 }
 
+/**
+ * @private
+ */
 export { buildOverrideScript };

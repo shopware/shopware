@@ -13,6 +13,7 @@ import { parse, type ParserPlugin } from '@babel/parser';
 import type { File as BabelFile, Node as BabelNode } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import { isBabelNodeLike } from '../utils/babel-patterns';
+import { childBabelNodes } from '../utils/ast-traversal';
 
 type SourceRange = {
     start: number;
@@ -23,19 +24,31 @@ type AstVisitor = (node: BabelNode, ancestors: BabelNode[]) => void;
 
 /**
  * Converts Babel source ranges into the transform's compact range shape.
+ *
+ * The result is **script-local**: it indexes into the `<script setup>` content, not the whole SFC. Use
+ * `absoluteStart()` to move a position into SFC coordinates for a diagnostic.
  */
-function getNodeRange(node: BabelNode, scriptOffset: number): SourceRange {
+function getNodeRange(node: BabelNode): SourceRange {
     if (typeof node.start !== 'number' || typeof node.end !== 'number') {
-        throw new ShopwareSetupTransformError(
-            'Missing source range metadata while transforming Shopware setup.',
-            scriptOffset,
-        );
+        throw new ShopwareSetupTransformError('Missing source range metadata while transforming Shopware setup.');
     }
 
     return {
         start: node.start,
         end: node.end,
     };
+}
+
+/**
+ * Moves a node's start position from script-local into absolute SFC coordinates.
+ *
+ * The transform juggles two coordinate spaces: analyzer ranges are script-local (they index into the
+ * script block's content), while `ShopwareSetupTransformError.index` is an absolute SFC offset. This is
+ * the one place that conversion happens, so call sites no longer open-code `offset + range.start` and
+ * cannot silently forget it.
+ */
+function absoluteStart(node: BabelNode, blockOffset: number): number {
+    return blockOffset + getNodeRange(node).start;
 }
 
 /**
@@ -87,6 +100,9 @@ function isFunctionNode(node: BabelNode): boolean {
 
 /**
  * Small AST walker used to avoid taking a heavier traversal dependency.
+ *
+ * Child enumeration is delegated to `childBabelNodes`, so this and the other analyzer walks share one
+ * definition of "which fields hold traversable children".
  */
 function walk(node: BabelNode | null | undefined, visitor: AstVisitor, ancestors: BabelNode[] = []): void {
     if (!node || typeof node.type !== 'string') {
@@ -95,48 +111,12 @@ function walk(node: BabelNode | null | undefined, visitor: AstVisitor, ancestors
 
     visitor(node, ancestors);
 
-    Object.entries(node as unknown as Record<string, unknown>).forEach(
-        ([
-            key,
-            value,
-        ]) => {
-            if (
-                key === 'loc' ||
-                key === 'range' ||
-                key === 'leadingComments' ||
-                key === 'trailingComments' ||
-                key === 'innerComments'
-            ) {
-                return;
-            }
+    const childAncestors = [
+        ...ancestors,
+        node,
+    ];
 
-            if (Array.isArray(value)) {
-                value.forEach((child) => {
-                    if (isBabelNodeLike(child)) {
-                        walk(child, visitor, [
-                            ...ancestors,
-                            node,
-                        ]);
-                    }
-                });
-                return;
-            }
-
-            if (isBabelNodeLike(value)) {
-                walk(value, visitor, [
-                    ...ancestors,
-                    node,
-                ]);
-            }
-        },
-    );
-}
-
-/**
- * Checks whether `inner` is fully covered by `outer`.
- */
-function containsRange(outer: SourceRange, inner: SourceRange): boolean {
-    return outer.start <= inner.start && inner.end <= outer.end;
+    childBabelNodes(node).forEach((child) => walk(child, visitor, childAncestors));
 }
 
 /**
@@ -158,10 +138,13 @@ function unwrapTransparentMacroExpression(node: BabelNode | null | undefined): B
     return node;
 }
 
+/**
+ * @private
+ */
 export {
     type AstVisitor,
     type SourceRange,
-    containsRange,
+    absoluteStart,
     getNodeRange,
     isBabelNodeLike,
     isFunctionNode,

@@ -12,7 +12,7 @@
 import type { CallExpression, File as BabelFile, Node as BabelNode } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
-import { getNodeRange, isFunctionNode, walk } from './utils';
+import { absoluteStart, isFunctionNode, walk } from './utils';
 import { RESERVED_OVERRIDE_STATE_NAME, SHOPWARE_SETUP_INTERNAL_PREFIX, type ShopwareSetupMacroName } from './macros';
 import {
     getReservedHelperNames,
@@ -33,7 +33,8 @@ type NamedBinding = {
 
 /**
  * The global object the generated setup reads its runtime bridge from
- * (`Shopware.Component.createExtendableSetup(...)`); a user binding of this name would shadow it.
+ * (`Shopware.Component.attachOverrides(...)` in base mode, `overrideComponentSetup()` in override
+ * mode); a user binding of this name would shadow it.
  */
 const RESERVED_RUNTIME_GLOBAL_NAME = 'Shopware';
 
@@ -59,10 +60,7 @@ function assertNoUnsupportedSyntax(
             const wrongModeCheck = wrongModeChecks.find((check) => check.name === calleeName);
 
             if (wrongModeCheck) {
-                throw new ShopwareSetupTransformError(
-                    wrongModeCheck.message,
-                    scriptOffset + getNodeRange(node, scriptOffset).start,
-                );
+                throw new ShopwareSetupTransformError(wrongModeCheck.message, absoluteStart(node, scriptOffset));
             }
 
             // Shopware marker macros are only meaningful as top-level statements; a nested call would
@@ -70,37 +68,20 @@ function assertNoUnsupportedSyntax(
             const topLevelOnlyCheck = topLevelOnlyChecks.find((check) => check.name === calleeName);
 
             if (topLevelOnlyCheck && !topLevelMarkerCalls.get(calleeName)?.has(node)) {
-                throw new ShopwareSetupTransformError(
-                    topLevelOnlyCheck.message,
-                    scriptOffset + getNodeRange(node, scriptOffset).start,
-                );
+                throw new ShopwareSetupTransformError(topLevelOnlyCheck.message, absoluteStart(node, scriptOffset));
             }
         }
 
-        // Reject top level await:
-        //  Vue rewrites top-level await into async setup() with context preservation.
-        //  Shopware setup keeps the current synchronous base/override callback contract, so top-level await cannot be supported at the moment.
-        if (node.type === 'AwaitExpression') {
-            const isInsideFunction = ancestors.some(isFunctionNode);
+        // Reject top-level await, in both its forms - `await x` and `for await (… of …)`.
+        //  Vue rewrites top-level await into async setup() with context preservation. Shopware setup keeps
+        //  the current synchronous base/override callback contract, so it cannot be supported at the moment.
+        const isAwait = node.type === 'AwaitExpression' || (node.type === 'ForOfStatement' && node.await);
 
-            if (!isInsideFunction) {
-                throw new ShopwareSetupTransformError(
-                    'Top-level await is not supported inside Shopware setup blocks.',
-                    scriptOffset + getNodeRange(node, scriptOffset).start,
-                );
-            }
-        }
-
-        // Same difference as AwaitExpression: Vue can make setup async, but the Shopware override pipeline is sync.
-        if (node.type === 'ForOfStatement' && node.await) {
-            const isInsideFunction = ancestors.some(isFunctionNode);
-
-            if (!isInsideFunction) {
-                throw new ShopwareSetupTransformError(
-                    'Top-level await is not supported inside Shopware setup blocks.',
-                    scriptOffset + getNodeRange(node, scriptOffset).start,
-                );
-            }
+        if (isAwait && !ancestors.some(isFunctionNode)) {
+            throw new ShopwareSetupTransformError(
+                'Top-level await is not supported inside Shopware setup blocks.',
+                absoluteStart(node, scriptOffset),
+            );
         }
 
         // Reject ES module exports:
@@ -121,7 +102,7 @@ function assertNoUnsupportedSyntax(
             if (!isTypeOnlyExport && !isInsideAmbientModule) {
                 throw new ShopwareSetupTransformError(
                     '<script setup> cannot contain ES module exports.',
-                    scriptOffset + getNodeRange(node, scriptOffset).start,
+                    absoluteStart(node, scriptOffset),
                 );
             }
         }
@@ -129,7 +110,7 @@ function assertNoUnsupportedSyntax(
         if (node.type === 'ExportAllDeclaration' || node.type === 'ExportDefaultDeclaration') {
             throw new ShopwareSetupTransformError(
                 '<script setup> cannot contain ES module exports.',
-                scriptOffset + getNodeRange(node, scriptOffset).start,
+                absoluteStart(node, scriptOffset),
             );
         }
     });
@@ -153,31 +134,31 @@ function assertReservedMacroNames(bindings: NamedBinding[], scriptOffset: number
         if (helpers.has(binding.name)) {
             throw new ShopwareSetupTransformError(
                 `"${binding.name}" is reserved by the Shopware setup transform and must not be declared or imported.`,
-                scriptOffset + getNodeRange(binding.node, scriptOffset).start,
+                absoluteStart(binding.node, scriptOffset),
             );
         }
 
         if (binding.name === RESERVED_OVERRIDE_STATE_NAME) {
             throw new ShopwareSetupTransformError(
                 `"${binding.name}" is reserved for Shopware override-private state and must not be declared or imported.`,
-                scriptOffset + getNodeRange(binding.node, scriptOffset).start,
+                absoluteStart(binding.node, scriptOffset),
             );
         }
 
         if (binding.name.startsWith(SHOPWARE_SETUP_INTERNAL_PREFIX)) {
             throw new ShopwareSetupTransformError(
                 `"${binding.name}" uses the reserved "${SHOPWARE_SETUP_INTERNAL_PREFIX}" prefix of the Shopware setup transform and must not be declared or imported.`,
-                scriptOffset + getNodeRange(binding.node, scriptOffset).start,
+                absoluteStart(binding.node, scriptOffset),
             );
         }
 
-        // The generated setup destructures its state from `Shopware.Component.createExtendableSetup(...)`,
+        // The generated footer destructures its state from `Shopware.Component.attachOverrides(...)`,
         // so a top-level binding named `Shopware` would land on the destructure's left-hand side and
         // shadow the global it reads from on the right-hand side (a temporal-dead-zone crash at runtime).
         if (binding.name === RESERVED_RUNTIME_GLOBAL_NAME) {
             throw new ShopwareSetupTransformError(
                 `"${RESERVED_RUNTIME_GLOBAL_NAME}" is reserved by the Shopware setup transform, which generates code that reads the global "${RESERVED_RUNTIME_GLOBAL_NAME}" object. Rename your binding.`,
-                scriptOffset + getNodeRange(binding.node, scriptOffset).start,
+                absoluteStart(binding.node, scriptOffset),
             );
         }
     });
@@ -235,11 +216,14 @@ function assertNoRuntimeBindingPropCollision(
             `Setup binding "${binding.name}" has the same name as a declared prop. The extendable setup runtime removes ` +
                 `declared prop keys from returned state, so this binding would be deleted and its template reference would ` +
                 `read undefined. Rename the binding and read the prop through the props object (props.${binding.name}).`,
-            scriptOffset + getNodeRange(binding.node, scriptOffset).start,
+            absoluteStart(binding.node, scriptOffset),
         );
     });
 }
 
+/**
+ * @private
+ */
 export {
     type NamedBinding,
     assertNoRuntimeBindingPropCollision,

@@ -32,8 +32,6 @@ describe('build/vue-setup-transform base transforms', () => {
         // destructuring attachOverrides(). Written as a literal to pin the exact generated formatting.
         const expected = `<template><div>{{ count }}{{ foo2 }}</div></template>
 <script setup lang="ts">
-const useSwContext = () => Shopware.Component.getComponentContext();
-
 import { ref, computed } from 'vue';
 
 const __swSetupAuthor_props = defineProps<{

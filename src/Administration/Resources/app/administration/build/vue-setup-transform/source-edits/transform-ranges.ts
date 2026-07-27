@@ -9,6 +9,7 @@
  * input replacements and removed macro markers stay compiler-owned.
  */
 
+import { ShopwareSetupTransformError } from '../utils/transform-error';
 import { fromSource, generated, trim, type SourceChunk } from './chunks';
 
 type SourceBlock = {
@@ -28,6 +29,10 @@ type SourceReplacement = SourceRange & {
 /**
  * Removes ranges and applies generated replacements while preserving original mappings
  * for untouched source slices.
+ *
+ * Ranges fully contained in an already-consumed range are skipped by design: a rename edit inside a
+ * removed marker statement is moot, e.g. the `count` in `swDefinePublic({ count })`. A range that
+ * only *partially* overlaps has no coherent meaning, so it is rejected rather than silently dropped.
  */
 function transformRanges(
     block: SourceBlock,
@@ -52,7 +57,16 @@ function transformRanges(
 
     sortedRanges.forEach((range) => {
         if (range.start < cursor) {
-            return;
+            // Contained in the range already consumed - nothing left to edit.
+            if (range.end <= cursor) {
+                return;
+            }
+
+            throw new ShopwareSetupTransformError(
+                `Partially overlapping Shopware setup source edits at ${range.start}-${range.end}: the range crosses the ` +
+                    `boundary of an edit that ends at ${cursor}. This is an analyzer bug, not an authoring error.`,
+                range.start,
+            );
         }
 
         if (cursor < range.start) {
@@ -73,4 +87,7 @@ function transformRanges(
     return [trim(chunks)];
 }
 
+/**
+ * @private
+ */
 export { transformRanges };

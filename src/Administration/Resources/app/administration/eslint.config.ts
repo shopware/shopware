@@ -198,6 +198,9 @@ export default [
             'test/eslint/error-reference.html.twig',
             '**/*.spec.vue2.js',
             '**/*.fixtures.js',
+            // Hand-written declaration files under build/ sit outside the tsconfig program (a sibling
+            // .ts of the same name shadows them), so the typed parser cannot resolve them.
+            'build/**/*.d.ts',
         ],
     },
 
@@ -660,6 +663,7 @@ export default [
             'sw-deprecation-rules/no-vue-options-api': 'off',
         },
     },
+
     {
         ...prettier,
         files: [

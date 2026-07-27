@@ -51,19 +51,41 @@ function expectVueCompilerScriptToCompile(code: string, filename: string): void 
 }
 
 /**
+ * Asserts Vue's own compiler rejects the transformed output, with the message it owns.
+ *
+ * The counterpart to `expectVueCompilerScriptToCompile`: used where a constraint belongs to Vue rather
+ * than to this transform, so the spec pins that we pass the code through and Vue reports it - instead of
+ * duplicating the check with a message of our own.
+ */
+function expectVueCompilerScriptToReject(code: string, filename: string, message: string): void {
+    const descriptor = parse(code, { filename }).descriptor;
+
+    expect(() => compileScript(descriptor, { id: filename })).toThrow(message);
+}
+
+/**
  * Reads the override-private namespace key back out of a transform result.
  *
  * An override's non-public setup bindings are forwarded to the template through the shared
- * `__swOverride` data-scope object under a per-file namespace key, for example
- * `__swOverride: { my_component_override_1a2b3: { count } }`. The key is `<file>_<5-hex-sha1>`,
- * deterministic and unique per override file so several overrides on the same base component never
- * collide. Tests match the key by shape instead of hardcoding the hash.
+ * `__swOverride` data-scope object under a **computed** key - the module's namespace Symbol, for example
+ * `__swOverride: { [__swSetupNamespace]: { count } }`. Returns the key text including its brackets, so
+ * callers can compose it straight into an expected string.
  */
 function getPrivateNamespace(result: string): string | undefined {
     return (
-        result.match(/__swOverride: \{\n\s+([A-Za-z_$][A-Za-z0-9_$]*_[a-f0-9]{5}): \{/)?.[1] ??
-        result.match(/__swOverride: \{ ([A-Za-z_$][A-Za-z0-9_$]*_[a-f0-9]{5}): \{/)?.[1]
+        result.match(/__swOverride: \{\n\s+(\[[A-Za-z_$][A-Za-z0-9_$]*\]): \{/)?.[1] ??
+        result.match(/__swOverride: \{ (\[[A-Za-z_$][A-Za-z0-9_$]*\]): \{/)?.[1]
     );
 }
 
-export { expectVueCompilerScriptToCompile, getPrivateNamespace, stripIndent, transformOrFail, transformShopwareSetupSfc };
+/**
+ * @private
+ */
+export {
+    expectVueCompilerScriptToCompile,
+    expectVueCompilerScriptToReject,
+    getPrivateNamespace,
+    stripIndent,
+    transformOrFail,
+    transformShopwareSetupSfc,
+};

@@ -47,8 +47,10 @@ function parseShopwareSetupSfc(source: string, filename = 'anonymous.vue'): Shop
                   contentStart: parsed.descriptor.template.loc.start.offset,
               }
             : null,
-        filename,
     };
 }
 
+/**
+ * @private
+ */
 export { parseShopwareSetupSfc };

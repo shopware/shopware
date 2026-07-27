@@ -59,11 +59,12 @@ function buildBaseScript(block: ShopwareSetupBlock, analysis: ShopwareSetupScrip
 
     return [
         generated(`${block.openingTagSource}\n`),
-        // useSwContext() must exist before the author's body runs, so it is a header, not a footer.
-        generated('const useSwContext = () => Shopware.Component.getComponentContext();\n\n'),
         trim([body].flat()),
         generated(`\n\n${footer}\n</script>`),
     ];
 }
 
+/**
+ * @private
+ */
 export { buildBaseScript };

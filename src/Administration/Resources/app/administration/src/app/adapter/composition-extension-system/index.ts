@@ -19,7 +19,7 @@ import type { ExtendableSetupState, OverrideLocalState } from './data-scope-help
 export { getScriptSetupDataScope } from './data-scope-helper';
 
 /**
- * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
+ * @private
  * @sw-package framework
  *
  * Extendable Setup Utility for Vue Components
@@ -48,6 +48,10 @@ export { getScriptSetupDataScope } from './data-scope-helper';
 declare global {
     /**
      * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
+     *
+     * Stays public while the surrounding module is `@private`: extension authors declare into this
+     * interface to type their overrides, which is the one author-facing surface of the extension system.
+     * Automatic type generation is planned as a follow-up; hand-declaring it works today.
      *
      * This interface defines the public API mapping for each component that can be extended.
      * It will be used to get the correct types for the overrides and to ensure that the
@@ -152,8 +156,7 @@ const checkNestedStructure = <
     return result;
 };
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export const getComponentContext = (): SetupContext => {
+const getComponentContext = (): SetupContext => {
     const instance = getCurrentInstance();
 
     return (
@@ -229,8 +232,13 @@ const createPreviousStateForOverride = <TPublicState extends object, TPrivateSta
 };
 
 /**
- * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
+ * @private
+ *
  * Creates the runtime setup wrapper used by compiled base setup components.
+ *
+ * Not a public entry point: authors write native setup SFCs and the compiler pass emits the calls into
+ * this module for them. Reachable on the `Shopware.Component` global only because generated code has to
+ * resolve it at runtime.
  *
  * The wrapper separates public and private setup state, applies all registered Composition API and
  * Options API shim overrides once, and returns a data scope that `sw-block` can read during slot
@@ -472,7 +480,8 @@ type ExtractedProps<T> = Omit<
 >;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
+ * @private
+ *
  * Registers a setup override callback for one extendable component.
  *
  * Generated override SFCs call this during their hidden component setup so the base component can
@@ -516,7 +525,7 @@ export function attachOverrides<TComponentName extends keyof ComponentPublicApiM
     context?: SetupContext;
     public?: Record<string, unknown>;
     private?: Record<string, unknown>;
-}): any {
+}): ExtendableSetupState<Record<string, unknown>> {
     const props = (getCurrentInstance()?.props ?? {}) as Record<string, unknown>;
 
     return createExtendableSetup(

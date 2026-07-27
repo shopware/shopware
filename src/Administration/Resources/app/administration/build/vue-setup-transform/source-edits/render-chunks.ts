@@ -196,4 +196,7 @@ function render(
         .join('');
 }
 
+/**
+ * @private
+ */
 export { render, toFlatChunks };

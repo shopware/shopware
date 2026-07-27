@@ -13,7 +13,12 @@
 import { lowerShopwareSetupBlock } from './lower';
 import { analyzeShopwareSetupScript, type ShopwareSetupScriptAnalysis } from './script-analyzer';
 import { applySourceEdits, type AppliedSourceEdits } from './source-edits/apply-source-edits';
-import { analyzeBaseTemplate, analyzeOverrideTemplate, type TemplateAnalysis } from './template-analyzer';
+import {
+    analyzeBaseTemplate,
+    analyzeOverrideTemplate,
+    emptyTemplateAnalysis,
+    type TemplateAnalysis,
+} from './template-analyzer';
 import { parseShopwareSetupSfc } from './sfc-parser';
 import type { ShopwareSetupBlock } from './utils/shopware-setup-block';
 import { ShopwareSetupTransformError } from './utils/transform-error';
@@ -36,7 +41,7 @@ type ShopwareSetupTransformResult = {
  * Moves block-relative analyzer errors to the original SFC block start.
  */
 function withBlockOffset(error: unknown, block: ShopwareSetupBlock): unknown {
-    if (!(error instanceof ShopwareSetupTransformError) || error.index !== 0) {
+    if (!(error instanceof ShopwareSetupTransformError) || error.index !== null) {
         return error;
     }
 
@@ -55,13 +60,7 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
 
     let analysis: ShopwareSetupScriptAnalysis;
     let replacement: ReturnType<typeof lowerShopwareSetupBlock>;
-    let templateAnalysis: TemplateAnalysis = {
-        edits: [],
-        privateBindings: new Set<string>(),
-        privateNamespace: null,
-        ownedBlockNames: [],
-        extendedBlockNames: [],
-    };
+    let templateAnalysis: TemplateAnalysis = emptyTemplateAnalysis();
 
     try {
         analysis = analyzeShopwareSetupScript(block.content, {
@@ -71,12 +70,9 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
         });
         if (block.mode === 'base') {
             templateAnalysis = analyzeBaseTemplate(block);
-        }
-
-        if (block.mode === 'override') {
+        } else {
             templateAnalysis = analyzeOverrideTemplate(block, analysis);
             analysis.overridePrivateBindings = templateAnalysis.privateBindings;
-            analysis.overridePrivateNamespace = templateAnalysis.privateNamespace;
         }
 
         replacement = lowerShopwareSetupBlock(block, analysis);
@@ -100,14 +96,13 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
 
     const transformed = applySourceEdits(
         source,
-        filename,
         [
             ...registrationTemplateEdits,
             ...templateAnalysis.edits,
             {
                 start: block.start,
                 end: block.end,
-                replacement: replacement.chunks,
+                replacement,
             },
         ],
         analysis.templateLiteralRanges,
@@ -134,6 +129,9 @@ function validateShopwareSetupSfc(source: string, filename = 'anonymous.vue'): v
     transformShopwareSetupSfc(source, filename);
 }
 
+/**
+ * @private
+ */
 export {
     type ShopwareSetupTransformResult,
     ShopwareSetupTransformError,

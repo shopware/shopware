@@ -11,7 +11,7 @@
 
 import type { ImportDeclaration, Node as BabelNode, Statement, VariableDeclarator } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
-import { getNodeRange, unwrapTransparentMacroExpression } from './utils';
+import { absoluteStart, unwrapTransparentMacroExpression } from './utils';
 import { forEachPatternIdentifier } from '../utils/babel-patterns';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
 import { getExposableSetupMacroNames, getRuntimeInputAliasNames, getSetupInputMacroNames } from './macro-registry';
@@ -59,7 +59,7 @@ function addRuntimeBinding(
         // explicitly because aliases such as var/function combinations can otherwise overwrite returned state.
         throw new ShopwareSetupTransformError(
             `Duplicate top-level Shopware setup binding "${name}".`,
-            scriptOffset + getNodeRange(node, scriptOffset).start,
+            absoluteStart(node, scriptOffset),
         );
     }
 
@@ -208,7 +208,7 @@ function collectRuntimeBinding(
         if (!statement.id?.name) {
             throw new ShopwareSetupTransformError(
                 'Anonymous top-level declarations are not supported inside Shopware setup blocks.',
-                scriptOffset + getNodeRange(statement, scriptOffset).start,
+                absoluteStart(statement, scriptOffset),
             );
         }
 
@@ -221,4 +221,7 @@ function collectRuntimeBinding(
     }
 }
 
+/**
+ * @private
+ */
 export { type RuntimeBinding, collectImportBindings, collectRuntimeBinding };

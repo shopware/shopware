@@ -95,4 +95,7 @@ function toScriptBlock(source: string, descriptorBlock: SFCScriptBlock, type: Sc
     };
 }
 
+/**
+ * @private
+ */
 export { type ScriptBlock, toScriptBlock };

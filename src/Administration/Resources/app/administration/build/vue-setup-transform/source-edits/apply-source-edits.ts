@@ -9,6 +9,7 @@
  * same replacement stream that keeps generated and original ranges distinguishable.
  */
 
+import { ShopwareSetupTransformError } from '../utils/transform-error';
 import { generated, type FlatSourceChunk, type SourceChunk } from './chunks';
 import { render, toFlatChunks } from './render-chunks';
 
@@ -39,12 +40,16 @@ function normalizeReplacement(replacement: string | SourceChunk[]): SourceChunk[
 /**
  * Applies non-overlapping source edits and returns transformed code.
  *
+ * The template and script edits this receives address disjoint SFC blocks, so an overlap is an
+ * analyzer bug and is rejected rather than silently dropped. Zero-width insertions that share a
+ * position with the following edit are fine, which is what the generated registration template for a
+ * template-less override relies on.
+ *
  * This step does not generate a sourcemap; it behaves like a plain string replacement and returns
  * `map: null`.
  */
 function applySourceEdits(
     source: string,
-    _filename: string,
     edits: SourceEdit[],
     protectedRanges: readonly (readonly [number, number])[] = [],
 ): AppliedSourceEdits {
@@ -55,7 +60,11 @@ function applySourceEdits(
         .sort((a, b) => a.start - b.start)
         .forEach((edit) => {
             if (edit.start < cursor) {
-                return;
+                throw new ShopwareSetupTransformError(
+                    `Overlapping Shopware setup source edits: an edit at ${edit.start}-${edit.end} starts before the ` +
+                        `previous edit ended at ${cursor}. This is an analyzer bug, not an authoring error.`,
+                    edit.start,
+                );
             }
 
             chunks.push({
@@ -80,4 +89,7 @@ function applySourceEdits(
     };
 }
 
+/**
+ * @private
+ */
 export { type AppliedSourceEdits, type SourceEdit, applySourceEdits };

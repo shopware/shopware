@@ -18,7 +18,6 @@ import {
     type MacroCallEntry,
     assertMacroRules,
     collectMacroCallEntries,
-    getHoistedArgumentMacroNames,
     getMacroEntries,
 } from './script-analyzer/macro-registry';
 import { type SourceRange, getNodeRange, parseScript, walk } from './script-analyzer/utils';
@@ -29,7 +28,6 @@ import {
     assertReservedMacroNames,
     assertStaticObjectEntries,
 } from './script-analyzer/validation';
-import { assertHoistedMacroArgumentsDoNotUseLocalSetup } from './script-analyzer/hoisted-macro-arguments';
 import { collectSetupRenameTargets } from './flow-analysis';
 import { analyzeSetupInputs } from './script-analyzer/setup-inputs';
 
@@ -40,8 +38,8 @@ const SUPPORTED_SCRIPT_LANGS = new Set([
     'tsx',
 ]);
 
-type ImportBlock = SourceRange & { code: string };
-type TypeDeclarationBlock = SourceRange & { code: string };
+/** A statement's script-local range plus the exact source text it covers. */
+type SourceCodeBlock = SourceRange & { code: string };
 type AnalyzerOptions = {
     mode: ShopwareSetupMode;
     lang: string | null;
@@ -57,8 +55,8 @@ type AnalyzerOptions = {
  */
 type ShopwareSetupScriptAnalysis = {
     source: string;
-    imports: ImportBlock[];
-    typeDeclarations: TypeDeclarationBlock[];
+    imports: SourceCodeBlock[];
+    typeDeclarations: SourceCodeBlock[];
     bodyRemovals: SourceRange[];
     // Base lowering keeps the author body in place: it removes only the marker statements and applies
     // the rename edits that move every top-level runtime binding to its __swSetupAuthor_ alias, so the
@@ -75,33 +73,17 @@ type ShopwareSetupScriptAnalysis = {
     publicEntries: string[];
     overrideEntries: string[];
     overridePrivateBindings: Set<string>;
-    overridePrivateNamespace: string | null;
 };
 
 /**
- * Captures exact import source text so lowering can preserve import formatting.
+ * Pairs each statement's script-local range with its exact source text.
+ *
+ * Lowering copies these verbatim, so imports and type declarations keep the author's formatting. Both
+ * kinds are captured identically - only the caller's intent differs.
  */
-function getImportRangesAndCode(script: string, imports: ImportDeclaration[], scriptOffset: number): ImportBlock[] {
-    return imports.map((importNode) => {
-        const range = getNodeRange(importNode, scriptOffset);
-
-        return {
-            ...range,
-            code: script.slice(range.start, range.end),
-        };
-    });
-}
-
-/**
- * Captures type-only declarations that hoisted Vue macros may reference.
- */
-function getTypeDeclarationRangesAndCode(
-    script: string,
-    typeDeclarations: Statement[],
-    scriptOffset: number,
-): TypeDeclarationBlock[] {
-    return typeDeclarations.map((declaration) => {
-        const range = getNodeRange(declaration, scriptOffset);
+function withSourceCode(script: string, nodes: Statement[]): SourceCodeBlock[] {
+    return nodes.map((node) => {
+        const range = getNodeRange(node);
 
         return {
             ...range,
@@ -166,7 +148,7 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
     const templateLiteralRanges: [number, number][] = [];
     walk(ast.program, (node) => {
         if (node.type === 'TemplateLiteral') {
-            const range = getNodeRange(node, scriptOffset);
+            const range = getNodeRange(node);
             templateLiteralRanges.push([
                 scriptOffset + range.start,
                 scriptOffset + range.end,
@@ -232,23 +214,11 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
 
     assertMacroRules(macroEntries, mode, scriptOffset);
 
-    assertHoistedMacroArgumentsDoNotUseLocalSetup({
-        scriptOffset,
-        // Runtime input aliases (`const ctx = useSwContext()`) also live inside the setup callback, so
-        // a hoisted macro argument referencing one is just as unreachable as a plain runtime binding.
-        localSetupNames: new Set([
-            ...runtimeBindingNames,
-            ...runtimeInputAliasNames,
-        ]),
-        macroCalls: getHoistedArgumentMacroNames()
-            .flatMap((name) => getMacroEntries(macroEntries, name))
-            // defineOptions() is only hoisted in its statement form; a declaration is normal code.
-            .filter((entry) => entry.name !== 'defineOptions' || entry.form === 'statement')
-            .map((entry) => ({
-                name: entry.name,
-                call: entry.call,
-            })),
-    });
+    // Macro arguments that read a top-level binding are Vue's business, and Vue handles them
+    // correctly on its own: it hoists a statically-analysable local (`const d = 1`) to module scope
+    // alongside the generated options, and rejects anything it cannot hoist (`ref(1)`, an expression
+    // over another local, a `let`) with a clear message naming the separate-<script> workaround. A
+    // guard here only produced false positives on the code Vue hoists fine.
 
     const { declaredPropNames } = analyzeSetupInputs(macroEntries);
 
@@ -291,26 +261,26 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
     // Override lowering removes imports, type declarations, and the marker statements from the callback
     // body (base lowering uses markerRemovals + renameEdits instead).
     const bodyRemovals = [
-        ...imports.map((importNode) => getNodeRange(importNode, scriptOffset)),
-        ...typeDeclarations.map((declaration) => getNodeRange(declaration, scriptOffset)),
-        ...publicMarkerEntries.map((entry) => getNodeRange(entry.statement, scriptOffset)),
-        ...overrideMarkerEntries.map((entry) => getNodeRange(entry.statement, scriptOffset)),
+        ...imports.map((importNode) => getNodeRange(importNode)),
+        ...typeDeclarations.map((declaration) => getNodeRange(declaration)),
+        ...publicMarkerEntries.map((entry) => getNodeRange(entry.statement)),
+        ...overrideMarkerEntries.map((entry) => getNodeRange(entry.statement)),
     ];
     const markerRemovals = [
-        ...publicMarkerEntries.map((entry) => getNodeRange(entry.statement, scriptOffset)),
-        ...overrideMarkerEntries.map((entry) => getNodeRange(entry.statement, scriptOffset)),
+        ...publicMarkerEntries.map((entry) => getNodeRange(entry.statement)),
+        ...overrideMarkerEntries.map((entry) => getNodeRange(entry.statement)),
     ];
     const renameEdits = collectSetupRenameTargets(ast.program, runtimeBindingNames, (name) => `__swSetupAuthor_${name}`).map(
         ({ node, replacement }) => ({
-            ...getNodeRange(node, scriptOffset),
+            ...getNodeRange(node),
             replacement,
         }),
     );
 
     return {
         source: script,
-        imports: getImportRangesAndCode(script, imports, scriptOffset),
-        typeDeclarations: getTypeDeclarationRangesAndCode(script, typeDeclarations, scriptOffset),
+        imports: withSourceCode(script, imports),
+        typeDeclarations: withSourceCode(script, typeDeclarations),
         bodyRemovals,
         markerRemovals,
         renameEdits,
@@ -322,8 +292,10 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
         publicEntries,
         overrideEntries,
         overridePrivateBindings: new Set(),
-        overridePrivateNamespace: null,
     };
 }
 
-export { type ImportBlock, type ShopwareSetupScriptAnalysis, analyzeShopwareSetupScript };
+/**
+ * @private
+ */
+export { type ShopwareSetupScriptAnalysis, type SourceCodeBlock, analyzeShopwareSetupScript };

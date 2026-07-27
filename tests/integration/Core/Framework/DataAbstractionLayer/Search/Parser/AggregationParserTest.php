@@ -121,6 +121,30 @@ class AggregationParserTest extends TestCase
         static::assertSame('product.stock', $avgAggregation->getField());
     }
 
+    public function testDoesNotAllowLineBreaksInAggregationNames(): void
+    {
+        $criteria = new Criteria();
+        $exception = new SearchRequestException();
+
+        $this->parser->buildAggregations(
+            static::getContainer()->get(ProductDefinition::class),
+            [
+                'aggregations' => [
+                    [
+                        'name' => "invalid\r\nname",
+                        'type' => 'avg',
+                        'field' => 'stock',
+                    ],
+                ],
+            ],
+            $criteria,
+            $exception
+        );
+
+        static::assertCount(1, iterator_to_array($exception->getErrors()));
+        static::assertCount(0, $criteria->getAggregations());
+    }
+
     public function testICanCreateNestedAggregations(): void
     {
         $criteria = new Criteria();
@@ -338,6 +362,6 @@ class AggregationParserTest extends TestCase
 
         static::assertNotNull($error);
 
-        static::assertSame('The aggregation name should not contain a question mark or colon.', $error['detail']);
+        static::assertSame('The aggregation name should not contain a question mark, colon, or line break.', $error['detail']);
     }
 }

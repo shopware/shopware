@@ -199,8 +199,8 @@ class AggregationParser
             return null;
         }
 
-        if (str_contains($name, '?') || str_contains($name, ':')) {
-            $exceptions->add(DataAbstractionLayerException::invalidAggregationQuery('The aggregation name should not contain a question mark or colon.'), '/aggregations/' . $index);
+        if (str_contains($name, '?') || str_contains($name, ':') || strpbrk($name, "\r\n") !== false) {
+            $exceptions->add(DataAbstractionLayerException::invalidAggregationQuery('The aggregation name should not contain a question mark, colon, or line break.'), '/aggregations/' . $index);
 
             return null;
         }

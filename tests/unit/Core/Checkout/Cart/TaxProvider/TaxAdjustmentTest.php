@@ -25,6 +25,10 @@ use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Cart\TaxProvider\Struct\TaxProviderResult;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxAdjustment;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxAdjustmentCalculator;
+use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
+use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
+use Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
@@ -54,7 +58,8 @@ class TaxAdjustmentTest extends TestCase
                 new PercentageTaxRuleBuilder(),
                 new TaxAdjustmentCalculator()
             ),
-            new CashRounding()
+            new CashRounding(),
+            new TransactionProcessor()
         );
     }
 
@@ -150,6 +155,67 @@ class TaxAdjustmentTest extends TestCase
         static::assertSame(7.0, $lineItemPrice->getCalculatedTaxes()->getAmount());
         static::assertSame(7.0, $delivery->getShippingCosts()->getCalculatedTaxes()->getAmount());
         static::assertSame(7.0, $deliveryPosition->getPrice()->getCalculatedTaxes()->getAmount());
+    }
+
+    public function testAdjustRefreshesStaleTransactionAmount(): void
+    {
+        $result = new TaxProviderResult(
+            [
+                $this->ids->get('line-item-1') => new CalculatedTaxCollection([
+                    new CalculatedTax(
+                        7,
+                        7,
+                        100
+                    ),
+                ]),
+            ],
+            [
+                $this->ids->get('delivery-position-1') => new CalculatedTaxCollection([
+                    new CalculatedTax(
+                        7,
+                        7,
+                        100
+                    ),
+                ]),
+            ],
+        );
+
+        $cart = $this->createCart();
+
+        // The transaction the TransactionProcessor built before the tax provider ran still carries the
+        // pre-adjustment total.
+        $cart->setTransactions(new TransactionCollection([
+            new Transaction(
+                new CalculatedPrice(110.0, 110.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                $this->ids->get('old-payment-method'),
+            ),
+        ]));
+
+        $paymentMethod = new PaymentMethodEntity();
+        $paymentMethod->setId($this->ids->get('payment-method'));
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context
+            ->method('getTaxState')
+            ->willReturn(CartPrice::TAX_STATE_NET);
+        $context
+            ->method('getTotalRounding')
+            ->willReturn(new CashRoundingConfig(2, 0.01, true));
+        $context
+            ->method('getPaymentMethod')
+            ->willReturn($paymentMethod);
+
+        $this->adjustment->adjust($cart, $result, $context);
+
+        // The transactions are rebuilt from the adjusted cart total instead of keeping the stale 110.0.
+        static::assertSame(214.0, $cart->getPrice()->getTotalPrice());
+        static::assertCount(1, $cart->getTransactions());
+
+        $adjusted = $cart->getTransactions()->first();
+        static::assertNotNull($adjusted);
+        static::assertSame($cart->getPrice()->getTotalPrice(), $adjusted->getAmount()->getTotalPrice());
+        static::assertSame(214.0, $adjusted->getAmount()->getUnitPrice());
+        static::assertSame($this->ids->get('payment-method'), $adjusted->getPaymentMethodId());
     }
 
     public function testCalculateGross(): void

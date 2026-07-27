@@ -712,6 +712,12 @@ export default {
                                 });
                             }
                         });
+                    } else {
+                        this.createNotificationError({
+                            message: this.$t(
+                                'global.notification.notificationSaveErrorMessage',
+                            ),
+                        });
                     }
                 })
                 .finally(() => {

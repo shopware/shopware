@@ -72,12 +72,12 @@ Cron-driven product export generation no longer derives the next run from `gener
 
 ### System config component exposes the selected sales channel scope
 
-The `sw-system-config` component now exposes which sales channel is selected in its scope switcher. The value follows the switcher, not the `salesChannelId` prop, and is `null` while the global scope is selected.
+The `sw-system-config` component now exposes which sales channel is selected in its scope switcher. The value is seeded from the `salesChannelId` prop and afterwards follows the switcher; later changes to the prop are ignored. It is `null` while the global scope is selected.
 
 The value is available on two surfaces, because they reach different consumers:
 
-* Slot props: the `card-element`, `card-element-last`, `beforeElements` and `afterElements` slots receive an additional `currentSalesChannelId` prop. A template override that replaces one of these slots keeps its own copy of the `v-bind` expression and will not see the new prop until it is re-synced against this version.
-* Injection: descendants of the component, in particular custom components rendered through a plugin's `config.xml` component elements, can inject the value. Use the defaulted forms below, so the component stays warning-free and crash-free when it renders outside a system config form. With the default in place, a component rendered outside the form reads the same value as the global scope:
+* Slot props: the `card-element`, `beforeElements` and `afterElements` slots receive an additional `currentSalesChannelId` prop, and `card-element-last`, which had no slot props, now provides it too. A template override that replaces one of these slots keeps its own copy of the `v-bind` expression and will not see the new prop until it is re-synced against this version.
+* Injection: descendants of the component, in particular custom components rendered through a plugin's `config.xml` component elements, can inject the value. Use the defaulted forms below, so your component stays warning-free and crash-free when it renders outside a system config form. With the default in place, a component rendered outside the form reads the same value as the global scope:
 
 ```js
 // Options API: the injected value is unwrapped, read it directly

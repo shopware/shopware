@@ -1466,7 +1466,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(wrapper.find('.test-scope-slot').text()).toBe('global');
     });
 
-    it('should expose the current sales channel id on the beforeElements and afterElements slots', async () => {
+    it('should expose the current sales channel id on the beforeElements, afterElements and card-element-last slots', async () => {
         wrapper = await createWrapper({}, createConfig(), {
             beforeElements: `
                 <template #beforeElements="{ currentSalesChannelId }">
@@ -1499,10 +1499,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         const scopeProbe = {
             template: '<div class="test-scope-probe">{{ label }}</div>',
             inject: {
-                swSystemConfigCurrentSalesChannelId: {
-                    from: 'swSystemConfigCurrentSalesChannelId',
-                    default: null,
-                },
+                swSystemConfigCurrentSalesChannelId: { default: null },
             },
             computed: {
                 label() {

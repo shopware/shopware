@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Service\Subscriber;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\Event\PermissionsGrantedEvent;
 use Shopware\Core\Service\Event\PermissionsRevokedEvent;
 use Shopware\Core\Service\LifecycleManager;
@@ -15,6 +16,7 @@ use Shopware\Core\Service\Subscriber\PermissionsSubscriber;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PermissionsSubscriber::class)]
 class PermissionsSubscriberTest extends TestCase
 {

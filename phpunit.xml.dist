@@ -156,6 +156,9 @@
 
             <!-- Helper class and its output DTOs and exception, which could not be unit tested -->
             <directory suffix=".php">src/Core/Framework/Util/Database</directory>
+
+            <!-- BC-change attributes are data-only markers without behavior to test -->
+            <directory suffix=".php">src/Core/Framework/Deprecation/BCChange</directory>
         </exclude>
     </source>
     <php>

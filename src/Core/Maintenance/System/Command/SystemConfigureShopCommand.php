@@ -15,11 +15,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal should be used over the CLI only
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'system:configure-shop',
     description: 'Configure shop',
 )]
-#[Package('framework')]
 class SystemConfigureShopCommand extends Command
 {
     public function __construct(

@@ -12,11 +12,13 @@ use Shopware\Core\Content\Media\Core\Application\RemoteThumbnailLoader;
 use Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(MediaUrlLoader::class)]
 class MediaUrlLoaderTest extends TestCase
 {

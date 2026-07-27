@@ -7,6 +7,8 @@ use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -31,9 +33,7 @@ final class ReviewFormEvent extends Event implements SalesChannelAware, MailAwar
      */
     private readonly array $reviewFormData;
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $product will be required and non-nullable
-     */
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'product', newType: ProductEntity::class, description: 'The parameter loses its null default and becomes required.')]
     public function __construct(
         private readonly Context $context,
         private readonly string $salesChannelId,
@@ -98,9 +98,8 @@ final class ReviewFormEvent extends Event implements SalesChannelAware, MailAwar
         return $this->productId;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return a non-nullable ProductEntity in v6.8.0.0
-     */
+    // @phpstan-ignore-next-line shopware.bcChangeAttribute (The constructor still permits a missing product, so the return type cannot be narrowed yet.)
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: ProductEntity::class, description: 'The return value becomes non-nullable once constructing the event without a product is removed.')]
     public function getProduct(): ?ProductEntity
     {
         return $this->product;

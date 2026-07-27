@@ -58,6 +58,7 @@
       },
       "opt-out-info": {
         "snippet": "Du kannst deine Einstellungen jederzeit anpassen: Shopdaten unter {settings} und Persönliche Daten unter {profile}.",
+        "single-option-snippet": "Du kannst deine Einstellungen jederzeit unter {link} anpassen.",
         "settings": "Einstellungen – Datenschutz",
         "profile": "Dein Profil – Datenschutzeinstellungen"
       },

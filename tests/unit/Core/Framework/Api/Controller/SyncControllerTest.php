@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncResult;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Encoder\JsonDecode;
@@ -19,6 +20,7 @@ use Symfony\Component\Serializer\Serializer;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SyncController::class)]
 class SyncControllerTest extends TestCase
 {

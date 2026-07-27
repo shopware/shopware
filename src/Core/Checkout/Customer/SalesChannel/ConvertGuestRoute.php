@@ -24,13 +24,13 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+#[Package('checkout')]
 #[Route(
     defaults: [
         PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
         PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED => true,
     ]
 )]
-#[Package('checkout')]
 class ConvertGuestRoute extends AbstractConvertGuestRoute
 {
     /**

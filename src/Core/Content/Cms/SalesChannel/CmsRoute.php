@@ -16,8 +16,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('discovery')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class CmsRoute extends AbstractCmsRoute
 {
     /**
@@ -54,7 +54,7 @@ class CmsRoute extends AbstractCmsRoute
                 ->addFilter(new EqualsAnyFilter('slots.id', $slots));
         }
 
-        $cmsPage = $this->cmsPageLoader->load($request, $criteria, $context)->first();
+        $cmsPage = $this->cmsPageLoader->load($request, $criteria, $context)->getEntities()->first();
         if ($cmsPage === null) {
             if (!Feature::isActive('v6.8.0.0')) {
                 /** @phpstan-ignore shopware.domainException (Will be fixed with next major) */

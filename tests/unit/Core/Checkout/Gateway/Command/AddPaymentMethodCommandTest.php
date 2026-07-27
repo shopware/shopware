@@ -10,8 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(AddPaymentMethodCommand::class)]
 #[Package('checkout')]
+#[CoversClass(AddPaymentMethodCommand::class)]
 class AddPaymentMethodCommandTest extends TestCase
 {
     public function testCommand(): void

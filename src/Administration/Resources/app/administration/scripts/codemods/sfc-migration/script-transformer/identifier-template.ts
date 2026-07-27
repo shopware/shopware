@@ -24,7 +24,7 @@ interface IdentOptions {
 
 export function ident(preferred: string, options: IdentOptions = {}): IdentifierToken {
     return Object.freeze({
-        [IDENTIFIER_TOKEN_MARKER]: true,
+        [IDENTIFIER_TOKEN_MARKER]: true as const,
         preferred,
         fallback: Object.freeze([...(options.fallback ?? [])]),
     });

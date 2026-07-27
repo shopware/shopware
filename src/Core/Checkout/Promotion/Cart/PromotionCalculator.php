@@ -105,6 +105,11 @@ class PromotionCalculator
                 continue;
             }
 
+            // Pinned set promotions restored from an order have already been copied with their historical price.
+            if ($calculated->has($discountItem->getId())) {
+                continue;
+            }
+
             $isAutomaticDiscount = $this->isAutomaticDiscount($discountItem);
 
             // we have to verify if the line item is still valid

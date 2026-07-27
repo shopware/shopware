@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(McpPrompts::class)]
 #[Package('framework')]
+#[CoversClass(McpPrompts::class)]
 class McpPromptsTest extends TestCase
 {
     public function testFromXmlParsesMultiplePrompts(): void

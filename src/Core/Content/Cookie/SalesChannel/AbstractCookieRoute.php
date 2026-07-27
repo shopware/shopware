@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @experimental stableVersion:v6.8.0 feature:COOKIE_GROUPS_STORE_API
  */
-#[Package('framework')]
+#[Package('discovery')]
 abstract class AbstractCookieRoute
 {
     abstract public function getDecorated(): AbstractCookieRoute;

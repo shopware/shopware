@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\AllServiceInstaller;
 use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\Permission\PermissionsService;
@@ -29,6 +30,7 @@ use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(LifecycleManager::class)]
 class LifecycleManagerTest extends TestCase
 {

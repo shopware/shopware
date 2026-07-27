@@ -16,11 +16,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductExportEventListener::class)]
 class ProductExportEventListenerTest extends TestCase
 {
@@ -44,6 +46,8 @@ class ProductExportEventListenerTest extends TestCase
                 return ($first['id'] ?? null) === $id
                     && \array_key_exists('generatedAt', $first)
                     && $first['generatedAt'] === null
+                    && \array_key_exists('nextGenerationAt', $first)
+                    && $first['nextGenerationAt'] === null
                     && \array_key_exists('isRunning', $first)
                     && $first['isRunning'] === false;
             }), $context);
@@ -109,6 +113,10 @@ class ProductExportEventListenerTest extends TestCase
     {
         yield 'explicit generatedAt update' => [[
             'generatedAt' => new \DateTime(),
+        ]];
+
+        yield 'explicit nextGenerationAt update' => [[
+            'nextGenerationAt' => new \DateTime(),
         ]];
 
         yield 'explicit isRunning update' => [[

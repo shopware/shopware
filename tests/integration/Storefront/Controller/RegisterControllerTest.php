@@ -311,14 +311,13 @@ class RegisterControllerTest extends TestCase
         $productNumber = 'test-checkout-login';
         $this->createProduct(Uuid::randomHex(), $productNumber);
 
-        // Put a product in the cart using the same browser session as the login request below.
+        // Add a product to the cart, then submit the checkout login form with wrong credentials.
         $this->request(
             'POST',
             '/checkout/product/add-by-number',
             $this->tokenize('frontend.checkout.product.add-by-number', ['number' => $productNumber])
         );
 
-        // Submit the checkout login form (redirectTo points into the checkout flow) with wrong credentials.
         $response = $this->request(
             'POST',
             '/account/login',
@@ -332,9 +331,8 @@ class RegisterControllerTest extends TestCase
         static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
         $content = (string) $response->getContent();
 
-        // The customer stays on the checkout register page and sees the wrong-credentials error ...
+        // Error shown on the checkout register page, with the login panel expanded.
         static::assertStringContainsString('Could not find an account', $content);
-        // ... with the otherwise-collapsed login panel expanded so the error is visible on load.
         static::assertStringContainsString('class="collapse show" id="loginCollapse"', $content);
     }
 

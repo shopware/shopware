@@ -236,9 +236,7 @@ class AuthController extends StorefrontController
             $data->set('password', null);
         }
 
-        // A login started from the checkout register page must return there instead of the
-        // standalone account login page, so the customer stays within the checkout flow. The
-        // submitted redirectTo (e.g. frontend.checkout.confirm.page) tells us where it came from.
+        // Keep a failed login within the checkout flow instead of forwarding to the account login page.
         $redirectTo = $request->request->getString('redirectTo');
         $errorRoute = str_starts_with($redirectTo, 'frontend.checkout')
             ? 'frontend.checkout.register.page'

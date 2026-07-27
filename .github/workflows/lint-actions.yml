@@ -1,6 +1,7 @@
 name: Lint Actions
-# Lints GitHub Actions workflows/actions with actionlint and checks their
-# formatting with yamlfmt. Mirrors `composer run lint:actions` locally.
+# Lints GitHub Actions workflows/actions with actionlint, checks their formatting
+# with yamlfmt, and audits them with zizmor. Mirrors `composer run lint:actions`
+# locally.
 
 on:
   pull_request:
@@ -8,6 +9,7 @@ on:
       - ".github/workflows/**"
       - ".github/actions/**"
       - ".github/actionlint.yaml"
+      - ".github/zizmor.yml"
       - ".github/bin/lint-actions.bash"
       - ".github/bin/js/**"
       - ".yamlfmt"
@@ -21,6 +23,8 @@ env:
   ACTIONLINT_SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
   YAMLFMT_VERSION: 0.21.0
   YAMLFMT_SHA256: 1f300d9257b232bb3b541d7fb1b0e6b3c121bcbab381c86cd38cb8722be8a566
+  ZIZMOR_VERSION: 1.28.0
+  ZIZMOR_SHA256: e87b67160194884e375a46a12c57ccc904f762b53845f254fab7f17d98809c09
 
 jobs:
   lint-actions:
@@ -30,7 +34,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
-      - name: Install actionlint and yamlfmt
+      - name: Install actionlint, yamlfmt and zizmor
         run: |
           tmp="$(mktemp -d)"
 
@@ -43,6 +47,11 @@ jobs:
           echo "${YAMLFMT_SHA256}  $tmp/yamlfmt.tar.gz" | sha256sum --check
           tar -xzf "$tmp/yamlfmt.tar.gz" -C "$tmp" yamlfmt
           sudo install -m 0755 "$tmp/yamlfmt" /usr/local/bin/yamlfmt
+
+          curl -sSfL "https://github.com/zizmorcore/zizmor/releases/download/v${ZIZMOR_VERSION}/zizmor-x86_64-unknown-linux-gnu.tar.gz" -o "$tmp/zizmor.tar.gz"
+          echo "${ZIZMOR_SHA256}  $tmp/zizmor.tar.gz" | sha256sum --check
+          tar -xzf "$tmp/zizmor.tar.gz" -C "$tmp" zizmor
+          sudo install -m 0755 "$tmp/zizmor" /usr/local/bin/zizmor
 
       # shellcheck (used by actionlint for `run:` scripts) is preinstalled on
       # GitHub-hosted ubuntu runners.

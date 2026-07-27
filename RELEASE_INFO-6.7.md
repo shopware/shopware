@@ -41,7 +41,9 @@ The existing `reason:*` annotations will be migrated to these attributes in foll
 
 `GET /store-api/checkout/cart` handles this like an unknown cart token and responds with a fresh empty cart. Mutating routes such as adding, updating, or removing line items now respond with the error instead of pretending the write succeeded; API clients should re-fetch the cart in that case.
 
-The Storefront absorbs the exception and degrades gracefully: adding an item shows the existing `error.addToCartError` notice, and the checkout confirm page keeps the cart unchanged instead of switching payment or shipping method. Extensions are affected in two ways: code calling `AbstractCartPersister::save()` should be prepared for the exception when the cart may have been deleted concurrently, and decorators of `AbstractCartPersister` should mirror the new behaviour so callers can rely on it.
+`CartService::add()` recovers on its own: if the cart was deleted while the items were being added, it retries once against a fresh cart, so the items end up in a new cart instead of being lost. This keeps adding to the cart and merging a guest cart into a customer cart during login working across a concurrent order placement. The remaining Storefront entry points degrade gracefully: the checkout confirm page keeps the cart unchanged instead of switching payment or shipping method.
+
+Extensions are affected in two ways: code calling `AbstractCartPersister::save()` should be prepared for the exception when the cart may have been deleted concurrently, and decorators of `AbstractCartPersister` should mirror the new behaviour so callers can rely on it.
 
 ## Administration
 

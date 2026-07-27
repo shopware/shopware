@@ -19,6 +19,13 @@ Tests should read like executable examples.
 - Do not hide assertions or feature-flag toggling behind abstractions when direct assertions are just as readable.
 - Prefer one focused test per distinct exception or behavior over broad data providers when each case has its own meaning.
 
+## Never Terminate The Test Process
+
+- A test must never let production or framework code call `exit()`, `die()`, or `posix_kill()`. PHPUnit is gone before it can report anything, so the remaining tests silently do not run and no JUnit or coverage report is written. See [issue #18661](https://github.com/shopware/shopware/issues/18661).
+- `Shopware\Core\Test\PHPUnit\CompletionGuard` (registered from `TestBootstrapper::bootstrap()`) now turns this into a loud failure instead of a green run. `PHPUnit terminated before the test runner finished the suite` on `STDERR` with exit code `1` and no failure summary means a test killed the process — find the last test that started, not a failing assertion.
+- When testing a Symfony console `Application`, always call `$application->setAutoExit(false)` before running it. `Application::run()` ends in `exit($code)` otherwise. `CommandTester` is unaffected — it invokes the command directly — so prefer it over `ApplicationTester` unless the scenario genuinely needs the application layer (command resolution, aliases, global options).
+- The same applies to any code path that reaches `exit()`: kernel shutdown handlers, `Process` wrappers configured to exit, and CLI entry-point scripts included in a test. Cover the callable underneath instead of the script.
+
 ## Assertions And Fixtures
 
 - Prefer `expectExceptionObject()` over a broader `expectException`, build the expected exception through the same domain factory when one exists so class, code, and message stay aligned with production behavior.

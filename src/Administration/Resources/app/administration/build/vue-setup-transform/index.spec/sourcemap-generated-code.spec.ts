@@ -6,7 +6,7 @@ import { stripIndent, transformOrFail } from './helpers';
 import { expectGeneratedTokenUnmapped, expectUnmapped } from './sourcemap-helpers';
 
 describe('build/vue-setup-transform sourcemap generated code', () => {
-    it('does not map the generated attachOverrides footer or context header to user source', () => {
+    it('does not map the generated attachOverrides footer to user source', () => {
         expect.hasAssertions();
 
         const source = stripIndent`
@@ -33,10 +33,33 @@ describe('build/vue-setup-transform sourcemap generated code', () => {
 
         const result = transformOrFail(source, 'generated-footer.vue');
 
-        // The author body stays in place (macros untouched, bindings renamed); only the generated
-        // context header and the attachOverrides footer are transform-authored and must stay unmapped.
-        expectGeneratedTokenUnmapped(result, 'const useSwContext = () => Shopware.Component.getComponentContext();');
+        // The author body stays in place (macros untouched, bindings renamed), so the footer is the only
+        // transform-authored code in a base block and the only thing that must stay unmapped. A base
+        // block emits no generated headers at all - its body runs as a native <script setup>.
         expectGeneratedTokenUnmapped(result, 'Shopware.Component.attachOverrides({');
+    });
+
+    it('does not map the generated override setup-input headers to user source', () => {
+        expect.hasAssertions();
+
+        const source = stripIndent`
+            <script setup lang="ts">
+            const previousState = useSwPreviousState();
+            const context = useSwContext();
+            const doubled = previousState.count.value * 2;
+
+            swDefineOverride({
+                doubled,
+            });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'generated-headers.override.vue');
+
+        // An override body runs inside a generated callback, so the useSw* helpers are emitted as
+        // transform-authored headers above it and must not map back to the author's calls.
+        expectGeneratedTokenUnmapped(result, 'const useSwContext = () => __swSetupContext;');
+        expectGeneratedTokenUnmapped(result, 'const useSwPreviousState = () => __swSetupPreviousState;');
     });
 
     it('does not map injected data scope attributes to user-authored template source', () => {

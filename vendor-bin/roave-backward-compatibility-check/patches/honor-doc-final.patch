@@ -9,9 +9,6 @@
 +     * PHPStan rules), so checks that only protect subclasses are skipped for them,
 +     * like for native final classes. Caller-facing checks (return type covariance,
 +     * parameter contravariance, method removal, ...) still apply.
-+     *
-+     * Resolution of the declaring class can fail when it lives in a dependency whose
-+     * old version predates it; in that case the wrapped check decides (fail open).
 +     */
 +    class SkipSubclassOnlyChecksOnFinalClasses implements ClassBased\ClassBased, MethodBased\MethodBased, FunctionBased\FunctionBased
 +    {
@@ -21,18 +18,14 @@
 +
 +        public function __invoke($from, $to): \Roave\BackwardCompatibility\Changes
 +        {
-+            try {
-+                $class = $from instanceof \Roave\BetterReflection\Reflection\ReflectionMethod
-+                    ? $from->getDeclaringClass()
-+                    : $from;
++            $class = $from instanceof \Roave\BetterReflection\Reflection\ReflectionMethod
++                ? $from->getDeclaringClass()
++                : $from;
 +
-+                if ($class instanceof \Roave\BetterReflection\Reflection\ReflectionClass
-+                    && ($class->isFinal() || $this->isFinalDocComment($class->getDocComment()))
-+                ) {
-+                    return \Roave\BackwardCompatibility\Changes::empty();
-+                }
-+            } catch (\Throwable) {
-+                // fall through to the wrapped check
++            if ($class instanceof \Roave\BetterReflection\Reflection\ReflectionClass
++                && ($class->isFinal() || $this->isFinalDocComment($class->getDocComment()))
++            ) {
++                return \Roave\BackwardCompatibility\Changes::empty();
 +            }
 +
 +            return ($this->check)($from, $to);

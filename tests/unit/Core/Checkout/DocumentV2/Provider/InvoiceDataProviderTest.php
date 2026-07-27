@@ -137,7 +137,6 @@ class InvoiceDataProviderTest extends TestCase
 
         $request = new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
             '12345',
@@ -161,7 +160,6 @@ class InvoiceDataProviderTest extends TestCase
         $order = self::createOrder();
         $request = new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
             '12345',
@@ -183,7 +181,6 @@ class InvoiceDataProviderTest extends TestCase
         $order = self::createOrder();
         $request = new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
             '12345',
@@ -201,7 +198,6 @@ class InvoiceDataProviderTest extends TestCase
         $order = self::createOrder();
         $request = new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
             documentNumber: null,
@@ -226,7 +222,6 @@ class InvoiceDataProviderTest extends TestCase
         );
         $request = new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
             '12345',
@@ -247,7 +242,6 @@ class InvoiceDataProviderTest extends TestCase
         );
         $request = new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
             '12345',
@@ -389,13 +383,11 @@ class InvoiceDataProviderTest extends TestCase
         $companyCountry->setUniqueIdentifier(self::COMPANY_COUNTRY_ID);
         $companyCountry->setId(self::COMPANY_COUNTRY_ID);
 
-        /** @var StaticEntityRepository<CountryCollection> $countryRepository */
         $countryRepository = new StaticEntityRepository(
             [new CountryCollection([$companyCountry])],
             new CountryDefinition(),
         );
 
-        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentConfigRepository */
         $documentConfigRepository = new StaticEntityRepository(
             [new DocumentBaseConfigCollection([
                 $this->createBaseConfig($config),
@@ -403,7 +395,6 @@ class InvoiceDataProviderTest extends TestCase
             new DocumentBaseConfigDefinition(),
         );
 
-        /** @var StaticEntityRepository<MediaCollection> $mediaRepository */
         $mediaRepository = new StaticEntityRepository([new MediaCollection()], new MediaDefinition());
 
         $configLoader = new DocumentConfigLoader(

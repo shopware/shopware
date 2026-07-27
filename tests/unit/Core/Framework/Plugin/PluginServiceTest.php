@@ -46,7 +46,6 @@ class PluginServiceTest extends TestCase
                 $pluginFromFileSystemStruct,
             ]);
 
-        /** @var StaticEntityRepository<PluginCollection> $pluginRepo */
         $pluginRepo = new StaticEntityRepository([new PluginCollection()]);
         $pluginService = $this->getPluginService($pluginRepo, $pluginFinder);
 
@@ -87,7 +86,6 @@ class PluginServiceTest extends TestCase
                 $pluginFromFileSystemStruct,
             ]);
 
-        /** @var StaticEntityRepository<PluginCollection> $pluginRepo */
         $pluginRepo = new StaticEntityRepository([new PluginCollection()]);
         $pluginService = $this->getPluginService($pluginRepo, $pluginFinder);
 
@@ -109,7 +107,6 @@ class PluginServiceTest extends TestCase
 
     public function testGetPluginByName(): void
     {
-        /** @var StaticEntityRepository<PluginCollection> $pluginRepo */
         $pluginRepo = new StaticEntityRepository([new PluginCollection()]);
         $pluginFinder = $this->createMock(PluginFinder::class);
         $pluginService = $this->getPluginService($pluginRepo, $pluginFinder);
@@ -161,7 +158,6 @@ class PluginServiceTest extends TestCase
         $language = new LanguageEntity();
         $language->setId('foo');
 
-        /** @var StaticEntityRepository<LanguageCollection> $repo */
         $repo = new StaticEntityRepository([new LanguageCollection([$language]), new LanguageCollection([$language])]);
 
         return $repo;

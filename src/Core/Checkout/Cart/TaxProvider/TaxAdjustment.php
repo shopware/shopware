@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\TaxProvider\Struct\TaxProviderResult;
+use Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -23,7 +24,8 @@ class TaxAdjustment
      */
     public function __construct(
         private readonly AmountCalculator $amountCalculator,
-        private readonly CashRounding $rounding
+        private readonly CashRounding $rounding,
+        private readonly TransactionProcessor $transactionProcessor
     ) {
     }
 
@@ -50,6 +52,18 @@ class TaxAdjustment
         }
 
         $cart->setPrice($price);
+
+        $this->adjustTransactions($cart, $context);
+    }
+
+    private function adjustTransactions(Cart $cart, SalesChannelContext $context): void
+    {
+        if ($cart->getTransactions()->count() === 0) {
+            return;
+        }
+
+        // The transactions were built before the tax provider ran; rebuild them from the adjusted cart price.
+        $cart->setTransactions($this->transactionProcessor->process($cart, $context));
     }
 
     private function applyCartPriceTaxes(CartPrice $price, CalculatedTaxCollection $taxes, SalesChannelContext $context): CartPrice

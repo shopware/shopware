@@ -25,7 +25,6 @@ class TaskRunnerTest extends TestCase
 {
     public function testNonExistingTask(): void
     {
-        /** @var StaticEntityRepository<ScheduledTaskCollection> $scheduledTaskRepository */
         $scheduledTaskRepository = new StaticEntityRepository([new ScheduledTaskCollection()]);
         $taskRunner = new TaskRunner([], $scheduledTaskRepository, new NativeClock());
 
@@ -56,7 +55,6 @@ class TaskRunnerTest extends TestCase
         $task->setId('task-id');
         $task->setScheduledTaskClass(TestTask::class);
 
-        /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
         $repository = new StaticEntityRepository([new ScheduledTaskCollection([$task])]);
 
         return $repository;

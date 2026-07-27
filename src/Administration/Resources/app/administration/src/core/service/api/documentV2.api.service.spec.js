@@ -61,7 +61,6 @@ describe('documentV2Service', () => {
         documentV2ApiService.setListener(listener);
 
         const orderId = '4a4a687257644d52bf481b4c20e59213';
-        const orderVersionId = '4d03324edcd0490b9180df8161c9167f';
 
         clientMock.onPost('/_action/order/document-v2/create').reply(200, {
             documentId: '4d03324edcd0490b9180df8161c9167f',
@@ -74,7 +73,6 @@ describe('documentV2Service', () => {
 
         await documentV2ApiService.createDocument(
             orderId,
-            orderVersionId,
             'invoice',
             [
                 'html',
@@ -88,7 +86,6 @@ describe('documentV2Service', () => {
         expect(clientMock.history.post[0].url).toBe('/_action/order/document-v2/create');
         expect(JSON.parse(clientMock.history.post[0].data)).toEqual({
             orderId,
-            orderVersionId,
             documentType: 'invoice',
             formats: [
                 'html',
@@ -189,7 +186,6 @@ describe('documentV2Service', () => {
 
         await documentV2ApiService.previewDocument(
             '4a4a687257644d52bf481b4c20e59213',
-            '4d03324edcd0490b9180df8161c9167f',
             'invoice',
             'html',
             '1000',
@@ -204,7 +200,6 @@ describe('documentV2Service', () => {
         expect(clientMock.history.post[0].headers['sw-language-id']).toBe('language-id');
         expect(JSON.parse(clientMock.history.post[0].data)).toEqual({
             orderId: '4a4a687257644d52bf481b4c20e59213',
-            orderVersionId: '4d03324edcd0490b9180df8161c9167f',
             documentType: 'invoice',
             format: 'html',
             documentNumber: '1000',
@@ -239,7 +234,6 @@ describe('documentV2Service', () => {
 
         const response = await documentV2ApiService.previewDocument(
             '4a4a687257644d52bf481b4c20e59213',
-            '4d03324edcd0490b9180df8161c9167f',
             'invoice',
             'html',
             '1000',

@@ -27,7 +27,6 @@ class DocumentGenerationRequestTest extends TestCase
 
         $request = new DocumentGenerationRequest(
             Uuid::randomHex(),
-            Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::HTML],
             documentDate: '2026-05-05T12:00:00+00:00',
@@ -51,7 +50,6 @@ class DocumentGenerationRequestTest extends TestCase
 
         $request = new DocumentGenerationRequest(
             Uuid::randomHex(),
-            Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::HTML],
         );
@@ -66,7 +64,6 @@ class DocumentGenerationRequestTest extends TestCase
     {
         $request = new DocumentGenerationRequest(
             Uuid::randomHex(),
-            Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::HTML],
             documentDate: '2026-05-05T12:00:00+00:00',
@@ -79,7 +76,6 @@ class DocumentGenerationRequestTest extends TestCase
     {
         $request = new DocumentGenerationRequest(
             Uuid::randomHex(),
-            Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::HTML],
         );
@@ -88,7 +84,6 @@ class DocumentGenerationRequestTest extends TestCase
         static::assertSame(DocumentType::INVOICE->value, $request->documentType);
 
         $request = new DocumentGenerationRequest(
-            Uuid::randomHex(),
             Uuid::randomHex(),
             DocumentType::INVOICE->value,
             [DocumentFormat::HTML->value],

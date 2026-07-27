@@ -1,0 +1,6 @@
+{% set order = hook.order %}
+
+{% do order.addArrayExtension('document_data_example', {
+    'documentType': hook.documentType,
+    'documentNumber': hook.documentNumber
+}) %}

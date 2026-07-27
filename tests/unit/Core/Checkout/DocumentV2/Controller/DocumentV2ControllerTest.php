@@ -40,6 +40,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -762,6 +763,7 @@ class DocumentV2ControllerTest extends TestCase
             new DocumentDependencyResolver($rendererRegistry),
             new ReferencedDocumentResolver(new ReferenceInvoiceLoader($connection), $connection),
             $orderRepository,
+            static::createStub(ScriptExecutor::class),
         );
     }
 }

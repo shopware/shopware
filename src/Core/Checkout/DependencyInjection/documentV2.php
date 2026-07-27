@@ -36,6 +36,7 @@ use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -202,6 +203,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DocumentDependencyResolver::class),
             service(ReferencedDocumentResolver::class),
             service('order.repository'),
+            service(ScriptExecutor::class),
         ]);
 
     $services->set(DocumentGenerationRequestResolver::class)

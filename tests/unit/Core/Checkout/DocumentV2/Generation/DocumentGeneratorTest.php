@@ -17,11 +17,13 @@ use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\Event\Hooks\DocumentGenerationHook;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\DocumentV2\Generation\ReferencedDocumentResolver;
+use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
@@ -35,6 +37,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -43,6 +46,7 @@ use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentDataProv
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticReferencedSnapshotDocumentDataProvider;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticReferencingDocumentDataProvider;
+use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticRenderData;
 
 /**
  * @internal
@@ -504,6 +508,147 @@ class DocumentGeneratorTest extends TestCase
         static::assertCount(0, $documentFileRepository->creates);
     }
 
+    public function testGenerateExecutesTheDocumentGenerationHook(): void
+    {
+        $orderId = Uuid::randomHex();
+        $createdOrderVersionId = Uuid::randomHex();
+        $salesChannelId = Uuid::randomHex();
+        $documentTypeId = Uuid::randomHex();
+        $orderLanguageId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $generationRequest = new DocumentGenerationRequest(
+            $orderId,
+            DocumentType::INVOICE,
+            [DocumentFormat::PDF],
+        );
+
+        $order = new OrderEntity();
+        $order->setId($orderId);
+        $order->setVersionId($createdOrderVersionId);
+        $order->setSalesChannelId($salesChannelId);
+        $order->setLanguageId($orderLanguageId);
+
+        $orderRepository = static::createStub(EntityRepository::class);
+        $orderRepository->method('createVersion')->willReturn($createdOrderVersionId);
+        $orderRepository
+            ->method('search')
+            ->willReturnCallback(function (
+                Criteria $criteria,
+                Context $searchContext,
+            ) use ($order): EntitySearchResult {
+                return new EntitySearchResult(
+                    OrderDefinition::ENTITY_NAME,
+                    1,
+                    new OrderCollection([$order]),
+                    null,
+                    $criteria,
+                    $searchContext,
+                );
+            });
+
+        $numberRangeValueGenerator = static::createStub(NumberRangeValueGeneratorInterface::class);
+        $numberRangeValueGenerator->method('getValue')->willReturn('generated-number');
+
+        $scriptExecutor = $this->createMock(ScriptExecutor::class);
+        $scriptExecutor
+            ->expects($this->once())
+            ->method('execute')
+            ->with(static::callback(function (DocumentGenerationHook $hook) use ($order): bool {
+                static::assertSame($order, $hook->getOrder());
+                static::assertSame(DocumentType::INVOICE->value, $hook->getDocumentType());
+                static::assertSame('generated-number', $hook->getDocumentNumber());
+                static::assertSame([DocumentFormat::PDF->value], $hook->getFormats());
+
+                return true;
+            }));
+
+        [$generator] = $this->createGenerator(
+            $orderRepository,
+            $numberRangeValueGenerator,
+            $documentTypeId,
+            new DocumentEntity(),
+            $scriptExecutor,
+        );
+
+        $generator->generate($generationRequest, $context);
+    }
+
+    public function testHookRunsBeforeProvidersCollectData(): void
+    {
+        $orderId = Uuid::randomHex();
+        $createdOrderVersionId = Uuid::randomHex();
+        $salesChannelId = Uuid::randomHex();
+        $orderLanguageId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $generationRequest = new DocumentGenerationRequest(
+            $orderId,
+            DocumentType::INVOICE,
+            [DocumentFormat::PDF],
+        );
+
+        $order = new OrderEntity();
+        $order->setId($orderId);
+        $order->setVersionId($createdOrderVersionId);
+        $order->setSalesChannelId($salesChannelId);
+        $order->setLanguageId($orderLanguageId);
+
+        $orderRepository = static::createStub(EntityRepository::class);
+        $orderRepository->method('createVersion')->willReturn($createdOrderVersionId);
+        $orderRepository
+            ->method('search')
+            ->willReturnCallback(function (
+                Criteria $criteria,
+                Context $searchContext,
+            ) use ($order): EntitySearchResult {
+                return new EntitySearchResult(
+                    OrderDefinition::ENTITY_NAME,
+                    1,
+                    new OrderCollection([$order]),
+                    null,
+                    $criteria,
+                    $searchContext,
+                );
+            });
+
+        $numberRangeValueGenerator = static::createStub(NumberRangeValueGeneratorInterface::class);
+        $numberRangeValueGenerator->method('getValue')->willReturn('generated-number');
+
+        $scriptExecutor = static::createStub(ScriptExecutor::class);
+        $scriptExecutor
+            ->method('execute')
+            ->willReturnCallback(function (DocumentGenerationHook $hook): void {
+                $hook->getOrder()->addArrayExtension('my_app', ['foo' => 'bar']);
+            });
+
+        $providerSawExtension = false;
+
+        $provider = static::createStub(AbstractDocumentDataProvider::class);
+        $provider->method('supports')->willReturn(true);
+        $provider->method('getKey')->willReturn(StaticDocumentDataProvider::KEY);
+        $provider
+            ->method('provideRenderingData')
+            ->willReturnCallback(function (ProviderInput $input) use (&$providerSawExtension): StaticRenderData {
+                $providerSawExtension = $input->order->hasExtension('my_app');
+
+                return new StaticRenderData();
+            });
+
+        [$generator] = $this->createGenerator(
+            $orderRepository,
+            $numberRangeValueGenerator,
+            Uuid::randomHex(),
+            new DocumentEntity(),
+            $scriptExecutor,
+            new DocumentDataProviderRegistry([$provider]),
+        );
+
+        $generator->generate($generationRequest, $context);
+
+        static::assertTrue($providerSawExtension);
+    }
+
     /**
      * @param EntityRepository<OrderCollection> $orderRepository
      * @param list<StaticDocumentDataProvider>|null $providers
@@ -520,6 +665,8 @@ class DocumentGeneratorTest extends TestCase
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         string $documentTypeId,
         DocumentEntity $document,
+        ?ScriptExecutor $scriptExecutor = null,
+        ?DocumentDataProviderRegistry $providerRegistry = null,
         ?array $providers = null,
         array $referenceRows = [],
     ): array {
@@ -545,7 +692,7 @@ class DocumentGeneratorTest extends TestCase
             [$documentTypeId],
         ], new DocumentTypeDefinition());
 
-        $providerRegistry = new DocumentDataProviderRegistry(
+        $providerRegistry ??= new DocumentDataProviderRegistry(
             $providers ?? [new StaticDocumentDataProvider([DocumentType::INVOICE->value])],
         );
 
@@ -579,6 +726,7 @@ class DocumentGeneratorTest extends TestCase
             new DocumentDependencyResolver($rendererRegistry),
             new ReferencedDocumentResolver(new ReferenceInvoiceLoader($connection), $connection),
             $orderRepository,
+            $scriptExecutor ?? static::createStub(ScriptExecutor::class),
         );
 
         return [$generator, $documentRepository, $documentFileRepository];

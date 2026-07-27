@@ -70,6 +70,10 @@ Cron-driven product export generation no longer derives the next run from `gener
 
 ## Administration
 
+### System config component exposes the selected sales channel scope
+
+The `sw-system-config` component now tells embedded components which sales channel the merchant has selected in the scope switcher. The `card-element`, `beforeElements` and `afterElements` slots receive an additional `currentSalesChannelId` slot prop, and the same value is available for injection under the key `swSystemConfigCurrentSalesChannelId`. Injection is the intended route for custom components rendered through a plugin's `config.xml` component elements, which have no access to the slot props. The provided value is a computed ref: components using the Options API read the injected value directly, `setup`-based components read `.value`. Previously the only way to follow the scope switcher was traversing `$parent` into private component state, which breaks across Administration refactors. The value is `null` while the global scope is selected. Existing slot usages are unaffected, the slots only gain a prop.
+
 ## Storefront
 
 ## App System

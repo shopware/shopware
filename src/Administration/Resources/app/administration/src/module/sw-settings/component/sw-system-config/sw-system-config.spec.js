@@ -16,7 +16,7 @@ import 'src/app/filter/unicode-uri';
 /** @type Wrapper */
 let wrapper;
 
-async function createWrapper(defaultValues = {}, config = createConfig()) {
+async function createWrapper(defaultValues = {}, config = createConfig(), slots = {}) {
     const systemConfigApiService = {
         getConfig: jest.fn(() => Promise.resolve(config)),
         getValues: jest.fn((domain, salesChannelId) => {
@@ -30,6 +30,7 @@ async function createWrapper(defaultValues = {}, config = createConfig()) {
     };
 
     return mount(await wrapTestComponent('sw-system-config'), {
+        slots,
         props: {
             salesChannelSwitchable: true,
             domain: 'ConfigRenderer.config',
@@ -1439,5 +1440,72 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         });
 
         expect(createdSpy).toHaveBeenCalled();
+    });
+
+    it('should expose the current sales channel id as a card-element slot prop', async () => {
+        wrapper = await createWrapper({}, createConfig(), {
+            'card-element': `
+                <template #card-element="{ currentSalesChannelId }">
+                    <div class="test-scope-slot">{{ currentSalesChannelId === null ? 'global' : currentSalesChannelId }}</div>
+                </template>`,
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-slot').text()).toBe('global');
+
+        wrapper.vm.onSalesChannelChanged(uuid.get('headless'));
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-slot').text()).toBe(uuid.get('headless'));
+    });
+
+    it('should expose the current sales channel id on the beforeElements and afterElements slots', async () => {
+        wrapper = await createWrapper({}, createConfig(), {
+            beforeElements: `
+                <template #beforeElements="{ currentSalesChannelId }">
+                    <div class="test-scope-before">{{ currentSalesChannelId === null ? 'global' : currentSalesChannelId }}</div>
+                </template>`,
+            afterElements: `
+                <template #afterElements="{ currentSalesChannelId }">
+                    <div class="test-scope-after">{{ currentSalesChannelId === null ? 'global' : currentSalesChannelId }}</div>
+                </template>`,
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-before').text()).toBe('global');
+        expect(wrapper.find('.test-scope-after').text()).toBe('global');
+
+        wrapper.vm.onSalesChannelChanged(uuid.get('storefront'));
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-before').text()).toBe(uuid.get('storefront'));
+        expect(wrapper.find('.test-scope-after').text()).toBe(uuid.get('storefront'));
+    });
+
+    it('should provide the current sales channel id to embedded components', async () => {
+        const scopeProbe = {
+            template: '<div class="test-scope-probe">{{ label }}</div>',
+            inject: ['swSystemConfigCurrentSalesChannelId'],
+            computed: {
+                label() {
+                    // Options API inject unwraps the provided computed ref
+                    const salesChannelId = this.swSystemConfigCurrentSalesChannelId;
+
+                    return salesChannelId === null ? 'global' : salesChannelId;
+                },
+            },
+        };
+
+        wrapper = await createWrapper({}, createConfig(), {
+            'card-element': scopeProbe,
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-probe').text()).toBe('global');
+
+        wrapper.vm.onSalesChannelChanged(uuid.get('headless'));
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-probe').text()).toBe(uuid.get('headless'));
     });
 });

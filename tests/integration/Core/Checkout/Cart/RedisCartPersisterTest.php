@@ -102,7 +102,13 @@ class RedisCartPersisterTest extends TestCase
 
         $this->persister->save($cart, $context);
         $this->persister->delete($token, $context);
-        $this->persister->save($cart, $context);
+
+        try {
+            $this->persister->save($cart, $context);
+            static::fail('Saving a concurrently deleted cart must signal ' . CartTokenNotFoundException::class);
+        } catch (CartTokenNotFoundException) {
+            // the save must report the loss instead of silently discarding it
+        }
 
         static::assertSame(0, $this->redis->exists(RedisCartPersister::PREFIX . $token));
     }

@@ -215,7 +215,6 @@ class CancellationInvoiceDataProviderTest extends TestCase
     {
         return new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::CANCELLATION_INVOICE,
             [DocumentFormat::ZUGFERD_XML],
             '2000',

@@ -1,8 +1,7 @@
 /**
  * @sw-package framework
  */
-const { Context, Data, Service } = Shopware;
-const { Criteria } = Data;
+const { Service } = Shopware;
 
 enum USER_CONFIG_PERMISSIONS {
     READ = 'user_config:read',
@@ -10,9 +9,11 @@ enum USER_CONFIG_PERMISSIONS {
     UPDATE = 'user_config:update',
 }
 
-abstract class UserConfigClass {
-    private userConfigRepository = Service('repositoryFactory').create('user_config');
+type SessionUser = {
+    id?: string;
+};
 
+abstract class UserConfigClass {
     private currentUserId = this.getCurrentUserId();
 
     protected userConfig = this.createUserConfigEntity(this.getConfigurationKey());
@@ -48,9 +49,11 @@ abstract class UserConfigClass {
             return this.userConfig;
         }
 
-        const response = await this.userConfigRepository.search(this.getCriteria(this.getConfigurationKey()), Context.api);
-
-        const userConfig = response.first() || this.userConfig;
+        const userConfig = Object.assign(this.createUserConfigEntity(this.getConfigurationKey()), this.userConfig, {
+            value: (await Shopware.Service('userConfigService').search([this.getConfigurationKey()]))?.data?.[
+                this.getConfigurationKey()
+            ],
+        });
 
         return this.handleEmptyUserConfig(userConfig);
     }
@@ -62,24 +65,20 @@ abstract class UserConfigClass {
 
         this.setUserConfig();
 
-        await this.userConfigRepository.save(this.userConfig, Context.api);
+        const configurationKey = this.getConfigurationKey();
+        const upsertData: Record<string, unknown> = {};
+        upsertData[configurationKey] = this.userConfig.value;
+
+        await Shopware.Service('userConfigService').upsert(upsertData);
         await this.readUserConfig();
     }
 
     private createUserConfigEntity(configKey: string): Entity<'user_config'> {
-        const entity = this.userConfigRepository.create(Context.api);
-
-        if (!entity) {
-            throw new Error('Could not create user config entity');
-        }
-
-        Object.assign(entity, {
+        return {
             userId: this.currentUserId,
             key: configKey,
             value: [],
-        });
-
-        return entity;
+        } as Entity<'user_config'>;
     }
 
     private handleEmptyUserConfig(userConfig: Entity<'user_config'>): Entity<'user_config'> {
@@ -90,17 +89,10 @@ abstract class UserConfigClass {
         return userConfig;
     }
 
-    private getCriteria(configKey: string): InstanceType<typeof Criteria> {
-        const criteria = new Criteria(1, 25);
-
-        criteria.addFilter(Criteria.equals('key', configKey));
-        criteria.addFilter(Criteria.equals('userId', this.currentUserId));
-
-        return criteria;
-    }
-
     private getCurrentUserId(): string {
-        return Shopware.Store.get('session').currentUser?.id ?? '';
+        const currentUser = Shopware.Store.get('session').currentUser as SessionUser | undefined;
+
+        return currentUser?.id ?? '';
     }
 }
 

@@ -187,5 +187,20 @@ export default {
                 disabled: true,
             };
         },
+
+        onInlineEditSave(promise) {
+            promise.then(() => {
+                this.invalidateLanguageCaches();
+            });
+        },
+
+        invalidateLanguageCaches() {
+            Shopware.Service('cacheService').invalidateCaches({
+                cacheKey: [
+                    'shared-data',
+                    'active-languages',
+                ],
+            });
+        },
     },
 };

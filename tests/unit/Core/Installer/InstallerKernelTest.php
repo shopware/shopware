@@ -72,15 +72,15 @@ class InstallerKernelTest extends TestCase
         $kernel->exposeConfigureContainer($container, $loader);
     }
 
-    #[TestDox('configureRoutes imports the installer routes xml')]
-    public function testConfigureRoutesImportsRoutesXml(): void
+    #[TestDox('configureRoutes imports the installer routes file')]
+    public function testConfigureRoutesImportsRoutesFile(): void
     {
         $kernel = new InstallerKernelStub('test', false, '6.6.0.0@abc123');
 
         $loader = $this->createMock(PhpFileLoader::class);
         $loader->expects($this->once())
             ->method('import')
-            ->with(static::stringEndsWith('/Installer/Resources/config/routes.xml'))
+            ->with(static::stringEndsWith('/Installer/Resources/config/routes.php'))
             ->willReturn(new RouteCollection());
 
         $routes = new RoutingConfigurator(new RouteCollection(), $loader, '', '');

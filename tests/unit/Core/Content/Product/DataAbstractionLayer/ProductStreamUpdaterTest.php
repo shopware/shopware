@@ -49,10 +49,8 @@ class ProductStreamUpdaterTest extends TestCase
         $messageBusMock = $this->createMock(MessageBusInterface::class);
         $messageBusMock->expects($this->never())->method(static::anything());
 
-        /** @var StaticEntityRepository<ProductCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepo */
         $languageRepo = new StaticEntityRepository([]);
 
         $updater = new ProductStreamUpdater(
@@ -95,10 +93,8 @@ class ProductStreamUpdaterTest extends TestCase
             return new Envelope($message);
         });
 
-        /** @var StaticEntityRepository<ProductCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepo */
         $languageRepo = new StaticEntityRepository([]);
 
         $updater = new ProductStreamUpdater(
@@ -142,10 +138,8 @@ class ProductStreamUpdaterTest extends TestCase
         $messageBusMock = $this->createMock(MessageBusInterface::class);
         $messageBusMock->expects($this->never())->method('dispatch');
 
-        /** @var StaticEntityRepository<ProductCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepo */
         $languageRepo = new StaticEntityRepository([]);
 
         $updater = new ProductStreamUpdater(
@@ -609,7 +603,6 @@ class ProductStreamUpdaterTest extends TestCase
         $language = new LanguageEntity();
         $language->setId(Defaults::LANGUAGE_SYSTEM);
 
-        /** @var StaticEntityRepository<LanguageCollection> $repo */
         $repo = new StaticEntityRepository([new LanguageCollection([$language])]);
 
         return $repo;

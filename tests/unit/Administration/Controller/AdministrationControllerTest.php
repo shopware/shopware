@@ -723,7 +723,6 @@ class AdministrationControllerTest extends TestCase
     ): AdministrationController {
         $collection = $collection ?? new CustomerCollection();
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository([$collection]);
         $customerEmailUniqueChecker = static::createStub(CustomerEmailUniqueChecker::class);
         $customerEmailUniqueChecker

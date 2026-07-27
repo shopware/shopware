@@ -28,8 +28,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[CoversClass(CartService::class)]
 #[Package('checkout')]
+#[CoversClass(CartService::class)]
 class CartServiceTest extends TestCase
 {
     private AbstractCartDeleteRoute&Stub $cartDeleteRoute;

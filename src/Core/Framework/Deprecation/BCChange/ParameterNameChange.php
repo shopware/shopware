@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Log\Package;
  * the change happens; positional call sites are not affected. Tooling (e.g. Rector) can rename
  * the named argument at all call sites by reading `$parameterName` and `$newName`.
  */
-#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 #[Package('framework')]
+#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final class ParameterNameChange implements CallSiteCompatibilityChange
 {
     /**

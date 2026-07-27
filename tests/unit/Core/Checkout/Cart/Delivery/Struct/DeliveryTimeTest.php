@@ -11,8 +11,8 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 /**
  * @internal
  */
-#[CoversClass(DeliveryTime::class)]
 #[Package('checkout')]
+#[CoversClass(DeliveryTime::class)]
 class DeliveryTimeTest extends TestCase
 {
     public function testCreateFromEntity(): void

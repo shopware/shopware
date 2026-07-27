@@ -29,8 +29,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[CoversClass(PromotionValidator::class)]
 #[Package('checkout')]
+#[CoversClass(PromotionValidator::class)]
 class PromotionValidatorTest extends TestCase
 {
     private WriteContext $context;

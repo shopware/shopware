@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Log\Package;
  * the method must widen the parameter type of their override to the announced type before the
  * change happens, as a narrower parameter type in the override violates contravariance.
  */
-#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 #[Package('framework')]
+#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final class ParameterTypeWidening implements ExtenderCompatibilityChange
 {
     /**

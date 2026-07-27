@@ -18,8 +18,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[CoversClass(CartLoadRoute::class)]
 #[Package('checkout')]
+#[CoversClass(CartLoadRoute::class)]
 class CartLoadRouteTest extends TestCase
 {
     public function testLoadCartCreatesNewCart(): void

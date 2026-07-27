@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Twig;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
@@ -18,6 +19,7 @@ use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(TemplateConfigAccessor::class)]
 class TemplateConfigAccessorTest extends TestCase
 {

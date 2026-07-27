@@ -108,6 +108,9 @@
       "placeholderPlaceOfFulfillment": "Enter place of fulfillment...",
       "placeholderExecutiveDirector": "Enter business executive...",
       "placeholderPaymentDueDate": "Enter payment due date..."
+    },
+    "errors": {
+      "invalidDueDateFormat": "The date modifier is invalid."
     }
   },
   "sw-privileges": {

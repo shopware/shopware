@@ -25,11 +25,11 @@ use Symfony\Component\Validator\Validation;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[AsCommand(
     name: 'store:login',
     description: 'Login to the store',
 )]
-#[Package('checkout')]
 class StoreLoginCommand extends Command
 {
     /**

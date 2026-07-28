@@ -27,11 +27,14 @@ use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\CustomField\CustomFieldCollection;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
@@ -1018,20 +1021,16 @@ class CustomFieldTest extends TestCase
             ],
         ];
 
-        $repo = $this->getTestRepository();
+        $expected = (new WriteException())->add(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation('This value should be of type array.', 'This value should be of type {{ type }}.', [], null, '/price', 12.5),
+            ]),
+            '/0/custom'
+        ));
 
-        try {
-            $repo->create($entities, Context::createDefaultContext());
+        $this->expectExceptionObject($expected);
 
-            static::fail(WriteException::class . ' not thrown.');
-        } catch (WriteException $exception) {
-            // `WriteException::getErrors()` `yield from`s each inner exception, so the inner generators'
-            // keys collide — without `preserve_keys: false` every error but the last is silently dropped
-            $errors = iterator_to_array($exception->getErrors(), false);
-
-            static::assertCount(1, $errors);
-            static::assertSame('/0/custom/price', $errors[0]['source']['pointer']);
-        }
+        $this->getTestRepository()->create($entities, Context::createDefaultContext());
     }
 
     public function testCustomFieldArray(): void

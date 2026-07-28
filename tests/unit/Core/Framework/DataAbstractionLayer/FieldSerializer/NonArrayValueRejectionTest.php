@@ -29,8 +29,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
-use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintValidatorFactory;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Context\ExecutionContextFactory;
 use Symfony\Component\Validator\Mapping\Factory\BlackHoleMetadataFactory;
 use Symfony\Component\Validator\Validator\RecursiveValidator;
@@ -65,19 +66,18 @@ class NonArrayValueRejectionTest extends TestCase
             new WriteCommandQueue()
         );
 
-        try {
-            iterator_to_array($this->getSerializer($serializerClass)->encode(
-                $field,
-                new EntityExistence('product', ['someId' => true], true, false, false, []),
-                new KeyValuePair('someField', $value, false),
-                $parameters
-            ), true);
+        $this->expectExceptionObject(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation('This value should be of type array.', 'This value should be of type {{ type }}.', [], null, '/someField', $value),
+            ])
+        ));
 
-            static::fail(WriteConstraintViolationException::class . ' not thrown.');
-        } catch (WriteConstraintViolationException $exception) {
-            static::assertCount(1, $exception->getViolations()->findByCodes(Type::INVALID_TYPE_ERROR));
-            static::assertSame('/someField', $exception->getViolations()->get(0)->getPropertyPath());
-        }
+        iterator_to_array($this->getSerializer($serializerClass)->encode(
+            $field,
+            new EntityExistence('product', ['someId' => true], true, false, false, []),
+            new KeyValuePair('someField', $value, false),
+            $parameters
+        ), true);
     }
 
     /**

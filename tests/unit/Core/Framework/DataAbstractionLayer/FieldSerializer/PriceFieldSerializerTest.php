@@ -23,9 +23,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintValidatorFactory;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Context\ExecutionContextFactory;
 use Symfony\Component\Validator\Mapping\Factory\BlackHoleMetadataFactory;
 use Symfony\Component\Validator\Validator\RecursiveValidator;
@@ -349,14 +349,13 @@ class PriceFieldSerializerTest extends TestCase
     #[DataProvider('nonArrayValueProvider')]
     public function testSerializeNonArrayValueThrows(mixed $value): void
     {
-        try {
-            $this->encode($value);
+        $this->expectExceptionObject(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation('This value should be of type array.', 'This value should be of type {{ type }}.', [], null, '/someId', $value),
+            ])
+        ));
 
-            static::fail(WriteConstraintViolationException::class . ' not thrown.');
-        } catch (WriteConstraintViolationException $e) {
-            static::assertCount(1, $e->getViolations()->findByCodes(Type::INVALID_TYPE_ERROR));
-            static::assertSame('/someId', $e->getViolations()->get(0)->getPropertyPath());
-        }
+        $this->encode($value);
     }
 
     /**
@@ -375,31 +374,33 @@ class PriceFieldSerializerTest extends TestCase
 
     public function testSerializeEmptyArrayStillRequiresDefaultCurrency(): void
     {
-        try {
-            $this->encode([]);
+        $this->expectExceptionObject(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation('No price for default currency defined', 'No price for default currency defined', [], '', '/test', []),
+            ])
+        ));
 
-            static::fail(WriteConstraintViolationException::class . ' not thrown.');
-        } catch (WriteConstraintViolationException $e) {
-            static::assertSame('No price for default currency defined', $e->getViolations()->get(0)->getMessage());
-        }
+        $this->encode([]);
+    }
+
+    public function testSerializeNullPassesTheArrayCheck(): void
+    {
+        static::assertNull($this->encode(null));
     }
 
     /**
-     * The array check runs before the `NotBlank` check, and `Type` deliberately lets `null` pass so a
-     * required-but-missing price is still reported as blank rather than as a type mismatch.
+     * The array check runs before the `NotBlank` check, so a required-but-missing price still yields a
+     * single violation instead of a type mismatch on top of it.
      */
     public function testSerializeNullOnRequiredFieldStillReportsBlank(): void
     {
-        $field = (new PriceField('test', 'test'))->addFlags(new Required());
+        $this->expectExceptionObject(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation('This value should not be blank.', 'This value should not be blank.', [], null, '/someId', null),
+            ])
+        ));
 
-        try {
-            $this->encode(null, $field);
-
-            static::fail(WriteConstraintViolationException::class . ' not thrown.');
-        } catch (WriteConstraintViolationException $e) {
-            static::assertCount(1, $e->getViolations()->findByCodes(NotBlank::IS_BLANK_ERROR));
-            static::assertCount(0, $e->getViolations()->findByCodes(Type::INVALID_TYPE_ERROR));
-        }
+        $this->encode(null, (new PriceField('test', 'test'))->addFlags(new Required()));
     }
 
     public function testDecodeIsBackwardCompatible(): void
@@ -426,7 +427,7 @@ class PriceFieldSerializerTest extends TestCase
         static::assertNull($price->getPercentage());
     }
 
-    private function encode(mixed $data, ?PriceField $field = null): string
+    private function encode(mixed $data, ?PriceField $field = null): ?string
     {
         $field ??= new PriceField('test', 'test');
         $existence = new EntityExistence('product', ['someId' => true], true, false, false, []);

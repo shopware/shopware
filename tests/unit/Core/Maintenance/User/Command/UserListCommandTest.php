@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\User\Command\UserListCommand;
@@ -18,12 +19,12 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(UserListCommand::class)]
 class UserListCommandTest extends TestCase
 {
     public function testWithNoUsers(): void
     {
-        /** @var StaticEntityRepository<UserCollection> $repo */
         $repo = new StaticEntityRepository([new UserCollection()]);
 
         $command = new UserListCommand($repo);
@@ -54,7 +55,6 @@ class UserListCommandTest extends TestCase
     {
         $userName = 'guy';
         $userId = Uuid::randomHex();
-        /** @var StaticEntityRepository<UserCollection> $repo */
         $repo = new StaticEntityRepository([
             new UserCollection([
                 $this->createUser('guy@shopware.com', $userName, 'Guy', 'Marbello', id: $userId),
@@ -111,7 +111,6 @@ class UserListCommandTest extends TestCase
 
     private function prepareCommandTester(): CommandTester
     {
-        /** @var StaticEntityRepository<UserCollection> $repo */
         $repo = new StaticEntityRepository([
             new UserCollection([
                 $this->createUser('guy@shopware.com', 'guy', 'Guy', 'Marbello', true),

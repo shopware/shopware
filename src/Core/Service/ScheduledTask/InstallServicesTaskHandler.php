@@ -31,6 +31,6 @@ final class InstallServicesTaskHandler extends ScheduledTaskHandler
 
     public function run(): void
     {
-        $this->manager->install(Context::createCLIContext());
+        $this->manager->reconcile(Context::createCLIContext());
     }
 }

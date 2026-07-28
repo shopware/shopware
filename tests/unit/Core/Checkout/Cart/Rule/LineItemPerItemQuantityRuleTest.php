@@ -69,7 +69,7 @@ class LineItemPerItemQuantityRuleTest extends TestCase
         $cart = new Cart('test');
         $cart->add(new LineItem(Uuid::randomHex(), 'product', null, $cartQuantity));
 
-        $scope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
+        $scope = new CartRuleScope($cart, static::createStub(SalesChannelContext::class));
         $this->rule->assign(['quantity' => $quantityValue, 'operator' => $operator]);
 
         static::assertSame($expected, $this->rule->match($scope));
@@ -80,7 +80,7 @@ class LineItemPerItemQuantityRuleTest extends TestCase
     {
         $lineItem = new LineItem(Uuid::randomHex(), 'product', null, $cartQuantity);
 
-        $scope = new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class));
+        $scope = new LineItemScope($lineItem, static::createStub(SalesChannelContext::class));
         $this->rule->assign(['quantity' => $quantityValue, 'operator' => $operator]);
 
         static::assertSame($expected, $this->rule->match($scope));
@@ -92,7 +92,7 @@ class LineItemPerItemQuantityRuleTest extends TestCase
         $cart->add(new LineItem(Uuid::randomHex(), 'product', null, 1));
         $cart->add(new LineItem(Uuid::randomHex(), 'product', null, 5));
 
-        $scope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
+        $scope = new CartRuleScope($cart, static::createStub(SalesChannelContext::class));
         $this->rule->assign(['quantity' => 5, 'operator' => Rule::OPERATOR_EQ]);
 
         static::assertTrue($this->rule->match($scope));
@@ -100,7 +100,7 @@ class LineItemPerItemQuantityRuleTest extends TestCase
 
     public function testEmptyCartIsFalse(): void
     {
-        $scope = new CartRuleScope(new Cart('test'), $this->createMock(SalesChannelContext::class));
+        $scope = new CartRuleScope(new Cart('test'), static::createStub(SalesChannelContext::class));
         $this->rule->assign(['quantity' => 5, 'operator' => Rule::OPERATOR_EQ]);
 
         static::assertFalse($this->rule->match($scope));
@@ -110,7 +110,7 @@ class LineItemPerItemQuantityRuleTest extends TestCase
     {
         $scope = new LineItemScope(
             new LineItem(Uuid::randomHex(), 'product', null, 1),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
         $this->rule->assign(['operator' => Rule::OPERATOR_EQ]);
 
@@ -121,7 +121,7 @@ class LineItemPerItemQuantityRuleTest extends TestCase
     {
         $this->rule->assign(['quantity' => 5, 'operator' => Rule::OPERATOR_EQ]);
 
-        static::assertFalse($this->rule->match($this->createMock(RuleScope::class)));
+        static::assertFalse($this->rule->match(static::createStub(RuleScope::class)));
     }
 
     /**

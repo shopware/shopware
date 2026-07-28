@@ -14,8 +14,8 @@ use Shopware\Core\Test\Stub\Rule\TrueRule;
 /**
  * @internal
  */
-#[CoversClass(OrRule::class)]
 #[Package('checkout')]
+#[CoversClass(OrRule::class)]
 class OrRuleTest extends TestCase
 {
     public function testTrue(): void
@@ -28,7 +28,7 @@ class OrRuleTest extends TestCase
         static::assertTrue(
             $rule->match(
                 new CheckoutRuleScope(
-                    $this->createMock(SalesChannelContext::class)
+                    static::createStub(SalesChannelContext::class)
                 )
             )
         );
@@ -44,7 +44,7 @@ class OrRuleTest extends TestCase
         static::assertFalse(
             $rule->match(
                 new CheckoutRuleScope(
-                    $this->createMock(SalesChannelContext::class)
+                    static::createStub(SalesChannelContext::class)
                 )
             )
         );

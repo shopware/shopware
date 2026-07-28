@@ -44,7 +44,12 @@ class PromotionRedemptionLocker implements EventSubscriberInterface
             }
 
             // use code for individual or global codes (reduces conflicts) and promotionId for automatic promotions
-            $key = $lineItem->getPayloadValue('code') ?: $lineItem->getPayloadValue('promotionId');
+            $code = $lineItem->getPayloadValue('code');
+            $key = \is_string($code) && $code !== '' ? \mb_strtolower($code) : $lineItem->getPayloadValue('promotionId');
+
+            if (!\is_string($key) || $key === '') {
+                continue;
+            }
 
             if (isset($locks[$key])) {
                 // probably multiple discounts of one promotion

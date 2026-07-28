@@ -191,7 +191,7 @@ class DownloadService
 
     private function findFile(Context $context, string $fileId): ImportExportFileEntity
     {
-        $entity = $this->fileRepository->search(new Criteria([$fileId]), $context)->get($fileId);
+        $entity = $this->fileRepository->search(new Criteria([$fileId]), $context)->getEntities()->get($fileId);
 
         if (!$entity instanceof ImportExportFileEntity) {
             throw ImportExportException::fileNotFound($fileId);

@@ -28,7 +28,7 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
         $agenticChannel = new SalesChannelEntity();
         $agenticChannel->setConfiguration(['affiliateCode' => 'aff-1', 'campaignCode' => 'camp-1']);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getSalesChannelId')->willReturn('channel-id');
 
         $productExport = new ProductExportEntity();
@@ -52,7 +52,7 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
             'campaignCode' => 'campaign-1',
         ]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getSalesChannelId')->willReturn('channel-id');
 
         $productExport = new ProductExportEntity();
@@ -76,7 +76,7 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
         $agenticChannel = new SalesChannelEntity();
         $agenticChannel->setConfiguration([]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getSalesChannelId')->willReturn('channel-id');
 
         $productExport = new ProductExportEntity();
@@ -99,7 +99,7 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
         $agenticChannel = new SalesChannelEntity();
         $agenticChannel->setConfiguration([]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getSalesChannelId')->willReturn('channel-id');
 
         $productExport = new ProductExportEntity();
@@ -122,7 +122,7 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
         $agenticChannel = new SalesChannelEntity();
         $agenticChannel->setConfiguration([]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getSalesChannelId')->willReturn('channel-id');
 
         $existing = ['key' => 'value'];
@@ -144,7 +144,7 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
         $agenticChannel = new SalesChannelEntity();
         // configuration not set (null)
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getSalesChannelId')->willReturn('channel-id');
 
         $productExport = new ProductExportEntity();

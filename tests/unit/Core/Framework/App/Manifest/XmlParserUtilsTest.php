@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Manifest;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(XmlParserUtils::class)]
 class XmlParserUtilsTest extends TestCase
 {

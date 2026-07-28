@@ -7,6 +7,7 @@ use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Util\Json;
@@ -16,6 +17,7 @@ use Shopware\Core\Migration\V6_7\Migration1763125902AddOrderLineItemProductTypeP
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(Migration1763125902AddOrderLineItemProductTypePayload::class)]
 class Migration1763125902AddOrderLineItemProductTypePayloadTest extends TestCase
 {

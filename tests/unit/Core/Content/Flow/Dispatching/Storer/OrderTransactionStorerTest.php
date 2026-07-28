@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Storer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
@@ -26,22 +26,18 @@ class OrderTransactionStorerTest extends TestCase
 {
     private OrderTransactionStorer $storer;
 
-    private MockObject&OrderTransactionProvider $orderTransactionProvider;
+    private Stub&OrderTransactionProvider $orderTransactionProvider;
 
     protected function setUp(): void
     {
-        $this->orderTransactionProvider = $this->createMock(OrderTransactionProvider::class);
+        $this->orderTransactionProvider = static::createStub(OrderTransactionProvider::class);
 
-        $this->storer = new OrderTransactionStorer(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->orderTransactionProvider,
-        );
+        $this->storer = $this->createStorer($this->orderTransactionProvider);
     }
 
     public function testStoreWithAware(): void
     {
-        $event = $this->createMock(OrderPaymentMethodChangedEvent::class);
+        $event = static::createStub(OrderPaymentMethodChangedEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayHasKey(OrderTransactionAware::ORDER_TRANSACTION_ID, $stored);
@@ -49,7 +45,7 @@ class OrderTransactionStorerTest extends TestCase
 
     public function testStoreWithNotAware(): void
     {
-        $event = $this->createMock(CustomerRegisterEvent::class);
+        $event = static::createStub(CustomerRegisterEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayNotHasKey(OrderTransactionAware::ORDER_TRANSACTION_ID, $stored);
@@ -75,12 +71,15 @@ class OrderTransactionStorerTest extends TestCase
 
     public function testLazyLoadEntity(): void
     {
+        $orderTransactionProvider = $this->createMock(OrderTransactionProvider::class);
+        $storer = $this->createStorer($orderTransactionProvider);
+
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['orderTransactionId' => 'id'], []);
-        $this->storer->restore($storable);
+        $storer->restore($storable);
         $entity = new OrderTransactionEntity();
         $entity->setId('id');
 
-        $this->orderTransactionProvider->expects($this->once())->method('getData')->willReturn($entity);
+        $orderTransactionProvider->expects($this->once())->method('getData')->willReturn($entity);
         $res = $storable->getData('orderTransaction');
 
         static::assertSame($res, $entity);
@@ -88,10 +87,13 @@ class OrderTransactionStorerTest extends TestCase
 
     public function testLazyLoadNullEntity(): void
     {
-        $storable = new StorableFlow('name', Context::createDefaultContext(), ['orderTransactionId' => 'id'], []);
-        $this->storer->restore($storable);
+        $orderTransactionProvider = $this->createMock(OrderTransactionProvider::class);
+        $storer = $this->createStorer($orderTransactionProvider);
 
-        $this->orderTransactionProvider->expects($this->once())->method('getData')->willReturn(null);
+        $storable = new StorableFlow('name', Context::createDefaultContext(), ['orderTransactionId' => 'id'], []);
+        $storer->restore($storable);
+
+        $orderTransactionProvider->expects($this->once())->method('getData')->willReturn(null);
         $res = $storable->getData('orderTransaction');
 
         static::assertNull($res);
@@ -104,5 +106,14 @@ class OrderTransactionStorerTest extends TestCase
         $customerGroup = $storable->getData('orderTransaction');
 
         static::assertNull($customerGroup);
+    }
+
+    private function createStorer(OrderTransactionProvider $orderTransactionProvider): OrderTransactionStorer
+    {
+        return new OrderTransactionStorer(
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            $orderTransactionProvider,
+        );
     }
 }

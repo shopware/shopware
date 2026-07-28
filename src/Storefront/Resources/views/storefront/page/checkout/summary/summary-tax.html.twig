@@ -12,7 +12,7 @@
 
             {% block page_checkout_summary_tax_value %}
                 <dd class="col-5 checkout-aside-summary-value summary-tax">
-                    {{ taxItem.tax|currency }}
+                    {{ taxItem.tax|currency(isoCode) }}
                 </dd>
             {% endblock %}
         {% endblock %}

@@ -56,6 +56,9 @@ export default {
             return new Criteria(1, 25);
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, is not used anymore
+         */
         productSortingEntityCriteria() {
             return new Criteria(1, 25);
         },
@@ -86,18 +89,15 @@ export default {
             ]);
         },
 
-        fetchProductSortingEntity() {
+        async fetchProductSortingEntity() {
             const productSortingEntityId = this.getProductSortingEntityId();
+            const productSortingEntity = await this.productSortingRepository.get(productSortingEntityId);
 
-            this.productSortingRepository
-                .get(productSortingEntityId, Shopware.Context.api, this.productSortingEntityCriteria)
-                .then((response) => {
-                    if (!Array.isArray(response.fields)) {
-                        response.fields = [];
-                    }
+            if (!Array.isArray(productSortingEntity.fields)) {
+                productSortingEntity.fields = [];
+            }
 
-                    this.productSortingEntity = response;
-                });
+            this.productSortingEntity = productSortingEntity;
         },
 
         fetchCustomFields() {
@@ -160,6 +160,7 @@ export default {
             if (await this.isValidSortingOption()) {
                 return this.productSortingRepository.save(this.productSortingEntity);
             }
+
             return Promise.reject();
         },
 

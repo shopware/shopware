@@ -7,7 +7,7 @@ use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
@@ -33,7 +33,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(EntityForeignKeyResolver::class)]
 class EntityForeignKeyResolverTest extends TestCase
 {
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
     private EntityForeignKeyResolver $resolver;
 
@@ -41,11 +41,11 @@ class EntityForeignKeyResolverTest extends TestCase
     {
         parent::setUp();
 
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
 
         $this->resolver = new EntityForeignKeyResolver(
             $this->connection,
-            $this->createMock(EntityDefinitionQueryHelper::class)
+            static::createStub(EntityDefinitionQueryHelper::class)
         );
     }
 
@@ -55,9 +55,9 @@ class EntityForeignKeyResolverTest extends TestCase
         $cmsPageId = Uuid::randomHex();
         $downloadId = Uuid::randomHex();
 
-        $emptyResult = $this->createMock(Result::class);
+        $emptyResult = static::createStub(Result::class);
 
-        $downloadResult = $this->createMock(Result::class);
+        $downloadResult = static::createStub(Result::class);
         $downloadResult->method('fetchAllAssociative')->willReturn([
             [
                 'id' => $downloadId,
@@ -67,7 +67,7 @@ class EntityForeignKeyResolverTest extends TestCase
             ],
         ]);
 
-        $cmsPageResult = $this->createMock(Result::class);
+        $cmsPageResult = static::createStub(Result::class);
         $cmsPageResult->method('fetchAllAssociative')->willReturn([
             [
                 'id' => $cmsPageId,
@@ -126,7 +126,7 @@ class EntityForeignKeyResolverTest extends TestCase
     {
         $capturedQueries = [];
 
-        $emptyResult = $this->createMock(Result::class);
+        $emptyResult = static::createStub(Result::class);
         $emptyResult->method('fetchAllAssociative')->willReturn([]);
 
         // getSQL() needs a platform to render the query; use MariaDB, the engine that rejects the alias.
@@ -176,8 +176,8 @@ class EntityForeignKeyResolverTest extends TestCase
                 new DocumentDefinition(),
                 new DocumentFileDefinition(),
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         return $rootDef;

@@ -31,8 +31,8 @@ class SalesChannelTrackingCustomerDefinitionTest extends TestCase
     {
         $registry = new StaticDefinitionInstanceRegistry(
             [SalesChannelTrackingCustomerDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGateway::class),
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGateway::class),
         );
 
         /** @var SalesChannelTrackingCustomerDefinition $definition */

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class Migration1604502151AddThemePreviewMediaConstraint extends MigrationStep
 {
     public function getCreationTimestamp(): int

@@ -231,7 +231,7 @@
         {% endif %}
 
         {% set reviewItems = [] %}
-        {% for review in reviewData %}
+        {% for review in reviewData.entities %}
             {% set reviewItem = {
                 '@type': 'Review',
                 author: {'@type': 'Person', name: review.externalUser},

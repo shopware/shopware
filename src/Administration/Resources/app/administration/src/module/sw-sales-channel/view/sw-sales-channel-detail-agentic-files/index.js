@@ -172,7 +172,10 @@ export default {
 
             return (
                 salesChannelFiles.find((configuration) => {
-                    return configuration.fileFamily === file.fileFamily && configuration.fileName === file.fileName;
+                    return (
+                        configuration.fileFamily === file.fileFamily &&
+                        configuration.fileName.toLowerCase() === file.fileName.toLowerCase()
+                    );
                 }) ?? null
             );
         },
@@ -234,7 +237,10 @@ export default {
         },
 
         formatSnippetPathSegment(segment) {
-            return `[${JSON.stringify(segment)}]`;
+            // Slugify so dots and slashes in file names cannot break snippet path resolution.
+            const slug = Shopware.Utils.string.kebabCase(segment);
+
+            return `[${JSON.stringify(slug)}]`;
         },
 
         getEnabledVariant(file) {

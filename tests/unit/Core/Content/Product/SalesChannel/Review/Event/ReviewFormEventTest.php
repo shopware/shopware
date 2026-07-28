@@ -10,11 +10,13 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(ReviewFormEvent::class)]
 class ReviewFormEventTest extends TestCase
 {

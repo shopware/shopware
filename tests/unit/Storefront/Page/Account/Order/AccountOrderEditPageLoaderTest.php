@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Page\Account\Order;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
@@ -26,6 +27,7 @@ use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\Test\Generator;
@@ -42,6 +44,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(AccountEditOrderPageLoader::class)]
 class AccountOrderEditPageLoaderTest extends TestCase
 {
@@ -49,38 +52,25 @@ class AccountOrderEditPageLoaderTest extends TestCase
 
     private OrderRoute&MockObject $orderRoute;
 
-    private AccountEditOrderPageLoader $pageLoader;
+    private AbstractTranslator&Stub $translator;
 
-    private AbstractTranslator&MockObject $translator;
+    private GenericPageLoader&Stub $genericPageLoader;
 
-    private GenericPageLoader&MockObject $genericPageLoader;
+    private AbstractCheckoutGatewayRoute&Stub $checkoutGatewayRoute;
 
-    private AbstractCheckoutGatewayRoute&MockObject $checkoutGatewayRoute;
+    private OrderConverter&Stub $orderConverter;
 
-    private OrderConverter&MockObject $orderConverter;
-
-    private CartService&MockObject $cartService;
+    private CartService&Stub $cartService;
 
     protected function setUp(): void
     {
         $this->eventDispatcher = new CollectingEventDispatcher();
         $this->orderRoute = $this->createMock(OrderRoute::class);
-        $this->translator = $this->createMock(AbstractTranslator::class);
-        $this->genericPageLoader = $this->createMock(GenericPageLoader::class);
-        $this->checkoutGatewayRoute = $this->createMock(AbstractCheckoutGatewayRoute::class);
-        $this->orderConverter = $this->createMock(OrderConverter::class);
-        $this->cartService = $this->createMock(CartService::class);
-
-        $this->pageLoader = new AccountEditOrderPageLoader(
-            $this->genericPageLoader,
-            $this->eventDispatcher,
-            $this->orderRoute,
-            $this->checkoutGatewayRoute,
-            $this->orderConverter,
-            $this->createMock(OrderService::class),
-            $this->translator,
-            $this->cartService,
-        );
+        $this->translator = static::createStub(AbstractTranslator::class);
+        $this->genericPageLoader = static::createStub(GenericPageLoader::class);
+        $this->checkoutGatewayRoute = static::createStub(AbstractCheckoutGatewayRoute::class);
+        $this->orderConverter = static::createStub(OrderConverter::class);
+        $this->cartService = static::createStub(CartService::class);
     }
 
     public function testLoad(): void
@@ -110,12 +100,14 @@ class AccountOrderEditPageLoaderTest extends TestCase
         $page->setMetaInformation(new MetaInformation());
         $page->getMetaInformation()?->setMetaTitle('testshop');
 
-        $this->genericPageLoader
+        $genericPageLoader = $this->createMock(GenericPageLoader::class);
+        $genericPageLoader
             ->expects($this->once())
             ->method('load')
             ->willReturn($page);
 
-        $this->translator
+        $translator = $this->createMock(AbstractTranslator::class);
+        $translator
             ->expects($this->once())
             ->method('trans')
             ->willReturn('translated');
@@ -126,7 +118,8 @@ class AccountOrderEditPageLoaderTest extends TestCase
         $remainingPaymentMethod = new PaymentMethodEntity();
         $remainingPaymentMethod->setId(Uuid::randomHex());
         $remainingPaymentMethod->setAfterOrderEnabled(true);
-        $this->checkoutGatewayRoute
+        $checkoutGatewayRoute = $this->createMock(AbstractCheckoutGatewayRoute::class);
+        $checkoutGatewayRoute
             ->expects($this->once())
             ->method('load')
             ->willReturn(new CheckoutGatewayRouteResponse(
@@ -135,10 +128,16 @@ class AccountOrderEditPageLoaderTest extends TestCase
                 new ErrorCollection(),
             ));
 
+        $pageLoader = $this->createPageLoader(
+            genericPageLoader: $genericPageLoader,
+            translator: $translator,
+            checkoutGatewayRoute: $checkoutGatewayRoute,
+        );
+
         $request = new Request();
         $request->attributes->set('orderId', $order->getId());
 
-        $page = $this->pageLoader->load($request, Generator::generateSalesChannelContext());
+        $page = $pageLoader->load($request, Generator::generateSalesChannelContext());
 
         static::assertSame($order, $page->getOrder());
         $metaInformation = $page->getMetaInformation();
@@ -174,7 +173,8 @@ class AccountOrderEditPageLoaderTest extends TestCase
             )
         );
 
-        $this->checkoutGatewayRoute
+        $checkoutGatewayRoute = $this->createMock(AbstractCheckoutGatewayRoute::class);
+        $checkoutGatewayRoute
             ->expects($this->once())
             ->method('load')
             ->willReturn(new CheckoutGatewayRouteResponse(
@@ -190,7 +190,8 @@ class AccountOrderEditPageLoaderTest extends TestCase
 
         $orderContext = Generator::generateSalesChannelContext();
 
-        $this->cartService
+        $cartService = $this->createMock(CartService::class);
+        $cartService
             ->expects($this->once())
             ->method('setCart')
             ->with(static::callback(static function (Cart $cart) use ($orderContext) {
@@ -198,12 +199,13 @@ class AccountOrderEditPageLoaderTest extends TestCase
             }));
 
         $cart = new Cart('some-token');
-        $this->orderConverter
+        $orderConverter = $this->createMock(OrderConverter::class);
+        $orderConverter
             ->expects($this->once())
             ->method('convertToCart')
             ->willReturn($cart);
 
-        $this->orderConverter
+        $orderConverter
             ->expects($this->once())
             ->method('assembleSalesChannelContext')
             ->willReturn($orderContext);
@@ -211,7 +213,7 @@ class AccountOrderEditPageLoaderTest extends TestCase
         $request = new Request();
         $request->attributes->set('orderId', $order->getId());
         $request->query->set('onlyAvailable', 1);
-        $this->checkoutGatewayRoute
+        $checkoutGatewayRoute
             ->expects($this->once())
             ->method('load')
             ->with($request, $cart, $orderContext)
@@ -221,7 +223,13 @@ class AccountOrderEditPageLoaderTest extends TestCase
                 new ErrorCollection(),
             ));
 
-        $this->pageLoader->load($request, Generator::generateSalesChannelContext());
+        $pageLoader = $this->createPageLoader(
+            checkoutGatewayRoute: $checkoutGatewayRoute,
+            orderConverter: $orderConverter,
+            cartService: $cartService,
+        );
+
+        $pageLoader->load($request, Generator::generateSalesChannelContext());
     }
 
     public function testLoadCancelled(): void
@@ -255,7 +263,8 @@ class AccountOrderEditPageLoaderTest extends TestCase
         $page->setMetaInformation(new MetaInformation());
         $page->getMetaInformation()?->setMetaTitle('testshop');
 
-        $this->genericPageLoader
+        $genericPageLoader = $this->createMock(GenericPageLoader::class);
+        $genericPageLoader
             ->expects($this->once())
             ->method('load')
             ->willReturn($page);
@@ -265,6 +274,27 @@ class AccountOrderEditPageLoaderTest extends TestCase
         $request = new Request();
         $request->attributes->set('orderId', $order->getId());
 
-        $page = $this->pageLoader->load($request, Generator::generateSalesChannelContext());
+        $pageLoader = $this->createPageLoader(genericPageLoader: $genericPageLoader);
+
+        $page = $pageLoader->load($request, Generator::generateSalesChannelContext());
+    }
+
+    private function createPageLoader(
+        ?GenericPageLoader $genericPageLoader = null,
+        ?AbstractCheckoutGatewayRoute $checkoutGatewayRoute = null,
+        ?OrderConverter $orderConverter = null,
+        ?AbstractTranslator $translator = null,
+        ?CartService $cartService = null,
+    ): AccountEditOrderPageLoader {
+        return new AccountEditOrderPageLoader(
+            $genericPageLoader ?? $this->genericPageLoader,
+            $this->eventDispatcher,
+            $this->orderRoute,
+            $checkoutGatewayRoute ?? $this->checkoutGatewayRoute,
+            $orderConverter ?? $this->orderConverter,
+            static::createStub(OrderService::class),
+            $translator ?? $this->translator,
+            $cartService ?? $this->cartService,
+        );
     }
 }

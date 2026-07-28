@@ -10,11 +10,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EntityDefinition::class)]
 class EntityDefinitionTest extends TestCase
 {
@@ -35,7 +37,7 @@ class EntityDefinitionTest extends TestCase
                 ]);
             }
         };
-        $definition->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
 
         $updatedAtField = $definition->getFields()->get('updatedAt');
         static::assertInstanceOf(UpdatedAtField::class, $updatedAtField);
@@ -59,7 +61,7 @@ class EntityDefinitionTest extends TestCase
                 ]);
             }
         };
-        $definition->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
 
         $updatedAtField = $definition->getFields()->get('updatedAt');
         static::assertInstanceOf(UpdatedAtField::class, $updatedAtField);

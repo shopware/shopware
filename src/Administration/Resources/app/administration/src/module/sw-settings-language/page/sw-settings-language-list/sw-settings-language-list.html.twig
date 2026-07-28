@@ -96,6 +96,9 @@
                         :full-page="false"
                         @column-sort="onSortColumn"
                         @page-change="onPageChange"
+                        @inline-edit-save="onInlineEditSave"
+                        @delete-item-finish="invalidateLanguageCaches"
+                        @items-delete-finish="invalidateLanguageCaches"
                     >
                         {% block sw_settings_language_list_content_list_content %}
                         {% block sw_settings_language_list_content_list_columns %}
@@ -207,11 +210,15 @@
 
     {% block sw_settings_language_list_grid_sidebar %}
     <template #sidebar>
-        <sw-sidebar :propagate-width="true">
+        <sw-sidebar
+            :propagate-width="true"
+            @item-register="registerFilterSidebarItem"
+        >
             {% block sw_settings_language_list_grid_sidebar_filter %}
             <sw-sidebar-item
                 icon="regular-filter"
                 :title="$t('sw-settings-language.list.titleSidebarFilter')"
+                :tooltip-shortcut="['O', 'F']"
             >
                 <sw-collapse expand-on-loading>
                     {% block sw_settings_language_list_grid_sidebar_filter_header %}

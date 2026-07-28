@@ -3,10 +3,11 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Kernel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Kernel\EsiDecoration;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpCache\HttpCache;
@@ -16,17 +17,18 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EsiDecoration::class)]
 class EsiDecorationTest extends TestCase
 {
-    private HttpKernelInterface&MockObject $kernel;
+    private HttpKernelInterface&Stub $kernel;
 
     private HttpCache $cache;
 
     protected function setUp(): void
     {
-        $this->kernel = $this->createMock(HttpKernelInterface::class);
-        $this->cache = new HttpCache($this->kernel, $this->createMock(StoreInterface::class));
+        $this->kernel = static::createStub(HttpKernelInterface::class);
+        $this->cache = new HttpCache($this->kernel, static::createStub(StoreInterface::class));
 
         // The HttpCache kernel needs a request to be set
         $request = new Request();

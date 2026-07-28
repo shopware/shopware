@@ -35,7 +35,7 @@ class SalesChannelContext extends Struct
     protected array $permissions = [];
 
     /**
-     * @deprecated tag:v6.8.0 - reason:parameter-name-change - Property `permisionsLocked` will be removed, use `permissionsLocked` instead
+     * @deprecated tag:v6.8.0 - Property `permisionsLocked` will be removed, use `permissionsLocked` instead
      */
     protected bool $permisionsLocked = false;
 

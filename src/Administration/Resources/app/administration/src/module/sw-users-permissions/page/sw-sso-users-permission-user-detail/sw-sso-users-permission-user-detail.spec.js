@@ -279,6 +279,9 @@ describe('module/sw-users-permissions/page/sw-sso-users-permission-user-detail',
         const emailField = wrapper.find('#sw-field--user-email');
         expect(emailField.exists()).toBeTruthy();
 
+        const activeField = wrapper.find('.sw-sso-detail-card__information-active');
+        expect(activeField.exists()).toBeTruthy();
+
         expect(firstNameField.attributes('disabled')).toBeDefined();
         expect(firstNameField.attributes('disabled')).toBe('');
 
@@ -287,6 +290,7 @@ describe('module/sw-users-permissions/page/sw-sso-users-permission-user-detail',
 
         expect(emailField.attributes('disabled')).toBeDefined();
         expect(emailField.attributes('disabled')).toBe('');
+        expect(activeField.attributes('disabled')).toBeUndefined();
     });
 
     it('should not be possible to edit fistName, lastName, email with given user', async () => {
@@ -303,6 +307,9 @@ describe('module/sw-users-permissions/page/sw-sso-users-permission-user-detail',
         const emailField = wrapper.find('#sw-field--user-email');
         expect(emailField.exists()).toBeTruthy();
 
+        const activeField = wrapper.find('.sw-sso-detail-card__information-active');
+        expect(activeField.exists()).toBeTruthy();
+
         expect(firstNameField.attributes('disabled')).toBeDefined();
         expect(firstNameField.attributes('disabled')).toBe('');
 
@@ -311,6 +318,15 @@ describe('module/sw-users-permissions/page/sw-sso-users-permission-user-detail',
 
         expect(emailField.attributes('disabled')).toBeDefined();
         expect(emailField.attributes('disabled')).toBe('');
+        expect(activeField.attributes('disabled')).toBeUndefined();
+    });
+
+    it('should render the profile picture field with the SSO-specific class', async () => {
+        const wrapper = await createWrapper();
+
+        const profilePictureField = wrapper.find('.sw-sso-detail-card__user-interface-picture');
+
+        expect(profilePictureField.exists()).toBeTruthy();
     });
 
     it('should disable the roles field', async () => {

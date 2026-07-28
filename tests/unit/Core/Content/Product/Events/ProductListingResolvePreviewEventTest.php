@@ -19,7 +19,7 @@ class ProductListingResolvePreviewEventTest extends TestCase
     public function testReplace(): void
     {
         $event = new ProductListingResolvePreviewEvent(
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             new Criteria(),
             ['p1' => 'p1'],
             true
@@ -32,7 +32,7 @@ class ProductListingResolvePreviewEventTest extends TestCase
     public function testReplaceException(): void
     {
         $event = new ProductListingResolvePreviewEvent(
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             new Criteria(),
             ['p1' => 'p1'],
             true

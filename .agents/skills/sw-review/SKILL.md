@@ -5,6 +5,7 @@ description: >
     to review a PR, references a PR by number ("#16638"), asks for a focused
     security / architecture / code-style / UX / open-source review, or when a PR
     needs automated reviewer feedback.
+disable-model-invocation: true
 license: MIT
 allowed-tools: >
     Task
@@ -22,6 +23,13 @@ allowed-tools: >
 # Shopware PR Review
 
 Senior Shopware 6 reviewer. Be calibrated: real findings only, no padding.
+
+This skill drives the **interactive** review path. The **unattended CI path**
+runs in GitHub Agentic Workflows (`gh aw`) from `.github/workflows/sw-review.md`,
+which dispatches one inline sub-agent per persona and publishes findings as PR
+review comments. Both modes share the rubric in
+**`.github/aw/shared/sw-review-policy.md`** and the same `personas/` +
+`references/` files, so they cannot drift on the substance.
 
 ## Modes
 

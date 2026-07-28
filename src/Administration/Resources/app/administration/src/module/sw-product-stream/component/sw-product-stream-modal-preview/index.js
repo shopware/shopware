@@ -36,6 +36,13 @@ export default {
                 return value === null || value.split(':').length === 2;
             },
         },
+        /**
+         * Whether matching variants are grouped, mirroring the product stream's "display as group" setting.
+         */
+        displayAsGroup: {
+            type: Boolean,
+            default: false,
+        },
     },
     data() {
         return {
@@ -178,10 +185,16 @@ export default {
             }
 
             return this.productStreamPreviewService
-                .preview(this.selectedSalesChannel, this.previewCriteria, this.mapFiltersForSearch(this.filters), {
-                    'sw-currency-id': this.selectedCurrencyId,
-                    'sw-inheritance': true,
-                })
+                .preview(
+                    this.selectedSalesChannel,
+                    this.previewCriteria,
+                    this.mapFiltersForSearch(this.filters),
+                    {
+                        'sw-currency-id': this.selectedCurrencyId,
+                        'sw-inheritance': true,
+                    },
+                    this.displayAsGroup,
+                )
                 .then((result) => {
                     this.products = Object.values(result.elements);
                     this.total = result.total;

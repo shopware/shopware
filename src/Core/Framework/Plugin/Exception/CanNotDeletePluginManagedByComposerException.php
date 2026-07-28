@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Plugin\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class CanNotDeletePluginManagedByComposerException extends ShopwareHttpException
 {

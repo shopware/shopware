@@ -74,7 +74,7 @@ class ProductApiTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('prices');
 
-        $products = $this->repository->search($criteria, $context);
+        $products = $this->repository->search($criteria, $context)->getEntities();
         $product = $products->get($id);
         static::assertNotNull($product);
         static::assertNotNull($product->getPrices());
@@ -111,7 +111,7 @@ class ProductApiTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('prices');
 
-        $products = $this->repository->search($criteria, $context);
+        $products = $this->repository->search($criteria, $context)->getEntities();
         $product = $products->get($id);
         static::assertNotNull($product);
         static::assertNotNull($product->getPrices());
@@ -147,7 +147,7 @@ class ProductApiTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('prices');
 
-        $products = $this->repository->search($criteria, $context);
+        $products = $this->repository->search($criteria, $context)->getEntities();
         $product = $products->get($id);
         static::assertNotNull($product);
         static::assertNotNull($product->getPrices());

@@ -33,6 +33,12 @@ class WebhookEventMessage
          * @deprecated tag:v6.8.0 - Will become non-nullable. Null only for BC with old serialized messages already in the queue.
          */
         public readonly ?string $partitionKey = null,
+        /**
+         * The app's name. Lets delivery look up the signing secret from deleted_apps after an app is
+         * uninstalled (for example the app.deleted webhook). Null for non-app webhooks, and for
+         * messages that were already queued before this field was added.
+         */
+        private readonly ?string $appName = null,
     ) {
     }
 
@@ -47,6 +53,11 @@ class WebhookEventMessage
     public function getAppId(): ?string
     {
         return $this->appId;
+    }
+
+    public function getAppName(): ?string
+    {
+        return $this->appName;
     }
 
     public function getWebhookId(): string

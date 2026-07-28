@@ -6,11 +6,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\TwigContextHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TwigContextHelper::class)]
 class TwigContextHelperTest extends TestCase
 {

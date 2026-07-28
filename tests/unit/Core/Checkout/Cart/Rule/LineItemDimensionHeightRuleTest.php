@@ -31,7 +31,7 @@ class LineItemDimensionHeightRuleTest extends TestCase
 
         $lineItemScope = new LineItemScope(
             static::createLineItemWithDeliveryInfo(true, 1, 10.0, 10.0, 10.0, 10.0),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertSame($expectedResult, $lineItemDimensionHeightRule->match($lineItemScope));
@@ -151,7 +151,7 @@ class LineItemDimensionHeightRuleTest extends TestCase
     public function testMatchWithWrongScopeShouldReturnFalse(): void
     {
         $lineItemDimensionHeightRule = new LineItemDimensionHeightRule();
-        $wrongScope = $this->createMock(RuleScope::class);
+        $wrongScope = static::createStub(RuleScope::class);
 
         static::assertFalse($lineItemDimensionHeightRule->match($wrongScope));
     }
@@ -164,7 +164,7 @@ class LineItemDimensionHeightRuleTest extends TestCase
         $lineItemCollection->add(static::createLineItemWithDeliveryInfo(true, 1, 10.0, 10.0, 10.0, 10.0));
         $lineItemCollection->add(static::createLineItemWithDeliveryInfo(true, 1, 10.0, 10.0, 10.0, 10.0));
 
-        $cartRuleScope = new CartRuleScope(static::createCart($lineItemCollection), $this->createMock(SalesChannelContext::class));
+        $cartRuleScope = new CartRuleScope(static::createCart($lineItemCollection), static::createStub(SalesChannelContext::class));
 
         static::assertTrue($lineItemDimensionHeightRule->match($cartRuleScope));
     }
@@ -177,7 +177,7 @@ class LineItemDimensionHeightRuleTest extends TestCase
         $lineItemCollection->add(static::createLineItemWithDeliveryInfo(true, 1, 10.0, 12.0, 10.0, 10.0));
         $lineItemCollection->add(static::createLineItemWithDeliveryInfo(true, 1, 10.0, 12.0, 10.0, 10.0));
 
-        $cartRuleScope = new CartRuleScope(static::createCart($lineItemCollection), $this->createMock(SalesChannelContext::class));
+        $cartRuleScope = new CartRuleScope(static::createCart($lineItemCollection), static::createStub(SalesChannelContext::class));
 
         static::assertFalse($lineItemDimensionHeightRule->match($cartRuleScope));
     }
@@ -191,7 +191,7 @@ class LineItemDimensionHeightRuleTest extends TestCase
         $lineItemCollection->add(static::createLineItem('a'));
         $lineItemCollection->add(static::createLineItem('b'));
 
-        $cartRuleScope = new CartRuleScope(static::createCart($lineItemCollection), $this->createMock(SalesChannelContext::class));
+        $cartRuleScope = new CartRuleScope(static::createCart($lineItemCollection), static::createStub(SalesChannelContext::class));
 
         static::assertSame($expectedResult, $lineItemDimensionHeightRule->match($cartRuleScope));
     }

@@ -36,13 +36,22 @@ class OpenAiProductExportValidator extends AbstractProviderValidator
 
     protected function getProviderTechnicalName(): string
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', 'Will be part of SwagAgenticCommerce'));
+        // called unconditionally by the final AbstractProviderValidator::validate() for every tagged validator,
+        // so it must not throw while this class is still wired into the container under the flag
+        if (!Feature::isActive('v6.8.0.0')) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', 'Will be part of SwagAgenticCommerce'));
+        }
 
         return 'open-ai';
     }
 
     protected function validateProviderExport(ProductExportEntity $productExportEntity, string $productExportContent, ErrorCollection $errors): void
     {
+        if (Feature::isActive('v6.8.0.0')) {
+            // provider validation ships with SwagAgenticCommerce as of 6.8
+            return;
+        }
+
         Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', 'Will be part of SwagAgenticCommerce'));
 
         if ($productExportEntity->getFileFormat() !== ProductExportEntity::FILE_FORMAT_JSONL) {

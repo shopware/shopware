@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Kernel;
 use Symfony\Component\Config\ConfigCache;
@@ -21,6 +22,7 @@ use Symfony\UX\TwigComponent\TwigComponentBundle;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Kernel::class)]
 class KernelTest extends TestCase
 {
@@ -140,10 +142,10 @@ class KernelTest extends TestCase
         return new Kernel(
             $environment,
             true,
-            $this->createMock(StaticKernelPluginLoader::class),
+            static::createStub(StaticKernelPluginLoader::class),
             'cacheId',
             '6.6.6',
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             $this->tmpProjectDir,
         );
     }
@@ -154,7 +156,7 @@ class KernelTest extends TestCase
     private function captureRouteImports(string $environment): array
     {
         $captured = [];
-        $loader = $this->createMock(PhpFileLoader::class);
+        $loader = static::createStub(PhpFileLoader::class);
         $loader->method('import')->willReturnCallback(
             function (mixed $resource, ?string $type = null) use (&$captured): array {
                 $captured[] = [$resource, $type];

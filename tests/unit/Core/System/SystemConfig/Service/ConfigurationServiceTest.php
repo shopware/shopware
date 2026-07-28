@@ -62,12 +62,11 @@ class ConfigurationServiceTest extends TestCase
     {
         $this->expectExceptionObject(SystemConfigException::invalidDomain());
 
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([]);
         $configService = new ConfigurationService(
             [],
             new ConfigReader(),
-            $this->createMock(AppConfigReader::class),
+            static::createStub(AppConfigReader::class),
             $appRepository,
             new StaticSystemConfigService([]),
             new NullLogger()
@@ -80,12 +79,11 @@ class ConfigurationServiceTest extends TestCase
 
     public function testMissingConfig(): void
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([new AppCollection([])]);
         $configService = new ConfigurationService(
             [],
             new ConfigReader(),
-            $this->createMock(AppConfigReader::class),
+            static::createStub(AppConfigReader::class),
             $appRepository,
             new StaticSystemConfigService([]),
             new NullLogger()
@@ -248,17 +246,16 @@ class ConfigurationServiceTest extends TestCase
             ],
         ];
 
-        $configReader = $this->createMock(ConfigReader::class);
+        $configReader = static::createStub(ConfigReader::class);
         $configReader->method('getConfigFromBundle')->willReturn($config);
 
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([new AppCollection()]);
         $service = new ConfigurationService(
             [
                 new SwagExampleTest(true, ''),
             ],
             $configReader,
-            $this->createMock(AppConfigReader::class),
+            static::createStub(AppConfigReader::class),
             $appRepository,
             new StaticSystemConfigService([]),
             new NullLogger()
@@ -304,7 +301,7 @@ class ConfigurationServiceTest extends TestCase
             ],
         ];
 
-        $configReader = $this->createMock(ConfigReader::class);
+        $configReader = static::createStub(ConfigReader::class);
         $configReader->method('getConfigFromBundle')->willReturn($config);
 
         /** @var StaticEntityRepository<AppCollection> */
@@ -315,7 +312,7 @@ class ConfigurationServiceTest extends TestCase
                 new SwagExampleTest(true, ''),
             ],
             $configReader,
-            $this->createMock(AppConfigReader::class),
+            static::createStub(AppConfigReader::class),
             $repository,
             new StaticSystemConfigService(['SwagExampleTest.email' => 'foo']),
             new NullLogger()
@@ -331,17 +328,16 @@ class ConfigurationServiceTest extends TestCase
 
     public function testCheckConfigurationReturnsFalseOnXmlParsingException(): void
     {
-        $configReader = $this->createMock(ConfigReader::class);
+        $configReader = static::createStub(ConfigReader::class);
         $configReader->method('getConfigFromBundle')->willThrowException(
             UtilException::xmlParsingException('/path/to/config.xml', 'Invalid XML: element name contains underscores')
         );
 
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([new AppCollection([])]);
         $configService = new ConfigurationService(
             [new SwagExampleTest(true, '')],
             $configReader,
-            $this->createMock(AppConfigReader::class),
+            static::createStub(AppConfigReader::class),
             $appRepository,
             new StaticSystemConfigService([]),
             new NullLogger()
@@ -360,10 +356,9 @@ class ConfigurationServiceTest extends TestCase
     {
         $app = (new AppEntity())->assign(['name' => 'SwagExampleTest', '_uniqueIdentifier' => 'test']);
 
-        $appConfigReader = $this->createMock(AppConfigReader::class);
-        $appConfigReader->method('read')->with($app)->willReturn($config);
+        $appConfigReader = static::createStub(AppConfigReader::class);
+        $appConfigReader->method('read')->willReturnMap([[$app, $config]]);
 
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([
             new AppCollection([$app]),
             new AppCollection([$app]),

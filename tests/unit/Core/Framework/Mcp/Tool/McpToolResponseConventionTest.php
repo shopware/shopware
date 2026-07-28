@@ -202,7 +202,7 @@ class McpToolResponseConventionTest extends TestCase
 
     public function testOversizedResponseOmitsQueryWhenMethodIsNotToolsCall(): void
     {
-        $cache = $this->createMock(ToolResultCacheStorage::class);
+        $cache = static::createStub(ToolResultCacheStorage::class);
         $cache->method('store')->willReturn('019ddd9876543210abcdef0123456789');
 
         $request = new Request();
@@ -231,7 +231,7 @@ class McpToolResponseConventionTest extends TestCase
 
     public function testOversizedResponseOmitsQueryWhenToolNameIsMissing(): void
     {
-        $cache = $this->createMock(ToolResultCacheStorage::class);
+        $cache = static::createStub(ToolResultCacheStorage::class);
         $cache->method('store')->willReturn('019ddd9876543210abcdef0123456789');
 
         $request = new Request();
@@ -260,7 +260,7 @@ class McpToolResponseConventionTest extends TestCase
 
     public function testOversizedResponseOmitsQueryWhenJsonRpcAttributeMissing(): void
     {
-        $cache = $this->createMock(ToolResultCacheStorage::class);
+        $cache = static::createStub(ToolResultCacheStorage::class);
         $cache->method('store')->willReturn('019ddd9876543210abcdef0123456789');
 
         $request = new Request();

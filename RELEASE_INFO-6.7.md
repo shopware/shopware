@@ -8,6 +8,10 @@
 
 The `POST /api/_action/product-export/preview` and `POST /api/_action/product-export/validate` endpoints now require the `product_export:update` ACL privilege. Admin API integrations and users that use these endpoints must be granted this existing privilege.
 
+### Mail template simulation requires `mail_template:update`
+
+The `POST /api/_action/mail-template/simulate` endpoint now requires the `mail_template:update` ACL privilege. Admin API integrations and users that simulate caller-provided mail template content must be granted this existing privilege.
+
 ## Core
 
 ### Built-in translation system configurable via `shopware.translation`

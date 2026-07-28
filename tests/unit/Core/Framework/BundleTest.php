@@ -55,7 +55,6 @@ class BundleTest extends TestCase
         (new BundleStub($bundlePath))->build($this->createContainerBuilder());
     }
 
-    // @deprecated tag:v6.8.0 - remove together with the XML service definition deprecation
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testBuildStillLoadsXmlServiceDefinitionsWhenDeprecationsAreDisabled(): void
     {
@@ -87,7 +86,6 @@ class BundleTest extends TestCase
         $this->captureRouteImports($bundlePath, 'test');
     }
 
-    // @deprecated tag:v6.8.0 - remove together with the XML route definition deprecation
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testConfigureRoutesStillImportsXmlRouteDefinitionsWhenDeprecationsAreDisabled(): void
     {
@@ -126,7 +124,6 @@ class BundleTest extends TestCase
         (new BundleStub($bundlePath))->runBuildDefaultConfig($this->createContainerBuilder());
     }
 
-    // @deprecated tag:v6.8.0 - remove together with the XML package configuration deprecation
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testBuildDefaultConfigStillLoadsXmlPackageConfigurationWhenDeprecationsAreDisabled(): void
     {

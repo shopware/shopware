@@ -19,25 +19,13 @@ use PHPStan\Type\Type;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Tests must not reach into non-public methods via reflection. A private or protected method is an
- * implementation detail: invoking it directly couples the test to the internals instead of the
- * behaviour, and the coupling survives refactorings only by accident. Cover the behaviour through
- * the public API, or restructure the production code (e.g. extract the logic into a collaborator
- * with a public contract) so it is testable without reflection.
+ * Tests must not reach into non-public methods of Shopware classes via reflection: test the
+ * behaviour through the public API instead. Third-party and test-support targets, public methods,
+ * properties, and metadata reads stay allowed.
  *
- * Flagged in test classes, when the target method is statically resolvable as non-public:
- *  - `new \ReflectionMethod(Target::class, 'privateMethod')` (also the single-argument
- *    `'Target::privateMethod'` form and object-instance targets)
- *  - `(new \ReflectionClass(Target::class))->getMethod('privateMethod')`
- *  - `ReflectionMethod::setAccessible()` is flagged unconditionally: it has no effect since
- *    PHP 8.1 and only ever signalled reflective access to a non-public method.
- *
- * Scope: any Shopware class is reported. Test-support classes under `Shopware\Tests\` are not
- * production API and stay allowed, as does reflection into a third-party class where a vendor API
- * offers no public alternative. Reflection on PUBLIC methods (attribute scanning, signature
- * assertions) and on properties (test-state seeding) is likewise untouched. `setAccessible()` is
- * the one exception, reported for any target, because it has been a no-op since PHP 8.1 and should
- * simply be deleted.
+ * Reports `new \ReflectionMethod(...)` and `ReflectionClass::getMethod()` when the target method
+ * resolves as non-public, and `ReflectionMethod::setAccessible()` for any target, a no-op since
+ * PHP 8.1.
  *
  * @implements Rule<CallLike>
  *

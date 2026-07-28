@@ -8,6 +8,8 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\UriInterface;
 use Shopware\Administration\Controller\AdminExtensionApiController;
+use Shopware\Core\Framework\Api\ApiException;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\ActionButton\Executor;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -134,6 +136,23 @@ class AdminExtensionApiControllerTest extends TestCase
                 'action' => 'do-nothing',
             ]),
             $this->context,
+        );
+    }
+
+    public function testRunActionThrowsMissingPrivilegeWhenUserLacksAppPrivilege(): void
+    {
+        $this->expectExceptionObject(ApiException::missingPrivileges(['app.test-app']));
+
+        $source = new AdminApiSource(Uuid::randomHex());
+        $source->setPermissions(['product:read']);
+        $context = Context::createDefaultContext($source);
+
+        $executor = $this->createMock(Executor::class);
+        $executor->expects($this->never())->method('execute');
+
+        $this->buildController(executor: $executor)->runAction(
+            new RequestDataBag(['appName' => 'test-app']),
+            $context
         );
     }
 

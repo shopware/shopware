@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdminExtensionApiController;
-use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Executor;
@@ -103,22 +102,6 @@ class AdminExtensionApiControllerTest extends TestCase
         );
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-    }
-
-    public function testRunActionThrowsMissingPrivilegeWhenUserLacksAppPrivilege(): void
-    {
-        $source = new AdminApiSource(Uuid::randomHex());
-        $source->setPermissions(['product:read']);
-        $context = Context::createDefaultContext($source);
-
-        $this->executor->expects($this->never())->method('execute');
-
-        $this->expectExceptionObject(ApiException::missingPrivileges(['app.' . self::EXISTING_APP_NAME]));
-
-        $this->adminExtensionApiController->runAction(
-            new RequestDataBag(['appName' => self::EXISTING_APP_NAME]),
-            $context,
-        );
     }
 
     /**

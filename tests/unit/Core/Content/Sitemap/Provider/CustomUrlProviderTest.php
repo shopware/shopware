@@ -18,8 +18,8 @@ class CustomUrlProviderTest extends TestCase
 {
     public function testGetUrlsReturnsNoUrls(): void
     {
-        $configHandlerStub = static::createStub(ConfigHandler::class);
-        $configHandlerStub->method('get')->willReturnCallback(
+        $configHandler = $this->createMock(ConfigHandler::class);
+        $configHandler->expects($this->once())->method('get')->willReturnCallback(
             static function (string $key): array {
                 static::assertSame(ConfigHandler::CUSTOM_URLS_KEY, $key);
 
@@ -27,7 +27,7 @@ class CustomUrlProviderTest extends TestCase
             }
         );
 
-        $customUrlProvider = $this->getCustomUrlProvider($configHandlerStub);
+        $customUrlProvider = $this->getCustomUrlProvider($configHandler);
 
         $salesChannelContext = static::createStub(SalesChannelContext::class);
 
@@ -38,8 +38,8 @@ class CustomUrlProviderTest extends TestCase
     {
         $salesChannelContext = static::createStub(SalesChannelContext::class);
 
-        $configHandlerStub = static::createStub(ConfigHandler::class);
-        $configHandlerStub->method('get')->willReturnCallback(
+        $configHandler = $this->createMock(ConfigHandler::class);
+        $configHandler->expects($this->once())->method('get')->willReturnCallback(
             static function (string $key) use ($salesChannelContext): array {
                 static::assertSame(ConfigHandler::CUSTOM_URLS_KEY, $key);
 
@@ -61,7 +61,7 @@ class CustomUrlProviderTest extends TestCase
             }
         );
 
-        $customUrlProvider = $this->getCustomUrlProvider($configHandlerStub);
+        $customUrlProvider = $this->getCustomUrlProvider($configHandler);
 
         static::assertCount(1, $customUrlProvider->getUrls($salesChannelContext, 100)->getUrls());
     }
@@ -70,8 +70,8 @@ class CustomUrlProviderTest extends TestCase
     {
         $salesChannelContext = static::createStub(SalesChannelContext::class);
 
-        $configHandlerStub = static::createStub(ConfigHandler::class);
-        $configHandlerStub->method('get')->willReturnCallback(
+        $configHandler = $this->createMock(ConfigHandler::class);
+        $configHandler->expects($this->once())->method('get')->willReturnCallback(
             static function (string $key): array {
                 static::assertSame(ConfigHandler::CUSTOM_URLS_KEY, $key);
 
@@ -99,7 +99,7 @@ class CustomUrlProviderTest extends TestCase
             }
         );
 
-        $customUrlProvider = $this->getCustomUrlProvider($configHandlerStub);
+        $customUrlProvider = $this->getCustomUrlProvider($configHandler);
 
         $urls = $customUrlProvider->getUrls($salesChannelContext, 100)->getUrls();
 
@@ -113,8 +113,8 @@ class CustomUrlProviderTest extends TestCase
     {
         $salesChannelContext = static::createStub(SalesChannelContext::class);
 
-        $configHandlerStub = static::createStub(ConfigHandler::class);
-        $configHandlerStub->method('get')->willReturnCallback(
+        $configHandler = $this->createMock(ConfigHandler::class);
+        $configHandler->expects($this->once())->method('get')->willReturnCallback(
             static function (string $key): array {
                 static::assertSame(ConfigHandler::CUSTOM_URLS_KEY, $key);
 
@@ -130,13 +130,13 @@ class CustomUrlProviderTest extends TestCase
             }
         );
 
-        $customUrlProvider = $this->getCustomUrlProvider($configHandlerStub);
+        $customUrlProvider = $this->getCustomUrlProvider($configHandler);
 
         static::assertEmpty($customUrlProvider->getUrls($salesChannelContext, 100)->getUrls());
     }
 
-    private function getCustomUrlProvider(ConfigHandler $configHandlerStub): CustomUrlProvider
+    private function getCustomUrlProvider(ConfigHandler $configHandler): CustomUrlProvider
     {
-        return new CustomUrlProvider($configHandlerStub);
+        return new CustomUrlProvider($configHandler);
     }
 }

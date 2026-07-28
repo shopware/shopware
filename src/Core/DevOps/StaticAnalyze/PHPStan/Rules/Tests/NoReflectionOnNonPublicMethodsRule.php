@@ -101,10 +101,10 @@ class NoReflectionOnNonPublicMethodsRule implements Rule
         $args = $node->getArgs();
 
         if (\count($args) >= 2) {
-            $classNames = $this->resolveClassNames($scope->getType($args[0]->value));
+            $classNames = $scope->getType($args[0]->value)->getObjectTypeOrClassStringObjectType()->getObjectClassNames();
             $methodNames = $this->resolveConstantStrings($scope->getType($args[1]->value));
 
-            return $this->buildErrorsForNonPublicTargets($classNames, $methodNames, $scope);
+            return $this->buildErrorsForNonPublicTargets($classNames, $methodNames);
         }
 
         // single-argument form: new \ReflectionMethod('Fully\Qualified\Target::privateMethod')
@@ -119,7 +119,7 @@ class NoReflectionOnNonPublicMethodsRule implements Rule
                 }
             }
 
-            return $this->buildErrorsForNonPublicTargets($classNames, $methodNames, $scope);
+            return $this->buildErrorsForNonPublicTargets($classNames, $methodNames);
         }
 
         return [];
@@ -141,7 +141,7 @@ class NoReflectionOnNonPublicMethodsRule implements Rule
 
         // `new \ReflectionClass(Target::class)` types as ReflectionClass<Target>; without the
         // template argument the target class stays `object` and the call is skipped (calibrated).
-        $classNames = $this->resolveClassNames($receiverType->getTemplateType(\ReflectionClass::class, 'T'));
+        $classNames = $receiverType->getTemplateType(\ReflectionClass::class, 'T')->getObjectClassNames();
 
         $args = $node->getArgs();
         if ($args === []) {
@@ -149,7 +149,7 @@ class NoReflectionOnNonPublicMethodsRule implements Rule
         }
         $methodNames = $this->resolveConstantStrings($scope->getType($args[0]->value));
 
-        return $this->buildErrorsForNonPublicTargets($classNames, $methodNames, $scope);
+        return $this->buildErrorsForNonPublicTargets($classNames, $methodNames);
     }
 
     /**
@@ -174,34 +174,14 @@ class NoReflectionOnNonPublicMethodsRule implements Rule
     }
 
     /**
-     * Class names from a class-string constant (`Target::class`) or an object instance expression.
-     *
-     * @return list<string>
-     */
-    private function resolveClassNames(Type $type): array
-    {
-        $classNames = [];
-        foreach ($type->getConstantStrings() as $constantString) {
-            $classNames[] = $constantString->getValue();
-        }
-        if ($classNames === []) {
-            $classNames = $type->getObjectClassNames();
-        }
-
-        return $classNames;
-    }
-
-    /**
      * @return list<string>
      */
     private function resolveConstantStrings(Type $type): array
     {
-        $values = [];
-        foreach ($type->getConstantStrings() as $constantString) {
-            $values[] = $constantString->getValue();
-        }
-
-        return $values;
+        return array_map(
+            static fn ($constantString): string => $constantString->getValue(),
+            $type->getConstantStrings(),
+        );
     }
 
     /**
@@ -210,7 +190,7 @@ class NoReflectionOnNonPublicMethodsRule implements Rule
      *
      * @return list<RuleError>
      */
-    private function buildErrorsForNonPublicTargets(array $classNames, array $methodNames, Scope $scope): array
+    private function buildErrorsForNonPublicTargets(array $classNames, array $methodNames): array
     {
         foreach ($classNames as $className) {
             if (!str_starts_with($className, self::OWN_NAMESPACE_PREFIX)

@@ -9,7 +9,7 @@
  */
 
 import type * as reportModuleType from '../report';
-import { project, resolution, setupResult, stripAnsi } from './helpers';
+import { extension, project, run, setupResult, stripAnsi } from './helpers';
 
 type ReportModule = typeof reportModuleType;
 
@@ -50,16 +50,14 @@ function renderWith(env: Record<string, string | undefined>, render: (reportModu
 const FORCED_ON = { FORCE_COLOR: '1', NO_COLOR: undefined };
 const FORCED_OFF = { FORCE_COLOR: undefined, NO_COLOR: '1' };
 
-const renderStateSummary = (reportModule: ReportModule) =>
-    reportModule.renderSetupReport(
-        setupResult([
-            project('Ready'),
-            project('NeedsBridge', {
-                tsconfig: 'custom/plugins/NeedsBridge/src/tsconfig.json',
-                ts: resolution('unmanaged', { reason: 'not-extending' }),
-            }),
-        ]),
-    );
+const renderVacuousPass = (reportModule: ReportModule) =>
+    reportModule.renderCheckReport({
+        results: [extension(project('JsOnly'), { typescript: run('no-files', { durationMs: 0 }) })],
+        fatalDiagnostics: [],
+        warnings: [],
+        baselineUpdates: [],
+        exitCode: 0,
+    });
 
 const renderDryRun = (reportModule: ReportModule) =>
     reportModule.renderSetupReport(
@@ -75,12 +73,11 @@ const renderDryRun = (reportModule: ReportModule) =>
     );
 
 describe('scripts/extensionTooling/report color rendering', () => {
-    it('emits ANSI and keeps the state summary assertable when color is forced on', () => {
-        const colored = renderWith(FORCED_ON, renderStateSummary);
+    it('emits ANSI and keeps the vacuous-pass qualifier assertable when color is forced on', () => {
+        const colored = renderWith(FORCED_ON, renderVacuousPass);
 
         expect(stripAnsi(colored)).not.toBe(colored);
-        expect(stripAnsi(colored)).toContain('✔ ready    Ready');
-        expect(stripAnsi(colored)).toContain('● needs bridge   NeedsBridge');
+        expect(stripAnsi(colored)).toContain('✔ passed (0 TypeScript files — .js is not type-checked)');
     });
 
     it('keeps dry-run ownership labels assertable when color is forced on', () => {
@@ -93,7 +90,7 @@ describe('scripts/extensionTooling/report color rendering', () => {
     });
 
     it('stripping the colored report reproduces the plain rendering', () => {
-        expect(stripAnsi(renderWith(FORCED_ON, renderStateSummary))).toBe(renderWith(FORCED_OFF, renderStateSummary));
+        expect(stripAnsi(renderWith(FORCED_ON, renderVacuousPass))).toBe(renderWith(FORCED_OFF, renderVacuousPass));
         expect(stripAnsi(renderWith(FORCED_ON, renderDryRun))).toBe(renderWith(FORCED_OFF, renderDryRun));
     });
 });

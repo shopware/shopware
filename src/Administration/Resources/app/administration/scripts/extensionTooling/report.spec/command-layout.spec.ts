@@ -9,7 +9,8 @@
  */
 
 import { DEFAULT_TOOLING_COMMANDS, resolveToolingCommands } from '../shared';
-import { project, resolution, setupReport, setupResult } from './helpers';
+import { serializeBaseline } from '../baseline';
+import { checkReport, extension, project, resolution, run, setupReport, setupResult } from './helpers';
 
 const FLEX_ADMIN_ROOT = '/shop/vendor/shopware/administration/Resources/app/administration';
 const MONOREPO_ADMIN_ROOT = '/shop/src/Administration/Resources/app/administration';
@@ -18,14 +19,36 @@ const flexCommands = resolveToolingCommands('/shop', FLEX_ADMIN_ROOT);
 describe('extension tooling command layout', () => {
     it('uses the composer scripts for a platform (monorepo) checkout', () => {
         expect(resolveToolingCommands('/shop', MONOREPO_ADMIN_ROOT)).toEqual(DEFAULT_TOOLING_COMMANDS);
-        expect(DEFAULT_TOOLING_COMMANDS.setup).toBe('composer admin:setup-extension-tooling');
+        expect(DEFAULT_TOOLING_COMMANDS.check).toBe('composer admin:check-extensions');
     });
 
     it('uses bin/console for a Composer/Flex install (Administration under vendor/)', () => {
         expect(flexCommands).toEqual({
+            check: 'bin/console administration:check-extensions',
             setup: 'bin/console administration:setup-extension-tooling',
             generateSchema: 'bin/console administration:generate-entity-schema-types',
         });
+    });
+
+    it('writes the layout-aware refresh command into the baseline marker', () => {
+        expect(serializeBaseline({ version: 1, typescript: [], typescriptSpecs: [], eslint: [] }, flexCommands)).toContain(
+            'refresh with bin/console administration:check-extensions -- --update-baseline',
+        );
+        // Default (no commands) keeps the composer form.
+        expect(serializeBaseline({ version: 1, typescript: [], typescriptSpecs: [], eslint: [] })).toContain(
+            'refresh with composer admin:check-extensions -- --update-baseline',
+        );
+    });
+
+    it('renders the --fix baseline handoff with the layout-aware command', () => {
+        const withFindings = extension(project('HasFindings'), { eslint: run('failed', { findings: 2 }) });
+        const output = checkReport(
+            { results: [withFindings], fatalDiagnostics: [], warnings: [], baselineUpdates: [], exitCode: 1 },
+            { fix: true, commands: flexCommands },
+        );
+
+        expect(output).toContain('bin/console administration:check-extensions -- --update-baseline');
+        expect(output).not.toContain('composer admin:check-extensions -- --update-baseline');
     });
 
     it('renders the setup shim next-step with the layout-aware command', () => {

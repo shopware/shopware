@@ -152,6 +152,7 @@ function renderStateSummary(
     projects: ExtensionToolingProject[],
     stateOf: StateMap,
     platform: ExtensionToolingProject[],
+    commands: ToolingCommands,
 ): string[] {
     const ready = projects.filter((project) => stateOf.get(project.name) === 'ready');
     const bridged = projects.filter((project) => stateOf.get(project.name) === 'bridged');
@@ -165,6 +166,14 @@ function renderStateSummary(
 
         return state === 'vendor' && !projectHasBridge(project) && projectHasOwnedConfig(project);
     });
+    const unverifiedBridged = bridged.some((project) =>
+        project.targets.some(
+            (target) =>
+                (target.tsconfig !== null && !target.ts.verified) ||
+                (target.eslintConfig !== null && !target.eslint.verified),
+        ),
+    );
+
     const lines = [''];
 
     if (ready.length > 0) {
@@ -174,7 +183,11 @@ function renderStateSummary(
     if (bridged.length > 0) {
         lines.push(
             `  ${colors.cyan('● bridged')}  ${bridged.map((project) => project.name).join(', ')}  ` +
-                colors.dim('(own configs compose the Shopware preset)'),
+                colors.dim(
+                    `(own configs compose the Shopware preset${
+                        unverifiedBridged ? ` — unverified, run ${commands.check}` : ''
+                    })`,
+                ),
         );
     }
 
@@ -303,7 +316,7 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
         lines.push(...renderShimConfirmation(result, options.shim, stateOf, commands));
     }
 
-    lines.push(...renderStateSummary(projects, stateOf, platform));
+    lines.push(...renderStateSummary(projects, stateOf, platform, commands));
 
     lines.push('', ...describeFileChanges(result).map((line) => `  ${colors.dim(line)}`));
 

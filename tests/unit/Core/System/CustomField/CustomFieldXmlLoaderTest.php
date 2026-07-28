@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Core\System\CustomField;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldXmlLoader;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CustomFieldXmlLoader::class)]
 class CustomFieldXmlLoaderTest extends TestCase
 {
@@ -29,9 +31,11 @@ class CustomFieldXmlLoaderTest extends TestCase
         $intField = $firstSet->getFields()[0];
         static::assertSame('test_set_int_field', $intField->getName());
         static::assertSame(1, $intField->getPosition());
+        static::assertTrue($intField->isIncludeInSearch());
 
         $textField = $firstSet->getFields()[1];
         static::assertSame('test_set_text_field', $textField->getName());
+        static::assertFalse($textField->isIncludeInSearch());
 
         $secondSet = $sets[1];
         static::assertSame('test_global_set', $secondSet->getName());

@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Framework\Twig\TwigDateRequestListener;
@@ -21,6 +22,7 @@ use Twig\Loader\ArrayLoader;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(TwigDateRequestListener::class)]
 class TwigDateRequestListenerTest extends TestCase
 {
@@ -82,7 +84,7 @@ class TwigDateRequestListenerTest extends TestCase
         }
 
         $event = new RequestEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST
         );
@@ -117,7 +119,7 @@ class TwigDateRequestListenerTest extends TestCase
         $request->cookies->set(TwigDateRequestListener::TIMEZONE_COOKIE, 'America/New_York');
 
         $event = new RequestEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST
         );

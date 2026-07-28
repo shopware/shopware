@@ -62,7 +62,6 @@
       "columnShippingMethodPriceCalculations": "Versandarten-Preismatrix-Zuweisungen",
       "columnShippingMethodPrices": "Versandartenpreis-Zuweisungen",
       "columnShippingMethods": "Versandartenverfügbarkeit-Zuweisungen",
-      "contextMenuDuplicate": "Duplizieren",
       "titleSidebarItemRefresh": "Aktualisieren",
       "valid": "Gültig",
       "invalid": "Ungütig",
@@ -85,7 +84,6 @@
     },
     "detail": {
       "textHeadline": "Neue Regel",
-      "buttonSave": "Speichern",
       "titleCard": "Allgemein",
       "labelName": "Name",
       "labelDescription": "Beschreibung",

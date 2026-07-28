@@ -9,10 +9,12 @@ use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 use Shopware\Core\Content\Media\Core\Params\ThumbnailLocationStruct;
 use Shopware\Core\Content\Media\Core\Strategy\FilenamePathStrategy;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(FilenamePathStrategy::class)]
 #[CoversClass(AbstractMediaPathStrategy::class)]
 class FilenamePathStrategyTest extends TestCase

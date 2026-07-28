@@ -138,7 +138,7 @@ class PaymentMethodRuleTest extends TestCase
         $salesChannelContextMock = static::createStub(SalesChannelContext::class);
         $salesChannelContextMock->method('getPaymentMethod')->willReturn($paymentMethodeEntity);
 
-        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope = static::createStub(RuleScope::class);
         $ruleScope->method('getSalesChannelContext')->willReturn($salesChannelContextMock);
 
         static::assertFalse($rule->match($ruleScope));
@@ -153,7 +153,7 @@ class PaymentMethodRuleTest extends TestCase
         $salesChannelContextMock = static::createStub(SalesChannelContext::class);
         $salesChannelContextMock->method('getPaymentMethod')->willReturn($paymentMethodeEntity);
 
-        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope = static::createStub(RuleScope::class);
         $ruleScope->method('getSalesChannelContext')->willReturn($salesChannelContextMock);
 
         static::assertTrue($rule->match($ruleScope));

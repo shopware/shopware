@@ -6,11 +6,13 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Sync\FkReference;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\Api\SalutationKeyFkResolver;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SalutationKeyFkResolver::class)]
 class SalutationKeyFkResolverTest extends TestCase
 {

@@ -3,21 +3,21 @@
 namespace Shopware\Administration\Command;
 
 use Shopware\Administration\Administration;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'administration:delete-files-after-build',
     description: 'Deletes all unnecessary files of the administration after the build process.',
 )]
-#[Package('framework')]
 class DeleteAdminFilesAfterBuildCommand extends Command
 {
     /**
@@ -37,7 +37,7 @@ class DeleteAdminFilesAfterBuildCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
 
         if (!$io->confirm('This will delete all files unnecessary to build the administration. Do you want to continue?', false)) {
             $io->text('Command aborted!');

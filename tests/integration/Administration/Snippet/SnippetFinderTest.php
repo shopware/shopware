@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use League\Flysystem\Filesystem as Flysystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Administration\Snippet\SnippetFinder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -44,6 +45,8 @@ class SnippetFinderTest extends TestCase
             $configLoader->load(),
             static::getContainer()->get(TranslationLoader::class),
             static::getContainer()->get(HtmlSanitizer::class),
+            new NullLogger(),
+            false,
         );
     }
 

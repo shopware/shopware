@@ -37,7 +37,7 @@ class LongTextFieldSerializerTest extends TestCase
 
     protected function setUp(): void
     {
-        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
 
         $sanitizer = new HtmlSanitizer(null, true, $this->getHtmlSanitizerSets(), $this->getHtmlSanitizerFieldSets());
         $this->serializer = new LongTextFieldSerializer(Validation::createValidator(), $definitionRegistry, $sanitizer);

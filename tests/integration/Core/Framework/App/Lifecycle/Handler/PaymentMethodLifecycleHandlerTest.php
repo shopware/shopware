@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Lifecycle\Handler\PaymentMethodLifecycleHandler;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\Filesystem;
@@ -16,6 +17,7 @@ use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
 /**
  * @internal
  */
+#[Package('framework')]
 class PaymentMethodLifecycleHandlerTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

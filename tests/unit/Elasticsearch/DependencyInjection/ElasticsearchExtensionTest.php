@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\DependencyInjection;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\DependencyInjection\Configuration;
 use Shopware\Elasticsearch\DependencyInjection\ElasticsearchExtension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -11,6 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ElasticsearchExtension::class)]
 class ElasticsearchExtensionTest extends TestCase
 {

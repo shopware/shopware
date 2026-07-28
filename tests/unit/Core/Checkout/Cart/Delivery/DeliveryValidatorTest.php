@@ -46,7 +46,7 @@ class DeliveryValidatorTest extends TestCase
     public function testValidateDeliveryShippingMethodWithNoAvailabilityRuleShallBeValid(): void
     {
         $cart = new Cart('test');
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $cart->setDeliveries(new DeliveryCollection([$this->generateDeliveryDummy(null)]));
 
         $validator = new DeliveryValidator();
@@ -59,7 +59,7 @@ class DeliveryValidatorTest extends TestCase
     public function testValidateDeliveryShippingMethodAvailabilityRuleIdWithEmptyStringShallThrowAnError(): void
     {
         $cart = new Cart('test');
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $cart->setDeliveries(new DeliveryCollection([$this->generateDeliveryDummy('')]));
 
         $validator = new DeliveryValidator();

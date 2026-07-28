@@ -18,6 +18,13 @@ export const DOCUMENT_TYPE_TECHNICAL_NAMES = {
 /**
  * @private
  */
+export const COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY = 'companySettingsMovedBannerHidden';
+
+const INVALID_PAYMENT_DUE_DATE = 'DOCUMENT_BASE_CONFIG_INVALID_PAYMENT_DUE_DATE';
+
+/**
+ * @private
+ */
 export const DOCUMENT_CONFIG_DEFAULTS = {
     pageSize: 'a4',
     pageOrientation: 'portrait',
@@ -103,6 +110,16 @@ export const DOCUMENT_SETTINGS_GENERAL = (tc) => [
             required: true,
             label: tc('sw-settings-document.detail.labelFileTypes'),
             placeholder: tc('sw-settings-document.detail.placeholderFileTypes'),
+        },
+    },
+    {
+        name: 'paymentDueDate',
+        type: 'text',
+        config: {
+            type: 'text',
+            label: tc('sw-settings-document.detail.labelPaymentDueDate'),
+            placeholder: tc('sw-settings-document.detail.placeholderPaymentDueDate'),
+            helpText: tc('sw-settings-document.detail.helpTextPaymentDueDate'),
         },
     },
 ];
@@ -333,15 +350,6 @@ export const DOCUMENT_SETTINGS_COMPANY = (tc) => [
             placeholder: tc('sw-settings-document.detail.placeholderExecutiveDirector'),
         },
     },
-    {
-        name: 'paymentDueDate',
-        type: 'text',
-        config: {
-            type: 'text',
-            label: tc('sw-settings-document.detail.labelPaymentDueDate'),
-            placeholder: tc('sw-settings-document.detail.placeholderPaymentDueDate'),
-        },
-    },
 ];
 
 /**
@@ -394,6 +402,7 @@ export default {
             typeIsLoading: false,
             salesChannels: null,
             customFieldSets: null,
+            showCompanySettingsMovedBanner: localStorage.getItem(COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY) !== 'true',
             isShowDisplayNoteDelivery: false,
             isShowDivergentDeliveryAddress: false,
             documentConfigSalesChannels: [],
@@ -402,6 +411,7 @@ export default {
             documentConfig: {
                 config: { ...DOCUMENT_CONFIG_DEFAULTS },
             },
+            paymentDueDateIsValid: true,
         };
     },
 
@@ -512,6 +522,16 @@ export default {
             'name',
             'documentTypeId',
         ]),
+
+        getPaymentDueDateError() {
+            if (this.paymentDueDateIsValid) {
+                return null;
+            }
+
+            return {
+                detail: this.$t('sw-settings-document.errors.invalidDueDateFormat'),
+            };
+        },
     },
 
     methods: {
@@ -666,24 +686,41 @@ export default {
 
             this.onChangeSalesChannel();
 
-            try {
-                await this.documentBaseConfigRepository.save(this.documentConfig);
+            await this.documentBaseConfigRepository
+                .save(this.documentConfig)
+                .then(async () => {
+                    if (this.documentConfig.isNew()) {
+                        await this.$router.replace({
+                            name: 'sw.settings.document.detail',
+                            params: { id: this.documentConfig.id },
+                        });
+                    }
 
-                if (this.documentConfig.isNew()) {
-                    await this.$router.replace({
-                        name: 'sw.settings.document.detail',
-                        params: { id: this.documentConfig.id },
-                    });
-                }
-
-                await this.loadEntityData();
-            } catch {
-                this.createNotificationError({
-                    message: this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
+                    await this.loadEntityData();
+                    this.paymentDueDateIsValid = true;
+                })
+                .catch((error) => {
+                    if (error.response?.data?.errors?.length) {
+                        error.response.data.errors.forEach((errorEntry) => {
+                            if (errorEntry.code === INVALID_PAYMENT_DUE_DATE) {
+                                this.paymentDueDateIsValid = false;
+                            } else {
+                                this.createNotificationError({
+                                    message: this.$t(
+                                        'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
+                                    ),
+                                });
+                            }
+                        });
+                    } else {
+                        this.createNotificationError({
+                            message: this.$t('global.notification.notificationSaveErrorMessage'),
+                        });
+                    }
+                })
+                .finally(() => {
+                    this.isLoading = false;
                 });
-            } finally {
-                this.isLoading = false;
-            }
         },
 
         async onCancel() {
@@ -749,6 +786,11 @@ export default {
 
         onChangeCompanyLogo(media) {
             this.documentConfig.logoId = media.at(0)?.id || null;
+        },
+
+        hideCompanySettingsMovedBanner() {
+            this.showCompanySettingsMovedBanner = false;
+            localStorage.setItem(COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY, 'true');
         },
 
         /**

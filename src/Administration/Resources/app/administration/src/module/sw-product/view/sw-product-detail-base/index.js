@@ -122,7 +122,12 @@ export default {
 
         getMediaDefaultFolderId() {
             return this.mediaDefaultFolderRepository
-                .search(this.mediaDefaultFolderCriteria, Context.api)
+                .search(this.mediaDefaultFolderCriteria, {
+                    cacheKey: [
+                        'media-default-folder',
+                        'product',
+                    ],
+                })
                 .then((mediaDefaultFolder) => {
                     const defaultFolder = mediaDefaultFolder.first();
 

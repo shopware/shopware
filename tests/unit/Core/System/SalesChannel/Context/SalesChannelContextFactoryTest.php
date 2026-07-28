@@ -90,7 +90,6 @@ class SalesChannelContextFactoryTest extends TestCase
             MeasurementUnits::createDefaultUnits()
         );
 
-        /** @var StaticEntityRepository<PaymentMethodCollection> $paymentMethodRepository */
         $paymentMethodRepository = new StaticEntityRepository(
             [
                 static function (Criteria $criteria, Context $context) use ($baseContext) {
@@ -113,7 +112,6 @@ class SalesChannelContextFactoryTest extends TestCase
             new PaymentMethodDefinition(),
         );
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository(
             [
                 static function (Criteria $criteria, Context $context) use ($customer) {
@@ -130,7 +128,6 @@ class SalesChannelContextFactoryTest extends TestCase
             new CustomerDefinition(),
         );
 
-        /** @var StaticEntityRepository<CustomerAddressCollection> $addressRepository */
         $addressRepository = new StaticEntityRepository(
             [
                 static function (Criteria $criteria, Context $context) use ($addresses) {
@@ -160,13 +157,13 @@ class SalesChannelContextFactoryTest extends TestCase
 
         $factory = new SalesChannelContextFactory(
             $customerRepository,
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             $addressRepository,
             $paymentMethodRepository,
-            $this->createMock(TaxDetector::class),
+            static::createStub(TaxDetector::class),
             [],
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(EntityRepository::class),
             $baseSalesChannelContextFactory,
         );
 
@@ -229,7 +226,6 @@ class SalesChannelContextFactoryTest extends TestCase
             ->with($salesChannel->getId(), $options)
             ->willReturn($baseContext);
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository(
             [
                 static function (Criteria $criteria, Context $context) use ($customer) {
@@ -246,7 +242,6 @@ class SalesChannelContextFactoryTest extends TestCase
             new CustomerDefinition(),
         );
 
-        /** @var StaticEntityRepository<CustomerAddressCollection> $addressRepository */
         $addressRepository = new StaticEntityRepository(
             [
                 static function (Criteria $criteria, Context $context) use ($addresses) {
@@ -265,13 +260,13 @@ class SalesChannelContextFactoryTest extends TestCase
 
         $factory = new SalesChannelContextFactory(
             $customerRepository,
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             $addressRepository,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(TaxDetector::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(TaxDetector::class),
             [],
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(EntityRepository::class),
             $baseSalesChannelContextFactory,
         );
 
@@ -334,7 +329,6 @@ class SalesChannelContextFactoryTest extends TestCase
             ->with($salesChannel->getId(), $options)
             ->willReturn($baseContext);
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository(
             [
                 static function (Criteria $criteria, Context $context) use ($customer) {
@@ -351,7 +345,6 @@ class SalesChannelContextFactoryTest extends TestCase
             new CustomerDefinition(),
         );
 
-        /** @var StaticEntityRepository<CustomerAddressCollection> $addressRepository */
         $addressRepository = new StaticEntityRepository(
             [
                 static function (Criteria $criteria, Context $context) use ($addresses) {
@@ -370,13 +363,13 @@ class SalesChannelContextFactoryTest extends TestCase
 
         $factory = new SalesChannelContextFactory(
             $customerRepository,
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             $addressRepository,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(TaxDetector::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(TaxDetector::class),
             [],
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(EntityRepository::class),
             $baseSalesChannelContextFactory,
         );
 

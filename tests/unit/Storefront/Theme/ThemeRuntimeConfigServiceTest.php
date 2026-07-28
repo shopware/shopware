@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -28,22 +28,22 @@ use Symfony\Component\Clock\NativeClock;
 #[CoversClass(ThemeRuntimeConfigService::class)]
 class ThemeRuntimeConfigServiceTest extends TestCase
 {
-    private ThemeFileResolver&MockObject $themeFileResolver;
+    private ThemeFileResolver&Stub $themeFileResolver;
 
-    private StorefrontPluginRegistry&MockObject $pluginRegistry;
+    private StorefrontPluginRegistry&Stub $pluginRegistry;
 
-    private ThemeMergedConfigBuilder&MockObject $mergedConfigBuilder;
+    private ThemeMergedConfigBuilder&Stub $mergedConfigBuilder;
 
-    private ThemeRuntimeConfigStorage&MockObject $storage;
+    private ThemeRuntimeConfigStorage&Stub $storage;
 
     private ThemeRuntimeConfigService $service;
 
     protected function setUp(): void
     {
-        $this->themeFileResolver = $this->createMock(ThemeFileResolver::class);
-        $this->pluginRegistry = $this->createMock(StorefrontPluginRegistry::class);
-        $this->mergedConfigBuilder = $this->createMock(ThemeMergedConfigBuilder::class);
-        $this->storage = $this->createMock(ThemeRuntimeConfigStorage::class);
+        $this->themeFileResolver = static::createStub(ThemeFileResolver::class);
+        $this->pluginRegistry = static::createStub(StorefrontPluginRegistry::class);
+        $this->mergedConfigBuilder = static::createStub(ThemeMergedConfigBuilder::class);
+        $this->storage = static::createStub(ThemeRuntimeConfigStorage::class);
 
         $this->service = new ThemeRuntimeConfigService(
             $this->themeFileResolver,
@@ -58,15 +58,18 @@ class ThemeRuntimeConfigServiceTest extends TestCase
     public function testGetRuntimeConfigByName(string $themeId, string $technicalName, ?ThemeRuntimeConfig $expectedConfig): void
     {
         // Only one storage access for two calls
-        $this->storage
+        $storage = $this->createMock(ThemeRuntimeConfigStorage::class);
+        $storage
             ->expects($this->once())
             ->method('getByName')
             ->with($technicalName)
             ->willReturn($expectedConfig);
 
+        $service = $this->createService(storage: $storage);
+
         // First call - should hit storage, second - use cache
-        $result1 = $this->service->getRuntimeConfigByName($technicalName);
-        $result2 = $this->service->getRuntimeConfigByName($technicalName);
+        $result1 = $service->getRuntimeConfigByName($technicalName);
+        $result2 = $service->getRuntimeConfigByName($technicalName);
 
         static::assertSame($expectedConfig, $result1);
         static::assertSame($expectedConfig, $result2);
@@ -76,15 +79,18 @@ class ThemeRuntimeConfigServiceTest extends TestCase
     public function testGetRuntimeConfigById(string $themeId, string $technicalName, ?ThemeRuntimeConfig $expectedConfig): void
     {
         // Only one storage access for two calls
-        $this->storage
+        $storage = $this->createMock(ThemeRuntimeConfigStorage::class);
+        $storage
             ->expects($this->once())
             ->method('getById')
             ->with($themeId)
             ->willReturn($expectedConfig);
 
+        $service = $this->createService(storage: $storage);
+
         // First call - should hit storage, second - use cache
-        $result1 = $this->service->getRuntimeConfig($themeId);
-        $result2 = $this->service->getRuntimeConfig($themeId);
+        $result1 = $service->getRuntimeConfig($themeId);
+        $result2 = $service->getRuntimeConfig($themeId);
 
         static::assertSame($expectedConfig, $result1);
         static::assertSame($expectedConfig, $result2);
@@ -112,13 +118,14 @@ class ThemeRuntimeConfigServiceTest extends TestCase
     {
         $themeId = '1234567890abcdef1234567890abcdef';
 
-        $this->storage
+        $storage = $this->createMock(ThemeRuntimeConfigStorage::class);
+        $storage
             ->expects($this->once())
             ->method('getById')
             ->with($themeId)
             ->willReturn(null);
 
-        $result = $this->service->getResolvedRuntimeConfig($themeId);
+        $result = $this->createService(storage: $storage)->getResolvedRuntimeConfig($themeId);
 
         static::assertNull($result);
     }
@@ -128,13 +135,14 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         $themeId = '1234567890abcdef1234567890abcdef';
         $config = $this->createThemeRuntimeConfig();
 
-        $this->storage
+        $storage = $this->createMock(ThemeRuntimeConfigStorage::class);
+        $storage
             ->expects($this->once())
             ->method('getById')
             ->with($themeId)
             ->willReturn($config);
 
-        $result = $this->service->getResolvedRuntimeConfig($themeId);
+        $result = $this->createService(storage: $storage)->getResolvedRuntimeConfig($themeId);
 
         static::assertSame($config, $result);
     }
@@ -150,14 +158,16 @@ class ThemeRuntimeConfigServiceTest extends TestCase
             scriptFiles: null
         );
 
+        $storage = $this->createMock(ThemeRuntimeConfigStorage::class);
         // Called twice: once in getRuntimeConfig(), once in refreshRuntimeConfig() to preserve importMap.
-        $this->storage
+        $storage
             ->expects($this->exactly(2))
             ->method('getById')
             ->with($themeId)
             ->willReturn($partialConfig);
 
-        $this->pluginRegistry
+        $pluginRegistry = $this->createMock(StorefrontPluginRegistry::class);
+        $pluginRegistry
             ->expects($this->once())
             ->method('getConfigurations')
             ->willReturn(
@@ -166,7 +176,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
                 ])
             );
 
-        $this->storage
+        $storage
             ->expects($this->once())
             ->method('getThemeTechnicalName')
             ->with($themeId)
@@ -177,20 +187,25 @@ class ThemeRuntimeConfigServiceTest extends TestCase
             new File('foo/file2.js', [], 'foo'),
         ]);
 
-        $this->themeFileResolver
+        $themeFileResolver = $this->createMock(ThemeFileResolver::class);
+        $themeFileResolver
             ->expects($this->once())
             ->method('resolveScriptFiles')
             ->willReturn($scriptFilesCollection);
 
         // check that we save new config with resolved js files
-        $this->storage
+        $storage
             ->expects($this->once())
             ->method('save')
             ->with(static::callback(static function (ThemeRuntimeConfig $config) {
                 return $config->scriptFiles === ['js/foo/file1.js', 'js/foo/file2.js'];
             }));
 
-        $result = $this->service->getResolvedRuntimeConfig($themeId);
+        $result = $this->createService(
+            themeFileResolver: $themeFileResolver,
+            pluginRegistry: $pluginRegistry,
+            storage: $storage,
+        )->getResolvedRuntimeConfig($themeId);
 
         // check that updated config is returned
         static::assertNotNull($result);
@@ -212,7 +227,8 @@ class ThemeRuntimeConfigServiceTest extends TestCase
             $themeConfig,
         ]);
 
-        $this->mergedConfigBuilder
+        $mergedConfigBuilder = $this->createMock(ThemeMergedConfigBuilder::class);
+        $mergedConfigBuilder
             ->expects($this->once())
             ->method('getPlainThemeConfiguration')
             ->with($themeId, $context)
@@ -223,16 +239,18 @@ class ThemeRuntimeConfigServiceTest extends TestCase
             new File('foo/file2.js', [], 'foo'),
         ]);
 
-        $this->themeFileResolver
+        $themeFileResolver = $this->createMock(ThemeFileResolver::class);
+        $themeFileResolver
             ->expects($this->once())
             ->method('resolveScriptFiles')
             ->with($themeConfig, $configCollection, false)
             ->willReturn($scriptFilesCollection);
 
+        $storage = $this->createMock(ThemeRuntimeConfigStorage::class);
         // No existing config stored — getById called to check for preserved importMap.
-        $this->storage->method('getById')->with($themeId)->willReturn(null);
+        $storage->method('getById')->willReturn(null);
 
-        $this->storage
+        $storage
             ->expects($this->once())
             ->method('save')
             ->willReturnCallback(static function ($config): void {
@@ -242,7 +260,11 @@ class ThemeRuntimeConfigServiceTest extends TestCase
                 static::assertNull($config->importMap);
             });
 
-        $result = $this->service->refreshRuntimeConfig($themeId, $themeConfig, $context, $filesRequired, $configCollection);
+        $result = $this->createService(
+            themeFileResolver: $themeFileResolver,
+            mergedConfigBuilder: $mergedConfigBuilder,
+            storage: $storage,
+        )->refreshRuntimeConfig($themeId, $themeConfig, $context, $filesRequired, $configCollection);
 
         static::assertSame($themeId, $result->themeId);
         static::assertSame($technicalName, $result->technicalName);
@@ -274,14 +296,15 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         $this->themeFileResolver->method('resolveScriptFiles')
             ->willReturn(new FileCollection());
 
-        $this->storage
+        $storage = $this->createMock(ThemeRuntimeConfigStorage::class);
+        $storage
             ->expects($this->once())
             ->method('save')
             ->willReturnCallback(static function (ThemeRuntimeConfig $config) use ($importMap): void {
                 static::assertSame($importMap, $config->importMap);
             });
 
-        $result = $this->service->refreshRuntimeConfig(
+        $result = $this->createService(storage: $storage)->refreshRuntimeConfig(
             $themeId,
             $themeConfig,
             $context,
@@ -316,16 +339,17 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         $this->mergedConfigBuilder->method('getPlainThemeConfiguration')->willReturn([]);
         $this->themeFileResolver->method('resolveScriptFiles')->willReturn(new FileCollection());
 
+        $storage = $this->createMock(ThemeRuntimeConfigStorage::class);
         // Storage is read to retrieve the existing importMap; no explicit import map passed.
-        $this->storage->method('getById')->with($themeId)->willReturn($existingConfig);
+        $storage->method('getById')->willReturn($existingConfig);
 
-        $this->storage->expects($this->once())->method('save')
+        $storage->expects($this->once())->method('save')
             ->willReturnCallback(static function (ThemeRuntimeConfig $config) use ($existingImportMap): void {
                 static::assertSame($existingImportMap, $config->importMap);
             });
 
         // Pass null for importMap (non-compile refresh).
-        $result = $this->service->refreshRuntimeConfig(
+        $result = $this->createService(storage: $storage)->refreshRuntimeConfig(
             $themeId,
             $themeConfig,
             $context,
@@ -352,20 +376,23 @@ class ThemeRuntimeConfigServiceTest extends TestCase
             $themeConfig,
         ]);
 
-        $this->mergedConfigBuilder
+        $mergedConfigBuilder = $this->createMock(ThemeMergedConfigBuilder::class);
+        $mergedConfigBuilder
             ->expects($this->once())
             ->method('getPlainThemeConfiguration')
             ->with($themeId, $context)
             ->willReturn(['key' => 'value']);
 
-        $this->themeFileResolver
+        $themeFileResolver = $this->createMock(ThemeFileResolver::class);
+        $themeFileResolver
             ->expects($this->once())
             ->method('resolveScriptFiles')
             ->willThrowException(ThemeException::themeCompileException($technicalName, 'Failed to resolve js files'));
 
-        $this->storage->method('getById')->with($themeId)->willReturn(null);
+        $storage = $this->createMock(ThemeRuntimeConfigStorage::class);
+        $storage->method('getById')->willReturn(null);
 
-        $this->storage
+        $storage
             ->expects($this->once())
             ->method('save')
             ->willReturnCallback(static function ($config): void {
@@ -374,7 +401,11 @@ class ThemeRuntimeConfigServiceTest extends TestCase
                 static::assertNull($config->importMap);
             });
 
-        $result = $this->service->refreshRuntimeConfig($themeId, $themeConfig, $context, $filesRequired, $configCollection);
+        $result = $this->createService(
+            themeFileResolver: $themeFileResolver,
+            mergedConfigBuilder: $mergedConfigBuilder,
+            storage: $storage,
+        )->refreshRuntimeConfig($themeId, $themeConfig, $context, $filesRequired, $configCollection);
 
         static::assertSame($themeId, $result->themeId);
         static::assertNull($result->scriptFiles);
@@ -416,30 +447,33 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         $config = $this->createThemeRuntimeConfig($themeId, $technicalName);
 
         // storage should be called 2 times, before and after reset
-        $this->storage
+        $storage = $this->createMock(ThemeRuntimeConfigStorage::class);
+        $storage
             ->expects($this->exactly(2))
             ->method('getById')
             ->with($themeId)
             ->willReturn($config);
 
-        $this->storage
+        $storage
             ->expects($this->exactly(2))
             ->method('getActiveThemeNames')
             ->willReturn($activeThemeNames);
 
+        $service = $this->createService(storage: $storage);
+
         // Populate caches
-        $this->service->getRuntimeConfig($themeId);
-        $this->service->getRuntimeConfigByName($technicalName);
-        $this->service->getActiveThemeNames();
+        $service->getRuntimeConfig($themeId);
+        $service->getRuntimeConfigByName($technicalName);
+        $service->getActiveThemeNames();
 
         // Reset all caches
-        $this->service->resetCaches();
+        $service->resetCaches();
 
         // Load from storage
-        $this->service->getRuntimeConfig($themeId);
-        $this->service->getRuntimeConfigByName($technicalName);
-        $this->service->getActiveThemeNames();
-        $this->service->getActiveThemeNames();
+        $service->getRuntimeConfig($themeId);
+        $service->getRuntimeConfigByName($technicalName);
+        $service->getActiveThemeNames();
+        $service->getActiveThemeNames();
     }
 
     public function testGetActiveThemeNames(): void
@@ -447,14 +481,17 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         $expectedNames = ['theme1', 'theme2'];
 
         // Only one storage access for two calls
-        $this->storage
+        $storage = $this->createMock(ThemeRuntimeConfigStorage::class);
+        $storage
             ->expects($this->once())
             ->method('getActiveThemeNames')
             ->willReturn($expectedNames);
 
+        $service = $this->createService(storage: $storage);
+
         // First call - should hit storage, second - use cache
-        $result1 = $this->service->getActiveThemeNames();
-        $result2 = $this->service->getActiveThemeNames();
+        $result1 = $service->getActiveThemeNames();
+        $result2 = $service->getActiveThemeNames();
 
         static::assertSame($expectedNames, $result1);
         static::assertSame($expectedNames, $result2);
@@ -464,26 +501,44 @@ class ThemeRuntimeConfigServiceTest extends TestCase
     {
         $technicalName = 'test-theme';
 
-        $this->storage
+        $storage = $this->createMock(ThemeRuntimeConfigStorage::class);
+        $storage
             ->expects($this->once())
             ->method('deleteByTechnicalName')
             ->with($technicalName);
 
         // Verify cache is cleared by checking storage is called again after delete
-        $this->storage
+        $storage
             ->expects($this->exactly(2))
             ->method('getByName')
             ->with($technicalName)
             ->willReturn(null);
 
+        $service = $this->createService(storage: $storage);
+
         // Populate cache
-        $this->service->getRuntimeConfigByName($technicalName);
+        $service->getRuntimeConfigByName($technicalName);
 
         // Delete - should call storage and reset cache
-        $this->service->deleteByTechnicalName($technicalName);
+        $service->deleteByTechnicalName($technicalName);
 
         // This call should hit storage again (cache was reset)
-        $this->service->getRuntimeConfigByName($technicalName);
+        $service->getRuntimeConfigByName($technicalName);
+    }
+
+    private function createService(
+        ?ThemeFileResolver $themeFileResolver = null,
+        ?StorefrontPluginRegistry $pluginRegistry = null,
+        ?ThemeMergedConfigBuilder $mergedConfigBuilder = null,
+        ?ThemeRuntimeConfigStorage $storage = null,
+    ): ThemeRuntimeConfigService {
+        return new ThemeRuntimeConfigService(
+            $themeFileResolver ?? $this->themeFileResolver,
+            $pluginRegistry ?? $this->pluginRegistry,
+            $mergedConfigBuilder ?? $this->mergedConfigBuilder,
+            $storage ?? $this->storage,
+            new NativeClock()
+        );
     }
 
     /**

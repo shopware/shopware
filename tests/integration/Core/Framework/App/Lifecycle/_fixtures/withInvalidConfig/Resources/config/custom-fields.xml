@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<custom-fields xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="../../../../../../../../../../src/Core/System/CustomField/Schema/custom-fields-1.0.xsd">
+    <custom-field-set>
+        <name>custom_field_test</name>
+        <label>Custom field test</label>
+        <label lang="de-DE">Zusatzfeld Test</label>
+        <related-entities>
+            <product/>
+            <customer/>
+        </related-entities>
+        <fields/>
+    </custom-field-set>
+</custom-fields>

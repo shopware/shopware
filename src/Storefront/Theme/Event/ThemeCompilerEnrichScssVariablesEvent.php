@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeCompilerEnrichScssVariablesEvent extends Event implements ShopwareEvent
 {
     /**

@@ -15,12 +15,14 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdChangedEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdDeletedEvent;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RememberDeletedAppsSecretSubscriber::class)]
 class RememberDeletedAppsSecretSubscriberTest extends TestCase
 {
@@ -46,6 +48,8 @@ class RememberDeletedAppsSecretSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
+        $this->deletedAppsGateway->expects($this->never())->method('deleteSecretForApp');
+
         static::assertSame([
             AppDeletedEvent::class => 'saveSecretFromDeletedApp',
             AppInstalledEvent::class => 'removeDeletedAppSecret',
@@ -123,7 +127,7 @@ class RememberDeletedAppsSecretSubscriberTest extends TestCase
 
         $event = new AppInstalledEvent(
             $app,
-            $this->createMock(Manifest::class),
+            static::createStub(Manifest::class),
             Context::createDefaultContext()
         );
 

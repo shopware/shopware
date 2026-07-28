@@ -162,7 +162,7 @@ class PaymentMethodRepositoryTest extends TestCase
 
         $criteria = new Criteria([$this->paymentMethodId]);
 
-        $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
+        $resultSet = $this->paymentRepository->search($criteria, $defaultContext)->getEntities();
 
         static::assertCount(0, $resultSet);
     }
@@ -190,7 +190,7 @@ class PaymentMethodRepositoryTest extends TestCase
 
         $criteria = new Criteria([$this->paymentMethodId]);
 
-        $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
+        $resultSet = $this->paymentRepository->search($criteria, $defaultContext)->getEntities();
 
         static::assertCount(1, $resultSet);
     }

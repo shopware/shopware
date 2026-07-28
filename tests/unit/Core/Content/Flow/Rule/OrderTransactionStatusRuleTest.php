@@ -76,7 +76,7 @@ class OrderTransactionStatusRuleTest extends TestCase
         $scope = new FlowRuleScope(
             $order,
             new Cart('test'),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $this->rule->assign(['stateIds' => $selectedOrderStateIds, 'operator' => $operator]);
@@ -85,7 +85,7 @@ class OrderTransactionStatusRuleTest extends TestCase
 
     public function testInvalidScopeIsFalse(): void
     {
-        $invalidScope = $this->createMock(RuleScope::class);
+        $invalidScope = static::createStub(RuleScope::class);
         $this->rule->assign(['salutationIds' => [Uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
         static::assertFalse($this->rule->match($invalidScope));
     }

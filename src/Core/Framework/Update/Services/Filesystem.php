@@ -3,12 +3,11 @@
 namespace Shopware\Core\Framework\Update\Services;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Tests\Integration\Core\Framework\Update\Services\FilesystemTest;
 
 /**
  * @codeCoverageIgnore can not be unit tested by design; covered by integration test
  *
- * @see FilesystemTest
+ * @see \Shopware\Tests\Integration\Core\Framework\Update\Services\FilesystemTest
  */
 #[Package('framework')]
 class Filesystem

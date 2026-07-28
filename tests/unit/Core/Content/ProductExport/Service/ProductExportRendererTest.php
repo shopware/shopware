@@ -56,7 +56,7 @@ class ProductExportRendererTest extends TestCase
             ]
         );
 
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher = static::createStub(EventDispatcherInterface::class);
         $dispatcher->method('dispatch')->willReturn($event);
 
         $environment = new Environment(new ArrayLoader());
@@ -128,7 +128,7 @@ class ProductExportRendererTest extends TestCase
             ]
         );
 
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher = static::createStub(EventDispatcherInterface::class);
         $dispatcher->method('dispatch')->willReturn($event);
 
         $environment = new Environment(new ArrayLoader());
@@ -160,7 +160,7 @@ class ProductExportRendererTest extends TestCase
 
         $productExport->setSalesChannelDomain($domain);
 
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher = static::createStub(EventDispatcherInterface::class);
 
         $environment = new Environment(new ArrayLoader());
 
@@ -218,8 +218,8 @@ class ProductExportRendererTest extends TestCase
         $productExport->setId(Uuid::randomHex());
         $productExport->setBodyTemplate(null);
 
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $twigRenderer = $this->createMock(StringTemplateRenderer::class);
+        $dispatcher = static::createStub(EventDispatcherInterface::class);
+        $twigRenderer = static::createStub(StringTemplateRenderer::class);
 
         $renderer = new ProductExportRenderer(
             $twigRenderer,

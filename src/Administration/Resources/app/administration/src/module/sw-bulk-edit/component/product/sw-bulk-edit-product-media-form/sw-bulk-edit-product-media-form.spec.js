@@ -107,6 +107,6 @@ describe('src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-f
 
         const buttons = wrapper.find('.sw-context-menu').findAll('.sw-context-menu-item__text');
         expect(buttons).toHaveLength(1);
-        expect(buttons.at(0).text()).toContain('Remove');
+        expect(buttons.at(0).text()).toContain('global.default.remove');
     });
 });

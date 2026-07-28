@@ -2435,6 +2435,7 @@ describe('core/factory/async-component.factory.ts', () => {
             {
                 componentName: 'component',
                 innerTemplate: 'Sync override',
+                legacyConditionCases: [],
             },
         ]);
 
@@ -2445,6 +2446,7 @@ describe('core/factory/async-component.factory.ts', () => {
             {
                 componentName: 'component',
                 innerTemplate: 'Sync override',
+                legacyConditionCases: [],
             },
         ]);
 
@@ -2457,10 +2459,12 @@ describe('core/factory/async-component.factory.ts', () => {
             {
                 componentName: 'component',
                 innerTemplate: 'Sync override',
+                legacyConditionCases: [],
             },
             {
                 componentName: 'component',
                 innerTemplate: 'Async override',
+                legacyConditionCases: [],
             },
         ]);
     });

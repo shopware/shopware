@@ -222,7 +222,7 @@ Tools extending `McpToolResponse` benefit from built-in error handling:
 4. If the tool requires specific ACL privileges, add `#[McpToolRequires('privilege:operation')]` (repeatable); for entity tools use `#[McpToolRequires(entityParam: 'entity', operations: ['read'])]`. Still call `$this->requirePrivilege()` inside `__invoke()` for actual runtime enforcement.
 5. Extend `McpToolResponse` and return via `$this->success()` / `$this->error()`
 6. For entity tools: validate with `$this->registry->has($entity)` before ACL checks
-7. Register in `src/Core/Framework/DependencyInjection/mcp.php` with `mcp.tool` and `shopware.feature` (flag: `MCP_SERVER`) tags
+7. Register in `src/Core/Framework/DependencyInjection/mcp.php` with the `mcp.tool` tag
 8. Add unit test in `tests/unit/Core/Framework/Mcp/Tool/`
 9. Add the tool name to `expectedTools()` in `McpCapabilityDiscoveryTest` (see below)
 

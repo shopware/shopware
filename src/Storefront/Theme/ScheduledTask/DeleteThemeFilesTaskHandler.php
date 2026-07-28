@@ -19,8 +19,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[AsMessageHandler(handles: DeleteThemeFilesTask::class)]
-#[Package('framework')]
 final class DeleteThemeFilesTaskHandler extends ScheduledTaskHandler
 {
     public function __construct(

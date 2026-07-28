@@ -31,7 +31,7 @@ class RobotsControllerTest extends TestCase
         $appUri = parse_url($appUrl)['path'] ?? '';
 
         static::assertIsString($html);
-        static::assertSame("User-agent: *\n\nAllow: /\n\nDisallow: /*?\n\nAllow: /*theme/\n\nAllow: /media/*?ts=\n\nDisallow: {$appUri}/account/\nDisallow: {$appUri}/checkout/\nDisallow: {$appUri}/widgets/\nAllow: {$appUri}/widgets/cms/\nAllow: {$appUri}/widgets/menu/offcanvas\n\n\nSitemap: {$appUrl}/sitemap.xml", $html);
+        $this->assertRobotsTxt($html, $appUri, $appUrl);
     }
 
     // google scraps the robots.txt file always on the TLD, so even when we don't have a sales channel url matching,
@@ -62,7 +62,7 @@ class RobotsControllerTest extends TestCase
         $appUri = parse_url($subUrl)['path'] ?? '';
 
         static::assertIsString($html);
-        static::assertSame("User-agent: *\n\nAllow: /\n\nDisallow: /*?\n\nAllow: /*theme/\n\nAllow: /media/*?ts=\n\nDisallow: {$appUri}/account/\nDisallow: {$appUri}/checkout/\nDisallow: {$appUri}/widgets/\nAllow: {$appUri}/widgets/cms/\nAllow: {$appUri}/widgets/menu/offcanvas\n\n\nSitemap: {$subUrl}/sitemap.xml", $html);
+        $this->assertRobotsTxt($html, $appUri, $subUrl);
     }
 
     public function testRobotsTxtOnSubDomainWithMatchingSalesChannelUrl(): void
@@ -89,7 +89,7 @@ class RobotsControllerTest extends TestCase
         $appUri = parse_url($subUrl)['path'] ?? '';
 
         static::assertIsString($html);
-        static::assertSame("User-agent: *\n\nAllow: /\n\nDisallow: /*?\n\nAllow: /*theme/\n\nAllow: /media/*?ts=\n\nDisallow: {$appUri}/account/\nDisallow: {$appUri}/checkout/\nDisallow: {$appUri}/widgets/\nAllow: {$appUri}/widgets/cms/\nAllow: {$appUri}/widgets/menu/offcanvas\n\n\nSitemap: {$subUrl}/sitemap.xml", $html);
+        $this->assertRobotsTxt($html, $appUri, $subUrl);
     }
 
     public function testRobotsTxtOnSubDomainWithoutMatchingSalesChannelUrlReturns404(): void
@@ -104,5 +104,33 @@ class RobotsControllerTest extends TestCase
             Response::HTTP_NOT_FOUND,
             $browser->getResponse()->getStatusCode()
         );
+    }
+
+    private function assertRobotsTxt(string $html, string $domainPath, string $domainUrl): void
+    {
+        // plugins may append their own User-agent blocks via RobotsPageLoadedEvent, so assert
+        // core's rules and the sitemap are present rather than matching the exact output
+        $expectedCoreRules = <<<TXT
+        User-agent: *
+
+        Allow: /
+
+        Disallow: /*?
+
+        Allow: /*referringSalesChannel=
+
+        Allow: /*theme/
+
+        Allow: /media/*?ts=
+
+        Disallow: {$domainPath}/account/
+        Disallow: {$domainPath}/checkout/
+        Disallow: {$domainPath}/widgets/
+        Allow: {$domainPath}/widgets/cms/
+        Allow: {$domainPath}/widgets/menu/offcanvas
+        TXT;
+
+        static::assertStringStartsWith($expectedCoreRules, $html);
+        static::assertStringContainsString("Sitemap: {$domainUrl}/sitemap.xml", $html);
     }
 }

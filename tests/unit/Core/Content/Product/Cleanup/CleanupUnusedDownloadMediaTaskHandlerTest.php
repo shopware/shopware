@@ -10,10 +10,12 @@ use Shopware\Core\Content\Media\UnusedMediaPurger;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadDefinition;
 use Shopware\Core\Content\Product\Cleanup\CleanupUnusedDownloadMediaTaskHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(CleanupUnusedDownloadMediaTaskHandler::class)]
 class CleanupUnusedDownloadMediaTaskHandlerTest extends TestCase
 {
@@ -26,8 +28,8 @@ class CleanupUnusedDownloadMediaTaskHandlerTest extends TestCase
         $this->purger = $this->createMock(UnusedMediaPurger::class);
 
         $this->handler = new CleanupUnusedDownloadMediaTaskHandler(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(LoggerInterface::class),
             $this->purger
         );
     }

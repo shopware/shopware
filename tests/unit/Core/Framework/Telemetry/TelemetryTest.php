@@ -101,7 +101,7 @@ class TelemetryTest extends TestCase
     {
         $events = [];
 
-        $profilerMock = $this->createMock(ProfilerInterface::class);
+        $profilerMock = static::createStub(ProfilerInterface::class);
         $profilerMock->method('start')->willReturnCallback(static function () use (&$events): void {
             $events[] = 'span-start';
         });
@@ -110,7 +110,7 @@ class TelemetryTest extends TestCase
         });
         new Profiler(new \ArrayIterator(['p' => $profilerMock]), ['p']);
 
-        $meter = $this->createMock(Meter::class);
+        $meter = static::createStub(Meter::class);
         $meter->method('emit')->willReturnCallback(static function () use (&$events): void {
             $events[] = 'metric-emit';
         });

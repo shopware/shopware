@@ -40,8 +40,8 @@ use Symfony\Component\Clock\NativeClock;
 /**
  * @internal
  */
-#[CoversClass(DocumentGenerator::class)]
 #[Package('after-sales')]
+#[CoversClass(DocumentGenerator::class)]
 class DocumentGeneratorTest extends TestCase
 {
     #[DataProvider('readDataProvider')]
@@ -80,16 +80,15 @@ class DocumentGeneratorTest extends TestCase
         $result = new RendererResult();
         $result->addSuccess('orderId', $resultRenderer);
 
-        $mockRenderer = $this->createMock(AbstractDocumentRenderer::class);
+        $mockRenderer = static::createStub(AbstractDocumentRenderer::class);
         $registry = new DocumentRendererRegistry([$mockRenderer]);
 
-        $mediaService = $this->createMock(MediaService::class);
+        $mediaService = static::createStub(MediaService::class);
         $mediaService->method('saveFile')->willReturnOnConsecutiveCalls(
             $document->getDocumentMediaFileId(),
             $document->getDocumentA11yMediaFileId(),
         );
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 'document',
@@ -103,10 +102,10 @@ class DocumentGeneratorTest extends TestCase
 
         $generator = new DocumentGenerator(
             $registry,
-            $this->createMock(DocumentFileRendererRegistry::class),
+            static::createStub(DocumentFileRendererRegistry::class),
             $mediaService,
             $documentRepository,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             new NativeClock()
         );
 
@@ -145,7 +144,6 @@ class DocumentGeneratorTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 'document',
@@ -159,10 +157,10 @@ class DocumentGeneratorTest extends TestCase
 
         $generator = new DocumentGenerator(
             new DocumentRendererRegistry([]),
-            $this->createMock(DocumentFileRendererRegistry::class),
-            $this->createMock(MediaService::class),
+            static::createStub(DocumentFileRendererRegistry::class),
+            static::createStub(MediaService::class),
             $documentRepository,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             new NativeClock()
         );
 
@@ -204,23 +202,22 @@ class DocumentGeneratorTest extends TestCase
             )
             ->willReturn($result);
 
-        $mockTypeRenderer = $this->createMock(AbstractDocumentTypeRenderer::class);
+        $mockTypeRenderer = static::createStub(AbstractDocumentTypeRenderer::class);
         $mockTypeRenderer->method('getContentType')->willReturn('text/html');
         $mockTypeRenderer->method('render')->willReturn('html');
 
         $registry = new DocumentRendererRegistry([$mockRenderer]);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([]);
 
-        $fileRendererRegistry = $this->createMock(DocumentFileRendererRegistry::class);
+        $fileRendererRegistry = static::createStub(DocumentFileRendererRegistry::class);
 
         $generator = new DocumentGenerator(
             $registry,
             $fileRendererRegistry,
-            $this->createMock(MediaService::class),
+            static::createStub(MediaService::class),
             $documentRepository,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             new NativeClock()
         );
 
@@ -243,7 +240,7 @@ class DocumentGeneratorTest extends TestCase
         $rendererResult = new RendererResult();
         $rendererResult->addSuccess($orderId, $renderedDocument);
 
-        $mockRenderer = $this->createMock(AbstractDocumentRenderer::class);
+        $mockRenderer = static::createStub(AbstractDocumentRenderer::class);
         $mockRenderer->method('supports')->willReturn('credit_note');
         $mockRenderer->method('render')->willReturn($rendererResult);
 
@@ -256,13 +253,12 @@ class DocumentGeneratorTest extends TestCase
                 return Uuid::randomHex();
             });
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([]);
 
         $generator = new DocumentGenerator(
             new DocumentRendererRegistry([$mockRenderer]),
-            $this->createMock(DocumentFileRendererRegistry::class),
-            $this->createMock(MediaService::class),
+            static::createStub(DocumentFileRendererRegistry::class),
+            static::createStub(MediaService::class),
             $documentRepository,
             $connection,
             new NativeClock()
@@ -302,15 +298,14 @@ class DocumentGeneratorTest extends TestCase
 
         $registry = new DocumentRendererRegistry([$mockRenderer]);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([]);
 
         $generator = new DocumentGenerator(
             $registry,
-            $this->createMock(DocumentFileRendererRegistry::class),
-            $this->createMock(MediaService::class),
+            static::createStub(DocumentFileRendererRegistry::class),
+            static::createStub(MediaService::class),
             $documentRepository,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             new NativeClock()
         );
 
@@ -331,31 +326,30 @@ class DocumentGeneratorTest extends TestCase
         $result = new RendererResult();
         $result->addSuccess($orderId, $resultRenderer);
 
-        $mockRenderer = $this->createMock(AbstractDocumentRenderer::class);
+        $mockRenderer = static::createStub(AbstractDocumentRenderer::class);
         $mockRenderer->method('supports')->willReturn('invoice');
         $mockRenderer
             ->method('render')
             ->willReturn($result);
 
-        $mockTypeRenderer = $this->createMock(AbstractDocumentTypeRenderer::class);
+        $mockTypeRenderer = static::createStub(AbstractDocumentTypeRenderer::class);
         $mockTypeRenderer->method('getContentType')->willReturn('text/html');
         $mockTypeRenderer->method('render')->willReturn('html');
 
         $registry = new DocumentRendererRegistry([$mockRenderer]);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([]);
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchOne')->willReturn($documentTypeId);
 
-        $mediaService = $this->createMock(MediaService::class);
+        $mediaService = static::createStub(MediaService::class);
         $mediaService->method('saveFile')->willReturnOnConsecutiveCalls(
             $mediaIds[0] ?? '',
             $mediaIds[1] ?? '',
         );
 
-        $fileRendererRegistry = $this->createMock(DocumentFileRendererRegistry::class);
+        $fileRendererRegistry = static::createStub(DocumentFileRendererRegistry::class);
         $fileRendererRegistry->method('render')->willReturn('content');
 
         $generator = new DocumentGenerator(

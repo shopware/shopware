@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Page\Robots\Struct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 
-#[Package('framework')]
+#[Package('discovery')]
 class RobotsUserAgentBlock
 {
     /**

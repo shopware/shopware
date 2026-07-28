@@ -100,7 +100,7 @@
         {% block sw_bulk_edit_customer_empty_state %}
         <mt-empty-state
             v-if="selectedIds.length <= 0 && !isLoading"
-            icon="solid-users"
+            icon="regular-users"
             :headline="$t('sw-bulk-edit.customer.messageEmptyTitle')"
             :description="$t('sw-bulk-edit.customer.messageEmptySubline')"
         />

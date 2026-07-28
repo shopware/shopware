@@ -198,18 +198,18 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
         });
     });
 
-    describe('composables-component: warnings field reports $el usage', () => {
+    describe('instance-api-component: warnings field reports $el usage', () => {
         let result: ReturnType<typeof mergeComponentFiles>;
 
         beforeAll(() => {
             result = mergeComponentFiles(
-                readFixture('composables-component.html.twig'),
-                readFixture('composables-component.index.js'),
+                readFixture('instance-api-component.html.twig'),
+                readFixture('instance-api-component.index.js'),
             );
         });
 
-        it('reports status fully-migrated', () => {
-            expect(result.status).toBe('fully-migrated');
+        it('reports status partially-migrated because $el has no setup equivalent', () => {
+            expect(result.status).toBe('partially-migrated');
         });
 
         it('populates warnings with a $el message', () => {
@@ -265,6 +265,21 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
 
             expect(result.status).toBe('not-migratable');
             expect(result.blockers).toContain('twig syntax inside comment');
+            expect(result.sfc).toBe('');
+        });
+
+        it('reports orphaned cross-block v-else cases as a blocker', () => {
+            const result = mergeComponentFiles(
+                `
+{% block sw_first %}
+    <div v-else>fallback</div>
+{% endblock %}
+                `,
+                readFixture('simple-component.index.js'),
+            );
+
+            expect(result.status).toBe('not-migratable');
+            expect(result.blockers).toContain('orphaned cross-block v-else');
             expect(result.sfc).toBe('');
         });
     });

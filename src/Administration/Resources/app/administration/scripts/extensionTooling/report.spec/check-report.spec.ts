@@ -22,7 +22,7 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
         expect(output).not.toContain('module-35');
     });
 
-    it('paints success-with-writable-skips yellow so exit 0 cannot read as full coverage', () => {
+    it('paints success-with-writable-skips yellow and points at --fail-on-skipped', () => {
         const skipped = extension(
             project('Custom', {
                 tsconfig: 'custom/plugins/Custom/src/Resources/app/administration/tsconfig.json',
@@ -38,12 +38,12 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
 
         expect(lenient).toContain('⚠');
         expect(lenient).toContain('skipped and NOT checked');
-        expect(lenient).toContain('exit 0');
+        expect(lenient).toContain('Pass --fail-on-skipped');
 
-        const failed = checkReport({ ...base, exitCode: 1 });
+        const strict = checkReport({ ...base, exitCode: 1 }, { failOnSkipped: true });
 
-        expect(failed).toContain('skipped and NOT checked');
-        expect(failed).toContain('exit 1');
+        expect(strict).toContain('failing because --fail-on-skipped is set');
+        expect(strict).toContain('exit 1');
     });
 
     it('does not warn about skips for vendor-only skipped extensions', () => {
@@ -188,9 +188,7 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
         expect(output.indexOf('Error: vue-tsc is not installed')).toBeLessThan(output.indexOf('Mine'));
     });
 
-    it('keeps the recorded reproduction commands out of the report', () => {
-        // They are collected on the result for a later opt-in flag; nothing
-        // renders them today, so the concise report stays free of noise.
+    it('prints reproduction commands only with --show-commands', () => {
         const result = extension(project('Mine'), {
             commands: { typescript: ['cd /srv && node vue-tsc.js'], eslint: ['cd /srv && node eslint.js'] },
         });
@@ -198,6 +196,12 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
         expect(
             checkReport({ results: [result], fatalDiagnostics: [], warnings: [], baselineUpdates: [], exitCode: 0 }),
         ).not.toContain('$ cd /srv');
+        expect(
+            checkReport(
+                { results: [result], fatalDiagnostics: [], warnings: [], baselineUpdates: [], exitCode: 0 },
+                { showCommands: true },
+            ),
+        ).toContain('$ cd /srv && node vue-tsc.js');
     });
 
     it('shows target-to-config routing only in verbose output', () => {

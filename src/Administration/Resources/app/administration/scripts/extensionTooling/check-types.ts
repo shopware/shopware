@@ -71,6 +71,7 @@ export interface CheckExtensionsOptions {
     administrationRoot: string;
     pluginsConfigPath?: string;
     only?: string | string[];
+    strictVendor?: boolean;
     maxWorkers?: number;
     /** Forward --fix to ESLint (never to vue-tsc). */
     fix?: boolean;
@@ -78,6 +79,8 @@ export interface CheckExtensionsOptions {
     explicitOnly?: string[];
     /** Record the current findings as the baseline instead of failing on them. */
     updateBaseline?: boolean;
+    /** Fail (exit 1) when a writable extension's tool run was skipped/blocked, not only on findings. */
+    failOnSkipped?: boolean;
 }
 
 export interface CheckExtensionsResult {

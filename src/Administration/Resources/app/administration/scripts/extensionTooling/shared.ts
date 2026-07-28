@@ -84,7 +84,7 @@ export interface AdministrationTarget {
     eslint: ModeResolution;
     /** The runtime tsconfig the check runner passes to vue-tsc (generated leaf or custom config). */
     checkTsconfig: string;
-    /** Generated leaf tsconfig for the spec type-check program (jest types + this target's specs). */
+    /** Generated leaf tsconfig for the spec type-check program (Jest types + this target's specs). */
     specTsconfig: string;
 }
 

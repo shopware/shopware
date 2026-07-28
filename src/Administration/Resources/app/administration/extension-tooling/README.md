@@ -49,6 +49,7 @@ composer admin:check-extensions -- --only=SwagPayPal,MyPlugin   # check specific
 composer admin:check-extensions -- --all                        # check every extension, no prompt
 composer admin:check-extensions -- --only=MyPlugin --fix        # apply ESLint autofixes
 composer admin:check-extensions -- --only=MyPlugin --update-baseline  # record current findings (see Baseline)
+composer admin:check-extensions -- --all --fail-on-skipped      # CI: fail if any writable extension is not checked
 composer admin:setup-extension-tooling -- --help                # full option reference
 ```
 
@@ -57,16 +58,20 @@ composer admin:setup-extension-tooling -- --help                # full option re
 dry-run that **cannot** mutate files regardless of the separator, use the dedicated
 `composer admin:setup-extension-tooling:check` alias — prefer it in CI.
 
-Without `--only` every discovered extension is checked. `--verbose` additionally prints the
-underlying tool output for passing and skipped extensions; `--fix` forwards to ESLint
-(vendor-installed extensions only when named via `--only`).
+In an interactive terminal `admin:check-extensions` opens a numbered picker (accepts
+numbers, ranges, `a` for all, `w` for writable-only). Non-interactive shells (CI, piped)
+check all extensions. `--verbose` additionally prints the underlying tool output for passing
+and skipped extensions; `--show-commands` prints the exact vue-tsc/ESLint invocation per
+extension; `--fix` forwards to ESLint (vendor-installed extensions only when named via
+`--only`).
 
 A writable extension whose own config does not compose the preset is visibly skipped (never
-silently green) and the run carries a prominent yellow warning, but still exits 0 so
-incremental adoption stays possible. Findings in `vendor/` extensions are reported and never
-fail the run — they are not yours to fix. A partially unknown `--only` selection (e.g. a
-renamed extension) fails the whole run and names the unknown entries rather than silently
-checking only the ones that still match.
+silently green), and by default the run still exits 0 with a prominent yellow warning so
+incremental adoption stays possible. **In CI, add `--fail-on-skipped`**: it makes any skipped
+or blocked writable extension exit 1, so `exit 0` cannot mean "checked nothing" (vendor
+extensions keep their separate `--strict-vendor` policy). A partially unknown `--only`
+selection (e.g. a renamed extension) fails the whole run and names the unknown entries rather
+than silently checking only the ones that still match.
 
 Setup discovers every installed extension with Administration sources (from
 `var/plugins.json` — refresh it with `bin/console bundle:dump` after installing or
@@ -181,14 +186,15 @@ survives unrelated line drift. Findings that no longer occur are reported as sta
 on the next `--update-baseline`. Fix findings and re-run `--update-baseline` to shrink the
 baseline; it cannot be combined with `--fix` (fix first, then record).
 
-Vendor-installed extensions carry no baseline — their findings never fail the run to begin with.
+Vendor-installed extensions carry no baseline — their findings are already non-fatal unless
+`--strict-vendor`.
 
 > **Composer-managed plugins are `vendor`.** A plugin installed through Composer — including one
 > developed under `custom/static-plugins/` and pulled in via a path repository — resolves through
 > `vendor/`, so the toolchain classifies it as a read-only `vendor` extension: findings are
-> reported but non-fatal, and neither the baseline nor `--shim` is available for it. For full
-> first-party tooling (fatal findings, baseline, `--shim`), develop the plugin under
-> `custom/plugins/`.
+> non-fatal by default, and neither the baseline nor `--shim` is available for it. Gate such
+> plugins in CI with `--strict-vendor`. For full first-party tooling (fatal findings, baseline,
+> `--shim`), develop the plugin under `custom/plugins/`.
 
 ## Generated files — what to commit, what to ignore
 

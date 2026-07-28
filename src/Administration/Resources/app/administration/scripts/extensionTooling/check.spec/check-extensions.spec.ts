@@ -260,12 +260,11 @@ describe('scripts/extensionTooling/check checkExtensions', () => {
         expect(probe.eslint.status).toBe('unmanaged');
         expect(check.exitCode).toBe(0);
 
-        // A skipped writable extension is reported, never silently dropped —
-        // but it keeps exit 0, so incremental adoption stays possible.
-        const rerun = await checkExtensions({ projectRoot, administrationRoot });
+        // Same skipped writable extension is a hard failure under --fail-on-skipped.
+        const strict = await checkExtensions({ projectRoot, administrationRoot, failOnSkipped: true });
 
-        expect(rerun.results[0].typescript.status).toBe('unmanaged');
-        expect(rerun.exitCode).toBe(0);
+        expect(strict.results[0].typescript.status).toBe('unmanaged');
+        expect(strict.exitCode).toBe(1);
 
         writeBaselineFile(projectRoot, probe.project, {
             version: 1,

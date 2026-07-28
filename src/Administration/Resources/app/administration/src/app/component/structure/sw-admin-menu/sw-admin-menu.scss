@@ -172,7 +172,7 @@
     .sw-admin-menu__header-logo {
         width: var(--scale-size-26);
         height: var(--scale-size-26);
-        color: var(--color-icon-static-default);
+        color: var(--color-static-white);
         transition:
             width var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier),
             height var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier);
@@ -209,22 +209,13 @@
     .sw-admin-menu__collapse-button {
         flex-shrink: 0;
         overflow: hidden;
-        opacity: 0;
 
         // Shrink out of the header layout while collapsing; the icon inside
         // fades via hide-on-collapse. Visibility flips at the end of the shrink
         // and removes the button from the tab order while collapsed.
         transition:
             width 0.25s var(--sw-admin-menu-bezier),
-            opacity 0.15s var(--sw-admin-menu-bezier),
             visibility 0.25s var(--sw-admin-menu-bezier);
-    }
-
-    // Only reveal the collapse button while hovering the sidebar (mirroring the
-    // expand button on the logo) or when it receives keyboard focus.
-    &:hover .sw-admin-menu__collapse-button,
-    .sw-admin-menu__collapse-button:focus-visible {
-        opacity: 1;
     }
 
     .sw-admin-menu__off-canvas-close {

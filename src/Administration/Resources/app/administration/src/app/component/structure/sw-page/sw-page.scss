@@ -138,6 +138,11 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
     .sw-page__side-content {
         position: relative;
         height: 100%;
+
+        &:focus,
+        &:focus-visible {
+            outline: none;
+        }
     }
 
     .sw-page__main-content-inner,

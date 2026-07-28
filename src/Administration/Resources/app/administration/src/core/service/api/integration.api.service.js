@@ -29,6 +29,14 @@ class IntegrationApiService extends ApiService {
             });
     }
 
+    updateAdmin(integrationId, admin, additionalHeaders = {}) {
+        const headers = this.getBasicHeaders(additionalHeaders);
+
+        return this.httpClient.patch(this.getApiBasePath(integrationId), { admin }, { headers }).then((response) => {
+            return ApiService.handleResponse(response);
+        });
+    }
+
     generateKey(additionalParams = {}, additionalHeaders = {}, user = false) {
         const params = additionalParams;
         const headers = this.getBasicHeaders(additionalHeaders);

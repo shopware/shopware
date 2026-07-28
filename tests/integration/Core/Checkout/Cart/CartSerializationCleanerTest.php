@@ -45,7 +45,7 @@ class CartSerializationCleanerTest extends TestCase
     {
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
 
         $this->addEventListener($dispatcher, CartBeforeSerializationEvent::class, $listener);

@@ -69,8 +69,12 @@ export default {
                 ]),
             );
 
-            if (this.customFieldSetIDs) {
-                criteria.addFilter(Criteria.equalsAny('customFieldSetId', this.customFieldSetIDs));
+            if (this.customFieldSetIDs !== null) {
+                if (this.customFieldSetIDs.length) {
+                    criteria.addFilter(Criteria.equalsAny('customFieldSetId', this.customFieldSetIDs));
+                } else {
+                    criteria.addFilter(Criteria.equals('id', null));
+                }
             }
 
             if (this.getProductSortingFieldsByName().length) {
@@ -404,8 +408,12 @@ export default {
                 ]),
             );
 
-            if (this.customFieldSetIDs) {
-                criteria.addFilter(Criteria.equalsAny('customFieldSetId', this.customFieldSetIDs));
+            if (this.customFieldSetIDs !== null) {
+                if (this.customFieldSetIDs.length) {
+                    criteria.addFilter(Criteria.equalsAny('customFieldSetId', this.customFieldSetIDs));
+                } else {
+                    criteria.addFilter(Criteria.equals('id', null));
+                }
             }
 
             if (this.getProductSortingFieldsByName(customField).length) {

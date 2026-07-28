@@ -33,8 +33,4 @@ class Migration1777535833McpToolResultCache extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

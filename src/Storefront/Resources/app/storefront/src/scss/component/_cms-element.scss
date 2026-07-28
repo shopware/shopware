@@ -245,6 +245,14 @@ General styling for cms elements
         color: $headings-color;
     }
 
+    &.has-vertical-alignment {
+        justify-content: center;
+
+        .cms-element-alignment {
+            width: 100%;
+        }
+    }
+
     &.has-border {
         .cms-element-title {
             margin-top: $spacer-sm;
@@ -281,11 +289,10 @@ General styling for cms elements
 @include media-breakpoint-down(lg) {
     .cms-element-product-listing-actions {
         flex-wrap: wrap;
-        justify-content: center;
+        row-gap: $spacer-sm;
 
         .sorting {
             width: 100%;
-            margin-top: 5px;
             margin-left: 0;
         }
     }
@@ -298,4 +305,10 @@ div.card-tabs .cms-card-header {
 
 .cms-element-text {
     position: relative;
+    overflow: auto;
+
+    img {
+        max-width: 100%;
+        height: auto;
+    }
 }

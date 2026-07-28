@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Service;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Service\Event\PermissionsGrantedEvent;
 use Shopware\Core\Service\Event\PermissionsRevokedEvent;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 /**
  * @internal
  */
+#[Package('framework')]
 class PermissionsServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -110,8 +112,7 @@ class PermissionsServiceTest extends TestCase
     {
         $invalidRevision = 'invalid-date';
 
-        $this->expectException(ServiceException::class);
-        $this->expectExceptionMessage('The provided permissions revision "invalid-date" is not in the correct format Y-m-d.');
+        $this->expectExceptionObject(ServiceException::invalidPermissionsRevisionFormat($invalidRevision));
         $this->permissionsService->grant($invalidRevision, $this->context);
         $storedRevision = $this->systemConfigService->getString('core.services.permissionsConsent');
         static::assertSame('', $storedRevision);
@@ -139,8 +140,7 @@ class PermissionsServiceTest extends TestCase
 
     public function testGrantPermissionsWithInvalidContextThrowsException(): void
     {
-        $this->expectException(ServiceException::class);
-        $this->expectExceptionMessage('This action is only allowed from Admins.');
+        $this->expectExceptionObject(ServiceException::invalidPermissionsContext());
 
         $this->permissionsService->grant('2025-06-13', Context::createDefaultContext());
     }

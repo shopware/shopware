@@ -11,9 +11,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  *
- * @codeCoverageIgnore tested via an integration test
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Storefront\Theme\ThemeRuntimeConfigStorageTest
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeRuntimeConfigStorage
 {
     public function __construct(

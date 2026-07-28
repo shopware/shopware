@@ -169,7 +169,8 @@
         "placeholderDescription": "Enter rule description...",
         "labelType": "Type",
         "placeholderType": "Select rule type...",
-        "productStatesConditionWarning": "The condition \"Item with product state\" is deprecated and will be removed in v6.8. Please use \"Item with product type\" instead.",
+        "deprecatedConditionWarning": "The condition \"{label}\" is deprecated and will be removed in {version}. Please use \"{replacement}\" instead.",
+        "deprecatedConditionWarningNoReplacement": "The condition \"{label}\" is deprecated and will be removed in {version}.",
         "placeholderDelayType": "Select delay..."
       },
       "tag": {
@@ -294,7 +295,6 @@
       }
     },
     "leavePageModal": {
-      "headline": "Warning",
       "description": "There are unsaved changes. Are you sure you want to leave this page?",
       "confirmButton": "Leave page"
     },
@@ -339,7 +339,6 @@
       "request": "Request",
       "message": "Message",
       "sent": "Sent",
-      "confirm": "Confirm",
       "unsubscribe": "Unsubscribe",
       "log": "Log",
       "cancelled": "Cancelled",

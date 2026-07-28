@@ -7,11 +7,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppFeatureValidator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppFeatureValidator::class)]
 class AppFeatureValidatorTest extends TestCase
 {
@@ -46,8 +48,7 @@ class AppFeatureValidatorTest extends TestCase
     {
         $validator = new AppFeatureValidator('dev');
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('App "test" could not be installed/updated because it uses features Admin Modules, Payment Methods, Tax providers and Webhooks but has no secret');
+        $this->expectExceptionObject(AppException::appSecretRequiredForFeatures('test', ['Admin Modules', 'Payment Methods', 'Tax providers', 'Webhooks']));
 
         $validator->validate($this->createApp(), $this->createManifestWithFeaturesRequiringSecret());
     }

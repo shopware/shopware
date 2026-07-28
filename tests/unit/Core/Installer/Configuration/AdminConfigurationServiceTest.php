@@ -5,13 +5,16 @@ namespace Shopware\Tests\Unit\Core\Installer\Configuration;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Installer\Configuration\AdminConfigurationService;
 use Shopware\Core\Test\Stub\Doctrine\FakeQueryBuilder;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AdminConfigurationService::class)]
 class AdminConfigurationServiceTest extends TestCase
 {
@@ -51,7 +54,7 @@ class AdminConfigurationServiceTest extends TestCase
             'email' => 'test@test.com',
         ];
 
-        $service = new AdminConfigurationService();
+        $service = new AdminConfigurationService(new NativeClock());
         $service->createAdmin($user, $connection);
     }
 }

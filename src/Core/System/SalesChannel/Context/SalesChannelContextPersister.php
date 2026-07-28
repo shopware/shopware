@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -25,7 +26,8 @@ class SalesChannelContextPersister
         private readonly Connection $connection,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractCartPersister $cartPersister,
-        ?string $lifetimeInterval = 'P1D'
+        private readonly ClockInterface $clock,
+        ?string $lifetimeInterval = 'P1D',
     ) {
         $this->lifetimeInterval = $lifetimeInterval ?? 'P1D';
     }
@@ -52,7 +54,7 @@ class SalesChannelContextPersister
                 'payload' => json_encode($parameters, \JSON_THROW_ON_ERROR),
                 'salesChannelId' => $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null,
                 'customerId' => $customerId ? Uuid::fromHexToBytes($customerId) : null,
-                'updatedAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'updatedAt' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
     }
@@ -79,7 +81,7 @@ class SalesChannelContextPersister
             [
                 'newToken' => $newToken,
                 'oldToken' => $oldToken,
-                'updatedAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'updatedAt' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -91,7 +93,7 @@ class SalesChannelContextPersister
                 'payload' => json_encode([]),
                 'sales_channel_id' => Uuid::fromHexToBytes($context->getSalesChannelId()),
                 'customer_id' => $customer ? Uuid::fromHexToBytes($customer->getId()) : null,
-                'updated_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'updated_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
         }
 
@@ -141,7 +143,7 @@ class SalesChannelContextPersister
         $expiredTime = $updatedAt->add(new \DateInterval($this->lifetimeInterval));
 
         $payload = array_filter(json_decode((string) $context['payload'], true, 512, \JSON_THROW_ON_ERROR));
-        $now = new \DateTimeImmutable();
+        $now = $this->clock->now();
         if ($expiredTime < $now) {
             // context is expired
             if ($customerId !== null) {
@@ -173,7 +175,7 @@ class SalesChannelContextPersister
             ->set('customer_id', 'NULL')
             ->set('updated_at', ':updatedAt')
             ->where('customer_id = :customerId')
-            ->setParameter('updatedAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT))
+            ->setParameter('updatedAt', $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT))
             ->setParameter('payload', json_encode($revokeParams))
             ->setParameter('customerId', Uuid::fromHexToBytes($customerId));
 

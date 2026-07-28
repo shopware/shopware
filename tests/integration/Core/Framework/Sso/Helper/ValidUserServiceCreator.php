@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Sso\UserService\UserService;
 use Shopware\Core\System\User\UserCollection;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Clock\ClockInterface;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -49,7 +50,7 @@ class ValidUserServiceCreator extends TestCase
         $validatorProperty = (new \ReflectionClass(IdTokenParser::class))->getProperty('validator');
         $validatorProperty->setValue($idTokenParser, $validator);
 
-        return new UserService($connection, $idTokenParser, $userRepository, $this->createExternalTokenService());
+        return new UserService($connection, $idTokenParser, $userRepository, $this->createExternalTokenService(), new NativeClock());
     }
 
     private function createClient(): HttpClientInterface

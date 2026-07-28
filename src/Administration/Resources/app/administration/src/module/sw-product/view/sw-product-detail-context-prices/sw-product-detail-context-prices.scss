@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-product-detail-context-prices {
     width: 100%;
     max-width: calc(var(--scale-size-224) * 5 + var(--scale-size-160) + var(--scale-size-40) + var(--scale-size-10));
@@ -28,8 +26,8 @@
 
     .sw-product-detail-context-prices__toolbar {
         padding: var(--scale-size-26);
-        background-color: var(--color-gray-100);
-        border-bottom: var(--scale-size-1) solid var(--color-gray-300);
+        background-color: var(--color-elevation-surface-sunken);
+        border-bottom: var(--scale-size-1) solid var(--color-border-secondary-default);
     }
 
     .sw-product-detail-context-prices__toolbar-selection {
@@ -106,7 +104,7 @@
         }
 
         .sw-product-detail-context-prices__parent-prices-link {
-            color: var(--color-shopware-brand-500);
+            color: var(--color-text-brand-default);
             margin-bottom: var(--scale-size-20);
         }
     }
@@ -117,7 +115,7 @@
         line-height: var(--scale-size-16);
         font-size: var(--font-size-xs);
         margin-bottom: var(--scale-size-20);
-        color: var(--color-darkgray-200);
+        color: var(--color-text-secondary-default);
 
         .sw-product-detail-context-prices__inheritance-icon {
             margin-right: var(--scale-size-8);

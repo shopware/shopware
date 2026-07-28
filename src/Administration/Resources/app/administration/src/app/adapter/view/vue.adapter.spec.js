@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package framework
  */
@@ -834,6 +836,34 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             expect(rootComponent.config.globalProperties.$tc).toBeDefined();
             expect(rootComponent.config.globalProperties.$store).toBeDefined();
             expect(rootComponent.config.globalProperties.$dataScope).toBeDefined();
+            expect(rootComponent.config.globalProperties.$swLegacyBlockIf).toBeDefined();
+            expect(rootComponent.config.globalProperties.$swLegacyBlockElseIf).toBeDefined();
+            expect(rootComponent.config.globalProperties.$swLegacyBlockElse).toBeDefined();
+        });
+
+        it('should scope legacy block helpers by component instance', () => {
+            const vmOne = { $: { uid: 1 } };
+            const vmTwo = { $: { uid: 2 } };
+            const firstCase = {
+                segmentCaseIndex: 0,
+                renderOrderSegment: 'defaultSlot',
+                isStartingCondition: true,
+            };
+            const fallbackCase = {
+                segmentCaseIndex: 1,
+                renderOrderSegment: 'defaultSlot',
+                isStartingCondition: false,
+            };
+
+            expect(rootComponent.config.globalProperties.$swLegacyBlockIf.call(vmOne, 'test-block', false, firstCase)).toBe(
+                false,
+            );
+            expect(rootComponent.config.globalProperties.$swLegacyBlockElse.call(vmTwo, 'test-block', fallbackCase)).toBe(
+                false,
+            );
+            expect(rootComponent.config.globalProperties.$swLegacyBlockElse.call(vmOne, 'test-block', fallbackCase)).toBe(
+                true,
+            );
         });
 
         it('should initialize the directives correctly', async () => {

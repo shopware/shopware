@@ -3,11 +3,12 @@
 namespace Shopware\Tests\Integration\Storefront\Theme\Command;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
@@ -25,6 +26,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('discovery')]
 class ThemeDumpCommandTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
@@ -184,7 +186,7 @@ class ThemeDumpCommandTest extends TestCase
         ];
     }
 
-    private function getPluginRegistryMock(): MockObject&StorefrontPluginRegistry
+    private function getPluginRegistryMock(): Stub&StorefrontPluginRegistry
     {
         $storePluginConfiguration1 = new StorefrontPluginConfiguration('parentTheme');
         $storePluginConfiguration1->setThemeConfig([
@@ -196,9 +198,7 @@ class ThemeDumpCommandTest extends TestCase
             'any' => 'unexpectedConfig',
         ]);
 
-        $mock = $this->getMockBuilder(StorefrontPluginRegistry::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $mock = static::createStub(StorefrontPluginRegistry::class);
 
         $mock->method('getConfigurations')
             ->willReturn(

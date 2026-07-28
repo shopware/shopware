@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package after-sales
  */
@@ -229,7 +231,7 @@ async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.
                     name: routeName,
                     meta: {
                         $module: {
-                            icon: 'solid-content',
+                            icon: 'regular-content',
                         },
                     },
                 },

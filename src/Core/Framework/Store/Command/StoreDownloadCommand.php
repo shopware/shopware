@@ -25,11 +25,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[AsCommand(
     name: 'store:download',
     description: 'Downloads a plugin from the store',
 )]
-#[Package('checkout')]
 class StoreDownloadCommand extends Command
 {
     /**

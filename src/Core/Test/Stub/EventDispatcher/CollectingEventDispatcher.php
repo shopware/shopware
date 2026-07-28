@@ -39,6 +39,18 @@ class CollectingEventDispatcher implements EventDispatcherInterface
         return $this->events;
     }
 
+    /**
+     * @template TEvent of object
+     *
+     * @param class-string<TEvent> $eventClass
+     *
+     * @return list<TEvent>
+     */
+    public function getEventsOfClass(string $eventClass): array
+    {
+        return array_values(array_filter($this->events, static fn (object $event): bool => $event instanceof $eventClass));
+    }
+
     public function addListener(string $eventName, callable $listener, int $priority = 0): void
     {
         if (!isset($this->listeners[$eventName])) {

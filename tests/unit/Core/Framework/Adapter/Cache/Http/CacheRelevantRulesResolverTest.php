@@ -36,7 +36,7 @@ class CacheRelevantRulesResolverTest extends TestCase
 
         $ruleAreas = $resolver->resolveRuleAreas(
             new Request(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertSame([RuleAreas::PRODUCT_AREA], $ruleAreas);

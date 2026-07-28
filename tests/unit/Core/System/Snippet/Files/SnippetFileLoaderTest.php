@@ -10,12 +10,18 @@ use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
+use Shopware\Core\Framework\Util\Filesystem as AppFilesystem;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -39,12 +45,13 @@ use Shopware\Tests\Unit\Core\System\Snippet\Files\_fixtures\BaseSnippetSet\BaseS
 use Shopware\Tests\Unit\Core\System\Snippet\Files\_fixtures\ShopwareBundleWithSnippets\ShopwareBundleWithSnippets;
 use Shopware\Tests\Unit\Core\System\Snippet\Files\_fixtures\SnippetSet\SnippetSet;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\TestPlugin;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Path;
-use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(SnippetFileLoader::class)]
 class SnippetFileLoaderTest extends TestCase
 {
@@ -96,16 +103,18 @@ class SnippetFileLoaderTest extends TestCase
 
         $snippetFileLoader = new SnippetFileLoader(
             $kernel,
-            $this->createMock(Connection::class),
-            $this->createMock(AppSnippetFileLoader::class),
+            static::createStub(Connection::class),
+            static::createStub(AppSnippetFileLoader::class),
             new ActiveAppsLoader(
-                $this->createMock(Connection::class),
-                $this->createMock(AppLoader::class),
+                static::createStub(Connection::class),
+                static::createStub(AppLoader::class),
                 '/'
             ),
             $this->config,
             $this->getTranslationLoader(),
-            $this->filesystem
+            $this->filesystem,
+            static::createStub(SourceResolver::class),
+            new NullLogger()
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -161,16 +170,18 @@ class SnippetFileLoaderTest extends TestCase
 
         $snippetFileLoader = new SnippetFileLoader(
             $kernel,
-            $this->createMock(Connection::class),
-            $this->createMock(AppSnippetFileLoader::class),
+            static::createStub(Connection::class),
+            static::createStub(AppSnippetFileLoader::class),
             new ActiveAppsLoader(
-                $this->createMock(Connection::class),
-                $this->createMock(AppLoader::class),
+                static::createStub(Connection::class),
+                static::createStub(AppLoader::class),
                 '/'
             ),
             $this->config,
             $this->getTranslationLoader(),
-            $this->filesystem
+            $this->filesystem,
+            static::createStub(SourceResolver::class),
+            new NullLogger()
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -215,15 +226,17 @@ class SnippetFileLoaderTest extends TestCase
         $snippetFileLoader = new SnippetFileLoader(
             $kernel,
             $connection,
-            $this->createMock(AppSnippetFileLoader::class),
+            static::createStub(AppSnippetFileLoader::class),
             new ActiveAppsLoader(
-                $this->createMock(Connection::class),
-                $this->createMock(AppLoader::class),
+                static::createStub(Connection::class),
+                static::createStub(AppLoader::class),
                 '/'
             ),
             $this->config,
             $this->getTranslationLoader(),
-            $this->filesystem
+            $this->filesystem,
+            static::createStub(SourceResolver::class),
+            new NullLogger()
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -277,24 +290,129 @@ class SnippetFileLoaderTest extends TestCase
                     'name' => 'TestApp',
                     'author' => 'Test Author',
                     'path' => '/test/app/path',
+                    'selfManaged' => false,
                 ],
             ]);
 
         $collection = new SnippetFileCollection();
 
         $snippetFileLoader = new SnippetFileLoader(
-            $this->createMock(Kernel::class),
-            $this->createMock(Connection::class),
+            static::createStub(Kernel::class),
+            static::createStub(Connection::class),
             $appSnippetFileLoader,
             $activeAppsLoader,
             $this->config,
             $this->getTranslationLoader(),
-            $this->filesystem
+            $this->filesystem,
+            static::createStub(SourceResolver::class),
+            new NullLogger()
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
 
         static::assertCount(1, $collection);
+    }
+
+    public function testLoadAppSnippetsResolvesSelfManagedAppsThroughSource(): void
+    {
+        $snippetFile = new GenericSnippetFile(
+            'TestService',
+            '/resolved/service/path/Resources/snippet/storefront.es-ES.json',
+            'es-ES',
+            'Test Author',
+            false,
+            'TestService',
+        );
+
+        $appSnippetFileLoader = $this->createMock(AppSnippetFileLoader::class);
+        $appSnippetFileLoader->expects($this->once())
+            ->method('loadSnippetFilesFromApp')
+            ->with('Test Author', '/resolved/service/path', true)
+            ->willReturn([$snippetFile]);
+
+        $sourceResolver = $this->createMock(SourceResolver::class);
+        $sourceResolver->expects($this->once())
+            ->method('filesystemForAppName')
+            ->with('TestService')
+            ->willReturn(new AppFilesystem('/resolved/service/path'));
+
+        $activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
+        $activeAppsLoader->expects($this->once())
+            ->method('getActiveApps')
+            ->willReturn([
+                [
+                    'name' => 'TestService',
+                    'author' => 'Test Author',
+                    'path' => 'https://test-service.example.com',
+                    'selfManaged' => true,
+                ],
+            ]);
+
+        $collection = new SnippetFileCollection();
+
+        $snippetFileLoader = new SnippetFileLoader(
+            static::createStub(Kernel::class),
+            static::createStub(Connection::class),
+            $appSnippetFileLoader,
+            $activeAppsLoader,
+            $this->config,
+            $this->getTranslationLoader(),
+            $this->filesystem,
+            $sourceResolver,
+            new NullLogger()
+        );
+
+        $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
+
+        static::assertCount(1, $collection);
+        static::assertSame('TestService', $collection->getSnippetFilesByIso('es-ES')[0]->getTechnicalName());
+    }
+
+    public function testLoadAppSnippetsSkipsSelfManagedAppWhenSourceCannotBeResolved(): void
+    {
+        $appSnippetFileLoader = $this->createMock(AppSnippetFileLoader::class);
+        $appSnippetFileLoader->expects($this->never())
+            ->method('loadSnippetFilesFromApp');
+
+        $sourceResolver = $this->createMock(SourceResolver::class);
+        $sourceResolver->expects($this->once())
+            ->method('filesystemForAppName')
+            ->with('TestService')
+            ->willThrowException(AppException::notFoundByField('TestService', 'name'));
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error');
+
+        $activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
+        $activeAppsLoader->expects($this->once())
+            ->method('getActiveApps')
+            ->willReturn([
+                [
+                    'name' => 'TestService',
+                    'author' => 'Test Author',
+                    'path' => 'https://test-service.example.com',
+                    'selfManaged' => true,
+                ],
+            ]);
+
+        $collection = new SnippetFileCollection();
+
+        $snippetFileLoader = new SnippetFileLoader(
+            static::createStub(Kernel::class),
+            static::createStub(Connection::class),
+            $appSnippetFileLoader,
+            $activeAppsLoader,
+            $this->config,
+            $this->getTranslationLoader(),
+            $this->filesystem,
+            $sourceResolver,
+            $logger
+        );
+
+        $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
+
+        static::assertCount(0, $collection);
     }
 
     public function testLoadBaseSnippetsFromPlugin(): void
@@ -313,15 +431,17 @@ class SnippetFileLoaderTest extends TestCase
         $snippetFileLoader = new SnippetFileLoader(
             $kernel,
             $connection,
-            $this->createMock(AppSnippetFileLoader::class),
+            static::createStub(AppSnippetFileLoader::class),
             new ActiveAppsLoader(
-                $this->createMock(Connection::class),
-                $this->createMock(AppLoader::class),
+                static::createStub(Connection::class),
+                static::createStub(AppLoader::class),
                 '/'
             ),
             $this->config,
             $this->getTranslationLoader(),
-            $this->filesystem
+            $this->filesystem,
+            static::createStub(SourceResolver::class),
+            new NullLogger()
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -376,16 +496,18 @@ class SnippetFileLoaderTest extends TestCase
 
         $snippetFileLoader = new SnippetFileLoader(
             $kernel,
-            $this->createMock(Connection::class),
-            $this->createMock(AppSnippetFileLoader::class),
+            static::createStub(Connection::class),
+            static::createStub(AppSnippetFileLoader::class),
             new ActiveAppsLoader(
-                $this->createMock(Connection::class),
-                $this->createMock(AppLoader::class),
+                static::createStub(Connection::class),
+                static::createStub(AppLoader::class),
                 '/',
             ),
             $this->config,
             $loader,
-            $this->filesystem
+            $this->filesystem,
+            static::createStub(SourceResolver::class),
+            new NullLogger()
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -417,7 +539,7 @@ class SnippetFileLoaderTest extends TestCase
 
     public function testLoadLegacySnippetsHandlesDatabaseException(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllKeyValue')->willThrowException(new QueryException('Query failed'));
 
         $kernel = $this->getKernel([
@@ -429,15 +551,17 @@ class SnippetFileLoaderTest extends TestCase
         $snippetFileLoader = new SnippetFileLoader(
             $kernel,
             $connection,
-            $this->createMock(AppSnippetFileLoader::class),
+            static::createStub(AppSnippetFileLoader::class),
             new ActiveAppsLoader(
-                $this->createMock(Connection::class),
-                $this->createMock(AppLoader::class),
+                static::createStub(Connection::class),
+                static::createStub(AppLoader::class),
                 '/'
             ),
             $this->config,
             $this->getTranslationLoader(),
-            $this->filesystem
+            $this->filesystem,
+            static::createStub(SourceResolver::class),
+            new NullLogger()
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -451,7 +575,7 @@ class SnippetFileLoaderTest extends TestCase
 
     public function testLoadLegacySnippetsSkipsNonBundleObjects(): void
     {
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getBundles')->willReturn([
             'NonBundle' => new \stdClass(),
         ]);
@@ -460,16 +584,18 @@ class SnippetFileLoaderTest extends TestCase
 
         $snippetFileLoader = new SnippetFileLoader(
             $kernel,
-            $this->createMock(Connection::class),
-            $this->createMock(AppSnippetFileLoader::class),
+            static::createStub(Connection::class),
+            static::createStub(AppSnippetFileLoader::class),
             new ActiveAppsLoader(
-                $this->createMock(Connection::class),
-                $this->createMock(AppLoader::class),
+                static::createStub(Connection::class),
+                static::createStub(AppLoader::class),
                 '/'
             ),
             $this->config,
             $this->getTranslationLoader(),
-            $this->filesystem
+            $this->filesystem,
+            static::createStub(SourceResolver::class),
+            new NullLogger()
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -488,7 +614,7 @@ class SnippetFileLoaderTest extends TestCase
         $pluginPath = Path::join($loader->getLocalePath('es-ES'), 'Plugins', $plugin->getName());
         $this->filesystem->createDirectory($pluginPath);
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getBundles')->willReturn([
             $plugin->getName() => $plugin,
         ]);
@@ -497,16 +623,18 @@ class SnippetFileLoaderTest extends TestCase
 
         $snippetFileLoader = new SnippetFileLoader(
             $kernel,
-            $this->createMock(Connection::class),
-            $this->createMock(AppSnippetFileLoader::class),
+            static::createStub(Connection::class),
+            static::createStub(AppSnippetFileLoader::class),
             new ActiveAppsLoader(
-                $this->createMock(Connection::class),
-                $this->createMock(AppLoader::class),
+                static::createStub(Connection::class),
+                static::createStub(AppLoader::class),
                 '/'
             ),
             $this->config,
             $loader,
-            $this->filesystem
+            $this->filesystem,
+            static::createStub(SourceResolver::class),
+            new NullLogger()
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -540,16 +668,18 @@ class SnippetFileLoaderTest extends TestCase
 
         $snippetFileLoader = new SnippetFileLoader(
             $kernel,
-            $this->createMock(Connection::class),
-            $this->createMock(AppSnippetFileLoader::class),
+            static::createStub(Connection::class),
+            static::createStub(AppSnippetFileLoader::class),
             new ActiveAppsLoader(
-                $this->createMock(Connection::class),
-                $this->createMock(AppLoader::class),
+                static::createStub(Connection::class),
+                static::createStub(AppLoader::class),
                 '/',
             ),
             $this->config,
             $loader,
-            $this->filesystem
+            $this->filesystem,
+            static::createStub(SourceResolver::class),
+            new NullLogger()
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -579,15 +709,17 @@ class SnippetFileLoaderTest extends TestCase
         $snippetFileLoader = new SnippetFileLoader(
             $kernel,
             $connection,
-            $this->createMock(AppSnippetFileLoader::class),
+            static::createStub(AppSnippetFileLoader::class),
             new ActiveAppsLoader(
-                $this->createMock(Connection::class),
-                $this->createMock(AppLoader::class),
+                static::createStub(Connection::class),
+                static::createStub(AppLoader::class),
                 '/'
             ),
             $this->config,
             $loader,
-            $this->filesystem
+            $this->filesystem,
+            static::createStub(SourceResolver::class),
+            new NullLogger()
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -603,23 +735,25 @@ class SnippetFileLoaderTest extends TestCase
     {
         $this->filesystem->write('locales/invalid-path/file.json', '{}');
 
-        $translationLoader = $this->createMock(TranslationLoader::class);
+        $translationLoader = static::createStub(TranslationLoader::class);
         $translationLoader->method('getLocalesBasePath')->willReturn('locales');
 
         $collection = new SnippetFileCollection();
 
         $snippetFileLoader = new SnippetFileLoader(
-            $this->createMock(Kernel::class),
-            $this->createMock(Connection::class),
-            $this->createMock(AppSnippetFileLoader::class),
+            static::createStub(Kernel::class),
+            static::createStub(Connection::class),
+            static::createStub(AppSnippetFileLoader::class),
             new ActiveAppsLoader(
-                $this->createMock(Connection::class),
-                $this->createMock(AppLoader::class),
+                static::createStub(Connection::class),
+                static::createStub(AppLoader::class),
                 '/'
             ),
             $this->config,
             $translationLoader,
-            $this->filesystem
+            $this->filesystem,
+            static::createStub(SourceResolver::class),
+            new NullLogger()
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -639,7 +773,7 @@ class SnippetFileLoaderTest extends TestCase
             $pluginCollection->add($plugin);
         }
 
-        $pluginLoader = $this->createMock(KernelPluginLoader::class);
+        $pluginLoader = static::createStub(KernelPluginLoader::class);
         $pluginLoader->method('getPluginInstances')->willReturn($pluginCollection);
 
         return new MockedKernel($bundles, $pluginLoader);
@@ -652,9 +786,9 @@ class SnippetFileLoaderTest extends TestCase
             languageRepository: $this->languageRepository,
             localeRepository: $this->localeRepository,
             snippetSetRepository: $this->snippetSetRepository,
-            client: $this->createMock(ClientInterface::class),
+            client: static::createStub(ClientInterface::class),
             config: $this->config,
-            validator: Validation::createValidator(),
+            eventDispatcher: new EventDispatcher(),
         );
     }
 }

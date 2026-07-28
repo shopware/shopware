@@ -258,7 +258,7 @@ class CriteriaQueryBuilder
 
     private function hasGroupBy(Criteria $criteria, QueryBuilder $query): bool
     {
-        if ($query->hasState(EntityReader::MANY_TO_MANY_LIMIT_QUERY)) {
+        if ($query->hasState(EntityReader::TO_MANY_ASSOCIATION_LIMIT_QUERY)) {
             return false;
         }
 

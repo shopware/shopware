@@ -14,6 +14,7 @@ use Shopware\Core\Content\MailTemplate\Service\MailTemplateContentBuilder;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -29,6 +30,7 @@ use Twig\Environment;
 /**
  * @internal
  */
+#[Package('after-sales')]
 class MailServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -36,11 +38,13 @@ class MailServiceTest extends TestCase
 
     public function testThrowSalesChannelNotFound(): void
     {
+        $salesChannelId = Uuid::randomHex();
+
         static::expectException(ConstraintViolationException::class);
 
         $data = [
             'recipients' => ['foo@bar.de'],
-            'salesChannelId' => Uuid::randomHex(),
+            'salesChannelId' => $salesChannelId,
             'subject' => 'test',
             'senderName' => 'test',
             'contentHtml' => 'test',

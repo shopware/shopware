@@ -9,8 +9,9 @@ use Composer\Package\Version\VersionParser;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Struct\PluginFromFileSystemStruct;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
@@ -22,6 +23,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PluginService::class)]
 class PluginServiceTest extends TestCase
 {
@@ -44,11 +46,10 @@ class PluginServiceTest extends TestCase
                 $pluginFromFileSystemStruct,
             ]);
 
-        /** @var StaticEntityRepository<PluginCollection> $pluginRepo */
         $pluginRepo = new StaticEntityRepository([new PluginCollection()]);
         $pluginService = $this->getPluginService($pluginRepo, $pluginFinder);
 
-        $pluginService->refreshPlugins(Context::createDefaultContext(), $this->createMock(IOInterface::class));
+        $pluginService->refreshPlugins(Context::createDefaultContext(), static::createStub(IOInterface::class));
 
         $upserts = $pluginRepo->upserts;
         static::assertCount(1, $upserts, 'There should be one plugin upserted');
@@ -85,11 +86,10 @@ class PluginServiceTest extends TestCase
                 $pluginFromFileSystemStruct,
             ]);
 
-        /** @var StaticEntityRepository<PluginCollection> $pluginRepo */
         $pluginRepo = new StaticEntityRepository([new PluginCollection()]);
         $pluginService = $this->getPluginService($pluginRepo, $pluginFinder);
 
-        $pluginService->refreshPlugins(Context::createDefaultContext(), $this->createMock(IOInterface::class));
+        $pluginService->refreshPlugins(Context::createDefaultContext(), static::createStub(IOInterface::class));
 
         $upserts = $pluginRepo->upserts;
         static::assertCount(1, $upserts, 'There should be one plugin upserted');
@@ -107,13 +107,11 @@ class PluginServiceTest extends TestCase
 
     public function testGetPluginByName(): void
     {
-        /** @var StaticEntityRepository<PluginCollection> $pluginRepo */
         $pluginRepo = new StaticEntityRepository([new PluginCollection()]);
         $pluginFinder = $this->createMock(PluginFinder::class);
         $pluginService = $this->getPluginService($pluginRepo, $pluginFinder);
 
-        $this->expectException(PluginNotFoundException::class);
-        $this->expectExceptionMessage('Plugin by name "foo" not found.');
+        $this->expectExceptionObject(PluginException::notFound('foo'));
         $pluginService->getPluginByName('foo', Context::createDefaultContext());
     }
 
@@ -160,7 +158,6 @@ class PluginServiceTest extends TestCase
         $language = new LanguageEntity();
         $language->setId('foo');
 
-        /** @var StaticEntityRepository<LanguageCollection> $repo */
         $repo = new StaticEntityRepository([new LanguageCollection([$language]), new LanguageCollection([$language])]);
 
         return $repo;

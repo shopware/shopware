@@ -62,7 +62,7 @@ class MediaThumbnailDefinition extends EntityDefinition
             (new IntField('width', 'width'))->addFlags(new ApiAware(), new Required(), new WriteProtected(Context::SYSTEM_SCOPE))->setDescription('Width of the thumbnail.'),
             (new IntField('height', 'height'))->addFlags(new ApiAware(), new Required(), new WriteProtected(Context::SYSTEM_SCOPE))->setDescription('Height of the thumbnail.'),
             (new StringField('url', 'url'))->addFlags(new ApiAware(), new Runtime(['path', 'updatedAt']))->setDescription('Public url of media thumbnail.'),
-            (new StringField('path', 'path'))->addFlags(new ApiAware()),
+            (new StringField('path', 'path', 2048))->addFlags(new ApiAware()),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false),
             new ManyToOneAssociationField('mediaThumbnailSize', 'media_thumbnail_size_id', MediaThumbnailSizeDefinition::class, 'id', false),
             (new CustomFields())->addFlags(new ApiAware())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),

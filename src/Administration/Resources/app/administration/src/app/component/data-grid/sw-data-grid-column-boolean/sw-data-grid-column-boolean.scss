@@ -1,8 +1,6 @@
-@import "~scss/variables";
-
 .sw-data-grid-column-boolean {
     .is--active {
-        color: $color-emerald-500;
+        color: var(--color-icon-positive-default);
 
         &.mt-icon {
             width: 16px;
@@ -15,7 +13,7 @@
     }
 
     .is--inactive {
-        color: $color-crimson-500;
+        color: var(--color-icon-critical-default);
 
         &.mt-icon {
             width: 16px;

@@ -34,6 +34,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\Routing\AbstractRouteScope;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Telemetry\Metrics\Metric\PeriodicMetricCollectorInterface;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityInterface;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\AbstractValueGenerator;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -87,6 +88,10 @@ class AutoconfigureCompilerPass implements CompilerPassInterface
         $container
             ->registerForAutoconfiguration(ScheduledTask::class)
             ->addTag('shopware.scheduled.task');
+
+        $container
+            ->registerForAutoconfiguration(PeriodicMetricCollectorInterface::class)
+            ->addTag('shopware.telemetry.periodic_metric_collector');
 
         $container
             ->registerForAutoconfiguration(CartValidatorInterface::class)

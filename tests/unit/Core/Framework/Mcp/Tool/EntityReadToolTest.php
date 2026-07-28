@@ -42,25 +42,25 @@ class EntityReadToolTest extends TestCase
             $context,
         );
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($collection);
 
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
-        $registry->method('getByEntityName')->with('product')->willReturn($definition);
-        $registry->method('getRepository')->with('product')->willReturn($repository);
+        $registry->method('getByEntityName')->willReturn($definition);
+        $registry->method('getRepository')->willReturn($repository);
 
         $readCriteria = new Criteria(['prod-123']);
         $readCriteria->setIncludes([]);
-        $criteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
+        $criteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
         $criteriaBuilder->method('fromArray')->willReturn($readCriteria);
 
-        $encoder = $this->createMock(JsonEntityEncoder::class);
+        $encoder = static::createStub(JsonEntityEncoder::class);
         $encoder->method('encode')->willReturn(['id' => 'prod-123', 'name' => 'Test Product']);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
         $tool = new EntityReadTool($registry, $criteriaBuilder, $contextProvider, $encoder);
@@ -86,24 +86,24 @@ class EntityReadToolTest extends TestCase
             $context,
         );
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($emptyCollection);
 
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
-        $registry->method('getByEntityName')->with('product')->willReturn($definition);
-        $registry->method('getRepository')->with('product')->willReturn($repository);
+        $registry->method('getByEntityName')->willReturn($definition);
+        $registry->method('getRepository')->willReturn($repository);
 
         $missingCriteria = new Criteria(['prod-missing']);
         $missingCriteria->setIncludes([]);
-        $criteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
+        $criteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
         $criteriaBuilder->method('fromArray')->willReturn($missingCriteria);
 
-        $encoder = $this->createMock(JsonEntityEncoder::class);
+        $encoder = static::createStub(JsonEntityEncoder::class);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
         $tool = new EntityReadTool($registry, $criteriaBuilder, $contextProvider, $encoder);
@@ -122,14 +122,14 @@ class EntityReadToolTest extends TestCase
         $registry->method('has')->willReturn(true);
         $registry->expects($this->never())->method('getRepository');
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
         $tool = new EntityReadTool(
             $registry,
-            $this->createMock(RequestCriteriaBuilder::class),
+            static::createStub(RequestCriteriaBuilder::class),
             $contextProvider,
-            $this->createMock(JsonEntityEncoder::class),
+            static::createStub(JsonEntityEncoder::class),
         );
         $output = ($tool)('product', 'some-id', 'not-json');
 
@@ -150,10 +150,10 @@ class EntityReadToolTest extends TestCase
         $registry->method('has')->willReturn(true);
         $registry->expects($this->never())->method('getRepository');
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityReadTool($registry, $this->createMock(RequestCriteriaBuilder::class), $contextProvider, $this->createMock(JsonEntityEncoder::class));
+        $tool = new EntityReadTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider, static::createStub(JsonEntityEncoder::class));
         $output = ($tool)('product', 'some-id');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -161,5 +161,29 @@ class EntityReadToolTest extends TestCase
         static::assertFalse($data['success']);
         static::assertArrayHasKey('error', $data);
         static::assertStringContainsString('product:read', $data['error']);
+    }
+
+    public function testUnknownEntityReturnsError(): void
+    {
+        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry->method('has')->willReturn(false);
+        $registry->expects($this->never())->method('getRepository');
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
+
+        $tool = new EntityReadTool(
+            $registry,
+            static::createStub(RequestCriteriaBuilder::class),
+            $contextProvider,
+            static::createStub(JsonEntityEncoder::class),
+        );
+        $output = ($tool)('unknown_entity', 'some-id');
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('unknown_entity', $data['error']);
+        static::assertStringContainsString('shopware://entities', $data['error']);
     }
 }

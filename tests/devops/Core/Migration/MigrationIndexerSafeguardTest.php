@@ -5,6 +5,7 @@ namespace Shopware\Tests\DevOps\Core\Migration;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationIndexerSafeguard;
 use Shopware\Core\Test\Assert\StrictEmpty;
 
@@ -27,6 +28,7 @@ use Shopware\Core\Test\Assert\StrictEmpty;
  *
  * @internal
  */
+#[Package('framework')]
 class MigrationIndexerSafeguardTest extends TestCase
 {
     /**

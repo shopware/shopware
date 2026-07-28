@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -154,7 +155,9 @@ class DownloadServiceTest extends TestCase
             $fileSystem,
             $fileRepository,
             $this->createMock(LoggerInterface::class),
-            self::DEFAULT_STRATEGY
+            self::DEFAULT_STRATEGY,
+            '',
+            new NativeClock(),
         );
     }
 }

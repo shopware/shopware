@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package checkout
  */
@@ -22,7 +24,8 @@ Shopware.Service().register('loginService', () => {
 
 Shopware.Service().register('systemConfigApiService', () => {
     return {
-        getValues: () => Promise.resolve({ 'core.search.minSearchTermLength': 2 }),
+        getValues: jest.fn(),
+        saveValues: jest.fn(),
     };
 });
 
@@ -185,6 +188,16 @@ describe('app/service/search-ranking.service.js', () => {
         ],
     ];
 
+    beforeEach(() => {
+        Shopware.Context.app.config.settings = {
+            ...(Shopware.Context.app.config.settings ?? {}),
+            minSearchTermLength: 2,
+        };
+
+        clearModules();
+        Shopware.Service('userConfigService').search = () => Promise.resolve({ data: {} });
+    });
+
     const userConfigSearchPreferenceCase = [
         [
             'Overwrite the default fields from searchable to unsearchable',
@@ -268,10 +281,6 @@ describe('app/service/search-ranking.service.js', () => {
 
         Shopware.Service('userConfigService').search = () => Promise.resolve({ data });
     }
-
-    beforeEach(async () => {
-        clearModules();
-    });
 
     it('Should get default user search preferences', async () => {
         createModules(searchRankingModules);
@@ -899,14 +908,22 @@ describe('app/service/search-ranking.service.js', () => {
         expect(service.isValidTerm('')).toBe(false);
     });
 
-    it('should get minSearchTermLength from config', async () => {
-        const originalService = Shopware.Service('systemConfigApiService');
-        originalService.getValues = jest.fn().mockResolvedValue({ 'core.search.minSearchTermLength': 1 });
+    it('should get minSearchTermLength from app config', async () => {
+        Shopware.Context.app.config.settings.minSearchTermLength = 1;
 
         const service = new SearchRankingService();
         await service.getMinSearchTermLength();
 
         expect(service.isValidTerm('a')).toBe(true);
+    });
+
+    it('should not fetch minSearchTermLength from system config when service is created', () => {
+        const originalService = Shopware.Service('systemConfigApiService');
+        originalService.getValues = jest.fn();
+
+        new SearchRankingService();
+
+        expect(originalService.getValues).not.toHaveBeenCalled();
     });
 
     it('should save minSearchTermLength to config', async () => {

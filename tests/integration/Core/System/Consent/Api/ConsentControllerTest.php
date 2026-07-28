@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\System\Consent\Api;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
@@ -10,6 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('data-services')]
 class ConsentControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;

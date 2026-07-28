@@ -1,6 +1,8 @@
 import { mount } from '@vue/test-utils';
 import ShopwareExtensionService from 'src/module/sw-extension/service/shopware-extension.service';
 
+const licenceCancellationTextSelector = '.sw-extension-adding-failed__text-licence-cancellation';
+
 async function createWrapper() {
     const shopwareExtensionService = new ShopwareExtensionService();
 
@@ -58,21 +60,38 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
         expect(wrapper.emitted().close).toBeTruthy();
     });
 
-    it('renders all information if extension is rent', async () => {
+    it('renders all information if extension has an active rent license', async () => {
         Shopware.Store.get('shopwareExtensions').setMyExtensions([
             {
                 name: 'test-app',
                 storeLicense: {
                     variant: 'rent',
+                    expirationDate: null,
                 },
             },
         ]);
 
         const wrapper = await createWrapper();
 
-        expect(wrapper.get('.sw-extension-adding-failed__text-licence-cancellation').text()).toBe(
+        expect(wrapper.get(licenceCancellationTextSelector).text()).toBe(
             'sw-extension-store.component.sw-extension-adding-failed.installationFailed.notificationLicense',
         );
+    });
+
+    it('does not render additional information if the rent license is cancelled', async () => {
+        Shopware.Store.get('shopwareExtensions').setMyExtensions([
+            {
+                name: 'test-app',
+                storeLicense: {
+                    variant: 'rent',
+                    expirationDate: '2025-08-01T03:30:35+01:00',
+                },
+            },
+        ]);
+
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find(licenceCancellationTextSelector).exists()).toBe(false);
     });
 
     it('does not render additional information if the license is not a subscription', async () => {
@@ -87,7 +106,7 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
 
         const wrapper = await createWrapper();
 
-        expect(wrapper.find('.sw-extension-installation-failed__text-licence-cancellation').exists()).toBe(false);
+        expect(wrapper.find(licenceCancellationTextSelector).exists()).toBe(false);
         expect(wrapper.find('h3').text()).toBe(
             'sw-extension-store.component.sw-extension-adding-failed.installationFailed.titleFailure',
         );
@@ -101,7 +120,7 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
 
         const wrapper = await createWrapper();
 
-        expect(wrapper.find('.sw-extension-installation-failed__text-licence-cancellation').exists()).toBe(false);
+        expect(wrapper.find(licenceCancellationTextSelector).exists()).toBe(false);
         expect(wrapper.find('h3').text()).toBe('sw-extension-store.component.sw-extension-adding-failed.titleFailure');
         expect(wrapper.find('p').text()).toBe('sw-extension-store.component.sw-extension-adding-failed.textProblem');
     });

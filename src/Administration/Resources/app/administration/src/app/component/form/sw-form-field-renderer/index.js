@@ -146,6 +146,10 @@ export default {
                 bind.repository = this.createRepository(this.config.entity);
             }
 
+            if (this.type === 'multi-select') {
+                bind.enableMultiSelection = true;
+            }
+
             return bind;
         },
 
@@ -360,12 +364,25 @@ export default {
         },
 
         fetchSystemCurrency() {
-            const systemCurrencyId = Shopware.Context.app.systemCurrencyId;
+            if (this.type !== 'price') {
+                return Promise.resolve();
+            }
 
-            this.createRepository('currency')
-                .get(systemCurrencyId)
-                .then((response) => {
-                    this.currency = response;
+            return this.repositoryFactory
+                .create('currency')
+                .get(Shopware.Context.app.systemCurrencyId, Shopware.Context.api, {
+                    cacheKey: [
+                        'shared-data',
+                        'system-currency',
+                        Shopware.Context.app.systemCurrencyId,
+                        Shopware.Context.api.languageId ?? 'default',
+                    ],
+                    ttl: 5 * 60 * 1000,
+                })
+                .then((currency) => {
+                    if (currency) {
+                        this.currency = currency;
+                    }
                 });
         },
 

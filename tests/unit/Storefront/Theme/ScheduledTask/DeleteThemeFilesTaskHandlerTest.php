@@ -14,12 +14,15 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\AbstractThemePathBuilder;
 use Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTaskHandler;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(DeleteThemeFilesTaskHandler::class)]
 class DeleteThemeFilesTaskHandlerTest extends TestCase
 {
@@ -99,11 +102,12 @@ class DeleteThemeFilesTaskHandlerTest extends TestCase
         ]);
 
         $handler = new DeleteThemeFilesTaskHandler(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(LoggerInterface::class),
             $connection,
             $themeFileSystem,
-            $themePathBuilder
+            $themePathBuilder,
+            new NativeClock()
         );
 
         $handler->run();

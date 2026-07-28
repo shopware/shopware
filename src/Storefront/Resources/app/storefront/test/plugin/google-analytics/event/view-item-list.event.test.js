@@ -32,8 +32,8 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
                 <span class="breadcrumb-title">Computers</span>
             </nav>
             <div class="cms-element-product-listing-wrapper">
-                <div class="product-box" data-product-information='{ "id": "product-1", "name": "Laptop", "price": 999.99 }'></div>
-                <div class="product-box" data-product-information='{ "id": "product-2", "name": "Desktop", "price": 1499.99 }'></div>
+                <div class="product-box" data-product-information='{ "id": "1", "name": "Laptop", "price": 999.99, "sku": "product-1" }'></div>
+                <div class="product-box" data-product-information='{ "id": "2", "name": "Desktop", "price": 1499.99, "sku": "product-2" }'></div>
             </div>
         `;
 

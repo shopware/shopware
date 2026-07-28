@@ -28,8 +28,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('inventory')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class ProductExportController extends AbstractController
 {
     /**
@@ -117,6 +117,7 @@ class ProductExportController extends AbstractController
         $entity->setFileName($dataBag->get('fileName'));
         $entity->setAccessKey($dataBag->get('accessKey'));
         $entity->setProvider($dataBag->get('provider'));
+        $entity->setFeedLabel($dataBag->get('feedLabel'));
         $entity->setSalesChannelId($dataBag->get('salesChannelId'));
         $entity->setSalesChannelDomainId($dataBag->get('salesChannelDomainId'));
         $entity->setCurrencyId($dataBag->get('currencyId'));

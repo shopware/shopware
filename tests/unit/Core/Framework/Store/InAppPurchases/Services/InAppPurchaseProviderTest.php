@@ -12,7 +12,7 @@ use Lcobucci\JWT\Token\Builder;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\JWT\JWTDecoder;
 use Shopware\Core\Framework\Log\Package;
@@ -22,15 +22,16 @@ use Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseProvider;
 use Shopware\Core\Framework\Store\InAppPurchase\Services\KeyFetcher;
 use Shopware\Core\Framework\Store\Services\StoreService;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
  */
-#[CoversClass(InAppPurchaseProvider::class)]
 #[Package('checkout')]
+#[CoversClass(InAppPurchaseProvider::class)]
 class InAppPurchaseProviderTest extends TestCase
 {
-    private ClientInterface&MockObject $client;
+    private ClientInterface&Stub $client;
 
     private TestHandler $logger;
 
@@ -51,26 +52,14 @@ class InAppPurchaseProviderTest extends TestCase
         $this->validJwks = $validJwks;
         $this->invalidJwks = $invalidJwks;
 
-        $this->client = $this->createMock(ClientInterface::class);
+        $this->client = static::createStub(ClientInterface::class);
         $this->logger = new TestHandler();
         $this->config = new StaticSystemConfigService([
             StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN => 'example.com',
             KeyFetcher::CORE_STORE_JWKS => $this->validJwks,
         ]);
 
-        $this->iap = new InAppPurchase(
-            new InAppPurchaseProvider(
-                $this->config,
-                new JWTDecoder(),
-                new KeyFetcher(
-                    $this->client,
-                    $this->createMock(StoreRequestOptionsProvider::class),
-                    $this->config,
-                    new Logger('test', [$this->logger])
-                ),
-                new Logger('test', [$this->logger]),
-            )
-        );
+        $this->iap = $this->createIap($this->client);
     }
 
     public function testActivePurchases(): void
@@ -131,21 +120,23 @@ class InAppPurchaseProviderTest extends TestCase
             'ActiveFeature3' => 'Extension2',
         ]));
 
-        $this->client
+        $client = static::createMock(ClientInterface::class);
+        $client
             ->expects($this->once())
             ->method('request')
             ->willReturn(new Response(200, [], $this->validJwks));
+        $iap = $this->createIap($client);
 
-        static::assertSame(['Extension1-ActiveFeature1', 'Extension1-ActiveFeature2', 'Extension2-ActiveFeature3'], $this->iap->formatPurchases());
+        static::assertSame(['Extension1-ActiveFeature1', 'Extension1-ActiveFeature2', 'Extension2-ActiveFeature3'], $iap->formatPurchases());
         static::assertEquals([], $this->logger->getRecords());
-        static::assertSame(['ActiveFeature1', 'ActiveFeature2'], $this->iap->getByExtension('Extension1'));
-        static::assertSame(['ActiveFeature3'], $this->iap->getByExtension('Extension2'));
-        static::assertSame([], $this->iap->getByExtension('Extension3'));
+        static::assertSame(['ActiveFeature1', 'ActiveFeature2'], $iap->getByExtension('Extension1'));
+        static::assertSame(['ActiveFeature3'], $iap->getByExtension('Extension2'));
+        static::assertSame([], $iap->getByExtension('Extension3'));
 
-        static::assertTrue($this->iap->isActive('Extension1', 'ActiveFeature1'));
-        static::assertTrue($this->iap->isActive('Extension1', 'ActiveFeature2'));
-        static::assertTrue($this->iap->isActive('Extension2', 'ActiveFeature3'));
-        static::assertFalse($this->iap->isActive('Extension2', 'this-one-is-not'));
+        static::assertTrue($iap->isActive('Extension1', 'ActiveFeature1'));
+        static::assertTrue($iap->isActive('Extension1', 'ActiveFeature2'));
+        static::assertTrue($iap->isActive('Extension2', 'ActiveFeature3'));
+        static::assertFalse($iap->isActive('Extension2', 'this-one-is-not'));
     }
 
     public function testGetPurchasesWithInvalidKeyRetriesMultiple(): void
@@ -157,12 +148,14 @@ class InAppPurchaseProviderTest extends TestCase
             'ActiveFeature3' => 'Extension2',
         ]));
 
-        $this->client
+        $client = static::createMock(ClientInterface::class);
+        $client
             ->expects($this->once())
             ->method('request')
             ->willReturn(new Response(200, [], $this->invalidJwks));
+        $iap = $this->createIap($client);
 
-        static::assertSame([], $this->iap->formatPurchases());
+        static::assertSame([], $iap->formatPurchases());
 
         static::assertCount(1, $this->logger->getRecords());
         $record = $this->logger->getRecords()[0];
@@ -180,12 +173,14 @@ class InAppPurchaseProviderTest extends TestCase
             'ActiveFeature3' => 'Extension2',
         ]));
 
-        $this->client
+        $client = static::createMock(ClientInterface::class);
+        $client
             ->expects($this->once())
             ->method('request')
             ->willReturn(new Response(500));
+        $iap = $this->createIap($client);
 
-        static::assertSame([], $this->iap->formatPurchases());
+        static::assertSame([], $iap->formatPurchases());
 
         static::assertCount(2, $this->logger->getRecords());
         $record = $this->logger->getRecords()[0];
@@ -193,6 +188,24 @@ class InAppPurchaseProviderTest extends TestCase
         $record = $this->logger->getRecords()[1];
         static::assertSame('Unable to decode In-App purchases: {message}', $record->message);
         static::assertSame('Unable to retrieve JWKS key', $record->context['message']);
+    }
+
+    private function createIap(ClientInterface $client): InAppPurchase
+    {
+        return new InAppPurchase(
+            new InAppPurchaseProvider(
+                $this->config,
+                new JWTDecoder(),
+                new KeyFetcher(
+                    $client,
+                    static::createStub(StoreRequestOptionsProvider::class),
+                    $this->config,
+                    new Logger('test', [$this->logger])
+                ),
+                new Logger('test', [$this->logger]),
+                new NativeClock()
+            )
+        );
     }
 
     /**

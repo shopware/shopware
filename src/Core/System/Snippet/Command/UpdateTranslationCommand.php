@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\Util\TranslationCommandHelper;
 use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
-use Shopware\Core\System\Snippet\Service\TranslationMetadataLoader;
+use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,16 +15,16 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[AsCommand(
     name: 'translation:update',
     description: 'Updates all installed translations from the translations GitHub repository'
 )]
-#[Package('discovery')]
 class UpdateTranslationCommand extends Command
 {
     public function __construct(
         private readonly AbstractTranslationLoader $translationLoader,
-        private readonly TranslationMetadataLoader $metadataLoader,
+        private readonly TranslationMetadataStore $metadataStore,
     ) {
         parent::__construct();
     }
@@ -32,7 +32,7 @@ class UpdateTranslationCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         try {
-            $metadata = $this->metadataLoader->getUpdatedLocalMetadata();
+            $metadata = $this->metadataStore->getUpdatedLocalMetadata();
         } catch (\Throwable $e) {
             TranslationCommandHelper::printMetadataLoadingFailed($output, $e);
 
@@ -62,7 +62,7 @@ class UpdateTranslationCommand extends Command
         $output->write(\PHP_EOL);
 
         TranslationCommandHelper::handleSavingMetadataCLIOutput(
-            fn () => $this->metadataLoader->save($metadata),
+            fn () => $this->metadataStore->save($metadata),
             $output
         );
 

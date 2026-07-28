@@ -7,7 +7,7 @@ export default class ProductPageHelper {
      * Gets product data from available sources (detail page or product card)
      * @param {string} productId
      * @param {HTMLElement|null} fallbackElement - Optional element to search for product card (e.g., form)
-     * @returns {{name: string|undefined, brand: string|undefined, currency: string|undefined, value: string|undefined}}
+     * @returns {{id: string|undefined, name: string|undefined, brand: string|undefined, currency: string|undefined, value: string|undefined}}
      */
     static getProductData(productId, fallbackElement = null) {
         const detailData = ProductPageHelper.getProductDetailData();
@@ -18,6 +18,7 @@ export default class ProductPageHelper {
 
         const cardData = ProductPageHelper.getProductCardData(productId, fallbackElement);
         return {
+            id: cardData.id,
             name: cardData.name,
             brand: cardData.brand,
             currency: detailData.currency,
@@ -27,10 +28,11 @@ export default class ProductPageHelper {
 
     /**
      * Gets product data from product detail page
-     * @returns {{name: string|undefined, brand: string|undefined, currency: string|undefined, value: string|undefined}}
+     * @returns {{id: string|undefined, name: string|undefined, brand: string|undefined, currency: string|undefined, value: string|undefined}}
      */
     static getProductDetailData() {
         return {
+            id: ProductPageHelper.getSku(),
             name: document.querySelector('.product-detail-name')?.textContent.trim(),
             brand: ProductPageHelper.getBrand(),
             currency: ProductPageHelper.getCurrency(),
@@ -42,7 +44,7 @@ export default class ProductPageHelper {
      * Gets product data from product card (listing page)
      * @param {string} productId
      * @param {HTMLElement|null} fallbackElement - Optional element to search for product card
-     * @returns {{name: string|undefined, brand: string|undefined, value: string|undefined}}
+     * @returns {{id: string|undefined, name: string|undefined, brand: string|undefined, value: string|undefined}}
      */
     static getProductCardData(productId, fallbackElement = null) {
         let productCard = document.querySelector(`.product-wishlist-${productId}`)?.closest('.product-box');
@@ -59,6 +61,7 @@ export default class ProductPageHelper {
         try {
             const info = JSON.parse(productCard.dataset.productInformation);
             return {
+                id: info.sku ?? productId,
                 name: info.name,
                 brand: info.brand,
                 value: info.price,
@@ -66,6 +69,14 @@ export default class ProductPageHelper {
         } catch {
             return {};
         }
+    }
+
+    /**
+     * Gets SKU from product detail page
+     * @returns {string|undefined}
+     */
+    static getSku() {
+        return document.querySelector('[itemprop="sku"]')?.textContent.trim();
     }
 
     /**

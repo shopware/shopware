@@ -16,7 +16,15 @@ function createRuleMock(isNew) {
     };
 }
 
-async function createWrapper() {
+const ruleConditionDataProviderServiceMock = {
+    getModuleTypes: () => [],
+    addScriptConditions: () => {},
+    getAwarenessConfigurationByAssignmentName: () => ({}),
+    getDeprecationsInTree: jest.fn(() => []),
+    getFlowOnlyTypesInTree: jest.fn(() => []),
+};
+
+async function createWrapper({ featureActive = false } = {}) {
     return mount(
         await wrapTestComponent('sw-flow-rule-modal', {
             sync: true,
@@ -36,15 +44,19 @@ async function createWrapper() {
                             };
                         },
                     },
-
-                    ruleConditionDataProviderService: {
-                        getModuleTypes: () => [],
-                        addScriptConditions: () => {},
-                        getAwarenessConfigurationByAssignmentName: () => ({}),
-                    },
-
+                    ruleConditionDataProviderService: ruleConditionDataProviderServiceMock,
                     ruleConditionsConfigApiService: {
                         load: () => Promise.resolve(),
+                    },
+
+                    feature: {
+                        isActive: (feature) => {
+                            if (feature === 'v6.8.0.0') {
+                                return featureActive;
+                            }
+
+                            return false;
+                        },
                     },
                 },
 
@@ -57,6 +69,26 @@ async function createWrapper() {
                     'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        emits: ['new-item-active'],
+                        props: {
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                        },
+                        template: '<div class="mt-tabs"></div>',
+                    },
                     'sw-modal': {
                         template: `
                     <div class="sw-modal">
@@ -88,9 +120,16 @@ async function createWrapper() {
 }
 
 describe('module/sw-flow/component/sw-flow-rule-modal', () => {
-    it('should show element correctly', async () => {
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
+        ruleConditionDataProviderServiceMock.getDeprecationsInTree.mockReturnValue([]);
+    });
+
+    it('should show element correctly in the fallback tab branch', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
+
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
 
         const conditionElement = wrapper.find('.sw-flow-rule-modal__tab-rule');
         expect(conditionElement.exists()).toBe(true);
@@ -111,6 +150,41 @@ describe('module/sw-flow/component/sw-flow-rule-modal', () => {
         });
     });
 
+    it('should render meteor tabs when the major feature flag is active', async () => {
+        const wrapper = await createWrapper({ featureActive: true });
+        await flushPromises();
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-flow-rule-modal');
+        expect(tabs.props('defaultItem')).toBe('detail');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-flow.modals.rule.tabDetail',
+                name: 'detail',
+            },
+            {
+                label: 'sw-flow.modals.rule.tabRule',
+                name: 'rule',
+            },
+        ]);
+        expect(wrapper.find('.sw-tabs').exists()).toBe(false);
+        expect(wrapper.find('.sw-flow-rule-modal__name').exists()).toBe(true);
+    });
+
+    it('should switch meteor tab content when the active tab changes', async () => {
+        const wrapper = await createWrapper({ featureActive: true });
+        await flushPromises();
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+        await tabs.vm.$emit('new-item-active', 'rule');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('rule');
+        expect(wrapper.find('.sw-flow-rule-modal__name').exists()).toBe(false);
+        expect(wrapper.find('.sw-flow-rule-modal__rule').exists()).toBe(true);
+    });
+
     it('should emit event process-finish when saving rule successfully', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -123,18 +197,32 @@ describe('module/sw-flow/component/sw-flow-rule-modal', () => {
     });
 
     it('should show deprecation warning when legacy product states condition exists', async () => {
+        ruleConditionDataProviderServiceMock.getDeprecationsInTree.mockReturnValue([
+            {
+                type: 'cartLineItemProductStates',
+                label: 'Cart line item product states',
+                version: 'v6.8.0',
+                replacement: {
+                    type: 'cartLineItemProductType',
+                    label: 'Cart line item product type',
+                },
+            },
+        ]);
+
         const wrapper = await createWrapper();
         await flushPromises();
 
-        wrapper.vm.conditions = [
-            {
-                type: 'cartLineItemProductStates',
-            },
-        ];
-        await wrapper.vm.$nextTick();
+        await wrapper.setData({
+            conditions: [
+                {
+                    type: 'cartLineItemProductStates',
+                },
+            ],
+        });
+        await flushPromises();
 
-        const banner = wrapper.find('mt-banner-stub.sw-flow-rule-modal__product-type-warning');
-        expect(wrapper.vm.showProductStateConditionWarning).toBe(true);
+        const banner = wrapper.find('.sw-flow-rule-modal__product-type-warning');
+
         expect(banner.exists()).toBe(true);
         expect(banner.attributes('variant')).toBe('attention');
     });

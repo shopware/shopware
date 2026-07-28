@@ -16,8 +16,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
@@ -27,9 +30,9 @@ class SalesChannelValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private const DELETE_VALIDATION_MESSAGE = 'Cannot delete default language id from language list of the sales channel with id "%s".';
     private const INSERT_VALIDATION_MESSAGE = 'The sales channel with id "%s" does not have a default sales channel language id in the language list.';
     private const UPDATE_VALIDATION_MESSAGE = 'Cannot update default language id because the given id is not in the language list of sales channel with id "%s"';
+    private const DELETE_VALIDATION_MESSAGE = 'Cannot delete default language id from language list of the sales channel with id "%s".';
 
     /**
      * @param list<array{0: string, 1: string, 2?: list<string>}> $inserts
@@ -284,16 +287,31 @@ class SalesChannelValidatorTest extends TestCase
 
     public function testPreventDeletionOfDefaultLanguageId(): void
     {
-        $this->expectException(WriteException::class);
-        $this->expectExceptionMessage(\sprintf(
-            self::DELETE_VALIDATION_MESSAGE,
-            TestDefaults::SALES_CHANNEL
+        $this->expectExceptionObject(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation(
+                    \sprintf(self::DELETE_VALIDATION_MESSAGE, TestDefaults::SALES_CHANNEL),
+                    null,
+                    [],
+                    '',
+                    null,
+                    null,
+                ),
+            ]),
         ));
 
-        $this->getSalesChannelLanguageRepository()->delete([[
-            'salesChannelId' => TestDefaults::SALES_CHANNEL,
-            'languageId' => Defaults::LANGUAGE_SYSTEM,
-        ]], Context::createDefaultContext());
+        try {
+            $this->getSalesChannelLanguageRepository()->delete([[
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+            ]], Context::createDefaultContext());
+        } catch (WriteException $e) {
+            foreach ($e->getExceptions() as $inner) {
+                throw $inner;
+            }
+
+            throw $e;
+        }
     }
 
     public function testDeletingSalesChannelWillNotBeValidated(): void
@@ -311,7 +329,7 @@ class SalesChannelValidatorTest extends TestCase
             'id' => $id,
         ]], Context::createDefaultContext());
 
-        $result = $salesChannelRepository->search(new Criteria([$id]), $context);
+        $result = $salesChannelRepository->search(new Criteria([$id]), $context)->getEntities();
         static::assertCount(0, $result);
     }
 
@@ -321,10 +339,28 @@ class SalesChannelValidatorTest extends TestCase
         $data = $this->getSalesChannelData($id, Defaults::LANGUAGE_SYSTEM);
         $data['typeId'] = Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE;
 
-        $this->expectException(WriteException::class);
-        $this->expectExceptionMessage(\sprintf(self::INSERT_VALIDATION_MESSAGE, $id));
+        $this->expectExceptionObject(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation(
+                    \sprintf(self::INSERT_VALIDATION_MESSAGE, $id),
+                    null,
+                    [],
+                    '',
+                    null,
+                    null,
+                ),
+            ]),
+        ));
 
-        $this->getSalesChannelRepository()->create([$data], Context::createDefaultContext());
+        try {
+            $this->getSalesChannelRepository()->create([$data], Context::createDefaultContext());
+        } catch (WriteException $e) {
+            foreach ($e->getExceptions() as $inner) {
+                throw $inner;
+            }
+
+            throw $e;
+        }
     }
 
     public function testAgenticCommerceSalesChannelValidationSucceedsWithLanguageEntry(): void
@@ -347,10 +383,28 @@ class SalesChannelValidatorTest extends TestCase
         $data = $this->getSalesChannelData($id, Defaults::LANGUAGE_SYSTEM);
         $data['typeId'] = Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON;
 
-        $this->expectException(WriteException::class);
-        $this->expectExceptionMessage(\sprintf(self::INSERT_VALIDATION_MESSAGE, $id));
+        $this->expectExceptionObject(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation(
+                    \sprintf(self::INSERT_VALIDATION_MESSAGE, $id),
+                    null,
+                    [],
+                    '',
+                    null,
+                    null,
+                ),
+            ]),
+        ));
 
-        $this->getSalesChannelRepository()->create([$data], Context::createDefaultContext());
+        try {
+            $this->getSalesChannelRepository()->create([$data], Context::createDefaultContext());
+        } catch (WriteException $e) {
+            foreach ($e->getExceptions() as $inner) {
+                throw $inner;
+            }
+
+            throw $e;
+        }
     }
 
     public function testProductComparisonSalesChannelValidationSucceedsWithLanguageEntry(): void

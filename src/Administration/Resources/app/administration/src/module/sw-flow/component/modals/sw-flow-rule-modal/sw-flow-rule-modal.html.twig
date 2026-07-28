@@ -8,137 +8,286 @@
     @modal-close="onClose"
 >
     {% block sw_flow_rule_modal_tabs %}
-    <sw-tabs
-        default-item="detail"
-        position-identifier="sw-flow-rule-modal"
-        :small="false"
-    >
-        {% block sw_flow_rule_headers %}
-        <template #default="{ active }">
-            {% block sw_flow_rule_modal_tab_detail %}
-            <sw-tabs-item
-                class="sw-flow-rule-modal__tab-detail"
-                v-bind="$props"
-                name="detail"
-                :active-tab="active"
-            >
-                {{ $t('sw-flow.modals.rule.tabDetail') }}
-            </sw-tabs-item>
-            {% endblock %}
-
-            {% block sw_flow_rule_modal_tab_rule %}
-            <sw-tabs-item
-                class="sw-flow-rule-modal__tab-rule"
-                v-bind="$props"
-                name="rule"
-                :active-tab="active"
-            >
-                {{ $t('sw-flow.modals.rule.tabRule') }}
-            </sw-tabs-item>
-            {% endblock %}
-        </template>
+    <template v-if="feature.isActive('v6.8.0.0')">
+        {% block sw_flow_rule_modal_mt_tabs %}
+        <mt-tabs
+            position-identifier="sw-flow-rule-modal"
+            :default-item="activeTab"
+            :items="tabs"
+            :use-routes-for-extensions="false"
+            :small="true"
+            @new-item-active="activeTab = $event"
+        />
         {% endblock %}
 
-        {% block sw_flow_rule_modal_content %}
-        <template #content="{ active }">
-            <div class="sw-flow-rule-modal__content">
-                {% block sw_flow_rule_modal_tab_detail_content %}
-                <template v-if="active === 'detail' && rule">
-                    <sw-container
-                        columns="2fr 1fr"
-                        gap="0px 32px"
+        {% block sw_flow_rule_modal_mt_content %}
+        <div class="sw-flow-rule-modal__content">
+            {% block sw_flow_rule_modal_mt_tab_detail_content %}
+            <template v-if="activeTab === 'detail' && rule">
+                <sw-container
+                    columns="2fr 1fr"
+                    gap="0px 32px"
+                >
+                    {% block sw_flow_rule_modal_mt_detail_name %}
+                    <mt-text-field
+                        v-model="rule.name"
+                        name="sw-field--rule-name"
+                        class="sw-flow-rule-modal__name"
+                        required
+                        :label="$t('sw-flow.modals.rule.labelName')"
+                        :placeholder="$t('sw-flow.modals.rule.placeholderName')"
+                        :error="ruleNameError"
+                    />
+                    {% endblock %}
+
+                    {% block sw_flow_rule_modal_mt_detail_priority %}
+                    <mt-number-field
+                        v-model="rule.priority"
+                        class="sw-flow-rule-modal__priority"
+                        name="sw-field--rule-priority"
+                        required
+                        number-type="int"
+                        :label="$t('sw-flow.modals.rule.labelPriority')"
+                        :placeholder="$t('sw-flow.modals.rule.placeholderPriority')"
+                        :error="rulePriorityError"
+                        :step="1"
+                        :min="0"
+                    />
+                    {% endblock %}
+                </sw-container>
+
+                {% block sw_flow_rule_modal_mt_detail_description %}
+                <mt-textarea
+                    v-model="rule.description"
+                    name="sw-field--rule-description"
+                    class="sw-flow-rule-modal__description"
+                    :label="$t('sw-flow.modals.rule.labelDescription')"
+                    :placeholder="$t('sw-flow.modals.rule.placeholderDescription')"
+                />
+                {% endblock %}
+
+                {% block sw_flow_rule_modal_mt_detail_type %}
+                <sw-multi-select
+                    v-model:value="moduleTypes"
+                    name="sw-field--moduleTypes"
+                    class="sw-flow-rule-modal__type"
+                    value-property="id"
+                    label-property="name"
+                    :label="$t('sw-flow.modals.rule.labelType')"
+                    :placeholder="$t('sw-flow.modals.rule.placeholderType')"
+                    :options="availableModuleTypes"
+                >
+                    <template #selection-label-property="{ item }">
+                        {{ $t(item.name) }}
+                    </template>
+
+                    <template #result-label-property="{ item }">
+                        {{ $t(item.name) }}
+                    </template>
+                </sw-multi-select>
+                {% endblock %}
+            </template>
+            {% endblock %}
+
+            {% block sw_flow_rule_modal_mt_tab_rule_content %}
+            <div v-show="activeTab === 'rule'">
+                <mt-banner
+                    v-if="deprecatedConditionsInUse.length > 0"
+                    class="sw-flow-rule-modal__product-type-warning"
+                    variant="attention"
+                >
+                    <span
+                        v-for="deprecation in deprecatedConditionsInUse"
+                        :key="deprecation.type"
                     >
-                        {% block sw_flow_rule_modal_detail_name %}
-                        <mt-text-field
-                            v-model="rule.name"
-                            name="sw-field--rule-name"
-                            class="sw-flow-rule-modal__name"
-                            required
-                            :label="$t('sw-flow.modals.rule.labelName')"
-                            :placeholder="$t('sw-flow.modals.rule.placeholderName')"
-                            :error="ruleNameError"
+                        <template v-if="deprecation.replacement">
+                            {{ $t('sw-flow.modals.rule.deprecatedConditionWarning', {
+                            label: $t(deprecation.label),
+                            version: deprecation.version,
+                            replacement: $t(deprecation.replacement.label),
+                            }) }}
+                        </template>
+
+                        <template v-else>
+                            {{ $t('sw-flow.modals.rule.deprecatedConditionWarningNoReplacement', {
+                            label: $t(deprecation.label),
+                            version: deprecation.version,
+                            }) }}
+                        </template>
+                    </span>
+                </mt-banner>
+
+                {% block sw_flow_rule_modal_mt_conditions_card %}
+                <sw-condition-tree
+                    v-if="conditionRepository"
+                    class="sw-flow-rule-modal__rule"
+                    association-field="ruleId"
+                    :initial-conditions="conditions"
+                    :condition-repository="conditionRepository"
+                    :condition-data-provider-service="ruleConditionDataProviderService"
+                    :association-value="rule.id"
+                    :association-entity="rule"
+                    :root-condition="null"
+                    @conditions-changed="onConditionsChanged"
+                />
+                {% endblock %}
+            </div>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </template>
+
+    <template v-else>
+        <sw-tabs
+            default-item="detail"
+            position-identifier="sw-flow-rule-modal"
+            :small="false"
+        >
+            {% block sw_flow_rule_headers %}
+            <template #default="{ active }">
+                {% block sw_flow_rule_modal_tab_detail %}
+                <sw-tabs-item
+                    class="sw-flow-rule-modal__tab-detail"
+                    v-bind="$props"
+                    name="detail"
+                    :active-tab="active"
+                >
+                    {{ $t('sw-flow.modals.rule.tabDetail') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_flow_rule_modal_tab_rule %}
+                <sw-tabs-item
+                    class="sw-flow-rule-modal__tab-rule"
+                    v-bind="$props"
+                    name="rule"
+                    :active-tab="active"
+                >
+                    {{ $t('sw-flow.modals.rule.tabRule') }}
+                </sw-tabs-item>
+                {% endblock %}
+            </template>
+            {% endblock %}
+
+            {% block sw_flow_rule_modal_content %}
+            <template #content="{ active }">
+                <div class="sw-flow-rule-modal__content">
+                    {% block sw_flow_rule_modal_tab_detail_content %}
+                    <template v-if="active === 'detail' && rule">
+                        <sw-container
+                            columns="2fr 1fr"
+                            gap="0px 32px"
+                        >
+                            {% block sw_flow_rule_modal_detail_name %}
+                            <mt-text-field
+                                v-model="rule.name"
+                                name="sw-field--rule-name"
+                                class="sw-flow-rule-modal__name"
+                                required
+                                :label="$t('sw-flow.modals.rule.labelName')"
+                                :placeholder="$t('sw-flow.modals.rule.placeholderName')"
+                                :error="ruleNameError"
+                            />
+                            {% endblock %}
+
+                            {% block sw_flow_rule_modal_detail_priority %}
+                            <mt-number-field
+                                v-model="rule.priority"
+                                class="sw-flow-rule-modal__priority"
+                                name="sw-field--rule-priority"
+                                required
+                                number-type="int"
+                                :label="$t('sw-flow.modals.rule.labelPriority')"
+                                :placeholder="$t('sw-flow.modals.rule.placeholderPriority')"
+                                :error="rulePriorityError"
+                                :step="1"
+                                :min="0"
+                            />
+                        {% endblock %}
+                        </sw-container>
+
+                        {% block sw_flow_rule_modal_detail_description %}
+                        <mt-textarea
+                            v-model="rule.description"
+                            name="sw-field--rule-description"
+                            class="sw-flow-rule-modal__description"
+                            :label="$t('sw-flow.modals.rule.labelDescription')"
+                            :placeholder="$t('sw-flow.modals.rule.placeholderDescription')"
                         />
                         {% endblock %}
 
-                        {% block sw_flow_rule_modal_detail_priority %}
-                        <mt-number-field
-                            v-model="rule.priority"
-                            class="sw-flow-rule-modal__priority"
-                            name="sw-field--rule-priority"
-                            required
-                            number-type="int"
-                            :label="$t('sw-flow.modals.rule.labelPriority')"
-                            :placeholder="$t('sw-flow.modals.rule.placeholderPriority')"
-                            :error="rulePriorityError"
-                            :step="1"
-                            :min="0"
+                        {% block sw_flow_rule_modal_detail_type %}
+                        <sw-multi-select
+                            v-model:value="moduleTypes"
+                            name="sw-field--moduleTypes"
+                            class="sw-flow-rule-modal__type"
+                            value-property="id"
+                            label-property="name"
+                            :label="$t('sw-flow.modals.rule.labelType')"
+                            :placeholder="$t('sw-flow.modals.rule.placeholderType')"
+                            :options="availableModuleTypes"
+                        >
+                            <template #selection-label-property="{ item }">
+                                {{ $t(item.name) }}
+                            </template>
+
+                            <template #result-label-property="{ item }">
+                                {{ $t(item.name) }}
+                            </template>
+                        </sw-multi-select>
+                        {% endblock %}
+                    </template>
+                    {% endblock %}
+
+                    {% block sw_flow_rule_modal_tab_rule_content %}
+                    <div v-show="active === 'rule'">
+                        <mt-banner
+                            v-if="deprecatedConditionsInUse.length > 0"
+                            class="sw-flow-rule-modal__product-type-warning"
+                            variant="attention"
+                        >
+                            <span
+                                v-for="deprecation in deprecatedConditionsInUse"
+                                :key="deprecation.type"
+                            >
+                                <template v-if="deprecation.replacement">
+                                    {{ $t('sw-flow.modals.rule.deprecatedConditionWarning', {
+                                    label: $t(deprecation.label),
+                                    version: deprecation.version,
+                                    replacement: $t(deprecation.replacement.label),
+                                    }) }}
+                                </template>
+
+                                <template v-else>
+                                    {{ $t('sw-flow.modals.rule.deprecatedConditionWarningNoReplacement', {
+                                    label: $t(deprecation.label),
+                                    version: deprecation.version,
+                                    }) }}
+                                </template>
+                            </span>
+                        </mt-banner>
+
+                        {% block sw_flow_rule_modal_conditions_card %}
+                        <sw-condition-tree
+                            v-if="conditionRepository"
+                            class="sw-flow-rule-modal__rule"
+                            association-field="ruleId"
+                            :initial-conditions="conditions"
+                            :condition-repository="conditionRepository"
+                            :condition-data-provider-service="ruleConditionDataProviderService"
+                            :association-value="rule.id"
+                            :association-entity="rule"
+                            :root-condition="null"
+                            @conditions-changed="onConditionsChanged"
                         />
-                    {% endblock %}
-                    </sw-container>
-
-                    {% block sw_flow_rule_modal_detail_description %}
-                    <mt-textarea
-                        v-model="rule.description"
-                        name="sw-field--rule-description"
-                        class="sw-flow-rule-modal__description"
-                        :label="$t('sw-flow.modals.rule.labelDescription')"
-                        :placeholder="$t('sw-flow.modals.rule.placeholderDescription')"
-                    />
-                    {% endblock %}
-
-                    {% block sw_flow_rule_modal_detail_type %}
-                    <sw-multi-select
-                        v-model:value="moduleTypes"
-                        name="sw-field--moduleTypes"
-                        class="sw-flow-rule-modal__type"
-                        value-property="id"
-                        label-property="name"
-                        :label="$t('sw-flow.modals.rule.labelType')"
-                        :placeholder="$t('sw-flow.modals.rule.placeholderType')"
-                        :options="availableModuleTypes"
-                    >
-                        <template #selection-label-property="{ item }">
-                            {{ $t(item.name) }}
-                        </template>
-
-                        <template #result-label-property="{ item }">
-                            {{ $t(item.name) }}
-                        </template>
-                    </sw-multi-select>
-                    {% endblock %}
-                </template>
-                {% endblock %}
-
-                {% block sw_flow_rule_modal_tab_rule_content %}
-                <div v-show="active === 'rule'">
-                    <mt-banner
-                        v-if="showProductStateConditionWarning"
-                        class="sw-flow-rule-modal__product-type-warning"
-                        variant="attention"
-                    >
-                        {{ $t('sw-flow.modals.rule.productStatesConditionWarning') }}
-                    </mt-banner>
-
-                    {% block sw_flow_rule_modal_conditions_card %}
-                    <sw-condition-tree
-                        v-if="conditionRepository"
-                        class="sw-flow-rule-modal__rule"
-                        association-field="ruleId"
-                        :initial-conditions="conditions"
-                        :condition-repository="conditionRepository"
-                        :condition-data-provider-service="ruleConditionDataProviderService"
-                        :association-value="rule.id"
-                        :association-entity="rule"
-                        :root-condition="null"
-                        @conditions-changed="onConditionsChanged"
-                    />
+                        {% endblock %}
+                    </div>
                     {% endblock %}
                 </div>
-                {% endblock %}
-            </div>
-        </template>
-        {% endblock %}
-    </sw-tabs>
+            </template>
+            {% endblock %}
+        </sw-tabs>
+    </template>
     {% endblock %}
 
     <template #modal-footer>

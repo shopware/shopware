@@ -264,7 +264,7 @@ class Feature
         }
     }
 
-    public static function triggerDeprecationOrThrow(string $majorFlag, string $message): void
+    public static function triggerDeprecationOrThrow(string $majorFlag, string $message, ?string $introducedIn = null): void
     {
         if (!self::$emitDeprecations || !empty(self::$silent[$majorFlag])) {
             return;
@@ -283,7 +283,13 @@ class Feature
             return;
         }
 
-        trigger_deprecation('shopware/core', '', $message);
+        if ($introducedIn === null) {
+            trigger_deprecation('', '', $message);
+
+            return;
+        }
+
+        trigger_deprecation('shopware/core', $introducedIn, $message);
     }
 
     public static function deprecatedMethodMessage(string $class, string $method, string $majorVersion, ?string $replacement = null): string

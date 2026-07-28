@@ -147,6 +147,52 @@ describe('src/module/sw-order/view/sw-order-create-base', () => {
         wrapper.vm.createNotificationWarning.mockRestore();
     });
 
+    it('should show a dedicated maintenance mode error when switching customer fails', async () => {
+        const wrapper = await createWrapper();
+        const customer = {
+            id: 'customer-id',
+            salesChannelId: 'sales-channel-id',
+        };
+
+        Shopware.Store.get('swOrder').setCart({
+            token: '1d8af3ddddbd378ba0065debd5e4e4b1',
+            lineItems: [],
+        });
+
+        wrapper.vm.customerRepository.get = jest.fn(() => Promise.resolve(customer));
+        wrapper.vm.$t = jest.fn((key) => {
+            if (key === 'global.error-codes.FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE') {
+                return 'Translated maintenance mode error';
+            }
+
+            return key;
+        });
+
+        const setCurrencySpy = jest.spyOn(wrapper.vm, 'setCurrency').mockImplementation(() => {});
+        const updateCustomerContextSpy = jest.spyOn(wrapper.vm, 'updateCustomerContext').mockRejectedValue({
+            response: {
+                data: {
+                    errors: [
+                        {
+                            code: 'FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE',
+                        },
+                    ],
+                },
+            },
+        });
+        const createNotificationErrorSpy = jest.spyOn(wrapper.vm, 'createNotificationError').mockImplementation(() => {});
+
+        await wrapper.vm.onSelectExistingCustomer(customer.id);
+
+        expect(createNotificationErrorSpy).toHaveBeenCalledWith({
+            message: 'sw-order.create.messageSwitchCustomerError: Translated maintenance mode error',
+        });
+
+        setCurrencySpy.mockRestore();
+        updateCustomerContextSpy.mockRestore();
+        createNotificationErrorSpy.mockRestore();
+    });
+
     it('should only display Total row when status is tax free', async () => {
         const wrapper = await createWrapper();
 

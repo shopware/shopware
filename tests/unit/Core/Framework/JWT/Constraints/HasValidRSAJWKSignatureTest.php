@@ -32,32 +32,28 @@ class HasValidRSAJWKSignatureTest extends TestCase
 
     public function testAssertInvalidAlgorithm(): void
     {
-        $this->expectException(JWTException::class);
-        $this->expectExceptionMessage('Invalid JWT: Invalid algorithm (alg) in JWT header: "HS256"');
+        $this->expectExceptionObject(JWTException::invalidJwt('Invalid algorithm (alg) in JWT header: "HS256"'));
 
         $this->validate($this->getInvalidJwt('wrong-algorithm'));
     }
 
     public function testAssertMissingKey(): void
     {
-        $this->expectException(JWTException::class);
-        $this->expectExceptionMessage('Invalid JWT: Key ID (kid) missing from JWT header');
+        $this->expectExceptionObject(JWTException::invalidJwt('Key ID (kid) missing from JWT header'));
 
         $this->validate($this->getInvalidJwt('missing-kid'));
     }
 
     public function testAssertKidNotFound(): void
     {
-        $this->expectException(JWTException::class);
-        $this->expectExceptionMessage('Invalid JWT: Key ID (kid) could not be found');
+        $this->expectExceptionObject(JWTException::invalidJwt('Key ID (kid) could not be found'));
 
         $this->validate($this->getInvalidJwt('not-found-kid'));
     }
 
     public function testAssertInvalidKeyType(): void
     {
-        $this->expectException(JWTException::class);
-        $this->expectExceptionMessage('Invalid key type: "ABCDEF"');
+        $this->expectExceptionObject(JWTException::invalidJwt('Invalid key type: "ABCDEF"'));
 
         $jwt = \file_get_contents(__DIR__ . '/../_fixtures/valid-jwt.txt');
         static::assertIsString($jwt);
@@ -70,8 +66,7 @@ class HasValidRSAJWKSignatureTest extends TestCase
 
     public function testAssertInvalidBase64UrlEncodedE(): void
     {
-        $this->expectException(JWTException::class);
-        $this->expectExceptionMessage('Invalid JWK: Invalid base64 characters detected');
+        $this->expectExceptionObject(JWTException::invalidJwk('Invalid base64 characters detected'));
 
         $jwt = \file_get_contents(__DIR__ . '/../_fixtures/valid-jwt.txt');
         static::assertIsString($jwt);
@@ -84,8 +79,7 @@ class HasValidRSAJWKSignatureTest extends TestCase
 
     public function testAssertInvalidBase64UrlEncodedN(): void
     {
-        $this->expectException(JWTException::class);
-        $this->expectExceptionMessage('Invalid JWK: Invalid base64 characters detected');
+        $this->expectExceptionObject(JWTException::invalidJwk('Invalid base64 characters detected'));
 
         $jwt = \file_get_contents(__DIR__ . '/../_fixtures/valid-jwt.txt');
         static::assertIsString($jwt);

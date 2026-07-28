@@ -105,7 +105,7 @@ class PromotionCodeServiceTest extends TestCase
         // Only has 10 possibilities -> 6 or more requested codes would be invalid
         $pattern = 'PREFIX_%d_SUFFIX';
 
-        $this->expectExceptionMessage('The amount of possible codes is too low for the current pattern. Make sure your pattern is sufficiently complex.');
+        $this->expectExceptionObject(PromotionException::patternNotComplexEnough());
         $this->codesService->generateIndividualCodes($pattern, $requestedCodeAmount);
     }
 
@@ -136,7 +136,7 @@ class PromotionCodeServiceTest extends TestCase
             ->addAssociation('individualCodes');
 
         /** @var PromotionEntity|null $promotion */
-        $promotion = $promotionRepository->search($criteria, $context)->get($id);
+        $promotion = $promotionRepository->search($criteria, $context)->getEntities()->get($id);
 
         static::assertNotNull($promotion);
         static::assertNotNull($promotion->getIndividualCodes());
@@ -145,7 +145,7 @@ class PromotionCodeServiceTest extends TestCase
         $this->codesService->replaceIndividualCodes($id, 'newPattern_%d%d%s', 10, $context);
 
         /** @var PromotionEntity $promotion */
-        $promotion = $promotionRepository->search($criteria, $context)->first();
+        $promotion = $promotionRepository->search($criteria, $context)->getEntities()->first();
         static::assertNotNull($promotion->getIndividualCodes());
         $individualCodes = $promotion->getIndividualCodes()->getElements();
         static::assertCount(10, $individualCodes);
@@ -166,7 +166,7 @@ class PromotionCodeServiceTest extends TestCase
         $this->createPromotionWithCustomData(['individualCodePattern' => $duplicatePattern], $promotionRepository, $salesChannelContext);
         $this->createPromotionWithCustomData(['id' => $id], $promotionRepository, $salesChannelContext);
 
-        $this->expectExceptionMessage('Code pattern already exists in another promotion. Please provide a different pattern.');
+        $this->expectExceptionObject(PromotionException::patternAlreadyInUse());
         $this->codesService->replaceIndividualCodes($id, $duplicatePattern, 1, $salesChannelContext->getContext());
     }
 
@@ -192,7 +192,7 @@ class PromotionCodeServiceTest extends TestCase
         $this->addCodesAndAssertCount($id, 200, 300);
         $this->addCodesAndAssertCount($id, 200, 500);
 
-        $this->expectExceptionMessage('The amount of possible codes is too low for the current pattern. Make sure your pattern is sufficiently complex.');
+        $this->expectExceptionObject(PromotionException::patternNotComplexEnough());
         $this->addCodesAndAssertCount($id, 1, 501);
     }
 
@@ -214,7 +214,7 @@ class PromotionCodeServiceTest extends TestCase
         $this->codesService->addIndividualCodes($id, $newCodeAmount, $salesChannelContext->getContext());
 
         /** @var PromotionEntity|null $promotion */
-        $promotion = $promotionRepository->search($criteria, $salesChannelContext->getContext())->first();
+        $promotion = $promotionRepository->search($criteria, $salesChannelContext->getContext())->getEntities()->first();
 
         static::assertNotNull($promotion);
         static::assertNotNull($promotion->getIndividualCodes());

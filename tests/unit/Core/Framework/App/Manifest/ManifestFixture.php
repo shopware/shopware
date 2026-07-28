@@ -5,16 +5,21 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Manifest;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Administration\Admin;
 use Shopware\Core\Framework\App\Manifest\Xml\Administration\Module;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\CustomFieldType;
+use Shopware\Core\Framework\App\Manifest\Xml\Cookie\Cookies;
+use Shopware\Core\Framework\App\Manifest\Xml\Gateway\Gateways;
 use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Manifest\Xml\PaymentMethod\PaymentMethod;
 use Shopware\Core\Framework\App\Manifest\Xml\PaymentMethod\Payments;
+use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
 use Shopware\Core\Framework\App\Manifest\Xml\RuleCondition\RuleCondition;
 use Shopware\Core\Framework\App\Manifest\Xml\RuleCondition\RuleConditions;
+use Shopware\Core\Framework\App\Manifest\Xml\Setup\Setup;
+use Shopware\Core\Framework\App\Manifest\Xml\Storefront\Storefront;
 use Shopware\Core\Framework\App\Manifest\Xml\Tax\Tax;
 use Shopware\Core\Framework\App\Manifest\Xml\Tax\TaxProvider;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhook;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhooks;
+use Shopware\Core\System\CustomField\Xml\CustomFieldTypes\CustomFieldType;
 
 /**
  * @internal
@@ -28,6 +33,8 @@ class ManifestFixture extends Manifest
     private ?Payments $payments = null;
 
     private ?RuleConditions $ruleConditions = null;
+
+    private ?Setup $setup = null;
 
     private ?Tax $tax = null;
 
@@ -99,6 +106,15 @@ class ManifestFixture extends Manifest
         return $this;
     }
 
+    public function withSetup(?Setup $setup = null): self
+    {
+        $this->setup = $setup ?? Setup::fromArray([
+            'registrationUrl' => 'https://example.com/register',
+        ]);
+
+        return $this;
+    }
+
     public function withTaxProvider(?TaxProvider $taxProvider = null): self
     {
         $taxProviders = $this->tax?->getTaxProviders() ?? [];
@@ -116,16 +132,28 @@ class ManifestFixture extends Manifest
 
     public function withWebhook(?Webhook $webhook = null): self
     {
-        $webhooks = $this->webhooks?->getWebhooks() ?? [];
-        $webhooks[] = $webhook ?? Webhook::fromArray([
+        return $this->withWebhooks($webhook ?? Webhook::fromArray([
             'name' => 'test-webhook',
             'url' => 'https://example.com/webhook',
             'event' => 'product.written',
-        ]);
+        ]));
+    }
 
+    public function withWebhooks(Webhook ...$webhooks): self
+    {
+        $existingWebhooks = $this->webhooks?->getWebhooks() ?? [];
+        $webhooks = [
+            ...$existingWebhooks,
+            ...$webhooks,
+        ];
         $this->webhooks = Webhooks::fromArray(['webhooks' => $webhooks]);
 
         return $this;
+    }
+
+    public function getPath(): string
+    {
+        return 'test';
     }
 
     public function getMetadata(): Metadata
@@ -133,14 +161,34 @@ class ManifestFixture extends Manifest
         return $this->metadata;
     }
 
+    public function validatesPermissions(): bool
+    {
+        return false;
+    }
+
+    public function getSetup(): ?Setup
+    {
+        return $this->setup;
+    }
+
     public function getAdmin(): ?Admin
     {
         return $this->admin;
     }
 
+    public function getPermissions(): ?Permissions
+    {
+        return null;
+    }
+
     public function getWebhooks(): ?Webhooks
     {
         return $this->webhooks;
+    }
+
+    public function getCookies(): ?Cookies
+    {
+        return null;
     }
 
     public function getPayments(): ?Payments
@@ -153,9 +201,27 @@ class ManifestFixture extends Manifest
         return $this->ruleConditions;
     }
 
+    public function getStorefront(): ?Storefront
+    {
+        return null;
+    }
+
     public function getTax(): ?Tax
     {
         return $this->tax;
+    }
+
+    public function getGateways(): ?Gateways
+    {
+        return null;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getAllHosts(): array
+    {
+        return [];
     }
 
     private static function createMetadata(string $name): Metadata

@@ -230,6 +230,7 @@ export default {
                 subtree: true,
                 characterData: true,
                 attributes: true,
+                childList: true,
             });
 
             tabContent.addEventListener('scroll', this.scrollEventHandler);

@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 import { mount } from '@vue/test-utils';
 import uuid from 'test/_helper_/uuid';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -155,16 +157,6 @@ const mockMailTemplates = [
         mailTemplateType: {
             name: 'Invoice note',
             technicalName: 'invoice_mail',
-            templateData: {
-                order: {
-                    ...mockOrderWithoutCustomerName,
-                    orderCustomer: {
-                        email: 'personal@ema.il',
-                        firstName: 'Personal',
-                        lastName: 'Data',
-                    },
-                },
-            },
         },
         contentHtml: '<div>{{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}}</div>\n',
         subject: 'Personal data from order',
@@ -410,7 +402,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.findByText('button', 'sw-order.documentSendModal.labelClose').trigger('click');
+        await wrapper.findByText('button', 'global.default.close').trigger('click');
         await flushPromises();
 
         expect(wrapper.emitted('modal-close')).toHaveLength(1);

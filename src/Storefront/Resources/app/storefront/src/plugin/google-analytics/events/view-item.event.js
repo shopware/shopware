@@ -24,14 +24,14 @@ export default class ViewItemEvent extends AnalyticsEvent
             return;
         }
 
-        const productIdElement = productItemElement.querySelector('meta[itemprop="productID"]');
+        const productIdElement = productItemElement.querySelector('[itemprop="sku"]');
         const productNameElement = productItemElement.querySelector('[itemprop="name"]');
         if (!productIdElement || !productNameElement) {
-            console.warn('[Google Analytics Plugin] Product ID (meta[itemprop="productID"]) or product name ([itemprop="name"]) could not be found within product scope.');
+            console.warn('[Google Analytics Plugin] Product ID ([itemprop="sku"]) or product name ([itemprop="name"]) could not be found within product scope.');
             return;
         }
 
-        const productId = productIdElement.content;
+        const productId = productIdElement.textContent.trim();
         const productName = productNameElement.textContent.trim();
         if (!productId || !productName) {
             console.warn('[Google Analytics Plugin] Product ID or product name is empty, do not track page view.');

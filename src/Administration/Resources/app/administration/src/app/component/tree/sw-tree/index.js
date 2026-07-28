@@ -610,6 +610,8 @@ export default {
                 const childCount = hasChildCountProperty ? item[this.childCountProperty] : 0;
 
                 const alreadyLoadedTreeItem = this.findById(item.id);
+                const initialOpened =
+                    alreadyLoadedTreeItem?.initialOpened ?? (this.initiallyExpandedRoot && item.parentId === null);
 
                 treeItems.push({
                     data: item,
@@ -618,7 +620,7 @@ export default {
                     parentId: parentId,
                     childCount: childCount,
                     children: this.getTreeItems(item.id),
-                    initialOpened: this.initiallyExpandedRoot && item.parentId === null,
+                    initialOpened,
                     active: false,
                     activeElementId: this.routeParamsActiveElementId,
                     checked: alreadyLoadedTreeItem?.checked ?? !!this.checkItemsInitial,

@@ -13,15 +13,19 @@ export default {
     props: {
         role: {
             type: Object,
-            required: true,
+            required: false,
+            default: null,
         },
-
+        isLoading: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
         disabled: {
             type: Boolean,
             required: false,
             default: false,
         },
-
         detailedPrivileges: {
             type: Array,
             required: true,
@@ -36,7 +40,12 @@ export default {
         },
 
         allGeneralSelectedPrivileges() {
-            return this.privileges.getPrivilegesForAdminPrivilegeKeys(this.role.privileges);
+            return [
+                ...new Set([
+                    ...this.privileges.getPrivilegesForAdminPrivilegeKeys(this.role.privileges),
+                    ...this.privileges.getDefaultUserPrivileges(),
+                ]),
+            ];
         },
 
         permissionTypes() {

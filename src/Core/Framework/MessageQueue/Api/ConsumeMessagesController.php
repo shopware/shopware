@@ -25,8 +25,8 @@ use Symfony\Component\Messenger\Transport\Receiver\ReceiverInterface;
 use Symfony\Component\Messenger\Worker;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class ConsumeMessagesController extends AbstractController
 {
     /**
@@ -80,7 +80,7 @@ class ConsumeMessagesController extends AbstractController
 
         $worker = new Worker([$this->defaultTransportName => $receiver], $this->bus, $workerDispatcher);
 
-        $worker->run(['sleep' => 50]);
+        $worker->run();
 
         $consumerLock->release();
 

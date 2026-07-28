@@ -165,7 +165,7 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
             return;
         }
 
-        $media = $searchResult->get($config['mediaId']);
+        $media = $searchResult->getEntities()->get($config['mediaId']);
         if (!$media instanceof MediaEntity) {
             return;
         }

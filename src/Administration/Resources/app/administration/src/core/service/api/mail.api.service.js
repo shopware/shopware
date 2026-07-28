@@ -44,13 +44,19 @@ class MailApiService extends ApiService {
     ) {
         const apiRoute = `/_action/${this.getApiBasePath()}/send`;
 
+        if (!Shopware.Feature.isActive('v6.8.0.0')) {
+            if (!templateData) {
+                templateData = mailTemplate.mailTemplateType.templateData;
+            }
+        }
+
         return this.httpClient
             .post(
                 apiRoute,
                 {
                     contentHtml: mailTemplate.contentHtml ?? mailTemplate.translated?.contentHtml,
                     contentPlain: mailTemplate.contentPlain ?? mailTemplate.translated?.contentPlain,
-                    mailTemplateData: templateData ?? mailTemplate.mailTemplateType.templateData,
+                    mailTemplateData: templateData,
                     recipients: { [recipientMail]: recipient },
                     salesChannelId: salesChannelId,
                     mediaIds: mailTemplateMedia.getIds(),

@@ -23,7 +23,10 @@ async function createWrapper(customProps = {}) {
                     },
                     'sw-entity-single-select': {
                         template: '<div class="sw-entity-single-select"></div>',
-                        props: ['disabled'],
+                        props: [
+                            'disabled',
+                            'entity',
+                        ],
                     },
                 },
             },
@@ -60,5 +63,32 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-defaults-select
 
         expect(multiSelect.props('disabled')).toBe(true);
         expect(singleSelect.props('disabled')).toBe(true);
+    });
+
+    it('should keep the entity collection metadata when adding a default entity', async () => {
+        const countries = new Shopware.Data.EntityCollection('/country', 'country', Shopware.Context.api);
+        const salesChannel = {
+            countries,
+            countryId: null,
+            getEntityName: () => 'sales_channel',
+        };
+
+        const wrapper = await createWrapper({
+            salesChannel,
+            defaultPropertyName: 'countryId',
+        });
+
+        wrapper.vm.updateDefault('country-id', {
+            id: 'country-id',
+            name: 'Germany',
+        });
+        await flushPromises();
+
+        const singleSelect = wrapper.getComponent('.sw-sales-channel-detail__assign-countries');
+
+        expect(wrapper.vm.defaultId).toBe('country-id');
+        expect(wrapper.vm.propertyCollection.entity).toBe('country');
+        expect(wrapper.vm.propertyCollection.has('country-id')).toBe(true);
+        expect(singleSelect.props('entity')).toBe('country');
     });
 });

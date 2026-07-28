@@ -58,6 +58,18 @@ describe('src/app/component/base/sw-highlight-text', () => {
         expect(wrapper.findAll('.sw-highlight-text__highlight')[0].text()).toBe('special characters');
     });
 
+    it('renders plain text when search term only contains elasticsearch special characters', async () => {
+        Shopware.Context.app.adminEsEnable = true;
+
+        const wrapper = await createWrapper({
+            text: 'This is a test for *special* characters',
+            searchTerm: '*',
+        });
+
+        expect(wrapper.findAll('.sw-highlight-text__highlight')).toHaveLength(0);
+        expect(wrapper.text()).toBe('This is a test for *special* characters');
+    });
+
     it('highlights text with duplicate spaces in search term correctly when adminEsEnable is true', async () => {
         Shopware.Context.app.adminEsEnable = true;
 

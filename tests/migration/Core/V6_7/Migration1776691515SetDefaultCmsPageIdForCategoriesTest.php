@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1776691515SetDefaultCmsPageIdForCategories;
@@ -17,6 +18,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(Migration1776691515SetDefaultCmsPageIdForCategories::class)]
 class Migration1776691515SetDefaultCmsPageIdForCategoriesTest extends TestCase
 {
@@ -106,6 +108,26 @@ class Migration1776691515SetDefaultCmsPageIdForCategoriesTest extends TestCase
         static::assertNull($this->getCategoryCmsPageId($categoryId));
     }
 
+    public function testMigrationResetsStaleNonLiveCmsPageVersionId(): void
+    {
+        $configuredCmsPageId = $this->getAnyCmsPageId();
+        $this->setConfiguredDefaultCmsPageConfigurationValue(
+            json_encode(['_value' => $configuredCmsPageId], \JSON_THROW_ON_ERROR)
+        );
+
+        // Category with no cms_page_id but a stale, non-live cms_page_version_id.
+        // The composite FK (cms_page_id, cms_page_version_id) is not enforced
+        // while cms_page_id IS NULL, so such rows can exist in real databases.
+        // Backfilling only cms_page_id would activate the FK against a
+        // non-existent (page, version) pair and throw an integrity violation.
+        $categoryId = $this->insertCategoryWithoutCmsPageId(Uuid::randomHex());
+
+        $this->migrate();
+
+        static::assertSame($configuredCmsPageId, $this->getCategoryCmsPageId($categoryId));
+        static::assertSame(Defaults::LIVE_VERSION, $this->getCategoryCmsPageVersionId($categoryId));
+    }
+
     public function testMigrationDoesNotOverwriteExistingCmsPageId(): void
     {
         $existingCmsPageId = $this->getAnyCmsPageId();
@@ -149,7 +171,7 @@ class Migration1776691515SetDefaultCmsPageIdForCategoriesTest extends TestCase
         (new Migration1776691515SetDefaultCmsPageIdForCategories())->update($this->connection);
     }
 
-    private function insertCategoryWithoutCmsPageId(): string
+    private function insertCategoryWithoutCmsPageId(?string $cmsPageVersionId = null): string
     {
         $categoryId = Uuid::randomHex();
 
@@ -158,6 +180,7 @@ class Migration1776691515SetDefaultCmsPageIdForCategoriesTest extends TestCase
             'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             'type' => CategoryDefinition::TYPE_PAGE,
             'cms_page_id' => null,
+            'cms_page_version_id' => Uuid::fromHexToBytes($cmsPageVersionId ?? Defaults::LIVE_VERSION),
             'product_assignment_type' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT,
             'active' => 1,
             'visible' => 1,
@@ -172,6 +195,17 @@ class Migration1776691515SetDefaultCmsPageIdForCategoriesTest extends TestCase
     {
         $result = $this->connection->fetchOne(
             'SELECT LOWER(HEX(`cms_page_id`)) FROM `category` WHERE `id` = :id',
+            ['id' => Uuid::fromHexToBytes($categoryId)],
+            ['id' => ParameterType::BINARY]
+        );
+
+        return \is_string($result) ? $result : null;
+    }
+
+    private function getCategoryCmsPageVersionId(string $categoryId): ?string
+    {
+        $result = $this->connection->fetchOne(
+            'SELECT LOWER(HEX(`cms_page_version_id`)) FROM `category` WHERE `id` = :id',
             ['id' => Uuid::fromHexToBytes($categoryId)],
             ['id' => ParameterType::BINARY]
         );

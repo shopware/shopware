@@ -6,7 +6,7 @@ concurrency:
 
 on:
   pull_request:
-    types: [opened, reopened, ready_for_review]
+    types: [opened, reopened, ready_for_review, synchronize]
 
 permissions:
   contents: read
@@ -19,12 +19,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout Code Repository'
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
 
       - name: 'Codeowners Plus'
-        uses: multimediallc/codeowners-plus@v1.7.0
+        uses: multimediallc/codeowners-plus@492316f7b626694d8e43813585364ce6fab6d579 # v1.10.0
         with:
           github-token: '${{ secrets.GITHUB_TOKEN }}'
           pr: '${{ github.event.pull_request.number }}'

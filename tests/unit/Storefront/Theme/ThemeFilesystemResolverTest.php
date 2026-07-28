@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
@@ -15,6 +16,7 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ThemeFilesystemResolver::class)]
 class ThemeFilesystemResolverTest extends TestCase
 {
@@ -47,7 +49,7 @@ class ThemeFilesystemResolverTest extends TestCase
             new StaticSourceResolver([
                 'CoolApp' => new StaticFilesystem(),
             ]),
-            $this->createMock(Kernel::class)
+            static::createStub(Kernel::class)
         );
 
         $pluginConfig = new StorefrontPluginConfiguration('CoolApp');

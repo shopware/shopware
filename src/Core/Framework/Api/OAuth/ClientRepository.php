@@ -6,13 +6,19 @@ use Doctrine\DBAL\Connection;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * OAuth integrations should rely on {@see ClientRepositoryInterface} instead of this concrete Shopware class.
+ */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class ClientRepository implements ClientRepositoryInterface
 {
     /**
@@ -23,8 +29,10 @@ class ClientRepository implements ClientRepositoryInterface
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly ClockInterface $clock,
+    ) {
     }
 
     public function validateClient(string $clientIdentifier, ?string $clientSecret, ?string $grantType): bool
@@ -91,7 +99,7 @@ class ClientRepository implements ClientRepositoryInterface
     {
         $this->connection->update(
             'integration',
-            ['last_usage_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
+            ['last_usage_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
             ['id' => $integrationId]
         );
     }

@@ -22,8 +22,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal
  */
-#[AsMessageHandler]
 #[Package('framework')]
+#[AsMessageHandler]
 final readonly class WebhookEventMessageHandler
 {
     /**

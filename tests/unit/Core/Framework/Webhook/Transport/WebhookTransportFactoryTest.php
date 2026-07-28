@@ -43,18 +43,55 @@ class WebhookTransportFactoryTest extends TestCase
         $transport = $factory->createTransport(
             'shopware-webhook://default',
             [],
-            $this->createMock(SerializerInterface::class)
+            static::createStub(SerializerInterface::class)
         );
 
         static::assertInstanceOf(WebhookTransport::class, $transport);
     }
 
+    /**
+     * Regression: deferred deps must not be resolved during construction.
+     */
+    public function testConstructorDoesNotResolveDeferredDependencies(): void
+    {
+        $calls = new class {
+            public int $async = 0;
+
+            public int $receiver = 0;
+        };
+
+        $factory = new WebhookTransportFactory(
+            static::createStub(WebhookOutboxStore::class),
+            function () use ($calls): TransportInterface {
+                ++$calls->async;
+
+                return $this->createStub(TransportInterface::class);
+            },
+            function () use ($calls): MySQLWebhookReceiver {
+                ++$calls->receiver;
+
+                return $this->createStub(MySQLWebhookReceiver::class);
+            },
+        );
+
+        static::assertSame(0, $calls->async, 'Async transport must not be resolved at construction time.');
+        static::assertSame(0, $calls->receiver, 'Receiver must not be resolved at construction time.');
+
+        $factory->createTransport('shopware-webhook://default', [], static::createStub(SerializerInterface::class));
+
+        static::assertSame(1, $calls->async, 'Async transport should be resolved exactly once when createTransport() is called.');
+        static::assertSame(1, $calls->receiver, 'Receiver should be resolved exactly once when createTransport() is called.');
+    }
+
     private function createFactory(): WebhookTransportFactory
     {
+        $asyncTransport = static::createStub(TransportInterface::class);
+        $receiver = static::createStub(MySQLWebhookReceiver::class);
+
         return new WebhookTransportFactory(
-            $this->createMock(WebhookOutboxStore::class),
-            $this->createMock(TransportInterface::class),
-            $this->createMock(MySQLWebhookReceiver::class),
+            static::createStub(WebhookOutboxStore::class),
+            fn (): TransportInterface => $asyncTransport,
+            fn (): MySQLWebhookReceiver => $receiver,
         );
     }
 }

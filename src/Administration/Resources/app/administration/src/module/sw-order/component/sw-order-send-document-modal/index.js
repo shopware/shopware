@@ -172,8 +172,10 @@ export default {
 
             const localMailTemplate = { ...mailTemplate };
 
-            if (localMailTemplate?.mailTemplateType?.templateData?.order && this?.order) {
-                localMailTemplate.mailTemplateType.templateData.order = this.order;
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                if (localMailTemplate?.mailTemplateType?.templateData?.order && this?.order) {
+                    localMailTemplate.mailTemplateType.templateData.order = this.order;
+                }
             }
 
             const apiContext = {

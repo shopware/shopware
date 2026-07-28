@@ -3,12 +3,14 @@
 namespace Shopware\Tests\Integration\Storefront\Theme\Command;
 
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -24,6 +26,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('discovery')]
 class ThemeChangeCommandTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
@@ -33,7 +36,7 @@ class ThemeChangeCommandTest extends TestCase
      */
     private EntityRepository $salesChannelRepository;
 
-    private MockObject&StorefrontPluginRegistry $pluginRegistry;
+    private Stub&StorefrontPluginRegistry $pluginRegistry;
 
     private MockObject&ThemeService $themeService;
 
@@ -170,7 +173,7 @@ class ThemeChangeCommandTest extends TestCase
         ]);
     }
 
-    private function getPluginRegistryMock(): MockObject&StorefrontPluginRegistry
+    private function getPluginRegistryMock(): Stub&StorefrontPluginRegistry
     {
         $storePluginConfiguration1 = new StorefrontPluginConfiguration('parentTheme');
         $storePluginConfiguration1->setThemeConfig([
@@ -182,9 +185,7 @@ class ThemeChangeCommandTest extends TestCase
             'any' => 'unexpectedConfig',
         ]);
 
-        $mock = $this->getMockBuilder(StorefrontPluginRegistry::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $mock = static::createStub(StorefrontPluginRegistry::class);
 
         $mock->method('getConfigurations')
             ->willReturn(

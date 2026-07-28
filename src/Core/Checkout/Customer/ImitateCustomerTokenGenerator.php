@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer;
 
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Token\RegisteredClaims;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\Struct\ImitateCustomerToken;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\JWT\SalesChannel\JWTGenerator;
@@ -30,6 +31,7 @@ class ImitateCustomerTokenGenerator extends JWTGenerator
         private readonly string $appSecret,
         private readonly Configuration $configuration,
         private readonly DataValidator $validator,
+        private readonly ClockInterface $clock,
     ) {
         parent::__construct($this->configuration, $this->validator);
     }
@@ -53,7 +55,7 @@ class ImitateCustomerTokenGenerator extends JWTGenerator
             throw CustomerException::invalidImitationToken($salesChannelId . ':' . $customerId . ':' . $userId);
         }
 
-        return $this->encrypt(hash_hmac(self::HMAC_HASH_ALGORITHM, $data, $this->appSecret) . '.' . time());
+        return $this->encrypt(hash_hmac(self::HMAC_HASH_ALGORITHM, $data, $this->appSecret) . '.' . $this->clock->now()->getTimestamp());
     }
 
     /**
@@ -72,7 +74,7 @@ class ImitateCustomerTokenGenerator extends JWTGenerator
         }
 
         $hash = $tokenData[0];
-        $timeDiff = time() - (int) $tokenData[1];
+        $timeDiff = $this->clock->now()->getTimestamp() - (int) $tokenData[1];
 
         if ($timeDiff > self::TOKEN_LIFETIME) {
             throw CustomerException::invalidImitationToken($givenToken);

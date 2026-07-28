@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\MeasurementSystem\TwigExtension;
 
 use Shopware\Core\Content\MeasurementSystem\Unit\AbstractMeasurementUnitConverter;
 use Shopware\Core\Content\MeasurementSystem\Unit\AbstractMeasurementUnitProvider;
+use Shopware\Core\Framework\Adapter\Twig\TwigContextHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Twig\Extension\AbstractExtension;
@@ -41,9 +42,8 @@ class MeasurementConvertUnitTwigFilter extends AbstractExtension
         }
 
         // if the `to` unit is not set, automatically set it to the sales channel configured measurement unit
-        if ($to === null && isset($twigContext['context']) && $twigContext['context'] instanceof SalesChannelContext) {
-            $context = $twigContext['context'];
-
+        $context = TwigContextHelper::getSalesChannelContext($twigContext);
+        if ($to === null && $context instanceof SalesChannelContext) {
             $type = $this->unitProvider->getUnitInfo($from)->type;
 
             $to = $context->getMeasurementSystem()->getUnit($type);

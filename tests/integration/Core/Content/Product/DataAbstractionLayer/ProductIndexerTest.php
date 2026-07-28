@@ -6,7 +6,6 @@ namespace Shopware\Tests\Integration\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater;
@@ -29,15 +28,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\TraceableMessageBus;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class ProductIndexerTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -76,10 +78,10 @@ class ProductIndexerTest extends TestCase
             self::getContainer()->get(ProductStreamUpdater::class),
             $this->messageBus,
             Feature::isActive('v6.8.0.0') ? null : self::getContainer()->get(StatesUpdater::class),
+            new NativeClock()
         );
     }
 
-    #[Group('slow')]
     public function testUpdateDoesNotReturnTooBigMessage(): void
     {
         $uuids = $this->getUuids(self::AMOUNT_OF_UUIDS_NEEDED_TO_TRIGGER_MESSAGE_SIZE_RESTRICTION);

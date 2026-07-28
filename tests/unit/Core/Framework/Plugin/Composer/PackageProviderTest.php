@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Composer;
 use Composer\IO\NullIO;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Composer\PackageProvider;
-use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
+use Shopware\Core\Framework\Plugin\PluginException;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PackageProvider::class)]
 class PackageProviderTest extends TestCase
 {
@@ -28,8 +30,8 @@ class PackageProviderTest extends TestCase
         $packageProvider = $this->createProvider();
         $pluginPath = __DIR__ . '/_fixture/invalid';
 
-        $this->expectException(PluginComposerJsonInvalidException::class);
-        $this->expectExceptionMessage('name : The property name is required');
+        $this->expectExceptionObject(PluginException::composerJsonInvalid($pluginPath . '/composer.json', []));
+
         $packageProvider->getPluginComposerPackage($pluginPath, new NullIO());
     }
 
@@ -38,8 +40,7 @@ class PackageProviderTest extends TestCase
         $packageProvider = $this->createProvider();
         $pluginPath = __DIR__ . '/invalid_path';
 
-        $this->expectException(PluginComposerJsonInvalidException::class);
-        $this->expectExceptionMessage('The file "' . $pluginPath . '/composer.json" is not readable.');
+        $this->expectExceptionObject(PluginException::composerJsonInvalid($pluginPath . '/composer.json', []));
 
         $packageProvider->getPluginComposerPackage($pluginPath, new NullIO());
     }

@@ -1,4 +1,7 @@
-{% if item.parentId == context.salesChannel.navigationCategoryId %}
+{% set isAlternateRoot = item.id == context.salesChannel.footerCategoryId
+    or item.id == context.salesChannel.serviceCategoryId %}
+
+{% if isAlternateRoot or item.parentId == context.salesChannel.navigationCategoryId %}
     {% set url = path('frontend.menu.offcanvas') %}
 {% else %}
     {% set url = path('frontend.menu.offcanvas', { navigationId: item.parentId }) %}

@@ -8,6 +8,7 @@ use League\OAuth2\Server\RequestAccessTokenEvent;
 use League\OAuth2\Server\RequestEvent;
 use League\OAuth2\Server\RequestRefreshTokenEvent;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
+use Psr\Clock\ClockInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\TokenService\ExternalTokenService;
@@ -26,6 +27,7 @@ class ShopwareGrantType extends AbstractGrant
         RefreshTokenRepositoryInterface $refreshTokenRepository,
         private readonly UserService $userService,
         private readonly ExternalTokenService $tokenService,
+        private readonly ClockInterface $clock,
     ) {
         $this->refreshTokenRepository = $refreshTokenRepository;
     }
@@ -45,7 +47,7 @@ class ShopwareGrantType extends AbstractGrant
         $finalizedScopes = $this->scopeRepository->finalizeScopes($scopes, $this->getIdentifier(), $client, $userIdentifier);
 
         // take the shorter token TTL to avoid that the external token gets invalid
-        $lowerTTL = TokenTimeToLive::getLowerTTL($accessTokenTTL, (new \DateTimeImmutable())->diff($user->expiry));
+        $lowerTTL = TokenTimeToLive::getLowerTTL($accessTokenTTL, $this->clock->now()->diff($user->expiry));
 
         $accessToken = $this->issueAccessToken($lowerTTL, $client, $userIdentifier, $finalizedScopes);
         $this->getEmitter()->emit(new RequestAccessTokenEvent(RequestEvent::ACCESS_TOKEN_ISSUED, $request, $accessToken));

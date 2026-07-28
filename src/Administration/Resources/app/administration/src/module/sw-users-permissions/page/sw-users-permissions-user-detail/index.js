@@ -405,19 +405,17 @@ export default {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            if (this.currentUser.id === this.user.id) {
-                await Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
-            }
-
-            const isEmailValid = await this.checkEmail();
-
-            if (!isEmailValid) {
-                return;
-            }
-
-            this.isLoading = true;
-
             try {
+                if (this.currentUser.id === this.user.id) {
+                    await Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
+                }
+
+                const isEmailValid = await this.checkEmail();
+
+                if (!isEmailValid) {
+                    return;
+                }
+
                 await this.userRepository.save(this.user, context);
 
                 if (this.currentUser.id === this.user.id) {

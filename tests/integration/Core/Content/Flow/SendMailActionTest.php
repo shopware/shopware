@@ -26,6 +26,7 @@ use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
+use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
 use Shopware\Core\Content\Mail\Service\MailFactory;
@@ -50,6 +51,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -126,7 +128,7 @@ class SendMailActionTest extends TestCase
 
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('transactions.stateMachineState');
-        $order = $orderRepository->search($criteria, $context->getContext())->first();
+        $order = $orderRepository->search($criteria, $context->getContext())->getEntities()->first();
         static::assertNotNull($order);
         $event = new CheckoutOrderPlacedEvent($context, $order);
 
@@ -179,7 +181,7 @@ class SendMailActionTest extends TestCase
         static::assertIsString($documentIdNewer);
         static::assertIsString($documentIdOlder);
         $criteria = new Criteria(array_filter([$documentIdOlder, $documentIdNewer]));
-        $documents = $documentRepository->search($criteria, $context->getContext());
+        $documents = $documentRepository->search($criteria, $context->getContext())->getEntities();
 
         $newDocument = $documents->get($documentIdNewer);
         static::assertNotNull($newDocument);
@@ -239,7 +241,7 @@ class SendMailActionTest extends TestCase
 
         if ($documentTypeIds !== []) {
             $criteria = new Criteria(array_filter([$documentIdOlder, $documentIdNewer]));
-            $documents = $documentRepository->search($criteria, $context->getContext());
+            $documents = $documentRepository->search($criteria, $context->getContext())->getEntities();
 
             $newDocument = $documents->get($documentIdNewer);
             static::assertNotNull($newDocument);
@@ -451,7 +453,7 @@ class SendMailActionTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('orderCustomer');
 
-        $order = static::getContainer()->get('order.repository')->search($criteria, $context->getContext())->get($orderId);
+        $order = static::getContainer()->get('order.repository')->search($criteria, $context->getContext())->getEntities()->get($orderId);
         static::assertInstanceOf(OrderEntity::class, $order);
         $event = new CheckoutOrderPlacedEvent($context, $order);
 
@@ -587,8 +589,7 @@ class SendMailActionTest extends TestCase
             $mailFilterEvent = $event;
         });
 
-        static::expectException(MailEventConfigurationException::class);
-        static::expectExceptionMessage('The recipient value in the flow action configuration is missing.');
+        $this->expectExceptionObject(new MailEventConfigurationException('The recipient value in the flow action configuration is missing.', StorableFlow::class));
 
         $flowFactory = static::getContainer()->get(FlowFactory::class);
         $flow = $flowFactory->create($event);
@@ -603,11 +604,13 @@ class SendMailActionTest extends TestCase
     #[DataProvider('updateTemplateDataProvider')]
     public function testUpdateAndSanitizeTemplateData(bool $shouldUpdate): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $mailTemplate = static::getContainer()
             ->get('mail_template.repository')
-            ->search(new Criteria(), $salesChannelContext->getContext())
+            ->search(new Criteria(), $salesChannelContext->getContext())->getEntities()
             ->first();
 
         static::getContainer()->get(Connection::class)->executeStatement('UPDATE mail_template_type SET template_data = NULL');
@@ -616,7 +619,7 @@ class SendMailActionTest extends TestCase
         $customerId = $this->createCustomer($salesChannelContext->getContext());
         $customer = static::getContainer()
             ->get('customer.repository')
-            ->search(new Criteria([$customerId]), $salesChannelContext->getContext())
+            ->search(new Criteria([$customerId]), $salesChannelContext->getContext())->getEntities()
             ->first();
 
         static::assertInstanceOf(CustomerEntity::class, $customer);
@@ -664,7 +667,7 @@ class SendMailActionTest extends TestCase
 
         $templateType = static::getContainer()
             ->get('mail_template_type.repository')
-            ->search(new Criteria([$mailTemplate->getMailTemplateTypeId()]), $salesChannelContext->getContext())
+            ->search(new Criteria([$mailTemplate->getMailTemplateTypeId()]), $salesChannelContext->getContext())->getEntities()
             ->first();
 
         static::assertInstanceOf(MailTemplateTypeEntity::class, $templateType);

@@ -12,7 +12,9 @@ use Shopware\Core\System\User\UserCollection;
 /**
  * @internal
  *
- * @codeCoverageIgnore Integration tested with \Shopware\Tests\Integration\Core\Framework\Store\Services\StoreServiceTest
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\Store\Services\StoreServiceTest
  */
 #[Package('checkout')]
 class StoreService

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Request as SfRequest;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -26,13 +27,13 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
-#[CoversClass(Executor::class)]
 #[Package('framework')]
+#[CoversClass(Executor::class)]
 class ExecutorTest extends TestCase
 {
     public function testConnectionProblemsGotConverted(): void
     {
-        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack = static::createStub(RequestStack::class);
         $requestStack
             ->method('getCurrentRequest')
             ->willReturn(new SfRequest());
@@ -45,16 +46,16 @@ class ExecutorTest extends TestCase
 
         $executor = new Executor(
             $guzzleClient,
-            $this->createMock(LoggerInterface::class),
-            $this->createMock(ActionButtonResponseFactory::class),
-            $this->createMock(ShopIdProvider::class),
-            $this->createMock(RouterInterface::class),
+            static::createStub(LoggerInterface::class),
+            static::createStub(ActionButtonResponseFactory::class),
+            static::createStub(ShopIdProvider::class),
+            static::createStub(RouterInterface::class),
             $requestStack,
-            $this->createMock(KernelInterface::class)
+            static::createStub(KernelInterface::class),
+            new NativeClock()
         );
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('connection problems');
+        $this->expectExceptionObject(AppException::actionButtonProcessException('123123123', 'ActionButton remote execution failed due to connection problems'));
 
         $app = new AppEntity();
         $app->setAppSecret('devSecret');

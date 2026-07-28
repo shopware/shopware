@@ -6,12 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppArchiveValidator;
 use Shopware\Core\Framework\App\Exception\AppArchiveValidationFailure;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppArchiveValidator::class)]
 class AppArchiveValidatorTest extends TestCase
 {
@@ -36,8 +38,7 @@ class AppArchiveValidatorTest extends TestCase
 
         $validator = new AppArchiveValidator();
 
-        $this->expectException(AppArchiveValidationFailure::class);
-        $this->expectExceptionMessage('App archive does not contain a manifest.xml file');
+        $this->expectExceptionObject(AppArchiveValidationFailure::missingManifest());
 
         $validator->validate($archive, 'TestApp');
     }
@@ -51,8 +52,7 @@ class AppArchiveValidatorTest extends TestCase
 
         $validator = new AppArchiveValidator();
 
-        $this->expectException(AppArchiveValidationFailure::class);
-        $this->expectExceptionMessage('App name does not match expected. Expected: "WrongName". Got: "TestApp"');
+        $this->expectExceptionObject(AppArchiveValidationFailure::appNameMismatch('WrongName', 'TestApp'));
 
         $validator->validate($archive, 'WrongName');
     }
@@ -66,8 +66,7 @@ class AppArchiveValidatorTest extends TestCase
 
         $validator = new AppArchiveValidator();
 
-        $this->expectException(AppArchiveValidationFailure::class);
-        $this->expectExceptionMessage('Detected invalid file/directory "some-file.txt" in the app zip. Expected the directory: "TestApp"');
+        $this->expectExceptionObject(AppArchiveValidationFailure::invalidPrefix('some-file.txt', 'TestApp'));
 
         $validator->validate($archive, 'TestApp');
     }
@@ -81,8 +80,7 @@ class AppArchiveValidatorTest extends TestCase
 
         $validator = new AppArchiveValidator();
 
-        $this->expectException(AppArchiveValidationFailure::class);
-        $this->expectExceptionMessage('App zip does not contain any top level folder');
+        $this->expectExceptionObject(AppArchiveValidationFailure::noTopLevelFolder());
 
         $validator->validate($archive, 'TestApp');
     }
@@ -96,8 +94,7 @@ class AppArchiveValidatorTest extends TestCase
 
         $validator = new AppArchiveValidator();
 
-        $this->expectException(AppArchiveValidationFailure::class);
-        $this->expectExceptionMessage('Directory traversal detected');
+        $this->expectExceptionObject(AppArchiveValidationFailure::directoryTraversal());
 
         $validator->validate($archive, 'TestApp');
     }

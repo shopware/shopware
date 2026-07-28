@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\Cart;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -28,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
@@ -43,6 +43,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('inventory')]
 class ProductCartProcessorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -270,7 +271,6 @@ class ProductCartProcessorTest extends TestCase
         static::assertSame('test', $actualProduct->getLabel());
     }
 
-    #[Group('slow')]
     public function testLineItemPropertiesPurchasePrice(): void
     {
         $this->createProduct();
@@ -295,8 +295,9 @@ class ProductCartProcessorTest extends TestCase
         $lineItem = $cart->get($product->getId());
 
         static::assertInstanceOf(LineItem::class, $lineItem);
-        $payload = $lineItem->getPayload();
-        $purchasePrices = json_decode((string) $payload['purchasePrices'], true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('purchasePrices', $lineItem->getPayload());
+
+        $purchasePrices = json_decode((string) $lineItem->getPayloadValue('purchasePrices'), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Defaults::CURRENCY, $purchasePrices['currencyId']);
         static::assertSame(7.5, $purchasePrices['gross']);
         static::assertSame(5, $purchasePrices['net']);
@@ -320,7 +321,6 @@ class ProductCartProcessorTest extends TestCase
      * @param array{type: string, value: mixed, label: string} $expectedFeature
      */
     #[DataProvider('productFeatureProvider')]
-    #[Group('slow')]
     public function testProductFeaturesContainCorrectInformation(array $testedFeature, array $productData, array $expectedFeature): void
     {
         $this->createLanguage(self::TEST_LANGUAGE_ID);
@@ -593,7 +593,6 @@ class ProductCartProcessorTest extends TestCase
     }
 
     #[DataProvider('productDeliverabilityProvider')]
-    #[Group('slow')]
     public function testProcessCartShouldReturnFixedQuantity(int $minPurchase, int $purchaseSteps, int $maxPurchase, int $quantity, int $quantityExpected, ?string $errorKey): void
     {
         $additionalData = [

@@ -1,4 +1,3 @@
-@import "~scss/variables";
 @import "~scss/mixins";
 
 .sw-error-404 {
@@ -10,7 +9,7 @@
     // added duplicated height property, to center content vertically on iOS
     height: 100vh;
     height: 100svh;
-    background-color: $color-white;
+    background-color: var(--color-background-primary-default);
 
     &__content {
         display: flex;
@@ -24,7 +23,7 @@
     }
 
     &__title {
-        color: $color-darkgray-800;
+        color: var(--color-text-primary-default);
         position: absolute;
         top: 50%;
         left: 50%;
@@ -33,17 +32,17 @@
     }
 
     &__description {
-        color: $color-darkgray-800;
+        color: var(--color-text-primary-default);
         text-wrap: balance;
         max-width: 60ch;
         text-align: center;
         padding-block: 2rem;
-        line-height: $line-height-md;
+        line-height: var(--font-line-height-m);
     }
 
     &__icon {
         @include size(0.75rem);
 
-        fill: $color-white;
+        fill: var(--color-static-white);
     }
 }

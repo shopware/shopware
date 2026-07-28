@@ -2,9 +2,13 @@
 <mt-card
     class="sw-users-permissions-permissions-grid"
     position-identifier="sw-users-permissions-permissions-grid"
+    :is-loading="isLoading"
     :title="$t('sw-users-permissions.roles.grid.title')"
 >
-    <div class="sw-users-permissions-permissions-grid__grid">
+    <div
+        v-if="role"
+        class="sw-users-permissions-permissions-grid__grid"
+    >
         {% block sw_users_permissions_permissions_grid_header %}
         <div class="sw-users-permissions-permissions-grid__entry sw-users-permissions-permissions-grid__entry-header">
             {% block sw_users_permissions_permissions_grid_header_title %}

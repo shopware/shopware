@@ -44,4 +44,13 @@
             display: none;
         }
     }
+
+    &__selected-address {
+        margin-top: 8px;
+    }
+
+    &__selected-address-content.sw-address {
+        color: var(--color-text-primary-default);
+        margin-bottom: 0;
+    }
 }

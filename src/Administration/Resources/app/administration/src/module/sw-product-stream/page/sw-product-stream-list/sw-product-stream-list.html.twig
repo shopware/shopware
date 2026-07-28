@@ -1,6 +1,5 @@
 {% block sw_product_stream_list %}
 <sw-page class="sw-product-stream-list">
-
     {% block sw_product_stream_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -17,7 +16,7 @@
         {% block sw_product_stream_list_smart_bar_header_title %}
         <h2>
             {% block sw_product_stream_list_smart_bar_header_title_text %}
-            {{ $t('sw-product-stream.list.textProductStreamOverview') }}
+            <span>{{ $t('sw-product-stream.list.textProductStreamOverview') }}</span>
             {% endblock %}
 
             {% block sw_product_stream_list_smart_bar_header_amount %}
@@ -57,10 +56,8 @@
     {% endblock %}
 
     <template #content>
-
         {% block sw_product_stream_list_content %}
         <div class="sw-product-stream-list__content">
-
             {% block sw_product_stream_list_empty_state %}
             <mt-empty-state
                 v-if="!isLoading && !total"
@@ -121,6 +118,7 @@
                     <template v-if="item.updatedAt">
                         <sw-time-ago :date="item.updatedAt" />
                     </template>
+
                     <template v-else>
                         <sw-time-ago :date="item.createdAt" />
                     </template>
@@ -143,7 +141,6 @@
 
                 {% block sw_product_stream_list_grid_delete_action %}
                 <template #delete-action="{item, showDelete, allowDelete}">
-
                     <sw-context-menu-item
                         :disabled="!acl.can('product_stream.deleter') || !allowDelete"
                         class="sw-entity-listing__context-menu-edit-delete"
@@ -163,7 +160,6 @@
     {% block sw_product_stream_list_sidebar %}
     <template #sidebar>
         <sw-sidebar>
-
             {% block sw_product_stream_list_sidebar_refresh %}
             <sw-sidebar-item
                 icon="regular-undo"
@@ -174,6 +170,5 @@
         </sw-sidebar>
     </template>
     {% endblock %}
-
 </sw-page>
 {% endblock %}

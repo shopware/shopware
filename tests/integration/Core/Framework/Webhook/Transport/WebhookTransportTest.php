@@ -5,15 +5,18 @@ namespace Shopware\Tests\Integration\Core\Framework\Webhook\Transport;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Transport\WebhookTransport;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\Transport\TransportInterface;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class WebhookTransportTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -33,6 +36,13 @@ class WebhookTransportTest extends TestCase
         $transport = static::getContainer()->get('messenger.transport.webhook');
 
         static::assertInstanceOf(WebhookTransport::class, $transport);
+    }
+
+    public function testAsyncTransportIsResolvableWithoutCycling(): void
+    {
+        $transport = static::getContainer()->get('messenger.transport.async');
+
+        static::assertInstanceOf(TransportInterface::class, $transport);
     }
 
     public function testSendPersistsOutboxEntry(): void

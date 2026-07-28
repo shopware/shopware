@@ -109,7 +109,7 @@ export default {
         },
 
         salesChannelCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, 500);
 
             criteria.addFilter(
                 Criteria.multi('OR', [
@@ -354,6 +354,7 @@ export default {
                 .save(this.numberRange)
                 .then(() => {
                     this.isSaveSuccessful = true;
+                    this.invalidateNumberRangeCaches();
 
                     return this.loadEntityData();
                 })
@@ -376,6 +377,15 @@ export default {
 
         onCancel() {
             this.$router.push({ name: 'sw.settings.number.range.index' });
+        },
+
+        invalidateNumberRangeCaches() {
+            Shopware.Service('cacheService').invalidateCaches({
+                cacheKey: [
+                    'shared-data',
+                    'number-range-ids',
+                ],
+            });
         },
 
         onChangeLanguage() {

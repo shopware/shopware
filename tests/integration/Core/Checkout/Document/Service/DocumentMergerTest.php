@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Service;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use setasign\Fpdi\FpdiException;
 use setasign\Fpdi\Tfpdf\Fpdi;
@@ -38,7 +37,6 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  */
 #[Package('after-sales')]
-#[Group('slow')]
 class DocumentMergerTest extends TestCase
 {
     use DocumentTrait;
@@ -102,7 +100,7 @@ class DocumentMergerTest extends TestCase
         $expectedBlob = 'expected blob';
 
         $mockFpdi = $this->getMockBuilder(Fpdi::class)->onlyMethods(['Output'])->getMock();
-        $mockFpdi->expects($this->once())->method('OutPut')->willReturn($expectedBlob);
+        $mockFpdi->expects($this->once())->method('Output')->willReturn($expectedBlob);
 
         $documentMerger = new DocumentMerger(
             $this->documentRepository,
@@ -143,7 +141,7 @@ class DocumentMergerTest extends TestCase
 
     public function testMergeWithoutStaticMedia(): void
     {
-        $mockGenerator = $this->getMockBuilder(DocumentGenerator::class)->disableOriginalConstructor()->onlyMethods(['generate'])->getMock();
+        $mockGenerator = $this->createMock(DocumentGenerator::class);
         $mockGenerator->expects($this->once())->method('generate')->willReturn(new DocumentGenerationResult());
 
         $documentMerger = new DocumentMerger(
@@ -202,8 +200,8 @@ class DocumentMergerTest extends TestCase
 
         $mockFpdi = $this->getMockBuilder(Fpdi::class)->onlyMethods(['Output', 'setSourceFile', 'importPage'])->getMock();
 
-        $mockFpdi->expects($this->any())->method('setSourceFile')->willReturn($numDocs);
-        $mockFpdi->expects($this->any())->method('importPage')->willReturn('');
+        $mockFpdi->method('setSourceFile')->willReturn($numDocs);
+        $mockFpdi->method('importPage')->willReturn('');
 
         // Only use merge when merging more than 1 documents
         if ($numDocs > 1 && $withMedia) {
@@ -363,7 +361,7 @@ class DocumentMergerTest extends TestCase
 
         $order = static::getContainer()
             ->get('order.repository')
-            ->search(new Criteria([$this->orderId]), $this->context)
+            ->search(new Criteria([$this->orderId]), $this->context)->getEntities()
             ->first();
         static::assertNotNull($order);
         static::assertInstanceOf(OrderEntity::class, $order);

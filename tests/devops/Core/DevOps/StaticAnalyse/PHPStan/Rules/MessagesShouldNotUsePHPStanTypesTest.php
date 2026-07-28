@@ -5,12 +5,14 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\MessagesShouldNotUsePHPStanTypes;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @extends  RuleTestCase<MessagesShouldNotUsePHPStanTypes>
  */
+#[Package('framework')]
 class MessagesShouldNotUsePHPStanTypesTest extends RuleTestCase
 {
     public function testFailsOnAsyncMessageUsingPHPStanType(): void

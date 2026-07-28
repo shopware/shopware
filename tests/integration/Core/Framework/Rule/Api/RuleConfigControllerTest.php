@@ -36,7 +36,7 @@ class RuleConfigControllerTest extends TestCase
 
         static::assertCount(2, $customerGroupRouleConfig['operatorSet']['operators']);
         static::assertSame(RuleConfig::OPERATOR_SET_STRING, $customerGroupRouleConfig['operatorSet']['operators']);
-        static::assertTrue($customerGroupRouleConfig['operatorSet']['isMatchAny']);
+        static::assertFalse($customerGroupRouleConfig['operatorSet']['isMatchAny']);
 
         static::assertCount(1, $customerGroupRouleConfig['fields']);
 

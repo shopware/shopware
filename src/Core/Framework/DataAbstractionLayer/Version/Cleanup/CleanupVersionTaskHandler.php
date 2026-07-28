@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Version\Cleanup;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -14,8 +15,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal
  */
-#[AsMessageHandler(handles: CleanupVersionTask::class)]
 #[Package('framework')]
+#[AsMessageHandler(handles: CleanupVersionTask::class)]
 final class CleanupVersionTaskHandler extends ScheduledTaskHandler
 {
     /**
@@ -27,15 +28,15 @@ final class CleanupVersionTaskHandler extends ScheduledTaskHandler
         EntityRepository $repository,
         LoggerInterface $logger,
         private readonly Connection $connection,
-        private readonly int $days
+        private readonly int $days,
+        private readonly ClockInterface $clock,
     ) {
         parent::__construct($repository, $logger);
     }
 
     public function run(): void
     {
-        $time = new \DateTime();
-        $time->modify(\sprintf('-%d day', $this->days));
+        $time = $this->clock->now()->modify(\sprintf('-%d day', $this->days));
 
         do {
             $result = $this->connection->executeStatement(

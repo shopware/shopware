@@ -32,7 +32,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class StorefrontSubscriber implements EventSubscriberInterface
 {
     /**
@@ -82,7 +82,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         if (!$mainRequest->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
             return;
         }
-
+        /** @phpstan-ignore shopware.unsafeRequestHasSession (using $skipIfUninitialized = false as session will be started intentionally later; this can take the PHP session lock and is limited to storefront routing starting the storefront session when needed.) */
         if (!$mainRequest->hasSession()) {
             return;
         }
@@ -152,8 +152,12 @@ class StorefrontSubscriber implements EventSubscriberInterface
         if (!$mainRequest->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
             return;
         }
+        if (!\in_array(StorefrontRouteScope::ID, $mainRequest->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []), true)) {
+            return;
+        }
 
-        if (!$mainRequest->hasSession()) {
+        // Storefront sessions are started during kernel.request, before customer login and logout events are dispatched.
+        if (!$mainRequest->hasSession(true)) {
             return;
         }
 

@@ -44,6 +44,8 @@ class ProductExportEntity extends Entity
      */
     protected ?string $provider = null;
 
+    protected ?string $feedLabel = null;
+
     protected ?ProductStreamEntity $productStream = null;
 
     protected ?SalesChannelEntity $storefrontSalesChannel = null;
@@ -59,6 +61,8 @@ class ProductExportEntity extends Entity
     protected bool $generateByCronjob;
 
     protected ?\DateTimeInterface $generatedAt = null;
+
+    protected ?\DateTimeInterface $nextGenerationAt = null;
 
     protected int $interval;
 
@@ -172,6 +176,16 @@ class ProductExportEntity extends Entity
         $this->provider = $provider;
     }
 
+    public function getFeedLabel(): ?string
+    {
+        return $this->feedLabel;
+    }
+
+    public function setFeedLabel(?string $feedLabel): void
+    {
+        $this->feedLabel = $feedLabel;
+    }
+
     public function getProductStream(): ?ProductStreamEntity
     {
         return $this->productStream;
@@ -250,6 +264,16 @@ class ProductExportEntity extends Entity
     public function setGeneratedAt(?\DateTimeInterface $generatedAt): void
     {
         $this->generatedAt = $generatedAt;
+    }
+
+    public function getNextGenerationAt(): ?\DateTimeInterface
+    {
+        return $this->nextGenerationAt;
+    }
+
+    public function setNextGenerationAt(?\DateTimeInterface $nextGenerationAt): void
+    {
+        $this->nextGenerationAt = $nextGenerationAt;
     }
 
     public function getInterval(): int

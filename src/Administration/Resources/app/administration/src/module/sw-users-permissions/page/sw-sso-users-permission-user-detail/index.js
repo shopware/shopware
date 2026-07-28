@@ -1,7 +1,3 @@
-/**
- * @internal
- * @sw-package framework
- */
 import template from './sw-sso-users-permission-user-detail.html.twig';
 import './sw-sso-users-permissions-user-detail.scss';
 
@@ -14,7 +10,10 @@ const MODE = Object.freeze({
     CREATE: 'create',
 });
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @sw-package framework
+ */
 export default {
     template,
 

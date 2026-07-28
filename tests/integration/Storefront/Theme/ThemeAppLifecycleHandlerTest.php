@@ -8,6 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
@@ -28,7 +29,7 @@ class ThemeAppLifecycleHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private AppLifecycle $appLifecycle;
+    private AbstractAppLifecycle $appLifecycle;
 
     private AppManager $appManager;
 

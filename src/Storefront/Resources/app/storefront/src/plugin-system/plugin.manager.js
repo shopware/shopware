@@ -386,9 +386,9 @@ class PluginManagerSingleton {
             return this._loadAsyncPluginClass(queueItem.pluginName, queueItem.pluginClassPromise);
         }));
 
-        // Set the fetched plugin classes to the registry, so they can be initialized later.
-        let hasStaleResolutions = false;
+        const staleResolutions = new Set();
 
+        // Set the fetched plugin classes to the registry, so they can be initialized later.
         queue.forEach((plugin, index) => {
             const pluginClass = fetchedPluginClasses[index];
             if (!pluginClass) {
@@ -399,14 +399,22 @@ class PluginManagerSingleton {
             const pluginFromRegistry = this._registry.get(pluginName);
 
             if (!this._setResolvedPluginClass(pluginFromRegistry, pluginClass, plugin.pluginClassPromise)) {
-                hasStaleResolutions = true;
+                staleResolutions.add(pluginName);
             }
         });
 
-        // A plugin that was re-registered while we were loading is still unresolved, fetch it again.
-        if (hasStaleResolutions && depth < MAX_ASYNC_RESOLUTION_RETRIES) {
-            await this._fetchAsyncPlugins(depth + 1);
+        if (!staleResolutions.size) {
+            return;
         }
+
+        // A plugin that was re-registered while we were loading is still unresolved, fetch it again.
+        if (depth < MAX_ASYNC_RESOLUTION_RETRIES) {
+            await this._fetchAsyncPlugins(depth + 1);
+
+            return;
+        }
+
+        console.warn(`The plugin(s) "${Array.from(staleResolutions).join('", "')}" were re-registered while loading more often than the plugin manager retries. They will not be initialized.`);
     }
 
     /**
@@ -443,9 +451,17 @@ class PluginManagerSingleton {
             return;
         }
 
-        if (!this._setResolvedPluginClass(pluginFromRegistry, pluginClass, importFn) && depth < MAX_ASYNC_RESOLUTION_RETRIES) {
-            await this._fetchAsyncPlugin(pluginFromRegistry, originalSelector, depth + 1);
+        if (this._setResolvedPluginClass(pluginFromRegistry, pluginClass, importFn)) {
+            return;
         }
+
+        if (depth < MAX_ASYNC_RESOLUTION_RETRIES) {
+            await this._fetchAsyncPlugin(pluginFromRegistry, originalSelector, depth + 1);
+
+            return;
+        }
+
+        console.warn(`The plugin "${pluginName}" was re-registered while loading more often than the plugin manager retries. It will not be initialized.`);
     }
 
     /**
@@ -737,7 +753,16 @@ class PluginManagerSingleton {
         // Register a lazy import that builds the extended class once the parent is available.
         // Static parent options are merged by the plugin base class at construction time.
         if (extendFrom.get('async')) {
+            // Memoized so that repeated invocations resolve to the same class. Concurrent
+            // initialization passes can call this more than once, and a new class per call would
+            // break the identity check in _setResolvedPluginClass().
+            let extendedPlugin = null;
+
             return this.register(newName, async () => {
+                if (extendedPlugin) {
+                    return { default: extendedPlugin };
+                }
+
                 const currentParent = extendFrom.get('class');
 
                 // The parent may have been resolved in the meantime by an unrelated init pass.
@@ -749,7 +774,9 @@ class PluginManagerSingleton {
                     return { default: null };
                 }
 
-                return { default: PluginManagerSingleton._buildExtendedPlugin(resolvedParent, pluginClass) };
+                extendedPlugin = PluginManagerSingleton._buildExtendedPlugin(resolvedParent, pluginClass);
+
+                return { default: extendedPlugin };
             }, selector, options);
         }
 

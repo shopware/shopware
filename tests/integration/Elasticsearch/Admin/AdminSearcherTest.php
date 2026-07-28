@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Integration\Elasticsearch\Admin;
 
 use Doctrine\DBAL\Connection;
+use OpenSearch\Client;
+use OpenSearchDSL\Search;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -13,7 +15,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 use Shopware\Elasticsearch\Admin\AdminSearcher;
+use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Shopware\Elasticsearch\Test\AdminElasticsearchTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -196,16 +200,24 @@ class AdminSearcherTest extends TestCase
         $this->indexElasticSearch(['--only' => ['product']]);
         $this->refreshIndex();
 
+        $hits = $this->runRawAdminProductSearch('457');
+
+        static::assertNotEmpty($hits, 'Raw OpenSearch search must return hits for a short numeric prefix in the product name.');
+        static::assertSame(
+            $productId,
+            $hits[0]['id'],
+            \sprintf(
+                'Expected the product with "457" in its name to rank before the product with only an EAN prefix match. Raw hit order: %s',
+                json_encode(array_column($hits, 'id'), \JSON_THROW_ON_ERROR)
+            )
+        );
+
         $results = $this->searcher->search('457', ['product'], Context::createDefaultContext());
 
         static::assertNotEmpty($results, 'Search must return hits for a short numeric prefix in the product name.');
         static::assertArrayHasKey('product', $results);
         static::assertInstanceOf(ProductCollection::class, $results['product']['data']);
 
-        // The order below is the OpenSearch ranking, not an incidental DAL order:
-        // ProductAdminSearchIndexer::globalData() feeds the hit ids into `new Criteria($ids)` without a
-        // sorting, and EntityReader then restores that exact order via sortByIdArray(). Asserting the
-        // result order therefore asserts the relevance order.
         $foundProductIds = array_values($results['product']['data']->getIds());
         static::assertSame(
             $productId,
@@ -265,14 +277,26 @@ class AdminSearcherTest extends TestCase
         $this->indexElasticSearch(['--only' => ['product']]);
         $this->refreshIndex();
 
+        $hits = $this->runRawAdminProductSearch($ean);
+
+        static::assertNotEmpty($hits, 'Raw OpenSearch search must return hits for the exact EAN.');
+        $topHit = $hits[0];
+        static::assertSame(
+            $ownerId,
+            $topHit['id'],
+            \sprintf(
+                'Expected the EAN-owning product to have the highest raw OpenSearch score, got "%s". Raw hit order: %s',
+                $topHit['id'],
+                json_encode(array_column($hits, 'id'), \JSON_THROW_ON_ERROR)
+            )
+        );
+
         $results = $this->searcher->search($ean, ['product'], Context::createDefaultContext());
 
         static::assertNotEmpty($results, 'Search must return hits for the exact EAN.');
         static::assertArrayHasKey('product', $results);
         static::assertInstanceOf(ProductCollection::class, $results['product']['data']);
 
-        // As above: the result order is the OpenSearch ranking, preserved by
-        // ProductAdminSearchIndexer::globalData() plus EntityReader's sortByIdArray().
         $foundProductIds = array_values($results['product']['data']->getIds());
         static::assertSame(
             $ownerId,
@@ -328,5 +352,38 @@ class AdminSearcherTest extends TestCase
     protected function getDiContainer(): ContainerInterface
     {
         return static::getContainer();
+    }
+
+    /**
+     * @return list<array{id: string, score: float}>
+     */
+    private function runRawAdminProductSearch(string $term): array
+    {
+        $registry = static::getContainer()->get(AdminSearchRegistry::class);
+        $indexer = $registry->getIndexer('product');
+
+        $reflection = new \ReflectionClass(AdminSearcher::class);
+        $method = $reflection->getMethod('buildSearch');
+        $method->setAccessible(true);
+
+        $search = $method->invoke($this->searcher, $term);
+        static::assertInstanceOf(Search::class, $search);
+
+        $response = static::getContainer()->get(Client::class)->search([
+            'index' => static::getContainer()->get(AdminElasticsearchHelper::class)->getIndex($indexer->getName()),
+            'body' => $indexer->globalCriteria($term, $search)->toArray(),
+        ]);
+
+        $hits = $response['hits']['hits'] ?? [];
+        static::assertIsArray($hits);
+
+        return array_values(array_map(static function (array $hit): array {
+            static::assertIsString($hit['_source']['id'] ?? null);
+
+            return [
+                'id' => $hit['_source']['id'],
+                'score' => (float) $hit['_score'],
+            ];
+        }, $hits));
     }
 }

@@ -108,7 +108,7 @@ class ScheduledTaskGeneratorTest extends TestCase
         yield 'Option true, stubs' => [
             'config' => self::getConfig([ScheduledTaskGenerator::OPTION_NAME => true]),
             'expected' => [
-                'src/Resources/config/services.xml',
+                'src/Resources/config/services.php',
                 'src/ScheduledTask/ExampleTask.php',
             ],
         ];

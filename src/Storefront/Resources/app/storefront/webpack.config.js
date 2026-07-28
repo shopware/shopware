@@ -381,10 +381,10 @@ const pluginConfigs = pluginEntries.map((plugin) => {
                 [plugin.technicalName]: plugin.filePath,
             },
             output: {
-                // Every extension build inherits the core storefront context, so without an explicit
-                // unique name they all share the default `webpackChunk` chunk loading global. Sharing
-                // it lets one build's runtime process another build's chunks, which can make a
-                // dynamic import resolve to the wrong module when chunk ids collide.
+                // Without an explicit unique name every build shares the default `webpackChunk` chunk
+                // loading global, which lets one build's runtime process another build's chunks and
+                // resolve a dynamic import to the wrong module. The core build keeps the default on
+                // purpose: renaming its global would change the runtime every shop already ships.
                 uniqueName: plugin.technicalName,
                 // In dev mode use same path as the core storefront to be able to access all files in multi-compiler-mode
                 path: isHotMode ? path.resolve(__dirname, 'dist') : path.resolve(plugin.path, '../dist/storefront'),

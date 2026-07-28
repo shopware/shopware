@@ -25,8 +25,9 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
         flex: 1;
         min-width: 0;
 
-        // Adds up to the 80px bar height with the 50px field.
-        padding-block: calc(var(--scale-size-16) - 1px);
+        // Adds up to the 72px bar height with the 50px field.
+        padding-block: calc(var(--scale-size-10) + 1px);
+        min-height: var(--scale-size-72);
         max-width: $content-width;
         margin: 0 auto;
         position: relative;

@@ -154,7 +154,7 @@
 
     &__header {
         display: flex;
-        height: 81px;
+        height: calc(var(--scale-size-72) + 1px);
         padding: 0 24px;
         justify-content: space-between;
         align-items: center;

@@ -19,10 +19,6 @@ import type { ModeResolution, SkippedTarget, ToolingCommands } from './shared';
 
 interface RenderOptions {
     verbose?: boolean;
-    /** Print the underlying tool invocation per extension (reproduction escape hatch). */
-    showCommands?: boolean;
-    /** Whether the run enforced --fail-on-skipped (shapes the skip warning wording). */
-    failOnSkipped?: boolean;
     /** Whether --fix was applied this run (adds the fix → baseline handoff hint). */
     fix?: boolean;
     /** Layout-aware command invocations for printed next steps (defaults to the composer scripts). */
@@ -229,17 +225,6 @@ function renderUnmanagedNote(result: ExtensionCheckResult, commands: ToolingComm
     return [];
 }
 
-function renderReproductionCommands(result: ExtensionCheckResult): string[] {
-    return [
-        result.commands.typescript,
-        result.commands.typescriptSpecs,
-        result.commands.eslint,
-    ]
-        .flatMap((commands) => commands ?? [])
-        .filter((command) => command)
-        .map((command) => colors.dim(`      $ ${command}`));
-}
-
 function renderExtension(result: ExtensionCheckResult, options: RenderOptions): string[] {
     const verbose = options.verbose === true;
     const location = result.project.vendor ? 'vendor' : result.project.basePath;
@@ -263,10 +248,6 @@ function renderExtension(result: ExtensionCheckResult, options: RenderOptions): 
 
     if (anyUnmanaged) {
         lines.push(...renderUnmanagedNote(result, options.commands ?? DEFAULT_TOOLING_COMMANDS));
-    }
-
-    if (options.showCommands === true) {
-        lines.push(...renderReproductionCommands(result));
     }
 
     return lines;
@@ -456,13 +437,7 @@ export function renderCheckReport(result: CheckExtensionsResult, options: Render
     if (writableSkipped > 0) {
         const noun = `${writableSkipped} tool run${writableSkipped === 1 ? '' : 's'} on writable extension(s)`;
 
-        lines.push(
-            colors.yellow(
-                options.failOnSkipped
-                    ? `\n⚠ ${noun} were skipped and NOT checked — failing because --fail-on-skipped is set.`
-                    : `\n⚠ ${noun} were skipped and NOT checked. Pass --fail-on-skipped to fail CI on this.`,
-            ),
-        );
+        lines.push(colors.yellow(`\n⚠ ${noun} were skipped and NOT checked.`));
     }
 
     const { paint, glyph } = verdictStyle(result.exitCode === 0, writableSkipped);

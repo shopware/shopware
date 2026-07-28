@@ -629,8 +629,8 @@ export function recordProjectBaseline(
 /**
  * Derives the process exit code. Surface diagnostics and broken toolchains
  * fail even under --update-baseline; ordinary findings are accepted while
- * recording a baseline. --fail-on-skipped turns a skipped writable extension
- * into a failure, since a silent exit 0 there is a false green for CI.
+ * recording a baseline. Findings in vendor/ extensions never fail the run —
+ * they are not the developer's to fix.
  */
 export function computeExitCode(
     results: ExtensionCheckResult[],
@@ -652,19 +652,7 @@ export function computeExitCode(
                     result.typescriptSpecs.status === 'failed' ||
                     result.eslint.status === 'failed'));
 
-        if (hasFailure && (!result.project.vendor || options.strictVendor)) {
-            exitCode = 1;
-        }
-
-        if (
-            options.failOnSkipped &&
-            !result.project.vendor &&
-            [
-                result.typescript,
-                result.typescriptSpecs,
-                result.eslint,
-            ].some((run) => run.status === 'unmanaged' || run.status === 'blocked')
-        ) {
+        if (hasFailure && !result.project.vendor) {
             exitCode = 1;
         }
     }

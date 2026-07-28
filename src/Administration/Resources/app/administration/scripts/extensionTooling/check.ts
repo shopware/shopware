@@ -9,8 +9,8 @@
  *
  * Severity policy: findings in writable extensions (custom/plugins and
  * in-repo platform bundles) fail the check; findings in vendor/ extensions
- * are reported non-fatally unless --strict-vendor is set. Custom configs
- * that do not compose the Shopware preset are visibly skipped as
+ * are reported non-fatally, since they are not the developer's to fix. Custom
+ * configs that do not compose the Shopware preset are visibly skipped as
  * "unmanaged" — never silently green.
  *
  * This module owns the orchestration and the CLI entrypoint; the reusable
@@ -21,10 +21,9 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { discoverProjects, setupExtensionTooling } from './setup';
+import { setupExtensionTooling } from './setup';
 import type { SetupExtensionToolingResult } from './setup';
 import { renderCheckReport } from './report';
-import { promptSelection } from './select';
 import { readEslintMajorVersion, relativePosix, resolveToolingCommands } from './shared';
 import type { ExtensionToolingProject, ToolingCommands } from './shared';
 import { CliUsageError, parseCli, renderHelp } from './cli';
@@ -245,14 +244,9 @@ const CHECK_COMMAND: CommandSpec = {
             name: '--only',
             value: 'required',
             valueName: '<name[,name]>',
-            description: 'Check only the named extensions (skips the interactive picker).',
+            description: 'Check only the named extensions.',
         },
-        { name: '--all', description: 'Check every discovered extension (skips the interactive picker).' },
-        { name: '--strict-vendor', description: 'Fail on findings in vendor-installed (read-only) extensions.' },
-        {
-            name: '--fail-on-skipped',
-            description: 'Fail (exit 1) when a writable extension is skipped/blocked instead of checked (for CI).',
-        },
+        { name: '--all', description: 'Check every discovered extension (the default when --only is absent).' },
         {
             name: '--fix',
             description:
@@ -263,7 +257,6 @@ const CHECK_COMMAND: CommandSpec = {
             name: '--update-baseline',
             description: 'Record the current findings as the per-plugin baseline; the check then fails only on new ones.',
         },
-        { name: '--show-commands', description: 'Print the underlying vue-tsc/ESLint invocation per extension.' },
         { name: '--verbose', description: 'Also print tool output for passing and skipped extensions.' },
         {
             name: '--max-workers',
@@ -344,56 +337,22 @@ export async function runCheckCli(argv: string[]): Promise<number> {
 
     const pluginsConfigPath = parsed.values['--plugins-config'];
     const only = parsed.values['--only'];
-    let selection: string[] | undefined;
-
-    if (only !== undefined) {
-        selection = normalizeSelection(only);
-    } else if (parsed.flags.has('--all')) {
-        selection = undefined;
-    } else if (process.stdin.isTTY && process.stdout.isTTY) {
-        const pluginsPath = path.resolve(projectRoot, pluginsConfigPath ?? path.join('var', 'plugins.json'));
-        const projects = discoverProjects(path.resolve(projectRoot), administrationRoot, pluginsPath);
-
-        if (projects.length === 0) {
-            console.log('No Administration extensions discovered.');
-
-            return 0;
-        }
-
-        const choice = await promptSelection(projects);
-
-        if (choice === 'cancel') {
-            console.log('Nothing selected.');
-
-            return 0;
-        }
-
-        selection = choice === 'all' ? undefined : choice.names;
-    } else {
-        console.log(
-            'Not an interactive terminal and no selection given — checking all extensions. ' +
-                'Pass --only=<name[,name]> or --all to be explicit.',
-        );
-    }
+    const selection = only === undefined ? undefined : normalizeSelection(only);
 
     const check = await checkExtensions({
         projectRoot,
         administrationRoot,
         pluginsConfigPath,
         only: selection,
-        strictVendor: parsed.flags.has('--strict-vendor'),
         maxWorkers,
         fix: parsed.flags.has('--fix'),
-        explicitOnly: only !== undefined ? normalizeSelection(only) : [],
+        explicitOnly: selection ?? [],
         updateBaseline: parsed.flags.has('--update-baseline'),
-        failOnSkipped: parsed.flags.has('--fail-on-skipped'),
     });
 
     console.log(
         renderCheckReport(check, {
             verbose: parsed.flags.has('--verbose'),
-            showCommands: parsed.flags.has('--show-commands'),
-            failOnSkipped: parsed.flags.has('--fail-on-skipped'),
             fix: parsed.flags.has('--fix'),
             commands: resolveToolingCommands(path.resolve(projectRoot), administrationRoot),
         }),

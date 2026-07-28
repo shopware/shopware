@@ -249,18 +249,19 @@ describe('scripts/extensionTooling e2e', () => {
     );
 
     it(
-        'makes vendor ESLint findings fatal only in strict vendor mode',
+        'reports vendor ESLint findings without failing the run',
         async () => {
+            // A vendor extension is read-only, so its findings are surfaced but
+            // never fail the developer's build — they are not theirs to fix.
             const check = await checkExtensions({
                 projectRoot,
                 administrationRoot,
                 only: 'vendor-admin',
-                strictVendor: true,
             });
 
             expect(check.results[0].eslint.status).toBe('failed');
             expect(check.results[0].eslint.output).toContain('no-unused-vars');
-            expect(check.exitCode).toBe(1);
+            expect(check.exitCode).toBe(0);
         },
         CHECK_TIMEOUT,
     );

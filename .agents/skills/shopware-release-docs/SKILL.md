@@ -19,6 +19,8 @@ Skip release documentation for narrow local bug fixes, implementation-only refac
 Write into the following files, but only if the decision above applies:
 
 - Developer-facing notes: add a concise entry to `RELEASE_INFO-6.<minor>.md` in the upcoming section and relevant category.
+  Keep it short and to the point and avoid describing implementation details.
+  The short information should inform third party developers about all relevant changes and how to adopt them.
 - Breaking changes, removals, or required migration steps: add the concrete migration path to `UPGRADE-6.<next-major>.md`.
   Write the text in the past, as devs will read this only after the release of the next major version.
 - Public REST/Admin/Store API route additions or changes: add or update the matching OpenAPI JSON schema under `src/Core/Framework/Api/ApiDefinition/Generator/Schema/<AdminApi|StoreApi>/paths`.

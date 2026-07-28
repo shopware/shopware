@@ -22,7 +22,7 @@
  *   its *leftmost* identifier (`A`) is the one that resolves to a binding.
  */
 
-import type { Identifier, Node as BabelNode } from '@babel/types';
+import type { Identifier, JSXIdentifier, Node as BabelNode, Statement } from '@babel/types';
 import { forEachPatternIdentifier } from '../utils/babel-patterns';
 import { childBabelEntries, childBabelNodes, isFunctionLikeNode, isTypeKey } from '../utils/ast-traversal';
 import { isValueReadPosition } from './identifier-position';
@@ -62,14 +62,15 @@ function isTypeDeclarationContainer(node: BabelNode): boolean {
 }
 
 /**
- * Collects the names a function body declares locally, into `into`.
+ * Collects the names hoisted to the enclosing *function* scope: `var` declarations and function
+ * declarations, wherever they appear in the body.
  *
  * Descends through the body but stops at nested function boundaries - a nested function's own locals
- * belong to its own scope and are collected when the walk reaches it. This is function-scope
- * granularity (not per-block lexical scoping), which is enough to stop false hoist-safety rejections
- * for realistic macro arguments.
+ * belong to its own scope. `let`/`const`/`class`/`catch` are deliberately *not* collected here: they are
+ * block-scoped, so a declaration inside an inner block must not shadow the same name in a sibling block,
+ * and is tracked per-block by the walk instead.
  */
-function collectFunctionScopeDeclarations(node: BabelNode | null | undefined, into: Set<string>, isRoot = true): void {
+function collectHoistedDeclarations(node: BabelNode | null | undefined, into: Set<string>, isRoot = true): void {
     if (!node) {
         return;
     }
@@ -79,19 +80,37 @@ function collectFunctionScopeDeclarations(node: BabelNode | null | undefined, in
         return;
     }
 
-    if (node.type === 'VariableDeclarator') {
-        forEachPatternIdentifier(node.id, (identifier) => into.add(identifier.name));
+    if (node.type === 'VariableDeclaration' && node.kind === 'var') {
+        node.declarations.forEach((declaration) =>
+            forEachPatternIdentifier(declaration.id, (identifier) => into.add(identifier.name)),
+        );
     }
 
-    if ((node.type === 'FunctionDeclaration' || node.type === 'ClassDeclaration') && node.id) {
+    if (node.type === 'FunctionDeclaration' && node.id) {
         into.add(node.id.name);
     }
 
-    if (node.type === 'CatchClause' && node.param) {
-        forEachPatternIdentifier(node.param, (identifier) => into.add(identifier.name));
-    }
+    childBabelNodes(node, isTypeKey).forEach((child) => collectHoistedDeclarations(child, into, false));
+}
 
-    childBabelNodes(node, isTypeKey).forEach((child) => collectFunctionScopeDeclarations(child, into, false));
+/**
+ * Adds the names a statement list block-scopes: `let`/`const`/`class` declared *directly* in it.
+ *
+ * Only the direct statements - nested blocks scope their own declarations, tracked when the walk
+ * descends into them.
+ */
+function collectBlockScopedDeclarations(statements: Statement[], into: Set<string>): void {
+    statements.forEach((statement) => {
+        if (statement.type === 'VariableDeclaration' && (statement.kind === 'let' || statement.kind === 'const')) {
+            statement.declarations.forEach((declaration) =>
+                forEachPatternIdentifier(declaration.id, (identifier) => into.add(identifier.name)),
+            );
+        }
+
+        if (statement.type === 'ClassDeclaration' && statement.id) {
+            into.add(statement.id.name);
+        }
+    });
 }
 
 /**
@@ -102,7 +121,8 @@ function collectFunctionScopeDeclarations(node: BabelNode | null | undefined, in
  * rewrite the property *key* as well, so the collector emits the expanded replacement here.
  */
 type SetupRenameTarget = {
-    node: Identifier;
+    // A JSXIdentifier tag (`<Foo />`) is renamed too; only its source range is used, so both node kinds fit.
+    node: Identifier | JSXIdentifier;
     replacement: string;
 };
 
@@ -125,6 +145,22 @@ function isShorthandPropertyValue(node: Identifier, parent: BabelNode | null): b
  */
 function expandShorthandProperty(name: string, alias: string): string {
     return `${name}: ${alias}`;
+}
+
+/**
+ * Whether an identifier is the local side of a shorthand type export (`export type { C }`).
+ *
+ * `local` and `exported` share one source range there, so renaming the local in place would drop the
+ * public export name; the replacement must expand to `alias as C`. A non-shorthand `export type { C as
+ * Public }` needs no expansion - the local and public names already occupy separate ranges.
+ */
+function isShorthandExportSpecifier(node: Identifier, parent: BabelNode | null): boolean {
+    return (
+        parent?.type === 'ExportSpecifier' &&
+        parent.local === node &&
+        parent.exported.type === 'Identifier' &&
+        parent.exported.name === node.name
+    );
 }
 
 /**
@@ -178,12 +214,31 @@ function collectSetupRenameTargets(
 
             if (isDeclarationId || isValueReadPosition(node, parent)) {
                 const alias = aliasFor(node.name);
+                let replacement = alias;
 
-                targets.push({
-                    node,
-                    replacement: isShorthandPropertyValue(node, parent) ? expandShorthandProperty(node.name, alias) : alias,
-                });
+                if (isShorthandPropertyValue(node, parent)) {
+                    replacement = expandShorthandProperty(node.name, alias);
+                } else if (isShorthandExportSpecifier(node, parent)) {
+                    replacement = `${alias} as ${node.name}`;
+                }
+
+                targets.push({ node, replacement });
             }
+        }
+
+        // JSX component tags: `<Foo />`, `</Foo>`, `<Foo.Bar />`. The tag name is a JSXIdentifier (or the
+        // root of a JSXMemberExpression), not a plain Identifier, so it needs its own branch. Intrinsic
+        // lowercase tags (`<div>`) are string elements, not bindings, and are left alone; a capitalized
+        // standalone tag or any member-expression root resolves to a binding and must be renamed.
+        if (!inTypePosition && node.type === 'JSXIdentifier' && renames(node.name, shadowedBindings)) {
+            const isStandaloneTag = parent?.type === 'JSXOpeningElement' || parent?.type === 'JSXClosingElement';
+            const isMemberRoot = parent?.type === 'JSXMemberExpression' && parent.object === node;
+
+            if ((isStandaloneTag && /^[A-Z]/.test(node.name)) || isMemberRoot) {
+                targets.push({ node, replacement: aliasFor(node.name) });
+            }
+
+            return;
         }
 
         // `typeof count` reads the value binding from type space and must be renamed with it.
@@ -214,12 +269,35 @@ function collectSetupRenameTargets(
 
         const childShadowedBindings = new Set(shadowedBindings);
 
+        // A function scope introduces its parameters and its hoisted (`var` / function) declarations for
+        // the whole body. Block-scoped declarations are added per block below, so an inner-block `const`
+        // no longer shadows the same name in a sibling block.
         if (isFunctionLikeNode(node)) {
             node.params.forEach((param) =>
                 forEachPatternIdentifier(param, (identifier) => childShadowedBindings.add(identifier.name)),
             );
 
-            collectFunctionScopeDeclarations(node.body, childShadowedBindings);
+            collectHoistedDeclarations(node.body, childShadowedBindings);
+        }
+
+        // A block scopes its own `let`/`const`/`class`; a `catch` its param; a `for` its loop bindings -
+        // each visible only within that node's subtree.
+        if (node.type === 'BlockStatement' || node.type === 'StaticBlock') {
+            collectBlockScopedDeclarations(node.body, childShadowedBindings);
+        }
+
+        if (node.type === 'CatchClause' && node.param) {
+            forEachPatternIdentifier(node.param, (identifier) => childShadowedBindings.add(identifier.name));
+        }
+
+        if (node.type === 'ForStatement' || node.type === 'ForInStatement' || node.type === 'ForOfStatement') {
+            const loopInit = node.type === 'ForStatement' ? node.init : node.left;
+
+            if (loopInit?.type === 'VariableDeclaration' && (loopInit.kind === 'let' || loopInit.kind === 'const')) {
+                loopInit.declarations.forEach((declaration) =>
+                    forEachPatternIdentifier(declaration.id, (identifier) => childShadowedBindings.add(identifier.name)),
+                );
+            }
         }
 
         const childInTypePosition = inTypePosition || isTypeDeclarationContainer(node);

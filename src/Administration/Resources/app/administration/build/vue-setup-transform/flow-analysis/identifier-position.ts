@@ -67,6 +67,18 @@ function isValueReadPosition(node: BabelNode, parent: BabelNode | null): boolean
         return parent.id !== node;
     }
 
+    // e.g. `import.meta` / `new.target` - both halves are syntax tokens, not binding reads, so a setup
+    // binding named `meta` or `target` must not rewrite them.
+    if (parent.type === 'MetaProperty') {
+        return false;
+    }
+
+    // e.g. `export type { C as Public }` - the `local` side (`C`) reads the binding; the `exported` side
+    // (`Public`, or the same token for the shorthand `export type { C }`) is the public name, not a read.
+    if (parent.type === 'ExportSpecifier') {
+        return parent.local === node;
+    }
+
     // e.g. `const count = 1` or `function count() {}` declare `count` rather than reading it.
     if (
         parent.type === 'VariableDeclarator' ||

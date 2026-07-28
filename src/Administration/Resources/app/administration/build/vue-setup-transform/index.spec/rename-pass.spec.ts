@@ -202,4 +202,83 @@ describe('build/vue-setup-transform base rename pass', () => {
         // `source` (the object) is renamed; `.count` (the property name) is not.
         expect(result).toContain('const __swSetupAuthor_count = __swSetupAuthor_source.count;');
     });
+
+    it('does not rewrite meta-property tokens (`import.meta`, `new.target`)', () => {
+        const metaSource = stripIndent`
+            <script setup>
+            const meta = 1;
+            const url = import.meta.url;
+            swDefinePublic({ meta });
+            </script>
+        `;
+        // `meta` in `import.meta` is a syntax token, not a read of the binding.
+        expect(transformOrFail(metaSource, 'sw-meta.vue').code).toContain('const __swSetupAuthor_url = import.meta.url;');
+
+        const targetSource = stripIndent`
+            <script setup>
+            function make() { return new.target; }
+            const target = 5;
+            swDefinePublic({ target });
+            </script>
+        `;
+        expect(transformOrFail(targetSource, 'sw-newtarget.vue').code).toContain('return new.target;');
+    });
+
+    it('renames a binding used as a JSX tag but leaves intrinsic and member-property tags', () => {
+        const source = stripIndent`
+            <script setup lang="tsx">
+            const Lib = { Btn: () => null };
+            const node = <div><Lib.Btn /></div>;
+            swDefinePublic({ node });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'sw-jsx.tsx').code;
+
+        // The member-expression root `Lib` is a binding and is renamed; `div` (intrinsic) and `.Btn`
+        // (member property) are not. Without the fix `<Lib.Btn />` would resolve to the footer binding
+        // and fail with a temporal-dead-zone error during setup.
+        expect(result).toContain('const __swSetupAuthor_node = <div><__swSetupAuthor_Lib.Btn /></div>;');
+    });
+
+    it('renames a name in a sibling block, not just where an inner block shadows it', () => {
+        const source = stripIndent`
+            <script setup>
+            const source = { value: 1 };
+            function read() {
+                if (globalThis) {
+                    const source = { value: 2 };
+                    return source.value;
+                }
+                return source.value;
+            }
+            const out = read();
+            swDefinePublic({ out });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'sw-block-shadow.vue').code;
+
+        // The inner-block `const source` shadows only its own block, so the later read outside that block
+        // is the top-level binding and must be renamed.
+        expect(result).toContain('const source = { value: 2 };');
+        expect(result).toContain('return __swSetupAuthor_source.value;');
+    });
+
+    it('expands a shorthand type export so the public name survives the rename', () => {
+        const source = stripIndent`
+            <script setup lang="ts">
+            class Thing {}
+            export type { Thing };
+            const t = new Thing();
+            swDefinePublic({ t });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'sw-type-export.vue').code;
+
+        // The runtime class is renamed, but the public type export must keep the name `Thing`.
+        expect(result).toContain('export type { __swSetupAuthor_Thing as Thing };');
+        expect(result).toContain('const __swSetupAuthor_t = new __swSetupAuthor_Thing();');
+    });
 });

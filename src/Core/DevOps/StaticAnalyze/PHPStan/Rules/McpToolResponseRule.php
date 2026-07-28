@@ -5,6 +5,7 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
 use PHPStan\Analyser\Scope;
+use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\Framework\Log\Package;
@@ -19,6 +20,11 @@ class McpToolResponseRule implements Rule
 {
     private const MCP_TOOL_ATTRIBUTE = 'Mcp\Capability\Attribute\McpTool';
     private const MCP_TOOL_RESPONSE_CLASS = 'Shopware\Core\Framework\Mcp\Tool\McpToolResponse';
+
+    public function __construct(
+        private readonly ReflectionProvider $reflectionProvider,
+    ) {
+    }
 
     public function getNodeType(): string
     {
@@ -53,8 +59,21 @@ class McpToolResponseRule implements Rule
         }
 
         $name = $node->extends->toString();
+        $resolvedName = $node->extends->getAttribute('resolvedName');
 
-        return $name === 'McpToolResponse' || $name === self::MCP_TOOL_RESPONSE_CLASS;
+        if ($resolvedName instanceof Node\Name) {
+            $name = $resolvedName->toString();
+        }
+
+        if ($name === 'McpToolResponse' || $name === self::MCP_TOOL_RESPONSE_CLASS) {
+            return true;
+        }
+
+        if (!$this->reflectionProvider->hasClass($name)) {
+            return false;
+        }
+
+        return $this->reflectionProvider->getClass($name)->is(self::MCP_TOOL_RESPONSE_CLASS);
     }
 
     private function hasMcpToolAttribute(Class_ $node): bool

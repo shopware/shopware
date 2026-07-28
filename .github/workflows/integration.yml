@@ -25,7 +25,7 @@ jobs:
       docs_only: ${{ steps.check.outputs.docs_only }}
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - id: check
         uses: ./.github/actions/markdown-only-changes
 
@@ -38,7 +38,7 @@ jobs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - id: generate-matrix
         run: |
           MATRIX=$(php .github/bin/generate-phpunit-matrix.php "${{ inputs.profile }}")
@@ -91,21 +91,24 @@ jobs:
           - "6379:6379"
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup and install Shopware
         uses: ./.github/actions/phpunit-prepare
         with:
           php-version: ${{ matrix.php }}
           needs-opensearch: ${{ contains(matrix.test.path, 'Elasticsearch') }}
       - name: Run PHPUnit
+        id: phpunit
         uses: ./.github/actions/phpunit-run
         with:
           test-path: ${{ matrix.test.path }}
           test-testsuite: ${{ matrix.test.testsuite }}
       - name: Upload test results to Codecov
         uses: ./.github/actions/phpunit-upload
-        # !cancelled(): junit test results must upload even when the run failed
-        if: ${{ !cancelled() }}
+        # !cancelled(): junit test results must upload even when the run failed.
+        # conclusion != 'skipped': but not when PHPUnit never ran (e.g. service container setup
+        # failed), because then checkout never ran either and this local action cannot resolve.
+        if: ${{ !cancelled() && steps.phpunit.conclusion != 'skipped' }}
         with:
           codecov-token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -121,7 +124,7 @@ jobs:
         run: git config --system core.longpaths true
 
       - name: Clone platform
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
   php-security:
     needs:
       - markdown-only-changes
@@ -132,7 +135,7 @@ jobs:
       COMPOSER_ROOT_VERSION: 6.7.9999999-dev
     steps:
       - name: Clone platform
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
@@ -165,21 +168,21 @@ jobs:
       security-events: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 2
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4.37.0
+        uses: github/codeql-action/init@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4.37.3
 
         with:
           languages: ${{ matrix.language }}
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4.37.0
+        uses: github/codeql-action/autobuild@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4.37.3
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4.37.0
+        uses: github/codeql-action/analyze@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4.37.3
 
   blue-green-67-68:
     name: "PHP blue green 6.7 -> 6.8 -> 6.7"
@@ -284,7 +287,7 @@ jobs:
         run: composer init:testdb
 
       - name: Checkout current major version
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.ref }}
 
@@ -299,7 +302,7 @@ jobs:
           bin/console system:update:finish
 
       - name: Checkout previous major version again
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ env.PREVIOUS_MAJOR_VERSION_BRANCH }}
 
@@ -365,7 +368,7 @@ jobs:
         run: composer init:testdb
 
       - name: Checkout current major version
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.ref }}
 

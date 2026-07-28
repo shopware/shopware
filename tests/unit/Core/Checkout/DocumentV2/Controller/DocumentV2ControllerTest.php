@@ -700,19 +700,16 @@ class DocumentV2ControllerTest extends TestCase
         $document->setId(Uuid::randomHex());
         $document->setDeepLinkCode(Uuid::randomHex());
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
-        $documentRepository = new StaticEntityRepository([
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
             [],
             new DocumentCollection([$document]),
         ], new DocumentDefinition());
 
-        /** @var StaticEntityRepository<DocumentFileCollection> $documentFileRepository */
-        $documentFileRepository = new StaticEntityRepository([
+        $documentFileRepository = StaticEntityRepository::of(DocumentFileCollection::class, [
             new DocumentFileCollection([]),
         ], new DocumentFileDefinition());
 
-        /** @var StaticEntityRepository<DocumentTypeCollection> $documentTypeRepository */
-        $documentTypeRepository = new StaticEntityRepository([
+        $documentTypeRepository = StaticEntityRepository::of(DocumentTypeCollection::class, [
             [Uuid::randomHex()],
         ], new DocumentTypeDefinition());
 

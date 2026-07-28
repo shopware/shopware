@@ -207,8 +207,7 @@ class DocumentGeneratorTest extends TestCase
 
     public function testGenerateThrowsExceptionForMissingFormats(): void
     {
-        /** @var StaticEntityRepository<OrderCollection> $orderRepository */
-        $orderRepository = new StaticEntityRepository([], new OrderDefinition());
+        $orderRepository = StaticEntityRepository::of(OrderCollection::class, [], new OrderDefinition());
 
         [$generator] = $this->createGenerator(
             $orderRepository,
@@ -362,8 +361,7 @@ class DocumentGeneratorTest extends TestCase
         ?array $providers = null,
         array $referenceRows = [],
     ): array {
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
-        $documentRepository = new StaticEntityRepository([
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
             [],
             function (
                 Criteria $criteria,
@@ -377,13 +375,11 @@ class DocumentGeneratorTest extends TestCase
             },
         ], new DocumentDefinition());
 
-        /** @var StaticEntityRepository<DocumentFileCollection> $documentFileRepository */
-        $documentFileRepository = new StaticEntityRepository([
+        $documentFileRepository = StaticEntityRepository::of(DocumentFileCollection::class, [
             new DocumentFileCollection([]),
         ], new DocumentFileDefinition());
 
-        /** @var StaticEntityRepository<DocumentTypeCollection> $documentTypeRepository */
-        $documentTypeRepository = new StaticEntityRepository([
+        $documentTypeRepository = StaticEntityRepository::of(DocumentTypeCollection::class, [
             [$documentTypeId],
         ], new DocumentTypeDefinition());
 

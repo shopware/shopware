@@ -35,7 +35,6 @@ class SystemLanguageChangedSubscriberTest extends TestCase
 
     public function testDoesNotRunIfNoSnippetsExist(): void
     {
-        /** @var StaticEntityRepository<AppAdministrationSnippetCollection> $snippetRepository */
         $snippetRepository = new StaticEntityRepository([new AppAdministrationSnippetCollection()]);
 
         $subscriber = new SystemLanguageChangedSubscriber(
@@ -93,13 +92,11 @@ class SystemLanguageChangedSubscriberTest extends TestCase
 
     public function testDoesNotUpdateSnippetsIfSystemLanguageIsChangedFromEnGbToDeDe(): void
     {
-        /** @var StaticEntityRepository<LocaleCollection> $localeRepository */
         $localeRepository = new StaticEntityRepository([
             new LocaleCollection([$previousLocale = $this->createLocale('en-GB')]),
             new LocaleCollection([$newLocale = $this->createLocale('de-DE')]),
         ]);
 
-        /** @var StaticEntityRepository<AppAdministrationSnippetCollection> $snippetRepository */
         $snippetRepository = new StaticEntityRepository([new AppAdministrationSnippetCollection([
             $this->createSnippet('app-one-id', $previousLocale->getId()),
             $this->createSnippet('app-one-id', 'other-locale-id'),
@@ -124,13 +121,11 @@ class SystemLanguageChangedSubscriberTest extends TestCase
     #[DataProvider('localeCodes')]
     public function testUpdatesSnippetsForPreviousLocaleWithPreviousLocaleId(string $locale): void
     {
-        /** @var StaticEntityRepository<LocaleCollection> $localeRepository */
         $localeRepository = new StaticEntityRepository([
             new LocaleCollection([$previousLocale = $this->createLocale('en-GB')]),
             new LocaleCollection([$newLocale = $this->createLocale($locale)]),
         ]);
 
-        /** @var StaticEntityRepository<AppAdministrationSnippetCollection> $snippetRepository */
         $snippetRepository = new StaticEntityRepository([new AppAdministrationSnippetCollection([
             $snippetOneToUpdate = $this->createSnippet('app-one-id', $newLocale->getId()),
             $this->createSnippet('app-one-id', 'other-locale-id'),
@@ -163,13 +158,11 @@ class SystemLanguageChangedSubscriberTest extends TestCase
     #[DataProvider('localeCodes')]
     public function testUpdatesSnippetsForNewLocaleWithNewLocaleId(string $locale): void
     {
-        /** @var StaticEntityRepository<LocaleCollection> $localeRepository */
         $localeRepository = new StaticEntityRepository([
             new LocaleCollection([$previousLocale = $this->createLocale('en-GB')]),
             new LocaleCollection([$newLocale = $this->createLocale($locale)]),
         ]);
 
-        /** @var StaticEntityRepository<AppAdministrationSnippetCollection> $snippetRepository */
         $snippetRepository = new StaticEntityRepository([new AppAdministrationSnippetCollection([
             $this->createSnippet('app-one-id', $previousLocale->getId()),
             $this->createSnippet('app-two-id', $previousLocale->getId()),

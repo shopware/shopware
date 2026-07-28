@@ -3,15 +3,12 @@
 namespace Shopware\Tests\Unit\Administration\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Administration;
 use Shopware\Administration\Command\DeleteAdminFilesAfterBuildCommand;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
@@ -54,43 +51,16 @@ class DeleteAdminFilesAfterBuildCommandTest extends TestCase
         static::assertStringContainsString('All unnecessary files of the administration after the build process have been deleted.', $commandTester->getDisplay());
     }
 
-    #[TestDox('snippet directories and their contents survive the cleanup')]
-    public function testSnippetDirectoriesAreNeverDeleted(): void
+    public function testDeleteEmptyDirectoriesSkipsNonExistentDirectory(): void
     {
-        $snippetDirectories = $this->findSnippetDirectories();
-        static::assertNotEmpty(
-            $snippetDirectories,
-            'The administration components must ship at least one snippet directory, otherwise this test proves nothing.'
-        );
+        $this->filesystem->expects($this->never())
+            ->method('remove');
 
-        $deleted = $this->runCommandRecordingDeletions();
+        $command = new DeleteAdminFilesAfterBuildCommand($this->filesystem);
+        $reflection = new \ReflectionClass($command);
+        $method = $reflection->getMethod('deleteEmptyDirectories');
 
-        foreach ($snippetDirectories as $snippetDirectory) {
-            static::assertNotContains($snippetDirectory, $deleted);
-            static::assertSame([], array_values(array_filter(
-                $deleted,
-                static fn (string $path): bool => str_starts_with($path, $snippetDirectory . '/')
-            )));
-            static::assertContains(
-                \dirname($snippetDirectory),
-                $deleted,
-                'The directory containing the snippet directory is cleaned up, so the snippet guard was really hit.'
-            );
-        }
-    }
-
-    #[TestDox('directories that do not exist are not passed to the filesystem')]
-    public function testNonExistingDirectoriesAreSkipped(): void
-    {
-        $missingDirectory = $this->administrationDirectory() . '/Resources/app/administration/src/app/asyncComponent';
-        $existingDirectory = $this->administrationDirectory() . '/Resources/app/administration/src/app/component';
-
-        static::assertDirectoryDoesNotExist($missingDirectory);
-
-        $deleted = $this->runCommandRecordingDeletions();
-
-        static::assertNotContains($missingDirectory, $deleted);
-        static::assertContains($existingDirectory, $deleted);
+        $method->invoke($command, '/non/existent/directory');
     }
 
     public function testDeleteEmptyDirectoriesRemovesSingleEmptyDirectory(): void
@@ -181,53 +151,43 @@ class DeleteAdminFilesAfterBuildCommandTest extends TestCase
         $fs->remove($testDir);
     }
 
-    /**
-     * Runs the command through its public interface. The filesystem double records the requested
-     * deletions instead of performing them, so the real administration sources stay untouched.
-     *
-     * @return list<string>
-     */
-    private function runCommandRecordingDeletions(): array
+    public function testRemoveDirectorySkipsSnippetDirectory(): void
     {
-        $deleted = [];
+        $testDir = sys_get_temp_dir() . '/test_dir_' . uniqid();
+        $snippetDir = $testDir . '/snippet';
+        $fs = new Filesystem();
+        $fs->mkdir($snippetDir);
 
-        $this->filesystem->expects($this->atLeastOnce())
-            ->method('remove')
-            ->willReturnCallback(function (string|iterable $files) use (&$deleted): void {
-                foreach (\is_iterable($files) ? $files : [$files] as $file) {
-                    $deleted[] = (string) $file;
-                }
-            });
+        $this->filesystem->expects($this->never())
+            ->method('remove');
 
-        $commandTester = new CommandTester($this->command);
-        $commandTester->setInputs(['yes']);
-        $commandTester->execute([]);
+        $command = new DeleteAdminFilesAfterBuildCommand($this->filesystem);
+        $reflection = new \ReflectionClass($command);
+        $method = $reflection->getMethod('removeDirectory');
 
-        $commandTester->assertCommandIsSuccessful();
+        $method->invoke($command, $snippetDir);
 
-        return $deleted;
+        static::assertDirectoryExists($snippetDir);
+        $fs->remove($testDir);
     }
 
-    /**
-     * @return list<string>
-     */
-    private function findSnippetDirectories(): array
+    public function testRemoveDirectorySkipsNestedSnippetDirectory(): void
     {
-        $finder = new Finder();
-        $finder->in($this->administrationDirectory() . '/Resources/app/administration/src/app/component')
-            ->directories()
-            ->name('snippet');
+        $testDir = sys_get_temp_dir() . '/test_nested_snippet_' . uniqid();
+        $nestedSnippet = $testDir . '/some/path/snippet';
+        $fs = new Filesystem();
+        $fs->mkdir($nestedSnippet);
 
-        $snippetDirectories = [];
-        foreach ($finder as $snippetDirectory) {
-            $snippetDirectories[] = (string) $snippetDirectory->getRealPath();
-        }
+        $this->filesystem->expects($this->never())
+            ->method('remove');
 
-        return $snippetDirectories;
-    }
+        $command = new DeleteAdminFilesAfterBuildCommand($this->filesystem);
+        $reflection = new \ReflectionClass($command);
+        $method = $reflection->getMethod('removeDirectory');
 
-    private function administrationDirectory(): string
-    {
-        return (new Administration())->getPath();
+        $method->invoke($command, $nestedSnippet);
+
+        static::assertDirectoryExists($nestedSnippet);
+        $fs->remove($testDir);
     }
 }

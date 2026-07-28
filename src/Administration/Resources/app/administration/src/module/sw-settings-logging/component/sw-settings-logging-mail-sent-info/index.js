@@ -10,6 +10,23 @@ export default {
     template,
 
     computed: {
+        entryInfoTabs() {
+            return [
+                {
+                    label: this.$t('sw-settings-logging.mailInfo.tabHTML'),
+                    name: 'html',
+                },
+                {
+                    label: this.$t('sw-settings-logging.mailInfo.tabPlain'),
+                    name: 'plain',
+                },
+                {
+                    label: this.$t('sw-settings-logging.entryInfo.tabRaw'),
+                    name: 'raw',
+                },
+            ];
+        },
+
         recipientString() {
             let recipients = '';
             const addresses = Object.keys(this.logEntry.context.additionalData.recipients);

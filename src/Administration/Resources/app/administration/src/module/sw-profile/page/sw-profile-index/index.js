@@ -22,9 +22,9 @@ export default {
         'acl',
         'searchPreferencesService',
         'searchRankingService',
-        'userConfigService',
         'ssoSettingsService',
         'validationApiService',
+        'feature',
     ],
 
     mixins: [
@@ -102,6 +102,24 @@ export default {
 
         languageId() {
             return Shopware.Store.get('session').languageId;
+        },
+
+        profileTabs() {
+            const createRouteTab = (label, routeName) => {
+                return {
+                    label: this.$t(label),
+                    name: routeName,
+                    onClick: () => {
+                        void this.$router.push({ name: routeName });
+                    },
+                };
+            };
+
+            return [
+                createRouteTab('sw-profile.tabGeneral.title', 'sw.profile.index.general'),
+                createRouteTab('sw-profile.tabSearchPreferences.title', 'sw.profile.index.searchPreferences'),
+                createRouteTab('sw-profile.tabPrivacyPreferences.title', 'sw.profile.index.privacyPreferences'),
+            ];
         },
     },
 
@@ -464,7 +482,7 @@ export default {
 
             this.isLoading = true;
             this.isSaveSuccessful = false;
-            return this.userConfigService
+            return Shopware.Service('userConfigService')
                 .upsert({
                     [KEY_USER_SEARCH_PREFERENCE]: this.userSearchPreferences.value,
                 })

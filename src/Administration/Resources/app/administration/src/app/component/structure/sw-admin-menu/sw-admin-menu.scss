@@ -535,6 +535,21 @@
             }
         }
     }
+
+    // No transitions while the viewport resizes: crossing the off-canvas breakpoint would animate the
+    // width difference between the two menu modes and look like the menu collapses on its own.
+    &.is--viewport-resizing,
+    &.is--viewport-resizing * {
+        transition: none;
+    }
+
+    // The collapsible branches close via a keyframe animation, which `transition: none` does not
+    // cover. Only the closing direction is suppressed: the opening one plays while the off-canvas
+    // panel is still off-screen, and suppressing it would replay it once the class is removed
+    // again (a changed `animation-name` restarts the keyframes).
+    &.is--viewport-resizing .mt-collapsible-content[data-state="closed"] {
+        animation: none;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {

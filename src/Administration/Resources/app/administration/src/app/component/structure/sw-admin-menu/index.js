@@ -9,6 +9,10 @@ const { dom } = Shopware.Utils;
 // Keep in sync with --sw-admin-menu-duration in sw-admin-menu.scss.
 const SIDEBAR_TOGGLE_ANIMATION_DURATION = 500;
 
+// Outlasts the debounced `$device` resize listener, so the viewport state it applies late still
+// falls into the transition-free window.
+const VIEWPORT_RESIZE_SETTLE_DURATION = 200;
+
 /**
  * @sw-package framework
  *
@@ -54,6 +58,8 @@ export default {
             shopName: '',
             isTogglingSidebar: false,
             toggleSidebarTimeout: null,
+            isViewportResizing: false,
+            viewportResizeTimeout: null,
             // Key of the top-level branch owning the currently active route.
             activeBranchKey: null,
         };
@@ -162,6 +168,7 @@ The admin menu only supports up to three levels of nesting.`,
                 'is--collapsed': !this.isExpanded,
                 'is--off-canvas-shown': this.isOffCanvasShown,
                 'is--toggling': this.isTogglingSidebar,
+                'is--viewport-resizing': this.isViewportResizing,
             };
         },
 
@@ -226,6 +233,13 @@ The admin menu only supports up to three levels of nesting.`,
                 this.deactivateOffCanvasFocusTrap();
             }
         },
+        isMobileViewport(isMobile) {
+            // Resizing above the breakpoint with an open panel would otherwise keep the focus trap
+            // active on the desktop menu and reopen the panel on the next crossing.
+            if (!isMobile && this.isOffCanvasShown) {
+                this.closeOffCanvas();
+            }
+        },
         '$route.fullPath': {
             handler() {
                 // Close an open flyout after navigating, e.g. when a flyout link
@@ -275,6 +289,10 @@ The admin menu only supports up to three levels of nesting.`,
 
             Shopware.Utils.EventBus.on('sw-admin-menu/toggle-offcanvas', this.onToggleCanvas);
 
+            // Raw listener on purpose: the suppression class has to land in the same frame as the
+            // media query flip, the debounced `$device` listener is too late for that.
+            window.addEventListener('resize', this.onViewportResize);
+
             this.initNavigation();
         },
 
@@ -293,10 +311,31 @@ The admin menu only supports up to three levels of nesting.`,
         beforeUnmountedComponent() {
             this.deactivateOffCanvasFocusTrap();
             Shopware.Utils.EventBus.off('sw-admin-menu/toggle-offcanvas', this.onToggleCanvas);
+            window.removeEventListener('resize', this.onViewportResize);
 
             if (this.toggleSidebarTimeout) {
                 clearTimeout(this.toggleSidebarTimeout);
             }
+
+            if (this.viewportResizeTimeout) {
+                clearTimeout(this.viewportResizeTimeout);
+            }
+        },
+
+        onViewportResize() {
+            // Synced here instead of the debounced `$device` listener: the menu mode derived from it
+            // has to flip in the same frame as the CSS breakpoint, the debounce shows the wrong mode
+            // for its full delay otherwise.
+            this.viewportWidth = this.$device.getViewportWidth();
+            this.isViewportResizing = true;
+
+            if (this.viewportResizeTimeout) {
+                clearTimeout(this.viewportResizeTimeout);
+            }
+
+            this.viewportResizeTimeout = setTimeout(() => {
+                this.isViewportResizing = false;
+            }, VIEWPORT_RESIZE_SETTLE_DURATION);
         },
 
         onToggleCanvas(state) {
@@ -366,13 +405,6 @@ The admin menu only supports up to three levels of nesting.`,
         },
 
         mountedComponent() {
-            this.$device.onResize({
-                listener: () => {
-                    this.viewportWidth = this.$device.getViewportWidth();
-                },
-                component: this,
-            });
-
             this.addScrollbarOffset();
         },
 

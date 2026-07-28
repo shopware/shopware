@@ -317,6 +317,22 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         expect(wrapper.vm.isOffCanvasShown).toBe(false);
     });
 
+    it('should suppress the menu transitions while the viewport is resizing', async () => {
+        jest.useFakeTimers();
+
+        wrapper.vm.onViewportResize();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('aside.sw-admin-menu').classes()).toContain('is--viewport-resizing');
+
+        jest.advanceTimersByTime(200);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('aside.sw-admin-menu').classes()).not.toContain('is--viewport-resizing');
+
+        jest.useRealTimers();
+    });
+
     it('should keep the closed off-canvas menu out of the tab order via inert', async () => {
         const menu = wrapper.find('aside.sw-admin-menu');
         // Browsers reflect `inert` as a property, jsdom only knows the attribute.
@@ -351,6 +367,19 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         expect(attachedWrapper.vm.offCanvasFocusTrap).toBeNull();
 
         attachedWrapper.unmount();
+    });
+
+    it('should close the open off-canvas menu when the viewport grows past the breakpoint', async () => {
+        wrapper.vm.viewportWidth = 1280;
+        wrapper.vm.onToggleCanvas(true);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.isOffCanvasShown).toBe(true);
+
+        wrapper.vm.viewportWidth = 1920;
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.isOffCanvasShown).toBe(false);
     });
 
     it('should render correct admin menu entries', async () => {

@@ -55,8 +55,7 @@ class UnusedMediaSubscriberTest extends TestCase
             ],
         ];
 
-        /** @var StaticEntityRepository<ThemeCollection> $themeRepository */
-        $themeRepository = new StaticEntityRepository([
+        $themeRepository = StaticEntityRepository::of(ThemeCollection::class, [
             static function (Criteria $criteria, Context $context) use ($themeId1, $themeId2) {
                 return new IdSearchResult(2, [
                     $themeId1 => ['primaryKey' => $themeId1, 'data' => []],
@@ -85,8 +84,7 @@ class UnusedMediaSubscriberTest extends TestCase
 
     public function testNoMediaRemovedWhenNoThemesExist(): void
     {
-        /** @var StaticEntityRepository<ThemeCollection> $themeRepository */
-        $themeRepository = new StaticEntityRepository([
+        $themeRepository = StaticEntityRepository::of(ThemeCollection::class, [
             static function (Criteria $criteria, Context $context) {
                 return new IdSearchResult(0, [], $criteria, $context);
             },
@@ -109,8 +107,7 @@ class UnusedMediaSubscriberTest extends TestCase
     {
         $themeId = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<ThemeCollection> $themeRepository */
-        $themeRepository = new StaticEntityRepository([
+        $themeRepository = StaticEntityRepository::of(ThemeCollection::class, [
             static function (Criteria $criteria, Context $context) use ($themeId) {
                 return new IdSearchResult(1, [
                     $themeId => ['primaryKey' => $themeId, 'data' => []],

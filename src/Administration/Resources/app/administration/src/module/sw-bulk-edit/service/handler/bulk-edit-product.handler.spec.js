@@ -657,6 +657,210 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                 },
             ],
             [
+                'remove a variant visibility per variant (inheriting vs overriding)',
+                [
+                    {
+                        type: 'remove',
+                        field: 'visibilities',
+                        mappingReferenceField: 'salesChannelId',
+                        // The kept selection is irrelevant for the handler; it routes on the flags below.
+                        value: [
+                            { salesChannelId: 'scn_1', visibility: 30 },
+                            { salesChannelId: 'scn_2', visibility: 30 },
+                        ],
+                        removedSalesChannelIds: ['scn_3'],
+                        inheritedVisibilities: [
+                            { salesChannelId: 'scn_1', visibility: 30 },
+                            { salesChannelId: 'scn_2', visibility: 30 },
+                            { salesChannelId: 'scn_3', visibility: 20 },
+                        ],
+                    },
+                ],
+                {
+                    // product_1 inherits → materialize the inherited set minus scn_3.
+                    'upsert-product_visibility': {
+                        action: 'upsert',
+                        entity: 'product_visibility',
+                        payload: [
+                            { productId: 'product_1', salesChannelId: 'scn_1', visibility: 30 },
+                            { productId: 'product_1', salesChannelId: 'scn_2', visibility: 30 },
+                        ],
+                    },
+                    // product_2 overrides (scn_g, scn_3) → only its own scn_3 row is dropped, scn_g stays.
+                    'delete-product_visibility': {
+                        action: 'delete',
+                        entity: 'product_visibility',
+                        payload: [{ id: 'pv_2_3' }],
+                    },
+                },
+                {
+                    product_visibility: [
+                        {
+                            id: 'pv_2_g',
+                            productId: 'product_2',
+                            salesChannelId: 'scn_g',
+                            visibility: 30,
+                        },
+                        {
+                            id: 'pv_2_3',
+                            productId: 'product_2',
+                            salesChannelId: 'scn_3',
+                            visibility: 20,
+                        },
+                    ],
+                },
+            ],
+            [
+                'remove a variant visibility leaves variants untouched when nothing is removed',
+                [
+                    {
+                        type: 'remove',
+                        field: 'visibilities',
+                        mappingReferenceField: 'salesChannelId',
+                        value: [
+                            { salesChannelId: 'scn_1', visibility: 30 },
+                        ],
+                        removedSalesChannelIds: [],
+                        inheritedVisibilities: [
+                            { salesChannelId: 'scn_1', visibility: 30 },
+                        ],
+                    },
+                ],
+                {},
+            ],
+            [
+                'add a variant visibility keeps the inherited set per variant',
+                [
+                    {
+                        type: 'add',
+                        field: 'visibilities',
+                        mappingReferenceField: 'salesChannelId',
+                        value: [
+                            { salesChannelId: 'scn_1', visibility: 30 },
+                        ],
+                        removedSalesChannelIds: [],
+                        // Adding scn_1 which is already inherited must not drop scn_2.
+                        addedVisibilities: [{ salesChannelId: 'scn_1', visibility: 30 }],
+                        inheritedVisibilities: [
+                            { salesChannelId: 'scn_1', visibility: 30 },
+                            { salesChannelId: 'scn_2', visibility: 30 },
+                        ],
+                    },
+                ],
+                {
+                    'upsert-product_visibility': {
+                        action: 'upsert',
+                        entity: 'product_visibility',
+                        payload: [
+                            // product_1 inherits → materialize the whole inherited set.
+                            { productId: 'product_1', salesChannelId: 'scn_1', visibility: 30 },
+                            { productId: 'product_1', salesChannelId: 'scn_2', visibility: 30 },
+                            // product_2 overrides (owns scn_2) → only scn_1 is added, scn_2 kept.
+                            { productId: 'product_2', salesChannelId: 'scn_1', visibility: 30 },
+                        ],
+                    },
+                },
+                {
+                    product_visibility: [
+                        {
+                            id: 'pv_2_2',
+                            productId: 'product_2',
+                            salesChannelId: 'scn_2',
+                            visibility: 30,
+                        },
+                    ],
+                },
+            ],
+            [
+                'add a brand-new sales channel to a variant keeps its effective set',
+                [
+                    {
+                        type: 'add',
+                        field: 'visibilities',
+                        mappingReferenceField: 'salesChannelId',
+                        value: [
+                            { salesChannelId: 'scn_9', visibility: 10 },
+                        ],
+                        removedSalesChannelIds: [],
+                        addedVisibilities: [{ salesChannelId: 'scn_9', visibility: 10 }],
+                        inheritedVisibilities: [
+                            { salesChannelId: 'scn_1', visibility: 30 },
+                            { salesChannelId: 'scn_2', visibility: 30 },
+                        ],
+                    },
+                ],
+                {
+                    // Both variants inherit → materialize the inherited set plus the new channel.
+                    'upsert-product_visibility': {
+                        action: 'upsert',
+                        entity: 'product_visibility',
+                        payload: [
+                            { productId: 'product_1', salesChannelId: 'scn_1', visibility: 30 },
+                            { productId: 'product_1', salesChannelId: 'scn_2', visibility: 30 },
+                            { productId: 'product_1', salesChannelId: 'scn_9', visibility: 10 },
+                            { productId: 'product_2', salesChannelId: 'scn_1', visibility: 30 },
+                            { productId: 'product_2', salesChannelId: 'scn_2', visibility: 30 },
+                            { productId: 'product_2', salesChannelId: 'scn_9', visibility: 10 },
+                        ],
+                    },
+                },
+                {
+                    product_visibility: [],
+                },
+            ],
+            [
+                'remove all channels makes a variant inherit the parent again',
+                [
+                    {
+                        type: 'remove',
+                        field: 'visibilities',
+                        mappingReferenceField: 'salesChannelId',
+                        value: [
+                            { salesChannelId: 'scn_1', visibility: 30 },
+                            { salesChannelId: 'scn_2', visibility: 30 },
+                        ],
+                        removedSalesChannelIds: [
+                            'scn_1',
+                            'scn_2',
+                        ],
+                        inheritedVisibilities: [
+                            { salesChannelId: 'scn_1', visibility: 30 },
+                            { salesChannelId: 'scn_2', visibility: 30 },
+                        ],
+                    },
+                ],
+                {
+                    // The final set is empty for every variant. An inheriting variant
+                    // (product_1) already has no own rows, so nothing happens and it keeps
+                    // inheriting. An overriding variant (product_2) has its own rows deleted,
+                    // dropping to zero rows — which means it inherits the parent again.
+                    'delete-product_visibility': {
+                        action: 'delete',
+                        entity: 'product_visibility',
+                        payload: [
+                            { id: 'pv_2_1' },
+                            { id: 'pv_2_2' },
+                        ],
+                    },
+                },
+                {
+                    product_visibility: [
+                        {
+                            id: 'pv_2_1',
+                            productId: 'product_2',
+                            salesChannelId: 'scn_1',
+                            visibility: 30,
+                        },
+                        {
+                            id: 'pv_2_2',
+                            productId: 'product_2',
+                            salesChannelId: 'scn_2',
+                            visibility: 30,
+                        },
+                    ],
+                },
+            ],
+            [
                 'add an oneToMany association with mapping reference field',
                 [
                     {

@@ -4,13 +4,9 @@
 
 ## API
 
-### Product export preview and validation require `product_export:update`
+### Template rendering endpoints require update privileges
 
-The `POST /api/_action/product-export/preview` and `POST /api/_action/product-export/validate` endpoints now require the `product_export:update` ACL privilege. Admin API integrations and users that use these endpoints must be granted this existing privilege.
-
-### Mail template simulation requires `mail_template:update`
-
-The `POST /api/_action/mail-template/simulate` endpoint now requires the `mail_template:update` ACL privilege. Admin API integrations and users that simulate caller-provided mail template content must be granted this existing privilege.
+The `POST /api/_action/product-export/preview` and `POST /api/_action/product-export/validate` endpoints now require the `product_export:update` ACL privilege. The `POST /api/_action/mail-template/simulate` endpoint now requires `mail_template:update`. Admin API integrations and users that use these endpoints must be granted the respective existing privilege.
 
 ## Core
 

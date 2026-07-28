@@ -122,7 +122,7 @@ Field selection: `{"includes": {"product": ["id", "name", "productNumber", "pric
 - Permission denied: the integration lacks the required ACL privilege (e.g. `product:read`, `order:update`)
 
 ## Best practices
-1. Call `shopware-entity-schema` to look up field names before building criteria — even for common entities like `order` or `product`
+1. If you don't already know an entity's field names, `shopware-entity-schema` will tell you — look it up before building criteria rather than guessing
 2. Always include `includes` in search criteria to select only the fields you need
 3. Always use dryRun=true before any write operation
 4. For counts, sums, and averages, always use `shopware-entity-aggregate` — never `shopware-entity-search`. The search tool returns records; the aggregate tool returns numbers.
@@ -149,7 +149,7 @@ Field selection: `{"includes": {"product": ["id", "name", "productNumber", "pric
 - "Change the shop name in X to Y" → `shopware-system-config-write`
 
 ### Field name and schema questions
-- "What field name should I use for X?" → `shopware-entity-schema` on that entity — always use entity-schema for field discovery, never try to answer from memory
+- "What field name should I use for X?" → if you don't already know it, `shopware-entity-schema` on that entity will tell you
 - "What fields does entity X have?" → `shopware-entity-schema`
 
 ### Available payment and shipping methods

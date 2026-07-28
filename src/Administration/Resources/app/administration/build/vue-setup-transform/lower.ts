@@ -22,8 +22,16 @@ import type { ShopwareSetupBlock } from './utils/shopware-setup-block';
  * Narrowing on `analysis.mode` (rather than `block.mode`) is what gives each lowerer a parameter type
  * carrying only the fields its strategy actually produces.
  */
-function lowerShopwareSetupBlock(block: ShopwareSetupBlock, analysis: ShopwareSetupScriptAnalysis): SourceChunk[] {
-    return analysis.mode === 'base' ? buildBaseScript(block, analysis) : buildOverrideScript(block, analysis);
+function lowerShopwareSetupBlock(
+    block: ShopwareSetupBlock,
+    analysis: ShopwareSetupScriptAnalysis,
+    // Which override-local bindings the template forwards - known only after template analysis, so it
+    // arrives here rather than on `analysis`. Always empty in base mode.
+    overridePrivateBindings: Set<string>,
+): SourceChunk[] {
+    return analysis.mode === 'base'
+        ? buildBaseScript(block, analysis)
+        : buildOverrideScript(block, analysis, overridePrivateBindings);
 }
 
 /**

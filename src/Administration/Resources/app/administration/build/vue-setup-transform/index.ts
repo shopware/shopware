@@ -68,16 +68,11 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
             lang: block.lang,
             scriptOffset: block.contentStart,
         });
-        if (analysis.mode === 'base') {
-            templateAnalysis = analyzeBaseTemplate(block);
-        } else {
-            templateAnalysis = analyzeOverrideTemplate(block, analysis);
-            // Which override locals must be forwarded is only known after the template pass, so the
-            // script analysis is completed here rather than carrying an unresolved field through it.
-            analysis.overridePrivateBindings = templateAnalysis.privateBindings;
-        }
+        templateAnalysis = analysis.mode === 'base' ? analyzeBaseTemplate(block) : analyzeOverrideTemplate(block, analysis);
 
-        replacement = lowerShopwareSetupBlock(block, analysis);
+        // Which override locals must be forwarded is only known after the template pass, so it is passed
+        // straight into lowering (empty in base mode) rather than written back onto `analysis`.
+        replacement = lowerShopwareSetupBlock(block, analysis, templateAnalysis.privateBindings);
     } catch (error) {
         throw withBlockOffset(error, block);
     }

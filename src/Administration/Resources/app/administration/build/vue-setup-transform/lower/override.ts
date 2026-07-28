@@ -22,8 +22,8 @@ import { transformRanges } from '../source-edits/transform-ranges';
 /**
  * Builds the override callback payload from declared replacements and template-used private aliases.
  */
-function buildOverrideReturn(analysis: OverrideSetupScriptAnalysis): string {
-    const privateBindings = Array.from(analysis.overridePrivateBindings);
+function buildOverrideReturn(analysis: OverrideSetupScriptAnalysis, overridePrivateBindings: Set<string>): string {
+    const privateBindings = Array.from(overridePrivateBindings);
 
     if (analysis.overrideEntries.length === 0 && privateBindings.length === 0) {
         return 'return {};';
@@ -53,7 +53,11 @@ function buildOverrideReturn(analysis: OverrideSetupScriptAnalysis): string {
  * Lowers override mode into a hidden override component consumed by
  * registerOverrideComponent.
  */
-function buildOverrideScript(block: ShopwareSetupBlock, analysis: OverrideSetupScriptAnalysis): SourceChunk[] {
+function buildOverrideScript(
+    block: ShopwareSetupBlock,
+    analysis: OverrideSetupScriptAnalysis,
+    overridePrivateBindings: Set<string>,
+): SourceChunk[] {
     // Generated bindings use the reserved `__swSetup` prefix (rejected as user bindings), so they are
     // deterministic and never collide.
     const previousStateName = '__swSetupPreviousState';
@@ -66,7 +70,7 @@ function buildOverrideScript(block: ShopwareSetupBlock, analysis: OverrideSetupS
         generated(`const useSwProps = () => ${propsName};\n`),
         generated(`const useSwContext = () => ${contextName};\n\n`),
         ...callbackBody,
-        generated(`\n\n${buildOverrideReturn(analysis)}`),
+        generated(`\n\n${buildOverrideReturn(analysis, overridePrivateBindings)}`),
     ];
     const chunks: SourceChunk[] = [generated(`${block.openingTagSource}\n`)];
 
@@ -86,7 +90,7 @@ function buildOverrideScript(block: ShopwareSetupBlock, analysis: OverrideSetupS
     // instance, so a symbol created there would be a different value every time and the state lookup
     // would never match. Module scope evaluates once, giving one stable symbol per override file - and it
     // stays template-visible, so the generated computed key resolves.
-    if (analysis.overridePrivateBindings.size > 0) {
+    if (overridePrivateBindings.size > 0) {
         chunks.push(
             generated(
                 `const ${OVERRIDE_NAMESPACE_BINDING} = Symbol('${escapeSingleQuoted(block.componentName)}.override');\n\n`,

@@ -81,7 +81,8 @@ type BaseScriptAnalysis = {
  * Override mode moves the author body into a callback, so imports and type declarations are lifted to
  * the generated script root and removed from the body, and nothing is renamed.
  *
- * `overridePrivateBindings` is filled by template analysis, which runs after this pass.
+ * The set of override-local bindings to forward is not here: it is only known after template analysis,
+ * so it is passed straight to the lowerer rather than carried as a would-be-empty field on this shape.
  */
 type OverrideScriptAnalysis = {
     mode: 'override';
@@ -92,7 +93,6 @@ type OverrideScriptAnalysis = {
     bodyRemovals: SourceRange[];
     overrideEntries: string[];
     runtimeInputAliasNames: Set<string>;
-    overridePrivateBindings: Set<string>;
 };
 
 /**
@@ -302,7 +302,6 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
             ],
             overrideEntries,
             runtimeInputAliasNames: collector.aliasNames,
-            overridePrivateBindings: new Set(),
         };
     }
 

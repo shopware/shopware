@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
-use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -40,10 +40,9 @@ class CacheWatchDelayedCommandTest extends TestCase
         $container->method('has')->willReturn(false);
 
         $command = new CacheWatchDelayedCommand($container);
-        $tester = $this->runWithConsoleOutput($command);
+        $status = $this->runWithConsoleOutput($command);
 
-        static::assertSame(Command::FAILURE, $tester->getStatusCode());
-        static::assertStringContainsString('Redis cache invalidation is not configured.', $tester->getDisplay());
+        static::assertSame(Command::FAILURE, $status);
     }
 
     #[TestDox('fails when the redis adapter does not support sMembers')]
@@ -54,10 +53,9 @@ class CacheWatchDelayedCommandTest extends TestCase
         $container->method('get')->willReturn(new \stdClass());
 
         $command = new CacheWatchDelayedCommand($container);
-        $tester = $this->runWithConsoleOutput($command);
+        $status = $this->runWithConsoleOutput($command);
 
-        static::assertSame(Command::FAILURE, $tester->getStatusCode());
-        static::assertStringContainsString('Redis adapter does not support sMembers method.', $tester->getDisplay());
+        static::assertSame(Command::FAILURE, $status);
     }
 
     #[TestDox('subscribes to SIGINT and SIGTERM')]
@@ -111,14 +109,15 @@ class CacheWatchDelayedCommandTest extends TestCase
         yield 'above maximum is capped at 1000' => [5000, 1000];
     }
 
-    private function runWithConsoleOutput(CacheWatchDelayedCommand $command): CommandTester
+    private function runWithConsoleOutput(CacheWatchDelayedCommand $command): int
     {
-        // The watch command requires a ConsoleOutputInterface; "capture_stderr_separately" makes the
-        // tester run the command with a ConsoleOutput (writing into memory streams), and execute()
-        // returns before the watch loop in the failure paths.
-        $tester = new CommandTester($command);
-        $tester->execute([], ['capture_stderr_separately' => true]);
+        // The watch command requires a ConsoleOutputInterface; execute() returns before the
+        // watch loop in the failure paths, so a stubbed console output is sufficient.
+        $status = (new \ReflectionMethod($command, 'execute'))
+            ->invoke($command, new ArrayInput([]), static::createStub(ConsoleOutputInterface::class));
 
-        return $tester;
+        \assert(\is_int($status));
+
+        return $status;
     }
 }

@@ -10,7 +10,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTaskHandler;
-use Shopware\Storefront\Theme\UnusedThemeFilesDeleter;
+use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
 
 /**
  * @internal
@@ -21,8 +21,8 @@ class DeleteThemeFilesTaskHandlerTest extends TestCase
 {
     public function testRunDelegatesToDeleter(): void
     {
-        $unusedThemeFilesDeleter = $this->createMock(UnusedThemeFilesDeleter::class);
-        $unusedThemeFilesDeleter->expects($this->once())->method('deleteUnusedFiles')->willReturn(0);
+        $unusedThemeFilesDeleter = $this->createMock(UnusedThemeDirectoryDeleter::class);
+        $unusedThemeFilesDeleter->expects($this->once())->method('deleteUnusedDirectories')->willReturn(0);
 
         $handler = new DeleteThemeFilesTaskHandler(
             static::createStub(EntityRepository::class),

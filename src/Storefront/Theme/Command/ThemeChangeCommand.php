@@ -12,7 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeService;
-use Shopware\Storefront\Theme\UnusedThemeFilesDeleter;
+use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
@@ -45,7 +45,7 @@ class ThemeChangeCommand extends Command
         private readonly StorefrontPluginRegistry $pluginRegistry,
         private readonly EntityRepository $salesChannelRepository,
         private readonly EntityRepository $themeRepository,
-        private readonly UnusedThemeFilesDeleter $unusedThemeFilesDeleter
+        private readonly UnusedThemeDirectoryDeleter $unusedThemeDirectoryDeleter
     ) {
         parent::__construct();
         $this->context = Context::createCLIContext();
@@ -135,8 +135,8 @@ class ThemeChangeCommand extends Command
             );
         }
 
-        if (!$input->getOption('no-compile') && !$input->getOption('no-cleanup')) {
-            $deletedDirectories = $this->unusedThemeFilesDeleter->deleteUnusedFiles();
+        if (!$input->getOption('no-cleanup')) {
+            $deletedDirectories = $this->unusedThemeDirectoryDeleter->deleteUnusedDirectories();
             $this->io->note(\sprintf('Deleted %d unused theme %s', $deletedDirectories, $deletedDirectories === 1 ? 'directory' : 'directories'));
         }
 

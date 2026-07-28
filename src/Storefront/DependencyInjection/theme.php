@@ -77,7 +77,7 @@ use Shopware\Storefront\Theme\ThemeService;
 use Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilder;
 use Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface;
 use Shopware\Storefront\Theme\Twig\ThemeNamespaceHierarchyBuilder;
-use Shopware\Storefront\Theme\UnusedThemeFilesDeleter;
+use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -275,7 +275,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('messenger.message_handler');
 
-    $services->set(UnusedThemeFilesDeleter::class)
+    $services->set(UnusedThemeDirectoryDeleter::class)
         ->args([
             service(Connection::class),
             service('shopware.filesystem.theme'),
@@ -290,7 +290,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('scheduled_task.repository'),
             service('logger'),
-            service(UnusedThemeFilesDeleter::class),
+            service(UnusedThemeDirectoryDeleter::class),
         ])
         ->tag('messenger.message_handler');
 
@@ -375,7 +375,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(StorefrontPluginRegistry::class),
             service('sales_channel.repository'),
             service('theme.repository'),
-            service(UnusedThemeFilesDeleter::class),
+            service(UnusedThemeDirectoryDeleter::class),
         ])
         ->tag('console.command');
 
@@ -384,7 +384,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ThemeService::class),
             service(AbstractAvailableThemeProvider::class),
             service(ClockInterface::class),
-            service(UnusedThemeFilesDeleter::class),
+            service(UnusedThemeDirectoryDeleter::class),
         ])
         ->tag('console.command');
 

@@ -12,17 +12,17 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\AbstractThemePathBuilder;
-use Shopware\Storefront\Theme\UnusedThemeFilesDeleter;
+use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
 use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(UnusedThemeFilesDeleter::class)]
-class UnusedThemeFilesDeleterTest extends TestCase
+#[CoversClass(UnusedThemeDirectoryDeleter::class)]
+class UnusedThemeDirectoryDeleterTest extends TestCase
 {
-    public function testDeleteUnusedFiles(): void
+    public function testDeleteUnusedDirectories(): void
     {
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())->method('fetchAllAssociative')->willReturn([
@@ -97,13 +97,13 @@ class UnusedThemeFilesDeleterTest extends TestCase
             ['salesChannelId2', 'themeId1', 'differentThemePrefix'],
         ]);
 
-        $deleter = new UnusedThemeFilesDeleter(
+        $deleter = new UnusedThemeDirectoryDeleter(
             $connection,
             $themeFileSystem,
             $themePathBuilder,
             new NativeClock()
         );
 
-        static::assertSame(3, $deleter->deleteUnusedFiles());
+        static::assertSame(3, $deleter->deleteUnusedDirectories());
     }
 }

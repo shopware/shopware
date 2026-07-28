@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('discovery')]
-class UnusedThemeFilesDeleter
+class UnusedThemeDirectoryDeleter
 {
     private const GRACE_PERIOD_HOURS = 24;
 
@@ -34,26 +34,24 @@ class UnusedThemeFilesDeleter
     /**
      * @return int the number of deleted theme directories
      */
-    public function deleteUnusedFiles(): int
+    public function deleteUnusedDirectories(): int
     {
         $usedThemePaths = $this->getUsedThemePaths();
 
         $themeDirectories = $this->themeFileSystem->listContents('theme')->filter(function (StorageAttributes $themeDirectory) use ($usedThemePaths) {
-            // Only delete unused theme directories
             if (\in_array($themeDirectory->path(), $usedThemePaths, true)) {
                 return false;
             }
 
-            // Find the first file in the directory, as on some file systems the directories are only virtual and do not have a timestamp
             $modifiedTimestampOfFirstFile = $this->getModifiedTimestampOfFirstFile($themeDirectory);
 
-            // If no files are found in the directory, delete it
             if ($modifiedTimestampOfFirstFile === null) {
                 return true;
             }
 
-            // Only delete directories that were last modified more than the grace period ago, as more recently compiled themes might still be referenced in cached responses
-            $graceBoundary = $this->clock->now()->modify(\sprintf('-%d hours', self::GRACE_PERIOD_HOURS))->getTimestamp();
+            $graceBoundary = $this->clock->now()
+                ->modify(\sprintf('-%d hours', self::GRACE_PERIOD_HOURS))
+                ->getTimestamp();
 
             return $graceBoundary > $modifiedTimestampOfFirstFile;
         });
@@ -79,13 +77,14 @@ class UnusedThemeFilesDeleter
 
         $themePaths = [];
         foreach (array_unique(array_column($salesChannelThemeMappings, 'themeId')) as $themeId) {
-            // Add path with themeId (for assets)
             $themePaths[] = 'theme' . \DIRECTORY_SEPARATOR . $themeId;
         }
 
         foreach ($salesChannelThemeMappings as $salesChannelThemeMapping) {
-            // Add path with themePrefix (for CSS and JS files)
-            $themePaths[] = 'theme' . \DIRECTORY_SEPARATOR . $this->themePathBuilder->assemblePath($salesChannelThemeMapping['salesChannelId'], $salesChannelThemeMapping['themeId']);
+            $themePaths[] = 'theme' . \DIRECTORY_SEPARATOR . $this->themePathBuilder->assemblePath(
+                $salesChannelThemeMapping['salesChannelId'],
+                $salesChannelThemeMapping['themeId']
+            );
         }
 
         return $themePaths;

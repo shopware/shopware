@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractAvailableThemeProvider;
 use Shopware\Storefront\Theme\ThemeService;
-use Shopware\Storefront\Theme\UnusedThemeFilesDeleter;
+use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -32,7 +32,7 @@ class ThemeCompileCommand extends Command
         private readonly ThemeService $themeService,
         private readonly AbstractAvailableThemeProvider $themeProvider,
         private readonly ClockInterface $clock,
-        private readonly UnusedThemeFilesDeleter $unusedThemeFilesDeleter
+        private readonly UnusedThemeDirectoryDeleter $unusedThemeDirectoryDeleter
     ) {
         parent::__construct();
     }
@@ -101,7 +101,7 @@ class ThemeCompileCommand extends Command
         }
 
         if (!$input->getOption('no-cleanup')) {
-            $deletedDirectories = $this->unusedThemeFilesDeleter->deleteUnusedFiles();
+            $deletedDirectories = $this->unusedThemeDirectoryDeleter->deleteUnusedDirectories();
             $this->io->note(\sprintf('Deleted %d unused theme %s', $deletedDirectories, $deletedDirectories === 1 ? 'directory' : 'directories'));
         }
 

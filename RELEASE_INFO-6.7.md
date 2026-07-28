@@ -47,9 +47,9 @@ The existing `reason:*` annotations will be migrated to these attributes in foll
 
 Each theme compilation writes its CSS/JS into a new seeded directory under `public/theme/<hash>`. Removing the now-unused previous directories was handled exclusively by the daily `theme.delete_files` scheduled task (`Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTask`). In environments where that task does not run reliably — e.g. `bin/console theme:compile` during a build/deploy step, or setups relying on the admin worker without an open Administration session — these directories accumulated without bound and could grow to many gigabytes.
 
-`bin/console theme:compile` and `bin/console theme:change` now run the same cleanup once after compilation, deleting unused theme directories whose files are older than 24 hours (recent directories are kept so cached responses still referencing them keep working). Pass `--no-cleanup` to skip this step and preserve the previous behaviour. For `theme:change` the cleanup is also skipped when `--no-compile` is used.
+`bin/console theme:compile` and `bin/console theme:change` now run the same cleanup once after compilation, deleting unused theme directories whose files are older than 24 hours (recent directories are kept so cached responses still referencing them keep working). Pass `--no-cleanup` to skip this step and preserve the previous behaviour.
 
-The cleanup logic is now provided by the reusable `Shopware\Storefront\Theme\UnusedThemeFilesDeleter` service, which the commands and the scheduled task all use. The scheduled task remains unchanged as a fallback.
+The cleanup logic is now provided by the reusable `Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter` service, which the commands and the scheduled task all use. The scheduled task remains unchanged as a fallback.
 
 ## App System
 

@@ -96,6 +96,14 @@ const config: Config = {
         // Exception in the build dir for vite plugins
         'build/vite-plugins/**/*.ts',
         '!build/vite-plugins/**/*.spec.ts',
+
+        // The extension tooling ships as production code (it runs in a shop via
+        // composer/bin/console), so its coverage is measured like any other.
+        // test-helpers.ts is fixture plumbing, not a covered source.
+        'scripts/extensionTooling/**/*.ts',
+        '!scripts/extensionTooling/**/*.spec.ts',
+        '!scripts/extensionTooling/**/*.spec/**',
+        '!scripts/extensionTooling/test-helpers.ts',
     ],
 
     coverageReporters: [

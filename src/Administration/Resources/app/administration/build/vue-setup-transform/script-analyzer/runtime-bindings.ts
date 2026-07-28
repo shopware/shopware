@@ -14,10 +14,8 @@ import { ShopwareSetupTransformError } from '../utils/transform-error';
 import { absoluteStart, unwrapTransparentMacroExpression } from './utils';
 import { forEachPatternIdentifier } from '../utils/babel-patterns';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
-import { getExposableSetupMacroNames, getRuntimeInputAliasNames, getSetupInputMacroNames } from './macro-registry';
+import { EXPOSABLE_SETUP_MACRO_NAMES, SETUP_INPUT_MACRO_NAMES, getRuntimeInputAliasNames } from './macro-registry';
 
-const SETUP_INPUT_MACRO_NAMES = getSetupInputMacroNames();
-const EXPOSABLE_SETUP_MACRO_NAMES = getExposableSetupMacroNames();
 const RUNTIME_INPUT_ALIAS_NAMES: Record<ShopwareSetupMode, Set<string>> = {
     base: getRuntimeInputAliasNames('base'),
     override: getRuntimeInputAliasNames('override'),
@@ -32,15 +30,31 @@ type RuntimeBinding = {
 };
 
 /**
- * Tracks import locals so imports stay preserved but are never returned as state.
+ * One imported local, with the import it came from and that import's source.
+ *
+ * Recorded while walking the specifiers so the reserved-name check gets `{ name, node, importSource }`
+ * directly, instead of re-deriving it later with a nested search over every import.
  */
-function collectImportBindings(importNode: ImportDeclaration, importedBindings: Set<string>): void {
+type ImportedBinding = {
+    name: string;
+    node: ImportDeclaration;
+    importSource: string;
+};
+
+/**
+ * Records every import local so imports stay preserved but are never returned as state.
+ */
+function collectImportBindings(importNode: ImportDeclaration, into: ImportedBinding[]): void {
     importNode.specifiers.forEach((specifier) => {
         if (!specifier.local?.name) {
             return;
         }
 
-        importedBindings.add(specifier.local.name);
+        into.push({
+            name: specifier.local.name,
+            node: importNode,
+            importSource: String(importNode.source.value),
+        });
     });
 }
 
@@ -229,4 +243,4 @@ function collectRuntimeBinding(
 /**
  * @private
  */
-export { type RuntimeBinding, RuntimeBindingCollector, collectImportBindings, collectRuntimeBinding };
+export { type ImportedBinding, type RuntimeBinding, RuntimeBindingCollector, collectImportBindings, collectRuntimeBinding };

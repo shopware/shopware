@@ -16,9 +16,9 @@ import { absoluteStart, walk } from './utils';
 import { isFunctionLikeNode } from '../utils/ast-traversal';
 import { RESERVED_OVERRIDE_STATE_NAME, SHOPWARE_SETUP_INTERNAL_PREFIX, type ShopwareSetupMacroName } from './macros';
 import {
-    getReservedHelperNames,
-    getTopLevelOnlyWalkChecks,
-    getVueBuiltinMacroNames,
+    RESERVED_HELPER_NAMES,
+    TOP_LEVEL_ONLY_WALK_CHECKS,
+    VUE_BUILTIN_MACRO_NAMES,
     getWrongModeWalkChecks,
 } from './macro-registry';
 import type { RuntimeBinding } from './runtime-bindings';
@@ -50,7 +50,7 @@ function assertNoUnsupportedSyntax(
     topLevelMarkerCalls: Map<string, Set<CallExpression>>,
 ): void {
     const wrongModeChecks = getWrongModeWalkChecks(mode);
-    const topLevelOnlyChecks = getTopLevelOnlyWalkChecks();
+    const topLevelOnlyChecks = TOP_LEVEL_ONLY_WALK_CHECKS;
 
     walk(ast.program, (node, ancestors) => {
         if (node.type === 'CallExpression' && node.callee.type === 'Identifier') {
@@ -123,8 +123,8 @@ function assertNoUnsupportedSyntax(
  * Prevents user bindings from shadowing generated composable-style helper names.
  */
 function assertReservedMacroNames(bindings: NamedBinding[], scriptOffset: number): void {
-    const helpers = getReservedHelperNames();
-    const vueBuiltins = getVueBuiltinMacroNames();
+    const helpers = RESERVED_HELPER_NAMES;
+    const vueBuiltins = VUE_BUILTIN_MACRO_NAMES;
 
     bindings.forEach((binding) => {
         // Vue macro names may be imported from 'vue' (the call stays a macro and Vue drops the

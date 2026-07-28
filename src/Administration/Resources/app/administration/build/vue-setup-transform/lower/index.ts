@@ -10,11 +10,11 @@
  * happens once, there - so original ranges stay addressable for later sourcemaps.
  */
 
-import { buildBaseScript } from './lower/base';
-import { buildOverrideScript } from './lower/override';
-import type { ShopwareSetupScriptAnalysis } from './script-analyzer';
-import type { SourceChunk } from './source-edits/chunks';
-import type { ShopwareSetupBlock } from './utils/shopware-setup-block';
+import { buildBaseScript } from './base';
+import { buildOverrideScript } from './override';
+import type { ShopwareSetupScriptAnalysis } from '../script-analyzer';
+import type { SourceChunk } from '../source-edits/chunks';
+import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 
 /**
  * Dispatches to the mode-specific lowering path after shared analysis has completed.

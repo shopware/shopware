@@ -280,39 +280,39 @@ function getMacroEntries(entries: MacroCallEntry[], name: MacroName, form?: Macr
 }
 
 /**
- * Returns the entries of one multiplicity group in source order (e.g. `props` for
- * defineProps/withDefaults).
- */
-function getMacroGroupEntries(entries: MacroCallEntry[], group: string): MacroCallEntry[] {
-    return entries.filter((entry) => (MACRO_RULES[entry.name].group ?? entry.name) === group);
-}
-
-/**
  * Returns the first entry of one multiplicity group, or null. (A duplicate would be rejected by Vue's
  * own compiler downstream for the Vue macros, and by assertMacroRules for the swDefine* markers.)
  */
 function getMacroGroupEntry(entries: MacroCallEntry[], group: string): MacroCallEntry | null {
-    return getMacroGroupEntries(entries, group)[0] ?? null;
+    return entries.find((entry) => (MACRO_RULES[entry.name].group ?? entry.name) === group) ?? null;
 }
+
+// The derived views below are pure functions of the frozen-in-practice MACRO_RULES constant, so they
+// are computed once as module-level constants rather than rebuilt per call. Only the two mode-dependent
+// views stay functions.
 
 /** Names whose declaration initializers read a setup input (`const props = defineProps()`). */
-function getSetupInputMacroNames(): Set<string> {
-    return new Set(MACRO_NAMES.filter((name) => MACRO_RULES[name].setupInput));
-}
+const SETUP_INPUT_MACRO_NAMES = new Set<string>(MACRO_NAMES.filter((name) => MACRO_RULES[name].setupInput));
 
 /** Names whose identifier declarations are exposed as private setup state. */
-function getExposableSetupMacroNames(): Set<string> {
-    return new Set(MACRO_NAMES.filter((name) => MACRO_RULES[name].exposable));
-}
+const EXPOSABLE_SETUP_MACRO_NAMES = new Set<string>(MACRO_NAMES.filter((name) => MACRO_RULES[name].exposable));
+
+/** All registry names; user bindings must not shadow them. */
+const RESERVED_HELPER_NAMES = new Set<string>(MACRO_NAMES);
+
+/** Vue compiler macro names: their imports are accepted, like native setup, and never shadow the macro. */
+const VUE_BUILTIN_MACRO_NAMES = new Set<string>(MACRO_NAMES.filter((name) => MACRO_RULES[name].vueBuiltin));
+
+/** Names the AST walk must reject outside the top level, with their messages. */
+const TOP_LEVEL_ONLY_WALK_CHECKS: { name: MacroName; message: string }[] = MACRO_NAMES.flatMap((name) => {
+    const topLevelOnly = MACRO_RULES[name].topLevelOnly;
+
+    return topLevelOnly ? [{ name, message: topLevelOnly.message }] : [];
+});
 
 /** Names whose declarations alias a runtime input in the given mode. */
 function getRuntimeInputAliasNames(mode: ShopwareSetupMode): Set<string> {
     return new Set(MACRO_NAMES.filter((name) => MACRO_RULES[name].alias && MACRO_RULES[name].modes.includes(mode)));
-}
-
-/** All registry names; user bindings must not shadow them. */
-function getReservedHelperNames(): Set<string> {
-    return new Set(MACRO_NAMES);
 }
 
 /** Wrong-mode names that the AST walk must also reject in nested positions, with their messages. */
@@ -325,35 +325,21 @@ function getWrongModeWalkChecks(mode: ShopwareSetupMode): { name: MacroName; mes
     }));
 }
 
-/** Names the AST walk must reject outside the top level, with their messages. */
-function getTopLevelOnlyWalkChecks(): { name: MacroName; message: string }[] {
-    return MACRO_NAMES.flatMap((name) => {
-        const topLevelOnly = MACRO_RULES[name].topLevelOnly;
-
-        return topLevelOnly ? [{ name, message: topLevelOnly.message }] : [];
-    });
-}
-
-/** Vue compiler macro names: their imports are accepted, like native setup, and never shadow the macro. */
-function getVueBuiltinMacroNames(): Set<string> {
-    return new Set(MACRO_NAMES.filter((name) => MACRO_RULES[name].vueBuiltin));
-}
-
 /**
  * @private
  */
 export {
     type MacroCallEntry,
     type MacroName,
+    EXPOSABLE_SETUP_MACRO_NAMES,
+    RESERVED_HELPER_NAMES,
+    SETUP_INPUT_MACRO_NAMES,
+    TOP_LEVEL_ONLY_WALK_CHECKS,
+    VUE_BUILTIN_MACRO_NAMES,
     assertMacroRules,
     collectMacroCallEntries,
-    getExposableSetupMacroNames,
     getMacroEntries,
     getMacroGroupEntry,
-    getReservedHelperNames,
     getRuntimeInputAliasNames,
-    getSetupInputMacroNames,
-    getTopLevelOnlyWalkChecks,
-    getVueBuiltinMacroNames,
     getWrongModeWalkChecks,
 };

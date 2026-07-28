@@ -219,6 +219,13 @@ The admin menu only supports up to three levels of nesting.`,
             this.toggleSidebar();
             this.startSidebarToggleWindow();
         },
+        isOffCanvasShown(isShown) {
+            if (isShown) {
+                this.activateOffCanvasFocusTrap();
+            } else {
+                this.deactivateOffCanvasFocusTrap();
+            }
+        },
         '$route.fullPath': {
             handler() {
                 // Close an open flyout after navigating, e.g. when a flyout link
@@ -256,8 +263,9 @@ The admin menu only supports up to three levels of nesting.`,
 
     methods: {
         createdComponent() {
-            // Non-reactive instance property; holds the active flyout focus trap.
+            // Non-reactive instance properties; hold the active focus traps.
             this.flyoutFocusTrap = null;
+            this.offCanvasFocusTrap = null;
 
             this.loginService.notifyOnLoginListener();
 
@@ -283,6 +291,7 @@ The admin menu only supports up to three levels of nesting.`,
         },
 
         beforeUnmountedComponent() {
+            this.deactivateOffCanvasFocusTrap();
             Shopware.Utils.EventBus.off('sw-admin-menu/toggle-offcanvas', this.onToggleCanvas);
 
             if (this.toggleSidebarTimeout) {
@@ -297,6 +306,43 @@ The admin menu only supports up to three levels of nesting.`,
         closeOffCanvas() {
             this.isOffCanvasShown = false;
             Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', false);
+        },
+
+        activateOffCanvasFocusTrap() {
+            this.$nextTick(() => {
+                const panelElement = this.$refs.swAdminMenu;
+
+                if (!panelElement || !this.isOffCanvasShown || this.offCanvasFocusTrap) {
+                    return;
+                }
+
+                this.offCanvasFocusTrap = createFocusTrap(panelElement, {
+                    escapeDeactivates: true,
+                    clickOutsideDeactivates: true,
+                    returnFocusOnDeactivate: true,
+                    delayInitialFocus: false,
+                    fallbackFocus: panelElement,
+                    onDeactivate: () => {
+                        this.offCanvasFocusTrap = null;
+                        Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', false);
+                    },
+                });
+
+                this.offCanvasFocusTrap.activate();
+            });
+        },
+
+        // Focus only returns to the toggle when the trap closes itself, e.g. via Escape. On a
+        // programmatic close the focus already moved on and must not be pulled back.
+        deactivateOffCanvasFocusTrap() {
+            if (!this.offCanvasFocusTrap) {
+                return;
+            }
+
+            const trap = this.offCanvasFocusTrap;
+            this.offCanvasFocusTrap = null;
+
+            trap.deactivate({ returnFocus: false });
         },
 
         initNavigation() {

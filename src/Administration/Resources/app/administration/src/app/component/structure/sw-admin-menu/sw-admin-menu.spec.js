@@ -317,6 +317,42 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         expect(wrapper.vm.isOffCanvasShown).toBe(false);
     });
 
+    it('should keep the closed off-canvas menu out of the tab order via inert', async () => {
+        const menu = wrapper.find('aside.sw-admin-menu');
+        // Browsers reflect `inert` as a property, jsdom only knows the attribute.
+        const isInert = () => menu.element.inert === true || menu.element.getAttribute('inert') === 'true';
+
+        // desktop: never inert
+        expect(isInert()).toBe(false);
+
+        wrapper.vm.viewportWidth = 1280;
+        await wrapper.vm.$nextTick();
+
+        expect(isInert()).toBe(true);
+
+        wrapper.vm.onToggleCanvas(true);
+        await wrapper.vm.$nextTick();
+
+        expect(isInert()).toBe(false);
+    });
+
+    it('should trap the focus inside the off-canvas menu while it is open', async () => {
+        const attachedWrapper = await createWrapper({ attachTo: document.body });
+        attachedWrapper.vm.viewportWidth = 1280;
+
+        attachedWrapper.vm.onToggleCanvas(true);
+        await flushPromises();
+
+        expect(attachedWrapper.vm.offCanvasFocusTrap).toBeTruthy();
+
+        attachedWrapper.vm.onToggleCanvas(false);
+        await flushPromises();
+
+        expect(attachedWrapper.vm.offCanvasFocusTrap).toBeNull();
+
+        attachedWrapper.unmount();
+    });
+
     it('should render correct admin menu entries', async () => {
         const topLevelEntries = wrapper.findAllComponents('.navigation-list-item__level-1');
 

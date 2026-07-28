@@ -11,9 +11,11 @@
 {% endblock %}
 
 <aside
+    ref="swAdminMenu"
     class="sw-admin-menu"
     :class="adminMenuClasses"
     :aria-expanded="isExpanded ? 'true' : 'false'"
+    :inert="isMobileViewport && !isOffCanvasShown"
 >
 
     {% block sw_admin_menu_header %}

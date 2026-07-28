@@ -40,7 +40,11 @@ All blocks of this template are available in the template which renders this tem
                         {% set taxStatusGross = order.price.taxStatus == constant('Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice::TAX_STATE_GROSS') %}
                         {% set taxStatusNet = order.price.taxStatus == constant('Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice::TAX_STATE_NET') %}
 
-                        {% set displayVAT = not config.intraCommunityDelivery %}
+                        {% if feature('v6.8.0.0') %}
+                            {% set displayVAT = not config.intraCommunityDelivery %}
+                        {% else %}
+                            {% set displayVAT = not companyTaxEnabled or not (displayAdditionalNoteDelivery and isDeliveryCountry) %}
+                        {% endif %}
 
                         {% block document_line_item_table_head_tax_rate %}
                             <th class="numbers">{{ 'document.lineItems.header.tax'|trans|sw_sanitize(null, true) }}</th>

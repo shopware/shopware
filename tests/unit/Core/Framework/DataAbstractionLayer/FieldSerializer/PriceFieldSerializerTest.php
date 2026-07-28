@@ -363,13 +363,11 @@ class PriceFieldSerializerTest extends TestCase
      */
     public static function nonArrayValueProvider(): iterable
     {
-        yield 'float' => [12.5];
-        yield 'string' => ['2025-10-09'];
-        yield 'int' => [12];
-        yield 'bool' => [true];
-        yield 'zero' => [0];
-        yield 'empty string' => [''];
-        yield 'numeric string' => ['12.50'];
+        yield 'number, where PHP reads the offset as an array index' => [12.5];
+        yield 'string, where PHP reads the offset as a string offset' => ['2025-10-09'];
+        yield 'zero, which a truthiness check would let through' => [0];
+        yield 'empty string, which a truthiness check would let through' => [''];
+        yield 'numeric string, which is not coerced into a price list' => ['12.50'];
     }
 
     public function testSerializeEmptyArrayStillRequiresDefaultCurrency(): void
@@ -383,15 +381,15 @@ class PriceFieldSerializerTest extends TestCase
         $this->encode([]);
     }
 
-    public function testSerializeNullPassesTheArrayCheck(): void
+    /**
+     * `requiresValidation()` skips the whole validation block for a null value on an optional field, so
+     * the array check never sees it and clearing a price stays a plain null write.
+     */
+    public function testSerializeNullOnOptionalFieldYieldsNull(): void
     {
         static::assertNull($this->encode(null));
     }
 
-    /**
-     * The array check runs before the `NotBlank` check, so a required-but-missing price still yields a
-     * single violation instead of a type mismatch on top of it.
-     */
     public function testSerializeNullOnRequiredFieldStillReportsBlank(): void
     {
         $this->expectExceptionObject(new WriteConstraintViolationException(

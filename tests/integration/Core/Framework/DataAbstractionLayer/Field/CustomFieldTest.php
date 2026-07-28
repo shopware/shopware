@@ -1007,6 +1007,9 @@ class CustomFieldTest extends TestCase
         $repo->create($entities, Context::createDefaultContext());
     }
 
+    /**
+     * only `WriteException` renders the pointer into its message, so the unit tests cannot assert it
+     */
     public function testCustomFieldPriceRejectsNonArrayValue(): void
     {
         $this->addCustomFields(['price' => CustomFieldTypes::PRICE]);

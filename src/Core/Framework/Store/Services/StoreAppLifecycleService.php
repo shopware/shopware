@@ -129,8 +129,6 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
             new AppUpdateParameters(),
             [
                 'id' => $app->getId(),
-                'version' => $app->getVersion(),
-                'roleId' => $app->getAclRoleId(),
             ],
             $context
         );

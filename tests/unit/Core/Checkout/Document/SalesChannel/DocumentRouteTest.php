@@ -81,7 +81,6 @@ class DocumentRouteTest extends TestCase
         $document->setId(Uuid::randomHex());
         $document->setOrderId('test');
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
@@ -109,7 +108,6 @@ class DocumentRouteTest extends TestCase
         $order = new OrderEntity();
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
@@ -145,7 +143,6 @@ class DocumentRouteTest extends TestCase
 
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
@@ -192,7 +189,6 @@ class DocumentRouteTest extends TestCase
 
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
@@ -238,7 +234,6 @@ class DocumentRouteTest extends TestCase
 
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
@@ -284,7 +279,6 @@ class DocumentRouteTest extends TestCase
 
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
@@ -333,7 +327,6 @@ class DocumentRouteTest extends TestCase
 
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
@@ -380,7 +373,6 @@ class DocumentRouteTest extends TestCase
 
         $generator = static::createStub(DocumentGenerator::class);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
@@ -414,7 +406,6 @@ class DocumentRouteTest extends TestCase
 
         $generator = static::createStub(DocumentGenerator::class);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
@@ -457,7 +448,6 @@ class DocumentRouteTest extends TestCase
         $order = $this->createOrder($customerID);
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
@@ -512,7 +502,6 @@ class DocumentRouteTest extends TestCase
         $order = $this->createOrder($customerID);
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
@@ -574,7 +563,6 @@ class DocumentRouteTest extends TestCase
         $order = $this->createOrder($customerID);
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
@@ -642,7 +630,6 @@ class DocumentRouteTest extends TestCase
         $order = $this->createOrder($customerID);
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
@@ -693,7 +680,6 @@ class DocumentRouteTest extends TestCase
         $order = $this->createOrder($customerID);
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
@@ -747,7 +733,6 @@ class DocumentRouteTest extends TestCase
         $order = $this->createOrder($customerID);
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);

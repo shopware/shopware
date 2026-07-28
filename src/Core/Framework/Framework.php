@@ -48,7 +48,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
  * @internal
@@ -73,8 +72,6 @@ class Framework extends Bundle
     {
         $container->setParameter('locale', 'en-GB');
 
-        // @codeCoverageIgnoreStart
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
 
         $phpLoader->load('acl.php');
@@ -107,7 +104,6 @@ class Framework extends Bundle
         $phpLoader->load('notification.php');
         $phpLoader->load('sso.php');
 
-        // @codeCoverageIgnoreStart
         $phpLoader->load('mcp.php');
 
         if ($container->getParameter('kernel.environment') === 'test') {
@@ -116,7 +112,6 @@ class Framework extends Bundle
             $phpLoader->load('seo_test.php');
             $phpLoader->load('app_test.php');
         }
-        // @codeCoverageIgnoreEnd
 
         /** Needs to run after @see RegisterAutoconfigureAttributesPass (priority 100) to include all services that are autoconfigured */
         $container->addCompilerPass(new AttributeEntityCompilerPass(new AttributeEntityCompiler()), PassConfig::TYPE_BEFORE_OPTIMIZATION, 99);
@@ -152,10 +147,10 @@ class Framework extends Bundle
         }
 
         $container->addCompilerPass(new FrameworkMigrationReplacementCompilerPass());
-        $container->addCompilerPass(new McpToolDiscoveryCompilerPass()); // @codeCoverageIgnore
-        $container->addCompilerPass(new McpToolAnalysisCompilerPass()); // @codeCoverageIgnore
-        $container->addCompilerPass(new McpServerBuilderCompilerPass()); // @codeCoverageIgnore
-        $container->addCompilerPass(new StoreApiMcpServerBuilderCompilerPass()); // @codeCoverageIgnore
+        $container->addCompilerPass(new McpToolDiscoveryCompilerPass());
+        $container->addCompilerPass(new McpToolAnalysisCompilerPass());
+        $container->addCompilerPass(new McpServerBuilderCompilerPass());
+        $container->addCompilerPass(new StoreApiMcpServerBuilderCompilerPass());
 
         $container->addCompilerPass(new DemodataCompilerPass());
 

@@ -22,8 +22,6 @@ class DocumentV2Exception extends HttpException
 
     public const MISSING_FORMATS = 'DOCUMENT_V2__MISSING_FORMATS';
 
-    public const LIVE_VERSION_NOT_ALLOWED = 'DOCUMENT_V2__LIVE_VERSION_NOT_ALLOWED';
-
     public const ORDER_NOT_FOUND = 'DOCUMENT_V2__ORDER_NOT_FOUND';
 
     public const DOCUMENT_NOT_FOUND = 'DOCUMENT_V2__DOCUMENT_NOT_FOUND';
@@ -120,15 +118,6 @@ class DocumentV2Exception extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::MISSING_FORMATS,
             'Missing formats for document generation.',
-        );
-    }
-
-    public static function liveVersionNotAllowed(): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::LIVE_VERSION_NOT_ALLOWED,
-            'Live version of document is not allowed for document generation.',
         );
     }
 

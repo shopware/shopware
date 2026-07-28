@@ -4,6 +4,12 @@
 
 ## API
 
+### Media action routes now enforce ACL privileges
+
+The Admin API media action routes now enforce their corresponding ACL privileges. Clients must have `media:create` to upload new media, upload from a URL, or create an external media link; `media:update` to upload content to existing media or rename media; `media_thumbnail:create` or `media_thumbnail:delete` to add or remove external thumbnails; and `media:read` to use the media filename lookup route.
+
+The V2 upload and upload-from-URL routes already required `media:create` through their media repository write, and the filename lookup route already required `media:read` through its repository query. The external-link, legacy upload and rename, and external-thumbnail add and delete routes now enforce permissions that their system-scoped DAL writes did not previously require. Integrations and users that call those routes must update their ACL role.
+
 ## Core
 
 ### Built-in translation system configurable via `shopware.translation`

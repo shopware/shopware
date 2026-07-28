@@ -54,9 +54,9 @@ const vueParser = vueParserSetup.languageOptions.parser;
  *   internal APIs may lower this in their own config.
  * - `typedSpecs`: type-aware-lint spec files (adds jest globals on top of the
  *   type-checked rules). Requires a discoverable spec program — the generated
- *   root config enables it, because the spec leaves are referenced from the root
- *   solution tsconfig. Shim-based configs leave it off, so their specs are
- *   parsed standalone; `vue-tsc` still type-checks them.
+ *   root config enables it (the spec leaves are referenced from the root
+ *   solution tsconfig); shim-based configs leave it off, so their specs are
+ *   parsed standalone (vue-tsc still type-checks them).
  * - `ignores`: additional global ignore patterns.
  */
 export function shopwareAdminExtension(options = {}) {
@@ -88,10 +88,10 @@ export function shopwareAdminExtension(options = {}) {
     };
 
     // With a discoverable spec program (the generated root config references the
-    // spec leaves) the type-checked rules already apply to specs, so the block
-    // only adds the jest globals. Without one there is no program to resolve
-    // them against, so type-aware linting is off and specs are parsed
-    // standalone — `vue-tsc` still type-checks them either way.
+    // spec leaves) the type-checked rules above already apply to specs, so the
+    // block only adds the jest globals. Otherwise (shim-based config) there is
+    // no program for specs, so type-aware linting is disabled and they are
+    // parsed standalone — vue-tsc still type-checks them.
     let specFilesConfig;
 
     if (typedSpecs) {

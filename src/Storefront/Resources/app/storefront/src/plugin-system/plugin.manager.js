@@ -753,30 +753,35 @@ class PluginManagerSingleton {
         // Register a lazy import that builds the extended class once the parent is available.
         // Static parent options are merged by the plugin base class at construction time.
         if (extendFrom.get('async')) {
-            // Memoized so that repeated invocations resolve to the same class. Concurrent
-            // initialization passes can call this more than once, and a new class per call would
-            // break the identity check in _setResolvedPluginClass().
-            let extendedPlugin = null;
+            // The promise is memoized, not just its result: concurrent initialization passes can
+            // call this before the first call resolved, and a new class per call would break the
+            // identity check in _setResolvedPluginClass().
+            let extendedPluginPromise = null;
 
-            return this.register(newName, async () => {
-                if (extendedPlugin) {
-                    return { default: extendedPlugin };
+            return this.register(newName, () => {
+                if (extendedPluginPromise) {
+                    return extendedPluginPromise;
                 }
 
-                const currentParent = extendFrom.get('class');
+                extendedPluginPromise = (async () => {
+                    const currentParent = extendFrom.get('class');
 
-                // The parent may have been resolved in the meantime by an unrelated init pass.
-                const resolvedParent = Object.getOwnPropertyDescriptor(currentParent, 'prototype')
-                    ? currentParent
-                    : await this._loadAsyncPluginClass(fromName, currentParent);
+                    // The parent may have been resolved in the meantime by an unrelated init pass.
+                    const resolvedParent = Object.getOwnPropertyDescriptor(currentParent, 'prototype')
+                        ? currentParent
+                        : await this._loadAsyncPluginClass(fromName, currentParent);
 
-                if (!resolvedParent) {
-                    return { default: null };
-                }
+                    if (!resolvedParent) {
+                        // Drop the memo so a later pass can retry once the parent is available.
+                        extendedPluginPromise = null;
 
-                extendedPlugin = PluginManagerSingleton._buildExtendedPlugin(resolvedParent, pluginClass);
+                        return { default: null };
+                    }
 
-                return { default: extendedPlugin };
+                    return { default: PluginManagerSingleton._buildExtendedPlugin(resolvedParent, pluginClass) };
+                })();
+
+                return extendedPluginPromise;
             }, selector, options);
         }
 

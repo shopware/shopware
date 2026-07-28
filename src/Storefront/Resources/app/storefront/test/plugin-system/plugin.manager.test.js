@@ -770,6 +770,100 @@ describe('Plugin manager', () => {
             PluginManager.deregister('ExtendedCart');
         });
 
+        it('should apply the override when the plugin is initialized within a parent element', async () => {
+            // The path taken for AJAX loaded content, e.g. an offcanvas or a reloaded listing.
+            document.body.innerHTML = '<div id="ajax-content"><div data-overridable-cart="true"></div></div>';
+
+            PluginManager.register('OverridableCart', coreImport, '[data-overridable-cart]');
+            await PluginManager.initializePlugins();
+
+            PluginManager.override('OverridableCart', overrideImport, '[data-overridable-cart]');
+            await new Promise(process.nextTick);
+
+            await PluginManager.initializePluginsInParentElement(document.getElementById('ajax-content'));
+            await new Promise(process.nextTick);
+
+            const element = document.querySelector('[data-overridable-cart]');
+
+            expect(PluginManager.getPluginInstanceFromElement(element, 'OverridableCart').getQuantity()).toBe('79,89 EUR');
+            expect(PluginManager.getPluginInstances('OverridableCart').length).toBe(1);
+        });
+
+        it('should reset the emitter even when destroy throws', async () => {
+            document.body.innerHTML = '<div data-throwing-cart="true"></div>';
+
+            class ThrowingCorePluginClass extends Plugin {
+                init() {}
+
+                destroy() {
+                    throw new Error('destroy failed');
+                }
+            }
+
+            class ThrowingOverridePluginClass extends ThrowingCorePluginClass {
+            }
+
+            PluginManager.register('ThrowingCart', () => Promise.resolve({ default: ThrowingCorePluginClass }), '[data-throwing-cart]');
+            await PluginManager.initializePlugins();
+
+            const element = document.querySelector('[data-throwing-cart]');
+            const outdatedInstance = PluginManager.getPluginInstanceFromElement(element, 'ThrowingCart');
+            const resetSpy = jest.spyOn(outdatedInstance.$emitter, 'reset');
+
+            jest.spyOn(console, 'warn').mockImplementation();
+
+            PluginManager.override('ThrowingCart', () => Promise.resolve({ default: ThrowingOverridePluginClass }), '[data-throwing-cart]');
+            await new Promise(process.nextTick);
+
+            // A throwing destroy() must not prevent the emitter from being reset.
+            expect(resetSpy).toHaveBeenCalled();
+            expect(PluginManager.getPluginInstanceFromElement(element, 'ThrowingCart')).toBeInstanceOf(ThrowingOverridePluginClass);
+
+            PluginManager.deregister('ThrowingCart');
+        });
+
+        it('should resolve a deferred extended plugin to the same class on every import', async () => {
+            PluginManager.register('OverridableCart', coreImport, '[data-overridable-cart]');
+
+            PluginManager.extend('OverridableCart', 'MemoizedCart', {
+                getQuantity() {
+                    return '3,00 EUR';
+                },
+            }, '[data-overridable-cart]');
+
+            const deferredImport = PluginManager.getPlugin('MemoizedCart').get('class');
+
+            const [first, second] = await Promise.all([deferredImport(), deferredImport()]);
+
+            expect(first.default).toBe(second.default);
+
+            PluginManager.deregister('MemoizedCart');
+        });
+
+        it('should warn when a plugin keeps being re-registered while it loads', async () => {
+            const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+            // Re-register with a *different* import function on every resolution, so the
+            // compare-and-swap can never win and the retry budget is exhausted.
+            const createLosingImport = () => () => Promise.resolve().then(() => {
+                PluginManager.deregister('OverridableCart', '[data-overridable-cart]');
+                PluginManager.register('OverridableCart', createLosingImport(), '[data-overridable-cart]');
+
+                return { default: CoreCartPluginClass };
+            });
+
+            PluginManager.register('OverridableCart', createLosingImport(), '[data-overridable-cart]');
+
+            await PluginManager.initializePlugins();
+            await new Promise(process.nextTick);
+
+            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('more often than the plugin manager retries'));
+
+            const element = document.querySelector('[data-overridable-cart]');
+
+            expect(PluginManager.getPluginInstanceFromElement(element, 'OverridableCart')).toBeUndefined();
+        });
+
         it('should be able to extend a sync plugin under a new name', async () => {
             PluginManager.register('OverridableCart', CoreCartPluginClass, '[data-overridable-cart]');
 

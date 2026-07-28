@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FilteredBulkEntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\DalSearchInstrumentor;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
@@ -109,6 +110,7 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
                         new Reference(EntityAggregatorInterface::class),
                         new Reference('event_dispatcher'),
                         new Reference(EntityLoadedEventFactory::class),
+                        new Reference(DalSearchInstrumentor::class),
                     ]
                 );
                 $repository->setPublic(true);

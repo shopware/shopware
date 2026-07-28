@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle\Handler;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Lifecycle\Handler\ModuleLifecycleHandler;
@@ -34,7 +33,6 @@ class ModuleLifecycleHandlerTest extends TestCase
 
     public function testPersistDoesNothingWithoutAppSecret(): void
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([]);
 
         $persister = new ModuleLifecycleHandler($appRepository);
@@ -45,7 +43,6 @@ class ModuleLifecycleHandlerTest extends TestCase
 
     public function testPersistClearsModulesWhenNoAdminSection(): void
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([]);
 
         $persister = new ModuleLifecycleHandler($appRepository);
@@ -61,7 +58,6 @@ class ModuleLifecycleHandlerTest extends TestCase
 
     public function testPersistModulesWithMainModuleOnly(): void
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([]);
 
         $admin = Admin::fromArray([
@@ -82,7 +78,6 @@ class ModuleLifecycleHandlerTest extends TestCase
 
     public function testPersistModulesWithModulesOnly(): void
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([]);
 
         $admin = Admin::fromArray([
@@ -133,7 +128,6 @@ class ModuleLifecycleHandlerTest extends TestCase
 
     public function testPersistModulesWithMainModuleAndModules(): void
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([]);
 
         $admin = Admin::fromArray([

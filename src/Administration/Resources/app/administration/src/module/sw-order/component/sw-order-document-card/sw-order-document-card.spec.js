@@ -340,7 +340,7 @@ async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.
                     name: routeName,
                     meta: {
                         $module: {
-                            icon: 'solid-content',
+                            icon: 'regular-content',
                         },
                     },
                 },

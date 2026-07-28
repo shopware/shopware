@@ -18,6 +18,7 @@ use Symfony\Component\Clock\NativeClock;
 /**
  * @internal
  */
+#[\Shopware\Core\Framework\Log\Package('discovery')]
 #[CoversClass(SitemapLister::class)]
 class SitemapListerTest extends TestCase
 {

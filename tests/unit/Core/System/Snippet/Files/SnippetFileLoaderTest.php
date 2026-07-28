@@ -17,6 +17,7 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
@@ -50,6 +51,7 @@ use Symfony\Component\Filesystem\Path;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(SnippetFileLoader::class)]
 class SnippetFileLoaderTest extends TestCase
 {

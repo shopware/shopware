@@ -20,7 +20,6 @@ export default {
         'feature',
         'bulkEditApiFactory',
         'repositoryFactory',
-        'userConfigService',
     ],
 
     data() {
@@ -1256,6 +1255,25 @@ export default {
                     change.mappingReferenceField = 'ruleId';
                 }
 
+                // Variants inherit the parent's visibilities all-or-nothing: they own no
+                // `product_visibility` rows until they override. A plain ADD/REMOVE bulk
+                // edit therefore either persists nothing (REMOVE finds no own rows) or
+                // drops the whole inherited set (ADD materializes only the added channel).
+                // We instead route the change through a dedicated handler path that rebuilds
+                // each variant's effective set (its own rows when it overrides, otherwise the
+                // inherited parent set) with the removed channels dropped and the added ones
+                // merged in.
+                if (
+                    this.isChild &&
+                    key === 'visibilities' &&
+                    [
+                        'add',
+                        'remove',
+                    ].includes(bulkEditField.type)
+                ) {
+                    this.transformVariantVisibilityChange(change);
+                }
+
                 if (this.isChild && change.value !== null && types.isArray(change.value)) {
                     change.value.forEach((association) => {
                         delete association.id;
@@ -1279,6 +1297,46 @@ export default {
 
             if (hasRegulationPrice) {
                 this.processRegulationPrice();
+            }
+        },
+
+        transformVariantVisibilityChange(change) {
+            // Always flag the change so the bulk-edit handler routes it through the
+            // per-variant path and never falls back to the generic ADD/REMOVE flow
+            // (which ignores the inherited set the variant does not own).
+            change.removedSalesChannelIds = [];
+            change.addedVisibilities = [];
+            change.inheritedVisibilities = [];
+
+            // The selector holds the sales channels to add or to remove (depending on the
+            // change type). When the field is left inherited the value is null and there
+            // is nothing to do.
+            const selectedVisibilities = Array.isArray(change.value) ? change.value : [];
+
+            if (change.type === 'remove') {
+                change.removedSalesChannelIds = selectedVisibilities
+                    .map((visibility) => visibility?.salesChannelId)
+                    .filter(Boolean);
+            } else {
+                change.addedVisibilities = selectedVisibilities
+                    .filter((visibility) => visibility?.salesChannelId)
+                    .map((visibility) => ({
+                        salesChannelId: visibility.salesChannelId,
+                        visibility: visibility.visibility,
+                    }));
+            }
+
+            // The parent's inherited set is the fallback base for variants that do not
+            // override visibilities; the handler needs the `visibility` value to recreate
+            // the rows when materializing the effective set.
+            if (this.parentProductFrozen) {
+                const parentProduct = JSON.parse(this.parentProductFrozen);
+                const parentVisibilities = Array.isArray(parentProduct?.visibilities) ? parentProduct.visibilities : [];
+
+                change.inheritedVisibilities = parentVisibilities.map((visibility) => ({
+                    salesChannelId: visibility.salesChannelId,
+                    visibility: visibility.visibility,
+                }));
             }
         },
 
@@ -1389,7 +1447,7 @@ export default {
                 return Promise.resolve();
             }
 
-            return this.userConfigService.upsert({
+            return Shopware.Service('userConfigService').upsert({
                 'measurement.preferenceUnits': {
                     length: this.lengthUnit,
                     weight: this.weightUnit,
@@ -1412,9 +1470,8 @@ export default {
         },
 
         async loadPreferenceUnits() {
-            const response = await this.userConfigService.search(['measurement.preferenceUnits']);
-
-            const preferenceUnits = response.data['measurement.preferenceUnits'] || {
+            const preferenceUnits = (await Shopware.Service('userConfigService').search(['measurement.preferenceUnits']))
+                ?.data?.['measurement.preferenceUnits'] || {
                 length: 'mm',
                 weight: 'kg',
             };

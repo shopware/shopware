@@ -18,11 +18,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'plugin:zip-import',
     description: 'Imports a plugin from a zip file',
 )]
-#[Package('framework')]
 class PluginZipImportCommand extends Command
 {
     /**

@@ -51,7 +51,6 @@ class SsoUserInvitationMailServiceTest extends TestCase
         $mailTemplateEntity = new MailTemplateEntity();
         $mailTemplateEntity->setUniqueIdentifier(Uuid::randomHex());
         $mailTemplateEntity->setId(Uuid::randomHex());
-        /** @var StaticEntityRepository<MailTemplateCollection> $mailTemplateRepository */
         $mailTemplateRepository = new StaticEntityRepository([
             new MailTemplateCollection([$mailTemplateEntity]),
         ], new MailTemplateDefinition());
@@ -59,7 +58,6 @@ class SsoUserInvitationMailServiceTest extends TestCase
         $mailTemplateTypeEntity = new MailTemplateTypeEntity();
         $mailTemplateTypeEntity->setUniqueIdentifier(Uuid::randomHex());
         $mailTemplateTypeEntity->setId(Uuid::randomHex());
-        /** @var StaticEntityRepository<MailTemplateTypeCollection> $mailTemplateTypeRepository */
         $mailTemplateTypeRepository = new StaticEntityRepository([
             new MailTemplateTypeCollection([$mailTemplateTypeEntity]),
         ], new MailTemplateDefinition());
@@ -69,7 +67,6 @@ class SsoUserInvitationMailServiceTest extends TestCase
         $userEntity->setFirstName('FirstName');
         $userEntity->setLastName('LastName');
         $userEntity->setUsername('UserName');
-        /** @var StaticEntityRepository<UserCollection> $userRepository */
         $userRepository = new StaticEntityRepository([
             new UserCollection([$userEntity]),
         ], new UserDefinition());
@@ -77,7 +74,6 @@ class SsoUserInvitationMailServiceTest extends TestCase
         $languageEntity = new LanguageEntity();
         $languageEntity->setUniqueIdentifier(Uuid::randomHex());
         $languageEntity->setId(Uuid::randomHex());
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = new StaticEntityRepository([
             new LanguageCollection([$languageEntity]),
         ], new LanguageDefinition());

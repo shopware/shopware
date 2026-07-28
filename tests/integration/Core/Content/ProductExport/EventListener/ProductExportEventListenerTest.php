@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Content\ProductExport\EventListener;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
@@ -23,7 +22,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
  * @internal
  */
 #[Package('inventory')]
-#[Group('slow')]
 class ProductExportEventListenerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

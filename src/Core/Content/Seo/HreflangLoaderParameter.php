@@ -16,6 +16,7 @@ class HreflangLoaderParameter
         protected array $routeParameters,
         protected SalesChannelContext $salesChannelContext,
         private readonly bool $homepage = false,
+        private readonly string $basePath = '',
     ) {
     }
 
@@ -40,5 +41,10 @@ class HreflangLoaderParameter
     public function isHomepage(): bool
     {
         return $this->homepage;
+    }
+
+    public function getBasePath(): string
+    {
+        return $this->basePath;
     }
 }

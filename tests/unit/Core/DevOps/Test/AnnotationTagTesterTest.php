@@ -114,6 +114,49 @@ class AnnotationTagTesterTest extends TestCase
         static::assertNull($version);
     }
 
+    #[DoesNotPerformAssertions]
+    public function testBCChangeAttributeWithFutureVersionDoesNotThrowException(): void
+    {
+        $this->annotationTagTester->validateBCChangeAttributeVersions(
+            '#[ReturnTypeNarrowing(version: \'v6.5.0\', newType: \'static\')]'
+        );
+    }
+
+    #[DoesNotPerformAssertions]
+    public function testBCChangeAttributeWithPositionalVersionDoesNotThrowException(): void
+    {
+        $this->annotationTagTester->validateBCChangeAttributeVersions(
+            '#[BecomesFinal(\'v6.5.0\')]'
+        );
+    }
+
+    public function testBCChangeAttributeWithLiveVersionThrowsException(): void
+    {
+        $this->expectExceptionObject(new \InvalidArgumentException('The version you used for deprecation or experimental annotation is already live.'));
+
+        $this->annotationTagTester->validateBCChangeAttributeVersions(
+            '#[NewOptionalParameter(version: \'v6.4.0\', parameterName: \'states\', parameterType: \'array\')]'
+        );
+    }
+
+    public function testParameterDefaultValueChangeWithLiveVersionThrowsException(): void
+    {
+        $this->expectExceptionObject(new \InvalidArgumentException('The version you used for deprecation or experimental annotation is already live.'));
+
+        $this->annotationTagTester->validateBCChangeAttributeVersions(
+            '#[ParameterDefaultValueChange(version: \'v6.4.0\', parameterName: \'value\', newDefaultValue: \'new\')]'
+        );
+    }
+
+    public function testBCChangeAttributeWithMalformedVersionThrowsException(): void
+    {
+        $this->expectExceptionObject(new \InvalidArgumentException('The tag version should start with `v` and comprise 3 digits separated by periods.'));
+
+        $this->annotationTagTester->validateBCChangeAttributeVersions(
+            '#[BecomesInternal(version: \'6.5.0\')]'
+        );
+    }
+
     public function testDeprecatedWithoutPropertiesWillThrowException(): void
     {
         $deprecatedContent = '@deprecated';

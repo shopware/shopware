@@ -14,8 +14,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(BeforeCartMergeEvent::class)]
 #[Package('checkout')]
+#[CoversClass(BeforeCartMergeEvent::class)]
 class BeforeCartMergeEventTest extends TestCase
 {
     public function testReturnsCorrectProperties(): void

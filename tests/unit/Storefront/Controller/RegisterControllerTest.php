@@ -46,8 +46,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @internal
  */
-#[CoversClass(RegisterController::class)]
 #[Package('checkout')]
+#[CoversClass(RegisterController::class)]
 class RegisterControllerTest extends TestCase
 {
     private RegisterControllerTestClass $controller;

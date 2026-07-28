@@ -65,7 +65,6 @@ class SearchKeywordUpdaterTest extends TestCase
         $parent->setName('Parent product');
         $parent->setTranslated(['name' => 'Parent product']);
 
-        /** @var StaticEntityRepository<ProductCollection> $productRepository */
         $productRepository = new StaticEntityRepository([
             new ProductCollection([$parent]),
             new ProductCollection(),
@@ -91,7 +90,6 @@ class SearchKeywordUpdaterTest extends TestCase
         $child = $this->createProduct($childId, Uuid::randomHex());
 
         // empty searches: any call to the repository would throw
-        /** @var StaticEntityRepository<ProductCollection> $productRepository */
         $productRepository = new StaticEntityRepository([], new ProductDefinition());
 
         $updater = $this->createUpdater($productRepository);
@@ -107,7 +105,6 @@ class SearchKeywordUpdaterTest extends TestCase
 
     public function testBuildCriteriaFiltersTranslationsByLanguageChain(): void
     {
-        /** @var StaticEntityRepository<ProductCollection> $productRepository */
         $productRepository = new StaticEntityRepository([], new ProductDefinition());
         $updater = $this->createUpdater($productRepository);
 

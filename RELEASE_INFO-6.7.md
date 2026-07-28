@@ -68,6 +68,10 @@ All existing `reason:*` BC-planning annotations in the core have been migrated t
 
 Cron-driven product export generation no longer derives the next run from `generatedAt`, which also anchors the cache validity of the generated feed file. A new `nextGenerationAt` field on the `product_export` entity is set when the first export chunk starts, and the scheduler prefers it over the legacy `generatedAt` + interval calculation. This keeps the schedule anchored to the export start time without making storefront requests treat in-flight exports as stale. The database column is added automatically by a migration; exports generated before the update fall back to the previous `generatedAt`-based scheduling until their next run. No action is required.
 
+### Batched accessor lookup in the cheapest-price indexer
+
+`CheapestPriceUpdater` no longer issues one `SELECT` per parent product to read the existing cheapest-price accessors of its variants. It now pre-loads the accessors for all parents of an indexing chunk in a single query, reducing the number of database round-trips during product (re)indexing and bulk imports. The computed accessors and the resulting `ProductIndexerEvent` are unchanged.
+
 ## Administration
 
 ## Storefront

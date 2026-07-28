@@ -25,7 +25,6 @@ class UserListCommandTest extends TestCase
 {
     public function testWithNoUsers(): void
     {
-        /** @var StaticEntityRepository<UserCollection> $repo */
         $repo = new StaticEntityRepository([new UserCollection()]);
 
         $command = new UserListCommand($repo);
@@ -56,7 +55,6 @@ class UserListCommandTest extends TestCase
     {
         $userName = 'guy';
         $userId = Uuid::randomHex();
-        /** @var StaticEntityRepository<UserCollection> $repo */
         $repo = new StaticEntityRepository([
             new UserCollection([
                 $this->createUser('guy@shopware.com', $userName, 'Guy', 'Marbello', id: $userId),
@@ -113,7 +111,6 @@ class UserListCommandTest extends TestCase
 
     private function prepareCommandTester(): CommandTester
     {
-        /** @var StaticEntityRepository<UserCollection> $repo */
         $repo = new StaticEntityRepository([
             new UserCollection([
                 $this->createUser('guy@shopware.com', 'guy', 'Guy', 'Marbello', true),

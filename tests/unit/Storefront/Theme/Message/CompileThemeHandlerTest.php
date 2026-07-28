@@ -41,8 +41,7 @@ class CompileThemeHandlerTest extends TestCase
         $scEntity->setUniqueIdentifier(Uuid::randomHex());
         $scEntity->setName('Test SalesChannel');
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRep */
-        $salesChannelRep = new StaticEntityRepository([new EntityCollection([$scEntity])]);
+        $salesChannelRep = StaticEntityRepository::of(SalesChannelCollection::class, [new EntityCollection([$scEntity])]);
 
         $handler = new CompileThemeHandler(
             $themeCompilerMock,

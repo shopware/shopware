@@ -399,7 +399,6 @@ class CustomEntityLifecycleServiceTest extends TestCase
      */
     private function createCustomEntityRepository(CustomEntityEntity ...$customEntities): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<CustomEntityCollection> $repository */
         $repository = new StaticEntityRepository([new CustomEntityCollection($customEntities)]);
 
         return $repository;

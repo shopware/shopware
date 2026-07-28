@@ -608,6 +608,7 @@ describe('form-validation', () => {
             window.validationMessages = {
                 ...window.validationMessages,
                 grecaptcha: 'Please accept cookies to use reCAPTCHA.',
+                grecaptchaToken: 'Please complete the reCAPTCHA verification.',
             };
 
             formValidation = new FormValidation();
@@ -618,13 +619,28 @@ describe('form-validation', () => {
             mockDispatchEvent.mockRestore();
         });
 
-        test('should return true when useDefaultCookieConsent is disabled', () => {
+        test('should return false without showing the cookie bar when useDefaultCookieConsent is disabled and no token was generated yet', () => {
+            // With a custom consent solution we cannot read 'cookie-preference', so the
+            // consent gate is skipped, but a reCAPTCHA field must still carry a token. The
+            // submit handler is async, so the field can be empty while the plugin loads.
             window.useDefaultCookieConsent = false;
 
             const field = document.createElement('input');
             field.setAttribute('name', '_grecaptcha_v3');
 
             const result = formValidation.validateGrecaptcha('', field);
+
+            expect(result).toBe(false);
+            expect(mockDispatchEvent).not.toHaveBeenCalled();
+        });
+
+        test('should return true when useDefaultCookieConsent is disabled and a token is present', () => {
+            window.useDefaultCookieConsent = false;
+
+            const field = document.createElement('input');
+            field.setAttribute('name', '_grecaptcha_v3');
+
+            const result = formValidation.validateGrecaptcha('valid-token', field);
 
             expect(result).toBe(true);
             expect(mockDispatchEvent).not.toHaveBeenCalled();

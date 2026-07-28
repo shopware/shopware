@@ -337,6 +337,7 @@ describe("Cookie reCAPTCHA Integration tests", () => {
 			confirmation: "Confirmation field does not match.",
 			minLength: "Input is too short.",
 			grecaptcha: "Please accept cookies to use reCAPTCHA.",
+			grecaptchaToken: "Please complete the reCAPTCHA verification.",
 		};
 
 		// Mock window.localStorage
@@ -488,6 +489,38 @@ describe("Cookie reCAPTCHA Integration tests", () => {
 		expect(cookiePermissionPlugin.$emitter.publish).not.toHaveBeenCalledWith(
 			"showCookieBar",
 		);
+		// The token-specific message is shown, not the cookie message.
+		expect(
+			grecaptchaField.getAttribute("data-form-validation-error-message"),
+		).toBe("Please complete the reCAPTCHA verification.");
+	});
+
+	test("integration: requires a token without a cookie bar when useDefaultCookieConsent is disabled", () => {
+		// A custom consent solution manages its own cookies, so the consent gate is skipped.
+		// The reCAPTCHA field must still carry a token, and the cookie bar must stay hidden.
+		window.useDefaultCookieConsent = false;
+
+		const showCookieBarSpy = jest.spyOn(
+			cookiePermissionPlugin,
+			"_showCookieBar",
+		);
+
+		// Get the grecaptcha field and leave it empty (no token generated yet)
+		const grecaptchaField = document.getElementById("grecaptcha-v3");
+		grecaptchaField.value = "";
+
+		// Validate the field - this should fail on the empty token
+		const validationResult = formValidation.validateField(grecaptchaField);
+
+		// Assertions - field fails on the token, but no cookie bar (consent not managed here)
+		expect(validationResult).toEqual(["grecaptcha", "required"]);
+		expect(showCookieBarSpy).not.toHaveBeenCalled();
+		expect(cookiePermissionPlugin.$emitter.publish).not.toHaveBeenCalledWith(
+			"showCookieBar",
+		);
+		expect(
+			grecaptchaField.getAttribute("data-form-validation-error-message"),
+		).toBe("Please complete the reCAPTCHA verification.");
 	});
 
 	test("integration: form validation with multiple fields including grecaptcha", () => {

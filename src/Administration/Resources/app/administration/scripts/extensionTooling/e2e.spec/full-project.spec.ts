@@ -198,12 +198,7 @@ describe('scripts/extensionTooling e2e', () => {
         const rootTsconfig = fs.readFileSync(path.join(projectRoot, 'tsconfig.json'), 'utf8');
         const references = [...rootTsconfig.matchAll(/"path": "\.\/(.+)"/g)].map((match) => match[1]);
         const managedLeafs = setupResult.manifest.projects.flatMap((project) =>
-            project.targets
-                .filter((target) => target.ts.mode === 'managed')
-                .flatMap((target) => [
-                    target.checkTsconfig,
-                    target.specTsconfig,
-                ]),
+            project.targets.filter((target) => target.ts.mode === 'managed').map((target) => target.checkTsconfig),
         );
 
         expect(references.sort()).toEqual([...managedLeafs].sort());
@@ -225,11 +220,8 @@ describe('scripts/extensionTooling e2e', () => {
             );
 
             expect(byName.ZeroConfig.typescript.status).toBe('passed');
-            // The dedicated spec program type-checked main.spec.ts with jest types.
-            expect(byName.ZeroConfig.typescriptSpecs.status).toBe('passed');
             expect(byName.ZeroConfig.eslint.status).toBe('passed');
             expect(byName.JsOnly.typescript.status).toBe('no-files');
-            expect(byName.JsOnly.typescriptSpecs.status).toBe('no-files');
             expect(byName.JsOnly.eslint.status).toBe('passed');
             expect(byName.ShimConfig.typescript.status).toBe('passed');
             expect(byName.ShimConfig.tsResolution.mode).toBe('bridged');

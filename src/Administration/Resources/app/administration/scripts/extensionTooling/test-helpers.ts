@@ -42,7 +42,6 @@ export function createSkeletonAdmin(projectRoot: string): string {
 
     for (const fileName of [
         'admin-types.d.ts',
-        'spec-types.d.ts',
         'eslint.mjs',
         'legacy-twig.mjs',
     ]) {

@@ -30,10 +30,8 @@ import { CliUsageError, parseCli, renderHelp } from './cli';
 import type { CommandSpec } from './cli';
 import {
     countEslintFindings,
-    countSpecFiles,
     countTypeCheckableFiles,
     countTypeScriptFindings,
-    listSpecFiles,
     listTypeCheckableFiles,
     parseEslintFindings,
     parseTypeScriptFindings,
@@ -55,10 +53,8 @@ import type {
 export { runPool, createLimiter };
 export {
     countEslintFindings,
-    countSpecFiles,
     countTypeCheckableFiles,
     countTypeScriptFindings,
-    listSpecFiles,
     listTypeCheckableFiles,
     parseEslintFindings,
     parseTypeScriptFindings,

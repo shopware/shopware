@@ -19,11 +19,9 @@ import { baselineFilePath, buildBaseline, diffEslint, readBaseline, writeBaselin
 import type { BaselineEslintEntry, BaselineTsEntry, TypeScriptFinding } from './baseline';
 import {
     countEslintFindings,
-    countSpecFiles,
     countTypeCheckableFiles,
     deduplicateByMaximumMultiplicity,
     findFirstSourceFile,
-    listSpecFiles,
     listTypeCheckableFiles,
     parseEslintFindings,
     parseTypeScriptFindings,
@@ -356,7 +354,7 @@ async function runEslintStream(context: {
     return { result, commands, warnings };
 }
 
-/** Runs the runtime vue-tsc, the dedicated spec vue-tsc, and ESLint for one extension and assembles its result. */
+/** Runs vue-tsc and ESLint for one extension and assembles its result. */
 export async function checkProject(context: {
     project: ExtensionToolingProject;
     tsResolution: ModeResolution;
@@ -393,9 +391,6 @@ export async function checkProject(context: {
             target.ts.mode !== 'unmanaged' &&
             (target.ts.mode === 'bridged' || countTypeCheckableFiles(projectRoot, [target.sourcePath]) > 0),
     );
-    const specTargets = project.targets.filter(
-        (target) => target.ts.mode !== 'unmanaged' && countSpecFiles(projectRoot, [target.sourcePath]) > 0,
-    );
 
     const runtime = await runTypeScriptStream({
         entitySchemaAvailable,
@@ -417,29 +412,6 @@ export async function checkProject(context: {
 
     if (runtime.commands) {
         commands.typescript = runtime.commands;
-    }
-
-    // The spec program adds jest types over the same surface and checks only the
-    // spec files the runtime program excludes. It is gated on real specs existing
-    // and mirrors the runtime program's blocked/unmanaged states (empty unmanaged
-    // output — the probe output is shown once, under the runtime stream).
-    const specs = await runTypeScriptStream({
-        entitySchemaAvailable,
-        streamTargets: specTargets,
-        unmanagedTargets: unmanagedTsTargets,
-        unmanagedOutput: '',
-        vueTscPath,
-        projectRoot,
-        basePath: project.basePath,
-        configOf: (target) => target.specTsconfig,
-        baselineEntries: baseline?.typescriptSpecs ?? [],
-        expectedFiles: (target) => listSpecFiles(projectRoot, [target.sourcePath]),
-        limit,
-    });
-    const typescriptSpecs = specs.result;
-
-    if (specs.commands) {
-        commands.typescriptSpecs = specs.commands;
     }
 
     const eslintRun = await runEslintStream({
@@ -465,13 +437,11 @@ export async function checkProject(context: {
             tsResolution,
             eslintResolution,
             typescript,
-            typescriptSpecs,
             eslint,
             commands,
             coverage: project.targets.map((target) => ({
                 target,
                 runtimeConfig: target.checkTsconfig,
-                specConfig: target.specTsconfig,
                 eslintConfig: target.eslintConfig ?? 'eslint.config.mjs',
             })),
             skippedTargets,
@@ -499,7 +469,6 @@ export function recordProjectBaseline(
 
     if (result.project.targets.some((target) => target.ts.mode === 'unmanaged')) {
         incompleteStreamNames.add('TypeScript');
-        incompleteStreamNames.add('TS (specs)');
     }
 
     if (result.project.targets.some((target) => target.eslint.mode === 'unmanaged')) {
@@ -510,10 +479,6 @@ export function recordProjectBaseline(
         [
             'TypeScript',
             result.typescript,
-        ],
-        [
-            'TS (specs)',
-            result.typescriptSpecs,
         ],
         [
             'ESLint',
@@ -538,7 +503,6 @@ export function recordProjectBaseline(
 
     const parserMismatch = [
         result.typescript,
-        result.typescriptSpecs,
         result.eslint,
     ].some((run) => run.parseMismatch === true);
 
@@ -562,11 +526,8 @@ export function recordProjectBaseline(
     const typescriptFindings = (
         result.typescript.typeScriptFindings ?? parseTypeScriptFindings(result.typescript.output)
     ).filter(inRoot);
-    const typescriptSpecFindings = (
-        result.typescriptSpecs.typeScriptFindings ?? parseTypeScriptFindings(result.typescriptSpecs.output)
-    ).filter(inRoot);
     const eslintFindings = result.eslint.eslintFindings ?? parseEslintFindings(result.eslint.output);
-    const surfaceCount = (result.typescript.surfaceDiagnostics ?? 0) + (result.typescriptSpecs.surfaceDiagnostics ?? 0);
+    const surfaceCount = result.typescript.surfaceDiagnostics ?? 0;
     const warnings: string[] = [];
 
     if (surfaceCount > 0) {
@@ -576,14 +537,8 @@ export function recordProjectBaseline(
         );
     }
 
-    const recorded =
-        typescriptFindings.length +
-        typescriptSpecFindings.length +
-        eslintFindings.filter((finding) => finding.severity === 'error').length;
-    const pruned =
-        (result.typescript.staleBaseline ?? 0) +
-        (result.typescriptSpecs.staleBaseline ?? 0) +
-        (result.eslint.staleBaseline ?? 0);
+    const recorded = typescriptFindings.length + eslintFindings.filter((finding) => finding.severity === 'error').length;
+    const pruned = (result.typescript.staleBaseline ?? 0) + (result.eslint.staleBaseline ?? 0);
 
     // Nothing to record and nothing to prune — do not litter a clean plugin with an empty file.
     if (recorded === 0 && readBaseline(projectRoot, result.project) === null) {
@@ -593,10 +548,7 @@ export function recordProjectBaseline(
     const write = writeBaselineFile(
         projectRoot,
         result.project,
-        buildBaseline(
-            { typescript: typescriptFindings, typescriptSpecs: typescriptSpecFindings, eslint: eslintFindings },
-            result.project.basePath,
-        ),
+        buildBaseline({ typescript: typescriptFindings, eslint: eslintFindings }, result.project.basePath),
         false,
         commands,
     );
@@ -640,17 +592,11 @@ export function computeExitCode(
     let exitCode = hasFatalDiagnostics ? 1 : 0;
 
     for (const result of results) {
-        const hasSurfaceDiagnostics =
-            (result.typescript.surfaceDiagnostics ?? 0) > 0 || (result.typescriptSpecs.surfaceDiagnostics ?? 0) > 0;
         const hasFailure =
-            hasSurfaceDiagnostics ||
+            (result.typescript.surfaceDiagnostics ?? 0) > 0 ||
             result.typescript.status === 'tooling-error' ||
-            result.typescriptSpecs.status === 'tooling-error' ||
             result.eslint.status === 'tooling-error' ||
-            (!options.updateBaseline &&
-                (result.typescript.status === 'failed' ||
-                    result.typescriptSpecs.status === 'failed' ||
-                    result.eslint.status === 'failed'));
+            (!options.updateBaseline && (result.typescript.status === 'failed' || result.eslint.status === 'failed'));
 
         if (hasFailure && !result.project.vendor) {
             exitCode = 1;

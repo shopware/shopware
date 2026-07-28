@@ -57,7 +57,6 @@ describe('scripts/extensionTooling/report skipped targets', () => {
             [
                 extension(partialProject(), {
                     typescript: run('failed', { findings: 1, newFindings: 1, output: 'x' }),
-                    typescriptSpecs: run('failed', { findings: 1, newFindings: 1, output: 'y' }),
                 }),
             ],
             { exitCode: 1 },

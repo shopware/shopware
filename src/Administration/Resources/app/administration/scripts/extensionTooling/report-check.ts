@@ -113,12 +113,6 @@ function indent(text: string, prefix: string): string {
         .join('\n');
 }
 
-const SPEC_RUN_STATUSES = [
-    'passed',
-    'failed',
-    'tooling-error',
-];
-
 interface ToolRow {
     label: string;
     tool: 'TypeScript' | 'ESLint';
@@ -126,27 +120,12 @@ interface ToolRow {
     resolution: ModeResolution;
 }
 
-/** The per-extension status rows, in print order: TypeScript, its spec companion (only when it ran), ESLint. */
+/** The per-extension status rows, in print order: TypeScript then ESLint. */
 function toolRows(result: ExtensionCheckResult): ToolRow[] {
-    const rows: ToolRow[] = [
+    return [
         { label: 'TypeScript', tool: 'TypeScript', run: result.typescript, resolution: result.tsResolution },
+        { label: 'ESLint', tool: 'ESLint', run: result.eslint, resolution: result.eslintResolution },
     ];
-
-    // The spec program is a companion of the TypeScript run — only shown when it
-    // actually ran (a plugin without specs, an unmanaged config, or a blocked
-    // schema is already conveyed by the TypeScript line).
-    if (SPEC_RUN_STATUSES.includes(result.typescriptSpecs.status)) {
-        rows.push({
-            label: 'TS (specs)',
-            tool: 'TypeScript',
-            run: result.typescriptSpecs,
-            resolution: result.tsResolution,
-        });
-    }
-
-    rows.push({ label: 'ESLint', tool: 'ESLint', run: result.eslint, resolution: result.eslintResolution });
-
-    return rows;
 }
 
 function renderCoverageLines(result: ExtensionCheckResult): string[] {
@@ -155,9 +134,8 @@ function renderCoverageLines(result: ExtensionCheckResult): string[] {
     for (const coverage of result.coverage) {
         lines.push(
             colors.dim(`    target ${coverage.target.technicalNames.join(', ')} · ${coverage.target.sourcePath}`),
-            colors.dim(`      runtime: ${coverage.runtimeConfig}`),
-            colors.dim(`      specs:   ${coverage.specConfig}`),
-            colors.dim(`      eslint:  ${coverage.eslintConfig}`),
+            colors.dim(`      typescript: ${coverage.runtimeConfig}`),
+            colors.dim(`      eslint:     ${coverage.eslintConfig}`),
         );
     }
 
@@ -176,8 +154,7 @@ function renderToolRow(
     verbose: boolean,
 ): { lines: string[]; unmanaged: boolean } {
     const { label, tool, run, resolution } = row;
-    // The runtime TypeScript row already lists the skips the spec row shares.
-    const toolSkips = label === 'TS (specs)' ? [] : skipped.filter((entry) => entry.tool === tool);
+    const toolSkips = skipped.filter((entry) => entry.tool === tool);
     const unmanaged = run.status === 'unmanaged' || toolSkips.length > 0;
     const lines = [`    ${statusLine(label, run, resolution)}`];
 
@@ -278,19 +255,8 @@ function renderSummary(results: ExtensionCheckResult[]): string[] {
     const headers = [
         'extension',
         'ts',
-        'specs',
         'eslint',
     ];
-    // Extensions without specs (or with an unmanaged/blocked TS run) get a dash
-    // rather than a misleading "passed" in the specs column.
-    const specCell = (run: ToolRunResult): string =>
-        [
-            'no-files',
-            'unmanaged',
-            'blocked',
-        ].includes(run.status)
-            ? '—'
-            : summaryCell(run, 'TypeScript');
     const rows = results.map((result) => {
         const skipped = result.skippedTargets ?? collectSkippedTargets(result.project);
         // Partial skips get an explicit suffix — a plain "passed"/"N finding(s)"
@@ -304,7 +270,6 @@ function renderSummary(results: ExtensionCheckResult[]): string[] {
         return [
             result.project.name,
             withSkipNote('TypeScript', summaryCell(result.typescript, 'TypeScript')),
-            specCell(result.typescriptSpecs),
             withSkipNote('ESLint', summaryCell(result.eslint, 'ESLint')),
         ];
     });
@@ -326,7 +291,6 @@ function renderSummary(results: ExtensionCheckResult[]): string[] {
 function hasFindings(result: ExtensionCheckResult): boolean {
     return [
         result.typescript.status,
-        result.typescriptSpecs.status,
         result.eslint.status,
     ].some((status) => status === 'failed' || status === 'tooling-error');
 }
@@ -337,9 +301,8 @@ interface CheckStats {
     extensionsSkipped: number;
     /**
      * Individual tool runs that did not happen (unmanaged or blocked), across all
-     * extensions. Counts the same three streams as `writableSkipped` and
-     * `computeExitCode`'s --fail-on-skipped gate, so the verdict line and the
-     * skip warning above it can never state different numbers.
+     * extensions. Counts the same streams as `writableSkipped`, so the verdict
+     * line and the skip warning above it can never state different numbers.
      */
     toolsSkipped: number;
     baselined: number;
@@ -362,17 +325,13 @@ function summarizeCheck(results: ExtensionCheckResult[]): CheckStats {
                 sum +
                 countSkippedRuns([
                     extension.typescript,
-                    extension.typescriptSpecs,
                     extension.eslint,
                 ]),
             0,
         ),
         baselined: results.reduce(
             (sum, extension) =>
-                sum +
-                (extension.typescript.baselinedFindings ?? 0) +
-                (extension.typescriptSpecs.baselinedFindings ?? 0) +
-                (extension.eslint.baselinedFindings ?? 0),
+                sum + (extension.typescript.baselinedFindings ?? 0) + (extension.eslint.baselinedFindings ?? 0),
             0,
         ),
         writableSkipped: results
@@ -382,7 +341,6 @@ function summarizeCheck(results: ExtensionCheckResult[]): CheckStats {
                     sum +
                     countSkippedRuns([
                         extension.typescript,
-                        extension.typescriptSpecs,
                         extension.eslint,
                     ]),
                 0,

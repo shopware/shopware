@@ -42,7 +42,6 @@ export function target(name: string, overrides: Partial<AdministrationTarget> = 
         ts: overrides.ts ?? resolution('managed'),
         eslint: overrides.eslint ?? resolution('managed'),
         checkTsconfig: overrides.checkTsconfig ?? '',
-        specTsconfig: overrides.specTsconfig ?? '',
     };
 }
 
@@ -71,7 +70,6 @@ export function extension(
         tsResolution: overrides.tsResolution ?? aggregateModeResolution(project_, 'ts'),
         eslintResolution: overrides.eslintResolution ?? aggregateModeResolution(project_, 'eslint'),
         typescript: overrides.typescript ?? run('passed'),
-        typescriptSpecs: overrides.typescriptSpecs ?? run('no-files'),
         eslint: overrides.eslint ?? run('passed'),
         commands: overrides.commands ?? {},
         coverage: overrides.coverage ?? [],

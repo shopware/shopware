@@ -13,7 +13,7 @@
 import fs from 'fs';
 import path from 'path';
 import { runCommand } from '../probe-command';
-import { checkExtensions, listSpecFiles, listTypeCheckableFiles } from '../check';
+import { checkExtensions, listTypeCheckableFiles } from '../check';
 import {
     cleanupTempProject,
     createSkeletonAdmin,
@@ -58,10 +58,7 @@ describe('scripts/extensionTooling/check orchestration', () => {
             const base = { durationMs: 60000, timedOut: false };
 
             if (args.includes('--showConfig')) {
-                const files = [
-                    ...listTypeCheckableFiles(projectRoot, ['custom/plugins']),
-                    ...listSpecFiles(projectRoot, ['custom/plugins']),
-                ];
+                const files = listTypeCheckableFiles(projectRoot, ['custom/plugins']);
 
                 return { ...base, status: 0, output: JSON.stringify({ files }) };
             }
@@ -139,21 +136,19 @@ describe('scripts/extensionTooling/check orchestration', () => {
 
         for (const result of check.results) {
             expect(result.typescript.status).toBe('passed');
-            expect(result.typescriptSpecs.status).toBe('passed');
             expect(result.eslint.status).toBe('passed');
         }
 
-        // 2 extensions × (3 coverage + 3 runtime + 3 spec coverage + 3 spec
-        // programs + 1 ESLint group) — enough parallel work that an unshared
-        // or per-extension limit would exceed 2 concurrent processes.
-        expect(runCommandMock.mock.calls.length).toBeGreaterThanOrEqual(26);
+        // 2 extensions × (3 coverage probes + 3 programs + 1 ESLint group) —
+        // enough parallel work that an unshared or per-extension limit would
+        // exceed 2 concurrent processes.
+        expect(runCommandMock.mock.calls.length).toBeGreaterThanOrEqual(14);
         expect(maxRunning).toBe(2);
 
         // Every fake process reports 60s; a stage that still summed process
         // times would report multiples of that instead of wall-clock time.
         for (const result of check.results) {
             expect(result.typescript.durationMs).toBeLessThan(60000);
-            expect(result.typescriptSpecs.durationMs).toBeLessThan(60000);
             expect(result.eslint.durationMs).toBeLessThan(60000);
         }
     }, 60000);

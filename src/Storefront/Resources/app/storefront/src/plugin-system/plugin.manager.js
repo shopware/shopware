@@ -142,7 +142,7 @@ class PluginManagerSingleton {
             // it so the outdated instances are replaced instead of surviving until the next
             // initializePlugins() call, which may never happen.
             if (hasInstances) {
-                this.initializePlugin(newName, selector, options);
+                this.initializePlugin(newName, selector, options).catch((error) => console.error(error));
             }
 
             return registry;
@@ -674,16 +674,26 @@ class PluginManagerSingleton {
      * @private
      */
     static _destroyPluginInstance(el, instance, pluginName) {
+        if (instance.destroy === PluginBaseClass.prototype.destroy) {
+            console.warn(`The plugin "${pluginName}" does not implement destroy(). Everything the replaced instance registered outside of itself, for example event listeners added with addEventListener, stays active.`);
+        }
+
+        // Kept in separate try blocks on purpose: a throwing destroy() must not skip the emitter
+        // reset, otherwise the listeners this method exists to remove would stay attached.
         try {
             if (typeof instance.destroy === 'function') {
                 instance.destroy();
             }
+        } catch (error) {
+            console.warn(`The outdated instance of plugin "${pluginName}" could not be destroyed.`, error);
+        }
 
+        try {
             if (instance.$emitter) {
                 instance.$emitter.reset();
             }
         } catch (error) {
-            console.warn(`The outdated instance of plugin "${pluginName}" could not be destroyed.`, error);
+            console.warn(`The event emitter of the outdated instance of plugin "${pluginName}" could not be reset.`, error);
         }
 
         PluginManager.getPluginInstancesFromElement(el).delete(pluginName);

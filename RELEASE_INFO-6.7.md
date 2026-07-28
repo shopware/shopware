@@ -80,7 +80,13 @@ Overriding a lazily loaded core storefront plugin no longer silently falls back 
 * An element kept the plugin instance it was first initialized with, even after the registered class had changed.
 * Re-registering an async plugin with a plain (non-lazy) class left it flagged as async, so it was never initialized at all.
 
-Overriding a plugin that is already initialized on the page now replaces its live instances instead of doing nothing. Before an outdated instance is replaced, the PluginManager calls its `destroy()` method (if defined) and resets its `$emitter`. If your plugin adds event listeners directly to DOM nodes in `init()`, implement `destroy()` to remove them, otherwise the listeners of the replaced instance stay attached:
+Overriding a plugin that is already initialized on the page now replaces its live instances instead of doing nothing. This replacement happens whenever the class registered under a plugin name differs from the class an existing instance was built with, so it is not limited to `PluginManager.override()` and it can happen during any later initialization pass, for example the one that runs after AJAX-loaded content.
+
+Before an outdated instance is replaced, the PluginManager calls its `destroy()` method and resets its `$emitter`.
+
+**Be aware of the current limitation:** the instance being replaced is the previously registered class, which is usually a core plugin, and most core plugins do not implement `destroy()` yet. Anything such an instance registered outside of itself — most importantly listeners added with `addEventListener` — therefore stays active, and both the replaced and the new instance react to the same event. The PluginManager logs a `console.warn` naming every plugin that is replaced without implementing `destroy()`. Registering your override before the storefront initializes its plugins, which is what a theme entry file does by default, avoids the replacement entirely and is the recommended way to override a plugin.
+
+`PluginBaseClass` now declares a `destroy()` method. Implement it in your own plugins to clean up anything `init()` registered outside the instance:
 
 ```js
 export default class MyPlugin extends window.PluginBaseClass {

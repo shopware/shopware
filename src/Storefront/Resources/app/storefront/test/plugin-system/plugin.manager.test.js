@@ -36,6 +36,22 @@ class OverrideCartPluginClass extends CoreCartPluginClass {
     }
 }
 
+const clickCounter = { count: 0 };
+
+class ListeningCorePluginClass extends Plugin {
+    init() {
+        this._onClick = () => { clickCounter.count += 1; };
+        this.el.addEventListener('click', this._onClick);
+    }
+
+    destroy() {
+        this.el.removeEventListener('click', this._onClick);
+    }
+}
+
+class ListeningOverridePluginClass extends ListeningCorePluginClass {
+}
+
 /**
  * @package storefront
  */
@@ -686,6 +702,40 @@ describe('Plugin manager', () => {
             const element = document.querySelector('[data-overridable-cart]');
 
             expect(PluginManager.getPluginInstanceFromElement(element, 'OverridableCart').getQuantity()).toBe('79,89 EUR');
+        });
+
+        it('should not leave the listeners of a replaced instance attached', async () => {
+            document.body.innerHTML = '<div data-listening-cart="true"></div>';
+            clickCounter.count = 0;
+
+            PluginManager.register('ListeningCart', () => Promise.resolve({ default: ListeningCorePluginClass }), '[data-listening-cart]');
+            await PluginManager.initializePlugins();
+
+            PluginManager.override('ListeningCart', () => Promise.resolve({ default: ListeningOverridePluginClass }), '[data-listening-cart]');
+            await new Promise(process.nextTick);
+
+            const element = document.querySelector('[data-listening-cart]');
+
+            expect(PluginManager.getPluginInstanceFromElement(element, 'ListeningCart')).toBeInstanceOf(ListeningOverridePluginClass);
+
+            element.dispatchEvent(new Event('click'));
+
+            // The replaced instance must not handle the event a second time.
+            expect(clickCounter.count).toBe(1);
+
+            PluginManager.deregister('ListeningCart');
+        });
+
+        it('should warn when a replaced instance does not implement destroy', async () => {
+            const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+            PluginManager.register('OverridableCart', coreImport, '[data-overridable-cart]');
+            await PluginManager.initializePlugins();
+
+            PluginManager.override('OverridableCart', overrideImport, '[data-overridable-cart]');
+            await new Promise(process.nextTick);
+
+            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('does not implement destroy()'));
         });
 
         it('should not destroy an instance that is already an instance of the registered class', async () => {

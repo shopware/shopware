@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -168,7 +169,8 @@ class AuthControllerTest extends TestCase
         static::assertArrayHasKey('frontend.account.logout.page', $this->controller->redirected);
     }
 
-    public function testLoginWithBadCredentialsFromCheckoutForwardsToCheckoutRegister(): void
+    #[DataProvider('loginRedirectProvider')]
+    public function testLoginWithBadCredentialsForwardsToCorrectRoute(?string $redirectTo, string $expectedRoute): void
     {
         $loginRoute = static::createStub(AbstractLoginRoute::class);
         $loginRoute->method('login')->willThrowException(new BadCredentialsException());
@@ -179,28 +181,27 @@ class AuthControllerTest extends TestCase
         $context->assign(['customer' => null]);
 
         $request = new Request();
-        $request->request->set('redirectTo', 'frontend.checkout.confirm.page');
+        if ($redirectTo !== null) {
+            $request->request->set('redirectTo', $redirectTo);
+        }
 
         $controller->login($request, new RequestDataBag(), $context);
 
-        static::assertSame('frontend.checkout.register.page', $controller->forwardToRoute);
+        static::assertSame($expectedRoute, $controller->forwardToRoute);
         static::assertTrue($controller->forwardToRouteAttributes['loginError']);
     }
 
-    public function testLoginWithBadCredentialsFromAccountForwardsToLoginPage(): void
+    /**
+     * @return array<string, array{0: string|null, 1: string}>
+     */
+    public static function loginRedirectProvider(): array
     {
-        $loginRoute = static::createStub(AbstractLoginRoute::class);
-        $loginRoute->method('login')->willThrowException(new BadCredentialsException());
-
-        $controller = $this->createController(loginRoute: $loginRoute);
-
-        $context = Generator::generateSalesChannelContext();
-        $context->assign(['customer' => null]);
-
-        $controller->login(new Request(), new RequestDataBag(), $context);
-
-        static::assertSame('frontend.account.login.page', $controller->forwardToRoute);
-        static::assertTrue($controller->forwardToRouteAttributes['loginError']);
+        return [
+            'from checkout' => ['frontend.checkout.confirm.page', 'frontend.checkout.register.page'],
+            'unexpected route (wishlist)' => ['frontend.account.wishlist.page', 'frontend.account.login.page'],
+            'external url attack' => ['https://www.shopware.com', 'frontend.account.login.page'],
+            'empty/null fallback' => [null, 'frontend.account.login.page'],
+        ];
     }
 
     public function testGenerateAccountRecoveryThrowsConstraintException(): void

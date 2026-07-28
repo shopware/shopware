@@ -10,6 +10,12 @@
 
 ## Core
 
+### Linear-time rule, price and listing hot-path helpers
+
+Several storefront/cart hot-path helpers no longer scale quadratically with the number of active rules, product prices and listing filters:
+`RuleCollection::getIdsByArea()`, `SalesChannelContext::getRuleIdsByAreas()` and `RuleAreaUpdater` now deduplicate via keyed sets instead of `array_unique(array_merge(...))` inside loops; `ProductPriceCalculator::filterRulePrices()` indexes the available price rule ids once instead of re-scanning the whole price collection for every active rule id; and `AggregationListingProcessor` merges filter aggregations a single time and computes the filtered base collection once outside the loop.
+This is a backwards-compatible optimization: the produced results (ordering, deduplication, calculated prices, aggregations) are unchanged, so no adjustments are required.
+
 ### Deprecated `maintenanceIpWhitelist` wording of the sales channel
 
 The non-inclusive `maintenanceIpWhitelist` wording on the sales channel is deprecated in favor of `maintenanceIpAllowlist`.

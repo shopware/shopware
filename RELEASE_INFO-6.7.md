@@ -10,6 +10,12 @@
 
 ## Core
 
+### Reduced entity-hydration and cache-tag overhead
+
+The DAL entity hydrator (`EntityHydrator`) now builds its per-result dedupe cache key from the raw primary-key bytes and defers the per-field primary-key decode until an entity is actually constructed, so duplicate rows (e.g. the same manufacturer or tax shared across thousands of products in a single result) no longer re-decode the primary key.
+`JsonFieldSerializer` no longer recompiles embedded fields on every decoded row, and the HTTP cache tag collector (`CacheTagCollector`) deduplicates collected tags via constant-time lookups instead of an `array_diff` that grew quadratically during a page render.
+This is a backwards-compatible optimization: hydrated entities and collected cache tags are unchanged, so no adjustments are required.
+
 ### Deprecated `maintenanceIpWhitelist` wording of the sales channel
 
 The non-inclusive `maintenanceIpWhitelist` wording on the sales channel is deprecated in favor of `maintenanceIpAllowlist`.

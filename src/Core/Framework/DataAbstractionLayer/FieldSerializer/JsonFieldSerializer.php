@@ -76,7 +76,11 @@ class JsonFieldSerializer extends AbstractFieldSerializer
                 ? Json::encode($raw[$key])
                 : $raw[$key];
 
-            $embedded->compile($this->definitionRegistry);
+            // decode() runs per embedded property for every hydrated row; compile() only assigns
+            // the (singleton) registry and is idempotent, so skip it once the field is compiled.
+            if (!$embedded->isCompiled()) {
+                $embedded->compile($this->definitionRegistry);
+            }
             $decodedValue = $embedded->getSerializer()->decode($embedded, $value);
             if ($decodedValue instanceof \DateTimeInterface) {
                 $format = $embedded instanceof DateField ? Defaults::STORAGE_DATE_FORMAT : \DATE_ATOM;

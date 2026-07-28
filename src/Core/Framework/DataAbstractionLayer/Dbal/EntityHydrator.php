@@ -567,13 +567,25 @@ class EntityHydrator
             throw DataAbstractionLayerException::entityHydratorError(\sprintf('Hydrator for entity %s not registered', $definition->getEntityName()));
         }
 
-        $identifier = implode('-', self::buildUniqueIdentifier($definition, $row, $root));
-
-        $cacheKey = $root . '::' . $identifier;
+        // Build the dedupe cache key directly from the raw primary-key storage values. This lets us
+        // short-circuit duplicate rows (e.g. the same manufacturer/tax shared across thousands of
+        // products) WITHOUT running the per-field serializer decode (Uuid::fromBytesToHex, ...).
+        // The expensive buildUniqueIdentifier() decode is deferred until we actually build a new
+        // entity below (cache miss). self::$hydrated is reset per hydrate() call, so the key only
+        // needs to be consistent within a single call.
+        $cacheKey = $root;
+        foreach ($definition->getPrimaryKeys() as $primaryKeyField) {
+            if ($primaryKeyField instanceof VersionField || $primaryKeyField instanceof ReferenceVersionField) {
+                continue;
+            }
+            $cacheKey .= '::' . $row[$root . '.' . $primaryKeyField->getPropertyName()];
+        }
 
         if (isset(self::$hydrated[$cacheKey])) {
             return self::$hydrated[$cacheKey];
         }
+
+        $identifier = implode('-', self::buildUniqueIdentifier($definition, $row, $root));
 
         $entity = new $entityClass();
 

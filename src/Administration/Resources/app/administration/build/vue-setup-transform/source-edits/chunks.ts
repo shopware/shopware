@@ -10,55 +10,34 @@
  * distinction lets the transform preserve author ranges when sourcemaps are added.
  */
 
-/**
- * Compiler-owned code with no source location in the original SFC.
- *
- * @private
- */
-export type GeneratedChunk = { type: 'generated'; code: string };
+import type { SourceRange } from '../utils/source-range';
+
+/** Compiler-owned code with no source location in the original SFC. */
+type GeneratedChunk = { type: 'generated'; code: string };
+
+/** Absolute source slice copied from the original SFC. */
+type OriginalChunk = { type: 'original'; start: number; end: number };
+
+/** Deferred indentation wrapper around generated and original chunks. */
+type IndentChunk = { type: 'indent'; chunks: SourceChunk[]; spaces: number };
+
+/** Deferred trim wrapper that keeps remaining original ranges intact. */
+type TrimChunk = { type: 'trim'; chunks: SourceChunk[] };
+
+/** Chunk variant that can be rendered without another source-aware expansion pass. */
+type FlatSourceChunk = GeneratedChunk | OriginalChunk;
+
+/** Recursive chunk tree produced by lowerers before rendering. */
+type SourceChunk = FlatSourceChunk | IndentChunk | TrimChunk;
 
 /**
- * Absolute source slice copied from the original SFC.
- *
- * @private
+ * The SFC block an original chunk is copied from. Every caller passes a full `ShopwareSetupBlock`;
+ * `fromSource` only reads `contentStart`, but keeping `content` here lets `transform-ranges` share the
+ * exact same type instead of re-declaring a wider one.
  */
-export type OriginalChunk = { type: 'original'; start: number; end: number };
-
-/**
- * Deferred indentation wrapper around generated and original chunks.
- *
- * @private
- */
-export type IndentChunk = { type: 'indent'; chunks: SourceChunk[]; spaces: number };
-
-/**
- * Deferred trim wrapper that keeps remaining original ranges intact.
- *
- * @private
- */
-export type TrimChunk = { type: 'trim'; chunks: SourceChunk[] };
-
-/**
- * Chunk variant that can be rendered without another source-aware expansion pass.
- *
- * @private
- */
-export type FlatSourceChunk = GeneratedChunk | OriginalChunk;
-
-/**
- * Recursive chunk tree produced by lowerers before rendering.
- *
- * @private
- */
-export type SourceChunk = FlatSourceChunk | IndentChunk | TrimChunk;
-
 type SourceBlock = {
     contentStart: number;
-};
-
-type SourceRange = {
-    start: number;
-    end: number;
+    content: string;
 };
 
 /**
@@ -106,4 +85,16 @@ function indent(chunks: SourceChunk[], spaces = 4): IndentChunk {
 /**
  * @private
  */
-export { fromSource, generated, indent, trim };
+export {
+    type FlatSourceChunk,
+    type GeneratedChunk,
+    type IndentChunk,
+    type OriginalChunk,
+    type SourceBlock,
+    type SourceChunk,
+    type TrimChunk,
+    fromSource,
+    generated,
+    indent,
+    trim,
+};

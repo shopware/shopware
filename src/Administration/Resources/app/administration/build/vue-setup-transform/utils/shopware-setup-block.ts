@@ -38,7 +38,8 @@ type InferredShopwareSetup = {
 
 /** `sw-thing.vue?vue&type=script` -> `sw-thing.vue` */
 function stripFilenameQuery(filename: string): string {
-    return filename.split(/[?#]/, 1)[0] ?? filename;
+    // `String.split(_, 1)` always yields at least one element, so `[0]` is never undefined here.
+    return filename.split(/[?#]/, 1)[0];
 }
 
 /** `src/app/sw-thing.vue` -> `sw-thing.vue` */
@@ -68,17 +69,15 @@ function parentDirectoryName(filename: string): string {
 function inferShopwareSetupFromFilename(filename: string): InferredShopwareSetup {
     const file = basename(filename);
     const mode: ShopwareSetupMode = file.endsWith('.override.vue') ? 'override' : 'base';
+    // The mode already decided which suffix this file carries; reuse it instead of re-testing.
+    const suffix = mode === 'override' ? '.override.vue' : '.vue';
     const componentName = (() => {
-        if (file === 'index.vue' || file === 'index.override.vue') {
+        if (file === `index${suffix}`) {
             return parentDirectoryName(filename);
         }
 
-        if (file.endsWith('.override.vue')) {
-            return file.slice(0, -'.override.vue'.length);
-        }
-
-        if (file.endsWith('.vue')) {
-            return file.slice(0, -'.vue'.length);
+        if (file.endsWith(suffix)) {
+            return file.slice(0, -suffix.length);
         }
 
         return file;

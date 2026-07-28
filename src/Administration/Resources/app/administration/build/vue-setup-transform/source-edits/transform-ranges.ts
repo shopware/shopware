@@ -10,17 +10,8 @@
  */
 
 import { ShopwareSetupTransformError } from '../utils/transform-error';
-import { fromSource, generated, trim, type SourceChunk } from './chunks';
-
-type SourceBlock = {
-    contentStart: number;
-    content: string;
-};
-
-type SourceRange = {
-    start: number;
-    end: number;
-};
+import { fromSource, generated, trim, type SourceBlock, type SourceChunk } from './chunks';
+import type { SourceRange } from '../utils/source-range';
 
 type SourceReplacement = SourceRange & {
     replacement: string;

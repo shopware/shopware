@@ -24,7 +24,7 @@
 
 import type { Identifier, Node as BabelNode } from '@babel/types';
 import { forEachPatternIdentifier } from '../utils/babel-patterns';
-import { childBabelEntries, childBabelNodes, isTypeKey } from '../utils/ast-traversal';
+import { childBabelEntries, childBabelNodes, isFunctionLikeNode, isTypeKey } from '../utils/ast-traversal';
 import { isValueReadPosition } from './identifier-position';
 
 /**
@@ -59,20 +59,6 @@ function getLeftmostEntityIdentifier(entity: BabelNode | null | undefined): Iden
  */
 function isTypeDeclarationContainer(node: BabelNode): boolean {
     return node.type === 'TSInterfaceDeclaration' || node.type === 'TSTypeAliasDeclaration';
-}
-
-/**
- * The node kinds that open a new function scope for the shadowing check.
- */
-function isFunctionLikeNode(node: BabelNode): boolean {
-    return (
-        node.type === 'FunctionDeclaration' ||
-        node.type === 'FunctionExpression' ||
-        node.type === 'ArrowFunctionExpression' ||
-        node.type === 'ObjectMethod' ||
-        node.type === 'ClassMethod' ||
-        node.type === 'ClassPrivateMethod'
-    );
 }
 
 /**
@@ -229,13 +215,11 @@ function collectSetupRenameTargets(
         const childShadowedBindings = new Set(shadowedBindings);
 
         if (isFunctionLikeNode(node)) {
-            const functionNode = node as unknown as { params: BabelNode[]; body: BabelNode };
-
-            functionNode.params.forEach((param) =>
+            node.params.forEach((param) =>
                 forEachPatternIdentifier(param, (identifier) => childShadowedBindings.add(identifier.name)),
             );
 
-            collectFunctionScopeDeclarations(functionNode.body, childShadowedBindings);
+            collectFunctionScopeDeclarations(node.body, childShadowedBindings);
         }
 
         const childInTypePosition = inTypePosition || isTypeDeclarationContainer(node);
@@ -278,8 +262,4 @@ function collectSetupRenameTargets(
 /**
  * @private
  */
-export { collectSetupRenameTargets };
-/**
- * @private
- */
-export type { SetupRenameTarget };
+export { type SetupRenameTarget, collectSetupRenameTargets };

@@ -31,7 +31,7 @@ import { parse, parseExpression, type ParserPlugin } from '@babel/parser';
 import type { Node as BabelNode, PatternLike } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import { forEachPatternIdentifier } from '../utils/babel-patterns';
-import { childBabelNodes, isTypeKey } from '../utils/ast-traversal';
+import { childBabelNodes, isFunctionLikeNode, isTypeKey } from '../utils/ast-traversal';
 import { isValueReadPosition } from './identifier-position';
 
 type BindingPatternResult = {
@@ -232,14 +232,7 @@ function collectBabelReferences(
         return;
     }
 
-    if (
-        node.type === 'FunctionDeclaration' ||
-        node.type === 'FunctionExpression' ||
-        node.type === 'ArrowFunctionExpression' ||
-        node.type === 'ObjectMethod' ||
-        node.type === 'ClassMethod' ||
-        node.type === 'ClassPrivateMethod'
-    ) {
+    if (isFunctionLikeNode(node)) {
         if ('id' in node && node.id) {
             scopes[0].add(node.id.name);
         }

@@ -7,8 +7,7 @@
 
 import { defineComponent, ref, computed } from 'vue';
 import { mount } from '@vue/test-utils';
-import { overrideComponentSetup, _overridesMap } from 'src/app/adapter/composition-extension-system';
-import { attachOverrides } from 'src/app/adapter/composition-extension-system';
+import { attachOverrides, overrideComponentSetup, _overridesMap } from 'src/app/adapter/composition-extension-system';
 
 describe('src/app/adapter/composition-extension-system attachOverrides', () => {
     beforeEach(() => {

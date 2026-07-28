@@ -51,7 +51,9 @@ type DirectiveNode = CoreDirectiveNode & {
         index?: { content: string };
         source?: { content: string };
     };
-    rawName: string;
+    // Optional to match `@vue/compiler-core` (declares `rawName?: string`); the consumer in
+    // sw-block-bindings falls back to `v-${name}`, and that fallback must stay reachable per the type.
+    rawName?: string;
 };
 
 type ElementNode = CoreElementNode & {

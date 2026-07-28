@@ -10,8 +10,24 @@
  * to express its own visitor.
  */
 
-import type { Node as BabelNode } from '@babel/types';
+import type {
+    ArrowFunctionExpression,
+    ClassMethod,
+    ClassPrivateMethod,
+    FunctionDeclaration,
+    FunctionExpression,
+    Node as BabelNode,
+    ObjectMethod,
+} from '@babel/types';
 import { isBabelNodeLike } from './babel-patterns';
+
+type FunctionLikeNode =
+    | FunctionDeclaration
+    | FunctionExpression
+    | ArrowFunctionExpression
+    | ObjectMethod
+    | ClassMethod
+    | ClassPrivateMethod;
 
 /** Object keys that never hold traversable child nodes (source positions and comments). */
 const NON_NODE_KEYS = [
@@ -31,6 +47,25 @@ type ChildBabelEntry = {
     node: BabelNode;
     key: string;
 };
+
+/**
+ * The node kinds that introduce a new function scope.
+ *
+ * `TSDeclareFunction` is intentionally excluded: it is an ambient signature with no body, so it can
+ * neither hold a lexical scope the rename walk must track nor contain an `await` the top-level-await
+ * check cares about. The one caller that needs it (that await check) can special-case it if ever
+ * required; today none does.
+ */
+function isFunctionLikeNode(node: BabelNode): node is FunctionLikeNode {
+    return (
+        node.type === 'FunctionDeclaration' ||
+        node.type === 'FunctionExpression' ||
+        node.type === 'ArrowFunctionExpression' ||
+        node.type === 'ObjectMethod' ||
+        node.type === 'ClassMethod' ||
+        node.type === 'ClassPrivateMethod'
+    );
+}
 
 /** Type-position fields, skipped by walks that only care about value (runtime) positions. */
 function isTypeKey(key: string): boolean {
@@ -92,4 +127,12 @@ function childBabelNodes(node: BabelNode, skipKey?: ChildKeyFilter): BabelNode[]
 /**
  * @private
  */
-export { type ChildBabelEntry, type ChildKeyFilter, childBabelEntries, childBabelNodes, isTypeKey };
+export {
+    type ChildBabelEntry,
+    type ChildKeyFilter,
+    type FunctionLikeNode,
+    childBabelEntries,
+    childBabelNodes,
+    isFunctionLikeNode,
+    isTypeKey,
+};

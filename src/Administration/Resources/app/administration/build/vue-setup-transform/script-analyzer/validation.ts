@@ -12,7 +12,8 @@
 import type { CallExpression, File as BabelFile, Node as BabelNode } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
-import { absoluteStart, isFunctionNode, walk } from './utils';
+import { absoluteStart, walk } from './utils';
+import { isFunctionLikeNode } from '../utils/ast-traversal';
 import { RESERVED_OVERRIDE_STATE_NAME, SHOPWARE_SETUP_INTERNAL_PREFIX, type ShopwareSetupMacroName } from './macros';
 import {
     getReservedHelperNames,
@@ -77,7 +78,9 @@ function assertNoUnsupportedSyntax(
         //  the current synchronous base/override callback contract, so it cannot be supported at the moment.
         const isAwait = node.type === 'AwaitExpression' || (node.type === 'ForOfStatement' && node.await);
 
-        if (isAwait && !ancestors.some(isFunctionNode)) {
+        // `isFunctionLikeNode` omits `TSDeclareFunction`, which is fine here: an ambient `declare
+        // function` has no body, so an `await` can never sit inside one.
+        if (isAwait && !ancestors.some(isFunctionLikeNode)) {
             throw new ShopwareSetupTransformError(
                 'Top-level await is not supported inside Shopware setup blocks.',
                 absoluteStart(node, scriptOffset),

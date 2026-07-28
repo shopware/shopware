@@ -20,6 +20,7 @@ developers working on the transform itself.
 | `script-analyzer.ts` | Statement classification pass: produces the semantic model for lowering |
 | `script-analyzer/` | Analyzer internals: macro registry, runtime bindings, setup inputs, validation, Babel utils |
 | `template-analyzer/` | Template pass: expression/template reference detection, slot-scope merging, data-scope injection |
+| `flow-analysis/` | Identifier flow: which names an expression reads/writes, and every occurrence the base rename pass must rewrite |
 | `lower.ts`, `lower/` | Code generation: base and override lowerers plus shared chunk helpers |
 | `source-edits/` | Chunk IR (`generated`/`original`/`trim`/`indent`), range transforms, rendering |
 | `utils/` | Cross-cutting helpers: block normalization, script-tag handling, Babel patterns, errors |

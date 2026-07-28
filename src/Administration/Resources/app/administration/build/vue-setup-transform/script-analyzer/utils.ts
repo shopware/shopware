@@ -13,11 +13,7 @@ import { parse, type ParserPlugin } from '@babel/parser';
 import type { File as BabelFile, Node as BabelNode } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import { childBabelNodes } from '../utils/ast-traversal';
-
-type SourceRange = {
-    start: number;
-    end: number;
-};
+import type { SourceRange } from '../utils/source-range';
 
 type AstVisitor = (node: BabelNode, ancestors: BabelNode[]) => void;
 
@@ -83,21 +79,6 @@ function parseScript(script: string, lang: string, scriptOffset: number): BabelF
 }
 
 /**
- * Identifies scopes where `await` is no longer top-level for this transform.
- */
-function isFunctionNode(node: BabelNode): boolean {
-    return [
-        'FunctionDeclaration',
-        'FunctionExpression',
-        'ArrowFunctionExpression',
-        'ObjectMethod',
-        'ClassMethod',
-        'ClassPrivateMethod',
-        'TSDeclareFunction',
-    ].includes(node.type);
-}
-
-/**
  * Small AST walker used to avoid taking a heavier traversal dependency.
  *
  * Child enumeration is delegated to `childBabelNodes`, so this and the other analyzer walks share one
@@ -140,12 +121,4 @@ function unwrapTransparentMacroExpression(node: BabelNode | null | undefined): B
 /**
  * @private
  */
-export {
-    type SourceRange,
-    absoluteStart,
-    getNodeRange,
-    isFunctionNode,
-    parseScript,
-    unwrapTransparentMacroExpression,
-    walk,
-};
+export { type SourceRange, absoluteStart, getNodeRange, parseScript, unwrapTransparentMacroExpression, walk };

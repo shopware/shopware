@@ -32,7 +32,6 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $succeeding = new MediaEntity();
         $succeeding->setId($succeedingId);
 
-        /** @var StaticEntityRepository<MediaCollection> $mediaRepository */
         $mediaRepository = new StaticEntityRepository([new MediaCollection([$failing, $succeeding])]);
 
         $handledIds = [];

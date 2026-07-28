@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\UpdatedByFieldSerializer;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterDefaultValueChange;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\UserDefinition;
@@ -18,10 +19,9 @@ class UpdatedByField extends FkField
     private readonly array $allowedWriteScopes;
 
     /**
-     * @deprecated tag:v6.8.0 - reason:parameter-default-change - omitting $allowedWriteScopes will default to [Context::SYSTEM_SCOPE, Context::CRUD_API_SCOPE]
-     *
      * @param list<string> $allowedWriteScopes
      */
+    #[ParameterDefaultValueChange(version: 'v6.8.0', parameterName: 'allowedWriteScopes', newDefaultValue: [Context::SYSTEM_SCOPE, Context::CRUD_API_SCOPE])]
     public function __construct(array $allowedWriteScopes = [Context::SYSTEM_SCOPE])
     {
         parent::__construct('updated_by_id', 'updatedById', UserDefinition::class);

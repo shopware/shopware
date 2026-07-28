@@ -260,7 +260,6 @@ class AppCookieCollectListenerTest extends TestCase
 
     private function createListener(AppEntity ...$appEntity): AppCookieCollectListener
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
         $appRepo = new StaticEntityRepository([
             new AppCollection([...$appEntity]),
         ]);

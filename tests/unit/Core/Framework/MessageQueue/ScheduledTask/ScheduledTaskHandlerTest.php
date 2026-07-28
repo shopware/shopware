@@ -28,7 +28,6 @@ class ScheduledTaskHandlerTest extends TestCase
 {
     public function testInvokeDelegatesToExecutorWhenSet(): void
     {
-        /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
         $repository = new StaticEntityRepository([]);
 
         $handler = new HandlerStub($repository, static::createStub(LoggerInterface::class));
@@ -66,7 +65,6 @@ class ScheduledTaskHandlerTest extends TestCase
 
     public function testInvokeFallsBackToInlineLogicWhenNoExecutorIsSet(): void
     {
-        /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
         $repository = new StaticEntityRepository([new ScheduledTaskCollection()]);
 
         $handler = new HandlerStub($repository, static::createStub(LoggerInterface::class));

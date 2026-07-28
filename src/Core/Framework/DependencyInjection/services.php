@@ -54,6 +54,7 @@ use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityGroupResolver;
 use Shopware\Core\Framework\Demodata\PersonalData\CleanPersonalDataCommand;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature\Command\FeatureDisableCommand;
@@ -100,11 +101,16 @@ use Shopware\Core\Framework\Routing\RouteScopeRegistry;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Routing\SymfonyRouteScopeWhitelist;
+use Shopware\Core\Framework\Routing\Telemetry\AreaResolver;
+use Shopware\Core\Framework\Routing\Telemetry\DomainResolver;
+use Shopware\Core\Framework\Routing\Telemetry\HttpRequestMetricSubscriber;
+use Shopware\Core\Framework\Routing\Telemetry\OperationResolver;
 use Shopware\Core\Framework\Routing\Validation\Constraint\RouteNotBlockedValidator;
 use Shopware\Core\Framework\Routing\Validation\RouteBlocklistService;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
+use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\Framework\Util\Backtrace\BacktraceCollector;
 use Shopware\Core\Framework\Util\HtmlPurifierConfigProvider;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
@@ -385,6 +391,27 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('event_dispatcher'),
         ]);
+
+    // Telemetry: per-main-request HTTP metrics and their label resolvers
+    $services->set(AreaResolver::class);
+
+    $services->set(DomainResolver::class)
+        ->args([
+            service(EntityGroupResolver::class),
+        ]);
+
+    $services->set(OperationResolver::class);
+
+    $services->set(HttpRequestMetricSubscriber::class)
+        ->args([
+            service(Telemetry::class),
+            service(AreaResolver::class),
+            service(DomainResolver::class),
+            service(OperationResolver::class),
+            service(Connection::class),
+        ])
+        ->tag('kernel.event_subscriber')
+        ->tag('shopware.telemetry.subscriber');
 
     $services->set(RouteBlocklistService::class)
         ->args([

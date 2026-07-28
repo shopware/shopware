@@ -37,6 +37,71 @@
           }
         ]
       }
+    },
+    "/cookie-consent-log": {
+      "post": {
+        "tags": [
+          "Experimental",
+          "Cookies"
+        ],
+        "summary": "Log a cookie consent decision",
+        "description": "Persists an anonymous record of a visitor's cookie consent decision together with a snapshot of the current cookie configuration, so shop operators can demonstrate that consent was obtained (GDPR Recital 42). No visitor identifiers are stored. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+        "operationId": "logCookieConsent",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "consentAction",
+                  "acceptedGroups"
+                ],
+                "properties": {
+                  "consentAction": {
+                    "type": "string",
+                    "enum": [
+                      "accept_all",
+                      "accept_required",
+                      "accept_selected"
+                    ],
+                    "description": "Which consent action the visitor performed."
+                  },
+                  "acceptedGroups": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Technical names of the accepted cookie groups."
+                  },
+                  "cookieConfigHash": {
+                    "type": "string",
+                    "description": "Hash of the cookie configuration the visitor saw, as returned by the cookie-groups endpoint. Defaults to the current configuration hash."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "The consent decision was logged."
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/swLanguageId"
+          }
+        ]
+      }
     }
   }
 }

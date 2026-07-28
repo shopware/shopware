@@ -2,6 +2,20 @@
 
 ## Core
 
+### Server-side cookie consent logging (experimental)
+
+The built-in cookie banner now logs every consent decision server-side, so shop operators can demonstrate that consent was obtained, as required by GDPR Recital 42. This feature is experimental (`COOKIE_GROUPS_STORE_API`) and not yet part of the backwards compatibility promise.
+
+- Every "accept all", "accept required only", and custom-selection interaction with the cookie banner is sent (fire-and-forget via `navigator.sendBeacon`) to the new storefront route `POST /cookie/consent-log`, which proxies to the new Store API route `POST /store-api/cookie-consent-log`.
+- Decisions are stored anonymously in the new `cookie_consent_log` table: action, accepted cookie groups, sales channel, language, banner configuration hash, and timestamp. No IP addresses, session IDs, or other visitor identifiers are stored.
+- A snapshot of the cookie banner configuration is stored once per configuration hash in the new `cookie_consent_config_version` table, preserving what the banner looked like when consent was given.
+- Both tables are readable through the Admin API (e.g. `POST /api/search/cookie-consent-log`) for compliance exports.
+- The new event `Shopware\Core\Content\Cookie\Event\CookieConsentLoggedEvent` is dispatched for every logged decision.
+- The new daily scheduled task `cookie_consent_log.cleanup` deletes log entries older than the retention period, configurable via the `core.cookieConsent.logRetentionDays` system config (default: 120 days, negative values disable the cleanup), and removes banner snapshots that are no longer referenced.
+- The Store API `/store-api/cookie-groups` response now additionally exposes the translation-independent `technicalName` of each cookie group.
+
+Shops using a third-party consent manager instead of the built-in cookie banner are not affected. (shopware/shopware#15513)
+
 ### Cloning an entity no longer fails on the write-protected `wasModifiedByUser` field
 
 Cloning any entity that carries a `wasModifiedByUser` field previously always failed with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `wasModifiedByUser`, because the clone copied that write-protected field's value into the insert payload. In the Core this affected mail templates (e.g. via `POST /api/_action/clone/mail-template/{id}`), and it applies equally to any extension entity using the field. The clone process now omits the field, so the cloned entity is correctly created as a fresh, non-user-modified record. (shopware/shopware#18233)

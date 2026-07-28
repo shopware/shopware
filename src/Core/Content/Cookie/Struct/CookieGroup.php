@@ -42,6 +42,21 @@ class CookieGroup extends Struct
         return 'cookie_group';
     }
 
+    /**
+     * The technical name is a private property and therefore not picked up by the
+     * default Struct serialization. It is exposed explicitly because clients need a
+     * translation-independent group identifier, e.g. for cookie consent logging.
+     *
+     * @return array<array-key, mixed>
+     */
+    public function jsonSerialize(): array
+    {
+        $data = parent::jsonSerialize();
+        $data['technicalName'] = $this->technicalName;
+
+        return $data;
+    }
+
     public function getTechnicalName(): string
     {
         return $this->technicalName;

@@ -1,0 +1,66 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Content\Cookie\CookieConsentLog;
+
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+
+/**
+ * Anonymous audit trail of storefront cookie consent decisions (GDPR Recital 42).
+ *
+ * One row per visitor consent action. Contains no visitor identifiers by design;
+ * it proves that consent was collected at a given time with a given banner
+ * configuration (`config_hash` references `cookie_consent_config_version`),
+ * not who gave it. The sales channel and language columns are intentionally
+ * not enforced by foreign keys so evidence survives their deletion.
+ *
+ * @experimental stableVersion:v6.8.0 feature:COOKIE_GROUPS_STORE_API
+ */
+#[Package('framework')]
+class CookieConsentLogDefinition extends EntityDefinition
+{
+    final public const ENTITY_NAME = 'cookie_consent_log';
+
+    public function getEntityName(): string
+    {
+        return self::ENTITY_NAME;
+    }
+
+    public function getEntityClass(): string
+    {
+        return CookieConsentLogEntity::class;
+    }
+
+    public function getCollectionClass(): string
+    {
+        return CookieConsentLogCollection::class;
+    }
+
+    public function since(): ?string
+    {
+        return '6.8.0.0';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+
+            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
+            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required()),
+
+            (new StringField('consent_action', 'consentAction', 32))->addFlags(new Required()),
+            (new ListField('accepted_groups', 'acceptedGroups', StringField::class))->addFlags(new Required()),
+            (new StringField('config_hash', 'configHash'))->addFlags(new Required()),
+        ]);
+    }
+}

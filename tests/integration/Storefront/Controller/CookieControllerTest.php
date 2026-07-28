@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -118,6 +119,44 @@ class CookieControllerTest extends TestCase
 
         static::assertCount(1, $crawler->filterXPath('//input[@id="cookie_technically-required"]'));
         static::assertCount(1, $crawler->filterXPath('//input[@id="cookie__GRECAPTCHA"]'));
+    }
+
+    public function testLogConsentPersistsDecisionAndConfigSnapshot(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+
+        $payload = (string) json_encode([
+            'consentAction' => 'accept_all',
+            'acceptedGroups' => ['cookie.groupRequired', 'cookie.groupStatistical'],
+        ]);
+
+        $this->browser->request('POST', $_SERVER['APP_URL'] . '/cookie/consent-log', [], [], ['CONTENT_TYPE' => 'application/json'], $payload);
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->browser->getResponse()->getStatusCode());
+
+        $logs = $connection->fetchAllAssociative('SELECT * FROM `cookie_consent_log`');
+        static::assertCount(1, $logs);
+        static::assertSame('accept_all', $logs[0]['consent_action']);
+        static::assertSame(['cookie.groupRequired', 'cookie.groupStatistical'], json_decode((string) $logs[0]['accepted_groups'], true));
+
+        // The banner snapshot was stored under the same hash as the log entry
+        $configVersions = $connection->fetchAllAssociative('SELECT * FROM `cookie_consent_config_version`');
+        static::assertCount(1, $configVersions);
+        static::assertSame($logs[0]['config_hash'], $configVersions[0]['config_hash']);
+        static::assertJson((string) $configVersions[0]['cookie_groups']);
+
+        // A second consent adds a log entry but no duplicate snapshot
+        $this->browser->request('POST', $_SERVER['APP_URL'] . '/cookie/consent-log', [], [], ['CONTENT_TYPE' => 'application/json'], $payload);
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->browser->getResponse()->getStatusCode());
+
+        static::assertCount(2, $connection->fetchAllAssociative('SELECT * FROM `cookie_consent_log`'));
+        static::assertCount(1, $connection->fetchAllAssociative('SELECT * FROM `cookie_consent_config_version`'));
+    }
+
+    public function testLogConsentRejectsInvalidPayload(): void
+    {
+        $this->browser->request('POST', $_SERVER['APP_URL'] . '/cookie/consent-log', [], [], ['CONTENT_TYPE' => 'application/json'], '{"consentAction": "invalid"}');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
     }
 
     public function testConsentOffcanvasRouteRendersWithParameters(): void

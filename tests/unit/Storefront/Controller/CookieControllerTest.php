@@ -4,14 +4,17 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Cookie\SalesChannel\AbstractCookieConsentLogRoute;
 use Shopware\Core\Content\Cookie\SalesChannel\AbstractCookieRoute;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieRouteResponse;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
+use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\CookieController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -35,7 +38,7 @@ class CookieControllerTest extends TestCase
             ->with($request, $salesChannelContext)
             ->willReturn(new CookieRouteResponse($cookieGroups, 'test-hash', 'test-language-id'));
 
-        $controller = new CookieControllerTestClass($cookieRoute);
+        $controller = new CookieControllerTestClass($cookieRoute, static::createStub(AbstractCookieConsentLogRoute::class));
 
         $response = $controller->offcanvas($request, $salesChannelContext);
 
@@ -56,7 +59,7 @@ class CookieControllerTest extends TestCase
             ->with($request, $salesChannelContext)
             ->willThrowException(new \RuntimeException('Cookie route failed'));
 
-        $controller = new CookieControllerTestClass($cookieRoute);
+        $controller = new CookieControllerTestClass($cookieRoute, static::createStub(AbstractCookieConsentLogRoute::class));
 
         $this->expectExceptionObject(new \RuntimeException('Cookie route failed'));
 
@@ -79,7 +82,7 @@ class CookieControllerTest extends TestCase
             ->with($request, $salesChannelContext)
             ->willReturn(new CookieRouteResponse($cookieGroups, 'test-hash', 'test-language-id'));
 
-        $controller = new CookieControllerTestClass($cookieRoute);
+        $controller = new CookieControllerTestClass($cookieRoute, static::createStub(AbstractCookieConsentLogRoute::class));
 
         $response = $controller->permission($request, $salesChannelContext);
 
@@ -103,7 +106,7 @@ class CookieControllerTest extends TestCase
         $cookieRoute->method('getCookieGroups')
             ->willReturn(new CookieRouteResponse($cookieGroups, 'test-hash', 'test-language-id'));
 
-        $controller = new CookieControllerTestClass($cookieRoute);
+        $controller = new CookieControllerTestClass($cookieRoute, static::createStub(AbstractCookieConsentLogRoute::class));
 
         $controller->offcanvas($request, $salesChannelContext);
 
@@ -119,7 +122,7 @@ class CookieControllerTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $cookieRoute = static::createStub(AbstractCookieRoute::class);
-        $controller = new CookieControllerTestClass($cookieRoute);
+        $controller = new CookieControllerTestClass($cookieRoute, static::createStub(AbstractCookieConsentLogRoute::class));
 
         $response = $controller->cookieConsentOffcanvas($request, $salesChannelContext);
 
@@ -136,7 +139,7 @@ class CookieControllerTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $cookieRoute = static::createStub(AbstractCookieRoute::class);
-        $controller = new CookieControllerTestClass($cookieRoute);
+        $controller = new CookieControllerTestClass($cookieRoute, static::createStub(AbstractCookieConsentLogRoute::class));
 
         $response = $controller->cookieConsentOffcanvas($request, $salesChannelContext);
 
@@ -162,7 +165,7 @@ class CookieControllerTest extends TestCase
             ->with($request, $salesChannelContext)
             ->willReturn(new CookieRouteResponse($cookieGroups, 'test-hash', 'test-language-id'));
 
-        $controller = new CookieControllerTestClass($cookieRoute);
+        $controller = new CookieControllerTestClass($cookieRoute, static::createStub(AbstractCookieConsentLogRoute::class));
 
         // Override the json method to capture the data being passed to it
         $jsonData = null;
@@ -181,6 +184,24 @@ class CookieControllerTest extends TestCase
         static::assertSame($cookieGroups, $jsonData['elements']);
     }
 
+    public function testLogConsentDelegatesToConsentLogRoute(): void
+    {
+        $request = new Request();
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        $consentLogRoute = $this->createMock(AbstractCookieConsentLogRoute::class);
+        $consentLogRoute->expects($this->once())
+            ->method('log')
+            ->with($request, $salesChannelContext)
+            ->willReturn(new NoContentResponse());
+
+        $controller = new CookieControllerTestClass(static::createStub(AbstractCookieRoute::class), $consentLogRoute);
+
+        $response = $controller->logConsent($request, $salesChannelContext);
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+    }
+
     public function testGroupsThrowsExceptionWhenCookieRouteFails(): void
     {
         $request = new Request();
@@ -192,7 +213,7 @@ class CookieControllerTest extends TestCase
             ->with($request, $salesChannelContext)
             ->willThrowException(new \RuntimeException('Cookie route failed'));
 
-        $controller = new CookieControllerTestClass($cookieRoute);
+        $controller = new CookieControllerTestClass($cookieRoute, static::createStub(AbstractCookieConsentLogRoute::class));
 
         $this->expectExceptionObject(new \RuntimeException('Cookie route failed'));
 

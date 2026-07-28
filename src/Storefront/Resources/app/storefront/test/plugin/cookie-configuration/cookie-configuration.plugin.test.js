@@ -1696,4 +1696,154 @@ describe('CookieConfiguration plugin tests', () => {
             expect(testPlugin._getDefaultCookieExpiration()).toBe(expected);
         });
     });
+
+    describe('Consent logging', () => {
+        const cookieGroups = [
+            {
+                technicalName: 'cookie.groupRequired',
+                isRequired: true,
+                entries: [{ cookie: 'session-' }, { cookie: 'timezone' }],
+            },
+            {
+                technicalName: 'cookie.groupStatistical',
+                isRequired: false,
+                entries: [{ cookie: 'lorem' }, { cookie: 'ipsum' }],
+            },
+            {
+                technicalName: 'cookie.groupMarketing',
+                isRequired: false,
+                cookie: 'marketing-cookie',
+            },
+        ];
+
+        beforeEach(() => {
+            window.router['frontend.cookie.consent.log'] = 'https://shop.example.com/cookie/consent-log';
+        });
+
+        afterEach(() => {
+            delete navigator.sendBeacon;
+        });
+
+        test('_getAcceptedGroupNames returns all groups for mode "all"', () => {
+            expect(plugin._getAcceptedGroupNames(cookieGroups, 'all')).toEqual([
+                'cookie.groupRequired',
+                'cookie.groupStatistical',
+                'cookie.groupMarketing',
+            ]);
+        });
+
+        test('_getAcceptedGroupNames returns only required groups for mode "required"', () => {
+            expect(plugin._getAcceptedGroupNames(cookieGroups, 'required')).toEqual(['cookie.groupRequired']);
+        });
+
+        test('_getAcceptedGroupNames includes groups with at least one selected cookie for mode "selected"', () => {
+            expect(plugin._getAcceptedGroupNames(cookieGroups, 'selected', ['ipsum'])).toEqual([
+                'cookie.groupRequired',
+                'cookie.groupStatistical',
+            ]);
+
+            expect(plugin._getAcceptedGroupNames(cookieGroups, 'selected', ['marketing-cookie'])).toEqual([
+                'cookie.groupRequired',
+                'cookie.groupMarketing',
+            ]);
+        });
+
+        test('_logConsent sends the payload via sendBeacon', () => {
+            navigator.sendBeacon = jest.fn(() => true);
+            global.fetch = jest.fn();
+
+            plugin._logConsent('accept_all', ['cookie.groupRequired'], 'test-hash');
+
+            expect(navigator.sendBeacon).toHaveBeenCalledTimes(1);
+            expect(navigator.sendBeacon).toHaveBeenCalledWith(
+                'https://shop.example.com/cookie/consent-log',
+                expect.any(Blob),
+            );
+            expect(global.fetch).not.toHaveBeenCalled();
+        });
+
+        test('_logConsent falls back to fetch when sendBeacon is unavailable', () => {
+            global.fetch = jest.fn(() => Promise.resolve());
+
+            plugin._logConsent('accept_required', ['cookie.groupRequired'], 'test-hash');
+
+            expect(global.fetch).toHaveBeenCalledWith('https://shop.example.com/cookie/consent-log', {
+                method: 'POST',
+                body: JSON.stringify({
+                    consentAction: 'accept_required',
+                    acceptedGroups: ['cookie.groupRequired'],
+                    cookieConfigHash: 'test-hash',
+                }),
+                keepalive: true,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        });
+
+        test('_logConsent does nothing when the route is not registered', () => {
+            delete window.router['frontend.cookie.consent.log'];
+            navigator.sendBeacon = jest.fn();
+            global.fetch = jest.fn();
+
+            plugin._logConsent('accept_all', [], 'test-hash');
+
+            expect(navigator.sendBeacon).not.toHaveBeenCalled();
+            expect(global.fetch).not.toHaveBeenCalled();
+        });
+
+        test('acceptAllCookies logs an accept_all consent with the current config hash', async () => {
+            global.fetch = jest.fn().mockResolvedValue({
+                json: jest.fn().mockResolvedValue({
+                    hash: 'test-hash',
+                    languageId: 'test-lang-id',
+                    elements: cookieGroups,
+                }),
+            });
+            const logConsentSpy = jest.spyOn(plugin, '_logConsent').mockImplementation(jest.fn());
+
+            await plugin.acceptAllCookies();
+
+            expect(logConsentSpy).toHaveBeenCalledWith(
+                'accept_all',
+                ['cookie.groupRequired', 'cookie.groupStatistical', 'cookie.groupMarketing'],
+                'test-hash',
+            );
+        });
+
+        test('_handlePermission logs an accept_required consent', async () => {
+            global.fetch = jest.fn().mockResolvedValue({
+                json: jest.fn().mockResolvedValue({
+                    hash: 'test-hash',
+                    languageId: 'test-lang-id',
+                    elements: cookieGroups,
+                }),
+            });
+            const logConsentSpy = jest.spyOn(plugin, '_logConsent').mockImplementation(jest.fn());
+
+            await plugin._handlePermission({ preventDefault: jest.fn() });
+
+            expect(logConsentSpy).toHaveBeenCalledWith('accept_required', ['cookie.groupRequired'], 'test-hash');
+        });
+
+        test('_handleSubmit logs an accept_selected consent for the checked cookies', async () => {
+            global.fetch = jest.fn().mockResolvedValue({
+                json: jest.fn().mockResolvedValue({
+                    hash: 'test-hash',
+                    languageId: 'test-lang-id',
+                    elements: cookieGroups,
+                }),
+            });
+            const logConsentSpy = jest.spyOn(plugin, '_logConsent').mockImplementation(jest.fn());
+            jest.spyOn(plugin, '_getCookies').mockReturnValue([
+                { cookie: 'lorem', required: false },
+            ]);
+
+            await plugin._handleSubmit();
+
+            expect(logConsentSpy).toHaveBeenCalledWith(
+                'accept_selected',
+                ['cookie.groupRequired', 'cookie.groupStatistical'],
+                'test-hash',
+            );
+        });
+    });
 });

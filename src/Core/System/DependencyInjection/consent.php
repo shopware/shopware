@@ -54,10 +54,16 @@ return static function (ContainerConfigurator $container): void {
     $services->set(ConsentScope\AdminUser::class)
         ->tag('shopware.consent.scope');
 
+    $services->set(ConsentScope\StorefrontVisitor::class)
+        ->tag('shopware.consent.scope');
+
     $services->set(Definition\BackendData::class)
         ->tag('shopware.consent.definition');
 
     $services->set(Definition\ProductAnalytics::class)
+        ->tag('shopware.consent.definition');
+
+    $services->set(Definition\CookieConsent::class)
         ->tag('shopware.consent.definition');
 
     $services->set(ConsentLogInterface::class)

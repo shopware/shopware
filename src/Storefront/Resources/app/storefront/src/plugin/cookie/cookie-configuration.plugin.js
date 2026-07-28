@@ -426,6 +426,7 @@ export default class CookieConfiguration extends Plugin {
         const cookieGroups = data.elements;
         const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'required', [], data.languageId);
 
+        this._logConsent('accept_required', this._getAcceptedGroupNames(cookieGroups, 'required'), data.hash);
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
 
         this._hideCookieBar();
@@ -537,6 +538,75 @@ export default class CookieConfiguration extends Plugin {
         }
 
         return cookies;
+    }
+
+    /**
+     * Sends the consent decision to the server for GDPR-compliant consent logging.
+     * Fire-and-forget: uses sendBeacon (fetch with keepalive as fallback), so the
+     * consent UX is never blocked and failures are silent.
+     *
+     * @param {string} consentAction - 'accept_all' | 'accept_required' | 'accept_selected'
+     * @param {Array} acceptedGroups - Technical names of the accepted cookie groups
+     * @param {string} cookieConfigHash - Hash of the cookie configuration the visitor saw
+     * @private
+     */
+    _logConsent(consentAction, acceptedGroups, cookieConfigHash) {
+        const url = window.router['frontend.cookie.consent.log'];
+        if (!url) {
+            return;
+        }
+
+        const payload = JSON.stringify({ consentAction, acceptedGroups, cookieConfigHash });
+
+        try {
+            if (navigator.sendBeacon && navigator.sendBeacon(url, new Blob([payload], { type: 'application/json' }))) {
+                return;
+            }
+        } catch (_error) {
+            // fall through to fetch
+        }
+
+        fetch(url, {
+            method: 'POST',
+            body: payload,
+            keepalive: true,
+            headers: { 'Content-Type': 'application/json' },
+        }).catch(() => {});
+    }
+
+    /**
+     * Determine which cookie groups count as accepted for a given consent mode.
+     * A group counts as accepted in 'selected' mode when at least one of its
+     * cookies was selected; required groups are always accepted.
+     *
+     * @param {Array} cookieGroups - Array of cookie groups from API
+     * @param {string} mode - 'required' | 'all' | 'selected'
+     * @param {Array} selectedCookies - Selected cookie names (only for mode='selected')
+     * @returns {Array} Technical names of accepted groups
+     * @private
+     */
+    _getAcceptedGroupNames(cookieGroups, mode = 'all', selectedCookies = []) {
+        return cookieGroups.filter(group => {
+            if (group.isRequired || mode === 'all') {
+                return true;
+            }
+
+            if (mode === 'selected') {
+                const groupCookies = [];
+                if (group.cookie) {
+                    groupCookies.push(group.cookie);
+                }
+                (group.entries || []).forEach(entry => {
+                    if (entry.cookie) {
+                        groupCookies.push(entry.cookie);
+                    }
+                });
+
+                return groupCookies.some(cookie => selectedCookies.includes(cookie));
+            }
+
+            return false;
+        }).map(group => group.technicalName || group.name);
     }
 
     _handleUpdateListener(active, inactive) {
@@ -922,6 +992,7 @@ export default class CookieConfiguration extends Plugin {
             data.languageId,
         );
 
+        this._logConsent('accept_selected', this._getAcceptedGroupNames(cookieGroups, 'selected', selectedCookiesFromDOM), data.hash);
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
         this.closeOffCanvas(document.$emitter.publish(COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS));
     }
@@ -943,6 +1014,7 @@ export default class CookieConfiguration extends Plugin {
         const cookieGroups = data.elements;
         const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'all', [], data.languageId);
 
+        this._logConsent('accept_all', this._getAcceptedGroupNames(cookieGroups, 'all'), data.hash);
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
         this._hideCookieBar();
         this.closeOffCanvas();
@@ -963,6 +1035,7 @@ export default class CookieConfiguration extends Plugin {
         const cookieGroups = data.elements;
         const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'all', [], data.languageId);
 
+        this._logConsent('accept_all', this._getAcceptedGroupNames(cookieGroups, 'all'), data.hash);
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
         this._hideCookieBar();
     }
@@ -982,6 +1055,7 @@ export default class CookieConfiguration extends Plugin {
         const cookieGroups = data.elements;
         const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'all', [], data.languageId);
 
+        this._logConsent('accept_all', this._getAcceptedGroupNames(cookieGroups, 'all'), data.hash);
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
         this.closeOffCanvas(document.$emitter.publish(COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS));
     }

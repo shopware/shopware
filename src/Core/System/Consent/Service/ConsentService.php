@@ -57,20 +57,31 @@ class ConsentService implements ResetInterface
     {
         $states = $this->fetchStates($context);
 
-        return array_map(function (ConsentDefinition $consent) use ($context, $states) {
-            $key = $this->key($consent, $context);
+        $list = [];
+        foreach ($this->consentDefinitionRegistry->all() as $consent) {
+            try {
+                $identifier = $this->getScope($consent)->resolveIdentifier($context);
+            } catch (ConsentException) {
+                // The scope does not apply to the current context, e.g. storefront visitor
+                // consents are not listed for admin API requests.
+                continue;
+            }
 
-            return $states[$key] ?? new ConsentState(
+            $key = $consent->getName() . ':' . $consent->getScopeName() . ':' . $identifier;
+
+            $list[$consent->getName()] = $states[$key] ?? new ConsentState(
                 name: $consent->getName(),
                 scopeName: $consent->getScopeName(),
-                identifier: $this->getScope($consent)->resolveIdentifier($context),
+                identifier: $identifier,
                 status: ConsentStatus::UNSET,
                 actor: null,
                 updatedAt: null,
                 acceptedRevision: null,
                 latestRevision: $consent->getLatestRevision(),
             );
-        }, $this->consentDefinitionRegistry->all());
+        }
+
+        return $list;
     }
 
     public function getConsentState(string $name, Context $context): ConsentState

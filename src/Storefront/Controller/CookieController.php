@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Content\Cookie\SalesChannel\AbstractCookieConsentLogRoute;
 use Shopware\Core\Content\Cookie\SalesChannel\AbstractCookieRoute;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -31,6 +32,7 @@ class CookieController extends StorefrontController
      */
     public function __construct(
         private readonly AbstractCookieRoute $cookieRoute,
+        private readonly AbstractCookieConsentLogRoute $cookieConsentLogRoute,
     ) {
     }
 
@@ -76,6 +78,16 @@ class CookieController extends StorefrontController
         $cookieRouteResponse = $this->cookieRoute->getCookieGroups($request, $salesChannelContext);
 
         return $this->json($cookieRouteResponse->getObject());
+    }
+
+    /**
+     * Called via navigator.sendBeacon, which cannot send custom headers,
+     * so this route must not require an XMLHttpRequest header.
+     */
+    #[Route(path: '/cookie/consent-log', name: 'frontend.cookie.consent.log', options: ['seo' => false], defaults: ['XmlHttpRequest' => true], methods: ['POST'])]
+    public function logConsent(Request $request, SalesChannelContext $salesChannelContext): Response
+    {
+        return $this->cookieConsentLogRoute->log($request, $salesChannelContext);
     }
 
     private function getCookieGroupsFromCookieRoute(Request $request, SalesChannelContext $salesChannelContext): CookieGroupCollection

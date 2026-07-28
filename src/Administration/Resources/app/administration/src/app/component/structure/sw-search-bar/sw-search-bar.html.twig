@@ -29,12 +29,21 @@
         >
 
             {% block sw_search_bar_button_search %}
-            <button
+            <mt-button
                 class="sw-search-bar__button"
+                variant="tertiary"
+                size="default"
+                square
+                :aria-label="$t('global.sw-search-bar.ariaLabelOpenSearch')"
                 @click="showSearchBar"
             >
-                <mt-icon name="regular-search" />
-            </button>
+                <template #iconFront>
+                    <mt-icon
+                        name="regular-search"
+                        size="20px"
+                    />
+                </template>
+            </mt-button>
             {% endblock %}
         </div>
         {% endblock %}

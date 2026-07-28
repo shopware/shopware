@@ -638,6 +638,7 @@
     },
     "sw-search-bar": {
       "ariaLabelCloseSearch": "Suche schließen",
+      "ariaLabelOpenSearch": "Suche öffnen",
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
       "messageNoTypeResults": "Es wurde kein passender Typ gefunden.",
       "placeholderSearchField": "Finde Produkte, Kunden, Bestellungen ...",

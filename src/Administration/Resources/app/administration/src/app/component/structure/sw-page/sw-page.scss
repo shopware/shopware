@@ -51,6 +51,12 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
         gap: var(--scale-size-8);
     }
 
+    // The expanded search field keeps 16px distance to the actions, the collapsed
+    // search icon joins their plain 8px button row instead.
+    .sw-page__top-bar:has(.sw-search-bar__field-wrapper) .sw-page__top-bar-actions {
+        margin-inline-start: var(--scale-size-8);
+    }
+
     .sw-page__back-btn-container {
         grid-column: back-btn-start / back-btn-end;
     }
@@ -195,7 +201,7 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
     }
 
     // Narrow head area: plain full width flex rows. Declared last to win over the rules above.
-    @container sw-page (max-width: 1280px) {
+    @container sw-page (max-width: 1300px) {
         .sw-page__head-area {
             grid-column-gap: 0;
             grid-template-columns: 1fr;
@@ -225,18 +231,10 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
             margin-inline-start: var(--scale-size-8);
         }
 
-        // The search bar is matched through its own root, its 1360px rule is equally specific otherwise.
+        // Matched through its own root to outrank the equally specific max-width/centering base rule.
         .sw-search-bar .sw-search-bar__container {
             max-width: none;
             margin-inline: 0;
-            padding-inline: 0;
-        }
-
-        // The dropdowns are inset by the padding the container no longer has.
-        .sw-search-bar .sw-search-bar__results,
-        .sw-search-bar .sw-search-bar__types_container--v2 {
-            right: 0;
-            left: 0;
         }
 
         // Stays stacked without a search bar, scoped to beat the merge above at equal specificity.

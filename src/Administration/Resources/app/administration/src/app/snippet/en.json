@@ -638,6 +638,7 @@
     },
     "sw-search-bar": {
       "ariaLabelCloseSearch": "Close search",
+      "ariaLabelOpenSearch": "Open search",
       "messageNoResults": "No results found for \"{term}\".",
       "messageNoTypeResults": "No type found.",
       "placeholderSearchField": "Find products, customers, orders...",

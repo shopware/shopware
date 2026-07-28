@@ -321,6 +321,12 @@ export default [
         rules: {
             'no-unused-vars': 'off',
             'vue/script-setup-uses-vars': 'error',
+            // A native-setup base binding must not share a declared prop's name: the extendable setup
+            // runtime strips declared prop keys from returned state, so the binding would be deleted and
+            // its template reference would read `undefined`. vue/no-dupe-keys flags the collision across
+            // props/setup - including the `defineProps<Props>()` named-type form the build-time transform
+            // guard cannot resolve.
+            'vue/no-dupe-keys': 'error',
         },
     },
 

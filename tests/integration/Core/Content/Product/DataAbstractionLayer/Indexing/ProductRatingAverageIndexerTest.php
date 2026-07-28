@@ -15,6 +15,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -51,7 +52,7 @@ class ProductRatingAverageIndexerTest extends TestCase
 
     private Connection $connection;
 
-    private ProductIndexer $productIndexer;
+    private EntityIndexer $productIndexer;
 
     protected function setUp(): void
     {

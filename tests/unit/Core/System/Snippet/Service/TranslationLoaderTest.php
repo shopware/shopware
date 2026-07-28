@@ -78,9 +78,9 @@ class TranslationLoaderTest extends TestCase
         $this->context = Context::createDefaultContext();
         $this->eventDispatcher = new EventDispatcher();
         $this->ids = new IdsCollection();
-        $this->languageRepository = new StaticEntityRepository([$this->getSearchResult('language')]);
-        $this->localeRepository = new StaticEntityRepository([$this->getSearchResult('locale')]);
-        $this->snippetSetRepository = new StaticEntityRepository([$this->getSearchResult('snippet-set')]);
+        $this->languageRepository = StaticEntityRepository::of(LanguageCollection::class, [$this->getSearchResult('language')]);
+        $this->localeRepository = StaticEntityRepository::of(LocaleCollection::class, [$this->getSearchResult('locale')]);
+        $this->snippetSetRepository = StaticEntityRepository::of(SnippetSetCollection::class, [$this->getSearchResult('snippet-set')]);
         $this->config = new TranslationConfig(
             new Uri('http://localhost:8000'),
             ['es-ES'],
@@ -103,7 +103,7 @@ class TranslationLoaderTest extends TestCase
 
     public function testLoadThrowsExceptionIfProvidedLocaleDoesNotExist(): void
     {
-        $this->localeRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+        $this->localeRepository = StaticEntityRepository::of(LocaleCollection::class, [$this->getEmptySearchResult()]);
 
         $loader = $this->getTranslationLoader();
 
@@ -190,8 +190,8 @@ class TranslationLoaderTest extends TestCase
 
     public function testLoadCreatesLanguageAndSnippetSet(): void
     {
-        $this->languageRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
-        $this->snippetSetRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+        $this->languageRepository = StaticEntityRepository::of(LanguageCollection::class, [$this->getEmptySearchResult()]);
+        $this->snippetSetRepository = StaticEntityRepository::of(SnippetSetCollection::class, [$this->getEmptySearchResult()]);
 
         $loader = $this->getTranslationLoader();
         $loader->load('es-ES', $this->context);
@@ -290,12 +290,12 @@ class TranslationLoaderTest extends TestCase
             new Uri('http://localhost:8000/metadata.json'),
             [],
         );
-        $this->localeRepository = new StaticEntityRepository([
+        $this->localeRepository = StaticEntityRepository::of(LocaleCollection::class, [
             $this->getEmptySearchResult(),
             $this->getSearchResult('locale'),
         ]);
-        $this->languageRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
-        $this->snippetSetRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+        $this->languageRepository = StaticEntityRepository::of(LanguageCollection::class, [$this->getEmptySearchResult()]);
+        $this->snippetSetRepository = StaticEntityRepository::of(SnippetSetCollection::class, [$this->getEmptySearchResult()]);
 
         $loader = $this->getTranslationLoader();
         $loader->load('ach-UG', $this->context);
@@ -316,7 +316,7 @@ class TranslationLoaderTest extends TestCase
 
     public function testLoadStillThrowsForUnknownNonPseudoLocale(): void
     {
-        $this->localeRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+        $this->localeRepository = StaticEntityRepository::of(LocaleCollection::class, [$this->getEmptySearchResult()]);
 
         $loader = $this->getTranslationLoader();
 
@@ -351,8 +351,8 @@ class TranslationLoaderTest extends TestCase
 
     public function testLoadCreatesLanguageWithActiveFalseWhenSkipped(): void
     {
-        $this->languageRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
-        $this->snippetSetRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+        $this->languageRepository = StaticEntityRepository::of(LanguageCollection::class, [$this->getEmptySearchResult()]);
+        $this->snippetSetRepository = StaticEntityRepository::of(SnippetSetCollection::class, [$this->getEmptySearchResult()]);
 
         $loader = $this->getTranslationLoader();
         $loader->load('es-ES', $this->context, false); // activate = false
@@ -370,17 +370,17 @@ class TranslationLoaderTest extends TestCase
 
     public function testSnippetSetOnlyCreatedOnce(): void
     {
-        $this->localeRepository = new StaticEntityRepository([
+        $this->localeRepository = StaticEntityRepository::of(LocaleCollection::class, [
             $this->getSearchResult('locale'),
             $this->getSearchResult('locale'),
         ]);
 
-        $this->languageRepository = new StaticEntityRepository([
+        $this->languageRepository = StaticEntityRepository::of(LanguageCollection::class, [
             $this->getSearchResult('language'),
             $this->getSearchResult('language'),
         ]);
 
-        $this->snippetSetRepository = new StaticEntityRepository([
+        $this->snippetSetRepository = StaticEntityRepository::of(SnippetSetCollection::class, [
             $this->getEmptySearchResult(),
             $this->getSearchResult('snippet-set'),
         ]);

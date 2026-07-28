@@ -26,7 +26,8 @@ use Symfony\Component\Validator\Validation;
  *
  * @extends EntityRepository<TEntityCollection>
  *
- * @phpstan-type ResultTypes EntitySearchResult<TEntityCollection>|AggregationResultCollection|mixed|TEntityCollection|IdSearchResult|array
+ * @phpstan-type ResultTypes EntitySearchResult<TEntityCollection>|AggregationResultCollection|TEntityCollection|IdSearchResult|array<mixed>
+ * @phpstan-type SearchCallable (callable(Criteria, Context): ResultTypes)|(callable(Criteria, Context, StaticEntityRepository<TEntityCollection>): ResultTypes)
  */
 class StaticEntityRepository extends EntityRepository
 {
@@ -59,7 +60,7 @@ class StaticEntityRepository extends EntityRepository
     public array $deletes = [];
 
     /**
-     * @param array<callable(Criteria, Context): (ResultTypes)|ResultTypes> $searches
+     * @param array<SearchCallable|ResultTypes> $searches
      */
     public function __construct(
         public array $searches,
@@ -82,6 +83,25 @@ class StaticEntityRepository extends EntityRepository
     }
 
     /**
+     * Pins the generic without a call-site annotation when the searches carry no typed
+     * collection to infer it from (empty list, id lists for searchIds, callables):
+     *
+     *     $repository = StaticEntityRepository::of(NewsletterRecipientCollection::class, [[$id]]);
+     *
+     * @template TCollection of EntityCollection
+     *
+     * @param class-string<TCollection> $collectionClass used only to bind the template
+     * @param array<mixed> $searches
+     *
+     * @return StaticEntityRepository<TCollection>
+     */
+    public static function of(string $collectionClass, array $searches = [], ?EntityDefinition $definition = null): self
+    {
+        /** @var StaticEntityRepository<TCollection> */
+        return new self($searches, $definition);
+    }
+
+    /**
      * @return EntitySearchResult<TEntityCollection>
      */
     public function search(Criteria $criteria, Context $context): EntitySearchResult
@@ -90,7 +110,7 @@ class StaticEntityRepository extends EntityRepository
         $callable = $result;
 
         if (\is_callable($callable)) {
-            /** @var callable(Criteria, Context, StaticEntityRepository<TEntityCollection>): ResultTypes $callable */
+            /** @var SearchCallable $callable */
             $result = $callable($criteria, $context, $this);
         }
 
@@ -123,7 +143,7 @@ class StaticEntityRepository extends EntityRepository
         $callable = $result;
 
         if (\is_callable($callable)) {
-            /** @var callable(Criteria, Context): ResultTypes $callable */
+            /** @var SearchCallable $callable */
             $result = $callable($criteria, $context);
         }
 
@@ -202,7 +222,7 @@ class StaticEntityRepository extends EntityRepository
     }
 
     /**
-     * @param callable(Criteria, Context): (ResultTypes)|ResultTypes ...$searches
+     * @param SearchCallable|ResultTypes ...$searches
      */
     public function addSearch(...$searches): void
     {

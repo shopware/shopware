@@ -97,6 +97,33 @@ class DeleteAdminFilesAfterBuildCommandTest extends TestCase
         static::assertContains($existingDirectory, $deleted);
     }
 
+    #[TestDox('a directory whose cleanup throws is kept and the run continues')]
+    public function testThrowingDirectoryCleanupIsKeptAndTheRunContinues(): void
+    {
+        $adapterDirectory = $this->administrationDirectory() . '/Resources/app/administration/src/app/adapter';
+        $packageLock = $this->administrationDirectory() . '/Resources/app/administration/package-lock.json';
+
+        $deleted = [];
+        $this->filesystem->expects($this->atLeastOnce())
+            ->method('remove')
+            ->willReturnCallback(static function (string|iterable $files) use ($adapterDirectory, &$deleted): void {
+                foreach (\is_iterable($files) ? $files : [$files] as $file) {
+                    if (str_starts_with((string) $file, $adapterDirectory . '/')) {
+                        throw new \UnexpectedValueException('cannot be traversed');
+                    }
+                    $deleted[] = (string) $file;
+                }
+            });
+
+        $commandTester = new CommandTester($this->command);
+        $commandTester->setInputs(['yes']);
+        $commandTester->execute([]);
+
+        $commandTester->assertCommandIsSuccessful();
+        static::assertNotContains($adapterDirectory, $deleted, 'A directory whose cleanup failed must not be deleted itself.');
+        static::assertContains($packageLock, $deleted, 'The cleanup continues after the failed directory.');
+    }
+
     /**
      * Runs the command through its public interface. The filesystem double records the requested
      * deletions instead of performing them, so the real administration sources stay untouched.

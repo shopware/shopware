@@ -139,6 +139,22 @@ class AdminExtensionApiControllerTest extends TestCase
         );
     }
 
+    public function testRunActionAllowsUserWithAppSpecificPrivilege(): void
+    {
+        $source = new AdminApiSource(Uuid::randomHex());
+        $source->setPermissions(['app.test-app']);
+
+        $this->assertRunActionExecutesWith($source);
+    }
+
+    public function testRunActionAllowsUserWithAppAllPrivilege(): void
+    {
+        $source = new AdminApiSource(Uuid::randomHex());
+        $source->setPermissions(['app.all']);
+
+        $this->assertRunActionExecutesWith($source);
+    }
+
     public function testRunActionThrowsMissingPrivilegeWhenUserLacksAppPrivilege(): void
     {
         $this->expectExceptionObject(ApiException::missingPrivileges(['app.test-app']));
@@ -220,6 +236,26 @@ class AdminExtensionApiControllerTest extends TestCase
         $entity->setAllowedHosts($allowedHosts);
 
         return $entity;
+    }
+
+    private function assertRunActionExecutesWith(AdminApiSource $source): void
+    {
+        $entity = $this->buildAppEntity('test-app', 'test-secrets', ['foo.bar']);
+        $entityRepository = $this->assertEntityRepositoryWithEntity($entity);
+
+        $executor = $this->createMock(Executor::class);
+        $executor->expects($this->once())->method('execute');
+
+        $this->buildController(executor: $executor, entityRepository: $entityRepository)->runAction(
+            new RequestDataBag([
+                'appName' => $entity->getName(),
+                'url' => 'https://foo.bar',
+                'ids' => [Uuid::randomHex()],
+                'entity' => 'app',
+                'action' => 'do-nothing',
+            ]),
+            Context::createDefaultContext($source),
+        );
     }
 
     /**

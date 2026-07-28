@@ -119,17 +119,9 @@ class NetPriceCalculatorTest extends TestCase
 
     public function testListPriceIsRoundedBeforePercentageIsCalculated(): void
     {
-        // Regression for https://github.com/shopware/shopware/issues/16687:
-        // the list price and the unit price only differ below the currency's
-        // rounding precision (50.004 vs 50.00). Both render identically in the
-        // storefront, so no discount percentage must be shown. The list price has
-        // to be rounded the same way as the unit price before the percentage is
-        // calculated - just like GrossPriceCalculator already does.
-        //
-        // isCalculated must be true here: that is the branch where the old guard
-        // skipped the rounding, and the one ProductPriceCalculator uses in the
-        // storefront. Set it explicitly so the regression stays valid even if the
-        // QuantityPriceDefinition default ever changes.
+        // Regression for issue #16687: list and unit price differ only below the currency
+        // precision (50.004 vs 50.00), so no discount may be shown. isCalculated is set
+        // explicitly because that is the branch the old rounding guard skipped.
         $definition = new QuantityPriceDefinition(50.00, new TaxRuleCollection(), 1);
         $definition->setIsCalculated(true);
         $definition->setListPrice(50.004);
@@ -146,9 +138,8 @@ class NetPriceCalculatorTest extends TestCase
 
     public function testRegulationPriceIsRounded(): void
     {
-        // Same rounding inconsistency as the list price (issue #16687): the
-        // regulation price must be rounded to the currency precision. isCalculated
-        // is set to true explicitly - that is the branch the old guard skipped.
+        // Regression for issue #16687: the regulation price must be rounded to the
+        // currency precision as well, also when the definition is already calculated.
         $definition = new QuantityPriceDefinition(50.00, new TaxRuleCollection(), 1);
         $definition->setIsCalculated(true);
         $definition->setRegulationPrice(50.004);

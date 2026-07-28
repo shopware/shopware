@@ -216,8 +216,6 @@ export default class SearchWidgetPlugin extends Plugin {
                 searchWidgetButtonField.insertAdjacentHTML('afterend', content);
 
                 this._setAccessibilityAttributes();
-                this._inputField.setAttribute('aria-expanded', 'true');
-
                 const searchSuggest = document.querySelector(this.options.searchWidgetResultSelector);
 
                 this.searchSuggestLinks = Array.from(window.focusHandler.getFocusableElements(searchSuggest));
@@ -276,7 +274,6 @@ export default class SearchWidgetPlugin extends Plugin {
         results.forEach(result => result.remove());
 
         this._removeAccessibilityAttributes();
-        this._inputField.setAttribute('aria-expanded', 'false');
 
         this.$emitter.publish('clearSuggestResults');
     }

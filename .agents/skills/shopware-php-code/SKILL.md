@@ -12,6 +12,7 @@ Prefer the existing Shopware extension point over a new abstraction.
 
 - Keep application/domain services hexagonal: controllers, CLI commands, subscribers, and handlers translate infrastructure details (`Request`, IO, database, filesystem, HTTP) into plain inputs before calling services.
 - Services must not perform direct infrastructure work or depend on framework objects. Depend on narrow abstractions instead, such as repositories, filesystem interfaces, HTTP clients, or gateways.
+- Where code legitimately touches the local filesystem, inject and use the Symfony `Filesystem` component instead of raw PHP functions like `mkdir`, `file_put_contents`, `copy`, `unlink`, or `rmdir`. It throws `IOException` instead of warnings plus `false` returns, handles recursive operations, and keeps the dependency mockable.
 - Services must be unit-testable without external systems; test infrastructure adapters with integration tests.
 - Mark infrastructure adapters `@internal` by default.
 - Mark supported/public concrete classes as `@final` when they are not intended for extension.

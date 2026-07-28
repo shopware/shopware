@@ -38,10 +38,10 @@ function buildBaseScript(block: ShopwareSetupBlock, analysis: BaseSetupScriptAna
     const privateNames = analysis.runtimeBindings
         .filter((binding) => !publicLocalNames.has(binding.name))
         .map((binding) => binding.name);
-    const destructureEntries = [
-        ...analysis.runtimeBindings.map((binding) => binding.name),
-        '__swOverride',
-    ];
+    // Only the author's own runtime bindings are re-declared. Override-local `__swOverride` is not
+    // destructured here: a base component reaches its block data scope through the scope
+    // `attachOverrides` registers (getScriptSetupDataScope), never through a setup-return binding.
+    const destructureEntries = analysis.runtimeBindings.map((binding) => binding.name);
 
     const body = transformRanges(block, analysis.markerRemovals, analysis.renameEdits);
 

@@ -48,7 +48,6 @@ const {
     doubled,
     internalThing,
     foo2,
-    __swOverride,
 } = Shopware.Component.attachOverrides({
     name: 'sw-my-component',
     public: {

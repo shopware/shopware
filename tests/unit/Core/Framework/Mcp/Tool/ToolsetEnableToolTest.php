@@ -48,6 +48,12 @@ class ToolsetEnableToolTest extends TestCase
 
         static::assertTrue($result['success']);
         static::assertSame('entity', $result['data']['toolset']['name']);
+        // The enable response echoes the toolset definition, so it carries the same {name, title}
+        // tool pairs the listing does.
+        static::assertSame(
+            [['name' => 'shopware-entity-search', 'title' => 'Entity Search']],
+            $result['data']['toolset']['tools'],
+        );
         static::assertTrue($result['_meta']['listChanged']);
         // The tool records intent; the controller emits the notification after the SDK session save.
         static::assertTrue($request->attributes->getBoolean(McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE));

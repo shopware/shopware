@@ -170,6 +170,69 @@ class McpCapabilityDiscoveryTest extends TestCase
         static::assertNotContains('shopware-order-state', $tools);
     }
 
+    public function testToolsetsListPayloadCarriesToolTitles(): void
+    {
+        $browser = $this->getBrowser();
+
+        $browser->request(
+            'POST',
+            '/api/_mcp',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'jsonrpc' => '2.0',
+                'method' => 'initialize',
+                'params' => [
+                    'protocolVersion' => '2025-03-26',
+                    'capabilities' => new \stdClass(),
+                    'clientInfo' => ['name' => 'mcp-discovery-test', 'version' => '1.0'],
+                ],
+                'id' => 1,
+            ], \JSON_THROW_ON_ERROR),
+        );
+
+        $sessionId = $this->extractSessionId($browser->getResponse()->headers->all());
+        static::assertIsString($sessionId, 'initialize did not return an MCP session id');
+
+        $browser->request(
+            'POST',
+            '/api/_mcp',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json', 'HTTP_MCP_SESSION_ID' => $sessionId],
+            json_encode([
+                'jsonrpc' => '2.0',
+                'method' => 'tools/call',
+                'params' => ['name' => McpToolsetRegistry::LIST_TOOLSETS_TOOL, 'arguments' => new \stdClass()],
+                'id' => 2,
+            ], \JSON_THROW_ON_ERROR),
+        );
+
+        $content = (string) $browser->getResponse()->getContent();
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($response);
+        static::assertArrayHasKey('result', $response, 'MCP response missing result: ' . $content);
+
+        $payload = json_decode((string) $response['result']['content'][0]['text'], true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($payload);
+
+        $entityToolset = null;
+        foreach ($payload['data']['toolsets'] ?? [] as $toolset) {
+            if ($toolset['name'] === 'entity') {
+                $entityToolset = $toolset;
+            }
+        }
+
+        static::assertNotNull($entityToolset, 'entity toolset should be listed: ' . $content);
+
+        // A client picks a toolset from these tool titles, before any domain tool is advertised, so
+        // the listing carries them instead of a group description that would restate the group name.
+        static::assertContains('shopware-entity-search', array_column($entityToolset['tools'], 'name'));
+        static::assertContains('Entity Search', array_column($entityToolset['tools'], 'title'));
+        static::assertArrayNotHasKey('description', $entityToolset);
+    }
+
     public function testEnablingToolsetDeliversToolsListChangedNotification(): void
     {
         $browser = $this->getBrowser();

@@ -60,13 +60,11 @@ class DocumentConfigLoaderTest extends TestCase
             companyName: 'Wrong Channel GmbH',
         );
 
-        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentRepo */
         $documentRepo = new StaticEntityRepository(
             [new DocumentBaseConfigCollection([$globalRow, $otherRow, $matchingRow])],
             new DocumentBaseConfigDefinition(),
         );
 
-        /** @var StaticEntityRepository<CountryCollection> $countryRepo */
         $countryRepo = new StaticEntityRepository(
             [new CountryCollection([$this->createCountry()])],
             new CountryDefinition(),
@@ -103,13 +101,11 @@ class DocumentConfigLoaderTest extends TestCase
             companyName: 'Unrelated GmbH',
         );
 
-        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentRepo */
         $documentRepo = new StaticEntityRepository(
             [new DocumentBaseConfigCollection([$globalRow, $unrelatedRow])],
             new DocumentBaseConfigDefinition(),
         );
 
-        /** @var StaticEntityRepository<CountryCollection> $countryRepo */
         $countryRepo = new StaticEntityRepository(
             [new CountryCollection([$this->createCountry()])],
             new CountryDefinition(),
@@ -141,13 +137,11 @@ class DocumentConfigLoaderTest extends TestCase
             itemsPerPage: 0,
         );
 
-        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentRepo */
         $documentRepo = new StaticEntityRepository(
             [new DocumentBaseConfigCollection([$globalRow])],
             new DocumentBaseConfigDefinition(),
         );
 
-        /** @var StaticEntityRepository<CountryCollection> $countryRepo */
         $countryRepo = new StaticEntityRepository(
             [new CountryCollection([$this->createCountry()])],
             new CountryDefinition(),
@@ -179,13 +173,11 @@ class DocumentConfigLoaderTest extends TestCase
             companyName: 'Legacy GmbH',
         );
 
-        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentRepo */
         $documentRepo = new StaticEntityRepository(
             [new DocumentBaseConfigCollection([$globalRow])],
             new DocumentBaseConfigDefinition(),
         );
 
-        /** @var StaticEntityRepository<CountryCollection> $countryRepo */
         $countryRepo = new StaticEntityRepository(
             [new CountryCollection([$this->createCountry()])],
             new CountryDefinition(),
@@ -225,13 +217,11 @@ class DocumentConfigLoaderTest extends TestCase
             companyName: 'Legacy GmbH',
         );
 
-        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentRepo */
         $documentRepo = new StaticEntityRepository(
             [new DocumentBaseConfigCollection([$globalRow])],
             new DocumentBaseConfigDefinition(),
         );
 
-        /** @var StaticEntityRepository<CountryCollection> $countryRepo */
         $countryRepo = new StaticEntityRepository(
             [new CountryCollection([$this->createCountry()])],
             new CountryDefinition(),
@@ -266,13 +256,11 @@ class DocumentConfigLoaderTest extends TestCase
             logoId: self::LEGACY_LOGO_ID,
         );
 
-        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentRepo */
         $documentRepo = new StaticEntityRepository(
             [new DocumentBaseConfigCollection([$globalRow])],
             new DocumentBaseConfigDefinition(),
         );
 
-        /** @var StaticEntityRepository<CountryCollection> $countryRepo */
         $countryRepo = new StaticEntityRepository(
             [new CountryCollection([$this->createCountry()])],
             new CountryDefinition(),
@@ -309,13 +297,11 @@ class DocumentConfigLoaderTest extends TestCase
             logoId: self::LEGACY_LOGO_ID,
         );
 
-        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentRepo */
         $documentRepo = new StaticEntityRepository(
             [new DocumentBaseConfigCollection([$globalRow])],
             new DocumentBaseConfigDefinition(),
         );
 
-        /** @var StaticEntityRepository<CountryCollection> $countryRepo */
         $countryRepo = new StaticEntityRepository(
             [new CountryCollection([$this->createCountry()])],
             new CountryDefinition(),
@@ -393,7 +379,6 @@ class DocumentConfigLoaderTest extends TestCase
      */
     private function createMediaRepository(): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<MediaCollection> $mediaRepository */
         $mediaRepository = new StaticEntityRepository(
             [new MediaCollection([
                 $this->createMedia(self::COMPANY_INFO_LOGO_ID),

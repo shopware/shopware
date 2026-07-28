@@ -49,7 +49,6 @@ class PluginInstallCommandTest extends TestCase
         $this->cacheClearer = static::createStub(CacheClearer::class);
         $this->plugins = new PluginCollection();
 
-        /** @var StaticEntityRepository<PluginCollection> $pluginRepository */
         $pluginRepository = new StaticEntityRepository([
             fn (Criteria $criteria, Context $context): PluginCollection => $this->plugins,
         ]);

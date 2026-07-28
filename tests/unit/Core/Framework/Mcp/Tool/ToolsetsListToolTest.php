@@ -27,14 +27,12 @@ class ToolsetsListToolTest extends TestCase
             [
                 'name' => 'entity',
                 'title' => 'Entity tools',
-                'description' => 'Entity',
-                'tools' => ['shopware-entity-search'],
+                'tools' => [['name' => 'shopware-entity-search', 'title' => 'Entity Search']],
             ],
             [
                 'name' => 'order',
                 'title' => 'Order tools',
-                'description' => 'Order',
-                'tools' => ['shopware-order-state'],
+                'tools' => [['name' => 'shopware-order-state', 'title' => 'Order State']],
             ],
         ]);
 
@@ -55,6 +53,12 @@ class ToolsetsListToolTest extends TestCase
         static::assertTrue($result['success']);
         static::assertTrue($result['data']['toolsets'][0]['enabled']);
         static::assertFalse($result['data']['toolsets'][1]['enabled']);
+        // The per-tool titles are what makes a toolset choosable before it is enabled, so they must
+        // survive serialization.
+        static::assertSame(
+            [['name' => 'shopware-entity-search', 'title' => 'Entity Search']],
+            $result['data']['toolsets'][0]['tools'],
+        );
         static::assertSame('tool-groups', $result['_meta']['taxonomy']);
         static::assertSame('Toolsets are derived from explicit MCP tool group metadata.', $result['_meta']['note']);
     }
@@ -66,8 +70,7 @@ class ToolsetsListToolTest extends TestCase
             [
                 'name' => 'entity',
                 'title' => 'Entity tools',
-                'description' => 'Entity',
-                'tools' => ['shopware-entity-search'],
+                'tools' => [['name' => 'shopware-entity-search', 'title' => 'Entity Search']],
             ],
         ]);
 

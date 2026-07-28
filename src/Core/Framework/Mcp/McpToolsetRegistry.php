@@ -36,7 +36,13 @@ class McpToolsetRegistry
     }
 
     /**
-     * @return list<array{name: string, title: string, description: string, tools: list<string>}>
+     * Each toolset carries its tools as {name, title} pairs rather than bare names: toolsets-list is
+     * the primary discovery surface, and the tool titles are the only semantics a client sees before
+     * it commits to enabling a group. Full tool descriptions stay out of this payload — they arrive
+     * through tools/list once the toolset is enabled, so repeating them here would spend the tokens
+     * twice and defeat the deferral.
+     *
+     * @return list<array{name: string, title: string, tools: list<array{name: string, title: ?string}>}>
      */
     public function toolsets(): array
     {
@@ -58,20 +64,24 @@ class McpToolsetRegistry
                 continue;
             }
 
-            $toolsByGroup[$group][] = $tool['name'];
+            // Keyed by tool name so the per-toolset ksort below orders by name without a comparator.
+            $toolsByGroup[$group][$tool['name']] = [
+                'name' => $tool['name'],
+                // Null for runtime app tools, which carry no title in their manifest.
+                'title' => $tool['title'],
+            ];
         }
 
         ksort($toolsByGroup);
 
         $toolsets = [];
         foreach ($toolsByGroup as $group => $tools) {
-            sort($tools);
+            ksort($tools);
 
             $toolsets[] = [
                 'name' => $group,
                 'title' => $this->humanizeToolsetName($group),
-                'description' => \sprintf('Tools explicitly assigned to the "%s" MCP tool group.', $group),
-                'tools' => $tools,
+                'tools' => array_values($tools),
             ];
         }
 
@@ -79,7 +89,7 @@ class McpToolsetRegistry
     }
 
     /**
-     * @return array{name: string, title: string, description: string, tools: list<string>}|null
+     * @return array{name: string, title: string, tools: list<array{name: string, title: ?string}>}|null
      */
     public function find(string $name): ?array
     {
@@ -106,7 +116,7 @@ class McpToolsetRegistry
                 continue;
             }
 
-            array_push($tools, ...$toolset['tools']);
+            array_push($tools, ...array_column($toolset['tools'], 'name'));
         }
 
         $tools = array_values(array_unique($tools));

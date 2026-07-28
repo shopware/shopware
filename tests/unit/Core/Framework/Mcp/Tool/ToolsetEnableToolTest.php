@@ -30,8 +30,7 @@ class ToolsetEnableToolTest extends TestCase
             ->willReturn([
                 'name' => 'entity',
                 'title' => 'Entity tools',
-                'description' => 'Entity',
-                'tools' => ['shopware-entity-search'],
+                'tools' => [['name' => 'shopware-entity-search', 'title' => 'Entity Search']],
             ]);
 
         $storage = $this->createMock(McpToolsetSessionStorage::class);
@@ -83,8 +82,7 @@ class ToolsetEnableToolTest extends TestCase
         $registry->method('find')->willReturn([
             'name' => 'entity',
             'title' => 'Entity tools',
-            'description' => 'Entity',
-            'tools' => ['shopware-entity-search'],
+            'tools' => [['name' => 'shopware-entity-search', 'title' => 'Entity Search']],
         ]);
 
         $storage = $this->createMock(McpToolsetSessionStorage::class);

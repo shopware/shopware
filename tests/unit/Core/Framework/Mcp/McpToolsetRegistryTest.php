@@ -22,12 +22,12 @@ class McpToolsetRegistryTest extends TestCase
     public function testBuildsToolsetsFromExplicitToolGroups(): void
     {
         $registry = $this->buildRegistry([
-            McpToolsetRegistry::LIST_TOOLSETS_TOOL,
-            McpToolsetRegistry::ENABLE_TOOLSET_TOOL,
-            'shopware-entity-search',
-            'shopware-entity-read',
-            'shopware-order-state',
-            'ungrouped-tool',
+            McpToolsetRegistry::LIST_TOOLSETS_TOOL => 'List Toolsets',
+            McpToolsetRegistry::ENABLE_TOOLSET_TOOL => 'Enable Toolset',
+            'shopware-entity-search' => 'Entity Search',
+            'shopware-entity-read' => 'Entity Read',
+            'shopware-order-state' => 'Order State',
+            'ungrouped-tool' => 'Ungrouped Tool',
         ]);
 
         $toolsetRegistry = new McpToolsetRegistry(new McpCapabilityCatalog(
@@ -47,21 +47,29 @@ class McpToolsetRegistryTest extends TestCase
 
         // A tool without an explicit group uses its first name segment as an enable-able toolset.
         static::assertSame(['entity', 'order', 'ungrouped'], array_keys($toolsetsByName));
-        static::assertSame(['shopware-entity-read', 'shopware-entity-search'], $toolsetsByName['entity']['tools']);
-        static::assertSame(['shopware-order-state'], $toolsetsByName['order']['tools']);
-        static::assertSame(['ungrouped-tool'], $toolsetsByName['ungrouped']['tools']);
+        static::assertSame(
+            [
+                ['name' => 'shopware-entity-read', 'title' => 'Entity Read'],
+                ['name' => 'shopware-entity-search', 'title' => 'Entity Search'],
+            ],
+            $toolsetsByName['entity']['tools'],
+        );
+        static::assertSame([['name' => 'shopware-order-state', 'title' => 'Order State']], $toolsetsByName['order']['tools']);
+        static::assertSame([['name' => 'ungrouped-tool', 'title' => 'Ungrouped Tool']], $toolsetsByName['ungrouped']['tools']);
         static::assertSame('Entity tools', $toolsetsByName['entity']['title']);
         static::assertSame('Ungrouped tools', $toolsetsByName['ungrouped']['title']);
-        static::assertSame('Tools explicitly assigned to the "entity" MCP tool group.', $toolsetsByName['entity']['description']);
+        // Each tool's own title is the semantic payload of a toolset. The former synthesized group
+        // description ("Tools explicitly assigned to ...") only restated the slug, so none is emitted;
+        // StoreApiMcpCapabilityDiscoveryTest asserts its absence on the wire.
     }
 
     public function testBuildsToolsetPerAppFromRuntimeAppGroups(): void
     {
         $registry = $this->buildRegistry([
-            McpToolsetRegistry::ENABLE_TOOLSET_TOOL,
-            'shopware-entity-search',
-            'my-erp-sync-orders',
-            'my-erp-read-stock',
+            McpToolsetRegistry::ENABLE_TOOLSET_TOOL => 'Enable Toolset',
+            'shopware-entity-search' => 'Entity Search',
+            'my-erp-sync-orders' => null,
+            'my-erp-read-stock' => null,
         ]);
 
         $toolsetRegistry = new McpToolsetRegistry(new McpCapabilityCatalog(
@@ -81,16 +89,23 @@ class McpToolsetRegistryTest extends TestCase
         // App tools without a compile-time #[McpToolGroup] are grouped under their owning app,
         // forming a real toolset instead of vanishing into "other".
         static::assertSame(['entity', 'my-erp'], array_keys($toolsetsByName));
-        static::assertSame(['my-erp-read-stock', 'my-erp-sync-orders'], $toolsetsByName['my-erp']['tools']);
+        // App tools registered without a title keep a null title rather than a synthesized one.
+        static::assertSame(
+            [
+                ['name' => 'my-erp-read-stock', 'title' => null],
+                ['name' => 'my-erp-sync-orders', 'title' => null],
+            ],
+            $toolsetsByName['my-erp']['tools'],
+        );
         static::assertNotNull($toolsetRegistry->find('my-erp'));
     }
 
     public function testFindReturnsToolsetByName(): void
     {
         $registry = $this->buildRegistry([
-            McpToolsetRegistry::LIST_TOOLSETS_TOOL,
-            McpToolsetRegistry::ENABLE_TOOLSET_TOOL,
-            'shopware-entity-search',
+            McpToolsetRegistry::LIST_TOOLSETS_TOOL => 'List Toolsets',
+            McpToolsetRegistry::ENABLE_TOOLSET_TOOL => 'Enable Toolset',
+            'shopware-entity-search' => 'Entity Search',
         ]);
 
         $toolsetRegistry = new McpToolsetRegistry(new McpCapabilityCatalog(
@@ -111,11 +126,11 @@ class McpToolsetRegistryTest extends TestCase
     public function testAdvertisedToolsReturnsEnabledToolsetTools(): void
     {
         $registry = $this->buildRegistry([
-            McpToolsetRegistry::LIST_TOOLSETS_TOOL,
-            McpToolsetRegistry::ENABLE_TOOLSET_TOOL,
-            'shopware-entity-search',
-            'shopware-entity-read',
-            'shopware-order-state',
+            McpToolsetRegistry::LIST_TOOLSETS_TOOL => 'List Toolsets',
+            McpToolsetRegistry::ENABLE_TOOLSET_TOOL => 'Enable Toolset',
+            'shopware-entity-search' => 'Entity Search',
+            'shopware-entity-read' => 'Entity Read',
+            'shopware-order-state' => 'Order State',
         ]);
 
         $toolsetRegistry = new McpToolsetRegistry(new McpCapabilityCatalog(
@@ -153,10 +168,10 @@ class McpToolsetRegistryTest extends TestCase
     public function testToolsetsAreScopedToTheCurrentAllowlist(): void
     {
         $registry = $this->buildRegistry([
-            McpToolsetRegistry::ENABLE_TOOLSET_TOOL,
-            'shopware-entity-search',
-            'shopware-entity-read',
-            'shopware-order-state',
+            McpToolsetRegistry::ENABLE_TOOLSET_TOOL => 'Enable Toolset',
+            'shopware-entity-search' => 'Entity Search',
+            'shopware-entity-read' => 'Entity Read',
+            'shopware-order-state' => 'Order State',
         ]);
 
         $toolsetRegistry = new McpToolsetRegistry(
@@ -178,21 +193,22 @@ class McpToolsetRegistryTest extends TestCase
         // Discovery stays inside the allowlist: only the allowed tool surfaces. The denied
         // "entity-read" and the entirely-denied "order" toolset never leak through list/enable.
         static::assertSame(['entity'], array_keys($toolsetsByName));
-        static::assertSame(['shopware-entity-search'], $toolsetsByName['entity']['tools']);
+        static::assertSame([['name' => 'shopware-entity-search', 'title' => 'Entity Search']], $toolsetsByName['entity']['tools']);
         static::assertNull($toolsetRegistry->find('order'));
         static::assertSame([], $toolsetRegistry->advertisedTools(['order']));
     }
 
     /**
-     * @param list<string> $toolNames
+     * @param array<string, ?string> $toolTitles tool-name => title (null mirrors a runtime app tool
+     *                                           registered without a title)
      */
-    private function buildRegistry(array $toolNames): Registry
+    private function buildRegistry(array $toolTitles): Registry
     {
         $registry = new Registry();
 
-        foreach ($toolNames as $toolName) {
+        foreach ($toolTitles as $toolName => $title) {
             $registry->registerTool(
-                new Tool($toolName, null, ['type' => 'object', 'properties' => [], 'required' => []], null, null),
+                new Tool($toolName, $title, ['type' => 'object', 'properties' => [], 'required' => []], null, null),
                 'Acme\\' . str_replace('-', '', ucwords($toolName, '-')),
             );
         }

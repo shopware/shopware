@@ -66,7 +66,11 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
         }
         static::assertNotNull($storeApiToolset, 'store-api toolset should be listed: ' . $toolsets['content'][0]['text']);
         static::assertFalse($storeApiToolset['enabled']);
-        static::assertContains('shopware-store-api-context', $storeApiToolset['tools']);
+        static::assertContains('shopware-store-api-context', array_column($storeApiToolset['tools'], 'name'));
+        // The listing carries each tool's title so a client can judge the toolset before enabling it,
+        // and no synthesized group description that would only restate the group name.
+        static::assertContains('Store API Context', array_column($storeApiToolset['tools'], 'title'));
+        static::assertArrayNotHasKey('description', $storeApiToolset);
 
         // Enabling it reports listChanged.
         $enable = $this->callTool($browser, $sessionId, 'shopware-toolset-enable', ['toolset' => 'store-api']);

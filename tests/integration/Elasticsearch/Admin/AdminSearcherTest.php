@@ -202,6 +202,10 @@ class AdminSearcherTest extends TestCase
         static::assertArrayHasKey('product', $results);
         static::assertInstanceOf(ProductCollection::class, $results['product']['data']);
 
+        // The order below is the OpenSearch ranking, not an incidental DAL order:
+        // ProductAdminSearchIndexer::globalData() feeds the hit ids into `new Criteria($ids)` without a
+        // sorting, and EntityReader then restores that exact order via sortByIdArray(). Asserting the
+        // result order therefore asserts the relevance order.
         $foundProductIds = array_values($results['product']['data']->getIds());
         static::assertSame(
             $productId,
@@ -267,6 +271,8 @@ class AdminSearcherTest extends TestCase
         static::assertArrayHasKey('product', $results);
         static::assertInstanceOf(ProductCollection::class, $results['product']['data']);
 
+        // As above: the result order is the OpenSearch ranking, preserved by
+        // ProductAdminSearchIndexer::globalData() plus EntityReader's sortByIdArray().
         $foundProductIds = array_values($results['product']['data']->getIds());
         static::assertSame(
             $ownerId,

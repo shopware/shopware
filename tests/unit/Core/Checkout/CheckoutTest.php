@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout;
 
+use Ergebnis\PHPUnit\SlowTestDetector\Attribute\MaximumDuration;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Checkout;
@@ -17,6 +18,9 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 #[CoversClass(Checkout::class)]
 class CheckoutTest extends TestCase
 {
+    // building the full bundle container is legitimately slower under coverage instrumentation,
+    // and whichever build test runs first also pays the one-time symfony-dependency-injection load
+    #[MaximumDuration(2000)]
     public function testBuildUsesRedisCompilerPass(): void
     {
         $container = new ContainerBuilder();

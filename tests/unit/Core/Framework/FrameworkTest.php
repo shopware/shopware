@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework;
 
+use Ergebnis\PHPUnit\SlowTestDetector\Attribute\MaximumDuration;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
@@ -38,6 +39,9 @@ class FrameworkTest extends TestCase
         static::assertSame(-1, $framework->getTemplatePriority());
     }
 
+    // building the full bundle container is legitimately slower under coverage instrumentation,
+    // and whichever build test runs first also pays the one-time symfony-dependency-injection load
+    #[MaximumDuration(2000)]
     public function testBuild(): void
     {
         $container = $this->buildContainer('prod');
@@ -55,6 +59,7 @@ class FrameworkTest extends TestCase
         static::assertEmpty(array_filter($passes, static fn ($pass) => $pass instanceof DisableRateLimiterCompilerPass));
     }
 
+    #[MaximumDuration(2000)]
     public function testBuildRegistersTestServicesInTestEnvironment(): void
     {
         $container = $this->buildContainer('test');

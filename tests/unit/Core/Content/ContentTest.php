@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content;
 
+use Ergebnis\PHPUnit\SlowTestDetector\Attribute\MaximumDuration;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Content;
@@ -16,6 +17,9 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 #[CoversClass(Content::class)]
 class ContentTest extends TestCase
 {
+    // building the full bundle container is legitimately slower under coverage instrumentation,
+    // and whichever build test runs first also pays the one-time symfony-dependency-injection load
+    #[MaximumDuration(2000)]
     public function testBuild(): void
     {
         $content = new Content();

@@ -356,9 +356,9 @@ interface CheckStats {
     extensionsSkipped: number;
     /**
      * Individual tool runs that did not happen (unmanaged or blocked), across all
-     * extensions. Counts the same three streams as `writableSkipped`, so the
-     * verdict line and the skip warning above it can never state different
-     * numbers.
+     * extensions. Counts the same three streams as `writableSkipped` and
+     * `computeExitCode`'s --fail-on-skipped gate, so the verdict line and the
+     * skip warning above it can never state different numbers.
      */
     toolsSkipped: number;
     baselined: number;

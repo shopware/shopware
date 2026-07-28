@@ -253,10 +253,6 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
-## Exact total count skips the COUNT query on the last page
-
-`Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher` no longer always runs a separate `SELECT COUNT(*)` execution for `Criteria::TOTAL_COUNT_MODE_EXACT`. When the requested page is the last (partial) page, the total is derived as `offset + rows` and no count query is emitted. The returned total and result set are unchanged, but if you relied on the previously emitted queries — e.g. query-count or SQL-shape assertions, a `DebugStack`, or query profiling — note that no `COUNT(*)` query is issued for last/partial pages.
-
 ## Landing page slot config must not be null
 
 `LandingPageEntity::setSlotConfig()` and `LandingPageTranslationEntity::setSlotConfig()` no longer accept `null` for their `$slotConfig` argument. Pass the slot configuration array when writing a landing page or its translation.

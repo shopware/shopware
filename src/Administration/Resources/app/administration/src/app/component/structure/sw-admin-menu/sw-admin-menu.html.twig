@@ -76,18 +76,22 @@
         {% endblock %}
 
         {% block sw_admin_menu_header_toggle_sidebar %}
-        <button
+        <mt-button
             v-if="isMobileViewport"
-            type="button"
             class="sw-admin-menu__off-canvas-close"
+            variant="tertiary"
+            size="default"
+            square
             :aria-label="$t('global.sw-admin-menu.linkCloseMenu')"
             @click.stop="closeOffCanvas"
         >
-            <mt-icon
-                name="regular-times-s"
-                size="10px"
-            />
-        </button>
+            <template #iconFront>
+                <mt-icon
+                    name="solid-times"
+                    size="12px"
+                />
+            </template>
+        </mt-button>
         <mt-button
             v-else
             class="sw-admin-menu__collapse-button"

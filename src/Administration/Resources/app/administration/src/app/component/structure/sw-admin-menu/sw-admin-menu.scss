@@ -59,9 +59,17 @@
     @media screen and (max-width: 1280px) {
         position: absolute;
         top: 0;
-        transform: translateX(-100%);
+
+        // The horizontal margin keeps 8px of the panel in view after a plain
+        // translateX(-100%) — shift by the margin as well to fully hide it.
+        transform: translateX(calc(-100% - var(--scale-size-8)));
         bottom: 0;
-        height: 100%;
+        height: auto;
+        margin: var(--scale-size-8);
+        background: var(--color-elevation-surface-default);
+        border: 1px solid var(--color-border-secondary-default);
+        border-radius: var(--border-radius-l);
+        box-shadow: 0 0 80px var(--color-elevation-shadow-default);
         z-index: $z-index-off-canvas;
         transition: transform var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier);
 
@@ -220,22 +228,7 @@
     }
 
     .sw-admin-menu__off-canvas-close {
-        width: var(--scale-size-32);
-        height: var(--scale-size-32);
-        display: flex;
-        align-items: center;
-        justify-content: center;
         flex-shrink: 0;
-        padding: 0;
-        border: none;
-        border-radius: var(--border-radius-s);
-        background: transparent;
-        color: var(--color-icon-primary-default);
-        cursor: pointer;
-
-        &:hover {
-            background: var(--color-background-primary-disabled);
-        }
     }
 
     // Crossfades with the logo on hover in the collapsed state: scale + blur mask

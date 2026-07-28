@@ -17,10 +17,10 @@ describe('build/vue-setup-transform/utils/sfc-script-block', () => {
         ].join('\n');
         const { descriptor } = parse(source);
 
-        expect(descriptor.scriptSetup).not.toBeNull();
-
+        // Asserts the block is present AND narrows it non-null for `toScriptBlock` below. (A separate
+        // `expect(...).not.toBeNull()` would make this throw unreachable, so it is the sole check.)
         if (!descriptor.scriptSetup) {
-            throw new Error('Expected script setup block.');
+            throw new Error('Expected a <script setup> block.');
         }
 
         const block = toScriptBlock(source, descriptor.scriptSetup, 'scriptSetup');

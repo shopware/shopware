@@ -58,7 +58,7 @@ class NetPriceCalculator
             $definition->getQuantity(),
             $reference,
             $this->calculateListPrice($unitPrice, $definition, $config),
-            $this->calculateRegulationPrice($definition, $config)
+            $this->calculateRegulationPrice($unitPrice, $definition, $config)
         );
     }
 
@@ -78,7 +78,7 @@ class NetPriceCalculator
         return ListPrice::createFromUnitPrice($unitPrice, $listPrice);
     }
 
-    private function calculateRegulationPrice(QuantityPriceDefinition $definition, CashRoundingConfig $config): ?RegulationPrice
+    private function calculateRegulationPrice(float $unitPrice, QuantityPriceDefinition $definition, CashRoundingConfig $config): ?RegulationPrice
     {
         $regulationPrice = $definition->getRegulationPrice();
         if (!$regulationPrice) {
@@ -87,7 +87,11 @@ class NetPriceCalculator
 
         $regulationPrice = $this->round($regulationPrice, $config);
 
-        return new RegulationPrice($regulationPrice);
+        if ($regulationPrice <= 0) {
+            return null;
+        }
+
+        return RegulationPrice::createFromUnitPrice($unitPrice, $regulationPrice);
     }
 
     private function calculateReferencePrice(float $price, ?ReferencePriceDefinition $definition, CashRoundingConfig $config): ?ReferencePrice

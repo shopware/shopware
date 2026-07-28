@@ -98,8 +98,9 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
         }
 
         $regulationPrice = null;
-        if (isset($decoded['regulationPrice'])) {
-            $regulationPrice = new RegulationPrice(
+        if (isset($decoded['regulationPrice']) && ((float) ($decoded['regulationPrice']['price'] ?? 0)) > 0) {
+            $regulationPrice = RegulationPrice::createFromUnitPrice(
+                (float) $decoded['unitPrice'],
                 (float) $decoded['regulationPrice']['price']
             );
         }

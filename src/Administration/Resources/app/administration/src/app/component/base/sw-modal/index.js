@@ -93,6 +93,12 @@ export default {
             required: false,
             default: true,
         },
+
+        overflowHidden: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
@@ -106,6 +112,7 @@ export default {
             return {
                 [`sw-modal--${this.variant}`]: this.variant && !this.size,
                 'sw-modal--has-sidebar': this.showHelpSidebar,
+                'sw-modal--overflow-hidden': this.overflowHidden,
             };
         },
 

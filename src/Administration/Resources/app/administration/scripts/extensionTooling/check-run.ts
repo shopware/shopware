@@ -2,10 +2,10 @@
  * @sw-package framework
  *
  * Per-project execution pipeline for the check runner: probes each target's
- * TypeScript/ESLint mode, persists the probe cache, runs the vue-tsc and ESLint
- * streams for one extension, records a project baseline, and derives the
- * process exit code. The orchestrator in `./check` composes these steps; the
- * ESLint/output helpers below are used only by this pipeline.
+ * TypeScript/ESLint mode, runs the vue-tsc and ESLint streams for one
+ * extension, records a project baseline, and derives the process exit code.
+ * The orchestrator in `./check` composes these steps; the ESLint/output helpers
+ * below are used only by this pipeline.
  */
 
 import fs from 'fs';

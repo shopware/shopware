@@ -37,8 +37,9 @@ export type ModeReason =
 
 /**
  * Per-tool resolution of an extension's config mode. Static analysis produces
- * unverified resolutions at setup time; live tool probes (check runs) produce
- * verified ones, carried back into setup through the probe cache.
+ * unverified resolutions at setup time; the live tool probes a check run
+ * performs produce verified ones for that run only — nothing is cached, so
+ * setup always renders its own static best guess.
  */
 export interface ModeResolution {
     mode: ConfigMode;
@@ -78,7 +79,7 @@ export interface AdministrationTarget {
     tsconfig: string | null;
     /** Nearest extension-owned ESLint config governing this source root, if one exists. */
     eslintConfig: string | null;
-    /** Per-tool mode resolution (static at discovery, verified via probe cache / check runs). */
+    /** Per-tool mode resolution (static at discovery, verified by the live probes of a check run). */
     ts: ModeResolution;
     eslint: ModeResolution;
     /** The runtime tsconfig the check runner passes to vue-tsc (generated leaf or custom config). */

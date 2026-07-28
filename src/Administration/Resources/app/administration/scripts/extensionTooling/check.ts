@@ -395,7 +395,7 @@ export async function runCheckCli(argv: string[]): Promise<number> {
             showCommands: parsed.flags.has('--show-commands'),
             failOnSkipped: parsed.flags.has('--fail-on-skipped'),
             fix: parsed.flags.has('--fix'),
-            commands: resolveToolingCommands(projectRoot, administrationRoot),
+            commands: resolveToolingCommands(path.resolve(projectRoot), administrationRoot),
         }),
     );
 

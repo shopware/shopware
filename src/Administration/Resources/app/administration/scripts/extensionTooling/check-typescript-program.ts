@@ -15,7 +15,7 @@ import type { BaselineTsEntry, TypeScriptFinding } from './baseline';
 import { canonicalizePath, relativePosix, toPosix } from './shared';
 import type { AdministrationTarget } from './shared';
 import { countTypeScriptFindings, deduplicateByMaximumMultiplicity, parseTypeScriptFindings } from './check-parsing';
-import { applyBaseline, formatCommand } from './check-pipeline';
+import { formatCommand } from './check-pipeline';
 import type { TargetProgramGroup } from './check-pipeline';
 import type { Limiter, ToolRunResult, ToolStatus } from './check-types';
 
@@ -29,17 +29,17 @@ export function buildVueTscArguments(vueTscPath: string, tsconfigPath: string): 
 }
 
 /**
- * Runs one vue-tsc program (runtime or spec) against a tsconfig and interprets
- * the outcome through the baseline. Timeouts and empty non-zero exits surface as
- * tooling errors; otherwise the findings are split against the given baseline
- * stream. Gating (which program, whether to run at all) stays with the caller.
+ * Runs one vue-tsc program (runtime or spec) against a tsconfig and reports what
+ * it saw. Timeouts and non-zero exits without a parseable diagnostic surface as
+ * tooling errors. The baseline is deliberately not applied here: a project's
+ * programs overlap on the shared type surface, so only the caller — after
+ * de-duplicating across every program — can split findings against it. Gating
+ * (which program, whether to run at all) stays with the caller too.
  */
 async function runTypeScriptProgram(
     vueTscPath: string,
     tsconfigPath: string,
     projectRoot: string,
-    basePath: string,
-    baselineEntries: BaselineTsEntry[],
 ): Promise<{ result: ToolRunResult; command: string }> {
     const vueTscArguments = buildVueTscArguments(vueTscPath, tsconfigPath);
     const command = formatCommand(projectRoot, vueTscArguments);
@@ -81,16 +81,18 @@ async function runTypeScriptProgram(
     }
 
     const parsedFindings = parseTypeScriptFindings(run.output);
-    const split = diffTypeScript(parsedFindings, baselineEntries, basePath, findings);
 
     return {
         command,
         result: {
-            ...applyBaseline(run.status, findings, split, (finding) => ({ file: finding.file, code: finding.code })),
+            status: findings > 0 ? 'failed' : 'passed',
+            findings,
             output: run.output,
             durationMs: run.durationMs,
             typeScriptFindings: parsedFindings,
-            parseMismatch: split.parseMismatch,
+            // The structured parse must account for every finding the regex
+            // counter saw; a disagreement disables baseline suppression upstream.
+            parseMismatch: parsedFindings.length !== findings,
         },
     };
 }
@@ -179,7 +181,7 @@ export async function runTypeScriptPrograms(
     }
 
     const runs = await Promise.all(
-        groups.map((group) => limit(() => runTypeScriptProgram(vueTscPath, group.configPath, projectRoot, basePath, []))),
+        groups.map((group) => limit(() => runTypeScriptProgram(vueTscPath, group.configPath, projectRoot))),
     );
     const outputs = runs.map((run) => run.result.output).filter((output) => output.trim() !== '');
     const parsedGroups = runs.map((run) => run.result.typeScriptFindings ?? []);

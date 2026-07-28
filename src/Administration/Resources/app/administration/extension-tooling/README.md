@@ -203,7 +203,7 @@ plugin repository:
 
 | File | Kind | Commit? | Notes |
 | --- | --- | --- | --- |
-| `var/admin-extension-tooling/**` (leaf tsconfigs, manifest, probe cache) | disposable host state | no | Regenerated every run; git-ignored in a shop. |
+| `var/admin-extension-tooling/**` (leaf tsconfigs, manifest) | disposable host state | no | Regenerated every run; git-ignored in a shop. |
 | Project-root `tsconfig.json` / `eslint.config.mjs` / `.vscode/` / `.zed/` | disposable host projections | no | IDE/CLI view of the whole shop; marker-owned, git-ignored (the platform monorepo commits its own, so setup stands down there). |
 | `<plugin>/…/.shopware-admin/` (bridge `tsconfig.json`, `eslint.mjs`, `.gitignore`) | git-ignored bridge | **no** | Machine-specific paths into the installed Administration; self-ignoring (`*`). One per shimmed root, or one beside the package config in root-config mode. |
 | `<plugin>/…/tsconfig.json` + `eslint.config.mjs` (scaffolded when absent) | committable plugin config | **yes** | Small files that just extend/compose the bridge. Edit freely; keep the `extends`/import. |

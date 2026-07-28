@@ -177,7 +177,6 @@ function renderToolRow(
     result: ExtensionCheckResult,
     row: ToolRow,
     skipped: SkippedTarget[],
-    options: RenderOptions,
     verbose: boolean,
 ): { lines: string[]; unmanaged: boolean } {
     const { label, tool, run, resolution } = row;
@@ -192,8 +191,8 @@ function renderToolRow(
         lines.push(colors.dim('      → rename a .js source to .ts (and add types) to enable type-checking, then re-run.'));
     }
 
-    // Rendered independently of the run status and of --summary-only: a
-    // failed managed remainder must not swallow the skip remediation.
+    // Rendered independently of the run status: a failed managed remainder must
+    // not swallow the skip remediation for the targets that were not checked.
     lines.push(...renderSkippedTargetLines(result.project, tool, toolSkips, verbose));
 
     if (run.status === 'unmanaged') {
@@ -256,7 +255,7 @@ function renderExtension(result: ExtensionCheckResult, options: RenderOptions): 
     let anyUnmanaged = false;
 
     for (const row of toolRows(result)) {
-        const rendered = renderToolRow(result, row, skipped, options, verbose);
+        const rendered = renderToolRow(result, row, skipped, verbose);
 
         lines.push(...rendered.lines);
         anyUnmanaged = anyUnmanaged || rendered.unmanaged;
@@ -355,7 +354,12 @@ interface CheckStats {
     withFindings: number;
     /** Extensions where both tools skipped — a whole extension left unchecked. */
     extensionsSkipped: number;
-    /** Individual tool runs that did not happen (unmanaged or blocked), across all extensions. */
+    /**
+     * Individual tool runs that did not happen (unmanaged or blocked), across all
+     * extensions. Counts the same three streams as `writableSkipped` and
+     * `computeExitCode`'s --fail-on-skipped gate, so the verdict line and the
+     * skip warning above it can never state different numbers.
+     */
     toolsSkipped: number;
     baselined: number;
     /** Tool runs skipped on writable (non-vendor) extensions — the ones a CI gate must not read as green. */
@@ -377,6 +381,7 @@ function summarizeCheck(results: ExtensionCheckResult[]): CheckStats {
                 sum +
                 countSkippedRuns([
                     extension.typescript,
+                    extension.typescriptSpecs,
                     extension.eslint,
                 ]),
             0,

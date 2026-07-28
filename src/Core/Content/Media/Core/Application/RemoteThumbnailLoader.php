@@ -188,7 +188,7 @@ class RemoteThumbnailLoader implements ResetInterface
 
         $grouped = [];
         foreach ($folderConfigurations as $folderConfiguration) {
-            if ((int) $folderConfiguration['create_thumbnails'] === 0) {
+            if (!$folderConfiguration['create_thumbnails']) {
                 $grouped[$folderConfiguration['folder_id']] = [];
 
                 continue;

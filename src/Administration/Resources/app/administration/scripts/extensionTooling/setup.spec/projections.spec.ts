@@ -44,8 +44,13 @@ describe('scripts/extensionTooling/setup config projections', () => {
         );
 
         expect(rootTsconfig).toContain(GENERATED_MARKER);
-        // Every managed target is routed to its leaf from the solution index.
-        expect(references).toEqual(managedTargets.map((target) => `./${target.checkTsconfig}`));
+        // Each managed project contributes its runtime leaf and its spec leaf.
+        expect(references).toEqual(
+            managedTargets.flatMap((target) => [
+                `./${target.checkTsconfig}`,
+                `./${target.specTsconfig}`,
+            ]),
+        );
 
         for (const reference of references) {
             expect(fs.existsSync(path.join(projectRoot, reference))).toBe(true);
@@ -59,13 +64,19 @@ describe('scripts/extensionTooling/setup config projections', () => {
             }
         }
 
-        // One leaf per Administration target — including targets governed by
-        // their own config, so a later bridge has a leaf to fall back to.
         const leafFiles = fs.readdirSync(path.join(projectRoot, 'var/admin-extension-tooling/projects'));
 
+        // One runtime leaf plus one spec leaf per Administration target.
         expect(leafFiles).toHaveLength(
-            result.manifest.projects.reduce((total, project) => total + project.targets.length, 0),
+            result.manifest.projects.reduce((total, project) => total + project.targets.length * 2, 0),
         );
+
+        for (const project of result.manifest.projects) {
+            for (const target of project.targets) {
+                expect(target.specTsconfig).toMatch(/-specs\.json$/);
+                expect(fs.existsSync(path.join(projectRoot, target.specTsconfig))).toBe(true);
+            }
+        }
     });
 
     it('excludes test files from generated and scaffolded tsconfigs', () => {
@@ -90,6 +101,7 @@ describe('scripts/extensionTooling/setup config projections', () => {
         );
 
         expect(scaffold).toContain('"**/*.spec.ts"');
+        expect(scaffold).toContain('type-checks them separately with jest types');
     });
 
     it('escapes filesystem paths so a quote in an extension path cannot break the generated config', () => {
@@ -167,7 +179,10 @@ describe('scripts/extensionTooling/setup config projections', () => {
         const leafFiles = fs.readdirSync(path.join(projectRoot, 'var/admin-extension-tooling/projects')).sort();
 
         expect(result.staleFiles.length).toBeGreaterThan(0);
-        // Only the surviving extension's leaf remains.
-        expect(leafFiles).toEqual(['zeroconfig.json']);
+        // Only the surviving extension's runtime and spec leaves remain.
+        expect(leafFiles).toEqual([
+            'zeroconfig-specs.json',
+            'zeroconfig.json',
+        ]);
     });
 });

@@ -133,6 +133,7 @@ export function discoverProjects(
                         ts: resolveStaticTsMode(tsconfig),
                         eslint: resolveStaticEslintMode(eslintConfig),
                         checkTsconfig: '',
+                        specTsconfig: '',
                     };
                 });
 

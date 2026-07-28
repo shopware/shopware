@@ -119,6 +119,24 @@ aliases with the preset's host paths (targets resolve relative to the plugin's
 administration folder). The same mechanism covers type-only imports of host packages,
 e.g. `{ "axios": ["../../../../../../../src/Administration/Resources/app/administration/node_modules/axios"] }`.
 
+## Test files
+
+Spec files (`**/*.spec.{ts,tsx,js}`) are type-checked by a **dedicated program** with jest
+types, separate from the runtime program. The runtime tsconfig still excludes specs — its
+preset sets `types: []` so the runtime globals stay runtime-only — and the check runs a
+second `vue-tsc` pass over a generated spec tsconfig (`…-specs.json`) that injects
+`spec-types.d.ts` (jest `describe`/`it`/`expect`, …) and includes only the specs. Spec
+findings appear on their own `TS (specs)` line.
+
+ESLint **type-aware-lints** specs for zero-config (managed) extensions — the spec leaves are
+referenced from the generated root `tsconfig.json`, so typescript-eslint's project service
+finds them. Bridged plugins (own committed config extending `.shopware-admin/`) keep
+syntactic + jest-globals linting on specs; `vue-tsc` still type-checks those specs, only
+ESLint's type-aware rules are off there.
+
+Type-checking specs surfaces findings that were previously invisible. Record them once with
+`--update-baseline` (see below) so the check fails only on new ones.
+
 ## From JavaScript to TypeScript
 
 A `.js` plugin is linted immediately, but TypeScript checks nothing — `checkJs` is off, so

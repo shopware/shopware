@@ -42,8 +42,10 @@ export interface ToolRunResult {
 
 export interface AdministrationTargetCoverage {
     target: AdministrationTarget;
-    /** Effective TypeScript config; identical canonical paths are executed once. */
+    /** Effective runtime config; identical canonical paths are executed once. */
     runtimeConfig: string;
+    /** Dedicated spec config for this target. */
+    specConfig: string;
     /** Effective ESLint config; identical canonical paths are executed once. */
     eslintConfig: string;
 }
@@ -53,9 +55,11 @@ export interface ExtensionCheckResult {
     tsResolution: ModeResolution;
     eslintResolution: ModeResolution;
     typescript: ToolRunResult;
+    /** The dedicated spec type-check program (jest types, spec files only). */
+    typescriptSpecs: ToolRunResult;
     eslint: ToolRunResult;
     /** Reproduction commands for the tool runs that actually happened. */
-    commands: { typescript?: string[]; eslint?: string[] };
+    commands: { typescript?: string[]; typescriptSpecs?: string[]; eslint?: string[] };
     /** Target/config routing used by this aggregate extension result. */
     coverage: AdministrationTargetCoverage[];
     /** Targets whose own config kept a tool from covering them, regardless of the run status. */

@@ -51,6 +51,8 @@ export interface BaselineEslintEntry {
 export interface FindingsBaseline {
     version: 1;
     typescript: BaselineTsEntry[];
+    /** Findings from the dedicated spec type-check program. */
+    typescriptSpecs: BaselineTsEntry[];
     eslint: BaselineEslintEntry[];
 }
 
@@ -101,6 +103,7 @@ export function readBaseline(projectRoot: string, project: BaselineProject): Fin
         return {
             version: 1,
             typescript: Array.isArray(parsed.typescript) ? parsed.typescript : [],
+            typescriptSpecs: Array.isArray(parsed.typescriptSpecs) ? parsed.typescriptSpecs : [],
             eslint: Array.isArray(parsed.eslint) ? parsed.eslint : [],
         };
     } catch {
@@ -271,12 +274,13 @@ function aggregateEslint(findings: EslintFinding[], basePath: string): BaselineE
  * are recorded (warnings never fail the check).
  */
 export function buildBaseline(
-    findings: { typescript: TypeScriptFinding[]; eslint: EslintFinding[] },
+    findings: { typescript: TypeScriptFinding[]; typescriptSpecs: TypeScriptFinding[]; eslint: EslintFinding[] },
     basePath: string,
 ): FindingsBaseline {
     return {
         version: 1,
         typescript: aggregateTs(findings.typescript, basePath),
+        typescriptSpecs: aggregateTs(findings.typescriptSpecs, basePath),
         eslint: aggregateEslint(
             findings.eslint.filter((finding) => finding.severity === 'error'),
             basePath,

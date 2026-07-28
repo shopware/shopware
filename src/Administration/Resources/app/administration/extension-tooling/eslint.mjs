@@ -52,10 +52,22 @@ const vueParser = vueParserSetup.languageOptions.parser;
  * - `internalApiSeverity`: severity for the API-boundary rules (usage of
  *   `@deprecated` members). Internal plugins that intentionally consume
  *   internal APIs may lower this in their own config.
+ * - `typedSpecs`: type-aware-lint spec files (adds jest globals on top of the
+ *   type-checked rules). Requires a discoverable spec program — the generated
+ *   root config enables it, because the spec leaves are referenced from the root
+ *   solution tsconfig. Shim-based configs leave it off, so their specs are
+ *   parsed standalone; `vue-tsc` still type-checks them.
  * - `ignores`: additional global ignore patterns.
  */
 export function shopwareAdminExtension(options = {}) {
-    const { tsconfigRootDir, extensionRoots = [], legacyTwig = true, internalApiSeverity = 'error', ignores = [] } = options;
+    const {
+        tsconfigRootDir,
+        extensionRoots = [],
+        legacyTwig = true,
+        internalApiSeverity = 'error',
+        typedSpecs = false,
+        ignores = [],
+    } = options;
 
     if (!tsconfigRootDir) {
         throw new Error(
@@ -75,18 +87,30 @@ export function shopwareAdminExtension(options = {}) {
         );
     };
 
-    // No program covers spec files, so type-aware rules have nothing to resolve
-    // them against: specs are parsed standalone with the jest globals available
-    // and the type-checked rules switched off.
-    const specFilesConfig = {
-        ...tseslint.configs.disableTypeChecked,
-        name: 'shopware/admin-extension/spec-files',
-        files: scope(specFilePatterns),
-        languageOptions: {
-            ...tseslint.configs.disableTypeChecked.languageOptions,
-            globals: { ...globals.jest },
-        },
-    };
+    // With a discoverable spec program (the generated root config references the
+    // spec leaves) the type-checked rules already apply to specs, so the block
+    // only adds the jest globals. Without one there is no program to resolve
+    // them against, so type-aware linting is off and specs are parsed
+    // standalone — `vue-tsc` still type-checks them either way.
+    let specFilesConfig;
+
+    if (typedSpecs) {
+        specFilesConfig = {
+            name: 'shopware/admin-extension/spec-files',
+            files: scope(specFilePatterns),
+            languageOptions: { globals: { ...globals.jest } },
+        };
+    } else {
+        specFilesConfig = {
+            ...tseslint.configs.disableTypeChecked,
+            name: 'shopware/admin-extension/spec-files',
+            files: scope(specFilePatterns),
+            languageOptions: {
+                ...tseslint.configs.disableTypeChecked.languageOptions,
+                globals: { ...globals.jest },
+            },
+        };
+    }
 
     const config = [
         {

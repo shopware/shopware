@@ -1,8 +1,8 @@
 /**
  * @sw-package framework
  *
- * Config generators. Tool-owned var/ leaf tsconfigs (one per Administration
- * root), the marker-owned root tsconfig/eslint
+ * Config generators. Tool-owned var/ leaf tsconfigs (one runtime + one spec
+ * program per Administration root), the marker-owned root tsconfig/eslint
  * projections, IDE bootstraps, the entity-schema stub gate, and the committed
  * per-extension configs that a `--shim` scaffolds beside its bridge.
  */
@@ -31,10 +31,10 @@ const SOURCE_EXTENSIONS = [
     'js',
 ];
 /**
- * Test files stay out of the generated program: the preset sets `types: []`, so
- * a spec's runner globals (`describe`, `it`, `expect`) are absent and every one
- * of them would report as an error. Type-checking specs needs its own program
- * with jest types injected.
+ * Test files are split off from the runtime program (whose preset sets
+ * `types: []`, so its runner globals are absent) into a dedicated spec program
+ * that adds jest types. The runtime leaf excludes these suffixes; the spec leaf
+ * includes exactly them.
  */
 const SPEC_FILE_SUFFIXES = [
     'spec.ts',
@@ -82,6 +82,7 @@ export function createLeafConfigs(
     const projectsDir = path.join(context.projectRoot, STATE_DIR, 'projects');
     const basePreset = path.join(context.administrationRoot, 'extension-tooling', 'tsconfig.base.json');
     const adminTypes = path.join(context.administrationRoot, 'extension-tooling', 'admin-types.d.ts');
+    const specTypes = path.join(context.administrationRoot, 'extension-tooling', 'spec-types.d.ts');
     const usedFileNames = new Set<string>();
 
     const sourceGlobs = (configPath: string, sourcePath: string, extensions: string[]): string[] =>
@@ -105,7 +106,10 @@ export function createLeafConfigs(
                 suffix += 1;
             }
 
+            const specFileName = fileName.replace(/\.json$/, '-specs.json');
+
             usedFileNames.add(fileName);
+            usedFileNames.add(specFileName);
 
             const configPath = path.join(projectsDir, fileName);
             const content = `// ${GENERATED_MARKER}\n${JSON.stringify(
@@ -123,9 +127,39 @@ export function createLeafConfigs(
 
             record(context, writeStateFile(configPath, content, context.dryRun));
 
+            // Companion program for spec files: the same type surface plus jest
+            // types (spec-types.d.ts), including only this target's specs.
+            const specConfigPath = path.join(projectsDir, specFileName);
+            const specContent = `// ${GENERATED_MARKER}\n${JSON.stringify(
+                {
+                    extends: asRelativeSpecifier(specConfigPath, basePreset),
+                    // Point typeRoots at the Administration's own @types so the jest
+                    // reference in spec-types.d.ts resolves — a triple-slash
+                    // reference is looked up relative to this config, not the .d.ts.
+                    compilerOptions: {
+                        typeRoots: [
+                            asRelativeSpecifier(
+                                specConfigPath,
+                                path.join(context.administrationRoot, 'node_modules', '@types'),
+                            ),
+                        ],
+                    },
+                    files: [
+                        asRelativeSpecifier(specConfigPath, adminTypes),
+                        asRelativeSpecifier(specConfigPath, specTypes),
+                    ],
+                    include: sourceGlobs(specConfigPath, target.sourcePath, SPEC_FILE_SUFFIXES),
+                },
+                null,
+                4,
+            )}\n`;
+
+            record(context, writeStateFile(specConfigPath, specContent, context.dryRun));
+
             return {
                 ...target,
                 checkTsconfig: target.tsconfig ?? relativePosix(context.projectRoot, configPath),
+                specTsconfig: relativePosix(context.projectRoot, specConfigPath),
             };
         }),
     }));
@@ -147,12 +181,16 @@ export function createLeafConfigs(
 
 export function createRootTsconfig(context: GeneratorContext, projects: ExtensionToolingProject[]): ManagedFileState {
     const rootTsconfigPath = path.join(context.projectRoot, 'tsconfig.json');
-    // Reference every managed leaf so the IDE — and ESLint's project service —
-    // can associate each extension source file with a program.
+    // Reference both the runtime and spec leaves so the IDE — and ESLint's
+    // project service — can associate every managed source and spec file with a
+    // program (this is what enables type-aware linting of managed specs).
     const references = projects.flatMap((project) =>
         project.targets
             .filter((target) => target.ts.mode === 'managed')
-            .map((target) => ({ path: `./${target.checkTsconfig}` })),
+            .flatMap((target) => [
+                { path: `./${target.checkTsconfig}` },
+                { path: `./${target.specTsconfig}` },
+            ]),
     );
     const content = `// ${GENERATED_MARKER} — solution-style index routing each extension file to its leaf project.\n${JSON.stringify(
         {
@@ -197,6 +235,8 @@ export function createRootEslintConfig(context: GeneratorContext, projects: Exte
         '',
         'export default shopwareAdminExtension({',
         '    tsconfigRootDir: import.meta.dirname,',
+        '    // Spec files are type-aware-linted here — their leaves are referenced from the root tsconfig.',
+        '    typedSpecs: true,',
         '    extensionRoots: [',
         ...extensionRoots.map((extensionRoot) => `        ${JSON.stringify(extensionRoot)},`),
         '    ],',
@@ -339,6 +379,7 @@ export function scaffoldExtensionConfigs(
     const tsconfigContent =
         `// Committed config for ${name}. Extends the generated Shopware bridge in .shopware-admin/\n` +
         '// (git-ignored, holds the machine-specific paths). Safe to edit and commit — keep the "extends".\n' +
+        '// Spec files stay excluded here — the check type-checks them separately with jest types.\n' +
         `${JSON.stringify(
             {
                 extends: './.shopware-admin/tsconfig.json',

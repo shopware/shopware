@@ -82,8 +82,10 @@ export interface AdministrationTarget {
     /** Per-tool mode resolution (static at discovery, verified by the live probes of a check run). */
     ts: ModeResolution;
     eslint: ModeResolution;
-    /** The tsconfig the check runner passes to vue-tsc (generated leaf or custom config). */
+    /** The runtime tsconfig the check runner passes to vue-tsc (generated leaf or custom config). */
     checkTsconfig: string;
+    /** Generated leaf tsconfig for the spec type-check program (jest types + this target's specs). */
+    specTsconfig: string;
 }
 
 export interface ExtensionToolingProject {

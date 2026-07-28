@@ -207,6 +207,7 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
                 {
                     target: mine.targets[0],
                     runtimeConfig: 'var/admin-extension-tooling/projects/mine.json',
+                    specConfig: 'var/admin-extension-tooling/projects/mine-specs.json',
                     eslintConfig: 'eslint.config.mjs',
                 },
             ],
@@ -225,7 +226,7 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
 
         expect(concise).not.toContain('target Mine');
         expect(verbose).toContain('target Mine · custom/plugins/Mine/src');
-        expect(verbose).toContain('typescript: var/admin-extension-tooling/projects/mine.json');
+        expect(verbose).toContain('runtime: var/admin-extension-tooling/projects/mine.json');
     });
 
     it('qualifies a vacuous TypeScript pass and points at the JS-to-TS next step', () => {

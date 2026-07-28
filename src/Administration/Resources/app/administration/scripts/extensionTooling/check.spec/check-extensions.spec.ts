@@ -270,6 +270,7 @@ describe('scripts/extensionTooling/check checkExtensions', () => {
         writeBaselineFile(projectRoot, probe.project, {
             version: 1,
             typescript: [{ file: 'src/main.ts', code: 'TS2322', message: 'existing debt', count: 1 }],
+            typescriptSpecs: [],
             eslint: [],
         });
         const baselinePath = path.join(projectRoot, probe.project.basePath, BASELINE_FILE_NAME);

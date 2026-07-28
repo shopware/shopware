@@ -110,6 +110,9 @@
                                 "type": "string",
                                 "pattern": "^[0-9a-f]{32}$"
                             },
+                            "manufacturerName": {
+                                "type": ["string", "null"]
+                            },
                             "markAsTopseller": {
                                 "type": "boolean"
                             },

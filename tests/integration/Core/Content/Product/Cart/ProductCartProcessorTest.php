@@ -315,6 +315,89 @@ class ProductCartProcessorTest extends TestCase
         static::assertArrayHasKey('features', $lineItem->getPayload());
     }
 
+    public function testPayloadContainsManufacturerName(): void
+    {
+        $this->createProduct([
+            'manufacturer' => [
+                'id' => $this->ids->create('manufacturer'),
+                'name' => 'shopware AG',
+            ],
+        ]);
+
+        $cart = $this->getProductCart();
+        $lineItem = $cart->get($this->ids->get('product'));
+
+        static::assertInstanceOf(LineItem::class, $lineItem);
+        static::assertSame($this->ids->get('manufacturer'), $lineItem->getPayloadValue('manufacturerId'));
+        static::assertSame('shopware AG', $lineItem->getPayloadValue('manufacturerName'));
+    }
+
+    public function testPayloadManufacturerNameIsNullWithoutManufacturer(): void
+    {
+        $this->createProduct();
+
+        $cart = $this->getProductCart();
+        $lineItem = $cart->get($this->ids->get('product'));
+
+        static::assertInstanceOf(LineItem::class, $lineItem);
+        static::assertArrayHasKey('manufacturerName', $lineItem->getPayload());
+        static::assertNull($lineItem->getPayloadValue('manufacturerName'));
+    }
+
+    public function testPayloadManufacturerNameOverwritesClientProvidedValue(): void
+    {
+        $this->createProduct([
+            'manufacturer' => [
+                'id' => $this->ids->create('manufacturer'),
+                'name' => 'shopware AG',
+            ],
+        ]);
+
+        $context = $this->getContext();
+
+        $product = static::getContainer()->get(ProductLineItemFactory::class)->create([
+            'id' => $this->ids->get('product'),
+            'referencedId' => $this->ids->get('product'),
+            'payload' => ['manufacturerName' => 'spoofed brand'],
+        ], $context);
+
+        $cart = $this->cartService->add($this->cartService->getCart($context->getToken(), $context), $product, $context);
+        $lineItem = $cart->get($this->ids->get('product'));
+
+        static::assertInstanceOf(LineItem::class, $lineItem);
+        static::assertSame('shopware AG', $lineItem->getPayloadValue('manufacturerName'));
+    }
+
+    public function testPayloadManufacturerNameIsInheritedByVariant(): void
+    {
+        $ids = new IdsCollection();
+
+        $product = (new ProductBuilder($ids, 'parent'))
+            ->price(100)
+            ->manufacturer('shopware AG')
+            ->visibility()
+            ->variant(
+                (new ProductBuilder($ids, 'variant'))
+                    ->build()
+            )
+            ->build();
+
+        static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+
+        $lineItem = static::getContainer()->get(ProductLineItemFactory::class)
+            ->create(['id' => $ids->get('variant'), 'referencedId' => $ids->get('variant')], $context);
+
+        $cart = $this->cartService->add($this->cartService->getCart($context->getToken(), $context), $lineItem, $context);
+        $lineItem = $cart->get($ids->get('variant'));
+
+        static::assertInstanceOf(LineItem::class, $lineItem);
+        static::assertSame($ids->get('shopware AG'), $lineItem->getPayloadValue('manufacturerId'));
+        static::assertSame('shopware AG', $lineItem->getPayloadValue('manufacturerName'));
+    }
+
     /**
      * @param array{type: string, id: string|null, name: string|null, position: int} $testedFeature
      * @param array<string, mixed> $productData

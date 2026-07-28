@@ -6,6 +6,14 @@
 
 ## Core
 
+### Product line items expose the manufacturer name in their payload
+
+Product line items now carry the manufacturer name in `payload.manufacturerName`, alongside the existing `payload.manufacturerId`. The value is the translated manufacturer name for the current language, or `null` when the product has no manufacturer. Variants inherit the name from their parent, matching how `manufacturerId` is inherited. The name is also written to `order_line_item.payload` when a cart is converted to an order. Existing orders are not backfilled.
+
+Previously this key was only present when a client posted it as part of the line item payload. The Storefront product detail page did that, but no other add-to-cart path did, so the key was missing for products added from listings, by product number, through reorder, through the Store API, or as a promotion item. Code reading `payload.manufacturerName` no longer needs to handle a missing key. Clients that post the key themselves can stop doing so: Core resolves the name during cart enrichment and overwrites any client supplied value, which also means the value can no longer be spoofed.
+
+The manufacturer is now loaded as part of the existing cart product query. Plugins that subscribe to `Shopware\Core\Content\Product\Events\ProductGatewayCriteriaEvent` only to add the `manufacturer` association can remove that workaround.
+
 ### Polyfill packages are installed as declared dependencies
 
 The `shopware/core` and `shopware/platform` package manifests no longer replace Symfony polyfill packages or `paragonie/random_compat`. Composer now installs the polyfills required by the resolved dependency graph instead of treating them as supplied by Shopware. Extension projects that depend on these packages continue to work; their production dependency tree can gain the required polyfill packages. Projects that guarantee the required native PHP functionality can add relevant packages to their own root `replace` section to avoid installing them and reduce their vendor directory size; they must not replace `symfony/polyfill-mbstring`, which Core requires for `mb_ltrim()` on PHP 8.2 and 8.3.
@@ -48,6 +56,8 @@ The existing `reason:*` annotations will be migrated to these attributes in foll
 Storefront analytics now emit GA4-compliant ecommerce payloads. Item properties use the documented `item_id`, `item_name`, and `item_brand` names, numeric ecommerce values are sent as numbers, and unavailable optional properties are omitted. Event values are derived from the emitted product items, item prices represent unit prices, and non-product discount or shipping line items are not emitted as products.
 
 With a `GTM-` tracking ID, ecommerce events are pushed under the top-level `ecommerce` key and the previous ecommerce object is cleared before every event. Non-ecommerce events such as `login`, `sign_up`, `search`, and `view_search_results` expose their parameters at the top level.
+
+`item_brand` is now reported for every product in the cart, checkout, and purchase events, regardless of how the product was added to the cart. It previously only appeared for products added from the product detail page, because the brand was read from a hidden form field instead of the product line item. That hidden `manufacturerName` input has been removed from the buy widget; the value now comes from the product line item payload. See the Core section for details.
 
 Google Tag Manager configurations that remap parameters from `eventModel` should remove that workaround and use the standard `ecommerce` data layer variable. Configurations that consume the previous `id`, `name`, or `brand` item properties should switch to their `item_*` equivalents. Storefront analytics configured with a Google tag ID continue to use `gtag('event', ...)`, with the same GA4-compliant parameter normalization.
 

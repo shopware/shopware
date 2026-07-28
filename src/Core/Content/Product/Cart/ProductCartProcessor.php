@@ -400,6 +400,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'purchasePrices' => $purchasePrices ? json_encode($purchasePrices, \JSON_THROW_ON_ERROR) : null,
             'productNumber' => $product->getProductNumber(),
             'manufacturerId' => $product->getManufacturerId(),
+            'manufacturerName' => $product->getManufacturer()?->getTranslation('name'),
             'taxId' => $product->getTaxId(),
             'tagIds' => $product->getTagIds(),
             'categoryIds' => $product->getCategoryTree(),

@@ -11,7 +11,7 @@ const COMMAND: CommandSpec = {
     flags: [
         { name: '--check', description: 'Report what would change, write nothing.' },
         { name: '--shim', value: 'required', valueName: '<TechnicalName>|all-custom', description: 'Bridge one extension.' },
-        { name: '--project-root', value: 'required', valueName: '<path>', description: '', internal: true },
+        { name: '--project-root', value: 'required', valueName: '<path>', description: 'Shop root to set up.' },
     ],
 };
 
@@ -65,15 +65,15 @@ describe('scripts/extensionTooling/cli', () => {
     });
 
     describe('renderHelp', () => {
-        it('renders the composer usage with the "--" separator and hides internal flags', () => {
+        it('renders the composer usage with the "--" separator and every declared flag', () => {
             const help = renderHelp(COMMAND);
 
             expect(help).toContain('composer admin:setup-extension-tooling -- [options]');
             expect(help).toContain('composer swallows options placed before it');
             expect(help).toContain('--check');
             expect(help).toContain('--shim=<TechnicalName>|all-custom');
+            expect(help).toContain('--project-root=<path>');
             expect(help).toContain('-h, --help');
-            expect(help).not.toContain('--project-root');
         });
     });
 });

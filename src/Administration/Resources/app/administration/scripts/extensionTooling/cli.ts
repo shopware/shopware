@@ -16,8 +16,6 @@ export interface FlagSpec {
     /** Placeholder rendered in help and errors, e.g. "<TechnicalName>|all-custom". */
     valueName?: string;
     description: string;
-    /** Parsed but hidden from help (wrapper-script plumbing like --project-root). */
-    internal?: boolean;
 }
 
 export interface CommandSpec {
@@ -86,10 +84,9 @@ function optionLabel(flag: FlagSpec): string {
 }
 
 export function renderHelp(spec: CommandSpec): string {
-    const visibleFlags = spec.flags.filter((flag) => !flag.internal);
-    const usageEntries = visibleFlags.map(optionLabel);
+    const usageEntries = spec.flags.map(optionLabel);
     const optionRows: Array<[string, string]> = [
-        ...visibleFlags.map((flag): [string, string] => [
+        ...spec.flags.map((flag): [string, string] => [
             optionLabel(flag),
             flag.description,
         ]),

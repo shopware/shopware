@@ -118,3 +118,7 @@ Malformed or unclosed SFC sections are left to Vue's compiler parser: if `@vue/c
 ## Parser behaviour
 
 All parser-sensitive behaviour lives in `build/vue-setup-transform`, with smaller helpers under `build/vue-setup-transform/utils`. SFC block detection uses `@vue/compiler-sfc` and reads `descriptor.scriptSetup`; mode and component name come from the normalized filename. A missing `<script setup>` block is an error rather than an opt-out, so the only `.vue` file the transform hands back untouched is one Vue's own parser already rejected. Vue's parser deliberately treats fake `<script setup>` text inside comments, templates, styles, and script bodies as non-top-level content.
+
+## Editor integration
+
+Every rejection above surfaces in your editor, not only at build time. The `valid-shopware-setup` ESLint rule (`eslint-rules/core-rules`) runs the *same* shared transform against the file and reports its errors on the offending line — so a reserved binding name, a renamed marker key, or a setup binding colliding with a declared prop is flagged as you type. There is one validator; the build enforces it and the ESLint rule mirrors it into the editor.

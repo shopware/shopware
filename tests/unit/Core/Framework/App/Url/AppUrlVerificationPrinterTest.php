@@ -4,19 +4,21 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Url;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl as AppUrlFingerprint;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\Url\AppUrlVerificationPrinter;
 use Shopware\Core\Framework\App\Url\VerificationState;
 use Shopware\Core\Framework\App\Url\VerificationStatus;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppUrlVerificationPrinter::class)]
 class AppUrlVerificationPrinterTest extends TestCase
 {
@@ -30,7 +32,7 @@ class AppUrlVerificationPrinterTest extends TestCase
         $printer = new AppUrlVerificationPrinter($shopIdProvider);
 
         $output = new BufferedOutput();
-        $io = new ShopwareStyle(new ArrayInput([]), $output);
+        $io = new SymfonyStyle(new ArrayInput([]), $output);
 
         $state = new VerificationState(
             VerificationStatus::PASS,
@@ -65,7 +67,7 @@ class AppUrlVerificationPrinterTest extends TestCase
         $printer = new AppUrlVerificationPrinter($shopIdProvider);
 
         $output = new BufferedOutput();
-        $io = new ShopwareStyle(new ArrayInput([]), $output);
+        $io = new SymfonyStyle(new ArrayInput([]), $output);
 
         $state = new VerificationState(
             VerificationStatus::SOFT_FAIL,

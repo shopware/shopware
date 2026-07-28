@@ -16,6 +16,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -40,6 +41,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('discovery')]
 class ProductControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -652,7 +654,7 @@ class ProductControllerTest extends TestCase
 
         $repo->create([$customer], Context::createDefaultContext());
 
-        $entity = $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
+        $entity = $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(CustomerEntity::class, $entity);
 

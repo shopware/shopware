@@ -8,7 +8,6 @@ use Mcp\Schema\ResourceDefinition;
 use Mcp\Schema\ResourceTemplate;
 use Mcp\Schema\Tool;
 use Mcp\Server\Builder;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
@@ -23,17 +22,17 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  */
-#[AsCommand(name: 'debug:mcp', description: 'List registered MCP capabilities (tools, prompts, resources)')]
 #[Package('framework')]
+#[AsCommand(name: 'debug:mcp', description: 'List registered MCP capabilities (tools, prompts, resources)')]
 class DebugMcpCommand extends Command
 {
     /**
      * @internal
      *
      * $builder and $registry are nullable via nullOnInvalid(): null when the MCP
-     * bundle is absent. Once MCP_SERVER is stable (v6.8.0) remove the nullable
+     * bundle is absent. Once MCP is stable (v6.8.0) remove the nullable
      * types and the null guards in execute().
      */
     public function __construct(
@@ -63,7 +62,7 @@ class DebugMcpCommand extends Command
         $resources = (bool) $input->getOption('resources');
         $io = new SymfonyStyle($input, $output);
 
-        if (!Feature::isActive('MCP_SERVER') || $this->builder === null || $this->registry === null) {
+        if ($this->builder === null || $this->registry === null) {
             $io->error('MCP bundle is not installed.');
 
             return self::FAILURE;
@@ -147,7 +146,7 @@ class DebugMcpCommand extends Command
     }
 
     /**
-     * @param array{name: string, description: ?string, dependencies: list<string>, requiredPrivileges: array{static: list<string>, entityParam: ?string, operations: list<string>}|null}|null $toolData
+     * @param array{name: string, description: ?string, group: string, dependencies: list<string>, requiredPrivileges: array{static: list<string>, entityParam: ?string, operations: list<string>}|null}|null $toolData
      * @param \Closure|array{0: object|string, 1: string}|string $handler
      */
     private function renderToolDetail(SymfonyStyle $io, Tool $tool, \Closure|array|string $handler, ?array $toolData): void
@@ -177,6 +176,7 @@ class DebugMcpCommand extends Command
         if ($tool->title !== null && $tool->title !== '') {
             $meta[] = ['Title' => $tool->title];
         }
+        $meta[] = ['Group' => $toolData['group'] ?? 'other'];
         $meta[] = ['Source' => $this->describeHandler($handler)];
         if ($deps !== []) {
             $meta[] = ['Dependencies' => implode(', ', $deps)];
@@ -301,6 +301,7 @@ class DebugMcpCommand extends Command
             $deps = $tool['dependencies'];
             $rows[] = [
                 $tool['name'],
+                $tool['group'],
                 $this->describeHandler($ref->handler),
                 $deps !== [] ? implode(', ', $deps) : '',
                 $this->formatPrivileges($tool['requiredPrivileges']),
@@ -308,7 +309,7 @@ class DebugMcpCommand extends Command
         }
 
         (new Table($io))
-            ->setHeaders(['Name', 'Source', 'Dependencies', 'Privileges'])
+            ->setHeaders(['Name', 'Group', 'Source', 'Dependencies', 'Privileges'])
             ->setRows($rows)
             ->render();
         $io->newLine();

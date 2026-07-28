@@ -1,7 +1,8 @@
 name: Integration tests (major)
 
-# Nightly via workflow_call; also opt-in on a PR by adding the `major-tests` label
-# (same switch acceptance.yml uses for its major arm).
+# Nightly via workflow_call; also opt-in on a PR by adding the `major-php` label
+# (or `major-tests`, the umbrella label that enables every major arm — acceptance.yml
+# uses `major-acceptance` the same way for its major arm).
 on:
   workflow_dispatch:
   workflow_call:
@@ -9,13 +10,13 @@ on:
     types: [opened, synchronize, reopened, labeled]
 
 permissions:
-    contents: read
-    id-token: write
+  contents: read
+  id-token: write
 
 jobs:
   phpunit-major-matrix:
-    # On PRs the whole matrix only runs when the `major-tests` label is present; nightly (workflow_call) and manual runs are unaffected.
-    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-tests')
+    # On PRs the whole matrix only runs when the `major-php` (or umbrella `major-tests`) label is present; nightly (workflow_call) and manual runs are unaffected.
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-php') || contains(github.event.pull_request.labels.*.name, 'major-tests')
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
@@ -26,9 +27,11 @@ jobs:
         run: |
           MATRIX=$(php .github/bin/generate-phpunit-matrix.php "" "true")
           jq . <<<"$MATRIX"
-          echo "matrix<<EOF" >> $GITHUB_OUTPUT
-          echo "$MATRIX" >> $GITHUB_OUTPUT
-          echo 'EOF' >> $GITHUB_OUTPUT
+          {
+            echo "matrix<<EOF"
+            echo "$MATRIX"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
 
   phpunit-major:
     name: "${{ matrix.test.testsuite }}${{ matrix.test.path }}"
@@ -84,12 +87,12 @@ jobs:
         with:
           test-path: ${{ matrix.test.path }}
           test-testsuite: ${{ matrix.test.testsuite }}
-        # no codecov-upload step: the major run's signal is the gate, not Test Analytics
+          # no codecov-upload step: the major run's signal is the gate, not Test Analytics
 
   # single required/monitorable status for the whole major matrix
   integration-major-check:
     # Skip cleanly on unlabeled PRs so they don't get a confusing status; otherwise aggregate the matrix result.
-    if: always() && (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-tests'))
+    if: always() && (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-php') || contains(github.event.pull_request.labels.*.name, 'major-tests'))
     needs:
       - phpunit-major
     runs-on: Ubuntu-latest

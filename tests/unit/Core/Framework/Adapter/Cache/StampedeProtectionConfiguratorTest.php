@@ -6,11 +6,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\StampedeProtectionConfigurator;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\LockRegistry;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(StampedeProtectionConfigurator::class)]
 class StampedeProtectionConfiguratorTest extends TestCase
 {

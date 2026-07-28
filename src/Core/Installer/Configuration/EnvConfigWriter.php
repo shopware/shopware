@@ -57,7 +57,7 @@ SHOPWARE_ADMIN_ES_REFRESH_INDICES=0
 ###< shopware/elasticsearch ###
 
 ###> shopware/storefront ###
-STOREFRONT_PROXY_URL=http://localhost
+PROXY_URL=http://localhost
 SHOPWARE_HTTP_CACHE_ENABLED=1
 SHOPWARE_HTTP_DEFAULT_TTL=7200
 ###< shopware/storefront ###

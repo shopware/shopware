@@ -10,11 +10,13 @@ use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ExtendsTokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\IncludeTokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ReturnNodeTokenParser;
+use Shopware\Core\Framework\Log\Package;
 use Twig\TokenParser\TokenParserInterface;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(NodeExtension::class)]
 class NodeExtensionTest extends TestCase
 {

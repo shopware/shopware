@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel\File\Discovery;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\TemplatePathIteratorInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFileDiscovery;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
@@ -13,6 +14,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SalesChannelFileDiscovery::class)]
 class SalesChannelFileDiscoveryTest extends TestCase
 {

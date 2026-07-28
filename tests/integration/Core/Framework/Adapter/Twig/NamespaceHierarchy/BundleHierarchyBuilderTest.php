@@ -7,11 +7,13 @@ use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuild
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class BundleHierarchyBuilderTest extends TestCase
 {
     use IntegrationTestBehaviour;

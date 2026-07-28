@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Service;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\ShopApiSource;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\ServiceException;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,6 +14,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ServiceException::class)]
 class ServiceExceptionTest extends TestCase
 {

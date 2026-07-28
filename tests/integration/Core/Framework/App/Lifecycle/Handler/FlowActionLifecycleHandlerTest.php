@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\Lifecycle\Handler\FlowActionLifecycleHandler;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -15,6 +16,7 @@ use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
 /**
  * @internal
  */
+#[Package('framework')]
 class FlowActionLifecycleHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;

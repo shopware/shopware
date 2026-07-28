@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ResponseFields::class)]
 class ResponseFieldsTest extends TestCase
 {

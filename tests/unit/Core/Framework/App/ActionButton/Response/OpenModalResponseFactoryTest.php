@@ -18,11 +18,13 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\QuerySigner;
 use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(OpenModalResponseFactory::class)]
 class OpenModalResponseFactoryTest extends TestCase
 {

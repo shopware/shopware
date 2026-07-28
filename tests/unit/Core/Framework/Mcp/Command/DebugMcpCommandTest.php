@@ -29,30 +29,6 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(McpCapabilityCatalog::class)]
 class DebugMcpCommandTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        $_SERVER['MCP_SERVER'] = '1';
-    }
-
-    protected function tearDown(): void
-    {
-        unset($_SERVER['MCP_SERVER']);
-    }
-
-    public function testExecuteReturnsErrorWhenFeatureFlagIsOff(): void
-    {
-        $_SERVER['MCP_SERVER'] = false;
-        try {
-            $tester = new CommandTester($this->makeCommand(new Registry()));
-            $tester->execute([]);
-
-            static::assertSame(1, $tester->getStatusCode());
-            static::assertStringContainsString('MCP bundle is not installed', $tester->getDisplay());
-        } finally {
-            $_SERVER['MCP_SERVER'] = '1';
-        }
-    }
-
     /**
      * @return iterable<string, array{?Builder, ?Registry}>
      */
@@ -491,6 +467,28 @@ class DebugMcpCommandTest extends TestCase
         static::assertStringContainsString('Privileges', $output);
         static::assertStringContainsString('system_config:read', $output);
         static::assertStringContainsString('<entity>:read', $output);
+    }
+
+    public function testListShowsGroupColumn(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(
+            new Tool('shopware-entity-search', null, self::inputSchema(), 'Search entities', null),
+            'Acme\\SearchTool',
+        );
+
+        $catalog = new McpCapabilityCatalog(
+            $registry,
+            $this->stubPrivilegeProvider(),
+            toolGroups: ['shopware-entity-search' => 'catalogue'],
+        );
+
+        $tester = new CommandTester($this->makeCommand($registry, catalog: $catalog));
+        $tester->execute([]);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('Group', $output);
+        static::assertStringContainsString('catalogue', $output);
     }
 
     public function testResourceTemplatesAreRendered(): void

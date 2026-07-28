@@ -17,6 +17,7 @@ use Psr\Log\NullLogger;
 use Shopware\Administration\Administration;
 use Shopware\Administration\Snippet\SnippetException;
 use Shopware\Administration\Snippet\SnippetFinder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
@@ -42,6 +43,7 @@ use Symfony\Component\Filesystem\Path;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(SnippetFinder::class)]
 class SnippetFinderTest extends TestCase
 {

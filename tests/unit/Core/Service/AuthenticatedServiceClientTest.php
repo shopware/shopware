@@ -18,8 +18,8 @@ use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 /**
  * @internal
  */
-#[CoversClass(AuthenticatedServiceClient::class)]
 #[Package('framework')]
+#[CoversClass(AuthenticatedServiceClient::class)]
 class AuthenticatedServiceClientTest extends TestCase
 {
     private Client $client;

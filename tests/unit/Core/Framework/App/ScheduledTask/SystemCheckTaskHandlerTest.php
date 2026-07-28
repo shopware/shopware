@@ -10,11 +10,13 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\Event\SystemHeartbeatEvent;
 use Shopware\Core\Framework\App\ScheduledTask\SystemHeartbeatHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SystemHeartbeatHandler::class)]
 class SystemCheckTaskHandlerTest extends TestCase
 {

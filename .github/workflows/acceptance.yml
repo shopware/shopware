@@ -21,8 +21,8 @@ on:
         default: ""
 
 permissions:
-    contents: read
-    id-token: write
+  contents: read
+  id-token: write
 
 jobs:
   markdown-only-changes:
@@ -47,11 +47,14 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - id: generate-matrix
         run: |
-          MATRIX=$(php .github/bin/generate-acceptance-matrix.php "${{ inputs.profile }}" "${{ contains(github.event.pull_request.labels.*.name, 'major-tests') }}" "${{ inputs.major }}")
+          # The major arm is a PR opt-in via the `major-acceptance` label (or `major-tests`, the umbrella label that enables every major arm).
+          MATRIX=$(php .github/bin/generate-acceptance-matrix.php "${{ inputs.profile }}" "${{ contains(github.event.pull_request.labels.*.name, 'major-acceptance') || contains(github.event.pull_request.labels.*.name, 'major-tests') }}" "${{ inputs.major }}")
           jq . <<<"$MATRIX"
-          echo "matrix<<EOF" >> $GITHUB_OUTPUT
-          echo "$MATRIX" >> $GITHUB_OUTPUT
-          echo 'EOF' >> $GITHUB_OUTPUT
+          {
+            echo "matrix<<EOF"
+            echo "$MATRIX"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
 
   acceptance:
     runs-on: ubuntu-24.04
@@ -153,8 +156,7 @@ jobs:
           project: "Platform"
           install: true
           extra-options: >-
-            --repeat-each="10"
-            -- ${{ format(' {0}', steps.changed-files.outputs.all_changed_files) }}
+            --repeat-each="10" -- ${{ format(' {0}', steps.changed-files.outputs.all_changed_files) }}
           artifact-prefix: "ats-changed"
 
   tested-update-versions:
@@ -239,10 +241,10 @@ jobs:
           composer run npm:storefront run production
           (cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js)
 
-          composer -d src/Core config version ${SW_RECOVERY_NEXT_VERSION}
-          composer -d src/Administration config version ${SW_RECOVERY_NEXT_VERSION}
-          composer -d src/Storefront config version ${SW_RECOVERY_NEXT_VERSION}
-          composer -d src/Elasticsearch config version ${SW_RECOVERY_NEXT_VERSION}
+          composer -d src/Core config version "${SW_RECOVERY_NEXT_VERSION}"
+          composer -d src/Administration config version "${SW_RECOVERY_NEXT_VERSION}"
+          composer -d src/Storefront config version "${SW_RECOVERY_NEXT_VERSION}"
+          composer -d src/Elasticsearch config version "${SW_RECOVERY_NEXT_VERSION}"
 
       - name: Checkout template
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -312,68 +314,69 @@ jobs:
 
       - name: Check if this run should attempt AWS operations
         id: check-aws-allowed
-        if: ${{ github.repository_owner == 'shopware' &&
-              (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
+        if: ${{ github.repository_owner == 'shopware' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
         shell: bash
         run: |
-              if [ -z "${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}" ]; then
-                echo "has_role_arn=false" >> "$GITHUB_OUTPUT"
-                echo "Secret PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN is empty or unavailable (likely a fork)." >&2
-              else
-                echo "has_role_arn=true" >> "$GITHUB_OUTPUT"
-              fi
+          if [ -z "${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}" ]; then
+            echo "has_role_arn=false" >> "$GITHUB_OUTPUT"
+            echo "Secret PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN is empty or unavailable (likely a fork)." >&2
+          else
+            echo "has_role_arn=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Configure AWS credentials (OIDC)
         if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
         uses: aws-actions/configure-aws-credentials@517a711dbcd0e402f90c77e7e2f81e849156e31d # v6.2.2
         with:
-           aws-region: eu-central-1
-           role-session-name: gha-playwright-${{ github.run_id }}-${{ github.run_attempt }}
-           role-to-assume: ${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}
+          aws-region: eu-central-1
+          role-session-name: gha-playwright-${{ github.run_id }}-${{ github.run_attempt }}
+          role-to-assume: ${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}
 
       - name: Upload Playwright HTML report to S3
         working-directory: new-shopware/tests/acceptance
         if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
         shell: bash
         run: |
-            set -euo pipefail
-            RANDOM_STR=$(openssl rand -hex 6)
+          set -euo pipefail
+          RANDOM_STR=$(openssl rand -hex 6)
 
-            # build the destination prefix and export it for subsequent steps
-            REPORT_DEST="${REPORT_PREFIX}/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${RANDOM_STR}"
+          # build the destination prefix and export it for subsequent steps
+          REPORT_DEST="${REPORT_PREFIX}/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${RANDOM_STR}"
 
-            if [ ! -f "playwright-report/index.html" ]; then
-            echo "No Playwright report found, skipping upload."
-            exit 0
-            fi
+          if [ ! -f "playwright-report/index.html" ]; then
+          echo "No Playwright report found, skipping upload."
+          exit 0
+          fi
 
-            aws s3 cp "playwright-report" "s3://${S3_BUCKET}/${REPORT_DEST}/" --recursive
-            echo "REPORT_DEST=${REPORT_DEST}" >> "$GITHUB_ENV"
-            echo "Uploaded to s3://${S3_BUCKET}/${REPORT_DEST}/"
+          aws s3 cp "playwright-report" "s3://${S3_BUCKET}/${REPORT_DEST}/" --recursive
+          echo "REPORT_DEST=${REPORT_DEST}" >> "$GITHUB_ENV"
+          echo "Uploaded to s3://${S3_BUCKET}/${REPORT_DEST}/"
 
       - name: Publish S3 Static Website URL
         if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
         shell: bash
         run: |
-            set -euo pipefail
+          set -euo pipefail
 
-            if [ -z "${REPORT_DEST:-}" ]; then
-            echo "REPORT_DEST not set (upload skipped or failed); skipping publish." >&2
-            exit 0
-            fi
+          if [ -z "${REPORT_DEST:-}" ]; then
+          echo "REPORT_DEST not set (upload skipped or failed); skipping publish." >&2
+          exit 0
+          fi
 
-            if ! aws s3 ls "s3://${S3_BUCKET}/${REPORT_DEST}/index.html" >/dev/null 2>&1; then
-            echo "Index file not found ... skipping publish." >&2
-            exit 0
-            fi
+          if ! aws s3 ls "s3://${S3_BUCKET}/${REPORT_DEST}/index.html" >/dev/null 2>&1; then
+          echo "Index file not found ... skipping publish." >&2
+          exit 0
+          fi
 
-            DOMAIN="${{ vars.PLAYWRIGHT_TRACES_DOMAIN }}"
-            URL="https://${DOMAIN}/${REPORT_DEST}/index.html"
-            echo "${URL}"
+          DOMAIN="${{ vars.PLAYWRIGHT_TRACES_DOMAIN }}"
+          URL="https://${DOMAIN}/${REPORT_DEST}/index.html"
+          echo "${URL}"
 
-            echo "### Playwright HTML Report" >> "$GITHUB_STEP_SUMMARY"
-            echo "" >> "$GITHUB_STEP_SUMMARY"
-            echo "- ${URL}" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "### Playwright HTML Report"
+            echo ""
+            echo "- ${URL}"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   # this allows us to specify just one required job/check
   # this is not practical with matrix jobs directly, because you've to specify all permutations

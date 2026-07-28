@@ -10,7 +10,7 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Reads the per-principal MCP allowlist from the database for the current request.
  * Returns null for a type when no restriction is configured (all capabilities accessible).

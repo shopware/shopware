@@ -14,18 +14,19 @@ use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\ReinstallAppsStrategy;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ReinstallAppsStrategy::class)]
 class ReinstallAppsStrategyTest extends TestCase
 {
     public function testNameAndDescription(): void
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([]);
 
         $strategy = new ReinstallAppsStrategy(
@@ -57,7 +58,6 @@ class ReinstallAppsStrategyTest extends TestCase
                 self::assertSame($context, $passedContext);
             });
 
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([new AppCollection([$appOne, $appTwo])]);
 
         $strategy = new ReinstallAppsStrategy(
@@ -93,7 +93,6 @@ class ReinstallAppsStrategyTest extends TestCase
 
         $logger = new TestHandler();
 
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([new AppCollection([$appOne, $appTwo])]);
 
         $strategy = new ReinstallAppsStrategy(

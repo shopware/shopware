@@ -13,7 +13,7 @@
  * payload in override-transform.spec.ts.
  */
 
-import { getPrivateNamespace, stripIndent, transformOrFail } from './helpers';
+import { stripIndent, transformOrFail } from './helpers';
 
 describe('build/vue-setup-transform override template pattern references', () => {
     it('detects override-local references in v-for alias default values', () => {
@@ -32,10 +32,8 @@ describe('build/vue-setup-transform override template pattern references', () =>
         `;
 
         const result = transformOrFail(source, 'v-for-default-reference.override.vue').code;
-        const privateNamespace = getPrivateNamespace(result);
 
-        expect(privateNamespace).toBeDefined();
-        expect(result).toContain(`#default="{ __swOverride: { ${privateNamespace}: { rows, fallbackLabel } } }"`);
+        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: { rows, fallbackLabel } } }"`);
     });
 
     it('detects override-local references in v-for alias computed keys', () => {
@@ -54,10 +52,8 @@ describe('build/vue-setup-transform override template pattern references', () =>
         `;
 
         const result = transformOrFail(source, 'v-for-computed-key-reference.override.vue').code;
-        const privateNamespace = getPrivateNamespace(result);
 
-        expect(privateNamespace).toBeDefined();
-        expect(result).toContain(`#default="{ __swOverride: { ${privateNamespace}: { rows, dynamicKey } } }"`);
+        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: { rows, dynamicKey } } }"`);
     });
 
     it('does not let child component slot scopes shadow same-element directive references', () => {
@@ -77,14 +73,12 @@ describe('build/vue-setup-transform override template pattern references', () =>
         `;
 
         const result = transformOrFail(source, 'same-element-slot-scope.override.vue').code;
-        const privateNamespace = getPrivateNamespace(result);
 
-        expect(privateNamespace).toBeDefined();
         // `#default="{ eventName }"` is the <Child> slot alias, scoped to its slot content only.
         // The `@[eventName]`, `:title` and `track` references sit on <Child> itself, outside that
         // scope, so they still resolve to the override's setup bindings and are forwarded through
         // the sw-block rather than being shadowed by the same-element alias.
-        expect(result).toContain(`#default="{ __swOverride: { ${privateNamespace}: { eventName, title, track } } }"`);
+        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: { eventName, title, track } } }"`);
     });
 
     it('does not expose setup state for v-for defaults that reference earlier object aliases', () => {

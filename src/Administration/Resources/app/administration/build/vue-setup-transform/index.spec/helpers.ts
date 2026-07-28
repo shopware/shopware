@@ -64,27 +64,11 @@ function expectVueCompilerScriptToReject(code: string, filename: string, message
 }
 
 /**
- * Reads the override-private namespace key back out of a transform result.
- *
- * An override's non-public setup bindings are forwarded to the template through the shared
- * `__swOverride` data-scope object under a **computed** key - the module's namespace Symbol, for example
- * `__swOverride: { [__swSetupNamespace]: { count } }`. Returns the key text including its brackets, so
- * callers can compose it straight into an expected string.
- */
-function getPrivateNamespace(result: string): string | undefined {
-    return (
-        result.match(/__swOverride: \{\n\s+(\[[A-Za-z_$][A-Za-z0-9_$]*\]): \{/)?.[1] ??
-        result.match(/__swOverride: \{ (\[[A-Za-z_$][A-Za-z0-9_$]*\]): \{/)?.[1]
-    );
-}
-
-/**
  * @private
  */
 export {
     expectVueCompilerScriptToCompile,
     expectVueCompilerScriptToReject,
-    getPrivateNamespace,
     stripIndent,
     transformOrFail,
     transformShopwareSetupSfc,

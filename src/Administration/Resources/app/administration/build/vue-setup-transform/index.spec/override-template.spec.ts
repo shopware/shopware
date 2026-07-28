@@ -8,7 +8,7 @@
  * scopes, nested callback patterns). Rejections live in `override-template-guards.spec.ts`.
  */
 
-import { getPrivateNamespace, stripIndent, transformOrFail } from './helpers';
+import { stripIndent, transformOrFail } from './helpers';
 
 describe('build/vue-setup-transform override template forwarding', () => {
     it('returns template-used override-local state through a deterministic private namespace', () => {
@@ -34,16 +34,14 @@ describe('build/vue-setup-transform override template forwarding', () => {
         `;
 
         const result = transformOrFail(source, 'src/plugin/sw-example-component.override.vue').code;
-        const privateNamespace = getPrivateNamespace(result);
 
-        expect(privateNamespace).toBeDefined();
         expect(result).toContain(
-            `<sw-block extends="sw_example_component_body" #default="{ __swOverride: { ${privateNamespace}: { info } }, body }">`,
+            `<sw-block extends="sw_example_component_body" #default="{ __swOverride: { [__swSetupNamespace]: { info } }, body }">`,
         );
         expect(result).toContain(`return {
         body,
         __swOverride: {
-            ${privateNamespace}: {
+            [__swSetupNamespace]: {
                 info,
             },
         },
@@ -102,11 +100,9 @@ describe('build/vue-setup-transform override template forwarding', () => {
         `;
 
         const result = transformOrFail(source, 'template-references.override.vue').code;
-        const privateNamespace = getPrivateNamespace(result);
 
-        expect(privateNamespace).toBeDefined();
         expect(result).toContain(
-            `#default="{ __swOverride: { ${privateNamespace}: { visible, info, eventName, track, dynamicProp, infoLabel, items } } }"`,
+            `#default="{ __swOverride: { [__swSetupNamespace]: { visible, info, eventName, track, dynamicProp, infoLabel, items } } }"`,
         );
         // The v-for alias `item` is a template-local binding, not a setup reference.
         expect(result).not.toMatch(/\bitem,/);
@@ -132,10 +128,8 @@ describe('build/vue-setup-transform override template forwarding', () => {
         `;
 
         const result = transformOrFail(source, 'typescript-template-references.override.vue').code;
-        const privateNamespace = getPrivateNamespace(result);
 
-        expect(privateNamespace).toBeDefined();
-        expect(result).toContain(`#default="{ __swOverride: { ${privateNamespace}: { maybeInfo, source, dynamicKey } } }"`);
+        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: { maybeInfo, source, dynamicKey } } }"`);
     });
 
     it('forwards override input-alias references used in the template', () => {
@@ -153,12 +147,10 @@ describe('build/vue-setup-transform override template forwarding', () => {
         `;
 
         const result = transformOrFail(source, 'input-alias-reference.override.vue').code;
-        const privateNamespace = getPrivateNamespace(result);
 
         // useSwPreviousState()/useSwProps()/useSwContext() are not returned as independent state, but an
         // override template may still read them, so a referenced alias is forwarded like any setup local.
-        expect(privateNamespace).toBeDefined();
-        expect(result).toContain(`#default="{ __swOverride: { ${privateNamespace}: { previousState } } }"`);
+        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: { previousState } } }"`);
     });
 
     it('ignores template identifiers that are not override-local setup references', () => {
@@ -214,12 +206,10 @@ describe('build/vue-setup-transform override template forwarding', () => {
         `;
 
         const result = transformOrFail(source, 'template-shadowing-patterns.override.vue').code;
-        const privateNamespace = getPrivateNamespace(result);
 
         // Only `rows` and `items` are genuine setup references; every other name is shadowed by a
         // v-for alias, slot scope, or nested callback parameter and must not be forwarded.
-        expect(privateNamespace).toBeDefined();
-        expect(result).toContain(`#default="{ __swOverride: { ${privateNamespace}: { rows, items } } }"`);
+        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: { rows, items } } }"`);
     });
 
     it.each([
@@ -285,13 +275,11 @@ describe('build/vue-setup-transform override template forwarding', () => {
         `;
 
         const result = transformOrFail(source, 'usesw-props-forward.override.vue').code;
-        const privateNamespace = getPrivateNamespace(result);
 
         // useSwProps() is both a setup input and a runtime input alias; like useSwPreviousState() its
         // referenced name must reach the generated slot scope, or `props` resolves against the hidden
         // boot component and `props.title` throws during the base component's render.
-        expect(privateNamespace).toBeDefined();
-        expect(result).toContain(`#default="{ __swOverride: { ${privateNamespace}: { props } } }"`);
+        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: { props } } }"`);
     });
 
     it('forwards references inside named slot binding-pattern defaults', () => {
@@ -311,12 +299,10 @@ describe('build/vue-setup-transform override template forwarding', () => {
         `;
 
         const result = transformOrFail(source, 'named-slot-default-ref.override.vue').code;
-        const privateNamespace = getPrivateNamespace(result);
 
         // The default expression of the named slot `#item` must be scanned like a default slot's, or
         // `fallbackLabel` resolves against the hidden component and `label` silently becomes undefined.
-        expect(privateNamespace).toBeDefined();
-        expect(result).toContain(`#default="{ __swOverride: { ${privateNamespace}: { fallbackLabel } } }"`);
+        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: { fallbackLabel } } }"`);
     });
 
     it('does not forward a setup binding shadowed by a named slot scope', () => {

@@ -38,6 +38,10 @@ class ProductExportControllerTest extends TestCase
     public function testValidate(): void
     {
         $this->createProductStream();
+        TestUser::createNewTestUser(
+            $this->getBrowser()->getContainer()->get(Connection::class),
+            ['product_export:update']
+        )->authorizeBrowser($this->getBrowser());
 
         $url = '/api/_action/product-export/validate';
 
@@ -222,6 +226,10 @@ TWIG,
         Feature::skipTestIfActive('v6.8.0.0', $this);
 
         $this->createProductStream();
+        TestUser::createNewTestUser(
+            $this->getBrowser()->getContainer()->get(Connection::class),
+            ['product_export:update']
+        )->authorizeBrowser($this->getBrowser());
 
         $url = '/api/_action/product-export/preview';
 

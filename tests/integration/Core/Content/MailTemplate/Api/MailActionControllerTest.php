@@ -185,6 +185,11 @@ class MailActionControllerTest extends TestCase
 
     public function testSimulateSuccess(): void
     {
+        TestUser::createNewTestUser(
+            $this->getBrowser()->getContainer()->get(Connection::class),
+            ['mail_template:update']
+        )->authorizeBrowser($this->getBrowser());
+
         $this->getBrowser()->request(
             'POST',
             '/api/_action/mail-template/simulate',

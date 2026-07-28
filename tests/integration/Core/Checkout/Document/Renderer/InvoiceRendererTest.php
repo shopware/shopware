@@ -692,21 +692,21 @@ class InvoiceRendererTest extends TestCase
         $order = static::getContainer()->get('order.repository')
             ->search($criteria, Context::createDefaultContext())->getEntities()->get($orderId);
         static::assertInstanceOf(OrderEntity::class, $order);
-        static::assertNotNull($order->getBillingAddressId());
+        $billingAddressId = $order->getBillingAddressId();
         $orderDelivery = $order->getPrimaryOrderDelivery();
         static::assertNotNull($orderDelivery);
-        static::assertNotNull($orderDelivery->getShippingOrderAddressId());
+        $shippingAddressId = $orderDelivery->getShippingOrderAddressId();
 
         $billingCountryId = $this->getCountryIdByIsoCode('DE');
         $shippingCountryId = $this->getCountryIdByIsoCode('NL');
 
         static::getContainer()->get('order_address.repository')->update([
             [
-                'id' => $order->getBillingAddressId(),
+                'id' => $billingAddressId,
                 'countryId' => $billingCountryId,
             ],
             [
-                'id' => $orderDelivery->getShippingOrderAddressId(),
+                'id' => $shippingAddressId,
                 'countryId' => $shippingCountryId,
             ],
         ], Context::createDefaultContext());

@@ -134,39 +134,18 @@ final readonly class DocumentGenerator
             $generationRequest->documentType,
         );
 
-        $strategy = $this->resolveOrderVersionStrategy($providers);
-
         $criteria = new Criteria([$generationRequest->orderId]);
 
         foreach ($providers as $provider) {
             $provider->enrichOrderCriteria($criteria);
         }
 
-        if ($strategy === OrderVersionStrategy::CREATE) {
-            if ($generationRequest->referencedDocumentId !== null) {
-                throw DocumentV2Exception::referencedDocumentNotSupported(
-                    $generationRequest->documentType,
-                    $generationRequest->referencedDocumentId,
-                );
-            }
-
-            $resolvedReference = null;
-
-            $orderVersionId = $preview
-                ? Defaults::LIVE_VERSION
-                : $this->orderRepository->createVersion(
-                    $generationRequest->orderId,
-                    $apiContext,
-                    'document',
-                );
-        } else {
-            $resolvedReference = $this->referencedDocumentResolver->resolve(
-                $generationRequest->orderId,
-                $generationRequest->referencedDocumentId,
-            );
-
-            $orderVersionId = $resolvedReference->orderVersionId;
-        }
+        [$orderVersionId, $resolvedReference] = $this->resolveOrderVersion(
+            $providers,
+            $generationRequest,
+            $preview,
+            $apiContext,
+        );
 
         [$orderVersionContext, $languageAwareContext] = $this->createGenerationContexts(
             $generationRequest->orderId,
@@ -221,6 +200,50 @@ final readonly class DocumentGenerator
             'requestedFormats' => $requestedFormats,
             'resolvedReference' => $resolvedReference,
         ];
+    }
+
+    /**
+     * Under OrderVersionStrategy::CREATE the current order is snapshotted into a new version
+     * (or rendered live in preview). Under OrderVersionStrategy::REFERENCED the snapshot
+     * captured by the referenced document is reused and no new version is created.
+     *
+     * @param list<AbstractDocumentDataProvider> $providers
+     *
+     * @throws DocumentV2Exception
+     *
+     * @return array{string, ?ReferencedDocument}
+     */
+    private function resolveOrderVersion(
+        array $providers,
+        DocumentGenerationRequest $generationRequest,
+        bool $preview,
+        Context $apiContext,
+    ): array {
+        if ($this->resolveOrderVersionStrategy($providers) === OrderVersionStrategy::CREATE) {
+            if ($generationRequest->referencedDocumentId !== null) {
+                throw DocumentV2Exception::referencedDocumentNotSupported(
+                    $generationRequest->documentType,
+                    $generationRequest->referencedDocumentId,
+                );
+            }
+
+            $orderVersionId = $preview
+                ? Defaults::LIVE_VERSION
+                : $this->orderRepository->createVersion(
+                    $generationRequest->orderId,
+                    $apiContext,
+                    'document',
+                );
+
+            return [$orderVersionId, null];
+        }
+
+        $resolvedReference = $this->referencedDocumentResolver->resolve(
+            $generationRequest->orderId,
+            $generationRequest->referencedDocumentId,
+        );
+
+        return [$resolvedReference->orderVersionId, $resolvedReference];
     }
 
     /**

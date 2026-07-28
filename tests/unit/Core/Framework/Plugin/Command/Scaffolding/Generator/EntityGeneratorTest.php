@@ -257,7 +257,7 @@ class EntityGeneratorTest extends TestCase
         yield 'Option with entity, one stub' => [
             'config' => self::getConfig([EntityGenerator::OPTION_NAME => ['Test']]),
             'expected' => [
-                'src/Resources/config/services.xml',
+                'src/Resources/config/services.php',
                 'src/Migration/Migration' . $timeStamp . 'CreateTestTable.php',
                 'src/Core/Content/Test/TestEntity.php',
                 'src/Core/Content/Test/TestDefinition.php',
@@ -268,7 +268,7 @@ class EntityGeneratorTest extends TestCase
         yield 'Option with entity, multiple stubs' => [
             'config' => self::getConfig([EntityGenerator::OPTION_NAME => ['Test1', 'Test2']]),
             'expected' => [
-                'src/Resources/config/services.xml',
+                'src/Resources/config/services.php',
                 'src/Migration/Migration' . $timeStamp . 'CreateTest1Table.php',
                 'src/Migration/Migration' . $timeStamp . 'CreateTest2Table.php',
                 'src/Core/Content/Test1/Test1Entity.php',

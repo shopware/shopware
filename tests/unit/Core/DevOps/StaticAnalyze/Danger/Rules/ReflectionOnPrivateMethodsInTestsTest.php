@@ -21,7 +21,7 @@ use Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Stub\StubPullRequest;
 #[CoversClass(ReflectionOnPrivateMethodsInTests::class)]
 class ReflectionOnPrivateMethodsInTestsTest extends TestCase
 {
-    #[TestDox('Fails for reflection on methods added to test files, ignores removals, non-test files and rule fixtures')]
+    #[TestDox('Fails for reflective invocation added to test files, ignores metadata reads, removals, non-test files and rule fixtures')]
     #[DataProvider('patchProvider')]
     public function testReflectionDetection(string $fileName, string $status, string $patch, bool $expectFailure): void
     {
@@ -40,16 +40,16 @@ class ReflectionOnPrivateMethodsInTestsTest extends TestCase
 
     public static function patchProvider(): \Generator
     {
-        yield 'added ReflectionMethod in unit test fails' => [
+        yield 'added reflective invoke in unit test fails' => [
             'tests/unit/Core/Content/Seo/SeoUrlPersisterTest.php',
             File::STATUS_MODIFIED,
-            '+        $reflection = new \\ReflectionMethod(SeoUrlPersister::class, \'skipUpdate\');',
+            '+        return (bool) $reflection->invoke($this->seoUrlPersister, $existing, $seoUrl, $overwrite);',
             true,
         ];
-        yield 'added ReflectionClass getMethod in new test file fails' => [
+        yield 'added reflective invokeArgs in new test file fails' => [
             'tests/integration/Core/Checkout/CartTest.php',
             File::STATUS_ADDED,
-            '+        $method = (new \\ReflectionClass(Cart::class))->getMethod(\'refresh\');',
+            '+        $method->invokeArgs($cart, [$context]);',
             true,
         ];
         yield 'added setAccessible in legacy in-src test fails' => [
@@ -58,28 +58,40 @@ class ReflectionOnPrivateMethodsInTestsTest extends TestCase
             '+        $reflection->setAccessible(true);',
             true,
         ];
-        yield 'removed reflection line passes' => [
-            'tests/unit/Core/Content/Seo/SeoUrlPersisterTest.php',
+        yield 'constructing a reflection object without invoking passes' => [
+            'tests/unit/Core/Framework/Mcp/Tool/ToolSearchToolTest.php',
             File::STATUS_MODIFIED,
-            '-        $reflection = new \\ReflectionMethod(SeoUrlPersister::class, \'skipUpdate\');',
+            '+        $method = new \\ReflectionMethod(ToolSearchTool::class, \'__invoke\');',
             false,
         ];
-        yield 'reflection in production code passes' => [
+        yield 'reading metadata off a reflection object passes' => [
+            'tests/unit/Core/Framework/Mcp/Tool/ToolSearchToolTest.php',
+            File::STATUS_MODIFIED,
+            '+        static::assertSame(ToolSearchTool::class, $method->getDeclaringClass()->getName());',
+            false,
+        ];
+        yield 'removed reflective invoke passes' => [
+            'tests/unit/Core/Content/Seo/SeoUrlPersisterTest.php',
+            File::STATUS_MODIFIED,
+            '-        $reflection->invoke($this->seoUrlPersister, $existing);',
+            false,
+        ];
+        yield 'reflective invoke in production code passes' => [
             'src/Core/Content/Seo/SeoUrlPersister.php',
             File::STATUS_MODIFIED,
-            '+        $reflection = new \\ReflectionMethod(SeoUrlPersister::class, \'skipUpdate\');',
+            '+        $reflection->invoke($this, $existing);',
             false,
         ];
         yield 'rule-test fixture passes' => [
             'tests/devops/Core/DevOps/StaticAnalyse/PHPStan/Rules/data/NoReflectionOnNonPublicMethodsRule/Cases.php',
             File::STATUS_ADDED,
-            '+        $reflection = new \\ReflectionMethod(Target::class, \'privateMethod\');',
+            '+        $reflection->invoke(new Target(), \'privateMethod\');',
             false,
         ];
         yield 'rule-test fixture named like a test under data/ passes' => [
             'tests/devops/Core/DevOps/StaticAnalyse/PHPStan/Rules/data/NoReflectionOnNonPublicMethodsRule/ReflectionCasesTest.php',
             File::STATUS_ADDED,
-            '+        $reflection = new \\ReflectionMethod(Target::class, \'privateMethod\');',
+            '+        $reflection->invoke(new Target(), \'privateMethod\');',
             false,
         ];
         yield 'http request getMethod passes' => [

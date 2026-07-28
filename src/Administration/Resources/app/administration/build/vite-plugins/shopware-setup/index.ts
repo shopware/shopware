@@ -70,6 +70,9 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     // One instance per extension, so this catches collisions within a build, not across extensions.
     const baseComponentFiles = new Map<string, string>();
     const virtualSourcemap = createVirtualSetupSourcemapContext(options.administrationRoot);
+    // resolveId has to run the transform to detect a setup SFC at all, so its result is stashed here for
+    // the matching load(). One-shot: load() deletes on read, so it can never serve stale output.
+    const resolvedTransforms = new Map<string, ShopwareSetupTransformResult>();
     // Lazy so a bad `administrationRoot` surfaces on a real `.vue` file; an eager rejection would go
     // unhandled in builds that never reach one. Rejections are cached too - the failure is a config
     // error, so one error beats one per file.
@@ -156,6 +159,7 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
 
             const virtualFileName = virtualSourcemap.toVirtualFileName(fileName);
             virtualSourcemap.rememberOriginalFile(virtualFileName, fileName);
+            resolvedTransforms.set(fileName, result);
 
             return virtualFileName;
         },
@@ -172,7 +176,15 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
             }
 
             const originalFileName = virtualSourcemap.getOriginalFileName(fileName);
-            const result = await transformFile(originalFileName);
+
+            // The virtual module's content is derived from the real `.vue` file, which Rollup never
+            // sees as a module of its own. Register it as a watched dependency so an edit invalidates
+            // this virtual module in dev/watch mode.
+            this.addWatchFile(originalFileName);
+
+            const cached = resolvedTransforms.get(originalFileName);
+            resolvedTransforms.delete(originalFileName);
+            const result = cached ?? (await transformFile(originalFileName));
 
             if (!result) {
                 return null;

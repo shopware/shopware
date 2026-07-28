@@ -65,7 +65,14 @@ function getOutputDirectory(outputOptions: OutputOptionsLike): string {
 }
 
 /**
+ * @private
+ *
  * Keeps the transformed intermediate SFC under a separate virtual filename.
+ *
+ * The virtual id is `<realpath>.shopware-setup.vue` rather than a NUL-prefixed (`\0`) Rollup virtual
+ * id on purpose: @vitejs/plugin-vue must still pick the module up and compile it as a real SFC, and it
+ * refuses to transform `\0`-namespaced ids. The name only has to stay `.vue`-terminated and unique;
+ * generateBundle collapses it back out of the shipped sourcemap.
  *
  * Without this, Rollup sees the original `.vue` file and the transformed SFC body
  * as conflicting `sourcesContent` for the same source path when plugin-vue composes maps.
@@ -140,4 +147,7 @@ function createVirtualSetupSourcemapContext(administrationRoot: string) {
     };
 }
 
+/**
+ * @private
+ */
 export { createVirtualSetupSourcemapContext };

@@ -233,11 +233,14 @@ function collectBabelReferences(
     }
 
     if (isFunctionLikeNode(node)) {
-        if ('id' in node && node.id) {
-            scopes[0].add(node.id.name);
-        }
-
         const functionScope = new Set<string>();
+
+        // A named function *expression* binds its own name only inside its body (for self-reference); a
+        // function *declaration* binds it in the enclosing scope. Putting an expression id in `scopes[0]`
+        // would wrongly suppress a same-named sibling setup read.
+        if ('id' in node && node.id) {
+            (node.type === 'FunctionExpression' ? functionScope : scopes[0]).add(node.id.name);
+        }
 
         // Parameter defaults and computed keys are reads, e.g. `({ label = fallbackLabel }) => label`
         // reads `fallbackLabel` from setup scope. Parameters are scanned left to right so earlier
@@ -261,12 +264,25 @@ function collectBabelReferences(
     }
 
     if (node.type === 'ClassDeclaration' || node.type === 'ClassExpression') {
+        // Like function expressions: a named class *expression* binds its own name only inside the class
+        // body (e.g. `static self = C`), not in the surrounding scope. The `extends` clause is evaluated
+        // in the enclosing scope, so it never sees the class name.
+        const classScope = new Set<string>();
+
         if (node.id) {
-            scopes[0].add(node.id.name);
+            (node.type === 'ClassExpression' ? classScope : scopes[0]).add(node.id.name);
         }
 
         collectBabelReferences(node.superClass, scopes, references, node);
-        collectBabelReferences(node.body, scopes, references, node);
+        collectBabelReferences(
+            node.body,
+            [
+                classScope,
+                ...scopes,
+            ],
+            references,
+            node,
+        );
         return;
     }
 

@@ -265,6 +265,60 @@ describe('build/vue-setup-transform base rename pass', () => {
         expect(result).toContain('return __swSetupAuthor_source.value;');
     });
 
+    it('does not rename a named function-expression self-reference', () => {
+        const source = stripIndent`
+            <script setup>
+            const helper = 1;
+            const callback = function helper() { return helper; };
+            swDefinePublic({ callback });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'sw-fn-expr.vue').code;
+
+        // The expression's own name `helper` is visible only inside its body, so the self-reference must
+        // stay `helper` (returning the function), not become the outer alias (returning 1).
+        expect(result).toContain('const __swSetupAuthor_callback = function helper() { return helper; };');
+        expect(result).toContain('const __swSetupAuthor_helper = 1;');
+    });
+
+    it('does not rename a named class-expression self-reference', () => {
+        const source = stripIndent`
+            <script setup>
+            const Holder = class Holder { static self = Holder; };
+            swDefinePublic({ Holder });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'sw-class-expr.vue').code;
+
+        // `Holder` in `static self = Holder` refers to the class expression itself, not the outer alias
+        // (which would be in its temporal dead zone during static init).
+        expect(result).toContain('class Holder { static self = Holder; }');
+    });
+
+    it('does not rename a function declaration local to a nested function body', () => {
+        const source = stripIndent`
+            <script setup>
+            const source = 1;
+            function read() {
+                function source() {}
+                return source.name;
+            }
+            const out = read();
+            swDefinePublic({ out });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'sw-local-fn.vue').code;
+
+        // The inner `function source` is block-scoped to `read`'s body, so both it and the `.name` read
+        // stay `source`; only the outer binding is aliased.
+        expect(result).toContain('function source() {}');
+        expect(result).toContain('return source.name;');
+        expect(result).toContain('const __swSetupAuthor_source = 1;');
+    });
+
     it('expands a shorthand type export so the public name survives the rename', () => {
         const source = stripIndent`
             <script setup lang="ts">

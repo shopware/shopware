@@ -97,6 +97,21 @@ describe('build/vue-setup-transform script setup constraints', () => {
         );
     });
 
+    it('rejects a `__proto__` binding that the generated state map would silently drop', () => {
+        const source = stripIndent`
+            <script setup>
+            const __proto__ = 7;
+            swDefinePublic({ __proto__ });
+            </script>
+        `;
+
+        // `__proto__: alias` is prototype-setter syntax, not an own key, so the footer would read the
+        // prototype instead of the value. Reject rather than silently corrupt.
+        expect(() => transformShopwareSetupSfc(source, 'proto.vue')).toThrow(
+            '"__proto__" cannot be a Shopware setup binding',
+        );
+    });
+
     it('keeps ambient declare declarations in place without collecting them as state', () => {
         const source = stripIndent`
             <script setup lang="ts">

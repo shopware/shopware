@@ -38,6 +38,16 @@ describe('build/vue-setup-transform/flow-analysis references', () => {
         ]);
     });
 
+    it('does not let a named function-expression id suppress a same-named sibling read', () => {
+        // The first `helper` is the expression's own name (scoped to its body); the second is a real
+        // outer read that must still be reported.
+        expect(getReferences('[function helper() {}, helper][1]()')).toEqual(['helper']);
+    });
+
+    it('does not let a named class-expression id suppress a same-named sibling read', () => {
+        expect(getReferences('[class Holder {}, Holder][1]')).toEqual(['Holder']);
+    });
+
     it('reads default values inside callback parameters', () => {
         expect(getReferences('items.map(({ label = fallbackLabel }) => label)')).toEqual([
             'fallbackLabel',

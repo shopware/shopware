@@ -155,6 +155,17 @@ function assertReservedMacroNames(bindings: NamedBinding[], scriptOffset: number
             );
         }
 
+        // `__proto__` is a valid binding name, but the generated state maps emit `name: alias` object
+        // properties, and `__proto__:` is the prototype-setter syntax rather than an own key - so the
+        // binding would be silently dropped from returned state. Reject it with a clear message instead.
+        if (binding.name === '__proto__') {
+            throw new ShopwareSetupTransformError(
+                '"__proto__" cannot be a Shopware setup binding: it collides with prototype-setter syntax in the ' +
+                    'generated state object and would be silently dropped. Rename the binding.',
+                absoluteStart(binding.node, scriptOffset),
+            );
+        }
+
         // The generated footer destructures its state from `Shopware.Component.attachOverrides(...)`,
         // so a top-level binding named `Shopware` would land on the destructure's left-hand side and
         // shadow the global it reads from on the right-hand side (a temporal-dead-zone crash at runtime).

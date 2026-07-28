@@ -62,13 +62,12 @@ function isTypeDeclarationContainer(node: BabelNode): boolean {
 }
 
 /**
- * Collects the names hoisted to the enclosing *function* scope: `var` declarations and function
- * declarations, wherever they appear in the body.
+ * Collects the only names hoisted to the enclosing *function* scope: `var` declarations, wherever they
+ * appear in the body.
  *
- * Descends through the body but stops at nested function boundaries - a nested function's own locals
- * belong to its own scope. `let`/`const`/`class`/`catch` are deliberately *not* collected here: they are
- * block-scoped, so a declaration inside an inner block must not shadow the same name in a sibling block,
- * and is tracked per-block by the walk instead.
+ * Descends through the body but stops at nested function boundaries. `let`/`const`/`class` and - in
+ * strict module code - function declarations are block-scoped, so they are tracked per-block by the walk
+ * instead; collecting them function-wide would shadow the same name in a sibling block.
  */
 function collectHoistedDeclarations(node: BabelNode | null | undefined, into: Set<string>, isRoot = true): void {
     if (!node) {
@@ -86,18 +85,16 @@ function collectHoistedDeclarations(node: BabelNode | null | undefined, into: Se
         );
     }
 
-    if (node.type === 'FunctionDeclaration' && node.id) {
-        into.add(node.id.name);
-    }
-
     childBabelNodes(node, isTypeKey).forEach((child) => collectHoistedDeclarations(child, into, false));
 }
 
 /**
- * Adds the names a statement list block-scopes: `let`/`const`/`class` declared *directly* in it.
+ * Adds the names a statement list block-scopes: `let`/`const`/`class` and function declarations declared
+ * *directly* in it.
  *
- * Only the direct statements - nested blocks scope their own declarations, tracked when the walk
- * descends into them.
+ * Only the direct statements - nested blocks scope their own declarations, tracked when the walk descends
+ * into them. Function declarations are hoisted within their block, so scanning the whole list up front
+ * shadows a call that textually precedes the declaration too.
  */
 function collectBlockScopedDeclarations(statements: Statement[], into: Set<string>): void {
     statements.forEach((statement) => {
@@ -107,7 +104,7 @@ function collectBlockScopedDeclarations(statements: Statement[], into: Set<strin
             );
         }
 
-        if (statement.type === 'ClassDeclaration' && statement.id) {
+        if ((statement.type === 'ClassDeclaration' || statement.type === 'FunctionDeclaration') && statement.id) {
             into.add(statement.id.name);
         }
     });
@@ -278,6 +275,14 @@ function collectSetupRenameTargets(
             );
 
             collectHoistedDeclarations(node.body, childShadowedBindings);
+        }
+
+        // A named function/class *expression* binds its own name only inside its body (self-reference),
+        // so shadow it for the subtree - unlike a declaration, whose name is the renamed enclosing
+        // binding. Without this, `function helper() { return helper; }` next to a top-level `helper`
+        // rewrites the self-reference to the outer alias.
+        if ((node.type === 'FunctionExpression' || node.type === 'ClassExpression') && node.id) {
+            childShadowedBindings.add(node.id.name);
         }
 
         // A block scopes its own `let`/`const`/`class`; a `catch` its param; a `for` its loop bindings -

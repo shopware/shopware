@@ -63,7 +63,7 @@ class AppLifecycleIterator
                     $appLifecycle->update(
                         $manifest,
                         new AppUpdateParameters(acceptPermissions: $parameters->acceptPermissions),
-                        $app,
+                        ['id' => $app['id']],
                         $context
                     );
                 }

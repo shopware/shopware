@@ -6,10 +6,9 @@
  * import specifiers to produce a fast best guess (`verified: false`) that the
  * setup report renders.
  *
- * The authority is the live probe in `./probe-live`, which resolves what the
- * tools actually see. Everything here is knowingly lossy — a bare package
- * specifier in `extends` is not followed, and the ESLint side is a text scan —
- * so a check run can and does overrule these verdicts.
+ * Knowingly lossy: a bare package specifier in `extends` is not followed, and
+ * the ESLint side is a text scan, so indirect composition reads as a false
+ * negative. Resolving what the tools actually see needs a live probe.
  */
 
 import fs from 'fs';
@@ -141,8 +140,7 @@ export function analyzeEslintConfigStatically(eslintConfigPath: string): { impor
     }
 
     // Text-scan for the bridge or factory import. Indirect composition (via a
-    // second local file) is a false negative here — the live probe corrects it
-    // on the next check run.
+    // second local file) reads as a false negative here.
     return {
         importsFactory: text.includes(`${SHIM_DIR_NAME}/eslint.mjs`) || text.includes('extension-tooling/eslint.mjs'),
     };

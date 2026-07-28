@@ -1,7 +1,7 @@
 /**
  * @sw-package framework
  *
- * Remediation text for the check and setup reports: per-tool "why/fix"
+ * Remediation text for the setup report: per-tool "why/fix"
  * guidance, an extension's single missing setup step, and the file-ownership
  * classification that dry-run output relies on. Pure string logic — no color —
  * so both report renderers can share it without pulling in picocolors.
@@ -81,7 +81,7 @@ export function describeToolGuidance(
     }
 
     if (resolution.reason === 'config-error') {
-        return { why, fix: ['fix the config error, then re-run the check.'] };
+        return { why, fix: ['fix the config error, then re-run setup.'] };
     }
 
     if (tool === 'TypeScript') {
@@ -122,8 +122,8 @@ export function describeNextStep(
 
     if (state === 'vendor') {
         return [
-            'Read-only vendor extension — checked through host-owned configs; findings are',
-            'non-fatal (pass --strict-vendor to fail on them).',
+            'Read-only vendor extension — covered through host-owned configs; its own',
+            'files are never written to.',
         ];
     }
 

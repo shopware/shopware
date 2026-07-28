@@ -180,4 +180,4 @@ Explore detailed documentation for each extension method:
 
 ## Tooling
 
-Extension authors can type-check and lint their Administration code against the installed Shopware version's live types and the Administration's own pinned TypeScript/ESLint setup with the opt-in commands `composer admin:setup-extension-tooling` and `composer admin:check-extensions`. See [`extension-tooling/README.md`](../../extension-tooling/README.md) for details.
+Extension authors can type-check and lint their Administration code against the installed Shopware version's live types and the Administration's own pinned TypeScript/ESLint setup with the opt-in `composer admin:setup-extension-tooling` command. See [`extension-tooling/README.md`](../../extension-tooling/README.md) for details.

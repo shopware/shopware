@@ -37,9 +37,8 @@ export type ModeReason =
 
 /**
  * Per-tool resolution of an extension's config mode. Static analysis produces
- * unverified resolutions at setup time; the live tool probes a check run
- * performs produce verified ones for that run only — nothing is cached, so
- * setup always renders its own static best guess.
+ * unverified resolutions at setup time. Nothing is cached, so setup always
+ * renders its own static best guess.
  */
 export interface ModeResolution {
     mode: ConfigMode;
@@ -79,13 +78,11 @@ export interface AdministrationTarget {
     tsconfig: string | null;
     /** Nearest extension-owned ESLint config governing this source root, if one exists. */
     eslintConfig: string | null;
-    /** Per-tool mode resolution (static at discovery, verified by the live probes of a check run). */
+    /** Per-tool mode resolution, statically derived at discovery. */
     ts: ModeResolution;
     eslint: ModeResolution;
-    /** The runtime tsconfig the check runner passes to vue-tsc (generated leaf or custom config). */
+    /** The tsconfig governing this source root — the generated leaf, or the extension's own config. */
     checkTsconfig: string;
-    /** Generated leaf tsconfig for the spec type-check program (Jest types + this target's specs). */
-    specTsconfig: string;
 }
 
 export interface ExtensionToolingProject {
@@ -93,9 +90,9 @@ export interface ExtensionToolingProject {
     name: string;
     /** All bundle technical names owned by this extension. */
     technicalNames: string[];
-    /** Extension root relative to the project root (posix); owns reporting and the baseline. */
+    /** Extension root relative to the project root (posix); the unit the report groups by. */
     basePath: string;
-    /** Whether the extension is installed below vendor/ (read-only, non-fatal findings). */
+    /** Whether the extension is installed below vendor/ and is therefore read-only. */
     vendor: boolean;
     /** Every canonical Administration source root owned by this extension. */
     targets: AdministrationTarget[];
@@ -133,8 +130,8 @@ export function readPreviousManifest(projectRoot: string): ExtensionToolingManif
 }
 
 /**
- * Display state derived from the project's facts — never stored, so setup and
- * check cannot disagree about it.
+ * Display state derived from the project's facts, never stored — so every
+ * consumer reaches the same verdict from the same manifest.
  */
 export type DerivedExtensionState = 'ready' | 'needs-bridge' | 'bridge-unwired' | 'bridged' | 'platform' | 'vendor';
 
@@ -174,47 +171,6 @@ export function aggregateModeResolution(project: ExtensionToolingProject, tool: 
     }
 
     return { mode: 'managed', verified: true };
-}
-
-/** A target whose own config kept a tool from covering it, with the resolution that says why. */
-export interface SkippedTarget {
-    /** Administration source root relative to the project root (posix). */
-    sourcePath: string;
-    /** The extension-owned config that caused the skip (project-root-relative posix). */
-    configPath: string;
-    tool: 'TypeScript' | 'ESLint';
-    resolution: ModeResolution;
-}
-
-/**
- * Every unmanaged target of the project, independent of whether the managed
- * remainder passed or failed. Runtime and spec TypeScript programs share one
- * entry — both key on the same target resolution.
- */
-export function collectSkippedTargets(project: ExtensionToolingProject): SkippedTarget[] {
-    const skipped: SkippedTarget[] = [];
-
-    for (const target of project.targets) {
-        if (target.ts.mode === 'unmanaged') {
-            skipped.push({
-                sourcePath: target.sourcePath,
-                configPath: target.tsconfig ?? target.sourcePath,
-                tool: 'TypeScript',
-                resolution: target.ts,
-            });
-        }
-
-        if (target.eslint.mode === 'unmanaged') {
-            skipped.push({
-                sourcePath: target.sourcePath,
-                configPath: target.eslintConfig ?? target.sourcePath,
-                tool: 'ESLint',
-                resolution: target.eslint,
-            });
-        }
-    }
-
-    return skipped;
 }
 
 export function deriveExtensionState(project: ExtensionToolingProject): DerivedExtensionState {
@@ -259,8 +215,6 @@ export function relativePosix(from: string, to: string): string {
  * drives the tooling through the `bin/console administration:*` commands.
  */
 export interface ToolingCommands {
-    /** e.g. `composer admin:check-extensions` or `bin/console administration:check-extensions`. */
-    check: string;
     /** e.g. `composer admin:setup-extension-tooling` or `bin/console administration:setup-extension-tooling`. */
     setup: string;
     /** e.g. `composer admin:generate-entity-schema-types` or `bin/console administration:generate-entity-schema-types`. */
@@ -269,13 +223,11 @@ export interface ToolingCommands {
 
 /** The platform-checkout invocations — the safe default when the layout is unknown (e.g. in unit fixtures). */
 export const DEFAULT_TOOLING_COMMANDS: ToolingCommands = {
-    check: 'composer admin:check-extensions',
     setup: 'composer admin:setup-extension-tooling',
     generateSchema: 'composer admin:generate-entity-schema-types',
 };
 
 const CONSOLE_TOOLING_COMMANDS: ToolingCommands = {
-    check: 'bin/console administration:check-extensions',
     setup: 'bin/console administration:setup-extension-tooling',
     generateSchema: 'bin/console administration:generate-entity-schema-types',
 };

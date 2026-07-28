@@ -2,16 +2,14 @@
  * @sw-package framework
  *
  * Shared fixture factories for the report spec suites. picocolors enables
- * color whenever env.CI is set (GitHub Actions), so the render wrappers here
- * strip ANSI sequences before semantic assertions; color.spec.ts covers the
+ * color whenever env.CI is set (GitHub Actions), so the render wrapper here
+ * strips ANSI sequences before semantic assertions; color.spec.ts covers the
  * colored rendering.
  */
 
 import path from 'path';
-import { renderCheckReport, renderSetupReport } from '../report';
-import type { CheckExtensionsResult, ExtensionCheckResult, ToolRunResult } from '../check';
+import { renderSetupReport } from '../report';
 import type { SetupExtensionToolingResult } from '../setup';
-import { aggregateModeResolution, collectSkippedTargets } from '../shared';
 import type { AdministrationTarget, ExtensionToolingProject, ModeResolution } from '../shared';
 
 // picocolors only ever emits SGR sequences (ESC[…m), so this narrow pattern
@@ -42,7 +40,6 @@ export function target(name: string, overrides: Partial<AdministrationTarget> = 
         ts: overrides.ts ?? resolution('managed'),
         eslint: overrides.eslint ?? resolution('managed'),
         checkTsconfig: overrides.checkTsconfig ?? '',
-        specTsconfig: overrides.specTsconfig ?? '',
     };
 }
 
@@ -58,44 +55,8 @@ export function project(name: string, overrides: ProjectOverrides = {}): Extensi
     };
 }
 
-export function run(status: ToolRunResult['status'], overrides: Partial<ToolRunResult> = {}): ToolRunResult {
-    return { status, output: '', durationMs: 1000, findings: 0, ...overrides };
-}
-
-export function extension(
-    project_: ExtensionToolingProject,
-    overrides: Partial<ExtensionCheckResult> = {},
-): ExtensionCheckResult {
-    return {
-        project: project_,
-        tsResolution: overrides.tsResolution ?? aggregateModeResolution(project_, 'ts'),
-        eslintResolution: overrides.eslintResolution ?? aggregateModeResolution(project_, 'eslint'),
-        typescript: overrides.typescript ?? run('passed'),
-        typescriptSpecs: overrides.typescriptSpecs ?? run('no-files'),
-        eslint: overrides.eslint ?? run('passed'),
-        commands: overrides.commands ?? {},
-        coverage: overrides.coverage ?? [],
-        skippedTargets: overrides.skippedTargets ?? collectSkippedTargets(project_),
-    };
-}
-
-export function checkReport(...args: Parameters<typeof renderCheckReport>): string {
-    return stripAnsi(renderCheckReport(...args));
-}
-
 export function setupReport(...args: Parameters<typeof renderSetupReport>): string {
     return stripAnsi(renderSetupReport(...args));
-}
-
-export function report(
-    results: ExtensionCheckResult[],
-    overrides: Partial<CheckExtensionsResult> = {},
-    verbose = false,
-): string {
-    return checkReport(
-        { results, fatalDiagnostics: [], warnings: [], baselineUpdates: [], exitCode: 0, ...overrides },
-        { verbose },
-    );
 }
 
 export function setupResult(

@@ -47,7 +47,9 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
         expect(output).toContain('finish wiring it');
     });
 
-    it('marks statically classified bridged plugins as unverified until a check ran', () => {
+    it('reports a statically classified bridged plugin the same as a verified one', () => {
+        // Setup only ever has the static verdict; nothing in its output may
+        // depend on `verified`, which no setup run can ever set.
         const staticallyBridged = project('Static', {
             ts: resolution('bridged', { verified: false }),
             eslint: resolution('bridged', { verified: false }),
@@ -56,8 +58,8 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
             eslintConfig: 'custom/plugins/Static/src/Resources/app/administration/eslint.config.mjs',
         });
 
-        expect(setupReport(setupResult([staticallyBridged]))).toContain('unverified');
-        expect(setupReport(setupResult([bridgedPlugin]))).not.toContain('unverified');
+        expect(setupReport(setupResult([staticallyBridged]))).toContain('● bridged  Static');
+        expect(setupReport(setupResult([staticallyBridged]))).not.toContain('unverified');
     });
 
     it('renders the IDE / integration instruction block the run produced', () => {

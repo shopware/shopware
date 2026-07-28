@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Content\Seo;
 
-use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Seo\SeoUrlRoute\EntitySeoUrlRouteInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
@@ -14,16 +12,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-use function Symfony\Component\String\u;
-
-/**
- * @internal
- */
 #[Package('inventory')]
 class ConfiguredSeoUrlRoute implements SeoUrlRouteInterface
 {
     public function __construct(
-        private readonly EntitySeoUrlRouteInterface $decorated,
+        private readonly SeoUrlRouteInterface $decorated,
         private readonly SeoUrlRouteConfig $config
     ) {
     }
@@ -40,21 +33,6 @@ class ConfiguredSeoUrlRoute implements SeoUrlRouteInterface
 
     public function getMapping(Entity $entity, ?SalesChannelEntity $salesChannel): SeoUrlMapping
     {
-        if ($this->decorated instanceof SeoUrlRouteInterface) {
-            return $this->decorated->getMapping($entity, $salesChannel);
-        }
-
-        // Fallback for config-only routes: expose the entity in the template under its entity name.
-        $serialized = $entity->jsonSerialize();
-
-        if ($entity instanceof CategoryEntity) {
-            $serialized['seoBreadcrumb'] = $entity->getPlainBreadcrumb();
-        }
-
-        return new SeoUrlMapping(
-            $entity,
-            $this->config->getPrimaryKeyParameter($entity->getUniqueIdentifier()),
-            [u($this->config->getDefinition()->getEntityName())->camel()->toString() => $serialized]
-        );
+        return $this->decorated->getMapping($entity, $salesChannel);
     }
 }

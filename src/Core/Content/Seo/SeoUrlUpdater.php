@@ -72,7 +72,7 @@ class SeoUrlUpdater
         }
 
         $this->generateAndPersist(
-            new ConfiguredSeoUrlRoute($entityRoute, $entityRoute->getConfig()),
+            new ConfiguredEntitySeoUrlRoute($entityRoute),
             $routeName,
             $templates,
             $ids

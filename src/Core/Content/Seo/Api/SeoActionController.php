@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Seo\Api;
 
-use Shopware\Core\Content\Seo\ConfiguredSeoUrlRoute;
+use Shopware\Core\Content\Seo\ConfiguredEntitySeoUrlRoute;
 use Shopware\Core\Content\Seo\Exception\NoEntitiesForPreviewException;
 use Shopware\Core\Content\Seo\SeoException;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
@@ -133,7 +133,7 @@ class SeoActionController extends AbstractController
         // Headless store-api routes only implement EntitySeoUrlRouteInterface and do not provide the mapping
         // themselves; wrapping the resolved route in a ConfiguredSeoUrlRoute exposes a generic mapping (entity
         // by name) while delegating to the real mapping for registered storefront routes.
-        $route = new ConfiguredSeoUrlRoute($seoUrlRoute, $seoUrlRoute->getConfig());
+        $route = new ConfiguredEntitySeoUrlRoute($seoUrlRoute);
 
         $entity = $this->loadPreviewEntity($route->getConfig(), $fk, $context);
         if ($entity === null) {
@@ -305,7 +305,7 @@ class SeoActionController extends AbstractController
 
         $config = $seoUrlRoute->getConfig();
         $config->setSkipInvalid(false);
-        $route = new ConfiguredSeoUrlRoute($seoUrlRoute, $config);
+        $route = new ConfiguredEntitySeoUrlRoute($seoUrlRoute);
 
         $repository = $this->getRepository($config);
 

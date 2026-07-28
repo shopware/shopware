@@ -5,8 +5,8 @@ namespace Shopware\Tests\Unit\Core\Content\Seo;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Seo\ConfiguredSeoUrlRoute;
-use Shopware\Core\Content\Seo\SeoUrlRoute\EntitySeoUrlRouteInterface;
+use Shopware\Core\Content\Seo\ConfiguredEntitySeoUrlRoute;
+use Shopware\Core\Content\Seo\SeoUrlRoute\ProductStoreApiUrlRoute;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
@@ -20,15 +20,16 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
  * @internal
  */
 #[Package('inventory')]
-#[CoversClass(ConfiguredSeoUrlRoute::class)]
-class ConfiguredSeoUrlRouteTest extends TestCase
+#[CoversClass(ConfiguredEntitySeoUrlRoute::class)]
+class ConfiguredEntitySeoUrlRouteTest extends TestCase
 {
     public function testGetConfigReturnsTheConfiguredConfig(): void
     {
         $config = $this->createConfig();
-        $decorated = static::createStub(SeoUrlRouteInterface::class);
+        $decorated = static::createMock(SeoUrlRouteInterface::class);
+        $decorated->expects($this->once())->method('getConfig')->willReturn($config);
 
-        static::assertSame($config, (new ConfiguredSeoUrlRoute($decorated, $config))->getConfig());
+        static::assertSame($config, (new ConfiguredEntitySeoUrlRoute($decorated))->getConfig());
     }
 
     public function testDelegatesToAFullSeoUrlRoute(): void
@@ -43,7 +44,7 @@ class ConfiguredSeoUrlRouteTest extends TestCase
         $decorated->expects($this->once())->method('prepareCriteria')->with($criteria, $salesChannel);
         $decorated->expects($this->once())->method('getMapping')->with($entity, $salesChannel)->willReturn($mapping);
 
-        $route = new ConfiguredSeoUrlRoute($decorated, $config);
+        $route = new ConfiguredEntitySeoUrlRoute($decorated);
         $route->prepareCriteria($criteria, $salesChannel);
 
         static::assertSame($mapping, $route->getMapping($entity, $salesChannel));
@@ -51,32 +52,22 @@ class ConfiguredSeoUrlRouteTest extends TestCase
 
     public function testDelegatesPrepareCriteriaButFallsBackToGenericMappingForEntityRoutes(): void
     {
-        // store-api routes implement only EntitySeoUrlRouteInterface (prepareCriteria, but no getMapping)
-        $decorated = new class($this->createConfig()) implements EntitySeoUrlRouteInterface {
-            public bool $prepareCriteriaCalled = false;
-
-            public function __construct(private readonly SeoUrlRouteConfig $config)
-            {
-            }
-
-            public function getConfig(): SeoUrlRouteConfig
-            {
-                return $this->config;
-            }
-
-            public function prepareCriteria(Criteria $criteria, SalesChannelEntity $salesChannel): void
-            {
-                $this->prepareCriteriaCalled = true;
-                $criteria->addFilter(new EqualsFilter('active', true));
-            }
-        };
-
-        $route = new ConfiguredSeoUrlRoute($decorated, $decorated->getConfig());
-
-        // prepareCriteria is delegated to the decorated entity route
         $criteria = new Criteria();
-        $route->prepareCriteria($criteria, new SalesChannelEntity());
-        static::assertTrue($decorated->prepareCriteriaCalled);
+        $salesChannel = new SalesChannelEntity();
+        $decorated = $this->createMock(ProductStoreApiUrlRoute::class);
+        $decorated->expects($this->once())
+            ->method('prepareCriteria')
+            ->with($criteria, $salesChannel)
+            ->willReturnCallback(static function (Criteria $criteria): void {
+                $criteria->addFilter(new EqualsFilter('active', true));
+            });
+        $decorated->expects($this->once())
+            ->method('getConfig')
+            ->willReturn($this->createConfig());
+
+        $route = new ConfiguredEntitySeoUrlRoute($decorated);
+
+        $route->prepareCriteria($criteria, $salesChannel);
         static::assertCount(1, $criteria->getFilters());
 
         // getMapping falls back to a generic mapping (entity under its entity name + the primary key parameter)

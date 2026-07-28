@@ -24,6 +24,7 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\Bundle\Bundle as SymfonyBundle;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
@@ -272,7 +273,6 @@ abstract class Bundle extends SymfonyBundle
         );
     }
 
-    // @deprecated tag:v6.8.0 - remove together with the XML configuration deprecation triggers
     /**
      * @return list<string>
      */
@@ -283,15 +283,9 @@ abstract class Bundle extends SymfonyBundle
         }
 
         $files = [];
-        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS));
-
-        foreach ($iterator as $file) {
-            if ($file instanceof \SplFileInfo && $file->isFile() && $file->getExtension() === 'xml') {
-                $files[] = $file->getPathname();
-            }
+        foreach ((new Finder())->files()->in($dir)->name('*.xml')->sortByName() as $file) {
+            $files[] = $file->getPathname();
         }
-
-        sort($files);
 
         return $files;
     }

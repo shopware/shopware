@@ -21,9 +21,9 @@ use Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Stub\StubPullRequest;
 #[CoversClass(ReflectionOnPrivateMethodsInTests::class)]
 class ReflectionOnPrivateMethodsInTestsTest extends TestCase
 {
-    #[TestDox('Fails for reflective invocation added to test files, ignores metadata reads, removals, non-test files and rule fixtures')]
+    #[TestDox('Warns about reflective invocation added to test files, ignores metadata reads, removals, non-test files and rule fixtures')]
     #[DataProvider('patchProvider')]
-    public function testReflectionDetection(string $fileName, string $status, string $patch, bool $expectFailure): void
+    public function testReflectionDetection(string $fileName, string $status, string $patch, bool $expectWarning): void
     {
         $context = new Context(new StubPlatform(new StubPullRequest([
             new StubFile($fileName, $status, '', $patch),
@@ -31,28 +31,31 @@ class ReflectionOnPrivateMethodsInTestsTest extends TestCase
 
         (new ReflectionOnPrivateMethodsInTests())($context);
 
-        static::assertSame($expectFailure, $context->hasFailures());
-        if ($expectFailure) {
-            static::assertStringContainsString('reflection', $context->getFailures()[0]);
-            static::assertStringContainsString($fileName, $context->getFailures()[0]);
+        static::assertSame($expectWarning, $context->hasWarnings());
+        // a third-party target or a public method is not distinguishable from the diff, so this never blocks
+        static::assertFalse($context->hasFailures());
+
+        if ($expectWarning) {
+            static::assertStringContainsString('reflection', $context->getWarnings()[0]);
+            static::assertStringContainsString($fileName, $context->getWarnings()[0]);
         }
     }
 
     public static function patchProvider(): \Generator
     {
-        yield 'added reflective invoke in unit test fails' => [
+        yield 'added reflective invoke in unit test warns' => [
             'tests/unit/Core/Content/Seo/SeoUrlPersisterTest.php',
             File::STATUS_MODIFIED,
             '+        return (bool) $reflection->invoke($this->seoUrlPersister, $existing, $seoUrl, $overwrite);',
             true,
         ];
-        yield 'added reflective invokeArgs in new test file fails' => [
+        yield 'added reflective invokeArgs in new test file warns' => [
             'tests/integration/Core/Checkout/CartTest.php',
             File::STATUS_ADDED,
             '+        $method->invokeArgs($cart, [$context]);',
             true,
         ];
-        yield 'added setAccessible in legacy in-src test fails' => [
+        yield 'added setAccessible in legacy in-src test warns' => [
             'src/Core/Framework/Test/TestCaseBase/DatabaseTransactionBehaviourTest.php',
             File::STATUS_MODIFIED,
             '+        $reflection->setAccessible(true);',

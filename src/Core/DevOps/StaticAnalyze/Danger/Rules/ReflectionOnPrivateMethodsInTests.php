@@ -7,17 +7,20 @@ use Danger\Struct\File;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Tests must not invoke private or protected methods via reflection: it couples the test to
- * implementation details instead of behaviour. Test through the public API, or restructure the
- * production code (e.g. extract the logic into a collaborator) so it is publicly testable.
+ * Tests must not invoke private or protected methods of Shopware classes via reflection: it couples
+ * the test to implementation details instead of behaviour. Test through the public API, or
+ * restructure the production code (e.g. extract the logic into a collaborator) so it is publicly
+ * testable. Reflecting into a third-party class is a different matter and stays acceptable when a
+ * vendor API leaves no other option.
  *
- * Fast textual gate on the added lines of changed test files. Because it reads the diff rather than
- * the type graph, it cannot resolve a method's visibility, so it keys on reflective *invocation*
- * instead: `->invoke()`, `->invokeArgs()` and `setAccessible()`. Constructing a reflection object to
- * read metadata (a declaring class, a signature, attributes) is untouched and stays allowed at any
- * visibility. Invoking a public method reflectively would also be flagged, which is fine, because
- * calling it directly is always available. The visibility-aware counterpart is the PHPStan rule
- * `shopware.reflectionOnNonPublicMethod`.
+ * This is a textual gate on the added lines of changed test files, so it sees neither the target
+ * class nor the method's visibility: the line that names the class is often not even part of the
+ * same patch. It therefore keys on reflective *invocation* (`->invoke()`, `->invokeArgs()`,
+ * `setAccessible()`) and reports a warning rather than a failure, so a legitimate case — a
+ * third-party target, or a public method — can be resolved by a human instead of blocking the
+ * pull request. Constructing a reflection object to read metadata (a declaring class, a signature,
+ * attributes) is not reported at all. The precise, visibility- and namespace-aware counterpart is
+ * the PHPStan rule `shopware.reflectionOnNonPublicMethod`.
  *
  * @internal
  */
@@ -56,12 +59,13 @@ class ReflectionOnPrivateMethodsInTests
             $fileNames[] = $file->name;
         }
 
-        $context->failure(
-            'Tests must not invoke methods via reflection (`->invoke()`, `->invokeArgs()`, `->setAccessible()`).'
-            . ' For a private or protected method, test the behaviour through the public API instead, or restructure'
-            . ' the code (e.g. extract the logic into a collaborator) so it is publicly testable. For a public method,'
-            . ' just call it. `setAccessible()` has no effect since PHP 8.1. Reading metadata from a reflection object,'
-            . ' such as a declaring class, a signature or attributes, is allowed and not reported here.<br/>'
+        $context->warning(
+            'These test files invoke a method via reflection (`->invoke()`, `->invokeArgs()`, `->setAccessible()`).'
+            . ' If the target is a private or protected method of a Shopware class, test the behaviour through the'
+            . ' public API instead, or restructure the code (e.g. extract the logic into a collaborator) so it is'
+            . ' publicly testable. `setAccessible()` has no effect since PHP 8.1.<br/>'
+            . 'Resolve this thread if the reflection targets a third-party class, where no public alternative exists,'
+            . ' or a public method. This check reads the diff only, so it cannot see the target class itself.<br/>'
             . implode('<br/>', $fileNames)
         );
     }

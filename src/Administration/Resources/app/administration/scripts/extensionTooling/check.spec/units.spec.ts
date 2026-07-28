@@ -5,18 +5,15 @@
 import fs from 'fs';
 import path from 'path';
 import {
-    appendFixHint,
-    buildEslintArguments,
-    buildVueTscArguments,
     countEslintFindings,
     countTypeCheckableFiles,
     countTypeScriptFindings,
-    createLimiter,
     parseEslintFindings,
     parseTypeScriptFindings,
-    relativizeToolOutput,
-    runPool,
-} from '../check';
+} from '../check-parsing';
+import { createLimiter, runPool } from '../check-pipeline';
+import { appendFixHint, buildEslintArguments, relativizeToolOutput } from '../check-run';
+import { buildVueTscArguments } from '../check-typescript-program';
 import { cleanupTempProject, createTempProject, writeFile } from '../test-helpers';
 
 describe('scripts/extensionTooling/check units', () => {

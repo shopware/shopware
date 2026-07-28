@@ -9,7 +9,7 @@
 
 import path from 'path';
 import { renderCheckReport, renderSetupReport } from '../report';
-import type { CheckExtensionsResult, ExtensionCheckResult, ToolRunResult } from '../check';
+import type { CheckExtensionsResult, ExtensionCheckResult, ToolRunResult } from '../check-types';
 import type { SetupExtensionToolingResult } from '../setup';
 import { aggregateModeResolution, collectSkippedTargets } from '../shared';
 import type { AdministrationTarget, ExtensionToolingProject, ModeResolution } from '../shared';

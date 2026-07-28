@@ -13,7 +13,8 @@
 import fs from 'fs';
 import path from 'path';
 import { runCommand } from '../probe-command';
-import { checkExtensions, listTypeCheckableFiles } from '../check';
+import { checkExtensions } from '../check';
+import { listTypeCheckableFiles } from '../check-parsing';
 import {
     cleanupTempProject,
     createSkeletonAdmin,

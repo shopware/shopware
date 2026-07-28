@@ -14,8 +14,8 @@
  * "unmanaged" — never silently green.
  *
  * This module owns the orchestration and the CLI entrypoint; the reusable
- * machinery lives in the sibling check-* modules and is re-exported here so
- * the public API (`./check`) stays stable.
+ * machinery lives in the sibling check-* modules, which callers import
+ * directly.
  */
 
 import fs from 'fs';
@@ -28,48 +28,9 @@ import { readEslintMajorVersion, relativePosix, resolveToolingCommands } from '.
 import type { ExtensionToolingProject, ToolingCommands } from './shared';
 import { CliUsageError, parseCli, renderHelp } from './cli';
 import type { CommandSpec } from './cli';
-import {
-    countEslintFindings,
-    countTypeCheckableFiles,
-    countTypeScriptFindings,
-    listTypeCheckableFiles,
-    parseEslintFindings,
-    parseTypeScriptFindings,
-} from './check-parsing';
 import { createLimiter, runPool } from './check-pipeline';
-import { buildVueTscArguments } from './check-typescript-program';
 import { checkProject, computeExitCode, probeExtensionModes, recordProjectBaseline } from './check-run';
-import type {
-    AdministrationTargetCoverage,
-    CheckExtensionsOptions,
-    CheckExtensionsResult,
-    ExtensionCheckResult,
-    Limiter,
-    ToolRunResult,
-    ToolStatus,
-} from './check-types';
-
-// Barrel: keep the previous public surface of `./check` resolvable by name.
-export { runPool, createLimiter };
-export {
-    countEslintFindings,
-    countTypeCheckableFiles,
-    countTypeScriptFindings,
-    listTypeCheckableFiles,
-    parseEslintFindings,
-    parseTypeScriptFindings,
-};
-export { buildVueTscArguments };
-export { relativizeToolOutput, buildEslintArguments, appendFixHint } from './check-run';
-export type {
-    AdministrationTargetCoverage,
-    CheckExtensionsOptions,
-    CheckExtensionsResult,
-    ExtensionCheckResult,
-    Limiter,
-    ToolRunResult,
-    ToolStatus,
-};
+import type { CheckExtensionsOptions, CheckExtensionsResult } from './check-types';
 
 /** Normalizes the selection (single value, comma list, or array) to trimmed, non-empty names. */
 export function normalizeSelection(only: string | string[] | undefined): string[] {

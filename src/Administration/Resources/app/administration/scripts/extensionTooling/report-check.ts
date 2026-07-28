@@ -11,7 +11,7 @@
  */
 
 import colors from 'picocolors';
-import type { CheckExtensionsResult, ExtensionCheckResult, ToolRunResult } from './check';
+import type { CheckExtensionsResult, ExtensionCheckResult, ToolRunResult } from './check-types';
 import { describeNextStep } from './report-guidance';
 import { renderSkippedTargetLines } from './report-summary';
 import { collectSkippedTargets, DEFAULT_TOOLING_COMMANDS, deriveExtensionState } from './shared';

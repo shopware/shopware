@@ -26,37 +26,17 @@ const TYPE_CHECKABLE_EXTENSIONS = [
     '.vue',
 ];
 
-/** Walks every source path (skipping node_modules) and returns the canonical, sorted paths of files matching `isMatch`. */
-function collectSourceFiles(projectRoot: string, sourcePaths: string[], isMatch: (fileName: string) => boolean): string[] {
-    const files: string[] = [];
-
-    for (const sourcePath of sourcePaths) {
-        const queue = [path.resolve(projectRoot, sourcePath)];
-
-        while (queue.length > 0) {
-            const currentDir = queue.shift() as string;
-
-            if (!fs.existsSync(currentDir)) {
-                continue;
-            }
-
-            for (const entry of fs.readdirSync(currentDir, { withFileTypes: true })) {
-                const entryPath = path.join(currentDir, entry.name);
-
-                if (entry.isDirectory() && entry.name !== 'node_modules') {
-                    queue.push(entryPath);
-                } else if (entry.isFile() && isMatch(entry.name)) {
-                    files.push(canonicalizePath(entryPath));
-                }
-            }
-        }
-    }
-
-    return files.sort();
-}
-
-/** The first lintable file (any tool-relevant extension) under the source paths, in sorted order, or null. */
-export function findFirstSourceFile(projectRoot: string, sourcePaths: string[]): string | null {
+/**
+ * Breadth-first walk of every source path, skipping node_modules, yielding the
+ * absolute path of each file whose name matches. Directory entries are visited
+ * in name order so the traversal is deterministic — which is what lets callers
+ * that stop at the first hit return a stable answer across machines.
+ */
+function* walkSourceFiles(
+    projectRoot: string,
+    sourcePaths: string[],
+    isMatch: (fileName: string) => boolean,
+): Generator<string> {
     for (const sourcePath of sourcePaths) {
         const queue = [path.resolve(projectRoot, sourcePath)];
 
@@ -69,16 +49,30 @@ export function findFirstSourceFile(projectRoot: string, sourcePaths: string[]):
 
             for (const entry of fs
                 .readdirSync(currentDir, { withFileTypes: true })
-                .sort((a, b) => a.name.localeCompare(b.name))) {
+                .sort((left, right) => left.name.localeCompare(right.name))) {
                 const entryPath = path.join(currentDir, entry.name);
 
                 if (entry.isDirectory() && entry.name !== 'node_modules') {
                     queue.push(entryPath);
-                } else if (entry.isFile() && LINTABLE_EXTENSIONS.includes(path.extname(entry.name))) {
-                    return entryPath;
+                } else if (entry.isFile() && isMatch(entry.name)) {
+                    yield entryPath;
                 }
             }
         }
+    }
+}
+
+/** Canonical, sorted paths of every file matching `isMatch` — the form config coverage is compared against. */
+function collectSourceFiles(projectRoot: string, sourcePaths: string[], isMatch: (fileName: string) => boolean): string[] {
+    return [...walkSourceFiles(projectRoot, sourcePaths, isMatch)].map(canonicalizePath).sort();
+}
+
+/** The first lintable file (any tool-relevant extension) under the source paths, or null — the ESLint probe's sample. */
+export function findFirstSourceFile(projectRoot: string, sourcePaths: string[]): string | null {
+    for (const file of walkSourceFiles(projectRoot, sourcePaths, (fileName) =>
+        LINTABLE_EXTENSIONS.includes(path.extname(fileName)),
+    )) {
+        return file;
     }
 
     return null;
